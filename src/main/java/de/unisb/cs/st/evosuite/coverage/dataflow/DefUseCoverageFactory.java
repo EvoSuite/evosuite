@@ -28,8 +28,8 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 
@@ -86,6 +86,9 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 * clear path from its methods entry a goal is created
 	 */
 	public static void computeGoals() {
+
+		GraphPool.computeCCFGs();
+		
 		// DONTDO replace this with Reaching-Definitions-Algorithm
 		long start = System.currentTimeMillis();
 		logger.trace("starting DefUse-Coverage goal generation");
@@ -226,7 +229,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 			String className = def.getClassName();
 			String methodName = def.getMethodName();
 
-			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
+			RawControlFlowGraph cfg = GraphPool.getRawCFG(className, methodName);
 			if (cfg == null)
 				throw new IllegalStateException("Expect CFG to exist for "
 						+ methodName);
@@ -262,7 +265,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 			String className = def.getClassName();
 			String methodName = def.getMethodName();
 
-			RawControlFlowGraph cfg = CFGPool.getRawCFG(className, methodName);
+			RawControlFlowGraph cfg = GraphPool.getRawCFG(className, methodName);
 			if (cfg == null)
 				throw new IllegalStateException("Expect CFG to exist for "
 						+ methodName);
@@ -290,7 +293,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 		Set<Use> allUses = DefUsePool.retrieveRegisteredUses();
 		for (Use use : allUses) {
-			RawControlFlowGraph cfg = CFGPool.getRawCFG(use.getClassName(), use
+			RawControlFlowGraph cfg = GraphPool.getRawCFG(use.getClassName(), use
 					.getMethodName());
 			if (cfg == null)
 				throw new IllegalStateException("no cfg for method "

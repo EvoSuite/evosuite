@@ -9,8 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
@@ -180,7 +180,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for (BytecodeInstruction vertex : vertices) {
 			if (!vertex.isDefinition())
 				continue;
-			BytecodeInstruction vertexInOtherGraph = CFGPool.getRawCFG(
+			BytecodeInstruction vertexInOtherGraph = GraphPool.getRawCFG(
 					vertex.getClassName(), vertex.getMethodName())
 					.getInstruction(vertex.getInstructionId());
 			Definition currentDefinition = DefUseFactory
