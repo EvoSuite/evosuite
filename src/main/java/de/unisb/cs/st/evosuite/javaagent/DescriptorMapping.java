@@ -48,12 +48,27 @@ public class DescriptorMapping {
 
 	private final Map<String, String> nameMapping = new HashMap<String, String>();
 
+	public static boolean shouldTransform(String classNameUnknown) {
+		String className = classNameUnknown.replace("/", ".");
+		switch (Properties.TT_SCOPE) {
+		case ALL:
+			return true;
+		case TARGET:
+			if (className.equals(Properties.TARGET_CLASS)
+			        || className.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+			break;
+		case PREFIX:
+			if (className.startsWith(Properties.PROJECT_PREFIX))
+				return true;
+
+		}
+		return false;
+	}
+
 	public boolean isTransformedMethod(String className, String methodName, String desc) {
 		logger.info("Initiating transformation of " + methodName);
 		getMethodDesc(className, methodName, desc);
-		logger.info("Contains transformed version? "
-		        + (descriptorMapping.containsKey(className.replace(".", "/") + "/"
-		                + methodName + desc)) + " - " + originalDesc.keySet());
 		//		return originalDesc.containsKey(className.replace(".", "/") + "/" + methodName
 		//		        + desc);
 		return descriptorMapping.containsKey(className.replace(".", "/") + "/"
@@ -137,7 +152,7 @@ public class DescriptorMapping {
 		return originalDesc.containsKey(name) || isBooleanField(desc);
 	}
 
-	private boolean isBooleanMethod(String desc) {
+	public boolean isBooleanMethod(String desc) {
 		Type[] types = Type.getArgumentTypes(desc);
 		for (Type type : types) {
 			if (type.equals(Type.BOOLEAN_TYPE)) {
@@ -369,7 +384,10 @@ public class DescriptorMapping {
 		return new_desc;
 	}
 
-	private String transformFieldDescriptor(String desc) {
+	private String transformFieldDescriptor(String className, String desc) {
+		if (!shouldTransform(className)) {
+			return desc;
+		}
 		TestabilityTransformation.logger.info("Transforming field instruction " + desc);
 		if (isBooleanField(desc)) {
 			// TODO: Check if this is actually transformed or not
@@ -385,6 +403,10 @@ public class DescriptorMapping {
 	}
 
 	public String getMethodName(String className, String methodName, String desc) {
+		if (!shouldTransform(className)) {
+			return methodName;
+		}
+
 		String old = className + "." + methodName + desc;
 		old = old.replace(".", "/");
 		if (isBooleanMethod(desc)) {
@@ -399,6 +421,10 @@ public class DescriptorMapping {
 	}
 
 	public String getMethodDesc(String className, String methodName, String desc) {
+		if (!shouldTransform(className)) {
+			return desc;
+		}
+
 		if (isBooleanMethod(desc)) {
 			String old = className.replace(".", "/") + "/" + methodName + desc;
 			//old = old.replace(".", "/");
@@ -445,6 +471,9 @@ public class DescriptorMapping {
 	}
 
 	public String getFieldDesc(String className, String fieldName, String desc) {
+		if (!shouldTransform(className)) {
+			return desc;
+		}
 		if (isBooleanField(desc)) {
 			String old = className.replace(".", "/") + "/" + fieldName + desc;
 			//old = old.replace(".", "/");
@@ -453,7 +482,7 @@ public class DescriptorMapping {
 				if (isOutsideField(className, fieldName, desc)) {
 					descriptorMapping.put(old, desc);
 				} else {
-					descriptorMapping.put(old, transformFieldDescriptor(desc));
+					descriptorMapping.put(old, transformFieldDescriptor(className, desc));
 					originalDesc.put(className.replace(".", "/") + "/" + fieldName
 					        + descriptorMapping.get(old), desc);
 				}

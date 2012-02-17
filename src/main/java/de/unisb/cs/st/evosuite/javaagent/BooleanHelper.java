@@ -175,7 +175,7 @@ public class BooleanHelper {
 		//		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
 		//		System.out.println("Keeping branch id: " + branch.getClassName() + " - "
 		//		        + branchId + " - " + distance);
-		System.out.println("Keeping branch id: " + branchId + " - " + distance);
+		//System.out.println("Keeping branch id: " + branchId + " - " + distance);
 		lastDistance.put(branchId, Math.abs(distance));
 	}
 
@@ -198,8 +198,8 @@ public class BooleanHelper {
 		}
 		//		Branch branch = BranchPool.getBranch(branchId);
 		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
-		System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
-		        + "/" + value + " - " + distance);
+		//System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
+		//        + "/" + value + " - " + distance);
 
 		//		System.out.println("Getting branch id: " + branch.getClassName() + " - "
 		//		        + branchId + " - " + distance);
@@ -210,7 +210,7 @@ public class BooleanHelper {
 		int d = (int) Math.ceil(K * val);
 		if (value <= 0)
 			d = -d;
-		System.out.println("Value: " + distance + ", Distance: " + d);
+		//System.out.println("Value: " + distance + ", Distance: " + d);
 		return d;
 	}
 
