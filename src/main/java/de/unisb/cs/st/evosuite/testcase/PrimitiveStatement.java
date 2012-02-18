@@ -274,18 +274,23 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	}
 
 	private void mutateTransformedBoolean(TestCase test) {
-		for (StatementInterface s : test) {
-			if (s instanceof MethodStatement) {
-				MethodStatement ms = (MethodStatement) s;
-				if (BooleanTestabilityTransformation.hasTransformedParameters(ms.getMethod().getDeclaringClass().getName(),
-				                                                              ms.getMethod().getName(),
-				                                                              org.objectweb.asm.Type.getMethodDescriptor(ms.getMethod()))) {
+		if (Randomness.nextDouble() > Properties.RANDOM_PERTURBATION) {
+			for (StatementInterface s : test) {
+				if (s instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement) s;
+					if (BooleanTestabilityTransformation.hasTransformedParameters(ms.getMethod().getDeclaringClass().getName(),
+					                                                              ms.getMethod().getName(),
+					                                                              org.objectweb.asm.Type.getMethodDescriptor(ms.getMethod()))) {
 
-					((IntPrimitiveStatement) this).negate();
-					return;
+						((IntPrimitiveStatement) this).negate();
+						return;
 
+					}
 				}
 			}
+			randomize();
+		} else {
+			randomize();
 		}
 	}
 

@@ -182,17 +182,19 @@ public class DescriptorMapping {
 	}
 
 	private boolean isInside(String className) {
+		String classNameWithDots = className.replace("/", ".");
 		switch (Properties.TT_SCOPE) {
 		case ALL:
-			if (!className.startsWith("java") && !className.startsWith("sun"))
+			if (!classNameWithDots.startsWith("java")
+			        && !classNameWithDots.startsWith("sun"))
 				return true;
 		case TARGET:
-			if (className.equals(Properties.TARGET_CLASS)
-			        || className.startsWith(Properties.TARGET_CLASS + "$"))
+			if (classNameWithDots.equals(Properties.TARGET_CLASS)
+			        || classNameWithDots.startsWith(Properties.TARGET_CLASS + "$"))
 				return true;
 			break;
 		case PREFIX:
-			if (className.startsWith(Properties.PROJECT_PREFIX))
+			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX))
 				return true;
 
 		}
@@ -357,11 +359,13 @@ public class DescriptorMapping {
 					if (mn2.name.equals(fieldName) && mn2.desc.equals(desc)) {
 						if (!isInside) {
 							logger.info("Field " + name
-							        + " was defined outside the test package");
+							        + " was defined outside the test package - "
+							        + parent.name);
 							return true;
 						} else {
 							logger.info("Field " + name
-							        + " was defined inside the test package");
+							        + " was defined inside the test package "
+							        + parent.name);
 							return false;
 
 						}
