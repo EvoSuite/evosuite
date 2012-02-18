@@ -386,7 +386,7 @@ public class BooleanTestabilityTransformation {
 
 	private boolean isBooleanOnStack(MethodNode mn, AbstractInsnNode node, int position) {
 		int insnPosition = mn.instructions.indexOf(node);
-		if (insnPosition > currentFrames.length) {
+		if (insnPosition >= currentFrames.length) {
 			logger.warn("Trying to access frame out of scope: " + insnPosition + "/"
 			        + currentFrames.length);
 			return false;
