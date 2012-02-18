@@ -106,6 +106,8 @@ public class BooleanTestabilityTransformation {
 				                                          field.desc);
 				logger.info("Transforming field " + field.name + " from " + field.desc
 				        + " to " + newDesc);
+				if (!newDesc.equals(field.desc))
+					TransformationStatistics.transformBooleanField();
 				field.desc = newDesc;
 			}
 		}
@@ -822,6 +824,7 @@ public class BooleanTestabilityTransformation {
 					        "popParameterBooleanFromInt",
 					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE, new Type[] {})));
 					mn.instructions.insertBefore(jumpNode, convert);
+					TransformationStatistics.transformedBooleanComparison();
 				}
 			} else if (jumpNode.getOpcode() == Opcodes.IF_ICMPNE) {
 				if (isBooleanOnStack(mn, jumpNode, 0)) {
@@ -843,6 +846,7 @@ public class BooleanTestabilityTransformation {
 					        "popParameterBooleanFromInt",
 					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE, new Type[] {})));
 					mn.instructions.insertBefore(jumpNode, convert);
+					TransformationStatistics.transformedBooleanComparison();
 				}
 			}
 			return jumpNode;
@@ -1368,6 +1372,7 @@ public class BooleanTestabilityTransformation {
 						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(insnNode, push);
 						mn.instructions.remove(insnNode);
+						TransformationStatistics.transformedBitwise();
 						return push;
 					} else if (insnNode.getOpcode() == Opcodes.IAND) {
 						MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -1376,6 +1381,7 @@ public class BooleanTestabilityTransformation {
 						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(insnNode, push);
 						mn.instructions.remove(insnNode);
+						TransformationStatistics.transformedBitwise();
 						return push;
 
 					} else if (insnNode.getOpcode() == Opcodes.IXOR) {
@@ -1385,6 +1391,7 @@ public class BooleanTestabilityTransformation {
 						                Type.INT_TYPE, Type.INT_TYPE }));
 						mn.instructions.insertBefore(insnNode, push);
 						mn.instructions.remove(insnNode);
+						TransformationStatistics.transformedBitwise();
 						return push;
 					}
 				}
@@ -1569,6 +1576,7 @@ public class BooleanTestabilityTransformation {
 
 			if (descriptorMapping.isBooleanMethod(methodNode.desc)) {
 				if (descriptorMapping.hasBooleanParameters(methodNode.desc)) {
+					TransformationStatistics.transformBackToBooleanParameter();
 					int firstBooleanParameterIndex = -1;
 					Type[] types = Type.getArgumentTypes(methodNode.desc);
 					for (int i = 0; i < types.length; i++) {
@@ -1737,6 +1745,7 @@ public class BooleanTestabilityTransformation {
 					}
 				}
 				if (Type.getReturnType(methodNode.desc).equals(Type.BOOLEAN_TYPE)) {
+					TransformationStatistics.transformBackToBooleanParameter();
 					MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
 					        Type.getInternalName(BooleanHelper.class), "booleanToInt",
 					        Type.getMethodDescriptor(Type.INT_TYPE,
@@ -1771,6 +1780,7 @@ public class BooleanTestabilityTransformation {
 					        Type.getInternalName(BooleanHelper.class), "intToBoolean",
 					        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
 					                                 new Type[] { Type.INT_TYPE }));
+					TransformationStatistics.transformBackToBooleanField();
 					mn.instructions.insertBefore(fieldNode, n);
 				} else {
 					MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -1778,7 +1788,7 @@ public class BooleanTestabilityTransformation {
 					        Type.getMethodDescriptor(Type.INT_TYPE,
 					                                 new Type[] { Type.BOOLEAN_TYPE }));
 					mn.instructions.insert(fieldNode, n);
-
+					TransformationStatistics.transformBackToBooleanField();
 				}
 			}
 			return fieldNode;
