@@ -562,7 +562,7 @@ public class BooleanTestabilityTransformation {
 			a.analyze(cn.name, mn);
 			return a.getFrames();
 		} catch (Exception e) {
-			logger.warn("Error during analysis: " + e);
+			logger.warn("[Array] Error during analysis: " + e);
 			return null;
 		}
 	}
@@ -589,7 +589,7 @@ public class BooleanTestabilityTransformation {
 			a.analyze(className, mn);
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
-			logger.warn("Error during analysis: " + e);
+			logger.warn("1. Error during analysis: " + e);
 			e.printStackTrace();
 			// TODO: Handle error
 		}
@@ -603,7 +603,7 @@ public class BooleanTestabilityTransformation {
 			a.analyze(className, mn);
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
-			logger.warn("Error during analysis: " + e);
+			logger.warn("2. Error during analysis: " + e);
 			e.printStackTrace();
 			// TODO: Handle error
 		}
@@ -631,6 +631,7 @@ public class BooleanTestabilityTransformation {
 		// Transform all flag based comparisons
 		logger.info("Transforming Boolean distances");
 		new BooleanDistanceTransformer().transform(mn);
+		mn.maxStack += 2;
 
 		// Replace all boolean arrays
 		new BooleanArrayTransformer().transform(mn);
