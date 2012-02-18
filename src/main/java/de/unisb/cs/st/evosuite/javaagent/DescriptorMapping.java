@@ -233,23 +233,22 @@ public class DescriptorMapping {
 				//        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
 				//				                                                                                                                       "/")));
 
-				if (!isInside) {
-					TestabilityTransformation.logger.info("Checking " + parent.name);
-					for (Object o : parent.methods) {
-						MethodNode mn2 = (MethodNode) o;
-						if (mn2.name.equals(methodName) && mn2.desc.equals(desc)) {
-							TestabilityTransformation.logger.info("Method " + name
+				logger.info("Checking " + parent.name);
+				for (Object o : parent.methods) {
+					MethodNode mn2 = (MethodNode) o;
+					if (mn2.name.equals(methodName) && mn2.desc.equals(desc)) {
+						if (!isInside) {
+							logger.info("Method " + name
 							        + " was defined outside the test package");
 							return true;
-							//if (!parent.name.startsWith("java/util")
-							//        && !parent.name.startsWith("java2/util2"))
-							//								return true;
-							//							else
-							//								logger.warn("Found descendant of java.util: "
-							//								        + parent.name);
+						} else {
+							logger.info("Method " + name
+							        + " was defined outside the test package");
+							return false;
 						}
 					}
 				}
+
 				for (Object o : parent.interfaces) {
 					String par = (String) o;
 					if (!visited.contains(par) && !parents.contains(par)) {
@@ -337,6 +336,8 @@ public class DescriptorMapping {
 				continue;
 
 			visited.add(name);
+			logger.info("Checking class " + name
+			        + " while looking for definition of field " + fieldName);
 
 			ClassReader reader;
 			try {
@@ -351,13 +352,18 @@ public class DescriptorMapping {
 				//				        | parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
 				//				                                                                        "/"));
 
-				if (!isInside) {
-					for (Object o : parent.fields) {
-						FieldNode mn2 = (FieldNode) o;
-						if (mn2.name.equals(fieldName) && mn2.desc.equals(desc)) {
-							TestabilityTransformation.logger.info("Field " + name
+				for (Object o : parent.fields) {
+					FieldNode mn2 = (FieldNode) o;
+					if (mn2.name.equals(fieldName) && mn2.desc.equals(desc)) {
+						if (!isInside) {
+							logger.info("Field " + name
 							        + " was defined outside the test package");
 							return true;
+						} else {
+							logger.info("Field " + name
+							        + " was defined inside the test package");
+							return false;
+
 						}
 					}
 				}
@@ -372,7 +378,7 @@ public class DescriptorMapping {
 					parents.add(parent.superName);
 				}
 			} catch (IOException e) {
-				TestabilityTransformation.logger.info("Error reading class " + name);
+				logger.info("Error reading class " + name);
 			}
 		}
 
