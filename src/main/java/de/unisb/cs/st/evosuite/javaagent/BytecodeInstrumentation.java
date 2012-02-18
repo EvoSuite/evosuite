@@ -83,6 +83,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			return false;
 		switch (Properties.TT_SCOPE) {
 		case ALL:
+			logger.info("Allowing transformation of " + className);
 			return true;
 		case TARGET:
 			if (className.equals(Properties.TARGET_CLASS)
@@ -94,6 +95,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 				return true;
 
 		}
+		logger.info("Preventing transformation of " + className);
 		return false;
 	}
 
@@ -217,9 +219,11 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))) {
+		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
+		        || shouldTransform(classNameWithDots)) {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
+			logger.info("Starting transformation of " + className);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			if (isTargetClassName(classNameWithDots)
 			        || shouldTransform(classNameWithDots))
