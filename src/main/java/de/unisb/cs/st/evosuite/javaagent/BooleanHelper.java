@@ -381,9 +381,9 @@ public class BooleanHelper {
 
 	public static int booleanToInt(boolean b) {
 		if (b)
-			return K;
+			return TRUE;
 		else
-			return -K;
+			return FALSE;
 	}
 
 	public static boolean intToBoolean(int x) {
