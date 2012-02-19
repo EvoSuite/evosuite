@@ -88,11 +88,23 @@ public class BooleanTestabilityTransformation {
 
 		processFields();
 		processMethods();
+		clearIntermediateResults();
 		if (className.equals(Properties.TARGET_CLASS)
 		        || className.startsWith(Properties.TARGET_CLASS + "$"))
 			TransformationStatistics.writeStatistics(className);
 
 		return cn;
+	}
+
+	private void clearIntermediateResults() {
+		List<MethodNode> methodNodes = cn.methods;
+		for (MethodNode mn : methodNodes) {
+			if ((mn.access & Opcodes.ACC_NATIVE) == Opcodes.ACC_NATIVE)
+				continue;
+			GraphPool.clear(className, mn.name + mn.desc);
+			BytecodeInstructionPool.clear(className, mn.name + mn.desc);
+			BranchPool.clear(className, mn.name + mn.desc);
+		}
 	}
 
 	/**
@@ -180,6 +192,10 @@ public class BooleanTestabilityTransformation {
 	 * @param list
 	 */
 	private void insertPushNull(int opcode, JumpInsnNode position, InsnList list) {
+		int branchId = getBranchID(currentMethodNode, position);
+		logger.info("Inserting instrumentation for NULL check at branch " + branchId
+		        + " in method " + currentMethodNode.name);
+
 		MethodInsnNode nullCheck = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "isNull",
 		        Type.getMethodDescriptor(Type.INT_TYPE,
@@ -190,7 +206,7 @@ public class BooleanTestabilityTransformation {
 		list.insertBefore(position, nullCheck);
 		//list.insertBefore(position,
 		//                  new LdcInsnNode(getBranchID(currentMethodNode, position)));
-		insertBranchIdPlaceholder(currentMethodNode, position);
+		insertBranchIdPlaceholder(currentMethodNode, position, branchId);
 		MethodInsnNode push = new MethodInsnNode(Opcodes.INVOKESTATIC,
 		        Type.getInternalName(BooleanHelper.class), "pushPredicate",
 		        Type.getMethodDescriptor(Type.VOID_TYPE, new Type[] { Type.INT_TYPE,
@@ -259,6 +275,16 @@ public class BooleanTestabilityTransformation {
 		mn.instructions.insertBefore(jumpNode, labelNode);
 		//mn.instructions.insertBefore(jumpNode, new LdcInsnNode(0));
 		mn.instructions.insertBefore(jumpNode, new LdcInsnNode(getBranchID(mn, jumpNode)));
+	}
+
+	private void insertBranchIdPlaceholder(MethodNode mn, JumpInsnNode jumpNode,
+	        int branchId) {
+		Label label = new Label();
+		LabelNode labelNode = new LabelNode(label);
+		//BooleanTestabilityPlaceholderTransformer.addBranchPlaceholder(label, jumpNode);
+		mn.instructions.insertBefore(jumpNode, labelNode);
+		//mn.instructions.insertBefore(jumpNode, new LdcInsnNode(0));
+		mn.instructions.insertBefore(jumpNode, new LdcInsnNode(branchId));
 	}
 
 	private void insertControlDependencyPlaceholder(MethodNode mn,
@@ -644,9 +670,9 @@ public class BooleanTestabilityTransformation {
 		logger.info("Transforming Boolean return values");
 		new BooleanReturnTransformer().transform(mn);
 
-		GraphPool.clear(className, mn.name + mn.desc);
-		BytecodeInstructionPool.clear(className, mn.name + mn.desc);
-		BranchPool.clear(className, mn.name + mn.desc);
+		//		GraphPool.clear(className, mn.name + mn.desc);
+		//		BytecodeInstructionPool.clear(className, mn.name + mn.desc);
+		//		BranchPool.clear(className, mn.name + mn.desc);
 
 		// Actually this should be done automatically by the ClassWriter...
 		// +2 because we might do a DUP2
