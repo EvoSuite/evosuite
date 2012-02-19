@@ -641,6 +641,7 @@ public class BooleanTestabilityTransformation {
 		new BooleanArrayIndexTransformer(getArrayFrames(mn)).transform(mn);
 
 		// Replace all boolean return values
+		logger.info("Transforming Boolean return values");
 		new BooleanReturnTransformer().transform(mn);
 
 		GraphPool.clear(className, mn.name + mn.desc);
@@ -649,7 +650,7 @@ public class BooleanTestabilityTransformation {
 
 		// Actually this should be done automatically by the ClassWriter...
 		// +2 because we might do a DUP2
-		mn.maxStack += 3;
+		mn.maxStack += 1;
 	}
 
 	/**
@@ -675,10 +676,10 @@ public class BooleanTestabilityTransformation {
 			        && isBooleanAssignment(insnNode, mn)) {
 				TransformationStatistics.insertedGet();
 				insertGet(insnNode, mn.instructions);
-			} else if (insnNode.getOpcode() == Opcodes.IRETURN
-			        && isBooleanAssignment(insnNode, mn)) {
-				TransformationStatistics.insertedGet();
-				insertGet(insnNode, mn.instructions);
+				//} else if (insnNode.getOpcode() == Opcodes.IRETURN
+				//        && isBooleanAssignment(insnNode, mn)) {
+				//	TransformationStatistics.insertedGet();
+				//	insertGetBefore(insnNode, mn.instructions);
 			}
 			return insnNode;
 		}
@@ -1538,12 +1539,15 @@ public class BooleanTestabilityTransformation {
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
-			String desc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
-			Type returnType = Type.getReturnType(desc);
-			if (!returnType.equals(Type.BOOLEAN_TYPE))
+			//String desc = descriptorMapping.getMethodDesc(className, mn.name, mn.desc);
+			Type returnType = Type.getReturnType(mn.desc);
+			if (!returnType.equals(Type.BOOLEAN_TYPE)) {
 				return insnNode;
+			}
 
 			if (insnNode.getOpcode() == Opcodes.IRETURN) {
+				logger.debug("Inserting conversion before IRETURN of " + className + "."
+				        + mn.name);
 				// If this function cannot be transformed, add a call to convert the value to a proper Boolean
 				MethodInsnNode n = new MethodInsnNode(Opcodes.INVOKESTATIC,
 				        Type.getInternalName(BooleanHelper.class), "intToBoolean",
@@ -1571,7 +1575,8 @@ public class BooleanTestabilityTransformation {
 
 			methodNode.desc = transformMethodDescriptor(methodNode.owner,
 			                                            methodNode.name, methodNode.desc);
-			methodNode.name = descriptorMapping.getMethodName(className, methodNode.name,
+			methodNode.name = descriptorMapping.getMethodName(methodNode.owner,
+			                                                  methodNode.name,
 			                                                  methodNode.desc);
 
 			if (descriptorMapping.isBooleanMethod(methodNode.desc)) {
@@ -1751,6 +1756,7 @@ public class BooleanTestabilityTransformation {
 					        Type.getMethodDescriptor(Type.INT_TYPE,
 					                                 new Type[] { Type.BOOLEAN_TYPE }));
 					mn.instructions.insert(methodNode, n);
+					return n;
 				}
 			}
 
@@ -1789,6 +1795,7 @@ public class BooleanTestabilityTransformation {
 					                                 new Type[] { Type.BOOLEAN_TYPE }));
 					mn.instructions.insert(fieldNode, n);
 					TransformationStatistics.transformBackToBooleanField();
+					return n;
 				}
 			}
 			return fieldNode;
