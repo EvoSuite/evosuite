@@ -246,7 +246,7 @@ public class DescriptorMapping {
 						} else {
 							logger.info("Method " + name
 							        + " was defined outside the test package");
-							return false;
+							//return false;
 						}
 					}
 				}
@@ -357,6 +357,10 @@ public class DescriptorMapping {
 				for (Object o : parent.fields) {
 					FieldNode mn2 = (FieldNode) o;
 					if (mn2.name.equals(fieldName) && mn2.desc.equals(desc)) {
+						//if ((mn2.access & Opcodes.ACC_SYNTHETIC) == Opcodes.ACC_SYNTHETIC) {
+						//	logger.info("Not transforming synthetic field " + mn2.name);
+						//	return true;
+						//}
 						if (!isInside) {
 							logger.info("Field " + name
 							        + " was defined outside the test package - "
