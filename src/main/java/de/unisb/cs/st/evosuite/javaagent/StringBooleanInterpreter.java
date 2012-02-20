@@ -32,9 +32,6 @@ public class StringBooleanInterpreter extends BasicInterpreter {
 			if (mn.owner.equals(Type.getInternalName(BooleanHelper.class))
 			        && mn.name.startsWith("String")) {
 				return STRING_BOOLEAN;
-			} else {
-				System.out.println("Not a Boolean String value: " + mn.owner + " "
-				        + mn.name);
 			}
 		}
 		return super.naryOperation(insn, values);

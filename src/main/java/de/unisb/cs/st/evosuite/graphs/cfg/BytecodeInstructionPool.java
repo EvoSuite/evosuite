@@ -85,7 +85,7 @@ public class BytecodeInstructionPool {
 	private static void registerMethodNode(MethodNode node) {
 		for (MethodNode mn : knownMethodNodes)
 			if (mn == node)
-				logger.warn("CFGGenerator.analyze() apparently got called for the same MethodNode twice");
+				logger.debug("CFGGenerator.analyze() apparently got called for the same MethodNode twice");
 
 		knownMethodNodes.add(node);
 	}
