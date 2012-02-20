@@ -182,6 +182,7 @@ public class DescriptorMapping {
 	}
 
 	private boolean isInside(String className) {
+
 		String classNameWithDots = className.replace("/", ".");
 		switch (Properties.TT_SCOPE) {
 		case ALL:

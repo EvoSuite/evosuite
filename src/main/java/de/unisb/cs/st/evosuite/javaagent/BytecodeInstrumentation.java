@@ -273,5 +273,4 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
 	}
-
 }
