@@ -825,11 +825,6 @@ public class BooleanTestabilityTransformation {
 					TransformationStatistics.transformedBooleanComparison();
 					logger.info("Changing IFEQ");
 					jumpNode.setOpcode(Opcodes.IFLE);
-				} else {
-					int insnPosition = mn.instructions.indexOf(jumpNode);
-					Frame frame = currentFrames[insnPosition];
-					logger.info("Not changing IFEQ, no Boolean on stack: "
-					        + frame.getStack(0));
 				}
 			} else if (jumpNode.getOpcode() == Opcodes.IF_ICMPEQ) {
 				if (isBooleanOnStack(mn, jumpNode, 0)) {
