@@ -52,6 +52,7 @@ public class StringTransformation {
 	 */
 	@SuppressWarnings("unchecked")
 	private boolean transformStrings(MethodNode mn) {
+		logger.info("Current method: " + mn.name);
 		boolean changed = false;
 		ListIterator<AbstractInsnNode> iterator = mn.instructions.iterator();
 		while (iterator.hasNext()) {
@@ -142,6 +143,15 @@ public class StringTransformation {
 		return changed;
 	}
 
+	private static boolean isStringMethod(AbstractInsnNode node) {
+		if (node.getOpcode() == Opcodes.INVOKESTATIC) {
+			MethodInsnNode methodInsnNode = (MethodInsnNode) node;
+			return methodInsnNode.owner.equals(Type.getInternalName(BooleanHelper.class))
+			        && methodInsnNode.name.startsWith("String");
+		}
+		return false;
+	}
+
 	public boolean transformMethod(MethodNode mn) {
 		boolean changed = transformStrings(mn);
 		if (changed) {
@@ -150,27 +160,69 @@ public class StringTransformation {
 				a.analyze(cn.name, mn);
 				Frame[] frames = a.getFrames();
 				AbstractInsnNode node = mn.instructions.getFirst();
-				while (node != mn.instructions.getLast()) {
+				boolean done = false;
+				while (!done) {
+					if (node == mn.instructions.getLast())
+						done = true;
 					AbstractInsnNode next = node.getNext();
 					Frame current = frames[mn.instructions.indexOf(node)];
 					int size = current.getStackSize();
 					if (node.getOpcode() == Opcodes.IFNE) {
 						JumpInsnNode branch = (JumpInsnNode) node;
-						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
+						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN
+						        || isStringMethod(node.getPrevious())) {
 							logger.info("IFNE -> IFGT");
 							branch.setOpcode(Opcodes.IFGT);
 						}
 					} else if (node.getOpcode() == Opcodes.IFEQ) {
 						JumpInsnNode branch = (JumpInsnNode) node;
-						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN) {
+						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN
+						        || isStringMethod(node.getPrevious())) {
 							logger.info("IFEQ -> IFLE");
 							branch.setOpcode(Opcodes.IFLE);
+						}
+					} else if (node.getOpcode() == Opcodes.IF_ICMPEQ) {
+						JumpInsnNode branch = (JumpInsnNode) node;
+						if (current.getStack(size - 2) == StringBooleanInterpreter.STRING_BOOLEAN
+						        || isStringMethod(node.getPrevious().getPrevious())) {
+							if (node.getPrevious().getOpcode() == Opcodes.ICONST_0) {
+								branch.setOpcode(Opcodes.IFLE);
+								mn.instructions.remove(node.getPrevious());
+							} else if (node.getPrevious().getOpcode() == Opcodes.ICONST_1) {
+								branch.setOpcode(Opcodes.IFGT);
+								mn.instructions.remove(node.getPrevious());
+							}
+						}
+					} else if (node.getOpcode() == Opcodes.IF_ICMPNE) {
+						JumpInsnNode branch = (JumpInsnNode) node;
+						if (current.getStack(size - 2) == StringBooleanInterpreter.STRING_BOOLEAN
+						        || isStringMethod(node.getPrevious().getPrevious())) {
+							if (node.getPrevious().getOpcode() == Opcodes.ICONST_0) {
+								branch.setOpcode(Opcodes.IFGT);
+								mn.instructions.remove(node.getPrevious());
+							} else if (node.getPrevious().getOpcode() == Opcodes.ICONST_1) {
+								branch.setOpcode(Opcodes.IFLE);
+								mn.instructions.remove(node.getPrevious());
+							}
+						}
+					} else if (node.getOpcode() == Opcodes.IRETURN) {
+						if (current.getStack(size - 1) == StringBooleanInterpreter.STRING_BOOLEAN
+						        || isStringMethod(node.getPrevious())) {
+							logger.info("IFEQ -> IFLE");
+							MethodInsnNode n = new MethodInsnNode(
+							        Opcodes.INVOKESTATIC,
+							        Type.getInternalName(BooleanHelper.class),
+							        "intToBoolean",
+							        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
+							                                 new Type[] { Type.INT_TYPE }));
+
+							mn.instructions.insertBefore(node, n);
 						}
 					}
 					node = next;
 				}
 			} catch (Exception e) {
-
+				logger.warn("EXCEPTION DURING STRING TRANSFORMATION: " + e);
 				return changed;
 			}
 		}

@@ -397,6 +397,13 @@ public class BooleanHelper {
 			return Math.min(b, c);
 	}
 
+	public static int compareBoolean(int a, int b) {
+		if ((a > 0 && b > 0) || (a <= 0 && b <= 0))
+			return Math.abs(a - b);
+		else
+			return -1 * Math.abs(a - b);
+	}
+
 	public static int editDistance_old(String s, String t) {
 		int d[][]; // matrix
 		int n; // length of s
@@ -543,10 +550,8 @@ public class BooleanHelper {
 			        "StringEquals is not supposed to work on a null caller");
 		}
 
-		if (first.equals(second))
+		if (first.equals(second)) {
 			return K; // Identical
-		else if (second == null) {
-			return -(first.length() + K);
 		} else {
 			//System.out.println("Edit distance between " + first + " and " + second
 			//       + " is " + -editDistance(first, second.toString()) + " / "
@@ -559,6 +564,7 @@ public class BooleanHelper {
 
 	public static int getDistanceBasedOnLeftAlignment(String a, String b) {
 		if (a == b) {
+			assert (false);
 			return K;
 		} else if (a == null && b != null) {
 			return b.length() + 1; // +1 is important to handle the empty string "" 
