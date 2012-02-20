@@ -451,8 +451,8 @@ public class BooleanTestabilityTransformation {
 				// TODO: Check whether field is static
 				logger.info("Checking field assignment");
 				FieldInsnNode fn = (FieldInsnNode) node;
-				if (descriptorMapping.isTransformedOrBooleanField(fn.owner, fn.name,
-				                                                  fn.desc)) {
+				if (Type.getType(descriptorMapping.getFieldDesc(fn.owner, fn.name,
+				                                                fn.desc)) == Type.BOOLEAN_TYPE) {
 					return true;
 				} else {
 					return false;
@@ -564,7 +564,7 @@ public class BooleanTestabilityTransformation {
 	 * @return
 	 */
 	private String transformFieldDescriptor(String owner, String name, String desc) {
-		return descriptorMapping.getFieldDesc(className, name, desc);
+		return descriptorMapping.getFieldDesc(owner, name, desc);
 	}
 
 	private void transformMethodSignature(MethodNode mn) {
@@ -1628,14 +1628,18 @@ public class BooleanTestabilityTransformation {
 						//                        int numOfPushs = types.length - firstBooleanParameterIndex;
 
 						if (numOfPushs == 0) {
-							//the boolean parameter is the last parameter
-							MethodInsnNode booleanHelperInvoke = new MethodInsnNode(
-							        Opcodes.INVOKESTATIC,
-							        Type.getInternalName(BooleanHelper.class),
-							        "intToBoolean",
-							        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
-							                                 new Type[] { Type.INT_TYPE }));
-							mn.instructions.insertBefore(methodNode, booleanHelperInvoke);
+							if (!(methodNode.getPrevious().getOpcode() == Opcodes.ICONST_1 || methodNode.getPrevious().getOpcode() == Opcodes.ICONST_0)) {
+
+								//the boolean parameter is the last parameter
+								MethodInsnNode booleanHelperInvoke = new MethodInsnNode(
+								        Opcodes.INVOKESTATIC,
+								        Type.getInternalName(BooleanHelper.class),
+								        "intToBoolean",
+								        Type.getMethodDescriptor(Type.BOOLEAN_TYPE,
+								                                 new Type[] { Type.INT_TYPE }));
+								mn.instructions.insertBefore(methodNode,
+								                             booleanHelperInvoke);
+							}
 						} else {
 							InsnList insnlist = new InsnList();
 
