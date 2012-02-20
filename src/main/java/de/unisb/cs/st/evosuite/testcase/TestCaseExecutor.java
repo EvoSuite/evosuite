@@ -267,13 +267,13 @@ public class TestCaseExecutor implements ThreadFactory {
 				                          TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			} catch (ExecutionException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			} catch (TimeoutException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			}
 			//task.cancel(true);
 

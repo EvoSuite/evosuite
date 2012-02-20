@@ -1206,6 +1206,7 @@ public class TestSuiteGenerator {
 
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
+		System.exit(0);
 	}
 
 }
