@@ -1283,8 +1283,13 @@ public class BooleanTestabilityTransformation {
 				}
 				if (insn.getASMNode().getOpcode() != varNode.getOpcode()) {
 					logger.warn("Found wrong bytecode instruction at this index!");
-					BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc,
-					                                       varNode);
+					insn = BytecodeInstructionPool.getInstruction(className, mn.name
+					        + mn.desc, varNode);
+					if (insn == null) {
+						// TODO: Debug this on org.exolab.jms.net.uri.URI
+						logger.warn("WARNING: Instruction not found!");
+						return varNode;
+					}
 				}
 				Set<ControlDependency> dependencies = insn.getControlDependencies();
 				logger.info("Found flag assignment: " + insn + ", checking "
