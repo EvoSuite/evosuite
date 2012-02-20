@@ -345,7 +345,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
-		System.out.println(covered_methods);
+		//System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
 		// branch coverage - see searchStarted()/Finished()

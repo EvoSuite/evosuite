@@ -829,6 +829,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		if (!do_html)
 			return;
 
+		new File(REPORT_DIR.getAbsolutePath() + "/html/").mkdirs();
+
 		copyFile("prettify.js");
 		copyFile("prettify.css");
 		copyFile("style.css");
