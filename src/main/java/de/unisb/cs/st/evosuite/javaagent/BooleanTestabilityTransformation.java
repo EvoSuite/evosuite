@@ -415,7 +415,7 @@ public class BooleanTestabilityTransformation {
 	private boolean isBooleanOnStack(MethodNode mn, AbstractInsnNode node, int position) {
 		int insnPosition = mn.instructions.indexOf(node);
 		if (insnPosition >= currentFrames.length) {
-			logger.warn("Trying to access frame out of scope: " + insnPosition + "/"
+			logger.info("Trying to access frame out of scope: " + insnPosition + "/"
 			        + currentFrames.length);
 			return false;
 		}
@@ -499,7 +499,7 @@ public class BooleanTestabilityTransformation {
 				// if it is a boolean parameter of a converted method, then it needs to be converted
 				// Problem: How do we know which parameter it represents?
 
-				logger.warn("Cannot handle method insn?"); // TODO: Just got to check last parameter?
+				logger.debug("Cannot handle method insn?"); // TODO: Just got to check last parameter?
 				return false;
 
 			} else if (node.getOpcode() == Opcodes.GOTO
@@ -590,7 +590,7 @@ public class BooleanTestabilityTransformation {
 			a.analyze(cn.name, mn);
 			return a.getFrames();
 		} catch (Exception e) {
-			logger.warn("[Array] Error during analysis: " + e);
+			logger.info("[Array] Error during analysis: " + e);
 			return null;
 		}
 	}
@@ -617,8 +617,8 @@ public class BooleanTestabilityTransformation {
 			a.analyze(className, mn);
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
-			logger.warn("1. Error during analysis: " + e);
-			e.printStackTrace();
+			logger.info("1. Error during analysis: " + e);
+			//e.printStackTrace();
 			// TODO: Handle error
 		}
 		generateCDG(mn);
@@ -631,8 +631,8 @@ public class BooleanTestabilityTransformation {
 			a.analyze(className, mn);
 			currentFrames = a.getFrames();
 		} catch (Exception e) {
-			logger.warn("2. Error during analysis: " + e);
-			e.printStackTrace();
+			logger.info("2. Error during analysis: " + e);
+			//e.printStackTrace();
 			// TODO: Handle error
 		}
 
@@ -659,7 +659,7 @@ public class BooleanTestabilityTransformation {
 		// Transform all flag based comparisons
 		logger.info("Transforming Boolean distances");
 		new BooleanDistanceTransformer().transform(mn);
-		mn.maxStack += 2;
+		mn.maxStack += 3;
 
 		// Replace all boolean arrays
 		new BooleanArrayTransformer().transform(mn);
@@ -1229,16 +1229,16 @@ public class BooleanTestabilityTransformation {
 				//varNode);
 				if (insn == null) {
 					// TODO: Find out why
-					logger.warn("ERROR: Could not find node");
+					logger.info("ERROR: Could not find node");
 					return fieldNode;
 				}
 				if (insn.getASMNode().getOpcode() != fieldNode.getOpcode()) {
-					logger.warn("Found wrong bytecode instruction at this index!");
+					logger.info("Found wrong bytecode instruction at this index!");
 					BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc,
 					                                       fieldNode);
 				}
 				if (insn.getBasicBlock() == null) {
-					logger.warn("ERROR: Problematic node found");
+					logger.info("ERROR: Problematic node found");
 					return fieldNode;
 				}
 				Set<ControlDependency> dependencies = insn.getControlDependencies();
@@ -1273,16 +1273,16 @@ public class BooleanTestabilityTransformation {
 				//varNode);
 				if (insn == null) {
 					// TODO: Debug this on org.exolab.jms.net.uri.URI
-					logger.warn("WARNING: Instruction not found!");
+					logger.info("WARNING: Instruction not found!");
 					return varNode;
 				}
 				if (insn.getASMNode().getOpcode() != varNode.getOpcode()) {
-					logger.warn("Found wrong bytecode instruction at this index!");
+					logger.info("Found wrong bytecode instruction at this index!");
 					insn = BytecodeInstructionPool.getInstruction(className, mn.name
 					        + mn.desc, varNode);
 					if (insn == null) {
 						// TODO: Debug this on org.exolab.jms.net.uri.URI
-						logger.warn("WARNING: Instruction not found!");
+						logger.info("WARNING: Instruction not found!");
 						return varNode;
 					}
 				}

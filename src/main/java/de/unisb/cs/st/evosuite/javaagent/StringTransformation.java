@@ -166,6 +166,8 @@ public class StringTransformation {
 						done = true;
 					AbstractInsnNode next = node.getNext();
 					Frame current = frames[mn.instructions.indexOf(node)];
+					if (current == null)
+						break;
 					int size = current.getStackSize();
 					if (node.getOpcode() == Opcodes.IFNE) {
 						JumpInsnNode branch = (JumpInsnNode) node;
@@ -223,6 +225,7 @@ public class StringTransformation {
 				}
 			} catch (Exception e) {
 				logger.warn("EXCEPTION DURING STRING TRANSFORMATION: " + e);
+				e.printStackTrace();
 				return changed;
 			}
 		}
