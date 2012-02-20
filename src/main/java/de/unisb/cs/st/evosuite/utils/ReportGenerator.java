@@ -219,6 +219,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
 
 			r.append("JUnitTests,");
+			r.append("Branches,");
 			r.append("MutationScore,");
 			r.append("Data File");
 			return r.toString();
