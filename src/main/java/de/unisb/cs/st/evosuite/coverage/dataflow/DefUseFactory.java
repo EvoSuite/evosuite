@@ -1,6 +1,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * Can be used to create instances of Definition and Use

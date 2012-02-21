@@ -137,11 +137,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 				}
 				if (logger.isDebugEnabled())
 					logger.debug("Done statement " + s.getCode());
-				//ExecutionTracer.disable();
+				ExecutionTracer.disable();
 				for (ExecutionObserver observer : observers) {
 					observer.statement(s, scope, exceptionThrown);
 				}
-				//ExecutionTracer.enable();
+				ExecutionTracer.enable();
 				num++;
 			}
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());

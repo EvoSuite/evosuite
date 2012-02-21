@@ -219,6 +219,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");
 
 			r.append("JUnitTests,");
+			r.append("Branches,");
 			r.append("MutationScore,");
 			r.append("Data File");
 			return r.toString();
@@ -828,6 +829,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	public void writeReport() {
 		if (!do_html)
 			return;
+
+		new File(REPORT_DIR.getAbsolutePath() + "/html/").mkdirs();
 
 		copyFile("prettify.js");
 		copyFile("prettify.css");

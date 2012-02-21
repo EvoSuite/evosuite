@@ -175,7 +175,7 @@ public class BooleanHelper {
 		//		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
 		//		System.out.println("Keeping branch id: " + branch.getClassName() + " - "
 		//		        + branchId + " - " + distance);
-		System.out.println("Keeping branch id: " + branchId + " - " + distance);
+		//System.out.println("Keeping branch id: " + branchId + " - " + distance);
 		lastDistance.put(branchId, Math.abs(distance));
 	}
 
@@ -198,8 +198,8 @@ public class BooleanHelper {
 		}
 		//		Branch branch = BranchPool.getBranch(branchId);
 		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
-		System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
-		        + "/" + value + " - " + distance);
+		//System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
+		//        + "/" + value + " - " + distance);
 
 		//		System.out.println("Getting branch id: " + branch.getClassName() + " - "
 		//		        + branchId + " - " + distance);
@@ -210,7 +210,7 @@ public class BooleanHelper {
 		int d = (int) Math.ceil(K * val);
 		if (value <= 0)
 			d = -d;
-		System.out.println("Value: " + distance + ", Distance: " + d);
+		//System.out.println("Value: " + distance + ", Distance: " + d);
 		return d;
 	}
 
@@ -381,9 +381,9 @@ public class BooleanHelper {
 
 	public static int booleanToInt(boolean b) {
 		if (b)
-			return K;
+			return TRUE;
 		else
-			return -K;
+			return FALSE;
 	}
 
 	public static boolean intToBoolean(int x) {
@@ -395,6 +395,13 @@ public class BooleanHelper {
 			return Math.min(a, c);
 		else
 			return Math.min(b, c);
+	}
+
+	public static int compareBoolean(int a, int b) {
+		if ((a > 0 && b > 0) || (a <= 0 && b <= 0))
+			return Math.abs(a - b);
+		else
+			return -1 * Math.abs(a - b);
 	}
 
 	public static int editDistance_old(String s, String t) {
@@ -543,10 +550,8 @@ public class BooleanHelper {
 			        "StringEquals is not supposed to work on a null caller");
 		}
 
-		if (first.equals(second))
+		if (first.equals(second)) {
 			return K; // Identical
-		else if (second == null) {
-			return -(first.length() + K);
 		} else {
 			//System.out.println("Edit distance between " + first + " and " + second
 			//       + " is " + -editDistance(first, second.toString()) + " / "
@@ -559,6 +564,7 @@ public class BooleanHelper {
 
 	public static int getDistanceBasedOnLeftAlignment(String a, String b) {
 		if (a == b) {
+			assert (false);
 			return K;
 		} else if (a == null && b != null) {
 			return b.length() + 1; // +1 is important to handle the empty string "" 

@@ -53,11 +53,11 @@ import de.unisb.cs.st.evosuite.callgraph.ConnectionData;
 import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.callgraph.MethodDescription;
 import de.unisb.cs.st.evosuite.callgraph.Tuple;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
@@ -854,14 +854,20 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	private void countTargetFunctions() {
-		num_defined_methods = CFGMethodAdapter.methods.size();
+		num_defined_methods = CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS);
 		if (Properties.INSTRUMENT_PARENT)
 			num_defined_methods = getMethods(Properties.getTargetClass()).size();
 		logger.info("Target class has " + num_defined_methods + " functions");
-		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
-		logger.info("Target class has " + BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() + " methods without branches");
+		logger.info("Target class has "
+		        + BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS)
+		        + " branches");
+		logger.info("Target class has "
+		        + BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
+		        + " methods without branches");
 		logger.info("That means for coverage information: "
-				+ (BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() + 2 * BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)));
+		        + (BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() + 2 * BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)));
+		logger.info("Test methods: " + test_methods.size());
+		logger.info("Test constructors: " + test_constructors.size());
 	}
 
 	private static String getName(AccessibleObject o) {
@@ -1325,11 +1331,12 @@ public class StaticTestCluster extends TestCluster {
 									dependencies.add(clazz);
 							}
 						}
-						logger.debug("Adding constructor " + constructor);
+						logger.debug("[Target] Adding constructor " + constructor);
 						constructor.setAccessible(true);
 						calls.add(constructor);
 					} else {
-						logger.trace("Constructor " + constructor + " is not public");
+						logger.trace("[Target] Constructor " + constructor
+						        + " is not public");
 					}
 				}
 
@@ -1361,7 +1368,7 @@ public class StaticTestCluster extends TestCluster {
 						}
 						method.setAccessible(true);
 						calls.add(method);
-						logger.debug("Adding method " + method);
+						logger.debug("[Target] Adding method " + method);
 					}
 				}
 
@@ -1389,9 +1396,9 @@ public class StaticTestCluster extends TestCluster {
 					if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
 						field.setAccessible(true);
 						calls.add(field);
-						logger.trace("Adding field " + field);
+						logger.trace("[Target] Adding field " + field);
 					} else {
-						logger.trace("Cannot use field " + field);
+						logger.trace("[Target] Cannot use field " + field);
 					}
 				}
 			} catch (ClassNotFoundException e) {
@@ -1482,11 +1489,12 @@ public class StaticTestCluster extends TestCluster {
 								dependencies.add(clazz);
 						}
 					}
-					logger.debug("Adding constructor " + constructor);
+					logger.debug("[Dependency] Adding constructor " + constructor);
 					constructor.setAccessible(true);
 					calls.add(constructor);
 				} else {
-					logger.trace("Constructor " + constructor + " is not public");
+					logger.trace("[Dependency] Constructor " + constructor
+					        + " is not public");
 				}
 			}
 
@@ -1518,7 +1526,7 @@ public class StaticTestCluster extends TestCluster {
 					}
 					method.setAccessible(true);
 					calls.add(method);
-					logger.debug("Adding method " + method);
+					logger.debug("[Dependency] Adding method " + method);
 				}
 			}
 
@@ -1546,9 +1554,9 @@ public class StaticTestCluster extends TestCluster {
 				if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
 					field.setAccessible(true);
 					calls.add(field);
-					logger.trace("Adding field " + field);
+					logger.trace("[Dependency] Adding field " + field);
 				} else {
-					logger.trace("Cannot use field " + field);
+					logger.trace("[Dependency] Cannot use field " + field);
 				}
 			}
 
@@ -1643,7 +1651,7 @@ public class StaticTestCluster extends TestCluster {
 		generators.clear();
 
 		BranchPool.clear();
-		CFGPool.clear();
+		GraphPool.clear();
 		BytecodeInstructionPool.clear();
 
 		// Get new classloader

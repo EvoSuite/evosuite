@@ -1,6 +1,6 @@
 package de.unisb.cs.st.evosuite.coverage.dataflow;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * An object of this class corresponds to a Use inside the class under test.

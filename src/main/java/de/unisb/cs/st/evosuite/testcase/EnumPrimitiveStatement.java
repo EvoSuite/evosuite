@@ -16,7 +16,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 	private static final long serialVersionUID = -7027695648061887082L;
 
-	private final T[] constants;
+	private T[] constants;
 
 	private final Class<T> enumClass;
 
@@ -24,12 +24,17 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
 		super(tc, clazz, null);
 		enumClass = clazz;
-		if (clazz.getEnumConstants().length > 0) {
-			this.value = clazz.getEnumConstants()[0];
-			constants = clazz.getEnumConstants();
+		try {
+			if (clazz.getEnumConstants().length > 0) {
+				this.value = clazz.getEnumConstants()[0];
+				constants = clazz.getEnumConstants();
 
-		} else {
-			// Coping with empty enms is a bit of a mess
+			} else {
+				// Coping with empty enums is a bit of a mess
+				constants = (T[]) new Enum[0];
+			}
+		} catch (Throwable t) {
+			// Loading the Enum class might fail
 			constants = (T[]) new Enum[0];
 		}
 	}

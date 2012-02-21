@@ -21,9 +21,6 @@ import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.DeleteField;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.DeleteStatement;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.InsertUnaryOperator;
@@ -36,6 +33,9 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceConstant;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceVariable;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationObserver;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 
 /**
@@ -75,7 +75,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName, int access) {
-		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
+		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 
 		boolean constructorInvoked = false;
