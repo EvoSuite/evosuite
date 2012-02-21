@@ -18,12 +18,6 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class BooleanHelper {
 
-	private static Stack<Integer> distanceStack = new Stack<Integer>();
-
-	private static Stack<Stack<Integer>> stackStack = new Stack<Stack<Integer>>();
-
-	private static final int MAX_STACK = Properties.TT_stack;
-
 	public static final int K = Integer.MAX_VALUE - 2;
 	//public static final int K = 1000;
 
@@ -31,28 +25,7 @@ public class BooleanHelper {
 
 	private static final int FALSE = -K;
 
-	public static void clearPredicates() {
-		distanceStack.clear();
-	}
-
-	public static void methodEntered() {
-		if (distanceStack != null)
-			stackStack.push(distanceStack);
-		distanceStack = new Stack<Integer>();
-	}
-
-	public static void methodLeft() {
-		if (!stackStack.isEmpty())
-			distanceStack = stackStack.pop();
-		else
-			distanceStack = null;
-	}
-
 	public static void clearStack() {
-		if (!stackStack.isEmpty())
-			stackStack.clear();
-		if (distanceStack != null)
-			distanceStack.clear();
 		lastDistance.clear();
 	}
 
@@ -208,19 +181,12 @@ public class BooleanHelper {
 
 		//		int d = (int) Math.ceil(K * val / (val + 1));
 		int d = (int) Math.ceil(K * val);
+		if (d == 0)
+			d = 1;
 		if (value <= 0)
 			d = -d;
 		//System.out.println("Value: " + distance + ", Distance: " + d);
 		return d;
-	}
-
-	public static void pushPredicate(int distance) {
-		//logger.debug("Push: " + distance);
-		if (distanceStack != null) {
-			while (distanceStack.size() > MAX_STACK)
-				distanceStack.remove(0);
-			distanceStack.push(Math.abs(distance));
-		}
 	}
 
 	private static double normalize(int distance) {
@@ -229,40 +195,6 @@ public class BooleanHelper {
 		double d = distance;
 		return d / (d + 0.5 * k);
 		//return distance / (distance + 1.0);
-	}
-
-	public static int getDistance(int original) {
-		if (distanceStack == null) {
-			if (original > 0)
-				return K;
-			else
-				return -K;
-		}
-		int l = distanceStack.size();
-		int distance = K;
-		if (distanceStack.size() > 0)
-			distance = distanceStack.peek();
-		distanceStack.clear();
-		/*
-				if (l <= 1) {
-					//distance += K;
-					if (original <= 0)
-						distance = -distance;
-					logger.debug("Distance (2)" + distance);
-					return distance;
-				}
-		*/
-		double val = (1.0 + normalize(distance)) / Math.pow(2.0, l);
-
-		int d = (int) Math.ceil(K * val);
-		//if (d == 0 && val != 0.0)
-		//	d = 1; // TODO: This is a problem if the number of pushes is too big
-		//if (d == 0)
-		//	d = 1;
-		if (original <= 0)
-			d = -d;
-
-		return d;
 	}
 
 	/**
@@ -301,6 +233,15 @@ public class BooleanHelper {
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			return d3;
 		}
+	}
+
+	public static int intSub(int a, int b) {
+		long sub = (long) a - (long) b;
+		if (sub < -K)
+			return -K;
+		else if (sub > K)
+			return K;
+		return (int) sub;
 	}
 
 	/**
