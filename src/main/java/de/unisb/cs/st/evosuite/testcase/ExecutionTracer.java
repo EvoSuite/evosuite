@@ -53,8 +53,6 @@ public class ExecutionTracer {
 
 	private int num_statements = 0;
 
-	private static final boolean testabilityTransformation = Properties.TT;
-
 	private static boolean checkCallerThread = true;
 
 	/**
@@ -175,10 +173,6 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		if (testabilityTransformation) {
-			BooleanHelper.methodEntered();
-		}
-
 		if (tracer.killSwitch) {
 			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
 			throw new TestCaseExecutor.TimeoutExceeded();
@@ -273,10 +267,6 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
-
-		if (testabilityTransformation) {
-			BooleanHelper.methodLeft();
-		}
 
 		tracer.trace.exitMethod(classname, methodname);
 		// logger.trace("Left method " + classname + "." + methodname);
