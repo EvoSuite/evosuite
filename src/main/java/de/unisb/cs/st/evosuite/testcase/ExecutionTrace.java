@@ -745,7 +745,7 @@ public class ExecutionTrace {
 	public void linePassed(String className, String methodName, int line) {
 		if (trace_calls) {
 			if (stack.isEmpty()) {
-				logger.warn("Method stack is empty: " + className + "." + methodName
+				logger.info("Method stack is empty: " + className + "." + methodName
 				        + " - l" + line); // TODO switch back
 				// logger.debug to
 				// logger.warn

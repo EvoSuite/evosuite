@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
@@ -83,16 +83,19 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			return false;
 		switch (Properties.TT_SCOPE) {
 		case ALL:
+			logger.info("Allowing transformation of " + className);
 			return true;
 		case TARGET:
 			if (className.equals(Properties.TARGET_CLASS)
 			        || className.startsWith(Properties.TARGET_CLASS + "$"))
 				return true;
+			break;
 		case PREFIX:
 			if (className.startsWith(Properties.PROJECT_PREFIX))
 				return true;
 
 		}
+		logger.info("Preventing transformation of " + className);
 		return false;
 	}
 
@@ -216,9 +219,11 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
-		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))) {
+		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
+		        || shouldTransform(classNameWithDots)) {
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
+			logger.info("Starting transformation of " + className);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			if (isTargetClassName(classNameWithDots)
 			        || shouldTransform(classNameWithDots))
@@ -268,5 +273,4 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
 	}
-
 }

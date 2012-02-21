@@ -13,9 +13,9 @@ import org.objectweb.asm.tree.IntInsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * @author Gordon Fraser

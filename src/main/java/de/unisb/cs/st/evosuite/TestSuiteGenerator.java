@@ -36,7 +36,6 @@ import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.CompleteAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.UnitAssertionGenerator;
-import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.contracts.FailingTestSet;
@@ -96,6 +95,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
+import de.unisb.cs.st.evosuite.graphs.LCSAJGraph;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
@@ -1206,6 +1206,7 @@ public class TestSuiteGenerator {
 
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
+		System.exit(0);
 	}
 
 }
