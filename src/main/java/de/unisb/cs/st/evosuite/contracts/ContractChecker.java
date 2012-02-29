@@ -25,7 +25,11 @@ public class ContractChecker extends ExecutionObserver {
 
 	private final Set<Contract> contracts = new HashSet<Contract>();
 
-	private static final boolean checkAtEnd = Properties.CHECK_CONTRACTS_END;
+	/*
+	 * Maybe it was not a problem, but it all depends on when Properties.CHECK_CONTRACTS_END 
+	 * is initialized. Maybe best to just call it directly
+	 */
+	//private static final boolean checkAtEnd = Properties.CHECK_CONTRACTS_END;
 
 	private static boolean valid = true;
 
@@ -62,6 +66,10 @@ public class ContractChecker extends ExecutionObserver {
 
 	}
 
+	/**
+	 * Set the current test case, on which we check oracles while it is executed
+	 * @param test
+	 */
 	public static void currentTest(TestCase test) {
 		currentTest = test;
 		valid = true;
@@ -74,6 +82,13 @@ public class ContractChecker extends ExecutionObserver {
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!valid) {
+			/*
+			 * once we get a contract that is violated, no point in checking the following statements,
+			 * because the internal state of the SUT is corrupted.
+			 * 
+			 * TODO: at this point, for the fitness function we still consider the coverage given by the 
+			 * following statements. Maybe that should be changed? At the moment, we only stop if exceptions 
+			 */
 			logger.warn("Not checking contracts for invalid test");
 			return;
 		}
@@ -82,10 +97,9 @@ public class ContractChecker extends ExecutionObserver {
 			return;
 		}
 
-		if (checkAtEnd && statement.getPosition() < (currentTest.size() - 1))
+		if (Properties.CHECK_CONTRACTS_END && statement.getPosition() < (currentTest.size() - 1))
 			return;
 
-		// TODO: Only check contracts if the test hasn't already violated any other contracts
 		for (Contract contract : contracts) {
 			try {
 				if (!contract.check(statement, scope, exception)) {
@@ -93,8 +107,8 @@ public class ContractChecker extends ExecutionObserver {
 					        + statement.getCode());
 					FailingTestSet.addFailingTest(currentTest, contract, statement,
 					                              exception);
-					//valid = false;
-					break;
+					valid = false;
+					//break;
 				}
 			} catch (Throwable t) {
 				//logger.info("Caught exception during contract checking");
