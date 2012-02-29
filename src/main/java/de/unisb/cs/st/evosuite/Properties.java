@@ -493,13 +493,8 @@ public class Properties {
 	@Parameter(key = "instrument_parent", description = "Also count coverage goals in superclasses")
 	public static boolean INSTRUMENT_PARENT = false;
 
-	@Parameter(key = "check_contracts", description = "Check contracts during test execution")
-	public static boolean CHECK_CONTRACTS = false;
-
-	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
-	public static boolean CHECK_CONTRACTS_END = false;
-
 	@Parameter(key = "BREAK_ON_EXCEPTION", description = "Stop test execution if exception occurrs")
+	//FIXME: shouldn't be true?
 	public static boolean BREAK_ON_EXCEPTION = false;
 
 	public enum TestFactory {
@@ -541,6 +536,26 @@ public class Properties {
 	@Parameter(key = "tt_scope", description = "Testability transformation")
 	public static TransformationScope TT_SCOPE = TransformationScope.ALL;
 
+	// ---------------------------------------------------------------
+	// Contracts / Asserts:
+	@Parameter(key = "check_contracts", description = "Check contracts during test execution")
+	public static boolean CHECK_CONTRACTS = false;
+
+	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
+	public static boolean CHECK_CONTRACTS_END = false;
+
+	
+	/*
+	 * FIXME: these 2 following properties will not work if we use the EvoSuite shell script which call
+	 * MasterProcess directly rather than EvoSuite.java
+	 */
+	
+	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
+	public static boolean ENABLE_ASSERTS_FOR_EVOSUITE = false;
+	
+	@Parameter(key = "enable_asserts_for_sut", description = "Check asserts in the SUT")
+	public static boolean ENABLE_ASSERTS_FOR_SUT = true; 
+	
 	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")

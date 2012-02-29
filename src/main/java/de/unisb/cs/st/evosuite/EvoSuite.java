@@ -188,7 +188,6 @@ public class EvoSuite {
 
 		cmdLine.add("-Dclassloader=true");
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
-		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 
 		/*
 		 * TODO: here we start the client with several properties that are set through -D.
@@ -196,8 +195,80 @@ public class EvoSuite {
 		 * we access the Properties file. 
 		 * At the moment, we only need TARGET_CLASS, so we can hack it. 
 		 */
-		Properties.getInstance();//should force the load
+		Properties.getInstance();//should force the load, just to be sure
 		Properties.TARGET_CLASS = target;
+
+		/*
+		 * The use of "assertions" in the client is pretty tricky, as those properties
+		 * need to be transformed into JVM options before starting the client.
+		 * Furthermore, the properties in the property file might be overwritten from the
+		 * commands coming from shell
+		 */
+		
+		String definedEAforClient = null;
+		String definedEAforSUT = null;
+		
+		final String DISABLE_ASSERTIONS_EVO = "-da:de.unisb.cs.st...";
+		final String ENABLE_ASSERTIONS_EVO = "-ea:de.unisb.cs.st...";
+		final String DISABLE_ASSERTIONS_SUT = "-da:"+Properties.PROJECT_PREFIX+"...";
+		final String ENABLE_ASSERTIONS_SUT = "-ea:"+Properties.PROJECT_PREFIX+"...";
+		
+		for(String s : cmdLine){
+			//first check client
+			if(s.startsWith("-Denable_asserts_for_evosuite")){
+				if(s.endsWith("false")){
+					definedEAforClient = DISABLE_ASSERTIONS_EVO;
+				} else if(s.endsWith("true")){
+					definedEAforClient = ENABLE_ASSERTIONS_EVO;
+				} 
+			}
+			//then check SUT
+			if(s.startsWith("-Denable_asserts_for_sut")){
+				if(s.endsWith("false")){
+					definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+				} else if(s.endsWith("true")){
+					definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+				} 
+			}
+		}
+
+		/*
+		 * the assertions might not be defined in the command line, but they might be in the property
+		 * file, or just use default values.
+		 * NOTE: if those are defined in the command line, then they overwrite whatever we had in the
+		 * conf file
+		 */
+		
+		if(definedEAforSUT == null){
+			if(Properties.ENABLE_ASSERTS_FOR_SUT){
+				definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+			} else {
+				definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+			}
+		}
+
+		if(definedEAforClient == null){
+			if(Properties.ENABLE_ASSERTS_FOR_EVOSUITE){
+				definedEAforClient = ENABLE_ASSERTIONS_EVO;
+			} else {
+				definedEAforClient = DISABLE_ASSERTIONS_EVO;
+			}
+		}
+
+		/*
+		 * We add them in first position, after the java command
+		 * To avoid confusion, we only add them if they are enabled.
+		 * NOTE: this might have side effects "if" in the future we have something like 
+		 * a generic "-ea"
+		 */
+		if(definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)){
+			cmdLine.add(1, definedEAforClient);
+		}
+		if(definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)){
+			cmdLine.add(1, definedEAforSUT);
+		}
+		
+		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 
 		for (String entry : Properties.CP.split(File.pathSeparator)) {
 			try {
@@ -276,6 +347,11 @@ public class EvoSuite {
 			CommandLine line = parser.parse(options, cargs);
 			//javaOpts.addAll(Arrays.asList(line.getArgs()));
 
+			/*
+			 * NOTE: JVM arguments will not be passed over from the master to the client.
+			 * So for -Xmx, we need to use "mem"
+			 */
+			
 			if (line.hasOption("mem"))
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
 			if (line.hasOption("criterion"))
