@@ -437,11 +437,11 @@ public class Properties {
 
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
-	
+
 	public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
-	
+
 	@Parameter(key = "output_granularity", group = "Output", description = "Write all test cases for a class into a single file or to separate files.")
 	public static OutputGranularity OUTPUT_GRANULARITY = OutputGranularity.MERGED;
 
@@ -495,6 +495,9 @@ public class Properties {
 
 	@Parameter(key = "check_contracts", description = "Check contracts during test execution")
 	public static boolean CHECK_CONTRACTS = false;
+
+	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
+	public static boolean ERROR_BRANCHES = false;
 
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
@@ -602,13 +605,13 @@ public class Properties {
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
-	
+
 	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
 	public static boolean MA_WIDE_GUI = false;
-	
+
 	@Parameter(key = "ma_target_coverage", group = "Manual algorithm", description = "run Editor at spec. coverage's level")
 	public static int MA_TARGET_COVERAGE = 101;
-	
+
 	@Parameter(key = "ma_branches_calc", group = "Manual algorithm", description = "run expensive branchcalculations")
 	public static boolean MA_BRANCHES_CALC = false;
 
@@ -1174,6 +1177,21 @@ public class Properties {
 		if (TARGET_CLASS_INSTANCE != null)
 			return TARGET_CLASS_INSTANCE;
 
+		try {
+			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
+			return TARGET_CLASS_INSTANCE;
+		} catch (ClassNotFoundException e) {
+			System.err.println("* Could not find class under test: " + TARGET_CLASS);
+		}
+		return null;
+	}
+
+	/**
+	 * Get class object of class under test
+	 * 
+	 * @return
+	 */
+	public static Class<?> loadTargetClass() {
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
