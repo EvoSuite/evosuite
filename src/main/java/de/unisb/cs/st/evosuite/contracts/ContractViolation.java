@@ -94,7 +94,7 @@ public class ContractViolation {
 	public boolean same(ContractViolation other) {
 
 		// Same contract?
-		if (!contract.equals(other.contract))
+		if (!contract.getClass().equals(other.contract.getClass()))
 			return false;
 
 		// Same type of statement?
