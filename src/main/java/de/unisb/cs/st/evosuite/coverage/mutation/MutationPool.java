@@ -86,6 +86,15 @@ public class MutationPool {
 	}
 
 	/**
+	 * Remove all known mutants
+	 */
+	public static void clear() {
+		mutationMap.clear();
+		mutationIdMap.clear();
+		numMutations = 0;
+	}
+
+	/**
 	 * Returns the number of currently known mutants
 	 * 
 	 * @return The number of currently known mutants
