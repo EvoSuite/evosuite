@@ -543,6 +543,9 @@ public class Properties {
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
 
+	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
+	public static boolean ERROR_BRANCHES = false;
+
 	
 	/*
 	 * FIXME: these 2 following properties will not work if we use the EvoSuite shell script which call
@@ -1188,6 +1191,21 @@ public class Properties {
 		if (TARGET_CLASS_INSTANCE != null)
 			return TARGET_CLASS_INSTANCE;
 
+		try {
+			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
+			return TARGET_CLASS_INSTANCE;
+		} catch (ClassNotFoundException e) {
+			System.err.println("* Could not find class under test: " + TARGET_CLASS);
+		}
+		return null;
+	}
+
+	/**
+	 * Get class object of class under test
+	 * 
+	 * @return
+	 */
+	public static Class<?> loadTargetClass() {
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
