@@ -51,6 +51,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFitnessCalculator;
+import de.unisb.cs.st.evosuite.coverage.exception.ExceptionSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
@@ -466,6 +467,9 @@ public class TestSuiteGenerator {
 		case ALLDEFS:
 			System.out.println("* Test Criterion: All Definitions");
 			break;
+		case EXCEPTION:
+			System.out.println("* Test Criterion: Exception");
+			break;
 		default:
 			System.out.println("* Test criterion: Branch coverage");
 		}
@@ -497,6 +501,8 @@ public class TestSuiteGenerator {
 			return new StatementCoverageSuiteFitness();
 		case ALLDEFS:
 			return new AllDefsCoverageSuiteFitness();
+		case EXCEPTION:
+			return new ExceptionSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
