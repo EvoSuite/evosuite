@@ -326,7 +326,7 @@ public class Properties {
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
 	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
-	public static String SECONDARY_OBJECTIVE = "exceptions:totallength";
+	public static String SECONDARY_OBJECTIVE = "totallength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
@@ -493,9 +493,8 @@ public class Properties {
 	@Parameter(key = "instrument_parent", description = "Also count coverage goals in superclasses")
 	public static boolean INSTRUMENT_PARENT = false;
 
-	@Parameter(key = "BREAK_ON_EXCEPTION", description = "Stop test execution if exception occurrs")
-	//FIXME: shouldn't be true?
-	public static boolean BREAK_ON_EXCEPTION = false;
+	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
+	public static boolean BREAK_ON_EXCEPTION = true;
 
 	public enum TestFactory {
 		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT
@@ -636,7 +635,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
+		EXCEPTION, CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
 	}
 
 	/** Cache target class */

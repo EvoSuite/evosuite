@@ -18,6 +18,10 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected List<T> tests = new ArrayList<T>();
 	protected List<Boolean> unmodifiableTests = new ArrayList<Boolean>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
+	
+	/*
+	 * coverage is used only for output/statistics purposes
+	 */
 	protected double coverage = 0.0;
 
 	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
