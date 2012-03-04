@@ -915,6 +915,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
+			e.printStackTrace();
 			try {
 				Thread.sleep(1000);
 				trace = ExecutionTracer.getExecutionTracer().getTrace();

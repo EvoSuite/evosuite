@@ -4,7 +4,6 @@ import org.junit.*;
 
 import com.examples.with.different.packagename.SingleMethod;
 
-import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
@@ -12,30 +11,28 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  * @author Andrea Arcuri
  * 
  */
-public class TestSUTWithSimpleSingleMethod extends SystemTest{
+public class TestSUTWithSimpleSingleMethod_v2 extends SystemTest{
 
-	/*
-	 * for now ignore it, as long as we don't fix the issue with serialization
-	 */
-	@Ignore
 	@Test
 	public void testSingleMethod(){
 		EvoSuite evosuite = new EvoSuite();
-		int generations = 1;
 		
 		String targetClass = SingleMethod.class.getCanonicalName();
 		
+		Properties.GENERATIONS = 1;
+		Properties.TARGET_CLASS = targetClass;
+		Properties.HTML = false;
+		Properties.SHOW_PROGRESS = false;
+		Properties.SERIALIZE_RESULT = false;
+		Properties.JUNIT_TESTS = false;
+		Properties.PLOT = false;
+		
+		Properties.CLIENT_ON_THREAD = true;
+		
 		String[] command = new String[]{				
-				//EvoSuite.JAVA_CMD,
 				"-generateTests",
 				"-class",
-				targetClass,
-				"-Dhtml=false",
-				"-Dplot=false",
-				"-Djunit_tests=false",
-				"-Dshow_progress=false",
-				"-Dgenerations="+generations,
-				"-Dserialize_result=true"
+				targetClass
 		};
 		
 		Object result = evosuite.parseCommandLine(command);

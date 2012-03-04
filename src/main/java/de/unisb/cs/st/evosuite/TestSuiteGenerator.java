@@ -156,7 +156,7 @@ public class TestSuiteGenerator {
 	public static boolean analyzing = false;
 
 	/*
-	 * a field is needed for "ga" to avoid a large re-factoring of the code.
+	 * FIXME: a field is needed for "ga" to avoid a large re-factoring of the code.
 	 * "ga" is given as input to many functions, but there are side-effects
 	 * like "ga = setup()" that are not propagated to the "ga" reference
 	 * of the top-function caller
@@ -167,6 +167,9 @@ public class TestSuiteGenerator {
 	 * Generate a test suite for the target class
 	 */
 	public String generateTestSuite(GeneticAlgorithm geneticAlgorithm) {
+		
+		TestCaseExecutor.initExecutor();
+		
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		ga = geneticAlgorithm;
 
