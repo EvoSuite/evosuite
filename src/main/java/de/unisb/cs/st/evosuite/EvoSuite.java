@@ -19,6 +19,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
@@ -29,6 +31,8 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
  */
 public class EvoSuite {
 
+	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
+	
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
@@ -144,6 +148,8 @@ public class EvoSuite {
 	private static void listClasses() {
 		System.out.println("* The following classes are known: ");
 		File directory = new File(Properties.OUTPUT_DIR);
+		logger.debug("Going to scan output directory {}",Properties.OUTPUT_DIR);
+		
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
 			System.out.println("   " + file.getName().replace(".task", ""));
@@ -193,10 +199,11 @@ public class EvoSuite {
 		 * TODO: here we start the client with several properties that are set through -D.
 		 * These properties are not visible to the master process (ie this process), when
 		 * we access the Properties file. 
-		 * At the moment, we only need TARGET_CLASS, so we can hack it. 
+		 * At the moment, we only need few parameters, so we can hack them
 		 */
 		Properties.getInstance();//should force the load, just to be sure
 		Properties.TARGET_CLASS = target;
+		Properties.PROCESS_COMMUNICATION_PORT = port;
 
 		/*
 		 * The use of "assertions" in the client is pretty tricky, as those properties
@@ -287,6 +294,14 @@ public class EvoSuite {
 		} else {
 			System.out.println("* Could not connect to client process");
 		}
+		
+		if(Properties.CLIENT_ON_THREAD){
+			/*
+			 * FIXME: this is done only to avoid current problems with serialization
+			 */
+			result = ClientProcess.geneticAlgorithmStatus;
+		}
+		
 		return result;
 	}
 
