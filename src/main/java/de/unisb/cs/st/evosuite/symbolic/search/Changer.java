@@ -1,10 +1,12 @@
 package de.unisb.cs.st.evosuite.symbolic.search;
 
-import gov.nasa.jpf.JPF;
-
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Logger;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
@@ -13,58 +15,89 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 
 /**
  * @author krusev
- *
+ * 
  */
 public class Changer {
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Changer");
-	
+	static Logger log = LoggerFactory.getLogger(Changer.class);
+
 	private long longBackUp;
 
-	private double oldDist = 1;
-	
-	public Changer () {
+	private double doubleBackUp;
+
+	private double oldDist = Double.MAX_VALUE;
+
+	public Changer() {
 
 	}
-	
+
 	private boolean distImpr(double newDistance) {
 		return newDistance < oldDist;
 	}
-	
+
 	private boolean distWrsn(double newDistance) {
 		return newDistance > oldDist;
 	}
-	
+
+	private void backup(RealVariable realVar, double newDist) {
+		oldDist = newDist;
+		doubleBackUp = realVar.execute();
+	}
+
 	private void backup(IntegerVariable intVar, double newDist) {
 		oldDist = newDist;
-		longBackUp = intVar.execute();		
+		longBackUp = intVar.execute();
 	}
-	
+
 	private void backup(StringVariable var, double newDist) {
 		var.setMaxValue(var.getMinValue());
-		oldDist  = newDist;
+		oldDist = newDist;
 	}
-	
-	private void restore(IntegerVariable intVar) {		
+
+	private void restore(RealVariable realVar) {
+		realVar.setConcreteValue(doubleBackUp);
+	}
+
+	private void restore(IntegerVariable intVar) {
 		intVar.setConcreteValue(longBackUp);
+		log.debug("resoring to: " + intVar + " with dist: " + oldDist);
 	}
-	
-	private void restore(StringVariable var) {		
+
+	private void restore(StringVariable var) {
 		var.setMinValue(var.getMaxValue());
 	}
 
-	private double getDistForVal(List<Constraint<?>> cnstr, IntegerVariable intVar, long val) {
-		long backUp = intVar.getConcreteValue();
-		intVar.setConcreteValue(val);
-		double dist = DistanceEstimator.getDistance(cnstr);
-		intVar.setConcreteValue(backUp);
-		return dist;
-	}
-	
 	/**
-	 * Increments the intVar with the specified value. 
-	 * If we are going out of the bounds of the variable the new value is set
-	 * to the the appropriate bound.
+	 * Increments the realVar with the specified value. If we are going out of
+	 * the bounds of the variable the new value is set to the the appropriate
+	 * bound.
+	 * 
+	 * @param realVar
+	 * @param increment
+	 */
+	private void increment(RealVariable realVar, double i) {
+		double oldVal = realVar.getConcreteValue();
+		double newVal;
+		if (i > 0) {
+			if (oldVal <= realVar.getMaxValue() - i) {
+				newVal = oldVal + i;
+			} else {
+				newVal = realVar.getMaxValue();
+			}
+		} else {
+			if (oldVal >= realVar.getMinValue() - i) {
+				newVal = oldVal + i;
+			} else {
+				newVal = realVar.getMinValue();
+			}
+		}
+		realVar.setConcreteValue(newVal);
+	}
+
+	/**
+	 * Increments the intVar with the specified value. If we are going out of
+	 * the bounds of the variable the new value is set to the the appropriate
+	 * bound.
 	 * 
 	 * @param intVar
 	 * @param increment
@@ -73,13 +106,13 @@ public class Changer {
 		long oldVal = intVar.getConcreteValue();
 		long newVal;
 		if (i > 0) {
-			if (oldVal <= intVar.getMaxValue()-i ) {
+			if (oldVal <= intVar.getMaxValue() - i) {
 				newVal = oldVal + i;
 			} else {
 				newVal = intVar.getMaxValue();
 			}
 		} else {
-			if (oldVal >= intVar.getMinValue()-i ) {
+			if (oldVal >= intVar.getMinValue() - i) {
 				newVal = oldVal + i;
 			} else {
 				newVal = intVar.getMinValue();
@@ -87,24 +120,24 @@ public class Changer {
 		}
 		intVar.setConcreteValue(newVal);
 	}
-	
-	//TODO fix for other expressions that land here e.g. RealExpression
-	public boolean strLocalSearch(StringVariable strVar, 
-			List<Constraint<?>> cnstr, 
-			HashMap<String, Object> varsToChange) {
-		
+
+	public boolean strLocalSearch(StringVariable strVar, List<Constraint<?>> cnstr,
+	        HashMap<String, Object> varsToChange) {
+
 		// try to remove each
+		boolean improvement = false;
 
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
-		
-		for (int i = strVar.execute().length() - 1; i >= 0 ; i--) {
-			String newStr = 	strVar.execute().substring(0, i) 
-							+ 	strVar.execute().substring(i + 1);
+
+		for (int i = strVar.execute().length() - 1; i >= 0; i--) {
+			String newStr = strVar.execute().substring(0, i)
+			        + strVar.execute().substring(i + 1);
 			strVar.setMinValue(newStr);
-			
+
 			double newDist = DistanceEstimator.getDistance(cnstr);
 
 			if (distImpr(newDist)) {
+				improvement = true;
 				varsToChange.put(strVar.getName(), newStr);
 				if (newDist == 0) {
 					return true;
@@ -115,13 +148,11 @@ public class Changer {
 			}
 		}
 
-		
 		// try to replace each 
-		
+
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
 
-		spatialLoop:
-		for (int i = 0; i < strVar.execute().length(); i++) {
+		spatialLoop: for (int i = 0; i < strVar.execute().length(); i++) {
 			char oldChar = strVar.execute().charAt(i);
 			char[] characters = strVar.execute().toCharArray();
 			for (char replacement = 0; replacement < 128; replacement++) {
@@ -131,8 +162,10 @@ public class Changer {
 					strVar.setMinValue(newStr);
 
 					double newDist = DistanceEstimator.getDistance(cnstr);
-					
+
 					if (distImpr(newDist)) {
+						improvement = true;
+
 						varsToChange.put(strVar.getName(), newStr);
 						if (newDist == 0) {
 							return true;
@@ -140,7 +173,7 @@ public class Changer {
 						backup(strVar, newDist);
 						break;
 					} else {
-						restore(strVar);						
+						restore(strVar);
 					}
 					if (distWrsn(newDist)) {
 						//skip this place
@@ -149,9 +182,9 @@ public class Changer {
 				}
 			}
 		}
-		
+
 		// try to add everywhere
-		
+
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
 
 		for (int i = 0; i < strVar.execute().length() + 1; i++) {
@@ -159,12 +192,14 @@ public class Changer {
 			while (add) {
 				add = false;
 				for (char replacement = 0; replacement < 128; replacement++) {
-					String newStr = strVar.execute().substring(0, i) + replacement + strVar.execute().substring(i);
+					String newStr = strVar.execute().substring(0, i) + replacement
+					        + strVar.execute().substring(i);
 					strVar.setMinValue(newStr);
 
 					double newDist = DistanceEstimator.getDistance(cnstr);
 
 					if (distImpr(newDist)) {
+						improvement = true;
 						varsToChange.put(strVar.getName(), newStr);
 						if (newDist <= 0) {
 							return true;
@@ -178,101 +213,24 @@ public class Changer {
 				}
 			}
 		}
-		return false;
-	} 
-	
-	int counter = 0;
-	
-	public boolean intLocalSearchV2(IntegerVariable intVar, 
-			List<Constraint<?>> cnstr, 
-			HashMap<String, Object> varsToChange) { 
-		double newDist;
-		
-		long left = 0;
-		long right = 0;
-		
-		counter = 0;
-		
-		intVar.setConcreteValue((long)0);
-		
-		backup(intVar, DistanceEstimator.getDistance(cnstr));
-
-
-		// Try increment
-		increment(intVar, 1);
-		counter++;
-		newDist = DistanceEstimator.getDistance(cnstr);
-		if (distImpr(newDist)) {
-			right = intVar.getMaxValue();
-			backup(intVar, DistanceEstimator.getDistance(cnstr));
-		} else {
-			// restore
-			restore(intVar);
-
-			// Try decrement
-			increment(intVar, -1);
-			counter++;
-			newDist = DistanceEstimator.getDistance(cnstr);
-			if (distImpr(newDist)) {
-				left = intVar.getMinValue();
-				backup(intVar, DistanceEstimator.getDistance(cnstr));
-			} else {
-				restore(intVar);
-				return false;
-			}
-		}
-
-		double distL = getDistForVal(cnstr, intVar, left);
-		double distR = getDistForVal(cnstr, intVar, right);
-	
-		long work = (left+right)/2;
-		double distW = getDistForVal(cnstr, intVar, work);
-			
-		while ( distW != 0.0 && Math.abs(left - right) > 1 ) {
-				
-//				log.warning("left: " + left + " distL: " + distL + " right: " + right + " distR: " + distR);
-				counter++;
-				work = (left+right)/2;
-				intVar.setConcreteValue(work);
-				distW = DistanceEstimator.getDistance(cnstr);
-				
-				if (distL > distR) {
-					left = work;
-					distL = distW;
-				} else {
-					right = work;
-					distR = distW;
-				}
-		}
-		
-		backup(intVar, DistanceEstimator.getDistance(cnstr));
-		
-		log.warning("nr: "+counter);
-		varsToChange.put(intVar.getName(), intVar.getConcreteValue());
-		log.info("Finished long local search with new value " + intVar);
-		if (DistanceEstimator.getDistance(cnstr) == 0) {
-			return true;
-		}
-		return false;
+		return improvement;
 	}
-	
-	public boolean intLocalSearch(IntegerVariable intVar, 
-								List<Constraint<?>> cnstr, 
-								HashMap<String, Object> varsToChange) {
+
+	public boolean intLocalSearch(IntegerVariable intVar, List<Constraint<?>> cnstr,
+	        HashMap<String, Object> varsToChange) {
 		double newDist;
 		boolean improvement = false;
 		boolean done = false;
-		counter = 0;
-		
+
 		backup(intVar, DistanceEstimator.getDistance(cnstr));
 
 		while (!done) {
 			done = true;
 			// Try increment
-			log.info("Trying to increment " + intVar);
+			log.debug("Trying to increment " + intVar);
 			increment(intVar, 1);
-			counter++;
 			newDist = DistanceEstimator.getDistance(cnstr);
+			log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 			if (distImpr(newDist)) {
 				improvement = true;
 				done = false;
@@ -283,10 +241,10 @@ public class Changer {
 				restore(intVar);
 
 				// Try decrement
-				log.info("Trying to decrement " + intVar);
+				log.debug("Trying to decrement " + intVar);
 				increment(intVar, -1);
-				counter++;
 				newDist = DistanceEstimator.getDistance(cnstr);
+				log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 				if (distImpr(newDist)) {
 					improvement = true;
 					done = false;
@@ -297,53 +255,267 @@ public class Changer {
 				}
 			}
 		}
-		log.warning("nr: "+counter);
 		if (improvement) {
 			varsToChange.put(intVar.getName(), intVar.getConcreteValue());
-			log.info("Finished long local search with new value " + intVar);
-			if (DistanceEstimator.getDistance(cnstr) == 0) {
-				return true;
-			}
+			log.debug("Finished long local search with new value " + intVar);
+			//if (DistanceEstimator.getDistance(cnstr) == 0) {
+			return true;
+			//}
 		}
 
 		return false;
 	}
 
+	public boolean realLocalSearch(RealVariable realVar, List<Constraint<?>> cnstr,
+	        HashMap<String, Object> varsToChange) {
+		boolean improvement = false;
 
-	public boolean realLocalSearch(RealVariable realVar, 
-								List<Constraint<?>> cnstr, 
-								HashMap<String, Object> varsToChange) {
-		// TODO Auto-generated method stub
-		
+		improvement = doRealSearch(realVar, cnstr, 1.0, 2.0);
+
+		if (oldDist > 0) {
+			//improvement = doRealSearch(realVar, cnstr, Double.MIN_VALUE, 2.0);
+			if (afterCommaSearchV2(realVar, cnstr))
+				improvement = true;
+		}
+
+		if (improvement) {
+			varsToChange.put(realVar.getName(), realVar.getConcreteValue());
+			log.debug("Finished long local search with new value " + realVar);
+			//if (oldDist <= 0) {
+			//	return true;
+			//}
+			return true;
+		}
+
 		return false;
-	} 
-	
-	private void iterate(IntegerVariable intVar , List<Constraint<?>> cnstr,
-			long delta) {
+	}
 
-		log.info("Trying increment " + delta + " of " + intVar.toString());
+	private boolean doRealSearch(RealVariable realVar, List<Constraint<?>> cnstr,
+	        double delta, double factor) {
+
+		double newDist;
+		boolean improvement = false;
+		boolean done = false;
+
+		backup(realVar, DistanceEstimator.getDistance(cnstr));
+
+		while (!done) {
+			done = true;
+			// Try increment
+			log.debug("Trying to increment " + realVar + " with: " + delta);
+			increment(realVar, delta);
+			newDist = DistanceEstimator.getDistance(cnstr);
+			log.debug("Old distance: " + oldDist + ", new distance: " + newDist);
+			if (distImpr(newDist)) {
+				improvement = true;
+				done = false;
+				backup(realVar, newDist);
+
+				if (newDist == 0.0) {
+					break;
+				}
+
+				iterate(realVar, cnstr, factor * delta, factor);
+			} else {
+				// restore
+				restore(realVar);
+
+				// Try decrement
+				log.debug("Trying to decrement " + realVar + " with: " + delta);
+				increment(realVar, -delta);
+				newDist = DistanceEstimator.getDistance(cnstr);
+				if (distImpr(newDist)) {
+					improvement = true;
+					done = false;
+					backup(realVar, newDist);
+
+					if (newDist == 0.0) {
+						break;
+					}
+
+					iterate(realVar, cnstr, -factor * delta, factor);
+				} else {
+					restore(realVar);
+				}
+			}
+		}
+
+		return improvement;
+	}
+
+	private boolean afterCommaSearchV2(RealVariable realVar, List<Constraint<?>> cnstr) {
+		boolean improvement = false;
+		//		int maxPrecision = realVar.getMaxValue() > Float.MAX_VALUE ? 15 : 7;
+		int maxPrecision = 15;
+		for (int precision = 1; precision <= maxPrecision; precision++) {
+			//roundPrecision(realVar, cnstr, precision, maxPrecision == 7);
+			log.debug("Current precision: " + precision);
+			if (doRealSearch(realVar, cnstr, Math.pow(10.0, -precision), 2))
+				improvement = true;
+			if (oldDist <= 0) {
+				break;
+			}
+		}
+
+		return improvement;
+	}
+
+	@SuppressWarnings("unused")
+	private boolean afterCommaSearchV1(RealVariable realVar, List<Constraint<?>> cnstr) {
+		boolean improvement = false;
+
+		//compute interval
+		log.debug("Searching after comma");
+
+		//		double left = Math.floor(realVar.getConcreteValue());
+		//		double work = Double.MAX_VALUE;//realVar.getConcreteValue();
+		//		double right = Math.ceil(realVar.getConcreteValue());
+		////		log.debuging("left: " + left +" conc " + realVar.getConcreteValue() + " right: "+ right);
+		//		
+		//
+		//		realVar.setConcreteValue(left);
+		//		double distL = DistanceEstimator.getDistance(cnstr);
+		//		realVar.setConcreteValue(right);
+		//		double distR = DistanceEstimator.getDistance(cnstr);
+		//
+		//		realVar.setConcreteValue((left+right)/2.0);
+		//		double distW = DistanceEstimator.getDistance(cnstr);
+
+		double left = realVar.getConcreteValue() - 1.0;
+		double work = Double.MAX_VALUE;//realVar.getConcreteValue();
+		double right = realVar.getConcreteValue() + 1.0;
+
+		double distW = DistanceEstimator.getDistance(cnstr);
+
+		increment(realVar, -1.0);
+		double distL = DistanceEstimator.getDistance(cnstr);
+		increment(realVar, 2.0);
+		double distR = DistanceEstimator.getDistance(cnstr);
+		increment(realVar, -1.0);
+
+		//TODO this whole story with oldWork != work works but should 
+		// be done a "little" bit better ...
+		double oldWork = -Double.MAX_VALUE;
+
+		//since we are going in the same direction with left and right
+		// we will eventually produce the right result
+		// if there is no right result we will arrive at some local min and 
+		// work will stay the same
+		while (distW > 0.0) {
+			if (oldWork == work) {
+				//unreachable
+				log.debug("Stopping search as old value is new value: " + work + ", "
+				        + left + " - " + right + ", but distance is " + distW);
+
+				return false;
+			}
+			//log.debuging("oldWork: " + oldWork + " work: " + work);
+			oldWork = work;
+
+			//			log.debuging("left: " + left +" conc " + (left + right) + " right: "+ right);
+
+			work = (left + right) / 2.0;
+			realVar.setConcreteValue(work);
+			distW = DistanceEstimator.getDistance(cnstr);
+
+			if (distW < distL || distW < distR) {
+				log.debug("improoved");
+				improvement = true;
+				backup(realVar, distW);
+			} else {
+				log.debug("restore");
+				restore(realVar);
+				break;
+			}
+
+			log.debug("left: " + left + " " + distL + " work: " + work + " " + distW
+			        + " right: " + right + " " + distR);
+			if (distL > distR) {
+				left = work;
+				distL = distW;
+			} else {
+				right = work;
+				distR = distW;
+			}
+		}
+
+		//log.debuging("newRealVar: " + realVar);
+
+		// TODO Auto-generated method stub
+		return improvement;
+	}
+
+	@SuppressWarnings("unused")
+	private void roundPrecision(RealVariable realVar, List<Constraint<?>> cnstr,
+	        int precision, boolean isFloat) {
+
+		double value = realVar.getConcreteValue();
+		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
+		if (bd.doubleValue() == value) {
+			return;// false;
+		}
+
+		double newValue = bd.doubleValue();
+		if (isFloat)
+			realVar.setConcreteValue((new Float(newValue)));
+		else
+			realVar.setConcreteValue((new Double(newValue)));
+
+		log.debug("Trying to chop precision " + precision + ": " + value + " -> "
+		        + newValue);
+		double dist = DistanceEstimator.getDistance(cnstr);
+		if (!distWrsn(dist)) {
+			backup(realVar, dist);
+			return;// true;
+		} else {
+			restore(realVar);
+			return;// false;
+		}
+	}
+
+	private void iterate(RealVariable realVar, List<Constraint<?>> cnstr, double delta,
+	        double factor) {
+
+		log.debug("[Loop] Trying increment " + delta + " of " + realVar.toString());
+
+		increment(realVar, delta);
+		double newDist = DistanceEstimator.getDistance(cnstr);
+		log.debug("[Loop] Old distance: " + oldDist + ", new distance: " + newDist);
+		while (distImpr(newDist)) {
+			backup(realVar, newDist);
+
+			delta = factor * delta;
+			log.debug("[Loop] Trying increment " + delta + " of " + realVar);
+			increment(realVar, delta);
+			newDist = DistanceEstimator.getDistance(cnstr);
+		}
+		log.debug("No improvement on " + realVar);
+
+		restore(realVar);
+
+		log.debug("Final value of this iteration: " + realVar);
+	}
+
+	private void iterate(IntegerVariable intVar, List<Constraint<?>> cnstr, long delta) {
+
+		log.debug("Trying increment " + delta + " of " + intVar.toString());
 
 		increment(intVar, delta);
 		double newDist = DistanceEstimator.getDistance(cnstr);
+		log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 		while (distImpr(newDist)) {
 			backup(intVar, newDist);
 
 			delta = 2 * delta;
-			log.info("Trying increment " + delta + " of " + intVar);
+			log.debug("Trying increment " + delta + " of " + intVar);
 			increment(intVar, delta);
-			counter++;
+			newDist = DistanceEstimator.getDistance(cnstr);
+			log.debug("newDist: " + newDist + " oldDist: " + oldDist);
 		}
-		log.info("No improvement on " + intVar);
+		log.debug("No improvement on " + intVar);
 
 		restore(intVar);
 
-		log.info("Final value of this iteration: " + intVar);
+		log.debug("Final value of this iteration: " + intVar);
 	}
-
-	/**
-	 * 
-	 * @param intVar
-	 * @return String representation of the value of the integer variable
-	 */
-
 }

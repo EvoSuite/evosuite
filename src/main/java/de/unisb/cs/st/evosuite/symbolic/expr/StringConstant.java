@@ -36,10 +36,10 @@ public class StringConstant extends StringExpression {
 		return false;
 	}
 
-//	@Override
-//	public int getSize() {
-//		return -1;
-//	}
+	@Override
+	public int getSize() {
+		return 1;
+	}
 
 	@Override
 	public String execute() {

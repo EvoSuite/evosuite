@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <configuration>
-<!--
   <appender name="FILE" class="ch.qos.logback.core.FileAppender">
     <file>output.log</file>
 
@@ -9,7 +8,6 @@
       <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
--->
 
   <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <!-- encoders are assigned the type
@@ -19,14 +17,16 @@
     </encoder>
   </appender>
 
-<!--
+  <!--
   <logger name="de.unisb.cs.st.evosuite.cfg" level="WARN" />
   <logger name="de.unisb.cs.st.evosuite.coverage.branch" level="WARN" />
-  <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" />
--->
+  <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" /> -->
 
   <root level="WARN">
     <appender-ref ref="STDOUT" />
-<!--    <appender-ref ref="FILE" /> -->
   </root>
+
+  <!-- <root level="DEBUG">
+    <appender-ref ref="FILE" />
+  </root> -->
 </configuration>

@@ -23,9 +23,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-import de.unisb.cs.st.evosuite.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
+import de.unisb.cs.st.evosuite.graphs.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 

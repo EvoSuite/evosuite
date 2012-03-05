@@ -24,10 +24,10 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Opcodes;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.utils.Utils;
@@ -84,11 +84,11 @@ public class DistanceTransformer implements ClassFileTransformer {
 
 	}
 
-	public static final class SuperClassAdapter extends ClassAdapter {
+	public static final class SuperClassAdapter extends ClassVisitor {
 		Set<String> supers = new HashSet<String>();
 
 		public SuperClassAdapter(ClassVisitor cv) {
-			super(cv);
+			super(Opcodes.ASM4, cv);
 		}
 
 		@Override
@@ -128,7 +128,7 @@ public class DistanceTransformer implements ClassFileTransformer {
 		Set<String> supers = getSuper(classfileBuffer);
 		if (traceLock.get()) {
 			classes.add(new ClassEntry(className, supers));
-			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)) {
+			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX) || classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX)) {
 				ClassReader cr = new ClassReader(classfileBuffer);
 				ClassWriter cw = new ClassWriter(0);
 				ClassVisitor cv = new DistanceClassAdapter(cw, data,

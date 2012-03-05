@@ -45,6 +45,8 @@ public class SystemTest {
 			return;
 		}
 		
+		System.out.println("*** SystemTest: runSetup() ***");
+		
 		//String target = System.getProperty("user.dir") + File.separator+"target"+File.separator+"suts-for-system-testing";
 		String target = System.getProperty("user.dir") + File.separator+"target"+File.separator+"test-classes";
 		
@@ -91,9 +93,11 @@ public class SystemTest {
 		hasBeenAlreadyRun = true;
 	}
 	
-	@BeforeClass 
+	
 	@AfterClass
 	public static void deleteEvoDirs(){
+		System.out.println("*** SystemTest: deleteEvoDirs() ***");
+
 		try {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File("evosuite-files"));
 			org.apache.commons.io.FileUtils.deleteDirectory(new File("evosuite-report"));

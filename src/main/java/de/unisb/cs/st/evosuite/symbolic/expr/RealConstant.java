@@ -28,14 +28,13 @@ public class RealConstant extends RealExpression{
 		return false;
 	}
 
-//	@Override
-//	public int getSize() {
-//		return 1;
-//	}
+	@Override
+	public int getSize() {
+		return 1;
+	}
 
 	@Override
-	public Object execute() {
-		// TODO Auto-generated method stub
-		return null;
+	public Double execute() {
+		return value;
 	}
 }

@@ -275,8 +275,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 		for (Integer mutationId : origResult.getTrace().touchedMutants) {
 			if (!mutants.containsKey(mutationId)) {
-				logger.warn("Mutation ID unknown: " + mutationId);
-				logger.warn(mutants.keySet().toString());
+				//logger.warn("Mutation ID unknown: " + mutationId);
+				//logger.warn(mutants.keySet().toString());
 			} else
 				executedMutants.add(mutants.get(mutationId));
 		}

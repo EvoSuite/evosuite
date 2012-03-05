@@ -20,6 +20,8 @@ public class ClientProcess implements SearchListener {
 
 	private GeneticAlgorithm ga;
 
+	public static GeneticAlgorithm  geneticAlgorithmStatus;
+	
 	public void run() {
 		System.out.println("* Connecting to master process on port "
 		        + Properties.PROCESS_COMMUNICATION_PORT);
@@ -34,8 +36,9 @@ public class ClientProcess implements SearchListener {
 		if (population_data == null) {
 			// Starting a new search
 			generator = new TestSuiteGenerator();
-			ga = generator.setup();
-			ga.addListener(this);
+			// FIXXME: This needs fixing. Like this, it breaks mutation testing
+			ga = null; //generator.setup();
+			//ga.addListener(this);
 			generator.generateTestSuite(ga);
 		} else {
 			System.out.println("* Resuming search on new JVM");
@@ -51,10 +54,23 @@ public class ClientProcess implements SearchListener {
 		 * inside generateTestSuite, and anyway listener here does not do anything (ga si always
 		 * != null)
 		 */
-		ga.removeListener(this);
+		if (ga != null) {
+			ga.removeListener(this);
+
+			ga = generator.getEmployedGeneticAlgorithm();
+		} else {
+			//FIXME: this is a dirty hack. this code needs to be refactored
+			ga = generator.getEmployedGeneticAlgorithm();
+		}
 		
-		ga = generator.getEmployedGeneticAlgorithm(); 
-		
+		if(Properties.CLIENT_ON_THREAD){
+			/*
+			 * FIXME:
+			 * this is done when the client is run on same JVM, to avoid
+			 * problems of serializing ga
+			 */
+			geneticAlgorithmStatus = ga;
+		}
 		util.informSearchIsFinished(ga);
 	}
 
@@ -143,11 +159,16 @@ public class ClientProcess implements SearchListener {
 		try {
 			ClientProcess process = new ClientProcess();
 			process.run();
+			if(!Properties.CLIENT_ON_THREAD){
+				System.exit(0);
+			}
 		} catch (Throwable t) {
 			System.err.println("Error when generating tests for: "
 			        + Properties.TARGET_CLASS);
 			t.printStackTrace();
-			System.exit(1);
+			if(!Properties.CLIENT_ON_THREAD){
+				System.exit(1);
+			}
 		}
 	}
 }

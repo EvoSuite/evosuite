@@ -37,7 +37,6 @@ public class IFLE extends gov.nasa.jpf.jvm.bytecode.IFLE {
 	
 	public IFLE(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

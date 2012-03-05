@@ -4,6 +4,9 @@
 package de.unisb.cs.st.evosuite.junit;
 
 import java.util.List;
+import java.util.Map;
+
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 /**
  * @author fraser
@@ -67,6 +70,14 @@ public class JUnit3TestAdapter implements UnitTestAdapter {
 		builder.append("  }\n");
 		builder.append("}\n");
 		return builder.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.junit.UnitTestAdapter#getTestString(de.unisb.cs.st.evosuite.testcase.TestCase, java.util.Map)
+	 */
+	@Override
+	public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions) {
+		return test.toCode(exceptions);
 	}
 
 }

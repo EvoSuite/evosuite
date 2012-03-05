@@ -32,25 +32,16 @@ public class ConcolicInstructionFactory extends InstructionFactory implements Cl
 		return this;
 	}
 
+//	@Override
+//	public INVOKESPECIAL invokespecial(String clsDescriptor, 
+//			String methodName, String signature){
+//		return new INVOKESPECIAL(clsDescriptor, methodName, signature);
+//	}
+	
 	@Override
 	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName,
 			String methodSignature){
 		return new INVOKEVIRTUAL(clsName, methodName, methodSignature);
-	}
-	
-	@Override
-	public ASTORE astore(int index) {
-		return new ASTORE(index);
-	}
-	
-	@Override
-	public ALOAD aload(int index) {
-		return new ALOAD(index);
-	}
-	
-	@Override
-	public LDC ldc(String s, boolean isClass) {
-		return new LDC(s, isClass);
 	}
 	
 	@Override

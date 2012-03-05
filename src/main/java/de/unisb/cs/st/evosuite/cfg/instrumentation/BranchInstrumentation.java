@@ -20,11 +20,11 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 
 /**
  * @author Copied from CFGMethodAdapter
@@ -47,7 +47,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName,
 			int access) {
-		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
+		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();

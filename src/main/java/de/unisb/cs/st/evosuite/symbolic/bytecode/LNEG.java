@@ -36,7 +36,7 @@ public class LNEG extends gov.nasa.jpf.jvm.bytecode.LNEG {
 	@Override
 	public Instruction execute(SystemState ss, KernelState ks, ThreadInfo th) {
 		StackFrame sf = th.getTopFrame();
-		Expression<Long> v0 = (Expression<Long>) sf.getOperandAttr();
+		Expression<Long> v0 = (Expression<Long>) sf.getOperandAttr(1);
 
 		if (v0 == null) {
 			return super.execute(ss, ks, th);

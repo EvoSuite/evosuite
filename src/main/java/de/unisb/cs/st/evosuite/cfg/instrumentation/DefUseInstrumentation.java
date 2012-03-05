@@ -19,12 +19,12 @@ import org.objectweb.asm.tree.VarInsnNode;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 
 /**
  * @author copied from CFGMethodAdapter
@@ -47,7 +47,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName,
 			int access) {
-		RawControlFlowGraph completeCFG = CFGPool.getRawCFG(className,
+		RawControlFlowGraph completeCFG = GraphPool.getRawCFG(className,
 				methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {

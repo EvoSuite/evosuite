@@ -9,9 +9,9 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 public class LCSAJ {
 

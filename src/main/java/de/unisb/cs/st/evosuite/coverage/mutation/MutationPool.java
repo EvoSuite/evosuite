@@ -11,7 +11,7 @@ import java.util.Map;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * @author fraser
@@ -83,6 +83,15 @@ public class MutationPool {
 		List<Mutation> mutants = new ArrayList<Mutation>();
 		mutants.addAll(mutationIdMap.values());
 		return mutants;
+	}
+
+	/**
+	 * Remove all known mutants
+	 */
+	public static void clear() {
+		mutationMap.clear();
+		mutationIdMap.clear();
+		numMutations = 0;
 	}
 
 	/**

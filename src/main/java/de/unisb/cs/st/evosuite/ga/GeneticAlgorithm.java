@@ -119,6 +119,8 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 */
 	protected void applyLocalSearch() {
 		logger.debug("Applying local search");
+		LocalSearchBudget.localSearchStarted();
+
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -146,8 +148,18 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Apply dynamic symbolic execution
 	 */
 	protected void applyDSE() {
-		logger.info("Applying DSE");
-		getBestIndividual().applyDSE();
+		logger.info("Applying DSE at generation " + currentIteration);
+		DSEBudget.DSEStarted();
+
+		for (Chromosome individual : population) {
+			if (isFinished())
+				break;
+
+			if (DSEBudget.isFinished())
+				break;
+
+			individual.applyDSE(this);
+		}
 	}
 
 	/**
@@ -430,7 +442,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 		if (!unique) {
 			logger.debug("Applying kin compensation");
-			if (selectionFunction.maximize)
+			if (fitnessFunction.isMaximizationFunction())
 				individual.setFitness(individual.getFitness()
 				        * Properties.KINCOMPENSATION);
 			else
@@ -629,7 +641,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
-		if (selectionFunction.isMaximize()) {
+		if (fitnessFunction.isMaximizationFunction()) {
 			return chromosome1.compareTo(chromosome2) >= 0;
 		} else {
 			return chromosome1.compareTo(chromosome2) <= 0;

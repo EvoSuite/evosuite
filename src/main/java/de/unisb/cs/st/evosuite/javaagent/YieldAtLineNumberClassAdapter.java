@@ -3,21 +3,21 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * @author fraser
  * 
  */
-public class YieldAtLineNumberClassAdapter extends ClassAdapter {
+public class YieldAtLineNumberClassAdapter extends ClassVisitor {
 
 	/**
 	 * @param cv
 	 */
 	public YieldAtLineNumberClassAdapter(ClassVisitor cv) {
-		super(cv);
+		super(Opcodes.ASM4, cv);
 	}
 
 	@Override

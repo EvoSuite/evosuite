@@ -36,7 +36,6 @@ import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.CompleteAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.UnitAssertionGenerator;
-import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.contracts.FailingTestSet;
@@ -52,6 +51,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFitnessCalculator;
+import de.unisb.cs.st.evosuite.coverage.exception.ExceptionSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
@@ -96,6 +96,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
+import de.unisb.cs.st.evosuite.graphs.LCSAJGraph;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
@@ -155,7 +156,7 @@ public class TestSuiteGenerator {
 	public static boolean analyzing = false;
 
 	/*
-	 * a field is needed for "ga" to avoid a large re-factoring of the code.
+	 * FIXME: a field is needed for "ga" to avoid a large re-factoring of the code.
 	 * "ga" is given as input to many functions, but there are side-effects
 	 * like "ga = setup()" that are not propagated to the "ga" reference
 	 * of the top-function caller
@@ -166,6 +167,9 @@ public class TestSuiteGenerator {
 	 * Generate a test suite for the target class
 	 */
 	public String generateTestSuite(GeneticAlgorithm geneticAlgorithm) {
+		
+		TestCaseExecutor.initExecutor();
+		
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		ga = geneticAlgorithm;
 
@@ -243,8 +247,7 @@ public class TestSuiteGenerator {
 		if (Properties.ASSERTIONS) {
 			System.out.println("* Generating assertions");
 			if (Properties.CRITERION == Criterion.MUTATION
-			        || Properties.CRITERION == Criterion.STRONGMUTATION
-			        || Properties.CRITERION == Criterion.WEAKMUTATION) {
+			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 				handleMutations(tests);
 			} else {
 				// If we're not using mutation testing, we need to re-instrument
@@ -287,7 +290,9 @@ public class TestSuiteGenerator {
 
 		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
 			Criterion oldCriterion = Properties.CRITERION;
-			if (Properties.CRITERION != Criterion.MUTATION) {
+			if (Properties.CRITERION != Criterion.MUTATION
+			        && Properties.CRITERION != Criterion.WEAKMUTATION
+			        && Properties.CRITERION != Criterion.STRONGMUTATION) {
 				Properties.CRITERION = Criterion.MUTATION;
 
 				TestCluster.getInstance().resetCluster();
@@ -429,7 +434,6 @@ public class TestSuiteGenerator {
 		}
 
 		ga.printBudget();
-
 		if (Properties.CRITERION == Criterion.DEFUSE)
 			DefUseCoverageSuiteFitness.printCoverage();
 
@@ -466,6 +470,9 @@ public class TestSuiteGenerator {
 		case ALLDEFS:
 			System.out.println("* Test Criterion: All Definitions");
 			break;
+		case EXCEPTION:
+			System.out.println("* Test Criterion: Exception");
+			break;
 		default:
 			System.out.println("* Test criterion: Branch coverage");
 		}
@@ -497,6 +504,8 @@ public class TestSuiteGenerator {
 			return new StatementCoverageSuiteFitness();
 		case ALLDEFS:
 			return new AllDefsCoverageSuiteFitness();
+		case EXCEPTION:
+			return new ExceptionSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -1182,7 +1191,7 @@ public class TestSuiteGenerator {
 			// TODO also, question: is branchMap.size() really intended here?
 			// I think BranchPool.getBranchCount() was intended
 			Properties.GENERATIONS = Properties.GENERATIONS
-			        * (BranchPool.getBranchlessMethods().size() + BranchPool.getBranchCounter() * 2);
+			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
 			stopping_condition.setLimit(Properties.GENERATIONS);
 			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
 		}
@@ -1206,6 +1215,7 @@ public class TestSuiteGenerator {
 
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
+		System.exit(0);
 	}
 
 }

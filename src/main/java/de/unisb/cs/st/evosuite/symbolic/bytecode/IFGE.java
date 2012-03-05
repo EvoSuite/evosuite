@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 public class IFGE extends gov.nasa.jpf.jvm.bytecode.IFGE {
 	public IFGE(int targetPc) {
 		super(targetPc);
-		// TODO Auto-generated constructor stub
 	}
 
 	@SuppressWarnings("unchecked")

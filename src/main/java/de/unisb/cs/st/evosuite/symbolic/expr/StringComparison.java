@@ -7,6 +7,8 @@ import gov.nasa.jpf.JPF;
 
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
 import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 
 /**
@@ -25,6 +27,8 @@ public class StringComparison extends StringExpression {
 		this.op = op;
 		this.right = right2;
 		this.conVal = con;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	protected final Long conVal;
@@ -45,7 +49,7 @@ public class StringComparison extends StringExpression {
 		if (obj instanceof StringComparison) {
 			StringComparison other = (StringComparison) obj;
 			return this.op.equals(other.op) && this.conVal.equals(other.conVal) 
-//					&& this.getSize() == other.getSize() 
+					&& this.getSize() == other.getSize() 
 					&& this.left.equals(other.left) 
 					&& this.right.equals(other.right);
 		}
@@ -68,13 +72,13 @@ public class StringComparison extends StringExpression {
 
 	protected int size = 0;
 
-//	@Override
-//	public int getSize() {
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-//	}
+	@Override
+	public int getSize() {
+		if (size == 0) {
+			size = 1 + left.getSize() + right.getSize();
+		}
+		return size;
+	}
 
 	public Operator getOperator() {
 		return op;

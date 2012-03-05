@@ -252,6 +252,12 @@ public class MethodStatement extends AbstractStatement {
 		return parameters;
 	}
 
+	public void replaceParameterReference(VariableReference var, int numParameter) {
+		assert (numParameter >= 0);
+		assert (numParameter < parameters.size());
+		parameters.set(numParameter, var);
+	}
+
 	@Override
 	public String toString() {
 		return method.getName() + Type.getMethodDescriptor(method);

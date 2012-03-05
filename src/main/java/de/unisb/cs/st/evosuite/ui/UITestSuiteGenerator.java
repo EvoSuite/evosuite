@@ -28,9 +28,9 @@ import de.unisb.cs.st.evosuite.ui.run.UIRunner;
 import de.unisb.cs.st.evosuite.utils.SimpleCondition;
 
 public class UITestSuiteGenerator {
-	private static final int TIME_LIMIT_SECONDS = Integer.valueOf(System.getProperty("timelimit", "900"));
-
-	private static final class MainTrigger implements Trigger, Serializable {
+	private static final int TIME_LIMIT_SECONDS = Integer.valueOf(System.getProperty("timelimit", "" + Properties.GLOBAL_TIMEOUT));
+	
+	public static final class MainTrigger implements Trigger, Serializable {
 		private static final long serialVersionUID = 1L;
 		private String mainClass;
 
@@ -223,13 +223,13 @@ public class UITestSuiteGenerator {
 		}
 	}
 	
-	public static void writeCoverage() {
+	public static synchronized void writeCoverage() {
 		try {
 			Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
 			Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
 			m.invoke(null, new File("coverage.ec"), false, false);
 		} catch (Throwable t) {
-			t.printStackTrace();
+			/* No worries */
 		}
 	}
 
@@ -347,10 +347,14 @@ public class UITestSuiteGenerator {
 	}
 	
 	public static void writeAllExecutedTests() {
+		writeTests("tests.txt", UITestChromosome.getExecutedChromosomes());
+	}
+	
+	public static void writeTests(String targetPath, Iterable<UITestChromosome> tests) {
 		try {
-			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("tests.txt")), "UTF-8"));
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(targetPath)), "UTF-8"));
 			
-			for (UITestChromosome testChromosome : UITestChromosome.getExecutedChromosomes()) {
+			for (UITestChromosome testChromosome : tests) {
 				pw.println(testChromosome);
 			}
 			
@@ -360,4 +364,5 @@ public class UITestSuiteGenerator {
 			e.printStackTrace();
 		}
 	}
+
 }

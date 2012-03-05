@@ -17,25 +17,10 @@ public class IntegerConcolicInstructionFactory extends InstructionFactory implem
 
 	@Override
 	public INVOKEVIRTUAL invokevirtual(String clsName, String methodName,
-			String methodSignature){
+	        String methodSignature) {
 		return new INVOKEVIRTUAL(clsName, methodName, methodSignature);
 	}
-	
-	@Override
-	public ASTORE astore(int index) {
-		return new ASTORE(index);
-	}
-	
-	@Override
-	public ALOAD aload(int index) {
-		return new ALOAD(index);
-	}
-	
-	@Override
-	public LDC ldc(String s, boolean isClass) {
-		return new LDC(s, isClass);
-	}
-	
+
 	@Override
 	public DCMPG dcmpg() {
 		return new DCMPG();

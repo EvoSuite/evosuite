@@ -8,6 +8,8 @@ import gov.nasa.jpf.JPF;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
 import de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator;
 
 /**
@@ -27,6 +29,8 @@ BinaryExpression<String>{
 	        Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
 		super(_left, _op, _right, con);
 		this.other_v = _other;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	/**
@@ -87,7 +91,7 @@ BinaryExpression<String>{
 			}
 			
 			return this.op.equals(other.op) 
-//					&& this.getSize() == other.getSize()
+					&& this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right)
 			        && other_v_eq;
 		}
@@ -97,14 +101,13 @@ BinaryExpression<String>{
 
 	protected int size = 0;
 
-//	@Override
-//	public int getSize() {
-//		return -1;
-////		if (size == 0) {
-////			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-////		}
-////		return size;
-//	}
+	@Override
+	public int getSize() {
+		if (size == 0) {
+			size = 1 + left.getSize() + right.getSize();
+		}
+		return size;
+	}
 	
 	
 

@@ -10,12 +10,12 @@ import org.objectweb.asm.tree.MethodNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.ControlFlowEdge;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePath;
 import de.unisb.cs.st.evosuite.coverage.path.PrimePathPool;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.ControlFlowEdge;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 
 /**
  * @author Gordon Fraser
@@ -30,7 +30,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	 */
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName, int access) {
-		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
+		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
 		Queue<PrimePath> path_queue = new LinkedList<PrimePath>();
 		for (BytecodeInstruction vertex : graph.vertexSet()) {
 			if (graph.inDegreeOf(vertex) == 0) {

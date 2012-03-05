@@ -6,11 +6,11 @@ package de.unisb.cs.st.evosuite.coverage.mutation;
 import java.util.HashSet;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.cfg.ActualControlFlowGraph;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.ControlFlowDistance;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageGoal;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.ActualControlFlowGraph;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -33,7 +33,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
 		controlDependencies.addAll(mutation.getControlDependencies());
-		ActualControlFlowGraph cfg = CFGPool.getActualCFG(mutation.getClassName(),
+		ActualControlFlowGraph cfg = GraphPool.getActualCFG(mutation.getClassName(),
 		                                                  mutation.getMethodName());
 		diameter = cfg.getDiameter();
 	}

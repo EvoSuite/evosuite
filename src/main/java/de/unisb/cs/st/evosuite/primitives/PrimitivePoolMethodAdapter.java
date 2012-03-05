@@ -19,7 +19,6 @@
 package de.unisb.cs.st.evosuite.primitives;
 
 import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodAdapter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
@@ -27,7 +26,7 @@ import org.objectweb.asm.Opcodes;
  * @author Gordon Fraser
  * 
  */
-public class PrimitivePoolMethodAdapter extends MethodAdapter {
+public class PrimitivePoolMethodAdapter extends MethodVisitor {
 
 	private final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
@@ -35,7 +34,7 @@ public class PrimitivePoolMethodAdapter extends MethodAdapter {
 	 * @param mv
 	 */
 	public PrimitivePoolMethodAdapter(MethodVisitor mv) {
-		super(mv);
+		super(Opcodes.ASM4, mv);
 	}
 
 	/**

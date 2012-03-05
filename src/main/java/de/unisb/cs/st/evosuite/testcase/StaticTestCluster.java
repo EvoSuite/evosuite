@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FilenameFilter;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -52,14 +53,14 @@ import de.unisb.cs.st.evosuite.callgraph.ConnectionData;
 import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.callgraph.MethodDescription;
 import de.unisb.cs.st.evosuite.callgraph.Tuple;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.javaagent.BooleanTestabilityTransformation;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.javaagent.StaticInitializationClassAdapter;
-import de.unisb.cs.st.evosuite.javaagent.TestabilityTransformation;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 import de.unisb.cs.st.evosuite.utils.Utils;
@@ -577,37 +578,50 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
-	 * Load test methods from test task file
+	 * Load test methods from test task files
 	 * 
 	 * @return Map from classname to list of methodnames
 	 */
 	private Map<String, List<String>> getTestObjectsFromFile() {
-		// String property = System.getProperty("test.classes");
-		String property = Properties.TARGET_CLASS;
-		// String filename = property;
-		// if(property == null || property.equals("${test.classes}")) {
-		// property = Properties.TARGET_CLASS;
-		String filename = Properties.OUTPUT_DIR + "/" + property + ".task";
-		// }
-		logger.info("Reading test methods from " + filename);
-		File file = new File(filename);
-		List<String> lines = Utils.readFile(file);
+		// Iterate over all task files, find ones matching TARGET_CLASS_PREFIX
+		File outputDir = new File(Properties.OUTPUT_DIR);
+		File[] taskFiles = outputDir.listFiles(new FilenameFilter() {
+			@Override
+			public boolean accept(File dir, String name) {
+				int suffixIdx = name.toLowerCase().lastIndexOf(".task");
+				boolean suffixFound = suffixIdx != -1;
+
+				if (!suffixFound)
+					return false;
+
+				String className = name.substring(0, suffixIdx);
+				return StaticTestCluster.isTargetClassName(className);
+			}
+		});
+
 		Map<String, List<String>> objs = new HashMap<String, List<String>>();
-		for (String line : lines) {
-			line = line.trim();
-			// Skip comments
-			if (line.startsWith("#"))
-				continue;
 
-			String[] parameters = line.split(",");
-			if (parameters.length != 2)
-				continue;
-			if (!objs.containsKey(parameters[0]))
-				objs.put(parameters[0], new ArrayList<String>());
+		for (File file : taskFiles) {
+			logger.info("Reading test methods from " + file.getName());
+			List<String> lines = Utils.readFile(file);
 
-			String name = parameters[1];
-			objs.get(parameters[0]).add(name);
+			for (String line : lines) {
+				line = line.trim();
+				// Skip comments
+				if (line.startsWith("#"))
+					continue;
+
+				String[] parameters = line.split(",");
+				if (parameters.length != 2)
+					continue;
+				if (!objs.containsKey(parameters[0]))
+					objs.put(parameters[0], new ArrayList<String>());
+
+				String name = parameters[1];
+				objs.get(parameters[0]).add(name);
+			}
 		}
+
 		return objs;
 	}
 
@@ -808,7 +822,8 @@ public class StaticTestCluster extends TestCluster {
 			return false;
 
 		if (c.getDeclaringClass().isMemberClass()
-		        && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
+		        && !Modifier.isPublic(c.getDeclaringClass().getModifiers()))
+			// && !Modifier.isStatic(c.getDeclaringClass().getModifiers()))
 			return false;
 
 		if (c.isSynthetic()) {
@@ -857,15 +872,20 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	private void countTargetFunctions() {
-		num_defined_methods = CFGMethodAdapter.methods.size();
+		num_defined_methods = CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS);
 		if (Properties.INSTRUMENT_PARENT)
 			num_defined_methods = getMethods(Properties.getTargetClass()).size();
 		logger.info("Target class has " + num_defined_methods + " functions");
-		logger.info("Target class has " + BranchPool.getBranchCounter() + " branches");
-		logger.info("Target class has " + BranchPool.getBranchlessMethods().size()
+		logger.info("Target class has "
+		        + BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS)
+		        + " branches");
+		logger.info("Target class has "
+		        + BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
 		        + " methods without branches");
 		logger.info("That means for coverage information: "
-		        + (BranchPool.getBranchlessMethods().size() + 2 * BranchPool.getBranchCounter()));
+		        + (BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() + 2 * BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)));
+		logger.info("Test methods: " + test_methods.size());
+		logger.info("Test constructors: " + test_constructors.size());
 	}
 
 	private static String getName(AccessibleObject o) {
@@ -967,7 +987,7 @@ public class StaticTestCluster extends TestCluster {
 		}
 		for (MethodDescription md : remoteCalls) {
 			try {
-				//				Class<?> clazz = Class.forName(md.getClassName());
+				// Class<?> clazz = Class.forName(md.getClassName());
 				Class<?> clazz = classLoader.loadClass(md.getClassName());
 				AccessibleObject call = getMethod(clazz,
 				                                  md.getMethodName() + md.getDesc());
@@ -1000,7 +1020,7 @@ public class StaticTestCluster extends TestCluster {
 		for (String classname : allowed.keySet()) {
 			try {
 				Class<?> clazz = classLoader.loadClass(classname);
-				//Class<?> clazz = Class.forName(classname);
+				// Class<?> clazz = Class.forName(classname);
 
 				logger.debug("Analysing class " + classname);
 				List<String> restriction = allowed.get(classname);
@@ -1012,10 +1032,11 @@ public class StaticTestCluster extends TestCluster {
 
 					if (Properties.TT) {
 						String orig = name;
-						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
-						                                                     "<init>",
-						                                                     org.objectweb.asm.Type.getConstructorDescriptor(constructor));
-						logger.info("TT name: " + orig + " -> " + name);
+						name = BooleanTestabilityTransformation.getOriginalNameDesc(clazz.getName(),
+						                                                            "<init>",
+						                                                            org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+						if (!orig.equals(name))
+							logger.info("TT name: " + orig + " -> " + name);
 
 					}
 
@@ -1061,10 +1082,11 @@ public class StaticTestCluster extends TestCluster {
 
 					if (Properties.TT) {
 						String orig = name;
-						name = TestabilityTransformation.getOriginalNameDesc(clazz.getName(),
-						                                                     method.getName(),
-						                                                     org.objectweb.asm.Type.getMethodDescriptor(method));
-						logger.info("TT name: " + orig + " -> " + name);
+						name = BooleanTestabilityTransformation.getOriginalNameDesc(clazz.getName(),
+						                                                            method.getName(),
+						                                                            org.objectweb.asm.Type.getMethodDescriptor(method));
+						if (!orig.equals(name))
+							logger.info("TT name: " + orig + " -> " + name);
 					}
 
 					if (isTargetClassName(method.getDeclaringClass().getName())
@@ -1099,7 +1121,8 @@ public class StaticTestCluster extends TestCluster {
 				// Add all fields
 				for (Field field : getFields(clazz)) {
 					if (canUse(field) && matches(field.getName(), restriction)) {
-						//logger.info("Adding field " + classname + "." + field.getName());
+						// logger.info("Adding field " + classname + "." +
+						// field.getName());
 						if (!Modifier.isFinal(field.getModifiers())) {
 							calls.add(field);
 							test_fields.add(field);
@@ -1120,10 +1143,11 @@ public class StaticTestCluster extends TestCluster {
 				        + classname + ": " + e.getCause());
 				e.getCause().printStackTrace();
 				continue;
-				//} catch (VerifyError e) {
-				//	logger.warn("Ignoring class with verify error: " + classname + ": "
-				//	        + e.getCause());
-				//	continue;
+				// } catch (VerifyError e) {
+				// logger.warn("Ignoring class with verify error: " + classname
+				// + ": "
+				// + e.getCause());
+				// continue;
 			}
 		}
 		logger.info("Found " + test_constructors.size() + " constructors");
@@ -1199,7 +1223,7 @@ public class StaticTestCluster extends TestCluster {
 		int num = 0;
 		for (String classname : include_map.keySet()) {
 			try {
-				//				Class<?> clazz = Class.forName(classname);
+				// Class<?> clazz = Class.forName(classname);
 				Class<?> clazz = classLoader.loadClass(classname);
 				boolean found = false;
 				for (String methodname : include_map.get(classname)) {
@@ -1328,10 +1352,10 @@ public class StaticTestCluster extends TestCluster {
 		// Analyze each class
 		for (String classname : all_classes) {
 			// In prefix?
-			//if (classname.startsWith(Properties.PROJECT_PREFIX)) {
+			// if (classname.startsWith(Properties.PROJECT_PREFIX)) {
 			try {
 				logger.debug("Current class: " + classname);
-				//				Class<?> toadd = Class.forName(classname);
+				// Class<?> toadd = Class.forName(classname);
 				Class<?> toadd = classLoader.loadClass(classname);
 				analyzedClasses.add(toadd);
 				if (!canUse(toadd)) {
@@ -1371,11 +1395,12 @@ public class StaticTestCluster extends TestCluster {
 									dependencies.add(clazz);
 							}
 						}
-						logger.debug("Adding constructor " + constructor);
+						logger.debug("[Target] Adding constructor " + constructor);
 						constructor.setAccessible(true);
 						calls.add(constructor);
 					} else {
-						logger.trace("Constructor " + constructor + " is not public");
+						logger.trace("[Target] Constructor " + constructor
+						        + " is not public");
 					}
 				}
 
@@ -1409,7 +1434,7 @@ public class StaticTestCluster extends TestCluster {
 						}
 						method.setAccessible(true);
 						calls.add(method);
-						logger.debug("Adding method " + method);
+						logger.debug("[Target] Adding method " + method);
 					}
 				}
 
@@ -1438,9 +1463,9 @@ public class StaticTestCluster extends TestCluster {
 					if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
 						field.setAccessible(true);
 						calls.add(field);
-						logger.trace("Adding field " + field);
+						logger.trace("[Target] Adding field " + field);
 					} else {
-						logger.trace("Cannot use field " + field);
+						logger.trace("[Target] Cannot use field " + field);
 					}
 				}
 			} catch (ClassNotFoundException e) {
@@ -1451,7 +1476,7 @@ public class StaticTestCluster extends TestCluster {
 				logger.info("Error when trying to read class " + classname + ": " + t);
 			}
 
-			//}
+			// }
 		}
 		logger.info("Found " + calls.size() + " other calls");
 		// logger.info("Found "+dependencies.size()+" unsatisfied dependencies:");
@@ -1533,11 +1558,12 @@ public class StaticTestCluster extends TestCluster {
 								dependencies.add(clazz);
 						}
 					}
-					logger.debug("Adding constructor " + constructor);
+					logger.debug("[Dependency] Adding constructor " + constructor);
 					constructor.setAccessible(true);
 					calls.add(constructor);
 				} else {
-					logger.trace("Constructor " + constructor + " is not public");
+					logger.trace("[Dependency] Constructor " + constructor
+					        + " is not public");
 				}
 			}
 
@@ -1571,7 +1597,7 @@ public class StaticTestCluster extends TestCluster {
 					}
 					method.setAccessible(true);
 					calls.add(method);
-					logger.debug("Adding method " + method);
+					logger.debug("[Dependency] Adding method " + method);
 				}
 			}
 
@@ -1600,9 +1626,9 @@ public class StaticTestCluster extends TestCluster {
 				if (canUse(field) && !Modifier.isFinal(field.getModifiers())) {
 					field.setAccessible(true);
 					calls.add(field);
-					logger.trace("Adding field " + field);
+					logger.trace("[Dependency] Adding field " + field);
 				} else {
-					logger.trace("Cannot use field " + field);
+					logger.trace("[Dependency] Cannot use field " + field);
 				}
 			}
 
@@ -1664,7 +1690,7 @@ public class StaticTestCluster extends TestCluster {
 		while (it.hasNext()) {
 			String classname = it.next();
 			try {
-				//				Class<?> clazz = Class.forName(classname);
+				// Class<?> clazz = Class.forName(classname);
 				Class<?> clazz = classLoader.loadClass(classname);
 				Method m = clazz.getMethod("__STATIC_RESET", (Class<?>[]) null);
 				m.setAccessible(true);
@@ -1697,7 +1723,7 @@ public class StaticTestCluster extends TestCluster {
 		generators.clear();
 
 		BranchPool.clear();
-		CFGPool.clear();
+		GraphPool.clear();
 		BytecodeInstructionPool.clear();
 
 		// Get new classloader
@@ -1723,7 +1749,7 @@ public class StaticTestCluster extends TestCluster {
 			}
 		}
 
-		// Then try to match a postfix 
+		// Then try to match a postfix
 		for (Class<?> clazz : analyzedClasses) {
 			if (clazz.getName().endsWith("." + name)) {
 				return clazz;
@@ -1845,8 +1871,12 @@ public class StaticTestCluster extends TestCluster {
 		return clazz;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#checkDependencies(java.lang.reflect.AccessibleObject)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.TestCluster#checkDependencies(java.lang
+	 * .reflect.AccessibleObject)
 	 */
 	@Override
 	public void checkDependencies(AccessibleObject o) {
@@ -1854,7 +1884,9 @@ public class StaticTestCluster extends TestCluster {
 
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getTestCalls()
 	 */
 	@Override
@@ -1865,8 +1897,12 @@ public class StaticTestCluster extends TestCluster {
 		return testCalls;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(
+	 * java.lang.String)
 	 */
 	@Override
 	public Collection<Class<?>> getKnownMatchingClasses(String name) {

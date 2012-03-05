@@ -43,31 +43,17 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	public Set<ExecutionObserver> observers;
 
-	private final boolean breakOnUndeclaredException;
-
-	private final boolean breakOnException = Properties.BREAK_ON_EXCEPTION;
-
-	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
-		this(tc, scope, observers, true);
-	}
-
 	/**
 	 * 
 	 * @param tc
 	 * @param scope
 	 * @param observers
-	 * @param breakOnUndeclaredException
-	 *            if this is true, the TestRunnable will exit if a statement
-	 *            returns an UndeclaredException. (Note that undeclaredException
-	 *            is defined by StatementInterface.isDeclaredException/1)
 	 */
-	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers,
-	        boolean breakOnUndeclaredException) {
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers){
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
-		this.breakOnUndeclaredException = breakOnUndeclaredException;
 	}
 
 	/* (non-Javadoc)
@@ -109,24 +95,22 @@ public class TestRunnable implements InterfaceTestRunnable {
 						break;
 					}
 
-					if (breakOnException) {
-						break;
-					}
-					if (Thread.interrupted()) {
-						break;
-					}
-
 					/*
 					 * #TODO this is a penalty for test cases which contain a statement that throws an undeclared exception.
 					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
 					 * This comment should explain, why that behavior is desirable 
 					 */
-					if (breakOnUndeclaredException) {
-						//					        && !s.isDeclaredException(exceptionThrown))
-						for (ExecutionObserver observer : observers) {
-							observer.statement(s, scope, exceptionThrown);
-						}
+					if (Properties.BREAK_ON_EXCEPTION) {
 						break;
+						//!s.isDeclaredException(exceptionThrown))
+					}
+
+					if (Thread.interrupted()) {
+						break;
+					}
+
+					for (ExecutionObserver observer : observers) {
+						observer.statement(s, scope, exceptionThrown);
 					}
 
 					// exception_statement = num; 
@@ -137,11 +121,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 				}
 				if (logger.isDebugEnabled())
 					logger.debug("Done statement " + s.getCode());
-				//ExecutionTracer.disable();
+				ExecutionTracer.disable();
 				for (ExecutionObserver observer : observers) {
 					observer.statement(s, scope, exceptionThrown);
 				}
-				//ExecutionTracer.enable();
+				ExecutionTracer.enable();
 				num++;
 			}
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());

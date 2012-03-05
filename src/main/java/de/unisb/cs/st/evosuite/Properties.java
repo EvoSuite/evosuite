@@ -213,11 +213,35 @@ public class Properties {
 	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
 	public static int DSE_RATE = -1;
 
+	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
+	public static int DSE_CONSTRAINT_LENGTH = 100000;
+
+	public enum DSEBudgetType {
+		INDIVIDUALS, TIME
+	}
+
+	@Parameter(key = "dse_budget_type", group = "Search Algorithm", description = "Interpretation of dse_budget property")
+	public static DSEBudgetType DSE_BUDGET_TYPE = DSEBudgetType.INDIVIDUALS;
+
+	@Parameter(key = "dse_budget", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
+	@IntValue(min = 0)
+	public static long DSE_BUDGET = 1;
+
+	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
+	public static int DSE_VARIABLE_RESETS = 1;
+
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
 
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
-	public static int LOCAL_SEARCH_BUDGET = 100;
+	public static long LOCAL_SEARCH_BUDGET = 100;
+
+	public enum LocalSearchBudgetType {
+		STATEMENTS, TIME
+	}
+
+	@Parameter(key = "local_search_budget_type", group = "Search Algorithm", description = "Interpretation of local_search_budget")
+	public static LocalSearchBudgetType LOCAL_SEARCH_BUDGET_TYPE = LocalSearchBudgetType.STATEMENTS;
 
 	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
 	public static int LOCAL_SEARCH_PROBES = 10;
@@ -302,7 +326,7 @@ public class Properties {
 	// TODO: Fix values
 	@Parameter(key = "secondary_objectives", group = "Search Algorithm", description = "Secondary objective during search")
 	// @SetValue(values = { "maxlength", "maxsize", "avglength", "none" })
-	public static String SECONDARY_OBJECTIVE = "exceptions:totallength";
+	public static String SECONDARY_OBJECTIVE = "totallength";
 
 	@Parameter(key = "bloat_factor", group = "Search Algorithm", description = "Maximum relative increase in length")
 	public static int BLOAT_FACTOR = 2;
@@ -341,7 +365,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Output
 	public enum OutputFormat {
-		JUNIT3, JUNIT4, TESTNG
+		JUNIT3, JUNIT4, JUNIT4_LOG, TESTNG
 	}
 
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
@@ -414,6 +438,13 @@ public class Properties {
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
 
+	public enum OutputGranularity {
+		MERGED, TESTCASE
+	}
+	
+	@Parameter(key = "output_granularity", group = "Output", description = "Write all test cases for a class into a single file or to separate files.")
+	public static OutputGranularity OUTPUT_GRANULARITY = OutputGranularity.MERGED;
+
 	//---------------------------------------------------------------
 	// Sandbox
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
@@ -462,14 +493,8 @@ public class Properties {
 	@Parameter(key = "instrument_parent", description = "Also count coverage goals in superclasses")
 	public static boolean INSTRUMENT_PARENT = false;
 
-	@Parameter(key = "check_contracts", description = "Check contracts during test execution")
-	public static boolean CHECK_CONTRACTS = false;
-
-	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
-	public static boolean CHECK_CONTRACTS_END = false;
-
-	@Parameter(key = "BREAK_ON_EXCEPTION", description = "Stop test execution if exception occurrs")
-	public static boolean BREAK_ON_EXCEPTION = false;
+	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
+	public static boolean BREAK_ON_EXCEPTION = true;
 
 	public enum TestFactory {
 		RANDOM, ALLMETHODS, TOURNAMENT, JUNIT
@@ -503,6 +528,36 @@ public class Properties {
 	@Parameter(key = "TT", description = "Testability transformation")
 	public static boolean TT = false;
 
+	public enum TransformationScope {
+		TARGET, PREFIX, ALL
+	}
+
+	@Parameter(key = "tt_scope", description = "Testability transformation")
+	public static TransformationScope TT_SCOPE = TransformationScope.ALL;
+
+	// ---------------------------------------------------------------
+	// Contracts / Asserts:
+	@Parameter(key = "check_contracts", description = "Check contracts during test execution")
+	public static boolean CHECK_CONTRACTS = false;
+
+	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
+	public static boolean CHECK_CONTRACTS_END = false;
+
+	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
+	public static boolean ERROR_BRANCHES = false;
+
+	
+	/*
+	 * FIXME: these 2 following properties will not work if we use the EvoSuite shell script which call
+	 * MasterProcess directly rather than EvoSuite.java
+	 */
+	
+	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
+	public static boolean ENABLE_ASSERTS_FOR_EVOSUITE = false;
+	
+	@Parameter(key = "enable_asserts_for_sut", description = "Check asserts in the SUT")
+	public static boolean ENABLE_ASSERTS_FOR_SUT = true; 
+	
 	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
@@ -556,17 +611,23 @@ public class Properties {
 
 	//---------------------------------------------------------------
 	// Manual algorithm
-	@Parameter(key = "min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
-	public static double MIN_DELTA_COVERAGE = 0.01;
+	@Parameter(key = "ma_min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
+	public static double MA_MIN_DELTA_COVERAGE = 0.01;
 
-	@Parameter(key = "max_iteration", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
-	public static int MAX_ITERATION = 50;
+	@Parameter(key = "ma_max_iterations", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
+	public static int MA_MAX_ITERATIONS = 50;
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
 
 	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
 	public static boolean MA_WIDE_GUI = false;
+
+	@Parameter(key = "ma_target_coverage", group = "Manual algorithm", description = "run Editor at spec. coverage's level")
+	public static int MA_TARGET_COVERAGE = 101;
+	
+	@Parameter(key = "ma_branches_calc", group = "Manual algorithm", description = "run expensive branchcalculations")
+	public static boolean MA_BRANCHES_CALC = false;
 
 	// ---------------------------------------------------------------
 	// UI Test generation parameters
@@ -577,7 +638,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
+		EXCEPTION, CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
 	}
 
 	/** Cache target class */
@@ -637,6 +698,10 @@ public class Properties {
 	@Parameter(key = "min_free_mem", group = "Runtime", description = "Minimum amount of available memory")
 	public static int MIN_FREE_MEM = 200000000;
 
+	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
+	public static boolean CLIENT_ON_THREAD = false;
+	
+	
 	// ---------------------------------------------------------------
 	// Seeding test cases
 
@@ -1130,6 +1195,21 @@ public class Properties {
 		if (TARGET_CLASS_INSTANCE != null)
 			return TARGET_CLASS_INSTANCE;
 
+		try {
+			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
+			return TARGET_CLASS_INSTANCE;
+		} catch (ClassNotFoundException e) {
+			System.err.println("* Could not find class under test: " + TARGET_CLASS);
+		}
+		return null;
+	}
+
+	/**
+	 * Get class object of class under test
+	 * 
+	 * @return
+	 */
+	public static Class<?> loadTargetClass() {
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;

@@ -24,6 +24,8 @@ import java.util.logging.Logger;
 import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.jvm.MJIEnv;
 import de.unisb.cs.st.evosuite.symbolic.expr.Expression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerUnaryExpression;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
@@ -42,6 +44,42 @@ public class JPF_java_lang_Math {
 	private static Logger log = JPF.getLogger(JPF_java_lang_Math.class.toString());
 	
 	@SuppressWarnings("unchecked")
+	public static double abs__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.abs(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.abs(a);
+		} else {
+			double ret = Math.abs(a);
+			RealUnaryExpression result = 
+						new RealUnaryExpression(sym_arg, Operator.ABS, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static float abs__F__F(MJIEnv env, int clsObjRef, float a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.abs(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.abs(a);
+		} else {
+			float ret = Math.abs(a);
+			RealUnaryExpression result = 
+					new RealUnaryExpression(sym_arg, Operator.ABS, (double)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static int abs__I__I(MJIEnv env, int clsObjRef, int a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -57,7 +95,24 @@ public class JPF_java_lang_Math {
 			env.setReturnAttribute(result);
 			return ret;
 		}
-
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static long abs__J__J(MJIEnv env, int clsObjRef, long a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.abs(a);
+		}
+		Expression<Long> sym_arg = (Expression<Long>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.abs(a);
+		} else {
+			long ret = Math.abs(a);
+			IntegerUnaryExpression result = 
+						new IntegerUnaryExpression(sym_arg, Operator.ABS, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -142,6 +197,24 @@ public class JPF_java_lang_Math {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static double ceil__D__D(MJIEnv env, int rcls, double v0) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.ceil(v0);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.ceil(v0);
+		} else {
+			double ret = Math.ceil(v0);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.CEIL,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static double cos__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -153,6 +226,24 @@ public class JPF_java_lang_Math {
 		} else {
 			double ret = Math.cos(a);
 			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.COS,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double cosh__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.cosh(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.cosh(a);
+		} else {
+			double ret = Math.cosh(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.COSH,
 			        ret);
 			env.setReturnAttribute(result);
 			return ret;
@@ -178,6 +269,70 @@ public class JPF_java_lang_Math {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static double expm1__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.expm1(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.expm1(a);
+		} else {
+			double ret = Math.expm1(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.EXPM1,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double floor__D__D(MJIEnv env, int rcls, double v0) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.floor(v0);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.floor(v0);
+		} else {
+			double ret = Math.floor(v0);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.FLOOR,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	public static double IEEEremainder__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
+		Object[] attrs = env.getArgAttributes();
+		double ret = Math.IEEEremainder(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, Operator.IEEEREMAINDER, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+	
+	@SuppressWarnings("unchecked")
 	public static double log__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -196,6 +351,238 @@ public class JPF_java_lang_Math {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static double max__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
+		Object[] attrs = env.getArgAttributes();
+		double ret = Math.max(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.MAX, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float max__FF__F(MJIEnv env, int clsObjRef, float a, float b) {
+		Object[] attrs = env.getArgAttributes();
+		float ret = Math.max(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.MAX, sym_arg2, (double)ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static int max__II__I(MJIEnv env, int clsObjRef, int a, int b) {
+		Object[] attrs = env.getArgAttributes();
+		int ret = Math.max(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Long> sym_arg1 = (Expression<Long>) attrs[0];
+		Expression<Long> sym_arg2 = (Expression<Long>) attrs[1];
+		Expression<Long> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new IntegerConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new IntegerConstant(b);
+		}
+		
+		result = new IntegerBinaryExpression(sym_arg1, 
+								Operator.MAX, sym_arg2, (long)ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static long max__JJ__J(MJIEnv env, int clsObjRef, long a, long b) {
+		Object[] attrs = env.getArgAttributes();
+		long ret = Math.max(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Long> sym_arg1 = (Expression<Long>) attrs[0];
+		Expression<Long> sym_arg2 = (Expression<Long>) attrs[1];
+		Expression<Long> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new IntegerConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new IntegerConstant(b);
+		}
+		
+		result = new IntegerBinaryExpression(sym_arg1, 
+								Operator.MAX, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double min__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
+		Object[] attrs = env.getArgAttributes();
+		double ret = Math.min(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.MIN, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float min__FF__F(MJIEnv env, int clsObjRef, float a, float b) {
+		Object[] attrs = env.getArgAttributes();
+		float ret = Math.min(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.MIN, sym_arg2, (double)ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static int min__II__I(MJIEnv env, int clsObjRef, int a, int b) {
+		Object[] attrs = env.getArgAttributes();
+		int ret = Math.min(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Long> sym_arg1 = (Expression<Long>) attrs[0];
+		Expression<Long> sym_arg2 = (Expression<Long>) attrs[1];
+		Expression<Long> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new IntegerConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new IntegerConstant(b);
+		}
+		
+		result = new IntegerBinaryExpression(sym_arg1, 
+								Operator.MIN, sym_arg2, (long)ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static long min__JJ__J(MJIEnv env, int clsObjRef, long a, long b) {
+		Object[] attrs = env.getArgAttributes();
+		long ret = Math.min(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Long> sym_arg1 = (Expression<Long>) attrs[0];
+		Expression<Long> sym_arg2 = (Expression<Long>) attrs[1];
+		Expression<Long> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new IntegerConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new IntegerConstant(b);
+		}
+		
+		result = new IntegerBinaryExpression(sym_arg1, 
+								Operator.MIN, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
 	public static double log10__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -207,6 +594,24 @@ public class JPF_java_lang_Math {
 		} else {
 			double ret = Math.log10(a);
 			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.LOG10,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double log1p__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.log1p(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.log1p(a);
+		} else {
+			double ret = Math.log1p(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.LOG1P,
 			        ret);
 			env.setReturnAttribute(result);
 			return ret;
@@ -241,6 +646,58 @@ public class JPF_java_lang_Math {
 	}
 
 	@SuppressWarnings("unchecked")
+	public static double rint__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.rint(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.rint(a);
+		} else {
+			double ret = Math.rint(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.RINT,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static long round__D__J(MJIEnv env, int rcls, double v0) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.round(v0);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.round(v0);
+		} else {
+			long ret = Math.round(v0);
+			IntegerExpression result = new RealToIntegerCast(sym_arg, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static int round__F__I(MJIEnv env, int rcls, float v0) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.round(v0);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.round(v0);
+		} else {
+			int ret = Math.round(v0);
+			IntegerExpression result = new RealToIntegerCast(sym_arg, (long) ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
 	public static double sin__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
@@ -252,6 +709,25 @@ public class JPF_java_lang_Math {
 		} else {
 			double ret = Math.sin(a);
 			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.SIN,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double sinh__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.sinh(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.sinh(a);
+		} else {
+			double ret = Math.sinh(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.SINH,
 			        ret);
 			env.setReturnAttribute(result);
 			return ret;
@@ -296,51 +772,17 @@ public class JPF_java_lang_Math {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static int round__F__I(MJIEnv env, int rcls, float v0) {
+	public static double tanh__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
-			return Math.round(v0);
+			return Math.tanh(a);
 		}
 		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
 		if (sym_arg == null) { // concrete
-			return Math.round(v0);
+			return Math.tanh(a);
 		} else {
-			int ret = Math.round(v0);
-			IntegerExpression result = new RealToIntegerCast(sym_arg, (long) ret);
-			env.setReturnAttribute(result);
-			return ret;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static long round__D__J(MJIEnv env, int rcls, double v0) {
-		Object[] attrs = env.getArgAttributes();
-		if (attrs == null) {
-			return Math.round(v0);
-		}
-		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
-		if (sym_arg == null) { // concrete
-			return Math.round(v0);
-		} else {
-			long ret = Math.round(v0);
-			IntegerExpression result = new RealToIntegerCast(sym_arg, ret);
-			env.setReturnAttribute(result);
-			return ret;
-		}
-	}
-
-	@SuppressWarnings("unchecked")
-	public static double ceil__D__D(MJIEnv env, int rcls, double v0) {
-		Object[] attrs = env.getArgAttributes();
-		if (attrs == null) {
-			return Math.ceil(v0);
-		}
-		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
-		if (sym_arg == null) { // concrete
-			return Math.ceil(v0);
-		} else {
-			double ret = Math.ceil(v0);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.ROUND,
+			double ret = Math.tanh(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.TANH,
 			        ret);
 			env.setReturnAttribute(result);
 			return ret;
@@ -348,20 +790,406 @@ public class JPF_java_lang_Math {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static double floor__D__D(MJIEnv env, int rcls, double v0) {
+	public static double toDegrees__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
 		if (attrs == null) {
-			return Math.floor(v0);
+			return Math.toDegrees(a);
 		}
 		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
 		if (sym_arg == null) { // concrete
-			return Math.floor(v0);
+			return Math.toDegrees(a);
 		} else {
-			double ret = Math.floor(v0);
-			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.FLOOR,
+			double ret = Math.toDegrees(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.TODEGREES,
 			        ret);
 			env.setReturnAttribute(result);
 			return ret;
 		}
 	}
+
+	@SuppressWarnings("unchecked")
+	public static double toRadians__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.toRadians(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.toRadians(a);
+		} else {
+			double ret = Math.toRadians(a);
+			RealUnaryExpression result = new RealUnaryExpression(sym_arg, Operator.TORADIANS,
+			        ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double cbrt__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.cbrt(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.cbrt(a);
+		} else {
+			double ret = Math.cbrt(a);
+			RealUnaryExpression result = 
+				new RealUnaryExpression(sym_arg, Operator.CBRT, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double nextUp__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.nextUp(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.nextUp(a);
+		} else {
+			double ret = Math.nextUp(a);
+			RealUnaryExpression result = 
+				new RealUnaryExpression(sym_arg, Operator.NEXTUP, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float nextUp__F__F(MJIEnv env, int clsObjRef, float a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.nextUp(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.nextUp(a);
+		} else {
+			float ret = Math.nextUp(a);
+			RealUnaryExpression result = 
+				new RealUnaryExpression(sym_arg, Operator.NEXTUP, (double)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double signum__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.signum(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.signum(a);
+		} else {
+			double ret = Math.signum(a);
+			RealUnaryExpression result = 
+				new RealUnaryExpression(sym_arg, Operator.SIGNUM, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float signum__F__F(MJIEnv env, int clsObjRef, float a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.signum(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.signum(a);
+		} else {
+			float ret = Math.signum(a);
+			RealUnaryExpression result = 
+				new RealUnaryExpression(sym_arg, Operator.SIGNUM, (double)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double ulp__D__D(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.ulp(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.ulp(a);
+		} else {
+			double ret = Math.ulp(a);
+			RealUnaryExpression result = 
+				new RealUnaryExpression(sym_arg, Operator.ULP, ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float ulp__F__F(MJIEnv env, int clsObjRef, float a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.ulp(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.ulp(a);
+		} else {
+			float ret = Math.ulp(a);
+			RealUnaryExpression result = 
+				new RealUnaryExpression(sym_arg, Operator.ULP, (double)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static int getExponent__D__I(MJIEnv env, int clsObjRef, double a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.getExponent(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.getExponent(a);
+		} else {
+			int ret = Math.getExponent(a);
+			RealUnaryExpression realUExpr = 
+				new RealUnaryExpression(sym_arg, Operator.GETEXPONENT, (double)ret);
+			RealToIntegerCast result = new RealToIntegerCast(realUExpr, (long)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static int getExponent__F__I(MJIEnv env, int clsObjRef, float a) {
+		Object[] attrs = env.getArgAttributes();
+		if (attrs == null) {
+			return Math.getExponent(a);
+		}
+		Expression<Double> sym_arg = (Expression<Double>) attrs[0];
+		if (sym_arg == null) { // concrete
+			return Math.getExponent(a);
+		} else {
+			int ret = Math.getExponent(a);
+			RealUnaryExpression realUExpr = 
+				new RealUnaryExpression(sym_arg, Operator.GETEXPONENT, (double)ret);
+			RealToIntegerCast result = new RealToIntegerCast(realUExpr, (long)ret);
+			env.setReturnAttribute(result);
+			return ret;
+		}
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double copySign__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
+		Object[] attrs = env.getArgAttributes();
+		double ret = Math.copySign(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.COPYSIGN, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float copySign__FF__F(MJIEnv env, int clsObjRef, float a, float b) {
+		Object[] attrs = env.getArgAttributes();
+		float ret = Math.copySign(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.COPYSIGN, sym_arg2, (double)ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double hypot__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
+		Object[] attrs = env.getArgAttributes();
+		double ret = Math.hypot(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.HYPOT, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double nextAfter__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
+		Object[] attrs = env.getArgAttributes();
+		double ret = Math.nextAfter(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.NEXTAFTER, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float nextAfter__FD__F(MJIEnv env, int clsObjRef, float a, double b) {
+		Object[] attrs = env.getArgAttributes();
+		float ret = Math.nextAfter(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Double> sym_arg2 = (Expression<Double>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new RealConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.NEXTAFTER, sym_arg2, (double)ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static double scalb__DI__D(MJIEnv env, int clsObjRef, double a, int b) {
+		Object[] attrs = env.getArgAttributes();
+		double ret = Math.scalb(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Long> sym_arg2 = (Expression<Long>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new IntegerConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.SCALB, sym_arg2, ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
+	@SuppressWarnings("unchecked")
+	public static float scalb__FI__F(MJIEnv env, int clsObjRef, float a, int b) {
+		Object[] attrs = env.getArgAttributes();
+		float ret = Math.scalb(a, b);
+		
+		if (attrs == null) {
+			return ret;
+		}
+		
+		Expression<Double> sym_arg1 = (Expression<Double>) attrs[0];
+		Expression<Long> sym_arg2 = (Expression<Long>) attrs[1];
+		Expression<Double> result;
+		
+		if (sym_arg1 == null && sym_arg2 == null) {
+			return ret;
+		}
+		if (sym_arg1 == null) {
+			sym_arg1 = new RealConstant(a);
+		}
+		if (sym_arg2 == null) {
+			sym_arg2 = new IntegerConstant(b);
+		}
+		
+		result = new RealBinaryExpression(sym_arg1, 
+								Operator.SCALB, sym_arg2, (double)ret);
+		env.setReturnAttribute(result);
+		return ret;
+	}
+
 }

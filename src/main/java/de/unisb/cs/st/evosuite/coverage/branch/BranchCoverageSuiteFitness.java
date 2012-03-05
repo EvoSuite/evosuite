@@ -32,9 +32,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.javaagent.LinePool;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -55,15 +55,31 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	//	public static final int total_methods = TestCluster.getInstance().num_defined_methods;
-	public static final int total_methods = CFGMethodAdapter.methods.size();
+	public static final int total_methods;
+	public static final int total_branches;
+	public static final int numBranchlessMethods;
+	public static final Set<Integer> lines;
+	private static final Set<String> branchlessMethods;
 
-	public static final int total_branches = BranchPool.getBranchCounter()
-	        - LCSAJPool.lcsaj_branches.size();
+	static {
+		String prefix = Properties.TARGET_CLASS_PREFIX;
 
-	public static final int branchless_methods = BranchPool.getBranchlessMethods().size();
+		if (prefix.isEmpty()) {
+			prefix = Properties.TARGET_CLASS;
+			total_methods = CFGMethodAdapter.getNumMethodsMemberClasses(prefix);
+			total_branches = BranchPool.getBranchCountForMemberClasses(prefix);
+			numBranchlessMethods = BranchPool.getNumBranchlessMethodsMemberClasses(prefix);
+			branchlessMethods = BranchPool.getBranchlessMethodsMemberClasses(prefix);
+		} else {
+			total_methods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
+			total_branches = BranchPool.getBranchCountForPrefix(prefix);
+			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
+			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
+		}
 
-	public static final Set<Integer> lines = LinePool.getLines(Properties.TARGET_CLASS);
+		/* TODO: Would be nice to use a prefix here */
+		lines = LinePool.getLines(Properties.TARGET_CLASS);
+	}
 
 	public int covered_branches = 0;
 
@@ -71,7 +87,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public double best_fitness = Double.MAX_VALUE;
 
-	public static final int total_goals = 2 * total_branches + branchless_methods;
+	public static final int total_goals = 2 * total_branches + numBranchlessMethods;
 
 	public static int mostCoveredGoals = 0;
 
@@ -82,6 +98,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public BranchCoverageSuiteFitness() {
 		logger.info("Total branch coverage goals: " + total_goals);
 		logger.info("Total branches: " + total_branches);
+		logger.info("Total branchless methods: " + numBranchlessMethods);
+		logger.info("Total methods: " + total_methods + ": "
+		        + CFGMethodAdapter.methods.get(Properties.TARGET_CLASS));
+
 		getPublicMethods();
 	}
 
@@ -239,7 +259,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		*/
 		//		logger.info("Method calls : "+(total_methods - call_count.size())+"/"+total_methods+" ("+CFGMethodAdapter.methods.size()+")");
 		int missing_methods = 0;
-		for (String e : CFGMethodAdapter.methods) {
+
+		Set<String> methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getMethods(Properties.TARGET_CLASS)
+		        : CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
+
+		for (String e : methods) {
 			if (!call_count.containsKey(e)) {
 				//logger.debug("Missing method: " + e);
 				fitness += 1.0;
@@ -320,7 +344,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.info("Calculating fitness took: " + (end - start) + "ms");
 		}
 		double coverage = num_covered;
-		for (String e : BranchPool.getBranchlessMethods()) {
+		for (String e : branchlessMethods) {
 			if (call_count.keySet().contains(e))
 				coverage += 1.0;
 
@@ -337,7 +361,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		assert (coverage <= total_goals) : "Covered " + coverage + " vs total goals "
 		        + total_goals;
 		suite.setCoverage(coverage / total_goals);
-		assert (fitness != 0.0 || coverage == total_goals);
+		assert (fitness != 0.0 || coverage == total_goals) : "Fitness: " + fitness + ", "
+		        + "coverage: " + coverage + "/" + total_goals;
 		if (coverage / total_goals > 1) {
 			logger.warn("Coverage > 1:");
 			logger.warn("Covered branches: " + num_covered);
