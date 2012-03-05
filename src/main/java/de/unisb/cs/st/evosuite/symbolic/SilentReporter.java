@@ -23,6 +23,8 @@ import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.Reporter;
 import gov.nasa.jpf.search.Search;
 
+import java.util.ArrayList;
+
 /**
  * This reporter stays silents
  * 
@@ -33,6 +35,7 @@ public class SilentReporter extends Reporter {
 
 	public SilentReporter(Config conf, JPF jpf) {
 		super(conf, jpf);
+		//this.publishers = new ArrayList<Publisher>();
 		this.publishers = new Publisher[0];
 	}
 

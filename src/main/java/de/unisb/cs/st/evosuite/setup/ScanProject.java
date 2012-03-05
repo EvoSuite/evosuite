@@ -39,7 +39,6 @@ import java.util.zip.ZipFile;
 
 import org.eclipse.jdt.core.dom.Modifier;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.commons.EmptyVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,6 +49,7 @@ import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer;
 import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer.ClassEntry;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.javaagent.CIClassAdapter;
+import de.unisb.cs.st.evosuite.javaagent.EmptyVisitor;
 import de.unisb.cs.st.evosuite.utils.StringUtil;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -537,6 +537,17 @@ public class ScanProject {
 				System.out.println("* Analyzing project prefix: "
 				        + Properties.PROJECT_PREFIX);
 				classes.addAll(getClasses(Properties.PROJECT_PREFIX, false));
+				File propertyFile = new File(Properties.OUTPUT_DIR + File.separator
+				        + "evosuite.properties");
+				if (!propertyFile.exists()) {
+					System.out.println("* Creating evosuite.properties");
+					Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
+					                                                    + File.separator
+					                                                    + "evosuite.properties");
+				} else {
+					System.out.println("* Found existing evosuite.properties, not touching it");
+
+				}
 			} else if (args.length > 0) {
 				for (String arg : args) {
 					if (arg.endsWith(".jar")) {
@@ -552,13 +563,13 @@ public class ScanProject {
 				Properties.PROJECT_PREFIX = prefix;
 				File propertyFile = new File(Properties.OUTPUT_DIR + File.separator
 				        + "evosuite.properties");
-				if (propertyFile.exists()) {
-
-				} else {
-
+				if (!propertyFile.exists()) {
+					System.out.println("* Creating evosuite.properties");
 					Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
 					                                                    + File.separator
 					                                                    + "evosuite.properties");
+				} else {
+					System.out.println("* Found existing evosuite.properties, not touching it");
 				}
 			} else {
 				System.out.println("* Please specify either project prefix or directory");

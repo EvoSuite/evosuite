@@ -10,7 +10,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * This class is supposed to hold all the available information concerning

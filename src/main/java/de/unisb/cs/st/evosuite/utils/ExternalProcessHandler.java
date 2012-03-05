@@ -12,6 +12,9 @@ import java.net.Socket;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.ClientProcess;
+import de.unisb.cs.st.evosuite.Properties;
+
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
@@ -41,7 +44,9 @@ public class ExternalProcessHandler {
 	protected final Object MONITOR = new Object();
 
 	protected Thread processKillHook;
-
+	protected Thread clientRunningOnThread;
+	
+	
 	public ExternalProcessHandler() {
 
 	}
@@ -72,20 +77,39 @@ public class ExternalProcessHandler {
 		Runtime.getRuntime().addShutdownHook(processKillHook);
 		// now start the process
 
-		File dir = new File(System.getProperty("user.dir"));
-		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(dir);
-		builder.redirectErrorStream(false);
+		if(!Properties.CLIENT_ON_THREAD){
+			File dir = new File(System.getProperty("user.dir"));
+			ProcessBuilder builder = new ProcessBuilder(command);
+			builder.directory(dir);
+			builder.redirectErrorStream(false);
 
-		try {
-			process = builder.start();
-		} catch (IOException e) {
-			logger.error("Failed to start external process", e);
-			return false;
+			try {
+				process = builder.start();
+			} catch (IOException e) {
+				logger.error("Failed to start external process", e);
+				return false;
+			}
+
+			startExternalProcessPrinter();
+		} else {
+			/*
+			 * Here we run client on a thread instead of process.
+			 * NOTE: this should only be done for debugging, ie in
+			 * JUnit files created for testing EvoSuite. 
+			 */
+			clientRunningOnThread = new Thread(){
+				@Override
+				public void run(){
+					/*
+					 * NOTE: the handling of the parameters "-D" should be handled
+					 * directly in JUnit by setting the different values in Properties
+					 */
+					ClientProcess.main(new String[0]);
+				}
+			};
+			clientRunningOnThread.setName("client");
+			clientRunningOnThread.start();
 		}
-
-		startExternalProcessPrinter();
-
 		//wait for connection from external process
 
 		try {
@@ -125,6 +149,11 @@ public class ExternalProcessHandler {
 			process.destroy();
 		process = null;
 
+		if(clientRunningOnThread != null && clientRunningOnThread.isAlive()){
+			clientRunningOnThread.interrupt();
+		}
+		clientRunningOnThread = null;
+		
 		if (output_printer != null && output_printer.isAlive())
 			output_printer.interrupt();
 		output_printer = null;
@@ -240,6 +269,8 @@ public class ExternalProcessHandler {
 					try {
 						message = (String) in.readObject();
 						data = in.readObject();
+						logger.debug("Received msg: "+message);
+						logger.debug("Received data: "+data);
 					} catch (Exception e) {
 						/*
 						 * TODO: this parts need to be improved.

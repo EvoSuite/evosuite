@@ -109,12 +109,12 @@ public class IntPrimitiveStatement extends NumericalPrimitiveStatement<Integer> 
 	public boolean isPositive() {
 		return value >= 0;
 	}
-	
+
 	@Override
 	public void negate() {
 		value = -value;
 	}
-	
+
 	@Override
 	public Integer getValue() {
 		return value;

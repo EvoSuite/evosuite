@@ -1,6 +1,3 @@
-/**
- * 
- */
 package de.unisb.cs.st.evosuite.ma;
 
 import java.util.HashSet;
@@ -9,22 +6,34 @@ import java.util.Set;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 /**
- * @author Yury Pavlov
+ * The <code>TCTuple</code> class is a data structure which are used by
+ * {@link Editor} class to store and manage test cases.
  * 
+ * @author Yury Pavlov
  */
 public class TCTuple implements Cloneable {
 
 	private TestCase testCase;
 
 	private Set<Integer> coverage = new HashSet<Integer>();
-	
+
+	// Used by WideTestEditorGUI to store written source code 
 	private String origSourceCode = "";
 
+	/**
+	 * @param testCase
+	 * @param coverage
+	 */
 	public TCTuple(TestCase testCase, Set<Integer> coverage) {
 		this.testCase = testCase;
 		this.coverage = coverage;
 	}
-	
+
+	/**
+	 * @param testCase
+	 * @param coverage
+	 * @param origSourceCode
+	 */
 	public TCTuple(TestCase testCase, Set<Integer> coverage, String origSourceCode) {
 		this.testCase = testCase;
 		this.coverage = coverage;
@@ -85,19 +94,20 @@ public class TCTuple implements Cloneable {
 	public String toString() {
 		// main target of this representation just to identify diff.
 		// TestCaseTuple
-		String res = "TestCase: " + this.hashCode() + ". Coverage: " + coverage
-				+ "\n" + "Source code: \n" + testCase.toCode();
+		String res = "TestCase: " + this.hashCode() + ". Coverage: " + coverage + "\n" + "Source code: \n"
+				+ testCase.toCode();
 
 		return res;
 	}
-	
+
 	/**
-	 * @param origSourceCode the origSourceCode to set
+	 * @param origSourceCode
+	 *            the origSourceCode to set
 	 */
 	public void setOrigSourceCode(String origSourceCode) {
 		this.origSourceCode = origSourceCode;
 	}
-	
+
 	/**
 	 * @return the origSourceCode
 	 */

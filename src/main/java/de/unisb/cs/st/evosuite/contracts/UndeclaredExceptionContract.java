@@ -26,6 +26,11 @@ public class UndeclaredExceptionContract extends Contract {
 			Set<Class<?>> exceptions = statement.getDeclaredExceptions();
 
 			if (!exceptions.contains(exception.getClass())) {
+				
+				/*
+				 * even if possible handled by other contracts, that does not mean
+				 * they check the signature. 
+				 *
 				// Assertion errors are checked by a different contract
 				if (exception instanceof AssertionError)
 					return true;
@@ -34,7 +39,8 @@ public class UndeclaredExceptionContract extends Contract {
 				if (exception instanceof NullPointerException) {
 					return true;
 				}
-
+				*/
+				
 				return false;
 			}
 		}

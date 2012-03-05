@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
 
@@ -17,36 +18,15 @@ import de.unisb.cs.st.evosuite.Properties;
  */
 public class BooleanHelper {
 
-	private static Stack<Integer> distanceStack = new Stack<Integer>();
-
-	private static Stack<Stack<Integer>> stackStack = new Stack<Stack<Integer>>();
-
-	private static final int MAX_STACK = Properties.TT_stack;
-
 	public static final int K = Integer.MAX_VALUE - 2;
+	//public static final int K = 1000;
 
-	public static void clearPredicates() {
-		distanceStack.clear();
-	}
+	private static final int TRUE = K;
 
-	public static void methodEntered() {
-		if (distanceStack != null)
-			stackStack.push(distanceStack);
-		distanceStack = new Stack<Integer>();
-	}
-
-	public static void methodLeft() {
-		if (!stackStack.isEmpty())
-			distanceStack = stackStack.pop();
-		else
-			distanceStack = null;
-	}
+	private static final int FALSE = -K;
 
 	public static void clearStack() {
-		if (!stackStack.isEmpty())
-			stackStack.clear();
-		if (distanceStack != null)
-			distanceStack.clear();
+		lastDistance.clear();
 	}
 
 	/**
@@ -57,7 +37,7 @@ public class BooleanHelper {
 	 * @return
 	 */
 	public static int objectEquals(Object obj1, Object obj2) {
-		return obj1.equals(obj2) ? K : -K;
+		return obj1.equals(obj2) ? TRUE : FALSE;
 	}
 
 	/**
@@ -67,7 +47,7 @@ public class BooleanHelper {
 	 * @return
 	 */
 	public static int collectionIsEmpty(Collection<?> c) {
-		return c.isEmpty() ? K : -c.size();
+		return c.isEmpty() ? TRUE : -c.size();
 	}
 
 	/**
@@ -79,11 +59,32 @@ public class BooleanHelper {
 	 */
 	public static int collectionContains(Collection<?> c, Object o1) {
 		int matching = 0;
+		double min_distance = Double.MAX_VALUE;
 		for (Object o2 : c) {
 			if (o2.equals(o1))
 				matching++;
+			else {
+				if (o2 != null && o1 != null) {
+					if (o2.getClass().equals(o1.getClass()) && o1 instanceof Number) {
+						Number n1 = (Number) o1;
+						Number n2 = (Number) o2;
+						min_distance = Math.min(min_distance,
+						                        Math.abs(n1.doubleValue()
+						                                - n2.doubleValue()));
+					}
+				}
+			}
 		}
-		return matching > 0 ? matching : -c.size();
+		if (matching > 0)
+			return matching;
+		else {
+			if (min_distance == Double.MAX_VALUE)
+				return -c.size() - 1;
+			else {
+				return -1 * (int) Math.ceil(K * min_distance / (min_distance + 1.0));
+			}
+
+		}
 	}
 
 	/**
@@ -131,20 +132,61 @@ public class BooleanHelper {
 	 * @return
 	 */
 	public static int mapIsEmpty(Map<?, ?> m) {
-		return m.isEmpty() ? K : -m.size();
+		return m.isEmpty() ? TRUE : -m.size();
 	}
 
-	public static void pushPredicate(int branchId, int distance) {
+	static Map<Integer, Integer> lastDistance = new HashMap<Integer, Integer>();
 
+	/**
+	 * Keep track of the distance for this predicate
+	 * 
+	 * @param branchId
+	 * @param distance
+	 */
+	public static void pushPredicate(int distance, int branchId) {
+		//		Branch branch = BranchPool.getBranch(branchId);
+		//		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
+		//		System.out.println("Keeping branch id: " + branch.getClassName() + " - "
+		//		        + branchId + " - " + distance);
+		//System.out.println("Keeping branch id: " + branchId + " - " + distance);
+		lastDistance.put(branchId, Math.abs(distance));
 	}
 
-	public static void pushPredicate(int distance) {
-		//logger.debug("Push: " + distance);
-		if (distanceStack != null) {
-			while (distanceStack.size() > MAX_STACK)
-				distanceStack.remove(0);
-			distanceStack.push(Math.abs(distance));
+	/**
+	 * Retrieve the distance of a predicate with its given approximation level
+	 * 
+	 * @param branchId
+	 * @param approximationLevel
+	 * @param value
+	 * @return
+	 */
+	public static int getDistance(int branchId, int approximationLevel, int value) {
+		int distance = Integer.MAX_VALUE;
+		//		if (approximationLevel < 0)
+		//			approximationLevel = 0;
+		if (branchId > 0) {
+			if (lastDistance.containsKey(branchId)) {
+				distance = lastDistance.get(branchId);
+			}
 		}
+		//		Branch branch = BranchPool.getBranch(branchId);
+		//if (branch.getClassName().equals(Properties.TARGET_CLASS))
+		//System.out.println("Getting branch id: " + approximationLevel + "/" + branchId
+		//        + "/" + value + " - " + distance);
+
+		//		System.out.println("Getting branch id: " + branch.getClassName() + " - "
+		//		        + branchId + " - " + distance);
+		double val = (1.0 + normalize(distance)) / Math.pow(2.0, approximationLevel);
+		//double val = (1.0 + Math.abs(distance)) / Math.pow(2.0, approximationLevel);
+
+		//		int d = (int) Math.ceil(K * val / (val + 1));
+		int d = (int) Math.ceil(K * val);
+		if (d == 0)
+			d = 1;
+		if (value <= 0)
+			d = -d;
+		//System.out.println("Value: " + distance + ", Distance: " + d);
+		return d;
 	}
 
 	private static double normalize(int distance) {
@@ -155,40 +197,72 @@ public class BooleanHelper {
 		//return distance / (distance + 1.0);
 	}
 
-	public static int getDistance(int original) {
-		if (distanceStack == null) {
-			if (original > 0)
-				return K;
-			else
-				return -K;
+	/**
+	 * Replacement function for double comparison
+	 * 
+	 * @param d1
+	 * @param d2
+	 * @return
+	 */
+	public static int doubleSub(double d1, double d2) {
+		if (d1 == d2) {
+			return 0;
+		} else {
+			double diff = d1 - d2;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
+			//			int d3 = (int) Math.round(Integer.MAX_VALUE * diff2);
+			int d3 = (int) (diff2 < 0 ? Math.floor(Integer.MAX_VALUE * diff2)
+			        : Math.ceil(Integer.MAX_VALUE * diff2));
+			return d3;
 		}
-		int l = distanceStack.size();
-		int distance = K;
-		if (distanceStack.size() > 0)
-			distance = distanceStack.peek();
-		distanceStack.clear();
-		/*
-				if (l <= 1) {
-					//distance += K;
-					if (original <= 0)
-						distance = -distance;
-					logger.debug("Distance (2)" + distance);
-					return distance;
-				}
-		*/
-		double val = (1.0 + normalize(distance)) / Math.pow(2.0, l);
-
-		int d = (int) Math.ceil(K * val);
-		//if (d == 0 && val != 0.0)
-		//	d = 1; // TODO: This is a problem if the number of pushes is too big
-		//if (d == 0)
-		//	d = 1;
-		if (original <= 0)
-			d = -d;
-
-		return d;
 	}
 
+	/**
+	 * Replacement function for float comparison
+	 * 
+	 * @param f1
+	 * @param f2
+	 * @return
+	 */
+	public static int floatSub(float f1, float f2) {
+		if (f1 == f2)
+			return 0;
+		else {
+			double diff = f1 - f2;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+			return d3;
+		}
+	}
+
+	public static int intSub(int a, int b) {
+		long sub = (long) a - (long) b;
+		if (sub < -K)
+			return -K;
+		else if (sub > K)
+			return K;
+		return (int) sub;
+	}
+
+	/**
+	 * Replacement function for long comparison
+	 * 
+	 * @param l1
+	 * @param l2
+	 * @return
+	 */
+	public static int longSub(long l1, long l2) {
+		if (l1 == l2)
+			return 0;
+		else {
+			double diff = l1 - l2;
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
+			return d3;
+		}
+	}
+
+	@Deprecated
 	public static int fromDouble(double d) {
 		//logger.info("Converting double " + d);
 		/*
@@ -209,6 +283,7 @@ public class BooleanHelper {
 		}
 	}
 
+	@Deprecated
 	public static int fromFloat(float d) {
 		//logger.info("Converting float " + d);
 		/*
@@ -228,13 +303,12 @@ public class BooleanHelper {
 		}
 	}
 
+	@Deprecated
 	public static int fromLong(long d) {
-		
 		if (d > Integer.MAX_VALUE)
 			return Integer.MAX_VALUE;
 		else if (d < Integer.MIN_VALUE)
 			return Integer.MIN_VALUE;
-			
 		//else
 		//	return (int) d;
 		if (d == 0L)
@@ -246,9 +320,9 @@ public class BooleanHelper {
 
 	public static int booleanToInt(boolean b) {
 		if (b)
-			return K;
+			return TRUE;
 		else
-			return -K;
+			return FALSE;
 	}
 
 	public static boolean intToBoolean(int x) {
@@ -260,6 +334,13 @@ public class BooleanHelper {
 			return Math.min(a, c);
 		else
 			return Math.min(b, c);
+	}
+
+	public static int compareBoolean(int a, int b) {
+		if ((a > 0 && b > 0) || (a <= 0 && b <= 0))
+			return Math.abs(a - b);
+		else
+			return -1 * Math.abs(a - b);
 	}
 
 	public static int editDistance_old(String s, String t) {
@@ -398,15 +479,52 @@ public class BooleanHelper {
 		return p[n];
 	}
 
+	/*
+	 * Return a positive number if the 2 strings are equal, or a <=0 value representing
+	 * how different they are
+	 */
 	public static int StringEquals(String first, Object second) {
-		if (first.equals(second))
+		if (first == null) {
+			throw new IllegalArgumentException(
+			        "StringEquals is not supposed to work on a null caller");
+		}
+
+		if (first.equals(second)) {
 			return K; // Identical
-		else {
+		} else {
 			//System.out.println("Edit distance between " + first + " and " + second
 			//       + " is " + -editDistance(first, second.toString()) + " / "
 			//      + getLevenshteinDistance(first, (String) second));
-			return -editDistance(first, second.toString());
+			//return -editDistance(first, second.toString());
 			//return -getLevenshteinDistance(first, (String) second);
+			return -getDistanceBasedOnLeftAlignment(first, second.toString());
+		}
+	}
+
+	public static int getDistanceBasedOnLeftAlignment(String a, String b) {
+		if (a == b) {
+			assert (false);
+			return K;
+		} else if (a == null && b != null) {
+			return b.length() + 1; // +1 is important to handle the empty string "" 
+		} else if (a != null && b == null) {
+			return a.length() + 1;
+		} else {
+			int differences = 0;
+			int min = Math.min(a.length(), b.length());
+			int max = Math.max(a.length(), b.length());
+			differences += (max - min);
+			for (int i = 0; i < min; i++) {
+				/*
+				 * Note: instead of just checking for mismatches, we could use something more sophisticated.
+				 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
+				 * we do, we don't need to do it
+				 */
+				if (a.charAt(i) != b.charAt(i)) {
+					differences++;
+				}
+			}
+			return differences;
 		}
 	}
 
@@ -460,29 +578,37 @@ public class BooleanHelper {
 			s2 = s2.toLowerCase();
 		}
 
-		return StringEquals(s1.substring(thisStart, length + thisStart), 
-							s2.substring(start, length + start));
+		return StringEquals(s1.substring(thisStart, length + thisStart),
+		                    s2.substring(start, length + start));
 	}
 
+	/**
+	 * Replacement function for the Java instanceof instruction, which returns a
+	 * distance integer
+	 * 
+	 * @param o
+	 * @param c
+	 * @return
+	 */
 	public static int instanceOf(Object o, Class<?> c) {
 		if (o == null)
-			return -K;
-		//logger.info("Checking whether " + o.getClass().getName() + " can be assigned to "
-		//        + c.getName());
-		if (c.isAssignableFrom(o.getClass())) {
-			//logger.info("Yes");
-			return K;
-		} else {
-			//logger.info("No");
-			return -K;
-		}
+			return FALSE;
+		return c.isAssignableFrom(o.getClass()) ? TRUE : FALSE;
 	}
 
+	/**
+	 * Replacement function for the Java IFNULL instruction, returning a
+	 * distance integer
+	 * 
+	 * @param o
+	 * @param opcode
+	 * @return
+	 */
 	public static int isNull(Object o, int opcode) {
 		if (opcode == Opcodes.IFNULL)
-			return o == null ? K : -K;
+			return o == null ? TRUE : FALSE;
 		else
-			return o != null ? K : -K;
+			return o != null ? TRUE : FALSE;
 	}
 
 	public static int IOR(int a, int b) {

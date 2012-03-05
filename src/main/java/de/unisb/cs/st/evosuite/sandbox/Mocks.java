@@ -156,15 +156,19 @@ class Mocks {
 	 */
 	private void setUpMockClass(Class<?> clazz){
 		String className = clazz.getCanonicalName();
+		
 		if (className.startsWith("java") || className.startsWith("sun"))
 			return;
+		
+		boolean underTest = className.startsWith(Properties.PROJECT_PREFIX) || className.startsWith(Properties.TARGET_CLASS_PREFIX);
+		
 		if (mock_strategies.contains("internal"))
-			if (className.startsWith(Properties.PROJECT_PREFIX)){
+			if (underTest) {
 				Mockit.setUpMocksAndStubs(clazz);
 				classesMocked.add(clazz);
 			}
 		if (mock_strategies.contains("external"))
-			if (!className.startsWith(Properties.PROJECT_PREFIX)){
+			if (!underTest) {
 				Mockit.setUpMocksAndStubs(clazz);
 				classesMocked.add(clazz);
 			}

@@ -105,6 +105,9 @@ public class NodeRegularExpression {
 	public static NodeRegularExpression IFELSE = new NodeRegularExpression(new int[][] {
 	        IF, BOOL, { GOTO }, BOOL });
 
+	public static NodeRegularExpression NESTED_STOREFLAG = new NodeRegularExpression(
+	        new int[][] { IF, IF, BOOL, { ISTORE } });
+
 	public static NodeRegularExpression STOREFLAG = new NodeRegularExpression(
 	        new int[][] { IF, BOOL, { ISTORE } });
 

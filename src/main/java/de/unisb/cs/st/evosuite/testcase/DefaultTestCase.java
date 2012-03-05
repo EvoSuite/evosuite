@@ -118,16 +118,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 		TestCodeVisitor visitor = new TestCodeVisitor();
 		accept(visitor);
 		return visitor.getCode();
-		/*
-		String code = "";
-		for (StatementInterface s : statements) {
-			code += s.getCode() + "\n";
-			String assertions = s.getAssertionCode();
-			if (!assertions.equals(""))
-				code += assertions + "\n";
-		}
-		return code;
-		*/
 	}
 
 	/* (non-Javadoc)
@@ -139,24 +129,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 		visitor.setExceptions(exceptions);
 		accept(visitor);
 		return visitor.getCode();
-		/*
-				String code = "";
-				for (int i = 0; i < size(); i++) {
-					StatementInterface s = statements.get(i);
-					if (exceptions.containsKey(i)) {
-						code += s.getCode(exceptions.get(i)) + "\n";
-						String assertions = s.getAssertionCode();
-						if (!assertions.equals(""))
-							code += assertions + "\n";
-					} else {
-						code += s.getCode() + "\n";
-						String assertions = s.getAssertionCode();
-						if (!assertions.equals(""))
-							code += assertions + "\n";
-					}
-				}
-				return code;
-				*/
 	}
 
 	private void addFields(List<VariableReference> variables, VariableReference var,

@@ -29,13 +29,12 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.tree.ClassNode;
-import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.CFGClassAdapter;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGClassAdapter;
 import de.unisb.cs.st.evosuite.primitives.PrimitiveClassAdapter;
 import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
@@ -68,11 +67,36 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 	}
 
 	public boolean isTargetProject(String className) {
-		return className.startsWith(Properties.PROJECT_PREFIX)
-		        && !className.startsWith("java.") && !className.startsWith("sun.")
+		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
+		        && !className.startsWith("java.")
+		        && !className.startsWith("sun.")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
 		        && !className.startsWith("javax.")
-		        && !className.startsWith("org.xml.sax");
+		        && !className.startsWith("org.xml.sax")
+		        && !className.startsWith("apple.")
+		        && !className.startsWith("com.apple.")
+		        && !className.startsWith("daikon.");
+	}
+
+	public boolean shouldTransform(String className) {
+		if (!Properties.TT)
+			return false;
+		switch (Properties.TT_SCOPE) {
+		case ALL:
+			logger.info("Allowing transformation of " + className);
+			return true;
+		case TARGET:
+			if (className.equals(Properties.TARGET_CLASS)
+			        || className.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+			break;
+		case PREFIX:
+			if (className.startsWith(Properties.PROJECT_PREFIX))
+				return true;
+
+		}
+		logger.info("Preventing transformation of " + className);
+		return false;
 	}
 
 	private boolean isTargetClassName(String className) {
@@ -135,6 +159,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// + classNameWithDots);
 		// classfileBuffer = systemExitTransformer
 		// .transformBytecode(classfileBuffer);
+		TransformationStatistics.reset();
 
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
@@ -143,6 +168,14 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		if (logger.isDebugEnabled())
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 
+		/*
+		if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+			ClassNode cn = new ClassNode();
+			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			BooleanTestabilityPlaceholderTransformer.transform(cn);
+			cv = cn;
+		}
+		*/
 		// Apply transformations to class under test and its owned
 		// classes
 		if (isTargetClassName(classNameWithDots)) {
@@ -158,6 +191,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
 
+			if (Properties.ERROR_BRANCHES)
+				cv = new ErrorConditionClassAdapter(cv, className);
+
 			for (ClassAdapterFactory factory : externalPreVisitors) {
 				cv = factory.getVisitor(cv, className);
 			}
@@ -169,6 +205,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			if (Properties.MAKE_ACCESSIBLE) {
 				// Convert protected/default access to public access
 				cv = new AccessibleClassAdapter(cv, className);
+			}
+			if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+				cv = new CFGClassAdapter(cv, className);
 			}
 		}
 
@@ -182,35 +221,54 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		}
 
 		//		if (classNameWithDots.equals(Properties.TARGET_CLASS)) {
-		if (classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
+		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
+		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
+		        || shouldTransform(classNameWithDots)) {
 			ClassNode cn = new ClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
+			logger.info("Starting transformation of " + className);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
-			cn = cmp.transform();
+			if (isTargetClassName(classNameWithDots)
+			        || shouldTransform(classNameWithDots))
+				cn = cmp.transform();
 
 			if (Properties.STRING_REPLACEMENT) {
 				StringTransformation st = new StringTransformation(cn);
-				cn = st.transform();
+				if (isTargetClassName(classNameWithDots)
+				        || shouldTransform(classNameWithDots))
+					cn = st.transform();
 
-				ContainerTransformation ct = new ContainerTransformation(cn);
-				cn = ct.transform();
 			}
 
-			if (Properties.TT) {
+			if (shouldTransform(classNameWithDots)) {
 				logger.info("Testability Transforming " + className);
-				TestabilityTransformation tt = new TestabilityTransformation(cn);
+				ContainerTransformation ct = new ContainerTransformation(cn);
+				//if (isTargetClassName(classNameWithDots))
+				cn = ct.transform();
+
+				//TestabilityTransformation tt = new TestabilityTransformation(cn);
+				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(
+				        cn);
 				// cv = new TraceClassVisitor(writer, new
 				// PrintWriter(System.out));
-				cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
-				cv = new CheckClassAdapter(cv);
-				//tt.transform().accept(cv);
-				cn = tt.transform();
+				//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+				//cv = new CheckClassAdapter(cv);
+				try {
+					//tt.transform().accept(cv);
+					//if (isTargetClassName(classNameWithDots))
+					cn = tt.transform();
+				} catch (Throwable t) {
+					logger.info("1 Error: " + t);
+					t.printStackTrace();
+					System.exit(0);
+				}
+
 				logger.info("Testability Transformation done: " + className);
 			}
 			cn.accept(cv);
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cv, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 		}
 
 		// Print out bytecode if debug is enabled
@@ -218,5 +276,4 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		return writer.toByteArray();
 	}
-
 }

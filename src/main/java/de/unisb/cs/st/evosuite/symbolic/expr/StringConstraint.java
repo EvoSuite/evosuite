@@ -3,6 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.symbolic.expr;
 
+import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.symbolic.ConstraintTooLongException;
+
 /**
  * @author krusev
  *
@@ -16,6 +19,8 @@ public class StringConstraint extends Constraint<String> {
 		this.left = left;
 		this.cmp = cmp;
 		this.right = right;
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
+			throw new ConstraintTooLongException();
 	}
 
 	protected Comparator cmp;

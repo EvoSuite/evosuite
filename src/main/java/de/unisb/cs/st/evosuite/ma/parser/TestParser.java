@@ -70,7 +70,6 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
-import de.unisb.cs.st.evosuite.ma.Editor;
 import de.unisb.cs.st.evosuite.ma.UserFeedback;
 import de.unisb.cs.st.evosuite.setup.ResourceList;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;

@@ -18,16 +18,16 @@
 
 package de.unisb.cs.st.evosuite.primitives;
 
-import org.objectweb.asm.ClassAdapter;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class PrimitiveClassAdapter extends ClassAdapter {
+public class PrimitiveClassAdapter extends ClassVisitor {
 
 	//private final String className;
 
@@ -42,7 +42,7 @@ public class PrimitiveClassAdapter extends ClassAdapter {
 	 * @param arg0
 	 */
 	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
-		super(visitor);
+		super(Opcodes.ASM4, visitor);
 		//this.className = className;
 	}
 

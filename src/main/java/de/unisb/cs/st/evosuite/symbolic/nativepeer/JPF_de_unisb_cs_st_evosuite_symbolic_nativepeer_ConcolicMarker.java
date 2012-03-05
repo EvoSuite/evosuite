@@ -1,10 +1,13 @@
 package de.unisb.cs.st.evosuite.symbolic.nativepeer;
 
 
+import java.util.logging.Logger;
+
+import gov.nasa.jpf.JPF;
 import gov.nasa.jpf.jvm.MJIEnv;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.RealVariable;
@@ -13,7 +16,8 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	private static int counter = 0;
 
-	private static Logger logger = LoggerFactory.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class);
+	static Logger log = JPF.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class.toString());
+//	private static Logger logger = LoggerFactory.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class);
 	
 	public static boolean mark__Z__Z(MJIEnv env, int rcls, boolean v0) {
 		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
@@ -42,7 +46,7 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	public static int mark__I__I(MJIEnv env, int rcls, int v0) {
 		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
 				v0, Integer.MIN_VALUE, Integer.MAX_VALUE));
-		logger.info("Marked integer!");
+//		logger.info("Marked integer!");
 		return v0;
 	}
 
@@ -66,7 +70,6 @@ public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	
 	//here are the two new ones ===============================================
 	
-
 	public static int mark__Ljava_lang_String_2__Ljava_lang_String_2(MJIEnv env, 
 			int rcls, int rString) {
 		String str = env.getStringObject(rString);

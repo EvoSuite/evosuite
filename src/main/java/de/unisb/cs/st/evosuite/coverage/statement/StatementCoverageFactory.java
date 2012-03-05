@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
 

@@ -28,8 +28,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -37,10 +38,12 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -342,6 +345,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
+		//System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
 		// branch coverage - see searchStarted()/Finished()
@@ -365,6 +369,21 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		 * logger.debug("Covered method: " + method); }
 		 */
 		// }
+
+		BranchCoverageFactory factory = new BranchCoverageFactory();
+		entry.goalCoverage = "";
+		for (TestFitnessFunction fitness : factory.getCoverageGoals()) {
+			boolean covered = false;
+			for (TestChromosome test : best.tests) {
+				if (fitness.isCovered(test)) {
+					covered = true;
+					entry.goalCoverage += "1";
+					break;
+				}
+			}
+			if (!covered)
+				entry.goalCoverage += "0";
+		}
 
 	}
 
@@ -400,9 +419,14 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		entry.total_branches = BranchPool.getBranchCounter();
-		entry.branchless_methods = BranchPool.getBranchlessMethods().size();
-		entry.total_methods = CFGMethodAdapter.methods.size();
+		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)
+		        : BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
+
+		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
+		        : BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
+
+		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS)
+		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
 		// TODO in order for this to work even when the criterion is neither
 		// defuse nor analyze we might need to ensure that du-goal-computation
@@ -438,6 +462,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
 			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
 			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
+			entry.timeStamps.add(System.currentTimeMillis() - entry.creationTime);
 		}
 	}
 

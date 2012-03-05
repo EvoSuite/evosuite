@@ -2,7 +2,6 @@ package de.unisb.cs.st.evosuite.symbolic.expr;
 
 import java.io.Serializable;
 
-//TODO <maybe wrong> changed Constraint<T extends Number> to the following
 public abstract class Constraint<T extends Object> implements Serializable {
 
 	private static final long serialVersionUID = 7547747352755232472L;
@@ -26,14 +25,14 @@ public abstract class Constraint<T extends Object> implements Serializable {
 		return hash;
 	}
 
-//	protected int size = 0;
-//
-//	public int getSize() {
-//		if (size == 0) {
-//			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
-//		}
-//		return size;
-//	}
+	protected int size = 0;
+
+	public int getSize() {
+		if (size == 0) {
+			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
+		}
+		return size;
+	}
 
 	@Override
 	public boolean equals(Object obj) {

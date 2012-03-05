@@ -1,19 +1,27 @@
-/**
- * 
- */
 package de.unisb.cs.st.evosuite.ma;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
+ * The <code>Record</code> class implement a data structure which used by
+ * {@link Transaction} class to save informations about current state (takes
+ * only a test suite into account) of the manual editor.
+ * 
  * @author Yury Pavlov
- *
  */
 public class Record {
 
-	private final ArrayList<TCTuple> testCases = new ArrayList<TCTuple>();
-	
-	public Record(ArrayList<TCTuple> testCases) {
+	private final List<TCTuple> testCases = new ArrayList<TCTuple>();
+
+	/**
+	 * Create and save deep copy of a test suite.
+	 * 
+	 * @param testCases
+	 *            - <code>List<{@link TCTuple}></code> is a test suite of the
+	 *            manual editor from which we create deep copy.
+	 */
+	public Record(List<TCTuple> testCases) {
 		// create clones of TC for every transaction
 		ArrayList<TCTuple> newTuples = new ArrayList<TCTuple>();
 		for (TCTuple tcTuple : testCases) {
@@ -21,8 +29,10 @@ public class Record {
 		}
 		this.testCases.addAll(newTuples);
 	}
-	
-	/* (non-Javadoc)
+
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Object#toString()
 	 */
 	@Override
@@ -36,9 +46,11 @@ public class Record {
 		}
 		return res.toString();
 	}
-	
+
 	/**
-	 * @return the testCases
+	 * Retrieve the saved test suite.
+	 * 
+	 * @return testCases
 	 */
 	public ArrayList<TCTuple> getTestCases() {
 		ArrayList<TCTuple> res = new ArrayList<TCTuple>();
@@ -47,5 +59,5 @@ public class Record {
 		}
 		return res;
 	}
-	
+
 }
