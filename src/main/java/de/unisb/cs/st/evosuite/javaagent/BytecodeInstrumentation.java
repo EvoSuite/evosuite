@@ -61,21 +61,30 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 		externalPreVisitors.add(factory);
 	}
 
-	public boolean isJavaClass(String className) {
-		return className.startsWith("java.") || className.startsWith("sun.")
-		        || className.startsWith("javax.");
+	public static boolean isJavaClass(String classNameWithDots) {
+		return classNameWithDots.startsWith("java.") // 
+				|| classNameWithDots.startsWith("javax.") //
+				|| classNameWithDots.startsWith("sun.") //
+		        || classNameWithDots.startsWith("apple.")
+		        || classNameWithDots.startsWith("com.apple.");
+	}
+	
+	public static boolean isSharedClass(String classNameWithDots){
+		// this are classes that are used by EvoSuite 
+		// and for which an instrumentation leads to 
+		// bad to detect errors 
+		return isJavaClass(classNameWithDots) //
+			|| classNameWithDots.startsWith("de.unisb.cs.st") //
+			|| classNameWithDots.startsWith("org.xml.sax") //
+			|| classNameWithDots.startsWith("org.mozilla.javascript.gen.c") //
+			|| classNameWithDots.startsWith("daikon.") //
+			|| classNameWithDots.startsWith("org.aspectj.org.eclipse");
 	}
 
-	public boolean isTargetProject(String className) {
-		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
-		        && !className.startsWith("java.")
-		        && !className.startsWith("sun.")
-		        && !className.startsWith("de.unisb.cs.st.evosuite")
-		        && !className.startsWith("javax.")
-		        && !className.startsWith("org.xml.sax")
-		        && !className.startsWith("apple.")
-		        && !className.startsWith("com.apple.")
-		        && !className.startsWith("daikon.");
+	public boolean isTargetProject(String classNameWithDots) {
+		return (classNameWithDots.startsWith(Properties.PROJECT_PREFIX) //
+				|| (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX)))
+		        && !isSharedClass(classNameWithDots);
 	}
 
 	public boolean shouldTransform(String className) {
@@ -124,12 +133,8 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			return classfileBuffer;
 		}
 		String classNameWithDots = className.replace('/', '.');
-
-		// Some packages we shouldn't touch - hard-coded
-		if (!isTargetProject(classNameWithDots)
-		        && (classNameWithDots.startsWith("java")
-		                || classNameWithDots.startsWith("sun")
-		                || classNameWithDots.startsWith("org.aspectj.org.eclipse") || classNameWithDots.startsWith("org.mozilla.javascript.gen.c"))) {
+		
+		if (isSharedClass(classNameWithDots)) {
 			return classfileBuffer;
 		}
 
@@ -155,6 +160,11 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 
 	public byte[] transformBytes(String className, ClassReader reader) {
 		String classNameWithDots = className.replace('/', '.');
+		
+		if (isSharedClass(classNameWithDots)) {
+			throw new RuntimeException("Should not transform a shared class! Load by parent (JVM) classloader.");
+		}
+		
 		// logger.debug("Removing calls to System.exit() from class: "
 		// + classNameWithDots);
 		// classfileBuffer = systemExitTransformer

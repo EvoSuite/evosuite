@@ -41,8 +41,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
-		if (name.startsWith("java") || name.startsWith("sun")
-		        || name.startsWith("de.unisb.cs.st.evosuite")) {
+		if (BytecodeInstrumentation.isSharedClass(name.replace("/", "."))) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
