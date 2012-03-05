@@ -8,6 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,11 +43,11 @@ public class ExternalProcessHandler {
 	protected Object final_result;
 	protected static final Object WAITING_FOR_DATA = "waiting_for_data_"
 	        + System.currentTimeMillis();
-	protected final Object MONITOR = new Object();
 
 	protected Thread processKillHook;
 	protected Thread clientRunningOnThread;
 	
+	protected volatile CountDownLatch latch;
 	
 	public ExternalProcessHandler() {
 
@@ -61,6 +63,7 @@ public class ExternalProcessHandler {
 			return false;
 		}
 
+		latch = new CountDownLatch(1); 
 		final_result = WAITING_FOR_DATA;
 
 		//the following thread is important to make sure that the external process is killed
@@ -290,9 +293,7 @@ public class ExternalProcessHandler {
 						read = false;
 						killProcess();
 						final_result = data;
-						synchronized (MONITOR) {
-							MONITOR.notifyAll();
-						}
+						latch.countDown();
 					} else if (message.equals(Messages.NEED_RESTART)) {
 						//now data represent the current generation
 						System.out.println("* Restarting client process");
@@ -337,14 +338,9 @@ public class ExternalProcessHandler {
 
 	public Object waitForResult(int timeout) {
 		try {
-			synchronized (MONITOR) {
-				if (WAITING_FOR_DATA.equals(final_result)) {
-					MONITOR.wait(timeout);
-				}
-			}
+			latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.warn("Thread interrupted while waiting for results from client process",
-			            e);
+			logger.warn("Thread interrupted while waiting for results from client process",e);
 		}
 
 		return final_result;

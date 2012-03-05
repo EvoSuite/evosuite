@@ -72,8 +72,8 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	 */
 	@Override
 	public void randomize() {
-		int max = Math.min(MAX_INT, 32767);
-		if (Randomness.nextDouble() >= P_pool)
+		int max = Math.min(Properties.MAX_INT, 32767);
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
 			value = (short) (Randomness.nextInt(2 * max) - max);
 		else
 			value = (short) primitive_pool.getRandomInt();

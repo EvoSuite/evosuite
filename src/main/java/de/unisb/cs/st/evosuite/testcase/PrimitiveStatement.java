@@ -48,10 +48,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static final long serialVersionUID = -7721106626421922833L;
 
-	protected static int MAX_INT = Properties.MAX_INT;
-
-	protected static double P_pool = Properties.PRIMITIVE_POOL;
-
 	protected static PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**

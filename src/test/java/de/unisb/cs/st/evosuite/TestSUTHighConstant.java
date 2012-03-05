@@ -15,22 +15,20 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
  */
 public class TestSUTHighConstant extends SystemTest{
 
+	public static final double defaultPrimitivePool = Properties.PRIMITIVE_POOL;
+	
+	@After
+	public void resetProperties(){
+		Properties.PRIMITIVE_POOL = defaultPrimitivePool;
+	}
+	
 	@Test
 	public void testNoPrimitivePool(){
 		EvoSuite evosuite = new EvoSuite();
 				
 		String targetClass = HighConstant.class.getCanonicalName();
 		
-		Properties.GENERATIONS = 1;
 		Properties.TARGET_CLASS = targetClass;
-		Properties.HTML = false;
-		Properties.SHOW_PROGRESS = false;
-		Properties.SERIALIZE_RESULT = false;
-		Properties.JUNIT_TESTS = false;
-		Properties.PLOT = false;
-		
-		Properties.CLIENT_ON_THREAD = true;
-		
 		Properties.PRIMITIVE_POOL = 0;
 		
 		String[] command = new String[]{				
@@ -66,16 +64,7 @@ public class TestSUTHighConstant extends SystemTest{
 		
 		String targetClass = HighConstant.class.getCanonicalName();
 		
-		Properties.GENERATIONS = 1;
-		Properties.TARGET_CLASS = targetClass;
-		Properties.HTML = false;
-		Properties.SHOW_PROGRESS = false;
-		Properties.SERIALIZE_RESULT = false;
-		Properties.JUNIT_TESTS = false;
-		Properties.PLOT = false;
-		
-		Properties.CLIENT_ON_THREAD = true;
-		
+		Properties.TARGET_CLASS = targetClass;		
 		Properties.PRIMITIVE_POOL = 0.8;
 		
 		String[] command = new String[]{				
