@@ -15,6 +15,19 @@ import org.junit.*;
  */
 public class SystemTest {
 
+	@Before
+	public void setDefaultPropertiesForTestCases(){
+		Properties.HTML = false;
+		Properties.SHOW_PROGRESS = false;
+		Properties.SERIALIZE_RESULT = false;
+		Properties.JUNIT_TESTS = false;
+		Properties.PLOT = false;
+		
+		Properties.GENERATIONS = 1;
+
+		Properties.CLIENT_ON_THREAD = true;
+	}
+	
 	/*
 	 * stupid Maven plug-ins do not properly handle custom output directories
 	 * when JUnit is run, ie problems with classpath :(
@@ -44,6 +57,8 @@ public class SystemTest {
 		if(hasBeenAlreadyRun){
 			return;
 		}
+		
+		deleteEvoDirs();
 		
 		System.out.println("*** SystemTest: runSetup() ***");
 		
@@ -93,9 +108,15 @@ public class SystemTest {
 		hasBeenAlreadyRun = true;
 	}
 	
-	
-	@AfterClass
+	/*
+	 * it's giving some problems
+	 */
+	//@AfterClass
 	public static void deleteEvoDirs(){
+		//if(!hasBeenAlreadyRun){
+			//return;
+		//}
+		
 		System.out.println("*** SystemTest: deleteEvoDirs() ***");
 
 		try {
@@ -105,6 +126,7 @@ public class SystemTest {
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
+		hasBeenAlreadyRun = false;
 	}
 }
 

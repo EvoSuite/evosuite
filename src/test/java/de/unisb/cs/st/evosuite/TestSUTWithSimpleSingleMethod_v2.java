@@ -19,18 +19,10 @@ public class TestSUTWithSimpleSingleMethod_v2 extends SystemTest{
 		
 		String targetClass = SingleMethod.class.getCanonicalName();
 		
-		Properties.GENERATIONS = 1;
 		Properties.TARGET_CLASS = targetClass;
-		Properties.HTML = false;
-		Properties.SHOW_PROGRESS = false;
-		Properties.SERIALIZE_RESULT = false;
-		Properties.JUNIT_TESTS = false;
-		Properties.PLOT = false;
-		
-		Properties.CLIENT_ON_THREAD = true;
 		
 		String[] command = new String[]{				
-				"-generateTests",
+				"-generateSuite",
 				"-class",
 				targetClass
 		};

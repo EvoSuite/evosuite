@@ -288,7 +288,7 @@ public class EvoSuite {
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
 			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
-			        + Properties.MINIMIZATION_TIMEOUT + 120) * 1000); // FIXXME: search timeout plus 100 seconds?	
+			        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?	
 			handler.killProcess();
 			handler.closeServer();
 		} else {
