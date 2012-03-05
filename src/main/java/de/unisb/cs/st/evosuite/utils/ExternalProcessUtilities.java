@@ -80,7 +80,7 @@ public class ExternalProcessUtilities {
 		try {
 			Thread.sleep(1000);
 		} catch (InterruptedException e) {
-			logger.warn("Thread interrupted while waiting after sending results from client to master",
+			logger.debug("Thread interrupted while waiting after sending results from client to master",
 			            e);
 		}
 

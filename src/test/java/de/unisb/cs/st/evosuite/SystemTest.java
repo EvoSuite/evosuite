@@ -23,7 +23,7 @@ public class SystemTest {
 		Properties.JUNIT_TESTS = false;
 		Properties.PLOT = false;
 		
-		Properties.GENERATIONS = 1;
+		Properties.GENERATIONS = 5;
 
 		Properties.CLIENT_ON_THREAD = true;
 	}
