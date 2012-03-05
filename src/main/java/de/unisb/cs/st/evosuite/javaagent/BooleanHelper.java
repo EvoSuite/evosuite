@@ -229,12 +229,12 @@ public class BooleanHelper {
 	}
 
 	public static int fromLong(long d) {
-		/*
+		
 		if (d > Integer.MAX_VALUE)
 			return Integer.MAX_VALUE;
 		else if (d < Integer.MIN_VALUE)
 			return Integer.MIN_VALUE;
-			*/
+			
 		//else
 		//	return (int) d;
 		if (d == 0L)
