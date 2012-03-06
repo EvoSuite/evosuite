@@ -7,16 +7,16 @@ import org.junit.Test;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
-public class JUnitTestReaderTest {
+public class JUnitTestReaderSimpleTest {
 
 	private static final String SRCDIR = "src/test/java/";
 
 	@Test
-	public void testReadComplexJUnitTestCase01() {
+	public void testReadSimpleJUnitTestCase01() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample01.class.getName()
-		        + "#test");
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
+		        + "#test01");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //
@@ -27,11 +27,11 @@ public class JUnitTestReaderTest {
 	}
 
 	@Test
-	public void testReadComplexJUnitTestCase02() {
+	public void testReadSimpleJUnitTestCase02() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample02.class.getName()
-		        + "#test");
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
+		        + "#test02");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //
@@ -45,8 +45,8 @@ public class JUnitTestReaderTest {
 	public void testReadComplexJUnitTestCase03() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample03.class.getName()
-		        + "#test");
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
+		        + "#test03");
 		// TODO Implement correct cloning of BoundVariableReferences: testCase =
 		testCase.clone();
 		String code = testCase.toCode();
@@ -68,8 +68,8 @@ public class JUnitTestReaderTest {
 	public void testReadComplexJUnitTestCase04() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample04.class.getName()
-		        + "#test");
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
+		        + "#test04");
 		// TODO Implement correct cloning of BoundVariableReferences: testCase =
 		// testCase.clone();
 		String code = testCase.toCode();

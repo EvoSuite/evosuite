@@ -15,7 +15,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
@@ -29,6 +28,7 @@ import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
 import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.NumberLiteral;
@@ -70,7 +70,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 
-public class TestExtractingVisitor extends ASTVisitor {
+public class TestExtractingVisitor extends LoggingVisitor {
 
 	private static class BoundVariableReferenceImpl extends VariableReferenceImpl {
 
@@ -225,6 +225,8 @@ public class TestExtractingVisitor extends ASTVisitor {
 
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
 
+	private Set<String> methodAnnotations = new HashSet<String>();
+
 	public TestExtractingVisitor(CompoundTestCase testCase, String qualifiedTestMethod) {
 		super();
 		this.testCase = testCase;
@@ -242,6 +244,11 @@ public class TestExtractingVisitor extends ASTVisitor {
 		VariableReference retVal = retrieveVariableReference(instanceCreation);
 		ConstructorStatement statement = new ValidConstructorStatement(testCase, constructor, retVal, params);
 		currentScope.add(statement);
+	}
+
+	@Override
+	public void endVisit(MarkerAnnotation markerAnnotation) {
+		methodAnnotations.remove(markerAnnotation.toString());
 	}
 
 	@Override
@@ -287,13 +294,31 @@ public class TestExtractingVisitor extends ASTVisitor {
 	}
 
 	@Override
+	public boolean visit(MarkerAnnotation markerAnnotation) {
+		methodAnnotations.add(markerAnnotation.toString());
+		return super.visit(markerAnnotation);
+	}
+
+	@Override
 	public boolean visit(MethodDeclaration methodDeclaration) {
 		if (unqualifiedTestMethod.equals(methodDeclaration.getName().getIdentifier())) {
 			currentScope = testCase.getTestMethod();
 		} else {
-			logger.warn("Test method is '" + unqualifiedTestMethod + "' but found method declaration '"
+			if (methodAnnotations.contains("@BeforeClass") || methodAnnotations.contains("@BeforeTest")) {
+				throw new RuntimeException("Setup a la JUnit 4 not implemented.");
+			}
+			if (methodAnnotations.contains("@AfterClass") || methodAnnotations.contains("@AfterTest")) {
+				throw new RuntimeException("Tear down a la JUnit 4 not implemented.");
+			}
+			if (methodDeclaration.getName().getIdentifier().equals("setUp")) {
+				throw new RuntimeException("Setup a la JUnit 3 not implemented.");
+			}
+			if (methodDeclaration.getName().getIdentifier().equals("tearDown")) {
+				throw new RuntimeException("Tear down a la JUnit 3 not implemented.");
+			}
+			logger.info("Test method is '" + unqualifiedTestMethod + "', ignoring method declaration '"
 					+ methodDeclaration.getName().getIdentifier() + "'.");
-			throw new UnsupportedOperationException("Method visitMethodDeclaration not completely implemented!");
+			return false;
 		}
 		return super.visit(methodDeclaration);
 	}
