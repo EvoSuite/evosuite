@@ -19,10 +19,10 @@ public class JUnitTestReaderTest {
 		        + "#test");
 		testCase.clone();
 		String code = testCase.toCode();
-		String result = "String var0 = \"killSelf\";\n" + //
-		        "TestExample.MockingBird bird = new TestExample.MockingBird(var0);\n" + //
-		        "int var2 = 10;\n" + //
-		        "bird.executeCmd(var2);\n";
+		String result = "String string0 = \"killSelf\";\n" + //
+			"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string0);\n" + //
+			"int int0 = 10;\n" + //
+			"testExample_MockingBird0.executeCmd(int0);\n";
 		Assert.assertEquals(result, code);
 	}
 
@@ -34,10 +34,10 @@ public class JUnitTestReaderTest {
 		        + "#test");
 		testCase.clone();
 		String code = testCase.toCode();
-		String result = "String var0 = \"killSelf\";\n" + //
-		        "TestExample.MockingBird bird = MockingBird.create(var0);\n" + //
-		        "int var2 = 10;\n" + //
-		        "bird.executeCmd(var2);\n";
+		String result = "String string0 = \"killSelf\";\n" + //
+				"TestExample.MockingBird testExample_MockingBird0 = MockingBird.create(string0);\n" + //
+				"int int0 = 10;\n" + //
+				"testExample_MockingBird0.executeCmd(int0);\n";
 		Assert.assertEquals(result, code);
 	}
 
@@ -50,17 +50,17 @@ public class JUnitTestReaderTest {
 		// TODO Implement correct cloning of BoundVariableReferences: testCase =
 		testCase.clone();
 		String code = testCase.toCode();
-		String result = "String var0 = \"dd.MMM.yyyy\";\n" + //
-		        "Locale var1 = Locale.FRENCH;\n" + //
-		        "SimpleDateFormat formatter = new SimpleDateFormat(var0, var1);\n" + //
-		        "long var3 = System.currentTimeMillis();\n" + //
-		        "String var4 = formatter.format((Object) var3);\n" + //
-		        "PrintStream var5 = System.out;\n" + //
-		        "var5.println(var4);\n" + //
-		        "String var7 = \"11.sept..2007\";\n" + //
-		        "PrintStream var8 = System.out;\n" + //
-		        "var8.println(var7);\n" + //
-		        "Date result = formatter.parse(var7);\n";
+		String result = "String string0 = \"dd.MMM.yyyy\";\n" + //
+				"Locale locale0 = Locale.FRENCH;\n" + //
+				"SimpleDateFormat simpleDateFormat0 = new SimpleDateFormat(string0, locale0);\n" + //
+				"long long0 = System.currentTimeMillis();\n" + //
+				"String string1 = simpleDateFormat0.format(long0);\n" + //
+				"PrintStream printStream0 = System.out;\n" + //
+				"printStream0.println(string1);\n" + //
+				"String string2 = \"11.sept..2007\";\n" + //
+				"PrintStream printStream1 = System.out;\n" + //
+				"printStream1.println(string2);\n" + //
+				"simpleDateFormat0.parse(string2);\n";
 		Assert.assertEquals(result, code);
 	}
 
@@ -74,18 +74,18 @@ public class JUnitTestReaderTest {
 		// testCase.clone();
 		String code = testCase.toCode();
 		System.out.println(code);
-		String result = "String var0 = \"killSelf\";\n" + //
-		        "String var1 = new String(var0);\n" + //
-		        "TestExample.MockingBird bird = new TestExample.MockingBird(var1);\n" + //
-		        "String var3 = \"You\";\n" + //
-		        "String var4 = new String(var3);\n" + //
-		        "TestExample.MockingBird var5 = bird.doIt(var4);\n" + //
-		        "String var6 = \"Me\";\n" + //
-		        "TestExample.MockingBird var7 = var5.doIt(var6);\n" + //
-		        "String var8 = \"Them\";\n" + //
-		        "TestExample.MockingBird var9 = var7.doIt(var8);\n" + //
-		        "String var10 = \"Everybody!\";\n" + //
-		        "TestExample.MockingBird var11 = var9.doIt(var10);\n";
+		String result = "String string0 = \"killSelf\";\n" + //
+				"String string1 = new String(string0);\n" + //
+				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string1);\n" + //
+				"String string2 = \"You\";\n" + //
+				"String string3 = new String(string2);\n" + //
+				"TestExample.MockingBird testExample_MockingBird1 = testExample_MockingBird0.doIt(string3);\n" + //
+				"String string4 = \"Me\";\n" + //
+				"TestExample.MockingBird testExample_MockingBird2 = testExample_MockingBird1.doIt(string4);\n" + //
+				"String string5 = \"Them\";\n" + //
+				"TestExample.MockingBird testExample_MockingBird3 = testExample_MockingBird2.doIt(string5);\n" + //
+				"String string6 = \"Everybody!\";\n" + //
+				"testExample_MockingBird3.doIt(string6);\n";
 		Assert.assertEquals(result, code);
 	}
 
