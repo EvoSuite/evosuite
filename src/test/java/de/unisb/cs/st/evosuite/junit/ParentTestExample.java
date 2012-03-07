@@ -1,7 +1,6 @@
 package de.unisb.cs.st.evosuite.junit;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -11,8 +10,7 @@ public class ParentTestExample {
 	protected String needed = null;
 	protected static Integer value = 0;
 
-	@BeforeClass
-	public static void initializeValue() {
+	static {
 		value = 5;
 	}
 
@@ -20,7 +18,7 @@ public class ParentTestExample {
 	public void setupNeeded() {
 		needed = "escape";
 	}
-	
+
 	@Ignore
 	@Test
 	public void test01() {

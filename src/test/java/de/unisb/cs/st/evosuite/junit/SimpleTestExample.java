@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -34,7 +35,8 @@ public class SimpleTestExample {
 		String date = "11.sept..2007";
 		System.out.println(date);
 		Date result = formatter.parse(date);
-		// Assert.assertNotNull(result);
+		System.out.println(result);
+		Assert.assertNotNull(result);
 	}
 
 	@Ignore
