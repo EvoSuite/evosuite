@@ -24,12 +24,12 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author steenbuck
  * 
  */
-public class NullStatement extends AbstractStatement {
+public class NullStatement extends PrimitiveStatement<Void> {
 
 	private static final long serialVersionUID = -7141670041216163032L;
 
 	public NullStatement(TestCase tc, java.lang.reflect.Type type) {
-		super(tc, new NullReference(tc, type));
+		super(tc, new NullReference(tc, type), null);
 	}
 
 	/* (non-Javadoc)
@@ -107,8 +107,23 @@ public class NullStatement extends AbstractStatement {
 	}
 
 	@Override
-	public boolean isAssignmentStatement() {
-		return false;
+	public void delta() {
+		logger.error("Method delta not implemented: What is the delta for null?");
+	}
+
+	@Override
+	public void zero() {
+		logger.error("Method zero not implemented: How to zero null?");
+	}
+
+	@Override
+	protected void pushBytecode(GeneratorAdapter mg) {
+		mg.push((String) null);
+	}
+
+	@Override
+	public void randomize() {
+		logger.error("Method randomize not implemented: How to randomize null?");
 	}
 
 }
