@@ -18,14 +18,14 @@ public class SimpleTestExample {
 		MockingBird bird = new MockingBird("killSelf");
 		bird.executeCmd(10);
 	}
-	
+
 	@Ignore
 	@Test
 	public void test02() {
 		MockingBird bird = MockingBird.create("killSelf");
 		bird.executeCmd(10);
 	}
-	
+
 	@Ignore
 	@Test
 	public void test03() throws ParseException {
@@ -36,11 +36,21 @@ public class SimpleTestExample {
 		Date result = formatter.parse(date);
 		// Assert.assertNotNull(result);
 	}
-	
+
 	@Ignore
 	@Test
 	public void test04() {
 		MockingBird bird = new MockingBird(new String("killSelf"));
 		bird.doIt(new String("You")).doIt("Me").doIt("Them").doIt("Everybody!");
+	}
+
+	@Ignore
+	@Test
+	public void test05() {
+		String input = "killSelf";
+		input = "flyAway";
+		MockingBird bird = MockingBird.create(input);
+		int value = 10;
+		bird.executeCmd(value);
 	}
 }

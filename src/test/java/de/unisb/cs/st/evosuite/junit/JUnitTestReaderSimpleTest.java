@@ -15,14 +15,13 @@ public class JUnitTestReaderSimpleTest {
 	public void testReadSimpleJUnitTestCase01() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
-		        + "#test01");
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test01");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //
-			"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string0);\n" + //
-			"int int0 = 10;\n" + //
-			"testExample_MockingBird0.executeCmd(int0);\n";
+				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string0);\n" + //
+				"int int0 = 10;\n" + //
+				"testExample_MockingBird0.executeCmd(int0);\n";
 		Assert.assertEquals(result, code);
 	}
 
@@ -30,8 +29,7 @@ public class JUnitTestReaderSimpleTest {
 	public void testReadSimpleJUnitTestCase02() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
-		        + "#test02");
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test02");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //
@@ -42,13 +40,11 @@ public class JUnitTestReaderSimpleTest {
 	}
 
 	@Test
-	public void testReadComplexJUnitTestCase03() {
+	public void testReadSimpleJUnitTestCase03() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
-		        + "#test03");
-		// TODO Implement correct cloning of BoundVariableReferences: testCase =
-		testCase.clone();
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test03");
+		testCase = testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"dd.MMM.yyyy\";\n" + //
 				"Locale locale0 = Locale.FRENCH;\n" + //
@@ -65,15 +61,12 @@ public class JUnitTestReaderSimpleTest {
 	}
 
 	@Test
-	public void testReadComplexJUnitTestCase04() {
+	public void testReadSimpleJUnitTestCase04() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName()
-		        + "#test04");
-		// TODO Implement correct cloning of BoundVariableReferences: testCase =
-		// testCase.clone();
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test04");
+		testCase = testCase.clone();
 		String code = testCase.toCode();
-		System.out.println(code);
 		String result = "String string0 = \"killSelf\";\n" + //
 				"String string1 = new String(string0);\n" + //
 				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string1);\n" + //
@@ -89,8 +82,18 @@ public class JUnitTestReaderSimpleTest {
 		Assert.assertEquals(result, code);
 	}
 
-	// TODO Create a test that test reusing a variable:
-	// a = new Something();
-	// a = new SomethingElse();
-	// a.doSomething();
+	@Test
+	public void testReadSimpleJUnitTestCase05() {
+		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
+		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
+		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test05");
+		testCase.clone();
+		String code = testCase.toCode();
+		String result = "String string0 = \"killSelf\";\n" + //
+				"String string1 = \"flyAway\";\n" + //
+				"TestExample.MockingBird testExample_MockingBird0 = MockingBird.create(string1);\n" + //
+				"int int0 = 10;\n" + //
+				"testExample_MockingBird0.executeCmd(int0);\n";
+		Assert.assertEquals(result, code);
+	}
 }
