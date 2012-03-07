@@ -49,7 +49,7 @@ public class TestExample extends ParentTestExample {
 
 	@Ignore
 	@Test
-	public void test() {
+	public void test01() {
 		MockingBird bird = new MockingBird(needed);
 		bird.executeCmd(value - otherValue);
 	}

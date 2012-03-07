@@ -35,7 +35,7 @@ import de.unisb.cs.st.evosuite.utils.Listener;
  */
 public class CompoundTestCase implements TestCase {
 	public static enum TestScope {
-		BEFORE_CLASS, STATIC, BEFORE, FIELDS, CONSTRUCTOR, TEST_METHOD, AFTER, AFTER_CLASS;
+		BEFORE_CLASS, STATIC, BEFORE, FIELDS, CONSTRUCTOR, TEST_METHOD, AFTER, AFTER_CLASS, IGNORE;
 	}
 
 	private static final long serialVersionUID = 1L;
@@ -118,6 +118,8 @@ public class CompoundTestCase implements TestCase {
 		case AFTER:
 			after.add(statement);
 			return;
+		case IGNORE:
+			return;
 		default:
 			throw new RuntimeException("Scope " + currentScope + " not considered!");
 		}
@@ -149,6 +151,9 @@ public class CompoundTestCase implements TestCase {
 	public void finalizeTestCase() {
 		delegate = new DefaultTestCase();
 		addStatements(getInitializationCode());
+		if (testMethod.isEmpty()) {
+			throw new RuntimeException("Test did not contain any statements!");
+		}
 		addStatements(testMethod);
 		addStatements(getDeinitializationCode());
 		for (Listener<Void> listener : listeners) {
@@ -241,20 +246,6 @@ public class CompoundTestCase implements TestCase {
 	@Override
 	public StatementInterface getStatement(int position) {
 		return delegate.getStatement(position);
-	}
-
-	public IVariableBinding getVariableBinding(VariableReference varRef) {
-		for (Map.Entry<IVariableBinding, VariableReference> entry : methodVars.entrySet()) {
-			if (entry.getValue() == varRef) {
-				return entry.getKey();
-			}
-		}
-		for (Map.Entry<IVariableBinding, VariableReference> entry : fieldVars.entrySet()) {
-			if (entry.getValue() == varRef) {
-				return entry.getKey();
-			}
-		}
-		return null;
 	}
 
 	public VariableReference getVariableReference(IVariableBinding varBinding) {
@@ -367,6 +358,19 @@ public class CompoundTestCase implements TestCase {
 			return delegate.toString();
 		}
 		return super.toString();
+	}
+
+	public void variableAssignment(VariableReference varRef, VariableReference newAssignment) {
+		for (Map.Entry<IVariableBinding, VariableReference> entry : methodVars.entrySet()) {
+			if (entry.getValue() == varRef) {
+				methodVars.put(entry.getKey(), newAssignment);
+			}
+		}
+		for (Map.Entry<IVariableBinding, VariableReference> entry : fieldVars.entrySet()) {
+			if (entry.getValue() == varRef) {
+				fieldVars.put(entry.getKey(), newAssignment);
+			}
+		}
 	}
 
 	private List<StatementInterface> getDeinitializationCode() {

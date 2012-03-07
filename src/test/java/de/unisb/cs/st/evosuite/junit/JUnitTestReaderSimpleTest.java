@@ -1,7 +1,6 @@
 package de.unisb.cs.st.evosuite.junit;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -12,10 +11,22 @@ public class JUnitTestReaderSimpleTest {
 	private static final String SRCDIR = "src/test/java/";
 
 	@Test
+	public void testReadNonexistingJUnitTestCase() {
+		try {
+			Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
+			JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
+			TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#nonexistent");
+			Assert.fail("Expected exception on nonexisting test.");
+		} catch (RuntimeException exc) {
+			// Expecting exception stating that test was not found
+		}
+	}
+
+	@Test
 	public void testReadSimpleJUnitTestCase01() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test01");
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test01");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //
@@ -29,7 +40,7 @@ public class JUnitTestReaderSimpleTest {
 	public void testReadSimpleJUnitTestCase02() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test02");
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test02");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //
@@ -43,7 +54,7 @@ public class JUnitTestReaderSimpleTest {
 	public void testReadSimpleJUnitTestCase03() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test03");
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test03");
 		testCase = testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"dd.MMM.yyyy\";\n" + //
@@ -64,7 +75,7 @@ public class JUnitTestReaderSimpleTest {
 	public void testReadSimpleJUnitTestCase04() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test04");
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test04");
 		testCase = testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //
@@ -86,7 +97,7 @@ public class JUnitTestReaderSimpleTest {
 	public void testReadSimpleJUnitTestCase05() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
-		TestCase testCase = reader.readJUnitTestCaseMethod(SimpleTestExample.class.getName() + "#test05");
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test05");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "String string0 = \"killSelf\";\n" + //

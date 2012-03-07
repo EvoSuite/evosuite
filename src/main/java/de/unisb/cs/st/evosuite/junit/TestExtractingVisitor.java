@@ -76,8 +76,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 public class TestExtractingVisitor extends LoggingVisitor {
 
 	private static class BoundVariableReferenceImpl extends VariableReferenceImpl {
-
-		private static final long serialVersionUID = -8913072341643375066L;
+		private static final long serialVersionUID = 1L;
 
 		protected String name;
 
@@ -172,6 +171,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final String unqualifiedTest;
 	private final String unqualifiedTestMethod;
 	private Stack<VariableReference> nestedCallResults = new Stack<VariableReference>();
+	private Type superclass = null;
 
 	private static final HashSet<Class<?>> PRIMITIVE_CLASSES = new HashSet<Class<?>>();
 	static {
@@ -226,8 +226,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
 
-	private Set<String> methodAnnotations = new HashSet<String>();
-
 	public TestExtractingVisitor(CompoundTestCase testCase, String qualifiedTestMethod) {
 		super();
 		this.testCase = testCase;
@@ -241,29 +239,25 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		List<?> paramTypes = Arrays.asList(instanceCreation.resolveConstructorBinding().getParameterTypes());
 		List<?> paramValues = instanceCreation.arguments();
 		Constructor<?> constructor = retrieveConstructor(instanceCreation.getType(), paramTypes, paramValues);
-		List<VariableReference> params = convertParams(instanceCreation.arguments());
-		VariableReference retVal = retrieveVariableReference(instanceCreation);
+		List<VariableReference> params = convertParams(instanceCreation.arguments(), paramTypes);
+		VariableReference retVal = retrieveVariableReference(instanceCreation, null);
 		ConstructorStatement statement = new ValidConstructorStatement(testCase, constructor, retVal, params);
 		testCase.addStatementToScope(statement);
 	}
 
 	@Override
-	public void endVisit(MarkerAnnotation markerAnnotation) {
-		methodAnnotations.remove(markerAnnotation.toString());
-	}
-
-	@Override
 	public void endVisit(MethodDeclaration node) {
-		// TODO-JRO Implement method endVisitMethodDeclaration
-		// such that static code is treated
-		logger.warn("Method endVisitMethodDeclaration only sparsly implemented!");
 		testCase.setCurrentScope(TestScope.FIELDS);
 		super.endVisit(node);
 	}
 
 	@Override
 	public void endVisit(MethodInvocation methodInvocation) {
-		List<VariableReference> params = convertParams(methodInvocation.arguments());
+		// TODO Ignore certain method calls such as 
+		// - System.out.println(...) but not all calls to PrintWriter.println!
+		// org.junit.Assert.*
+		List<?> paramTypes = Arrays.asList(methodInvocation.resolveMethodBinding().getParameterTypes());
+		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, params);
 		VariableReference callee = null;
 		if (!Modifier.isStatic(method.getModifiers())) {
@@ -286,13 +280,18 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	@Override
-	public boolean visit(Assignment assignment) {
-		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide());
-		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide());
-		IVariableBinding varBinding = testCase.getVariableBinding(varRef);
-		if (varBinding != null) {
-			testCase.addVariableToScope(varBinding, newAssignment);
+	public void endVisit(TypeDeclaration typeDeclaration) {
+		if (superclass != null) {
+			// TODO Ignore nested classes
+			throw new RuntimeException("Need to visit superclass " + superclass);
 		}
+	}
+
+	@Override
+	public boolean visit(Assignment assignment) {
+		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide(), null);
+		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
+		testCase.variableAssignment(varRef, newAssignment);
 		return super.visit(assignment);
 	}
 
@@ -300,7 +299,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	public boolean visit(FieldDeclaration fieldDeclaration) {
 		VariableDeclarationFragment varDeclFrgmnt = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		Expression expression = varDeclFrgmnt.getInitializer();
-		VariableReference varRef = retrieveVariableReference(expression);
+		VariableReference varRef = retrieveVariableReference(expression, null);
 		// TODO Use the name here as well?
 		// String name = varDeclFrgmt.getName().getIdentifier();
 		// new BoundVariableReferenceImpl(testCase, varType, name);
@@ -310,7 +309,19 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public boolean visit(MarkerAnnotation markerAnnotation) {
-		methodAnnotations.add(markerAnnotation.toString());
+		String annotation = markerAnnotation.toString();
+		if (annotation.equals("@BeforeClass")) {
+			testCase.setCurrentScope(TestScope.BEFORE_CLASS);
+		}
+		if (annotation.equals("@Before")) {
+			testCase.setCurrentScope(TestScope.BEFORE);
+		}
+		if (annotation.equals("@AfterClass")) {
+			testCase.setCurrentScope(TestScope.AFTER_CLASS);
+		}
+		if (annotation.equals("@After")) {
+			testCase.setCurrentScope(TestScope.AFTER);
+		}
 		return super.visit(markerAnnotation);
 	}
 
@@ -319,28 +330,15 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (unqualifiedTestMethod.equals(methodDeclaration.getName().getIdentifier())) {
 			testCase.setCurrentScope(TestScope.TEST_METHOD);
 		} else {
-			if (methodAnnotations.contains("@BeforeClass")) {
-				testCase.setCurrentScope(TestScope.BEFORE_CLASS);
-			}
-			if (methodAnnotations.contains("@Before")) {
-				testCase.setCurrentScope(TestScope.BEFORE);
-			}
-			if (methodAnnotations.contains("@AfterClass")) {
-				testCase.setCurrentScope(TestScope.AFTER_CLASS);
-			}
-			if (methodAnnotations.contains("@After")) {
-				testCase.setCurrentScope(TestScope.AFTER);
-			}
 			if (methodDeclaration.getName().getIdentifier().equals("setUp")) {
 				testCase.setCurrentScope(TestScope.BEFORE);
 			}
 			if (methodDeclaration.getName().getIdentifier().equals("tearDown")) {
 				testCase.setCurrentScope(TestScope.AFTER);
 			}
-			testCase.setCurrentScope(TestScope.FIELDS);
+			testCase.setCurrentScope(TestScope.IGNORE);
 			logger.info("Test method is '" + unqualifiedTestMethod + "', ignoring method declaration '"
 					+ methodDeclaration.getName().getIdentifier() + "'.");
-			return false;
 		}
 		return super.visit(methodDeclaration);
 	}
@@ -348,9 +346,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	@Override
 	public boolean visit(TypeDeclaration typeDeclaration) {
 		if (!unqualifiedTest.equals(typeDeclaration.getName().getIdentifier())) {
-			throw new UnsupportedOperationException(
-					"Method visitTypeDeclaration not implemented for other types than the actual test!");
+			logger.warn("Type declarations are ignored for other types than the actual test!");
+			return false;
 		}
+		superclass = typeDeclaration.getSuperclassType();
 		return super.visit(typeDeclaration);
 	}
 
@@ -364,7 +363,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			VariableDeclarationFragment varDeclFrgmnt = (VariableDeclarationFragment) variableDeclStmt.fragments().get(
 					0);
 			Expression expression = varDeclFrgmnt.getInitializer();
-			VariableReference varRef = retrieveVariableReference(expression);
+			VariableReference varRef = retrieveVariableReference(expression, null);
 			// TODO Use the name here as well?
 			// String name = varDeclFrgmt.getName().getIdentifier();
 			// new BoundVariableReferenceImpl(testCase, varType, name);
@@ -390,7 +389,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 					} else if (expr instanceof PrefixExpression) {
 						valueRef = retrieveVariableReference((PrefixExpression) expr, varType.getComponentType());
 					} else {
-						valueRef = retrieveVariableReference(expr);
+						valueRef = retrieveVariableReference(expr, null);
 					}
 					VariableReference arrayElementRef = new ArrayIndex(testCase, arrayRef, idx);
 					arrayStatement.getVariableReferences().add(arrayElementRef);
@@ -416,9 +415,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		Constructor<?> constructor = null;
 		Class<?> clazz = retrieveTypeClass(type);
 		try {
-			// TODO-JRO More sophisticated resolving of the constructor:
-			// Since the concrete classes of the arguments can only be known at
-			// runtime, we need to warn the user if we have an ambiguity.
 			constructor = clazz.getConstructor(argClasses);
 		} catch (Exception exc) {
 			throw new RuntimeException(exc);
@@ -522,10 +518,19 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			VariableDeclarationFragment varDeclFrgmnt = (VariableDeclarationFragment) argument;
 			return retrieveTypeClass(varDeclFrgmnt.resolveBinding());
 		}
+		if (argument instanceof InfixExpression) {
+			InfixExpression infixExpr = (InfixExpression) argument;
+			ITypeBinding refTypeBinding = infixExpr.resolveTypeBinding();
+			if (refTypeBinding != null) {
+				return retrieveTypeClass(refTypeBinding);
+			} else {
+				throw new RuntimeException("Could not determine type class of infix expression '" + infixExpr + "'.");
+			}
+		}
 		throw new UnsupportedOperationException("Retrieval of type " + argument.getClass() + " not implemented yet!");
 	}
 
-	protected VariableReference retrieveVariableReference(Object argument) {
+	protected VariableReference retrieveVariableReference(Object argument, Class<?> varType) {
 		if (argument instanceof ClassInstanceCreation) {
 			ClassInstanceCreation instanceCreation = (ClassInstanceCreation) argument;
 			if ((instanceCreation.getParent() instanceof MethodInvocation)
@@ -535,14 +540,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				nestedCallResults.push(result);
 				return result;
 			}
-			return retrieveVariableReference(instanceCreation.getParent());
+			return retrieveVariableReference(instanceCreation.getParent(), varType);
 		}
 		if (argument instanceof VariableDeclarationFragment) {
 			return retrieveVariableReference((VariableDeclarationFragment) argument);
 		}
 		if (argument instanceof SimpleName) {
 			SimpleName simpleName = (SimpleName) argument;
-			return retrieveVariableReference(simpleName.resolveBinding());
+			return retrieveVariableReference(simpleName.resolveBinding(), varType);
 		}
 		if (argument instanceof IVariableBinding) {
 			return retrieveVariableReference((IVariableBinding) argument);
@@ -551,12 +556,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return retrieveVariableReference((PrefixExpression) argument);
 		}
 		if (argument instanceof InfixExpression) {
-			return retrieveVariableReference((InfixExpression) argument);
+			return retrieveVariableReference((InfixExpression) argument, varType);
 		}
 		if (argument instanceof ExpressionStatement) {
 			ExpressionStatement exprStmt = (ExpressionStatement) argument;
 			Expression expression = exprStmt.getExpression();
-			return retrieveVariableReference(expression);
+			return retrieveVariableReference(expression, varType);
 		}
 		if (argument instanceof NullLiteral) {
 			return retrieveVariableReference((NullLiteral) argument);
@@ -591,15 +596,18 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
 	}
 
-	private List<VariableReference> convertParams(List<?> arguments) {
+	private List<VariableReference> convertParams(List<?> arguments, List<?> argumentTypes) {
 		List<VariableReference> result = new ArrayList<VariableReference>();
+		int idx = 0;
 		for (Object argument : arguments) {
 			if ((argument instanceof MethodInvocation) || (argument instanceof ClassInstanceCreation)) {
 				assert !nestedCallResults.isEmpty();
 				result.add(nestedCallResults.pop());
 				continue;
 			}
-			result.add(retrieveVariableReference(argument));
+			Class<?> argClass = retrieveTypeClass(argumentTypes.get(idx));
+			result.add(retrieveVariableReference(argument, argClass));
+			idx++;
 		}
 		return result;
 	}
@@ -684,7 +692,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private VariableReference retrieveCalleeReference(MethodInvocation methodInvocation) {
 		Expression expression = methodInvocation.getExpression();
 		if (expression != null) {
-			return retrieveVariableReference(expression);
+			return retrieveVariableReference(expression, null);
 		}
 		throw new IllegalStateException(methodInvocation + " has null expression!");
 	}
@@ -808,10 +816,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		ASTNode parent = methodInvocation.getParent();
 		if (parent instanceof VariableDeclarationFragment) {
-			return retrieveVariableReference(parent);
+			return retrieveVariableReference(parent, null);
 		}
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-		result = retrieveVariableReference(methodBinding.getReturnType());
+		result = retrieveVariableReference(methodBinding.getReturnType(), null);
 		calleeResultMap.put(methodInvocation.toString(), result);
 		return result;
 	}
@@ -843,12 +851,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return charAssignment.getReturnValue();
 	}
 
-	private VariableReference retrieveVariableReference(InfixExpression infixExpr) {
-		ITypeBinding refTypeBinding = infixExpr.resolveTypeBinding();
-		VariableReference ref = new VariableReferenceImpl(testCase, retrieveTypeClass(refTypeBinding));
-		VariableReference leftOperand = retrieveVariableReference(infixExpr.getLeftOperand());
+	private VariableReference retrieveVariableReference(InfixExpression infixExpr, Class<?> exprType) {
+		if (exprType == null) {
+			exprType = retrieveTypeClass(infixExpr);
+		}
+		VariableReference ref = new VariableReferenceImpl(testCase, exprType);
+		VariableReference leftOperand = retrieveVariableReference(infixExpr.getLeftOperand(), null);
 		Operator operator = Operator.toOperator(infixExpr.getOperator().toString());
-		VariableReference rightOperand = retrieveVariableReference(infixExpr.getRightOperand());
+		VariableReference rightOperand = retrieveVariableReference(infixExpr.getRightOperand(), null);
 		PrimitiveExpression expr = new PrimitiveExpression(testCase, ref, leftOperand, operator, rightOperand);
 		testCase.addStatementToScope(expr);
 		return ref;
