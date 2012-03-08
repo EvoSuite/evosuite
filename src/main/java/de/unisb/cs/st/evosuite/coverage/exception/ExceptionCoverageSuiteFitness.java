@@ -15,13 +15,13 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
-public class ExceptionSuiteFitness extends TestSuiteFitnessFunction{
+public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction{
 
-	private static Logger logger = LoggerFactory.getLogger(ExceptionSuiteFitness.class);
+	private static Logger logger = LoggerFactory.getLogger(ExceptionCoverageSuiteFitness.class);
 	
 	protected TestSuiteFitnessFunction baseFF;
 	
-	public ExceptionSuiteFitness(){
+	public ExceptionCoverageSuiteFitness(){
 		baseFF = new BranchCoverageSuiteFitness();
 	}
 	
