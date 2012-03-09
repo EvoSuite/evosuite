@@ -22,38 +22,26 @@ public class JUnitTestReader implements TestReader {
 		this.sources = sources;
 	}
 
-	// The problem: if we resolve the inheritance bottom-up,
-	// we need placeholders for all variable definitions that stem
-	// from parent field or methods and for calls to super.x().
-	// If we resolve the inheritance top-down,
-	// we might read in methods that are later overridden.
-	// We choose the top-down approach. This just means 
-	// that we cannot throw all "initialization" code together
-	// but that we need to resolve ALL methods individually
-	// and resolve overrides later on.
-
 	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
 		String clazz = qualifiedTestMethod.substring(0, qualifiedTestMethod.indexOf("#"));
 		String method = qualifiedTestMethod.substring(qualifiedTestMethod.indexOf("#") + 1);
-		CompoundTestCase testCase = new CompoundTestCase();
-		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, method);
+		CompoundTestCase testCase = new CompoundTestCase(method);
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, method, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
 		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
 		compilationUnit.accept(testExtractingVisitor);
-		clazz = testExtractingVisitor.getSuperclass();
 		return testCase.finalizeTestCase();
 	}
 
 	@Override
 	public CompoundTestCase readTestCase(String clazz, CompoundTestCase parent) {
 		CompoundTestCase testCase = new CompoundTestCase(parent);
-		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, null);
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, null, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
 		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
 		compilationUnit.accept(testExtractingVisitor);
-		clazz = testExtractingVisitor.getSuperclass();
 		return testCase;
 	}
 

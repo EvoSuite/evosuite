@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.junit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -25,68 +26,42 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class CompoundTestCase {
 	public static enum TestScope {
-		BEFORE_CLASS, STATIC, BEFORE, FIELDS, CONSTRUCTOR, TEST_METHOD, AFTER, AFTER_CLASS, IGNORE;
+		BEFORE_CLASS, STATIC, BEFORE, FIELDS, CONSTRUCTOR, AFTER, AFTER_CLASS, METHOD;
 	}
 
 	private static final long serialVersionUID = 1L;
 
-	// TODO We need to have this as maps, mapping method names to list<statement>
-	// TODO Find out in which order @Before and @BeforeClass methods are called
-	private final List<StatementInterface> after = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> afterClass = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> before = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> beforeClass = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> constructor = new ArrayList<StatementInterface>();
+	private final Map<String, List<StatementInterface>> methods = new LinkedHashMap<String, List<StatementInterface>>();
+	private final Map<IVariableBinding, VariableReference> currentMethodVars = new HashMap<IVariableBinding, VariableReference>();
+	private final Map<IVariableBinding, VariableReference> fieldVars = new HashMap<IVariableBinding, VariableReference>();
+	private final List<String> constructors = new ArrayList<String>();
+	private final List<String> afterMethods = new ArrayList<String>();
+	private final List<String> afterClassMethods = new ArrayList<String>();
+	private final List<String> beforeMethods = new ArrayList<String>();
+	private final List<String> beforeClassMethods = new ArrayList<String>();
 	private final List<StatementInterface> fields = new ArrayList<StatementInterface>();
 	private final List<StatementInterface> staticCode = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> testMethod = new ArrayList<StatementInterface>();
-	private final Map<IVariableBinding, VariableReference> methodVars = new HashMap<IVariableBinding, VariableReference>();
-	private final Map<IVariableBinding, VariableReference> fieldVars = new HashMap<IVariableBinding, VariableReference>();
+	private final String testMethod;
 	private CompoundTestCase parent;
 	private TestScope currentScope = TestScope.FIELDS;
+	private List<StatementInterface> currentMethod = new ArrayList<StatementInterface>();
+	private String currentMethodName = null;
 
 	private final DelegatingTestCase delegate;
 
-	public CompoundTestCase() {
+	public CompoundTestCase(CompoundTestCase child) {
+		child.parent = this;
+		delegate = child.getReference();
+		this.testMethod = null;
+	}
+
+	public CompoundTestCase(String methodName) {
+		this.testMethod = methodName;
 		delegate = new DelegatingTestCase();
 	}
 
-	public CompoundTestCase(CompoundTestCase parent) {
-		this.parent = parent;
-		delegate = parent.getReference();
-	}
-
 	public void addStatement(StatementInterface statement) {
-		switch (currentScope) {
-		case BEFORE_CLASS:
-			beforeClass.add(statement);
-			return;
-		case STATIC:
-			staticCode.add(statement);
-			return;
-		case BEFORE:
-			before.add(statement);
-			return;
-		case CONSTRUCTOR:
-			constructor.add(statement);
-			return;
-		case FIELDS:
-			fields.add(statement);
-			return;
-		case TEST_METHOD:
-			testMethod.add(statement);
-			return;
-		case AFTER_CLASS:
-			afterClass.add(statement);
-			return;
-		case AFTER:
-			after.add(statement);
-			return;
-		case IGNORE:
-			return;
-		default:
-			throw new RuntimeException("Scope " + currentScope + " not considered!");
-		}
+		currentMethod.add(statement);
 	}
 
 	public void addVariable(IVariableBinding varBinding, VariableReference varRef) {
@@ -94,16 +69,41 @@ public class CompoundTestCase {
 			fieldVars.put(varBinding, varRef);
 			return;
 		}
-		methodVars.put(varBinding, varRef);
+		currentMethodVars.put(varBinding, varRef);
+	}
+
+	public void finalizeMethod() {
+		methods.put(currentMethodName, currentMethod);
+		currentMethod = new ArrayList<StatementInterface>();
+		currentMethodVars.clear();
+		switch (currentScope) {
+		case AFTER:
+			afterMethods.add(currentMethodName);
+			break;
+		case AFTER_CLASS:
+			afterClassMethods.add(currentMethodName);
+			break;
+		case BEFORE:
+			beforeMethods.add(currentMethodName);
+			break;
+		case BEFORE_CLASS:
+			beforeClassMethods.add(currentMethodName);
+			break;
+		case CONSTRUCTOR:
+			constructors.add(currentMethodName);
+			break;
+		}
+		currentMethodName = null;
+		currentScope = TestScope.FIELDS;
 	}
 
 	public TestCase finalizeTestCase() {
 		delegate.setDelegate(new DefaultTestCase());
 		delegate.addStatements(getInitializationCode());
-		if (testMethod.isEmpty()) {
+		if (testMethod == null) {
 			throw new RuntimeException("Test did not contain any statements!");
 		}
-		delegate.addStatements(testMethod);
+		delegate.addStatements(methods.get(testMethod));
 		delegate.addStatements(getDeinitializationCode());
 		return delegate;
 	}
@@ -117,22 +117,35 @@ public class CompoundTestCase {
 	}
 
 	public VariableReference getVariableReference(IVariableBinding varBinding) {
-		VariableReference varRef = methodVars.get(varBinding);
+		VariableReference varRef = currentMethodVars.get(varBinding);
 		if (varRef != null) {
 			return varRef;
 		}
-		return fieldVars.get(varBinding);
+		varRef = fieldVars.get(varBinding);
+		if (varRef != null) {
+			return varRef;
+		}
+		if (parent != null) {
+			return parent.getVariableReference(varBinding);
+		}
+		return null;
+	}
+
+	public void newMethod(String methodName) {
+		assert currentMethod.isEmpty();
+		assert currentMethodVars.isEmpty();
+		currentMethodName = methodName;
+		currentScope = TestScope.METHOD;
 	}
 
 	public void setCurrentScope(TestScope scope) {
 		this.currentScope = scope;
-		methodVars.clear();
 	}
 
 	public void variableAssignment(VariableReference varRef, VariableReference newAssignment) {
-		for (Map.Entry<IVariableBinding, VariableReference> entry : methodVars.entrySet()) {
+		for (Map.Entry<IVariableBinding, VariableReference> entry : currentMethodVars.entrySet()) {
 			if (entry.getValue() == varRef) {
-				methodVars.put(entry.getKey(), newAssignment);
+				currentMethodVars.put(entry.getKey(), newAssignment);
 			}
 		}
 		for (Map.Entry<IVariableBinding, VariableReference> entry : fieldVars.entrySet()) {
@@ -142,10 +155,18 @@ public class CompoundTestCase {
 		}
 	}
 
+	private List<StatementInterface> allStatementsFrom(List<String> methodsToAdd) {
+		List<StatementInterface> result = new ArrayList<StatementInterface>();
+		for (String method : methodsToAdd) {
+			result.addAll(methods.get(method));
+		}
+		return result;
+	}
+
 	private List<StatementInterface> getDeinitializationCode() {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
-		result.addAll(after);
-		result.addAll(afterClass);
+		result.addAll(allStatementsFrom(afterMethods));
+		result.addAll(allStatementsFrom(afterClassMethods));
 		if (parent != null) {
 			List<StatementInterface> parentStatements = parent.getDeinitializationCode();
 			result.addAll(parentStatements);
@@ -154,16 +175,22 @@ public class CompoundTestCase {
 	}
 
 	private List<StatementInterface> getInitializationCode() {
+		// According to Kent Beck, there is no defined order
+		// in which @Before and @BeforeClass methods are called
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
 			List<StatementInterface> parentStatements = parent.getInitializationCode();
 			result.addAll(parentStatements);
 		}
+		result.addAll(allStatementsFrom(beforeClassMethods));
 		result.addAll(staticCode);
 		result.addAll(fields);
-		result.addAll(constructor);
-		result.addAll(beforeClass);
-		result.addAll(before);
+		// TODO Currently we only support the default constructor
+		List<StatementInterface> constructor = methods.get("<init>");
+		if (constructor != null) {
+			result.addAll(constructor);
+		}
+		result.addAll(allStatementsFrom(beforeMethods));
 		return result;
 	}
 }
