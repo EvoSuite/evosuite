@@ -172,10 +172,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestExtractingVisitor.class);
 	private final CompoundTestCase testCase;
+	private final TestReader testReader;
 	private final String unqualifiedTest;
 	private final String unqualifiedTestMethod;
 	private Stack<VariableReference> nestedCallResults = new Stack<VariableReference>();
-	private String superclass = null;
 
 	private static final HashSet<Class<?>> PRIMITIVE_CLASSES = new HashSet<Class<?>>();
 
@@ -233,9 +233,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
 
-	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod) {
+	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod, TestReader testReader) {
 		super();
 		this.testCase = testCase;
+		this.testReader = testReader;
 		this.unqualifiedTest = testClass.substring(testClass.lastIndexOf(".") + 1, testClass.length());
 		this.unqualifiedTestMethod = testMethod;
 	}
@@ -254,7 +255,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public void endVisit(MethodDeclaration node) {
-		testCase.setCurrentScope(TestScope.FIELDS);
+		testCase.finalizeMethod();
 		super.endVisit(node);
 	}
 
@@ -281,10 +282,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		testCase.addStatement(methodStatement);
 		super.visit(methodInvocation);
-	}
-
-	public String getSuperclass() {
-		return superclass;
 	}
 
 	@Override
@@ -327,19 +324,15 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public boolean visit(MethodDeclaration methodDeclaration) {
-		if ((unqualifiedTestMethod != null)
-				&& unqualifiedTestMethod.equals(methodDeclaration.getName().getIdentifier())) {
-			testCase.setCurrentScope(TestScope.TEST_METHOD);
-		} else {
+		String methodName = methodDeclaration.getName().getIdentifier();
+		testCase.newMethod(methodName);
+		if ((unqualifiedTestMethod == null) || !unqualifiedTestMethod.equals(methodName)) {
 			if (methodDeclaration.getName().getIdentifier().equals("setUp")) {
 				testCase.setCurrentScope(TestScope.BEFORE);
 			}
 			if (methodDeclaration.getName().getIdentifier().equals("tearDown")) {
 				testCase.setCurrentScope(TestScope.AFTER);
 			}
-			testCase.setCurrentScope(TestScope.IGNORE);
-			logger.info("Test method is '" + unqualifiedTestMethod + "', ignoring method declaration '"
-					+ methodDeclaration.getName().getIdentifier() + "'.");
 		}
 		return super.visit(methodDeclaration);
 	}
@@ -352,7 +345,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		Type supertype = typeDeclaration.getSuperclassType();
 		if (supertype != null) {
-			superclass = retrieveTypeClass(supertype).getName();
+			String superclass = retrieveTypeClass(supertype).getName();
+			testReader.readTestCase(superclass, testCase);
 		}
 		return super.visit(typeDeclaration);
 	}
