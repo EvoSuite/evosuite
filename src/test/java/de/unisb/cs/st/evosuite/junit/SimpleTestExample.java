@@ -36,7 +36,7 @@ public class SimpleTestExample {
 		System.out.println(date);
 		Date result = formatter.parse(date);
 		System.out.println(result);
-		Assert.assertNotNull(result);
+//		Assert.assertNotNull(result);
 	}
 
 	@Ignore

@@ -67,7 +67,9 @@ public class JUnitTestReaderSimpleTest {
 				"String string2 = \"11.sept..2007\";\n" + //
 				"PrintStream printStream1 = System.out;\n" + //
 				"printStream1.println(string2);\n" + //
-				"simpleDateFormat0.parse(string2);\n";
+				"Date date0 = simpleDateFormat0.parse(string2);\n" + //
+				"PrintStream printStream2 = System.out;\n" + //
+				"printStream2.println(date0);\n";
 		Assert.assertEquals(result, code);
 	}
 
