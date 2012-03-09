@@ -8,9 +8,10 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
+import de.unisb.cs.st.evosuite.junit.TestExtractingVisitor.TestReader;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
-public class JUnitTestReader {
+public class JUnitTestReader implements TestReader {
 
 	protected final String[] sources;
 	protected final String[] classpath;
@@ -21,20 +22,42 @@ public class JUnitTestReader {
 		this.sources = sources;
 	}
 
+	// The problem: if we resolve the inheritance bottom-up,
+	// we need placeholders for all variable definitions that stem
+	// from parent field or methods and for calls to super.x().
+	// If we resolve the inheritance top-down,
+	// we might read in methods that are later overridden.
+	// We choose the top-down approach. This just means 
+	// that we cannot throw all "initialization" code together
+	// but that we need to resolve ALL methods individually
+	// and resolve overrides later on.
+
 	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
-		String javaFile = findTestFile(qualifiedTestMethod);
+		String clazz = qualifiedTestMethod.substring(0, qualifiedTestMethod.indexOf("#"));
+		String method = qualifiedTestMethod.substring(qualifiedTestMethod.indexOf("#") + 1);
+		CompoundTestCase testCase = new CompoundTestCase();
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, method);
+		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
 		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
-		CompoundTestCase testCase = new CompoundTestCase();
-		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, qualifiedTestMethod);
 		compilationUnit.accept(testExtractingVisitor);
-		// TODO-JRO Implement iteration over parents
-		testCase.finalizeTestCase();
+		clazz = testExtractingVisitor.getSuperclass();
+		return testCase.finalizeTestCase();
+	}
+
+	@Override
+	public CompoundTestCase readTestCase(String clazz, CompoundTestCase parent) {
+		CompoundTestCase testCase = new CompoundTestCase(parent);
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, null);
+		String javaFile = findTestFile(clazz);
+		String fileContents = readJavaFile(javaFile);
+		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
+		compilationUnit.accept(testExtractingVisitor);
+		clazz = testExtractingVisitor.getSuperclass();
 		return testCase;
 	}
 
-	protected String extractJavaFile(String srcDir, String testMethod) {
-		String clazz = testMethod.substring(0, testMethod.indexOf("#"));
+	protected String extractJavaFile(String srcDir, String clazz) {
 		clazz = clazz.replaceAll("\\.", File.separator);
 		if (!srcDir.endsWith(File.separator)) {
 			srcDir += File.separator;
@@ -46,18 +69,17 @@ public class JUnitTestReader {
 		return testMethod.substring(testMethod.indexOf("#") + 1);
 	}
 
-	protected String findTestFile(String qualifiedTestMethod) {
+	protected String findTestFile(String clazz) {
 		StringBuffer sourcesString = new StringBuffer();
 		for (String dir : sources) {
-			String path = extractJavaFile(dir, qualifiedTestMethod);
+			String path = extractJavaFile(dir, clazz);
 			File file = new File(path);
 			if (file.exists()) {
 				return path;
 			}
 			sourcesString.append(dir).append(";");
 		}
-		throw new RuntimeException("Could not find test '" + qualifiedTestMethod + "' in sources: "
-				+ sourcesString.toString());
+		throw new RuntimeException("Could not find class '" + clazz + "' in sources: " + sourcesString.toString());
 	}
 
 	protected CompilationUnit parseJavaFile(String unitName, String fileContents) {

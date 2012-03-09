@@ -42,14 +42,17 @@ public class TestExample extends ParentTestExample {
 		otherValue = -5;
 	}
 
+	@Override
 	@Before
-	public void changeNeeded() {
+	public void setupNeeded() {
 		needed = "killSelf";
 	}
 
+	@Override
 	@Ignore
 	@Test
 	public void test01() {
+		super.setupNeeded();
 		MockingBird bird = new MockingBird(needed);
 		bird.executeCmd(value - otherValue);
 	}
