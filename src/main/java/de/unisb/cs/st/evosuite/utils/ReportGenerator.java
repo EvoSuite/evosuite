@@ -206,6 +206,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public int typeExceptions;
 
+		public Map<String, Set<Class<?>>> exceptions;
+
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
@@ -315,6 +317,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String getCSVFilepath() {
 			return REPORT_DIR.getAbsolutePath() + "/data/statistics_" + className + "-"
+			        + id + ".csv";
+		}
+
+		public String getExceptionFilepath() {
+			return REPORT_DIR.getAbsolutePath() + "/data/exceptions_" + className + "-"
 			        + id + ".csv";
 		}
 
@@ -445,6 +452,22 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			out.close();
 		} catch (IOException e) {
 			logger.info("Exception while writing CSV data: " + e);
+		}
+	}
+
+	protected void writeExceptionData(String filename,
+	        Map<String, Set<Class<?>>> exceptions) {
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+			out.write("Method,Exception\n");
+			for (String key : exceptions.keySet()) {
+				for (Class<?> exception : exceptions.get(key)) {
+					out.write(key + "," + exception.getCanonicalName() + "\n");
+				}
+			}
+			out.close();
+		} catch (IOException e) {
+			logger.info("Exception while writing exception data: " + e);
 		}
 	}
 
@@ -800,6 +823,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
+		if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
+			writeExceptionData(entry.getExceptionFilepath(), entry.exceptions);
+		}
 		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
 		             entry.coverage_history, entry.size_history, entry.length_history,
 		             entry.average_length_history, entry.fitness_evaluations,
