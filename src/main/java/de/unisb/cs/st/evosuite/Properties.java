@@ -189,7 +189,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA
+		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA, RANDOM
 	}
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
@@ -441,11 +441,11 @@ public class Properties {
 
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
-	
+
 	public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
-	
+
 	@Parameter(key = "output_granularity", group = "Output", description = "Write all test cases for a class into a single file or to separate files.")
 	public static OutputGranularity OUTPUT_GRANULARITY = OutputGranularity.MERGED;
 
@@ -550,18 +550,17 @@ public class Properties {
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
 	public static boolean ERROR_BRANCHES = false;
 
-	
 	/*
 	 * FIXME: these 2 following properties will not work if we use the EvoSuite shell script which call
 	 * MasterProcess directly rather than EvoSuite.java
 	 */
-	
+
 	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
 	public static boolean ENABLE_ASSERTS_FOR_EVOSUITE = false;
-	
+
 	@Parameter(key = "enable_asserts_for_sut", description = "Check asserts in the SUT")
-	public static boolean ENABLE_ASSERTS_FOR_SUT = true; 
-	
+	public static boolean ENABLE_ASSERTS_FOR_SUT = true;
+
 	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
@@ -623,13 +622,13 @@ public class Properties {
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
-	
+
 	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
 	public static boolean MA_WIDE_GUI = false;
-	
+
 	@Parameter(key = "ma_target_coverage", group = "Manual algorithm", description = "run Editor at spec. coverage's level")
 	public static int MA_TARGET_COVERAGE = 101;
-	
+
 	@Parameter(key = "ma_branches_calc", group = "Manual algorithm", description = "run expensive branchcalculations")
 	public static boolean MA_BRANCHES_CALC = false;
 
@@ -704,8 +703,7 @@ public class Properties {
 
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
 	public static boolean CLIENT_ON_THREAD = false;
-	
-	
+
 	// ---------------------------------------------------------------
 	// Seeding test cases
 
