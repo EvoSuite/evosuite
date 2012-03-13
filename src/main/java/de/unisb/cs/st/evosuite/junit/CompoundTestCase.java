@@ -176,7 +176,8 @@ public class CompoundTestCase {
 
 	private List<StatementInterface> getInitializationCode() {
 		// According to Kent Beck, there is no defined order
-		// in which @Before and @BeforeClass methods are called
+		// in which @Before and @BeforeClass methods are called:
+		// http://tech.groups.yahoo.com/group/junit/message/20758
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
 			List<StatementInterface> parentStatements = parent.getInitializationCode();
@@ -185,11 +186,11 @@ public class CompoundTestCase {
 		result.addAll(allStatementsFrom(beforeClassMethods));
 		result.addAll(staticCode);
 		result.addAll(fields);
-		// TODO Currently we only support the default constructor
-		List<StatementInterface> constructor = methods.get("<init>");
-		if (constructor != null) {
-			result.addAll(constructor);
+		if (constructors.size() > 1) {
+			throw new RuntimeException("Found " + constructors.size()
+					+ " constructors, but can only use default constructor!");
 		}
+		result.addAll(allStatementsFrom(constructors));
 		result.addAll(allStatementsFrom(beforeMethods));
 		return result;
 	}
