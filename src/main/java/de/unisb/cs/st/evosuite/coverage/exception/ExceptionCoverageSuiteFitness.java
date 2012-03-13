@@ -12,6 +12,7 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
@@ -70,6 +71,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					continue;
 				}
 				Throwable t = result.exceptions.get(i);
+				if (t instanceof SecurityException && Properties.SANDBOX)
+					continue;
+
 				String methodName = "";
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
