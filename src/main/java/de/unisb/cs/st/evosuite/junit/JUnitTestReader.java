@@ -3,6 +3,8 @@ package de.unisb.cs.st.evosuite.junit;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
@@ -18,8 +20,8 @@ public class JUnitTestReader implements TestReader {
 
 	public JUnitTestReader(String[] classpath, String[] sources) {
 		super();
-		this.classpath = classpath;
 		this.sources = sources;
+		this.classpath = expandClasspath(classpath);
 	}
 
 	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
@@ -102,5 +104,26 @@ public class JUnitTestReader implements TestReader {
 			}
 		}
 		return result.toString();
+	}
+
+	private String[] expandClasspath(String[] classpath) {
+		ArrayList<String> result = new ArrayList<String>();
+		for (String classpathEntry : classpath) {
+			if (classpathEntry.endsWith("*")) {
+				File dir = new File(classpathEntry.substring(0, classpathEntry.length() - 1));
+				for (File file : dir.listFiles()) {
+					if (file.getName().endsWith(".jar")) {
+						try {
+							result.add(file.getCanonicalPath());
+						} catch (IOException exc) {
+							throw new RuntimeException(exc);
+						}
+					}
+				}
+			} else {
+				result.add(classpathEntry);
+			}
+		}
+		return result.toArray(new String[result.size()]);
 	}
 }

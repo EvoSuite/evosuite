@@ -42,6 +42,10 @@ public class TestExample extends ParentTestExample {
 		otherValue = -5;
 	}
 
+	public TestExample() {
+		otherValue = 0;
+	}
+
 	@Override
 	@Before
 	public void setupNeeded() {

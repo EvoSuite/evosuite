@@ -346,7 +346,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		Type supertype = typeDeclaration.getSuperclassType();
 		if (supertype != null) {
 			String superclass = retrieveTypeClass(supertype).getName();
-			testReader.readTestCase(superclass, testCase);
+			if (!superclass.startsWith("org.junit.") && !superclass.startsWith("junit.")) {
+				testReader.readTestCase(superclass, testCase);
+			}
 		}
 		return super.visit(typeDeclaration);
 	}
@@ -426,7 +428,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (argument instanceof SimpleType) {
 			SimpleType simpleType = (SimpleType) argument;
 			ITypeBinding binding = simpleType.resolveBinding();
-			assert binding != null : "Could not resolve binding. Missing sources folder?";
+			assert binding != null : "Could not resolve binding for " + simpleType + ". Missing sources folder?";
 			return retrieveTypeClass(binding);
 		}
 		if (argument instanceof ITypeBinding) {
