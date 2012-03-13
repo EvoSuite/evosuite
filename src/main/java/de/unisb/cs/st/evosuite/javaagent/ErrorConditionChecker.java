@@ -34,9 +34,6 @@ public class ErrorConditionChecker {
 		case Opcodes.IADD:
 			result = op1 + op2;
 			if (op1 > 0 && op2 > 0) {
-				System.out.println("Overflow check for integer addition " + op1 + " + "
-				        + op2 + ": " + result + " - result = "
-				        + (result < 0 ? -1 : (Integer.MAX_VALUE - result)));
 				// result has to be < 0 for overflow
 				return result < 0 ? -1 : (Integer.MAX_VALUE - result);
 			} else if (op1 < 0 && op2 < 0)
