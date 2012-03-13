@@ -95,8 +95,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			if (Type.getType(desc).getSize() == 2) {
 				// 2 words
 				// v1 v2 v3
-
-				super.visitInsn(Opcodes.DUP_X2);
+				super.visitInsn(Opcodes.DUP2_X1);
 				// v2 v3 v1 v2 v3
 
 				super.visitInsn(Opcodes.POP2);
@@ -325,6 +324,14 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	public void visitEnd() {
 		MethodNode mn = (MethodNode) mv;
 		mn.accept(next);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
+	 */
+	@Override
+	public void visitMaxs(int maxStack, int maxLocals) {
+		super.visitMaxs(maxStack + 4, maxLocals);
 	}
 
 }

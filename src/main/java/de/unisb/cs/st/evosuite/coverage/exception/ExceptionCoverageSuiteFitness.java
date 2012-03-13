@@ -65,6 +65,10 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.exceptions.keySet()) {
+				if (i >= result.test.size()) {
+					// Timeouts are put after the last statement if the process was forcefully killed
+					continue;
+				}
 				Throwable t = result.exceptions.get(i);
 				String methodName = "";
 				if (result.test.getStatement(i) instanceof MethodStatement) {

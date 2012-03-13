@@ -336,7 +336,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.exceptions = callable.getExceptionsThrown();
-			result.exceptions.put(tc.size() - 1, new TestCaseExecutor.TimeoutExceeded());
+			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			ExecutionTracer.setKillSwitch(false);
