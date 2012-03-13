@@ -202,6 +202,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String goalCoverage;
 
+		public int methodExceptions;
+
+		public int typeExceptions;
+
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
@@ -221,6 +225,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("JUnitTests,");
 			r.append("Branches,");
 			r.append("MutationScore,");
+			r.append("MethodExceptions,");
+			r.append("TypeExceptions,");
 			r.append("Data File");
 			return r.toString();
 		}
@@ -298,8 +304,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(pstats.getMaxThreads() + ",");
 			r.append(JUnitTestChromosomeFactory.getNumTests() + ",");
 
-			r.append(mutationScore + ",");
 			r.append(goalCoverage + ",");
+			r.append(mutationScore + ",");
+			r.append(methodExceptions + ",");
+			r.append(typeExceptions + ",");
 			r.append(getCSVFilepath());
 
 			return r.toString();
