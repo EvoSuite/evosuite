@@ -20,6 +20,8 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,6 +29,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
@@ -39,7 +42,9 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppi
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -289,6 +294,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
 		Map<Integer, Integer> predicate_count = new HashMap<Integer, Integer>();
 		Set<String> covered_methods = new HashSet<String>();
+		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
+		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 
 		logger.debug("Calculating line coverage");
 
@@ -326,6 +333,48 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				if (!false_distance.containsKey(e.getKey())
 				        || false_distance.get(e.getKey()) > e.getValue()) {
 					false_distance.put(e.getKey(), e.getValue());
+				}
+			}
+
+		}
+
+		for (TestCase test : entry.results.keySet()) {
+			Map<Integer, Throwable> exceptions = entry.results.get(test);
+			//iterate on the indexes of the statements that resulted in an exception
+			for (Integer i : exceptions.keySet()) {
+				Throwable t = exceptions.get(i);
+				String methodName = "";
+				if (test.getStatement(i) instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement) test.getStatement(i);
+					Method method = ms.getMethod();
+					methodName = method.getName() + Type.getMethodDescriptor(method);
+				} else if (test.getStatement(i) instanceof ConstructorStatement) {
+					ConstructorStatement cs = (ConstructorStatement) test.getStatement(i);
+					Constructor<?> constructor = cs.getConstructor();
+					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
+				}
+				boolean notDeclared = !test.getStatement(i).getDeclaredExceptions().contains(t);
+				if (notDeclared) {
+					/*
+					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
+					 * input for pre-condition) or implicit ("likely" a real fault).
+					 */
+
+					/*
+					 * FIXME: need to find a way to calculate it
+					 */
+					boolean isExplicit = false;
+					if (isExplicit) {
+						if (!explicitTypesOfExceptions.containsKey(methodName))
+							explicitTypesOfExceptions.put(methodName,
+							                              new HashSet<Class<?>>());
+						explicitTypesOfExceptions.get(methodName).add(t.getClass());
+					} else {
+						if (!implicitTypesOfExceptions.containsKey(methodName))
+							implicitTypesOfExceptions.put(methodName,
+							                              new HashSet<Class<?>>());
+						implicitTypesOfExceptions.get(methodName).add(t.getClass());
+					}
 				}
 			}
 		}
@@ -374,8 +423,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.goalCoverage = "";
 		for (TestFitnessFunction fitness : factory.getCoverageGoals()) {
 			boolean covered = false;
-			for (TestChromosome test : best.tests) {
-				if (fitness.isCovered(test)) {
+			for (TestChromosome test1 : best.tests) {
+				if (fitness.isCovered(test1)) {
 					covered = true;
 					entry.goalCoverage += "1";
 					break;
@@ -384,7 +433,27 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			if (!covered)
 				entry.goalCoverage += "0";
 		}
+		entry.methodExceptions = getNumExceptions(implicitTypesOfExceptions)
+		        + getNumExceptions(explicitTypesOfExceptions);
+		entry.typeExceptions = getNumClassExceptions(implicitTypesOfExceptions)
+		        + getNumClassExceptions(explicitTypesOfExceptions);
 
+	}
+
+	private static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
+		int total = 0;
+		for (Set<Class<?>> exceptionSet : exceptions.values()) {
+			total += exceptionSet.size();
+		}
+		return total;
+	}
+
+	private static int getNumClassExceptions(Map<String, Set<Class<?>>> exceptions) {
+		Set<Class<?>> classExceptions = new HashSet<Class<?>>();
+		for (Set<Class<?>> exceptionSet : exceptions.values()) {
+			classExceptions.addAll(exceptionSet);
+		}
+		return classExceptions.size();
 	}
 
 	public void writeStatistics() {

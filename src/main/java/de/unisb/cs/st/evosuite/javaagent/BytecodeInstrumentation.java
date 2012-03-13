@@ -182,6 +182,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			logger.debug("Applying target transformation");
 			// Print out bytecode if debug is enabled
 			cv = new AccessibleClassAdapter(cv, className);
+			//			cv = new ErrorConditionClassAdapter(cv, className);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 			// cv = new CheckClassAdapter(cv, true);
 			// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
@@ -191,8 +192,9 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(cv, className);
 
-			if (Properties.ERROR_BRANCHES)
+			if (Properties.ERROR_BRANCHES) {
 				cv = new ErrorConditionClassAdapter(cv, className);
+			}
 
 			for (ClassAdapterFactory factory : externalPreVisitors) {
 				cv = factory.getVisitor(cv, className);

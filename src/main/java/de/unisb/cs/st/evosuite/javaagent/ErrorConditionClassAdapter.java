@@ -30,6 +30,6 @@ public class ErrorConditionClassAdapter extends ClassVisitor {
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		return new ErrorConditionMethodAdapter(mv, className, name);
+		return new ErrorConditionMethodAdapter(mv, className, name, access, desc);
 	}
 }
