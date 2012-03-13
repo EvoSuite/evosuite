@@ -77,6 +77,7 @@ import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
 import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
 import de.unisb.cs.st.evosuite.ga.PopulationLimit;
+import de.unisb.cs.st.evosuite.ga.RandomSearch;
 import de.unisb.cs.st.evosuite.ga.RankSelection;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
@@ -1116,7 +1117,9 @@ public class TestSuiteGenerator {
 					ga.setReplacementFunction(new TestCaseReplacementFunction());
 				return ga;
 			}
-
+		case RANDOM:
+			logger.info("Chosen search algorithm: Random");
+			return new RandomSearch(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA(factory);
