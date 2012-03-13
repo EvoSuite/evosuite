@@ -51,7 +51,6 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFitnessCalculator;
-import de.unisb.cs.st.evosuite.coverage.exception.ExceptionCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
@@ -168,9 +167,9 @@ public class TestSuiteGenerator {
 	 * Generate a test suite for the target class
 	 */
 	public String generateTestSuite(GeneticAlgorithm geneticAlgorithm) {
-		
+
 		TestCaseExecutor.initExecutor();
-		
+
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		ga = geneticAlgorithm;
 
@@ -541,7 +540,8 @@ public class TestSuiteGenerator {
 		case ALLDEFS:
 			return new AllDefsCoverageFactory();
 		case EXCEPTION:
-			return new ExceptionCoverageFactory();
+			return new BranchCoverageFactory();
+			//			return new ExceptionCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
