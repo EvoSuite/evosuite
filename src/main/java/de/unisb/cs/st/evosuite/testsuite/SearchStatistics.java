@@ -343,6 +343,9 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : exceptions.keySet()) {
 				Throwable t = exceptions.get(i);
+				if (t instanceof SecurityException && Properties.SANDBOX)
+					continue;
+
 				String methodName = "";
 				if (test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) test.getStatement(i);
