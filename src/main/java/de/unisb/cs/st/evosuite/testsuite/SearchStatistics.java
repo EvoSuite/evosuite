@@ -438,6 +438,9 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.typeExceptions = getNumClassExceptions(implicitTypesOfExceptions)
 		        + getNumClassExceptions(explicitTypesOfExceptions);
 
+		// TODO: Only counting implicit exceptions as long as we don't distinguish
+		entry.exceptions = implicitTypesOfExceptions;
+
 	}
 
 	private static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
