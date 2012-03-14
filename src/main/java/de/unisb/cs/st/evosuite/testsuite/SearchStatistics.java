@@ -20,6 +20,8 @@ package de.unisb.cs.st.evosuite.testsuite;
 
 import java.io.File;
 import java.io.Serializable;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,10 +29,11 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
-import de.unisb.cs.st.evosuite.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -38,10 +41,14 @@ import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
+import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
+import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -287,6 +294,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
 		Map<Integer, Integer> predicate_count = new HashMap<Integer, Integer>();
 		Set<String> covered_methods = new HashSet<String>();
+		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
+		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 
 		logger.debug("Calculating line coverage");
 
@@ -326,6 +335,51 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					false_distance.put(e.getKey(), e.getValue());
 				}
 			}
+
+		}
+
+		for (TestCase test : entry.results.keySet()) {
+			Map<Integer, Throwable> exceptions = entry.results.get(test);
+			//iterate on the indexes of the statements that resulted in an exception
+			for (Integer i : exceptions.keySet()) {
+				Throwable t = exceptions.get(i);
+				if (t instanceof SecurityException && Properties.SANDBOX)
+					continue;
+
+				String methodName = "";
+				if (test.getStatement(i) instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement) test.getStatement(i);
+					Method method = ms.getMethod();
+					methodName = method.getName() + Type.getMethodDescriptor(method);
+				} else if (test.getStatement(i) instanceof ConstructorStatement) {
+					ConstructorStatement cs = (ConstructorStatement) test.getStatement(i);
+					Constructor<?> constructor = cs.getConstructor();
+					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
+				}
+				boolean notDeclared = !test.getStatement(i).getDeclaredExceptions().contains(t);
+				if (notDeclared) {
+					/*
+					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
+					 * input for pre-condition) or implicit ("likely" a real fault).
+					 */
+
+					/*
+					 * FIXME: need to find a way to calculate it
+					 */
+					boolean isExplicit = false;
+					if (isExplicit) {
+						if (!explicitTypesOfExceptions.containsKey(methodName))
+							explicitTypesOfExceptions.put(methodName,
+							                              new HashSet<Class<?>>());
+						explicitTypesOfExceptions.get(methodName).add(t.getClass());
+					} else {
+						if (!implicitTypesOfExceptions.containsKey(methodName))
+							implicitTypesOfExceptions.put(methodName,
+							                              new HashSet<Class<?>>());
+						implicitTypesOfExceptions.get(methodName).add(t.getClass());
+					}
+				}
+			}
 		}
 
 		int num_covered = 0;
@@ -343,6 +397,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
+		//System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
 		// branch coverage - see searchStarted()/Finished()
@@ -367,6 +422,44 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		 */
 		// }
 
+		BranchCoverageFactory factory = new BranchCoverageFactory();
+		entry.goalCoverage = "";
+		for (TestFitnessFunction fitness : factory.getCoverageGoals()) {
+			boolean covered = false;
+			for (TestChromosome test1 : best.tests) {
+				if (fitness.isCovered(test1)) {
+					covered = true;
+					entry.goalCoverage += "1";
+					break;
+				}
+			}
+			if (!covered)
+				entry.goalCoverage += "0";
+		}
+		entry.methodExceptions = getNumExceptions(implicitTypesOfExceptions)
+		        + getNumExceptions(explicitTypesOfExceptions);
+		entry.typeExceptions = getNumClassExceptions(implicitTypesOfExceptions)
+		        + getNumClassExceptions(explicitTypesOfExceptions);
+
+		// TODO: Only counting implicit exceptions as long as we don't distinguish
+		entry.exceptions = implicitTypesOfExceptions;
+
+	}
+
+	private static int getNumExceptions(Map<String, Set<Class<?>>> exceptions) {
+		int total = 0;
+		for (Set<Class<?>> exceptionSet : exceptions.values()) {
+			total += exceptionSet.size();
+		}
+		return total;
+	}
+
+	private static int getNumClassExceptions(Map<String, Set<Class<?>>> exceptions) {
+		Set<Class<?>> classExceptions = new HashSet<Class<?>>();
+		for (Set<Class<?>> exceptionSet : exceptions.values()) {
+			classExceptions.addAll(exceptionSet);
+		}
+		return classExceptions.size();
 	}
 
 	public void writeStatistics() {
@@ -401,16 +494,14 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		
-		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
-				BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) :
-				BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
-					
-		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ?
-				BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size() :
-				BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
+		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)
+		        : BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
 
-		entry.total_methods = CFGMethodAdapter.methods.size();
+		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
+		        : BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
+
+		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS)
+		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
 		// TODO in order for this to work even when the criterion is neither
 		// defuse nor analyze we might need to ensure that du-goal-computation
@@ -446,6 +537,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
 			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
 			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
+			entry.timeStamps.add(System.currentTimeMillis() - entry.creationTime);
 		}
 	}
 

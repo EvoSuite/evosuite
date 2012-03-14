@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.javaagent;
 
 import static org.junit.Assert.assertTrue;
+import junit.framework.Assert;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -209,4 +210,32 @@ public class TestBooleanHelper {
 		           distanceTrue1 < distanceTrue2);
 	}
 
+	@Test
+	public void testStringEquals(){
+		int dist = BooleanHelper.StringEquals("foo", "foo");
+		Assert.assertTrue("Distance should be positive, but obtained "+dist, dist > 0);
+		
+		int nullDist = BooleanHelper.StringEquals("foo", null);
+		Assert.assertTrue("Distance should be negative, but obtained "+nullDist, nullDist <= 0);
+		int emptyDist = BooleanHelper.StringEquals("foo", "");
+		Assert.assertTrue("Distance should be negative, but obtained "+emptyDist, emptyDist <= 0);
+		Assert.assertTrue("Empty string should be closer than null",nullDist < emptyDist);
+		
+		try{
+			dist = BooleanHelper.StringEquals(null,"foo");
+			Assert.fail();
+		} catch(IllegalArgumentException e){			
+		}
+		
+		int closer = BooleanHelper.StringEquals("foo1", "foo2");
+		int larger = BooleanHelper.StringEquals("xyz", "foo");
+		Assert.assertTrue("Invalid distances "+closer+" and "+larger, closer > larger && closer <=0);
+		
+		dist = BooleanHelper.StringEquals(" foo", "foo ");
+		Assert.assertTrue("Distance should be negative, but obtained "+dist, dist <= 0);
+		
+		int first = BooleanHelper.StringEquals("foo123", "foo");
+		int last = BooleanHelper.StringEquals("foo123", "123");
+		Assert.assertTrue("Invalid distances "+first+" and "+last, first >= last && first <=0);
+	}
 }

@@ -80,8 +80,8 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	 */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= P_pool)
-			value = (Randomness.nextInt(2 * MAX_INT) - MAX_INT) + Randomness.nextDouble();
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
+			value = (Randomness.nextInt(2 * Properties.MAX_INT) - Properties.MAX_INT) + Randomness.nextDouble();
 		else
 			value = primitive_pool.getRandomDouble();
 	}

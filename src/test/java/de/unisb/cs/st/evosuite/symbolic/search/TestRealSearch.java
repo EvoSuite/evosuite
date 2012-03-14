@@ -22,8 +22,8 @@ public class TestRealSearch {
 	@Test
 	public void testEQConstant() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0,
-		        1000000.0), Comparator.EQ, new RealConstant(2.35082)));
+		constraints.add(new RealConstraint(new RealVariable("test1", 0.675464,
+		        -1000000.0, 1000000.0), Comparator.EQ, new RealConstant(2.35082)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
@@ -180,7 +180,8 @@ public class TestRealSearch {
 			var1 = ((Number) result.get("test1")).doubleValue();
 		if (result.containsKey("test2"))
 			var2 = ((Number) result.get("test2")).doubleValue();
-		assertTrue(var1 == var2);
+		//assertTrue(var1 == var2);
+		assertEquals(var1, var2, 0.001);
 	}
 
 	@Test
@@ -283,53 +284,93 @@ public class TestRealSearch {
 		double var1 = 1;
 		double var2 = 1;
 
+		RealVariable realVar1 = new RealVariable("test1", var1, -1000000, 1000000);
+		RealVariable realVar2 = new RealVariable("test2", var2, -1000000, 1000000);
+
+		// x <= 0
+		// x < y
+		// x >= 0
+
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.LE, new RealConstant(0)));
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.LT, new RealVariable("test2", var2, -1000000,
-		        1000000)));
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.GE, new RealConstant(0)));
+		constraints.add(new RealConstraint(realVar1, Comparator.LE, new RealConstant(0)));
+		constraints.add(new RealConstraint(realVar1, Comparator.LT, realVar2));
+		constraints.add(new RealConstraint(realVar1, Comparator.GE, new RealConstant(0)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
+			var1 = ((Number) result.get("test1")).doubleValue();
 		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
+			var2 = ((Number) result.get("test2")).doubleValue();
 		assertEquals(0, var1, 0.0001);
 		assertTrue(var1 < var2);
 	}
 
 	@Test
 	public void testEvosuiteExample2() {
-		double var1 = 0.0;
-		double var2 = 2.9999999995311555E-7;
+		double var1 = 355.80758027529504;
+		// var3__SYM(355.80758027529504) >= 0.0 dist: 177.90379013764752
+		// var3__SYM(355.80758027529504) == 0.0 dist: 177.90379013764752
 
-		// x >= 0
-		// x < y + 1
-		// y > 0
+		RealVariable realVar = new RealVariable("test1", var1, -1000000, 1000000);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.GE, new RealConstant(0.0)));
-		constraints.add(new RealConstraint(new RealVariable("test1", var1, -1000000,
-		        1000000), Comparator.LT, new RealBinaryExpression(new RealVariable(
-		        "test2", var2, -1000000, 1000000), Operator.PLUS, new RealConstant(1.0),
-		        var2 + 1.0)));
-		constraints.add(new RealConstraint(new RealVariable("test2", var2, -1000000,
-		        1000000), Comparator.GT, new RealConstant(0.0)));
+		constraints.add(new RealConstraint(realVar, Comparator.GE, new RealConstant(0.0)));
+		constraints.add(new RealConstraint(realVar, Comparator.EQ, new RealConstant(0.0)));
 
 		Seeker skr = new Seeker();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
+			var1 = ((Number) result.get("test1")).doubleValue();
+		assertEquals(0, var1, 0.0001);
+	}
+
+	//	@Test
+	public void testEvosuiteExample3() {
+		// ((1102.5 + var22__SYM(12.220999717712402)) * var19__SYM(-45.633541107177734)) == 2.772399987618165E32
+		double var1 = 12.220999717712402;
+		double var2 = -45.633541107177734;
+
+		RealVariable realVar1 = new RealVariable("test1", var1, -1000000, 1000000);
+		RealVariable realVar2 = new RealVariable("test2", var2, -1000000, 1000000);
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new RealConstraint(new RealBinaryExpression(
+		        new RealBinaryExpression(new RealConstant(1102.5), Operator.PLUS,
+		                realVar1, 1.22209997177135E16), Operator.MUL, realVar2,
+		        -5.57687492989087E32), Comparator.EQ, new RealConstant(
+		        2.772399987618165E32)));
+
+		assert (DistanceEstimator.getDistance(constraints) > 0);
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+		assertNotNull(result);
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).doubleValue();
 		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		//assertEquals(0, var1, 0.0001);
-		//assertTrue(var1 < var2);
+			var2 = ((Number) result.get("test2")).doubleValue();
+		assertEquals(var1, var2, 0.0001);
+
+	}
+
+	@Test
+	public void testAddition() {
+		double var1 = 1.0;
+
+		RealVariable realVar1 = new RealVariable("test1", var1, -1000000, 1000000);
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new RealConstraint(new RealBinaryExpression(new RealConstant(
+		        1102.5), Operator.PLUS, realVar1, 1103.5), Comparator.EQ,
+		        new RealConstant(2000.0876588346346)));
+
+		assert (DistanceEstimator.getDistance(constraints) > 0);
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+		assertNotNull(result);
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).doubleValue();
+		//		assertEquals(var1, var2, 0.0001);
+
 	}
 }

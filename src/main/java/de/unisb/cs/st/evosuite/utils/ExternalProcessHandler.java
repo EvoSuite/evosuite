@@ -8,9 +8,14 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.ClientProcess;
+import de.unisb.cs.st.evosuite.Properties;
 
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
@@ -38,10 +43,12 @@ public class ExternalProcessHandler {
 	protected Object final_result;
 	protected static final Object WAITING_FOR_DATA = "waiting_for_data_"
 	        + System.currentTimeMillis();
-	protected final Object MONITOR = new Object();
 
 	protected Thread processKillHook;
-
+	protected Thread clientRunningOnThread;
+	
+	protected volatile CountDownLatch latch;
+	
 	public ExternalProcessHandler() {
 
 	}
@@ -56,6 +63,7 @@ public class ExternalProcessHandler {
 			return false;
 		}
 
+		latch = new CountDownLatch(1); 
 		final_result = WAITING_FOR_DATA;
 
 		//the following thread is important to make sure that the external process is killed
@@ -72,20 +80,39 @@ public class ExternalProcessHandler {
 		Runtime.getRuntime().addShutdownHook(processKillHook);
 		// now start the process
 
-		File dir = new File(System.getProperty("user.dir"));
-		ProcessBuilder builder = new ProcessBuilder(command);
-		builder.directory(dir);
-		builder.redirectErrorStream(false);
+		if(!Properties.CLIENT_ON_THREAD){
+			File dir = new File(System.getProperty("user.dir"));
+			ProcessBuilder builder = new ProcessBuilder(command);
+			builder.directory(dir);
+			builder.redirectErrorStream(false);
 
-		try {
-			process = builder.start();
-		} catch (IOException e) {
-			logger.error("Failed to start external process", e);
-			return false;
+			try {
+				process = builder.start();
+			} catch (IOException e) {
+				logger.error("Failed to start external process", e);
+				return false;
+			}
+
+			startExternalProcessPrinter();
+		} else {
+			/*
+			 * Here we run client on a thread instead of process.
+			 * NOTE: this should only be done for debugging, ie in
+			 * JUnit files created for testing EvoSuite. 
+			 */
+			clientRunningOnThread = new Thread(){
+				@Override
+				public void run(){
+					/*
+					 * NOTE: the handling of the parameters "-D" should be handled
+					 * directly in JUnit by setting the different values in Properties
+					 */
+					ClientProcess.main(new String[0]);
+				}
+			};
+			clientRunningOnThread.setName("client");
+			clientRunningOnThread.start();
 		}
-
-		startExternalProcessPrinter();
-
 		//wait for connection from external process
 
 		try {
@@ -125,6 +152,11 @@ public class ExternalProcessHandler {
 			process.destroy();
 		process = null;
 
+		if(clientRunningOnThread != null && clientRunningOnThread.isAlive()){
+			clientRunningOnThread.interrupt();
+		}
+		clientRunningOnThread = null;
+		
 		if (output_printer != null && output_printer.isAlive())
 			output_printer.interrupt();
 		output_printer = null;
@@ -240,6 +272,8 @@ public class ExternalProcessHandler {
 					try {
 						message = (String) in.readObject();
 						data = in.readObject();
+						logger.debug("Received msg: "+message);
+						logger.debug("Received data: "+data);
 					} catch (Exception e) {
 						/*
 						 * TODO: this parts need to be improved.
@@ -259,9 +293,7 @@ public class ExternalProcessHandler {
 						read = false;
 						killProcess();
 						final_result = data;
-						synchronized (MONITOR) {
-							MONITOR.notifyAll();
-						}
+						latch.countDown();
 					} else if (message.equals(Messages.NEED_RESTART)) {
 						//now data represent the current generation
 						System.out.println("* Restarting client process");
@@ -306,14 +338,9 @@ public class ExternalProcessHandler {
 
 	public Object waitForResult(int timeout) {
 		try {
-			synchronized (MONITOR) {
-				if (WAITING_FOR_DATA.equals(final_result)) {
-					MONITOR.wait(timeout);
-				}
-			}
+			latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.warn("Thread interrupted while waiting for results from client process",
-			            e);
+			logger.warn("Thread interrupted while waiting for results from client process",e);
 		}
 
 		return final_result;

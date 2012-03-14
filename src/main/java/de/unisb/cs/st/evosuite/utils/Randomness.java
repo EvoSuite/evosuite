@@ -19,10 +19,10 @@
 package de.unisb.cs.st.evosuite.utils;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -53,7 +53,8 @@ public class Randomness implements Serializable {
 				logger.info("Random seed: {}", seed);
 			} catch (Exception e) {
 				seed = System.currentTimeMillis();
-				logger.warn("Could not parse parameter \"{}\", using random seed: {}",seed_parameter, seed);
+				logger.warn("Could not parse parameter \"{}\", using random seed: {}",
+				            seed_parameter, seed);
 			}
 		} else {
 			seed = System.currentTimeMillis();
@@ -94,6 +95,10 @@ public class Randomness implements Serializable {
 		return (short) (random.nextInt(2 * 32767) - 32767);
 	}
 
+	public static long nextLong() {
+		return random.nextLong();
+	}
+
 	public static byte nextByte() {
 		return (byte) (random.nextInt(256) - 128);
 	}
@@ -124,7 +129,7 @@ public class Randomness implements Serializable {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static <T> T choice(Set<T> set) {
+	public static <T> T choice(Collection<T> set) {
 		if (set.isEmpty())
 			return null;
 

@@ -4,6 +4,7 @@
 package de.unisb.cs.st.evosuite.symbolic.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -20,6 +21,8 @@ import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstant;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerConstraint;
 import de.unisb.cs.st.evosuite.symbolic.expr.IntegerVariable;
 import de.unisb.cs.st.evosuite.symbolic.expr.Operator;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression;
+import de.unisb.cs.st.evosuite.symbolic.expr.StringConstant;
 
 /**
  * @author fraser
@@ -404,4 +407,128 @@ public class TestIntegerSearch {
 		assertTrue(var1 < var2);
 	}
 
+	@Test
+	public void testEvosuiteExample3() {
+		// (var42__SYM(25721) * (var22__SYM(-1043) - 6860)) == 8275
+		int var1 = 25721;
+		int var2 = -1043;
+		IntegerConstant iconst1 = new IntegerConstant(6860);
+		IntegerConstant iconst2 = new IntegerConstant(8275);
+		IntegerVariable ivar1 = new IntegerVariable("test1", var1, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable ivar2 = new IntegerVariable("test2", var2, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerBinaryExpression sub = new IntegerBinaryExpression(ivar2, Operator.MINUS,
+		        iconst1, -7903L);
+		IntegerBinaryExpression mul = new IntegerBinaryExpression(ivar1, Operator.MUL,
+		        sub, -203273063L);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new IntegerConstraint(mul, Comparator.EQ, iconst2));
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+		if (result.containsKey("test1"))
+			var1 = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			var2 = ((Number) result.get("test2")).intValue();
+		assertTrue(var1 * (var2 - 6860) == 8275);
+	}
+
+	@Test
+	public void testEvosuiteExample4() {
+		// (((var24__SYM(21458) - (var10__SYM(1172) / var14__SYM(-1903))) * 19072) * ((12089 * var40__SYM(-1819)) - ((var39__SYM(-1819) * 14414) % var20__SYM(17433)))) < 11060
+		IntegerVariable var24 = new IntegerVariable("var24", 21458, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var10 = new IntegerVariable("var10", -1903, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var40 = new IntegerVariable("var40", -1819, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var39 = new IntegerVariable("var39", -1819, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable var20 = new IntegerVariable("var20", 17433, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+
+	}
+
+	@Test
+	public void testEvosuiteExample5() {
+		// TestSuiteDSE.setStart();
+
+		//Cnstr 0 : var6__SYM(84) != (y charAt 0) dist: 8.0
+		//Cnstr 1 : var6__SYM(84) != 115 dist: 8.0
+		//Cnstr 2 : var6__SYM(84) == 108 dist: 8.0
+
+		int var1 = 84;
+		int const1 = 115;
+		int const2 = 108;
+		String const3 = "y";
+
+		IntegerConstant iconst1 = new IntegerConstant(const1);
+		IntegerConstant iconst2 = new IntegerConstant(const2);
+		StringConstant strConst = new StringConstant(const3);
+
+		IntegerVariable ivar1 = new IntegerVariable("test1", var1, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		StringBinaryExpression sBExpr = new StringBinaryExpression(strConst,
+		        Operator.CHARAT, new IntegerConstant(0), "y");
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, sBExpr));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, iconst1));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, iconst2));
+
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+
+		var1 = ((Number) result.get("test1")).intValue();
+
+		assertTrue(var1 == 108);
+	}
+
+	@Test
+	public void testEvosuiteExample6() {
+		//Cnstr 0 : var2__SYM(1890) >= 0 dist: 682.3333333333334
+		//Cnstr 1 : var1__SYM(-157) <= 0 dist: 682.3333333333334
+		//Cnstr 2 : var2__SYM(1890) <= var1__SYM(-157) dist: 682.3333333333334
+		//	y >= 0
+		//	x <= 0
+		//	y <= x
+
+		int x = -157;
+		int y = 1890;
+
+		// TestSuiteDSE.setStart();
+
+		//		int x = 879254357;
+		//		int y = 1013652704;
+
+		IntegerVariable ivar1 = new IntegerVariable("test1", x, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+		IntegerVariable ivar2 = new IntegerVariable("test2", y, Integer.MIN_VALUE,
+		        Integer.MAX_VALUE);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(new IntegerConstraint(ivar2, Comparator.GE,
+		        new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar1, Comparator.LE,
+		        new IntegerConstant(0)));
+		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
+
+		Seeker skr = new Seeker();
+		Map<String, Object> result = skr.getModel(constraints);
+		assertNotNull(result);
+		assertFalse(result.isEmpty());
+		if (result.containsKey("test1"))
+			x = ((Number) result.get("test1")).intValue();
+		if (result.containsKey("test2"))
+			y = ((Number) result.get("test2")).intValue();
+		assertTrue(y >= 0);
+		assertTrue(x <= 0);
+		assertTrue(y <= x);
+	}
 }

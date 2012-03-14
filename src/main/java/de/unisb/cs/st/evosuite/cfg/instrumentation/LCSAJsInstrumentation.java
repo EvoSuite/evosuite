@@ -25,14 +25,14 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstructionPool;
-import de.unisb.cs.st.evosuite.cfg.CFGPool;
-import de.unisb.cs.st.evosuite.cfg.LCSAJGraph;
-import de.unisb.cs.st.evosuite.cfg.RawControlFlowGraph;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJPool;
+import de.unisb.cs.st.evosuite.graphs.GraphPool;
+import de.unisb.cs.st.evosuite.graphs.LCSAJGraph;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
 
 /**
  * @author copied from CFGMethodAdapter
@@ -186,7 +186,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 	@SuppressWarnings("unchecked")
 	private void addInstrumentation(MethodNode mn, String className, String methodName) {
-		RawControlFlowGraph graph = CFGPool.getRawCFG(className, methodName);
+		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();

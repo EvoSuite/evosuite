@@ -31,6 +31,10 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");
+		/*
+		 * Note: results are cached, so the test suite is not executed again when we
+		 * calculated the branch fitness
+		 */
 		double fitness = branchFitness.getFitness(individual);
 		Map<Integer, Double> mutant_distance = new HashMap<Integer, Double>();
 		Set<Integer> touchedMutants = new HashSet<Integer>();

@@ -62,6 +62,7 @@ public class ContainerTransformation {
 				MethodInsnNode methodNode = (MethodInsnNode) node;
 				if (methodNode.owner.equals("java/util/Collection")
 				        || methodNode.owner.equals("java/util/List")
+				        || methodNode.owner.equals("java/util/ArrayList")
 				        || methodNode.owner.equals("java/util/Set")
 				        || methodNode.owner.equals("java/util/Queue")
 				        || methodNode.owner.equals("java/util/SortedSet")) {
@@ -74,6 +75,8 @@ public class ContainerTransformation {
 						                                 new Type[] { Type.getType(Collection.class) }));
 						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedContainerComparison();
+
 						changed = true;
 					} else if (methodNode.name.equals("contains")) {
 						MethodInsnNode n = new MethodInsnNode(
@@ -86,6 +89,8 @@ public class ContainerTransformation {
 						                                         Type.getType(Object.class) }));
 						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedContainerComparison();
+
 						changed = true;
 					} else if (methodNode.name.equals("containsAll")) {
 						MethodInsnNode n = new MethodInsnNode(
@@ -98,6 +103,7 @@ public class ContainerTransformation {
 						                                         Type.getType(Collection.class) }));
 						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedContainerComparison();
 						changed = true;
 					}
 				} else if (methodNode.owner.equals("java/util/Map")) {
@@ -110,6 +116,7 @@ public class ContainerTransformation {
 						                                 new Type[] { Type.getType(Map.class) }));
 						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedContainerComparison();
 						changed = true;
 					} else if (methodNode.name.equals("containsKey")) {
 						MethodInsnNode n = new MethodInsnNode(
@@ -122,6 +129,7 @@ public class ContainerTransformation {
 						                                         Type.getType(Object.class) }));
 						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedContainerComparison();
 						changed = true;
 					} else if (methodNode.name.equals("containsValue")) {
 						MethodInsnNode n = new MethodInsnNode(
@@ -134,6 +142,7 @@ public class ContainerTransformation {
 						                                         Type.getType(Object.class) }));
 						mn.instructions.insertBefore(node, n);
 						mn.instructions.remove(node);
+						TransformationStatistics.transformedContainerComparison();
 						changed = true;
 					}
 				}

@@ -82,8 +82,8 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 
 		double fitness = population.get(0).getFitness();
 		while (!isFinished()) {
-			if ((selectionFunction.isMaximize() && getBestIndividual().getFitness() > fitness)
-			        || (!selectionFunction.isMaximize() && getBestIndividual().getFitness() < fitness)) {
+			if ((fitnessFunction.isMaximizationFunction() && getBestIndividual().getFitness() > fitness)
+			        || (!fitnessFunction.isMaximizationFunction() && getBestIndividual().getFitness() < fitness)) {
 				logger.info("Current generation: " + getAge());
 				logger.info("Best fitness: " + getBestIndividual().getFitness());
 				fitness = population.get(0).getFitness();

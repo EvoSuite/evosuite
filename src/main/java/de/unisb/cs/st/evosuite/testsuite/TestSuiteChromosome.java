@@ -18,14 +18,18 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.LocalSearchBudget;
 import de.unisb.cs.st.evosuite.ga.LocalSearchObjective;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
@@ -60,7 +64,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		c.setTestCase(test);
 		addTest(c);
 	}
-	
+
 	/**
 	 * Create a deep copy of this test suite
 	 */
@@ -74,7 +78,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	@Override
 	public void mutate() {
-		for(int i=0; i<Properties.NUMBER_OF_MUTATIONS; i++){
+		for (int i = 0; i < Properties.NUMBER_OF_MUTATIONS; i++) {
 			super.mutate();
 		}
 		handleTestCallStatements();
@@ -112,13 +116,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
-		//TestSuiteFitnessFunction fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
-		/*
-		for (TestChromosome test : tests) {
-			test.setChanged(true);
-		}
-		fitnessFunction.getFitness(this);
-		*/
+
+		ensureDoubleExecution();
+
 		double fitnessBefore = getFitness();
 		for (int i = 0; i < tests.size(); i++) {
 			if (unmodifiableTests.get(i))
@@ -133,28 +133,50 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 			tests.get(i).localSearch(testObjective);
 		}
-		/*
-		for (TestChromosome test : tests) {
-			test.setChanged(true);
-		}
-
-		fitnessFunction.getFitness(this);
-		if (fitnessBefore < getFitness()) {
-			logger.warn("Fitness was " + fitnessBefore + " and now is " + getFitness());
-			//for (TestChromosome chromosome : tests) {
-			//	chromosome.setChanged(true);
-			//	chromosome.last_result = null;
-			//}
-			fitnessFunction = (TestSuiteFitnessFunction) objective.getFitnessFunction();
-			fitnessFunction.getFitness(this);
-			logger.warn("After checking: Fitness was " + fitnessBefore + " and now is "
-			        + getFitness());
-			assert (false);
-		}
-		*/
 
 		assert (fitnessBefore >= getFitness());
+	}
 
+	/**
+	 * Ensure that all branches are executed twice
+	 */
+	private void ensureDoubleExecution() {
+
+		Set<TestChromosome> duplicates = new HashSet<TestChromosome>();
+
+		Map<Integer, Integer> covered = new HashMap<Integer, Integer>();
+		Map<Integer, TestChromosome> testMap = new HashMap<Integer, TestChromosome>();
+		for (TestChromosome test : getTestChromosomes()) {
+
+			// Only check already executed tests
+			// TODO: Execute at this point?
+			if (test.getLastExecutionResult() == null)
+				continue;
+
+			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().covered_predicates.entrySet()) {
+				if (!covered.containsKey(entry.getKey())) {
+					covered.put(entry.getKey(), 0);
+				}
+				covered.put(entry.getKey(),
+				            covered.get(entry.getKey()) + entry.getValue());
+				testMap.put(entry.getKey(), test);
+			}
+		}
+
+		for (Integer branchId : covered.keySet()) {
+			int count = covered.get(branchId);
+			if (count == 1) {
+				duplicates.add((TestChromosome) testMap.get(branchId).clone());
+			}
+		}
+
+		if (!duplicates.isEmpty()) {
+			logger.info("Adding " + duplicates.size()
+			        + " tests to cover branches sufficiently");
+			for (TestChromosome test : duplicates) {
+				addTest(test);
+			}
+		}
 	}
 
 	/**
@@ -186,8 +208,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	@Override
-	public void applyDSE() {
-		TestSuiteDSE dse = new TestSuiteDSE();
+	public void applyDSE(GeneticAlgorithm ga) {
+		TestSuiteDSE dse = new TestSuiteDSE(
+		        (TestSuiteFitnessFunction) ga.getFitnessFunction());
 		dse.applyDSE(this);
 	}
 
@@ -215,7 +238,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			}
 		}
 	}
-	
+
 	public void restoreTests(ArrayList<TestCase> backup) {
 		tests.clear();
 		unmodifiableTests.clear();

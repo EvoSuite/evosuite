@@ -16,7 +16,7 @@ import de.unisb.cs.st.evosuite.symbolic.expr.StringVariable;
 public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
 	private static int counter = 0;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Changer");
+	static Logger log = JPF.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class.toString());
 //	private static Logger logger = LoggerFactory.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class);
 	
 	public static boolean mark__Z__Z(MJIEnv env, int rcls, boolean v0) {

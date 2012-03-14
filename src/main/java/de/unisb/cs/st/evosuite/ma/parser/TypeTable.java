@@ -1,8 +1,6 @@
 package de.unisb.cs.st.evosuite.ma.parser;
 
 import japa.parser.ParseException;
-import japa.parser.ast.expr.Expression;
-import japa.parser.ast.expr.NameExpr;
 import japa.parser.ast.type.Type;
 
 import java.util.ArrayList;
@@ -58,18 +56,6 @@ public class TypeTable {
 		// }
 
 		// return null;
-	}
-
-	/**
-	 * @param scope
-	 * @return
-	 * @throws ParseException
-	 */
-	public Type getType(Expression expr) throws ParseException {
-		if (expr instanceof NameExpr) {
-			return getType(((NameExpr) expr).getName());
-		}
-		return null;
 	}
 
 	/**

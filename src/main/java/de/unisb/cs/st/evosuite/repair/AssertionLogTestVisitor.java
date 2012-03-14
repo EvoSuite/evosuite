@@ -187,12 +187,12 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 			if (source.getVariableClass().equals(Float.class)) {
 				testCode += "assertEquals(\"" + Properties.TARGET_CLASS + "\", " + testId
 				        + ", " + numAssertion + ", "
-				        + NumberFormatter.getNumberString(value) + "(float)"
+				        + NumberFormatter.getNumberString(value) + ", " + "(float)"
 				        + getVariableName(source) + ", 0.01F);";
 			} else if (source.getVariableClass().equals(Double.class)) {
 				testCode += "assertEquals(\"" + Properties.TARGET_CLASS + "\", " + testId
 				        + ", " + numAssertion + ", "
-				        + NumberFormatter.getNumberString(value) + "(double)"
+				        + NumberFormatter.getNumberString(value) + ", " + "(double)"
 				        + getVariableName(source) + ", 0.01D);";
 			} else if (value.getClass().isEnum()) {
 				testCode += "assertEquals(\"" + Properties.TARGET_CLASS + "\", " + testId

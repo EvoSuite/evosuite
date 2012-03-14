@@ -43,14 +43,19 @@ public class ComparisonTransformation {
 				InsnNode in = (InsnNode) node;
 				if (in.getOpcode() == Opcodes.LCMP) {
 					insertLongComparison(in, mn.instructions);
+					TransformationStatistics.transformedComparison();
 				} else if (in.getOpcode() == Opcodes.DCMPG) {
 					// TODO: Check treatment of NaN
+					TransformationStatistics.transformedComparison();
 					insertDoubleComparison(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.DCMPL) {
+					TransformationStatistics.transformedComparison();
 					insertDoubleComparison(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.FCMPG) {
+					TransformationStatistics.transformedComparison();
 					insertFloatComparison(in, mn.instructions);
 				} else if (in.getOpcode() == Opcodes.FCMPL) {
+					TransformationStatistics.transformedComparison();
 					insertFloatComparison(in, mn.instructions);
 				}
 			}

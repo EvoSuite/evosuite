@@ -23,6 +23,8 @@ import gov.nasa.jpf.report.Publisher;
 import gov.nasa.jpf.report.Reporter;
 import gov.nasa.jpf.search.Search;
 
+import java.util.ArrayList;
+
 /**
  * This reporter stays silents
  * 

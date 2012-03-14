@@ -16,9 +16,6 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 
 	private static final long serialVersionUID = -4880914182984895075L;
 
-	/** Maximum number of seconds. 0 = infinite time */
-	protected static long max_seconds = Properties.GLOBAL_TIMEOUT;
-
 	/** Assume the search has not started until start_time != 0 */
 	protected static long start_time = 0L;
 	
@@ -45,12 +42,12 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	@Override
 	public boolean isFinished() {
 		long current_time = System.currentTimeMillis();
-		if (max_seconds != 0 && start_time != 0
-		        && (current_time - start_time) / 1000 > max_seconds)
+		if (Properties.GLOBAL_TIMEOUT != 0 && start_time != 0
+		        && (current_time - start_time) / 1000 > Properties.GLOBAL_TIMEOUT)
 			logger.info("Timeout reached");
 
-		return max_seconds != 0 && start_time != 0
-		        && (current_time - start_time) / 1000 > max_seconds;
+		return Properties.GLOBAL_TIMEOUT != 0 && start_time != 0
+		        && (current_time - start_time) / 1000 > Properties.GLOBAL_TIMEOUT;
 	}
 
 	/* (non-Javadoc)
@@ -74,7 +71,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	@Override
 	public long getLimit() {
 		// TODO Auto-generated method stub
-		return max_seconds;
+		return Properties.GLOBAL_TIMEOUT;
 	}
 
 	public static void forceReset() {

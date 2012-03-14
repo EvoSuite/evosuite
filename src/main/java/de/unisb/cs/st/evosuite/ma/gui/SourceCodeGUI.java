@@ -62,7 +62,7 @@ public class SourceCodeGUI {
 
 		DefaultCaret caret = (DefaultCaret) sourceCodeTextPane.getCaret();
 		caret.setUpdatePolicy(DefaultCaret.NEVER_UPDATE);
-		
+
 		printSourceCode();
 		frmSourceCode.setVisible(true);
 	}
@@ -80,17 +80,15 @@ public class SourceCodeGUI {
 		for (String tmpString : editor.getSourceCode()) {
 			formatSourceCode += (tmpString + "\n");
 		}
-		
+
 		sourceCodeTextPane.setText(formatSourceCode);
 
 		// Set highlights for covered lines
 		Highlighter hilite = new MyHighlighter();
 		sourceCodeTextPane.setHighlighter(hilite);
-		DefaultHighlightPainter coveredPainter = new DefaultHighlighter.DefaultHighlightPainter(
-				LIGHT_GREEN);
-		DefaultHighlightPainter coveredCurrentPainter = new DefaultHighlighter.DefaultHighlightPainter(
-				LIGHT_RED);
-		
+		DefaultHighlightPainter coveredPainter = new DefaultHighlighter.DefaultHighlightPainter(LIGHT_GREEN);
+		DefaultHighlightPainter coveredCurrentPainter = new DefaultHighlighter.DefaultHighlightPainter(LIGHT_RED);
+
 		try {
 			Document doc = sourceCodeTextPane.getDocument();
 			String text = doc.getText(0, doc.getLength());
@@ -102,8 +100,7 @@ public class SourceCodeGUI {
 			i = 1;
 			DefaultHighlightPainter painter;
 			while ((end = text.indexOf('\n', start)) >= 0) {
-				if (editor.getSuiteCoveredLines().contains(i)
-						&& !editor.getCurrCoverage().contains(i)) {
+				if (editor.getSuiteCoveredLines().contains(i) && !editor.getCurrCoverage().contains(i)) {
 					painter = coveredPainter;
 					hilite.addHighlight(start, end + 1, painter);
 				}
@@ -123,8 +120,10 @@ public class SourceCodeGUI {
 	 * 
 	 */
 	public void close() {
-		this.frmSourceCode.setVisible(false);
-		this.frmSourceCode.dispose();
+		if (frmSourceCode != null) {
+			frmSourceCode.setVisible(false);
+			frmSourceCode.dispose();
+		}
 	}
 
 }

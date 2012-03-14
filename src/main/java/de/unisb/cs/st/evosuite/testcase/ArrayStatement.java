@@ -190,7 +190,32 @@ public class ArrayStatement extends AbstractStatement {
 	 */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
-		return true; // TODO: Possibly increase length?
+		int maxAssignment = 0;
+		for (StatementInterface statement : test) {
+			for (VariableReference var : statement.getVariableReferences()) {
+				if (var.getAdditionalVariableReference() == this) {
+					ArrayIndex index = (ArrayIndex) var;
+					maxAssignment = Math.max(maxAssignment, index.getArrayIndex());
+				}
+			}
+		}
+
+		int newLength = length;
+		while (newLength == length) {
+			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION)
+				newLength = Randomness.nextInt(maxAssignment, Properties.MAX_ARRAY) + 1;
+			else {
+				int max = Math.min(Math.abs(length - maxAssignment), Properties.MAX_DELTA);
+				if (max > 0)
+					newLength = length + Randomness.nextInt(2 * max) - max;
+				else
+					newLength = length + Randomness.nextInt(Properties.MAX_DELTA);
+			}
+		}
+
+		logger.debug("Changing array length from " + length + " to " + newLength);
+		setSize(newLength);
+		return true;
 	}
 
 	@Override
