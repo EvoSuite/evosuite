@@ -195,6 +195,7 @@ public class BytecodeInstrumentation implements ClassFileTransformer {
 			if (Properties.ERROR_BRANCHES) {
 				cv = new ErrorConditionClassAdapter(cv, className);
 			}
+			//cv = new BoundaryValueClassAdapter(cv, className);
 
 			for (ClassAdapterFactory factory : externalPreVisitors) {
 				cv = factory.getVisitor(cv, className);

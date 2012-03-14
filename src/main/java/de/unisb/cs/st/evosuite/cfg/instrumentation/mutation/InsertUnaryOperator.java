@@ -15,10 +15,12 @@ import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.Frame;
 
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
 import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.javaagent.BooleanValueInterpreter;
 
 /**
  * @author fraser
@@ -31,7 +33,7 @@ public class InsertUnaryOperator implements MutationOperator {
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction) {
+	        BytecodeInstruction instruction, Frame frame) {
 		// TODO - need to keep InsnList in Mutation, not only Instruction?
 
 		// Mutation: Insert an INEG _after_ an iload 
@@ -50,17 +52,19 @@ public class InsertUnaryOperator implements MutationOperator {
 			descriptions.add("Negation");
 
 			if (node.getOpcode() == Opcodes.ILOAD) {
-				mutation = new InsnList();
-				mutation.add(new IincInsnNode(node.var, 1));
-				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-				descriptions.add("IINC 1");
-				mutationCode.add(mutation);
+				if (frame.getStack(frame.getStackSize() - 1) != BooleanValueInterpreter.BOOLEAN_VALUE) {
+					mutation = new InsnList();
+					mutation.add(new IincInsnNode(node.var, 1));
+					mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+					descriptions.add("IINC 1");
+					mutationCode.add(mutation);
 
-				mutation = new InsnList();
-				mutation.add(new IincInsnNode(node.var, -1));
-				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-				descriptions.add("IINC -1");
-				mutationCode.add(mutation);
+					mutation = new InsnList();
+					mutation.add(new IincInsnNode(node.var, -1));
+					mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+					descriptions.add("IINC -1");
+					mutationCode.add(mutation);
+				}
 			}
 		} else {
 			InsnList mutation = new InsnList();

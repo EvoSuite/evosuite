@@ -20,6 +20,7 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.Frame;
 
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
@@ -152,7 +153,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction) {
+	        BytecodeInstruction instruction, Frame frame) {
 
 		numVariable = getNextIndex(mn);
 		List<Mutation> mutations = new LinkedList<Mutation>();

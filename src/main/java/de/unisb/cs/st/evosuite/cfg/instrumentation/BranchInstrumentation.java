@@ -6,8 +6,6 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation;
 import java.util.Iterator;
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -19,6 +17,8 @@ import org.objectweb.asm.tree.LookupSwitchInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -32,8 +32,7 @@ import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
  */
 public class BranchInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(BranchInstrumentation.class);
+	private static Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
 
 	/*
 	 * (non-Javadoc)
@@ -45,8 +44,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, String className, String methodName,
-			int access) {
+	public void analyze(MethodNode mn, String className, String methodName, int access) {
 		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
@@ -57,18 +55,22 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				if (in.equals(v.getASMNode())) {
 					if (v.isBranch()) {
 						mn.instructions.insertBefore(v.getASMNode(),
-								getInstrumentation(v));
+						                             getInstrumentation(v));
 
 					} else if (v.isSwitch()) {
+						/*
 						mn.instructions.insertBefore(v.getASMNode(),
-								getSwitchInstrumentation(v, mn, className,
-										methodName));
+						                             getSwitchInstrumentation(v, mn,
+						                                                      className,
+						                                                      methodName));
+						                                                      */
 					}
 				}
 			}
 		}
+		mn.maxStack += 3;
 	}
-	
+
 	private InsnList getInstrumentation(BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
@@ -76,15 +78,14 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			throw new IllegalArgumentException("branch instruction expected");
 		if (!BranchPool.isKnownAsNormalBranchInstruction(instruction))
 			throw new IllegalArgumentException(
-					"expect given instruction to be known by the BranchPool as a normal branch isntruction");
+			        "expect given instruction to be known by the BranchPool as a normal branch isntruction");
 
 		int opcode = instruction.getASMNode().getOpcode();
 		int instructionId = instruction.getInstructionId();
-		int branchId = BranchPool
-				.getActualBranchIdForNormalBranchInstruction(instruction);
+		int branchId = BranchPool.getActualBranchIdForNormalBranchInstruction(instruction);
 		if (branchId < 0)
 			throw new IllegalStateException(
-					"expect BranchPool to know branchId for alle branch instructions");
+			        "expect BranchPool to know branchId for alle branch instructions");
 
 		InsnList instrumentation = new InsnList();
 
@@ -101,12 +102,10 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedBranch", "(IIII)V"));
-			logger
-					.debug("Adding passedBranch val=?, opcode=" + opcode
-							+ ", branch=" + branchId + ", bytecode_id="
-							+ instructionId);
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(IIII)V"));
+			logger.debug("Adding passedBranch val=?, opcode=" + opcode + ", branch="
+			        + branchId + ", bytecode_id=" + instructionId);
 
 			break;
 		case Opcodes.IF_ICMPEQ:
@@ -121,8 +120,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedBranch", "(IIIII)V"));
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(IIIII)V"));
 			break;
 		case Opcodes.IF_ACMPEQ:
 		case Opcodes.IF_ACMPNE:
@@ -132,9 +131,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedBranch",
-					"(Ljava/lang/Object;Ljava/lang/Object;III)V"));
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(Ljava/lang/Object;Ljava/lang/Object;III)V"));
 			break;
 		case Opcodes.IFNULL:
 		case Opcodes.IFNONNULL:
@@ -144,8 +142,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedBranch", "(Ljava/lang/Object;III)V"));
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(Ljava/lang/Object;III)V"));
 			break;
 		}
 		return instrumentation;
@@ -168,8 +166,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * directly. Symmetrically the new switch has a default case: holding a call
 	 * to the ExecutionTracer to indicate that the default will be hit directly.
 	 */
-	private InsnList getSwitchInstrumentation(BytecodeInstruction v,
-			MethodNode mn, String className, String methodName) {
+	private InsnList getSwitchInstrumentation(BytecodeInstruction v, MethodNode mn,
+	        String className, String methodName) {
 		InsnList instrumentation = new InsnList();
 
 		if (!v.isSwitch())
@@ -177,8 +175,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 		addInstrumentationForDefaultSwitchCase(v, instrumentation);
 
-		addInstrumentationForSwitchCases(v, instrumentation, className,
-				methodName);
+		addInstrumentationForSwitchCases(v, instrumentation, className, methodName);
 
 		return instrumentation;
 	}
@@ -188,7 +185,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	 * for the Branch corresponding to that case to the given instruction list.
 	 */
 	private void addInstrumentationForSwitchCases(BytecodeInstruction v,
-			InsnList instrumentation, String className, String methodName) {
+	        InsnList instrumentation, String className, String methodName) {
 
 		if (!v.isSwitch())
 			throw new IllegalArgumentException("switch instruction expected");
@@ -197,7 +194,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 		if (caseBranches == null || caseBranches.isEmpty())
 			throw new IllegalStateException(
-					"expect BranchPool to know at least one Branch for each switch instruction");
+			        "expect BranchPool to know at least one Branch for each switch instruction");
 
 		for (Branch targetCaseBranch : caseBranches) {
 			if (targetCaseBranch.isDefaultCase())
@@ -212,13 +209,13 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(targetCaseBranchId));
 			instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-					"passedBranch", "(IIIII)V"));
+			        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(IIIII)V"));
 		}
 	}
 
 	private void addInstrumentationForDefaultSwitchCase(BytecodeInstruction v,
-			InsnList instrumentation) {
+	        InsnList instrumentation) {
 
 		if (v.isTableSwitch())
 			addInstrumentationForDefaultTableswitchCase(v, instrumentation);
@@ -228,12 +225,11 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 	}
 
-	private void addInstrumentationForDefaultTableswitchCase(
-			BytecodeInstruction v, InsnList instrumentation) {
+	private void addInstrumentationForDefaultTableswitchCase(BytecodeInstruction v,
+	        InsnList instrumentation) {
 
 		if (!v.isTableSwitch())
-			throw new IllegalArgumentException(
-					"tableswitch instruction expected");
+			throw new IllegalArgumentException("tableswitch instruction expected");
 
 		// setup instructions
 
@@ -248,24 +244,23 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		for (int i = 0; i < keySize; i++)
 			caseLabels[i] = caseLabel;
 
-		TableSwitchInsnNode mySwitch = new TableSwitchInsnNode(
-				toInstrument.min, toInstrument.max, defaultLabel, caseLabels);
+		TableSwitchInsnNode mySwitch = new TableSwitchInsnNode(toInstrument.min,
+		        toInstrument.max, defaultLabel, caseLabels);
 
 		// add instrumentation
-		addDefaultCaseInstrumentation(v, instrumentation, mySwitch,
-				defaultLabel, caseLabel, endLabel);
+		addDefaultCaseInstrumentation(v, instrumentation, mySwitch, defaultLabel,
+		                              caseLabel, endLabel);
 
 	}
 
-	private void addInstrumentationForDefaultLookupswitchCase(
-			BytecodeInstruction v, InsnList instrumentation) {
+	private void addInstrumentationForDefaultLookupswitchCase(BytecodeInstruction v,
+	        InsnList instrumentation) {
 
 		if (!v.isLookupSwitch())
 			throw new IllegalArgumentException("lookup switch expected");
 
 		// setup instructions
-		LookupSwitchInsnNode toInstrument = (LookupSwitchInsnNode) v
-				.getASMNode();
+		LookupSwitchInsnNode toInstrument = (LookupSwitchInsnNode) v.getASMNode();
 
 		LabelNode caseLabel = new LabelNode();
 		LabelNode defaultLabel = new LabelNode();
@@ -280,20 +275,19 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			labels[i] = caseLabel;
 		}
 
-		LookupSwitchInsnNode myLookup = new LookupSwitchInsnNode(defaultLabel,
-				keys, labels);
+		LookupSwitchInsnNode myLookup = new LookupSwitchInsnNode(defaultLabel, keys,
+		        labels);
 
-		addDefaultCaseInstrumentation(v, instrumentation, myLookup,
-				defaultLabel, caseLabel, endLabel);
+		addDefaultCaseInstrumentation(v, instrumentation, myLookup, defaultLabel,
+		                              caseLabel, endLabel);
 
 	}
 
 	private void addDefaultCaseInstrumentation(BytecodeInstruction v,
-			InsnList instrumentation, AbstractInsnNode mySwitch,
-			LabelNode defaultLabel, LabelNode caseLabel, LabelNode endLabel) {
+	        InsnList instrumentation, AbstractInsnNode mySwitch, LabelNode defaultLabel,
+	        LabelNode caseLabel, LabelNode endLabel) {
 
-		int defaultCaseBranchId = BranchPool.getDefaultBranchForSwitch(v)
-				.getActualBranchId();
+		int defaultCaseBranchId = BranchPool.getDefaultBranchForSwitch(v).getActualBranchId();
 
 		// add helper switch
 		instrumentation.add(new InsnNode(Opcodes.DUP));
@@ -315,28 +309,28 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	}
 
 	private void addDefaultCaseCoveredCall(BytecodeInstruction v,
-			InsnList instrumentation, int defaultCaseBranchId) {
+	        InsnList instrumentation, int defaultCaseBranchId) {
 
 		instrumentation.add(new LdcInsnNode(0));
 		instrumentation.add(new LdcInsnNode(Opcodes.IFEQ));
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-				"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				"passedBranch", "(IIII)V"));
+		        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+		        "(IIII)V"));
 
 	}
 
 	private void addDefaultCaseNotCoveredCall(BytecodeInstruction v,
-			InsnList instrumentation, int defaultCaseBranchId) {
+	        InsnList instrumentation, int defaultCaseBranchId) {
 
 		instrumentation.add(new LdcInsnNode(0));
 		instrumentation.add(new LdcInsnNode(Opcodes.IFNE));
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-				"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-				"passedBranch", "(IIII)V"));
+		        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer", "passedBranch",
+		        "(IIII)V"));
 	}
 
 	/*

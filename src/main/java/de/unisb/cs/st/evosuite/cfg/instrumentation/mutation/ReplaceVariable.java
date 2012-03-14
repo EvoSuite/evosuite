@@ -22,6 +22,7 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +44,7 @@ public class ReplaceVariable implements MutationOperator {
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction) {
+	        BytecodeInstruction instruction, Frame frame) {
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		if (mn.localVariables.isEmpty()) {
