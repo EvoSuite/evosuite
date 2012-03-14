@@ -345,6 +345,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		String methodName = methodDeclaration.getName().getIdentifier();
 		testCase.newMethod(methodName);
 		if ((unqualifiedTestMethod == null) || !unqualifiedTestMethod.equals(methodName)) {
+			if (methodDeclaration.getName().getIdentifier().equals(unqualifiedTest)) {
+				testCase.setCurrentScope(TestScope.CONSTRUCTOR);
+			}
 			if (methodDeclaration.getName().getIdentifier().equals("setUp")) {
 				testCase.setCurrentScope(TestScope.BEFORE);
 			}
