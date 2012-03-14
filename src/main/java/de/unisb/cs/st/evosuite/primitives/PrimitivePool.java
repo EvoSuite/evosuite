@@ -33,7 +33,6 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  */
 public class PrimitivePool {
 
-	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(PrimitivePool.class);
 
 	private static PrimitivePool instance = null;

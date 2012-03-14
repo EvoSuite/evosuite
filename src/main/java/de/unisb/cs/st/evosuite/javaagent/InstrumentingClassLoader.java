@@ -12,6 +12,7 @@ import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 /**
@@ -29,6 +30,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
+		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 	}
 
 	public InstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
@@ -39,8 +41,18 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		if (instrumentation.isTargetProject(name)) {
-			// if (TestCluster.isTargetClassName(name)) {
+		//if (instrumentation.isTargetProject(name)) {
+		// if (TestCluster.isTargetClassName(name)) {
+		if (name.startsWith("java") || name.startsWith("sun")
+		        || name.startsWith("de.unisb.cs.st.evosuite")) {
+			Class<?> result = findLoadedClass(name);
+			if (result != null) {
+				return result;
+			}
+			result = classLoader.loadClass(name);
+			return result;
+
+		} else {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
@@ -53,15 +65,18 @@ public class InstrumentingClassLoader extends ClassLoader {
 					return instrumentClass(name);
 				}
 			}
-		} else {
-			logger.trace("Not instrumenting: " + name);
 		}
+		//} else {
+		//	logger.trace("Not instrumenting: " + name);
+		//}
+		/*
 		Class<?> result = findLoadedClass(name);
 		if (result != null) {
-			return result;
+		return result;
 		}
 		result = classLoader.loadClass(name);
 		return result;
+		*/
 	}
 
 	private InputStream findTargetResource(String name) throws FileNotFoundException {
@@ -73,7 +88,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 			return new FileInputStream(resources.iterator().next());
 	}
 
-	private Class<?> instrumentClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
+	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
+	        throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -86,8 +102,10 @@ public class InstrumentingClassLoader extends ClassLoader {
 					        + "' should be in target project, but could not be found!");
 				}
 			}
-			byte[] byteBuffer = instrumentation.transformBytes(className, new ClassReader(is));
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0, byteBuffer.length);
+			byte[] byteBuffer = instrumentation.transformBytes(className,
+			                                                   new ClassReader(is));
+			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
+			                              byteBuffer.length);
 			classes.put(fullyQualifiedTargetClass, result);
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;

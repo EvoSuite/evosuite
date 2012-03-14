@@ -14,7 +14,7 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 // TODO: root branches should not be special cases
 // every root branch should be a branch just
@@ -522,6 +522,7 @@ public class BranchPool {
 	public static Set<String> knownClasses() {
 		Set<String> r = new HashSet<String>();
 		r.addAll(branchMap.keySet());
+		r.addAll(branchlessMethods.keySet());
 		return r;
 	}
 

@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -46,10 +47,6 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static final long serialVersionUID = -7721106626421922833L;
-
-	protected static int MAX_INT = Properties.MAX_INT;
-
-	protected static double P_pool = Properties.PRIMITIVE_POOL;
 
 	protected static PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
@@ -272,17 +269,54 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return getCode();
 	}
 
+	private void mutateTransformedBoolean(TestCase test) {
+		if (Randomness.nextDouble() > Properties.RANDOM_PERTURBATION) {
+			boolean done = false;
+			for (StatementInterface s : test) {
+				if (s instanceof MethodStatement) {
+					MethodStatement ms = (MethodStatement) s;
+					List<VariableReference> parameters = ms.getParameterReferences();
+					int index = parameters.indexOf(retval);
+					if (index >= 0) {
+						Method m = ms.getMethod();
+						org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(m);
+						if (types[index].equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
+							logger.warn("MUTATING");
+							((IntPrimitiveStatement) this).negate();
+							done = true;
+							break;
+						}
+
+					}
+				}
+			}
+			if (!done)
+				randomize();
+		} else {
+			randomize();
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		T oldVal = value;
-		// TODO: Should not be hardcoded
+
 		while (value == oldVal && value != null) {
-			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION)
-				randomize();
-			else
+			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
+				if (Properties.TT && getClass().equals(IntPrimitiveStatement.class)) {
+					if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
+						// mutateTransformedBoolean(test);
+						((IntPrimitiveStatement) this).negate();
+
+					} else
+						randomize();
+				} else {
+					randomize();
+				}
+			} else
 				delta();
 		}
 		return true;

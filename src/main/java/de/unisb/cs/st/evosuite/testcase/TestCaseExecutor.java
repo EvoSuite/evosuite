@@ -135,6 +135,19 @@ public class TestCaseExecutor implements ThreadFactory {
 			instance.executor.shutdownNow();
 	}
 
+	public static void initExecutor() {
+		if (instance != null) {
+			if (instance.executor == null) {
+				logger.warn("TestCaseExecutor instance is non-null, but its actual executor is null");
+				instance.executor = Executors.newSingleThreadExecutor(instance);
+			} else {
+				if (instance.executor.isShutdown()) {
+					instance.executor = Executors.newSingleThreadExecutor(instance);
+				}
+			}
+		}
+	}
+
 	public void addObserver(ExecutionObserver observer) {
 		if (!observers.contains(observer)) {
 			logger.debug("Adding observer " + observer);
@@ -267,13 +280,13 @@ public class TestCaseExecutor implements ThreadFactory {
 				                          TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			} catch (ExecutionException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			} catch (TimeoutException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			}
 			//task.cancel(true);
 

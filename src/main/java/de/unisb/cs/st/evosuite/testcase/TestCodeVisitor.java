@@ -38,6 +38,8 @@ public class TestCodeVisitor implements TestVisitor {
 	protected TestCase test = null;
 
 	protected final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
+	
+	protected final Map<String, Integer> nextIndices = new HashMap<String, Integer>();
 
 	public String getCode() {
 		return testCode;
@@ -74,32 +76,55 @@ public class TestCodeVisitor implements TestVisitor {
 			return getVariableName(array) + "[" + index + "]";
 		} else if (var instanceof ArrayReference) {
 			String className = var.getSimpleClassName();
-			int num = 0;
-			for (VariableReference otherVar : variableNames.keySet()) {
-				if (!otherVar.equals(var)
-				        && otherVar.getVariableClass().equals(var.getVariableClass()))
-					num++;
-			}
+			//			int num = 0;
+			//			for (VariableReference otherVar : variableNames.keySet()) {
+			//				if (!otherVar.equals(var)
+			//				        && otherVar.getVariableClass().equals(var.getVariableClass()))
+			//					num++;
+			//			}
 			String variableName = className.substring(0, 1).toLowerCase()
-			        + className.substring(1) + "Array" + num;
+			        + className.substring(1) + "Array";
 			variableName = variableName.replace(".", "_").replace("[]", "");
-			variableNames.put(var, variableName);
+			if (!variableNames.containsKey(var)) {
+				if (!nextIndices.containsKey(variableName)) {
+					nextIndices.put(variableName, 0);
+				}
+
+				int index = nextIndices.get(variableName);
+				nextIndices.put(variableName, index + 1);
+
+				variableName += index;
+
+				variableNames.put(var, variableName);
+			}
+
 		} else if (!variableNames.containsKey(var)) {
 			String className = var.getSimpleClassName();
-			int num = 0;
-			for (VariableReference otherVar : variableNames.keySet()) {
-				if (otherVar.getVariableClass().equals(var.getVariableClass()))
-					num++;
-			}
+			//			int num = 0;
+			//			for (VariableReference otherVar : variableNames.keySet()) {
+			//				if (otherVar.getVariableClass().equals(var.getVariableClass()))
+			//					num++;
+			//			}
+
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1);
 			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
 				variableName += "_";
-			variableName += num;
+
 			if (variableName.contains("[]")) {
 				variableName = variableName.replace("[]", "Array");
 			}
 			variableName = variableName.replace(".", "_");
+
+			if (!nextIndices.containsKey(variableName)) {
+				nextIndices.put(variableName, 0);
+			}
+
+			int index = nextIndices.get(variableName);
+			nextIndices.put(variableName, index + 1);
+
+			variableName += index;
+
 			variableNames.put(var, variableName);
 		}
 		return variableNames.get(var);
@@ -282,11 +307,23 @@ public class TestCodeVisitor implements TestVisitor {
 
 	private void addAssertions(StatementInterface statement) {
 		boolean assertionAdded = false;
-		for (Assertion assertion : statement.getAssertions()) {
-			if (assertion != null) {
-				visitAssertion(assertion);
-				testCode += "\n";
-				assertionAdded = true;
+		if (getException(statement) != null) {
+			// Assumption: The statement that throws an exception is the last statement of a test.
+			VariableReference returnValue = statement.getReturnValue();
+			for (Assertion assertion : statement.getAssertions()) {
+				if (assertion != null && !assertion.getReferencedVariables().contains(returnValue)) {
+					visitAssertion(assertion);
+					testCode += "\n";
+					assertionAdded = true;
+				}
+			}
+		} else {			
+			for (Assertion assertion : statement.getAssertions()) {
+				if (assertion != null) {
+					visitAssertion(assertion);
+					testCode += "\n";
+					assertionAdded = true;
+				}
 			}
 		}
 		if (assertionAdded)
@@ -411,7 +448,7 @@ public class TestCodeVisitor implements TestVisitor {
 		if (retval.getType() != Void.TYPE
 		        && retval.getAdditionalVariableReference() == null && !unused) {
 			if (exception != null) {
-				if (!lastStatement)
+				if (!lastStatement || statement.hasAssertions())
 					result += retval.getSimpleClassName() + " " + getVariableName(retval)
 					        + " = " + retval.getDefaultValueString() + ";\n";
 			} else
@@ -439,8 +476,7 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 
 		String callee_str = "";
-		if (exception == null
-		        && !retval.getVariableClass().isAssignableFrom(method.getReturnType())
+		if (!retval.getVariableClass().isAssignableFrom(method.getReturnType())
 		        && !retval.getVariableClass().isAnonymousClass() && !unused) {
 			String name = retval.getSimpleClassName();
 			if (!name.matches(".*\\.\\d+$")) {
@@ -458,7 +494,7 @@ public class TestCodeVisitor implements TestVisitor {
 		if (retval.getType() == Void.TYPE) {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		} else {
-			if (exception == null || !lastStatement)
+//			if (exception == null || !lastStatement)
 				if (!unused)
 					result += getVariableName(retval) + " = ";
 
@@ -528,7 +564,7 @@ public class TestCodeVisitor implements TestVisitor {
 					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
 					        + ") ";
 				}
-				
+
 				parameter_string += name;
 			}
 

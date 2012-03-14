@@ -3,7 +3,7 @@ package de.unisb.cs.st.evosuite.coverage.dataflow;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.cfg.BytecodeInstruction;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * Abstract superclass for all Definitions and Uses 

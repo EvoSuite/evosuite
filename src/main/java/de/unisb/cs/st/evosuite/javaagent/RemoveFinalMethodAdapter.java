@@ -48,6 +48,8 @@ public class RemoveFinalMethodAdapter extends MethodVisitor {
 					super.visitInsn(Opcodes.POP);
 				else if (type.getSize() == 2)
 					super.visitInsn(Opcodes.POP2);
+				if (opcode == Opcodes.PUTFIELD)
+					super.visitInsn(Opcodes.POP);
 			}
 		} else {
 			//if (!owner.equals(className))

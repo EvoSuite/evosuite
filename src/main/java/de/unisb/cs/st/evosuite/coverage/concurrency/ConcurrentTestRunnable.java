@@ -165,8 +165,9 @@ public class ConcurrentTestRunnable implements InterfaceTestRunnable {
 				testCopy.setCallReporter(callLogger);
 				testCopy.setScheduleObserver(callLogger);
 				ConcurrentTestCase testToExecute = addThreadEndCode(addThreadRegistrationStatements(testCopy));
+				//FIXME: this is likely broken
 				TestRunnable testRunner = new TestRunnable(testToExecute,
-				        new ConcurrentScope(objectToTest.getObject(s)), observers, false);
+				        new ConcurrentScope(objectToTest.getObject(s)), observers);//, false);
 				FutureTask<ExecutionResult> testFuture = new FutureTask<ExecutionResult>(
 				        testRunner);
 				Thread testThread = new Thread(testFuture, "TestThread" + i);

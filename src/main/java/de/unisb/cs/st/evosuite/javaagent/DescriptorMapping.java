@@ -48,12 +48,30 @@ public class DescriptorMapping {
 
 	private final Map<String, String> nameMapping = new HashMap<String, String>();
 
+	public static boolean shouldTransform(String classNameUnknown) {
+		//return false;
+
+		String className = classNameUnknown.replace("/", ".");
+		switch (Properties.TT_SCOPE) {
+		case ALL:
+			return true;
+		case TARGET:
+			if (className.equals(Properties.TARGET_CLASS)
+			        || className.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+			break;
+		case PREFIX:
+			if (className.startsWith(Properties.PROJECT_PREFIX))
+				return true;
+
+		}
+		return false;
+
+	}
+
 	public boolean isTransformedMethod(String className, String methodName, String desc) {
 		logger.info("Initiating transformation of " + methodName);
 		getMethodDesc(className, methodName, desc);
-		logger.info("Contains transformed version? "
-		        + (descriptorMapping.containsKey(className.replace(".", "/") + "/"
-		                + methodName + desc)) + " - " + originalDesc.keySet());
 		//		return originalDesc.containsKey(className.replace(".", "/") + "/" + methodName
 		//		        + desc);
 		return descriptorMapping.containsKey(className.replace(".", "/") + "/"
@@ -87,10 +105,10 @@ public class DescriptorMapping {
 	        String desc) {
 		logger.info("Checking method: " + className + "." + methodName + desc);
 		String new_desc = getMethodDesc(className, methodName, desc);
-		TestabilityTransformation.logger.info("Transformed desc is " + new_desc);
+		logger.info("Transformed desc is " + new_desc);
 		String name = className.replace(".", "/") + "/" + methodName + desc;
 		if (originalDesc.containsKey(name)) {
-			TestabilityTransformation.logger.info("Desc is already transformed");
+			logger.info("Desc is already transformed");
 		}
 		return originalDesc.containsKey(name) || isBooleanMethod(desc);
 	}
@@ -112,10 +130,9 @@ public class DescriptorMapping {
 		if (isStringReplacement(className, methodName))
 			return true;
 
-		TestabilityTransformation.logger.info("Checking method: " + className + "."
-		        + methodName + desc);
+		logger.info("Checking method: " + className + "." + methodName + desc);
 		String new_desc = getMethodDesc(className, methodName, desc);
-		TestabilityTransformation.logger.info("Transformed desc is " + new_desc);
+		logger.info("Transformed desc is " + new_desc);
 		String name = className.replace(".", "/") + "/" + methodName + desc;
 		if (originalDesc.containsKey(name)) {
 			return Type.getReturnType(originalDesc.get(name)).equals(Type.BOOLEAN_TYPE);
@@ -126,18 +143,17 @@ public class DescriptorMapping {
 
 	public boolean isTransformedOrBooleanField(String className, String fieldName,
 	        String desc) {
-		TestabilityTransformation.logger.info("Checking field: " + className + "."
-		        + fieldName + desc);
+		logger.info("Checking field: " + className + "." + fieldName + desc);
 		String new_desc = getFieldDesc(className, fieldName, desc);
-		TestabilityTransformation.logger.info("Transformed desc is " + new_desc);
+		logger.info("Transformed desc is " + new_desc);
 		String name = className.replace(".", "/") + "/" + fieldName + desc;
 		if (originalDesc.containsKey(name)) {
-			TestabilityTransformation.logger.info("Desc is already transformed");
+			logger.info("Desc is already transformed");
 		}
 		return originalDesc.containsKey(name) || isBooleanField(desc);
 	}
 
-	private boolean isBooleanMethod(String desc) {
+	public boolean isBooleanMethod(String desc) {
 		Type[] types = Type.getArgumentTypes(desc);
 		for (Type type : types) {
 			if (type.equals(Type.BOOLEAN_TYPE)) {
@@ -166,8 +182,31 @@ public class DescriptorMapping {
 		return false;
 	}
 
+	private boolean isInside(String className) {
+		//return false;
+
+		String classNameWithDots = className.replace("/", ".");
+		switch (Properties.TT_SCOPE) {
+		case ALL:
+			if (!classNameWithDots.startsWith("java")
+			        && !classNameWithDots.startsWith("sun"))
+				return true;
+		case TARGET:
+			if (classNameWithDots.equals(Properties.TARGET_CLASS)
+			        || classNameWithDots.startsWith(Properties.TARGET_CLASS + "$"))
+				return true;
+			break;
+		case PREFIX:
+			if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX))
+				return true;
+
+		}
+		return false;
+
+	}
+
 	private boolean isBooleanField(String desc) {
-		TestabilityTransformation.logger.info("Checkign type of field " + desc);
+		logger.info("Checkign type of field " + desc);
 		return desc.endsWith("Z");
 		//Type type = Type.getType(desc);
 		//return type.equals(Type.BOOLEAN_TYPE)
@@ -185,36 +224,37 @@ public class DescriptorMapping {
 				continue;
 
 			visited.add(name);
-			TestabilityTransformation.logger.info("Visiting class " + name
-			        + " while looking for source of " + className + "." + methodName);
+			logger.info("Visiting class " + name + " while looking for source of "
+			        + className + "." + methodName);
 			ClassReader reader;
 			try {
 				reader = new ClassReader(name);
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
-				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
-				                                                                            "/"))
-				        | parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
-				                                                                        "/"));
+				boolean isInside = isInside(parent.name);
 
-				if (!isInside) {
-					TestabilityTransformation.logger.info("Checking " + parent.name);
-					for (Object o : parent.methods) {
-						MethodNode mn2 = (MethodNode) o;
-						if (mn2.name.equals(methodName) && mn2.desc.equals(desc)) {
-							TestabilityTransformation.logger.info("Method " + name
+				//boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
+				//                                                                            "/"))
+				//        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
+				//				                                                                                                                       "/")));
+
+				logger.info("Checking " + parent.name);
+				for (Object o : parent.methods) {
+					MethodNode mn2 = (MethodNode) o;
+					if (mn2.name.equals(methodName) && mn2.desc.equals(desc)) {
+						if (!isInside) {
+							logger.info("Method " + name
 							        + " was defined outside the test package");
 							return true;
-							//if (!parent.name.startsWith("java/util")
-							//        && !parent.name.startsWith("java2/util2"))
-							//								return true;
-							//							else
-							//								logger.warn("Found descendant of java.util: "
-							//								        + parent.name);
+						} else {
+							logger.info("Method " + name
+							        + " was defined outside the test package");
+							//return false;
 						}
 					}
 				}
+
 				for (Object o : parent.interfaces) {
 					String par = (String) o;
 					if (!visited.contains(par) && !parents.contains(par)) {
@@ -226,7 +266,7 @@ public class DescriptorMapping {
 					parents.add(parent.superName);
 				}
 			} catch (IOException e) {
-				TestabilityTransformation.logger.info("Error reading class " + name);
+				logger.info("Error reading class " + name);
 			}
 		}
 
@@ -245,9 +285,8 @@ public class DescriptorMapping {
 				continue;
 
 			visited.add(name);
-			TestabilityTransformation.logger.info("Visiting class " + name
-			        + " while looking for name clashes of " + className + "."
-			        + methodName + transformedDesc);
+			logger.info("Visiting class " + name + " while looking for name clashes of "
+			        + className + "." + methodName + transformedDesc);
 			ClassReader reader;
 			try {
 				reader = new ClassReader(name);
@@ -256,7 +295,7 @@ public class DescriptorMapping {
 
 				if (originalDesc.containsKey(className + "." + methodName
 				        + transformedDesc)) {
-					TestabilityTransformation.logger.info("Method " + methodName
+					logger.info("Method " + methodName
 					        + " has conflicting transformed method");
 					return methodName + "_transformed" + (id++);
 				}
@@ -265,8 +304,7 @@ public class DescriptorMapping {
 					MethodNode mn2 = (MethodNode) o;
 					//logger.info("Checking " + parent.name + "." + mn2.name + mn2.desc);
 					if (mn2.name.equals(methodName) && mn2.desc.equals(transformedDesc)) {
-						TestabilityTransformation.logger.info("Method " + methodName
-						        + " has conflicting method");
+						logger.info("Method " + methodName + " has conflicting method");
 						if (methodName.equals("<init>"))
 							return null; // TODO: This should be a bit nicer
 						return methodName + "_transformed" + (id++);
@@ -284,7 +322,7 @@ public class DescriptorMapping {
 					parents.add(parent.superName);
 				}
 			} catch (IOException e) {
-				TestabilityTransformation.logger.info("Error reading class " + name);
+				logger.info("Error reading class " + name);
 			}
 		}
 
@@ -302,6 +340,8 @@ public class DescriptorMapping {
 				continue;
 
 			visited.add(name);
+			logger.info("Checking class " + name
+			        + " while looking for definition of field " + fieldName);
 
 			ClassReader reader;
 			try {
@@ -309,18 +349,31 @@ public class DescriptorMapping {
 				ClassNode parent = new ClassNode();
 				reader.accept(parent, ClassReader.EXPAND_FRAMES);
 
-				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
-				                                                                            "/"))
-				        | parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
-				                                                                        "/"));
+				boolean isInside = isInside(parent.name);
 
-				if (!isInside) {
-					for (Object o : parent.fields) {
-						FieldNode mn2 = (FieldNode) o;
-						if (mn2.name.equals(fieldName) && mn2.desc.equals(desc)) {
-							TestabilityTransformation.logger.info("Field " + name
-							        + " was defined outside the test package");
+				//				boolean isInside = parent.name.startsWith(Properties.PROJECT_PREFIX.replace(".",
+				//				                                                                            "/"))
+				//				        | parent.name.startsWith(Properties.TARGET_CLASS_PREFIX.replace(".",
+				//				                                                                        "/"));
+
+				for (Object o : parent.fields) {
+					FieldNode mn2 = (FieldNode) o;
+					if (mn2.name.equals(fieldName) && mn2.desc.equals(desc)) {
+						//if ((mn2.access & Opcodes.ACC_SYNTHETIC) == Opcodes.ACC_SYNTHETIC) {
+						//	logger.info("Not transforming synthetic field " + mn2.name);
+						//	return true;
+						//}
+						if (!isInside) {
+							logger.info("Field " + name
+							        + " was defined outside the test package - "
+							        + parent.name);
 							return true;
+						} else {
+							logger.info("Field " + name
+							        + " was defined inside the test package "
+							        + parent.name);
+							return false;
+
 						}
 					}
 				}
@@ -335,7 +388,7 @@ public class DescriptorMapping {
 					parents.add(parent.superName);
 				}
 			} catch (IOException e) {
-				TestabilityTransformation.logger.info("Error reading class " + name);
+				logger.info("Error reading class " + name);
 			}
 		}
 
@@ -369,8 +422,11 @@ public class DescriptorMapping {
 		return new_desc;
 	}
 
-	private String transformFieldDescriptor(String desc) {
-		TestabilityTransformation.logger.info("Transforming field instruction " + desc);
+	private String transformFieldDescriptor(String className, String desc) {
+		if (!shouldTransform(className)) {
+			return desc;
+		}
+		logger.info("Transforming field instruction " + desc);
 		if (isBooleanField(desc)) {
 			// TODO: Check if this is actually transformed or not
 			if (desc.equals("Z"))
@@ -385,6 +441,10 @@ public class DescriptorMapping {
 	}
 
 	public String getMethodName(String className, String methodName, String desc) {
+		if (!shouldTransform(className)) {
+			return methodName;
+		}
+
 		String old = className + "." + methodName + desc;
 		old = old.replace(".", "/");
 		if (isBooleanMethod(desc)) {
@@ -399,17 +459,21 @@ public class DescriptorMapping {
 	}
 
 	public String getMethodDesc(String className, String methodName, String desc) {
+		if (!shouldTransform(className)) {
+			return desc;
+		}
+
 		if (isBooleanMethod(desc)) {
 			String old = className.replace(".", "/") + "/" + methodName + desc;
 			//old = old.replace(".", "/");
 
 			if (!descriptorMapping.containsKey(old)) {
 				if (isOutsideMethod(className, methodName, desc)) {
-					logger.info("Is outside method: " + methodName);
+					logger.info("Is outside method: " + className + "." + methodName);
 					descriptorMapping.put(old, desc);
 					nameMapping.put(old, methodName);
 				} else {
-					logger.info("Is inside method: " + methodName);
+					logger.info("Is inside method: " + className + "." + methodName);
 					String newDesc = transformMethodDescriptor(desc);
 					String newName = transformMethodName(className, methodName, desc,
 					                                     newDesc);
@@ -418,11 +482,9 @@ public class DescriptorMapping {
 						nameMapping.put(old, newName);
 						//nameMapping.put(className + "." + methodName + newDesc,
 						//                newName);
-						TestabilityTransformation.logger.info("Keeping transformation from "
-						        + old
-						        + " to "
-						        + descriptorMapping.get(old)
-						        + " with new name " + newName);
+						logger.info("Keeping transformation from " + old + " to "
+						        + descriptorMapping.get(old) + " with new name "
+						        + newName);
 						originalDesc.put(className.replace(".", "/") + "/" + newName
 						        + newDesc, desc);
 						originalName.put(className.replace(".", "/") + "/" + newName
@@ -445,6 +507,9 @@ public class DescriptorMapping {
 	}
 
 	public String getFieldDesc(String className, String fieldName, String desc) {
+		if (!shouldTransform(className)) {
+			return desc;
+		}
 		if (isBooleanField(desc)) {
 			String old = className.replace(".", "/") + "/" + fieldName + desc;
 			//old = old.replace(".", "/");
@@ -453,7 +518,7 @@ public class DescriptorMapping {
 				if (isOutsideField(className, fieldName, desc)) {
 					descriptorMapping.put(old, desc);
 				} else {
-					descriptorMapping.put(old, transformFieldDescriptor(desc));
+					descriptorMapping.put(old, transformFieldDescriptor(className, desc));
 					originalDesc.put(className.replace(".", "/") + "/" + fieldName
 					        + descriptorMapping.get(old), desc);
 				}
