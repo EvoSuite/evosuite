@@ -10,10 +10,41 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.junit.TestExtractingVisitor.TestReader;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
 public class JUnitTestReader implements TestReader {
+
+	public static void main(String... args) {
+		ExecutionTracer.enable();
+		String[] classpath = Properties.CLASSPATH;
+		String[] sourcepath = Properties.SOURCEPATH;
+		JUnitTestReader testReader = new JUnitTestReader(classpath, sourcepath);
+		File file = new File(args[0]);
+		if (file.isDirectory()) {
+			for (File javaFile : file.listFiles()) {
+				if (!javaFile.getName().endsWith(".java")) {
+					continue;
+				}
+				CompoundTestCase testCase = testReader.readJUnitTestCase(javaFile);
+				// TODO Execute test
+//				ExecutionResult tmpResult = JUnitUtils.runTest(testCase);
+				// TODO Find classfile
+//				String testName = 
+				// TODO Execute classfile via JUnit
+//				TestRun testRun = JUnitUtils.runTest(testName);
+				// TODO Compare results for individual tests
+			}
+		}
+	}
+
+	private CompoundTestCase readJUnitTestCase(File javaFile) {
+		// TODO-JRO Implement method readJUnitTestCase
+		return null;
+	}
 
 	protected final String[] sources;
 	protected final String[] classpath;
@@ -108,20 +139,22 @@ public class JUnitTestReader implements TestReader {
 
 	private String[] expandClasspath(String[] classpath) {
 		ArrayList<String> result = new ArrayList<String>();
-		for (String classpathEntry : classpath) {
-			if (classpathEntry.endsWith("*")) {
-				File dir = new File(classpathEntry.substring(0, classpathEntry.length() - 1));
-				for (File file : dir.listFiles()) {
-					if (file.getName().endsWith(".jar")) {
-						try {
-							result.add(file.getCanonicalPath());
-						} catch (IOException exc) {
-							throw new RuntimeException(exc);
+		if (classpath != null) {
+			for (String classpathEntry : classpath) {
+				if (classpathEntry.endsWith("*")) {
+					File dir = new File(classpathEntry.substring(0, classpathEntry.length() - 1));
+					for (File file : dir.listFiles()) {
+						if (file.getName().endsWith(".jar")) {
+							try {
+								result.add(file.getCanonicalPath());
+							} catch (IOException exc) {
+								throw new RuntimeException(exc);
+							}
 						}
 					}
+				} else {
+					result.add(classpathEntry);
 				}
-			} else {
-				result.add(classpathEntry);
 			}
 		}
 		return result.toArray(new String[result.size()]);

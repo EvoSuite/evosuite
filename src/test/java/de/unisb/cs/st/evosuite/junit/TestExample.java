@@ -49,7 +49,7 @@ public class TestExample extends ParentTestExample {
 	@Override
 	@Before
 	public void setupNeeded() {
-		needed = "killSelf";
+//		needed = "killSelf";
 	}
 
 	@Override
@@ -57,7 +57,7 @@ public class TestExample extends ParentTestExample {
 	@Test
 	public void test01() {
 		super.setupNeeded();
-		MockingBird bird = new MockingBird(needed);
-		bird.executeCmd(value - otherValue);
+		MockingBird bird = new MockingBird("YOOD");//needed);
+		bird.executeCmd(4);//value - otherValue);
 	}
 }

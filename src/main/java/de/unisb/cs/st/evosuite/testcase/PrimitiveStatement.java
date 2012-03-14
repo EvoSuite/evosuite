@@ -103,6 +103,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Type clazz) {
+		// TODO This kills the benefit of inheritance. 
+		// Let each class implement the clone method instead
+		
 		PrimitiveStatement<?> statement;
 
 		if (clazz == boolean.class) {
