@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.uispec4j.UISpec4J;
 
 import sun.misc.Signal;
 import de.unisb.cs.st.evosuite.Properties.AssertionStrategy;
@@ -142,6 +143,8 @@ import de.unisb.cs.st.evosuite.utils.Utils;
 @SuppressWarnings("restriction")
 public class TestSuiteGenerator {
 
+	static { UISpec4J.init(); }
+	
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();

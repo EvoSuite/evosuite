@@ -357,7 +357,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		Iterator<Chromosome> iterator = population.iterator();
 		while (iterator.hasNext()) {
 			Chromosome c = iterator.next();
-			if (isFinished()) {
+			if (false && isFinished()) {
 				if (c.isChanged())
 					iterator.remove();
 			} else {
@@ -376,12 +376,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @return
 	 */
 	protected List<Chromosome> elitism() {
-		logger.debug("Elitism");
+		logger.info("Elitism with ELITE = " + Properties.ELITE);
 
 		List<Chromosome> elite = new ArrayList<Chromosome>();
-
+		
 		for (int i = 0; i < Properties.ELITE; i++) {
-			logger.trace("Copying individual " + i + " with fitness "
+			logger.info("Copying individual " + i + " with fitness "
 			        + population.get(i).getFitness());
 			elite.add(population.get(i).clone());
 		}
