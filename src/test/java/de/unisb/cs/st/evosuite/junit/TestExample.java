@@ -2,7 +2,6 @@ package de.unisb.cs.st.evosuite.junit;
 
 import org.junit.Before;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestExample extends ParentTestExample {
@@ -37,15 +36,29 @@ public class TestExample extends ParentTestExample {
 
 	protected static Integer otherValue = 10;
 
+	static {
+		value = 4;
+	}
+
 	@BeforeClass
 	public static void initializeOtherValue() {
 		otherValue = -5;
 	}
-
-	public TestExample() {
-		otherValue = 0;
+	
+	@BeforeClass
+	public static void initializeAgain() {
+		value = 42;
 	}
 
+	public TestExample() {
+		otherValue = 38;
+	}
+
+	@Before
+	public void goForIt() {
+		needed = "convert";
+	}
+	
 	@Override
 	@Before
 	public void setupNeeded() {
@@ -53,11 +66,11 @@ public class TestExample extends ParentTestExample {
 	}
 
 	@Override
-//	@Ignore
+	// @Ignore
 	@Test
 	public void test01() {
 		super.setupNeeded();
 		MockingBird bird = new MockingBird(needed);
-		bird.executeCmd(4);//value - otherValue);
+		bird.executeCmd(4);// value - otherValue);
 	}
 }
