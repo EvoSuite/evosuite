@@ -67,8 +67,11 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		List<Chromosome> newGeneration = new ArrayList<Chromosome>();
 
 		// Elitism
-		logger.debug("Elitism");
+		logger.info("Elitism");
 		newGeneration.addAll(elitism());
+		
+		logger.info("New generation size = " + newGeneration.size());
+		logger.info("Old generation size = " + this.population.size());
 
 		// Add random elements
 		// new_generation.addAll(randomism());
