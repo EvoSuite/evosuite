@@ -19,6 +19,7 @@ import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -242,6 +243,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	@Override
+	public void endVisit(Block node) {
+		if (testCase.getCurrentScope() == TestScope.STATIC) {
+			testCase.setCurrentScope(TestScope.FIELDS);
+		}
+	}
+
+	@Override
 	public void endVisit(ClassInstanceCreation instanceCreation) {
 		List<?> paramTypes = Arrays.asList(instanceCreation.resolveConstructorBinding().getParameterTypes());
 		List<?> paramValues = instanceCreation.arguments();
@@ -256,7 +264,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	@Override
 	public void endVisit(MethodDeclaration node) {
 		testCase.finalizeMethod();
-		super.endVisit(node);
 	}
 
 	@Override
@@ -281,7 +288,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			}
 		}
 		testCase.addStatement(methodStatement);
-		super.visit(methodInvocation);
 	}
 
 	@Override
@@ -289,11 +295,22 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide(), null);
 		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
 		testCase.variableAssignment(varRef, newAssignment);
-		return super.visit(assignment);
+		return true;
+	}
+
+	@Override
+	public boolean visit(Block node) {
+		if (testCase.getCurrentScope() == TestScope.FIELDS) {
+			testCase.setCurrentScope(TestScope.STATIC);
+		}
+		return true;
 	}
 
 	@Override
 	public boolean visit(FieldDeclaration fieldDeclaration) {
+		if (Modifier.isStatic(fieldDeclaration.getModifiers())) {
+			testCase.setCurrentScope(TestScope.STATICFIELDS);
+		}
 		VariableDeclarationFragment varDeclFrgmnt = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		Expression expression = varDeclFrgmnt.getInitializer();
 		VariableReference varRef = retrieveVariableReference(expression, null);
@@ -301,7 +318,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		// String name = varDeclFrgmt.getName().getIdentifier();
 		// new BoundVariableReferenceImpl(testCase, varType, name);
 		testCase.addVariable(varDeclFrgmnt.resolveBinding(), varRef);
-		return super.visit(fieldDeclaration);
+		testCase.setCurrentScope(TestScope.FIELDS);
+		return true;
 	}
 
 	@Override
@@ -319,7 +337,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (annotation.equals("@After")) {
 			testCase.setCurrentScope(TestScope.AFTER);
 		}
-		return super.visit(markerAnnotation);
+		return true;
 	}
 
 	@Override
@@ -334,7 +352,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				testCase.setCurrentScope(TestScope.AFTER);
 			}
 		}
-		return super.visit(methodDeclaration);
+		return true;
 	}
 
 	@Override
@@ -350,7 +368,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				testReader.readTestCase(superclass, testCase);
 			}
 		}
-		return super.visit(typeDeclaration);
+		return true;
 	}
 
 	@Override
@@ -399,7 +417,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				}
 			}
 		}
-		return super.visit(variableDeclStmt);
+		return true;
 	}
 
 	protected Class<?>[] extractArgumentClasses(List<?> arguments) {

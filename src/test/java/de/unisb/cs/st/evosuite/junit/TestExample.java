@@ -49,15 +49,15 @@ public class TestExample extends ParentTestExample {
 	@Override
 	@Before
 	public void setupNeeded() {
-//		needed = "killSelf";
+		needed = "killSelf";
 	}
 
 	@Override
-	@Ignore
+//	@Ignore
 	@Test
 	public void test01() {
 		super.setupNeeded();
-		MockingBird bird = new MockingBird("YOOD");//needed);
+		MockingBird bird = new MockingBird(needed);
 		bird.executeCmd(4);//value - otherValue);
 	}
 }
