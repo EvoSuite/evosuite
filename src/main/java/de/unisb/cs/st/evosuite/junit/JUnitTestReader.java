@@ -68,8 +68,8 @@ public class JUnitTestReader implements TestReader {
 	}
 
 	@Override
-	public CompoundTestCase readTestCase(String clazz, CompoundTestCase parent) {
-		CompoundTestCase testCase = new CompoundTestCase(parent);
+	public CompoundTestCase readTestCase(String clazz, CompoundTestCase child) {
+		CompoundTestCase testCase = new CompoundTestCase(child);
 		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, null, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);

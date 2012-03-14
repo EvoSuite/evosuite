@@ -26,19 +26,20 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  */
 public class CompoundTestCase {
 	public static enum TestScope {
-		BEFORE_CLASS, STATIC, BEFORE, FIELDS, CONSTRUCTOR, AFTER, AFTER_CLASS, METHOD;
+		BEFORE_CLASS, STATIC, STATICFIELDS, BEFORE, FIELDS, CONSTRUCTOR, AFTER, AFTER_CLASS, METHOD;
 	}
 
 	private static final long serialVersionUID = 1L;
 
 	private final Map<String, List<StatementInterface>> methods = new LinkedHashMap<String, List<StatementInterface>>();
-	private final Map<IVariableBinding, VariableReference> currentMethodVars = new HashMap<IVariableBinding, VariableReference>();
-	private final Map<IVariableBinding, VariableReference> fieldVars = new HashMap<IVariableBinding, VariableReference>();
+	private final Map<String, VariableReference> currentMethodVars = new HashMap<String, VariableReference>();
+	private final Map<String, VariableReference> fieldVars = new HashMap<String, VariableReference>();
 	private final List<String> constructors = new ArrayList<String>();
 	private final List<String> afterMethods = new ArrayList<String>();
 	private final List<String> afterClassMethods = new ArrayList<String>();
 	private final List<String> beforeMethods = new ArrayList<String>();
 	private final List<String> beforeClassMethods = new ArrayList<String>();
+	private final List<StatementInterface> staticFields = new ArrayList<StatementInterface>();
 	private final List<StatementInterface> fields = new ArrayList<StatementInterface>();
 	private final List<StatementInterface> staticCode = new ArrayList<StatementInterface>();
 	private final String testMethod;
@@ -61,15 +62,27 @@ public class CompoundTestCase {
 	}
 
 	public void addStatement(StatementInterface statement) {
+		if (currentScope == TestScope.FIELDS) {
+			fields.add(statement);
+			return;
+		}
+		if (currentScope == TestScope.STATICFIELDS) {
+			staticFields.add(statement);
+			return;
+		}
+		if (currentScope == TestScope.STATIC) {
+			staticCode.add(statement);
+			return;
+		}
 		currentMethod.add(statement);
 	}
 
 	public void addVariable(IVariableBinding varBinding, VariableReference varRef) {
-		if (currentScope == TestScope.FIELDS) {
-			fieldVars.put(varBinding, varRef);
+		if (currentScope == TestScope.FIELDS || currentScope == TestScope.STATICFIELDS) {
+			fieldVars.put(varBinding.toString(), varRef);
 			return;
 		}
-		currentMethodVars.put(varBinding, varRef);
+		currentMethodVars.put(varBinding.toString(), varRef);
 	}
 
 	public void finalizeMethod() {
@@ -108,6 +121,10 @@ public class CompoundTestCase {
 		return delegate;
 	}
 
+	public TestScope getCurrentScope() {
+		return currentScope;
+	}
+
 	public CompoundTestCase getParent() {
 		return parent;
 	}
@@ -117,11 +134,11 @@ public class CompoundTestCase {
 	}
 
 	public VariableReference getVariableReference(IVariableBinding varBinding) {
-		VariableReference varRef = currentMethodVars.get(varBinding);
+		VariableReference varRef = currentMethodVars.get(varBinding.toString());
 		if (varRef != null) {
 			return varRef;
 		}
-		varRef = fieldVars.get(varBinding);
+		varRef = fieldVars.get(varBinding.toString());
 		if (varRef != null) {
 			return varRef;
 		}
@@ -143,16 +160,27 @@ public class CompoundTestCase {
 	}
 
 	public void variableAssignment(VariableReference varRef, VariableReference newAssignment) {
-		for (Map.Entry<IVariableBinding, VariableReference> entry : currentMethodVars.entrySet()) {
+		for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
 			if (entry.getValue() == varRef) {
 				currentMethodVars.put(entry.getKey(), newAssignment);
+				return;
 			}
 		}
-		for (Map.Entry<IVariableBinding, VariableReference> entry : fieldVars.entrySet()) {
+		for (Map.Entry<String, VariableReference> entry : fieldVars.entrySet()) {
 			if (entry.getValue() == varRef) {
 				fieldVars.put(entry.getKey(), newAssignment);
+				return;
 			}
 		}
+		if (parent != null) {
+			for (Map.Entry<String, VariableReference> entry : parent.fieldVars.entrySet()) {
+				if (entry.getValue() == varRef) {
+					parent.fieldVars.put(entry.getKey(), newAssignment);
+					return;
+				}
+			}
+		}
+		throw new RuntimeException("Assignment " + varRef + " not found!");
 	}
 
 	private List<StatementInterface> allStatementsFrom(List<String> methodsToAdd) {
@@ -180,11 +208,15 @@ public class CompoundTestCase {
 		// http://tech.groups.yahoo.com/group/junit/message/20758
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
+			// TODO Remove @Before methods that were overwritten by ANY child
+			// TODO First get static code from parent then static code from child
+			// then instance code from parent than instance code from child
 			List<StatementInterface> parentStatements = parent.getInitializationCode();
 			result.addAll(parentStatements);
 		}
-		result.addAll(allStatementsFrom(beforeClassMethods));
+		result.addAll(staticFields);
 		result.addAll(staticCode);
+		result.addAll(allStatementsFrom(beforeClassMethods));
 		result.addAll(fields);
 		if (constructors.size() > 1) {
 			throw new RuntimeException("Found " + constructors.size()
