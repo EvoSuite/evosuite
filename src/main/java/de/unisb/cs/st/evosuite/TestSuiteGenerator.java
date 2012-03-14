@@ -44,7 +44,6 @@ import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
@@ -128,7 +127,6 @@ import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.StatementsPopulationLimit;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
@@ -459,9 +457,6 @@ public class TestSuiteGenerator {
 		case PATH:
 			System.out.println("* Test criterion: Prime Path");
 			break;
-		case CONCURRENCY:
-			System.out.println("* Test criterion: Concurrent Test Case *");
-			break;
 		case STATEMENT:
 			System.out.println("* Test Criterion: Statement Coverage");
 			break;
@@ -497,8 +492,6 @@ public class TestSuiteGenerator {
 			return new DefUseCoverageSuiteFitness();
 		case PATH:
 			return new PrimePathSuiteFitness();
-		case CONCURRENCY:
-			return new ConcurrencySuitCoverage();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
 		case STATEMENT:
@@ -533,9 +526,6 @@ public class TestSuiteGenerator {
 			return new PrimePathCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
-		case CONCURRENCY:
-			return new TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter(
-			        new ConcurrencySuitCoverage());
 		case STATEMENT:
 			return new StatementCoverageFactory();
 		case ALLDEFS:
