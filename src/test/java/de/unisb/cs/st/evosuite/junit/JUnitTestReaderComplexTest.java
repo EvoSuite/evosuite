@@ -39,21 +39,21 @@ public class JUnitTestReaderComplexTest {
 		String code = testCase.toCode();
 		String result = "int int0 = 0;\n" + //
 				"int int1 = 5;\n" + //
-				"int int3 = 7;\n" + //
-				"int int4 = 10;\n" + //
-				"int int5 = 4;\n" + //
-				"int int6 = -5;\n" + //
+				"int int2 = 7;\n" + //
+				"int int3 = 10;\n" + //
+				"int int4 = 4;\n" + //
+				"int int5 = -5;\n" + //
 				"int int6 = 42;\n" + //
 				"String string0 = null;\n" + //
 				"String string1 = \"break free!\";\n" + //
 				"int int7 = 38;\n" + //
 				"int int8 = 3;\n" + //
 				"String string2 = \"convert\";\n" + //
-				"String string1 = \"killSelf\";\n" + //
-				"String string2 = \"escape\";\n" + //
-				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string2);\n" + //
-				"int int4 = int1 - int3;\n" + //
-				"testExample_MockingBird0.executeCmd(int4);\n";
+				"String string3 = \"killSelf\";\n" + //
+				"String string4 = \"escape\";\n" + //
+				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string4);\n" + //
+				"int int9 = int8 - int7;\n" + //
+				"testExample_MockingBird0.executeCmd(int9);\n";
 		Assert.assertEquals(result, code);
 	}
 }

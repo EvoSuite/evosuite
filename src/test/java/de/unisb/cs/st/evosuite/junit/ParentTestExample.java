@@ -40,7 +40,7 @@ public class ParentTestExample {
 		needed = "escape";
 	}
 
-	@Ignore
+//	@Ignore
 	@Test
 	public void test01() {
 		MockingBird bird = MockingBird.create(needed);
