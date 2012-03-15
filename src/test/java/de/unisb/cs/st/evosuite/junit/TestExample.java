@@ -70,6 +70,6 @@ public class TestExample extends ParentTestExample {
 	@Test
 	public void test01() {
 		MockingBird bird = new MockingBird(needed);
-		bird.executeCmd(value - otherValue);
+		bird.executeCmd(otherValue);
 	}
 }

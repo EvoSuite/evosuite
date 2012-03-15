@@ -51,8 +51,7 @@ public class JUnitTestReaderComplexTest {
 				"String string2 = \"convert\";\n" + //
 				"String string3 = \"killSelf\";\n" + //
 				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string3);\n" + //
-				"int int9 = int8 - int7;\n" + //
-				"testExample_MockingBird0.executeCmd(int9);\n";
+				"testExample_MockingBird0.executeCmd(int7);\n";
 		Assert.assertEquals(result, code);
 	}
 }
