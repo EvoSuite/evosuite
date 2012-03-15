@@ -75,17 +75,23 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					continue;
 
 				String methodName = "";
+				boolean sutException = false;
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
 					Method method = ms.getMethod();
 					methodName = method.getName() + Type.getMethodDescriptor(method);
+					if (method.getDeclaringClass().equals(Properties.getTargetClass()))
+						sutException = true;
 				} else if (result.test.getStatement(i) instanceof ConstructorStatement) {
 					ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(i);
 					Constructor<?> constructor = cs.getConstructor();
 					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
+					if (constructor.getDeclaringClass().equals(Properties.getTargetClass()))
+						sutException = true;
 				}
+
 				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t);
-				if (notDeclared) {
+				if (notDeclared && sutException) {
 					/*
 					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
 					 * input for pre-condition) or implicit ("likely" a real fault).
