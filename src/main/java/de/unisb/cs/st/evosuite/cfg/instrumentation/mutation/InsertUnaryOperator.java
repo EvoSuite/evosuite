@@ -13,6 +13,7 @@ import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Frame;
@@ -49,20 +50,30 @@ public class InsertUnaryOperator implements MutationOperator {
 			mutation.add(new VarInsnNode(node.getOpcode(), node.var));
 			mutation.add(new InsnNode(getNegation(node.getOpcode())));
 			mutationCode.add(mutation);
-			descriptions.add("Negation");
+
+			if (!mn.localVariables.isEmpty())
+				descriptions.add("Negation of " + getName(mn, node));
+			else
+				descriptions.add("Negation");
 
 			if (node.getOpcode() == Opcodes.ILOAD) {
 				if (frame.getStack(frame.getStackSize() - 1) != BooleanValueInterpreter.BOOLEAN_VALUE) {
 					mutation = new InsnList();
 					mutation.add(new IincInsnNode(node.var, 1));
 					mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-					descriptions.add("IINC 1");
+					if (!mn.localVariables.isEmpty())
+						descriptions.add("IINC 1 " + getName(mn, node));
+					else
+						descriptions.add("IINC 1");
 					mutationCode.add(mutation);
 
 					mutation = new InsnList();
 					mutation.add(new IincInsnNode(node.var, -1));
 					mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-					descriptions.add("IINC -1");
+					if (!mn.localVariables.isEmpty())
+						descriptions.add("IINC -1 " + getName(mn, node));
+					else
+						descriptions.add("IINC -1");
 					mutationCode.add(mutation);
 				}
 			}
@@ -173,4 +184,34 @@ public class InsertUnaryOperator implements MutationOperator {
 		}
 	}
 
+	private String getName(MethodNode mn, AbstractInsnNode node) {
+		if (node instanceof VarInsnNode) {
+			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
+			return var.name;
+		} else if (node instanceof FieldInsnNode) {
+			return ((FieldInsnNode) node).name;
+		} else if (node instanceof IincInsnNode) {
+			IincInsnNode incNode = (IincInsnNode) node;
+			LocalVariableNode var = getLocal(mn, node, incNode.var);
+			return var.name;
+
+		} else {
+			throw new RuntimeException("Unknown variable node: " + node);
+		}
+	}
+
+	private LocalVariableNode getLocal(MethodNode mn, AbstractInsnNode node, int index) {
+		int currentId = mn.instructions.indexOf(node);
+		for (Object v : mn.localVariables) {
+			LocalVariableNode localVar = (LocalVariableNode) v;
+			int startId = mn.instructions.indexOf(localVar.start);
+			int endId = mn.instructions.indexOf(localVar.end);
+			if (currentId >= startId && currentId <= endId && localVar.index == index)
+				return localVar;
+		}
+
+		throw new RuntimeException("Could not find local variable " + index
+		        + " at position " + currentId + ", have variables: "
+		        + mn.localVariables.size());
+	}
 }
