@@ -113,6 +113,8 @@ public class CompoundTestCase {
 	}
 
 	public TestCase finalizeTestCase() {
+		// TODO General problem: If methods change vars, this needs to be reflected in followup code
+		// e.g. value = 34 => int3 = 34; means that all other methods now need to use int3 instead of int2. 
 		Set<String> overridenMethods = Collections.emptySet();
 		delegate.setDelegate(new DefaultTestCase());
 		delegate.addStatements(getStaticInitializationBeforeClassMethods(overridenMethods));
