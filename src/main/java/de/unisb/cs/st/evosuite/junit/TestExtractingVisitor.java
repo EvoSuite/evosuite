@@ -268,6 +268,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public void endVisit(MethodInvocation methodInvocation) {
+		// TODO Treat calls to super.method().
+		// TODO If in constructor, treat calls to this() and super().
 		List<?> paramTypes = Arrays.asList(methodInvocation.resolveMethodBinding().getParameterTypes());
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, params);

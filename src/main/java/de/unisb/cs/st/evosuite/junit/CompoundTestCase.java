@@ -1,10 +1,12 @@
 package de.unisb.cs.st.evosuite.junit;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.IVariableBinding;
 
@@ -78,7 +80,7 @@ public class CompoundTestCase {
 	}
 
 	public void addVariable(IVariableBinding varBinding, VariableReference varRef) {
-		if (currentScope == TestScope.FIELDS || currentScope == TestScope.STATICFIELDS) {
+		if ((currentScope == TestScope.FIELDS) || (currentScope == TestScope.STATICFIELDS)) {
 			fieldVars.put(varBinding.toString(), varRef);
 			return;
 		}
@@ -111,13 +113,17 @@ public class CompoundTestCase {
 	}
 
 	public TestCase finalizeTestCase() {
+		Set<String> overridenMethods = Collections.emptySet();
 		delegate.setDelegate(new DefaultTestCase());
+		delegate.addStatements(getStaticInitializationBeforeClassMethods(overridenMethods));
 		delegate.addStatements(getInitializationCode());
+		delegate.addStatements(getBeforeMethods(overridenMethods));
 		if (testMethod == null) {
 			throw new RuntimeException("Test did not contain any statements!");
 		}
 		delegate.addStatements(methods.get(testMethod));
-		delegate.addStatements(getDeinitializationCode());
+		delegate.addStatements(getAfterMethods(overridenMethods));
+		delegate.addStatements(getAfterClassMethods(overridenMethods));
 		return delegate;
 	}
 
@@ -183,47 +189,94 @@ public class CompoundTestCase {
 		throw new RuntimeException("Assignment " + varRef + " not found!");
 	}
 
-	private List<StatementInterface> allStatementsFrom(List<String> methodsToAdd) {
+	private List<StatementInterface> getAfterClassMethods(Set<String> overridenMethods) {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
-		for (String method : methodsToAdd) {
-			result.addAll(methods.get(method));
+		for (String method : afterClassMethods) {
+			if (!overridenMethods.contains(method)) {
+				result.addAll(methods.get(method));
+			}
+		}
+		if (parent != null) {
+			// @AfterClass IF NOT OVERRIDEN
+			// According to Kent Beck, there is no defined order
+			// in which methods of the same leve within one class are called:
+			// http://tech.groups.yahoo.com/group/junit/message/20758
+			result.addAll(parent.getAfterClassMethods(methods.keySet()));
 		}
 		return result;
 	}
 
-	private List<StatementInterface> getDeinitializationCode() {
+	private List<StatementInterface> getAfterMethods(Set<String> overridenMethods) {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
-		result.addAll(allStatementsFrom(afterMethods));
-		result.addAll(allStatementsFrom(afterClassMethods));
+		// @After
+		for (String method : afterMethods) {
+			if (!overridenMethods.contains(method)) {
+				result.addAll(methods.get(method));
+			}
+		}
 		if (parent != null) {
-			List<StatementInterface> parentStatements = parent.getDeinitializationCode();
-			result.addAll(parentStatements);
+			// parent: @After
+			result.addAll(parent.getAfterMethods(methods.keySet()));
+		}
+		return result;
+	}
+
+	private List<StatementInterface> getBeforeMethods(Set<String> overridenMethods) {
+		List<StatementInterface> result = new ArrayList<StatementInterface>();
+		if (parent != null) {
+			result.addAll(parent.getBeforeMethods(methods.keySet()));
+		}
+		// @Before IF NOT OVERRIDEN
+		// According to Kent Beck, there is no defined order
+		// in which methods of the same leve within one class are called:
+		// http://tech.groups.yahoo.com/group/junit/message/20758
+		for (String method : beforeMethods) {
+			if (!overridenMethods.contains(method)) {
+				result.addAll(methods.get(method));
+			}
 		}
 		return result;
 	}
 
 	private List<StatementInterface> getInitializationCode() {
-		// According to Kent Beck, there is no defined order
-		// in which @Before and @BeforeClass methods are called:
-		// http://tech.groups.yahoo.com/group/junit/message/20758
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
-			// TODO Remove @Before methods that were overwritten by ANY child
-			// TODO First get static code from parent then static code from child
-			// then instance code from parent than instance code from child
-			List<StatementInterface> parentStatements = parent.getInitializationCode();
-			result.addAll(parentStatements);
+			result.addAll(parent.getInitializationCode());
 		}
-		result.addAll(staticFields);
-		result.addAll(staticCode);
-		result.addAll(allStatementsFrom(beforeClassMethods));
+		// initialization
 		result.addAll(fields);
+		// constructor
+		List<StatementInterface> constructor = Collections.emptyList();
 		if (constructors.size() > 1) {
+			// TODO Find no-args constructor
 			throw new RuntimeException("Found " + constructors.size()
 					+ " constructors, but can only use default constructor!");
+		} else if (constructors.size() == 1) {
+			constructor = methods.get(constructors.get(0));
 		}
-		result.addAll(allStatementsFrom(constructors));
-		result.addAll(allStatementsFrom(beforeMethods));
+		result.addAll(constructor);
+		return result;
+	}
+
+	private List<StatementInterface> getStaticInitializationBeforeClassMethods(Set<String> overridenMethods) {
+		List<StatementInterface> result = new ArrayList<StatementInterface>();
+		if (parent != null) {
+			// @BeforeClass IF NOT OVERRIDEN
+			// According to Kent Beck, there is no defined order
+			// in which methods of the same leve within one class are called:
+			// http://tech.groups.yahoo.com/group/junit/message/20758
+			result.addAll(parent.getStaticInitializationBeforeClassMethods(methods.keySet()));
+		}
+		// this: static initialization
+		result.addAll(staticFields);
+		// static blocks
+		result.addAll(staticCode);
+		// @BeforeClass methods
+		for (String method : beforeClassMethods) {
+			if (!overridenMethods.contains(method)) {
+				result.addAll(methods.get(method));
+			}
+		}
 		return result;
 	}
 }
