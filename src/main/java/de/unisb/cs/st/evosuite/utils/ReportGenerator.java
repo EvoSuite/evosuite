@@ -808,6 +808,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	public void writeCSV() {
+		if (statistics.isEmpty())
+			return;
+
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		logger.info("Writing CSV!");
 		try {
@@ -862,6 +865,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 */
 	public void writeReport() {
 		if (!do_html)
+			return;
+
+		if (statistics.isEmpty())
 			return;
 
 		new File(REPORT_DIR.getAbsolutePath() + "/html/").mkdirs();
