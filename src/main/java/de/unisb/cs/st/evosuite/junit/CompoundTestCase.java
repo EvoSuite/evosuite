@@ -131,6 +131,17 @@ public class CompoundTestCase {
 		return currentScope;
 	}
 
+	public List<StatementInterface> getMethod(String name) {
+		List<StatementInterface> result = methods.get(name);
+		if (result != null) {
+			return result;
+		}
+		if (parent != null) {
+			return parent.getMethod(name);
+		}
+		throw new RuntimeException("Method " + name + " not found!");
+	}
+
 	public CompoundTestCase getParent() {
 		return parent;
 	}

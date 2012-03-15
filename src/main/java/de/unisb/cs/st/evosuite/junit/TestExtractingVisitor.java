@@ -42,6 +42,7 @@ import org.eclipse.jdt.core.dom.QualifiedName;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
@@ -68,6 +69,7 @@ import de.unisb.cs.st.evosuite.testcase.PrimitiveExpression;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveExpression.Operator;
 import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.ShortPrimitiveStatement;
+import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.StringPrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
@@ -268,7 +270,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public void endVisit(MethodInvocation methodInvocation) {
-		// TODO Treat calls to super.method().
 		// TODO If in constructor, treat calls to this() and super().
 		List<?> paramTypes = Arrays.asList(methodInvocation.resolveMethodBinding().getParameterTypes());
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
@@ -290,6 +291,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			}
 		}
 		testCase.addStatement(methodStatement);
+	}
+
+	@Override
+	public void endVisit(SuperMethodInvocation superMethodInvocation) {
+		List<?> paramTypes = Arrays.asList(superMethodInvocation.resolveMethodBinding().getParameterTypes());
+		List<VariableReference> params = convertParams(superMethodInvocation.arguments(), paramTypes);
+		String name = superMethodInvocation.getName().getIdentifier();
+		List<StatementInterface> methodStatements = testCase.getParent().getMethod(name);
 	}
 
 	@Override

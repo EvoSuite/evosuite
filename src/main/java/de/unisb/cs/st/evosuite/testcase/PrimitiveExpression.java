@@ -108,6 +108,18 @@ public class PrimitiveExpression extends AbstractStatement {
 		return code;
 	}
 
+	public VariableReference getLeftOperand() {
+		return leftOperand;
+	}
+
+	public Operator getOperator() {
+		return operator;
+	}
+
+	public VariableReference getRightOperand() {
+		return rightOperand;
+	}
+
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		throw new UnsupportedOperationException("Method getUniqueVariableReferences not implemented!");

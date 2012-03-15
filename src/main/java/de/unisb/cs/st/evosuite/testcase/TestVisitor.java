@@ -24,5 +24,7 @@ public interface TestVisitor {
 	public void visitAssignmentStatement(AssignmentStatement statement);
 
 	public void visitNullStatement(NullStatement statement);
+	
+	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression);
 
 }
