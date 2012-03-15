@@ -347,17 +347,23 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					continue;
 
 				String methodName = "";
+				boolean sutException = false;
+
 				if (test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) test.getStatement(i);
 					Method method = ms.getMethod();
 					methodName = method.getName() + Type.getMethodDescriptor(method);
+					if (method.getDeclaringClass().equals(Properties.getTargetClass()))
+						sutException = true;
 				} else if (test.getStatement(i) instanceof ConstructorStatement) {
 					ConstructorStatement cs = (ConstructorStatement) test.getStatement(i);
 					Constructor<?> constructor = cs.getConstructor();
 					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
+					if (constructor.getDeclaringClass().equals(Properties.getTargetClass()))
+						sutException = true;
 				}
 				boolean notDeclared = !test.getStatement(i).getDeclaredExceptions().contains(t);
-				if (notDeclared) {
+				if (notDeclared && sutException) {
 					/*
 					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
 					 * input for pre-condition) or implicit ("likely" a real fault).
