@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite;
 
 import java.io.File;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -226,6 +227,12 @@ public class TestSuiteGenerator {
 		List<TestCase> tests;
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
+
+		if (TestCluster.getInstance().getTestCalls().isEmpty()) {
+			System.out.println("* Found no testable methods in the target class "
+			        + Properties.TARGET_CLASS);
+			return new ArrayList<TestCase>();
+		}
 
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
