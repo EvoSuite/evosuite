@@ -311,4 +311,11 @@ public class ValueMinimizer implements TestVisitor {
 
 	}
 
+	@Override
+	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression) {
+		// TODO-JRO Implement method visitPrimitiveExpression
+		logger.warn("Method visitPrimitiveExpression not implemented!");
+		
+	}
+
 }

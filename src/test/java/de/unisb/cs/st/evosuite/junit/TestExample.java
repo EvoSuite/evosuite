@@ -41,13 +41,13 @@ public class TestExample extends ParentTestExample {
 	}
 
 	@BeforeClass
-	public static void initializeOtherValue() {
-		otherValue = -5;
-	}
-	
-	@BeforeClass
 	public static void initializeAgain() {
 		value = 42;
+	}
+
+	@BeforeClass
+	public static void initializeOtherValue() {
+		otherValue = -5;
 	}
 
 	public TestExample() {
@@ -58,7 +58,7 @@ public class TestExample extends ParentTestExample {
 	public void goForIt() {
 		needed = "convert";
 	}
-	
+
 	@Override
 	@Before
 	public void setupNeeded() {
@@ -69,8 +69,7 @@ public class TestExample extends ParentTestExample {
 	// @Ignore
 	@Test
 	public void test01() {
-		super.setupNeeded();
 		MockingBird bird = new MockingBird(needed);
-		bird.executeCmd(4);// value - otherValue);
+		bird.executeCmd(value - otherValue);
 	}
 }
