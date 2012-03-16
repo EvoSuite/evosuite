@@ -58,7 +58,7 @@ public class JUnitTestReader implements TestReader {
 	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
 		String clazz = qualifiedTestMethod.substring(0, qualifiedTestMethod.indexOf("#"));
 		String method = qualifiedTestMethod.substring(qualifiedTestMethod.indexOf("#") + 1);
-		CompoundTestCase testCase = new CompoundTestCase(method);
+		CompoundTestCase testCase = new CompoundTestCase(clazz, method);
 		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, method, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
@@ -69,7 +69,7 @@ public class JUnitTestReader implements TestReader {
 
 	@Override
 	public CompoundTestCase readTestCase(String clazz, CompoundTestCase child) {
-		CompoundTestCase testCase = new CompoundTestCase(child);
+		CompoundTestCase testCase = new CompoundTestCase(clazz, child);
 		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, null, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);

@@ -123,8 +123,8 @@ public class TestParser {
 	private final Map<String, Type> fieldTypeTable = new HashMap<String, Type>();
 
 	private final Map<String, Expression> fieldInitTable = new HashMap<String, Expression>();
-
-	private final TestCluster testCluster = TestCluster.getInstance();
+	
+	private final List<String> unresolvedImports = new ArrayList<String>();
 
 	public TestParser(UserFeedback editor) {
 		this.editor = editor;
@@ -178,10 +178,9 @@ public class TestParser {
 			parseSetUpMethods(cu);
 			tests.addAll(getAllTests(cu));
 		} catch (ParseException e) {
-			logger.debug("Error parsing file " + fileName + ": " + e);
+			logger.warn("Error parsing file {}: ", fileName, e);
 		} catch (Throwable e) {
-			logger.debug("*** Error parsing file " + fileName + ": " + e);
-			e.printStackTrace();
+			logger.warn("Error parsing file {}: ", fileName, e);
 		} finally {
 			inputStream.close();
 		}
@@ -250,7 +249,7 @@ public class TestParser {
 									+ test.toCode());
 						}
 					} catch (ParseException e) {
-						logger.debug("*** Error parsing test "
+						logger.error("*** Error parsing test "
 								+ method.getName() + ": " + e);
 
 					}
@@ -266,9 +265,10 @@ public class TestParser {
 	 * 
 	 * @param cu
 	 */
-	private void parseImports(CompilationUnit cu) {
+	private List<String> parseImports(CompilationUnit cu) {
+		// TODO Simplify method
 		if (cu.getImports() == null)
-			return;
+			return unresolvedImports;
 
 		List<String> imports = new ArrayList<String>();
 		for (ImportDeclaration imp : cu.getImports()) {
@@ -280,6 +280,7 @@ public class TestParser {
 				for (String resource : ResourceList.getBootResources(pattern)) {
 					imports.add(resource.replace(".class", "")
 							.replace("/", "."));
+					unresolvedImports.add(className);
 				}
 			} else {
 				imports.add(className);
@@ -292,13 +293,14 @@ public class TestParser {
 				getClass(imp);
 			} catch (ClassNotFoundException e1) {
 				try {
-					testCluster.importClass(imp);
+					getClass(imp);
 				} catch (Throwable t) {
+					unresolvedImports.add(imp);
 					logger.debug("Failed to import " + imp);
 				}
 			}
 		}
-
+		return unresolvedImports;
 	}
 
 	/**
@@ -1540,7 +1542,7 @@ public class TestParser {
 			throw new ParseException(null, "String is not a classname: "
 					+ parsType.toString());
 		try {
-			return TestCluster.getInstance().getClass(parsType.toString());
+			return getClass(parsType.toString());
 		} catch (ClassNotFoundException e1) {
 			logger.debug("Class not found: " + e1);
 			try {
@@ -1552,18 +1554,33 @@ public class TestParser {
 					logger.debug("Importing class " + parsType);
 					// If we get to here, we can only guess.
 					try {
-						return testCluster.importClass(Properties.CLASS_PREFIX
+						return getClass(Properties.CLASS_PREFIX
 								+ "." + parsType.toString());
 					} catch (ClassNotFoundException e) {
 						// It might also be in java.lang
-						return testCluster.importClass("java.lang."
+						return getClass("java.lang."
 								+ parsType.toString());
 					}
 				}
-					String className = editor
-					.chooseTargetFile(parsType.toString()).getName();
+				for (String importType : unresolvedImports) {
+					if (importType.endsWith("*")) {
+						try {
+							getClass(importType.replace(".*", ".") + parsType.toString());
+						} catch (ClassNotFoundException exc) {
+							// muted
+						}
+					}
+					if (importType.endsWith(parsType.toString())){
+						String className = editor.chooseTargetFile(importType).getName();
+						// TODO This cannot work
+						if (className != null) {
+							return getClass(className);
+						}
+					}
+				}
+				String className = editor.chooseTargetFile(parsType.toString()).getName();
 				if (className != null) {
-					return testCluster.importClass(className);
+					return getClass(className);
 				} else {
 					throw new ParseException(null,
 							"Can not load class for ClassOrInterfaceType: "
@@ -1578,15 +1595,8 @@ public class TestParser {
 
 	}
 
-	public Class<?> getClass(String name) throws ClassNotFoundException {
-
-		// First try to find exact match
-		for (Class<?> clazz : testCluster.getAnalyzedClasses()) {
-			if (clazz.getName().equals(name))
-				return clazz;
-		}
-
-		throw new ClassNotFoundException(name);
+	public Class<?> getClass(String className) throws ClassNotFoundException {
+		return TestCluster.classLoader.loadClass(className);
 	}
 
 }
