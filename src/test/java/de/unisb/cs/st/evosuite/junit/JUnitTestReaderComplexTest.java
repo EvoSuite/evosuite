@@ -11,7 +11,7 @@ public class JUnitTestReaderComplexTest {
 	private static final String SRCDIR = "src/test/java/";
 
 	@Test
-	public void testReadComplexJUnitTestCase01() {
+	public void testReadParentTestExample() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
 		TestCase testCase = reader.readJUnitTestCase(ParentTestExample.class.getName() + "#test01");
@@ -31,10 +31,35 @@ public class JUnitTestReaderComplexTest {
 	}
 
 	@Test
-	public void testReadComplexJUnitTestCase02() {
+	public void testReadTestExample() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
 		TestCase testCase = reader.readJUnitTestCase(TestExample.class.getName() + "#test01");
+		testCase.clone();
+		String code = testCase.toCode();
+		String result = "int int0 = 0;\n" + //
+				"int int1 = 5;\n" + //
+				"int int2 = 7;\n" + //
+				"int int3 = 10;\n" + //
+				"int int4 = 4;\n" + //
+				"int int5 = 42;\n" + //
+				"int int6 = -5;\n" + //
+				"String string0 = null;\n" + //
+				"String string1 = \"break free!\";\n" + //
+				"int int7 = 38;\n" + //
+				"int int8 = 3;\n" + //
+				"String string2 = \"convert\";\n" + //
+				"String string3 = \"killSelf\";\n" + //
+				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string3);\n" + //
+				"testExample_MockingBird0.executeCmd(int7);\n";
+		Assert.assertEquals(result, code);
+	}
+	
+	@Test
+	public void testReadInheritanceExample() {
+		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
+		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
+		TestCase testCase = reader.readJUnitTestCase(InheritanceExample.class.getName() + "#testInheritance");
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "int int0 = 0;\n" + //

@@ -72,4 +72,12 @@ public class TestExample extends ParentTestExample {
 		MockingBird bird = new MockingBird(needed);
 		bird.executeCmd(otherValue);
 	}
+	
+	protected static int doCalc(int x, int y){
+		return x + 5;
+	}
+	
+	protected int doOtherCalc(int x){
+		return doCalc(x, 5);
+	}
 }

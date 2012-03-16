@@ -27,13 +27,42 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * 
  */
 public class CompoundTestCase {
+	public static class Method {
+		private final String name;
+		private final List<VariableReference> params = new ArrayList<VariableReference>();
+		private final List<StatementInterface> code = new ArrayList<StatementInterface>();
+
+		public Method(String name) {
+			super();
+			this.name = name;
+		}
+
+		public void add(StatementInterface statement) {
+			code.add(statement);
+		}
+
+		public List<StatementInterface> getCode() {
+			return code;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public List<VariableReference> getParams() {
+			return params;
+		}
+	}
+
 	public static enum TestScope {
 		BEFORE_CLASS, STATIC, STATICFIELDS, BEFORE, FIELDS, CONSTRUCTOR, AFTER, AFTER_CLASS, METHOD;
 	}
 
+	public static final String STATIC_BLOCK_METHODNAME = "<static block>";
+
 	private static final long serialVersionUID = 1L;
 
-	private final Map<String, List<StatementInterface>> methods = new LinkedHashMap<String, List<StatementInterface>>();
+	private final Map<String, Method> methods = new LinkedHashMap<String, Method>();
 	private final Map<String, VariableReference> currentMethodVars = new HashMap<String, VariableReference>();
 	private final Map<String, VariableReference> fieldVars = new HashMap<String, VariableReference>();
 	private final List<String> constructors = new ArrayList<String>();
@@ -44,23 +73,29 @@ public class CompoundTestCase {
 	private final List<StatementInterface> staticFields = new ArrayList<StatementInterface>();
 	private final List<StatementInterface> fields = new ArrayList<StatementInterface>();
 	private final List<StatementInterface> staticCode = new ArrayList<StatementInterface>();
+	private final String className;
 	private final String testMethod;
 	private CompoundTestCase parent;
 	private TestScope currentScope = TestScope.FIELDS;
-	private List<StatementInterface> currentMethod = new ArrayList<StatementInterface>();
-	private String currentMethodName = null;
+	private Method currentMethod = null;
 
 	private final DelegatingTestCase delegate;
 
-	public CompoundTestCase(CompoundTestCase child) {
+	public CompoundTestCase(String className, CompoundTestCase child) {
 		child.parent = this;
 		delegate = child.getReference();
 		this.testMethod = null;
+		this.className = className;
 	}
 
-	public CompoundTestCase(String methodName) {
+	public CompoundTestCase(String className, String methodName) {
 		this.testMethod = methodName;
+		this.className = className;
 		delegate = new DelegatingTestCase();
+	}
+
+	public void addParameter(VariableReference varRef) {
+		currentMethod.getParams().add(varRef);
 	}
 
 	public void addStatement(StatementInterface statement) {
@@ -87,9 +122,22 @@ public class CompoundTestCase {
 		currentMethodVars.put(varBinding.toString(), varRef);
 	}
 
+	public void convertMethod(List<StatementInterface> methodStatements, List<VariableReference> params) {
+		// TODO-JRO Implement method convertMethod
+		for (StatementInterface statementInterface : methodStatements) {
+			System.out.println(statementInterface);
+
+		}
+		// for each methodstatement: if it contains a variablereference to a
+		// param, replace
+		// for each methodstatement: if it affects an external
+		// variablereference, replace in all followups
+	}
+
 	public void finalizeMethod() {
+		String currentMethodName = currentMethod.getName();
 		methods.put(currentMethodName, currentMethod);
-		currentMethod = new ArrayList<StatementInterface>();
+		currentMethod = null;
 		currentMethodVars.clear();
 		switch (currentScope) {
 		case AFTER:
@@ -113,8 +161,10 @@ public class CompoundTestCase {
 	}
 
 	public TestCase finalizeTestCase() {
-		// TODO General problem: If methods change vars, this needs to be reflected in followup code
-		// e.g. value = 34 => int3 = 34; means that all other methods now need to use int3 instead of int2. 
+		// TODO General problem: If methods change vars, this needs to be
+		// reflected in followup code
+		// e.g. value = 34 => int3 = 34; means that all other methods now need
+		// to use int3 instead of int2.
 		Set<String> overridenMethods = Collections.emptySet();
 		delegate.setDelegate(new DefaultTestCase());
 		delegate.addStatements(getStaticInitializationBeforeClassMethods(overridenMethods));
@@ -123,7 +173,7 @@ public class CompoundTestCase {
 		if (testMethod == null) {
 			throw new RuntimeException("Test did not contain any statements!");
 		}
-		delegate.addStatements(methods.get(testMethod));
+		delegate.addStatements(methods.get(testMethod).getCode());
 		delegate.addStatements(getAfterMethods(overridenMethods));
 		delegate.addStatements(getAfterClassMethods(overridenMethods));
 		return delegate;
@@ -134,9 +184,9 @@ public class CompoundTestCase {
 	}
 
 	public List<StatementInterface> getMethod(String name) {
-		List<StatementInterface> result = methods.get(name);
+		Method result = methods.get(name);
 		if (result != null) {
-			return result;
+			return result.getCode();
 		}
 		if (parent != null) {
 			return parent.getMethod(name);
@@ -167,11 +217,21 @@ public class CompoundTestCase {
 		return null;
 	}
 
+	public boolean isDescendantOf(Class<?> declaringClass) {
+		if (parent == null) {
+			return false;
+		}
+		if (parent.className.equals(declaringClass.getName())) {
+			return true;
+		}
+		return parent.isDescendantOf(declaringClass);
+	}
+
 	public void newMethod(String methodName) {
-		assert currentMethod.isEmpty();
+		assert (currentMethod == null) || currentMethod.getCode().isEmpty();
 		assert currentMethodVars.isEmpty();
-		currentMethodName = methodName;
 		currentScope = TestScope.METHOD;
+		currentMethod = new Method(methodName);
 	}
 
 	public void setCurrentScope(TestScope scope) {
@@ -206,7 +266,7 @@ public class CompoundTestCase {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		for (String method : afterClassMethods) {
 			if (!overridenMethods.contains(method)) {
-				result.addAll(methods.get(method));
+				result.addAll(methods.get(method).getCode());
 			}
 		}
 		if (parent != null) {
@@ -224,7 +284,7 @@ public class CompoundTestCase {
 		// @After
 		for (String method : afterMethods) {
 			if (!overridenMethods.contains(method)) {
-				result.addAll(methods.get(method));
+				result.addAll(methods.get(method).getCode());
 			}
 		}
 		if (parent != null) {
@@ -245,7 +305,7 @@ public class CompoundTestCase {
 		// http://tech.groups.yahoo.com/group/junit/message/20758
 		for (String method : beforeMethods) {
 			if (!overridenMethods.contains(method)) {
-				result.addAll(methods.get(method));
+				result.addAll(methods.get(method).getCode());
 			}
 		}
 		return result;
@@ -265,7 +325,7 @@ public class CompoundTestCase {
 			throw new RuntimeException("Found " + constructors.size()
 					+ " constructors, but can only use default constructor!");
 		} else if (constructors.size() == 1) {
-			constructor = methods.get(constructors.get(0));
+			constructor = methods.get(constructors.get(0)).getCode();
 		}
 		result.addAll(constructor);
 		return result;
@@ -287,7 +347,7 @@ public class CompoundTestCase {
 		// @BeforeClass methods
 		for (String method : beforeClassMethods) {
 			if (!overridenMethods.contains(method)) {
-				result.addAll(methods.get(method));
+				result.addAll(methods.get(method).getCode());
 			}
 		}
 		return result;
