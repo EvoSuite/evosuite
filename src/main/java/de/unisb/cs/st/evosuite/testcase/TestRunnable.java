@@ -36,8 +36,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-	        : new PrintStream(byteStream));
+	//private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	  //      : new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -80,7 +80,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 					logger.debug("Executing statement " + s.getCode());
 				ExecutionTracer.statementExecuted();
 
-				out.flush();
+				PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+				        : new PrintStream(byteStream));
+				//out.flush();
 				byteStream.reset();
 
 				Sandbox.setUpMockedSecurityManager();
