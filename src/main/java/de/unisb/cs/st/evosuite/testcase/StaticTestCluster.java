@@ -740,7 +740,14 @@ public class StaticTestCluster extends TestCluster {
 			// return false;//handled here to avoid printing reasons
 		}
 
+		/*
 		if (m.getDeclaringClass().equals(java.lang.Enum.class)) {
+			return false;
+		}
+		*/
+		if (m.getDeclaringClass().isEnum()
+		        && (m.getName().equals("valueOf") || m.getName().equals("values"))) {
+			logger.debug("Excluding valueOf for Enum " + m.toString());
 			return false;
 		}
 
