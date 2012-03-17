@@ -58,28 +58,29 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private void joinClientThreads() {
 		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
+
 		for (Thread t : threadMap.keySet()) {
-			if (t.getThreadGroup().getName().equals("Test Execution")) {
-				boolean hasEvoSuite = false;
-				logger.info("Thread " + t);
-				for (StackTraceElement elem : threadMap.get(t)) {
-					logger.info(" -> " + elem);
-					if (elem.getClassName().contains("evosuite"))
-						hasEvoSuite = true;
-				}
-				if (!hasEvoSuite) {
-					logger.info("This looks like the new thread");
-					try {
-						t.join();
-					} catch (Exception e) {
-
+			if (t.isAlive())
+				if ("Test Execution".equals(t.getThreadGroup().getName())) {
+					boolean hasEvoSuite = false;
+					for (StackTraceElement elem : threadMap.get(t)) {
+						if (elem.getClassName().contains("evosuite"))
+							hasEvoSuite = true;
 					}
-					if (t.isAlive()) {
-						logger.info("Thread is still alive");
+					if (!hasEvoSuite) {
+
+						logger.info("Thread " + t);
+						logger.info("This looks like the new thread");
+						try {
+							t.join();
+						} catch (Exception e) {
+							// What can we do?
+						}
+						if (t.isAlive()) {
+							logger.info("Thread is still alive");
+						}
 					}
 				}
-			}
-
 		}
 	}
 
@@ -132,7 +133,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 						if (!Properties.PRINT_TO_SYSTEM)
 							System.setOut(out);
 					}
-					joinClientThreads();
+					try {
+						joinClientThreads();
+					} catch (Throwable t) {
+						System.setOut(old_out);
+						System.setErr(old_err);
+						logger.debug("Error while tyring to join thread: {}", t);
+					}
 				}
 				if (!Properties.PRINT_TO_SYSTEM) {
 					System.setOut(old_out);
