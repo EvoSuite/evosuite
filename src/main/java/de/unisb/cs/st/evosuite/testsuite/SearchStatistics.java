@@ -345,6 +345,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				Throwable t = exceptions.get(i);
 				if (t instanceof SecurityException && Properties.SANDBOX)
 					continue;
+				if (i >= test.size()) {
+					// Timeouts are put after the last statement if the process was forcefully killed
+					continue;
+				}
 
 				String methodName = "";
 				boolean sutException = false;
