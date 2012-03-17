@@ -3,7 +3,7 @@ package com.examples.with.different.packagename;
 public class PrintingThatShouldBeMuted{
 
 	public void doPrint() { //throws RuntimeException{
-		System.err.println("This should not be printed. Note: stderr just to make JUnit easier");
+		System.err.println("This should not be printed.");
 		
 		Thread t  = new Thread(){
 			@Override
