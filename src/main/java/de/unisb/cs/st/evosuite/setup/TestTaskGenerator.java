@@ -249,16 +249,18 @@ public class TestTaskGenerator {
 	 *         rights
 	 */
 	public static boolean canUse(Class<?> c) {
-		if (Throwable.class.isAssignableFrom(c))
+		if (Throwable.class.isAssignableFrom(c)) {
+			logger.info(c + " is a throwable, ignoring it");
 			return false;
-		if (Modifier.isPrivate(c.getModifiers()))
+		}
+		if (Modifier.isPrivate(c.getModifiers())) {
+			logger.info(c + " is a private class ignoring it");
 			return false;
+		}
 		if (c.getName().matches(".*\\$\\d+$")) {
 			logger.info(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
-		if (c.isEnum())
-			return false;
 
 		return true;
 	}
