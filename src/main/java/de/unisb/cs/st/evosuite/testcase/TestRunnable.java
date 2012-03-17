@@ -37,7 +37,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
 	//private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-	  //      : new PrintStream(byteStream));
+	//      : new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -49,11 +49,38 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param scope
 	 * @param observers
 	 */
-	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers){
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
+	}
+
+	private void joinClientThreads() {
+		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
+		for (Thread t : threadMap.keySet()) {
+			if (t.getThreadGroup().getName().equals("Test Execution")) {
+				boolean hasEvoSuite = false;
+				logger.info("Thread " + t);
+				for (StackTraceElement elem : threadMap.get(t)) {
+					logger.info(" -> " + elem);
+					if (elem.getClassName().contains("evosuite"))
+						hasEvoSuite = true;
+				}
+				if (!hasEvoSuite) {
+					logger.info("This looks like the new thread");
+					try {
+						t.join();
+					} catch (Exception e) {
+
+					}
+					if (t.isAlive()) {
+						logger.info("Thread is still alive");
+					}
+				}
+			}
+
+		}
 	}
 
 	/* (non-Javadoc)
@@ -85,9 +112,32 @@ public class TestRunnable implements InterfaceTestRunnable {
 				//out.flush();
 				byteStream.reset();
 
+				int numThreads = Thread.activeCount();
+				PrintStream old_out = System.out;
+				PrintStream old_err = System.err;
+				if (!Properties.PRINT_TO_SYSTEM) {
+					System.setOut(out);
+					System.setErr(out);
+				}
+
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
 				Sandbox.tearDownMockedSecurityManager();
+
+				if (Thread.activeCount() > numThreads) {
+					if (logger.isInfoEnabled()) {
+						if (!Properties.PRINT_TO_SYSTEM)
+							System.setOut(old_out);
+						logger.info("New threads were spawned, trying to join");
+						if (!Properties.PRINT_TO_SYSTEM)
+							System.setOut(out);
+					}
+					joinClientThreads();
+				}
+				if (!Properties.PRINT_TO_SYSTEM) {
+					System.setOut(old_out);
+					System.setErr(old_err);
+				}
 
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
@@ -142,10 +192,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} catch (TimeoutException e) {
 			Sandbox.tearDownEverything();
 			logger.info("Test timed out!");
+		} catch (TestCaseExecutor.TimeoutExceeded e) {
+			Sandbox.tearDownEverything();
+			logger.info("Test timed out!");
 		} catch (Throwable e) {
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
-			logger.info(test.toCode());
+			//logger.info(test.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
 				logger.info(e.getCause().toString(), e);
@@ -162,7 +215,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			// exceptionThrown = e;
-			logger.info("Error while executing statement " + test.toCode(), e);
+			//logger.info("Error while executing statement " + test.toCode(), e);
 			// System.exit(1);
 
 		} // finally {
