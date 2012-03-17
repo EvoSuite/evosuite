@@ -43,7 +43,6 @@ public class GenericClass implements Serializable {
 
 	private static final long serialVersionUID = -3307107227790458308L;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(GenericClass.class);
 
 	public boolean isAssignableTo(Type lhsType) {
