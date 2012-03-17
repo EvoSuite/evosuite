@@ -245,10 +245,14 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * @return A set with all unique methodNames of methods.
 	 */
 	public static Set<String> getMethods(String className) {
-		if (!methods.containsKey(className))
-			return new HashSet<String>();
+		Set<String> targetMethods = new HashSet<String>();
+		for (String currentClass : methods.keySet()) {
+			if (currentClass.equals(className)
+			        || currentClass.startsWith(className + "$"))
+				targetMethods.addAll(methods.get(currentClass));
+		}
 
-		return methods.get(className);
+		return targetMethods;
 	}
 
 	/**
