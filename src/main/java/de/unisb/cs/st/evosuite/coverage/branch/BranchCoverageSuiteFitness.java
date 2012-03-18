@@ -159,14 +159,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<Integer, Integer> predicate_count = new HashMap<Integer, Integer>();
 		Map<String, Integer> call_count = new HashMap<String, Integer>();
 		Set<Integer> covered_lines = new HashSet<Integer>();
+		boolean hasTimeout = false;
 
 		for (ExecutionResult result : results) {
 			if (hasTimeout(result)) {
-				updateIndividual(individual, total_branches * 2 + total_methods);
-				suite.setCoverage(0.0);
-				logger.info("Test case has timed out, setting fitness to max value "
-				        + (total_branches * 2 + total_methods));
-				return total_branches * 2 + total_methods;
+				hasTimeout = true;
 			}
 
 			for (Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
@@ -336,7 +333,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.debug(method);
 		}
 		*/
-		updateIndividual(individual, fitness);
 
 		long end = System.currentTimeMillis();
 		if (end - start > 1000) {
@@ -368,6 +364,15 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			logger.warn("Covered branches: " + num_covered);
 
 		}
+		if (hasTimeout) {
+			logger.info("Test suite has timed out, setting fitness to max value "
+			        + (total_branches * 2 + total_methods));
+			fitness = total_branches * 2 + total_methods;
+			//suite.setCoverage(0.0);
+		}
+
+		updateIndividual(individual, fitness);
+
 		assert (suite.getCoverage() <= 1.0);
 		assert (suite.getCoverage() >= 0.0);
 		//if (!check)
