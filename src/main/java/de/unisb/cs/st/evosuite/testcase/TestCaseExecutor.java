@@ -49,6 +49,11 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestCaseExecutor implements ThreadFactory {
 
+	/**
+	 *  Used to identify the threads spawn by the SUT
+	 */
+	public static final String TEST_EXECUTION_THREAD_GROUP = "Test Execution";
+	
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
@@ -368,7 +373,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (threadGroup != null) {
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 		}
-		threadGroup = new ThreadGroup("Test Execution");
+		threadGroup = new ThreadGroup(TEST_EXECUTION_THREAD_GROUP);
 		currentThread = new Thread(threadGroup, r);
 		currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);

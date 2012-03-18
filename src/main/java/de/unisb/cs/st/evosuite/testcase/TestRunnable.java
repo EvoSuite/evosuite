@@ -61,7 +61,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		for (Thread t : threadMap.keySet()) {
 			if (t.isAlive())
-				if ("Test Execution".equals(t.getThreadGroup().getName())) {
+				if (TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP.equals(t.getThreadGroup().getName())) {
 					boolean hasEvoSuite = false;
 					for (StackTraceElement elem : threadMap.get(t)) {
 						if (elem.getClassName().contains("evosuite"))
@@ -72,8 +72,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 						logger.info("Thread " + t);
 						logger.info("This looks like the new thread");
 						try {
-							t.join();
-						} catch (Exception e) {
+							t.join(1000);
+						} catch (InterruptedException e) {
 							// What can we do?
 						}
 						if (t.isAlive()) {
