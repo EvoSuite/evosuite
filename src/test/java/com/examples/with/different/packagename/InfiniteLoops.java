@@ -19,11 +19,9 @@ public class InfiniteLoops {
 			}
 		};
 		t.start();
-		// with following line, no problem in muting the output
-		//t.join(1000);
 	}
 
-	/*
+	
 	public void ignoreIterrupt(){
 		Thread t = new Thread(){
 			@Override
@@ -58,5 +56,5 @@ public class InfiniteLoops {
 		};
 		t.start();
 	}
-	*/
+	
 }
