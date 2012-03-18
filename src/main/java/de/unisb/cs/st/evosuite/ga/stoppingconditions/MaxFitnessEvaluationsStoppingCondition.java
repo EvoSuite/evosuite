@@ -35,7 +35,7 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	private static final long serialVersionUID = 208241490252275613L;
 
 	/** Maximum number of evaluations */
-	protected long max_evaluations = Properties.GENERATIONS;
+	protected long max_evaluations = Properties.SEARCH_BUDGET;
 
 	/** Maximum number of iterations */
 	protected static long current_evaluation = 0;
