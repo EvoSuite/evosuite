@@ -72,7 +72,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 						logger.info("Thread " + t);
 						logger.info("This looks like the new thread");
 						try {
-							t.join(1000);
+							t.join(Properties.TIMEOUT);
 						} catch (InterruptedException e) {
 							// What can we do?
 						}
@@ -84,6 +84,16 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 	}
 
+	private void checkClientThreads(int numThreads) {
+		if (Thread.activeCount() > numThreads) {
+			try {
+				joinClientThreads();
+			} catch (Throwable t) {
+				logger.debug("Error while tyring to join thread: {}", t);
+			}
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
@@ -92,11 +102,23 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
+		Sandbox.setUpMocks();
+		int numThreads = Thread.activeCount();
+		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
+		        byteStream));
+		//out.flush();
+		byteStream.reset();
+
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		if (!Properties.PRINT_TO_SYSTEM) {
+			System.setOut(out);
+			System.setErr(out);
+		}
 
 		int num = 0;
 		try {
 
-			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (StatementInterface s : test) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
@@ -108,43 +130,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 					logger.debug("Executing statement " + s.getCode());
 				ExecutionTracer.statementExecuted();
 
-				PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-				        : new PrintStream(byteStream));
-				//out.flush();
-				byteStream.reset();
-
-				int numThreads = Thread.activeCount();
-				PrintStream old_out = System.out;
-				PrintStream old_err = System.err;
-				if (!Properties.PRINT_TO_SYSTEM) {
-					System.setOut(out);
-					System.setErr(out);
-				}
-
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
 				Sandbox.tearDownMockedSecurityManager();
-
-				if (Thread.activeCount() > numThreads) {
-					if (logger.isInfoEnabled()) {
-						if (!Properties.PRINT_TO_SYSTEM)
-							System.setOut(old_out);
-						logger.info("New threads were spawned, trying to join");
-						if (!Properties.PRINT_TO_SYSTEM)
-							System.setOut(out);
-					}
-					try {
-						joinClientThreads();
-					} catch (Throwable t) {
-						System.setOut(old_out);
-						System.setErr(old_err);
-						logger.debug("Error while tyring to join thread: {}", t);
-					}
-				}
-				if (!Properties.PRINT_TO_SYSTEM) {
-					System.setOut(old_out);
-					System.setErr(old_err);
-				}
 
 				if (exceptionThrown != null) {
 					exceptionsThrown.put(num, exceptionThrown);
@@ -187,6 +175,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				ExecutionTracer.enable();
 				num++;
 			}
+			checkClientThreads(numThreads);
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 
 		} catch (ThreadDeath e) {// can't stop these guys
@@ -226,6 +215,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 			// System.exit(1);
 
 		} // finally {
+		finally {
+			if (!Properties.PRINT_TO_SYSTEM) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+			}
+		}
 		runFinished = true;
 		Sandbox.tearDownMocks();
 
