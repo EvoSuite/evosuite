@@ -32,7 +32,7 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	protected static long num_tests = 0;
 
 	/** Maximum number of evaluations */
-	protected long max_tests = Properties.GENERATIONS;
+	protected long max_tests = Properties.SEARCH_BUDGET;
 
 	public static long getNumExecutedTests() {
 		return num_tests;

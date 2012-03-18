@@ -658,7 +658,7 @@ public class TestSuiteGenerator {
 
 		int current_budget = 0;
 
-		long total_budget = Properties.GENERATIONS;
+		long total_budget = Properties.SEARCH_BUDGET;
 		System.out.println("* Budget: "
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
@@ -781,7 +781,7 @@ public class TestSuiteGenerator {
 		else
 			System.out.println("* Remaining budget: " + (total_budget - current_budget));
 
-		stopping_condition.setLimit(Properties.GENERATIONS);
+		stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 		stopping_condition.forceCurrentValue(current_budget);
 		suiteGA.setStoppingCondition(stopping_condition);
 		suiteGA.addStoppingCondition(global_time);
@@ -1193,10 +1193,10 @@ public class TestSuiteGenerator {
 			// criterion
 			// TODO also, question: is branchMap.size() really intended here?
 			// I think BranchPool.getBranchCount() was intended
-			Properties.GENERATIONS = Properties.GENERATIONS
+			Properties.SEARCH_BUDGET = Properties.SEARCH_BUDGET
 			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
-			stopping_condition.setLimit(Properties.GENERATIONS);
-			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
+			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
+			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {
