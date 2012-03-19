@@ -114,10 +114,10 @@ public class MethodStatement extends AbstractStatement {
 	        IllegalAccessException, InstantiationException {
 		logger.trace("Executing method " + method.getName());
 		final Object[] inputs = new Object[parameters.size()];
-		PrintStream old_out = System.out;
-		PrintStream old_err = System.err;
-		System.setOut(out);
-		System.setErr(out);
+		//PrintStream old_out = System.out;
+		//PrintStream old_err = System.err;
+		//System.setOut(out);
+		//System.setErr(out);
 
 		try {
 			return super.exceptionHandler(new Executer() {
@@ -165,13 +165,13 @@ public class MethodStatement extends AbstractStatement {
 
 		} catch (InvocationTargetException e) {
 			exceptionThrown = e.getCause();
-			System.setOut(old_out);
-			System.setErr(old_err);
+			//System.setOut(old_out);
+			//System.setErr(old_err);
 			logger.debug("Exception thrown in method {}: {}", method.getName(),
 			             exceptionThrown);
-		} finally {
-			System.setOut(old_out);
-			System.setErr(old_err);
+			//} finally {
+			//	System.setOut(old_out);
+			//	System.setErr(old_err);
 		}
 		return exceptionThrown;
 	}

@@ -177,6 +177,7 @@ public class TestSuiteMinimizer {
 			result = executor.execute(test);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
+			e.printStackTrace();
 			try {
 				Thread.sleep(1000);
 				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());

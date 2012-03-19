@@ -3,10 +3,13 @@
  */
 package de.unisb.cs.st.evosuite.javaagent;
 
+import java.util.List;
+
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
@@ -114,17 +117,37 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 			VarInsnNode varNode = (VarInsnNode) insn;
 			if (isStatic) {
 				if (varNode.var < types.length) {
-					if (types[varNode.var] == Type.BOOLEAN_TYPE)
+					if (types[varNode.var] == Type.BOOLEAN_TYPE) {
 						return BOOLEAN_VALUE;
+					}
 				}
 			} else {
 				if (varNode.var > 0 && varNode.var - 1 < types.length) {
-					if (types[varNode.var - 1] == Type.BOOLEAN_TYPE)
+					if (types[varNode.var - 1] == Type.BOOLEAN_TYPE) {
 						return BOOLEAN_VALUE;
+					}
 				}
 			}
 		}
 		return super.copyOperation(insn, value);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
+	 */
+	@Override
+	public BasicValue naryOperation(AbstractInsnNode insn, List values)
+	        throws AnalyzerException {
+		if (insn instanceof MethodInsnNode) {
+			MethodInsnNode mi = (MethodInsnNode) insn;
+			if (Type.getReturnType(BooleanTestabilityTransformation.getOriginalDesc(mi.owner,
+			                                                                        mi.name,
+			                                                                        mi.desc)) == Type.BOOLEAN_TYPE) {
+				return BOOLEAN_VALUE;
+			}
+
+		}
+		return super.naryOperation(insn, values);
 	}
 
 	/* (non-Javadoc)

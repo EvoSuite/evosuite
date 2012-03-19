@@ -34,9 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.contracts.ContractChecker;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestRunnable;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
@@ -51,6 +49,11 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
  */
 public class TestCaseExecutor implements ThreadFactory {
 
+	/**
+	 *  Used to identify the threads spawn by the SUT
+	 */
+	public static final String TEST_EXECUTION_THREAD_GROUP = "Test Execution";
+	
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
@@ -135,6 +138,19 @@ public class TestCaseExecutor implements ThreadFactory {
 			instance.executor.shutdownNow();
 	}
 
+	public static void initExecutor() {
+		if (instance != null) {
+			if (instance.executor == null) {
+				logger.warn("TestCaseExecutor instance is non-null, but its actual executor is null");
+				instance.executor = Executors.newSingleThreadExecutor(instance);
+			} else {
+				if (instance.executor.isShutdown()) {
+					instance.executor = Executors.newSingleThreadExecutor(instance);
+				}
+			}
+		}
+	}
+
 	public void addObserver(ExecutionObserver observer) {
 		if (!observers.contains(observer)) {
 			logger.debug("Adding observer " + observer);
@@ -188,12 +204,8 @@ public class TestCaseExecutor implements ThreadFactory {
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
-		InterfaceTestRunnable callable;
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			callable = new ConcurrentTestRunnable(tc, scope, observers);
-		} else {
-			callable = new TestRunnable(tc, scope, observers);
-		}
+		InterfaceTestRunnable callable = new TestRunnable(tc, scope, observers);
+
 		//FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
 		//executor.execute(task);
 
@@ -267,13 +279,13 @@ public class TestCaseExecutor implements ThreadFactory {
 				                          TimeUnit.MILLISECONDS);
 			} catch (InterruptedException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			} catch (ExecutionException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			} catch (TimeoutException e2) {
 				// TODO Auto-generated catch block
-				e2.printStackTrace();
+				//e2.printStackTrace();
 			}
 			//task.cancel(true);
 
@@ -361,7 +373,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		if (threadGroup != null) {
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 		}
-		threadGroup = new ThreadGroup("Test Execution");
+		threadGroup = new ThreadGroup(TEST_EXECUTION_THREAD_GROUP);
 		currentThread = new Thread(threadGroup, r);
 		currentThread.setContextClassLoader(TestCluster.classLoader);
 		ExecutionTracer.setThread(currentThread);

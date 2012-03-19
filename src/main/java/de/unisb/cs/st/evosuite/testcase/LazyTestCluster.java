@@ -125,6 +125,15 @@ public class LazyTestCluster extends TestCluster {
 		return calls;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#addTestCall(java.lang.reflect.AccessibleObject)
+	 */
+	@Override
+	public void addTestCall(AccessibleObject call) {
+		assert (call instanceof Method);
+		testMethods.add((Method) call);
+	}
+
 	/**
 	 * Create list of all methods using a certain type as parameter
 	 * 

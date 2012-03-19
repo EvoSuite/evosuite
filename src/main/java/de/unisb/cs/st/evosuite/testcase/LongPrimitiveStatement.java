@@ -72,8 +72,8 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	 */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= P_pool)
-			value = (long) (Randomness.nextInt(2 * MAX_INT) - MAX_INT);
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
+			value = (long) (Randomness.nextInt(2 * Properties.MAX_INT) - Properties.MAX_INT);
 		else
 			value = primitive_pool.getRandomLong();
 	}

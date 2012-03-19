@@ -19,6 +19,8 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
@@ -29,6 +31,8 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
  */
 public class EvoSuite {
 
+	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
+	
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
@@ -144,6 +148,8 @@ public class EvoSuite {
 	private static void listClasses() {
 		System.out.println("* The following classes are known: ");
 		File directory = new File(Properties.OUTPUT_DIR);
+		logger.debug("Going to scan output directory {}",Properties.OUTPUT_DIR);
+		
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
 			System.out.println("   " + file.getName().replace(".task", ""));
@@ -188,16 +194,88 @@ public class EvoSuite {
 
 		cmdLine.add("-Dclassloader=true");
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
-		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 
 		/*
 		 * TODO: here we start the client with several properties that are set through -D.
 		 * These properties are not visible to the master process (ie this process), when
 		 * we access the Properties file. 
-		 * At the moment, we only need TARGET_CLASS, so we can hack it. 
+		 * At the moment, we only need few parameters, so we can hack them
 		 */
-		Properties.getInstance();//should force the load
+		Properties.getInstance();//should force the load, just to be sure
 		Properties.TARGET_CLASS = target;
+		Properties.PROCESS_COMMUNICATION_PORT = port;
+
+		/*
+		 * The use of "assertions" in the client is pretty tricky, as those properties
+		 * need to be transformed into JVM options before starting the client.
+		 * Furthermore, the properties in the property file might be overwritten from the
+		 * commands coming from shell
+		 */
+		
+		String definedEAforClient = null;
+		String definedEAforSUT = null;
+		
+		final String DISABLE_ASSERTIONS_EVO = "-da:de.unisb.cs.st...";
+		final String ENABLE_ASSERTIONS_EVO = "-ea:de.unisb.cs.st...";
+		final String DISABLE_ASSERTIONS_SUT = "-da:"+Properties.PROJECT_PREFIX+"...";
+		final String ENABLE_ASSERTIONS_SUT = "-ea:"+Properties.PROJECT_PREFIX+"...";
+		
+		for(String s : cmdLine){
+			//first check client
+			if(s.startsWith("-Denable_asserts_for_evosuite")){
+				if(s.endsWith("false")){
+					definedEAforClient = DISABLE_ASSERTIONS_EVO;
+				} else if(s.endsWith("true")){
+					definedEAforClient = ENABLE_ASSERTIONS_EVO;
+				} 
+			}
+			//then check SUT
+			if(s.startsWith("-Denable_asserts_for_sut")){
+				if(s.endsWith("false")){
+					definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+				} else if(s.endsWith("true")){
+					definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+				} 
+			}
+		}
+
+		/*
+		 * the assertions might not be defined in the command line, but they might be in the property
+		 * file, or just use default values.
+		 * NOTE: if those are defined in the command line, then they overwrite whatever we had in the
+		 * conf file
+		 */
+		
+		if(definedEAforSUT == null){
+			if(Properties.ENABLE_ASSERTS_FOR_SUT){
+				definedEAforSUT = ENABLE_ASSERTIONS_SUT;
+			} else {
+				definedEAforSUT = DISABLE_ASSERTIONS_SUT;
+			}
+		}
+
+		if(definedEAforClient == null){
+			if(Properties.ENABLE_ASSERTS_FOR_EVOSUITE){
+				definedEAforClient = ENABLE_ASSERTIONS_EVO;
+			} else {
+				definedEAforClient = DISABLE_ASSERTIONS_EVO;
+			}
+		}
+
+		/*
+		 * We add them in first position, after the java command
+		 * To avoid confusion, we only add them if they are enabled.
+		 * NOTE: this might have side effects "if" in the future we have something like 
+		 * a generic "-ea"
+		 */
+		if(definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)){
+			cmdLine.add(1, definedEAforClient);
+		}
+		if(definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)){
+			cmdLine.add(1, definedEAforSUT);
+		}
+		
+		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 
 		for (String entry : Properties.CP.split(File.pathSeparator)) {
 			try {
@@ -210,12 +288,20 @@ public class EvoSuite {
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
 			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
-			        + Properties.MINIMIZATION_TIMEOUT + 120) * 1000); // FIXXME: search timeout plus 100 seconds?	
+			        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?	
 			handler.killProcess();
 			handler.closeServer();
 		} else {
 			System.out.println("* Could not connect to client process");
 		}
+		
+		if(Properties.CLIENT_ON_THREAD){
+			/*
+			 * FIXME: this is done only to avoid current problems with serialization
+			 */
+			result = ClientProcess.geneticAlgorithmStatus;
+		}
+		
 		return result;
 	}
 
@@ -276,6 +362,11 @@ public class EvoSuite {
 			CommandLine line = parser.parse(options, cargs);
 			//javaOpts.addAll(Arrays.asList(line.getArgs()));
 
+			/*
+			 * NOTE: JVM arguments will not be passed over from the master to the client.
+			 * So for -Xmx, we need to use "mem"
+			 */
+			
 			if (line.hasOption("mem"))
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
 			if (line.hasOption("criterion"))

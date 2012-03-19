@@ -149,12 +149,15 @@ class MSecurityManager extends SecurityManager {
 			//
 			// Oracle explains risks here
 			// http://download.oracle.com/javase/6/docs/technotes/guides/security/permissions.html
-			if (permName.equals("java.lang.RuntimePermission"))
+			if (permName.equals("java.lang.RuntimePermission")) {
 				if (perm.getName().equals("getClassLoader")
 				        || perm.getName().equals("createClassLoader")
 				        || perm.getName().contains("accessClassInPackage")
 				        || perm.getName().equals("setContextClassLoader"))
 					return true;
+				if (perm.getName().equals("accessDeclaredMembers"))
+					return true;
+			}
 
 			if (permName.equals("java.io.FilePermission")) {
 

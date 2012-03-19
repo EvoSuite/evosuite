@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.runtime.Runtime;
+import de.unisb.cs.st.evosuite.runtime.System.SystemExitException;
 import de.unisb.cs.st.evosuite.sandbox.EvosuiteFile;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 
@@ -36,38 +38,62 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-	        : new PrintStream(byteStream));
+	//private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	//      : new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
 	public Set<ExecutionObserver> observers;
-
-	private final boolean breakOnUndeclaredException;
-
-	private final boolean breakOnException = Properties.BREAK_ON_EXCEPTION;
-
-	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
-		this(tc, scope, observers, true);
-	}
 
 	/**
 	 * 
 	 * @param tc
 	 * @param scope
 	 * @param observers
-	 * @param breakOnUndeclaredException
-	 *            if this is true, the TestRunnable will exit if a statement
-	 *            returns an UndeclaredException. (Note that undeclaredException
-	 *            is defined by StatementInterface.isDeclaredException/1)
 	 */
-	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers,
-	        boolean breakOnUndeclaredException) {
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
 		runFinished = false;
-		this.breakOnUndeclaredException = breakOnUndeclaredException;
+	}
+
+	private void joinClientThreads() {
+		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
+
+		for (Thread t : threadMap.keySet()) {
+			if (t.isAlive())
+				if (TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP.equals(t.getThreadGroup().getName())) {
+					boolean hasEvoSuite = false;
+					for (StackTraceElement elem : threadMap.get(t)) {
+						if (elem.getClassName().contains("evosuite"))
+							hasEvoSuite = true;
+					}
+					if (!hasEvoSuite) {
+
+						logger.info("Thread " + t);
+						logger.info("This looks like the new thread");
+						try {
+							t.join(Properties.TIMEOUT);
+						} catch (InterruptedException e) {
+							// What can we do?
+						}
+						if (t.isAlive()) {
+							logger.info("Thread is still alive");
+						}
+					}
+				}
+		}
+	}
+
+	private void checkClientThreads(int numThreads) {
+		if (Thread.activeCount() > numThreads) {
+			try {
+				joinClientThreads();
+			} catch (Throwable t) {
+				logger.debug("Error while tyring to join thread: {}", t);
+			}
+		}
 	}
 
 	/* (non-Javadoc)
@@ -78,11 +104,24 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
+		Sandbox.setUpMocks();
+		Runtime.resetRuntime();
+		int numThreads = Thread.activeCount();
+		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
+		        byteStream));
+		//out.flush();
+		byteStream.reset();
+
+		PrintStream old_out = System.out;
+		PrintStream old_err = System.err;
+		if (!Properties.PRINT_TO_SYSTEM) {
+			System.setOut(out);
+			System.setErr(out);
+		}
 
 		int num = 0;
 		try {
 
-			Sandbox.setUpMocks();
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (StatementInterface s : test) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
@@ -94,25 +133,21 @@ public class TestRunnable implements InterfaceTestRunnable {
 					logger.debug("Executing statement " + s.getCode());
 				ExecutionTracer.statementExecuted();
 
-				out.flush();
-				byteStream.reset();
-
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
 				Sandbox.tearDownMockedSecurityManager();
 
 				if (exceptionThrown != null) {
+					if (exceptionThrown instanceof SystemExitException) {
+						// This exception is raised when the test tried to call System.exit
+						// We simply stop execution at this point
+						break;
+					}
+
 					exceptionsThrown.put(num, exceptionThrown);
 
 					if (exceptionThrown instanceof SecurityException) {
 						logger.debug("Security exception found: " + exceptionThrown);
-						break;
-					}
-
-					if (breakOnException) {
-						break;
-					}
-					if (Thread.interrupted()) {
 						break;
 					}
 
@@ -121,12 +156,17 @@ public class TestRunnable implements InterfaceTestRunnable {
 					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
 					 * This comment should explain, why that behavior is desirable 
 					 */
-					if (breakOnUndeclaredException) {
-						//					        && !s.isDeclaredException(exceptionThrown))
-						for (ExecutionObserver observer : observers) {
-							observer.statement(s, scope, exceptionThrown);
-						}
+					if (Properties.BREAK_ON_EXCEPTION) {
 						break;
+						//!s.isDeclaredException(exceptionThrown))
+					}
+
+					if (Thread.interrupted()) {
+						break;
+					}
+
+					for (ExecutionObserver observer : observers) {
+						observer.statement(s, scope, exceptionThrown);
 					}
 
 					// exception_statement = num; 
@@ -144,6 +184,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				ExecutionTracer.enable();
 				num++;
 			}
+			checkClientThreads(numThreads);
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 
 		} catch (ThreadDeath e) {// can't stop these guys
@@ -156,10 +197,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} catch (TimeoutException e) {
 			Sandbox.tearDownEverything();
 			logger.info("Test timed out!");
+		} catch (TestCaseExecutor.TimeoutExceeded e) {
+			Sandbox.tearDownEverything();
+			logger.info("Test timed out!");
 		} catch (Throwable e) {
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
-			logger.info(test.toCode());
+			//logger.info(test.toCode());
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
 				logger.info(e.getCause().toString(), e);
@@ -176,12 +220,19 @@ public class TestRunnable implements InterfaceTestRunnable {
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			// exceptionThrown = e;
-			logger.info("Error while executing statement " + test.toCode(), e);
+			//logger.info("Error while executing statement " + test.toCode(), e);
 			// System.exit(1);
 
 		} // finally {
+		finally {
+			if (!Properties.PRINT_TO_SYSTEM) {
+				System.setOut(old_out);
+				System.setErr(old_err);
+			}
+		}
 		runFinished = true;
 		Sandbox.tearDownMocks();
+		Runtime.handleRuntimeAccesses();
 
 		result.exceptions = exceptionsThrown;
 		if (Sandbox.canUseFileContentGeneration())

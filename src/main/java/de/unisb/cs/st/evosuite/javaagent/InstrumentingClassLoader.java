@@ -12,6 +12,7 @@ import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 /**
@@ -29,6 +30,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
+		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 	}
 
 	public InstrumentingClassLoader(BytecodeInstrumentation instrumentation) {

@@ -43,7 +43,6 @@ public class GenericClass implements Serializable {
 
 	private static final long serialVersionUID = -3307107227790458308L;
 
-	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(GenericClass.class);
 
 	public boolean isAssignableTo(Type lhsType) {
@@ -320,21 +319,21 @@ public class GenericClass implements Serializable {
 	private static Class<?> getClass(String name) throws ClassNotFoundException {
 		if (name.equals("void"))
 			return void.class;
-		else if (name.equals("int"))
+		else if (name.equals("int") || name.equals("I"))
 			return int.class;
-		else if (name.equals("short"))
+		else if (name.equals("short") || name.equals("S"))
 			return short.class;
-		else if (name.equals("long"))
+		else if (name.equals("long") || name.equals("J"))
 			return long.class;
-		else if (name.equals("float"))
+		else if (name.equals("float") || name.equals("F"))
 			return float.class;
-		else if (name.equals("double"))
+		else if (name.equals("double") || name.equals("D"))
 			return double.class;
-		else if (name.equals("boolean"))
+		else if (name.equals("boolean") || name.equals("Z"))
 			return boolean.class;
-		else if (name.equals("byte"))
+		else if (name.equals("byte") || name.equals("B"))
 			return byte.class;
-		else if (name.equals("char"))
+		else if (name.equals("char") || name.equals("C"))
 			return char.class;
 		else if (name.startsWith("[")) {
 			Class<?> componentType = getClass(name.substring(1, name.length()));

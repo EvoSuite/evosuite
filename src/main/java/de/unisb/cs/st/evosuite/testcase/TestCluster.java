@@ -251,6 +251,13 @@ public abstract class TestCluster {
 	public abstract List<AccessibleObject> getTestCalls();
 
 	/**
+	 * Add a test call
+	 * 
+	 * @return
+	 */
+	public abstract void addTestCall(AccessibleObject call);
+
+	/**
 	 * Determine if we have generators for all parameters, and delete method if
 	 * not
 	 * 
