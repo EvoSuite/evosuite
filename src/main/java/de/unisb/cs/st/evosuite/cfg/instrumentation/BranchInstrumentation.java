@@ -58,12 +58,12 @@ public class BranchInstrumentation implements MethodInstrumentation {
 						                             getInstrumentation(v));
 
 					} else if (v.isSwitch()) {
-						/*
+
 						mn.instructions.insertBefore(v.getASMNode(),
 						                             getSwitchInstrumentation(v, mn,
 						                                                      className,
 						                                                      methodName));
-						                                                      */
+
 					}
 				}
 			}
