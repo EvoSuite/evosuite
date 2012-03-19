@@ -296,9 +296,9 @@ public class Properties {
 	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
 	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
 
-	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
+	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
-	public static long GENERATIONS = 1000000;
+	public static long SEARCH_BUDGET = 1000000;
 
 	public static String PROPERTIES_FILE = "properties_file";
 

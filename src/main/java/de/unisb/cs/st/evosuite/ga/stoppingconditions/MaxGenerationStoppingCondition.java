@@ -34,7 +34,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = 251196904115160351L;
 
 	/** Maximum number of iterations */
-	protected long max_iterations = Properties.GENERATIONS;
+	protected long max_iterations = Properties.SEARCH_BUDGET;
 
 	/** Maximum number of iterations */
 	protected long current_iteration = 0;

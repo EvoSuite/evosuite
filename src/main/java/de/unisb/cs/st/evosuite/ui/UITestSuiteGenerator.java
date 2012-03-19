@@ -129,7 +129,7 @@ public class UITestSuiteGenerator {
 			writeCoverage();
 
 			Properties.MAX_SIZE = 1000;
-			Properties.GENERATIONS = Integer.MAX_VALUE;
+			Properties.SEARCH_BUDGET = Integer.MAX_VALUE;
 
 			// Timeout of 60 seconds per test.
 			Properties.TIMEOUT = 60 * 1000;

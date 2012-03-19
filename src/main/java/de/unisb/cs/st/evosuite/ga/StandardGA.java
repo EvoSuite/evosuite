@@ -110,7 +110,7 @@ public class StandardGA extends GeneticAlgorithm {
 			initializePopulation();
 
 		while (!isFinished()) {
-			logger.debug("Current population: " + getAge() + "/" + Properties.GENERATIONS);
+			logger.debug("Current population: " + getAge() + "/" + Properties.SEARCH_BUDGET);
 			logger.info("Best fitness: " + getBestIndividual().getFitness());
 
 			evolve();

@@ -38,7 +38,7 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	private static Logger logger = LoggerFactory.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */
-	protected static long max_statements = Properties.GENERATIONS;
+	protected static long max_statements = Properties.SEARCH_BUDGET;
 
 	/** Maximum number of iterations */
 	protected static long current_statement = 0;
