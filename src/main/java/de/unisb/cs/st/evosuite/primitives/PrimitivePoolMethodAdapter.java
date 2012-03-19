@@ -77,5 +77,4 @@ public class PrimitivePoolMethodAdapter extends MethodVisitor {
 		primitive_pool.add(cst);
 		super.visitLdcInsn(cst);
 	}
-
 }
