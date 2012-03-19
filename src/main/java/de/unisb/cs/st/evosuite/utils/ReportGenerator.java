@@ -269,7 +269,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(chromosome_length + ",");
 			r.append(population_size + ",");
 			r.append(seed + ","); //21
-			r.append(Properties.GENERATIONS + ","); //22
+			r.append(Properties.SEARCH_BUDGET + ","); //22
 
 			// TODO since we currently don't want to change the layout of
 			// statistics.csv i will leave this commented out for future use and
@@ -707,7 +707,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		buffer.append("<li>Population size: " + entry.population_size + "\n");
 		buffer.append("<li>Initial test length: " + entry.chromosome_length + "\n");
 		buffer.append("<li>Stopping condition: " + Properties.STOPPING_CONDITION + ": "
-		        + Properties.GENERATIONS + "\n");
+		        + Properties.SEARCH_BUDGET + "\n");
 		buffer.append("<li>Bloat control factor: " + Properties.BLOAT_FACTOR);
 		buffer.append("<li>Random seed: " + entry.seed + "\n");
 		buffer.append("</ul>\n");
