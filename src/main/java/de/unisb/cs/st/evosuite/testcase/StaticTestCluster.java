@@ -1904,6 +1904,16 @@ public class StaticTestCluster extends TestCluster {
 		return testCalls;
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#addTestCalls(java.lang.reflect.AccessibleObject)
+	 */
+	@Override
+	public void addTestCall(AccessibleObject call) {
+		// For now, assume it is a method
+		assert (call instanceof Method);
+		test_methods.add((Method) call);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
