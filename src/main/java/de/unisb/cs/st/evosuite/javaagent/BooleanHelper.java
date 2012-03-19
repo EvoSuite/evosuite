@@ -256,7 +256,7 @@ public class BooleanHelper {
 			return 0;
 		else {
 			double diff = l1 - l2;
-			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0F + Math.abs(diff));
+			double diff2 = Math.signum(diff) * Math.abs(diff) / (1.0 + Math.abs(diff));
 			int d3 = (int) Math.ceil(Integer.MAX_VALUE * diff2);
 			return d3;
 		}

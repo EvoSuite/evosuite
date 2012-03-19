@@ -575,6 +575,9 @@ public class Properties {
 	@Parameter(key = "max_mutants", group = "Test Execution", description = "Maximum number of mutants to target at the same time")
 	public static int MAX_MUTANTS = 100;
 
+	@Parameter(key = "replace_calls", group = "Test Execution", description = "Replace nondeterministic calls and System.exit")
+	public static boolean REPLACE_CALLS = false;
+
 	// ---------------------------------------------------------------
 	// TODO: Fix description
 	public enum AlternativeFitnessCalculationMode {
