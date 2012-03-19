@@ -43,7 +43,6 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.MutationInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyInstrumentation;
 import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
 /**
@@ -111,10 +110,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
 		if (StaticTestCluster.isTargetClassName(className)) {
-			if (Properties.CRITERION == Criterion.CONCURRENCY) {
-				instrumentations.add(new ConcurrencyInstrumentation());
-				instrumentations.add(new BranchInstrumentation());
-			} else if (Properties.CRITERION == Criterion.LCSAJ) {
+			if (Properties.CRITERION == Criterion.LCSAJ) {
 				instrumentations.add(new LCSAJsInstrumentation());
 				instrumentations.add(new BranchInstrumentation());
 			} else if (Properties.CRITERION == Criterion.DEFUSE
@@ -249,10 +245,14 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * @return A set with all unique methodNames of methods.
 	 */
 	public static Set<String> getMethods(String className) {
-		if (!methods.containsKey(className))
-			return new HashSet<String>();
+		Set<String> targetMethods = new HashSet<String>();
+		for (String currentClass : methods.keySet()) {
+			if (currentClass.equals(className)
+			        || currentClass.startsWith(className + "$"))
+				targetMethods.addAll(methods.get(currentClass));
+		}
 
-		return methods.get(className);
+		return targetMethods;
 	}
 
 	/**

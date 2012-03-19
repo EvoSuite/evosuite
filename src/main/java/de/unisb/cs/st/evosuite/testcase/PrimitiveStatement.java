@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,7 +34,6 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.javaagent.BooleanTestabilityTransformation;
 import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -47,10 +47,6 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
 public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static final long serialVersionUID = -7721106626421922833L;
-
-	protected static int MAX_INT = Properties.MAX_INT;
-
-	protected static double P_pool = Properties.PRIMITIVE_POOL;
 
 	protected static PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
@@ -235,10 +231,12 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
-		Class<?> clazz = value.getClass();
-		if (!clazz.equals(retval.getVariableClass())) {
-			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+		if (value != null) {
+			Class<?> clazz = value.getClass();
+			if (!clazz.equals(retval.getVariableClass())) {
+				mg.cast(org.objectweb.asm.Type.getType(clazz),
+				        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+			}
 		}
 		pushBytecode(mg);
 		retval.storeBytecode(mg, locals);
@@ -275,20 +273,27 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	private void mutateTransformedBoolean(TestCase test) {
 		if (Randomness.nextDouble() > Properties.RANDOM_PERTURBATION) {
+			boolean done = false;
 			for (StatementInterface s : test) {
 				if (s instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) s;
-					if (BooleanTestabilityTransformation.hasTransformedParameters(ms.getMethod().getDeclaringClass().getName(),
-					                                                              ms.getMethod().getName(),
-					                                                              org.objectweb.asm.Type.getMethodDescriptor(ms.getMethod()))) {
-
-						((IntPrimitiveStatement) this).negate();
-						return;
+					List<VariableReference> parameters = ms.getParameterReferences();
+					int index = parameters.indexOf(retval);
+					if (index >= 0) {
+						Method m = ms.getMethod();
+						org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(m);
+						if (types[index].equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
+							logger.warn("MUTATING");
+							((IntPrimitiveStatement) this).negate();
+							done = true;
+							break;
+						}
 
 					}
 				}
 			}
-			randomize();
+			if (!done)
+				randomize();
 		} else {
 			randomize();
 		}
@@ -304,7 +309,12 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		while (value == oldVal && value != null) {
 			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
 				if (Properties.TT && getClass().equals(IntPrimitiveStatement.class)) {
-					mutateTransformedBoolean(test);
+					if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
+						// mutateTransformedBoolean(test);
+						((IntPrimitiveStatement) this).negate();
+
+					} else
+						randomize();
 				} else {
 					randomize();
 				}

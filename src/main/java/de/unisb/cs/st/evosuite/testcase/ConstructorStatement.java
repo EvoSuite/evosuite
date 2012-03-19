@@ -107,10 +107,10 @@ public class ConstructorStatement extends AbstractStatement {
 	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
 	        InstantiationException, IllegalAccessException {
-		PrintStream old_out = System.out;
-		PrintStream old_err = System.err;
-		System.setOut(out);
-		System.setErr(out);
+		//PrintStream old_out = System.out;
+		//PrintStream old_err = System.err;
+		//System.setOut(out);
+		//System.setErr(out);
 
 		logger.trace("Executing constructor " + constructor.toString());
 		final Object[] inputs = new Object[parameters.size()];
@@ -156,14 +156,14 @@ public class ConstructorStatement extends AbstractStatement {
 			});
 
 		} catch (InvocationTargetException e) {
-			System.setOut(old_out);
-			System.setErr(old_err);
+			//System.setOut(old_out);
+			//System.setErr(old_err);
 			exceptionThrown = e.getCause();
 			logger.debug("Exception thrown in constructor: " + e.getCause());
 
-		} finally {
-			System.setOut(old_out);
-			System.setErr(old_err);
+			//} finally {
+			//	System.setOut(old_out);
+			//	System.setErr(old_err);
 		}
 		return exceptionThrown;
 	}

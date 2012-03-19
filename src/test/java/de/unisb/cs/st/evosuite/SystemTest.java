@@ -15,6 +15,19 @@ import org.junit.*;
  */
 public class SystemTest {
 
+	@Before
+	public void setDefaultPropertiesForTestCases(){
+		Properties.HTML = false;
+		Properties.SHOW_PROGRESS = false;
+		Properties.SERIALIZE_RESULT = false;
+		Properties.JUNIT_TESTS = false;
+		Properties.PLOT = false;
+		
+		Properties.SEARCH_BUDGET = 1000;
+
+		Properties.CLIENT_ON_THREAD = true;
+	}
+	
 	/*
 	 * stupid Maven plug-ins do not properly handle custom output directories
 	 * when JUnit is run, ie problems with classpath :(
@@ -44,6 +57,10 @@ public class SystemTest {
 		if(hasBeenAlreadyRun){
 			return;
 		}
+		
+		deleteEvoDirs();
+		
+		System.out.println("*** SystemTest: runSetup() ***");
 		
 		//String target = System.getProperty("user.dir") + File.separator+"target"+File.separator+"suts-for-system-testing";
 		String target = System.getProperty("user.dir") + File.separator+"target"+File.separator+"test-classes";
@@ -91,9 +108,17 @@ public class SystemTest {
 		hasBeenAlreadyRun = true;
 	}
 	
-	@BeforeClass 
-	@AfterClass
+	/*
+	 * it's giving some problems
+	 */
+	//@AfterClass
 	public static void deleteEvoDirs(){
+		//if(!hasBeenAlreadyRun){
+			//return;
+		//}
+		
+		System.out.println("*** SystemTest: deleteEvoDirs() ***");
+
 		try {
 			org.apache.commons.io.FileUtils.deleteDirectory(new File("evosuite-files"));
 			org.apache.commons.io.FileUtils.deleteDirectory(new File("evosuite-report"));
@@ -101,6 +126,7 @@ public class SystemTest {
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
+		hasBeenAlreadyRun = false;
 	}
 }
 

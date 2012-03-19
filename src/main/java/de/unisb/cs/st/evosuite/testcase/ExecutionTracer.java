@@ -24,10 +24,6 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
-import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;
 import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
 
 /**
@@ -52,8 +48,6 @@ public class ExecutionTracer {
 	private boolean killSwitch = false;
 
 	private int num_statements = 0;
-
-	private static final boolean testabilityTransformation = Properties.TT;
 
 	private static boolean checkCallerThread = true;
 
@@ -107,13 +101,6 @@ public class ExecutionTracer {
 		trace = new ExecutionTrace();
 		BooleanHelper.clearStack();
 		num_statements = 0;
-
-		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			trace.concurrencyTracer = new ConcurrencyTracer();
-			LockRuntime.tracer = trace.concurrencyTracer;
-			checkCallerThread = false;
-		}
 	}
 
 	/**
@@ -174,10 +161,6 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
-
-		if (testabilityTransformation) {
-			BooleanHelper.methodEntered();
-		}
 
 		if (tracer.killSwitch) {
 			logger.info("Raising TimeoutException as kill switch is active - enteredMethod");
@@ -273,10 +256,6 @@ public class ExecutionTracer {
 
 		if (isThreadNeqCurrentThread())
 			return;
-
-		if (testabilityTransformation) {
-			BooleanHelper.methodLeft();
-		}
 
 		tracer.trace.exitMethod(classname, methodname);
 		// logger.trace("Left method " + classname + "." + methodname);

@@ -20,6 +20,8 @@ public class ClientProcess implements SearchListener {
 
 	private GeneticAlgorithm ga;
 
+	public static GeneticAlgorithm  geneticAlgorithmStatus;
+	
 	public void run() {
 		System.out.println("* Connecting to master process on port "
 		        + Properties.PROCESS_COMMUNICATION_PORT);
@@ -56,6 +58,18 @@ public class ClientProcess implements SearchListener {
 			ga.removeListener(this);
 
 			ga = generator.getEmployedGeneticAlgorithm();
+		} else {
+			//FIXME: this is a dirty hack. this code needs to be refactored
+			ga = generator.getEmployedGeneticAlgorithm();
+		}
+		
+		if(Properties.CLIENT_ON_THREAD){
+			/*
+			 * FIXME:
+			 * this is done when the client is run on same JVM, to avoid
+			 * problems of serializing ga
+			 */
+			geneticAlgorithmStatus = ga;
 		}
 		util.informSearchIsFinished(ga);
 	}
@@ -145,11 +159,16 @@ public class ClientProcess implements SearchListener {
 		try {
 			ClientProcess process = new ClientProcess();
 			process.run();
+			if(!Properties.CLIENT_ON_THREAD){
+				System.exit(0);
+			}
 		} catch (Throwable t) {
 			System.err.println("Error when generating tests for: "
 			        + Properties.TARGET_CLASS);
 			t.printStackTrace();
-			System.exit(1);
+			if(!Properties.CLIENT_ON_THREAD){
+				System.exit(1);
+			}
 		}
 	}
 }

@@ -141,7 +141,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	 */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= P_pool)
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
 			value = Randomness.nextString(Randomness.nextInt(MAX_STRING));
 		else
 			value = primitive_pool.getRandomString();

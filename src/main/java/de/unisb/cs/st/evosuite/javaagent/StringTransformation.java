@@ -156,6 +156,7 @@ public class StringTransformation {
 		boolean changed = transformStrings(mn);
 		if (changed) {
 			try {
+				mn.maxStack++;
 				Analyzer a = new Analyzer(new StringBooleanInterpreter());
 				a.analyze(cn.name, mn);
 				Frame[] frames = a.getFrames();
@@ -165,7 +166,12 @@ public class StringTransformation {
 					if (node == mn.instructions.getLast())
 						done = true;
 					AbstractInsnNode next = node.getNext();
-					Frame current = frames[mn.instructions.indexOf(node)];
+					int index = mn.instructions.indexOf(node);
+					if (index >= frames.length)
+						break;
+					Frame current = frames[index];
+					if (current == null)
+						break;
 					int size = current.getStackSize();
 					if (node.getOpcode() == Opcodes.IFNE) {
 						JumpInsnNode branch = (JumpInsnNode) node;
@@ -223,6 +229,7 @@ public class StringTransformation {
 				}
 			} catch (Exception e) {
 				logger.warn("EXCEPTION DURING STRING TRANSFORMATION: " + e);
+				e.printStackTrace();
 				return changed;
 			}
 		}

@@ -18,6 +18,8 @@ import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.analysis.Analyzer;
+import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,6 +38,7 @@ import de.unisb.cs.st.evosuite.coverage.mutation.MutationObserver;
 import de.unisb.cs.st.evosuite.graphs.GraphPool;
 import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
+import de.unisb.cs.st.evosuite.javaagent.BooleanValueInterpreter;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 
 /**
@@ -47,6 +50,8 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	private static Logger logger = LoggerFactory.getLogger(MethodInstrumentation.class);
 
 	private final List<MutationOperator> mutationOperators;
+
+	private Frame[] frames = new Frame[0];
 
 	public MutationInstrumentation() {
 		mutationOperators = new ArrayList<MutationOperator>();
@@ -69,6 +74,20 @@ public class MutationInstrumentation implements MethodInstrumentation {
 
 	}
 
+	private void getFrames(MethodNode mn, String className) {
+		try {
+			Analyzer a = new Analyzer(new BooleanValueInterpreter(mn.desc,
+			        (mn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC));
+			a.analyze(className, mn);
+			this.frames = a.getFrames();
+		} catch (Exception e) {
+			logger.info("1. Error during analysis: " + e);
+			//e.printStackTrace();
+			// TODO: Handle error
+		}
+
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, int)
 	 */
@@ -78,12 +97,18 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 
+		getFrames(mn, className);
+
 		boolean constructorInvoked = false;
 		if (!methodName.startsWith("<init>"))
 			constructorInvoked = true;
 
 		logger.info("Applying mutation operators ");
+		int frameIndex = 0;
+		assert (frames.length == mn.instructions.size()) : "Length " + frames.length
+		        + " vs " + mn.instructions.size();
 		while (j.hasNext()) {
+			Frame currentFrame = frames[frameIndex++];
 			AbstractInsnNode in = j.next();
 			if (!constructorInvoked) {
 				if (in.getOpcode() == Opcodes.INVOKESPECIAL) {
@@ -107,7 +132,8 @@ public class MutationInstrumentation implements MethodInstrumentation {
 							logger.info("Applying mutation operator "
 							        + mutationOperator.getClass().getSimpleName());
 							mutations.addAll(mutationOperator.apply(mn, className,
-							                                        methodName, v));
+							                                        methodName, v,
+							                                        currentFrame));
 						}
 					}
 					if (!mutations.isEmpty()) {
@@ -126,7 +152,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			logger.info(new BytecodeInstruction(className, methodName, 0, 0, in).toString());
 		}
 		logger.info("Done.");
-		mn.maxStack += 3;
+		// mn.maxStack += 3;
 	}
 
 	/* (non-Javadoc)

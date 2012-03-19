@@ -83,7 +83,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	 */
 	@Override
 	public void randomize() {
-		if (Randomness.nextDouble() >= P_pool)
+		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
 			value = (byte) (Randomness.nextInt(256) - 128);
 		else
 			value = (byte) (primitive_pool.getRandomInt());

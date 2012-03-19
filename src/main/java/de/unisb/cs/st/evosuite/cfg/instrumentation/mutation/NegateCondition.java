@@ -12,6 +12,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.JumpInsnNode;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.analysis.Frame;
 
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationPool;
@@ -49,7 +50,7 @@ public class NegateCondition implements MutationOperator {
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction) {
+	        BytecodeInstruction instruction, Frame frame) {
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 
