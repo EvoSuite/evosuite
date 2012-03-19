@@ -231,10 +231,12 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
-		Class<?> clazz = value.getClass();
-		if (!clazz.equals(retval.getVariableClass())) {
-			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+		if (value != null) {
+			Class<?> clazz = value.getClass();
+			if (!clazz.equals(retval.getVariableClass())) {
+				mg.cast(org.objectweb.asm.Type.getType(clazz),
+				        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+			}
 		}
 		pushBytecode(mg);
 		retval.storeBytecode(mg, locals);
