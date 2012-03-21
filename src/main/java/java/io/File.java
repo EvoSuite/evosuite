@@ -755,7 +755,11 @@ public class File implements Serializable, Comparable<File> {
 		}
 	}
 
-	static FileSystemManager fsm = null;
+	public static FileSystemManager fsm = null;
+
+	public static FileSystemManager initVFS() throws FileSystemException {
+		return fsm = VFS.getManager();
+	}
 
 	/**
 	 * assigns a ram file object to (this) correspondent real file; if the real

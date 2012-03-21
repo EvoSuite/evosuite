@@ -8,14 +8,13 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.vfs2.FileSystemException;
+import org.apache.commons.vfs2.FileSystemManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
  * @author fraser
@@ -24,6 +23,8 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
 public class FileSystem {
 
 	private static Logger logger = LoggerFactory.getLogger(FileSystem.class);
+
+	public static FileSystemManager manager = null;
 
 	/**
 	 * Test method that sets content of a file
@@ -64,45 +65,47 @@ public class FileSystem {
 	 */
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
-			try {
-				File.USE_SIMULATION = false;
-				FileInputStream.USE_SIMULATION = false;
-				FileOutputStream.USE_SIMULATION = false;
-				Class<?> clazz = TestCluster.classLoader.loadClass("org.apache.commons.vfs2.VFS");
-				clazz.getMethod("getManager", new Class<?>[] {}).invoke(null);
-				//VFS.getManager();
-				File.USE_SIMULATION = true;
-				// TODO: Find proper way to clear filesystem
-				for (File f : File.createdFiles) {
-					f.delete();
-				}
+			//		try {
+			File.USE_SIMULATION = false;
+			FileInputStream.USE_SIMULATION = false;
+			FileOutputStream.USE_SIMULATION = false;
+			//Class<?> clazz = TestCluster.classLoader.loadClass("org.apache.commons.vfs2.VFS");
+			//clazz.getMethod("getManager", new Class<?>[] {}).invoke(null);
+			//VFS.getManager();
+			//for (File f : File.createdFiles) {
+			//	f.delete();
+			//}
+			File.USE_SIMULATION = true;
+			// TODO: Find proper way to clear filesystem
 
-				File.createdFiles.clear();
-				FileInputStream.USE_SIMULATION = true;
-				FileOutputStream.USE_SIMULATION = true;
-				//} catch (FileSystemException e) {
-				//	logger.warn("Error during initialization of virtual FS: " + e + ", "
-				//	        + e.getCause());//
-
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			File.createdFiles.clear();
+			FileInputStream.USE_SIMULATION = true;
+			FileOutputStream.USE_SIMULATION = true;
+			//	} catch (FileSystemException e) {
+			//		logger.warn("Error during initialization of virtual FS: " + e + ", "
+			//		        + e.getCause());//
+			//	} catch (Throwable t) {
+			//		logger.warn("Error: " + t);
+			//	} 
+			/*catch (ClassNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			}*/
 		}
 	}
 

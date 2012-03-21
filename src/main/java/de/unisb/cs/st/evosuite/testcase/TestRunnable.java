@@ -4,9 +4,13 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -234,6 +238,16 @@ public class TestRunnable implements InterfaceTestRunnable {
 		runFinished = true;
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
+		List<String> fileNames = new ArrayList<String>();
+		for (File f : File.createdFiles) {
+			try {
+				fileNames.add(f.getCanonicalPath());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		test.setAccessedFiles(fileNames);
 		FileSystem.restoreOriginalFS();
 
 		result.exceptions = exceptionsThrown;
