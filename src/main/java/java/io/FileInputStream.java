@@ -1,8 +1,8 @@
 /*
  * %W% %E%
- *
- * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved.
- * ORACLE PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
+ * 
+ * Copyright (c) 2006, Oracle and/or its affiliates. All rights reserved. ORACLE
+ * PROPRIETARY/CONFIDENTIAL. Use is subject to license terms.
  */
 
 package java.io;
@@ -14,10 +14,12 @@ import org.apache.commons.vfs2.FileSystemException;
 import sun.nio.ch.FileChannelImpl;
 
 /**
- * A <code>FileInputStream</code> obtains input bytes from a file in a file system. What files are available depends on the host environment.
+ * A <code>FileInputStream</code> obtains input bytes from a file in a file
+ * system. What files are available depends on the host environment.
  * 
  * <p>
- * <code>FileInputStream</code> is meant for reading streams of raw bytes such as image data. For reading streams of characters, consider using
+ * <code>FileInputStream</code> is meant for reading streams of raw bytes such
+ * as image data. For reading streams of characters, consider using
  * <code>FileReader</code>.
  * 
  * @author Arthur van Hoff
@@ -33,7 +35,7 @@ public class FileInputStream extends InputStream {
 
 	private FileChannel channel = null;
 
-	private Object closeLock = new Object();
+	private final Object closeLock = new Object();
 	private volatile boolean closed = false;
 
 	// new; gets set in constructor
@@ -55,20 +57,28 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Creates a <code>FileInputStream</code> by opening a connection to an actual file, the file named by the path name <code>name</code> in the file
-	 * system. A new <code>FileDescriptor</code> object is created to represent this file connection.
+	 * Creates a <code>FileInputStream</code> by opening a connection to an
+	 * actual file, the file named by the path name <code>name</code> in the
+	 * file system. A new <code>FileDescriptor</code> object is created to
+	 * represent this file connection.
 	 * <p>
-	 * First, if there is a security manager, its <code>checkRead</code> method is called with the <code>name</code> argument as its argument.
+	 * First, if there is a security manager, its <code>checkRead</code> method
+	 * is called with the <code>name</code> argument as its argument.
 	 * <p>
-	 * If the named file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading then a
+	 * If the named file does not exist, is a directory rather than a regular
+	 * file, or for some other reason cannot be opened for reading then a
 	 * <code>FileNotFoundException</code> is thrown.
 	 * 
 	 * @param name
 	 *            the system-dependent file name.
 	 * @exception FileNotFoundException
-	 *                if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
+	 *                if the file does not exist, is a directory rather than a
+	 *                regular file, or for some other reason cannot be opened
+	 *                for reading.
 	 * @exception SecurityException
-	 *                if a security manager exists and its <code>checkRead</code> method denies read access to the file.
+	 *                if a security manager exists and its
+	 *                <code>checkRead</code> method denies read access to the
+	 *                file.
 	 * @see java.lang.SecurityManager#checkRead(java.lang.String)
 	 */
 	public FileInputStream(String name) throws FileNotFoundException {
@@ -76,21 +86,29 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Creates a <code>FileInputStream</code> by opening a connection to an actual file, the file named by the <code>File</code> object
-	 * <code>file</code> in the file system. A new <code>FileDescriptor</code> object is created to represent this file connection.
+	 * Creates a <code>FileInputStream</code> by opening a connection to an
+	 * actual file, the file named by the <code>File</code> object
+	 * <code>file</code> in the file system. A new <code>FileDescriptor</code>
+	 * object is created to represent this file connection.
 	 * <p>
-	 * First, if there is a security manager, its <code>checkRead</code> method is called with the path represented by the <code>file</code> argument
-	 * as its argument.
+	 * First, if there is a security manager, its <code>checkRead</code> method
+	 * is called with the path represented by the <code>file</code> argument as
+	 * its argument.
 	 * <p>
-	 * If the named file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading then a
+	 * If the named file does not exist, is a directory rather than a regular
+	 * file, or for some other reason cannot be opened for reading then a
 	 * <code>FileNotFoundException</code> is thrown.
 	 * 
 	 * @param file
 	 *            the file to be opened for reading.
 	 * @exception FileNotFoundException
-	 *                if the file does not exist, is a directory rather than a regular file, or for some other reason cannot be opened for reading.
+	 *                if the file does not exist, is a directory rather than a
+	 *                regular file, or for some other reason cannot be opened
+	 *                for reading.
 	 * @exception SecurityException
-	 *                if a security manager exists and its <code>checkRead</code> method denies read access to the file.
+	 *                if a security manager exists and its
+	 *                <code>checkRead</code> method denies read access to the
+	 *                file.
 	 * @see java.io.File#getPath()
 	 * @see java.lang.SecurityManager#checkRead(java.lang.String)
 	 */
@@ -110,8 +128,7 @@ public class FileInputStream extends InputStream {
 				 * FileInputStream instances to the same file open! So this will throw an exception, when the real implementation does not, and all
 				 * further actions would throw a nullpointer exception for access on ramInputStream! // TODO somehow resolve this issue
 				 */
-				ramInputStream = file.getRamFile().getContent()
-						.getInputStream();
+				ramInputStream = file.getRamFile().getContent().getInputStream();
 			} catch (FileSystemException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -134,18 +151,23 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Creates a <code>FileInputStream</code> by using the file descriptor <code>fdObj</code>, which represents an existing connection to an actual
+	 * Creates a <code>FileInputStream</code> by using the file descriptor
+	 * <code>fdObj</code>, which represents an existing connection to an actual
 	 * file in the file system.
 	 * <p>
-	 * If there is a security manager, its <code>checkRead</code> method is called with the file descriptor <code>fdObj</code> as its argument to see
-	 * if it's ok to read the file descriptor. If read access is denied to the file descriptor a <code>SecurityException</code> is thrown.
+	 * If there is a security manager, its <code>checkRead</code> method is
+	 * called with the file descriptor <code>fdObj</code> as its argument to see
+	 * if it's ok to read the file descriptor. If read access is denied to the
+	 * file descriptor a <code>SecurityException</code> is thrown.
 	 * <p>
-	 * If <code>fdObj</code> is null then a <code>NullPointerException</code> is thrown.
+	 * If <code>fdObj</code> is null then a <code>NullPointerException</code> is
+	 * thrown.
 	 * 
 	 * @param fdObj
 	 *            the file descriptor to be opened for reading.
 	 * @throws SecurityException
-	 *             if a security manager exists and its <code>checkRead</code> method denies read access to the file descriptor.
+	 *             if a security manager exists and its <code>checkRead</code>
+	 *             method denies read access to the file descriptor.
 	 * @see SecurityManager#checkRead(java.io.FileDescriptor)
 	 */
 	public FileInputStream(FileDescriptor fdObj) {
@@ -174,12 +196,15 @@ public class FileInputStream extends InputStream {
 	private native void open(String name) throws FileNotFoundException; // not used by simulation
 
 	/**
-	 * Reads a byte of data from this input stream. This method blocks if no input is yet available.
+	 * Reads a byte of data from this input stream. This method blocks if no
+	 * input is yet available.
 	 * 
-	 * @return the next byte of data, or <code>-1</code> if the end of the file is reached.
+	 * @return the next byte of data, or <code>-1</code> if the end of the file
+	 *         is reached.
 	 * @exception IOException
 	 *                if an I/O error occurs.
 	 */
+	@Override
 	public int read() throws IOException {
 		if (USE_SIMULATION && !isOriginal) {
 			return ramInputStream.read();
@@ -189,7 +214,7 @@ public class FileInputStream extends InputStream {
 			if (read(buffer) == -1) {
 				return -1;
 			} else {
-				return (int) buffer[0];
+				return buffer[0];
 			}
 		}
 	}
@@ -219,16 +244,18 @@ public class FileInputStream extends InputStream {
 	private native int readBytes(byte b[], int off, int len) throws IOException;
 
 	/**
-	 * Reads up to <code>b.length</code> bytes of data from this input stream into an array of bytes. This method blocks until some input is
-	 * available.
+	 * Reads up to <code>b.length</code> bytes of data from this input stream
+	 * into an array of bytes. This method blocks until some input is available.
 	 * 
 	 * @param b
 	 *            the buffer into which the data is read.
-	 * @return the total number of bytes read into the buffer, or <code>-1</code> if there is no more data because the end of the file has been
-	 *         reached.
+	 * @return the total number of bytes read into the buffer, or
+	 *         <code>-1</code> if there is no more data because the end of the
+	 *         file has been reached.
 	 * @exception IOException
 	 *                if an I/O error occurs.
 	 */
+	@Override
 	public int read(byte b[]) throws IOException {
 		if (USE_SIMULATION && !isOriginal) {
 			return ramInputStream.read(b);
@@ -238,8 +265,10 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Reads up to <code>len</code> bytes of data from this input stream into an array of bytes. If <code>len</code> is not zero, the method blocks
-	 * until some input is available; otherwise, no bytes are read and <code>0</code> is returned.
+	 * Reads up to <code>len</code> bytes of data from this input stream into an
+	 * array of bytes. If <code>len</code> is not zero, the method blocks until
+	 * some input is available; otherwise, no bytes are read and <code>0</code>
+	 * is returned.
 	 * 
 	 * @param b
 	 *            the buffer into which the data is read.
@@ -247,15 +276,19 @@ public class FileInputStream extends InputStream {
 	 *            the start offset in the destination array <code>b</code>
 	 * @param len
 	 *            the maximum number of bytes read.
-	 * @return the total number of bytes read into the buffer, or <code>-1</code> if there is no more data because the end of the file has been
-	 *         reached.
+	 * @return the total number of bytes read into the buffer, or
+	 *         <code>-1</code> if there is no more data because the end of the
+	 *         file has been reached.
 	 * @exception NullPointerException
 	 *                If <code>b</code> is <code>null</code>.
 	 * @exception IndexOutOfBoundsException
-	 *                If <code>off</code> is negative, <code>len</code> is negative, or <code>len</code> is greater than <code>b.length - off</code>
+	 *                If <code>off</code> is negative, <code>len</code> is
+	 *                negative, or <code>len</code> is greater than
+	 *                <code>b.length - off</code>
 	 * @exception IOException
 	 *                if an I/O error occurs.
 	 */
+	@Override
 	public int read(byte b[], int off, int len) throws IOException {
 		if (USE_SIMULATION && !isOriginal) {
 			return ramInputStream.read(b, off, len);
@@ -265,42 +298,53 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Skips over and discards <code>n</code> bytes of data from the input stream.
+	 * Skips over and discards <code>n</code> bytes of data from the input
+	 * stream.
 	 * 
 	 * <p>
-	 * The <code>skip</code> method may, for a variety of reasons, end up skipping over some smaller number of bytes, possibly <code>0</code>. If
-	 * <code>n</code> is negative, an <code>IOException</code> is thrown, even though the <code>skip</code> method of the {@link InputStream}
-	 * superclass does nothing in this case. The actual number of bytes skipped is returned.
+	 * The <code>skip</code> method may, for a variety of reasons, end up
+	 * skipping over some smaller number of bytes, possibly <code>0</code>. If
+	 * <code>n</code> is negative, an <code>IOException</code> is thrown, even
+	 * though the <code>skip</code> method of the {@link InputStream} superclass
+	 * does nothing in this case. The actual number of bytes skipped is
+	 * returned.
 	 * 
 	 * <p>
-	 * This method may skip more bytes than are remaining in the backing file. This produces no exception and the number of bytes skipped may include
-	 * some number of bytes that were beyond the EOF of the backing file. Attempting to read from the stream after skipping past the end will result
-	 * in -1 indicating the end of the file.
+	 * This method may skip more bytes than are remaining in the backing file.
+	 * This produces no exception and the number of bytes skipped may include
+	 * some number of bytes that were beyond the EOF of the backing file.
+	 * Attempting to read from the stream after skipping past the end will
+	 * result in -1 indicating the end of the file.
 	 * 
 	 * @param n
 	 *            the number of bytes to be skipped.
 	 * @return the actual number of bytes skipped.
 	 * @exception IOException
-	 *                if n is negative, if the stream does not support seek, or if an I/O error occurs.
+	 *                if n is negative, if the stream does not support seek, or
+	 *                if an I/O error occurs.
 	 */
+	@Override
 	public long skip(long n) throws IOException {
 		if (USE_SIMULATION && !isOriginal) {
 			return ramInputStream.skip(n);
 		} else {
 			return n; // FIXME JUST A STUB - REMOVE ASAP!
-//			return skipOriginal(n); // this will throw an UnsatisfiedLinkError (see skipOriginal())
+			//			return skipOriginal(n); // this will throw an UnsatisfiedLinkError (see skipOriginal())
 		}
 	}
 
 	/**
-	 * EvoSuite redirects method calls to {@link #skip(long)} to this method by bytecode instrumentation. skipNew() then decides, if to use the new or
-	 * the original implementation; normally, I would have simply replaced skip(), but then the link to the native C code for skip() gets lost.
+	 * EvoSuite redirects method calls to {@link #skip(long)} to this method by
+	 * bytecode instrumentation. skipNew() then decides, if to use the new or
+	 * the original implementation; normally, I would have simply replaced
+	 * skip(), but then the link to the native C code for skip() gets lost.
 	 * 
 	 * @param n
 	 *            the number of bytes to be skipped.
 	 * @return the actual number of bytes skipped.
 	 * @exception IOException
-	 *                if n is negative, if the stream does not support seek, or if an I/O error occurs.
+	 *                if n is negative, if the stream does not support seek, or
+	 *                if an I/O error occurs.
 	 */
 	public long skipNew(long n) throws IOException {
 		if (USE_SIMULATION && !isOriginal) {
@@ -311,40 +355,53 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Skips over and discards <code>n</code> bytes of data from the input stream.
+	 * Skips over and discards <code>n</code> bytes of data from the input
+	 * stream.
 	 * 
 	 * <p>
-	 * The <code>skip</code> method may, for a variety of reasons, end up skipping over some smaller number of bytes, possibly <code>0</code>. If
-	 * <code>n</code> is negative, an <code>IOException</code> is thrown, even though the <code>skip</code> method of the {@link InputStream}
-	 * superclass does nothing in this case. The actual number of bytes skipped is returned.
+	 * The <code>skip</code> method may, for a variety of reasons, end up
+	 * skipping over some smaller number of bytes, possibly <code>0</code>. If
+	 * <code>n</code> is negative, an <code>IOException</code> is thrown, even
+	 * though the <code>skip</code> method of the {@link InputStream} superclass
+	 * does nothing in this case. The actual number of bytes skipped is
+	 * returned.
 	 * 
 	 * <p>
-	 * This method may skip more bytes than are remaining in the backing file. This produces no exception and the number of bytes skipped may include
-	 * some number of bytes that were beyond the EOF of the backing file. Attempting to read from the stream after skipping past the end will result
-	 * in -1 indicating the end of the file.
+	 * This method may skip more bytes than are remaining in the backing file.
+	 * This produces no exception and the number of bytes skipped may include
+	 * some number of bytes that were beyond the EOF of the backing file.
+	 * Attempting to read from the stream after skipping past the end will
+	 * result in -1 indicating the end of the file.
 	 * 
 	 * @param n
 	 *            the number of bytes to be skipped.
 	 * @return the actual number of bytes skipped.
 	 * @exception IOException
-	 *                if n is negative, if the stream does not support seek, or if an I/O error occurs.
+	 *                if n is negative, if the stream does not support seek, or
+	 *                if an I/O error occurs.
 	 */
 	private native long skipOriginal(long n) throws IOException; // this will throw an UnsatisfiedLinkError, since the C code
-																	// expects a native method 'skip(long n)'
+	                                                             // expects a native method 'skip(long n)'
 
 	/**
-	 * Returns an estimate of the number of remaining bytes that can be read (or skipped over) from this input stream without blocking by the next
-	 * invocation of a method for this input stream. The next invocation might be the same thread or another thread. A single read or skip of this
-	 * many bytes will not block, but may read or skip fewer bytes.
+	 * Returns an estimate of the number of remaining bytes that can be read (or
+	 * skipped over) from this input stream without blocking by the next
+	 * invocation of a method for this input stream. The next invocation might
+	 * be the same thread or another thread. A single read or skip of this many
+	 * bytes will not block, but may read or skip fewer bytes.
 	 * 
 	 * <p>
-	 * In some cases, a non-blocking read (or skip) may appear to be blocked when it is merely slow, for example when reading large files over slow
+	 * In some cases, a non-blocking read (or skip) may appear to be blocked
+	 * when it is merely slow, for example when reading large files over slow
 	 * networks.
 	 * 
-	 * @return an estimate of the number of remaining bytes that can be read (or skipped over) from this input stream without blocking.
+	 * @return an estimate of the number of remaining bytes that can be read (or
+	 *         skipped over) from this input stream without blocking.
 	 * @exception IOException
-	 *                if this file input stream has been closed by calling {@code close} or an I/O error occurs.
+	 *                if this file input stream has been closed by calling
+	 *                {@code close} or an I/O error occurs.
 	 */
+	@Override
 	public int available() throws IOException {
 		if (USE_SIMULATION && !isOriginal) {
 			return ramInputStream.available();
@@ -356,11 +413,14 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * EvoSuite redirects method calls to {@link #available()} to this method by bytecode instrumentation. availableNew() then decides, if to use the
-	 * new or the original implementation; normally, I would have simply replaced available(), but then the link to the native C code for available()
-	 * gets lost.
+	 * EvoSuite redirects method calls to {@link #available()} to this method by
+	 * bytecode instrumentation. availableNew() then decides, if to use the new
+	 * or the original implementation; normally, I would have simply replaced
+	 * available(), but then the link to the native C code for available() gets
+	 * lost.
 	 * 
-	 * @return an estimate of the number of remaining bytes that can be read (or skipped over) from this input stream without blocking.
+	 * @return an estimate of the number of remaining bytes that can be read (or
+	 *         skipped over) from this input stream without blocking.
 	 * @throws IOException
 	 */
 	public int availableNew() throws IOException {
@@ -372,25 +432,32 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Returns an estimate of the number of remaining bytes that can be read (or skipped over) from this input stream without blocking by the next
-	 * invocation of a method for this input stream. The next invocation might be the same thread or another thread. A single read or skip of this
-	 * many bytes will not block, but may read or skip fewer bytes.
+	 * Returns an estimate of the number of remaining bytes that can be read (or
+	 * skipped over) from this input stream without blocking by the next
+	 * invocation of a method for this input stream. The next invocation might
+	 * be the same thread or another thread. A single read or skip of this many
+	 * bytes will not block, but may read or skip fewer bytes.
 	 * 
 	 * <p>
-	 * In some cases, a non-blocking read (or skip) may appear to be blocked when it is merely slow, for example when reading large files over slow
+	 * In some cases, a non-blocking read (or skip) may appear to be blocked
+	 * when it is merely slow, for example when reading large files over slow
 	 * networks.
 	 * 
-	 * @return an estimate of the number of remaining bytes that can be read (or skipped over) from this input stream without blocking.
+	 * @return an estimate of the number of remaining bytes that can be read (or
+	 *         skipped over) from this input stream without blocking.
 	 * @exception IOException
-	 *                if this file input stream has been closed by calling {@code close} or an I/O error occurs.
+	 *                if this file input stream has been closed by calling
+	 *                {@code close} or an I/O error occurs.
 	 */
 	private native int availableOriginal() throws IOException; // this will throw an UnsatisfiedLinkError for the same reason as skipOriginal()
 
 	/**
-	 * Closes this file input stream and releases any system resources associated with the stream.
+	 * Closes this file input stream and releases any system resources
+	 * associated with the stream.
 	 * 
 	 * <p>
-	 * If this stream has an associated channel then the channel is closed as well.
+	 * If this stream has an associated channel then the channel is closed as
+	 * well.
 	 * 
 	 * @exception IOException
 	 *                if an I/O error occurs.
@@ -398,6 +465,7 @@ public class FileInputStream extends InputStream {
 	 * @revised 1.4
 	 * @spec JSR-51
 	 */
+	@Override
 	public void close() throws IOException {
 		synchronized (closeLock) {
 			if (closed) {
@@ -432,7 +500,8 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Returns the <code>FileDescriptor</code> object that represents the connection to the actual file in the file system being used by this
+	 * Returns the <code>FileDescriptor</code> object that represents the
+	 * connection to the actual file in the file system being used by this
 	 * <code>FileInputStream</code>.
 	 * 
 	 * @return the file descriptor object associated with this stream.
@@ -447,12 +516,15 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Returns the unique {@link java.nio.channels.FileChannel FileChannel} object associated with this file input stream.
+	 * Returns the unique {@link java.nio.channels.FileChannel FileChannel}
+	 * object associated with this file input stream.
 	 * 
 	 * <p>
-	 * The initial {@link java.nio.channels.FileChannel#position() </code>position<code>} of the returned channel will be equal to the number of bytes
-	 * read from the file so far. Reading bytes from this stream will increment the channel's position. Changing the channel's position, either
-	 * explicitly or by reading, will change this stream's file position.
+	 * The initial {@link java.nio.channels.FileChannel#position()
+	 * </code>position<code>} of the returned channel will be equal to the
+	 * number of bytes read from the file so far. Reading bytes from this stream
+	 * will increment the channel's position. Changing the channel's position,
+	 * either explicitly or by reading, will change this stream's file position.
 	 * 
 	 * @return the file channel associated with this file input stream
 	 * 
@@ -484,12 +556,14 @@ public class FileInputStream extends InputStream {
 	}
 
 	/**
-	 * Ensures that the <code>close</code> method of this file input stream is called when there are no more references to it.
+	 * Ensures that the <code>close</code> method of this file input stream is
+	 * called when there are no more references to it.
 	 * 
 	 * @exception IOException
 	 *                if an I/O error occurs.
 	 * @see java.io.FileInputStream#close()
 	 */
+	@Override
 	protected void finalize() throws IOException { // should also work with simulation
 		if ((fd != null) && (fd != FileDescriptor.in)) {
 

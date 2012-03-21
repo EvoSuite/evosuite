@@ -19,7 +19,8 @@ import de.unisb.cs.st.evosuite.utils.Listenable;
  * @author Sebastian Steenbuck
  * 
  */
-public interface TestCase extends Iterable<StatementInterface>, Cloneable, Listenable<Void> {
+public interface TestCase extends Iterable<StatementInterface>, Cloneable,
+        Listenable<Void> {
 
 	/**
 	 * 
@@ -28,7 +29,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable, Liste
 	public int size();
 
 	public void addStatements(List<? extends StatementInterface> statements);
-	
+
 	/**
 	 * 
 	 * @return true if size()==0
@@ -311,5 +312,19 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable, Liste
 	 * @param visitor
 	 */
 	public void accept(TestVisitor visitor);
+
+	/**
+	 * Retrieve a list of filenames accessed during the last execution
+	 * 
+	 * @return
+	 */
+	public List<String> getAccessedFiles();
+
+	/**
+	 * Keep track of accessed files
+	 * 
+	 * @param files
+	 */
+	public void setAccessedFiles(List<String> files);
 
 }
