@@ -457,6 +457,9 @@ public class Properties {
 	@Parameter(key = "mocks", group = "Sandbox", description = "Usage of the mocks for the IO, Network etc")
 	public static boolean MOCKS = false;
 
+	@Parameter(key = "virtual_fs", group = "Sandbox", description = "Usage of ram fs")
+	public static boolean VIRTUAL_FS = false;
+
 	@Parameter(key = "mock_strategies", group = "Sandbox", description = "Which mocking strategy should be applied")
 	public static String[] MOCK_STRATEGIES = { "" };
 

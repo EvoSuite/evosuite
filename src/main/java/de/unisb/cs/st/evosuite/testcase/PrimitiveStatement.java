@@ -35,6 +35,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.primitives.PrimitivePool;
+import de.unisb.cs.st.evosuite.runtime.EvoSuiteFile;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -121,6 +122,10 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			statement = new StringPrimitiveStatement(tc);
 		} else if (GenericTypeReflector.erase(clazz).isEnum()) {
 			statement = new EnumPrimitiveStatement(tc, GenericTypeReflector.erase(clazz));
+		} else if (clazz.equals(EvoSuiteFile.class)) {
+			// TODO: Ensure that files were accessed in the first place
+			statement = new FileNamePrimitiveStatement(tc,
+			        Randomness.choice(tc.getAccessedFiles()));
 		} else {
 			throw new RuntimeException("Getting unknown type: " + clazz + " / "
 			        + clazz.getClass());

@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.runtime.FileSystem;
 import de.unisb.cs.st.evosuite.runtime.Runtime;
 import de.unisb.cs.st.evosuite.runtime.System.SystemExitException;
 import de.unisb.cs.st.evosuite.sandbox.EvosuiteFile;
@@ -233,6 +234,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		runFinished = true;
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
+		FileSystem.restoreOriginalFS();
 
 		result.exceptions = exceptionsThrown;
 		if (Sandbox.canUseFileContentGeneration())

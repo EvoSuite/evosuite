@@ -5,8 +5,11 @@ package de.unisb.cs.st.evosuite;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,7 +35,7 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
 public class EvoSuite {
 
 	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
-	
+
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
@@ -148,8 +151,8 @@ public class EvoSuite {
 	private static void listClasses() {
 		System.out.println("* The following classes are known: ");
 		File directory = new File(Properties.OUTPUT_DIR);
-		logger.debug("Going to scan output directory {}",Properties.OUTPUT_DIR);
-		
+		logger.debug("Going to scan output directory {}", Properties.OUTPUT_DIR);
+
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
 			System.out.println("   " + file.getName().replace(".task", ""));
@@ -178,6 +181,10 @@ public class EvoSuite {
 		cmdLine.add(JAVA_CMD);
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
+		if (Properties.VIRTUAL_FS) {
+			String jarName = setupIOJar();
+			cmdLine.add("-Xbootclasspath/p:" + jarName);
+		}
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
 		cmdLine.add("-Djava.awt.headless=true");
@@ -211,31 +218,31 @@ public class EvoSuite {
 		 * Furthermore, the properties in the property file might be overwritten from the
 		 * commands coming from shell
 		 */
-		
+
 		String definedEAforClient = null;
 		String definedEAforSUT = null;
-		
+
 		final String DISABLE_ASSERTIONS_EVO = "-da:de.unisb.cs.st...";
 		final String ENABLE_ASSERTIONS_EVO = "-ea:de.unisb.cs.st...";
-		final String DISABLE_ASSERTIONS_SUT = "-da:"+Properties.PROJECT_PREFIX+"...";
-		final String ENABLE_ASSERTIONS_SUT = "-ea:"+Properties.PROJECT_PREFIX+"...";
-		
-		for(String s : cmdLine){
+		final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
+		final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
+
+		for (String s : cmdLine) {
 			//first check client
-			if(s.startsWith("-Denable_asserts_for_evosuite")){
-				if(s.endsWith("false")){
+			if (s.startsWith("-Denable_asserts_for_evosuite")) {
+				if (s.endsWith("false")) {
 					definedEAforClient = DISABLE_ASSERTIONS_EVO;
-				} else if(s.endsWith("true")){
+				} else if (s.endsWith("true")) {
 					definedEAforClient = ENABLE_ASSERTIONS_EVO;
-				} 
+				}
 			}
 			//then check SUT
-			if(s.startsWith("-Denable_asserts_for_sut")){
-				if(s.endsWith("false")){
+			if (s.startsWith("-Denable_asserts_for_sut")) {
+				if (s.endsWith("false")) {
 					definedEAforSUT = DISABLE_ASSERTIONS_SUT;
-				} else if(s.endsWith("true")){
+				} else if (s.endsWith("true")) {
 					definedEAforSUT = ENABLE_ASSERTIONS_SUT;
-				} 
+				}
 			}
 		}
 
@@ -245,17 +252,17 @@ public class EvoSuite {
 		 * NOTE: if those are defined in the command line, then they overwrite whatever we had in the
 		 * conf file
 		 */
-		
-		if(definedEAforSUT == null){
-			if(Properties.ENABLE_ASSERTS_FOR_SUT){
+
+		if (definedEAforSUT == null) {
+			if (Properties.ENABLE_ASSERTS_FOR_SUT) {
 				definedEAforSUT = ENABLE_ASSERTIONS_SUT;
 			} else {
 				definedEAforSUT = DISABLE_ASSERTIONS_SUT;
 			}
 		}
 
-		if(definedEAforClient == null){
-			if(Properties.ENABLE_ASSERTS_FOR_EVOSUITE){
+		if (definedEAforClient == null) {
+			if (Properties.ENABLE_ASSERTS_FOR_EVOSUITE) {
 				definedEAforClient = ENABLE_ASSERTIONS_EVO;
 			} else {
 				definedEAforClient = DISABLE_ASSERTIONS_EVO;
@@ -268,13 +275,13 @@ public class EvoSuite {
 		 * NOTE: this might have side effects "if" in the future we have something like 
 		 * a generic "-ea"
 		 */
-		if(definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)){
+		if (definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)) {
 			cmdLine.add(1, definedEAforClient);
 		}
-		if(definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)){
+		if (definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)) {
 			cmdLine.add(1, definedEAforSUT);
 		}
-		
+
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 
 		for (String entry : Properties.CP.split(File.pathSeparator)) {
@@ -294,15 +301,42 @@ public class EvoSuite {
 		} else {
 			System.out.println("* Could not connect to client process");
 		}
-		
-		if(Properties.CLIENT_ON_THREAD){
+
+		if (Properties.CLIENT_ON_THREAD) {
 			/*
 			 * FIXME: this is done only to avoid current problems with serialization
 			 */
 			result = ClientProcess.geneticAlgorithmStatus;
 		}
-		
+
 		return result;
+	}
+
+	private static void writeFile(InputStream in, File dest) {
+		try {
+			dest.deleteOnExit();
+			System.out.println("Creating file: " + dest.getPath());
+			if (!dest.exists()) {
+				OutputStream out = new FileOutputStream(dest);
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = in.read(buf)) > 0) {
+					out.write(buf, 0, len);
+				}
+				out.close();
+			}
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private static String setupIOJar() {
+		String tmpDir = System.getProperty("java.io.tmpdir");
+		String jarName = tmpDir + File.separator + "evosuite-io.jar";
+		writeFile(EvoSuite.class.getClassLoader().getResourceAsStream("evosuite-0.1-SNAPSHOT-evosuite-io.jar"),
+		          new File(jarName));
+		return jarName;
 	}
 
 	@SuppressWarnings("static-access")
@@ -366,7 +400,7 @@ public class EvoSuite {
 			 * NOTE: JVM arguments will not be passed over from the master to the client.
 			 * So for -Xmx, we need to use "mem"
 			 */
-			
+
 			if (line.hasOption("mem"))
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
 			if (line.hasOption("criterion"))

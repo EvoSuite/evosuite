@@ -44,6 +44,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
 		if (name.startsWith("java") || name.startsWith("sun")
+		        || name.startsWith("org.xml") || name.startsWith("org.w3c")
 		        || name.startsWith("de.unisb.cs.st.evosuite")) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
@@ -57,6 +58,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			if (result != null) {
 				return result;
 			} else {
+
 				result = classes.get(name);
 				if (result != null) {
 					return result;
@@ -65,6 +67,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 					return instrumentClass(name);
 				}
 			}
+
 		}
 		//} else {
 		//	logger.trace("Not instrumenting: " + name);
