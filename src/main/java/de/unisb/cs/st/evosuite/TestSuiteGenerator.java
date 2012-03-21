@@ -43,6 +43,7 @@ import de.unisb.cs.st.evosuite.contracts.ContractChecker;
 import de.unisb.cs.st.evosuite.contracts.FailingTestSet;
 import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
+import de.unisb.cs.st.evosuite.coverage.behavioral.BehavioralCoverage;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -236,7 +237,9 @@ public class TestSuiteGenerator {
 			return new ArrayList<TestCase>();
 		}
 
-		if (Properties.STRATEGY == Strategy.EVOSUITE)
+		if (Properties.CRITERION == Criterion.BEHAVIORAL)
+			tests = BehavioralCoverage.generateTestSuite();
+		else if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
 		else
 			tests = generateIndividualTests();
@@ -474,6 +477,9 @@ public class TestSuiteGenerator {
 			break;
 		case ALLDEFS:
 			System.out.println("* Test Criterion: All Definitions");
+			break;
+		case BEHAVIORAL:
+			System.out.println("* Test criterion: Behavioral coverage");
 			break;
 		case EXCEPTION:
 			System.out.println("* Test Criterion: Exception");
