@@ -176,24 +176,18 @@ public class CoverageGenerator {
 		// if chains exist solve optimization problem
 		if (!targetEdges.isEmpty()) {
 			// create edge from start node of the graph as possible alpha beginning
-			int first_dummy = startEdges.size();
-			for (int i = 0; i < targetEdges.size(); i++) {
-				BCEdge dummy = new BCEdge(graph.getStartNode(), new DefaultTestCase(), graph.getStartNode());
-				dummy.getStartNode().removeOutgoingEdge(dummy);
-				dummy.getEndNode().removeIncomingEdge(dummy);
-				dummy.setLastInAlpha(true);
-				startEdges.add(dummy);
-			}
+			BCEdge dummy = new BCEdge(graph.getStartNode(), new DefaultTestCase(), graph.getStartNode());
+			dummy.getStartNode().removeOutgoingEdge(dummy);
+			dummy.getEndNode().removeIncomingEdge(dummy);
+			dummy.setLastInAlpha(true);
+			startEdges.add(dummy);
 			
 			// compute the alpha matrix
 			TransitionSequence[][] alpha_matrix = new TransitionSequence[targetEdges.size()][startEdges.size()];
 			for (int i = 0; i < alpha_matrix.length; i++) {
 				for (int j = 0; j < alpha_matrix[i].length; j++) {
 					if (i == j) continue; // null for edges in same chain
-					if (j > first_dummy)
-						alpha_matrix[i][j] = alpha_matrix[i][first_dummy]; // same alpha for all dummies
-					else
-						alpha_matrix[i][j] = getShortestTransitionSequence(graph, startEdges.get(j), targetEdges.get(i));
+					alpha_matrix[i][j] = getShortestTransitionSequence(graph, startEdges.get(j), targetEdges.get(i));
 				}
 			}
 			
@@ -215,7 +209,8 @@ public class CoverageGenerator {
 					chainList.add(chain);
 					continue;
 				}
-				old.setLastInAlpha(false);
+				if (!old.equals(dummy)) // dummy edge always is last in alpha
+					old.setLastInAlpha(false);
 				
 				// update the transition sequences
 				for (int i = 0; i < chain.size(); i++) {
@@ -269,10 +264,10 @@ public class CoverageGenerator {
 				throw new Error("The graph is not connected - could not insert the loop '" + rotatedLoop + "'!");
 			if (!old.isLastInAlpha()) {
 				// add all edges up to last one in alpha
-				BCEdge temp = map.remove(old);
-				rotatedLoop.add(temp);
-				while ((temp = map.remove(temp)) != null) {
-					rotatedLoop.add(temp);
+				BCEdge tmp = map.remove(old);
+				rotatedLoop.add(tmp);
+				while ((tmp = map.remove(tmp)) != null) {
+					rotatedLoop.add(tmp);
 				}
 			}
 			else old.setLastInAlpha(false);
@@ -426,6 +421,12 @@ public class CoverageGenerator {
 					d.put(successor, d.get(node)+1);
 					p.put(successor, node);
 				}
+			}
+			// update the priority queue
+			if (!queue.isEmpty()) {
+				LinkedList<BCNode> list = new LinkedList<BCNode>(queue);
+				queue = new PriorityQueue<BCNode>(queue.size(), comparator);
+				queue.addAll(list);
 			}
 		}
 		
