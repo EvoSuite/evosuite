@@ -1221,7 +1221,6 @@ public class TestSuiteGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
 		System.exit(0);

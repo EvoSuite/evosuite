@@ -20,8 +20,11 @@ package de.unisb.cs.st.evosuite.utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -146,7 +149,7 @@ public class Utils {
 	 */
 	public static Set<String> classesDescFromString(String input) {
 		Set<String> classesDesc = new HashSet<String>();
-		
+
 		// If input actually equals "null" then NullPointerException is thrown. 
 		// Don't ask me. I don't know why.
 		try {
@@ -246,6 +249,25 @@ public class Utils {
 		}
 	}
 
+	private static void writeFile(InputStream in, File dest) {
+		try {
+			dest.deleteOnExit();
+			System.out.println("Creating file: " + dest.getPath());
+			if (!dest.exists()) {
+				OutputStream out = new FileOutputStream(dest);
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = in.read(buf)) > 0) {
+					out.write(buf, 0, len);
+				}
+				out.close();
+			}
+			in.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+
 	/**
 	 * Write string to file
 	 * 
@@ -283,16 +305,16 @@ public class Utils {
 			return null;
 		}
 	}
-	
+
 	/**
-	 * Get package name from the class. Sometimes this maybe tricky,
-	 * since clazz.getPackage() could return null
+	 * Get package name from the class. Sometimes this maybe tricky, since
+	 * clazz.getPackage() could return null
 	 * 
-	 * @param clazz 
-	 * 			- class which package should be determined
+	 * @param clazz
+	 *            - class which package should be determined
 	 * @return package name of the class
 	 */
-	public static String getPackageName(Class<?> clazz){
+	public static String getPackageName(Class<?> clazz) {
 		String packageName = "";
 		if (clazz.getPackage() != null) {
 			packageName = clazz.getPackage().getName();

@@ -52,6 +52,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
+	private List<String> accessedFiles = new ArrayList<String>();
+
 	/** The statements */
 	protected final ListenableList<StatementInterface> statements;
 
@@ -753,6 +755,21 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAccessedFiles()
+	 */
+	@Override
+	public List<String> getAccessedFiles() {
+		return accessedFiles;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
+	 */
+	@Override
+	public void setAccessedFiles(List<String> files) {
+		accessedFiles = files;
+	}
 	/*
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {

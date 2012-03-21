@@ -42,6 +42,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
+import de.unisb.cs.st.evosuite.runtime.EvoSuiteFile;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.TestCallObject;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
@@ -823,7 +824,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        int recursion_depth, boolean allow_null) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		if (clazz.isPrimitive() || clazz.isString() || clazz.isEnum()) {
+		if (clazz.isPrimitive() || clazz.isString() || clazz.isEnum()
+		        || clazz.getRawClass().equals(EvoSuiteFile.class)) {
 			if (logger.isDebugEnabled())
 				logger.debug("Generating primitive of type "
 				        + ((Class<?>) type).getName());

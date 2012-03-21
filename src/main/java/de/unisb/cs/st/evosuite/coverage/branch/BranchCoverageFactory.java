@@ -47,10 +47,18 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
+		return getCoverageGoals(Properties.TARGET_METHOD);
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+	 */
+	public List<TestFitnessFunction> getCoverageGoals(String targetMethod) {
 		long start = System.currentTimeMillis();
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
-
-		String targetMethod = Properties.TARGET_METHOD;
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
