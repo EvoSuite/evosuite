@@ -123,6 +123,7 @@ public class AlphaOptimizer {
 		}
 		
 		// iteration over all remaining variables
+		int dummyIndex = distance_matrix[0].length-1;
 		for (int i = 1; i < distance_matrix.length; i++) {
 			LinkedList<Solution> oldSolutions = new LinkedList<Solution>();
 			oldSolutions.addAll(solutions);
@@ -134,7 +135,7 @@ public class AlphaOptimizer {
 				// iteration over all possibles values of the variable i
 				for (int j = 0; j < distance_matrix[i].length; j++) {
 					LinkedList<Integer> list = new LinkedList<Integer>(solution.getDistanceIndexes());
-					if (list.contains(j)) continue; // no solution - j already chosen
+					if (j != dummyIndex && list.contains(j)) continue; // no solution - j already chosen
 					if (j == i) continue; // no solution - j and i are in the same chain
 					
 					int value = distance_matrix[i][j];
@@ -159,8 +160,7 @@ public class AlphaOptimizer {
 							solutions.add(new Solution(value, list));
 						} else {
 							if (value == lowest_value) { // add solution of same value
-								// TODO reduce redundancy due to several dummy edges
-								// solutions.add(new Solution(value, list));
+								solutions.add(new Solution(value, list));
 							} else {
 								if (value < lowest_value) { // new list of solutions with lower value
 									solutions = new LinkedList<Solution>();
@@ -200,7 +200,7 @@ public class AlphaOptimizer {
 			}
 		} else {
 			for (int i = 0; i < arr.length; i++) {
-				if (!restrictedIndexes.contains(i)) {
+				if (!restrictedIndexes.contains(i) || i == arr.length-1) { // last is dummy edge
 					if (min == -1) {
 						min = arr[i];
 					} else {

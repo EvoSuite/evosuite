@@ -25,7 +25,11 @@ public class BCEdge {
 	
 	/**
 	 * Creates a new edge with given start node, transition
-	 * and end node.</p>
+	 * and end node.
+	 * 
+	 * <p><b>Note:</b> As side effects this constructor adds
+	 * the created edge to the start node's set of outgoing edges
+	 * and to the end node's set of incoming edges.</p>
 	 * 
 	 * @param startNode - the start node of this edge.
 	 * @param transition - the method call represented by this edge given as a test-case.
