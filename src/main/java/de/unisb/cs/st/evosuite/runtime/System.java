@@ -36,7 +36,7 @@ public class System {
 	 */
 	public static long currentTimeMillis() {
 		wasAccessed = true;
-		return currentTime;
+		return currentTime++;
 	}
 
 	/**

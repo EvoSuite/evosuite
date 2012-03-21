@@ -8,6 +8,13 @@
   <includeBaseDirectory>false</includeBaseDirectory>
   <fileSets>
     <fileSet>
+      <directory>${project.build.directory}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+	<include>evosuite-io.jar</include>
+      </includes>
+    </fileSet>
+    <fileSet>
       <directory>${project.build.directory}/classes</directory>
       <outputDirectory>/</outputDirectory>
       <excludes>

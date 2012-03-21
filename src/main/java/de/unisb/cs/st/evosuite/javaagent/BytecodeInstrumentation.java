@@ -161,7 +161,7 @@ public class BytecodeInstrumentation {
 
 		// Remove calls to System.exit, Random.*, and System.currentTimeMillis
 		if (Properties.REPLACE_CALLS) {
-			cv = new RemoveNondeterministicClassAdapter(cv, className);
+			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
 
 		// Testability Transformations
