@@ -324,6 +324,15 @@
 		    <descriptor>src/main/assembly/bin.xml</descriptor>
 		  </descriptors>
 		</configuration>
+		<executions>
+		  <execution>
+		    <id>make-assembly</id> <!-- this is used for inheritance merges -->
+		    <phase>package</phase> <!-- append to the packaging phase. -->
+		    <goals>
+		      <goal>single</goal> <!-- goals == mojos -->
+		    </goals>
+		  </execution>
+		</executions>
 	    </plugin>
             <plugin>
               <groupId>org.apache.maven.plugins</groupId>
