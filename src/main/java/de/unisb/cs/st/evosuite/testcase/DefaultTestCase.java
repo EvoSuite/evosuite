@@ -537,6 +537,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
+		t.accessedFiles.addAll(accessedFiles);
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
 		return t;

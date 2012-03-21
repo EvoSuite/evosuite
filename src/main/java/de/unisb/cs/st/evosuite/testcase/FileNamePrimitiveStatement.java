@@ -23,6 +23,7 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<String> {
 	 */
 	public FileNamePrimitiveStatement(TestCase tc, String value) {
 		super(tc, EvoSuiteFile.class, value);
+		//logger.info("Selecting filename: " + value);
 	}
 
 	/* (non-Javadoc)
@@ -59,6 +60,8 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<String> {
 	public void randomize() {
 		// TODO: Check if any files were accessed
 		setValue(Randomness.choice(tc.getAccessedFiles()));
+		//logger.info("Randomized filename: " + value);
+
 	}
 
 }

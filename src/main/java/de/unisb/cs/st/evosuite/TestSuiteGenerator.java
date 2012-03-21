@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.vfs2.FileSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,6 +101,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingConditio
 import de.unisb.cs.st.evosuite.graphs.LCSAJGraph;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
+import de.unisb.cs.st.evosuite.runtime.FileSystem;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
@@ -1215,6 +1217,14 @@ public class TestSuiteGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
+		if (Properties.VIRTUAL_FS) {
+			try {
+				FileSystem.manager = File.initVFS();
+			} catch (FileSystemException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
 		System.exit(0);

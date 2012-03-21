@@ -3,8 +3,6 @@
  */
 package de.unisb.cs.st.evosuite.runtime;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +48,7 @@ public class Runtime {
 			}
 		}
 		if (FileSystem.wasAccessed()) {
-			logger.info("Files accessed: " + File.createdFiles);
+			//logger.info("Files accessed: " + File.createdFiles);
 			try {
 				TestCluster.getInstance().addTestCall(FileSystem.class.getMethod("setFileContent",
 				                                                                 new Class<?>[] {
