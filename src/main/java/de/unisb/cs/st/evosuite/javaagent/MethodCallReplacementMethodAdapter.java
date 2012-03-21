@@ -17,7 +17,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * @author fraser
  * 
  */
-public class RemoveNondeterministicMethodAdapter extends GeneratorAdapter {
+public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
 	private class MethodCallReplacement {
 		private final String className;
@@ -75,7 +75,7 @@ public class RemoveNondeterministicMethodAdapter extends GeneratorAdapter {
 	/**
 	 * @param api
 	 */
-	public RemoveNondeterministicMethodAdapter(MethodVisitor mv, String className,
+	public MethodCallReplacementMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
 		super(Opcodes.ASM4, mv, access, methodName, desc);
 		replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
