@@ -11,14 +11,14 @@ import org.objectweb.asm.Opcodes;
  * @author fraser
  * 
  */
-public class RemoveNondeterministicClassAdapter extends ClassVisitor {
+public class MethodCallReplacementClassAdapter extends ClassVisitor {
 
 	private final String className;
 
 	/**
      * 
      */
-	public RemoveNondeterministicClassAdapter(ClassVisitor cv, String className) {
+	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
 	}
@@ -30,6 +30,6 @@ public class RemoveNondeterministicClassAdapter extends ClassVisitor {
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		return new RemoveNondeterministicMethodAdapter(mv, className, name, access, desc);
+		return new MethodCallReplacementMethodAdapter(mv, className, name, access, desc);
 	}
 }
