@@ -169,11 +169,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 					if (Thread.interrupted()) {
 						break;
 					}
-
+					ExecutionTracer.disable();
 					for (ExecutionObserver observer : observers) {
 						observer.statement(s, scope, exceptionThrown);
 					}
-
+					ExecutionTracer.enable();
 					// exception_statement = num; 
 					if (log && logger.isDebugEnabled())
 						logger.debug("Exception thrown in statement: " + s.getCode()
@@ -238,17 +238,19 @@ public class TestRunnable implements InterfaceTestRunnable {
 		runFinished = true;
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
-		List<String> fileNames = new ArrayList<String>();
-		for (File f : File.createdFiles) {
-			try {
-				fileNames.add(f.getCanonicalPath());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+		if (Properties.VIRTUAL_FS) {
+			List<String> fileNames = new ArrayList<String>();
+			for (File f : File.createdFiles) {
+				try {
+					fileNames.add(f.getCanonicalPath());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
+			test.setAccessedFiles(fileNames);
+			FileSystem.restoreOriginalFS();
 		}
-		test.setAccessedFiles(fileNames);
-		FileSystem.restoreOriginalFS();
 
 		result.exceptions = exceptionsThrown;
 		if (Sandbox.canUseFileContentGeneration())
