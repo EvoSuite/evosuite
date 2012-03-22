@@ -192,6 +192,14 @@ public class EvoSuite {
 		cmdLine.add("-Djava.awt.headless=true");
 		cmdLine.add("-Dlogback.configurationFile=logback.xml");
 		//cmdLine.add("-Dminimize_values=true");
+		
+		if (Properties.DEBUG) {
+			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
+			cmdLine.add("-Xdebug");
+			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
+					+ Properties.PORT);
+		}
+		
 		cmdLine.addAll(args);
 		if (wholeSuite)
 			cmdLine.add("-Dstrategy=EvoSuite");
