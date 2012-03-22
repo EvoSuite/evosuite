@@ -580,6 +580,16 @@ public class Properties {
 
 	@Parameter(key = "replace_calls", group = "Test Execution", description = "Replace nondeterministic calls and System.exit")
 	public static boolean REPLACE_CALLS = false;
+	
+	// ---------------------------------------------------------------
+	// Debugging
+	
+	@Parameter(key = "debug", group = "Debugging", description = "Enables debugging support in the client VM")
+	public static boolean DEBUG = false;
+	
+	@Parameter(key = "port", group = "Debugging", description = "Port on localhost, to which the client VM will listen for a remote debugger; defaults to 1044")
+	@IntValue(min = 1024, max = 65535)
+	public static int PORT = 1044;
 
 	// ---------------------------------------------------------------
 	// TODO: Fix description
