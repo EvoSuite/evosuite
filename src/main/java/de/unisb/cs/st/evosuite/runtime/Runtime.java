@@ -3,11 +3,10 @@
  */
 package de.unisb.cs.st.evosuite.runtime;
 
-import java.io.File;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
@@ -19,12 +18,20 @@ public class Runtime {
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
 	public static void resetRuntime() {
+		if (!Properties.REPLACE_CALLS)
+			return;
+
 		Random.reset();
 		System.reset();
-		FileSystem.reset();
+		if (Properties.VIRTUAL_FS) {
+			FileSystem.reset();
+		}
 	}
 
 	public static void handleRuntimeAccesses() {
+		if (!Properties.REPLACE_CALLS)
+			return;
+
 		if (Random.wasAccessed()) {
 			try {
 				TestCluster.getInstance().addTestCall(Random.class.getMethod("setNextRandom",
@@ -49,8 +56,7 @@ public class Runtime {
 				e.printStackTrace();
 			}
 		}
-		if (FileSystem.wasAccessed()) {
-			logger.info("Files accessed: " + File.createdFiles);
+		if (Properties.VIRTUAL_FS && FileSystem.wasAccessed()) {
 			try {
 				TestCluster.getInstance().addTestCall(FileSystem.class.getMethod("setFileContent",
 				                                                                 new Class<?>[] {
