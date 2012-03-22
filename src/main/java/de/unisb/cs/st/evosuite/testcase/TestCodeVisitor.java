@@ -23,6 +23,7 @@ import de.unisb.cs.st.evosuite.assertion.InspectorAssertion;
 import de.unisb.cs.st.evosuite.assertion.NullAssertion;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveAssertion;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldAssertion;
+import de.unisb.cs.st.evosuite.runtime.EvoSuiteFile;
 import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
 /**
@@ -38,7 +39,7 @@ public class TestCodeVisitor implements TestVisitor {
 	protected TestCase test = null;
 
 	protected final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
-	
+
 	protected final Map<String, Integer> nextIndices = new HashMap<String, Integer>();
 
 	public String getCode() {
@@ -311,13 +312,14 @@ public class TestCodeVisitor implements TestVisitor {
 			// Assumption: The statement that throws an exception is the last statement of a test.
 			VariableReference returnValue = statement.getReturnValue();
 			for (Assertion assertion : statement.getAssertions()) {
-				if (assertion != null && !assertion.getReferencedVariables().contains(returnValue)) {
+				if (assertion != null
+				        && !assertion.getReferencedVariables().contains(returnValue)) {
 					visitAssertion(assertion);
 					testCode += "\n";
 					assertionAdded = true;
 				}
 			}
-		} else {			
+		} else {
 			for (Assertion assertion : statement.getAssertions()) {
 				if (assertion != null) {
 					visitAssertion(assertion);
@@ -361,6 +363,12 @@ public class TestCodeVisitor implements TestVisitor {
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 				        + getVariableName(retval) + " = ("
 				        + ((Class<?>) retval.getType()).getSimpleName() + ") null;\n";
+		} else if (statement instanceof FileNamePrimitiveStatement) {
+			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
+			        + getVariableName(retval) + " = \""
+			        + StringEscapeUtils.escapeJava(((EvoSuiteFile) value).getPath())
+			        + "\";\n";
+
 		} else {
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			        + getVariableName(retval) + " = " + value + ";\n";
@@ -494,9 +502,9 @@ public class TestCodeVisitor implements TestVisitor {
 		if (retval.getType() == Void.TYPE) {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		} else {
-//			if (exception == null || !lastStatement)
-				if (!unused)
-					result += getVariableName(retval) + " = ";
+			//			if (exception == null || !lastStatement)
+			if (!unused)
+				result += getVariableName(retval) + " = ";
 
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}

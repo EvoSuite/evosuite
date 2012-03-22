@@ -14,14 +14,16 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * @author fraser
  * 
  */
-public class FileNamePrimitiveStatement extends PrimitiveStatement<String> {
+public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile> {
+
+	private static final long serialVersionUID = 4402006999670328128L;
 
 	/**
 	 * @param tc
 	 * @param type
 	 * @param value
 	 */
-	public FileNamePrimitiveStatement(TestCase tc, String value) {
+	public FileNamePrimitiveStatement(TestCase tc, EvoSuiteFile value) {
 		super(tc, EvoSuiteFile.class, value);
 		//logger.info("Selecting filename: " + value);
 	}
@@ -59,7 +61,7 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<String> {
 	@Override
 	public void randomize() {
 		// TODO: Check if any files were accessed
-		setValue(Randomness.choice(tc.getAccessedFiles()));
+		setValue(new EvoSuiteFile(Randomness.choice(tc.getAccessedFiles())));
 		//logger.info("Randomized filename: " + value);
 
 	}

@@ -181,9 +181,11 @@ public class EvoSuite {
 		cmdLine.add(JAVA_CMD);
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
+		// TODO: Do this properly, and also need to support running outside of jar
 		if (Properties.VIRTUAL_FS) {
 			String jarName = setupIOJar();
 			cmdLine.add("-Xbootclasspath/p:" + jarName);
+			System.out.println("* Setting up virtual FS for testing");
 		}
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");

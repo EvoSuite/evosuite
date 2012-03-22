@@ -34,10 +34,10 @@ public class FileSystem {
 	 */
 	public static void setFileContent(EvoSuiteFile fileName, String content) {
 		// Put "content" into "file"
-		logger.info("Writing content to file " + fileName);
+		logger.info("Writing content to file " + fileName.getPath());
 		try {
 			for (File file : File.createdFiles) {
-				if (file.getCanonicalPath().equals(fileName)) {
+				if (file.getCanonicalPath().equals(fileName.getPath())) {
 					PrintStream stream = new PrintStream(
 					        file.getRamFile().getContent().getOutputStream());
 					stream.print(content);
