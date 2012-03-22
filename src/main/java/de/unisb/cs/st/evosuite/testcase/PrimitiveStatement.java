@@ -124,8 +124,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			statement = new EnumPrimitiveStatement(tc, GenericTypeReflector.erase(clazz));
 		} else if (clazz.equals(EvoSuiteFile.class)) {
 			// TODO: Ensure that files were accessed in the first place
-			statement = new FileNamePrimitiveStatement(tc,
-			        Randomness.choice(tc.getAccessedFiles()));
+			statement = new FileNamePrimitiveStatement(tc, new EvoSuiteFile(
+			        Randomness.choice(tc.getAccessedFiles())));
 		} else {
 			throw new RuntimeException("Getting unknown type: " + clazz + " / "
 			        + clazz.getClass());
