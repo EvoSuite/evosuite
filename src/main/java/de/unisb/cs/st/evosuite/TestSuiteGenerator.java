@@ -100,6 +100,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.graphs.LCSAJGraph;
+import de.unisb.cs.st.evosuite.io.IOWrapper;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
 import de.unisb.cs.st.evosuite.runtime.FileSystem;
@@ -1225,7 +1226,7 @@ public class TestSuiteGenerator {
 	public static void main(String[] args) {
 		if (Properties.VIRTUAL_FS) {
 			try {
-				FileSystem.manager = File.initVFS();
+				FileSystem.manager = IOWrapper.initVFS();
 			} catch (FileSystemException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
