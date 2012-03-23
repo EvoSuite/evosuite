@@ -4,13 +4,10 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -19,6 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.io.IOWrapper;
 import de.unisb.cs.st.evosuite.runtime.FileSystem;
 import de.unisb.cs.st.evosuite.runtime.Runtime;
 import de.unisb.cs.st.evosuite.runtime.System.SystemExitException;
@@ -239,16 +237,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
 		if (Properties.VIRTUAL_FS) {
-			List<String> fileNames = new ArrayList<String>();
-			for (File f : File.createdFiles) {
-				try {
-					fileNames.add(f.getCanonicalPath());
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			test.setAccessedFiles(fileNames);
+			test.setAccessedFiles(new ArrayList<String>(IOWrapper.accessedFiles));
 			FileSystem.restoreOriginalFS();
 		}
 
