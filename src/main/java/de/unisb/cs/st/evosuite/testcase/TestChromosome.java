@@ -219,7 +219,6 @@ public class TestChromosome extends ExecutableChromosome {
 	@Override
 	public void mutate() {
 		boolean changed = false;
-		double P = 1d / 3d;
 
 		logger.debug("Mutation: delete");
 		// Delete
