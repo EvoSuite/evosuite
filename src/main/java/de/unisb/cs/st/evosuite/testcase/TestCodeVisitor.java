@@ -15,6 +15,7 @@ import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
+import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.assertion.Assertion;
 import de.unisb.cs.st.evosuite.assertion.CompareAssertion;
 import de.unisb.cs.st.evosuite.assertion.EqualsAssertion;
@@ -23,6 +24,7 @@ import de.unisb.cs.st.evosuite.assertion.InspectorAssertion;
 import de.unisb.cs.st.evosuite.assertion.NullAssertion;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveAssertion;
 import de.unisb.cs.st.evosuite.assertion.PrimitiveFieldAssertion;
+import de.unisb.cs.st.evosuite.parameterize.InputVariable;
 import de.unisb.cs.st.evosuite.runtime.EvoSuiteFile;
 import de.unisb.cs.st.evosuite.utils.NumberFormatter;
 
@@ -63,6 +65,8 @@ public class TestCodeVisitor implements TestVisitor {
 
 	protected String getVariableName(VariableReference var) {
 		if (var instanceof ConstantValue) {
+			return var.getName();
+		} else if (var instanceof InputVariable) {
 			return var.getName();
 		} else if (var instanceof FieldReference) {
 			VariableReference source = ((FieldReference) var).getSource();
@@ -451,7 +455,8 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 
 		boolean lastStatement = statement.getPosition() == statement.tc.size() - 1;
-		boolean unused = test != null ? !test.hasReferences(retval) : false;
+		boolean unused = test != null && Properties.ASSERTIONS ? !test.hasReferences(retval)
+		        : false;
 
 		if (retval.getType() != Void.TYPE
 		        && retval.getAdditionalVariableReference() == null && !unused) {
