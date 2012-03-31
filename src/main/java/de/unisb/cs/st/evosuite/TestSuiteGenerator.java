@@ -155,8 +155,8 @@ public class TestSuiteGenerator {
 
 	public static final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
+	
 	public static StoppingCondition stopping_condition;
-
 	public static boolean analyzing = false;
 
 	/*
