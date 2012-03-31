@@ -129,6 +129,7 @@ public class Properties {
 	public static int STRING_LENGTH = 20;
 
 	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
+	@Deprecated // does not seem to be used anywhere
 	public static double EPSILON = 0.001;
 
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")

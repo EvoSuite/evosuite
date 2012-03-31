@@ -69,13 +69,9 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = -920540796220051609L;
-
-	protected final static boolean do_plot = Properties.PLOT;
-
-	protected final static boolean do_html = Properties.HTML;
-
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
+	//FIXME: need re-factor, as dependent on Properties
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
 	protected static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
@@ -577,7 +573,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		 */
 
 		// Chart of fitness
-		if (do_plot) {
+		if (Properties.PLOT) {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
@@ -864,7 +860,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * Write an HTML report
 	 */
 	public void writeReport() {
-		if (!do_html)
+		if (!Properties.HTML)
 			return;
 
 		if (statistics.isEmpty())
@@ -973,9 +969,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected void makeDirs() {
 		REPORT_DIR.mkdirs();
 		(new File(REPORT_DIR.getAbsolutePath() + "/data")).mkdir();
-		if (do_plot)
+		if (Properties.PLOT)
 			(new File(REPORT_DIR.getAbsolutePath() + "/img")).mkdir();
-		if (do_html)
+		if (Properties.HTML)
 			(new File(REPORT_DIR.getAbsolutePath() + "/html")).mkdir();
 	}
 

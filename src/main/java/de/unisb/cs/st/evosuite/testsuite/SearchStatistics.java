@@ -162,7 +162,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		 */
 
 		// Chart of fitness
-		if (do_plot) {
+		if (Properties.PLOT) {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
