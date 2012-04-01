@@ -394,8 +394,9 @@ public class TestSuiteGenerator {
 		        || Properties.CRITERION == Criterion.STATEMENT)
 			ExecutionTrace.enableTraceCalls();
 
-		if (analyzing)
-			ga.resetStoppingConditions();
+		//TODO: why it was only if "analyzing"???
+		//if (analyzing)
+		ga.resetStoppingConditions();
 
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();

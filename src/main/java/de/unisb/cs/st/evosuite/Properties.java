@@ -1211,7 +1211,7 @@ public class Properties {
 	 * @return
 	 */
 	public static Class<?> getTargetClass() {
-		if (TARGET_CLASS_INSTANCE != null)
+		if (TARGET_CLASS_INSTANCE != null && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
 		try {
