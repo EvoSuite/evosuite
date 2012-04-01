@@ -68,6 +68,20 @@ public class BranchPool {
 	// fill the pool
 
 	/**
+	 * Reset all the data structures used to keep track of the branch information
+	 */
+	public static void reset(){
+		branchCounter = 0;
+		branchMap.clear();
+		branchlessMethods.clear();
+		branchIdMap.clear();
+		registeredNormalBranches.clear();
+		registeredSwitches.clear();
+		registeredDefaultCases.clear();
+		switchLabels.clear();
+	}
+	
+	/**
 	 * Gets called by the CFGMethodAdapter whenever it detects a method without
 	 * any branches.
 	 * 

@@ -66,6 +66,14 @@ public abstract class TestCluster {
 
 	private static Set<Method> staticInitializers = new HashSet<Method>();
 
+	
+	public static void reset(){
+		classLoader = new InstrumentingClassLoader();
+		finalClasses.clear();
+		staticInitializers.clear();
+	}
+	
+	
 	public static void registerStaticInitializer(String className) {
 		finalClasses.add(className);
 	}

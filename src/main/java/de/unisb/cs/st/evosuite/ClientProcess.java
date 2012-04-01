@@ -3,10 +3,12 @@
  */
 package de.unisb.cs.st.evosuite;
 
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessUtilities;
 
 /**
@@ -31,6 +33,9 @@ public class ClientProcess implements SearchListener {
 			System.exit(1);
 		}
 
+		BranchPool.reset();
+		TestCluster.reset();
+		
 		TestSuiteGenerator generator = null;
 		Object population_data = util.receiveInstruction();
 		if (population_data == null) {
