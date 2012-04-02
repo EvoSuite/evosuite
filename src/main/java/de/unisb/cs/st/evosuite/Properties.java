@@ -38,6 +38,7 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -1213,6 +1214,9 @@ public class Properties {
 	public static Class<?> getTargetClass() {
 		if (TARGET_CLASS_INSTANCE != null && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
+
+		BranchPool.reset();
+		TestCluster.reset();
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);

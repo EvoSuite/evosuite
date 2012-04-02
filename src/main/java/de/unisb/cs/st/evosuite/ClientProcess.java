@@ -33,9 +33,6 @@ public class ClientProcess implements SearchListener {
 			System.exit(1);
 		}
 
-		BranchPool.reset();
-		TestCluster.reset();
-		
 		TestSuiteGenerator generator = null;
 		Object population_data = util.receiveInstruction();
 		if (population_data == null) {
