@@ -19,7 +19,8 @@
 package de.unisb.cs.st.evosuite.ga;
 
 /**
- * Replacement function that only looks at the fitness
+ * Replacement function that only looks at the fitness and secondary objectives,
+ * without checking any further constraint on the parents
  * 
  * @author Gordon Fraser
  * 
@@ -28,29 +29,12 @@ public class FitnessReplacementFunction extends ReplacementFunction {
 
 	private static final long serialVersionUID = 8492857847521917540L;
 
-	/**
-	 * @param selectionFunction
-	 */
-	public FitnessReplacementFunction(SelectionFunction selectionFunction) {
-		super(selectionFunction);
+	
+	public FitnessReplacementFunction(boolean maximize) {
+		super(maximize);
 	}
-
-	@Override
-	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
-	        Chromosome offspring1, Chromosome offspring2) {
-
-		Chromosome best_parent = getBest(parent1, parent2);
-		Chromosome best_offspring = getBest(offspring1, offspring2);
-
-		return isBetter(best_offspring, best_parent);
+	
+	public FitnessReplacementFunction(){
+		this(false);
 	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
-	 */
-	@Override
-	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
-		return isBetter(offspring, parent);
-	}
-
 }
