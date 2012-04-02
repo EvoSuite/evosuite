@@ -46,6 +46,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 		private static final long serialVersionUID = 1667810363133452317L;
 	};
 
+	/**
+	 * only used for testing/debugging
+	 */
+	protected Chromosome(){
+		
+	}
+	
 	/** Last recorded fitness value */
 	private double fitness = 0.0;
 

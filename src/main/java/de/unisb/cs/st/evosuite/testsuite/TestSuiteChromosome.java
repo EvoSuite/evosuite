@@ -49,6 +49,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	/** Secondary objectives used during ranking */
 	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
+	public TestSuiteChromosome(){super();}
+	
 	public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
 		super(testChromosomeFactory);
 	}

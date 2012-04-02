@@ -24,6 +24,14 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	 */
 	protected double coverage = 0.0;
 
+
+	/**
+	 * only used for testing/debugging
+	 */
+	protected AbstractTestSuiteChromosome(){
+		super();
+	}
+	
 	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
 		this.testChromosomeFactory = testChromosomeFactory;
 	}
