@@ -373,8 +373,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		updateIndividual(individual, fitness);
 
-		assert (suite.getCoverage() <= 1.0);
-		assert (suite.getCoverage() >= 0.0);
+		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "+suite.getCoverage();
 		//if (!check)
 		//	checkFitness(suite, fitness);
 		return fitness;

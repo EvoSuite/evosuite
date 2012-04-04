@@ -22,9 +22,11 @@
   <logger name="de.unisb.cs.st.evosuite.coverage.branch" level="WARN" />
   <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" /> -->
 
-  <root level="WARN">
+  <root level="${log.level}">
     <appender-ref ref="STDOUT" />
   </root>
+
+  <logger name="${log.target}" level="ALL" />	
 
   <!-- <root level="DEBUG">
     <appender-ref ref="FILE" />
