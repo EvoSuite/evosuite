@@ -29,7 +29,7 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 	
 	
 	@Test
-	public void testNoPrimitivePool() throws IOException{
+	public void testMuted() throws IOException{
 		
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		PrintStream byteOut = new PrintStream(byteStream);

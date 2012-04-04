@@ -27,6 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 /**
  * @author Gordon Fraser
@@ -34,6 +35,8 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
  */
 public class EvoSuite {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
 	private static String separator = System.getProperty("file.separator");
