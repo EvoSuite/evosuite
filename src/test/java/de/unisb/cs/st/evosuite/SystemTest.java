@@ -8,6 +8,8 @@ import java.net.URLClassLoader;
 
 import org.junit.*;
 
+import de.unisb.cs.st.evosuite.Properties.StoppingCondition;
+
 
 /**
  * @author Andrea Arcuri
@@ -23,7 +25,8 @@ public class SystemTest {
 		Properties.JUNIT_TESTS = false;
 		Properties.PLOT = false;
 		
-		Properties.SEARCH_BUDGET = 1000;
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
+		Properties.SEARCH_BUDGET = 10000;
 
 		Properties.CLIENT_ON_THREAD = true;
 	}

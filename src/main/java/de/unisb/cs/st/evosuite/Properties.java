@@ -1231,6 +1231,8 @@ public class Properties {
 	 * Get class object of class under test
 	 * 
 	 * @return
+	 * 
+	 * @deprecated
 	 */
 	public static Class<?> loadTargetClass() {
 		try {
