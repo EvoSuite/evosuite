@@ -6,22 +6,22 @@ public class ImplicitExplicitException {
 		
 	}
 	
-	public void implicit(String x){
+	public void implicit(Integer x){
 		x.toString();
 	}
 	
-	public void explicit(String x){
+	public void explicit(Integer x){
 		if(x==null){
 			throw new NullPointerException();
 		}
 		x.toString();
 	}
 	
-	public void implicitDeclared(String x) throws NullPointerException{
+	public void implicitDeclared(Integer x) throws NullPointerException{
 		x.toString();
 	}
 	
-	public void explicitDeclared(String x) throws NullPointerException{
+	public void explicitDeclared(Integer x) throws NullPointerException{
 		if(x==null){
 			throw new NullPointerException();
 		}
