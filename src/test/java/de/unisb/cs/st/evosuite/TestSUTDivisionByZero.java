@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite;
 
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.DivisionByZero;
@@ -25,6 +26,7 @@ public class TestSUTDivisionByZero extends SystemTest{
 		Properties.ERROR_BRANCHES = defaultErrorBranches;
 	}
 	
+	@Ignore
 	@Test
 	public void testDivisonByZero(){
 		EvoSuite evosuite = new EvoSuite();

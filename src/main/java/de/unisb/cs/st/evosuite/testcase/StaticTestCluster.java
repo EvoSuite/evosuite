@@ -118,8 +118,10 @@ public class StaticTestCluster extends TestCluster {
 	protected StaticTestCluster() {
 	}
 
+	
 	@Override
 	protected void init() {
+		hierarchy = Hierarchy.readFromDefaultLocation();
 		populate();
 		addIncludes();
 		analyzeTarget();

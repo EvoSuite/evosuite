@@ -39,7 +39,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -52,6 +54,8 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class Properties {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
@@ -1217,6 +1221,7 @@ public class Properties {
 
 		BranchPool.reset();
 		TestCluster.reset();
+		DefaultTestFactory.getInstance().reset();
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
