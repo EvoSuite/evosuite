@@ -9,6 +9,7 @@ import java.net.URLClassLoader;
 import org.junit.*;
 
 import de.unisb.cs.st.evosuite.Properties.StoppingCondition;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 
 /**
@@ -17,6 +18,8 @@ import de.unisb.cs.st.evosuite.Properties.StoppingCondition;
  */
 public class SystemTest {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	@Before
 	public void setDefaultPropertiesForTestCases(){
 		Properties.HTML = false;
@@ -28,6 +31,10 @@ public class SystemTest {
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 10000;
 
+		Properties.GLOBAL_TIMEOUT = 50;
+		Properties.MINIMIZATION_TIMEOUT = 8;
+		Properties.EXTRA_TIMEOUT = 2;
+		
 		Properties.CLIENT_ON_THREAD = true;
 	}
 	
@@ -60,7 +67,7 @@ public class SystemTest {
 		if(hasBeenAlreadyRun){
 			return;
 		}
-		
+						
 		deleteEvoDirs();
 		
 		System.out.println("*** SystemTest: runSetup() ***");

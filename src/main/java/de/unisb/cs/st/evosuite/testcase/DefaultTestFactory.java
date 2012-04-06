@@ -71,8 +71,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private transient Set<AccessibleObject> currentRecursion = new HashSet<AccessibleObject>();
 
 	private DefaultTestFactory() {
+		reset();
 	}
 
+	public void reset(){
+		MethodDescriptorReplacement.getInstance().reset();
+		currentRecursion.clear();
+	}
+	
 	public static DefaultTestFactory getInstance() {
 		if (instance == null)
 			instance = new DefaultTestFactory();

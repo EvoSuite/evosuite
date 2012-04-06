@@ -27,7 +27,7 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		System.setOut(defaultOut);
 	}
 	
-	
+	@Ignore
 	@Test
 	public void testMuted() throws IOException{
 		

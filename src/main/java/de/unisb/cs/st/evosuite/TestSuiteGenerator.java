@@ -1156,15 +1156,19 @@ public class TestSuiteGenerator {
 		if (Properties.STOP_ZERO) {
 			ga.addStoppingCondition(zero_fitness);
 		}
-		if (!(stopping_condition instanceof MaxTimeStoppingCondition))
+		
+		if (!(stopping_condition instanceof MaxTimeStoppingCondition)){
 			ga.addStoppingCondition(global_time);
+		}
+		
 		if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION)
+		        || Properties.CRITERION == Criterion.STRONGMUTATION){
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 			else
 				ga.addListener(new MutationTestPool());
-
+		}
+		ga.resetStoppingConditions();
 		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over

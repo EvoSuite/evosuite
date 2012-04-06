@@ -63,7 +63,15 @@ public class MethodDescriptorReplacement implements Serializable {
 	 * Private constructor
 	 */
 	private MethodDescriptorReplacement() {
+		reset();
 		getDescriptorMapping();
+	}
+	
+	public void reset(){
+		descriptors.clear();
+		return_types.clear();
+		return_types.clear();
+		constructor_parameters.clear();
 	}
 
 	/**

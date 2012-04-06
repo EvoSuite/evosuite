@@ -71,6 +71,7 @@ public abstract class TestCluster {
 		classLoader = new InstrumentingClassLoader();
 		finalClasses.clear();
 		staticInitializers.clear();
+		instance = null;
 	}
 	
 	

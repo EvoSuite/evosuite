@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.NullString;
@@ -10,7 +11,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
 public class TestNullString extends SystemTest{
 
-	
+	@Ignore
 	@Test
 	public void testNullString(){
 		EvoSuite evosuite = new EvoSuite();

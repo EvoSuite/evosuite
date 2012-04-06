@@ -55,13 +55,34 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	public static final int total_methods;
-	public static final int total_branches;
-	public static final int numBranchlessMethods;
-	public static final Set<Integer> lines;
-	private static final Set<String> branchlessMethods;
+	//FIXME
+	
+	public  final int total_methods;
+	public  final int total_branches;
+	public  final int numBranchlessMethods;
+	public  final Set<Integer> lines;
+	private  final Set<String> branchlessMethods;
 
 	static {
+		
+	}
+
+	public int covered_branches = 0;
+
+	public int covered_methods = 0;
+
+	public double best_fitness = Double.MAX_VALUE;
+
+	public   int total_goals; 
+
+	public static int mostCoveredGoals = 0;
+
+	protected boolean check = false;
+
+	private final Set<String> publicTargetMethods = new HashSet<String>();
+
+	public BranchCoverageSuiteFitness() {
+		
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		if (prefix.isEmpty()) {
@@ -79,23 +100,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		/* TODO: Would be nice to use a prefix here */
 		lines = LinePool.getLines(Properties.TARGET_CLASS);
-	}
-
-	public int covered_branches = 0;
-
-	public int covered_methods = 0;
-
-	public double best_fitness = Double.MAX_VALUE;
-
-	public static final int total_goals = 2 * total_branches + numBranchlessMethods;
-
-	public static int mostCoveredGoals = 0;
-
-	protected boolean check = false;
-
-	private final Set<String> publicTargetMethods = new HashSet<String>();
-
-	public BranchCoverageSuiteFitness() {
+		
+		total_goals = 2 * total_branches + numBranchlessMethods;
+		
 		logger.info("Total branch coverage goals: " + total_goals);
 		logger.info("Total branches: " + total_branches);
 		logger.info("Total branchless methods: " + numBranchlessMethods);

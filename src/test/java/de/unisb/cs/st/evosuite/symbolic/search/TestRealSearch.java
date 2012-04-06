@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Test;
+import org.junit.Ignore;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
 import de.unisb.cs.st.evosuite.symbolic.expr.Constraint;
@@ -164,6 +165,7 @@ public class TestRealSearch {
 		assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
 	}
 
+	@Ignore
 	@Test
 	public void testEQVariable() {
 		double var1 = 0.23123;
