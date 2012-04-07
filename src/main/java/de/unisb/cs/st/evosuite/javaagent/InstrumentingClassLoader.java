@@ -43,8 +43,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
-		if (name.startsWith("java")
-		        || name.startsWith("sun")
+		if (name.startsWith("java.")
+		        || name.startsWith("sun.")
 		        || (Properties.VIRTUAL_FS && (name.startsWith("org.xml")
 		                || name.startsWith("org.w3c")
 		                || name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
