@@ -24,7 +24,7 @@ public class TestImplicitExplicitExceptions extends SystemTest {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = ImplicitExplicitException.class.getCanonicalName();
-
+		
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = Properties.Criterion.EXCEPTION;
 

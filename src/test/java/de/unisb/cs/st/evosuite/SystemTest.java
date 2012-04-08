@@ -10,6 +10,7 @@ import org.junit.*;
 
 import de.unisb.cs.st.evosuite.Properties.StoppingCondition;
 import de.unisb.cs.st.evosuite.utils.LoggingUtils;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 
 /**
@@ -18,7 +19,26 @@ import de.unisb.cs.st.evosuite.utils.LoggingUtils;
  */
 public class SystemTest {
 
-	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	//private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
+	private static final String ALREADY_SETUP = "systemtest.alreadysetup";
+	
+	 static{
+		String s = System.getProperty(ALREADY_SETUP);
+		if(s==null){
+			System.setProperty(ALREADY_SETUP, ALREADY_SETUP);
+			runSetup();			
+		}	
+	}
+	
+	
+	@Before
+	/**
+	 * Before running any test case, we reset the random generator
+	 */
+	public void resetSeed(){
+		Randomness.setSeed(42);
+	}
 	
 	@Before
 	public void setDefaultPropertiesForTestCases(){
@@ -62,12 +82,13 @@ public class SystemTest {
 	 */
 	private static boolean hasBeenAlreadyRun = false;
 	
-	@BeforeClass
-	public static void runSetup(){
+	private static void runSetup(){
 		if(hasBeenAlreadyRun){
 			return;
 		}
 						
+		LoggingUtils.checkAndSetLogLevel();
+		
 		deleteEvoDirs();
 		
 		System.out.println("*** SystemTest: runSetup() ***");
@@ -121,8 +142,8 @@ public class SystemTest {
 	/*
 	 * it's giving some problems
 	 */
-	//@AfterClass
-	public static void deleteEvoDirs(){
+	//
+	private static void deleteEvoDirs(){
 		//if(!hasBeenAlreadyRun){
 			//return;
 		//}

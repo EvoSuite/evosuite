@@ -50,6 +50,7 @@ import de.unisb.cs.st.evosuite.callgraph.DistanceTransformer.ClassEntry;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
 import de.unisb.cs.st.evosuite.javaagent.CIClassAdapter;
 import de.unisb.cs.st.evosuite.javaagent.EmptyVisitor;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.StringUtil;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -59,6 +60,8 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class ScanProject {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	protected static Logger logger = LoggerFactory.getLogger(ScanProject.class);
 
 	//	private static ClassLoader classLoader = new FileClassLoader();

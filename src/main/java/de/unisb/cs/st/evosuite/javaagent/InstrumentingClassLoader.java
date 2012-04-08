@@ -39,16 +39,39 @@ public class InstrumentingClassLoader extends ClassLoader {
 		this.instrumentation = instrumentation;
 	}
 
+	/**
+	 * Check if we can instrument the given class 
+	 */
+	public static boolean checkIfCanInstrument(String className){
+		for(String s : getPackagesShouldNotBeInstrumented()){
+			if(className.startsWith(s)){
+				return false;
+			}
+		}
+		return true;
+	}
+	
+	/**
+	 * 
+	 * @return the names of class packages EvoSuite is not going to instrument
+	 */
+	public static String[] getPackagesShouldNotBeInstrumented(){
+		return new String[]{
+			"java.",
+			"sun.",
+			"de.unisb.cs.st.evosuite"
+		};
+	}
+	
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
-		if (name.startsWith("java.")
-		        || name.startsWith("sun.")
-		        || (Properties.VIRTUAL_FS && (name.startsWith("org.xml")
+		if (!checkIfCanInstrument(name) || 
+		         (Properties.VIRTUAL_FS && (name.startsWith("org.xml")
 		                || name.startsWith("org.w3c")
 		                || name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
-		        || name.startsWith("de.unisb.cs.st.evosuite")) {
+		       ) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;

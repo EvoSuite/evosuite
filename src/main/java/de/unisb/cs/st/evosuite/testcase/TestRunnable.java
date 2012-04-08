@@ -105,6 +105,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 	@Override
 	public ExecutionResult call() {
 
+		exceptionsThrown.clear();
+		
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
 		Sandbox.setUpMocks();
@@ -124,7 +126,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		int num = 0;
 		try {
-
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (StatementInterface s : test) {
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
@@ -132,8 +133,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 					        + s.getCode());
 					throw new TimeoutException();
 				}
-				if (logger.isDebugEnabled())
+				if (logger.isDebugEnabled()){
 					logger.debug("Executing statement " + s.getCode());
+				}
 				ExecutionTracer.statementExecuted();
 
 				Sandbox.setUpMockedSecurityManager();
@@ -148,45 +150,42 @@ public class TestRunnable implements InterfaceTestRunnable {
 					}
 
 					exceptionsThrown.put(num, exceptionThrown);
-
-					if (exceptionThrown instanceof SecurityException) {
-						logger.debug("Security exception found: " + exceptionThrown);
-						break;
-					}
-
-					/*
-					 * #TODO this is a penalty for test cases which contain a statement that throws an undeclared exception.
-					 * As those test cases are not going to be executed after the statement (i.e. no coverage for those parts is generated) 
-					 * This comment should explain, why that behavior is desirable 
-					 */
-					if (Properties.BREAK_ON_EXCEPTION) {
-						break;
-						//!s.isDeclaredException(exceptionThrown))
-					}
-
-					if (Thread.interrupted()) {
-						break;
-					}
+					
 					ExecutionTracer.disable();
 					for (ExecutionObserver observer : observers) {
 						observer.statement(s, scope, exceptionThrown);
 					}
 					ExecutionTracer.enable();
-					// exception_statement = num; 
-					if (log && logger.isDebugEnabled())
+
+					//FIXME: this might be removed
+					if (exceptionThrown instanceof SecurityException) {
+						logger.debug("Security exception found: " + exceptionThrown);
+						break;
+					}
+
+					if (logger.isDebugEnabled()){
 						logger.debug("Exception thrown in statement: " + s.getCode()
 						        + " - " + exceptionThrown.getClass().getName() + " - "
 						        + exceptionThrown.getMessage());
+					}
+
+					/*
+					 * If an exception is thrown, we stop the execution of the test case, because the
+					 * internal state could be corrupted, and not possible to verifyt the behaivor of
+					 * any following function call
+					 */
+					if (Properties.BREAK_ON_EXCEPTION) {
+						break;
+					}
 				}
-				if (logger.isDebugEnabled())
+				
+				if (logger.isDebugEnabled()){
 					logger.debug("Done statement " + s.getCode());
-				ExecutionTracer.disable();
-				for (ExecutionObserver observer : observers) {
-					observer.statement(s, scope, exceptionThrown);
 				}
-				ExecutionTracer.enable();
+
 				num++;
-			}
+			} //end of loop
+			
 			checkClientThreads(numThreads);
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 
@@ -241,7 +240,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			FileSystem.restoreOriginalFS();
 		}
 
-		result.exceptions = exceptionsThrown;
+		result.exceptions = getExceptionsThrown();
 		if (Sandbox.canUseFileContentGeneration())
 			try {
 				logger.debug("Enabling file handling");
@@ -264,7 +263,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 */
 	@Override
 	public Map<Integer, Throwable> getExceptionsThrown() {
-		return exceptionsThrown;
+		HashMap<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
+		copy.putAll(exceptionsThrown);
+		return copy;
 	}
 
 	/* (non-Javadoc)
