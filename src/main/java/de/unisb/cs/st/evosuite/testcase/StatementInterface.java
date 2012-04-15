@@ -227,7 +227,7 @@ public interface StatementInterface {
 
 	public boolean mutate(TestCase test, AbstractTestFactory factory);
 
-	public void SetRetval(VariableReference newRetVal);
+	public void setRetval(VariableReference newRetVal);
 
 	/**
 	 * Returns the accessibleObject which is used to generate this kind of
