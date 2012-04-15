@@ -121,6 +121,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ValueMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
+import de.unisb.cs.st.evosuite.testsuite.CoverageCrossOver;
 import de.unisb.cs.st.evosuite.testsuite.CoverageStatistics;
 import de.unisb.cs.st.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
@@ -278,6 +279,14 @@ public class TestSuiteGenerator {
 
 		if (analyzing)
 			System.out.println();
+
+		/*
+		PUTGeneralizer generalizer = new PUTGeneralizer();
+		for (TestCase test : tests) {
+			generalizer.generalize(test);
+			//			ParameterizedTestCase put = new ParameterizedTestCase(test);
+		}
+		*/
 
 		return tests;
 	}
@@ -967,6 +976,12 @@ public class TestSuiteGenerator {
 			return new SinglePointRelativeCrossOver();
 		case SINGLEPOINT:
 			return new SinglePointCrossOver();
+		case COVERAGE:
+			if (Properties.STRATEGY != Properties.Strategy.EVOSUITE)
+				throw new RuntimeException(
+				        "Coverage crossover function requires test suite mode");
+
+			return new CoverageCrossOver();
 		default:
 			throw new RuntimeException("Unknown crossover function: "
 			        + Properties.CROSSOVER_FUNCTION);

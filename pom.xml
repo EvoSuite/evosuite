@@ -227,16 +227,6 @@
                         <version>0.9.5-b29</version>
                         <classifier>jar</classifier>
                 </dependency>
-		<dependency>
-		  <groupId>de.unisaarland.cs.st</groupId>
-		  <artifactId>adabu-core</artifactId>
-		  <version>0.6</version>
-		</dependency>
-		<dependency>
-		  <groupId>de.unisaarland.cs.st</groupId>
-		  <artifactId>adabu-tracer</artifactId>
-		  <version>0.6</version>
-		</dependency>
 	</dependencies>
 	<repositories>
 
