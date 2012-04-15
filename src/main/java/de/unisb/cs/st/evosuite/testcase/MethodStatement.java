@@ -233,6 +233,9 @@ public class MethodStatement extends AbstractStatement {
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
+		if (retval.equals(var1))
+			retval = var2;
+
 		if (isInstanceMethod()) {
 			if (callee.equals(var1))
 				callee = var2;
