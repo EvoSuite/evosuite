@@ -63,7 +63,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	private static Logger logger = LoggerFactory.getLogger(DefaultTestFactory.class);
 
-	private transient MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
+	//	private transient MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
+	private transient MethodDescriptorReplacement descriptor_replacement = new MethodDescriptorReplacement();
 
 	/**
 	 * Keep track of objects we are already trying to generate
@@ -74,11 +75,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		reset();
 	}
 
-	public void reset(){
-		MethodDescriptorReplacement.getInstance().reset();
+	public void reset() {
+		// MethodDescriptorReplacement.getInstance().reset();
 		currentRecursion.clear();
 	}
-	
+
 	public static DefaultTestFactory getInstance() {
 		if (instance == null)
 			instance = new DefaultTestFactory();
@@ -870,7 +871,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				return addTestCall(test, position);
 			}
 
-			AccessibleObject o = TestCluster.getInstance().getRandomGenerator(type, currentRecursion);
+			AccessibleObject o = TestCluster.getInstance().getRandomGenerator(type,
+			                                                                  currentRecursion);
 			currentRecursion.add(o);
 			if (o == null) {
 				if (!TestCluster.getInstance().hasGenerator(type)) {
@@ -1374,7 +1376,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        IOException {
 		ois.defaultReadObject();
 		//testCluster = TestCluster.getInstance();
-		descriptor_replacement = MethodDescriptorReplacement.getInstance();
+		//		descriptor_replacement = MethodDescriptorReplacement.getInstance();
+		descriptor_replacement = new MethodDescriptorReplacement();
 		currentRecursion = new HashSet<AccessibleObject>();
 	}
 }
