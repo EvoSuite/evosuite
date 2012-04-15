@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.assertion;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import de.unisb.cs.st.evosuite.testcase.PrimitiveStatement;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -35,6 +36,11 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 	@Override
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
 		// TODO: Check the variable class is complex?
+
+		// We don't want inspector checks on string constants
+		if (statement instanceof PrimitiveStatement<?>)
+			return;
+
 		logger.debug("Checking for inspectors of " + var + " at statement "
 		        + statement.getPosition());
 		List<Inspector> inspectors = manager.getInspectors(var.getVariableClass());
