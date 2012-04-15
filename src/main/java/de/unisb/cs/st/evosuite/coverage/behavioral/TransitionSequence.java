@@ -61,7 +61,7 @@ public class TransitionSequence extends LinkedList<TestCase> {
 				StatementInterface copy = statement.copy(result, offset);
 				result.remove(result.size()-1); // remove old statement before adding the copy
 				result.addStatement(copy);
-				copy.SetRetval(statement.getReturnValue().copy(result, offset));
+				copy.setRetval(statement.getReturnValue().copy(result, offset));
 				copy.setAssertions(statement.copyAssertions(result, offset));
 				
 				// update the calling variable reference for last method statement
