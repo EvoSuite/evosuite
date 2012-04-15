@@ -56,15 +56,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	public static final int totalMethods;
-	public static final int totalBranches;
-	public static final int numBranchlessMethods;
-	public static final Set<Integer> lines;
-	private static final Set<String> branchlessMethods;
-
-	static {
-		
-	}
+	public final int totalMethods;
+	public final int totalBranches;
+	public final int numBranchlessMethods;
+	public final Set<Integer> lines;
+	private final Set<String> branchlessMethods;
 
 	public int covered_branches = 0;
 
@@ -72,7 +68,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public double best_fitness = Double.MAX_VALUE;
 
-	public   int total_goals; 
+	public int totalGoals;
 
 	public static int mostCoveredGoals = 0;
 
@@ -81,7 +77,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<String> publicTargetMethods = new HashSet<String>();
 
 	public BranchCoverageSuiteFitness() {
-		
+
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		if (prefix.isEmpty()) {
@@ -99,28 +95,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		/* TODO: Would be nice to use a prefix here */
 		lines = LinePool.getLines(Properties.TARGET_CLASS);
-	}
 
-	public int maxCoveredBranches = 0;
+		totalGoals = 2 * totalBranches + numBranchlessMethods;
 
-	public int maxCoveredMethods = 0;
-
-	public double bestFitness = Double.MAX_VALUE;
-
-	public static final int totalGoals = 2 * totalBranches + numBranchlessMethods;
-
-	public static int mostCoveredGoals = 0;
-
-	protected boolean check = false;
-
-	private final Set<String> publicTargetMethods = new HashSet<String>();
-
-	private final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new HashMap<Integer, TestFitnessFunction>();
-	private final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<Integer, TestFitnessFunction>();
-
-	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<String, TestFitnessFunction>();
-
-	public BranchCoverageSuiteFitness() {
 		logger.info("Total branch coverage goals: " + totalGoals);
 		logger.info("Total branches: " + totalBranches);
 		logger.info("Total branchless methods: " + numBranchlessMethods);
@@ -130,6 +107,17 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		getPublicMethods();
 		determineCoverageGoals();
 	}
+
+	public int maxCoveredBranches = 0;
+
+	public int maxCoveredMethods = 0;
+
+	public double bestFitness = Double.MAX_VALUE;
+
+	private final Map<Integer, TestFitnessFunction> branchCoverageTrueMap = new HashMap<Integer, TestFitnessFunction>();
+	private final Map<Integer, TestFitnessFunction> branchCoverageFalseMap = new HashMap<Integer, TestFitnessFunction>();
+
+	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
 	private void determineCoverageGoals() {
 		List<TestFitnessFunction> goals = new BranchCoverageFactory().getCoverageGoals();
@@ -350,7 +338,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
 		        + totalGoals;
-		suite.setCoverage(coverage / totalGoals);
+		logger.info("Fitness: " + fitness + ", " + "coverage: " + coverage + "/"
+		        + totalGoals);
+		suite.setCoverage((double) coverage / (double) totalGoals);
 		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coverage + "/" + totalGoals;
 		if (hasTimeout) {
@@ -362,7 +352,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		updateIndividual(individual, fitness);
 
-		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "+suite.getCoverage();
+		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "
+		        + suite.getCoverage();
 		//if (!check)
 		//	checkFitness(suite, fitness);
 		return fitness;
