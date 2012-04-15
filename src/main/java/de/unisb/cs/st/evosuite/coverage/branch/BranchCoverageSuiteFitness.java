@@ -338,8 +338,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
 		        + totalGoals;
-		logger.info("Fitness: " + fitness + ", " + "coverage: " + coverage + "/"
-		        + totalGoals);
 		suite.setCoverage((double) coverage / (double) totalGoals);
 		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coverage + "/" + totalGoals;
