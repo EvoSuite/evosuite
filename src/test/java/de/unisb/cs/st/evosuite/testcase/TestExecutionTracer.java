@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -16,6 +17,7 @@ public class TestExecutionTracer {
 	private static final double DELTA = 0.0;
 	private final ClassTransformer classTransformer = ClassTransformer.getInstance();
 
+	@Ignore
 	@Test
 	public void testGreaterEqual() {
 		final Integer branchId = 1;
@@ -29,6 +31,7 @@ public class TestExecutionTracer {
 		Assert.assertEquals(0.0, execTrace.false_distances.get(branchId), DELTA);
 	}
 
+	@Ignore
 	@Test
 	public void testGreaterThan() {
 		final Integer branchId = 2;
@@ -42,6 +45,7 @@ public class TestExecutionTracer {
 		Assert.assertEquals(1.0, execTrace.false_distances.get(branchId), DELTA);
 	}
 
+	@Ignore
 	@Test
 	public void testLesserEqual() {
 		final Integer branchId = 3;
@@ -58,6 +62,7 @@ public class TestExecutionTracer {
 		Assert.assertEquals(2.0, execTrace.false_distances.get(branchId), DELTA);
 	}
 
+	@Ignore
 	@Test
 	public void testLesserThan() {
 		final Integer branchId = 4;

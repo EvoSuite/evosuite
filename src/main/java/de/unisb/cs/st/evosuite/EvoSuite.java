@@ -25,8 +25,10 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 /**
  * @author Gordon Fraser
@@ -34,6 +36,8 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
  */
 public class EvoSuite {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
 	private static String separator = System.getProperty("file.separator");
@@ -162,6 +166,11 @@ public class EvoSuite {
 
 	private static Object generateTests(boolean wholeSuite, String target,
 	        List<String> args) {
+		
+		if(!InstrumentingClassLoader.checkIfCanInstrument(target)){
+			throw new IllegalArgumentException("Cannot consider "+target+" because it belongs to one of tha packages EvoSuite cannot currently handle");
+		}
+		
 		File taskFile = new File(Properties.OUTPUT_DIR + File.separator + target
 		        + ".task");
 		if (!taskFile.exists()) {

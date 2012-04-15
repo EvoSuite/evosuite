@@ -63,6 +63,25 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final Set<String> branchlessMethods;
 
 	static {
+		
+	}
+
+	public int covered_branches = 0;
+
+	public int covered_methods = 0;
+
+	public double best_fitness = Double.MAX_VALUE;
+
+	public   int total_goals; 
+
+	public static int mostCoveredGoals = 0;
+
+	protected boolean check = false;
+
+	private final Set<String> publicTargetMethods = new HashSet<String>();
+
+	public BranchCoverageSuiteFitness() {
+		
 		String prefix = Properties.TARGET_CLASS_PREFIX;
 
 		if (prefix.isEmpty()) {
@@ -343,8 +362,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		updateIndividual(individual, fitness);
 
-		assert (suite.getCoverage() <= 1.0);
-		assert (suite.getCoverage() >= 0.0);
+		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "+suite.getCoverage();
 		//if (!check)
 		//	checkFitness(suite, fitness);
 		return fitness;

@@ -16,6 +16,7 @@ public class TestSUTInfiniteLoops extends SystemTest{
 		Properties.TIMEOUT = defaultTimeout;
 	}
 
+	@Ignore
 	@Test
 	public void testInfiniteLoops() throws InterruptedException{
 		EvoSuite evosuite = new EvoSuite();

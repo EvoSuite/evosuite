@@ -155,8 +155,8 @@ public class TestSuiteGenerator {
 
 	public static final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
+	
 	public static StoppingCondition stopping_condition;
-
 	public static boolean analyzing = false;
 
 	/*
@@ -400,8 +400,9 @@ public class TestSuiteGenerator {
 		        || Properties.CRITERION == Criterion.STATEMENT)
 			ExecutionTrace.enableTraceCalls();
 
-		if (analyzing)
-			ga.resetStoppingConditions();
+		//TODO: why it was only if "analyzing"???
+		//if (analyzing)
+		ga.resetStoppingConditions();
 
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
@@ -1167,15 +1168,19 @@ public class TestSuiteGenerator {
 		if (Properties.STOP_ZERO) {
 			ga.addStoppingCondition(zero_fitness);
 		}
-		if (!(stopping_condition instanceof MaxTimeStoppingCondition))
+		
+		if (!(stopping_condition instanceof MaxTimeStoppingCondition)){
 			ga.addStoppingCondition(global_time);
+		}
+		
 		if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION)
+		        || Properties.CRITERION == Criterion.STRONGMUTATION){
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 			else
 				ga.addListener(new MutationTestPool());
-
+		}
+		ga.resetStoppingConditions();
 		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over

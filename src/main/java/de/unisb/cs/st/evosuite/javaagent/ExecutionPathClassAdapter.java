@@ -35,12 +35,15 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
  */
 public class ExecutionPathClassAdapter extends ClassVisitor {
 
-	private static final boolean MUTATION = Properties.CRITERION == Criterion.MUTATION
-	        || Properties.CRITERION == Criterion.STRONGMUTATION
-	        || Properties.CRITERION == Criterion.WEAKMUTATION;
-
+	
 	private final String className;
 
+	private static boolean isMutation(){
+		return Properties.CRITERION == Criterion.MUTATION
+		        || Properties.CRITERION == Criterion.STRONGMUTATION
+		        || Properties.CRITERION == Criterion.WEAKMUTATION;
+	}
+	
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
@@ -69,7 +72,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 		if (name.equals("<clinit>"))
 			return mv;
 
-		if (MUTATION) {
+		if (isMutation()) {
 			mv = new ReturnValueAdapter(mv, className, name, descriptor);
 		}
 		mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);

@@ -90,7 +90,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						sutException = true;
 				}
 
-				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t);
+				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
 				if (notDeclared && sutException) {
 					/*
 					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating

@@ -38,6 +38,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	protected static Logger logger = LoggerFactory.getLogger(Chromosome.class);
 
+	/**
+	 * only used for testing/debugging
+	 */
+	protected Chromosome(){
+		
+	}
+	
 	/** Last recorded fitness value */
 	private double fitness = 0.0;
 

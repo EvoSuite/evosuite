@@ -189,6 +189,11 @@ public class BooleanHelper {
 		return d;
 	}
 
+	/**
+	 * FIXME: the use of this function needs to be clarified 
+	 * @param distance
+	 * @return
+	 */
 	private static double normalize(int distance) {
 		//		double k = K;
 		double k = Properties.MAX_INT;

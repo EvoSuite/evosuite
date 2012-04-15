@@ -38,7 +38,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -51,6 +54,8 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class Properties {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
@@ -129,6 +134,7 @@ public class Properties {
 	public static int STRING_LENGTH = 20;
 
 	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
+	@Deprecated // does not seem to be used anywhere
 	public static double EPSILON = 0.001;
 
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
@@ -1213,8 +1219,12 @@ public class Properties {
 	 * @return
 	 */
 	public static Class<?> getTargetClass() {
-		if (TARGET_CLASS_INSTANCE != null)
+		if (TARGET_CLASS_INSTANCE != null && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
+
+		BranchPool.reset();
+		TestCluster.reset();
+		DefaultTestFactory.getInstance().reset();
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
@@ -1229,6 +1239,8 @@ public class Properties {
 	 * Get class object of class under test
 	 * 
 	 * @return
+	 * 
+	 * @deprecated
 	 */
 	public static Class<?> loadTargetClass() {
 		try {
