@@ -205,7 +205,7 @@ public class TestSuiteMinimizer {
 		Set<Integer> covered_true = new HashSet<Integer>();
 		Set<Integer> covered_false = new HashSet<Integer>();
 		Set<String> called_methods = new HashSet<String>();
-		int total_goals = BranchCoverageSuiteFitness.total_goals;
+		int total_goals = BranchCoverageSuiteFitness.totalGoals;
 		int num = 0;
 		for (TestChromosome test : suite.tests) {
 			ExecutionResult result = null;
