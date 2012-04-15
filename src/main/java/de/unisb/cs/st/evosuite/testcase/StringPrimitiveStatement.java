@@ -16,8 +16,6 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 
 	private static final long serialVersionUID = 274445526699835887L;
 
-	private static int MAX_STRING = Properties.STRING_LENGTH;
-
 	/**
 	 * @param tc
 	 * @param type
@@ -69,7 +67,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 		int count = 1;
 
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
-		        && s.length() < MAX_STRING) {
+		        && s.length() < Properties.STRING_LENGTH) {
 			count++;
 			// logger.info("Before insert: '"+s+"'");
 			s = insertCharAt(s, pos, Randomness.nextChar());
@@ -142,7 +140,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
-			value = Randomness.nextString(Randomness.nextInt(MAX_STRING));
+			value = Randomness.nextString(Randomness.nextInt(Properties.STRING_LENGTH));
 		else
 			value = primitive_pool.getRandomString();
 	}

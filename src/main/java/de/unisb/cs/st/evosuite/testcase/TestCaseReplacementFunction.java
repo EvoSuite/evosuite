@@ -31,10 +31,6 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 
 	private static final long serialVersionUID = 2894768695219052674L;
 
-	public TestCaseReplacementFunction(SelectionFunction selection) {
-		super(selection);
-	}
-
 	public TestCaseReplacementFunction(boolean maximize) {
 		super(maximize);
 	}
@@ -48,61 +44,27 @@ public class TestCaseReplacementFunction extends ReplacementFunction {
 		return chromosome1.size() + chromosome2.size();
 	}
 
-	protected double getBestFitness(ExecutableChromosome chromosome1,
-	        ExecutableChromosome chromosome2) {
-		if (maximize) {
-			return Math.max(chromosome1.getFitness(), chromosome2.getFitness());
-		} else {
-			return Math.min(chromosome1.getFitness(), chromosome2.getFitness());
-		}
-	}
 
-	/**
-	 * min(d(O1),d(O2)) < min(d(P1),d(P2)) or ( min(d(O1),d(O2)) ==
-	 * min(d(P1),d(P2)) and Z= (l(O1)+l(O2) <= l(P1)+l(P2)) )
-	 */
 	@Override
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
 
-		double fitness_offspring = getBestFitness((ExecutableChromosome) offspring1,
-		                                          (ExecutableChromosome) offspring2);
-		double fitness_parents = getBestFitness((ExecutableChromosome) parent1,
-		                                        (ExecutableChromosome) parent2);
-
+		int cmp = compareBestOffspringToBestParent(parent1,parent2,offspring1,offspring2);
+		
 		if (Properties.CHECK_PARENTS_LENGTH) {
-			if ((fitness_offspring == fitness_parents && getLengthSum((ExecutableChromosome) offspring1,
-			                                                          (ExecutableChromosome) offspring2) <= getLengthSum((ExecutableChromosome) parent1,
-			                                                                                                             (ExecutableChromosome) parent2))) {
+			
+			int offspringLength = getLengthSum((ExecutableChromosome) offspring1, (ExecutableChromosome) offspring2);
+			int parentLength = getLengthSum((ExecutableChromosome) parent1,	 (ExecutableChromosome) parent2);
+			
+			//if equivalent, only accept if it does not increase the length
+			if (cmp==0 &&  offspringLength <= parentLength) {
 				return true;
+			} else {
+				return cmp > 0;
 			}
-		} else {
-			if (fitness_offspring == fitness_parents) {
-				return true;
-			}
+		}  else {
+			//default check
+			return cmp >= 0;
 		}
-
-		/*
-		if(BEST_LENGTH && (fitness_offspring == fitness_parents && 
-				getLengthSum((TestChromosome)offspring1, (TestChromosome)offspring2) <= getLengthSum((TestChromosome)parent1, (TestChromosome)parent2))) {
-			return true;
-		}
-		*/
-
-		if (fitness_offspring < fitness_parents) {
-			return true;
-		} else {
-			return false;
-		}
-
 	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
-	 */
-	@Override
-	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
-		return isBetter(offspring, parent);
-	}
-
 }

@@ -47,18 +47,12 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 
-		setReplacementFunction(new FitnessReplacementFunction(selectionFunction));
+		setReplacementFunction(new FitnessReplacementFunction());
 	}
 
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-		//return replacement_function.keepOffspring(parent1, parent2, offspring1,
-		//                                          offspring2);
-
-		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
-		                                                                parent2))
-		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
-		                                                                    parent2));
+		return replacement_function.keepOffspring(parent1, parent2, offspring1, offspring2);
 	}
 
 	@Override

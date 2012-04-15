@@ -40,12 +40,6 @@ public class Sandbox {
 	/** Mock controller. */
 	private static Mocks mocks = new Mocks();
 
-	/** If sandbox, i.e. the MSecurityManager, should be activated. */
-	private static final boolean sandboxActive = Properties.SANDBOX;
-
-	/** If mocks should be created. */
-	private static final boolean mocksActive = Properties.MOCKS;
-
 	/** Array of files accessed during test generation */
 	private static ArrayList<EvosuiteFile> accessedFiles = new ArrayList<EvosuiteFile>();
 
@@ -57,7 +51,7 @@ public class Sandbox {
 	 * Set up mocked security manager if sandbox property is true.
 	 */
 	public static void setUpMockedSecurityManager() {
-		if (sandboxActive)
+		if (Properties.SANDBOX)
 			System.setSecurityManager(evilManager);
 	}
 
@@ -72,7 +66,7 @@ public class Sandbox {
 	 * Set up mocks, if mock property is true
 	 */
 	public static void setUpMocks() {
-		if (mocksActive)
+		if (Properties.MOCKS)
 			mocks.setUpMocks();
 	}
 
@@ -111,7 +105,7 @@ public class Sandbox {
 	}
 
 	public static boolean canUseFileContentGeneration() {
-		if (mocksActive && sandboxActive)
+		if (Properties.MOCKS && Properties.SANDBOX)
 			return !accessedFiles.isEmpty();
 		return false;
 	}

@@ -23,6 +23,10 @@ public class FailingTestSet {
 
 	private static Logger logger = LoggerFactory.getLogger(FailingTestSet.class);
 
+	/*
+	 * FIXME: if actually used, need way to reset them
+	 */
+	
 	/** The violated tracked */
 	private static final List<ContractViolation> violations = new ArrayList<ContractViolation>();
 

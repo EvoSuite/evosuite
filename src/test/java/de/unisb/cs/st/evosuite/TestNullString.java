@@ -1,41 +1,25 @@
 package de.unisb.cs.st.evosuite;
 
-import org.junit.After;
 import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.DivisionByZero;
+import com.examples.with.different.packagename.NullString;
 
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
-public class TestSUTDivisionByZero extends SystemTest{
+public class TestNullString extends SystemTest{
 
-	/*
-	 * To avoid side effects on test cases that we will run afterwards,
-	 * if we modify some values in Properties, then we need to re-int them after
-	 * each test case execution
-	 */
-	public static final double defaultPrimitivePool = Properties.PRIMITIVE_POOL;
-	public static final boolean defaultErrorBranches = Properties.ERROR_BRANCHES;
-	
-	@After
-	public void resetProperties(){
-		Properties.PRIMITIVE_POOL = defaultPrimitivePool;
-		Properties.ERROR_BRANCHES = defaultErrorBranches;
-	}
-	
-	
+	@Ignore
 	@Test
-	public void testDivisonByZero(){
+	public void testNullString(){
 		EvoSuite evosuite = new EvoSuite();
 				
-		String targetClass = DivisionByZero.class.getCanonicalName();
+		String targetClass = NullString.class.getCanonicalName();
 		
 		Properties.TARGET_CLASS = targetClass;
-		Properties.PRIMITIVE_POOL = 0.99;
-		Properties.ERROR_BRANCHES = true;
+		
 		
 		String[] command = new String[]{				
 				"-generateSuite",
