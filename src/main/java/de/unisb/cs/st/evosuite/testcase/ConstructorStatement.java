@@ -201,6 +201,10 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
+
+		if (retval.equals(var1))
+			retval = var2;
+
 		for (int i = 0; i < parameters.size(); i++) {
 
 			if (parameters.get(i).equals(var1))
