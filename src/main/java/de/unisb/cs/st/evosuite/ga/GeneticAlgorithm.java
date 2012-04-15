@@ -452,7 +452,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * Return the individual with the highest fitness
+	 * Return the individual with the highest fitChromosomeess
 	 * 
 	 * @return
 	 */
@@ -557,7 +557,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * Accessor for population
+	 * Accessor for population Chromosome *
 	 * 
 	 * @return
 	 */
