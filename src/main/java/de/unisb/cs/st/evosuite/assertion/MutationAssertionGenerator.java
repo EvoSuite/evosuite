@@ -285,9 +285,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 		for (Mutation m : executedMutants) {
 
-			if (m == null) {
-				assert (false);
-			}
+			assert (m != null);
 			if (timedOutMutations.containsKey(m)) {
 				if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
 					logger.info("Skipping timed out mutant");
@@ -393,6 +391,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			for (Assertion assertion : assertions) {
 				if (assertion instanceof PrimitiveAssertion) {
 					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
+						logger.info("Adding a primitive assertion " + assertion);
 						test.getStatement(test.size() - 1).addAssertion(assertion);
 						haveAssertion = true;
 						break;
@@ -402,6 +401,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			if (!haveAssertion) {
 				for (Assertion assertion : assertions) {
 					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
+						logger.info("Adding a assertion: " + assertion);
 						test.getStatement(test.size() - 1).addAssertion(assertion);
 						haveAssertion = true;
 						break;
