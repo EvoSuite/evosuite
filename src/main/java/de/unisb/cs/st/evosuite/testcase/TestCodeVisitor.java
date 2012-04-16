@@ -455,8 +455,9 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 
 		boolean lastStatement = statement.getPosition() == statement.tc.size() - 1;
-		boolean unused = test != null && Properties.ASSERTIONS ? !test.hasReferences(retval)
-		        : false;
+		boolean unused = exception != null
+		        || (test != null && Properties.ASSERTIONS ? !test.hasReferences(retval)
+		                : false);
 
 		if (retval.getType() != Void.TYPE
 		        && retval.getAdditionalVariableReference() == null && !unused) {
