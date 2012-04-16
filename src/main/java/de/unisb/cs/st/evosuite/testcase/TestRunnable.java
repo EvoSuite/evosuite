@@ -106,7 +106,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	public ExecutionResult call() {
 
 		exceptionsThrown.clear();
-		
+
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
 		Sandbox.setUpMocks();
@@ -133,7 +133,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 					        + s.getCode());
 					throw new TimeoutException();
 				}
-				if (logger.isDebugEnabled()){
+				if (logger.isDebugEnabled()) {
 					logger.debug("Executing statement " + s.getCode());
 				}
 				ExecutionTracer.statementExecuted();
@@ -150,7 +150,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 					}
 
 					exceptionsThrown.put(num, exceptionThrown);
-					
+
 					ExecutionTracer.disable();
 					for (ExecutionObserver observer : observers) {
 						observer.statement(s, scope, exceptionThrown);
@@ -163,7 +163,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 						break;
 					}
 
-					if (logger.isDebugEnabled()){
+					if (logger.isDebugEnabled()) {
 						logger.debug("Exception thrown in statement: " + s.getCode()
 						        + " - " + exceptionThrown.getClass().getName() + " - "
 						        + exceptionThrown.getMessage());
@@ -178,14 +178,20 @@ public class TestRunnable implements InterfaceTestRunnable {
 						break;
 					}
 				}
-				
-				if (logger.isDebugEnabled()){
+
+				if (logger.isDebugEnabled()) {
 					logger.debug("Done statement " + s.getCode());
 				}
 
+				ExecutionTracer.disable();
+				for (ExecutionObserver observer : observers) {
+					observer.statement(s, scope, exceptionThrown);
+				}
+				ExecutionTracer.enable();
+
 				num++;
 			} //end of loop
-			
+
 			checkClientThreads(numThreads);
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 
