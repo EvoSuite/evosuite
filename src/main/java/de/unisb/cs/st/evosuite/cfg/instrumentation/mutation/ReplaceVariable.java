@@ -5,10 +5,12 @@ package de.unisb.cs.st.evosuite.cfg.instrumentation.mutation;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -22,6 +24,7 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +34,7 @@ import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class ReplaceVariable implements MutationOperator {
@@ -43,7 +46,7 @@ public class ReplaceVariable implements MutationOperator {
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
-	        BytecodeInstruction instruction) {
+	        BytecodeInstruction instruction, Frame frame) {
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		if (mn.localVariables.isEmpty()) {
@@ -52,17 +55,23 @@ public class ReplaceVariable implements MutationOperator {
 		}
 		logger.info("Starting variable replacement in " + methodName);
 
-		for (InsnList mutation : getReplacements(mn, className, instruction.getASMNode())) {
+		String origName = getName(mn, instruction.getASMNode());
+
+		for (Entry<String, InsnList> mutation : getReplacements(mn, className,
+		                                                        instruction.getASMNode()).entrySet()) {
 			// insert mutation into pool			
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceVariable ",
+			                                                   "ReplaceVariable "
+			                                                           + origName
+			                                                           + " -> "
+			                                                           + mutation.getKey(),
 			                                                   instruction,
-			                                                   mutation,
+			                                                   mutation.getValue(),
 			                                                   getInfectionDistance(getType(mn,
 			                                                                                instruction.getASMNode()),
 			                                                                        instruction.getASMNode(),
-			                                                                        mutation));
+			                                                                        mutation.getValue()));
 			mutations.add(mutationObject);
 		}
 		logger.info("Finished variable replacement in " + methodName);
@@ -84,11 +93,26 @@ public class ReplaceVariable implements MutationOperator {
 		} else {
 			throw new RuntimeException("Unknown variable node: " + node);
 		}
+	}
 
+	private String getName(MethodNode mn, AbstractInsnNode node) {
+		if (node instanceof VarInsnNode) {
+			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
+			return var.name;
+		} else if (node instanceof FieldInsnNode) {
+			return ((FieldInsnNode) node).name;
+		} else if (node instanceof IincInsnNode) {
+			IincInsnNode incNode = (IincInsnNode) node;
+			LocalVariableNode var = getLocal(mn, node, incNode.var);
+			return var.name;
+
+		} else {
+			throw new RuntimeException("Unknown variable node: " + node);
+		}
 	}
 
 	public static InsnList copy(InsnList orig) {
-		Iterator it = orig.iterator();
+		Iterator<?> it = orig.iterator();
 		InsnList copy = new InsnList();
 		while (it.hasNext()) {
 			AbstractInsnNode node = (AbstractInsnNode) it.next();
@@ -181,9 +205,9 @@ public class ReplaceVariable implements MutationOperator {
 	 * @param node
 	 * @return
 	 */
-	private List<InsnList> getReplacements(MethodNode mn, String className,
+	private Map<String, InsnList> getReplacements(MethodNode mn, String className,
 	        AbstractInsnNode node) {
-		List<InsnList> variables = new ArrayList<InsnList>();
+		Map<String, InsnList> variables = new HashMap<String, InsnList>();
 
 		if (node instanceof VarInsnNode) {
 			VarInsnNode var = (VarInsnNode) node;
@@ -197,11 +221,11 @@ public class ReplaceVariable implements MutationOperator {
 
 				// FIXXME: ASM gets scopes wrong, so we only use primitive vars?
 				//if (!origVar.desc.startsWith("L"))
-				variables.addAll(getLocalReplacements(mn, origVar.desc, node));
-				variables.addAll(getFieldReplacements(mn, className, origVar.desc, node));
+				variables.putAll(getLocalReplacements(mn, origVar.desc, node));
+				variables.putAll(getFieldReplacements(mn, className, origVar.desc, node));
 			} catch (RuntimeException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
-				Iterator it = mn.localVariables.iterator();
+				Iterator<?> it = mn.localVariables.iterator();
 				while (it.hasNext()) {
 					LocalVariableNode n = (LocalVariableNode) it.next();
 					logger.info(n.index + ": " + n.name);
@@ -214,14 +238,14 @@ public class ReplaceVariable implements MutationOperator {
 			if (field.owner.replace("/", ".").equals(className)) {
 				logger.info("Looking for replacements for static field " + field.name
 				        + " of type " + field.desc);
-				variables.addAll(getLocalReplacements(mn, field.desc, node));
-				variables.addAll(getFieldReplacements(mn, className, field.desc, node));
+				variables.putAll(getLocalReplacements(mn, field.desc, node));
+				variables.putAll(getFieldReplacements(mn, className, field.desc, node));
 			}
 		} else if (node instanceof IincInsnNode) {
 			IincInsnNode incNode = (IincInsnNode) node;
 			LocalVariableNode origVar = getLocal(mn, node, incNode.var);
 
-			variables.addAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
+			variables.putAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
 
 		} else {
 			//throw new RuntimeException("Unknown type: " + node);
@@ -247,9 +271,9 @@ public class ReplaceVariable implements MutationOperator {
 		        + mn.localVariables.size());
 	}
 
-	private List<InsnList> getLocalReplacements(MethodNode mn, String desc,
+	private Map<String, InsnList> getLocalReplacements(MethodNode mn, String desc,
 	        AbstractInsnNode node) {
-		List<InsnList> replacements = new ArrayList<InsnList>();
+		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
 
 		//if (desc.equals("I"))
 		//	return replacements;
@@ -288,15 +312,15 @@ public class ReplaceVariable implements MutationOperator {
 				}
 
 				list.add(new VarInsnNode(getLoadOpcode(localVar), localVar.index));
-				replacements.add(list);
+				replacements.put(localVar.name, list);
 			}
 		}
 		return replacements;
 	}
 
-	private List<InsnList> getLocalReplacementsInc(MethodNode mn, String desc,
+	private Map<String, InsnList> getLocalReplacementsInc(MethodNode mn, String desc,
 	        IincInsnNode node) {
-		List<InsnList> replacements = new ArrayList<InsnList>();
+		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
 
 		int otherNum = -1;
 		otherNum = node.var;
@@ -324,7 +348,7 @@ public class ReplaceVariable implements MutationOperator {
 				        + localVar.desc + " at index " + localVar.index);
 				InsnList list = new InsnList();
 				list.add(new IincInsnNode(localVar.index, node.incr));
-				replacements.add(list);
+				replacements.put(localVar.name, list);
 			}
 		}
 		return replacements;
@@ -335,9 +359,9 @@ public class ReplaceVariable implements MutationOperator {
 		return type.getOpcode(Opcodes.ILOAD);
 	}
 
-	private List<InsnList> getFieldReplacements(MethodNode mn, String className,
+	private Map<String, InsnList> getFieldReplacements(MethodNode mn, String className,
 	        String desc, AbstractInsnNode node) {
-		List<InsnList> alternatives = new ArrayList<InsnList>();
+		Map<String, InsnList> alternatives = new HashMap<String, InsnList>();
 
 		boolean isStatic = (mn.access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 
@@ -378,7 +402,7 @@ public class ReplaceVariable implements MutationOperator {
 						        className.replace(".", "/"), field.getName(),
 						        type.getDescriptor()));
 					}
-					alternatives.add(list);
+					alternatives.put(field.getName(), list);
 				} else {
 					logger.info("Descriptor does not match: " + field.getName() + " - "
 					        + type.getDescriptor());

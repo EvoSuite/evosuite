@@ -36,15 +36,16 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = 8537667219135128366L;
 
 	private double average_length = 0.0;
+	private int max_length = Properties.MAX_LENGTH;
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.ga.StoppingCondition#isFinished()
 	 */
 	@Override
 	public boolean isFinished() {
-		if (average_length >= Properties.MAX_LENGTH)
+		if (average_length >= max_length)
 			logger.info("Maximum average length reached, stopping");
-		return average_length >= Properties.MAX_LENGTH;
+		return average_length >= max_length;
 	}
 
 	/* (non-Javadoc)
@@ -53,6 +54,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	@Override
 	public void reset() {
 		average_length = 0.0;
+		max_length = Properties.MAX_LENGTH;
 	}
 
 	@Override
@@ -77,12 +79,12 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public void setLimit(long limit) {
-		Properties.MAX_LENGTH = (int) limit;
+		max_length = (int) limit;
 	}
 
 	@Override
 	public long getLimit() {
-		return (long) (Properties.MAX_LENGTH + 0.5);
+		return (long) (max_length + 0.5);
 	}
 
 	@Override

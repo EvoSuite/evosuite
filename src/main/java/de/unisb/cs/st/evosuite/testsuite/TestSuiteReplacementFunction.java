@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ReplacementFunction;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
+import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 
 /**
  * @author Gordon Fraser
@@ -30,13 +31,6 @@ import de.unisb.cs.st.evosuite.ga.SelectionFunction;
 public class TestSuiteReplacementFunction extends ReplacementFunction {
 
 	private static final long serialVersionUID = -8472469271120247395L;
-
-	/**
-	 * @param selectionFunction
-	 */
-	public TestSuiteReplacementFunction(SelectionFunction selectionFunction) {
-		super(selectionFunction);
-	}
 
 	public TestSuiteReplacementFunction(boolean maximize) {
 		super(maximize);
@@ -52,47 +46,27 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 		        + chromosome2.totalLengthOfTestCases();
 	}
 
-	protected double getBestFitness(TestSuiteChromosome chromosome1,
-	        TestSuiteChromosome chromosome2) {
-		if (maximize) {
-			return Math.max(chromosome1.getFitness(), chromosome2.getFitness());
-		} else {
-			return Math.min(chromosome1.getFitness(), chromosome2.getFitness());
-		}
-	}
 
-	/**
-	 * min(d(O1),d(O2)) < min(d(P1),d(P2)) or ( min(d(O1),d(O2)) ==
-	 * min(d(P1),d(P2)) and Z= (l(O1)+l(O2) <= l(P1)+l(P2)) )
-	 */
 	@Override
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
 
-		double fitness_offspring = getBestFitness((TestSuiteChromosome) offspring1,
-		                                          (TestSuiteChromosome) offspring2);
-		double fitness_parents = getBestFitness((TestSuiteChromosome) parent1,
-		                                        (TestSuiteChromosome) parent2);
-
-		if (Properties.CHECK_PARENTS_LENGTH
-		        && (fitness_offspring == fitness_parents && getLengthSum((TestSuiteChromosome) offspring1,
-		                                                                 (TestSuiteChromosome) offspring2) <= getLengthSum((TestSuiteChromosome) parent1,
-		                                                                                                                   (TestSuiteChromosome) parent2)))
-			return true;
-		if (fitness_offspring < fitness_parents) {
-			return true;
-		} else {
-			return false;
+		int cmp = compareBestOffspringToBestParent(parent1,parent2,offspring1,offspring2);
+		
+		if (Properties.CHECK_PARENTS_LENGTH) {
+			
+			int offspringLength = getLengthSum((TestSuiteChromosome) offspring1, (TestSuiteChromosome) offspring2);
+			int parentLength = getLengthSum((TestSuiteChromosome) parent1,	 (TestSuiteChromosome) parent2);
+			
+			//if equivalent, only accept if it does not increase the length
+			if (cmp==0 &&  offspringLength <= parentLength) {
+				return true;
+			} else {
+				return cmp > 0;
+			}
+		}  else {
+			//default check
+			return cmp >= 0;
 		}
-
 	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.ReplacementFunction#keepOffspring(de.unisb.cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
-	 */
-	@Override
-	public boolean keepOffspring(Chromosome parent, Chromosome offspring) {
-		return isBetter(offspring, parent);
-	}
-
 }

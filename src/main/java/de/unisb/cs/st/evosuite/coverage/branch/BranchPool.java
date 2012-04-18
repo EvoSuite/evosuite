@@ -68,6 +68,20 @@ public class BranchPool {
 	// fill the pool
 
 	/**
+	 * Reset all the data structures used to keep track of the branch information
+	 */
+	public static void reset(){
+		branchCounter = 0;
+		branchMap.clear();
+		branchlessMethods.clear();
+		branchIdMap.clear();
+		registeredNormalBranches.clear();
+		registeredSwitches.clear();
+		registeredDefaultCases.clear();
+		switchLabels.clear();
+	}
+	
+	/**
 	 * Gets called by the CFGMethodAdapter whenever it detects a method without
 	 * any branches.
 	 * 
@@ -129,7 +143,6 @@ public class BranchPool {
 		branchIdMap.put(branchCounter, b);
 
 		logger.info("Branch " + branchCounter + " at line " + v.getLineNumber());
-
 	}
 
 	private static void registerSwitchInstruction(BytecodeInstruction v) {
@@ -267,6 +280,9 @@ public class BranchPool {
 	}
 
 	private static void addBranchToMap(Branch b) {
+		
+		logger.info("Adding to map the branch {}",b);
+		
 		String className = b.getClassName();
 		String methodName = b.getMethodName();
 
@@ -523,6 +539,11 @@ public class BranchPool {
 		Set<String> r = new HashSet<String>();
 		r.addAll(branchMap.keySet());
 		r.addAll(branchlessMethods.keySet());
+		
+		if(logger.isDebugEnabled()){
+			logger.debug("Known classes: "+r);
+		}
+		
 		return r;
 	}
 

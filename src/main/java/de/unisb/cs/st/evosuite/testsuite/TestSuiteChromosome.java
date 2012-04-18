@@ -49,6 +49,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	/** Secondary objectives used during ranking */
 	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
+	public TestSuiteChromosome(){super();}
+	
 	public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
 		super(testChromosomeFactory);
 	}
@@ -58,12 +60,6 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	private static final long serialVersionUID = 88380759969800800L;
-
-	public void addTest(TestCase test) {
-		TestChromosome c = new TestChromosome();
-		c.setTestCase(test);
-		addTest(c);
-	}
 
 	/**
 	 * Create a deep copy of this test suite
@@ -223,6 +219,17 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	/**
+	 * Add a test to a test suite
+	 * 
+	 * @param test
+	 */
+	public void addTest(TestCase test) {
+		TestChromosome c = new TestChromosome();
+		c.setTestCase(test);
+		addTest(c);
+	}
+
+	/**
 	 * For manual algorithm
 	 * 
 	 * @param testCase
@@ -237,6 +244,14 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 				}
 			}
 		}
+	}
+
+	/**
+	 * Remove all tests
+	 */
+	public void clearTests() {
+		tests.clear();
+		unmodifiableTests.clear();
 	}
 
 	public void restoreTests(ArrayList<TestCase> backup) {

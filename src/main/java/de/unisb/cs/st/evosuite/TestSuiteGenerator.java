@@ -20,11 +20,13 @@ package de.unisb.cs.st.evosuite;
 
 import java.io.File;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.vfs2.FileSystemException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +46,13 @@ import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencySuitCoverage;
 import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.AllDefsCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseFitnessCalculator;
-import de.unisb.cs.st.evosuite.coverage.exception.ExceptionSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJ;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
@@ -77,6 +78,7 @@ import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.MuPlusLambdaGA;
 import de.unisb.cs.st.evosuite.ga.OnePlusOneEA;
 import de.unisb.cs.st.evosuite.ga.PopulationLimit;
+import de.unisb.cs.st.evosuite.ga.RandomSearch;
 import de.unisb.cs.st.evosuite.ga.RankSelection;
 import de.unisb.cs.st.evosuite.ga.SecondaryObjective;
 import de.unisb.cs.st.evosuite.ga.SelectionFunction;
@@ -97,8 +99,10 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import de.unisb.cs.st.evosuite.graphs.LCSAJGraph;
+import de.unisb.cs.st.evosuite.io.IOWrapper;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
+import de.unisb.cs.st.evosuite.runtime.FileSystem;
 import de.unisb.cs.st.evosuite.sandbox.PermissionStatistics;
 import de.unisb.cs.st.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
@@ -116,6 +120,7 @@ import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testcase.ValueMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
+import de.unisb.cs.st.evosuite.testsuite.CoverageCrossOver;
 import de.unisb.cs.st.evosuite.testsuite.CoverageStatistics;
 import de.unisb.cs.st.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import de.unisb.cs.st.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
@@ -127,7 +132,6 @@ import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
 import de.unisb.cs.st.evosuite.testsuite.StatementsPopulationLimit;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosomeFactory;
-import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
@@ -151,8 +155,8 @@ public class TestSuiteGenerator {
 
 	public static final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
+	
 	public static StoppingCondition stopping_condition;
-
 	public static boolean analyzing = false;
 
 	/*
@@ -167,9 +171,9 @@ public class TestSuiteGenerator {
 	 * Generate a test suite for the target class
 	 */
 	public String generateTestSuite(GeneticAlgorithm geneticAlgorithm) {
-		
+
 		TestCaseExecutor.initExecutor();
-		
+
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		ga = geneticAlgorithm;
 
@@ -228,6 +232,12 @@ public class TestSuiteGenerator {
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
 
+		if (TestCluster.getInstance().getTestCalls().isEmpty()) {
+			System.out.println("* Found no testable methods in the target class "
+			        + Properties.TARGET_CLASS);
+			return new ArrayList<TestCase>();
+		}
+
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
 		else
@@ -266,6 +276,14 @@ public class TestSuiteGenerator {
 
 		if (analyzing)
 			System.out.println();
+
+		/*
+		PUTGeneralizer generalizer = new PUTGeneralizer();
+		for (TestCase test : tests) {
+			generalizer.generalize(test);
+			//			ParameterizedTestCase put = new ParameterizedTestCase(test);
+		}
+		*/
 
 		return tests;
 	}
@@ -382,8 +400,9 @@ public class TestSuiteGenerator {
 		        || Properties.CRITERION == Criterion.STATEMENT)
 			ExecutionTrace.enableTraceCalls();
 
-		if (analyzing)
-			ga.resetStoppingConditions();
+		//TODO: why it was only if "analyzing"???
+		//if (analyzing)
+		ga.resetStoppingConditions();
 
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
@@ -458,9 +477,6 @@ public class TestSuiteGenerator {
 		case PATH:
 			System.out.println("* Test criterion: Prime Path");
 			break;
-		case CONCURRENCY:
-			System.out.println("* Test criterion: Concurrent Test Case *");
-			break;
 		case STATEMENT:
 			System.out.println("* Test Criterion: Statement Coverage");
 			break;
@@ -469,6 +485,9 @@ public class TestSuiteGenerator {
 			break;
 		case ALLDEFS:
 			System.out.println("* Test Criterion: All Definitions");
+			break;
+		case BEHAVIORAL:
+			System.out.println("* Test criterion: Behavioral coverage");
 			break;
 		case EXCEPTION:
 			System.out.println("* Test Criterion: Exception");
@@ -496,8 +515,6 @@ public class TestSuiteGenerator {
 			return new DefUseCoverageSuiteFitness();
 		case PATH:
 			return new PrimePathSuiteFitness();
-		case CONCURRENCY:
-			return new ConcurrencySuitCoverage();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
 		case STATEMENT:
@@ -505,7 +522,7 @@ public class TestSuiteGenerator {
 		case ALLDEFS:
 			return new AllDefsCoverageSuiteFitness();
 		case EXCEPTION:
-			return new ExceptionSuiteFitness();
+			return new ExceptionCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -532,13 +549,13 @@ public class TestSuiteGenerator {
 			return new PrimePathCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
-		case CONCURRENCY:
-			return new TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter(
-			        new ConcurrencySuitCoverage());
 		case STATEMENT:
 			return new StatementCoverageFactory();
 		case ALLDEFS:
 			return new AllDefsCoverageFactory();
+		case EXCEPTION:
+			return new BranchCoverageFactory();
+			//			return new ExceptionCoverageFactory();
 		default:
 			logger.warn("No TestFitnessFactory defined for " + crit
 			        + " using default one (BranchCoverageFactory)");
@@ -657,7 +674,7 @@ public class TestSuiteGenerator {
 
 		int current_budget = 0;
 
-		long total_budget = Properties.GENERATIONS;
+		long total_budget = Properties.SEARCH_BUDGET;
 		System.out.println("* Budget: "
 		        + NumberFormat.getIntegerInstance().format(total_budget));
 
@@ -780,7 +797,7 @@ public class TestSuiteGenerator {
 		else
 			System.out.println("* Remaining budget: " + (total_budget - current_budget));
 
-		stopping_condition.setLimit(Properties.GENERATIONS);
+		stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 		stopping_condition.forceCurrentValue(current_budget);
 		suiteGA.setStoppingCondition(stopping_condition);
 		suiteGA.addStoppingCondition(global_time);
@@ -957,6 +974,12 @@ public class TestSuiteGenerator {
 			return new SinglePointRelativeCrossOver();
 		case SINGLEPOINT:
 			return new SinglePointCrossOver();
+		case COVERAGE:
+			if (Properties.STRATEGY != Properties.Strategy.EVOSUITE)
+				throw new RuntimeException(
+				        "Coverage crossover function requires test suite mode");
+
+			return new CoverageCrossOver();
 		default:
 			throw new RuntimeException("Unknown crossover function: "
 			        + Properties.CROSSOVER_FUNCTION);
@@ -1113,7 +1136,9 @@ public class TestSuiteGenerator {
 					ga.setReplacementFunction(new TestCaseReplacementFunction());
 				return ga;
 			}
-
+		case RANDOM:
+			logger.info("Chosen search algorithm: Random");
+			return new RandomSearch(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
 			return new StandardGA(factory);
@@ -1143,15 +1168,19 @@ public class TestSuiteGenerator {
 		if (Properties.STOP_ZERO) {
 			ga.addStoppingCondition(zero_fitness);
 		}
-		if (!(stopping_condition instanceof MaxTimeStoppingCondition))
+		
+		if (!(stopping_condition instanceof MaxTimeStoppingCondition)){
 			ga.addStoppingCondition(global_time);
+		}
+		
 		if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION)
+		        || Properties.CRITERION == Criterion.STRONGMUTATION){
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 			else
 				ga.addListener(new MutationTestPool());
-
+		}
+		ga.resetStoppingConditions();
 		ga.setPopulationLimit(getPopulationLimit());
 
 		// How to cross over
@@ -1190,10 +1219,10 @@ public class TestSuiteGenerator {
 			// criterion
 			// TODO also, question: is branchMap.size() really intended here?
 			// I think BranchPool.getBranchCount() was intended
-			Properties.GENERATIONS = Properties.GENERATIONS
+			Properties.SEARCH_BUDGET = Properties.SEARCH_BUDGET
 			        * (BranchPool.getNumBranchlessMethods(Properties.TARGET_CLASS) + BranchPool.getBranchCountForClass(Properties.TARGET_CLASS) * 2);
-			stopping_condition.setLimit(Properties.GENERATIONS);
-			logger.info("Setting dynamic length limit to " + Properties.GENERATIONS);
+			stopping_condition.setLimit(Properties.SEARCH_BUDGET);
+			logger.info("Setting dynamic length limit to " + Properties.SEARCH_BUDGET);
 		}
 
 		if (Properties.SHUTDOWN_HOOK) {
@@ -1212,7 +1241,14 @@ public class TestSuiteGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-
+		if (Properties.VIRTUAL_FS) {
+			try {
+				FileSystem.manager = IOWrapper.initVFS();
+			} catch (FileSystemException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite(null);
 		System.exit(0);

@@ -45,7 +45,6 @@ public class TestCaseMinimizer {
 
 	private double fitness = 0.0;
 
-	private final boolean enabled = Properties.MINIMIZE;
 
 	/**
 	 * Constructor
@@ -111,7 +110,7 @@ public class TestCaseMinimizer {
 	 * @param c
 	 */
 	public void minimize(TestChromosome c) {
-		if (!enabled) {
+		if (!Properties.MINIMIZE) {
 			return;
 		}
 		logger.info("Minimizing test case");

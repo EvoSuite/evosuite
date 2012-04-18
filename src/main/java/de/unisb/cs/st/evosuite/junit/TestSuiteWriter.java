@@ -31,7 +31,6 @@ import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.OutputFormat;
 import de.unisb.cs.st.evosuite.Properties.OutputGranularity;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import de.unisb.cs.st.evosuite.repair.JUnit4AssertionLogAdapter;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -317,16 +316,6 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		builder.append("\n");
 
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			builder.append("import java.util.concurrent.Callable;\n");
-			builder.append("import java.util.concurrent.FutureTask;\n");
-			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;\n");
-			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.ControllerRuntime;\n");
-			builder.append("import de.unisb.cs.st.evosuite.coverage.concurrency.SimpleScheduler;\n");
-			builder.append("import java.util.Set;\n");
-			builder.append("import java.util.HashSet;\n");
-		}
-
 		builder.append(adapter.getImports());
 		builder.append(getImports(results));
 
@@ -401,43 +390,29 @@ public class TestSuiteWriter implements Opcodes {
 		builder.append("\n");
 		builder.append("   //");
 		builder.append(getInformation(id));
-		//#TODO steenbuck work around
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			builder.append("\n");
-			ConcurrentTestCase ctc = (ConcurrentTestCase) testCases.get(id);
-			for (String line : ctc.getThreadCode(result.exceptions, id).split("\\r?\\n")) {
-				builder.append("      ");
-				builder.append(line);
-				// builder.append(";\n");
-				builder.append("\n");
+		builder.append("\n");
+		builder.append(adapter.getMethodDefinition("test" + id));
+		Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
+		if (!exceptions.isEmpty()) {
+			builder.append("throws ");
+			boolean first = true;
+			for (Class<?> exception : exceptions) {
+				if (first)
+					first = false;
+				else
+					builder.append(", ");
+				builder.append(exception.getSimpleName());
 			}
-			builder.append("   }\n");
-
-		} else {
-			builder.append("\n");
-			builder.append(adapter.getMethodDefinition("test" + id));
-			Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
-			if (!exceptions.isEmpty()) {
-				builder.append("throws ");
-				boolean first = true;
-				for (Class<?> exception : exceptions) {
-					if (first)
-						first = false;
-					else
-						builder.append(", ");
-					builder.append(exception.getSimpleName());
-				}
-			}
-			builder.append(" {\n");
-			for (String line : adapter.getTestString(id, testCases.get(id),
-			                                         result.exceptions).split("\\r?\\n")) {
-				builder.append("      ");
-				builder.append(line);
-				// builder.append(";\n");
-				builder.append("\n");
-			}
-			builder.append("   }\n");
 		}
+		builder.append(" {\n");
+		for (String line : adapter.getTestString(id, testCases.get(id), result.exceptions).split("\\r?\\n")) {
+			builder.append("      ");
+			builder.append(line);
+			// builder.append(";\n");
+			builder.append("\n");
+		}
+		builder.append("   }\n");
+
 		return builder.toString();
 	}
 
@@ -487,7 +462,7 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	public void writeTestSuite(String name, String directory) {
 		String dir = makeDirectory(directory);
-		
+
 		if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
 			File file = new File(dir + "/" + name + ".java");
 			executor.newObservers();

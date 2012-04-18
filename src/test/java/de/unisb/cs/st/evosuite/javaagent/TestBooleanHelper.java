@@ -7,6 +7,7 @@ import static org.junit.Assert.assertTrue;
 import junit.framework.Assert;
 
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -210,6 +211,7 @@ public class TestBooleanHelper {
 		           distanceTrue1 < distanceTrue2);
 	}
 
+	@Ignore
 	@Test
 	public void testStringEquals(){
 		int dist = BooleanHelper.StringEquals("foo", "foo");

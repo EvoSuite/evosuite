@@ -16,19 +16,17 @@ import de.unisb.cs.st.evosuite.Properties;
 public class ExternalProcessUtilities {
 	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessUtilities.class);
 
-	protected int port;
 	protected Socket connection;
 	protected ObjectOutputStream out;
 	protected ObjectInputStream in;
 
 	public ExternalProcessUtilities() {
-		this.port = Properties.PROCESS_COMMUNICATION_PORT;
 	}
 
 	public boolean connectToMainProcess() {
 
 		try {
-			connection = new Socket("127.0.0.1", port);
+			connection = new Socket("127.0.0.1", Properties.PROCESS_COMMUNICATION_PORT);
 			out = new ObjectOutputStream(connection.getOutputStream());
 			in = new ObjectInputStream(connection.getInputStream());
 		} catch (Exception e) {

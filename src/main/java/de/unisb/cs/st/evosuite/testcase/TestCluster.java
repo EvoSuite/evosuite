@@ -66,6 +66,15 @@ public abstract class TestCluster {
 
 	private static Set<Method> staticInitializers = new HashSet<Method>();
 
+	
+	public static void reset(){
+		classLoader = new InstrumentingClassLoader();
+		finalClasses.clear();
+		staticInitializers.clear();
+		instance = null;
+	}
+	
+	
 	public static void registerStaticInitializer(String className) {
 		finalClasses.add(className);
 	}
@@ -249,6 +258,13 @@ public abstract class TestCluster {
 	 * @return
 	 */
 	public abstract List<AccessibleObject> getTestCalls();
+
+	/**
+	 * Add a test call
+	 * 
+	 * @return
+	 */
+	public abstract void addTestCall(AccessibleObject call);
 
 	/**
 	 * Determine if we have generators for all parameters, and delete method if

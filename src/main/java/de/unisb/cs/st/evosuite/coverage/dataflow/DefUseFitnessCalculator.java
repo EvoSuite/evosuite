@@ -37,8 +37,6 @@ public class DefUseFitnessCalculator {
 	private static Logger logger = LoggerFactory
 			.getLogger(DefUseFitnessCalculator.class);
 
-	// alternative fitness calculation - experiment failed
-	public static final boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION;
 
 	// if alternative fitness calculation is disabled ignore the following
 	// valid modes: "sum", "min", "max", "avg", "single"
@@ -51,7 +49,7 @@ public class DefUseFitnessCalculator {
 	// ensure alternative fitness configuration is valid
 	static {
 		if (Properties.CRITERION == Criterion.DEFUSE)
-			if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
+			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 				System.out.println("* Alternative fitness calculation enabled");
 				// + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
 //				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
@@ -236,7 +234,7 @@ public class DefUseFitnessCalculator {
 					goal.setCovered(individual, objectTrace, objectId);
 				return 0.0;
 			} else {
-				if (ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
+				if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 					
 					long start = System.currentTimeMillis();
 					

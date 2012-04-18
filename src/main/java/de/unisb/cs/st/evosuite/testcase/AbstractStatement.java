@@ -192,7 +192,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
 	 */
 	@Override
-	public void SetRetval(VariableReference newRetVal) {
+	public void setRetval(VariableReference newRetVal) {
 		this.retval = newRetVal;
 	}
 

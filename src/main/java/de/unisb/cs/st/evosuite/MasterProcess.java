@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 /**
  * @author Gordon Fraser
@@ -16,6 +17,8 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
  */
 public class MasterProcess {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	/**
 	 * @param args
 	 */

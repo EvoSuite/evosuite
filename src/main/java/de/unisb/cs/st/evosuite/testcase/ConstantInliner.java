@@ -84,10 +84,10 @@ public class ConstantInliner extends ExecutionObserver {
 	 */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
-		try{
+		try {
 			for (VariableReference var : statement.getVariableReferences()) {
 				if (var.equals(statement.getReturnValue())
-						|| var.equals(statement.getReturnValue().getAdditionalVariableReference()))
+				        || var.equals(statement.getReturnValue().getAdditionalVariableReference()))
 					continue;
 				if (var.isPrimitive() || var.isString() || var.getObject(scope) == null) {
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
@@ -97,7 +97,7 @@ public class ConstantInliner extends ExecutionObserver {
 					// logger.info("Statement after inlining: " + statement.getCode());
 				}
 			}
-		}catch(CodeUnderTestException e){
+		} catch (CodeUnderTestException e) {
 			throw new AssertionError("This case isn't handled yet");
 		}
 

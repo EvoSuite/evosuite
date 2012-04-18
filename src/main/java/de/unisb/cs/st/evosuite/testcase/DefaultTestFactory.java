@@ -42,6 +42,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.primitives.ObjectPool;
+import de.unisb.cs.st.evosuite.runtime.EvoSuiteFile;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 import de.unisb.cs.st.evosuite.testsuite.TestCallObject;
 import de.unisb.cs.st.evosuite.testsuite.TestCallStatement;
@@ -62,12 +63,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	private static Logger logger = LoggerFactory.getLogger(DefaultTestFactory.class);
 
-	private transient MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
-
-	/**
-	 * Accessor to the test cluster
-	 */
-	private transient TestCluster testCluster = TestCluster.getInstance();
+	//	private transient MethodDescriptorReplacement descriptor_replacement = MethodDescriptorReplacement.getInstance();
+	private transient MethodDescriptorReplacement descriptor_replacement = new MethodDescriptorReplacement();
 
 	/**
 	 * Keep track of objects we are already trying to generate
@@ -75,6 +72,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private transient Set<AccessibleObject> currentRecursion = new HashSet<AccessibleObject>();
 
 	private DefaultTestFactory() {
+		reset();
+	}
+
+	public void reset() {
+		// MethodDescriptorReplacement.getInstance().reset();
+		currentRecursion.clear();
 	}
 
 	public static DefaultTestFactory getInstance() {
@@ -167,7 +170,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				}
 			} else {
 				logger.debug("Getting calls for object " + var.toString());
-				List<AccessibleObject> calls = testCluster.getCallsFor(var.getVariableClass());
+				List<AccessibleObject> calls = TestCluster.getInstance().getCallsFor(var.getVariableClass());
 				if (!calls.isEmpty()) {
 					AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 					logger.debug("Chosen call " + call);
@@ -189,14 +192,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		boolean mutated = false;
 		if (object != null) {
 			if (object instanceof ArrayIndex) {
-				List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
+				List<AccessibleObject> calls = TestCluster.getInstance().getTestCallsWith(object.getType());
 				if (!calls.isEmpty()) {
 					AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 					addCallWith(test, object, call, position);
 					mutated = true;
 				}
 			} else {
-				List<AccessibleObject> calls = testCluster.getTestCallsWith(object.getType());
+				List<AccessibleObject> calls = TestCluster.getInstance().getTestCallsWith(object.getType());
 				if (!calls.isEmpty()) {
 					AccessibleObject call = calls.get(Randomness.nextInt(calls.size()));
 					addCallWith(test, object, call, position);
@@ -493,7 +496,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				                               position, recursion_depth + 1);
 			}
 		} catch (ConstructionFailedException e) {
-			testCluster.checkDependencies(method);
+			TestCluster.getInstance().checkDependencies(method);
 			throw e;
 		}
 
@@ -626,7 +629,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		} else if (!clazz.isPrimitive()
 		        && !clazz.isEnum()
 		        && !objects.isEmpty()
-		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !testCluster.hasGenerator(parameter_type))) {
+		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !TestCluster.getInstance().hasGenerator(parameter_type))) {
 
 			logger.debug(" Choosing from " + objects.size() + " existing objects");
 			VariableReference reference = Randomness.choice(objects);
@@ -823,7 +826,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	        int recursion_depth, boolean allow_null) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		if (clazz.isPrimitive() || clazz.isString() || clazz.isEnum()) {
+		if (clazz.isPrimitive() || clazz.isString() || clazz.isEnum()
+		        || clazz.getRawClass().equals(EvoSuiteFile.class)) {
 			if (logger.isDebugEnabled())
 				logger.debug("Generating primitive of type "
 				        + ((Class<?>) type).getName());
@@ -867,10 +871,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				return addTestCall(test, position);
 			}
 
-			AccessibleObject o = testCluster.getRandomGenerator(type, currentRecursion);
+			AccessibleObject o = TestCluster.getInstance().getRandomGenerator(type,
+			                                                                  currentRecursion);
 			currentRecursion.add(o);
 			if (o == null) {
-				if (!testCluster.hasGenerator(type)) {
+				if (!TestCluster.getInstance().hasGenerator(type)) {
 					logger.debug("We have no generator for class " + type);
 				}
 				throw new ConstructionFailedException("Generator is null");
@@ -982,7 +987,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		String name = "";
 		currentRecursion.clear();
 		logger.debug("Inserting random call at position " + position);
-		AccessibleObject o = testCluster.getRandomTestCall();
+		AccessibleObject o = TestCluster.getInstance().getRandomTestCall();
 		try {
 			if (o == null) {
 				logger.warn("Have no target methods to test");
@@ -1006,7 +1011,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			}
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this!
-			testCluster.checkDependencies(o);
+			TestCluster.getInstance().checkDependencies(o);
 			logger.debug("Inserting statement " + name
 			        + " has failed. Removing statements");
 			// System.out.println("TG: Failed");
@@ -1303,7 +1308,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		Set<AccessibleObject> all_calls;
 
 		try {
-			all_calls = testCluster.getGenerators(return_type);
+			all_calls = TestCluster.getInstance().getGenerators(return_type);
 		} catch (ConstructionFailedException e) {
 			return calls;
 		}
@@ -1370,8 +1375,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
-		testCluster = TestCluster.getInstance();
-		descriptor_replacement = MethodDescriptorReplacement.getInstance();
+		//testCluster = TestCluster.getInstance();
+		//		descriptor_replacement = MethodDescriptorReplacement.getInstance();
+		descriptor_replacement = new MethodDescriptorReplacement();
 		currentRecursion = new HashSet<AccessibleObject>();
 	}
 }

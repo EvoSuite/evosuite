@@ -118,8 +118,10 @@ public class StaticTestCluster extends TestCluster {
 	protected StaticTestCluster() {
 	}
 
+	
 	@Override
 	protected void init() {
+		hierarchy = Hierarchy.readFromDefaultLocation();
 		populate();
 		addIncludes();
 		analyzeTarget();
@@ -740,7 +742,14 @@ public class StaticTestCluster extends TestCluster {
 			// return false;//handled here to avoid printing reasons
 		}
 
+		/*
 		if (m.getDeclaringClass().equals(java.lang.Enum.class)) {
+			return false;
+		}
+		*/
+		if (m.getDeclaringClass().isEnum()
+		        && (m.getName().equals("valueOf") || m.getName().equals("values"))) {
+			logger.debug("Excluding valueOf for Enum " + m.toString());
 			return false;
 		}
 
@@ -1895,6 +1904,16 @@ public class StaticTestCluster extends TestCluster {
 		testCalls.addAll(test_constructors);
 		testCalls.addAll(test_methods);
 		return testCalls;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#addTestCalls(java.lang.reflect.AccessibleObject)
+	 */
+	@Override
+	public void addTestCall(AccessibleObject call) {
+		// For now, assume it is a method
+		assert (call instanceof Method);
+		test_methods.add((Method) call);
 	}
 
 	/*

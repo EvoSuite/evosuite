@@ -22,9 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrentTestCase;
-import de.unisb.cs.st.evosuite.coverage.concurrency.Schedule;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 import de.unisb.cs.st.evosuite.coverage.mutation.MutationExecutionResult;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -222,33 +219,6 @@ public class TestChromosome extends ExecutableChromosome {
 	@Override
 	public void mutate() {
 		boolean changed = false;
-		double P;
-
-		//#TODO steenbuck TestChromosome should be subclassed
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			assert (test instanceof ConcurrentTestCase);
-
-			P = 1d / 6d;
-
-			// Delete from schedule
-			if (Randomness.nextDouble() <= P) {
-				changed = mutationDeleteSchedule();
-			}
-
-			// Change in schedule
-			if (Randomness.nextDouble() <= P) {
-				if (mutationChangeSchedule())
-					changed = true;
-			}
-
-			// Insert into schedule
-			if (Randomness.nextDouble() <= P) {
-				if (mutationInsertSchedule())
-					changed = true;
-			}
-		} else {
-			P = 1d / 3d;
-		}
 
 		logger.debug("Mutation: delete");
 		// Delete
@@ -304,75 +274,6 @@ public class TestChromosome extends ExecutableChromosome {
 					logger.warn(test.toCode());
 				}
 				// }
-			}
-		}
-
-		return changed;
-	}
-
-	/**
-	 * Each schedule entry is deleted with probability 1/length
-	 * 
-	 * @return
-	 */
-	private boolean mutationDeleteSchedule() {
-		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
-		Schedule schedule = test.getSchedule();
-		boolean changed = false;
-		double pl = 1d / schedule.size();
-		for (int num = schedule.size() - 1; num >= 0; num--) {
-
-			// Each schedulePoint is deleted with probability 1/l
-			if (Randomness.nextDouble() <= pl) {
-				schedule.removeElement(num);
-				changed = true;
-			}
-		}
-
-		return changed;
-	}
-
-	/**
-	 * With exponentially decreasing probability, insert schedule points at
-	 * random position
-	 * 
-	 * @return
-	 */
-	private boolean mutationInsertSchedule() {
-		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
-		Schedule schedule = test.getSchedule();
-		boolean changed = false;
-		final double ALPHA = 0.5;
-		int count = 0;
-
-		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)) { //#TODO steenbuck removed length check, should maybe be added (compare: mutateInsert)
-			count++;
-			// Insert at position as during initialization (i.e., using helper
-			// sequences)
-			int pos = (schedule.size() == 0) ? 0 : Randomness.nextInt(schedule.size());
-			schedule.add(pos, schedule.getRandomThreadID());
-			changed = true;
-		}
-		return changed;
-	}
-
-	/**
-	 * Each schedule is replaced with probability 1/length
-	 * 
-	 * @return
-	 */
-	private boolean mutationChangeSchedule() {
-		ConcurrentTestCase test = (ConcurrentTestCase) this.test;
-		Schedule schedule = test.getSchedule();
-		boolean changed = false;
-		double pl = 1d / schedule.size();
-		for (int num = schedule.size() - 1; num >= 0; num--) {
-
-			// Each schedulePoint is deleted with probability 1/l
-			if (Randomness.nextDouble() <= pl) {
-				schedule.removeElement(num);
-				schedule.add(num, schedule.getRandomThreadID());
-				changed = true;
 			}
 		}
 

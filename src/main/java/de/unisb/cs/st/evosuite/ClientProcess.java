@@ -3,11 +3,18 @@
  */
 package de.unisb.cs.st.evosuite;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.evosuite.coverage.FitnessLogger;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessUtilities;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 /**
  * @author Gordon Fraser
@@ -16,6 +23,10 @@ import de.unisb.cs.st.evosuite.utils.ExternalProcessUtilities;
  */
 public class ClientProcess implements SearchListener {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
+	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
+	
 	private final ExternalProcessUtilities util = new ExternalProcessUtilities();
 
 	private GeneticAlgorithm ga;
@@ -23,6 +34,7 @@ public class ClientProcess implements SearchListener {
 	public static GeneticAlgorithm  geneticAlgorithmStatus;
 	
 	public void run() {
+		
 		System.out.println("* Connecting to master process on port "
 		        + Properties.PROCESS_COMMUNICATION_PORT);
 		if (!util.connectToMainProcess()) {
