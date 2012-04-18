@@ -2,14 +2,16 @@ package de.unisb.cs.st.evosuite.graphs.ccfg;
 
 public class CCFGFrameNode extends CCFGNode {
 
-	public enum FrameNodeType {ENTRY, EXIT, LOOP, CALL, RETURN};
+	private ClassControlFlowGraph.FrameNodeType type;
 	
-	private FrameNodeType type;
-	
-	public CCFGFrameNode(FrameNodeType type) {
+	public CCFGFrameNode(ClassControlFlowGraph.FrameNodeType type) {
 		this.type = type;
 	}
 	
+	public ClassControlFlowGraph.FrameNodeType getType() {
+		return type;
+	}
+
 	@Override
 	public String toString() {
 		return "Frame "+type.toString();

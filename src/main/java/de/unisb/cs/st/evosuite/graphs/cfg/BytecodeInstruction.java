@@ -3,6 +3,7 @@ package de.unisb.cs.st.evosuite.graphs.cfg;
 import java.io.Serializable;
 import java.util.Set;
 
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -19,6 +20,7 @@ import org.objectweb.asm.tree.MultiANewArrayInsnNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TypeInsnNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.SourceValue;
 
 import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
@@ -61,14 +63,14 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 	 * instruction as indicated by the given ASMNode in the given method and
 	 * class
 	 */
-	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        int jpfId, AbstractInsnNode asmNode) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, int jpfId, AbstractInsnNode asmNode) {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
 		if (instructionId < 0)
 			throw new IllegalArgumentException(
-			        "expect instructionId to be positive, not " + instructionId);
+					"expect instructionId to be positive, not " + instructionId);
 
 		this.instructionId = instructionId;
 		this.jpfId = jpfId;
@@ -84,20 +86,22 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.jpfId,
-		        wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
+				wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
 		this.forcedBranch = wrap.forcedBranch;
 	}
 
-	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        int jpfId, AbstractInsnNode asmNode, int lineNumber, BasicBlock basicBlock) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, int jpfId, AbstractInsnNode asmNode,
+			int lineNumber, BasicBlock basicBlock) {
 
 		this(className, methodName, instructionId, jpfId, asmNode, lineNumber);
 
 		this.basicBlock = basicBlock;
 	}
 
-	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        int jpfId, AbstractInsnNode asmNode, int lineNumber) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, int jpfId, AbstractInsnNode asmNode,
+			int lineNumber) {
 
 		this(className, methodName, instructionId, jpfId, asmNode);
 
@@ -119,6 +123,10 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 			throw new IllegalArgumentException("null given");
 
 		this.className = className;
+	}
+
+	public void setCFGFrame(CFGFrame frame) {
+		this.frame = frame;
 	}
 
 	// --- Field Management ---
@@ -172,12 +180,12 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 			throw new IllegalArgumentException("null given");
 
 		if (!block.getClassName().equals(getClassName())
-		        || !block.getMethodName().equals(getMethodName()))
+				|| !block.getMethodName().equals(getMethodName()))
 			throw new IllegalArgumentException(
-			        "expect block to be for the same method and class as this instruction");
+					"expect block to be for the same method and class as this instruction");
 		if (this.basicBlock != null)
 			throw new IllegalArgumentException(
-			        "basicBlock already set! not allowed to overwrite");
+					"basicBlock already set! not allowed to overwrite");
 
 		this.basicBlock = block;
 	}
@@ -204,7 +212,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 	 */
 	public void setLineNumber(int lineNumber) {
 		if (lineNumber <= 0)
-			throw new IllegalArgumentException("expect lineNumber value to be positive");
+			throw new IllegalArgumentException(
+					"expect lineNumber value to be positive");
 
 		if (isLabel())
 			return;
@@ -214,7 +223,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 			// sanity check
 			if (lineNumber != -1 && asmLine != lineNumber)
 				throw new IllegalStateException(
-				        "linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+						"linenumber instruction has lineNumber field set to a value different from instruction linenumber");
 			this.lineNumber = asmLine;
 		} else {
 			this.lineNumber = lineNumber;
@@ -251,7 +260,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 			// sanity check
 			if (this.lineNumber != -1 && asmLine != this.lineNumber)
 				throw new IllegalStateException(
-				        "lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
+						"lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
 			this.lineNumber = asmLine;
 		}
 	}
@@ -265,10 +274,11 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 	 */
 	public ActualControlFlowGraph getActualCFG() {
 
-		ActualControlFlowGraph myCFG = GraphPool.getActualCFG(className, methodName);
+		ActualControlFlowGraph myCFG = GraphPool.getActualCFG(className,
+				methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-			        "expect GraphPool to know CFG for every method for which an instruction is known");
+					"expect GraphPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -283,7 +293,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 		RawControlFlowGraph myCFG = GraphPool.getRawCFG(className, methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-			        "expect GraphPool to know CFG for every method for which an instruction is known");
+					"expect GraphPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -298,7 +308,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 		ControlDependenceGraph myCDG = GraphPool.getCDG(className, methodName);
 		if (myCDG == null)
 			throw new IllegalStateException(
-			        "expect GraphPool to know CDG for every method for which an instruction is known");
+					"expect GraphPool to know CDG for every method for which an instruction is known");
 
 		return myCDG;
 	}
@@ -416,7 +426,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
-			        "this method can only be called for branches that this instruction is directly control dependent on.");
+					"this method can only be called for branches that this instruction is directly control dependent on.");
 
 		if (b == null)
 			return true; // root branch special case
@@ -447,14 +457,14 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 	public ControlDependency getControlDependency(Branch branch) {
 		if (!isDirectlyControlDependentOn(branch))
 			throw new IllegalArgumentException(
-			        "instruction not directly control dependent on given branch");
+					"instruction not directly control dependent on given branch");
 
 		for (ControlDependency cd : getControlDependencies())
 			if (cd.getBranch().equals(branch))
 				return cd;
 
 		throw new IllegalStateException(
-		        "expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
+				"expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
 	}
 
 	// /**
@@ -513,16 +523,12 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 		}
 		return min;
 		/*
-		// TODO: this method does not take into account, that there might be
-		// multiple branches this instruction is control dependent on		
-		Branch current = getControlDependentBranch();
-		int r = 1;
-		while (current != null) {
-			r++;
-			current = current.getInstruction().getControlDependentBranch();
-		}
-		return r;
-		*/
+		 * // TODO: this method does not take into account, that there might be
+		 * // multiple branches this instruction is control dependent on Branch
+		 * current = getControlDependentBranch(); int r = 1; while (current !=
+		 * null) { r++; current =
+		 * current.getInstruction().getControlDependentBranch(); } return r;
+		 */
 	}
 
 	// String methods
@@ -533,11 +539,13 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 				Branch b = BranchPool.getBranchForInstruction(this);
 				if (b == null)
 					throw new IllegalStateException(
-					        "expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
+							"expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
 
-				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
+				return "Branch " + b.getActualBranchId() + " - "
+						+ getInstructionType();
 			}
-			return "UNKNOWN Branch I" + instructionId + " " + getInstructionType();
+			return "UNKNOWN Branch I" + instructionId + " "
+					+ getInstructionType();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
@@ -561,25 +569,25 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
 		} else if (asmNode instanceof FieldInsnNode)
 			return "Field" + " " + ((FieldInsnNode) asmNode).owner + "."
-			        + ((FieldInsnNode) asmNode).name + " Type=" + type + ", Opcode="
-			        + opcode;
+					+ ((FieldInsnNode) asmNode).name + " Type=" + type
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof FrameNode)
-			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
-			        + opcode;
+			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof IincInsnNode)
-			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type + ", Opcode="
-			        + opcode;
+			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof InsnNode)
 			return "" + opcode;
 		else if (asmNode instanceof IntInsnNode)
 			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type
-			        + ", Opcode=" + opcode;
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof MethodInsnNode)
 			return opcode + " " + ((MethodInsnNode) asmNode).name;
 		else if (asmNode instanceof JumpInsnNode)
-			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel() + " Type=" + type
-			        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
-			        + lineNumber;
+			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel()
+					+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
+					+ stack + " - Line: " + lineNumber;
 		else if (asmNode instanceof LdcInsnNode)
 			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type; // +
 		// ", Opcode=";
@@ -588,14 +596,14 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 		else if (asmNode instanceof LineNumberNode)
 			return "LINE " + " " + ((LineNumberNode) asmNode).line;
 		else if (asmNode instanceof LookupSwitchInsnNode)
-			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
-			        + ", Opcode=" + opcode;
+			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode()
+					+ " Type=" + type + ", Opcode=" + opcode;
 		else if (asmNode instanceof MultiANewArrayInsnNode)
-			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type=" + type
-			        + ", Opcode=" + opcode;
+			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type="
+					+ type + ", Opcode=" + opcode;
 		else if (asmNode instanceof TableSwitchInsnNode)
-			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
-			        + ", Opcode=" + opcode;
+			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type="
+					+ type + ", Opcode=" + opcode;
 		else if (asmNode instanceof TypeInsnNode)
 			return "NEW " + ((TypeInsnNode) asmNode).desc;
 		// return "TYPE " + " " + node.getOpcode() + " Type=" + type
@@ -604,6 +612,34 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 			return opcode + " " + ((VarInsnNode) asmNode).var;
 		else
 			return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
+	}
+
+	public void printFrameInformation() {
+		System.out.println("Frame STACK:");
+		for (int i = 0; i < frame.getStackSize(); i++) {
+			SourceValue v = (SourceValue) frame.getStack(i);
+			System.out.print(" " + i + "(" + v.insns.size() + "): ");
+			for (Object n : v.insns) {
+				AbstractInsnNode node = (AbstractInsnNode) n;
+				BytecodeInstruction ins = BytecodeInstructionPool
+						.getInstruction(className, methodName, node);
+				System.out.print(ins.toString() + ", ");
+			}
+			System.out.println();
+		}
+
+		System.out.println("Frame LOCALS:");
+		for (int i = 1; i < frame.getLocals(); i++) {
+			SourceValue v = (SourceValue) frame.getLocal(i);
+			System.out.print(" " + i + "(" + v.insns.size() + "): ");
+			for (Object n : v.insns) {
+				AbstractInsnNode node = (AbstractInsnNode) n;
+				BytecodeInstruction ins = BytecodeInstructionPool
+						.getInstruction(className, methodName, node);
+				System.out.print(ins.toString() + ", ");
+			}
+			System.out.println();
+		}
 	}
 
 	// --- Inherited from Object ---
@@ -663,11 +699,11 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 		}
 	}
 
-	public boolean proceedsConstructorInvocation() {
+	public boolean proceedsOwnConstructorInvocation() {
 
 		RawControlFlowGraph cfg = getRawCFG();
 		for (BytecodeInstruction other : cfg.vertexSet())
-			if (other.isConstructorInvocation())
+			if (other.isConstructorInvocation() && other.isMethodCallOnSameObject())
 				if (getInstructionId() < other.getInstructionId())
 					return true;
 
@@ -684,5 +720,71 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 
 	public boolean canBeExitPoint() {
 		return canReturnFromMethod() || isLastInstructionInMethod();
+	}
+
+	/**
+	 * Determines whether this instruction calls a method on its own Object
+	 * ('this')
+	 * 
+	 * This is done using the CFGFrame created by the SourceInterpreter() of the
+	 * BytecodeAnalyzer via the CFGGenerator
+	 * 
+	 * If the reference on top of the stack minus the number of the called
+	 * methods argument (which is the one to the object on which the method is
+	 * called) was produced by an ALOAD_0 instruction, the method will be called
+	 * on 'this' and this method will return true
+	 * 
+	 * Note that the method call could be called on 'this' even though this
+	 * method returns false. This can happen when aliasing is involved. If you
+	 * first store 'this' in a local variable and then call a method on that
+	 * variable the call will go to 'this' but this method will return false.
+	 * 
+	 * see PairTestClass.sourceCallerTest() for an even worse example.
+	 * 
+	 * TODO: this could be done better by following the SourceValues even
+	 * further.
+	 */
+	public boolean isMethodCallOnSameObject() {
+		if (!isMethodCall())
+			return false;
+
+		// the object on which this method is called is on top of the stack
+		// minus the number of arguments the called method has
+		int stackPos = frame.getStackSize()
+				- (1 + getCalledMethodsArgumentCount());
+		SourceValue source = (SourceValue) frame.getStack(stackPos);
+		if (source.insns.size() != 1) {
+			// we don't know for sure, let's be conservative
+			return false;
+		}
+		for (Object sourceIns : source.insns) {
+			AbstractInsnNode sourceInstruction = (AbstractInsnNode) sourceIns;
+			BytecodeInstruction src = BytecodeInstructionPool.getInstruction(
+					className, methodName, sourceInstruction);
+			return src.isALOAD0();
+		}
+		throw new IllegalStateException("should be unreachable");
+	}
+
+	public boolean isPublicMethodCall() {
+		if (!isMethodCall())
+			return false;
+
+		return getCalledCFG().isPublicMethod();
+	}
+
+	public boolean isStaticMethodCall() {
+		if (!isMethodCall())
+			return false;
+
+		return getCalledCFG().isStaticMethod();
+	}
+
+	public boolean canBeInstrumented() {
+		if(isWithinConstructor() && proceedsOwnConstructorInvocation()) {
+//			System.out.println("i cant be instrumented "+toString());
+			return false;
+		}
+		return true;
 	}
 }

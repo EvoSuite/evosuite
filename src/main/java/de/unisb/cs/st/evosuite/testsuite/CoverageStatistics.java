@@ -17,6 +17,8 @@ import de.unisb.cs.st.evosuite.TestSuiteGenerator;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -39,8 +41,8 @@ public class CoverageStatistics {
 	protected static String outputFile = REPORT_DIR.getAbsolutePath()
 			+ "/coverage.csv";
 
-	public static Criterion[] supportedCriteria = { Criterion.DEFUSE, Criterion.ALLDEFS,
-			Criterion.BRANCH, Criterion.STATEMENT };
+	public static Criterion[] supportedCriteria = { Criterion.DEFUSE,
+			Criterion.ALLDEFS, Criterion.BRANCH, Criterion.STATEMENT };
 
 	public static void analyzeCoverage(TestSuiteChromosome best) {
 
@@ -115,13 +117,13 @@ public class CoverageStatistics {
 
 				DefUseCoverageSuiteFitness duCoverage = defuseCoverage
 						.get(testCoverage);
-				out.write(duCoverage.coveredParamGoals + ",");
-				out.write(DefUseCoverageSuiteFitness.totalParamGoals + ",");
-				out.write(duCoverage.coveredIntraGoals + ",");
-				out.write(DefUseCoverageSuiteFitness.totalIntraGoals + ",");
-				out.write(duCoverage.coveredInterGoals + ",");
-				out.write(DefUseCoverageSuiteFitness.totalInterGoals + ",");
-
+				
+				for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
+						.values()) {
+					out.write(duCoverage.coveredGoals.get(type) + ",");
+					out.write(DefUseCoverageSuiteFitness.totalGoals.get(type) + ",");
+				}
+				
 				double combined = combinedCoverages.get(testCoverage);
 				out.write(formatCoverage(combined) + ",");
 				out.write(formatCoverage(combined
@@ -129,9 +131,10 @@ public class CoverageStatistics {
 						+ ",");
 
 				duCoverage = defuseCoverage.get(Criterion.ANALYZE);
-				out.write(duCoverage.coveredParamGoals + ",");
-				out.write(duCoverage.coveredIntraGoals + ",");
-				out.write(duCoverage.coveredInterGoals + ",");
+				for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
+						.values()) {
+					out.write(duCoverage.coveredGoals.get(type) + ",");
+				}
 
 				if (Properties.STRATEGY == Strategy.EVOSUITE)
 					out.write("suite,");
@@ -187,11 +190,22 @@ public class CoverageStatistics {
 		StatisticEntry dummyStat = SearchStatistics.getInstance()
 				.getLastStatisticEntry();
 
-		return "Class,TestCriterion,DefUse-Coverage,AllDefs-Coverage,Branch-Coverage,Statement-Coverage,"
-				+ "Covered param goals,Total param goals,Covered intra goals,Total intra goals,Covered inter goals,Total inter goals,"
-				+ "Combined-Coverage,Combined-Boost,Combined param goals,Combined intra goals,Combined inter goals,"
-				+ "Mode,Stopping Condition,Global Time,Timed Out,"
-				+ dummyStat.getCSVHeader();
+		String r = "Class,TestCriterion,DefUse-Coverage,AllDefs-Coverage,Branch-Coverage,Statement-Coverage,";
+
+		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
+				.values()) {
+			r += "Covered " + type + " goals,";
+			r += "Total " + type + " goals,";
+		}
+		r += "Combined-Coverage,Combined-Boost,";
+		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
+				.values()) {
+			r += "Combined " + type + " goals,";
+		}
+		r += "Mode,Stopping Condition,Global Time,Timed Out,";
+		r += dummyStat.getCSVHeader();
+
+		return r;
 	}
 
 	private static void setStatisticEntry(StatisticEntry lastStatisticEntry) {
