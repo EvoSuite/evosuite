@@ -10,13 +10,20 @@ public class CCFGMethodCallNode extends CCFGNode {
 		this.callInstruction = callInstruction;
 	}
 	
+	public String getMethod() {
+		return callInstruction.getMethodName();
+	}
+	
+	public String  getCalledMethod() {
+		return callInstruction.getCalledMethod();
+	}
+	
 	public BytecodeInstruction getCallInstruction() {
 		return callInstruction;
 	}
 
 	@Override
 	public String toString() {
-		return "CALL "+callInstruction.getCalledMethod();
+		return "CALL from "+callInstruction.toString();
 	}
-	
 }

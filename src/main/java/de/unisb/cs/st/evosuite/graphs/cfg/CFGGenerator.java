@@ -7,9 +7,10 @@ import org.slf4j.LoggerFactory;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
+import org.objectweb.asm.tree.analysis.SourceValue;
+import org.objectweb.asm.tree.analysis.Value;
 
 import de.unisb.cs.st.evosuite.graphs.GraphPool;
-
 
 /**
  * This classed is used to create the RawControlFlowGraph which can then be used
@@ -70,9 +71,10 @@ public class CFGGenerator {
 	public void registerCFGs() {
 
 		int removed = getRawGraph().removeIsolatedNodes();
-		if(removed>0)
-			logger.info("removed isolated nodes: "+removed+" in "+methodName);
-		
+		if (removed > 0)
+			logger.info("removed isolated nodes: " + removed + " in "
+					+ methodName);
+
 		// non-minimized cfg needed for defuse-coverage and control
 		// dependence calculation
 		GraphPool.registerRawCFG(getRawGraph());
@@ -82,10 +84,10 @@ public class CFGGenerator {
 	// build up the graph
 
 	private void registerMethodNode(MethodNode currentMethod, String className,
-	        String methodName) {
+			String methodName) {
 		if (nodeRegistered)
 			throw new IllegalStateException(
-			        "registerMethodNode must not be called more than once for each instance of CFGGenerator");
+					"registerMethodNode must not be called more than once for each instance of CFGGenerator");
 		if (currentMethod == null || methodName == null || className == null)
 			throw new IllegalArgumentException("null given");
 
@@ -93,11 +95,11 @@ public class CFGGenerator {
 		this.className = className;
 		this.methodName = methodName;
 
-		this.rawGraph = new RawControlFlowGraph(className, methodName, currentMethod.access);
+		this.rawGraph = new RawControlFlowGraph(className, methodName,
+				currentMethod.access);
 
-		List<BytecodeInstruction> instructionsInMethod = BytecodeInstructionPool.registerMethodNode(currentMethod,
-		                                                                                            className,
-		                                                                                            methodName);
+		List<BytecodeInstruction> instructionsInMethod = BytecodeInstructionPool
+				.registerMethodNode(currentMethod, className, methodName);
 
 		// sometimes there is a Label at the very end of a method without a
 		// controlFlowEdge to it. In order to keep the graph as connected as
@@ -119,10 +121,10 @@ public class CFGGenerator {
 	 * control flow edge
 	 */
 	public void registerControlFlowEdge(int src, int dst, Frame[] frames,
-	        boolean isExceptionEdge) {
+			boolean isExceptionEdge) {
 		if (!nodeRegistered)
 			throw new IllegalStateException(
-			        "CFGGenrator.registerControlFlowEdge() cannot be called unless registerMethodNode() was called first");
+					"CFGGenrator.registerControlFlowEdge() cannot be called unless registerMethodNode() was called first");
 		if (frames == null)
 			throw new IllegalArgumentException("null given");
 		CFGFrame srcFrame = (CFGFrame) frames[src];
@@ -130,10 +132,9 @@ public class CFGGenerator {
 
 		if (srcFrame == null)
 			throw new IllegalArgumentException(
-			        "expect given frames to know srcFrame for " + src);
+					"expect given frames to know srcFrame for " + src);
 
 		if (dstFrame == null) {
-
 			// documentation of getFrames() tells us the following:
 			// Returns:
 			// the symbolic state of the execution stack frame at each bytecode
@@ -142,13 +143,9 @@ public class CFGGenerator {
 			// given frame is null if the corresponding instruction cannot be
 			// reached, or if an error occured during the analysis of the
 			// method.
-
-			//logger.warn("ControlFlowEdge to null");
-
 			// so let's say we expect the analyzer to return null only if
 			// dst is not reachable and if that happens we just suppress the
 			// corresponding ControlFlowEdge for now
-
 			// TODO can the CFG become disconnected like that?
 			return;
 		}
@@ -159,25 +156,19 @@ public class CFGGenerator {
 		AbstractInsnNode dstNode = currentMethod.instructions.get(dst);
 
 		// those nodes should have gotten registered by registerMethodNode()
-		BytecodeInstruction srcInstruction = BytecodeInstructionPool.getInstruction(className,
-		                                                                            methodName,
-		                                                                            src,
-		                                                                            srcNode);
-		BytecodeInstruction dstInstruction = BytecodeInstructionPool.getInstruction(className,
-		                                                                            methodName,
-		                                                                            dst,
-		                                                                            dstNode);
+		BytecodeInstruction srcInstruction = BytecodeInstructionPool
+				.getInstruction(className, methodName, src, srcNode);
+		BytecodeInstruction dstInstruction = BytecodeInstructionPool
+				.getInstruction(className, methodName, dst, dstNode);
+		
+		srcInstruction.setCFGFrame(srcFrame);
 
 		if (srcInstruction == null || dstInstruction == null)
 			throw new IllegalStateException(
-			        "expect BytecodeInstructionPool to know the instructions in the method of this edge");
+					"expect BytecodeInstructionPool to know the instructions in the method of this edge");
 
-		// have to add vertices previously in registerMethodNode in case there
-		// is only one instruction
-		// rawGraph.addVertex(srcInstruction);
-		// rawGraph.addVertex(dstInstruction);
-
-		if (null == rawGraph.addEdge(srcInstruction, dstInstruction, isExceptionEdge))
+		if (null == rawGraph.addEdge(srcInstruction, dstInstruction,
+				isExceptionEdge))
 			logger.error("internal error while adding edge");
 	}
 

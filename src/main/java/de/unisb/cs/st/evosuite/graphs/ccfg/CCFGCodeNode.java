@@ -4,18 +4,22 @@ import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 
 public class CCFGCodeNode extends CCFGNode {
 
-	private BytecodeInstruction code;
+	private BytecodeInstruction codeInstruction;
 	
 	public CCFGCodeNode(BytecodeInstruction code) {
-		this.code = code;
+		this.codeInstruction = code;
 	}
 	
-	public BytecodeInstruction getCode() {
-		return code;
+	public String getMethod() {
+		return codeInstruction.getMethodName();
+	}
+	
+	public BytecodeInstruction getCodeInstruction() {
+		return codeInstruction;
 	}
 
 	@Override
 	public String toString() {
-		return code.toString();
+		return codeInstruction.toString();
 	}
 }

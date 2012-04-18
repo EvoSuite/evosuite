@@ -23,6 +23,7 @@ import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
+import org.objectweb.asm.tree.analysis.SourceInterpreter;
 
 /**
  * This class analyzes the byteCode from a method in the CUT and generates it's
@@ -42,7 +43,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	CFGGenerator cfgGenerator;
 
 	public BytecodeAnalyzer() {
-		super(new BasicInterpreter());
+		super(new SourceInterpreter());
 	}
 
 	// main interface

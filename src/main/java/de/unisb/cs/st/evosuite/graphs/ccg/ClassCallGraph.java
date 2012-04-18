@@ -33,6 +33,9 @@ public class ClassCallGraph extends EvoSuiteGraph<ClassCallNode, ClassCallEdge> 
 	private void compute() {
 		Map<String, RawControlFlowGraph> cfgs = GraphPool.getRawCFGs(className);
 
+		if(cfgs == null)
+			throw new IllegalStateException("did not find CFGs for a class I was supposed to compute the CCG of");
+		
 		// add nodes
 		for(String method : cfgs.keySet())
 			addVertex(new ClassCallNode(method));

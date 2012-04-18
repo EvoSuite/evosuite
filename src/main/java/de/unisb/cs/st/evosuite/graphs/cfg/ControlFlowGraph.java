@@ -38,8 +38,8 @@ import de.unisb.cs.st.evosuite.graphs.EvoSuiteGraph;
  * cfg.ActualControlFlowGraph which is also known as the minimal CFG Look at the
  * respective classes for more detailed information
  * 
- * The CFGs can be accessed via the GraphPool which holds for each CUT and each of
- * their methods a complete and a minimal CFG
+ * The CFGs can be accessed via the GraphPool which holds for each CUT and each
+ * of their methods a complete and a minimal CFG
  * 
  * CFGs are created by the CFGGenerator during the analysis of the CUTs'
  * byteCode performed by the BytecodeAnalyzer
@@ -137,9 +137,9 @@ public abstract class ControlFlowGraph<V> extends
 	 * 
 	 * Since both takes some time this is not automatically done on each CFG
 	 * 
-	 * GraphPool will automatically call this immediately after the instantiation
-	 * of an ActualControlFlowGraph, but not after the creation of a
-	 * RawControlFlowGraph
+	 * GraphPool will automatically call this immediately after the
+	 * instantiation of an ActualControlFlowGraph, but not after the creation of
+	 * a RawControlFlowGraph
 	 */
 	public void finalise() {
 		computeDiameter();
@@ -156,8 +156,7 @@ public abstract class ControlFlowGraph<V> extends
 	 */
 	public int getDiameter() {
 		if (diameter == -1) {
-			logger
-					.debug("diameter not computed yet. calling computeDiameter() first!");
+			logger.debug("diameter not computed yet. calling computeDiameter() first!");
 			computeDiameter();
 		}
 
@@ -202,13 +201,17 @@ public abstract class ControlFlowGraph<V> extends
 	public String getMethodName() {
 		return methodName;
 	}
-	
+
 	public int getMethodAccess() {
 		return access;
 	}
-	
+
 	public boolean isPublicMethod() {
-		return (access & Opcodes.ACC_PUBLIC) == 1;
+		return (access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC;
+	}
+
+	public boolean isStaticMethod() {
+		return (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 	}
 
 	@Override
