@@ -51,6 +51,10 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return goal.branch;
 	}
 
+	public String getClassName() {
+		return goal.className;
+	}
+
 	public String getMethod() {
 		return goal.methodName;
 	}

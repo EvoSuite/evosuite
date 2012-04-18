@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
-
 import de.unisb.cs.st.evosuite.ma.Connector;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
@@ -39,7 +38,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	protected ReplacementFunction replacement_function;
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SteadyStateGA.class);
-	
+
 	/**
 	 * Constructor
 	 * 
@@ -48,18 +47,12 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 
-		setReplacementFunction(new FitnessReplacementFunction(selectionFunction));
+		setReplacementFunction(new FitnessReplacementFunction());
 	}
 
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-		//return replacement_function.keepOffspring(parent1, parent2, offspring1,
-		//                                          offspring2);
-
-		return (isBetterOrEqual(offspring1, parent1) && isBetterOrEqual(offspring1,
-		                                                                parent2))
-		        || (isBetterOrEqual(offspring2, parent1) && isBetterOrEqual(offspring2,
-		                                                                    parent2));
+		return replacement_function.keepOffspring(parent1, parent2, offspring1, offspring2);
 	}
 
 	@Override
@@ -193,7 +186,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 			        + population.get(population.size() - 1).getFitness());
-			
+
 			if (Properties.MA_ACTIVE) {
 				// call manual algorithm
 				Connector.externalCall(this);

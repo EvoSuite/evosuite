@@ -69,13 +69,9 @@ import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = -920540796220051609L;
-
-	protected final static boolean do_plot = Properties.PLOT;
-
-	protected final static boolean do_html = Properties.HTML;
-
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
+	//FIXME: need re-factor, as dependent on Properties
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
 	protected static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
@@ -202,6 +198,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String goalCoverage;
 
+		public int methodExceptions;
+
+		public int typeExceptions;
+
+		public Map<String, Set<Class<?>>> exceptions;
+
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
@@ -221,6 +223,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("JUnitTests,");
 			r.append("Branches,");
 			r.append("MutationScore,");
+			r.append("MethodExceptions,");
+			r.append("TypeExceptions,");
 			r.append("Data File");
 			return r.toString();
 		}
@@ -261,7 +265,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(chromosome_length + ",");
 			r.append(population_size + ",");
 			r.append(seed + ","); //21
-			r.append(Properties.GENERATIONS + ","); //22
+			r.append(Properties.SEARCH_BUDGET + ","); //22
 
 			// TODO since we currently don't want to change the layout of
 			// statistics.csv i will leave this commented out for future use and
@@ -298,8 +302,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(pstats.getMaxThreads() + ",");
 			r.append(JUnitTestChromosomeFactory.getNumTests() + ",");
 
-			r.append(mutationScore + ",");
 			r.append(goalCoverage + ",");
+			r.append(mutationScore + ",");
+			r.append(methodExceptions + ",");
+			r.append(typeExceptions + ",");
 			r.append(getCSVFilepath());
 
 			return r.toString();
@@ -307,6 +313,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String getCSVFilepath() {
 			return REPORT_DIR.getAbsolutePath() + "/data/statistics_" + className + "-"
+			        + id + ".csv";
+		}
+
+		public String getExceptionFilepath() {
+			return REPORT_DIR.getAbsolutePath() + "/data/exceptions_" + className + "-"
 			        + id + ".csv";
 		}
 
@@ -440,6 +451,22 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 	}
 
+	protected void writeExceptionData(String filename,
+	        Map<String, Set<Class<?>>> exceptions) {
+		try {
+			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+			out.write("Method,Exception\n");
+			for (String key : exceptions.keySet()) {
+				for (Class<?> exception : exceptions.get(key)) {
+					out.write(key + "," + exception.getCanonicalName() + "\n");
+				}
+			}
+			out.close();
+		} catch (IOException e) {
+			logger.info("Exception while writing exception data: " + e);
+		}
+	}
+
 	private int getNumber(final String className) {
 		int num = 0;
 		FilenameFilter filter = new FilenameFilter() {
@@ -546,7 +573,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		 */
 
 		// Chart of fitness
-		if (do_plot) {
+		if (Properties.PLOT) {
 			if (run.fitness_history.isEmpty()) {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
@@ -676,7 +703,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		buffer.append("<li>Population size: " + entry.population_size + "\n");
 		buffer.append("<li>Initial test length: " + entry.chromosome_length + "\n");
 		buffer.append("<li>Stopping condition: " + Properties.STOPPING_CONDITION + ": "
-		        + Properties.GENERATIONS + "\n");
+		        + Properties.SEARCH_BUDGET + "\n");
 		buffer.append("<li>Bloat control factor: " + Properties.BLOAT_FACTOR);
 		buffer.append("<li>Random seed: " + entry.seed + "\n");
 		buffer.append("</ul>\n");
@@ -777,6 +804,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	public void writeCSV() {
+		if (statistics.isEmpty())
+			return;
+
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		logger.info("Writing CSV!");
 		try {
@@ -792,6 +822,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
+		if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
+			writeExceptionData(entry.getExceptionFilepath(), entry.exceptions);
+		}
 		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
 		             entry.coverage_history, entry.size_history, entry.length_history,
 		             entry.average_length_history, entry.fitness_evaluations,
@@ -827,7 +860,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * Write an HTML report
 	 */
 	public void writeReport() {
-		if (!do_html)
+		if (!Properties.HTML)
+			return;
+
+		if (statistics.isEmpty())
 			return;
 
 		new File(REPORT_DIR.getAbsolutePath() + "/html/").mkdirs();
@@ -933,9 +969,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected void makeDirs() {
 		REPORT_DIR.mkdirs();
 		(new File(REPORT_DIR.getAbsolutePath() + "/data")).mkdir();
-		if (do_plot)
+		if (Properties.PLOT)
 			(new File(REPORT_DIR.getAbsolutePath() + "/img")).mkdir();
-		if (do_html)
+		if (Properties.HTML)
 			(new File(REPORT_DIR.getAbsolutePath() + "/html")).mkdir();
 	}
 

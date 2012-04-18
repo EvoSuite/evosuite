@@ -84,13 +84,15 @@ public class PrimitivePool {
 
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
-		logger.debug("Adding to pool: " + object);
+		logger.debug("Adding to pool: " + object + " of class ");
 		if (object == null)
 			return;
-		else if (object instanceof String) {
+		if (object instanceof String) {
 			if (!((String) object).startsWith("mutationId"))
 				string_pool.add((String) object);
-		} else if (object instanceof Integer) {
+		}
+
+		else if (object instanceof Integer) {
 			if (Properties.RESTRICT_POOL) {
 				int val = (Integer) object;
 				if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
@@ -100,15 +102,36 @@ public class PrimitivePool {
 			} else {
 				int_pool.add((Integer) object);
 			}
-		} else if (object instanceof Float) {
-			if (Math.abs((Float) object) < Properties.MAX_INT)
-				float_pool.add((Float) object);
 		} else if (object instanceof Long) {
-			if (Math.abs((Long) object) < Properties.MAX_INT)
+			if (Properties.RESTRICT_POOL) {
+				long val = (Long) object;
+				if (Math.abs(val) < Properties.MAX_INT && val != Long.MAX_VALUE
+				        && val != Long.MIN_VALUE) {
+					long_pool.add((Long) object);
+				}
+			} else {
 				long_pool.add((Long) object);
+			}
+		} else if (object instanceof Float) {
+			if (Properties.RESTRICT_POOL) {
+				float val = (Float) object;
+				if (Math.abs(val) < Properties.MAX_INT && val != Float.MAX_VALUE
+				        && val != -Float.MAX_VALUE) {
+					float_pool.add((Float) object);
+				}
+			} else {
+				float_pool.add((Float) object);
+			}
 		} else if (object instanceof Double) {
-			if (Math.abs((Double) object) < Properties.MAX_INT)
+			if (Properties.RESTRICT_POOL) {
+				double val = (Double) object;
+				if (Math.abs(val) < Properties.MAX_INT && val != Double.MAX_VALUE
+				        && val != -Double.MAX_VALUE) {
+					double_pool.add((Double) object);
+				}
+			} else {
 				double_pool.add((Double) object);
+			}
 		}
 	}
 

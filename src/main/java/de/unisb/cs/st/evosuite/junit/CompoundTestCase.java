@@ -348,4 +348,22 @@ public class CompoundTestCase implements TestCase {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAccessedFiles()
+	 */
+	@Override
+	public List<String> getAccessedFiles() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
+	 */
+	@Override
+	public void setAccessedFiles(List<String> files) {
+		// TODO Auto-generated method stub
+
+	}
 }

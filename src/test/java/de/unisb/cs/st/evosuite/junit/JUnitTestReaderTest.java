@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.junit;
 
 import junit.framework.Assert;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -11,6 +12,7 @@ public class JUnitTestReaderTest {
 
 	private static final String SRCDIR = "src/test/java/";
 
+	@Ignore
 	@Test
 	public void testReadComplexJUnitTestCase01() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
@@ -26,6 +28,7 @@ public class JUnitTestReaderTest {
 		Assert.assertEquals(result, code);
 	}
 
+	@Ignore
 	@Test
 	public void testReadComplexJUnitTestCase02() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
@@ -41,6 +44,7 @@ public class JUnitTestReaderTest {
 		Assert.assertEquals(result, code);
 	}
 
+	@Ignore
 	@Test
 	public void testReadComplexJUnitTestCase03() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
@@ -64,6 +68,7 @@ public class JUnitTestReaderTest {
 		Assert.assertEquals(result, code);
 	}
 
+	@Ignore
 	@Test
 	public void testReadComplexJUnitTestCase04() {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";

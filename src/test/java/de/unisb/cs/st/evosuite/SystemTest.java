@@ -8,6 +8,10 @@ import java.net.URLClassLoader;
 
 import org.junit.*;
 
+import de.unisb.cs.st.evosuite.Properties.StoppingCondition;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
+import de.unisb.cs.st.evosuite.utils.Randomness;
+
 
 /**
  * @author Andrea Arcuri
@@ -15,6 +19,27 @@ import org.junit.*;
  */
 public class SystemTest {
 
+	//private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
+	private static final String ALREADY_SETUP = "systemtest.alreadysetup";
+	
+	 static{
+		String s = System.getProperty(ALREADY_SETUP);
+		if(s==null){
+			System.setProperty(ALREADY_SETUP, ALREADY_SETUP);
+			runSetup();			
+		}	
+	}
+	
+	
+	@Before
+	/**
+	 * Before running any test case, we reset the random generator
+	 */
+	public void resetSeed(){
+		Randomness.setSeed(42);
+	}
+	
 	@Before
 	public void setDefaultPropertiesForTestCases(){
 		Properties.HTML = false;
@@ -23,8 +48,13 @@ public class SystemTest {
 		Properties.JUNIT_TESTS = false;
 		Properties.PLOT = false;
 		
-		Properties.GENERATIONS = 5;
+		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
+		Properties.SEARCH_BUDGET = 10000;
 
+		Properties.GLOBAL_TIMEOUT = 50;
+		Properties.MINIMIZATION_TIMEOUT = 8;
+		Properties.EXTRA_TIMEOUT = 2;
+		
 		Properties.CLIENT_ON_THREAD = true;
 	}
 	
@@ -52,11 +82,12 @@ public class SystemTest {
 	 */
 	private static boolean hasBeenAlreadyRun = false;
 	
-	@BeforeClass
-	public static void runSetup(){
+	private static void runSetup(){
 		if(hasBeenAlreadyRun){
 			return;
 		}
+						
+		LoggingUtils.checkAndSetLogLevel();
 		
 		deleteEvoDirs();
 		
@@ -111,8 +142,8 @@ public class SystemTest {
 	/*
 	 * it's giving some problems
 	 */
-	//@AfterClass
-	public static void deleteEvoDirs(){
+	//
+	private static void deleteEvoDirs(){
 		//if(!hasBeenAlreadyRun){
 			//return;
 		//}

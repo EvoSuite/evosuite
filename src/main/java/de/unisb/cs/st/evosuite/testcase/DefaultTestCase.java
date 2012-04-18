@@ -52,6 +52,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
+	private List<String> accessedFiles = new ArrayList<String>();
+
 	/** The statements */
 	protected final ListenableList<StatementInterface> statements;
 
@@ -531,10 +533,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 		for (StatementInterface s : statements) {
 			StatementInterface copy = s.clone(t);
 			t.statements.add(copy);
-			copy.SetRetval(s.getReturnValue().clone(t));
+			copy.setRetval(s.getReturnValue().clone(t));
 			copy.setAssertions(s.copyAssertions(t, 0));
 		}
 		t.coveredGoals.addAll(coveredGoals);
+		t.accessedFiles.addAll(accessedFiles);
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
 		return t;
@@ -753,6 +756,21 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAccessedFiles()
+	 */
+	@Override
+	public List<String> getAccessedFiles() {
+		return accessedFiles;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
+	 */
+	@Override
+	public void setAccessedFiles(List<String> files) {
+		accessedFiles = files;
+	}
 	/*
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {

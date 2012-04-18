@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.Ignore;
 import org.junit.Test;
 
 import de.unisb.cs.st.evosuite.symbolic.expr.Comparator;
@@ -490,6 +491,7 @@ public class TestIntegerSearch {
 		assertTrue(var1 == 108);
 	}
 
+	@Ignore
 	@Test
 	public void testEvosuiteExample6() {
 		//Cnstr 0 : var2__SYM(1890) >= 0 dist: 682.3333333333334

@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.testsuite;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -18,14 +19,26 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected List<T> tests = new ArrayList<T>();
 	protected List<Boolean> unmodifiableTests = new ArrayList<Boolean>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
-	
+
 	/*
 	 * coverage is used only for output/statistics purposes
 	 */
 	protected double coverage = 0.0;
 
+
+	/**
+	 * only used for testing/debugging
+	 */
+	protected AbstractTestSuiteChromosome(){
+		super();
+	}
+	
 	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
 		this.testChromosomeFactory = testChromosomeFactory;
+	}
+
+	public ChromosomeFactory<T> getTestChromosomeFactory() {
+		return testChromosomeFactory;
 	}
 
 	/**
@@ -50,6 +63,15 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		tests.add(test);
 		unmodifiableTests.add(false);
 		this.setChanged(true);
+	}
+
+	public void addTests(Collection<T> tests) {
+		for (T test : tests) {
+			tests.add(test);
+			unmodifiableTests.add(false);
+		}
+		if (!tests.isEmpty())
+			this.setChanged(true);
 	}
 
 	public void addUnmodifiableTest(T test) {

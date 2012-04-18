@@ -142,6 +142,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		case STATEMENT:
 			return StatementCoverageSuiteFitness.mostCoveredGoals;
 		case BRANCH:
+		case EXCEPTION:
 			return BranchCoverageSuiteFitness.mostCoveredGoals;
 		case ALLDEFS:
 			return AllDefsCoverageSuiteFitness.mostCoveredGoals;

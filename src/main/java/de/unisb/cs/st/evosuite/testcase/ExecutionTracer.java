@@ -24,10 +24,6 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.Criterion;
-import de.unisb.cs.st.evosuite.coverage.concurrency.ConcurrencyTracer;
-import de.unisb.cs.st.evosuite.coverage.concurrency.LockRuntime;
 import de.unisb.cs.st.evosuite.javaagent.BooleanHelper;
 
 /**
@@ -105,13 +101,6 @@ public class ExecutionTracer {
 		trace = new ExecutionTrace();
 		BooleanHelper.clearStack();
 		num_statements = 0;
-
-		//#TODO steenbuck: We should be able to register us somewhere, so that we're called before run is executed
-		if (Properties.CRITERION == Criterion.CONCURRENCY) {
-			trace.concurrencyTracer = new ConcurrencyTracer();
-			LockRuntime.tracer = trace.concurrencyTracer;
-			checkCallerThread = false;
-		}
 	}
 
 	/**

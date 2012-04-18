@@ -38,7 +38,10 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -51,6 +54,8 @@ import de.unisb.cs.st.evosuite.utils.Utils;
  */
 public class Properties {
 
+	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	
 	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
@@ -129,6 +134,7 @@ public class Properties {
 	public static int STRING_LENGTH = 20;
 
 	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
+	@Deprecated // does not seem to be used anywhere
 	public static double EPSILON = 0.001;
 
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
@@ -189,7 +195,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
-		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA
+		STANDARDGA, STEADYSTATEGA, ONEPLUSONEEA, MUPLUSLAMBDAGA, RANDOM
 	}
 
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
@@ -296,9 +302,9 @@ public class Properties {
 	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
 	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
 
-	@Parameter(key = "generations", group = "Search Algorithm", description = "Maximum search duration")
+	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
-	public static long GENERATIONS = 1000000;
+	public static long SEARCH_BUDGET = 1000000;
 
 	public static String PROPERTIES_FILE = "properties_file";
 
@@ -310,7 +316,7 @@ public class Properties {
 	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 
 	public enum CrossoverFunction {
-		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT
+		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE
 	}
 
 	@Parameter(key = "crossover_function", group = "Search Algorithm", description = "Crossover function during search")
@@ -441,13 +447,16 @@ public class Properties {
 
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
-	
+
 	public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
-	
+
 	@Parameter(key = "output_granularity", group = "Output", description = "Write all test cases for a class into a single file or to separate files.")
 	public static OutputGranularity OUTPUT_GRANULARITY = OutputGranularity.MERGED;
+
+	@Parameter(key = "max_coverage_depth", group = "Output", description = "Maximum depth in the calltree to count a branch as covered")
+	public static int MAX_COVERAGE_DEPTH = -1;
 
 	//---------------------------------------------------------------
 	// Sandbox
@@ -456,6 +465,9 @@ public class Properties {
 
 	@Parameter(key = "mocks", group = "Sandbox", description = "Usage of the mocks for the IO, Network etc")
 	public static boolean MOCKS = false;
+
+	@Parameter(key = "virtual_fs", group = "Sandbox", description = "Usage of ram fs")
+	public static boolean VIRTUAL_FS = false;
 
 	@Parameter(key = "mock_strategies", group = "Sandbox", description = "Which mocking strategy should be applied")
 	public static String[] MOCK_STRATEGIES = { "" };
@@ -550,18 +562,17 @@ public class Properties {
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
 	public static boolean ERROR_BRANCHES = false;
 
-	
 	/*
 	 * FIXME: these 2 following properties will not work if we use the EvoSuite shell script which call
 	 * MasterProcess directly rather than EvoSuite.java
 	 */
-	
+
 	@Parameter(key = "enable_asserts_for_evosuite", description = "When running EvoSuite clients, for debugging purposes check its assserts")
 	public static boolean ENABLE_ASSERTS_FOR_EVOSUITE = false;
-	
+
 	@Parameter(key = "enable_asserts_for_sut", description = "Check asserts in the SUT")
-	public static boolean ENABLE_ASSERTS_FOR_SUT = true; 
-	
+	public static boolean ENABLE_ASSERTS_FOR_SUT = true;
+
 	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
@@ -575,6 +586,19 @@ public class Properties {
 
 	@Parameter(key = "max_mutants", group = "Test Execution", description = "Maximum number of mutants to target at the same time")
 	public static int MAX_MUTANTS = 100;
+
+	@Parameter(key = "replace_calls", group = "Test Execution", description = "Replace nondeterministic calls and System.exit")
+	public static boolean REPLACE_CALLS = false;
+
+	// ---------------------------------------------------------------
+	// Debugging
+
+	@Parameter(key = "debug", group = "Debugging", description = "Enables debugging support in the client VM")
+	public static boolean DEBUG = false;
+
+	@Parameter(key = "port", group = "Debugging", description = "Port on localhost, to which the client VM will listen for a remote debugger; defaults to 1044")
+	@IntValue(min = 1024, max = 65535)
+	public static int PORT = 1044;
 
 	// ---------------------------------------------------------------
 	// TODO: Fix description
@@ -623,13 +647,13 @@ public class Properties {
 
 	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
 	public static boolean MA_ACTIVE = false;
-	
+
 	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
 	public static boolean MA_WIDE_GUI = false;
-	
+
 	@Parameter(key = "ma_target_coverage", group = "Manual algorithm", description = "run Editor at spec. coverage's level")
 	public static int MA_TARGET_COVERAGE = 101;
-	
+
 	@Parameter(key = "ma_branches_calc", group = "Manual algorithm", description = "run expensive branchcalculations")
 	public static boolean MA_BRANCHES_CALC = false;
 
@@ -642,7 +666,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		EXCEPTION, CONCURRENCY, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA
+		EXCEPTION, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA, BEHAVIORAL
 	}
 
 	/** Cache target class */
@@ -704,8 +728,7 @@ public class Properties {
 
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
 	public static boolean CLIENT_ON_THREAD = false;
-	
-	
+
 	// ---------------------------------------------------------------
 	// Seeding test cases
 
@@ -1196,8 +1219,12 @@ public class Properties {
 	 * @return
 	 */
 	public static Class<?> getTargetClass() {
-		if (TARGET_CLASS_INSTANCE != null)
+		if (TARGET_CLASS_INSTANCE != null && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
+
+		BranchPool.reset();
+		TestCluster.reset();
+		DefaultTestFactory.getInstance().reset();
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
@@ -1212,6 +1239,8 @@ public class Properties {
 	 * Get class object of class under test
 	 * 
 	 * @return
+	 * 
+	 * @deprecated
 	 */
 	public static Class<?> loadTargetClass() {
 		try {

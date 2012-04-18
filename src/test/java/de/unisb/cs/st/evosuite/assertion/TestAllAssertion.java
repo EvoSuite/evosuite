@@ -14,6 +14,7 @@ import com.examples.with.different.packagename.ExampleStaticVoidSetterClass;
 import de.unisb.cs.st.evosuite.EvoSuite;
 import de.unisb.cs.st.evosuite.SystemTest;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
+import org.junit.Ignore;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
@@ -46,6 +47,7 @@ public class TestAllAssertion extends SystemTest {
 		return (TestSuiteChromosome) ga.getBestIndividual();
 	}
 
+	@Ignore
 	@Test
 	public void test1() {
 		TestSuiteChromosome suite = generateSuite(ExampleObserverClass.class);
@@ -57,6 +59,7 @@ public class TestAllAssertion extends SystemTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void test2() {
 		TestSuiteChromosome suite = generateSuite(ExampleFieldClass.class);
@@ -68,6 +71,7 @@ public class TestAllAssertion extends SystemTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void test3() {
 		TestSuiteChromosome suite = generateSuite(ExampleInheritedClass.class);
@@ -79,6 +83,7 @@ public class TestAllAssertion extends SystemTest {
 		}
 	}
 
+	@Ignore
 	@Test
 	public void test4() {
 		TestSuiteChromosome suite = generateSuite(ExampleStaticVoidSetterClass.class);

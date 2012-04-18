@@ -47,13 +47,13 @@ public class SinglePointRelativeCrossOver extends CrossOverFunction {
 		Chromosome t1 = parent1.clone();
 		Chromosome t2 = parent2.clone();
 		// Choose a position in the middle
-		float split_point = Randomness.nextFloat();
+		float splitPoint = Randomness.nextFloat();
 
-		int pos1 = ((int)Math.floor((t1.size()-1) * split_point)) + 1;
-		int pos2 = ((int)Math.floor((t2.size()-1) * split_point)) + 1;
-		
-		parent1.crossOver(t2, pos1,pos2);
-		parent2.crossOver(t1, pos2,pos1);
+		int pos1 = ((int) Math.floor((t1.size() - 1) * splitPoint)) + 1;
+		int pos2 = ((int) Math.floor((t2.size() - 1) * splitPoint)) + 1;
+
+		parent1.crossOver(t2, pos1, pos2);
+		parent2.crossOver(t1, pos2, pos1);
 	}
 
 }
