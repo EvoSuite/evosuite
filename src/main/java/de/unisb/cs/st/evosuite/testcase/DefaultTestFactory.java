@@ -374,7 +374,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		if (!alternatives.isEmpty()) {
 			// Change all references to return value at position to something
 			// else
-			for (int i = position; i < test.size(); i++) {
+			for (int i = position + 1; i < test.size(); i++) {
 				StatementInterface s = test.getStatement(i);
 				if (s.references(var)) {
 					s.replace(var, Randomness.choice(alternatives));
