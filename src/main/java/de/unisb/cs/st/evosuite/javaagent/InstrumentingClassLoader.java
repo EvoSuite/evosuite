@@ -56,10 +56,14 @@ public class InstrumentingClassLoader extends ClassLoader {
 	 * @return the names of class packages EvoSuite is not going to instrument
 	 */
 	public static String[] getPackagesShouldNotBeInstrumented(){
+		//explicitly blocking client projects such as specmate is only a
+		//temporary solution, TODO allow the user to specify 
+		//packages that should not be instrumented
 		return new String[]{
 			"java.",
 			"sun.",
-			"de.unisb.cs.st.evosuite"
+			"de.unisb.cs.st.evosuite",
+			"de.unisb.cs.st.specmate"
 		};
 	}
 	
