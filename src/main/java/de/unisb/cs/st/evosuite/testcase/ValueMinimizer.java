@@ -65,6 +65,8 @@ public class ValueMinimizer implements TestVisitor {
 
 		private double lastFitness;
 
+		private final double lastCoverage;
+
 		public SuiteMinimization(TestSuiteFitnessFunction fitness,
 		        TestSuiteChromosome suite, int index) {
 			this.fitness = fitness;
@@ -72,6 +74,7 @@ public class ValueMinimizer implements TestVisitor {
 			this.individual = suite.getTestChromosome(index);
 			this.testIndex = index;
 			this.lastFitness = suite.getFitness();
+			this.lastCoverage = suite.getCoverage();
 		}
 
 		/* (non-Javadoc)
@@ -92,6 +95,7 @@ public class ValueMinimizer implements TestVisitor {
 			} else {
 				individual.setLastExecutionResult(lastResult);
 				suite.setFitness(lastFitness);
+				suite.setCoverage(lastCoverage);
 				return false;
 			}
 		}
