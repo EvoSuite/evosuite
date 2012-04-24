@@ -292,6 +292,11 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	public void addCoveredGoal(TestFitnessFunction goal);
 
+	/**
+	 * Remove all covered goals
+	 */
+	public void clearCoveredGoals();
+
 	public Set<TestFitnessFunction> getCoveredGoals();
 
 	public TestCase clone();
