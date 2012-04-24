@@ -322,6 +322,28 @@ public class Properties {
 	@Parameter(key = "crossover_function", group = "Search Algorithm", description = "Crossover function during search")
 	public static CrossoverFunction CROSSOVER_FUNCTION = CrossoverFunction.SINGLEPOINTRELATIVE;
 
+	public enum TheReplacementFunction {
+		/**
+		 * Indicates a replacement function which works for all chromosomes because it solely relies on
+		 * fitness values.
+		 */
+		FITNESSREPLACEMENT, 
+		/**
+		 * EvoSuite's default replacement function which only works on subtypes of the default chromosome types.
+		 * Relies on fitness plus secondary goals such as length.
+		 */
+		DEFAULT
+	}
+	
+	/**
+	 * During search the genetic algorithm has to decide whether the parent chromosomes or the freshly created 
+	 * offspring chromosomes should be preferred. If you use EvoSuite with its default chromosomes
+	 * the TheReplacementFunction.DEFAULT is what you want. If your chromosomes are not a subclass of the default
+	 * chromosomes your have to write your own replacement function or use TheReplacementFunction.FITNESSREPLACEMENT.
+	 */
+	@Parameter(key = "replacement_function", group = "Search Algorithm", description = "Replacement function for comparing offspring to parents during search")
+	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
+	
 	public enum SelectionFunction {
 		RANK, ROULETTEWHEEL, TOURNAMENT
 	}
