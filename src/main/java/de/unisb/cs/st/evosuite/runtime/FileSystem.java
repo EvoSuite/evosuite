@@ -3,12 +3,15 @@
  */
 package de.unisb.cs.st.evosuite.runtime;
 
+import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
+import org.apache.commons.vfs2.VFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
+import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
  * @author fraser
@@ -30,24 +33,11 @@ public class FileSystem {
 		// Put "content" into "file"
 		logger.info("Writing content to file " + fileName.getPath());
 		/*
-		try {
-			// TODO: IOWrapper.accessFiles contains strings!
-			for (File file : File.createdFiles) {
-				if (file.getCanonicalPath().equals(fileName.getPath())) {
-					PrintStream stream = new PrintStream(
-					        file.getRamFile().getContent().getOutputStream());
-					stream.print(content);
-					break;
-				}
-			}
-		} catch (FileSystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-			*/
+		 * try { // TODO: IOWrapper.accessFiles contains strings! for (File file : File.createdFiles) { if
+		 * (file.getCanonicalPath().equals(fileName.getPath())) { PrintStream stream = new PrintStream(
+		 * file.getRamFile().getContent().getOutputStream()); stream.print(content); break; } } } catch (FileSystemException e) { // TODO
+		 * Auto-generated catch block e.printStackTrace(); } catch (IOException e) { // TODO Auto-generated catch block e.printStackTrace(); }
+		 */
 	}
 
 	// TODO
@@ -62,43 +52,35 @@ public class FileSystem {
 	 */
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
-			//		try {
-			IOWrapper.USE_SIMULATION = false;
-			//Class<?> clazz = TestCluster.classLoader.loadClass("org.apache.commons.vfs2.VFS");
-			//clazz.getMethod("getManager", new Class<?>[] {}).invoke(null);
-			//VFS.getManager();
-			//for (File f : File.createdFiles) {
-			//	f.delete();
-			//}
-			// TODO: Find proper way to clear filesystem
+			try {
+				IOWrapper.USE_SIMULATION = false;
+				Class<?> clazz = TestCluster.classLoader
+						.loadClass("org.apache.commons.vfs2.VFS");
+				clazz.getMethod("getManager", new Class<?>[] {}).invoke(null); // throws FileSystemException
+				
+				IOWrapper.initVFS(); // throws NoClassDefError
+				
+				// for (File f : File.createdFiles) {
+				// f.delete();
+				// }
+				// TODO: Find proper way to clear filesystem
 
-			IOWrapper.accessedFiles.clear();
-			IOWrapper.USE_SIMULATION = true;
-			//	} catch (FileSystemException e) {
-			//		logger.warn("Error during initialization of virtual FS: " + e + ", "
-			//		        + e.getCause());//
-			//	} catch (Throwable t) {
-			//		logger.warn("Error: " + t);
-			//	} 
-			/*catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			} catch (InvocationTargetException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			}*/
+				IOWrapper.accessedFiles.clear();
+
+				IOWrapper.USE_SIMULATION = true;
+			} catch (FileSystemException e) {
+				logger.warn("Error during initialization of virtual FS: " + e
+						+ ", " + e.getCause());//
+			} catch (Throwable t) {
+				logger.warn("Error: " + t);
+			}
+			/*
+			 * catch (ClassNotFoundException e) { // TODO Auto-generated catch block e.printStackTrace(); } catch (IllegalArgumentException e) { //
+			 * TODO Auto-generated catch block e.printStackTrace(); } catch (SecurityException e) { // TODO Auto-generated catch block
+			 * e.printStackTrace(); } catch (IllegalAccessException e) { // TODO Auto-generated catch block e.printStackTrace(); } catch
+			 * (InvocationTargetException e) { // TODO Auto-generated catch block e.printStackTrace(); } catch (NoSuchMethodException e) { // TODO
+			 * Auto-generated catch block e.printStackTrace(); }
+			 */
 		}
 	}
 
@@ -109,8 +91,7 @@ public class FileSystem {
 	}
 
 	/**
-	 * Getter to check whether this runtime replacement was accessed during test
-	 * execution
+	 * Getter to check whether this runtime replacement was accessed during test execution
 	 * 
 	 * @return
 	 */
