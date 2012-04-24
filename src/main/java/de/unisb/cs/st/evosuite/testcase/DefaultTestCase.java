@@ -685,6 +685,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#clearCoveredGoals()
+	 */
+	@Override
+	public void clearCoveredGoals() {
+		coveredGoals.clear();
+	}
+
+	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
 	@Override
