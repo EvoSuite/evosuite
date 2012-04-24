@@ -168,9 +168,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final Use goalUse;
 	private final Definition goalDefinition;
 	
-	// TODO du-pair-type-enum
-//	private final boolean isInterMethodPair;
-//	private final boolean isIntraClassPair;
 	private final DefUsePairType type;
 	
 	private final TestFitnessFunction goalDefinitionFitness;
@@ -197,7 +194,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			throw new IllegalArgumentException(
 			        "expect def and use to be for the same variable: \n"+def.toString()+"\n"+use.toString());
 		if(def.isLocalDU() && !type.equals(DefUsePairType.INTRA_METHOD))
-			throw new IllegalArgumentException("local variables can only be part of INTRA-METHOD pairs: "+type.toString()+" "+def.toString()+" "+use.toString());
+			throw new IllegalArgumentException("local variables can only be part of INTRA-METHOD pairs: \ntype:"+type.toString()+"\ndef:"+def.toString()+"\nuse:"+use.toString());
 		
 		
 		this.goalDefinition = def;
@@ -207,9 +204,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		this.goalUseFitness = new StatementCoverageTestFitness(goalUse);
 		
 		this.type = type;
-		
-//		this.isInterMethodPair = isInterMethodPair;
-//		this.isIntraClassPair = isIntraClassPair;
 	}
 
 	/**
@@ -229,9 +223,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		goalUseFitness = new StatementCoverageTestFitness(goalUse);
 		
 		this.type = DefUsePairType.PARAMETER;
-		
-//		isInterMethodPair = false;
-//		isIntraClassPair = false;
 	}
 
 	/**

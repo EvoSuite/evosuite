@@ -146,7 +146,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int r = 0;
 		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
 				.values()) {
-			r += goalMap.get(type);
+			if(goalMap.get(type) != null)
+				r += goalMap.get(type);
 		}
 		return r;
 	}

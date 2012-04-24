@@ -10,6 +10,7 @@ import java.util.Stack;
 
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
 import de.unisb.cs.st.evosuite.graphs.GraphPool;
 import de.unisb.cs.st.evosuite.graphs.EvoSuiteGraph;
 import de.unisb.cs.st.evosuite.graphs.ccg.ClassCallGraph;
@@ -75,6 +76,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	public enum FrameNodeType {
 		ENTRY, EXIT, LOOP, CALL, RETURN
 	};
+
+	private final int UPPER_PAIR_SEARCH_INVOCATION_BOUND = 1000000;
+	private boolean warnedAboutAbortion = false;
 
 	private String className;
 	private ClassCallGraph ccg;
@@ -206,7 +210,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 	/**
 	 * Given the ClassCallGraph of a class this constructor will build up the
-	 * corresponding CCFG.
+	 * corresponding CCFG using the RCFGs from the GraphPool.
 	 */
 	public ClassControlFlowGraph(ClassCallGraph ccg) {
 		super(CCFGEdge.class);
@@ -243,12 +247,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		for (RawControlFlowGraph cfg : tempMap.keySet()) {
 			List<BytecodeInstruction> calls = cfg
-					.determineMethodCallsToClass(className);
+					.determineMethodCallsToOwnClass();
 			for (BytecodeInstruction call : calls) {
 				// we do not want to connect every method call to the target
 				// class, but only those that are called on the same object or
 				// are static
-				if (!(call.isStaticMethodCall() || call
+				if (!(call.isCallToStaticMethod() || call
 						.isMethodCallOnSameObject())) {
 					// System.out.println("excluded method call: "
 					// + call.toString());
@@ -425,6 +429,19 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		// TODO clinit? id say uses dont count, defs do
 
+		// TODO check if you find methods in the CCG that dont call any other
+		// methods
+		// for these you can predetermine free uses and activeDefs prior to
+		// looking for inter_method_pairs
+		// after that you can even repeat this process for methods you now have
+		// determined free uses and activeDefs!
+		// that way you can save a lot of computation
+		// map activeDefs and freeUses according to the variable so you can
+		// easily determine which defs will be active and which uses are free
+		// once you encounter a methodcall to that method without looking at its
+		// part of the CCFG
+		// on a second thought, this will require maps like reachableFromMethodEntry for defs and uses
+
 		Set<Set<BytecodeInstruction>> freeUseses = new HashSet<Set<BytecodeInstruction>>();
 
 		// determine inter-method-pairs
@@ -441,11 +458,16 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			Stack<MethodCall> callStack = new Stack<MethodCall>();
 			// null will represent the public method call itself
 			callStack.add(new MethodCall(null, publicMethodEntry.getMethod()));
-			int calls = determineInterMethodPairs(publicMethodEntry,
+			warnedAboutAbortion = false;
+			Integer calls = determineInterMethodPairs(publicMethodEntry,
 					publicMethodEntry.getEntryInstruction(),
 					new HashSet<CCFGNode>(), activeDefs, freeUses, temp,
-					callStack);
-			System.out.println("needed invocations: " + calls);
+					callStack, 0);
+			if (calls >= UPPER_PAIR_SEARCH_INVOCATION_BOUND)
+				System.out.println("* ABORTED pairSearch for method"
+						+ publicMethodEntry.getMethod());
+			else
+				System.out.println("needed invocations: " + calls);
 			r.addAll(temp);
 
 			freeUseses.add(freeUses);
@@ -470,7 +492,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			Set<CCFGNode> handled, Map<String, VariableDefinition> activeDefs,
 			Set<BytecodeInstruction> freeUses,
 			Set<DefUseCoverageTestFitness> foundPairs,
-			Stack<MethodCall> callStack) {
+			Stack<MethodCall> callStack, int invocationCount) {
 
 		// TODO complexity too high
 
@@ -488,7 +510,21 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 					"visiting already handled node, should not happen");
 		handled.add(node);
 
-		int r = 1;
+		invocationCount++;
+		if (invocationCount % 100000 == 0) {
+			System.out.print(invocationCount + "..");
+		}
+		if (invocationCount >= UPPER_PAIR_SEARCH_INVOCATION_BOUND) {
+			if (!warnedAboutAbortion) {
+				System.out.println("* inter method pair search aborted in "
+						+ callStack.peek()
+						+ "! reached maximum invocation limit: "
+						+ UPPER_PAIR_SEARCH_INVOCATION_BOUND);
+				warnedAboutAbortion = true;
+			}
+			return invocationCount;
+		}
+		// int r = 1;
 		if (node instanceof CCFGCodeNode) {
 			BytecodeInstruction code = ((CCFGCodeNode) node)
 					.getCodeInstruction();
@@ -513,13 +549,21 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 					DefUseCoverageTestFitness.DefUsePairType type;
 					if (isIntraPair)
 						type = DefUseCoverageTestFitness.DefUsePairType.INTRA_METHOD;
-					else
+					else {
+						// System.out.println("creating INTER goal for "+activeDef.toString());
+						// System.out.println("def from call "+activeDef.getMethodCall().toString());
+						// System.out.println("with callStackPeek "+callStack.peek().toString());
 						type = DefUseCoverageTestFitness.DefUsePairType.INTER_METHOD;
+					}
 
-					DefUseCoverageTestFitness goal = DefUseCoverageFactory
-							.createGoal(activeDef.getDefinition(), code, type);
-					if (goal != null)
-						foundPairs.add(goal);
+					if (!activeDef.getDefinition().isLocalDU()
+							|| type.equals(DefUsePairType.INTRA_METHOD)) {
+						DefUseCoverageTestFitness goal = DefUseCoverageFactory
+								.createGoal(activeDef.getDefinition(), code,
+										type);
+						if (goal != null)
+							foundPairs.add(goal);
+					}
 				} else {
 					if (code.isFieldUse())
 						freeUses.add(code);
@@ -576,6 +620,18 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			if (handled.contains(child))
 				continue;
 
+			// if (child instanceof CCFGCodeNode) {
+			// // TODO do not follow exception edges?
+			// // i wanted to do this because otherwise synchronized blocks and
+			// their
+			// // weird bytecode produce wrong pairs
+			// CCFGEdge e = getEdge(node, child);
+			// if (e instanceof CCFGCodeEdge) {
+			// CCFGCodeEdge codeEdge = (CCFGCodeEdge) e;
+			// if (codeEdge.getCfgEdge().isExceptionEdge())
+			// continue;
+			// }
+			// } else
 			if (child instanceof CCFGMethodReturnNode) {
 				if (callStack.peek().isInitialMethodCall())
 					continue;
@@ -598,12 +654,16 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			copiedStack.setSize(callStack.size());
 			Collections.copy(copiedStack, callStack);
 
-			r += determineInterMethodPairs(investigatedPublicMethod, child,
-					new HashSet<CCFGNode>(handled),
-					new HashMap<String, VariableDefinition>(activeDefs),
-					freeUses, foundPairs, copiedStack);
+			invocationCount = determineInterMethodPairs(
+					investigatedPublicMethod, child, new HashSet<CCFGNode>(
+							handled), new HashMap<String, VariableDefinition>(
+							activeDefs), freeUses, foundPairs, copiedStack,
+					invocationCount);
+
+			if (invocationCount >= UPPER_PAIR_SEARCH_INVOCATION_BOUND)
+				continue;
 		}
-		return r;
+		return invocationCount;
 	}
 
 	private Map<String, BytecodeInstruction> toBytecodeInstructionMap(
