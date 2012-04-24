@@ -63,6 +63,14 @@ public class CompoundTestCase implements TestCase {
 		listeners.add(listener);
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#clearCoveredGoals()
+	 */
+	@Override
+	public void clearCoveredGoals() {
+		delegate.clearCoveredGoals();
+	}
+
 	@Override
 	public VariableReference addStatement(StatementInterface statement) {
 		return delegate.addStatement(statement);
