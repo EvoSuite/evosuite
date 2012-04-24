@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
@@ -112,6 +111,7 @@ public class TestSuiteMinimizer {
 				if (goal.isCovered(test)) {
 					logger.info("Already covered: " + goal);
 					covered.add(goal);
+					test.getTestCase().addCoveredGoal(goal);
 					break;
 				}
 			}
@@ -131,6 +131,10 @@ public class TestSuiteMinimizer {
 				        goal);
 				TestChromosome copy = (TestChromosome) test.clone();
 				minimizer.minimize(copy);
+
+				// TODO: Need proper list of covered goals
+				copy.getTestCase().clearCoveredGoals();
+				copy.getTestCase().addCoveredGoal(goal);
 				minimizedTests.add(copy);
 				minimizedSuite.insertTest(copy.getTestCase());
 				covered.add(goal);
