@@ -198,6 +198,7 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isMethodCallForClass(String className) {
 		if (isMethodCall()) {
+//			System.out.println("in isMethodCallForClass of "+toString()+" for arg "+className+" calledMethodsClass: "+getCalledMethodsClass()+" calledMethod "+getCalledMethod());
 			return getCalledMethodsClass().equals(className);
 		}
 		return false;
@@ -230,16 +231,6 @@ public abstract class ASMWrapper {
 			// return r;
 		}
 		return -1;
-	}
-
-	/**
-	 * Returns the RawCFG of the method called by this instruction 
-	 */
-	public RawControlFlowGraph getCalledCFG() {
-		if (!isMethodCall())
-			return null;
-
-		return GraphPool.getRawCFG(getCalledMethodsClass(), getCalledMethod());
 	}
 
 	public boolean isLoadConstant() {

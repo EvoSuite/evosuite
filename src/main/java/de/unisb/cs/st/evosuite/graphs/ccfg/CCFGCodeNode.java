@@ -20,6 +20,9 @@ public class CCFGCodeNode extends CCFGNode {
 
 	@Override
 	public String toString() {
-		return codeInstruction.toString();
+		if(codeInstruction.isMethodCall())
+			return codeInstruction.toString()+" in class "+codeInstruction.getCalledMethodsClass();
+		else
+			return codeInstruction.toString();
 	}
 }

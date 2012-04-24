@@ -657,30 +657,6 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 		return r;
 	}
 
-	// @Override
-	// public boolean equals(Object obj) {
-	// if (this == obj)
-	// return true;
-	// if (obj == null)
-	// return false;
-	// if (!(obj instanceof BytecodeInstruction))
-	// return false;
-	//
-	// // TODO ensure that the following checks always succeed
-	// // TODO do this by ensuring that those values are always set correctly
-	//
-	// BytecodeInstruction other = (BytecodeInstruction) obj;
-	//
-	// if (instructionId != other.instructionId)
-	// return false;
-	// if (methodName != null && !methodName.equals(other.methodName))
-	// return false;
-	// if (className != null && !className.equals(other.className))
-	// return false;
-	//
-	// return super.equals(obj);
-	// }
-
 	/**
 	 * Convenience method:
 	 * 
@@ -720,6 +696,16 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 
 	public boolean canBeExitPoint() {
 		return canReturnFromMethod() || isLastInstructionInMethod();
+	}
+	
+	/**
+	 * Returns the RawCFG of the method called by this instruction 
+	 */
+	public RawControlFlowGraph getCalledCFG() {
+		if (!isMethodCall())
+			return null;
+
+		return GraphPool.getRawCFG(getCalledMethodsClass(), getCalledMethod());
 	}
 
 	/**
@@ -766,17 +752,27 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable {
 		throw new IllegalStateException("should be unreachable");
 	}
 
-	public boolean isPublicMethodCall() {
+	public boolean isCallToPublicMethod() {
 		if (!isMethodCall())
 			return false;
 
+		if(getCalledCFG() == null) {
+			// TODO not sure if I am supposed to throw an Exception at this point
+			return false;
+		}
+		
 		return getCalledCFG().isPublicMethod();
 	}
 
-	public boolean isStaticMethodCall() {
+	public boolean isCallToStaticMethod() {
 		if (!isMethodCall())
 			return false;
 
+		if(getCalledCFG() == null) {
+			// TODO not sure if I am supposed to throw an Exception at this point
+			return false;
+		}
+		
 		return getCalledCFG().isStaticMethod();
 	}
 

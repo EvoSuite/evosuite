@@ -40,21 +40,27 @@ public class ClassCallGraph extends EvoSuiteGraph<ClassCallNode, ClassCallEdge> 
 		for(String method : cfgs.keySet())
 			addVertex(new ClassCallNode(method));
 		
+//		System.out.println("generating class call graph for "+className);
+		
 		// add vertices
 		for(ClassCallNode methodNode : graph.vertexSet()) {
 			RawControlFlowGraph rcfg = cfgs.get(methodNode.getMethod());
-			List<BytecodeInstruction> calls = rcfg.determineMethodCallsToClass(className);
+			List<BytecodeInstruction> calls = rcfg.determineMethodCallsToOwnClass();
 //			System.out.println(calls.size()+" method calls from "+methodNode);
 			for(BytecodeInstruction call : calls) {
-//				System.out.println("  to "+call.getCalledMethod());
-				ClassCallEdge e = new ClassCallEdge(call);
-				addEdge(methodNode, getNodeByMethodName(call.getCalledMethod()),e);
+//				System.out.println("  to "+call.getCalledMethod()+" in "+call.getCalledMethodsClass());
+				ClassCallNode calledMethod = getNodeByMethodName(call.getCalledMethod());
+				if(calledMethod != null) {
+					ClassCallEdge e = new ClassCallEdge(call);
+					addEdge(methodNode, calledMethod,e);
+				}
 			}
 		}
 	}
 	
 	public ClassCallNode getNodeByMethodName(String methodName) {
 		ClassCallNode r = null;
+//		System.out.println("getting node by methodName "+methodName);
 		for(ClassCallNode node : graph.vertexSet()) {
 			if(node.getMethod().equals(methodName)) {
 				if(r == null) {
@@ -64,6 +70,9 @@ public class ClassCallGraph extends EvoSuiteGraph<ClassCallNode, ClassCallEdge> 
 				}
 			}
 		}
+		// TODO logger.warn
+//		if(r==null)
+//			System.out.println("didn't find node by methodName "+methodName);
 		return r;
 	}
 	

@@ -346,9 +346,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	// control distance functionality
 
 	/**
-	 * Returns the Set of BytecodeInstructions that can potentially be
-	 * executed from entering the method of this CFG until the given
-	 * BytecodeInstruction is reached.
+	 * Returns the Set of BytecodeInstructions that can potentially be executed
+	 * from entering the method of this CFG until the given BytecodeInstruction
+	 * is reached.
 	 */
 	public Set<BytecodeInstruction> getPreviousInstructionsInMethod(
 			BytecodeInstruction v) {
@@ -373,8 +373,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	/**
-	 * Returns the Set of BytecodeInstructions that can potentially be
-	 * executed from passing the given BytecodeInstruction until the end of the method of
+	 * Returns the Set of BytecodeInstructions that can potentially be executed
+	 * from passing the given BytecodeInstruction until the end of the method of
 	 * this CFG is reached.
 	 */
 	@SuppressWarnings("unchecked")
@@ -536,8 +536,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 			// "this" is on top of the stack (ALOAD_0 previous instruction
 			// before call)
 
-			RawControlFlowGraph calledGraph = GraphPool.getRawCFG(
-					edgeTarget.getClassName(), edgeTarget.getCalledMethod());
+			RawControlFlowGraph calledGraph = edgeTarget.getCalledCFG();
 
 			if (calledGraph == null) {
 				logger.debug("expected cfg to exist for: "
@@ -554,7 +553,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	/**
-	 * Checks if the given DefUse has a definition-clear path to its methods exit 
+	 * Checks if the given DefUse has a definition-clear path to its methods
+	 * exit
 	 */
 	public boolean hasDefClearPath(DefUse targetDU, Set<String> handle) {
 		BytecodeInstruction entry = determineEntryPoint();
@@ -564,7 +564,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	}
 
 	/**
-	 * Auxiliary method for hasDefClearPath(DefUse, Set)  
+	 * Auxiliary method for hasDefClearPath(DefUse, Set)
 	 */
 	private boolean hasDefClearPath(DefUse targetDU,
 			BytecodeInstruction currentVertex, Set<String> handle) {
@@ -592,15 +592,16 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 					&& canOverwriteDU(targetDU, edgeTarget, handle))
 				continue;
 
-			if (/*edgeTarget.getInstructionId() > currentVertex
-					.getInstructionId() // dont follow backedges (loops)
-					&& */hasDefClearPath(targetDU, edgeTarget, handle))
+			if (/*
+				 * edgeTarget.getInstructionId() > currentVertex
+				 * .getInstructionId() // dont follow backedges (loops) &&
+				 */hasDefClearPath(targetDU, edgeTarget, handle))
 				return true;
 		}
 
 		return false;
 	}
-	
+
 	private boolean canOverwriteDU(Definition targetDefUse,
 			BytecodeInstruction edgeTarget) {
 
@@ -619,7 +620,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		return false;
 	}
-	
+
 	private boolean canBeOverwritingMethod(DefUse targetDefUse,
 			BytecodeInstruction edgeTarget) {
 
@@ -656,21 +657,26 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 		return calls;
 	}
 
-	public List<BytecodeInstruction> determineMethodCallsToClass(
-			String className) {
+	public List<BytecodeInstruction> determineMethodCallsToOwnClass() {
 		List<BytecodeInstruction> calls = new ArrayList<BytecodeInstruction>();
-		for (BytecodeInstruction ins : determineMethodCalls()) {
+		for (BytecodeInstruction ins : determineMethodCalls())
 			if (ins.isMethodCallForClass(className)) {
-//				if(ins.frame != null) 
-//					System.out.println(ins.frame.toString());
-				
-				// TODO if the called method is static we are fine
-				// however if the called method is not static we need to ensure
-				// that the method is called on the same object (this)
-				
-				calls.add(ins);
+
+				// somehow ASMs MethodInsnNode.owner and thus
+				// BytecodeInstruction.getCalledMethodsClass() returns the class
+				// in which the method call is defined and not the class of the
+				// called method. this happens if class A extends class B, the
+				// called method is declared in B and the method call is in A
+				// TODO so for now we have this workaround: if A is our CUT then
+				// the GraphPool does not know B.
+
+				if (GraphPool.getRawCFG(className, ins.getCalledMethod()) != null)
+					calls.add(ins);
+				// TODO logger.warn or logger.debug
+				// else
+				// System.out.println("false positive call to own classes method: "+ins.toString());
 			}
-		}
+
 		return calls;
 	}
 
