@@ -50,6 +50,7 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
+import de.unisb.cs.st.evosuite.junit.CompoundTestCase.MethodDef;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.TestScope;
 import de.unisb.cs.st.evosuite.testcase.ArrayIndex;
 import de.unisb.cs.st.evosuite.testcase.ArrayReference;
@@ -277,8 +278,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, params);
 		if (testCase.isDescendantOf(method.getDeclaringClass())) {
-			List<StatementInterface> methodStatements = testCase.getMethod(method.getName());
-			testCase.convertMethod(methodStatements, params);
+			MethodDef methodDef = testCase.getMethod(method.getName());
+			testCase.convertMethod(methodDef, params);
 			return;
 		}
 		VariableReference callee = null;
@@ -306,8 +307,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		List<?> paramTypes = Arrays.asList(superMethodInvocation.resolveMethodBinding().getParameterTypes());
 		List<VariableReference> params = convertParams(superMethodInvocation.arguments(), paramTypes);
 		String name = superMethodInvocation.getName().getIdentifier();
-		List<StatementInterface> methodStatements = testCase.getParent().getMethod(name);
-		testCase.convertMethod(methodStatements, params);
+		MethodDef methodDef = testCase.getParent().getMethod(name);
+		testCase.convertMethod(methodDef, params);
 	}
 
 	@Override

@@ -3,6 +3,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -127,7 +128,11 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		throw new UnsupportedOperationException("Method getVariableReferences not implemented!");
+		Set<VariableReference> result = new HashSet<VariableReference>();
+		result.add(retval);
+		result.add(leftOperand);
+		result.add(rightOperand);
+		return result;
 	}
 
 	@Override
@@ -143,5 +148,10 @@ public class PrimitiveExpression extends AbstractStatement {
 	@Override
 	public boolean same(StatementInterface s) {
 		throw new UnsupportedOperationException("Method same not implemented!");
+	}
+
+	@Override
+	public String toString() {
+		return getCode();
 	}
 }
