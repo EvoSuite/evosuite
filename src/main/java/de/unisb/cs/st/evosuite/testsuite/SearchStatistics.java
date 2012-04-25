@@ -33,7 +33,9 @@ import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.TestSuiteGenerator;
+import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
+import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
@@ -398,15 +400,25 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			// logger.info("Key: "+key);
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);
-			if (df == 0.0)
-				num_covered++;
-			if (dt == 0.0)
-				num_covered++;
+			Branch b = BranchPool.getBranch(key);
+			if (!b.isInstrumented()) {
+				if (df == 0.0)
+					num_covered++;
+				if (dt == 0.0)
+					num_covered++;
+			}
 
+		}
+
+		int coveredBranchlessMethods = 0;
+		for (String branchlessMethod : BranchPool.getBranchlessMethodsMemberClasses(Properties.TARGET_CLASS)) {
+			if (covered_methods.contains(branchlessMethod))
+				coveredBranchlessMethods++;
 		}
 
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
+		entry.covered_branchless_methods = coveredBranchlessMethods;
 		//System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
@@ -521,6 +533,14 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.interDUGoalCount = DefUseCoverageFactory.getInterGoalsCount();
 
 		entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+
+		for (TestFitnessFunction f : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
+			if (f instanceof BranchCoverageTestFitness) {
+				BranchCoverageTestFitness b = (BranchCoverageTestFitness) f;
+				if (b.getBranch() != null && b.getBranch().isInstrumented())
+					entry.total_goals--;
+			}
+		}
 
 		// removed the code below with the one above, in order to have these
 		// values for other criteria as well
