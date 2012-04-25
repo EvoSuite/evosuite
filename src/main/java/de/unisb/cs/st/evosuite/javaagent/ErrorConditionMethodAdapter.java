@@ -35,11 +35,18 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
 		//super(Opcodes.ASM4, mv, access, methodName, desc);
-		super(Opcodes.ASM4, new MethodNode(access, methodName, desc, null, null), access,
+		super(Opcodes.ASM4,
+		        new AnnotatedMethodNode(access, methodName, desc, null, null), access,
 		        methodName, desc);
 		this.className = className;
 		this.methodName = methodName;
 		next = mv;
+	}
+
+	private void tagBranch() {
+		Label dummyTag = new AnnotatedLabel();
+		dummyTag.info = "Aha!";
+		super.visitLabel(dummyTag);
 	}
 
 	/* (non-Javadoc)
@@ -59,6 +66,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 
 			dup();//callee
 			Label origTarget = new Label();
+
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNONNULL, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
 			super.visitInsn(Opcodes.DUP);
@@ -83,6 +92,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		if (opcode == Opcodes.GETFIELD) {
 			Label origTarget = new Label();
 			super.visitInsn(Opcodes.DUP);
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNONNULL, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
 			super.visitInsn(Opcodes.DUP);
@@ -110,6 +120,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 				//super.visitInsn(Opcodes.SWAP);
 				super.visitInsn(Opcodes.POP);
 			}
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNONNULL, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/NullPointerException");
 			super.visitInsn(Opcodes.DUP);
@@ -131,6 +142,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			Label origTarget = new Label();
 			super.visitInsn(Opcodes.DUP);
 			super.visitTypeInsn(Opcodes.INSTANCEOF, type);
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNE, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ClassCastException");
 			super.visitInsn(Opcodes.DUP);
@@ -152,6 +164,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		if (opcode == Opcodes.IDIV) {
 			Label origTarget = new Label();
 			super.visitInsn(Opcodes.DUP);
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNE, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
@@ -164,6 +177,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP);
 			super.visitLdcInsn(0F);
 			super.visitInsn(Opcodes.FCMPL);
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNE, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
@@ -181,6 +195,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 				super.visitLdcInsn(0.0);
 				super.visitInsn(Opcodes.DCMPL);
 			}
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNE, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
@@ -201,6 +216,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.SWAP);
 			//super.visitInsn(Opcodes.POP);
 			super.visitInsn(Opcodes.ARRAYLENGTH);
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArrayIndexOutOfBoundsException");
 			super.visitInsn(Opcodes.DUP);
@@ -223,6 +239,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(III)I");
 
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFGT, origTarget1);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
@@ -241,6 +258,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(FFI)I");
 
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFGE, origTarget2);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
@@ -264,6 +282,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(DDI)I");
 
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFGE, origTarget3);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
@@ -287,6 +306,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(JJI)I");
 
+			tagBranch();
 			super.visitJumpInsn(Opcodes.IFGE, origTarget4);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
