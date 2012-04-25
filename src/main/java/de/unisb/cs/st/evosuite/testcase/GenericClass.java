@@ -343,6 +343,9 @@ public class GenericClass implements Serializable {
 			return getClass(name.substring(1));
 		} else if (name.endsWith(".class")) {
 			return getClass(name.replace(".class", ""));
+		} else if (name.equals("java.lang.String;")) {
+			// TODO: This is a workaround and the bug should be fixed
+			return getClass("java.lang.String");
 		} else
 			return TestCluster.classLoader.loadClass(name);
 	}
