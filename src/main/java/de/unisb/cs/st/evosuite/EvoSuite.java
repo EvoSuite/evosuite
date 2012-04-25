@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,7 +27,6 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
 import de.unisb.cs.st.evosuite.utils.LoggingUtils;
@@ -42,10 +43,11 @@ public class EvoSuite {
 
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
-	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
-	        + "java";
+	public final static String JAVA_CMD = javaHome + separator + "bin"
+			+ separator + "java";
 
-	private static void setup(String target, String[] args, List<String> javaArgs) {
+	private static void setup(String target, String[] args,
+			List<String> javaArgs) {
 		String classPath = System.getProperty("java.class.path");
 
 		Properties.CP = "";
@@ -102,7 +104,7 @@ public class EvoSuite {
 			Process process = builder.start();
 
 			BufferedReader input = new BufferedReader(new InputStreamReader(
-			        process.getInputStream()));
+					process.getInputStream()));
 			String line = null;
 
 			while ((line = input.readLine()) != null) {
@@ -115,28 +117,29 @@ public class EvoSuite {
 		} catch (InterruptedException e) {
 			System.out.println("Interrupted");
 		}
-		//File propertyFile = new File(Properties.OUTPUT_DIR + separator
-		//        + "evosuite.properties");
-		//if (propertyFile.exists()) {
+		// File propertyFile = new File(Properties.OUTPUT_DIR + separator
+		// + "evosuite.properties");
+		// if (propertyFile.exists()) {
 
-		//} else {
-		//Properties.PROJECT_PREFIX = prefix;
-		//System.out.println("Determined prefix: " + prefix);
-		//Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
-		//                                                   + File.separator
-		//                                                  + "evosuite.properties");
-		//}
+		// } else {
+		// Properties.PROJECT_PREFIX = prefix;
+		// System.out.println("Determined prefix: " + prefix);
+		// Properties.getInstance().writeConfiguration(Properties.OUTPUT_DIR
+		// + File.separator
+		// + "evosuite.properties");
+		// }
 
 	}
 
 	private static void generateTests(boolean wholeSuite, List<String> args) {
 		File directory = new File(Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
-			System.out.println("* Found no EvoSuite data in current directory. Run -setup first!");
+			System.out
+					.println("* Found no EvoSuite data in current directory. Run -setup first!");
 			return;
 		} else if (!directory.isDirectory()) {
 			System.out.println("* Found no EvoSuite data in " + directory
-			        + ". Run -setup first!");
+					+ ". Run -setup first!");
 			return;
 		}
 		int num = 0;
@@ -146,8 +149,10 @@ public class EvoSuite {
 			num++;
 		}
 		if (num == 0) {
-			System.out.println("* Found no class information in " + directory
-			        + ". Check that the classpath is correct when calling -setup.");
+			System.out
+					.println("* Found no class information in "
+							+ directory
+							+ ". Check that the classpath is correct when calling -setup.");
 			return;
 		}
 	}
@@ -165,23 +170,20 @@ public class EvoSuite {
 	}
 
 	private static Object generateTests(boolean wholeSuite, String target,
-	        List<String> args) {
-		
-		if(!InstrumentingClassLoader.checkIfCanInstrument(target)){
-			throw new IllegalArgumentException("Cannot consider "+target+" because it belongs to one of tha packages EvoSuite cannot currently handle");
-		}
-		
-		File taskFile = new File(Properties.OUTPUT_DIR + File.separator + target
-		        + ".task");
+			List<String> args) {
+		File taskFile = new File(Properties.OUTPUT_DIR + File.separator
+				+ target + ".task");
 		if (!taskFile.exists()) {
 			System.out.println("* Unknown class: " + target);
 			listClasses();
-			System.out.println("* If the class is missing but should be there, consider rerunning -setup, or adapting evosuite-files/evosuite.properties");
+			System.out
+					.println("* If the class is missing but should be there, consider rerunning -setup, or adapting evosuite-files/evosuite.properties");
 			return null;
 		}
 		String classPath = System.getProperty("java.class.path");
 		if (Properties.CP.length() > 0 && Properties.CP.charAt(0) == '"')
-			Properties.CP = Properties.CP.substring(1, Properties.CP.length() - 1);
+			Properties.CP = Properties.CP.substring(1,
+					Properties.CP.length() - 1);
 		classPath += File.pathSeparator + Properties.CP;
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		handler.openServer();
@@ -195,20 +197,25 @@ public class EvoSuite {
 			String jarName = setupIOJar();
 			cmdLine.add("-Xbootclasspath/p:" + jarName);
 			System.out.println("* Setting up virtual FS for testing");
+			cmdLine.add("-Dvirtual_fs=true");
 		}
+		if (Properties.REPLACE_CALLS) { // TODO perhaps just hand over all properties to client vm? ask Gordon
+			cmdLine.add("-Dreplace_calls=true");
+		}
+
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
 		cmdLine.add("-Djava.awt.headless=true");
 		cmdLine.add("-Dlogback.configurationFile=logback.xml");
-		//cmdLine.add("-Dminimize_values=true");
-		
+		// cmdLine.add("-Dminimize_values=true");
+
 		if (Properties.DEBUG) {
 			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
 			cmdLine.add("-Xdebug");
 			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
 					+ Properties.PORT);
 		}
-		
+
 		cmdLine.addAll(args);
 		if (wholeSuite)
 			cmdLine.add("-Dstrategy=EvoSuite");
@@ -222,20 +229,16 @@ public class EvoSuite {
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
 
 		/*
-		 * TODO: here we start the client with several properties that are set through -D.
-		 * These properties are not visible to the master process (ie this process), when
-		 * we access the Properties file. 
-		 * At the moment, we only need few parameters, so we can hack them
+		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
+		 * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
 		 */
-		Properties.getInstance();//should force the load, just to be sure
+		Properties.getInstance();// should force the load, just to be sure
 		Properties.TARGET_CLASS = target;
 		Properties.PROCESS_COMMUNICATION_PORT = port;
 
 		/*
-		 * The use of "assertions" in the client is pretty tricky, as those properties
-		 * need to be transformed into JVM options before starting the client.
-		 * Furthermore, the properties in the property file might be overwritten from the
-		 * commands coming from shell
+		 * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
+		 * client. Furthermore, the properties in the property file might be overwritten from the commands coming from shell
 		 */
 
 		String definedEAforClient = null;
@@ -243,11 +246,13 @@ public class EvoSuite {
 
 		final String DISABLE_ASSERTIONS_EVO = "-da:de.unisb.cs.st...";
 		final String ENABLE_ASSERTIONS_EVO = "-ea:de.unisb.cs.st...";
-		final String DISABLE_ASSERTIONS_SUT = "-da:" + Properties.PROJECT_PREFIX + "...";
-		final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX + "...";
+		final String DISABLE_ASSERTIONS_SUT = "-da:"
+				+ Properties.PROJECT_PREFIX + "...";
+		final String ENABLE_ASSERTIONS_SUT = "-ea:" + Properties.PROJECT_PREFIX
+				+ "...";
 
 		for (String s : cmdLine) {
-			//first check client
+			// first check client
 			if (s.startsWith("-Denable_asserts_for_evosuite")) {
 				if (s.endsWith("false")) {
 					definedEAforClient = DISABLE_ASSERTIONS_EVO;
@@ -255,7 +260,7 @@ public class EvoSuite {
 					definedEAforClient = ENABLE_ASSERTIONS_EVO;
 				}
 			}
-			//then check SUT
+			// then check SUT
 			if (s.startsWith("-Denable_asserts_for_sut")) {
 				if (s.endsWith("false")) {
 					definedEAforSUT = DISABLE_ASSERTIONS_SUT;
@@ -266,10 +271,8 @@ public class EvoSuite {
 		}
 
 		/*
-		 * the assertions might not be defined in the command line, but they might be in the property
-		 * file, or just use default values.
-		 * NOTE: if those are defined in the command line, then they overwrite whatever we had in the
-		 * conf file
+		 * the assertions might not be defined in the command line, but they might be in the property file, or just use default values. NOTE: if those
+		 * are defined in the command line, then they overwrite whatever we had in the conf file
 		 */
 
 		if (definedEAforSUT == null) {
@@ -289,10 +292,8 @@ public class EvoSuite {
 		}
 
 		/*
-		 * We add them in first position, after the java command
-		 * To avoid confusion, we only add them if they are enabled.
-		 * NOTE: this might have side effects "if" in the future we have something like 
-		 * a generic "-ea"
+		 * We add them in first position, after the java command To avoid confusion, we only add them if they are enabled. NOTE: this might have side
+		 * effects "if" in the future we have something like a generic "-ea"
 		 */
 		if (definedEAforClient.equals(ENABLE_ASSERTIONS_EVO)) {
 			cmdLine.add(1, definedEAforClient);
@@ -307,14 +308,16 @@ public class EvoSuite {
 			try {
 				ClassPathHacker.addFile(entry);
 			} catch (IOException e) {
-				System.out.println("* Error while adding classpath entry: " + entry);
+				System.out.println("* Error while adding classpath entry: "
+						+ entry);
 			}
 		}
 
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
-			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
-			        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?	
+			result = handler
+					.waitForResult((Properties.GLOBAL_TIMEOUT
+							+ Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?
 			handler.killProcess();
 			handler.closeServer();
 		} else {
@@ -335,15 +338,17 @@ public class EvoSuite {
 		try {
 			dest.deleteOnExit();
 			System.out.println("Creating file: " + dest.getPath());
-			if (!dest.exists()) {
-				OutputStream out = new FileOutputStream(dest);
-				byte[] buf = new byte[1024];
-				int len;
-				while ((len = in.read(buf)) > 0) {
-					out.write(buf, 0, len);
-				}
-				out.close();
+			// since deleteOnExit() only works for normal termination of the VM, we should perhaps also copy the file, if dest already exists
+			// (because it may be faulty)
+			// if (!dest.exists()) {
+			OutputStream out = new FileOutputStream(dest);
+			byte[] buf = new byte[1024];
+			int len;
+			while ((len = in.read(buf)) > 0) {
+				out.write(buf, 0, len);
 			}
+			out.close();
+			// }
 			in.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -353,8 +358,24 @@ public class EvoSuite {
 	private static String setupIOJar() {
 		String tmpDir = System.getProperty("java.io.tmpdir");
 		String jarName = tmpDir + File.separator + "evosuite-io.jar";
-		writeFile(EvoSuite.class.getClassLoader().getResourceAsStream("evosuite-0.1-SNAPSHOT-evosuite-io.jar"),
-		          new File(jarName));
+
+		// FIXME hack! remove on the long run!
+		URL[] urls = ((URLClassLoader) EvoSuite.class.getClassLoader())
+				.getURLs();
+		URL evosuiteIO = null;
+		for (URL url : urls) {
+			if (url.getPath().endsWith("evosuite-io-0.1.jar")) {
+				evosuiteIO = url;
+			}
+		}
+
+		try {
+			writeFile(evosuiteIO.openStream(), // EvoSuite.class.getClassLoader().getResourceAsStream("evosuite-0.1-SNAPSHOT-evosuite-io.jar")
+					new File(jarName));
+
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return jarName;
 	}
 
@@ -363,21 +384,35 @@ public class EvoSuite {
 		Options options = new Options();
 
 		Option help = new Option("help", "print this message");
-		Option generateSuite = new Option("generateSuite", "use whole suite generation");
+		Option generateSuite = new Option("generateSuite",
+				"use whole suite generation");
 		Option generateTests = new Option("generateTests",
-		        "use individual test generation");
-		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("use given directory/jar file/package prefix for test generation").create("setup");
-		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
-		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
-		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
-		Option mem = OptionBuilder.withArgName("mem").hasArg().withDescription("heap size for client process (in megabytes)").create("mem");
+				"use individual test generation");
+		Option setup = OptionBuilder
+				.withArgName("target")
+				.hasArg()
+				.withDescription(
+						"use given directory/jar file/package prefix for test generation")
+				.create("setup");
+		Option targetClass = OptionBuilder.withArgName("class").hasArg()
+				.withDescription("target class for test generation")
+				.create("class");
+		Option criterion = OptionBuilder.withArgName("criterion").hasArg()
+				.withDescription("target criterion for test generation")
+				.create("criterion");
+		Option seed = OptionBuilder.withArgName("seed").hasArg()
+				.withDescription("seed for random number generator")
+				.create("seed");
+		Option mem = OptionBuilder.withArgName("mem").hasArg()
+				.withDescription("heap size for client process (in megabytes)")
+				.create("mem");
 
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
 		Option mocks = new Option("mocks", "Use mock classes");
 		Option stubs = new Option("stubs", "Use stubs");
 		Option assertions = new Option("assertions", "Add assertions");
 		Option signature = new Option("signature",
-		        "Allow manual tweaking of method signatures");
+				"Allow manual tweaking of method signatures");
 
 		options.addOption(help);
 		options.addOption(generateSuite);
@@ -413,11 +448,10 @@ public class EvoSuite {
 			String[] cargs = new String[cmdOpts.size()];
 			cmdOpts.toArray(cargs);
 			CommandLine line = parser.parse(options, cargs);
-			//javaOpts.addAll(Arrays.asList(line.getArgs()));
+			// javaOpts.addAll(Arrays.asList(line.getArgs()));
 
 			/*
-			 * NOTE: JVM arguments will not be passed over from the master to the client.
-			 * So for -Xmx, we need to use "mem"
+			 * NOTE: JVM arguments will not be passed over from the master to the client. So for -Xmx, we need to use "mem"
 			 */
 
 			if (line.hasOption("mem"))
@@ -444,12 +478,14 @@ public class EvoSuite {
 				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts);
 			} else if (line.hasOption("generateTests")) {
 				if (line.hasOption("class"))
-					result = generateTests(false, line.getOptionValue("class"), javaOpts);
+					result = generateTests(false, line.getOptionValue("class"),
+							javaOpts);
 				else
 					generateTests(false, javaOpts);
 			} else if (line.hasOption("generateSuite")) {
 				if (line.hasOption("class"))
-					result = generateTests(true, line.getOptionValue("class"), javaOpts);
+					result = generateTests(true, line.getOptionValue("class"),
+							javaOpts);
 				else
 					generateTests(true, javaOpts);
 			} else {

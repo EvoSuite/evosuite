@@ -94,6 +94,11 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		        "()F", "de/unisb/cs/st/evosuite/runtime/Random", "nextFloat", "()F", true));
 		replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextLong",
 		        "()J", "de/unisb/cs/st/evosuite/runtime/Random", "nextLong", "()J", true));
+		// TODO test this
+		replacementCalls.add(new MethodCallReplacement("java/io/FileInputStream", "available",
+				"()I", "java/io/FileInputStream", "availableNew", "()I", false));
+		replacementCalls.add(new MethodCallReplacement("java/io/FileInputStream", "skip",
+				"(J)J", "java/io/FileInputStream", "skipNew", "(J)J", false));
 	}
 
 	/* (non-Javadoc)

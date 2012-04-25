@@ -170,17 +170,27 @@ public class GraphPool {
 			cd.toDot();
 	}
 
-	public static void computeCCFGs() {
+	/**
+	 * Computes the CCFG for the given class
+	 * 
+	 * If no CFG is known for the given class, an IllegalArgumentException is
+	 * thrown
+	 */
+	public static ClassControlFlowGraph computeCCFG(String className) {
+		if (rawCFGs.get(className) == null)
+			throw new IllegalArgumentException(
+					"can't compute CCFG, don't know CFGs for class "
+							+ className);
 
-		for (String className : rawCFGs.keySet()) {
-			ClassCallGraph ccg = new ClassCallGraph(className);
-			if (Properties.WRITE_CFG)
-				ccg.toDot();
+		ClassCallGraph ccg = new ClassCallGraph(className);
+		if (Properties.WRITE_CFG)
+			ccg.toDot();
 
-			ClassControlFlowGraph ccfg = new ClassControlFlowGraph(ccg);
-			if (Properties.WRITE_CFG)
-				ccfg.toDot();
-		}
+		ClassControlFlowGraph ccfg = new ClassControlFlowGraph(ccg);
+		if (Properties.WRITE_CFG)
+			ccfg.toDot();
+
+		return ccfg;
 	}
 
 	public static void clear() {

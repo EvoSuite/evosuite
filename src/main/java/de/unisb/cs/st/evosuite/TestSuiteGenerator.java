@@ -34,6 +34,7 @@ import sun.misc.Signal;
 import de.unisb.cs.st.evosuite.Properties.AssertionStrategy;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.Properties.Strategy;
+import de.unisb.cs.st.evosuite.Properties.TheReplacementFunction;
 import de.unisb.cs.st.evosuite.assertion.AssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.CompleteAssertionGenerator;
 import de.unisb.cs.st.evosuite.assertion.MutationAssertionGenerator;
@@ -72,6 +73,7 @@ import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ga.CrossOverFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.ga.FitnessProportionateSelection;
+import de.unisb.cs.st.evosuite.ga.FitnessReplacementFunction;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.IndividualPopulationLimit;
 import de.unisb.cs.st.evosuite.ga.MinimizeSizeSecondaryObjective;
@@ -298,6 +300,30 @@ public class TestSuiteGenerator {
 				testDir = testDir + "/" + Properties.CRITERION;
 			System.out.println("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
+			suite.writeTestSuiteMainFile(testDir);
+		}
+	}
+	
+	/**
+	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases
+	 * to the default directory Properties.TEST_DIR. Unlike its twin
+	 * writeJUnitTests(tests) this method adds a given tag to the
+	 * default file name, allowing several test files per class. 
+	 * Instead of TestMyClass.java the test cases
+	 * are written to TestMayClassmytag.java.
+	 * @param tests the test cases which should be written to file
+	 * @param tag the appendix which should be added to the default file name
+	 */
+	public static void writeJUnitTests(List<TestCase> tests, String tag) {
+		if (Properties.JUNIT_TESTS) {
+			TestSuiteWriter suite = new TestSuiteWriter();
+			suite.insertTests(tests);
+			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+			String testDir = Properties.TEST_DIR;
+			if (analyzing)
+				testDir = testDir + "/" + Properties.CRITERION;
+			System.out.println("* Writing JUnit test cases to " + testDir);
+			suite.writeTestSuite("Test" + name + tag, testDir);
 			suite.writeTestSuiteMainFile(testDir);
 		}
 	}
@@ -1120,20 +1146,34 @@ public class TestSuiteGenerator {
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				SteadyStateGA ga = new SteadyStateGA(factory);
-				if (Properties.STRATEGY == Strategy.EVOSUITE)
-					ga.setReplacementFunction(new TestSuiteReplacementFunction());
-				else
-					ga.setReplacementFunction(new TestCaseReplacementFunction());
+				if(Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT){
+					//user has explicitly asked for this replacement function
+					ga.setReplacementFunction(new FitnessReplacementFunction());
+				}
+				else{
+					//use default
+					if (Properties.STRATEGY == Strategy.EVOSUITE)
+						ga.setReplacementFunction(new TestSuiteReplacementFunction());
+					else
+						ga.setReplacementFunction(new TestCaseReplacementFunction());
+				}
 				return ga;
 			}
 		case MUPLUSLAMBDAGA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
 				MuPlusLambdaGA ga = new MuPlusLambdaGA(factory);
-				if (Properties.STRATEGY == Strategy.EVOSUITE)
-					ga.setReplacementFunction(new TestSuiteReplacementFunction());
-				else
-					ga.setReplacementFunction(new TestCaseReplacementFunction());
+				if(Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT){
+					//user has explicitly asked for this replacement function
+					ga.setReplacementFunction(new FitnessReplacementFunction());
+				}
+				else{
+					//use default
+					if (Properties.STRATEGY == Strategy.EVOSUITE)
+						ga.setReplacementFunction(new TestSuiteReplacementFunction());
+					else
+						ga.setReplacementFunction(new TestCaseReplacementFunction());
+				}
 				return ga;
 			}
 		case RANDOM:

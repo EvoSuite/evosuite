@@ -19,14 +19,19 @@ public class ConstructorTestClass extends BaseConstructorTestClass {
 	}
 	
 	public ConstructorTestClass(int anInt, int anotherInt) {
-		this(anInt+anotherInt);
+		super(anInt+anotherInt);
 		
 		targetField = 1;
 		new Object();
-		setTargetField(imPrivate());
+//		setTargetField(imPrivate());
 		setTargetField(targetField);
 		new ConstructorTestClass(3);
 	}
+	
+	public ConstructorTestClass(String s) {
+		super(s==null?-1:s.length());
+	}
+	
 //	
 //	public ConstructorTestClass(int anInt, int anotherInt, int andAnotherInt) {
 //		targetField = anInt+anotherInt+andAnotherInt;
@@ -36,34 +41,34 @@ public class ConstructorTestClass extends BaseConstructorTestClass {
 //		targetField = aString.length();
 //	}
 //
-	public int withinPairsTest() {
-		targetField = 1;
-		targetField++;
-		
-		setsetTargetField(targetField);
-		
-		return targetField;
-	}
+//	public int withinPairsTest() {
+//		targetField = 1;
+//		targetField++;
+//		
+//		setsetTargetField(targetField);
+//		
+//		return targetField;
+//	}
 	
 	public void setTargetField(int field) {
 		targetField = field;
-		new ConstructorTestClass();
+//		new ConstructorTestClass();
 	}
 	
-	public int setsetMethod() {
-		setsetTargetField(3);
-		return targetField;
-	}
-	
-	public void setsetTargetField(int field) {
-		setTargetField(field);
-	}
+//	public int setsetMethod() {
+//		setsetTargetField(3);
+//		return targetField;
+//	}
+//	
+//	public void setsetTargetField(int field) {
+//		setTargetField(field);
+//	}
 	
 	public int getTargetField() {
 		return targetField;
 	}
-	private int imPrivate() {
-		return 7;
-	}
+//	private int imPrivate() {
+//		return 7;
+//	}
 	
 }

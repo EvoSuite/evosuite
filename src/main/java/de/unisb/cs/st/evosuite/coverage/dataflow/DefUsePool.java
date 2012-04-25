@@ -89,7 +89,7 @@ public class DefUsePool {
 			logger.error("each definition can be added at most once");
 			return false;
 		}
-		if(d.isWithinConstructor() && d.proceedsConstructorInvocation())
+		if(!d.canBeInstrumented())
 			return false;
 
 		// register new instruction
@@ -130,7 +130,7 @@ public class DefUsePool {
 			return false;
 		if (isKnownAsUse(u))
 			return false;
-		if(u.isWithinConstructor() && u.proceedsConstructorInvocation())
+		if(!u.canBeInstrumented())
 			return false;
 		
 		registerAsDefUse(u);
@@ -314,6 +314,21 @@ public class DefUsePool {
 		return r;
 	}
 
+	public static Definition getDefinitionByInstruction(BytecodeInstruction def) {
+		if(!isKnownAsDefinition(def))
+			return null;
+		
+		return getDefinitionByDefId(getRegisteredDefId(def));
+	}
+	
+	public static Use getUseByInstruction(BytecodeInstruction use) {
+		if(!isKnownAsUse(use))
+			return null;
+		
+		return getUseByUseId(getRegisteredUseId(use));
+	}
+
+	
 	/**
 	 * Returns the Use with the given duID
 	 * 
