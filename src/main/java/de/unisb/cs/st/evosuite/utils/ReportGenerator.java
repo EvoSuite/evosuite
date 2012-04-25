@@ -105,6 +105,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public int branchless_methods;
 
+		public int covered_branchless_methods;
+
 		public int covered_methods;
 
 		public int total_goals;
