@@ -25,6 +25,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
 import de.unisb.cs.st.evosuite.graphs.GraphPool;
 import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.graphs.cfg.RawControlFlowGraph;
+import de.unisb.cs.st.evosuite.javaagent.AnnotatedLabel;
 
 /**
  * @author Copied from CFGMethodAdapter
@@ -54,6 +55,14 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				// If this is in the CFG and it's a branch...
 				if (in.equals(v.getASMNode())) {
 					if (v.isBranch()) {
+						if (in.getPrevious() instanceof LabelNode) {
+							LabelNode label = (LabelNode) in.getPrevious();
+							if (label.getLabel() instanceof AnnotatedLabel) {
+								logger.info("Found artificial branch!");
+								Branch b = BranchPool.getBranchForInstruction(v);
+								b.setInstrumented(true);
+							}
+						}
 						mn.instructions.insertBefore(v.getASMNode(),
 						                             getInstrumentation(v));
 
