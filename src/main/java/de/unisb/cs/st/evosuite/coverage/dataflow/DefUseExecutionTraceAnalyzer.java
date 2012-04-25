@@ -255,6 +255,54 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(
 			List<ExecutionResult> results) {
 
+		// did an experiment here: subject ncs.Bessj
+		// so as it turns out the getCoveredGoals() might have to run through up
+		// to 50k entry big duTraces and thus take up another 20-25% memory, but
+		// if you disable this you have to take more time in single fitness
+		// calculations and gain worse coverage / less statements per time
+		// so for ncs.Bessj with this disabled:
+
+		/*
+		 * ida@ubuntu:~/Bachelor/again/evosuite/examples/ncs$ ^C
+		 * ida@ubuntu:~/Bachelor/again/evosuite/examples/ncs$ ../../EvoSuite
+		 * -generateSuite -criterion defuse -class ncs.Bessj Generating tests
+		 * for class ncs.Bessj Test criterion: All DU Pairs Setting up search
+		 * algorithm for whole suite generation Goal computation took: 41ms
+		 * Starting evolution Alternative fitness calculation disabled!
+		 * [Progress:=====> 19%] [Cov:========================> 71%] Search
+		 * finished after 600s and 6 generations, 19420 statements, best
+		 * individual has fitness 46.49999999592326 Minimizing result Generated
+		 * 4 tests with total length 17 Resulting TestSuite's coverage: 71%
+		 * GA-Budget: - ShutdownTestWriter : 0 / 0 - GlobalTime : 602 / 600
+		 * Finished! - ZeroFitness : 46 / 0 - MaxStatements : 20.881 / 100.000
+		 * Covered 92/129 goals Time spent optimizing covered goals analysis:
+		 * 0ms Time spent executing tests: 59980ms Writing JUnit test cases to
+		 * evosuite-tests/DEFUSE Time spent calculating single fitnesses:
+		 * 540751ms Done!
+		 */
+
+		// and enabled:
+		/*
+		 * ida@ubuntu:~/Bachelor/again/evosuite/examples/ncs$ ../../EvoSuite
+		 * -generateSuite -criterion defuse -class ncs.Bessj Generating tests
+		 * for class ncs.Bessj Test criterion: All DU Pairs Setting up search
+		 * algorithm for whole suite generation Goal computation took: 42ms
+		 * Starting evolution Alternative fitness calculation disabled!
+		 * [Progress:=======> 25%] [Cov:========================> 71%] Search
+		 * finished after 600s and 11 generations, 25732 statements, best
+		 * individual has fitness 46.49999999553073 Minimizing result Generated
+		 * 4 tests with total length 19 Resulting TestSuite's coverage: 71%
+		 * GA-Budget: - ShutdownTestWriter : 0 / 0 - MaxStatements : 28.030 /
+		 * 100.000 - ZeroFitness : 46 / 0 - GlobalTime : 604 / 600 Finished!
+		 * Covered 92/129 goals Time spent optimizing covered goals analysis:
+		 * 414365ms Time spent executing tests: 87669ms Writing JUnit test cases
+		 * to evosuite-tests/DEFUSE Time spent calculating single fitnesses:
+		 * 100324ms Done!
+		 */
+
+		// so we have 25% more executed statements, which means this will stay
+		// enabled
+		
 //		System.out.println("start");
 		long start = System.currentTimeMillis();
 

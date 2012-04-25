@@ -138,7 +138,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 		switch (Properties.CRITERION) {
 		case DEFUSE:
-			return DefUseCoverageSuiteFitness.mostCoveredGoals;
+			return DefUseCoverageSuiteFitness.countMostCoveredGoals();
 		case STATEMENT:
 			return StatementCoverageSuiteFitness.mostCoveredGoals;
 		case BRANCH:

@@ -58,6 +58,16 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 		if (start_time == 0)
 			start_time = System.currentTimeMillis();
 	}
+	
+	/**
+	 * Fully resets the stopping condition. The start time is set to the current
+	 * time and thus "no time has elapsed so far".
+	 * If you want a conditional reset which only has an effect if the 
+	 * start time has never been changed use <tt>reset()</tt>.
+	 */
+	public void fullReset() {
+		start_time = System.currentTimeMillis();
+	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)

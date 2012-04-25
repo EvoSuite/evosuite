@@ -25,18 +25,22 @@ public class BaseConstructorTestClass {
 		targetField = 1;
 		new Object();
 		setTargetField(imPrivate());
-		setTargetField(targetField);
+		targetField=-1;
 		new BaseConstructorTestClass(3);
 	}
-//	
-//	public BaseConstructorTestClass(int anInt, int anotherInt, int andAnotherInt) {
-//		targetField = anInt+anotherInt+andAnotherInt;
-//	}
-//	
+////	
+////	public BaseConstructorTestClass(int anInt, int anotherInt, int andAnotherInt) {
+////		targetField = anInt+anotherInt+andAnotherInt;
+////	}
+////	
 //	public BaseConstructorTestClass(String aString) {
-//		targetField = aString.length();
+//		this(aString.length()%2==0?-1:aString.length());
 //	}
-//
+//	
+//	public BaseConstructorTestClass(int i, int j) {
+//		this(new Object() == null ? i : j);
+//	}
+////
 	public void setTargetField(int field) {
 		targetField = field;
 	}
