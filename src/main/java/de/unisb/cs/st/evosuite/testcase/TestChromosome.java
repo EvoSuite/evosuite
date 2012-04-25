@@ -202,6 +202,8 @@ public class TestChromosome extends ExecutableChromosome {
 
 			} else if (test.getStatement(i) instanceof ArrayStatement) {
 				search = new ArrayLocalSearch();
+			} else if (test.getStatement(i) instanceof MethodStatement) {
+				search = new ParameterLocalSearch();
 			}
 			if (search != null)
 				search.doSearch(this, i, objective);
