@@ -98,6 +98,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** Total number of branches */
 		public int total_branches;
 
+		public int error_branches = 0;
+
+		public int error_branchless_methods = 0;
+
 		/** Total number of branches */
 		public int covered_branches;
 
@@ -208,7 +212,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
-			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
+			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,Covered Branchless Methods,");
 			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,");
 			r.append("Minimized Size,Minimized Length,");
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
@@ -227,6 +231,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("MutationScore,");
 			r.append("MethodExceptions,");
 			r.append("TypeExceptions,");
+			r.append("ErrorBranches,");
+			r.append("ErrorBranchlessMethods,");
 			r.append("Data File");
 			return r.toString();
 		}
@@ -243,6 +249,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(total_methods + ",");
 			r.append(branchless_methods + ",");
 			r.append(covered_methods + ",");
+			r.append(covered_branchless_methods + ",");
 
 			r.append(total_goals + ",");
 			r.append(covered_goals + ",");
@@ -308,6 +315,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(mutationScore + ",");
 			r.append(methodExceptions + ",");
 			r.append(typeExceptions + ",");
+			r.append(error_branches + ",");
+			r.append(error_branchless_methods + ",");
 			r.append(getCSVFilepath());
 
 			return r.toString();
