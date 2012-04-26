@@ -82,6 +82,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
+
 		if (!valid) {
 			/*
 			 * once we get a contract that is violated, no point in checking the following statements,
@@ -104,6 +105,7 @@ public class ContractChecker extends ExecutionObserver {
 
 		for (Contract contract : contracts) {
 			try {
+
 				if (!contract.check(statement, scope, exception)) {
 					logger.debug("Contract failed: " + contract + " on statement "
 					        + statement.getCode());

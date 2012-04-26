@@ -140,7 +140,10 @@ public class TestSuiteWriter implements Opcodes {
 
 	public int insertTest(TestCase test, String comment) {
 		int id = insertTest(test);
-		testComment.put(id, comment);
+		if (testComment.containsKey(id))
+			testComment.put(id, testComment.get(id) + "\n   //" + comment);
+		else
+			testComment.put(id, comment);
 		return id;
 	}
 
