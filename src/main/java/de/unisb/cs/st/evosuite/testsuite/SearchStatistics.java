@@ -417,7 +417,6 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			int splitPoint = methodName.lastIndexOf(".");
 			String cName = methodName.substring(0, splitPoint);
 			String mName = methodName.substring(splitPoint + 1);
-			logger.info("Checking " + mName + " in " + cName);
 			boolean hasBranches = false;
 			for (Branch b : BranchPool.retrieveBranchesInMethod(cName, mName)) {
 				hasBranches = true;
@@ -429,8 +428,6 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			if (hasBranches && allArtificial)
 				entry.error_branchless_methods++;
 		}
-		logger.info("NUMBER OF BRANCHLESS METHODS AFFECTED: "
-		        + entry.error_branchless_methods);
 
 		int coveredBranchlessMethods = 0;
 		for (String branchlessMethod : BranchPool.getBranchlessMethodsMemberClasses(Properties.TARGET_CLASS)) {
