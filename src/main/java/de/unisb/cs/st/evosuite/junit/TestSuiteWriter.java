@@ -52,6 +52,8 @@ public class TestSuiteWriter implements Opcodes {
 
 	protected List<TestCase> testCases = new ArrayList<TestCase>();
 
+	protected Map<Integer, String> testComment = new HashMap<Integer, String>();
+
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
 	class TestFilter implements IOFileFilter {
@@ -134,6 +136,12 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		testCases.add(test);
 		return testCases.size() - 1;
+	}
+
+	public int insertTest(TestCase test, String comment) {
+		int id = insertTest(test);
+		testComment.put(id, comment);
+		return id;
 	}
 
 	public void insertTests(List<TestCase> tests) {
@@ -249,6 +257,9 @@ public class TestSuiteWriter implements Opcodes {
 	 * @return Comment for test case
 	 */
 	protected String getInformation(int num) {
+
+		if (testComment.containsKey(num))
+			return testComment.get(num);
 
 		TestCase test = testCases.get(num);
 		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();

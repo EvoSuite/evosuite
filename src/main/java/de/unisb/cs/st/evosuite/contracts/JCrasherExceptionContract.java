@@ -63,7 +63,7 @@ public class JCrasherExceptionContract extends Contract {
 
 	@Override
 	public String toString() {
-		return "Undeclared exception check";
+		return "Undeclared exception (JCrasher style)";
 	}
 
 }
