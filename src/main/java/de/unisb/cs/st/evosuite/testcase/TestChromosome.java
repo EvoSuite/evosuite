@@ -198,12 +198,13 @@ public class TestChromosome extends ExecutableChromosome {
 					search = new StringLocalSearch();
 				} else if (type.equals(Boolean.class)) {
 					search = new BooleanLocalSearch();
+				} else if (test.getStatement(i) instanceof EnumPrimitiveStatement) {
+					search = new EnumLocalSearch();
 				}
-
 			} else if (test.getStatement(i) instanceof ArrayStatement) {
 				search = new ArrayLocalSearch();
 			} else if (test.getStatement(i) instanceof MethodStatement) {
-				search = new ParameterLocalSearch();
+				//search = new ParameterLocalSearch();
 			}
 			if (search != null)
 				search.doSearch(this, i, objective);

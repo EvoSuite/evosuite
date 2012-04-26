@@ -3,6 +3,9 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -42,11 +45,11 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
 		super(tc, value.getClass(), value);
-		enumClass = (Class<T>) getEnumClass(value.getClass());
-		constants = (T[]) getEnumClass(value.getClass()).getEnumConstants();
+		enumClass = (Class<T>) retrieveEnumClass(value.getClass());
+		constants = (T[]) retrieveEnumClass(value.getClass()).getEnumConstants();
 	}
 
-	private static Class<?> getEnumClass(Class<?> clazz) {
+	private static Class<?> retrieveEnumClass(Class<?> clazz) {
 		if (clazz.isEnum())
 			return clazz;
 		else if (clazz.getEnclosingClass() != null && clazz.getEnclosingClass().isEnum())
@@ -55,6 +58,14 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 			return clazz.getDeclaringClass();
 		else
 			throw new RuntimeException("Cannot find enum class: " + clazz);
+	}
+
+	public Class<?> getEnumClass() {
+		return enumClass;
+	}
+
+	public List<T> getEnumValues() {
+		return Arrays.asList(constants);
 	}
 
 	/* (non-Javadoc)
