@@ -51,6 +51,17 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.NoSuchParameterException;
+import de.unisb.cs.st.evosuite.contracts.AssertionErrorContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsHashcodeContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsNullContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsSymmetricContract;
+import de.unisb.cs.st.evosuite.contracts.FailingTestSet;
+import de.unisb.cs.st.evosuite.contracts.HashCodeReturnsNormallyContract;
+import de.unisb.cs.st.evosuite.contracts.JCrasherExceptionContract;
+import de.unisb.cs.st.evosuite.contracts.NullPointerExceptionContract;
+import de.unisb.cs.st.evosuite.contracts.ToStringReturnsNormallyContract;
+import de.unisb.cs.st.evosuite.contracts.UndeclaredExceptionContract;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -233,6 +244,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("TypeExceptions,");
 			r.append("ErrorBranches,");
 			r.append("ErrorBranchlessMethods,");
+			r.append("AssertionContract,");
+			r.append("EqualsContract,");
+			r.append("EqualsHashcodeContract,");
+			r.append("EqualsNullContract,");
+			r.append("EqualsSymmetricContract,");
+			r.append("HashCodeReturnsNormallyContract,");
+			r.append("JCrasherExceptionContract,");
+			r.append("NullPointerExceptionContract,");
+			r.append("ToStringReturnsNormallyContract,");
+			r.append("UndeclaredExceptionContract,");
+			r.append("Contract Violations,");
+			r.append("Unique Violations,");
 			r.append("Data File");
 			return r.toString();
 		}
@@ -317,6 +340,26 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(typeExceptions + ",");
 			r.append(error_branches + ",");
 			r.append(error_branchless_methods + ",");
+			r.append(FailingTestSet.getNumberOfViolations(AssertionErrorContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsContract.class) + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsNullContract.class) + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(JCrasherExceptionContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(NullPointerExceptionContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations() + ",");
+			r.append(FailingTestSet.getNumberOfUniqueViolations() + ",");
 			r.append(getCSVFilepath());
 
 			return r.toString();

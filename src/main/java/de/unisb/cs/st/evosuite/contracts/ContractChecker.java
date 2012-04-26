@@ -68,6 +68,7 @@ public class ContractChecker extends ExecutionObserver {
 
 	/**
 	 * Set the current test case, on which we check oracles while it is executed
+	 * 
 	 * @param test
 	 */
 	public static void currentTest(TestCase test) {
@@ -97,7 +98,8 @@ public class ContractChecker extends ExecutionObserver {
 			return;
 		}
 
-		if (Properties.CHECK_CONTRACTS_END && statement.getPosition() < (currentTest.size() - 1))
+		if (Properties.CHECK_CONTRACTS_END
+		        && statement.getPosition() < (currentTest.size() - 1))
 			return;
 
 		for (Contract contract : contracts) {
@@ -121,8 +123,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-
+		valid = true;
 	}
 
 }

@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.contracts;
 
+import java.lang.reflect.Method;
+
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 
@@ -22,6 +24,19 @@ public class EqualsNullContract extends Contract {
 		for (Object object : getAllObjects(scope)) {
 			if (object == null)
 				continue;
+
+			// We do not want to call equals if it is the default implementation
+			Class<?>[] parameters = { Object.class };
+			try {
+				Method equalsMethod = object.getClass().getMethod("equals", parameters);
+				if (equalsMethod.getDeclaringClass().equals(Object.class))
+					continue;
+
+			} catch (SecurityException e1) {
+				continue;
+			} catch (NoSuchMethodException e1) {
+				continue;
+			}
 
 			try {
 				// An object always has to equal itself
