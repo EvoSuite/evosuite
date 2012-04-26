@@ -61,6 +61,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		//packages that should not be instrumented
 		return new String[]{
 			"java.",
+			"javax.",
 			"sun.",
 			"de.unisb.cs.st.evosuite",
 			"de.unisb.cs.st.specmate"
