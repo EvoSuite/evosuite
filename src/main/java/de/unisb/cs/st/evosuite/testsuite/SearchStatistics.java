@@ -401,14 +401,36 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);
 			Branch b = BranchPool.getBranch(key);
-			if (!b.isInstrumented()) {
-				if (df == 0.0)
-					num_covered++;
-				if (dt == 0.0)
-					num_covered++;
+			//if (!b.isInstrumented()) {
+			if (df == 0.0)
+				num_covered++;
+			if (dt == 0.0)
+				num_covered++;
+			//}
+			if (b.isInstrumented()) {
+				entry.error_branches++;
 			}
-
 		}
+
+		for (String methodName : CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS)) {
+			boolean allArtificial = true;
+			int splitPoint = methodName.lastIndexOf(".");
+			String cName = methodName.substring(0, splitPoint);
+			String mName = methodName.substring(splitPoint + 1);
+			logger.info("Checking " + mName + " in " + cName);
+			boolean hasBranches = false;
+			for (Branch b : BranchPool.retrieveBranchesInMethod(cName, mName)) {
+				hasBranches = true;
+				if (!b.isInstrumented()) {
+					allArtificial = false;
+					break;
+				}
+			}
+			if (hasBranches && allArtificial)
+				entry.error_branchless_methods++;
+		}
+		logger.info("NUMBER OF BRANCHLESS METHODS AFFECTED: "
+		        + entry.error_branchless_methods);
 
 		int coveredBranchlessMethods = 0;
 		for (String branchlessMethod : BranchPool.getBranchlessMethodsMemberClasses(Properties.TARGET_CLASS)) {
@@ -537,8 +559,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		for (TestFitnessFunction f : TestSuiteGenerator.getFitnessFactory().getCoverageGoals()) {
 			if (f instanceof BranchCoverageTestFitness) {
 				BranchCoverageTestFitness b = (BranchCoverageTestFitness) f;
-				if (b.getBranch() != null && b.getBranch().isInstrumented())
-					entry.total_goals--;
+				if (b.getBranch() != null && b.getBranch().isInstrumented()) {
+				}
 			}
 		}
 
