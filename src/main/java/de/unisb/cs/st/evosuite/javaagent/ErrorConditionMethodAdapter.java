@@ -210,7 +210,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		if (opcode == Opcodes.IALOAD || opcode == Opcodes.BALOAD
 		        || opcode == Opcodes.CALOAD || opcode == Opcodes.SALOAD
 		        || opcode == Opcodes.LALOAD || opcode == Opcodes.FALOAD
-		        || opcode == Opcodes.DALOAD) {
+		        || opcode == Opcodes.DALOAD || opcode == Opcodes.AALOAD) {
 			Label origTarget = new Label();
 			super.visitInsn(Opcodes.DUP2);
 			super.visitInsn(Opcodes.SWAP);
@@ -225,6 +225,47 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+		} else if (opcode == Opcodes.IASTORE || opcode == Opcodes.BASTORE
+		        || opcode == Opcodes.CASTORE || opcode == Opcodes.SASTORE
+		        || opcode == Opcodes.AASTORE || opcode == Opcodes.LASTORE
+		        || opcode == Opcodes.FASTORE || opcode == Opcodes.DASTORE) {
+			Label origTarget = new Label();
+
+			int loc = 0;
+			if (opcode == Opcodes.IASTORE)
+				loc = newLocal(Type.INT_TYPE);
+			else if (opcode == Opcodes.BASTORE)
+				loc = newLocal(Type.BYTE_TYPE);
+			else if (opcode == Opcodes.CASTORE)
+				loc = newLocal(Type.CHAR_TYPE);
+			else if (opcode == Opcodes.SASTORE)
+				loc = newLocal(Type.SHORT_TYPE);
+			else if (opcode == Opcodes.AASTORE)
+				loc = newLocal(Type.getType(Object.class));
+			else if (opcode == Opcodes.LASTORE)
+				loc = newLocal(Type.LONG_TYPE);
+			else if (opcode == Opcodes.FASTORE)
+				loc = newLocal(Type.FLOAT_TYPE);
+			else if (opcode == Opcodes.DASTORE)
+				loc = newLocal(Type.DOUBLE_TYPE);
+			else
+				throw new RuntimeException("Unknown type");
+			storeLocal(loc);
+
+			super.visitInsn(Opcodes.DUP2);
+			super.visitInsn(Opcodes.SWAP);
+			//super.visitInsn(Opcodes.POP);
+			super.visitInsn(Opcodes.ARRAYLENGTH);
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArrayIndexOutOfBoundsException");
+			super.visitInsn(Opcodes.DUP);
+			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
+			                      "java/lang/ArrayIndexOutOfBoundsException", "<init>",
+			                      "()V");
+			super.visitInsn(Opcodes.ATHROW);
+			super.visitLabel(origTarget);
+			loadLocal(loc);
 		}
 
 		// Overflow checks
