@@ -50,10 +50,10 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 public class TestCaseExecutor implements ThreadFactory {
 
 	/**
-	 *  Used to identify the threads spawn by the SUT
+	 * Used to identify the threads spawn by the SUT
 	 */
 	public static final String TEST_EXECUTION_THREAD_GROUP = "Test Execution";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
@@ -184,11 +184,24 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 	}
 
+	/**
+	 * Execute a test case on a new scope
+	 * 
+	 * @param tc
+	 * @return
+	 */
 	public ExecutionResult execute(TestCase tc) {
 		Scope scope = new Scope();
 		return execute(tc, scope);
 	}
 
+	/**
+	 * Execute a test case on an existing scope
+	 * 
+	 * @param tc
+	 * @param scope
+	 * @return
+	 */
 	@SuppressWarnings("deprecation")
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
@@ -218,13 +231,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
-
-			if (!result.exceptions.isEmpty()) {
-				Throwable e = result.exceptions.values().iterator().next();
-				if (e instanceof ThreadDeath) {
-					logger.warn("THREAD DEATH!");
-				}
-			}
 
 			return result;
 		} catch (ThreadDeath t) {

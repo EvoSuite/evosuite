@@ -150,6 +150,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 					}
 
 					exceptionsThrown.put(num, exceptionThrown);
+					if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
+						result.explicitExceptions.put(num, true);
+					} else {
+						result.explicitExceptions.put(num, false);
+					}
 
 					ExecutionTracer.disable();
 					for (ExecutionObserver observer : observers) {
@@ -246,6 +251,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			FileSystem.restoreOriginalFS();
 		}
 
+		// FIXXME: Why don't we write into the result directly?
 		result.exceptions = getExceptionsThrown();
 		if (Sandbox.canUseFileContentGeneration())
 			try {

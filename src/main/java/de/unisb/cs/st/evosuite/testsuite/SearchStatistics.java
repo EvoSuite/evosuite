@@ -45,6 +45,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondit
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import de.unisb.cs.st.evosuite.graphs.cfg.CFGMethodAdapter;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -271,8 +272,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	}
 
 	@Override
-	public void minimized(Chromosome result) {
-		TestSuiteChromosome best = (TestSuiteChromosome) result;
+	public void minimized(Chromosome chromosome) {
+		TestSuiteChromosome best = (TestSuiteChromosome) chromosome;
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.tests = best.getTests();
 		// TODO: Remember which lines were covered
@@ -290,7 +291,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		// could ask every suite fitness how many goals were covered
 
 		logger.debug("Calculating coverage of best individual with fitness "
-		        + result.getFitness());
+		        + chromosome.getFitness());
 
 		Map<Integer, Double> true_distance = new HashMap<Integer, Double>();
 		Map<Integer, Double> false_distance = new HashMap<Integer, Double>();
@@ -299,23 +300,19 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 
+		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
+
 		logger.debug("Calculating line coverage");
 
 		for (TestChromosome test : best.tests) {
-			// ExecutionTrace trace = test.last_result.trace;
-			// //executeTest(test.test, entry.className);
-			ExecutionTrace trace = executeTest(test.getTestCase(), entry.className);
-
-			// if(test.last_result != null)
-			// trace = test.last_result.trace;
-			/*
-			 * else trace = executeTest(test.test, entry.className);
-			 */
+			ExecutionResult result = executeTest(test.getTestCase(), entry.className);
+			ExecutionTrace trace = result.getTrace();
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
+			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
 
-			covered_methods.addAll(trace.covered_methods.keySet());
+			covered_methods.addAll(trace.coveredMethods.keySet());
 
-			for (Entry<Integer, Double> e : trace.true_distances.entrySet()) {
+			for (Entry<Integer, Double> e : trace.trueDistances.entrySet()) {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
@@ -326,7 +323,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					true_distance.put(e.getKey(), e.getValue());
 				}
 			}
-			for (Entry<Integer, Double> e : trace.false_distances.entrySet()) {
+			for (Entry<Integer, Double> e : trace.falseDistances.entrySet()) {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
@@ -378,7 +375,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					/*
 					 * FIXME: need to find a way to calculate it
 					 */
-					boolean isExplicit = false;
+					boolean isExplicit = isExceptionExplicit.get(test).get(i);
 					if (isExplicit) {
 						if (!explicitTypesOfExceptions.containsKey(methodName))
 							explicitTypesOfExceptions.put(methodName,
@@ -477,10 +474,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			if (!covered)
 				entry.goalCoverage += "0";
 		}
-		entry.methodExceptions = getNumExceptions(implicitTypesOfExceptions)
-		        + getNumExceptions(explicitTypesOfExceptions);
-		entry.typeExceptions = getNumClassExceptions(implicitTypesOfExceptions)
-		        + getNumClassExceptions(explicitTypesOfExceptions);
+		entry.explicitMethodExceptions = getNumExceptions(explicitTypesOfExceptions);
+		entry.explicitTypeExceptions = getNumClassExceptions(explicitTypesOfExceptions);
+
+		entry.implicitMethodExceptions = getNumExceptions(implicitTypesOfExceptions);
+		entry.implicitTypeExceptions = getNumClassExceptions(implicitTypesOfExceptions);
 
 		// TODO: Only counting implicit exceptions as long as we don't distinguish
 		entry.exceptions = implicitTypesOfExceptions;
