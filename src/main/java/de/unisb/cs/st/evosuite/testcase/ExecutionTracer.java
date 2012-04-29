@@ -147,6 +147,15 @@ public class ExecutionTracer {
 	}
 
 	/**
+	 * Return the last explicitly thrown exception
+	 * 
+	 * @return
+	 */
+	public Throwable getLastException() {
+		return trace.explicitException;
+	}
+
+	/**
 	 * Called by instrumented code whenever a new method is called
 	 * 
 	 * @param classname
@@ -617,6 +626,24 @@ public class ExecutionTracer {
 		}
 
 		tracer.trace.mutationPassed(mutationId, distance);
+	}
+
+	public static void exceptionThrown(Object exception, String className,
+	        String methodName) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
+			return;
+
+		if (tracer.killSwitch) {
+			logger.info("Raising TimeoutException as kill switch is active - passedLine");
+			throw new TestCaseExecutor.TimeoutExceeded();
+		}
+
+		tracer.trace.explicitException = (Throwable) exception;
+
 	}
 
 	public static void statementExecuted() {

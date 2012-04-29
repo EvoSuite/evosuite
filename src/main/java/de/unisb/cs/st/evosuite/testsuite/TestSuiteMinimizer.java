@@ -224,13 +224,13 @@ public class TestSuiteMinimizer {
 				logger.debug("Skipping test " + num);
 				result = test.getLastExecutionResult();
 			}
-			called_methods.addAll(result.getTrace().covered_methods.keySet());
-			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
+			called_methods.addAll(result.getTrace().coveredMethods.keySet());
+			for (Entry<Integer, Double> entry : result.getTrace().trueDistances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_true.add(entry.getKey());
 			}
 
-			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().falseDistances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_false.add(entry.getKey());
 			}

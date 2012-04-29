@@ -24,7 +24,7 @@ import de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.gui.WideTestEditorGUI;
 import de.unisb.cs.st.evosuite.ma.parser.ParserConnector;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
@@ -82,7 +82,7 @@ public class Editor implements UserFeedback {
 	private Set<TestFitnessFunction> uncGoals = new HashSet<TestFitnessFunction>();
 
 	// To get a new coverage of the test suite after changes
-	private TestCaseExecutor executor = TestCaseExecutor.getInstance();
+	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Create an instance of the manual editor, fill all GUIs and set fields.
@@ -97,7 +97,8 @@ public class Editor implements UserFeedback {
 		testSuiteChr = (TestSuiteChromosome) gaInstance.getBestIndividual().clone();
 		double originalFitness = testSuiteChr.getFitness();
 
-		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(TestSuiteGenerator.getFitnessFactory());
+		TestSuiteMinimizer minimizer = new TestSuiteMinimizer(
+		        TestSuiteGenerator.getFitnessFactory());
 		minimizer.minimize(testSuiteChr);
 
 		List<TestCase> tests = testSuiteChr.getTests();
@@ -118,7 +119,8 @@ public class Editor implements UserFeedback {
 		}
 		sguiTE.createMainWindow(this);
 		// See message from html_analyzer.getClassContent(...) to check this
-		if (sourceCode.toString().equals("[No source found for " + Properties.TARGET_CLASS + "]")) {
+		if (sourceCode.toString().equals("[No source found for "
+		                                         + Properties.TARGET_CLASS + "]")) {
 			File srcFile = chooseTargetFile(Properties.TARGET_CLASS);
 			if (srcFile != null) {
 				sourceCode = Utils.readFile(srcFile);
@@ -148,7 +150,8 @@ public class Editor implements UserFeedback {
 		// Fitness might decrease, because we only keep what is _covered_ during
 		// Minimization
 		if (testSuiteChr.getFitness() > originalFitness) {
-			logger.debug("Fitness has increased from " + originalFitness + " to " + testSuiteChr.getFitness());
+			logger.debug("Fitness has increased from " + originalFitness + " to "
+			        + testSuiteChr.getFitness());
 			double lastFitness = testSuiteChr.getFitness();
 
 			TestSuiteChromosome original = (TestSuiteChromosome) ga.getBestIndividual();
@@ -177,8 +180,8 @@ public class Editor implements UserFeedback {
 		// Use it only after minimize
 		if (Properties.MA_BRANCHES_CALC) {
 			List<TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
-			Set<TestFitnessFunction> res = new HashSet<TestFitnessFunction>(TestSuiteGenerator.getFitnessFactory()
-					.getCoverageGoals());
+			Set<TestFitnessFunction> res = new HashSet<TestFitnessFunction>(
+			        TestSuiteGenerator.getFitnessFactory().getCoverageGoals());
 			List<TestCase> testSuite = getTests();
 			for (TestFitnessFunction goal : goals) {
 				for (TestCase testCase : testSuite) {
@@ -359,7 +362,8 @@ public class Editor implements UserFeedback {
 	 * 
 	 */
 	public void createNewTCT() {
-		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(), new HashSet<Integer>());
+		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(),
+		        new HashSet<Integer>());
 		currTCTuple = newTestCaseTuple;
 	}
 
@@ -386,8 +390,10 @@ public class Editor implements UserFeedback {
 	 * @return <code>Set<{@code Integer}></code>
 	 */
 	private Set<Integer> retrieveCoverage(TestCase testCase) {
-		ExecutionTrace trace = statistics.executeTest(testCase, Properties.TARGET_CLASS);
-		Set<Integer> result = statistics.getCoveredLines(trace, Properties.TARGET_CLASS);
+		ExecutionResult executionResult = statistics.executeTest(testCase,
+		                                                         Properties.TARGET_CLASS);
+		Set<Integer> result = statistics.getCoveredLines(executionResult.getTrace(),
+		                                                 Properties.TARGET_CLASS);
 
 		return result;
 	}
@@ -440,7 +446,8 @@ public class Editor implements UserFeedback {
 	 */
 	@Override
 	public void showParseException(String message) {
-		JOptionPane.showMessageDialog(sguiTE.getMainFrame(), message, "Parsing error", JOptionPane.ERROR_MESSAGE);
+		JOptionPane.showMessageDialog(sguiTE.getMainFrame(), message, "Parsing error",
+		                              JOptionPane.ERROR_MESSAGE);
 	}
 
 	/*
@@ -471,8 +478,9 @@ public class Editor implements UserFeedback {
 	 * @return {@code String} a class path from a user
 	 */
 	public static String enterClassName(String className) {
-		return JOptionPane.showInputDialog(null, "Where is class " + className + "?", "Please enter full name",
-				JOptionPane.QUESTION_MESSAGE);
+		return JOptionPane.showInputDialog(null, "Where is class " + className + "?",
+		                                   "Please enter full name",
+		                                   JOptionPane.QUESTION_MESSAGE);
 	}
 
 	/**
@@ -485,8 +493,10 @@ public class Editor implements UserFeedback {
 	 * @return {@code String} choice of a user
 	 */
 	public static String chooseClassName(String[] choices, String className) {
-		return (String) JOptionPane.showInputDialog(null, "Choose now... " + className, "The Choice of a Lifetime",
-				JOptionPane.QUESTION_MESSAGE, null, choices, choices[0]);
+		return (String) JOptionPane.showInputDialog(null, "Choose now... " + className,
+		                                            "The Choice of a Lifetime",
+		                                            JOptionPane.QUESTION_MESSAGE, null,
+		                                            choices, choices[0]);
 	}
 
 	/**

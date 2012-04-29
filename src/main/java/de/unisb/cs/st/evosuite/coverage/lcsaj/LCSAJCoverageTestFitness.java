@@ -69,7 +69,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		logger.debug("Evaluating fitness for " + lcsaj);
 
 		// for all method calls:
-		for (MethodCall call : result.getTrace().finished_calls) {
+		for (MethodCall call : result.getTrace().finishedCalls) {
 			double currentFitness = approach;
 
 			// if method call is the method of the LCSAJ

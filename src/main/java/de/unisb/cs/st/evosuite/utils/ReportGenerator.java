@@ -215,9 +215,13 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String goalCoverage;
 
-		public int methodExceptions;
+		public int explicitMethodExceptions;
 
-		public int typeExceptions;
+		public int explicitTypeExceptions;
+
+		public int implicitMethodExceptions;
+
+		public int implicitTypeExceptions;
 
 		public Map<String, Set<Class<?>>> exceptions;
 
@@ -240,8 +244,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("JUnitTests,");
 			r.append("Branches,");
 			r.append("MutationScore,");
-			r.append("MethodExceptions,");
-			r.append("TypeExceptions,");
+			r.append("Explicit MethodExceptions,");
+			r.append("Explicit TypeExceptions,");
+			r.append("Implicit MethodExceptions,");
+			r.append("Implicit TypeExceptions,");
 			r.append("ErrorBranches,");
 			r.append("ErrorBranchlessMethods,");
 			r.append("AssertionContract,");
@@ -336,8 +342,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append(goalCoverage + ",");
 			r.append(mutationScore + ",");
-			r.append(methodExceptions + ",");
-			r.append(typeExceptions + ",");
+			r.append(explicitMethodExceptions + ",");
+			r.append(explicitTypeExceptions + ",");
+			r.append(implicitMethodExceptions + ",");
+			r.append(implicitTypeExceptions + ",");
 			r.append(error_branches + ",");
 			r.append(error_branchless_methods + ",");
 			r.append(FailingTestSet.getNumberOfViolations(AssertionErrorContract.class)
@@ -989,33 +997,30 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		return covered_lines;
 	}
 
-	public ExecutionTrace executeTest(TestCase test, String className) {
-		ExecutionTrace trace = null;
+	public ExecutionResult executeTest(TestCase test, String className) {
+		ExecutionResult result = null;
 		try {
 			// logger.trace(test.toCode());
 			TestCaseExecutor executor = TestCaseExecutor.getInstance();
-			ExecutionResult result = executor.execute(test);
+			result = executor.execute(test);
 			// Map<Integer, Throwable> result = executor.run(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
 			// entry.results.put(test, result);
 			entry.results.put(test, result.exceptions);
-
-			// trace = ExecutionTracer.getExecutionTracer().getTrace();
-			trace = result.getTrace();
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
 			try {
 				Thread.sleep(1000);
-				trace = ExecutionTracer.getExecutionTracer().getTrace();
+				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			} catch (Exception e1) {
 				e.printStackTrace();
 				// TODO: Do some error recovery?
 				System.exit(1);
 			}
 		}
-		return trace;
+		return result;
 	}
 
 	public abstract void minimized(Chromosome result);

@@ -198,7 +198,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				hasTimeout = true;
 			}
 
-			for (Entry<String, Integer> entry : result.getTrace().covered_methods.entrySet()) {
+			for (Entry<String, Integer> entry : result.getTrace().coveredMethods.entrySet()) {
 				if (!callCount.containsKey(entry.getKey()))
 					callCount.put(entry.getKey(), entry.getValue());
 				else {
@@ -210,7 +210,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 
 			}
-			for (Entry<Integer, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
+			for (Entry<Integer, Integer> entry : result.getTrace().coveredPredicates.entrySet()) {
 				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!predicateCount.containsKey(entry.getKey()))
 						predicateCount.put(entry.getKey(), entry.getValue());
@@ -221,7 +221,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					}
 				}
 			}
-			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().trueDistances.entrySet()) {
 				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!trueDistance.containsKey(entry.getKey()))
 						trueDistance.put(entry.getKey(), entry.getValue());
@@ -235,7 +235,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					}
 				}
 			}
-			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().falseDistances.entrySet()) {
 				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!falseDistance.containsKey(entry.getKey()))
 						falseDistance.put(entry.getKey(), entry.getValue());

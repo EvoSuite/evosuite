@@ -114,7 +114,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						LCSAJFitnesses.put(testFitness.lcsaj, newFitness);
 				}
 			}
-			for (Entry<Integer, Integer> entry : result.getTrace().covered_predicates.entrySet()) {
+			for (Entry<Integer, Integer> entry : result.getTrace().coveredPredicates.entrySet()) {
 				if (!trueExecutions.containsKey(entry.getKey()))
 					trueExecutions.put(entry.getKey(), entry.getValue());
 				else {

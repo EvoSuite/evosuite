@@ -42,7 +42,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 		for (ExecutionResult result : results) {
 			touchedMutants.addAll(result.getTrace().touchedMutants);
 
-			for (Entry<Integer, Double> entry : result.getTrace().mutant_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().mutantDistances.entrySet()) {
 				if (!mutant_distance.containsKey(entry.getKey()))
 					mutant_distance.put(entry.getKey(), entry.getValue());
 				else {
