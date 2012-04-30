@@ -73,6 +73,11 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				Throwable t = result.exceptions.get(i);
 				if (t instanceof SecurityException && Properties.SANDBOX)
 					continue;
+				// If the exception was thrown in the test directly, it is also not interesting
+				if (t.getStackTrace().length > 0
+				        && t.getStackTrace()[0].getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+					continue;
+				}
 
 				String methodName = "";
 				boolean sutException = false;

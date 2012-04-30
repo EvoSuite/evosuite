@@ -151,8 +151,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 					exceptionsThrown.put(num, exceptionThrown);
 					if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
+						//logger.info("Exception " + exceptionThrown + " is explicit");
 						result.explicitExceptions.put(num, true);
 					} else {
+						//logger.info("Exception " + exceptionThrown + " is implicit");
 						result.explicitExceptions.put(num, false);
 					}
 

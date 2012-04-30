@@ -89,23 +89,6 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
-	 */
-	@Override
-	public void visitInsn(int opcode) {
-		if (opcode == Opcodes.ATHROW) {
-			super.visitInsn(Opcodes.DUP);
-			this.visitLdcInsn(className);
-			this.visitLdcInsn(fullMethodName);
-			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
-			                   "exceptionThrown",
-			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
-		}
-		super.visitInsn(opcode);
-	}
-
-	/* (non-Javadoc)
 	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
 	 */
 	@Override

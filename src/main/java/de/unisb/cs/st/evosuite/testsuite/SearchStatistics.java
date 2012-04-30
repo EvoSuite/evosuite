@@ -406,6 +406,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			//}
 			if (b.isInstrumented()) {
 				entry.error_branches++;
+				if (df == 0.0)
+					entry.error_branches_covered++;
+				if (dt == 0.0)
+					entry.error_branches_covered++;
 			}
 		}
 
@@ -422,8 +426,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					break;
 				}
 			}
-			if (hasBranches && allArtificial)
+			if (hasBranches && allArtificial) {
 				entry.error_branchless_methods++;
+				if (covered_methods.contains(methodName)) {
+					entry.error_branchless_methods_covered++;
+				}
+			}
 		}
 
 		int coveredBranchlessMethods = 0;

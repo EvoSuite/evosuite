@@ -37,7 +37,7 @@ public class ContractChecker extends ExecutionObserver {
 
 	public ContractChecker() {
 		// Default from EvoSuite
-		//		contracts.add(new UndeclaredExceptionContract());
+		contracts.add(new UndeclaredExceptionContract());
 		contracts.add(new JCrasherExceptionContract());
 
 		// Defaults from Randoop paper

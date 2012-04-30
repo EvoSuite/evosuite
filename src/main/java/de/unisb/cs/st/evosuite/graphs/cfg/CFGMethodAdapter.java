@@ -151,7 +151,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		// super.visitEnd();
 		// Generate CFG of method
-		MethodNode mn = (MethodNode) mv;
+		MethodNode mn = (AnnotatedMethodNode) mv;
 
 		// Only instrument if the method is (not main and not excluded) or (the
 		// MethodInstrumentation wants it anyway)

@@ -111,7 +111,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public int error_branches = 0;
 
+		public int error_branches_covered = 0;
+
 		public int error_branchless_methods = 0;
+
+		public int error_branchless_methods_covered = 0;
 
 		/** Total number of branches */
 		public int covered_branches;
@@ -248,8 +252,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("Explicit TypeExceptions,");
 			r.append("Implicit MethodExceptions,");
 			r.append("Implicit TypeExceptions,");
-			r.append("ErrorBranches,");
-			r.append("ErrorBranchlessMethods,");
+			r.append("Error Predicates,");
+			r.append("Error Branches Covered,");
+			r.append("Error Branchless Methods,");
+			r.append("Error Branchless Methods Covered,");
 			r.append("AssertionContract,");
 			r.append("EqualsContract,");
 			r.append("EqualsHashcodeContract,");
@@ -347,7 +353,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(implicitMethodExceptions + ",");
 			r.append(implicitTypeExceptions + ",");
 			r.append(error_branches + ",");
+			r.append(error_branches_covered + ",");
 			r.append(error_branchless_methods + ",");
+			r.append(error_branchless_methods_covered + ",");
 			r.append(FailingTestSet.getNumberOfViolations(AssertionErrorContract.class)
 			        + ",");
 			r.append(FailingTestSet.getNumberOfViolations(EqualsContract.class) + ",");
