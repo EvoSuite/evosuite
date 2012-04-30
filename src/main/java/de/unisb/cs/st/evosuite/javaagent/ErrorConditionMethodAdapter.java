@@ -45,7 +45,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 
 	private void tagBranch() {
 		Label dummyTag = new AnnotatedLabel();
-		dummyTag.info = "Aha!";
+		dummyTag.info = Boolean.TRUE;
 		super.visitLabel(dummyTag);
 	}
 
@@ -66,6 +66,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 
 			dup();//callee
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 
 			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNONNULL, origTarget);
@@ -91,6 +93,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		// If non-static, add a null check
 		if (opcode == Opcodes.GETFIELD) {
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			super.visitInsn(Opcodes.DUP);
 			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNONNULL, origTarget);
@@ -102,6 +106,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitLabel(origTarget);
 		} else if (opcode == Opcodes.PUTFIELD && !methodName.equals("<init>")) {
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			if (Type.getType(desc).getSize() == 2) {
 				// 2 words
 				// v1 v2 v3
@@ -140,6 +146,11 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 
 		if (opcode == Opcodes.CHECKCAST) {
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
+			super.visitInsn(Opcodes.DUP);
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IFNULL, origTarget);
 			super.visitInsn(Opcodes.DUP);
 			super.visitTypeInsn(Opcodes.INSTANCEOF, type);
 			tagBranch();
@@ -163,6 +174,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		// Check *DIV for divisonbyzero
 		if (opcode == Opcodes.IDIV) {
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			super.visitInsn(Opcodes.DUP);
 			tagBranch();
 			super.visitJumpInsn(Opcodes.IFNE, origTarget);
@@ -174,6 +187,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitLabel(origTarget);
 		} else if (opcode == Opcodes.FDIV) {
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			super.visitInsn(Opcodes.DUP);
 			super.visitLdcInsn(0F);
 			super.visitInsn(Opcodes.FCMPL);
@@ -187,6 +202,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitLabel(origTarget);
 		} else if (opcode == Opcodes.LDIV || opcode == Opcodes.DDIV) {
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			super.visitInsn(Opcodes.DUP2);
 			if (opcode == Opcodes.LDIV) {
 				super.visitLdcInsn(0L);
@@ -212,6 +229,21 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		        || opcode == Opcodes.LALOAD || opcode == Opcodes.FALOAD
 		        || opcode == Opcodes.DALOAD || opcode == Opcodes.AALOAD) {
 			Label origTarget = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
+			Label intermediateTarget = new Label();
+
+			super.visitInsn(Opcodes.DUP);
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IFGE, intermediateTarget);
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArrayIndexOutOfBoundsException");
+			super.visitInsn(Opcodes.DUP);
+			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
+			                      "java/lang/ArrayIndexOutOfBoundsException", "<init>",
+			                      "()V");
+			super.visitInsn(Opcodes.ATHROW);
+			super.visitLabel(intermediateTarget);
+
 			super.visitInsn(Opcodes.DUP2);
 			super.visitInsn(Opcodes.SWAP);
 			//super.visitInsn(Opcodes.POP);
@@ -230,6 +262,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		        || opcode == Opcodes.AASTORE || opcode == Opcodes.LASTORE
 		        || opcode == Opcodes.FASTORE || opcode == Opcodes.DASTORE) {
 			Label origTarget = new Label();
+			//Label origTarget = new AnnotatedLabel();
+			//			origTarget.info = Boolean.FALSE;
 
 			int loc = 0;
 			if (opcode == Opcodes.IASTORE)
@@ -252,6 +286,19 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 				throw new RuntimeException("Unknown type");
 			storeLocal(loc);
 
+			Label intermediateTarget = new Label();
+
+			super.visitInsn(Opcodes.DUP);
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IFGE, intermediateTarget);
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArrayIndexOutOfBoundsException");
+			super.visitInsn(Opcodes.DUP);
+			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
+			                      "java/lang/ArrayIndexOutOfBoundsException", "<init>",
+			                      "()V");
+			super.visitInsn(Opcodes.ATHROW);
+			super.visitLabel(intermediateTarget);
+
 			super.visitInsn(Opcodes.DUP2);
 			super.visitInsn(Opcodes.SWAP);
 			//super.visitInsn(Opcodes.POP);
@@ -264,6 +311,13 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "java/lang/ArrayIndexOutOfBoundsException", "<init>",
 			                      "()V");
 			super.visitInsn(Opcodes.ATHROW);
+
+			// FIXXME: There is something wrong to require us to include
+			// this workaround, but I can't find it.
+			// origTarget should be an AnnotatedLabel!
+			//AnnotatedLabel instrumentationOff = new AnnotatedLabel();
+			//instrumentationOff.info = Boolean.FALSE;
+			//super.visitLabel(instrumentationOff);
 			super.visitLabel(origTarget);
 			loadLocal(loc);
 		}
@@ -274,6 +328,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		case Opcodes.ISUB:
 		case Opcodes.IMUL:
 			Label origTarget1 = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			super.visitInsn(Opcodes.DUP2);
 			super.visitLdcInsn(opcode);
 			super.visitMethodInsn(Opcodes.INVOKESTATIC,
@@ -293,6 +349,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		case Opcodes.FSUB:
 		case Opcodes.FMUL:
 			Label origTarget2 = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			super.visitInsn(Opcodes.DUP2);
 			super.visitLdcInsn(opcode);
 			super.visitMethodInsn(Opcodes.INVOKESTATIC,
@@ -313,6 +371,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		case Opcodes.DSUB:
 		case Opcodes.DMUL:
 			Label origTarget3 = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			int loc = newLocal(Type.DOUBLE_TYPE);
 			storeLocal(loc);
 			super.visitInsn(Opcodes.DUP2);
@@ -337,6 +397,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		case Opcodes.LSUB:
 		case Opcodes.LMUL:
 			Label origTarget4 = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
 			int loc2 = newLocal(Type.LONG_TYPE);
 			storeLocal(loc2);
 			super.visitInsn(Opcodes.DUP2);
