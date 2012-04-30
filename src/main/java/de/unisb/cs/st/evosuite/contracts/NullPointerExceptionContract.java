@@ -31,13 +31,21 @@ public class NullPointerExceptionContract extends Contract {
 			if (exception != null) {
 				// method throws no NullPointerException if no input parameter was null
 				if (exception instanceof NullPointerException) {
+
+					StackTraceElement element = exception.getStackTrace()[0];
+
+					// If the exception was thrown in the test directly, it is also not interesting
+					if (element.getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+						return true;
+					}
+
 					List<VariableReference> parameters = new ArrayList<VariableReference>();
 					if (statement instanceof MethodStatement) {
 						MethodStatement ms = (MethodStatement) statement;
-						parameters.addAll(ms.getVariableReferences());
+						parameters.addAll(ms.getParameterReferences());
 					} else if (statement instanceof ConstructorStatement) {
 						ConstructorStatement cs = (ConstructorStatement) statement;
-						parameters.addAll(cs.getVariableReferences());
+						parameters.addAll(cs.getParameterReferences());
 					} else {
 						return true;
 					}
@@ -62,7 +70,7 @@ public class NullPointerExceptionContract extends Contract {
 
 	@Override
 	public String toString() {
-		return "Exceptions check";
+		return "NullPointerException";
 	}
 
 }

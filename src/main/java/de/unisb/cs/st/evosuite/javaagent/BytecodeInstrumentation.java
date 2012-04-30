@@ -138,7 +138,7 @@ public class BytecodeInstrumentation {
 
 		} else {
 			logger.debug("Not applying target transformation");
-			cv = new YieldAtLineNumberClassAdapter(cv);
+			cv = new YieldAtLineNumberClassAdapter(cv, className);
 
 			if (Properties.MAKE_ACCESSIBLE) {
 				// Convert protected/default access to public access

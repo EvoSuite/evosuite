@@ -121,18 +121,22 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		for (int i = 0; i < position; i++) {
 			double dist = 1d / (test.getStatement(i).getReturnValue().getDistance() + 1d);
 
-			if (dist >= rnd)
+			if (dist >= rnd
+			        && !(test.getStatement(i).getReturnValue() instanceof NullReference)
+			        && !(test.getStatement(i).getReturnValue().isVoid()))
 				return test.getStatement(i).getReturnValue();
 			else
 				rnd = rnd - dist;
 		}
 
-		if (position > 0) {
-			int i = Randomness.nextInt(position);
-			return test.getStatement(i).getReturnValue();
-		} else {
-			return test.getStatement(0).getReturnValue();
-		}
+		if (position > 0)
+			position = Randomness.nextInt(position);
+
+		VariableReference var = test.getStatement(position).getReturnValue();
+		if (!(var instanceof NullReference) && !var.isVoid())
+			return var;
+		else
+			return null;
 	}
 
 	public void insertRandomCallOnObject(TestCase test, int position) {
@@ -244,7 +248,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			insertRandomCallOnObject(test, position);
 		} else {
 			logger.debug("Adding new call with existing object as parameter");
-			insertRandomCallWithObject(test, position);
+			//insertRandomCallWithObject(test, position);
 		}
 	}
 
@@ -475,7 +479,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				                                             // probability here?
 				try {
 					// TODO: Would casting be an option here?
-					callee = test.getRandomObject(method.getDeclaringClass(), position);
+					callee = test.getRandomNonNullObject(method.getDeclaringClass(),
+					                                     position);
 					logger.debug("Found callee of type "
 					        + method.getDeclaringClass().getName() + ": "
 					        + callee.getName());
@@ -487,14 +492,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					position += test.size() - length;
 					length = test.size();
 				}
-				parameters = satisfyParameters(test, callee,
-				                               getParameterTypes(callee, method),
-				                               position, recursion_depth + 1);
-			} else {
-				parameters = satisfyParameters(test, callee,
-				                               getParameterTypes(callee, method),
-				                               position, recursion_depth + 1);
 			}
+			parameters = satisfyParameters(test, callee,
+			                               getParameterTypes(callee, method), position,
+			                               recursion_depth + 1);
+
 		} catch (ConstructionFailedException e) {
 			TestCluster.getInstance().checkDependencies(method);
 			throw e;
@@ -584,7 +586,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		if (!Modifier.isStatic(field.getModifiers())) {
 			try {
-				callee = test.getRandomObject(field.getDeclaringClass(), position);
+				callee = test.getRandomNonNullObject(field.getDeclaringClass(), position);
 			} catch (ConstructionFailedException e) {
 				logger.debug("No callee of type " + field.getDeclaringClass().getName()
 				        + " found");
@@ -1048,7 +1050,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
 			if (!Modifier.isStatic(method.getModifiers()))
-				callee = test.getRandomObject(method.getDeclaringClass(), position);
+				callee = test.getRandomNonNullObject(method.getDeclaringClass(), position);
 			List<VariableReference> parameters = new ArrayList<VariableReference>();
 			for (Type type : getParameterTypes(callee, method)) {
 				parameters.add(test.getRandomObject(type, position));
@@ -1078,7 +1080,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference source = null;
 			if (!Modifier.isStatic(field.getModifiers()))
-				source = test.getRandomObject(field.getDeclaringClass(), position);
+				source = test.getRandomNonNullObject(field.getDeclaringClass(), position);
 
 			try {
 				FieldStatement f = new FieldStatement(test, field, source, retval);

@@ -263,6 +263,26 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
+	 */
+	@Override
+	public VariableReference getRandomNonNullObject(Type type, int position)
+	        throws ConstructionFailedException {
+		assert (type != null);
+		List<VariableReference> variables = getObjects(type, position);
+		Iterator<VariableReference> iterator = variables.iterator();
+		while (iterator.hasNext()) {
+			if (iterator.next() instanceof NullReference)
+				iterator.remove();
+		}
+		if (variables.isEmpty())
+			throw new ConstructionFailedException("Found no variables of type " + type
+			        + " at position " + position);
+
+		return Randomness.choice(variables);
+	}
+
+	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObject(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.Scope)
 	 */
 	@Override

@@ -202,6 +202,12 @@ public class CompoundTestCase implements TestCase {
 	}
 
 	@Override
+	public VariableReference getRandomNonNullObject(Type type, int position)
+	        throws ConstructionFailedException {
+		return delegate.getRandomNonNullObject(type, position);
+	}
+
+	@Override
 	public Set<VariableReference> getReferences(VariableReference var) {
 		return delegate.getReferences(var);
 	}
