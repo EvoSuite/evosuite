@@ -71,7 +71,7 @@ public class Scope {
 
 		// TODO: Changing array types might invalidate array assignments - how to treat this properly?
 		if (o != null && !o.getClass().equals(reference.getVariableClass())
-		        && !reference.isPrimitive()) { // && !(reference instanceof ArrayReference)) {
+		        && !reference.isPrimitive() && !o.getClass().isArray()) { // && !(reference instanceof ArrayReference)) {
 			if (Modifier.isPublic(o.getClass().getModifiers())
 			        && !o.getClass().isAnonymousClass()
 			        && !o.getClass().getName().matches(".*\\.\\d+$")
