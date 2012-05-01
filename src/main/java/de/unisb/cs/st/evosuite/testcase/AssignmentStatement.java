@@ -69,10 +69,13 @@ public class AssignmentStatement extends AbstractStatement {
 			//logger.info("CLoning : " + getCode());
 			VariableReference newParam = parameter.copy(newTestCase, offset);
 			VariableReference newTarget;
-			if (retval.getAdditionalVariableReference() != null)
-				newTarget = retval.copy(newTestCase, offset);
-			else
-				newTarget = new VariableReferenceImpl(newTestCase, retval.getType());
+
+			// FIXXME: Return value should always be an existing variable
+			//if (retval.getAdditionalVariableReference() != null)
+			newTarget = retval.copy(newTestCase, offset);
+			//else
+			//	newTarget = retval.copy(newTestCase, offset);
+			//newTarget = new VariableReferenceImpl(newTestCase, retval.getType());
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
 			        newParam);
 			// copy.assertions = copyAssertions(newTestCase, offset);
