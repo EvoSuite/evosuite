@@ -204,6 +204,16 @@ public class MethodStatement extends AbstractStatement {
 			        new_params);
 
 		}
+		if (retval instanceof ArrayReference
+		        && !(m.getReturnValue() instanceof ArrayReference)) {
+			// logger.info("Copying array retval: " + retval.getGenericClass());
+			//	assert (retval.getGenericClass() != null);
+			//	assert (retval.getGenericClass().isArray()) : method.toString();
+			ArrayReference newRetVal = new ArrayReference(newTestCase,
+			        retval.getGenericClass(), ((ArrayReference) retval).getArrayLength());
+			m.setRetval(newRetVal);
+
+		}
 
 		// m.assertions = copyAssertions(newTestCase, offset);
 
