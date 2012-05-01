@@ -84,6 +84,7 @@ public class AssignmentStatement extends AbstractStatement {
 			return copy;
 		} catch (Exception e) {
 			logger.info("Error cloning statement " + getCode());
+			logger.info("In test: " + this.tc.toCode());
 			logger.info("New test: " + newTestCase.toCode());
 			e.printStackTrace();
 			assert (false) : e.toString();
@@ -300,17 +301,18 @@ public class AssignmentStatement extends AbstractStatement {
 			}
 
 		} else {
+
 			List<VariableReference> objects = test.getObjects(parameter.getType(),
-			                                                  parameter.getStPosition());
+			                                                  retval.getStPosition());
 			objects.remove(retval);
 			objects.remove(parameter);
 			if (!objects.isEmpty()) {
 				parameter = Randomness.choice(objects);
 				assert (isValid());
-
 				return true;
 			}
 		}
+
 		return false;
 	}
 

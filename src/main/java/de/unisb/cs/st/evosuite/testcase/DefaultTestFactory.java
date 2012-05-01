@@ -560,10 +560,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		position += (new_length - length);
 
 		FieldReference f = new FieldReference(test, field, callee);
+		if (f.equals(var))
+			throw new ConstructionFailedException("Self assignment");
 
 		StatementInterface st = new AssignmentStatement(test, f, var);
-		//logger.info("FIeld assignment: " + st.getCode());
 		VariableReference ret = test.addStatement(st, position);
+		// logger.info("FIeld assignment: " + st.getCode());
 		assert (test.isValid());
 		return ret;
 	}
