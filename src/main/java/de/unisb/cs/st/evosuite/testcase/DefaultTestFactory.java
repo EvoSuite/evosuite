@@ -248,7 +248,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			insertRandomCallOnObject(test, position);
 		} else {
 			logger.debug("Adding new call with existing object as parameter");
-			//insertRandomCallWithObject(test, position);
+			insertRandomCallWithObject(test, position);
 		}
 	}
 
@@ -541,7 +541,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			                                            // probability here?
 			try {
 				// TODO: Would casting be an option here?
-				callee = test.getRandomObject(field.getDeclaringClass(), position);
+				callee = test.getRandomNonNullObject(field.getDeclaringClass(), position);
 				logger.debug("Found callee of type "
 				        + field.getDeclaringClass().getName());
 			} catch (ConstructionFailedException e) {
@@ -1195,6 +1195,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		int length = test.size();
 		VariableReference value = createOrReuseVariable(test, fieldVar.getType(),
 		                                                position, 0, callee);
+
+		// TODO
+		if (value.same(fieldVar))
+			logger.warn("Possible source of error?");
+
 		int new_length = test.size();
 		position += (new_length - length);
 
