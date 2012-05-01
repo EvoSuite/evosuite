@@ -375,7 +375,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					/*
 					 * FIXME: need to find a way to calculate it
 					 */
-					boolean isExplicit = isExceptionExplicit.get(test).get(i);
+					boolean isExplicit = isExceptionExplicit.get(test).containsKey(i)
+					        && isExceptionExplicit.get(test).get(i);
 					if (isExplicit) {
 						if (!explicitTypesOfExceptions.containsKey(methodName))
 							explicitTypesOfExceptions.put(methodName,
