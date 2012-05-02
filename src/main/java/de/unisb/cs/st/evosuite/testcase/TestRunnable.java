@@ -212,9 +212,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} catch (TimeoutException e) {
 			Sandbox.tearDownEverything();
 			logger.info("Test timed out!");
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		} catch (TestCaseExecutor.TimeoutExceeded e) {
 			Sandbox.tearDownEverything();
 			logger.info("Test timed out!");
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		} catch (Throwable e) {
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
@@ -245,6 +247,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				System.setErr(old_err);
 			}
 		}
+
 		runFinished = true;
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
