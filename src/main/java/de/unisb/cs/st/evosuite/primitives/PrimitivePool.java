@@ -18,6 +18,7 @@
 
 package de.unisb.cs.st.evosuite.primitives;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,42 +38,42 @@ public class PrimitivePool {
 
 	private static PrimitivePool instance = null;
 
-	private Set<String> string_pool = null;
+	private Set<String> stringPool = null;
 
-	private Set<Integer> int_pool = null;
+	private Set<Integer> intPool = null;
 
-	private Set<Double> double_pool = null;
+	private Set<Double> doublePool = null;
 
-	private Set<Long> long_pool = null;
+	private Set<Long> longPool = null;
 
-	private Set<Float> float_pool = null;
+	private Set<Float> floatPool = null;
 
 	private PrimitivePool() {
-		string_pool = new HashSet<String>();
-		string_pool.add("<xml>");
-		string_pool.add("</xml>");
-		string_pool.add("<test>");
-		string_pool.add("</test>");
+		stringPool = Collections.synchronizedSet(new HashSet<String>());
+		stringPool.add("<xml>");
+		stringPool.add("</xml>");
+		stringPool.add("<test>");
+		stringPool.add("</test>");
 
-		int_pool = new HashSet<Integer>();
-		int_pool.add(0);
-		int_pool.add(1);
-		int_pool.add(-1);
+		intPool = Collections.synchronizedSet(new HashSet<Integer>());
+		intPool.add(0);
+		intPool.add(1);
+		intPool.add(-1);
 
-		long_pool = new HashSet<Long>();
-		long_pool.add(0L);
-		long_pool.add(1L);
-		long_pool.add(-1L);
+		longPool = Collections.synchronizedSet(new HashSet<Long>());
+		longPool.add(0L);
+		longPool.add(1L);
+		longPool.add(-1L);
 
-		float_pool = new HashSet<Float>();
-		float_pool.add(0.0f);
-		float_pool.add(1.0f);
-		float_pool.add(-1.0f);
+		floatPool = Collections.synchronizedSet(new HashSet<Float>());
+		floatPool.add(0.0f);
+		floatPool.add(1.0f);
+		floatPool.add(-1.0f);
 
-		double_pool = new HashSet<Double>();
-		double_pool.add(0.0);
-		double_pool.add(1.0);
-		double_pool.add(-1.0);
+		doublePool = Collections.synchronizedSet(new HashSet<Double>());
+		doublePool.add(0.0);
+		doublePool.add(1.0);
+		doublePool.add(-1.0);
 	}
 
 	public static PrimitivePool getInstance() {
@@ -89,7 +90,7 @@ public class PrimitivePool {
 			return;
 		if (object instanceof String) {
 			if (!((String) object).startsWith("mutationId"))
-				string_pool.add((String) object);
+				stringPool.add((String) object);
 		}
 
 		else if (object instanceof Integer) {
@@ -97,83 +98,83 @@ public class PrimitivePool {
 				int val = (Integer) object;
 				if (Math.abs(val) < Properties.MAX_INT && val != Integer.MAX_VALUE
 				        && val != Integer.MIN_VALUE) {
-					int_pool.add((Integer) object);
+					intPool.add((Integer) object);
 				}
 			} else {
-				int_pool.add((Integer) object);
+				intPool.add((Integer) object);
 			}
 		} else if (object instanceof Long) {
 			if (Properties.RESTRICT_POOL) {
 				long val = (Long) object;
 				if (Math.abs(val) < Properties.MAX_INT && val != Long.MAX_VALUE
 				        && val != Long.MIN_VALUE) {
-					long_pool.add((Long) object);
+					longPool.add((Long) object);
 				}
 			} else {
-				long_pool.add((Long) object);
+				longPool.add((Long) object);
 			}
 		} else if (object instanceof Float) {
 			if (Properties.RESTRICT_POOL) {
 				float val = (Float) object;
 				if (Math.abs(val) < Properties.MAX_INT && val != Float.MAX_VALUE
 				        && val != -Float.MAX_VALUE) {
-					float_pool.add((Float) object);
+					floatPool.add((Float) object);
 				}
 			} else {
-				float_pool.add((Float) object);
+				floatPool.add((Float) object);
 			}
 		} else if (object instanceof Double) {
 			if (Properties.RESTRICT_POOL) {
 				double val = (Double) object;
 				if (Math.abs(val) < Properties.MAX_INT && val != Double.MAX_VALUE
 				        && val != -Double.MAX_VALUE) {
-					double_pool.add((Double) object);
+					doublePool.add((Double) object);
 				}
 			} else {
-				double_pool.add((Double) object);
+				doublePool.add((Double) object);
 			}
 		}
 	}
 
 	public Set<String> getStrings() {
-		return string_pool;
+		return stringPool;
 	}
 
 	public Set<Integer> getIntegers() {
-		return int_pool;
+		return intPool;
 	}
 
 	public Set<Float> getFloats() {
-		return float_pool;
+		return floatPool;
 	}
 
 	public Set<Double> getDoubles() {
-		return double_pool;
+		return doublePool;
 	}
 
 	public Set<Long> getLongs() {
-		return long_pool;
+		return longPool;
 	}
 
 	public String getRandomString() {
-		return Randomness.choice(string_pool);
+		return Randomness.choice(stringPool);
 	}
 
 	public int getRandomInt() {
-		int r = Randomness.choice(int_pool);
+		int r = Randomness.choice(intPool);
 		return r;
 	}
 
 	public float getRandomFloat() {
-		return Randomness.choice(float_pool);
+		return Randomness.choice(floatPool);
 	}
 
 	public double getRandomDouble() {
-		return Randomness.choice(double_pool);
+		return Randomness.choice(doublePool);
 	}
 
 	public long getRandomLong() {
-		return Randomness.choice(long_pool);
+		return Randomness.choice(longPool);
 	}
 
 }
