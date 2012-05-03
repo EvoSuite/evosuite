@@ -19,6 +19,7 @@ import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -59,10 +60,12 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		AbstractTestSuiteChromosome<ExecutableChromosome> suite = (AbstractTestSuiteChromosome<ExecutableChromosome>) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
+		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
 		// for each test case
 		for (ExecutionResult result : results) {
 			//ExecutionTrace trace = result.getTrace();
+			isExceptionExplicit.put(result.test, result.explicitExceptions);
 
 			//iterate on the indexes of the statements that resulted in an exception
 			for (Integer i : result.exceptions.keySet()) {
@@ -105,7 +108,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					/*
 					 * FIXME: need to find a way to calculate it
 					 */
-					boolean isExplicit = false;
+					boolean isExplicit = isExceptionExplicit.get(result.test).containsKey(i)
+					        && isExceptionExplicit.get(result.test).get(i);
 					if (isExplicit) {
 						if (!explicitTypesOfExceptions.containsKey(methodName))
 							explicitTypesOfExceptions.put(methodName,
