@@ -69,10 +69,11 @@ public class JUnitTestReaderComplexTest {
 				"int int4 = 4;\n" + //
 				"int int5 = 42;\n" + //
 				"int int6 = -5;\n" + //
+				"int int7 = 11;\n" + //
 				"String string0 = null;\n" + //
 				"String string1 = \"break free!\";\n" + //
-				"int int7 = 38;\n" + //
-				"int int8 = 3;\n" + //
+				"int int8 = 38;\n" + //
+				"int int9 = 3;\n" + //
 				"String string2 = \"convert\";\n" + //
 				"String string3 = \"killSelf\";\n" + //
 				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string3);\n" + //

@@ -867,6 +867,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (parent instanceof VariableDeclarationFragment) {
 			return retrieveVariableReference(parent, null);
 		}
+		if (parent instanceof Assignment){
+			Assignment assignment = (Assignment) parent;
+			return retrieveVariableReference(assignment.getLeftHandSide(), null);
+		}
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 		result = retrieveVariableReference(methodBinding.getReturnType(), null);
 		calleeResultMap.put(methodInvocation.toString(), result);
