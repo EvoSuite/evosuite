@@ -75,9 +75,9 @@ public class CompoundTestCase {
 	private final List<StatementInterface> staticCode = new ArrayList<StatementInterface>();
 	private final String className;
 	private final String testMethod;
-	// find here or up the hierarchy 
+	// find here or up the hierarchy
 	private CompoundTestCase parent;
-	// Needed for methods and fields: 
+	// Needed for methods and fields:
 	// find method in actual class or up the hierarchy
 	private final CompoundTestCase originalDescendant;
 	private TestScope currentScope = TestScope.FIELDS;
@@ -134,10 +134,10 @@ public class CompoundTestCase {
 			for (int idx = 0; idx < params.size(); idx++) {
 				statement.replace(methodDef.getParams().get(idx), params.get(idx));
 			}
-			addStatement(statement);
+			StatementInterface newStmt = statement.clone(delegate);
+			addReplacementVariable(statement.getReturnValue(), newStmt.getReturnValue());
+			addStatement(newStmt);
 		}
-		// TODO for each methodstatement: if it affects an external
-		// variablereference, replace in all followups
 	}
 
 	public void finalizeMethod() {
@@ -166,10 +166,6 @@ public class CompoundTestCase {
 	}
 
 	public TestCase finalizeTestCase() {
-		// TODO General problem: If methods change vars, this needs to be
-		// reflected in followup code
-		// e.g. value = 34 => int3 = 34; means that all other methods now need
-		// to use int3 instead of int2.
 		Set<String> overridenMethods = Collections.emptySet();
 		delegate.setDelegate(new DefaultTestCase());
 		delegate.addStatements(getStaticInitializationBeforeClassMethods(overridenMethods));
@@ -253,6 +249,21 @@ public class CompoundTestCase {
 			}
 		}
 		throw new RuntimeException("Assignment " + varRef + " not found!");
+	}
+
+	private void addReplacementVariable(VariableReference oldValue, VariableReference newValue) {
+		Map<String, VariableReference> vars = currentMethodVars;
+		if ((currentScope == TestScope.FIELDS) || (currentScope == TestScope.STATICFIELDS)) {
+			vars = fieldVars;
+		}
+		String variable = null;
+		for (Map.Entry<String, VariableReference> entry : vars.entrySet()) {
+			if (entry.getValue().equals(oldValue)) {
+				variable = entry.getKey();
+			}
+		}
+		assert variable != null;
+		vars.put(variable, newValue);
 	}
 
 	private List<StatementInterface> getAfterClassMethods(Set<String> overridenMethods) {
@@ -360,7 +371,7 @@ public class CompoundTestCase {
 		}
 		return result;
 	}
-	
+
 	private VariableReference getVariableReferenceInternally(IVariableBinding varBinding) {
 		VariableReference varRef = currentMethodVars.get(varBinding.toString());
 		if (varRef != null) {

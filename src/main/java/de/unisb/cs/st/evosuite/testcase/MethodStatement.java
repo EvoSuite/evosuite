@@ -41,7 +41,7 @@ public class MethodStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = 6134126797102983073L;
 
-	private transient Method method;
+	protected transient Method method;
 
 	protected VariableReference callee;
 
