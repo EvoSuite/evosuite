@@ -61,7 +61,8 @@ public class VariableReferenceImpl implements VariableReference {
 		if ((stPosition == null) || changeListener.hasChanged()) {
 			stPosition = null;
 			for (int i = 0; i < testCase.size(); i++) {
-				if (testCase.getStatement(i).getReturnValue().equals(this)) {
+				StatementInterface stmt = testCase.getStatement(i); 
+				if (stmt.getReturnValue().equals(this)) {
 					stPosition = i;
 					break;
 				}

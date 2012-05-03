@@ -5,7 +5,7 @@ import org.junit.Test;
 
 public class InheritanceExample extends TestExample {
 
-	protected static Integer otherValue = 10;
+	protected static Integer otherValue = 11;
 
 	static {
 		initializeAgain();

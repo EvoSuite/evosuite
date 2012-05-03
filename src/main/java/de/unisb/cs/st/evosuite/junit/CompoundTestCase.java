@@ -75,7 +75,10 @@ public class CompoundTestCase {
 	private final List<StatementInterface> staticCode = new ArrayList<StatementInterface>();
 	private final String className;
 	private final String testMethod;
+	// find here or up the hierarchy 
 	private CompoundTestCase parent;
+	// Needed for methods and fields: 
+	// find method in actual class or up the hierarchy
 	private final CompoundTestCase originalDescendant;
 	private TestScope currentScope = TestScope.FIELDS;
 	private MethodDef currentMethod = null;
@@ -117,10 +120,6 @@ public class CompoundTestCase {
 		currentMethod.add(statement);
 	}
 
-	// TODO Problem: What if a variable is doubly created with the same name?
-	// Which one to reference?
-	// TODO Problem: What if a method is overriden? Need to call correct
-	// method...
 	public void addVariable(IVariableBinding varBinding, VariableReference varRef) {
 		if ((currentScope == TestScope.FIELDS) || (currentScope == TestScope.STATICFIELDS)) {
 			fieldVars.put(varBinding.toString(), varRef);
@@ -137,7 +136,7 @@ public class CompoundTestCase {
 			}
 			addStatement(statement);
 		}
-		// for each methodstatement: if it affects an external
+		// TODO for each methodstatement: if it affects an external
 		// variablereference, replace in all followups
 	}
 
@@ -361,7 +360,7 @@ public class CompoundTestCase {
 		}
 		return result;
 	}
-
+	
 	private VariableReference getVariableReferenceInternally(IVariableBinding varBinding) {
 		VariableReference varRef = currentMethodVars.get(varBinding.toString());
 		if (varRef != null) {
