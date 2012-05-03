@@ -135,10 +135,21 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				List<VariableReference> parameters) {
 			super(tc, method, callee, type, parameters);
 		}
-
+		
 		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee, VariableReference retVal,
 				List<VariableReference> parameters) {
 			super(tc, method, callee, retVal, parameters);
+		}
+
+		@Override
+		public StatementInterface copy(TestCase newTestCase, int offset) {
+			if (Modifier.isStatic(method.getModifiers())) {
+				// FIXXME: If callee is an array index, this will return an
+				// invalid copy of the cloned variable!
+				return new ValidMethodStatement(newTestCase, method, null, retval.getType(), parameters);
+			}
+			VariableReference newCallee = callee.copy(newTestCase, offset);
+			return new MethodStatement(newTestCase, method, newCallee, retval.getType(), parameters);
 		}
 
 		@Override
@@ -867,7 +878,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (parent instanceof VariableDeclarationFragment) {
 			return retrieveVariableReference(parent, null);
 		}
-		if (parent instanceof Assignment){
+		if (parent instanceof Assignment) {
 			Assignment assignment = (Assignment) parent;
 			return retrieveVariableReference(assignment.getLeftHandSide(), null);
 		}
