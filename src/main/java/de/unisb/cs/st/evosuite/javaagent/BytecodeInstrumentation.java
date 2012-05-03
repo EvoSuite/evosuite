@@ -69,7 +69,8 @@ public class BytecodeInstrumentation {
 		        && !className.startsWith("sun.")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
 		        && !className.startsWith("javax.")
-		        && !className.startsWith("org.xml.sax")
+		        && !className.startsWith("org.xml")
+		        && !className.startsWith("org.w3c")
 		        && !className.startsWith("apple.")
 		        && !className.startsWith("com.apple.")
 		        && !className.startsWith("daikon.");
