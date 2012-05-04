@@ -90,6 +90,8 @@ public class EvoSuite {
 		parameters.add("-Dshow_progress=true");
 		parameters.add("-Djava.awt.headless=true");
 		parameters.add("-Dlogback.configurationFile=logback.xml");
+		//this is used to avoid issues in running system test cases
+		parameters.add("-D"+SystemTest.ALREADY_SETUP+"=true");
 		parameters.addAll(javaArgs);
 		parameters.add("de.unisb.cs.st.evosuite.setup.ScanProject");
 		parameters.add(targetParam);

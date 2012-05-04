@@ -21,7 +21,7 @@ public class SystemTest {
 
 	//private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
 	
-	private static final String ALREADY_SETUP = "systemtest.alreadysetup";
+	public static final String ALREADY_SETUP = "systemtest.alreadysetup";
 	
 	 static{
 		String s = System.getProperty(ALREADY_SETUP);
