@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.junit;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -30,9 +32,9 @@ public class TracingTestRunner extends ClassLoader {
 			return new MethodVisitor(Opcodes.ASM4, super.visitMethod(access, name, desc, signature, exceptions)) {
 				@Override
 				public void visitLineNumber(int line, Label start) {
-					visitFieldInsn(Opcodes.GETSTATIC, "java/lang/System", "out", "Ljava/io/PrintStream;");
 					visitLdcInsn(className + "#" + name + ":" + line);
-					visitMethodInsn(Opcodes.INVOKEVIRTUAL, "java/io/PrintStream", "println", "(Ljava/lang/String;)V");
+					visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/junit/TracingTestRunner",
+							"traceStatement", "(Ljava/lang/String;)V");
 					super.visitLineNumber(line, start);
 				}
 			};
@@ -46,6 +48,43 @@ public class TracingTestRunner extends ClassLoader {
 			System.out.println("Give test class to run as argument.");
 		}
 		new TracingTestRunner().traceTest(args[0]);
+	}
+
+	public static void traceStatement(String location) {
+		String code = readCode(location).trim();
+		if (code.isEmpty() || code.equals("}")) {
+			return;
+		}
+		System.out.println(location + ":\t\t" + code);
+	}
+
+	private static String readCode(String location) {
+		String javaFile = location;
+		BufferedReader reader = null;
+		try {
+			javaFile = javaFile.split("\\$")[0];
+			javaFile = javaFile.split("#")[0];
+			javaFile = javaFile.replaceAll("\\.", "/");
+			javaFile = "src/test/java/" + javaFile + ".java";
+			int lineNr = Integer.parseInt(location.split(":")[1]);
+			reader = new BufferedReader(new FileReader(javaFile));
+			String line = null;
+			for (int lineCnt = 0; lineCnt < lineNr; lineCnt++) {
+				line = reader.readLine();
+			}
+			return line;
+		} catch (Exception exc) {
+			logger.error("Encountered exception opening file '{}':", javaFile, exc);
+			throw new RuntimeException(exc);
+		} finally {
+			if (reader != null) {
+				try {
+					reader.close();
+				} catch (IOException exc) {
+					// muted
+				}
+			}
+		}
 	}
 
 	@Override
@@ -85,6 +124,9 @@ public class TracingTestRunner extends ClassLoader {
 		if (className.startsWith("org.junit.") || className.startsWith("junit.framework")) {
 			return true;
 		}
+		if (className.equals(this.getClass().getName())) {
+			return true;
+		}
 		return false;
 	}
 
@@ -99,9 +141,5 @@ public class TracingTestRunner extends ClassLoader {
 		if (!result.getFailures().isEmpty()) {
 			logger.info("{} tests failed: {}", result.getFailureCount(), result.getFailures());
 		}
-	}
-	
-	public static void traceStatement(String location){
-		
 	}
 }
