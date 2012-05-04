@@ -157,7 +157,6 @@ public class TestSuiteGenerator {
 
 	public static final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
-	
 	public static StoppingCondition stopping_condition;
 	public static boolean analyzing = false;
 
@@ -242,6 +241,8 @@ public class TestSuiteGenerator {
 
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
+		else if (Properties.STRATEGY == Strategy.RANDOM)
+			tests = generateRandomTests();
 		else
 			tests = generateIndividualTests();
 
@@ -303,16 +304,18 @@ public class TestSuiteGenerator {
 			suite.writeTestSuiteMainFile(testDir);
 		}
 	}
-	
+
 	/**
 	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases
 	 * to the default directory Properties.TEST_DIR. Unlike its twin
-	 * writeJUnitTests(tests) this method adds a given tag to the
-	 * default file name, allowing several test files per class. 
-	 * Instead of TestMyClass.java the test cases
-	 * are written to TestMayClassmytag.java.
-	 * @param tests the test cases which should be written to file
-	 * @param tag the appendix which should be added to the default file name
+	 * writeJUnitTests(tests) this method adds a given tag to the default file
+	 * name, allowing several test files per class. Instead of TestMyClass.java
+	 * the test cases are written to TestMayClassmytag.java.
+	 * 
+	 * @param tests
+	 *            the test cases which should be written to file
+	 * @param tag
+	 *            the appendix which should be added to the default file name
 	 */
 	public static void writeJUnitTests(List<TestCase> tests, String tag) {
 		if (Properties.JUNIT_TESTS) {
@@ -620,6 +623,73 @@ public class TestSuiteGenerator {
 		}
 
 		return suite;
+	}
+
+	private boolean isFinished(TestSuiteChromosome chromosome) {
+		if (stopping_condition.isFinished())
+			return true;
+
+		if (Properties.STOP_ZERO) {
+			if (chromosome.getFitness() == 0.0)
+				return true;
+		}
+
+		if (!(stopping_condition instanceof MaxTimeStoppingCondition)) {
+			if (global_time.isFinished())
+				return true;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Generate one random test at a time and check if adding it improves
+	 * fitness (1+1)RT
+	 * 
+	 * @return
+	 */
+	public List<TestCase> generateRandomTests() {
+		System.out.println("* Using random test generation");
+
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		TestSuiteFitnessFunction fitnessFunction = getFitnessFunction();
+
+		// The GA is not actually used, except to provide the same statistics as during search
+		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
+		// GeneticAlgorithm suiteGA = setup();
+		suiteGA.setFitnessFunction(fitnessFunction);
+		statistics.searchStarted(suiteGA);
+
+		RandomLengthTestFactory factory = new RandomLengthTestFactory();
+
+		// TODO: Shutdown hook?
+
+		stopping_condition = getStoppingCondition();
+		fitnessFunction.getFitness(suite);
+
+		while (!isFinished(suite)) {
+			TestChromosome test = factory.getChromosome();
+			TestSuiteChromosome clone = suite.clone();
+			clone.addTest(test);
+			fitnessFunction.getFitness(clone);
+			logger.debug("Old fitness: {}, new fitness: {}", suite.getFitness(),
+			             clone.getFitness());
+			if (clone.compareTo(suite) < 0) {
+				suite = clone;
+			}
+		}
+		suiteGA.getPopulation().add(suite);
+		statistics.searchFinished(suiteGA);
+		suiteGA.printBudget();
+
+		if (Properties.MINIMIZE) {
+			System.out.println("* Minimizing result");
+			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
+			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual());
+		}
+		statistics.minimized(suiteGA.getBestIndividual());
+
+		return suite.getTests();
 	}
 
 	/**
@@ -1146,11 +1216,10 @@ public class TestSuiteGenerator {
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
 				SteadyStateGA ga = new SteadyStateGA(factory);
-				if(Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT){
+				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					//user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
-				}
-				else{
+				} else {
 					//use default
 					if (Properties.STRATEGY == Strategy.EVOSUITE)
 						ga.setReplacementFunction(new TestSuiteReplacementFunction());
@@ -1163,11 +1232,10 @@ public class TestSuiteGenerator {
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
 				MuPlusLambdaGA ga = new MuPlusLambdaGA(factory);
-				if(Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT){
+				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					//user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
-				}
-				else{
+				} else {
 					//use default
 					if (Properties.STRATEGY == Strategy.EVOSUITE)
 						ga.setReplacementFunction(new TestSuiteReplacementFunction());
@@ -1208,13 +1276,13 @@ public class TestSuiteGenerator {
 		if (Properties.STOP_ZERO) {
 			ga.addStoppingCondition(zero_fitness);
 		}
-		
-		if (!(stopping_condition instanceof MaxTimeStoppingCondition)){
+
+		if (!(stopping_condition instanceof MaxTimeStoppingCondition)) {
 			ga.addStoppingCondition(global_time);
 		}
-		
+
 		if (Properties.CRITERION == Criterion.MUTATION
-		        || Properties.CRITERION == Criterion.STRONGMUTATION){
+		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 			if (Properties.STRATEGY == Strategy.ONEBRANCH)
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 			else
