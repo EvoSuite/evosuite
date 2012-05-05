@@ -28,9 +28,6 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = Properties.Criterion.EXCEPTION;
 
-		//FIXME remove
-		Properties.GLOBAL_TIMEOUT = 50000;
-		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
