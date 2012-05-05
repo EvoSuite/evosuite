@@ -1014,7 +1014,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			// Map<Integer, Throwable> result = executor.run(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
 			// entry.results.put(test, result);
-			entry.results.put(test, result.exceptions);
+			entry.results.put(test, result.exposeExceptionMapping());
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);

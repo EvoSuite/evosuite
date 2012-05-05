@@ -218,7 +218,7 @@ public class TestSuiteWriter implements Opcodes {
 		Set<Class<?>> imports = new HashSet<Class<?>>();
 		for (ExecutionResult result : results) {
 			imports.addAll(result.test.getAccessedClasses());
-			for (Throwable t : result.exceptions.values()) {
+			for (Throwable t : result.getAllThrownExceptions()) {
 				imports.add(t.getClass());
 			}
 		}
@@ -420,7 +420,7 @@ public class TestSuiteWriter implements Opcodes {
 			}
 		}
 		builder.append(" {\n");
-		for (String line : adapter.getTestString(id, testCases.get(id), result.exceptions).split("\\r?\\n")) {
+		for (String line : adapter.getTestString(id, testCases.get(id), result.exposeExceptionMapping()).split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
 			// builder.append(";\n");
@@ -532,7 +532,7 @@ public class TestSuiteWriter implements Opcodes {
 			ExecutionResult result = runTest(test);
 			m = Method.getMethod("void test" + num + " ()");
 			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-			testToBytecode(test, mg, result.exceptions);
+			testToBytecode(test, mg, result.exposeExceptionMapping());
 			num++;
 		}
 

@@ -236,7 +236,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.warn("Caught ThreadDeath during test execution");
 			Sandbox.tearDownEverything();
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
+			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
@@ -245,7 +245,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			Sandbox.tearDownEverything();
 			logger.info("InterruptedException");
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
+			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
@@ -260,7 +260,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.error("ExecutionException (this is likely a serious error in the framework)",
 			             e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
+			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			if (e1.getCause() instanceof Error) { //an error was thrown somewhere in evosuite code
@@ -339,8 +339,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.disable();
 
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
-			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
+			result.setThrownExceptions(callable.getExceptionsThrown());
+			result.reportNewThrownException(tc.size(), new TestCaseExecutor.TimeoutExceeded());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			ExecutionTracer.setKillSwitch(false);

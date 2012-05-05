@@ -429,7 +429,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	public boolean hasException() {
 		return lastExecutionResult == null ? false
-		        : !lastExecutionResult.exceptions.isEmpty();
+		        : !lastExecutionResult.noThrownExceptions();
 	}
 
 	/* (non-Javadoc)

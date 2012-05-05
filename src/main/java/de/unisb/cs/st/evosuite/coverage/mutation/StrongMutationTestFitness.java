@@ -76,8 +76,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 				MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
-			if (!result.exceptions.isEmpty()) {
-				num = result.exceptions.keySet().iterator().next();
+			if (!result.noThrownExceptions()) {
+				num = result.getFirstPositionOfThrownException();
 			}
 
 			//if (mutant == null)
@@ -107,8 +107,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			result.setHasTimeout(true);
 		}
 
-		if (!originalResult.exceptions.isEmpty()) {
-			if (mutationResult.exceptions.isEmpty())
+		if (!originalResult.noThrownExceptions()) {
+			if (mutationResult.noThrownExceptions())
 				result.setHasTimeout(true);
 		}
 

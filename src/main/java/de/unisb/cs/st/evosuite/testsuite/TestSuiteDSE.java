@@ -266,7 +266,7 @@ public class TestSuiteDSE {
 							}
 							if (isUncovered(branch)) {
 								logger.info("Branch is not covered!");
-								if (!newChromosome.getLastExecutionResult().exceptions.isEmpty()) {
+								if (!newChromosome.getLastExecutionResult().noThrownExceptions()) {
 									logger.info("Test has exception");
 								} else {
 									logger.info("Old test: " + expandedTest.toCode());

@@ -65,8 +65,8 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 				MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
-			if (!result.exceptions.isEmpty()) {
-				num = result.exceptions.keySet().iterator().next();
+			if (!result.noThrownExceptions()) {
+				num = result.getFirstPositionOfThrownException();
 			}
 
 			//if (mutant == null)

@@ -19,7 +19,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 		int sum = 0;
 		for (ExecutableChromosome test : ((TestSuiteChromosome) chromosome).tests) {
 			if (test.getLastExecutionResult() != null)
-				sum += test.getLastExecutionResult().exceptions.size();
+				sum += test.getLastExecutionResult().getNumberOfThrownExceptions();
 		}
 		return sum;
 	}

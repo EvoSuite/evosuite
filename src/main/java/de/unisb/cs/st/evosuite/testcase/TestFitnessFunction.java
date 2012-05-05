@@ -58,8 +58,8 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 			result = executor.execute(test);
 
 			int num = test.size();
-			if (!result.exceptions.isEmpty()) {
-				num = result.exceptions.keySet().iterator().next();
+			if (!result.noThrownExceptions()) {
+				num = result.getFirstPositionOfThrownException();
 			}
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 			// for(TestObserver observer : observers) {
