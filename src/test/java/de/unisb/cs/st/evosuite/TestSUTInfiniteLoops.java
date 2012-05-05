@@ -16,7 +16,7 @@ public class TestSUTInfiniteLoops extends SystemTest{
 		Properties.TIMEOUT = defaultTimeout;
 	}
 
-	@Ignore
+	
 	@Test
 	public void testInfiniteLoops() throws InterruptedException{
 		EvoSuite evosuite = new EvoSuite();
@@ -40,7 +40,6 @@ public class TestSUTInfiniteLoops extends SystemTest{
 		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
 
 		GeneticAlgorithm ga = (GeneticAlgorithm) result;
-		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 
 		Thread.sleep(100);
 		
