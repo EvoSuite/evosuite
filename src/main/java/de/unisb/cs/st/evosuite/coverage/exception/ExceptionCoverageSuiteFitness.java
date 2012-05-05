@@ -63,13 +63,13 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			isExceptionExplicit.put(result.test, result.explicitExceptions);
 
 			//iterate on the indexes of the statements that resulted in an exception
-			for (Integer i : result.exceptions.keySet()) {
+			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
 				if (i >= result.test.size()) {
 					// Timeouts are put after the last statement if the process was forcefully killed
 					continue;
 				}
 				//not interested in security exceptions when Sandbox is active
-				Throwable t = result.exceptions.get(i);
+				Throwable t = result.getExceptionThrownAtPosition(i);
 				if (t instanceof SecurityException && Properties.SANDBOX)
 					continue;
 				// If the exception was thrown in the test directly, it is also not interesting

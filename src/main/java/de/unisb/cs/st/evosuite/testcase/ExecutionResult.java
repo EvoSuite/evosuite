@@ -21,6 +21,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import de.unisb.cs.st.evosuite.assertion.OutputTrace;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
@@ -34,7 +35,7 @@ public class ExecutionResult {
 	public Mutation mutation;
 
 	/** Map statement number to raised exception */
-	public Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	private Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
 	/** Record for each exception if it was explicitly thrown */
 	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
@@ -59,6 +60,60 @@ public class ExecutionResult {
 		test = t;
 	}
 
+	public void setThrownExceptions(Map<Integer, Throwable> data){
+		exceptions.clear();
+		for(Integer position : data.keySet()){
+			reportNewThrownException(position, data.get(position));
+		}
+	}
+	
+	public Integer getFirstPositionOfThrownException(){
+		Integer min = null;
+		for(Integer position : exceptions.keySet()){
+			if(min==null || position < min){
+				min = position;
+			}
+		}
+		return min;
+	}
+	
+	public void reportNewThrownException(Integer position, Throwable t){
+		exceptions.put(position, t);
+	}
+	
+	public Set<Integer> getPositionsWhereExceptionsWereThrown(){
+		return exceptions.keySet();
+	}
+	
+	public Collection<Throwable> getAllThrownExceptions(){
+		return exceptions.values();
+	}
+	
+	public boolean isThereAnExceptionAtPosition(Integer position){
+		return exceptions.containsKey(position);
+	}
+	
+	public boolean noThrownExceptions(){
+		return exceptions.isEmpty();
+	}
+	
+	public Throwable getExceptionThrownAtPosition(Integer position){
+		return exceptions.get(position);
+	}
+	
+	public int getNumberOfThrownExceptions(){
+		return exceptions.size();
+	}
+	
+	/**
+	 * 	 shouldn't be used 
+	 */
+	@Deprecated
+	public Map<Integer, Throwable> exposeExceptionMapping(){
+		return exceptions;
+	}
+	
+	
 	/**
 	 * Constructor when executing with mutation
 	 * 

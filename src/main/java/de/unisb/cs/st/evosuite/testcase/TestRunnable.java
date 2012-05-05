@@ -257,7 +257,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 
 		// FIXXME: Why don't we write into the result directly?
-		result.exceptions = getExceptionsThrown();
+		result.setThrownExceptions(getExceptionsThrown());
 		if (Sandbox.canUseFileContentGeneration())
 			try {
 				logger.debug("Enabling file handling");

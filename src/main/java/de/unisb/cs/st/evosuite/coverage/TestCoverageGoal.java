@@ -68,8 +68,8 @@ public abstract class TestCoverageGoal {
 			return false;
 		}
 		int size = result.test.size();
-		if (result.exceptions.containsKey(size)) {
-			if (result.exceptions.get(size) instanceof TestCaseExecutor.TimeoutExceeded) {
+		if (result.isThereAnExceptionAtPosition(size)) {
+			if (result.getExceptionThrownAtPosition(size) instanceof TestCaseExecutor.TimeoutExceeded) {
 				return true;
 			}
 		}

@@ -10,7 +10,7 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
-public class TestImplicitExplicitExceptions extends SystemTest {
+public class TestImplicitExplicitExceptions  extends SystemTest {
 
 	private static final Criterion defaultCriterion = Properties.CRITERION;
 
@@ -28,6 +28,9 @@ public class TestImplicitExplicitExceptions extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.CRITERION = Properties.Criterion.EXCEPTION;
 
+		//FIXME remove
+		Properties.GLOBAL_TIMEOUT = 50000;
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);

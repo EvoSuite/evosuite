@@ -63,7 +63,7 @@ public class ChromosomeUIController implements InterfaceTestRunnable, UIControll
 		
 		ExecutionTracer.disable();
 		this.executionResult.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-		this.executionResult.exceptions = this.exceptionsThrown;
+		this.executionResult.setThrownExceptions(this.exceptionsThrown);
 		
 		this.chromosome.setActionSequence(runner.getActionSequence());
 		

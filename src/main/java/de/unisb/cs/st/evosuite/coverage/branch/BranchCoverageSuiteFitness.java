@@ -152,8 +152,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
 			int limit = test.size();
-			if (!result.exceptions.isEmpty()) {
-				limit = result.exceptions.keySet().iterator().next() + 1;
+			if (!result.noThrownExceptions()) {
+				limit = result.getFirstPositionOfThrownException() + 1;
 			}
 			for (int i = 0; i < limit; i++) {
 				StatementInterface statement = result.test.getStatement(i);

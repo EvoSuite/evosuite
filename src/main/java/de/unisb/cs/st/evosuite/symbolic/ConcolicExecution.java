@@ -337,7 +337,7 @@ public class ConcolicExecution {
 				p.getReturnValue().storeBytecode(mg, locals);
 
 			} else {
-				statement.getBytecode(mg, locals, result.exceptions.get(num));
+				statement.getBytecode(mg, locals, result.getExceptionThrownAtPosition(num));
 			}
 			num++;
 		}
