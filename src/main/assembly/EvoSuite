@@ -349,7 +349,7 @@ setupDir ()
 generateSuite ()
 {
 	allowed_options=("-EvoSuite" "-OneBranch" "-Random" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-debug" "-process" "-stubs" "-mocks" "-mock_strategies")
-	allowed_options_take_values=(0 0 1 1 1 1 0 0 0 0 0 1)
+	allowed_options_take_values=(0 0 0 1 1 1 1 0 0 0 0 0 1)
 	parse_command_line "$@"
 	options_ok=$?
 	if test $options_ok -eq 0;
