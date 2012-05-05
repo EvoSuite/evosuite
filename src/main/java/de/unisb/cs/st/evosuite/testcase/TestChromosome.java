@@ -60,6 +60,12 @@ public class TestChromosome extends ExecutableChromosome {
 	public TestCase getTestCase() {
 		return test;
 	}
+	
+	@Override
+	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
+		assert lastExecutionResult.test.equals(this.test);
+		this.lastExecutionResult = lastExecutionResult;
+	}
 
 	@Override
 	public void setChanged(boolean changed) {
@@ -101,7 +107,7 @@ public class TestChromosome extends ExecutableChromosome {
 	protected void copyCachedResults(ExecutableChromosome other) {
 		if (test == null)
 			throw new RuntimeException("Test is null!");
-		this.lastExecutionResult = other.lastExecutionResult; //.clone();
+		this.lastExecutionResult = other.lastExecutionResult.clone();
 		if (this.lastExecutionResult != null) {
 			this.lastExecutionResult.test = this.test;
 		}
