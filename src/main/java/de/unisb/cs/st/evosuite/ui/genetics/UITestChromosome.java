@@ -110,7 +110,7 @@ public class UITestChromosome extends ExecutableChromosome {
 
 			for (int i = 0; i < this.actionSequence.size(); i++) {
 				if (Randomness.nextDouble() <= p) {
-					changed = this.actionSequence.changeUnsafe(i);
+					changed |= this.actionSequence.changeUnsafe(i);
 				}
 			}
 		}
