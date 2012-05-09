@@ -128,6 +128,45 @@ public class Branch implements Serializable {
 	public boolean isSwitchCaseBranch() {
 		return isSwitch;
 	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + actualBranchId;
+		result = prime * result
+				+ ((instruction == null) ? 0 : instruction.hashCode());
+		result = prime * result + (isSwitch ? 1231 : 1237);
+		result = prime * result
+				+ ((targetCaseValue == null) ? 0 : targetCaseValue.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Branch other = (Branch) obj;
+		if (actualBranchId != other.actualBranchId)
+			return false;
+		if (instruction == null) {
+			if (other.instruction != null)
+				return false;
+		} else if (!instruction.equals(other.instruction))
+			return false;
+		if (isSwitch != other.isSwitch)
+			return false;
+		if (targetCaseValue == null) {
+			if (other.targetCaseValue != null)
+				return false;
+		} else if (!targetCaseValue.equals(other.targetCaseValue))
+			return false;
+		return true;
+	}
 
 	@Override
 	public String toString() {

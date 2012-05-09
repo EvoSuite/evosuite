@@ -36,20 +36,6 @@ public class ControlFlowEdge extends DefaultEdge {
 		}
 	}
 
-	@Override
-	public String toString() {
-
-		String r = "";
-		
-		if(isExceptionEdge)
-			 r+= "E ";
-		
-		if (cd != null)
-			r += cd.toString();
-
-		return r;
-	}
-	
 	public ControlDependency getControlDependency() {
 		return cd;
 	}
@@ -76,4 +62,41 @@ public class ControlFlowEdge extends DefaultEdge {
 		return true;
 	}
 	
+//	@Override
+//	public int hashCode() {
+//		final int prime = 31;
+//		int result = 1;
+//		result = prime * result + ((cd == null) ? 0 : cd.hashCode());
+//		result = prime * result + (isExceptionEdge ? 1231 : 1237);
+//		return result;
+//	}
+//
+//	@Override
+//	public boolean equals(Object obj) {
+//		if (this == obj)
+//			return true;
+//		if (obj == null)
+//			return false;
+//		if (getClass() != obj.getClass())
+//			return false;
+//		ControlFlowEdge other = (ControlFlowEdge) obj;
+//		if (cd == null) {
+//			if (other.cd != null)
+//				return false;
+//		} else if (!cd.equals(other.cd))
+//			return false;
+//		if (isExceptionEdge != other.isExceptionEdge)
+//			return false;
+//		return true;
+//	}
+
+	@Override
+	public String toString() {
+		String r = "";
+		if(isExceptionEdge)
+			 r+= "E ";
+		if (cd != null)
+			r += cd.toString();
+		return r;
+	}
 }

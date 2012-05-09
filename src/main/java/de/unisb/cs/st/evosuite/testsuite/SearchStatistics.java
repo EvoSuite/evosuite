@@ -517,8 +517,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		// defuse nor analyze we might need to ensure that du-goal-computation
 		// went through
 		entry.paramDUGoalCount = DefUseCoverageFactory.getParamGoalsCount();
-		entry.intraDUGoalCount = DefUseCoverageFactory.getIntraGoalsCount();
-		entry.interDUGoalCount = DefUseCoverageFactory.getInterGoalsCount();
+		entry.intraDUGoalCount = DefUseCoverageFactory.getIntraMethodGoalsCount();
+		entry.interDUGoalCount = DefUseCoverageFactory.getIntraClassGoalsCount();
 
 		entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
