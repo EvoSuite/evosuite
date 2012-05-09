@@ -17,14 +17,18 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(LineNumberMethodAdapter.class);
 
+	private final String className;
+
 	private final String methodName;
 
 	private boolean hadInvokeSpecial = false;
 
 	int currentLine = 0;
 
-	public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String methodName) {
+	public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String className,
+	        String methodName) {
 		super(Opcodes.ASM4, mv);
+		this.className = className;
 		this.methodName = methodName;
 		if (!methodName.equals("<init>"))
 			hadInvokeSpecial = true;
@@ -56,5 +60,22 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 				hadInvokeSpecial = true;
 		}
 		super.visitMethodInsn(opcode, owner, name, desc);
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
+	 */
+	@Override
+	public void visitInsn(int opcode) {
+		if (opcode == Opcodes.ATHROW) {
+			super.visitInsn(Opcodes.DUP);
+			this.visitLdcInsn(className);
+			this.visitLdcInsn(methodName);
+			mv.visitMethodInsn(Opcodes.INVOKESTATIC,
+			                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+			                   "exceptionThrown",
+			                   "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;)V");
+		}
+		super.visitInsn(opcode);
 	}
 }

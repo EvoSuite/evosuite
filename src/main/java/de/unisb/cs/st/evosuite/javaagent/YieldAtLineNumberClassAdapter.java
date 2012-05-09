@@ -13,11 +13,14 @@ import org.objectweb.asm.Opcodes;
  */
 public class YieldAtLineNumberClassAdapter extends ClassVisitor {
 
+	private final String className;
+
 	/**
 	 * @param cv
 	 */
-	public YieldAtLineNumberClassAdapter(ClassVisitor cv) {
+	public YieldAtLineNumberClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
+		this.className = className;
 	}
 
 	@Override
@@ -25,6 +28,6 @@ public class YieldAtLineNumberClassAdapter extends ClassVisitor {
 	        String signature, final String[] exceptions) {
 
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		return new YieldAtLineNumberMethodAdapter(mv, name);
+		return new YieldAtLineNumberMethodAdapter(mv, className, name);
 	}
 }

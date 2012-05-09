@@ -266,7 +266,7 @@ public class TestSuiteDSE {
 							}
 							if (isUncovered(branch)) {
 								logger.info("Branch is not covered!");
-								if (!newChromosome.getLastExecutionResult().exceptions.isEmpty()) {
+								if (!newChromosome.getLastExecutionResult().noThrownExceptions()) {
 									logger.info("Test has exception");
 								} else {
 									logger.info("Old test: " + expandedTest.toCode());
@@ -348,17 +348,17 @@ public class TestSuiteDSE {
 				*/
 			}
 
-			for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
-				if (test.getLastExecutionResult().getTrace().true_distances.get(branchId) == 0.0)
+			for (Integer branchId : test.getLastExecutionResult().getTrace().coveredPredicates.keySet()) {
+				if (test.getLastExecutionResult().getTrace().trueDistances.get(branchId) == 0.0)
 					coveredTrue.add(branchId);
-				if (test.getLastExecutionResult().getTrace().false_distances.get(branchId) == 0.0)
+				if (test.getLastExecutionResult().getTrace().falseDistances.get(branchId) == 0.0)
 					coveredFalse.add(branchId);
 				logger.debug("Distances "
 				        + branchId
 				        + ": "
-				        + test.getLastExecutionResult().getTrace().true_distances.get(branchId)
+				        + test.getLastExecutionResult().getTrace().trueDistances.get(branchId)
 				        + "/"
-				        + test.getLastExecutionResult().getTrace().false_distances.get(branchId));
+				        + test.getLastExecutionResult().getTrace().falseDistances.get(branchId));
 
 			}
 		}
@@ -427,7 +427,7 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	private boolean hasUncoveredBranches(ExecutableChromosome test) {
-		for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
+		for (Integer branchId : test.getLastExecutionResult().getTrace().coveredPredicates.keySet()) {
 			if (uncoveredBranches.contains(branchId)) {
 				logger.info("Uncovered branch found: " + branchId + ": "
 				        + BranchPool.getBranch(branchId));

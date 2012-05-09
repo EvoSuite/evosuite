@@ -150,6 +150,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 					}
 
 					exceptionsThrown.put(num, exceptionThrown);
+					if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
+						//logger.info("Exception " + exceptionThrown + " is explicit");
+						result.explicitExceptions.put(num, true);
+					} else {
+						//logger.info("Exception " + exceptionThrown + " is implicit");
+						result.explicitExceptions.put(num, false);
+					}
 
 					ExecutionTracer.disable();
 					for (ExecutionObserver observer : observers) {
@@ -205,9 +212,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} catch (TimeoutException e) {
 			Sandbox.tearDownEverything();
 			logger.info("Test timed out!");
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		} catch (TestCaseExecutor.TimeoutExceeded e) {
 			Sandbox.tearDownEverything();
 			logger.info("Test timed out!");
+			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		} catch (Throwable e) {
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
@@ -238,6 +247,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				System.setErr(old_err);
 			}
 		}
+
 		runFinished = true;
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
@@ -246,7 +256,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 			FileSystem.restoreOriginalFS();
 		}
 
-		result.exceptions = getExceptionsThrown();
+		// FIXXME: Why don't we write into the result directly?
+		result.setThrownExceptions(getExceptionsThrown());
 		if (Sandbox.canUseFileContentGeneration())
 			try {
 				logger.debug("Enabling file handling");

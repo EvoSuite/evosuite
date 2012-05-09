@@ -121,7 +121,7 @@ public class ControlFlowDistanceCalculator {
 
 		ControlFlowDistance d = new ControlFlowDistance();
 
-		for (MethodCall call : result.getTrace().finished_calls) {
+		for (MethodCall call : result.getTrace().finishedCalls) {
 			if (call.className.equals(""))
 				continue;
 			if ((call.className + "." + call.methodName).equals(className + "."
@@ -148,7 +148,7 @@ public class ControlFlowDistanceCalculator {
 		r.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 1);
 
 		// Minimal distance between target node and path
-		for (MethodCall call : result.getTrace().finished_calls) {
+		for (MethodCall call : result.getTrace().finishedCalls) {
 			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				ControlFlowDistance d2;
 				Set<Branch> handled = new HashSet<Branch>();

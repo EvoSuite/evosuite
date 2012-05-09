@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.testcase;
 
+
 public class ArrayReference extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = 3309591356542131910L;
@@ -32,10 +33,14 @@ public class ArrayReference extends VariableReferenceImpl {
 			otherArray.setArrayLength(array_length);
 			return otherArray;
 		} else {
+
+			// FIXXME: This part should be redundant
+
 			if (newRef.getComponentType() != null) {
 				ArrayReference otherArray = new ArrayReference(newTestCase, type,
 				        array_length);
 				otherArray.setArrayLength(array_length);
+				newTestCase.getStatement(getStPosition() + offset).setRetval(otherArray);
 				return otherArray;
 			} else {
 				// This may happen when cloning a method statement which returns an Object that in fact is an array
@@ -43,6 +48,7 @@ public class ArrayReference extends VariableReferenceImpl {
 				ArrayReference otherArray = new ArrayReference(newTestCase, type,
 				        array_length);
 				otherArray.setArrayLength(array_length);
+				newTestCase.getStatement(getStPosition() + offset).setRetval(otherArray);
 				return otherArray;
 				//				throw new RuntimeException("After cloning the array disappeared: "
 				//				        + getName() + "/" + newRef.getName() + " in test "

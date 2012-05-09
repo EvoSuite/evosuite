@@ -10,7 +10,7 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 
-public class TestImplicitExplicitExceptions extends SystemTest {
+public class TestImplicitExplicitExceptions  extends SystemTest {
 
 	private static final Criterion defaultCriterion = Properties.CRITERION;
 

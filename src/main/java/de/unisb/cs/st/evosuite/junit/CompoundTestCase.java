@@ -63,6 +63,14 @@ public class CompoundTestCase implements TestCase {
 		listeners.add(listener);
 	}
 
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#clearCoveredGoals()
+	 */
+	@Override
+	public void clearCoveredGoals() {
+		delegate.clearCoveredGoals();
+	}
+
 	@Override
 	public VariableReference addStatement(StatementInterface statement) {
 		return delegate.addStatement(statement);
@@ -191,6 +199,12 @@ public class CompoundTestCase implements TestCase {
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException {
 		return delegate.getRandomObject(type, position);
+	}
+
+	@Override
+	public VariableReference getRandomNonNullObject(Type type, int position)
+	        throws ConstructionFailedException {
+		return delegate.getRandomNonNullObject(type, position);
 	}
 
 	@Override

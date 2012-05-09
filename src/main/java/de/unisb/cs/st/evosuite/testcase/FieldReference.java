@@ -262,6 +262,12 @@ public class FieldReference extends VariableReferenceImpl {
 		}
 	}
 
+	/**
+	 * Determine the nesting level of the field access (I.e., how many dots in
+	 * the expression)
+	 * 
+	 * @return
+	 */
 	public int getDepth() {
 		int depth = 1;
 		if (source instanceof FieldReference) {
@@ -289,7 +295,7 @@ public class FieldReference extends VariableReferenceImpl {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
-		if (!super.equals(obj))
+		if (obj == null)
 			return false;
 		if (getClass() != obj.getClass())
 			return false;

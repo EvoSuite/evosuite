@@ -61,9 +61,12 @@ public class InstrumentingClassLoader extends ClassLoader {
 		//packages that should not be instrumented
 		return new String[]{
 			"java.",
+			"javax.",
 			"sun.",
 			"de.unisb.cs.st.evosuite",
-			"de.unisb.cs.st.specmate"
+			"de.unisb.cs.st.specmate",
+			"org.xml",
+			"org.w3c"
 		};
 	}
 	
@@ -72,9 +75,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
 		if (!checkIfCanInstrument(name) || 
-		         (Properties.VIRTUAL_FS && (name.startsWith("org.xml")
-		                || name.startsWith("org.w3c")
-		                || name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
+		         (Properties.VIRTUAL_FS && (name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
 		       ) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {

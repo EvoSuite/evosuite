@@ -31,8 +31,8 @@ public class InstrumentingClassLoaderTest {
 		TestUtil.invokeMethod(changed, "trySomethingElse");
 		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
 		execTrace = ExecutionTracer.getExecutionTracer().getTrace();
-		Assert.assertFalse(execTrace.true_distances.isEmpty());
-		Assert.assertFalse(execTrace.false_distances.isEmpty());
+		Assert.assertFalse(execTrace.trueDistances.isEmpty());
+		Assert.assertFalse(execTrace.falseDistances.isEmpty());
 		ExecutionTracer.getExecutionTracer().clear();
 	}
 
@@ -47,8 +47,8 @@ public class InstrumentingClassLoaderTest {
 		ExecutionTracer.getExecutionTracer().clear();
 		original.assess(6);
 		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
-		Assert.assertTrue(execTrace.true_distances.isEmpty());
-		Assert.assertTrue(execTrace.false_distances.isEmpty());
+		Assert.assertTrue(execTrace.trueDistances.isEmpty());
+		Assert.assertTrue(execTrace.falseDistances.isEmpty());
 
 		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
 		Class<?> changedClass = instrumentingClassLoader.loadClass(ClassLoaderTestSubject.class.getName());
@@ -66,8 +66,8 @@ public class InstrumentingClassLoaderTest {
 		ExecutionTracer.getExecutionTracer().clear();
 		TestUtil.invokeMethod(changed, "assess", Integer.valueOf(6));
 		execTrace = ExecutionTracer.getExecutionTracer().getTrace();
-		Assert.assertFalse(execTrace.true_distances.isEmpty());
-		Assert.assertFalse(execTrace.false_distances.isEmpty());
+		Assert.assertFalse(execTrace.trueDistances.isEmpty());
+		Assert.assertFalse(execTrace.falseDistances.isEmpty());
 		ExecutionTracer.getExecutionTracer().clear();
 	}
 	

@@ -124,6 +124,19 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	        throws ConstructionFailedException;
 
 	/**
+	 * Get a random object matching type
+	 * 
+	 * @param type
+	 * @param position
+	 *            Upper bound in test case up to which objects are considered
+	 * @return
+	 * @throws ConstructionFailedException
+	 *             if no such object exists
+	 */
+	public VariableReference getRandomNonNullObject(Type type, int position)
+	        throws ConstructionFailedException;
+
+	/**
 	 * Get actual object represented by a variable for a given execution scope
 	 * 
 	 * @param reference
@@ -291,6 +304,11 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	public boolean hasCalls();
 
 	public void addCoveredGoal(TestFitnessFunction goal);
+
+	/**
+	 * Remove all covered goals
+	 */
+	public void clearCoveredGoals();
 
 	public Set<TestFitnessFunction> getCoveredGoals();
 

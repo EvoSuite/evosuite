@@ -348,8 +348,8 @@ setupDir ()
 ##
 generateSuite ()
 {
-	allowed_options=("-EvoSuite" "-OneBranch" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-debug" "-process" "-stubs" "-mocks" "-mock_strategies")
-	allowed_options_take_values=(0 0 1 1 1 1 0 0 0 0 0 1)
+	allowed_options=("-EvoSuite" "-OneBranch" "-Random" "-seed" "-base_dir" "-class" "-criterion" "-sandbox" "-debug" "-process" "-stubs" "-mocks" "-mock_strategies")
+	allowed_options_take_values=(0 0 0 1 1 1 1 0 0 0 0 0 1)
 	parse_command_line "$@"
 	options_ok=$?
 	if test $options_ok -eq 0;
@@ -373,6 +373,7 @@ generateSuite ()
 			"-class") TEST_CLASSES=${cmdline_options_values[$i]};;
 			"-OneBranch") STRATEGY="OneBranch";;
 			"-EvoSuite") STRATEGY="EvoSuite";;
+			"-Random") STRATEGY="Random";;
 			"-criterion") CRITERION=${cmdline_options_values[$i]};;
 			"-sandbox") SANDBOX="-Dsandbox=true";;
 			"-debug") java_debug="-Xdebug -Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=1044"

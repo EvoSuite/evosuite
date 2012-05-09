@@ -52,6 +52,8 @@ public class TestSuiteWriter implements Opcodes {
 
 	protected List<TestCase> testCases = new ArrayList<TestCase>();
 
+	protected Map<Integer, String> testComment = new HashMap<Integer, String>();
+
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
 	class TestFilter implements IOFileFilter {
@@ -136,6 +138,16 @@ public class TestSuiteWriter implements Opcodes {
 		return testCases.size() - 1;
 	}
 
+	public int insertTest(TestCase test, String comment) {
+		int id = insertTest(test);
+		if (testComment.containsKey(id)) {
+			if (!testComment.get(id).contains(comment))
+				testComment.put(id, testComment.get(id) + "\n   //" + comment);
+		} else
+			testComment.put(id, comment);
+		return id;
+	}
+
 	public void insertTests(List<TestCase> tests) {
 		for (TestCase test : tests)
 			insertTest(test);
@@ -206,7 +218,7 @@ public class TestSuiteWriter implements Opcodes {
 		Set<Class<?>> imports = new HashSet<Class<?>>();
 		for (ExecutionResult result : results) {
 			imports.addAll(result.test.getAccessedClasses());
-			for (Throwable t : result.exceptions.values()) {
+			for (Throwable t : result.getAllThrownExceptions()) {
 				imports.add(t.getClass());
 			}
 		}
@@ -249,6 +261,9 @@ public class TestSuiteWriter implements Opcodes {
 	 * @return Comment for test case
 	 */
 	protected String getInformation(int num) {
+
+		if (testComment.containsKey(num))
+			return testComment.get(num);
 
 		TestCase test = testCases.get(num);
 		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
@@ -405,7 +420,7 @@ public class TestSuiteWriter implements Opcodes {
 			}
 		}
 		builder.append(" {\n");
-		for (String line : adapter.getTestString(id, testCases.get(id), result.exceptions).split("\\r?\\n")) {
+		for (String line : adapter.getTestString(id, testCases.get(id), result.exposeExceptionMapping()).split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
 			// builder.append(";\n");
@@ -517,7 +532,7 @@ public class TestSuiteWriter implements Opcodes {
 			ExecutionResult result = runTest(test);
 			m = Method.getMethod("void test" + num + " ()");
 			mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
-			testToBytecode(test, mg, result.exceptions);
+			testToBytecode(test, mg, result.exposeExceptionMapping());
 			num++;
 		}
 

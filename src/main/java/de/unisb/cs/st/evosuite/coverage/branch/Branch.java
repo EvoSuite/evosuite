@@ -45,6 +45,9 @@ public class Branch implements Serializable {
 
 	private final BytecodeInstruction instruction;
 
+	/** Keep track of branches that were introduced as part of TT */
+	private boolean isInstrumented = false;
+
 	/**
 	 * Constructor for usual jump instruction Branches, that are not SWITCH
 	 * instructions.
@@ -183,5 +186,13 @@ public class Branch implements Serializable {
 			r += " L" + instruction.getLineNumber();
 
 		return r;
+	}
+
+	public boolean isInstrumented() {
+		return isInstrumented;
+	}
+
+	public void setInstrumented(boolean isInstrumented) {
+		this.isInstrumented = isInstrumented;
 	}
 }

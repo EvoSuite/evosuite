@@ -238,7 +238,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * ExecutionTrace
 	 */
 	public static void printFinishCalls(ExecutionTrace trace) {
-		for (MethodCall call : trace.finished_calls) {
+		for (MethodCall call : trace.finishedCalls) {
 			System.out.println("Found MethodCall for: " + call.methodName
 					+ " on object " + call.callingObjectID);
 			System.out.println("#passed branches: " + call.branchTrace.size());

@@ -19,6 +19,7 @@ import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.MethodStatement;
+import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testsuite.AbstractTestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -47,35 +48,38 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		double coverageFitness = baseFF.getFitness(individual);
 
 		/*
-		 * keep track of which kind of exceptions were thrown. 
-		 * for the moment, we only keep track of different kinds of exceptions, not 
-		 * where they were thrown from.
-		 * 
-		 * As long as two methods share a single line of code (eg, a constructor) then, even if
-		 * both fail, it could be due to the same fault. 
+		 * for each method in the SUT, we keep track of which kind of exceptions were thrown.
+		 * we distinguish between "implicit" and "explicit" 
 		 */
 		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 
 		AbstractTestSuiteChromosome<ExecutableChromosome> suite = (AbstractTestSuiteChromosome<ExecutableChromosome>) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
+		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
 		// for each test case
 		for (ExecutionResult result : results) {
-			//ExecutionTrace trace = result.getTrace();
+			isExceptionExplicit.put(result.test, result.explicitExceptions);
 
 			//iterate on the indexes of the statements that resulted in an exception
-			for (Integer i : result.exceptions.keySet()) {
+			for (Integer i : result.getPositionsWhereExceptionsWereThrown()) {
 				if (i >= result.test.size()) {
 					// Timeouts are put after the last statement if the process was forcefully killed
 					continue;
 				}
-				Throwable t = result.exceptions.get(i);
+				//not interested in security exceptions when Sandbox is active
+				Throwable t = result.getExceptionThrownAtPosition(i);
 				if (t instanceof SecurityException && Properties.SANDBOX)
 					continue;
+				// If the exception was thrown in the test directly, it is also not interesting
+				if (t.getStackTrace().length > 0
+				        && t.getStackTrace()[0].getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+					continue;
+				}
 
 				String methodName = "";
-				boolean sutException = false;
+				boolean sutException = false;				
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
 					Method method = ms.getMethod();
@@ -91,16 +95,21 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 
 				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
+				
+				/*
+				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
+				 * and that are not declared in the signature of the method.
+				 */
+				
 				if (notDeclared && sutException) {
 					/*
 					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
 					 * input for pre-condition) or implicit ("likely" a real fault).
 					 */
 
-					/*
-					 * FIXME: need to find a way to calculate it
-					 */
-					boolean isExplicit = false;
+					boolean isExplicit = isExceptionExplicit.get(result.test).containsKey(i)
+					        && isExceptionExplicit.get(result.test).get(i);
+					
 					if (isExplicit) {
 						if (!explicitTypesOfExceptions.containsKey(methodName))
 							explicitTypesOfExceptions.put(methodName,

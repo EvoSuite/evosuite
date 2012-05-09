@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
-import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
@@ -112,6 +111,7 @@ public class TestSuiteMinimizer {
 				if (goal.isCovered(test)) {
 					logger.info("Already covered: " + goal);
 					covered.add(goal);
+					test.getTestCase().addCoveredGoal(goal);
 					break;
 				}
 			}
@@ -131,6 +131,10 @@ public class TestSuiteMinimizer {
 				        goal);
 				TestChromosome copy = (TestChromosome) test.clone();
 				minimizer.minimize(copy);
+
+				// TODO: Need proper list of covered goals
+				copy.getTestCase().clearCoveredGoals();
+				copy.getTestCase().addCoveredGoal(goal);
 				minimizedTests.add(copy);
 				minimizedSuite.insertTest(copy.getTestCase());
 				covered.add(goal);
@@ -220,13 +224,13 @@ public class TestSuiteMinimizer {
 				logger.debug("Skipping test " + num);
 				result = test.getLastExecutionResult();
 			}
-			called_methods.addAll(result.getTrace().covered_methods.keySet());
-			for (Entry<Integer, Double> entry : result.getTrace().true_distances.entrySet()) {
+			called_methods.addAll(result.getTrace().coveredMethods.keySet());
+			for (Entry<Integer, Double> entry : result.getTrace().trueDistances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_true.add(entry.getKey());
 			}
 
-			for (Entry<Integer, Double> entry : result.getTrace().false_distances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().falseDistances.entrySet()) {
 				if (entry.getValue() == 0)
 					covered_false.add(entry.getKey());
 			}
