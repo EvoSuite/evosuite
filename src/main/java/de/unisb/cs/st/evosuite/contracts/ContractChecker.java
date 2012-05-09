@@ -37,7 +37,7 @@ public class ContractChecker extends ExecutionObserver {
 
 	public ContractChecker() {
 		// Default from EvoSuite
-		//		contracts.add(new UndeclaredExceptionContract());
+		contracts.add(new UndeclaredExceptionContract());
 		contracts.add(new JCrasherExceptionContract());
 
 		// Defaults from Randoop paper
@@ -68,6 +68,7 @@ public class ContractChecker extends ExecutionObserver {
 
 	/**
 	 * Set the current test case, on which we check oracles while it is executed
+	 * 
 	 * @param test
 	 */
 	public static void currentTest(TestCase test) {
@@ -81,6 +82,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
+
 		if (!valid) {
 			/*
 			 * once we get a contract that is violated, no point in checking the following statements,
@@ -97,11 +99,13 @@ public class ContractChecker extends ExecutionObserver {
 			return;
 		}
 
-		if (Properties.CHECK_CONTRACTS_END && statement.getPosition() < (currentTest.size() - 1))
+		if (Properties.CHECK_CONTRACTS_END
+		        && statement.getPosition() < (currentTest.size() - 1))
 			return;
 
 		for (Contract contract : contracts) {
 			try {
+
 				if (!contract.check(statement, scope, exception)) {
 					logger.debug("Contract failed: " + contract + " on statement "
 					        + statement.getCode());
@@ -121,8 +125,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	@Override
 	public void clear() {
-		// TODO Auto-generated method stub
-
+		valid = true;
 	}
 
 }

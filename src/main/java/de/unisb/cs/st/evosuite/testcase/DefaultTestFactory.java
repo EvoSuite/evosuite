@@ -121,18 +121,22 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		for (int i = 0; i < position; i++) {
 			double dist = 1d / (test.getStatement(i).getReturnValue().getDistance() + 1d);
 
-			if (dist >= rnd)
+			if (dist >= rnd
+			        && !(test.getStatement(i).getReturnValue() instanceof NullReference)
+			        && !(test.getStatement(i).getReturnValue().isVoid()))
 				return test.getStatement(i).getReturnValue();
 			else
 				rnd = rnd - dist;
 		}
 
-		if (position > 0) {
-			int i = Randomness.nextInt(position);
-			return test.getStatement(i).getReturnValue();
-		} else {
-			return test.getStatement(0).getReturnValue();
-		}
+		if (position > 0)
+			position = Randomness.nextInt(position);
+
+		VariableReference var = test.getStatement(position).getReturnValue();
+		if (!(var instanceof NullReference) && !var.isVoid())
+			return var;
+		else
+			return null;
 	}
 
 	public void insertRandomCallOnObject(TestCase test, int position) {
@@ -374,7 +378,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		if (!alternatives.isEmpty()) {
 			// Change all references to return value at position to something
 			// else
-			for (int i = position; i < test.size(); i++) {
+			for (int i = position + 1; i < test.size(); i++) {
 				StatementInterface s = test.getStatement(i);
 				if (s.references(var)) {
 					s.replace(var, Randomness.choice(alternatives));
@@ -475,7 +479,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				                                             // probability here?
 				try {
 					// TODO: Would casting be an option here?
-					callee = test.getRandomObject(method.getDeclaringClass(), position);
+					callee = test.getRandomNonNullObject(method.getDeclaringClass(),
+					                                     position);
 					logger.debug("Found callee of type "
 					        + method.getDeclaringClass().getName() + ": "
 					        + callee.getName());
@@ -487,14 +492,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					position += test.size() - length;
 					length = test.size();
 				}
-				parameters = satisfyParameters(test, callee,
-				                               getParameterTypes(callee, method),
-				                               position, recursion_depth + 1);
-			} else {
-				parameters = satisfyParameters(test, callee,
-				                               getParameterTypes(callee, method),
-				                               position, recursion_depth + 1);
 			}
+			parameters = satisfyParameters(test, callee,
+			                               getParameterTypes(callee, method), position,
+			                               recursion_depth + 1);
+
 		} catch (ConstructionFailedException e) {
 			TestCluster.getInstance().checkDependencies(method);
 			throw e;
@@ -539,7 +541,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			                                            // probability here?
 			try {
 				// TODO: Would casting be an option here?
-				callee = test.getRandomObject(field.getDeclaringClass(), position);
+				callee = test.getRandomNonNullObject(field.getDeclaringClass(), position);
 				logger.debug("Found callee of type "
 				        + field.getDeclaringClass().getName());
 			} catch (ConstructionFailedException e) {
@@ -558,10 +560,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		position += (new_length - length);
 
 		FieldReference f = new FieldReference(test, field, callee);
+		if (f.equals(var))
+			throw new ConstructionFailedException("Self assignment");
 
 		StatementInterface st = new AssignmentStatement(test, f, var);
-		//logger.info("FIeld assignment: " + st.getCode());
 		VariableReference ret = test.addStatement(st, position);
+		// logger.info("FIeld assignment: " + st.getCode());
 		assert (test.isValid());
 		return ret;
 	}
@@ -584,7 +588,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 		if (!Modifier.isStatic(field.getModifiers())) {
 			try {
-				callee = test.getRandomObject(field.getDeclaringClass(), position);
+				callee = test.getRandomNonNullObject(field.getDeclaringClass(), position);
 			} catch (ConstructionFailedException e) {
 				logger.debug("No callee of type " + field.getDeclaringClass().getName()
 				        + " found");
@@ -1048,7 +1052,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
 			if (!Modifier.isStatic(method.getModifiers()))
-				callee = test.getRandomObject(method.getDeclaringClass(), position);
+				callee = test.getRandomNonNullObject(method.getDeclaringClass(), position);
 			List<VariableReference> parameters = new ArrayList<VariableReference>();
 			for (Type type : getParameterTypes(callee, method)) {
 				parameters.add(test.getRandomObject(type, position));
@@ -1078,7 +1082,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference source = null;
 			if (!Modifier.isStatic(field.getModifiers()))
-				source = test.getRandomObject(field.getDeclaringClass(), position);
+				source = test.getRandomNonNullObject(field.getDeclaringClass(), position);
 
 			try {
 				FieldStatement f = new FieldStatement(test, field, source, retval);
@@ -1193,6 +1197,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		int length = test.size();
 		VariableReference value = createOrReuseVariable(test, fieldVar.getType(),
 		                                                position, 0, callee);
+
+		// TODO
+		if (value.same(fieldVar))
+			logger.warn("Possible source of error?");
+
 		int new_length = test.size();
 		position += (new_length - length);
 

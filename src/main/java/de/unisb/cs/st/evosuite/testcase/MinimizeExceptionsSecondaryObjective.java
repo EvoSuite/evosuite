@@ -17,7 +17,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 	private int getNumExceptions(Chromosome chromosome) {
 		ExecutionResult result = ((ExecutableChromosome) chromosome).getLastExecutionResult();
 		if (result != null)
-			return result.exceptions.size();
+			return result.getNumberOfThrownExceptions();
 		else
 			return 0;
 	}

@@ -381,7 +381,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				logger.info("Last statement: "
 				        + test.getStatement(test.size() - 1).getCode());
 			}
-			if (origResult.exceptions.containsKey(test.size() - 1))
+			if (origResult.isThereAnExceptionAtPosition(test.size() - 1))
 				logger.info("Exception on last statement!");
 
 			if (justNullAssertion(test.getStatement(test.size() - 1)))
@@ -475,7 +475,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			}
 		}
 
-		if (!origResult.exceptions.isEmpty()) {
+		if (!origResult.noThrownExceptions()) {
 			if (!test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
 				logger.debug("Removing assertions after exception");
 				test.getStatement(test.size() - 1).removeAssertions();

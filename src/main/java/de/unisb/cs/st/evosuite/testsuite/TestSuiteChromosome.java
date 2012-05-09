@@ -149,7 +149,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			if (test.getLastExecutionResult() == null)
 				continue;
 
-			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().covered_predicates.entrySet()) {
+			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().coveredPredicates.entrySet()) {
 				if (!covered.containsKey(entry.getKey())) {
 					covered.put(entry.getKey(), 0);
 				}

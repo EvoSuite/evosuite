@@ -60,6 +60,12 @@ public class TestChromosome extends ExecutableChromosome {
 	public TestCase getTestCase() {
 		return test;
 	}
+	
+	@Override
+	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
+		assert lastExecutionResult.test.equals(this.test);
+		this.lastExecutionResult = lastExecutionResult;
+	}
 
 	@Override
 	public void setChanged(boolean changed) {
@@ -101,7 +107,7 @@ public class TestChromosome extends ExecutableChromosome {
 	protected void copyCachedResults(ExecutableChromosome other) {
 		if (test == null)
 			throw new RuntimeException("Test is null!");
-		this.lastExecutionResult = other.lastExecutionResult; //.clone();
+		this.lastExecutionResult = other.lastExecutionResult.clone();
 		if (this.lastExecutionResult != null) {
 			this.lastExecutionResult.test = this.test;
 		}
@@ -198,10 +204,13 @@ public class TestChromosome extends ExecutableChromosome {
 					search = new StringLocalSearch();
 				} else if (type.equals(Boolean.class)) {
 					search = new BooleanLocalSearch();
+				} else if (test.getStatement(i) instanceof EnumPrimitiveStatement) {
+					search = new EnumLocalSearch();
 				}
-
 			} else if (test.getStatement(i) instanceof ArrayStatement) {
 				search = new ArrayLocalSearch();
+			} else if (test.getStatement(i) instanceof MethodStatement) {
+				//search = new ParameterLocalSearch();
 			}
 			if (search != null)
 				search.doSearch(this, i, objective);
@@ -426,7 +435,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	public boolean hasException() {
 		return lastExecutionResult == null ? false
-		        : !lastExecutionResult.exceptions.isEmpty();
+		        : !lastExecutionResult.noThrownExceptions();
 	}
 
 	/* (non-Javadoc)

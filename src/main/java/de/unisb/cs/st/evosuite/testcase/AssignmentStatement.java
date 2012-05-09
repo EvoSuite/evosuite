@@ -69,10 +69,13 @@ public class AssignmentStatement extends AbstractStatement {
 			//logger.info("CLoning : " + getCode());
 			VariableReference newParam = parameter.copy(newTestCase, offset);
 			VariableReference newTarget;
-			if (retval.getAdditionalVariableReference() != null)
-				newTarget = retval.copy(newTestCase, offset);
-			else
-				newTarget = new VariableReferenceImpl(newTestCase, retval.getType());
+
+			// FIXXME: Return value should always be an existing variable
+			//if (retval.getAdditionalVariableReference() != null)
+			newTarget = retval.copy(newTestCase, offset);
+			//else
+			//	newTarget = retval.copy(newTestCase, offset);
+			//newTarget = new VariableReferenceImpl(newTestCase, retval.getType());
 			AssignmentStatement copy = new AssignmentStatement(newTestCase, newTarget,
 			        newParam);
 			// copy.assertions = copyAssertions(newTestCase, offset);
@@ -81,6 +84,7 @@ public class AssignmentStatement extends AbstractStatement {
 			return copy;
 		} catch (Exception e) {
 			logger.info("Error cloning statement " + getCode());
+			logger.info("In test: " + this.tc.toCode());
 			logger.info("New test: " + newTestCase.toCode());
 			e.printStackTrace();
 			assert (false) : e.toString();
@@ -297,17 +301,18 @@ public class AssignmentStatement extends AbstractStatement {
 			}
 
 		} else {
+
 			List<VariableReference> objects = test.getObjects(parameter.getType(),
-			                                                  parameter.getStPosition());
+			                                                  retval.getStPosition());
 			objects.remove(retval);
 			objects.remove(parameter);
 			if (!objects.isEmpty()) {
 				parameter = Randomness.choice(objects);
 				assert (isValid());
-
 				return true;
 			}
 		}
+
 		return false;
 	}
 

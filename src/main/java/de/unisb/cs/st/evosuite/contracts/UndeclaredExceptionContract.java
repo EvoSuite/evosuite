@@ -26,7 +26,13 @@ public class UndeclaredExceptionContract extends Contract {
 			Set<Class<?>> exceptions = statement.getDeclaredExceptions();
 
 			if (!exceptions.contains(exception.getClass())) {
-				
+				StackTraceElement element = exception.getStackTrace()[0];
+
+				// If the exception was thrown in the test directly, it is also not interesting
+				if (element.getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+					return true;
+				}
+
 				/*
 				 * even if possible handled by other contracts, that does not mean
 				 * they check the signature. 
@@ -40,7 +46,7 @@ public class UndeclaredExceptionContract extends Contract {
 					return true;
 				}
 				*/
-				
+
 				return false;
 			}
 		}

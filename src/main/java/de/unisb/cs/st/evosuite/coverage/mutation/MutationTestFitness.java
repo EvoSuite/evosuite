@@ -65,8 +65,8 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 				MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
-			if (!result.exceptions.isEmpty()) {
-				num = result.exceptions.keySet().iterator().next();
+			if (!result.noThrownExceptions()) {
+				num = result.getFirstPositionOfThrownException();
 			}
 
 			//if (mutant == null)
@@ -91,7 +91,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 			// If mutant was not executed, this can be either because of an exception, or because the method was not executed
 
 			String key = mutation.getClassName() + "." + mutation.getMethodName();
-			if (result.getTrace().covered_methods.containsKey(key)) {
+			if (result.getTrace().coveredMethods.containsKey(key)) {
 				logger.debug("Target method " + key + " was executed");
 			} else {
 				logger.debug("Target method " + key + " was not executed");

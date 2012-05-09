@@ -69,7 +69,8 @@ public class BytecodeInstrumentation {
 		        && !className.startsWith("sun.")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
 		        && !className.startsWith("javax.")
-		        && !className.startsWith("org.xml.sax")
+		        && !className.startsWith("org.xml")
+		        && !className.startsWith("org.w3c")
 		        && !className.startsWith("apple.")
 		        && !className.startsWith("com.apple.")
 		        && !className.startsWith("daikon.");
@@ -138,7 +139,7 @@ public class BytecodeInstrumentation {
 
 		} else {
 			logger.debug("Not applying target transformation");
-			cv = new YieldAtLineNumberClassAdapter(cv);
+			cv = new YieldAtLineNumberClassAdapter(cv, className);
 
 			if (Properties.MAKE_ACCESSIBLE) {
 				// Convert protected/default access to public access
@@ -168,13 +169,14 @@ public class BytecodeInstrumentation {
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
 		        || shouldTransform(classNameWithDots)) {
-			ClassNode cn = new ClassNode();
+			ClassNode cn = new AnnotatedClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
 			logger.info("Starting transformation of " + className);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			if (isTargetClassName(classNameWithDots)
-			        || shouldTransform(classNameWithDots))
+			        || shouldTransform(classNameWithDots)) {
 				cn = cmp.transform();
+			}
 
 			if (Properties.STRING_REPLACEMENT) {
 				StringTransformation st = new StringTransformation(cn);

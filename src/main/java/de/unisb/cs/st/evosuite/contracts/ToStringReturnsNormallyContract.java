@@ -3,6 +3,8 @@
  */
 package de.unisb.cs.st.evosuite.contracts;
 
+import java.lang.reflect.Method;
+
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor.TimeoutExceeded;
@@ -21,6 +23,19 @@ public class ToStringReturnsNormallyContract extends Contract {
 		for (Object object : getAllObjects(scope)) {
 			if (object == null)
 				continue;
+
+			// We do not want to call toString if it is the default implementation
+			Class<?>[] parameters = {};
+			try {
+				Method equalsMethod = object.getClass().getMethod("toString", parameters);
+				if (equalsMethod.getDeclaringClass().equals(Object.class))
+					continue;
+
+			} catch (SecurityException e1) {
+				continue;
+			} catch (NoSuchMethodException e1) {
+				continue;
+			}
 
 			try {
 				// toString must not throw an exception

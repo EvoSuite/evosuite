@@ -26,7 +26,7 @@ public class FailingTestSet {
 	/*
 	 * FIXME: if actually used, need way to reset them
 	 */
-	
+
 	/** The violated tracked */
 	private static final List<ContractViolation> violations = new ArrayList<ContractViolation>();
 
@@ -61,6 +61,36 @@ public class FailingTestSet {
 	}
 
 	/**
+	 * How many violations of this contract have we observed in total?
+	 * 
+	 * @param contract
+	 * @return
+	 */
+	public static int getNumberOfViolations(Contract contract) {
+		int num = 0;
+		for (ContractViolation violation : violations) {
+			if (violation.getContract().equals(contract))
+				num++;
+		}
+		return num;
+	}
+
+	/**
+	 * How many violations of this contract have we observed in total?
+	 * 
+	 * @param contract
+	 * @return
+	 */
+	public static int getNumberOfViolations(Class<?> contractClass) {
+		int num = 0;
+		for (ContractViolation violation : violations) {
+			if (violation.getContract().getClass().equals(contractClass))
+				num++;
+		}
+		return num;
+	}
+
+	/**
 	 * How many unique violations have we observed?
 	 * 
 	 * @return
@@ -82,7 +112,8 @@ public class FailingTestSet {
 			ContractViolation violation = violations.get(i);
 			violation.minimizeTest();
 			// TODO: Add comment about contract violation
-			writer.insertTest(violation.getTestCase());
+			writer.insertTest(violation.getTestCase(), " Contract violation: "
+			        + violation.getContract().toString());
 		}
 		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 		String testDir = Properties.TEST_DIR;

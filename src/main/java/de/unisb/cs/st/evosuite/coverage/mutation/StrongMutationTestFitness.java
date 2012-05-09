@@ -76,8 +76,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 				MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();
-			if (!result.exceptions.isEmpty()) {
-				num = result.exceptions.keySet().iterator().next();
+			if (!result.noThrownExceptions()) {
+				num = result.getFirstPositionOfThrownException();
 			}
 
 			//if (mutant == null)
@@ -107,8 +107,8 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			result.setHasTimeout(true);
 		}
 
-		if (!originalResult.exceptions.isEmpty()) {
-			if (mutationResult.exceptions.isEmpty())
+		if (!originalResult.noThrownExceptions()) {
+			if (mutationResult.noThrownExceptions())
 				result.setHasTimeout(true);
 		}
 
@@ -207,21 +207,21 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		                                               mutant_trace.coverage);
 		logger.debug("Coverage impact: " + coverage_impact);
 		logger.debug("Calculating data impact");
-		double data_impact = getCoverageDifference(orig_trace.return_data,
-		                                           mutant_trace.return_data);
+		double data_impact = getCoverageDifference(orig_trace.returnData,
+		                                           mutant_trace.returnData);
 		logger.debug("Data impact: " + data_impact);
 
 		double branch_impact = 0.0;
-		for (Integer predicate : orig_trace.covered_predicates.keySet()) {
-			if (mutant_trace.true_distances.containsKey(predicate)) {
-				branch_impact += normalize(Math.abs(orig_trace.true_distances.get(predicate)
-				        - mutant_trace.true_distances.get(predicate)));
+		for (Integer predicate : orig_trace.coveredPredicates.keySet()) {
+			if (mutant_trace.trueDistances.containsKey(predicate)) {
+				branch_impact += normalize(Math.abs(orig_trace.trueDistances.get(predicate)
+				        - mutant_trace.trueDistances.get(predicate)));
 			} else {
 				branch_impact += 1.0;
 			}
-			if (mutant_trace.false_distances.containsKey(predicate)) {
-				branch_impact += normalize(Math.abs(orig_trace.false_distances.get(predicate)
-				        - mutant_trace.false_distances.get(predicate)));
+			if (mutant_trace.falseDistances.containsKey(predicate)) {
+				branch_impact += normalize(Math.abs(orig_trace.falseDistances.get(predicate)
+				        - mutant_trace.falseDistances.get(predicate)));
 			} else {
 				branch_impact += 1.0;
 			}
@@ -282,10 +282,10 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		if (executionDistance <= 0) {
 			// Add infection distance
 			assert (result.getTrace() != null);
-			assert (result.getTrace().mutant_distances != null);
+			assert (result.getTrace().mutantDistances != null);
 			assert (mutation != null);
 			assert (result.getTrace().touchedMutants.contains(mutation.getId()));
-			infectionDistance = normalize(result.getTrace().mutant_distances.get(mutation.getId()));
+			infectionDistance = normalize(result.getTrace().mutantDistances.get(mutation.getId()));
 			logger.debug("Infection distance for mutation = " + infectionDistance);
 
 			// If infected check if it is also killed

@@ -53,6 +53,10 @@ public class JCrasherExceptionContract extends Contract {
 					if (element.getMethodName().equals(methodName)) {
 						return true;
 					}
+					// If the exception was thrown in the test directly, it is also not interesting
+					if (element.getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+						return true;
+					}
 					return false;
 				}
 			}
@@ -63,7 +67,7 @@ public class JCrasherExceptionContract extends Contract {
 
 	@Override
 	public String toString() {
-		return "Undeclared exception check";
+		return "Undeclared exception (JCrasher style)";
 	}
 
 }

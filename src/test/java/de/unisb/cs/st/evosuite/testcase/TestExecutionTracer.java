@@ -24,11 +24,11 @@ public class TestExecutionTracer {
 		final String methodName = "greaterEqual_IF_CMPLT";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature, BranchPool.getBranch(branchId).getMethodName());
-		Assert.assertEquals(0.0, execTrace.true_distances.get(branchId), DELTA);
-		Assert.assertEquals(1.0, execTrace.false_distances.get(branchId), DELTA);
+		Assert.assertEquals(0.0, execTrace.trueDistances.get(branchId), DELTA);
+		Assert.assertEquals(1.0, execTrace.falseDistances.get(branchId), DELTA);
 		execTrace = execute(methodName, 5, 6);
-		Assert.assertEquals(1.0, execTrace.true_distances.get(branchId), DELTA);
-		Assert.assertEquals(0.0, execTrace.false_distances.get(branchId), DELTA);
+		Assert.assertEquals(1.0, execTrace.trueDistances.get(branchId), DELTA);
+		Assert.assertEquals(0.0, execTrace.falseDistances.get(branchId), DELTA);
 	}
 
 	@Ignore
@@ -38,11 +38,11 @@ public class TestExecutionTracer {
 		final String methodName = "greaterThan_IF_CMPLE";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature, BranchPool.getBranch(branchId).getMethodName());
-		Assert.assertEquals(1.0, execTrace.true_distances.get(branchId), DELTA);
-		Assert.assertEquals(0.0, execTrace.false_distances.get(branchId), DELTA);
+		Assert.assertEquals(1.0, execTrace.trueDistances.get(branchId), DELTA);
+		Assert.assertEquals(0.0, execTrace.falseDistances.get(branchId), DELTA);
 		execTrace = execute(methodName, 6, 5);
-		Assert.assertEquals(0.0, execTrace.true_distances.get(branchId), DELTA);
-		Assert.assertEquals(1.0, execTrace.false_distances.get(branchId), DELTA);
+		Assert.assertEquals(0.0, execTrace.trueDistances.get(branchId), DELTA);
+		Assert.assertEquals(1.0, execTrace.falseDistances.get(branchId), DELTA);
 	}
 
 	@Ignore
@@ -52,14 +52,14 @@ public class TestExecutionTracer {
 		final String methodName = "lesserEqual_IF_CMPGT";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature, BranchPool.getBranch(branchId).getMethodName());
-		Assert.assertEquals(0.0, execTrace.true_distances.get(branchId), DELTA);
-		Assert.assertEquals(1.0, execTrace.false_distances.get(branchId), DELTA);
+		Assert.assertEquals(0.0, execTrace.trueDistances.get(branchId), DELTA);
+		Assert.assertEquals(1.0, execTrace.falseDistances.get(branchId), DELTA);
 		execTrace = execute(methodName, 6, 5);
-		Assert.assertEquals(1.0, execTrace.true_distances.get(branchId), DELTA);
-		Assert.assertEquals(0.0, execTrace.false_distances.get(branchId), DELTA);
+		Assert.assertEquals(1.0, execTrace.trueDistances.get(branchId), DELTA);
+		Assert.assertEquals(0.0, execTrace.falseDistances.get(branchId), DELTA);
 		execTrace = execute(methodName, 5, 6);
-		Assert.assertEquals(0.0, execTrace.true_distances.get(branchId), DELTA);
-		Assert.assertEquals(2.0, execTrace.false_distances.get(branchId), DELTA);
+		Assert.assertEquals(0.0, execTrace.trueDistances.get(branchId), DELTA);
+		Assert.assertEquals(2.0, execTrace.falseDistances.get(branchId), DELTA);
 	}
 
 	@Ignore
@@ -69,11 +69,11 @@ public class TestExecutionTracer {
 		final String methodName = "lesserThan_IF_CMPGE";
 		ExecutionTrace execTrace = execute(methodName, 5, 5);
 		Assert.assertEquals(methodName + signature, BranchPool.getBranch(branchId).getMethodName());
-		Assert.assertEquals(0.0, execTrace.true_distances.get(branchId), 1.0);
-		Assert.assertEquals(0.0, execTrace.false_distances.get(branchId), 0.0);
+		Assert.assertEquals(0.0, execTrace.trueDistances.get(branchId), 1.0);
+		Assert.assertEquals(0.0, execTrace.falseDistances.get(branchId), 0.0);
 		execTrace = execute(methodName, 5, 6);
-		Assert.assertEquals(0.0, execTrace.true_distances.get(branchId), 0.0);
-		Assert.assertEquals(0.0, execTrace.false_distances.get(branchId), 1.0);
+		Assert.assertEquals(0.0, execTrace.trueDistances.get(branchId), 0.0);
+		Assert.assertEquals(0.0, execTrace.falseDistances.get(branchId), 1.0);
 	}
 
 	private ExecutionTrace execute(String methodName, Integer val1, Integer val2) {

@@ -69,7 +69,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		boolean methodExecuted = false;
 
 		// logger.info("Looking for unfitness of " + goal);
-		for (MethodCall call : result.getTrace().finished_calls) {
+		for (MethodCall call : result.getTrace().finishedCalls) {
 			if (call.className.equals(goal.className)
 			        && call.methodName.equals(goal.methodName)) {
 				methodExecuted = true;

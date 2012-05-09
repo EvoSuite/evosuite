@@ -27,7 +27,6 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.DeleteField;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.DeleteStatement;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.InsertUnaryOperator;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.MutationOperator;
-import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.NegateCondition;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceArithmeticOperator;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceBitwiseOperator;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.ReplaceComparisonOperator;
@@ -63,7 +62,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		mutationOperators.add(new ReplaceVariable());
 
 		mutationOperators.add(new ReplaceConstant());
-		mutationOperators.add(new NegateCondition());
+		// mutationOperators.add(new NegateCondition());
 		// FIXME: Don't apply to boolean values!
 		mutationOperators.add(new InsertUnaryOperator());
 

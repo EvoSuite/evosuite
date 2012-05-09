@@ -67,7 +67,14 @@ public class VariableReferenceImpl implements VariableReference {
 				}
 			}
 			if (stPosition == null) {
-				throw new AssertionError(
+				String msg = "Bloody annoying bug \n";
+				msg += "Test case has "+testCase.size()+" function calls \n";
+				for (int i = 0; i < testCase.size(); i++) {
+					msg += testCase.getStatement(i).getCode(null)+"\n";
+				}
+				msg += "failed to find type "+ this.type.getTypeName()+"\n";
+				
+				throw new AssertionError( msg + 
 				        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 			}
 		}

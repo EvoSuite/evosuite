@@ -21,57 +21,169 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.assertion.OutputTrace;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 
 public class ExecutionResult {
+
+	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
+	
+	/** Test case that produced this execution result */
 	public TestCase test;
 
+	/** Mutation that was active during execution */
 	public Mutation mutation;
 
 	/** Map statement number to raised exception */
-	public Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	private Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
+	/** Record for each exception if it was explicitly thrown */
+	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
+
+	/** Trace recorded during execution */
 	private ExecutionTrace trace;
+
+	/** Output traces produced by observers */
 	private final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
 
+	/**
+	 * Default constructor when executing without mutation
+	 * 
+	 * @param t
+	 */
 	public ExecutionResult(TestCase t) {
 		trace = null;
 		mutation = null;
 		test = t;
 	}
 
+	public void setThrownExceptions(Map<Integer, Throwable> data){
+		exceptions.clear();
+		for(Integer position : data.keySet()){
+			reportNewThrownException(position, data.get(position));
+		}
+	}
+	
+	public Integer getFirstPositionOfThrownException(){
+		Integer min = null;
+		for(Integer position : exceptions.keySet()){
+			if(min==null || position < min){
+				min = position;
+			}
+		}
+		return min;
+	}
+	
+	public void reportNewThrownException(Integer position, Throwable t){
+		exceptions.put(position, t);
+	}
+	
+	public Set<Integer> getPositionsWhereExceptionsWereThrown(){
+		return exceptions.keySet();
+	}
+	
+	public Collection<Throwable> getAllThrownExceptions(){
+		return exceptions.values();
+	}
+	
+	public boolean isThereAnExceptionAtPosition(Integer position){
+		return exceptions.containsKey(position);
+	}
+	
+	public boolean noThrownExceptions(){
+		return exceptions.isEmpty();
+	}
+	
+	public Throwable getExceptionThrownAtPosition(Integer position){
+		return exceptions.get(position);
+	}
+	
+	public int getNumberOfThrownExceptions(){
+		return exceptions.size();
+	}
+	
+	/**
+	 * 	 shouldn't be used 
+	 */
+	@Deprecated
+	public Map<Integer, Throwable> exposeExceptionMapping(){
+		return exceptions;
+	}
+	
+	
+	/**
+	 * Constructor when executing with mutation
+	 * 
+	 * @param t
+	 * @param m
+	 */
 	public ExecutionResult(TestCase t, Mutation m) {
 		trace = null;
 		mutation = m;
 		test = t;
 	}
 
+	/**
+	 * Accessor to the execution trace
+	 * 
+	 * @return
+	 */
 	public ExecutionTrace getTrace() {
 		return trace;
 	}
 
+	/**
+	 * Set execution trace to different value
+	 * 
+	 * @param trace
+	 */
 	public void setTrace(ExecutionTrace trace) {
 		assert (trace != null);
 		this.trace = trace;
 	}
 
+	/**
+	 * Store a new output trace
+	 * 
+	 * @param trace
+	 * @param clazz
+	 */
 	public void setTrace(OutputTrace<?> trace, Class<?> clazz) {
 		traces.put(clazz, trace);
 	}
 
+	/**
+	 * Accessor for output trace produced by an observer of a particular class
+	 * 
+	 * @param clazz
+	 * @return
+	 */
 	public OutputTrace<?> getTrace(Class<?> clazz) {
 		return traces.get(clazz);
 	}
 
+	/**
+	 * Accessor for the output traces produced by observers
+	 * 
+	 * @return
+	 */
 	public Collection<OutputTrace<?>> getTraces() {
 		return traces.values();
 	}
 
+	/**
+	 * Was the reason for termination a timeout?
+	 * 
+	 * @return
+	 */
 	public boolean hasTimeout() {
 		if (test == null)
 			return false;
@@ -123,38 +235,4 @@ public class ExecutionResult {
 		result += trace;
 		return result;
 	}
-
-	// Killed mutants
-	// List<Mutation> dead = new ArrayList<Mutation>();
-
-	// Live mutants
-	// List<Mutation> live = new ArrayList<Mutation>();
-
-	// Objects with mutants
-	// List<Mutation> have_object = new ArrayList<Mutation>();
-
-	// Mutated methods called
-	// List<Mutation> have_methodcall = new ArrayList<Mutation>();
-
-	// Mutations touched
-	// List<Mutation> touched = new ArrayList<Mutation>();
-
-	// Map<Mutation, List<ExecutionTracer.TraceEntry> > mutant_traces = new
-	// HashMap<Mutation, List<TraceEntry> >();
-
-	// Map<Long, Double> distance = new HashMap<Long, Double>();
-	// Map<Long, Integer> levenshtein = new HashMap<Long, Integer>();
-
-	// Fitness(M) = A * have_object(M) + B * have_methodcall(M) + C * touched(M)
-	// + D * impact(M)
-
-	// impact(M) = Sum(E * distance_method * 3)
-
-	// int num_mutants;
-	// double average_length = 0.0;
-	// double max_length = 0.0;
-
-	// int getNumKilled() {
-	// return dead.size();
-	// }
 }

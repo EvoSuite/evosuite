@@ -55,7 +55,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
 public class Properties {
 
 	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
-	
+
 	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
@@ -134,7 +134,8 @@ public class Properties {
 	public static int STRING_LENGTH = 20;
 
 	@Parameter(key = "epsilon", group = "Test Creation", description = "Epsilon for floats in local search")
-	@Deprecated // does not seem to be used anywhere
+	@Deprecated
+	// does not seem to be used anywhere
 	public static double EPSILON = 0.001;
 
 	@Parameter(key = "max_int", group = "Test Creation", description = "Maximum size of randomly generated integers (minimum range = -1 * max)")
@@ -324,26 +325,29 @@ public class Properties {
 
 	public enum TheReplacementFunction {
 		/**
-		 * Indicates a replacement function which works for all chromosomes because it solely relies on
-		 * fitness values.
+		 * Indicates a replacement function which works for all chromosomes
+		 * because it solely relies on fitness values.
 		 */
-		FITNESSREPLACEMENT, 
+		FITNESSREPLACEMENT,
 		/**
-		 * EvoSuite's default replacement function which only works on subtypes of the default chromosome types.
-		 * Relies on fitness plus secondary goals such as length.
+		 * EvoSuite's default replacement function which only works on subtypes
+		 * of the default chromosome types. Relies on fitness plus secondary
+		 * goals such as length.
 		 */
 		DEFAULT
 	}
-	
+
 	/**
-	 * During search the genetic algorithm has to decide whether the parent chromosomes or the freshly created 
-	 * offspring chromosomes should be preferred. If you use EvoSuite with its default chromosomes
-	 * the TheReplacementFunction.DEFAULT is what you want. If your chromosomes are not a subclass of the default
-	 * chromosomes your have to write your own replacement function or use TheReplacementFunction.FITNESSREPLACEMENT.
+	 * During search the genetic algorithm has to decide whether the parent
+	 * chromosomes or the freshly created offspring chromosomes should be
+	 * preferred. If you use EvoSuite with its default chromosomes the
+	 * TheReplacementFunction.DEFAULT is what you want. If your chromosomes are
+	 * not a subclass of the default chromosomes your have to write your own
+	 * replacement function or use TheReplacementFunction.FITNESSREPLACEMENT.
 	 */
 	@Parameter(key = "replacement_function", group = "Search Algorithm", description = "Replacement function for comparing offspring to parents during search")
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
-	
+
 	public enum SelectionFunction {
 		RANK, ROULETTEWHEEL, TOURNAMENT
 	}
@@ -733,7 +737,7 @@ public class Properties {
 	public static Criterion CRITERION = Criterion.BRANCH;
 
 	public enum Strategy {
-		ONEBRANCH, EVOSUITE
+		ONEBRANCH, EVOSUITE, RANDOM
 	}
 
 	@Parameter(key = "strategy", group = "Runtime", description = "Which mode to use")
@@ -1241,7 +1245,8 @@ public class Properties {
 	 * @return
 	 */
 	public static Class<?> getTargetClass() {
-		if (TARGET_CLASS_INSTANCE != null && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
+		if (TARGET_CLASS_INSTANCE != null
+		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
 		BranchPool.reset();
@@ -1264,6 +1269,7 @@ public class Properties {
 	 * 
 	 * @deprecated
 	 */
+	@Deprecated
 	public static Class<?> loadTargetClass() {
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);

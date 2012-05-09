@@ -51,6 +51,17 @@ import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.Properties.NoSuchParameterException;
+import de.unisb.cs.st.evosuite.contracts.AssertionErrorContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsHashcodeContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsNullContract;
+import de.unisb.cs.st.evosuite.contracts.EqualsSymmetricContract;
+import de.unisb.cs.st.evosuite.contracts.FailingTestSet;
+import de.unisb.cs.st.evosuite.contracts.HashCodeReturnsNormallyContract;
+import de.unisb.cs.st.evosuite.contracts.JCrasherExceptionContract;
+import de.unisb.cs.st.evosuite.contracts.NullPointerExceptionContract;
+import de.unisb.cs.st.evosuite.contracts.ToStringReturnsNormallyContract;
+import de.unisb.cs.st.evosuite.contracts.UndeclaredExceptionContract;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
@@ -98,12 +109,22 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** Total number of branches */
 		public int total_branches;
 
+		public int error_branches = 0;
+
+		public int error_branches_covered = 0;
+
+		public int error_branchless_methods = 0;
+
+		public int error_branchless_methods_covered = 0;
+
 		/** Total number of branches */
 		public int covered_branches;
 
 		public int total_methods;
 
 		public int branchless_methods;
+
+		public int covered_branchless_methods;
 
 		public int covered_methods;
 
@@ -198,15 +219,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String goalCoverage;
 
-		public int methodExceptions;
+		public int explicitMethodExceptions;
 
-		public int typeExceptions;
+		public int explicitTypeExceptions;
+
+		public int implicitMethodExceptions;
+
+		public int implicitTypeExceptions;
 
 		public Map<String, Set<Class<?>>> exceptions;
 
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
-			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,");
+			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,Covered Branchless Methods,");
 			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,");
 			r.append("Minimized Size,Minimized Length,");
 			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
@@ -223,8 +248,26 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append("JUnitTests,");
 			r.append("Branches,");
 			r.append("MutationScore,");
-			r.append("MethodExceptions,");
-			r.append("TypeExceptions,");
+			r.append("Explicit MethodExceptions,");
+			r.append("Explicit TypeExceptions,");
+			r.append("Implicit MethodExceptions,");
+			r.append("Implicit TypeExceptions,");
+			r.append("Error Predicates,");
+			r.append("Error Branches Covered,");
+			r.append("Error Branchless Methods,");
+			r.append("Error Branchless Methods Covered,");
+			r.append("AssertionContract,");
+			r.append("EqualsContract,");
+			r.append("EqualsHashcodeContract,");
+			r.append("EqualsNullContract,");
+			r.append("EqualsSymmetricContract,");
+			r.append("HashCodeReturnsNormallyContract,");
+			r.append("JCrasherExceptionContract,");
+			r.append("NullPointerExceptionContract,");
+			r.append("ToStringReturnsNormallyContract,");
+			r.append("UndeclaredExceptionContract,");
+			r.append("Contract Violations,");
+			r.append("Unique Violations,");
 			r.append("Data File");
 			return r.toString();
 		}
@@ -241,6 +284,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			r.append(total_methods + ",");
 			r.append(branchless_methods + ",");
 			r.append(covered_methods + ",");
+			r.append(covered_branchless_methods + ",");
 
 			r.append(total_goals + ",");
 			r.append(covered_goals + ",");
@@ -304,8 +348,34 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			r.append(goalCoverage + ",");
 			r.append(mutationScore + ",");
-			r.append(methodExceptions + ",");
-			r.append(typeExceptions + ",");
+			r.append(explicitMethodExceptions + ",");
+			r.append(explicitTypeExceptions + ",");
+			r.append(implicitMethodExceptions + ",");
+			r.append(implicitTypeExceptions + ",");
+			r.append(error_branches + ",");
+			r.append(error_branches_covered + ",");
+			r.append(error_branchless_methods + ",");
+			r.append(error_branchless_methods_covered + ",");
+			r.append(FailingTestSet.getNumberOfViolations(AssertionErrorContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsContract.class) + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsNullContract.class) + ",");
+			r.append(FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(JCrasherExceptionContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(NullPointerExceptionContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class)
+			        + ",");
+			r.append(FailingTestSet.getNumberOfViolations() + ",");
+			r.append(FailingTestSet.getNumberOfUniqueViolations() + ",");
 			r.append(getCSVFilepath());
 
 			return r.toString();
@@ -935,33 +1005,30 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		return covered_lines;
 	}
 
-	public ExecutionTrace executeTest(TestCase test, String className) {
-		ExecutionTrace trace = null;
+	public ExecutionResult executeTest(TestCase test, String className) {
+		ExecutionResult result = null;
 		try {
 			// logger.trace(test.toCode());
 			TestCaseExecutor executor = TestCaseExecutor.getInstance();
-			ExecutionResult result = executor.execute(test);
+			result = executor.execute(test);
 			// Map<Integer, Throwable> result = executor.run(test);
 			StatisticEntry entry = statistics.get(statistics.size() - 1);
 			// entry.results.put(test, result);
-			entry.results.put(test, result.exceptions);
-
-			// trace = ExecutionTracer.getExecutionTracer().getTrace();
-			trace = result.getTrace();
+			entry.results.put(test, result.exposeExceptionMapping());
 
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
 			try {
 				Thread.sleep(1000);
-				trace = ExecutionTracer.getExecutionTracer().getTrace();
+				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			} catch (Exception e1) {
 				e.printStackTrace();
 				// TODO: Do some error recovery?
 				System.exit(1);
 			}
 		}
-		return trace;
+		return result;
 	}
 
 	public abstract void minimized(Chromosome result);

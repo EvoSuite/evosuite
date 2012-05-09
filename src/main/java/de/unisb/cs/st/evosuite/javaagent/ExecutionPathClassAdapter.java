@@ -35,15 +35,14 @@ import de.unisb.cs.st.evosuite.Properties.Criterion;
  */
 public class ExecutionPathClassAdapter extends ClassVisitor {
 
-	
 	private final String className;
 
-	private static boolean isMutation(){
+	private static boolean isMutation() {
 		return Properties.CRITERION == Criterion.MUTATION
 		        || Properties.CRITERION == Criterion.STRONGMUTATION
 		        || Properties.CRITERION == Criterion.WEAKMUTATION;
 	}
-	
+
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
@@ -77,6 +76,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 		}
 		mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
 		mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
+		mv = new ExplicitExceptionHandler(mv, className, name, descriptor);
 		return mv;
 	}
 

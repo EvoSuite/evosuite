@@ -190,7 +190,8 @@ public class BooleanHelper {
 	}
 
 	/**
-	 * FIXME: the use of this function needs to be clarified 
+	 * FIXME: the use of this function needs to be clarified
+	 * 
 	 * @param distance
 	 * @return
 	 */
@@ -502,9 +503,9 @@ public class BooleanHelper {
 			//System.out.println("Edit distance between " + first + " and " + second
 			//       + " is " + -editDistance(first, second.toString()) + " / "
 			//      + getLevenshteinDistance(first, (String) second));
-			//return -editDistance(first, second.toString());
+			return -editDistance(first, second.toString());
 			//return -getLevenshteinDistance(first, (String) second);
-			return -getDistanceBasedOnLeftAlignment(first, second.toString());
+			//return -getDistanceBasedOnLeftAlignment(first, second.toString());
 		}
 	}
 

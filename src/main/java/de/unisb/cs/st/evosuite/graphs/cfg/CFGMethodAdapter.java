@@ -43,6 +43,7 @@ import de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.MutationInstrumentation;
 import de.unisb.cs.st.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.javaagent.AnnotatedMethodNode;
 import de.unisb.cs.st.evosuite.testcase.StaticTestCluster;
 
 /**
@@ -93,7 +94,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 		// className,
 		// name.replace('/', '.'), null, desc);
 
-		super(Opcodes.ASM4, new MethodNode(access, name, desc, signature, exceptions));
+		super(Opcodes.ASM4, new AnnotatedMethodNode(access, name, desc, signature,
+		        exceptions));
 
 		this.next = mv;
 		this.className = className; // .replace('/', '.');
@@ -149,7 +151,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 		// super.visitEnd();
 		// Generate CFG of method
-		MethodNode mn = (MethodNode) mv;
+		MethodNode mn = (AnnotatedMethodNode) mv;
 
 		// Only instrument if the method is (not main and not excluded) or (the
 		// MethodInstrumentation wants it anyway)

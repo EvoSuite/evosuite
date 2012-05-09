@@ -136,7 +136,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	private void addFields(List<VariableReference> variables, VariableReference var,
 	        Type type) {
 
-		if (!var.isPrimitive()) {
+		if (!var.isPrimitive() && !(var instanceof NullReference)) {
 			// add fields of this object to list
 			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
 				FieldReference f = new FieldReference(this, field, var);
@@ -255,6 +255,26 @@ public class DefaultTestCase implements TestCase, Serializable {
 	        throws ConstructionFailedException {
 		assert (type != null);
 		List<VariableReference> variables = getObjects(type, position);
+		if (variables.isEmpty())
+			throw new ConstructionFailedException("Found no variables of type " + type
+			        + " at position " + position);
+
+		return Randomness.choice(variables);
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
+	 */
+	@Override
+	public VariableReference getRandomNonNullObject(Type type, int position)
+	        throws ConstructionFailedException {
+		assert (type != null);
+		List<VariableReference> variables = getObjects(type, position);
+		Iterator<VariableReference> iterator = variables.iterator();
+		while (iterator.hasNext()) {
+			if (iterator.next() instanceof NullReference)
+				iterator.remove();
+		}
 		if (variables.isEmpty())
 			throw new ConstructionFailedException("Found no variables of type " + type
 			        + " at position " + position);
@@ -682,6 +702,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public Set<TestFitnessFunction> getCoveredGoals() {
 		return coveredGoals;
+	}
+
+	/* (non-Javadoc)
+	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#clearCoveredGoals()
+	 */
+	@Override
+	public void clearCoveredGoals() {
+		coveredGoals.clear();
 	}
 
 	/* (non-Javadoc)

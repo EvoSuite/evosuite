@@ -50,10 +50,10 @@ import de.unisb.cs.st.evosuite.sandbox.Sandbox;
 public class TestCaseExecutor implements ThreadFactory {
 
 	/**
-	 *  Used to identify the threads spawn by the SUT
+	 * Used to identify the threads spawn by the SUT
 	 */
 	public static final String TEST_EXECUTION_THREAD_GROUP = "Test Execution";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
@@ -184,11 +184,24 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 	}
 
+	/**
+	 * Execute a test case on a new scope
+	 * 
+	 * @param tc
+	 * @return
+	 */
 	public ExecutionResult execute(TestCase tc) {
 		Scope scope = new Scope();
 		return execute(tc, scope);
 	}
 
+	/**
+	 * Execute a test case on an existing scope
+	 * 
+	 * @param tc
+	 * @param scope
+	 * @return
+	 */
 	@SuppressWarnings("deprecation")
 	public ExecutionResult execute(TestCase tc, Scope scope) {
 		ExecutionTracer.getExecutionTracer().clear();
@@ -218,20 +231,12 @@ public class TestCaseExecutor implements ThreadFactory {
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
-
-			if (!result.exceptions.isEmpty()) {
-				Throwable e = result.exceptions.values().iterator().next();
-				if (e instanceof ThreadDeath) {
-					logger.warn("THREAD DEATH!");
-				}
-			}
-
 			return result;
 		} catch (ThreadDeath t) {
 			logger.warn("Caught ThreadDeath during test execution");
 			Sandbox.tearDownEverything();
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
+			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
@@ -240,7 +245,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			Sandbox.tearDownEverything();
 			logger.info("InterruptedException");
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
+			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			return result;
@@ -255,7 +260,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.error("ExecutionException (this is likely a serious error in the framework)",
 			             e1);
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
+			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			if (e1.getCause() instanceof Error) { //an error was thrown somewhere in evosuite code
@@ -334,8 +339,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			ExecutionTracer.disable();
 
 			ExecutionResult result = new ExecutionResult(tc, null);
-			result.exceptions = callable.getExceptionsThrown();
-			result.exceptions.put(tc.size(), new TestCaseExecutor.TimeoutExceeded());
+			result.setThrownExceptions(callable.getExceptionsThrown());
+			result.reportNewThrownException(tc.size(), new TestCaseExecutor.TimeoutExceeded());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			ExecutionTracer.setKillSwitch(false);
