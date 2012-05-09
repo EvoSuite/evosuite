@@ -61,7 +61,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	// TODO need jgrapht-0.8.3
 	ComponentAttributeProvider<V> vertexAttributeProvider = null;
 	ComponentAttributeProvider<E> edgeAttributeProvider = null;
-	
+
 	protected EvoSuiteGraph(Class<E> edgeClass) {
 
 		graph = new DefaultDirectedGraph<V, E>(edgeClass);
@@ -151,25 +151,47 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return r;
 	}
 
-	// TODO make SetUtils.copySet() or something for the following and other
-	// similar methods
-
 	public Set<V> vertexSet() {
-		Set<V> r = new HashSet<V>();
-
-		for (V v : graph.vertexSet())
-			r.add(v);
-
-		return r;
+		// TODO hash set? can't be sure V implements hash correctly
+		return new HashSet<V>(graph.vertexSet());
+		/*
+		 * Set<V> r = new HashSet<V>();
+		 * 
+		 * for (V v : graph.vertexSet()) r.add(v);
+		 * 
+		 * return r;
+		 */
 	}
 
 	public Set<E> edgeSet() {
-		Set<E> r = new HashSet<E>();
+		// TODO hash set? can't be sure E implements hash correctly
+		return new HashSet<E>(graph.edgeSet());
 
-		for (E e : graph.edgeSet())
-			r.add(e);
+		/*
+		 * Set<E> r = new HashSet<E>();
+		 * 
+		 * for (E e : graph.edgeSet()) r.add(e);
+		 * 
+		 * return r;
+		 */
+	}
 
-		return r;
+	/**
+	 * If the given node is contained within this graph and has exactly one
+	 * child v this method will return v. Otherwise it will return null
+	 */
+	public V getSingleChild(V node) {
+		if (node == null)
+			return null;
+		if (!graph.containsVertex(node))
+			return null;
+		if (outDegreeOf(node) != 1)
+			return null;
+
+		for (V r : getChildren(node))
+			return r;
+		// should be unreachable
+		return null;
 	}
 
 	// building the graph
@@ -203,87 +225,91 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 		return graph.addEdge(src, target, e);
 	}
-	
+
 	/**
-	 * Redirects all edges going into node from to the node newStart
-	 * and all edges going out of node from to the node newEnd.
+	 * Redirects all edges going into node from to the node newStart and all
+	 * edges going out of node from to the node newEnd.
 	 * 
-	 *   All three edges have to be present in the graph prior to a call to this method.
+	 * All three edges have to be present in the graph prior to a call to this
+	 * method.
 	 */
 	protected boolean redirectEdges(V from, V newStart, V newEnd) {
-		if(!(containsVertex(from) && containsVertex(newStart) && containsVertex(newEnd)))
-				throw new IllegalArgumentException("expect all given nodes to be present in this graph");
-		
-		if(!redirectIncomingEdges(from, newStart))
+		if (!(containsVertex(from) && containsVertex(newStart) && containsVertex(newEnd)))
+			throw new IllegalArgumentException(
+					"expect all given nodes to be present in this graph");
+
+		if (!redirectIncomingEdges(from, newStart))
 			return false;
-		
-		if(!redirectOutgoingEdges(from, newEnd))
+
+		if (!redirectOutgoingEdges(from, newEnd))
 			return false;
-		
+
 		return true;
 	}
 
 	/**
-	 * Redirects all incoming edges to oldNode to node newNode by
-	 * calling redirectEdgeTarget for each incoming edge of oldNode 
+	 * Redirects all incoming edges to oldNode to node newNode by calling
+	 * redirectEdgeTarget for each incoming edge of oldNode
 	 */
 	protected boolean redirectIncomingEdges(V oldNode, V newNode) {
 		Set<E> incomings = incomingEdgesOf(oldNode);
-		for(E incomingEdge : incomings) {
-			if(!redirectEdgeTarget(incomingEdge, newNode))
+		for (E incomingEdge : incomings) {
+			if (!redirectEdgeTarget(incomingEdge, newNode))
 				return false;
 		}
-		
-		return true;
-	}
-	
-	/**
-	 * Redirects all outgoing edges to oldNode to node newNode by
-	 * calling redirectEdgeSource for each outgoing edge of oldNode 
-	 */
-	protected boolean redirectOutgoingEdges(V oldNode, V newNode) {
-		Set<E> outgoings = outgoingEdgesOf(oldNode);
-		for(E outgoingEdge : outgoings) {
-			if(!redirectEdgeSource(outgoingEdge, newNode))
-				return false;
-		}
-		
+
 		return true;
 	}
 
 	/**
-	 * Redirects the edge target of the given edge to the given node
-	 * by removing the given edge from the graph and reinserting it
-	 * from the original source node to the given node
+	 * Redirects all outgoing edges to oldNode to node newNode by calling
+	 * redirectEdgeSource for each outgoing edge of oldNode
 	 */
-	protected boolean redirectEdgeTarget(E edge, V node) {
-		if(!(containsVertex(node) && containsEdge(edge)))
-			throw new IllegalArgumentException("edge and node must be present in this graph");
-		
-		V edgeSource = graph.getEdgeSource(edge);
-		if(!graph.removeEdge(edge))
-			return false;
-		if(!addEdge(edgeSource, node, edge))
-			return false;
-		
+	protected boolean redirectOutgoingEdges(V oldNode, V newNode) {
+		Set<E> outgoings = outgoingEdgesOf(oldNode);
+		for (E outgoingEdge : outgoings) {
+			if (!redirectEdgeSource(outgoingEdge, newNode))
+				return false;
+		}
+
 		return true;
 	}
-	
+
 	/**
-	 * Redirects the edge source of the given edge to the given node
-	 * by removing the given edge from the graph and reinserting it
-	 * from the given node to the original target node
+	 * Redirects the edge target of the given edge to the given node by removing
+	 * the given edge from the graph and reinserting it from the original source
+	 * node to the given node
+	 */
+	protected boolean redirectEdgeTarget(E edge, V node) {
+		if (!(containsVertex(node) && containsEdge(edge)))
+			throw new IllegalArgumentException(
+					"edge and node must be present in this graph");
+
+		V edgeSource = graph.getEdgeSource(edge);
+		if (!graph.removeEdge(edge))
+			return false;
+		if (!addEdge(edgeSource, node, edge))
+			return false;
+
+		return true;
+	}
+
+	/**
+	 * Redirects the edge source of the given edge to the given node by removing
+	 * the given edge from the graph and reinserting it from the given node to
+	 * the original target node
 	 */
 	protected boolean redirectEdgeSource(E edge, V node) {
-		if(!(containsVertex(node) && containsEdge(edge)))
-			throw new IllegalArgumentException("edge and node must be present in this graph");
-		
+		if (!(containsVertex(node) && containsEdge(edge)))
+			throw new IllegalArgumentException(
+					"edge and node must be present in this graph");
+
 		V edgeTarget = graph.getEdgeTarget(edge);
-		if(!graph.removeEdge(edge))
+		if (!graph.removeEdge(edge))
 			return false;
-		if(!addEdge(node, edgeTarget, edge))
+		if (!addEdge(node, edgeTarget, edge))
 			return false;
-		
+
 		return true;
 	}
 
@@ -399,17 +425,46 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		return visited;
 	}
 
-	public boolean hasNPartentsMChildren(V node, int parents, int children) {
+	/**
+	 * Returns true iff whether the given node is not null, in this graph and
+	 * has exactly n parents and m children.
+	 */
+	public boolean hasNPartentsMChildren(V node, int n, int m) {
 		if (node == null || !containsVertex(node))
 			return false;
 
-		return inDegreeOf(node) == parents && outDegreeOf(node) == children;
+		return inDegreeOf(node) == n && outDegreeOf(node) == m;
+	}
+
+	/**
+	 * Returns a Set of all nodes within this graph that neither have incoming
+	 * nor outgoing edges.
+	 */
+	public Set<V> getIsolatedNodes() {
+		Set<V> r = new HashSet<V>();
+		for (V node : graph.vertexSet())
+			if (inDegreeOf(node) == 0 && outDegreeOf(node) == 0)
+				r.add(node);
+		return r;
+	}
+
+	/**
+	 * Returns a Set containing every node in this graph that has no outgoing
+	 * edges.
+	 */
+	public Set<V> getNodesWithoutChildren() {
+		Set<V> r = new HashSet<V>();
+		for (V node : graph.vertexSet())
+			if (outDegreeOf(node) == 0)
+				r.add(node);
+		return r;
 	}
 
 	// utilities
 
 	public V getRandomVertex() {
-		for (V v : vertexSet())
+		// TODO that's not really random
+		for (V v : graph.vertexSet())
 			return v;
 
 		return null;
@@ -431,7 +486,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	public Set<V> determineBranches() {
 		Set<V> r = new HashSet<V>();
 
-		for (V instruction : vertexSet())
+		for (V instruction : graph.vertexSet())
 			if (outDegreeOf(instruction) > 1)
 				r.add(instruction);
 
@@ -506,8 +561,9 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 
 	protected String toFileString(String name) {
 
-		return name.replaceAll("\\(", "_").replaceAll("\\)", "_").replaceAll(
-				";", "_").replaceAll("/", "_").replaceAll("<", "_").replaceAll(">", "_");
+		return name.replaceAll("\\(", "_").replaceAll("\\)", "_")
+				.replaceAll(";", "_").replaceAll("/", "_").replaceAll("<", "_")
+				.replaceAll(">", "_");
 	}
 
 	private void createGraphDirectory() {
@@ -515,8 +571,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		File graphDir = new File(getGraphDirectory());
 
 		if (!graphDir.exists() && !graphDir.mkdirs())
-			throw new IllegalStateException(
-					"unable to create directory "+getGraphDirectory());
+			throw new IllegalStateException("unable to create directory "
+					+ getGraphDirectory());
 	}
 
 	private void createToPNGScript(String filename) {
@@ -539,19 +595,22 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	public String getName() {
 		return "EvoSuiteGraph_" + graphId;
 	}
-	
-	public void registerVertexAttributeProvider(ComponentAttributeProvider<V> vertexAttributeProvider) {
+
+	public void registerVertexAttributeProvider(
+			ComponentAttributeProvider<V> vertexAttributeProvider) {
 		this.vertexAttributeProvider = vertexAttributeProvider;
 	}
-	
-	public void registerEdgeAttributeProvider(ComponentAttributeProvider<E> edgeAttributeProvider) {
+
+	public void registerEdgeAttributeProvider(
+			ComponentAttributeProvider<E> edgeAttributeProvider) {
 		this.edgeAttributeProvider = edgeAttributeProvider;
 	}
 
 	private void toDot(String filename) {
 
-		// TODO check if graphviz/dot is actually available on the current machine
-		
+		// TODO check if graphviz/dot is actually available on the current
+		// machine
+
 		try {
 
 			FileWriter fstream = new FileWriter(filename);
@@ -571,9 +630,8 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 						new IntegerNameProvider<V>(),
 						new StringNameProvider<V>(),
 						new StringEdgeNameProvider<E>(),
-						vertexAttributeProvider,
-						edgeAttributeProvider);
-				
+						vertexAttributeProvider, edgeAttributeProvider);
+
 				// new IntegerEdgeNameProvider<E>());
 				exporter.export(out, graph);
 

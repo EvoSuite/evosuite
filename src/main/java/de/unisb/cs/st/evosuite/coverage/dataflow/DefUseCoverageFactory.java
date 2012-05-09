@@ -92,20 +92,25 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
 
-		System.out.print("* Creating parameter goals...");
-		duGoals.addAll(getParameterGoals());
-		System.out.println(" created " + goalCounts.get(DefUsePairType.PARAMETER)+" parameter goals");
-
 		System.out.println("* Creating DefUse-Pairs from CCFG...");
 		duGoals.addAll(getCCFGPairs());
-		System.out.println("..created " + goalCounts.get(DefUsePairType.INTRA_METHOD)+ " intra-method-, "+goalCounts.get(DefUsePairType.INTER_METHOD) +" inter-method- and "+goalCounts.get(DefUsePairType.INTRA_CLASS)+" intra-class-pairs");
+		System.out.println("..created " + getIntraMethodGoalsCount()
+				+ " intra-method-, " + getInterMethodGoalsCount()
+				+ " inter-method- and " + getIntraClassGoalsCount()
+				+ " intra-class-pairs");
+
+		System.out.print("* Creating parameter goals...");
+		duGoals.addAll(getParameterGoals());
+		System.out.println(" created " + getParamGoalsCount()
+				+ " parameter goals");
 
 		called = true;
 		goals = new ArrayList<TestFitnessFunction>();
 		goals.addAll(duGoals);
 		long end = System.currentTimeMillis();
 		goalComputationTime = end - start;
-		System.out.println("* Goal computation took: " + goalComputationTime + "ms");
+		System.out.println("* Goal computation took: " + goalComputationTime
+				+ "ms");
 	}
 
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
@@ -136,7 +141,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		if (registerGoal(goal))
 			return goal;
 		else {
-//			System.out.println("Discarding goal: "+goal.toString());
+			// System.out.println("Discarding goal: "+goal.toString());
 			return null;
 		}
 	}
@@ -147,15 +152,18 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 * createGoal(Definition,Use)
 	 */
 	public static DefUseCoverageTestFitness createGoal(BytecodeInstruction def,
-			BytecodeInstruction use, DefUseCoverageTestFitness.DefUsePairType type) {
-		if(def==null)
+			BytecodeInstruction use,
+			DefUseCoverageTestFitness.DefUsePairType type) {
+		if (def == null)
 			throw new IllegalArgumentException("null given as def");
-		if(use==null)
+		if (use == null)
 			throw new IllegalArgumentException("null given as use");
-		
+
 		Definition definition = DefUsePool.getDefinitionByInstruction(def);
 		Use usee = DefUsePool.getUseByInstruction(use);
-		if(definition == null || usee==null) // can happen in (very, very) weird cases, ignoring that for now
+		if (definition == null || usee == null) // can happen in (very, very)
+												// weird cases, ignoring that
+												// for now
 			return null;
 
 		return createGoal(definition, usee, type);
@@ -179,9 +187,12 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	private static void countGoal(DefUseCoverageTestFitness goal) {
-		if(goalCounts.get(goal.getType()) == null)
+		if (goalCounts.get(goal.getType()) == null)
 			goalCounts.put(goal.getType(), 0);
-		goalCounts.put(goal.getType(), goalCounts.get(goal.getType())+1);
+		goalCounts.put(goal.getType(), goalCounts.get(goal.getType()) + 1);
+		
+//		if(goal.getType().equals(DefUsePairType.INTER_METHOD))
+//			System.out.println(goal.toString());
 	}
 
 	public static DefUseCoverageTestFitness retrieveGoal(int defId, int useId) {
@@ -208,12 +219,12 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	public static Set<DefUseCoverageTestFitness> getParameterGoals() {
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 		Set<Use> parameterUses = DefUsePool.retrieveRegisteredParameterUses();
-		for (Use use : parameterUses){
+		for (Use use : parameterUses) {
 			DefUseCoverageTestFitness goal = new DefUseCoverageTestFitness(use);
 			r.add(goal);
 			countGoal(goal);
 		}
-//		paramGoalsCount = r.size();
+		// paramGoalsCount = r.size();
 		logger.info("# Parameter-Uses: " + r.size());
 		return r;
 	}
@@ -235,148 +246,160 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 	public static int getParamGoalsCount() {
 		Integer r = goalCounts.get(DefUsePairType.PARAMETER);
-		if(r == null)
+		if (r == null)
 			return 0;
 		return r;
 	}
 
-	public static int getIntraGoalsCount() {
+	public static int getIntraMethodGoalsCount() {
 		Integer r = goalCounts.get(DefUsePairType.INTRA_METHOD);
-		if(r == null)
+		if (r == null)
 			return 0;
 		return r;
 	}
 
-	public static int getInterGoalsCount() {
-		Integer r = goalCounts.get(DefUsePairType.INTRA_CLASS);
-		if(r == null)
+	public static int getInterMethodGoalsCount() {
+		Integer r = goalCounts.get(DefUsePairType.INTER_METHOD);
+		if (r == null)
 			return 0;
 		return r;
 	}
-	
-//	public static Set<DefUseCoverageTestFitness> getInterMethodPairs() {
-//
-//		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
-//
-//		// System.out.print("* Searching for clear Defs...");
-//		Set<Definition> freeDefs = getDefinitionsWithClearPathToMethodEnd();
-//		// System.out.println(" found " + freeDefs.size());
-//
-//		// System.out.print("* Searching for clear Uses...");
-//		Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
-//		// System.out.println(" found " + freeUses.size());
-//
-//		for (Definition def : freeDefs)
-//			for (Use use : freeUses)
-//				if (def.getDUVariableName().equals(use.getDUVariableName())) {
-//					DefUseCoverageTestFitness newGoal = createGoal(def, use,
-//							DefUseCoverageTestFitness.DefUsePairType.INTRA_CLASS);
-//					if (newGoal != null)
-//						r.add(newGoal);
-//				}
-//
-////		interGoalsCount = r.size();
-//		return r;
-//	}
-	
-//	/**
-//	 * For every definition found by the CFGMethodAdapter this Method checks,
-//	 * what uses there are in the same method and for the same field of that
-//	 * definition.
-//	 * 
-//	 * If there is a definition clear path from the definition to the use, a
-//	 * DefUseCoverageGoal for this pair is created.
-//	 * 
-//	 * @return A list of all the DefUseCoverageGoals created this way
-//	 */
-//	public static Set<DefUseCoverageTestFitness> getIntraMethodPairs() {
-//		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
-//
-//		for (Definition def : DefUsePool.retrieveRegisteredDefinitions()) {
-//
-//			String className = def.getClassName();
-//			String methodName = def.getMethodName();
-//
-//			RawControlFlowGraph cfg = GraphPool
-//					.getRawCFG(className, methodName);
-//			if (cfg == null)
-//				throw new IllegalStateException("Expect CFG to exist for "
-//						+ methodName);
-//
-//			Set<Use> uses = cfg.getUsesForDef(def);
-//			logger.debug("Found " + uses.size() + " Uses for Def "
-//					+ def.getDefId() + " in " + def.getMethodName());
-//
-//			for (Use use : uses) {
-//				DefUseCoverageTestFitness newGoal = createGoal(def,
-//						DefUsePool.getUseByDefUseId(use.getDefUseId()), DefUseCoverageTestFitness.DefUsePairType.INTRA_METHOD);
-//				if (newGoal == null)
-//					throw new IllegalStateException(
-//							"expect intra-method-pair creation to always succeed");
-//				r.add(newGoal);
-//			}
-//		}
-////		intraMethodGoalsCount = r.size();
-//		logger.info("# DU-Pairs within methods: " + r.size());
-//		return r;
-//	}
-//
-//	/**
-//	 * For every definition found by the CFGMethodAdapter this Method checks, if
-//	 * there is a definition clear path from that definition to an exit of its
-//	 * method.
-//	 * 
-//	 * @return A Set of all the definitions for which the above holds
-//	 */
-//	public static Set<Definition> getDefinitionsWithClearPathToMethodEnd() {
-//		HashSet<Definition> r = new HashSet<Definition>();
-//		for (Definition def : DefUsePool.retrieveRegisteredDefinitions()) {
-//
-//			String className = def.getClassName();
-//			String methodName = def.getMethodName();
-//
-//			RawControlFlowGraph cfg = GraphPool
-//					.getRawCFG(className, methodName);
-//			if (cfg == null)
-//				throw new IllegalStateException("Expect CFG to exist for "
-//						+ methodName);
-//
-//			if (cfg.hasDefClearPathToMethodExit(def))
-//				r.add(def);
-//			else
-//				logger.debug("no defclearpath to method end for Def "
-//						+ def.getDefId());
-//		}
-//
-//		logger.info("# Definitions with clear path to method exit " + r.size());
-//		return r;
-//	}
-//
-//	/**
-//	 * For every use found by the CFGMethodAdapter this method checks, if there
-//	 * is a definition clear path from an entry of the uses method to the use
-//	 * itself.
-//	 * 
-//	 * @return A Set of all the uses for which the above holds
-//	 */
-//	public static Set<Use> getUsesWithClearPathFromMethodStart() {
-//		Set<Use> r = new HashSet<Use>();
-//
-//		Set<Use> allUses = DefUsePool.retrieveRegisteredUses();
-//		for (Use use : allUses) {
-//			RawControlFlowGraph cfg = GraphPool.getRawCFG(use.getClassName(),
-//					use.getMethodName());
-//			if (cfg == null)
-//				throw new IllegalStateException("no cfg for method "
-//						+ use.getMethodName());
-//			if (cfg.hasDefClearPathFromMethodEntry(use))
-//				r.add(use);
-//			else
-//				logger.debug("no defclearpath from method start for Use "
-//						+ use.getUseId());
-//		}
-//		logger.info("# Uses with clear path from method entry " + r.size());
-//		return r;
-//	}
+
+	public static int getIntraClassGoalsCount() {
+		Integer r = goalCounts.get(DefUsePairType.INTRA_CLASS);
+		if (r == null)
+			return 0;
+		return r;
+	}
+
+	// public static Set<DefUseCoverageTestFitness> getInterMethodPairs() {
+	//
+	// Set<DefUseCoverageTestFitness> r = new
+	// HashSet<DefUseCoverageTestFitness>();
+	//
+	// // System.out.print("* Searching for clear Defs...");
+	// Set<Definition> freeDefs = getDefinitionsWithClearPathToMethodEnd();
+	// // System.out.println(" found " + freeDefs.size());
+	//
+	// // System.out.print("* Searching for clear Uses...");
+	// Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
+	// // System.out.println(" found " + freeUses.size());
+	//
+	// for (Definition def : freeDefs)
+	// for (Use use : freeUses)
+	// if (def.getDUVariableName().equals(use.getDUVariableName())) {
+	// DefUseCoverageTestFitness newGoal = createGoal(def, use,
+	// DefUseCoverageTestFitness.DefUsePairType.INTRA_CLASS);
+	// if (newGoal != null)
+	// r.add(newGoal);
+	// }
+	//
+	// // interGoalsCount = r.size();
+	// return r;
+	// }
+
+	// /**
+	// * For every definition found by the CFGMethodAdapter this Method checks,
+	// * what uses there are in the same method and for the same field of that
+	// * definition.
+	// *
+	// * If there is a definition clear path from the definition to the use, a
+	// * DefUseCoverageGoal for this pair is created.
+	// *
+	// * @return A list of all the DefUseCoverageGoals created this way
+	// */
+	// public static Set<DefUseCoverageTestFitness> getIntraMethodPairs() {
+	// Set<DefUseCoverageTestFitness> r = new
+	// HashSet<DefUseCoverageTestFitness>();
+	//
+	// for (Definition def : DefUsePool.retrieveRegisteredDefinitions()) {
+	//
+	// String className = def.getClassName();
+	// String methodName = def.getMethodName();
+	//
+	// RawControlFlowGraph cfg = GraphPool
+	// .getRawCFG(className, methodName);
+	// if (cfg == null)
+	// throw new IllegalStateException("Expect CFG to exist for "
+	// + methodName);
+	//
+	// Set<Use> uses = cfg.getUsesForDef(def);
+	// logger.debug("Found " + uses.size() + " Uses for Def "
+	// + def.getDefId() + " in " + def.getMethodName());
+	//
+	// for (Use use : uses) {
+	// DefUseCoverageTestFitness newGoal = createGoal(def,
+	// DefUsePool.getUseByDefUseId(use.getDefUseId()),
+	// DefUseCoverageTestFitness.DefUsePairType.INTRA_METHOD);
+	// if (newGoal == null)
+	// throw new IllegalStateException(
+	// "expect intra-method-pair creation to always succeed");
+	// r.add(newGoal);
+	// }
+	// }
+	// // intraMethodGoalsCount = r.size();
+	// logger.info("# DU-Pairs within methods: " + r.size());
+	// return r;
+	// }
+	//
+	// /**
+	// * For every definition found by the CFGMethodAdapter this Method checks,
+	// if
+	// * there is a definition clear path from that definition to an exit of its
+	// * method.
+	// *
+	// * @return A Set of all the definitions for which the above holds
+	// */
+	// public static Set<Definition> getDefinitionsWithClearPathToMethodEnd() {
+	// HashSet<Definition> r = new HashSet<Definition>();
+	// for (Definition def : DefUsePool.retrieveRegisteredDefinitions()) {
+	//
+	// String className = def.getClassName();
+	// String methodName = def.getMethodName();
+	//
+	// RawControlFlowGraph cfg = GraphPool
+	// .getRawCFG(className, methodName);
+	// if (cfg == null)
+	// throw new IllegalStateException("Expect CFG to exist for "
+	// + methodName);
+	//
+	// if (cfg.hasDefClearPathToMethodExit(def))
+	// r.add(def);
+	// else
+	// logger.debug("no defclearpath to method end for Def "
+	// + def.getDefId());
+	// }
+	//
+	// logger.info("# Definitions with clear path to method exit " + r.size());
+	// return r;
+	// }
+	//
+	// /**
+	// * For every use found by the CFGMethodAdapter this method checks, if
+	// there
+	// * is a definition clear path from an entry of the uses method to the use
+	// * itself.
+	// *
+	// * @return A Set of all the uses for which the above holds
+	// */
+	// public static Set<Use> getUsesWithClearPathFromMethodStart() {
+	// Set<Use> r = new HashSet<Use>();
+	//
+	// Set<Use> allUses = DefUsePool.retrieveRegisteredUses();
+	// for (Use use : allUses) {
+	// RawControlFlowGraph cfg = GraphPool.getRawCFG(use.getClassName(),
+	// use.getMethodName());
+	// if (cfg == null)
+	// throw new IllegalStateException("no cfg for method "
+	// + use.getMethodName());
+	// if (cfg.hasDefClearPathFromMethodEntry(use))
+	// r.add(use);
+	// else
+	// logger.debug("no defclearpath from method start for Use "
+	// + use.getUseId());
+	// }
+	// logger.info("# Uses with clear path from method entry " + r.size());
+	// return r;
+	// }
 
 }

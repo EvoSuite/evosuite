@@ -19,6 +19,32 @@ public class CCFGMethodReturnNode extends CCFGNode {
 	}
 	
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((callInstruction == null) ? 0 : callInstruction.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		CCFGMethodReturnNode other = (CCFGMethodReturnNode) obj;
+		if (callInstruction == null) {
+			if (other.callInstruction != null)
+				return false;
+		} else if (!callInstruction.equals(other.callInstruction))
+			return false;
+		return true;
+	}
+
+	@Override
 	public String toString() {
 		return "RETURN from "+callInstruction.toString();
 	}

@@ -427,28 +427,4 @@ public abstract class ASMWrapper {
 					+ node.toString() + " on " + getMethodName() + toString());
 	}
 
-	// inherited from Object
-
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		// result = prime * result + getOuterType().hashCode();
-		result = prime * result + getInstructionId();
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (o == this)
-			return true;
-		if (o == null)
-			return false;
-		if (!(o instanceof ASMWrapper))
-			return false;
-
-		ASMWrapper other = (ASMWrapper) o;
-
-		return asmNode.equals(other.asmNode);
-	}
 }
