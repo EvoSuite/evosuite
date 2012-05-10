@@ -7,6 +7,7 @@ import java.io.PrintStream;
 import org.junit.*;
 
 import com.examples.with.different.packagename.PrintingThatShouldBeMuted;
+import com.examples.with.different.packagename.StaticPrinting;
 
 
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
@@ -27,9 +28,19 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		System.setOut(defaultOut);
 	}
 	
-	@Ignore
+	
 	@Test
-	public void testMuted() throws IOException{
+	public void testBase() throws IOException{
+		checkIfMuted(PrintingThatShouldBeMuted.class.getCanonicalName());
+	}
+
+	@Test
+	public void testStatic() throws IOException{
+		checkIfMuted(StaticPrinting.class.getCanonicalName());
+	}
+
+	
+	private void checkIfMuted(String targetClass) throws IOException{
 		
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		PrintStream byteOut = new PrintStream(byteStream);
@@ -37,7 +48,6 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		
 		EvoSuite evosuite = new EvoSuite();
 				
-		String targetClass = PrintingThatShouldBeMuted.class.getCanonicalName();
 		
 		Properties.TARGET_CLASS = targetClass;
 		
@@ -65,7 +75,8 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		evosuite.parseCommandLine(command);
 		int bytesUnMuted = byteStream.size();
 		byteStream.reset();
-		Assert.assertTrue("No difference between muted/unmuted",bytesUnMuted > bytesUsedByEvoWhenSUTIsMuted);	
+		Assert.assertTrue("No difference between muted/unmuted: "+bytesUsedByEvoWhenSUTIsMuted+"/"+bytesUnMuted,
+				bytesUnMuted > bytesUsedByEvoWhenSUTIsMuted);	
 		
 		/*
 		 * we do it again, just to be sure
@@ -74,7 +85,8 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		evosuite.parseCommandLine(command);
 		bytesUsedByEvoWhenSUTIsMuted = byteStream.size();
 		byteStream.reset();
-		Assert.assertTrue("No difference between muted/unmuted",bytesUnMuted > bytesUsedByEvoWhenSUTIsMuted);	
+		Assert.assertTrue("No difference between muted/unmuted: "+bytesUsedByEvoWhenSUTIsMuted+"/"+bytesUnMuted,
+				bytesUnMuted > bytesUsedByEvoWhenSUTIsMuted);	
 	}
 
 }

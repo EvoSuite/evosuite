@@ -2,13 +2,24 @@ package com.examples.with.different.packagename;
 
 public class PrintingThatShouldBeMuted{
 
+	public void foo(int x){
+		
+		if(x > 0){
+			System.out.println("Greater");
+		} else {
+			System.out.println("Lower");
+		}
+		
+	}
+	
+	/*
 	public void doPrint() { //throws RuntimeException{
 		System.err.println("This should not be printed.");
 		
 		Thread t  = new Thread(){
 			@Override
 			public void run(){
-				throw new RuntimeException("Also this one should not be printed");
+				//throw new RuntimeException("Also this one should not be printed");
 			}
 		};
 		t.start();
@@ -42,5 +53,5 @@ public class PrintingThatShouldBeMuted{
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-	}
+	} */
 }
