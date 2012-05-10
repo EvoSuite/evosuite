@@ -78,7 +78,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		ENTRY, EXIT, LOOP, CALL, RETURN
 	};
 
-	private final int UPPER_PAIR_SEARCH_INVOCATION_BOUND = 1000000;
+	private final int UPPER_PAIR_SEARCH_INVOCATION_BOUND = 2000000;
 	private boolean warnedAboutAbortion = false;
 
 	private String className;
@@ -449,26 +449,26 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		// check if search was aborted
 		Integer rerunCalls = 0;
-		if (calls >= UPPER_PAIR_SEARCH_INVOCATION_BOUND) {
-			System.out.println();
-			System.out.println("* ABORTED pairSearch for method"
-					+ methodEntry.getMethod());
-			
-			System.out.print("* Re-Searching for pairs without concidering loops in " + methodEntry.getMethod()
-					+ " ... ");
-			// if we previously tried to analyze this method but had to abort
-			// try to rerun without handling loops
-			activeDefs = createInitialActiveDefs();
-			Set<BytecodeInstruction> freeUses2 = new HashSet<BytecodeInstruction>();
-			callStack = createInitialCallStack(methodEntry);
-			rerunCalls = determineInterMethodPairs(methodEntry,
-					methodEntry.getEntryInstruction(), new HashSet<CCFGNode>(),
-					new HashSet<CCFGEdge>(), activeDefs, freeUses2, foundPairs,
-					callStack, 0, false);
-			freeUses.addAll(freeUses2);
-
-			spentTime = System.currentTimeMillis() - start;
-		}
+//		if (calls >= UPPER_PAIR_SEARCH_INVOCATION_BOUND) {
+//			System.out.println();
+//			System.out.println("* ABORTED pairSearch for method"
+//					+ methodEntry.getMethod());
+//			
+//			System.out.print("* Re-Searching for pairs without concidering loops in " + methodEntry.getMethod()
+//					+ " ... ");
+//			// if we previously tried to analyze this method but had to abort
+//			// try to rerun without handling loops
+//			activeDefs = createInitialActiveDefs();
+//			Set<BytecodeInstruction> freeUses2 = new HashSet<BytecodeInstruction>();
+//			callStack = createInitialCallStack(methodEntry);
+//			rerunCalls = determineInterMethodPairs(methodEntry,
+//					methodEntry.getEntryInstruction(), new HashSet<CCFGNode>(),
+//					new HashSet<CCFGEdge>(), activeDefs, freeUses2, foundPairs,
+//					callStack, 0, false);
+//			freeUses.addAll(freeUses2);
+//
+//			spentTime = System.currentTimeMillis() - start;
+//		}
 
 		mingled = timeSpentMingling - mingled;
 
@@ -490,8 +490,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			Stack<MethodCall> callStack, int invocationCount,
 			boolean handleLoops) {
 
-		// TODO see org.joda.time.tz.ZoneInfoProvider or amis.ExceptionTestClass. something is still wrong with exception edges :(
-		
+//		System.out.println("  processing "+node.toString());
+
 		handleHandledNodesSet(node, handled);
 
 		invocationCount++;
@@ -523,6 +523,11 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 						handleLoops))
 					continue;
 
+//				System.out.println("  nextChild of "+node.toString()+" is "+child.toString());
+//				for(MethodCall mc : callStack)
+//					System.out.println("    "+mc.toString());
+				
+				
 				// we don't want to take every child into account all the time
 				// for example if we previously found a methodCallNode and then
 				// later visit a MethodExitNode we do want to follow the edge
@@ -532,6 +537,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// methodCallNode and find a MethodExitNode we do not want to
 				// follow the edges from there to methodReturnNodes
 
+				Stack<MethodCall> nextCallStack = callStack;
+				
 				if (child instanceof CCFGMethodReturnNode) {
 					if (handleReturnNodeChild(child, callStack))
 						continue;
@@ -541,9 +548,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				} else if (child instanceof CCFGMethodCallNode) {
 					CCFGMethodCallNode callNode = (CCFGMethodCallNode) child;
 					if (alreadyAnalzedMethod(callNode.getCalledMethod())) {
+
+						nextCallStack = copyCallStack(callStack);
+						
 						// use previously stored information
 						activeDefs = handleMethodCallNodeChild(callNode,
-								activeDefs, freeUses, foundPairs, callStack,
+								activeDefs, freeUses, foundPairs, nextCallStack,
 								investigatedMethod);
 						// now we can continue our search with the
 						// CCFGMethodReturnNode of our call
@@ -564,13 +574,13 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 									handledBackEdges),
 							copyActiveDefs(activeDefs),
 							new HashSet<BytecodeInstruction>(freeUses),
-							foundPairs, copyCallStack(callStack),
+							foundPairs, copyCallStack(nextCallStack),
 							invocationCount, handleLoops);
 				else
 					invocationCount = determineInterMethodPairs(
 							investigatedMethod, child, handled,
 							handledBackEdges, activeDefs, freeUses, foundPairs,
-							callStack, invocationCount, handleLoops);
+							nextCallStack, invocationCount, handleLoops);
 
 				if (invocationCount >= UPPER_PAIR_SEARCH_INVOCATION_BOUND)
 					continue;
@@ -1086,9 +1096,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		if (invocationCount >= UPPER_PAIR_SEARCH_INVOCATION_BOUND) {
 			if (!warnedAboutAbortion) {
 				System.out.println();
-				System.out.println("* inter method pair search aborted in "
+				System.out.println("* ABORTED inter method pair search in "
 						+ callStack.peek()
-						+ "! reached maximum invocation limit: "
+						+ "! Reached maximum invocation limit: "
 						+ UPPER_PAIR_SEARCH_INVOCATION_BOUND);
 				warnedAboutAbortion = true;
 			}
@@ -1105,12 +1115,18 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			BytecodeInstruction code) {
 
 		if (!callStack.peek().getCalledMethodName()
-				.equals(code.getMethodName()))
+				.equals(code.getMethodName())) {
+			
+			for(MethodCall mc : callStack) {
+				System.out.println("  "+mc.toString());
+			}
+			
 			throw new IllegalStateException(
 					"insane callStack: peek is in method "
 							+ callStack.peek().getCalledMethodName()
 							+ " and i encountered code of method "
 							+ code.getMethodName());
+		}
 	}
 
 	private void checkFreeUseSanity(BytecodeInstruction freeUse) {
@@ -1326,6 +1342,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		// add ControlFlowEdges as CCFGCodeEdges
 		for (ControlFlowEdge e : cfg.edgeSet()) {
+			if(e.isExceptionEdge())
+				continue;
 			CCFGCodeNode src = temp.get(cfg.getEdgeSource(e));
 			CCFGCodeNode target = temp.get(cfg.getEdgeTarget(e));
 			addEdge(src, target, new CCFGCodeEdge(e));
