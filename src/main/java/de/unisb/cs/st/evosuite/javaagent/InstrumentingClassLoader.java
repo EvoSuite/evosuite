@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 /**
@@ -95,7 +96,14 @@ public class InstrumentingClassLoader extends ClassLoader {
 					return result;
 				} else {
 					logger.info("Seeing class for first time: " + name);
-					return instrumentClass(name);
+					Class<?> instrumentedClass = null;
+					//LoggingUtils.muteCurrentOutAndErrStream();
+					try{
+						instrumentedClass =  instrumentClass(name);
+					} finally {
+						//LoggingUtils.restorePreviousOutAndErrStream();
+					}
+					return instrumentedClass;
 				}
 			}
 

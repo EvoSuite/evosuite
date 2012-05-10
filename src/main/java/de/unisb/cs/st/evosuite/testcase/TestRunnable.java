@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.runtime.Runtime;
 import de.unisb.cs.st.evosuite.runtime.System.SystemExitException;
 import de.unisb.cs.st.evosuite.sandbox.EvosuiteFile;
 import de.unisb.cs.st.evosuite.sandbox.Sandbox;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 /**
  * @author Gordon Fraser
@@ -117,11 +118,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 		//out.flush();
 		byteStream.reset();
 
-		PrintStream old_out = System.out;
-		PrintStream old_err = System.err;
+		//PrintStream old_out = System.out;
+		//PrintStream old_err = System.err;
 		if (!Properties.PRINT_TO_SYSTEM) {
-			System.setOut(out);
-			System.setErr(out);
+			//System.setOut(out);
+			//System.setErr(out);
+			LoggingUtils.muteCurrentOutAndErrStream();
 		}
 
 		int num = 0;
@@ -243,8 +245,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 		} // finally {
 		finally {
 			if (!Properties.PRINT_TO_SYSTEM) {
-				System.setOut(old_out);
-				System.setErr(old_err);
+				//System.setOut(old_out);
+				//System.setErr(old_err);
+				LoggingUtils.restorePreviousOutAndErrStream();
 			}
 		}
 
