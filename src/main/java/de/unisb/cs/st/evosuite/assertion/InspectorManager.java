@@ -101,12 +101,12 @@ public class InspectorManager {
 				        + " for class " + clazz.getName() + " in file " + name);
 				num_old = num;
 			} catch (FileNotFoundException e) {
-				logger.info("Could not find file " + name);
+				logger.debug("Could not find file " + name);
 			} catch (ClassNotFoundException e) {
-				logger.info("Could not find inspector class " + name);
+				logger.debug("Could not find inspector class " + name);
 			}
 		}
-		logger.info("Loaded " + num + " inspectors");
+		logger.debug("Loaded " + num + " inspectors");
 	}
 
 	public static InspectorManager getInstance() {
@@ -128,7 +128,7 @@ public class InspectorManager {
 			        && !method.getName().equals("hashCode")
 			        && !method.getDeclaringClass().equals(Object.class)
 			        && !method.getName().equals("pop")) { // FIXXME
-				logger.info("Inspector for class " + clazz.getSimpleName() + ": "
+				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
 				        + method.getName());
 				inspectorList.add(new Inspector(clazz, method));
 			}

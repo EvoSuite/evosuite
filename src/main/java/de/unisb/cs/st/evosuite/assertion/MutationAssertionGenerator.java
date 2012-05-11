@@ -174,7 +174,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		for (Entry<Integer, Set<Integer>> entry : killMap.entrySet()) {
 			to_kill.addAll(entry.getValue());
 		}
-		logger.info("Need to kill mutants: " + to_kill.size());
+		logger.debug("Need to kill mutants: " + to_kill.size());
 
 		Set<Integer> killed = new HashSet<Integer>();
 		Set<Assertion> result = new HashSet<Assertion>();
@@ -206,7 +206,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 		}
-		logger.info("Killed mutants: " + killed.size());
+		logger.debug("Killed mutants: " + killed.size());
 
 		// sort by number of assertions killed
 		// pick assertion that kills most
@@ -221,7 +221,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				assertion.getStatement().addAssertion(assertion);
 			}
 		} else {
-			logger.info("Not removing assertions because no new assertions were found");
+			logger.debug("Not removing assertions because no new assertions were found");
 		}
 
 	}
@@ -258,15 +258,15 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	public void addAssertions(TestCase test, Set<Integer> killed,
 	        Map<Integer, Mutation> mutants) {
 
-		logger.info("Generating assertions");
+		logger.debug("Generating assertions");
 
 		int s1 = killed.size();
 
-		logger.info("Running on original");
+		logger.debug("Running on original");
 		ExecutionResult origResult = runTest(test);
 
 		if (origResult.hasTimeout()) {
-			logger.info("Skipping test, as it has timeouts");
+			logger.debug("Skipping test, as it has timeouts");
 			return;
 		}
 
@@ -288,7 +288,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			assert (m != null);
 			if (timedOutMutations.containsKey(m)) {
 				if (timedOutMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
-					logger.info("Skipping timed out mutant");
+					logger.debug("Skipping timed out mutant");
 					continue;
 				}
 			}
@@ -300,7 +300,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			}
 			*/
 
-			logger.info("Running test " + test.hashCode() + " on mutation "
+			logger.debug("Running test " + test.hashCode() + " on mutation "
 			        + m.getMutationName());
 			ExecutionResult mutantResult = runTest(test, m);
 
@@ -358,8 +358,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 		int killedBefore = getNumKilledMutants(test, mutationTraces, executedMutants);
 
-		logger.info("Need to kill mutants: " + killedBefore);
-		logger.info(killMap.toString());
+		logger.debug("Need to kill mutants: " + killedBefore);
+		logger.debug(killMap.toString());
 		minimize(test, executedMutants, assertions, killMap);
 
 		int killedAfter = getNumKilledMutants(test, mutationTraces, executedMutants);
@@ -375,23 +375,23 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
-			logger.info("Last statement has no assertions: " + test.toCode());
+			logger.debug("Last statement has no assertions: " + test.toCode());
 
 			if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
-				logger.info("Last statement: "
+				logger.debug("Last statement: "
 				        + test.getStatement(test.size() - 1).getCode());
 			}
 			if (origResult.isThereAnExceptionAtPosition(test.size() - 1))
-				logger.info("Exception on last statement!");
+				logger.debug("Exception on last statement!");
 
 			if (justNullAssertion(test.getStatement(test.size() - 1)))
-				logger.info("Just null assertions on last statement: " + test.toCode());
+				logger.debug("Just null assertions on last statement: " + test.toCode());
 
 			boolean haveAssertion = false;
 			for (Assertion assertion : assertions) {
 				if (assertion instanceof PrimitiveAssertion) {
 					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
-						logger.info("Adding a primitive assertion " + assertion);
+						logger.debug("Adding a primitive assertion " + assertion);
 						test.getStatement(test.size() - 1).addAssertion(assertion);
 						haveAssertion = true;
 						break;
@@ -505,7 +505,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					for (OutputTrace<?> trace : mutation_traces.get(m)) {
 						isKilled = trace.isDetectedBy(assertion);
 						if (isKilled) {
-							logger.info("Mutation killed: " + m.getId() + " by trace "
+							logger.debug("Mutation killed: " + m.getId() + " by trace "
 							        + i++);
 							killed.add(m.getId());
 							break;
@@ -517,7 +517,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 		}
-		logger.info("Killed mutants: " + killed);
+		logger.debug("Killed mutants: " + killed);
 		return killed.size();
 	}
 

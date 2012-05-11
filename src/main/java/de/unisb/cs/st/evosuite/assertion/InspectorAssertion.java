@@ -86,8 +86,7 @@ public class InspectorAssertion extends Assertion {
 					else
 						return val.equals(value);
 				} catch (Exception e) {
-					logger.info("* Exception during call to inspector: " + e + ": "
-					        + e.getCause());
+					logger.error("* Exception during call to inspector",e);
 					return true;
 				}
 			}

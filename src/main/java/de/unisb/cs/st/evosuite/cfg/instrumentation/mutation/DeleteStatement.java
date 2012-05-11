@@ -52,14 +52,14 @@ public class DeleteStatement implements MutationOperator {
 				logger.info("Ignoring parameter of type " + argType);
 			else if (argType.getSize() == 2) {
 				mutation.insert(new InsnNode(Opcodes.POP2));
-				logger.info("Deleting parameter of 2 type " + argType);
+				logger.debug("Deleting parameter of 2 type " + argType);
 			} else {
-				logger.info("Deleting parameter of 1 type " + argType);
+				logger.debug("Deleting parameter of 1 type " + argType);
 				mutation.insert(new InsnNode(Opcodes.POP));
 			}
 		}
 		if (node.getOpcode() == Opcodes.INVOKEVIRTUAL) {
-			logger.info("Deleting callee of type " + node.owner);
+			logger.debug("Deleting callee of type " + node.owner);
 			mutation.add(new InsnNode(Opcodes.POP));
 		} else if (node.getOpcode() == Opcodes.INVOKEINTERFACE) {
 			boolean isStatic = false;

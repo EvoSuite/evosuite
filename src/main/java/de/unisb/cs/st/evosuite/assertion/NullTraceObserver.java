@@ -47,7 +47,7 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 			trace.addEntry(statement.getPosition(), var, new NullTraceEntry(var,
 			        object == null));
 		} catch (CodeUnderTestException e) {
-			logger.info("Error: " + e);
+			logger.error("",e);
 			//throw new UnsupportedOperationException();
 		}
 	}

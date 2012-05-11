@@ -50,10 +50,10 @@ public class ReplaceVariable implements MutationOperator {
 
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		if (mn.localVariables.isEmpty()) {
-			logger.info("Have no information about local variables - recompile with full debug information");
+			logger.debug("Have no information about local variables - recompile with full debug information");
 			return mutations;
 		}
-		logger.info("Starting variable replacement in " + methodName);
+		logger.debug("Starting variable replacement in " + methodName);
 
 		String origName = getName(mn, instruction.getASMNode());
 
@@ -74,7 +74,7 @@ public class ReplaceVariable implements MutationOperator {
 			                                                                        mutation.getValue()));
 			mutations.add(mutationObject);
 		}
-		logger.info("Finished variable replacement in " + methodName);
+		logger.debug("Finished variable replacement in " + methodName);
 		return mutations;
 	}
 
@@ -216,7 +216,7 @@ public class ReplaceVariable implements MutationOperator {
 				LocalVariableNode origVar = getLocal(mn, node, var.var);
 
 				//LocalVariableNode origVar = (LocalVariableNode) mn.localVariables.get(var.var);
-				logger.info("Looking for replacements for " + origVar.name + " of type "
+				logger.debug("Looking for replacements for " + origVar.name + " of type "
 				        + origVar.desc + " at index " + origVar.index);
 
 				// FIXXME: ASM gets scopes wrong, so we only use primitive vars?

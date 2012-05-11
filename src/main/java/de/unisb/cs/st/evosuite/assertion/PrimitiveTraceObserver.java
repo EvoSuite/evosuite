@@ -68,7 +68,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 
 			}
 		} catch (CodeUnderTestException e) {
-			logger.info("Exception: " + e);
+			logger.error("", e);
 			//e.printStackTrace();
 			//System.exit(0);
 			//throw new UnsupportedOperationException();

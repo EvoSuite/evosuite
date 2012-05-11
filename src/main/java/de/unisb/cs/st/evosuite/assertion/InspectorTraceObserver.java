@@ -70,7 +70,7 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 				}
 			} catch (Exception e) {
 				if (e instanceof TimeoutException) {
-					logger.info("Timeout during inspector call - deactivating inspector "
+					logger.debug("Timeout during inspector call - deactivating inspector "
 					        + i.getMethodCall());
 					manager.removeInspector(var.getVariableClass(), i);
 				}
