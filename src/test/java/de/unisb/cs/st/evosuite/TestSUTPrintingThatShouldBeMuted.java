@@ -29,18 +29,9 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 	}
 	
 	
-	@Test
-	public void testBase() throws IOException{
-		checkIfMuted(PrintingThatShouldBeMuted.class.getCanonicalName());
-	}
-
-	@Test
-	public void testStatic() throws IOException{
-		checkIfMuted(StaticPrinting.class.getCanonicalName());
-	}
-
 	
-	private void checkIfMuted(String targetClass) throws IOException{
+	public void checkIfMuted(String targetClass, String msgSUT){
+		Properties.CLIENT_ON_THREAD = false;
 		
 		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 		PrintStream byteOut = new PrintStream(byteStream);
@@ -48,45 +39,47 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		
 		EvoSuite evosuite = new EvoSuite();
 				
-		
 		Properties.TARGET_CLASS = targetClass;
 		
 		Properties.TIMEOUT = 300;
-		Properties.PRINT_TO_SYSTEM = false;
 		
 		String[] command = new String[]{				
 				"-generateSuite",
 				"-class",
-				targetClass
+				targetClass,
+				"-Dprint_to_system=true"
 		};
 		
 		Object result = evosuite.parseCommandLine(command);
-		
-		Assert.assertTrue(result != null);
-		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
-		
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
-		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
+			
+		String printed = byteStream.toString();
+		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting client"));
+		Assert.assertTrue("PRINTED:\n"+printed,printed.contains(msgSUT));		
 
-		int bytesUsedByEvoWhenSUTIsMuted = byteStream.size();
-		byteStream.reset();
 		
-		Properties.PRINT_TO_SYSTEM = true;
-		evosuite.parseCommandLine(command);
-		int bytesUnMuted = byteStream.size();
-		byteStream.reset();
-		Assert.assertTrue("No difference between muted/unmuted: "+bytesUsedByEvoWhenSUTIsMuted+"/"+bytesUnMuted,
-				bytesUnMuted > bytesUsedByEvoWhenSUTIsMuted);	
+		command = new String[]{				
+				"-generateSuite",
+				"-class",
+				targetClass,
+				"-Dprint_to_system=false"
+		};
 		
-		/*
-		 * we do it again, just to be sure
-		 */
-		Properties.PRINT_TO_SYSTEM = false;
-		evosuite.parseCommandLine(command);
-		bytesUsedByEvoWhenSUTIsMuted = byteStream.size();
 		byteStream.reset();
-		Assert.assertTrue("No difference between muted/unmuted: "+bytesUsedByEvoWhenSUTIsMuted+"/"+bytesUnMuted,
-				bytesUnMuted > bytesUsedByEvoWhenSUTIsMuted);	
+		result = evosuite.parseCommandLine(command);
+			
+		printed = byteStream.toString();
+		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting client"));
+		Assert.assertFalse("PRINTED:\n"+printed,printed.contains(msgSUT));			
+	}
+	
+	
+	@Test
+	public void testBase() throws IOException{
+		checkIfMuted(PrintingThatShouldBeMuted.class.getCanonicalName(),"Greater");
 	}
 
+	@Test
+	public void testStatic() throws IOException{
+		checkIfMuted(StaticPrinting.class.getCanonicalName(),"this should not be printed");
+	}
 }
