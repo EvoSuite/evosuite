@@ -44,6 +44,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.callgraph.Hierarchy;
 import de.unisb.cs.st.evosuite.classcreation.ClassFactory;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -759,7 +760,8 @@ public class TestTaskGenerator {
 				continue;
 			}
 		}
-		System.out.println("* Created " + num + " task files");
+		
+		LoggingUtils.getEvoLogger().info("* Created " + num + " task files");
 	}
 
 	/**
