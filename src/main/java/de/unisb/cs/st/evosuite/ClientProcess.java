@@ -88,7 +88,7 @@ public class ClientProcess implements SearchListener {
 
 	private boolean hasExceededResources() {
 		if (TestCaseExecutor.getInstance().getNumStalledThreads() >= Properties.MAX_STALLED_THREADS) {
-			System.out.println("* Too many stalled threads: "
+			LoggingUtils.getEvoLogger().info("* Too many stalled threads: "
 			        + TestCaseExecutor.getInstance().getNumStalledThreads() + " / "
 			        + Properties.MAX_STALLED_THREADS);
 			return true;
@@ -99,18 +99,18 @@ public class ClientProcess implements SearchListener {
 		long freeMem = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
 
 		if (freeMem < Properties.MIN_FREE_MEM) {
-			System.out.println("* Running out of memory, calling GC with memory left: "
+			LoggingUtils.getEvoLogger().info("* Running out of memory, calling GC with memory left: "
 			        + freeMem + " / " + runtime.maxMemory());
 			System.gc();
 			freeMem = runtime.maxMemory() - runtime.totalMemory() + runtime.freeMemory();
 
 			if (freeMem < Properties.MIN_FREE_MEM) {
-				System.out.println("* Running out of memory, giving up: " + freeMem
+				LoggingUtils.getEvoLogger().info("* Running out of memory, giving up: " + freeMem
 				        + " / " + runtime.maxMemory() + " - need "
 				        + Properties.MIN_FREE_MEM);
 				return true;
 			} else {
-				System.out.println("* Garbage collection recovered sufficient memory: "
+				LoggingUtils.getEvoLogger().info("* Garbage collection recovered sufficient memory: "
 				        + freeMem + " / " + runtime.maxMemory());
 			}
 		}
@@ -152,7 +152,7 @@ public class ClientProcess implements SearchListener {
 	public void fitnessEvaluation(Chromosome individual) {
 		//System.out.println("Checking for restart");
 		if (hasExceededResources()) {
-			System.out.println("* Asking for JVM restart");
+			LoggingUtils.getEvoLogger().info("* Asking for JVM restart");
 			ga.removeListener(this);
 			util.askForRestart(ga);
 		}
@@ -169,7 +169,7 @@ public class ClientProcess implements SearchListener {
 
 	public static void main(String[] args) {
 		try {
-			logger.info("Starting client");
+			LoggingUtils.getEvoLogger().info("* Starting client");
 			ClientProcess process = new ClientProcess();
 			process.run();
 			if(!Properties.CLIENT_ON_THREAD){

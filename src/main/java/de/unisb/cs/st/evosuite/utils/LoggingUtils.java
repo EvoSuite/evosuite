@@ -31,6 +31,8 @@ public class LoggingUtils {
 	
 	public static final PrintStream DEFAULT_OUT = System.out;
 	public static final PrintStream DEFAULT_ERR = System.err;
+
+	private static final String EVO_LOGGER = "evo_logger";
 	
 	protected static  PrintStream latestOut = null;
 	protected static  PrintStream latestErr = null;
@@ -47,8 +49,14 @@ public class LoggingUtils {
 	private final ExecutorService logConnections = Executors.newSingleThreadExecutor();
 	private final ExecutorService logHandler = Executors.newCachedThreadPool();
 	
+	
+	
 	public LoggingUtils(){
 		
+	}
+	
+	public static Logger getEvoLogger(){
+		return LoggerFactory.getLogger(EVO_LOGGER);
 	}
 	
 	public boolean startLogServer(){
