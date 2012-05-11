@@ -36,7 +36,7 @@
   <logger name="de.unisb.cs.st.evosuite.coverage.branch" level="WARN" />
   <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" /> -->
 
-  <root level="${log.level:-INFO}">
+  <root level="${log.level:-WARN}">
     <appender-ref ref="${evosuite.log.appender:-STDOUT}" />
   </root>
 
