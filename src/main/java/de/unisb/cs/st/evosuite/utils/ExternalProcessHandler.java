@@ -216,8 +216,9 @@ public class ExternalProcessHandler {
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
 							data = proc_in.read();
-							if (data != -1)
+							if (data != -1 && Properties.PRINT_TO_SYSTEM){
 								System.out.print((char) data);
+							}
 						}
 
 					} catch (Exception e) {
@@ -241,8 +242,9 @@ public class ExternalProcessHandler {
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
 							data = proc_in.read();
-							if (data != -1)
+							if (data != -1 && Properties.PRINT_TO_SYSTEM){
 								System.err.print((char) data);
+							}
 						}
 
 					} catch (Exception e) {

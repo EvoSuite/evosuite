@@ -169,15 +169,21 @@ public class ClientProcess implements SearchListener {
 
 	public static void main(String[] args) {
 		try {
+			logger.info("Starting client");
 			ClientProcess process = new ClientProcess();
 			process.run();
 			if(!Properties.CLIENT_ON_THREAD){
 				System.exit(0);
 			}
 		} catch (Throwable t) {
-			System.err.println("Error when generating tests for: "
-			        + Properties.TARGET_CLASS);
+			logger.error("Error when generating tests for: "
+			        + Properties.TARGET_CLASS, t);
 			t.printStackTrace();
+			
+			//sleep 1 sec to be more sure that the above log is recorded
+			try { Thread.sleep(1000);} 
+			catch (InterruptedException e) {}
+			
 			if(!Properties.CLIENT_ON_THREAD){
 				System.exit(1);
 			}

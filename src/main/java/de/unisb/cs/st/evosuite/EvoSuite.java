@@ -243,7 +243,12 @@ public class EvoSuite {
 		Properties.getInstance();// should force the load, just to be sure
 		Properties.TARGET_CLASS = target;
 		Properties.PROCESS_COMMUNICATION_PORT = port;
-
+		if(cmdLine.contains("-Dprint_to_system=true")){
+			Properties.PRINT_TO_SYSTEM = true;
+		} else {
+			Properties.PRINT_TO_SYSTEM = false;
+		}
+		
 		/*
 		 * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
 		 * client. Furthermore, the properties in the property file might be overwritten from the commands coming from shell
@@ -309,6 +314,23 @@ public class EvoSuite {
 		if (definedEAforSUT.equals(ENABLE_ASSERTIONS_SUT)) {
 			cmdLine.add(1, definedEAforSUT);
 		}
+		
+		LoggingUtils logUtils = new LoggingUtils();
+		
+		if(!Properties.CLIENT_ON_THREAD){
+			/*
+			 * We want to completely mute the SUT. So, we block all outputs from client, and
+			 * use a remote logging
+			 */
+			boolean logServerStarted = logUtils.startLogServer();
+			if(!logServerStarted){
+				logger.error("Cannot start the log server");
+				return null;
+			}
+			int logPort = logUtils.getLogServerPort(); //
+			cmdLine.add(1, "-Dmaster_log_port="+logPort);
+			cmdLine.add(1, "-Devosuite.log.appender=TCP_TO_MASTER");
+		}
 
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
 
@@ -326,6 +348,12 @@ public class EvoSuite {
 			result = handler
 					.waitForResult((Properties.GLOBAL_TIMEOUT
 							+ Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			handler.killProcess();
 			handler.closeServer();
 		} else {
@@ -339,6 +367,11 @@ public class EvoSuite {
 			result = ClientProcess.geneticAlgorithmStatus;
 		}
 
+		if(!Properties.CLIENT_ON_THREAD){
+			try {Thread.sleep(1000);} catch (InterruptedException e) {}
+			logUtils.closeLogServer();
+		}
+		
 		return result;
 	}
 
