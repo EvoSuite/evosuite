@@ -26,6 +26,7 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		Properties.PRINT_TO_SYSTEM = defaultPrintToSystem;
 		
 		System.setOut(defaultOut);
+		Properties.CLIENT_ON_THREAD = true;
 	}
 	
 	

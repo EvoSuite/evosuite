@@ -102,7 +102,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 		boolean isBoolean = frame.getStack(frame.getStackSize() - 1) == BooleanValueInterpreter.BOOLEAN_VALUE;
 
 		for (Integer op : getOperators(node.getOpcode(), isBoolean)) {
-			logger.info("Adding replacement " + op);
+			logger.debug("Adding replacement " + op);
 			if (op >= 0) {
 				// insert mutation into bytecode with conditional
 				JumpInsnNode mutation = new JumpInsnNode(op, target);
@@ -485,7 +485,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	}
 
 	private int getBooleanIntReplacement(int opcode) {
-		logger.info("Getting Boolean int replacement");
+		logger.debug("Getting Boolean int replacement");
 		switch (opcode) {
 		case Opcodes.IFEQ:
 			return Opcodes.IFNE;
@@ -505,7 +505,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	}
 
 	private int getBooleanIntIntReplacement(int opcode) {
-		logger.info("Getting Boolean int int replacement");
+		logger.debug("Getting Boolean int int replacement");
 
 		switch (opcode) {
 		case Opcodes.IF_ICMPEQ:
@@ -526,7 +526,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	}
 
 	private Set<Integer> getIntReplacement(int opcode) {
-		logger.info("Getting int replacement");
+		logger.debug("Getting int replacement");
 
 		Set<Integer> replacement = new HashSet<Integer>();
 		switch (opcode) {
