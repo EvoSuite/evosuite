@@ -29,6 +29,7 @@ public class VariableReferenceImpl implements VariableReference {
 	protected TestCase testCase;
 	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<Void>();
 	protected Integer stPosition;
+	private String originalCode;
 
 	/**
 	 * Constructor
@@ -68,6 +69,10 @@ public class VariableReferenceImpl implements VariableReference {
 				}
 			}
 			if (stPosition == null) {
+				if (originalCode != null) {
+					throw new AssertionError("Error transforming '" + originalCode + 
+							"': no statement in the test defined the variable reference!");
+				}
 				throw new AssertionError(
 				        "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 			}
@@ -261,6 +266,11 @@ public class VariableReferenceImpl implements VariableReference {
 	public Object getObject(Scope scope) throws CodeUnderTestException {
 		return scope.getObject(this);
 	}
+	
+	@Override
+	public String getOriginalCode(){
+		return originalCode;
+	}
 
 	/**
 	 * Set the actual object represented by this variable in a given scope
@@ -275,6 +285,12 @@ public class VariableReferenceImpl implements VariableReference {
 		scope.setObject(this, value);
 	}
 
+	public void setOriginalCode(String code){
+		if (code != null) {
+			this.originalCode = code.trim();
+		}
+	}
+	
 	/**
 	 * Comparison
 	 */
@@ -288,6 +304,9 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public String toString() {
+		if (originalCode != null) {
+			return originalCode;
+		}
 		return "VariableReference: Statement " + getStPosition() + ", type "
 		        + type.getTypeName();
 	}

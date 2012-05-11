@@ -39,6 +39,7 @@ import org.eclipse.jdt.core.dom.ParameterizedType;
 import org.eclipse.jdt.core.dom.PrefixExpression;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -51,6 +52,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.MethodDef;
+import de.unisb.cs.st.evosuite.junit.CompoundTestCase.ReturnStatementPlaceholder;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.TestScope;
 import de.unisb.cs.st.evosuite.testcase.ArrayIndex;
 import de.unisb.cs.st.evosuite.testcase.ArrayReference;
@@ -135,7 +137,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				List<VariableReference> parameters) {
 			super(tc, method, callee, type, parameters);
 		}
-		
+
 		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee, VariableReference retVal,
 				List<VariableReference> parameters) {
 			super(tc, method, callee, retVal, parameters);
@@ -143,8 +145,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 		@Override
 		public StatementInterface copy(TestCase newTestCase, int offset) {
+			// Code was partly copied from MethodStatement
 			if (Modifier.isStatic(method.getModifiers())) {
-				// FIXXME: If callee is an array index, this will return an
+				// TODO: If callee is an array index, this will return an
 				// invalid copy of the cloned variable!
 				return new ValidMethodStatement(newTestCase, method, null, retval.getType(), parameters);
 			}
@@ -164,7 +167,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 		// private static int counter = 0;
 
-		public ValidVariableReference(TestCase testCase, java.lang.reflect.Type type) {
+		public ValidVariableReference(DelegatingTestCase testCase, java.lang.reflect.Type type) {
 			super(testCase, type);
 			// System.out.println("Created ValidVariableReference #" + counter++
 			// + " of type " + type);
@@ -272,6 +275,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		Constructor<?> constructor = retrieveConstructor(instanceCreation.getType(), paramTypes, paramValues);
 		List<VariableReference> params = convertParams(instanceCreation.arguments(), paramTypes);
 		VariableReference retVal = retrieveVariableReference(instanceCreation, null);
+		retVal.setOriginalCode(instanceCreation.getParent().toString());
 		ConstructorStatement statement = new ValidConstructorStatement(testCase.getReference(), constructor, retVal,
 				params);
 		testCase.addStatement(statement);
@@ -288,9 +292,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		List<?> paramTypes = Arrays.asList(methodInvocation.resolveMethodBinding().getParameterTypes());
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, params);
-		if (testCase.isDescendantOf(method.getDeclaringClass())) {
+		Class<?> declaringClass = method.getDeclaringClass();
+		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
 			MethodDef methodDef = testCase.getMethod(method.getName());
-			testCase.convertMethod(methodDef, params);
+			VariableReference retVal = retrieveResultReference(methodInvocation);
+			testCase.convertMethod(methodDef, params, retVal);
 			return;
 		}
 		VariableReference callee = null;
@@ -301,11 +307,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		ASTNode parent = methodInvocation.getParent();
 		if (parent instanceof ExpressionStatement) {
 			VariableReference retVal = new ValidVariableReference(testCase.getReference(), method.getReturnType());
+			retVal.setOriginalCode(methodInvocation.toString());
 			methodStatement = new ValidMethodStatement(testCase.getReference(), method, callee, retVal, params);
 			testCase.addStatement(methodStatement);
 			return;
 		}
 		VariableReference retVal = retrieveResultReference(methodInvocation);
+		retVal.setOriginalCode(methodInvocation.toString());
 		methodStatement = new ValidMethodStatement(testCase.getReference(), method, callee, retVal, params);
 		if (parent instanceof MethodInvocation) {
 			nestedCallResults.push(retVal);
@@ -314,18 +322,37 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	@Override
+	public void endVisit(ReturnStatement returnStatement) {
+		VariableReference returnValue = null;
+		if (returnStatement.getExpression() instanceof MethodInvocation) {
+			returnValue = testCase.getLastStatement().getReturnValue();
+		} else {
+			returnValue = retrieveVariableReference(returnStatement.getExpression(), null);
+		}
+		returnValue.setOriginalCode(returnStatement.toString());
+		ReturnStatementPlaceholder returnStmt = new ReturnStatementPlaceholder(testCase.getReference(), returnValue);
+		testCase.addStatement(returnStmt);
+	}
+
+	@Override
 	public void endVisit(SuperMethodInvocation superMethodInvocation) {
 		List<?> paramTypes = Arrays.asList(superMethodInvocation.resolveMethodBinding().getParameterTypes());
 		List<VariableReference> params = convertParams(superMethodInvocation.arguments(), paramTypes);
 		String name = superMethodInvocation.getName().getIdentifier();
 		MethodDef methodDef = testCase.getParent().getMethod(name);
-		testCase.convertMethod(methodDef, params);
+		VariableReference retVal = retrieveResultReference(superMethodInvocation);
+		retVal.setOriginalCode(superMethodInvocation.toString());
+		testCase.convertMethod(methodDef, params, retVal);
 	}
 
 	@Override
 	public boolean visit(Assignment assignment) {
 		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide(), null);
+		varRef.setOriginalCode(assignment.toString());
 		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
+		if (newAssignment.getOriginalCode() == null) {
+			newAssignment.setOriginalCode(assignment.toString());
+		}
 		testCase.variableAssignment(varRef, newAssignment);
 		return true;
 	}
@@ -346,6 +373,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		VariableDeclarationFragment varDeclFrgmnt = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		Expression expression = varDeclFrgmnt.getInitializer();
 		VariableReference varRef = retrieveVariableReference(expression, null);
+		varRef.setOriginalCode(fieldDeclaration.toString());
 		// TODO Use the name here as well?
 		// String name = varDeclFrgmt.getName().getIdentifier();
 		// new BoundVariableReferenceImpl(testCase, varType, name);
@@ -393,6 +421,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	@Override
 	public boolean visit(SingleVariableDeclaration variableDeclaration) {
 		VariableReference varRef = retrieveVariableReference(variableDeclaration);
+		varRef.setOriginalCode(variableDeclaration.toString());
 		testCase.addParameter(varRef);
 		return true;
 	}
@@ -424,6 +453,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 					0);
 			Expression expression = varDeclFrgmnt.getInitializer();
 			VariableReference varRef = retrieveVariableReference(expression, null);
+			varRef.setOriginalCode(variableDeclStmt.toString());
 			// TODO Use the name here as well?
 			// String name = varDeclFrgmt.getName().getIdentifier();
 			// new BoundVariableReferenceImpl(testCase, varType, name);
@@ -438,6 +468,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			if (expression instanceof ArrayInitializer) {
 				ArrayStatement arrayStatement = new ArrayStatement(testCase.getReference(), varType);
 				ArrayReference arrayRef = (ArrayReference) arrayStatement.getReturnValue();
+				arrayRef.setOriginalCode(variableDeclStmt.toString());
 				testCase.addStatement(arrayStatement);
 				testCase.addVariable(varDeclFrgmnt.resolveBinding(), arrayRef);
 				ArrayInitializer arrayInitializer = (ArrayInitializer) expression;
@@ -451,7 +482,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 					} else {
 						valueRef = retrieveVariableReference(expr, null);
 					}
+					valueRef.setOriginalCode(expr.toString());
 					VariableReference arrayElementRef = new ArrayIndex(testCase.getReference(), arrayRef, idx);
+					arrayElementRef.setOriginalCode(expr.toString());
 					arrayStatement.getVariableReferences().add(arrayElementRef);
 					AssignmentStatement arrayAssignment = new AssignmentStatement(testCase.getReference(),
 							arrayElementRef, valueRef);
@@ -587,6 +620,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			} else {
 				throw new RuntimeException("Could not determine type class of infix expression '" + infixExpr + "'.");
 			}
+		}
+		if (argument instanceof MethodInvocation) {
+			MethodInvocation methodInvocation = (MethodInvocation) argument;
+			return retrieveTypeClass(methodInvocation.resolveTypeBinding());
 		}
 		throw new UnsupportedOperationException("Retrieval of type " + argument.getClass() + " not implemented yet!");
 	}
@@ -885,6 +922,27 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 		result = retrieveVariableReference(methodBinding.getReturnType(), null);
 		calleeResultMap.put(methodInvocation.toString(), result);
+		return result;
+	}
+
+	private VariableReference retrieveResultReference(SuperMethodInvocation superMethodInvocation) {
+		// TODO Duplicate code from retrieveResultReference(MethodInvocation)
+		// too bad they don't have a common matching interface
+		VariableReference result = calleeResultMap.get(superMethodInvocation.toString());
+		if (result != null) {
+			return result;
+		}
+		ASTNode parent = superMethodInvocation.getParent();
+		if (parent instanceof VariableDeclarationFragment) {
+			return retrieveVariableReference(parent, null);
+		}
+		if (parent instanceof Assignment) {
+			Assignment assignment = (Assignment) parent;
+			return retrieveVariableReference(assignment.getLeftHandSide(), null);
+		}
+		IMethodBinding methodBinding = superMethodInvocation.resolveMethodBinding();
+		result = retrieveVariableReference(methodBinding.getReturnType(), null);
+		calleeResultMap.put(superMethodInvocation.toString(), result);
 		return result;
 	}
 

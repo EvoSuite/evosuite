@@ -188,6 +188,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
+		if (retval.equals(var1)) {
+			retval = var2;
+		}
 	}
 
 	@Override
