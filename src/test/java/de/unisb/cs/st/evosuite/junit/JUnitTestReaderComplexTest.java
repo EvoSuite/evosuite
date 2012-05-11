@@ -71,20 +71,23 @@ public class JUnitTestReaderComplexTest {
 				"int int6 = -5;\n" + //
 				"int int7 = 11;\n" + //
 				"int int8 = 42;\n" + //
+				"int int9 = 5;\n" + //
+				"int int10 = 47;\n" + //
 				"String string0 = null;\n" + //
 				"String string1 = \"break free!\";\n" + //
-				"int int8 = 38;\n" + //
-				"int int9 = 5;\n" + //
-				"TestExample.doCalc(int5, int9);\n" + //
-				"int int10 = 3;\n" + //
+				"int int11 = 38;\n" + //
+				"int int12 = 5;\n" + //
+				"int int13 = 5;\n" + //
+				"TestExample.doCalc(int8, int12);\n" + //
+				"int int14 = 3;\n" + //
 				"String string2 = \"convert\";\n" + //
 				"String string3 = \"killSelf\";\n" + //
 				"String string4 = \"killSelf\";\n" + //
 				"String string5 = \"me\";\n" + //
 				"String string6 = string4 + string5;\n" + //
-				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string5);\n" + //
-				"int int11 = int5 - int7;\n" + //
-				"testExample_MockingBird0.executeCmd(int11);\n"; 
+				"TestExample.MockingBird testExample_MockingBird0 = new TestExample.MockingBird(string6);\n" + //
+				"int int15 = int14 - int11;\n" + //
+				"testExample_MockingBird0.executeCmd(int15);\n"; 
 		Assert.assertEquals(result, code);
 	}
 }

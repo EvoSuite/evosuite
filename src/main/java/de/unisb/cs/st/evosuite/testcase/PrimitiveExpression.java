@@ -56,9 +56,9 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	private static final long serialVersionUID = 1L;
 
-	private final VariableReference leftOperand;
+	private VariableReference leftOperand;
 	private final Operator operator;
-	private final VariableReference rightOperand;
+	private VariableReference rightOperand;
 
 	public PrimitiveExpression(TestCase testCase, VariableReference reference, VariableReference leftOperand,
 			Operator operator, VariableReference rightOperand) {
@@ -141,8 +141,13 @@ public class PrimitiveExpression extends AbstractStatement {
 	}
 
 	@Override
-	public void replace(VariableReference old_var, VariableReference new_var) {
-		throw new UnsupportedOperationException("Method replace not implemented!");
+	public void replace(VariableReference oldVar, VariableReference newVar) {
+		if (leftOperand.equals(oldVar)) {
+			leftOperand = newVar;
+		}
+		if (rightOperand.equals(oldVar)) {
+			rightOperand = newVar;
+		}
 	}
 
 	@Override

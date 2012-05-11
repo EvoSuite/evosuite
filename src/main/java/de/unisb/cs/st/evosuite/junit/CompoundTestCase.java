@@ -1,5 +1,8 @@
 package de.unisb.cs.st.evosuite.junit;
 
+import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -9,8 +12,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.objectweb.asm.commons.GeneratorAdapter;
 
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
+import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
+import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
@@ -30,7 +37,7 @@ public class CompoundTestCase {
 	public static class MethodDef {
 		private final String name;
 		private final List<VariableReference> params = new ArrayList<VariableReference>();
-		private final List<StatementInterface> code = new ArrayList<StatementInterface>();
+		final List<StatementInterface> code = new ArrayList<StatementInterface>();
 
 		public MethodDef(String name) {
 			super();
@@ -52,6 +59,70 @@ public class CompoundTestCase {
 		public List<VariableReference> getParams() {
 			return params;
 		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	public static class ReturnStatementPlaceholder extends AbstractStatement {
+
+		private static final long serialVersionUID = 1L;
+
+		protected ReturnStatementPlaceholder(TestCase tc, VariableReference returnValue) {
+			super(tc, returnValue.getType());
+			retval = returnValue;
+		}
+
+		@Override
+		public StatementInterface copy(TestCase newTestCase, int offset) {
+			throw new UnsupportedOperationException("Method copy not implemented!");
+		}
+
+		@Override
+		public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException,
+				IllegalArgumentException, IllegalAccessException, InstantiationException {
+			throw new UnsupportedOperationException("Method execute not implemented!");
+		}
+
+		@Override
+		public AccessibleObject getAccessibleObject() {
+			throw new UnsupportedOperationException("Method getAccessibleObject not implemented!");
+		}
+
+		@Override
+		public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+			throw new UnsupportedOperationException("Method getBytecode not implemented!");
+		}
+
+		@Override
+		public List<VariableReference> getUniqueVariableReferences() {
+			throw new UnsupportedOperationException("Method getUniqueVariableReferences not implemented!");
+		}
+
+		@Override
+		public Set<VariableReference> getVariableReferences() {
+			throw new UnsupportedOperationException("Method getVariableReferences not implemented!");
+		}
+
+		@Override
+		public boolean isAssignmentStatement() {
+			return false;
+		}
+
+		@Override
+		public void replace(VariableReference oldVar, VariableReference newVar) {
+			if (retval.equals(oldVar)) {
+				retval = newVar;
+			}
+		}
+
+		@Override
+		public boolean same(StatementInterface s) {
+			throw new UnsupportedOperationException("Method same not implemented!");
+		}
+
 	}
 
 	public static enum TestScope {
@@ -128,14 +199,22 @@ public class CompoundTestCase {
 		currentMethodVars.put(varBinding.toString(), varRef);
 	}
 
-	public void convertMethod(MethodDef methodDef, List<VariableReference> params) {
+	public void convertMethod(MethodDef methodDef, List<VariableReference> params, VariableReference retVal) {
 		assert methodDef.getParams().size() == params.size();
+		Map<VariableReference, VariableReference> methodVarsMap = new HashMap<VariableReference, VariableReference>();
 		for (StatementInterface statement : methodDef.getCode()) {
 			for (int idx = 0; idx < params.size(); idx++) {
 				statement.replace(methodDef.getParams().get(idx), params.get(idx));
 			}
+			if (statement instanceof ReturnStatementPlaceholder) {
+				VariableReference resultVal = methodVarsMap.get(statement.getReturnValue());
+				AssignmentStatement assignmentStatement = new AssignmentStatement(delegate, retVal, resultVal);
+				addStatement(assignmentStatement);
+				return;
+			}
 			StatementInterface newStmt = statement.clone(delegate);
 			addReplacementVariable(statement.getReturnValue(), newStmt.getReturnValue());
+			methodVarsMap.put(statement.getReturnValue(), newStmt.getReturnValue());
 			addStatement(newStmt);
 		}
 	}
@@ -180,8 +259,17 @@ public class CompoundTestCase {
 		return delegate;
 	}
 
+	public String getClassName() {
+		return className;
+	}
+
 	public TestScope getCurrentScope() {
 		return currentScope;
+	}
+
+	public StatementInterface getLastStatement() {
+		assert currentScope == TestScope.METHOD;
+		return currentMethod.code.get(currentMethod.code.size() - 1);
 	}
 
 	public MethodDef getMethod(String name) {
@@ -227,6 +315,11 @@ public class CompoundTestCase {
 		this.currentScope = scope;
 	}
 
+	@Override
+	public String toString() {
+		return className;
+	}
+
 	public void variableAssignment(VariableReference varRef, VariableReference newAssignment) {
 		for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
 			if (entry.getValue() == varRef) {
@@ -252,18 +345,8 @@ public class CompoundTestCase {
 	}
 
 	private void addReplacementVariable(VariableReference oldValue, VariableReference newValue) {
-		Map<String, VariableReference> vars = currentMethodVars;
-		if ((currentScope == TestScope.FIELDS) || (currentScope == TestScope.STATICFIELDS)) {
-			vars = fieldVars;
-		}
-		String variable = null;
-		for (Map.Entry<String, VariableReference> entry : vars.entrySet()) {
-			if (entry.getValue().equals(oldValue)) {
-				variable = entry.getKey();
-			}
-		}
-		assert variable != null;
-		vars.put(variable, newValue);
+		String variable = getVariableFromCurrentScope(oldValue);
+		fieldVars.put(variable, newValue);
 	}
 
 	private List<StatementInterface> getAfterClassMethods(Set<String> overridenMethods) {
@@ -370,6 +453,25 @@ public class CompoundTestCase {
 			}
 		}
 		return result;
+	}
+
+	private String getVariableFromCurrentScope(VariableReference varRef) {
+		if ((currentScope != TestScope.FIELDS) && (currentScope != TestScope.STATICFIELDS)) {
+			for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
+				if (entry.getValue().equals(varRef)) {
+					return entry.getKey();
+				}
+			}
+		}
+		for (Map.Entry<String, VariableReference> entry : fieldVars.entrySet()) {
+			if (entry.getValue().equals(varRef)) {
+				return entry.getKey();
+			}
+		}
+		if (parent != null) {
+			return parent.getVariableFromCurrentScope(varRef);
+		}
+		return null;
 	}
 
 	private VariableReference getVariableReferenceInternally(IVariableBinding varBinding) {
