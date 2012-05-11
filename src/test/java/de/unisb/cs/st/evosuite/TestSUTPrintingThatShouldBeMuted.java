@@ -6,6 +6,7 @@ import java.io.PrintStream;
 
 import org.junit.*;
 
+import com.examples.with.different.packagename.InfiniteLoops;
 import com.examples.with.different.packagename.PrintingThatShouldBeMuted;
 import com.examples.with.different.packagename.StaticPrinting;
 
@@ -82,5 +83,15 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 	@Test
 	public void testStatic() throws IOException{
 		checkIfMuted(StaticPrinting.class.getCanonicalName(),"this should not be printed");
+	}
+
+	/**
+	 * This has quite a few side effects on other test cases
+	 * @throws IOException
+	 */
+	@Ignore
+	@Test
+	public void testInfiniteLoops() throws IOException{
+		checkIfMuted(InfiniteLoops.class.getCanonicalName(),"This should not be printed");
 	}
 }

@@ -6,13 +6,13 @@ public class InfiniteLoops {
 		Thread t = new Thread(){
 			@Override
 			public void run(){
-				System.err.println("ERROR This should not be printed");
+				System.out.println("ERROR This should not be printed");
 				while(true){
 					try {
-						System.err.println("In the loop going to sleep. Thread "+Thread.currentThread().getId());
+						System.out.println("In the loop going to sleep. Thread "+Thread.currentThread().getId());
 						Thread.sleep(10);
 					} catch (InterruptedException e) {
-						System.err.println("ERROR This should not be printed: "+e);
+						System.out.println("ERROR This should not be printed: "+e);
 						return;
 					}
 				}
@@ -26,12 +26,12 @@ public class InfiniteLoops {
 		Thread t = new Thread(){
 			@Override
 			public void run(){
-				System.err.println("ERROR This should not be printed");
+				System.out.println("ERROR This should not be printed");
 				while(true){
 					try {
 						Thread.sleep(10);
 					} catch (InterruptedException e) {
-						System.err.println("ERROR This should not be printed: "+e);
+						System.out.println("ERROR This should not be printed: "+e);
 					}
 				}
 			}
@@ -44,12 +44,12 @@ public class InfiniteLoops {
 		Thread t = new Thread(){
 			@Override
 			public void run(){
-				System.err.println("ERROR This should not be printed");
+				System.out.println("ERROR This should not be printed");
 				while(true){
 					try{
 						Thread.sleep(10);
 					} catch (Exception e) {
-						System.err.println("ERROR This should not be printed: "+e);
+						System.out.println("ERROR This should not be printed: "+e);
 					}
 				}
 			}

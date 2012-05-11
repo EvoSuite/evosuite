@@ -44,11 +44,13 @@ public class TestSUTHighConstant extends SystemTest{
 		
 		GeneticAlgorithm ga = (GeneticAlgorithm) result;
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
-		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
+
 		/*
 		 * there are 2 branches and one method, so 3 targets, of which we cover only 2
 		 */
-		Assert.assertEquals("Non-optimal coverage: ",2d/3d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-expected coverage: ",2d/3d, best.getCoverage(), 0.001);
+				
+		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());
 		/*
 		 * - Constructor
 		 * - variable init
