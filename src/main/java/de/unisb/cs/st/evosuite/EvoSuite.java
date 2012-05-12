@@ -47,6 +47,9 @@ public class EvoSuite {
 	public final static String JAVA_CMD = javaHome + separator + "bin"
 			+ separator + "java";
 
+	
+	private static String base_dir_path = System.getProperty("user.dir");
+	
 	private static void setup(String target, String[] args,
 			List<String> javaArgs) {
 		String classPath = System.getProperty("java.class.path");
@@ -61,7 +64,7 @@ public class EvoSuite {
 			}
 		}
 		Properties.MIN_FREE_MEM = 0;
-		File directory = new File(Properties.OUTPUT_DIR);
+		File directory = new File(base_dir_path+separator+Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
 			directory.mkdir();
 		}
@@ -102,7 +105,7 @@ public class EvoSuite {
 		try {
 			ProcessBuilder builder = new ProcessBuilder(parameters);
 
-			File dir = new File(System.getProperty("user.dir"));
+			File dir = new File(base_dir_path);
 			builder.directory(dir);
 			builder.redirectErrorStream(true);
 
@@ -137,10 +140,10 @@ public class EvoSuite {
 	}
 
 	private static void generateTests(boolean wholeSuite, List<String> args) {
-		File directory = new File(Properties.OUTPUT_DIR);
+		File directory = new File(base_dir_path+separator+Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
 			System.out
-					.println("* Found no EvoSuite data in current directory. Run -setup first!");
+					.println("* Found no EvoSuite data in directory \""+base_dir_path+"\" . Run -setup first!");
 			return;
 		} else if (!directory.isDirectory()) {
 			System.out.println("* Found no EvoSuite data in " + directory
@@ -164,8 +167,8 @@ public class EvoSuite {
 
 	private static void listClasses() {
 		System.out.println("* The following classes are known: ");
-		File directory = new File(Properties.OUTPUT_DIR);
-		logger.debug("Going to scan output directory {}", Properties.OUTPUT_DIR);
+		File directory = new File(base_dir_path+separator+Properties.OUTPUT_DIR);
+		logger.debug("Going to scan output directory {}", base_dir_path+separator+Properties.OUTPUT_DIR);
 
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
@@ -179,7 +182,7 @@ public class EvoSuite {
 		if(!InstrumentingClassLoader.checkIfCanInstrument(target)){
 			throw new IllegalArgumentException("Cannot consider "+target+" because it belongs to one of tha packages EvoSuite cannot currently handle");
 		}
-		File taskFile = new File(Properties.OUTPUT_DIR + File.separator
+		File taskFile = new File(base_dir_path+separator+Properties.OUTPUT_DIR + File.separator
 				+ target + ".task");
 		if (!taskFile.exists()) {
 			System.out.println("* Unknown class: " + target);
@@ -343,6 +346,7 @@ public class EvoSuite {
 			}
 		}
 
+		handler.setBaseDir(base_dir_path);
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
 			result = handler
@@ -455,6 +459,11 @@ public class EvoSuite {
 		Option signature = new Option("signature",
 				"Allow manual tweaking of method signatures");
 
+		
+		Option base_dir = OptionBuilder.withArgName("base_dir").hasArg()
+				.withDescription("Working directory")
+				.create("base_dir");
+		
 		options.addOption(help);
 		options.addOption(generateSuite);
 		options.addOption(generateTests);
@@ -465,7 +474,8 @@ public class EvoSuite {
 		options.addOption(mem);
 		options.addOption(assertions);
 		options.addOption(signature);
-
+		options.addOption(base_dir);
+		
 		options.addOption(sandbox);
 		options.addOption(mocks);
 		options.addOption(stubs);
@@ -511,7 +521,21 @@ public class EvoSuite {
 				javaOpts.add("-Dassertions=true");
 			if (line.hasOption("signature"))
 				javaOpts.add("-Dgenerate_objects=true");
+			if (line.hasOption("base_dir")){
+				base_dir_path = line.getOptionValue("base_dir");
+				File baseDir = new File(base_dir_path);
+				if(!baseDir.exists()){
+					LoggingUtils.getEvoLogger().error("Base directory does not exist: "+base_dir_path);
+					return null;
+				}
+				if(!baseDir.isDirectory()){
+					LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: "+base_dir_path);
+					return null;
+				}
+			}
+				
 
+			
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("EvoSuite", options);

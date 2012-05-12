@@ -49,8 +49,17 @@ public class ExternalProcessHandler {
 	
 	protected volatile CountDownLatch latch;
 	
+	
+	protected String base_dir = System.getProperty("user.dir");
+	
 	public ExternalProcessHandler() {
 
+	}
+
+	
+	
+	public void setBaseDir(String base_dir) {
+		this.base_dir = base_dir;
 	}
 
 	public boolean startProcess(String[] command) {
@@ -81,7 +90,7 @@ public class ExternalProcessHandler {
 		// now start the process
 
 		if(!Properties.CLIENT_ON_THREAD){
-			File dir = new File(System.getProperty("user.dir"));
+			File dir = new File(base_dir);
 			ProcessBuilder builder = new ProcessBuilder(command);
 			builder.directory(dir);
 			builder.redirectErrorStream(false);
