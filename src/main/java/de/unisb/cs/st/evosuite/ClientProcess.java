@@ -35,10 +35,10 @@ public class ClientProcess implements SearchListener {
 	
 	public void run() {
 		
-		System.out.println("* Connecting to master process on port "
+		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		        + Properties.PROCESS_COMMUNICATION_PORT);
 		if (!util.connectToMainProcess()) {
-			System.err.println("* Could not connect to master process on port "
+			LoggingUtils.getEvoLogger().error("* Could not connect to master process on port "
 			        + Properties.PROCESS_COMMUNICATION_PORT);
 			System.exit(1);
 		}
@@ -53,7 +53,7 @@ public class ClientProcess implements SearchListener {
 			//ga.addListener(this);
 			generator.generateTestSuite(ga);
 		} else {
-			System.out.println("* Resuming search on new JVM");
+			LoggingUtils.getEvoLogger().info("* Resuming search on new JVM");
 
 			// Resume an interrupted search
 			generator = new TestSuiteGenerator();

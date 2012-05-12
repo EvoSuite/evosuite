@@ -13,6 +13,7 @@ import com.examples.with.different.packagename.StaticPrinting;
 
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 
@@ -76,7 +77,7 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 	
 	
 	@Test
-	public void testBase() throws IOException{
+	public void testBase() throws IOException{		
 		checkIfMuted(PrintingThatShouldBeMuted.class.getCanonicalName(),"Greater");
 	}
 
