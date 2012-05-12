@@ -24,11 +24,13 @@
 
   <appender name="STDOUT_CLIENT" class="ch.qos.logback.classic.net.SocketAppender">
   	<remoteHost>${master_host:-localhost}</remoteHost>
-    <port>${master_log_port:--1}</port>
+    <port>${master_log_port:-12345}</port>
     <reconnectionDelay>10000</reconnectionDelay>
+    <!--  
     <encoder>
       <pattern>[CLIENT] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} - %msg%n</pattern>
     </encoder>
+    -->
   </appender>
 
   <appender name="EVO_LOGGER_MASTER" class="ch.qos.logback.core.ConsoleAppender">
@@ -39,11 +41,13 @@
 
   <appender name="EVO_LOGGER_CLIENT" class="ch.qos.logback.classic.net.SocketAppender">
   	<remoteHost>${master_host:-localhost}</remoteHost>
-    <port>${master_log_port:--1}</port>
+    <port>${master_log_port:-12345}</port>
     <reconnectionDelay>10000</reconnectionDelay>
+    <!-- 
     <encoder>
       <pattern>%msg%n</pattern>
     </encoder>
+    -->
   </appender>
 
   <!--
@@ -51,6 +55,8 @@
   <logger name="de.unisb.cs.st.evosuite.coverage.branch" level="WARN" />
   <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" /> -->
 
+
+  <!--  <logger name="ch.qos.logback" level="OFF"  /> -->
 
   <logger name="evo_logger" level="ALL" additivity="false">
   	<appender-ref ref="EVO_LOGGER_${evosuite.log.appender:-MASTER}" /> 
@@ -60,7 +66,7 @@
     <appender-ref ref="STDOUT_${evosuite.log.appender:-MASTER}" />
   </root>
 
-  <logger name="${log.target}" level="ALL" />	
+  <logger name="${log.target:-NOTHING}" level="ALL" />	
 
   <!-- <root level="DEBUG">
     <appender-ref ref="FILE" />
