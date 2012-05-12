@@ -84,7 +84,10 @@ public class LoggingUtils {
 											remoteLogger.callAppenders(event);
 										}
 									}
-								} catch (Exception e) {
+								} catch(java.io.EOFException eof){
+									//this is normal, do nothing
+								} 
+								catch (Exception e) {
 									log.error("Problem in reading loggings",e);
 								}
 								return null;

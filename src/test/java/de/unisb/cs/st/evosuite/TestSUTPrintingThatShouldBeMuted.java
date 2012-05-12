@@ -72,7 +72,8 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 			
 		printed = byteStream.toString();
 		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting client"));
-		Assert.assertFalse("PRINTED:\n"+printed,printed.contains(msgSUT));			
+		Assert.assertFalse("PRINTED:\n"+printed,printed.contains(msgSUT));
+		Assert.assertFalse("PRINTED:\n"+printed,printed.contains("ERROR"));
 	}
 	
 	
