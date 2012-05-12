@@ -329,7 +329,7 @@ public class EvoSuite {
 			}
 			int logPort = logUtils.getLogServerPort(); //
 			cmdLine.add(1, "-Dmaster_log_port="+logPort);
-			cmdLine.add(1, "-Devosuite.log.appender=TCP_TO_MASTER");
+			cmdLine.add(1, "-Devosuite.log.appender=CLIENT");
 		}
 
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
