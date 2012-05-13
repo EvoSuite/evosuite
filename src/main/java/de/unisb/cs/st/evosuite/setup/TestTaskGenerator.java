@@ -785,7 +785,7 @@ public class TestTaskGenerator {
 				//e.printStackTrace();
 			}
 		}
-		System.out.println("* Created " + num + " task files");
+		LoggingUtils.getEvoLogger().info("* Created " + num + " task files");
 	}
 
 	/**
@@ -794,10 +794,10 @@ public class TestTaskGenerator {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		System.out.println("* Analyzing " + prefix);
+		LoggingUtils.getEvoLogger().info("* Analyzing " + prefix);
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		hierarchy.calculateSubclasses();
-		System.out.println("* Creating test files for " + prefix);
+		LoggingUtils.getEvoLogger().info("* Creating test files for " + prefix);
 		suggestTasks(prefix);
 	}
 }

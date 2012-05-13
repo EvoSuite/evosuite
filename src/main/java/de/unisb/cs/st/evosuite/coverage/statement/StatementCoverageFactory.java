@@ -8,6 +8,7 @@ import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.AbstractFitnessFactory;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 public class StatementCoverageFactory extends AbstractFitnessFactory {
 
@@ -49,7 +50,7 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 			}
 		}
 		long end = System.currentTimeMillis();
-		System.out.println("* Total number of coverage goals: "+goals.size()+" took "+(end-start)+"ms");
+		LoggingUtils.getEvoLogger().info("* Total number of coverage goals: "+goals.size()+" took "+(end-start)+"ms");
 		goalComputationTime = end - start;
 		called = true;		
 	}

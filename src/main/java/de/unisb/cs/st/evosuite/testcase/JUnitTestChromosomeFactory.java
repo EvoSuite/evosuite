@@ -20,6 +20,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.ma.parser.TestParser;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -45,7 +46,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 		this.defaultFactory = defaultFactory;
 		if (userTests.isEmpty())
 			userTests.addAll(filter(readTestCases()));
-		System.out.println("* Found " + userTests.size() + " relevant tests");
+		LoggingUtils.getEvoLogger().info("* Found " + userTests.size() + " relevant tests");
 		// getManualCoverage();
 
 	}
@@ -77,7 +78,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 			tests.addAll(readTestCase(testFile));
 		}
 
-		System.out.println("* Parsed " + tests.size() + " JUnit test cases");
+		LoggingUtils.getEvoLogger().info("* Parsed " + tests.size() + " JUnit test cases");
 		return tests;
 	}
 

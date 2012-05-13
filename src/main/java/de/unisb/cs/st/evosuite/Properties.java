@@ -1234,7 +1234,7 @@ public class Properties {
 					PROJECT_PREFIX = CLASS_PREFIX.substring(0, CLASS_PREFIX.indexOf("."));
 				else
 					PROJECT_PREFIX = CLASS_PREFIX;
-				System.out.println("* Using project prefix: " + PROJECT_PREFIX);
+				LoggingUtils.getEvoLogger().info("* Using project prefix: " + PROJECT_PREFIX);
 			}
 		}
 	}

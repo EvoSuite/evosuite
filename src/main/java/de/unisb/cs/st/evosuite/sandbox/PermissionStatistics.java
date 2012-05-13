@@ -10,6 +10,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
+
 /**
  * @author Gordon Fraser
  * 
@@ -211,12 +213,12 @@ public class PermissionStatistics {
 	public void printStatistics() {
 
 		if (hasDeniedPermissions()) {
-			System.out.println("* Permissions denied during test execution: ");
+			LoggingUtils.getEvoLogger().info("* Permissions denied during test execution: ");
 			for (String name : deniedCount.keySet()) {
-				System.out.println("  - " + name + ": ");
+				LoggingUtils.getEvoLogger().info("  - " + name + ": ");
 				if (deniedCount.get(name).size() <= 3) {
 					for (String type : deniedCount.get(name).keySet()) {
-						System.out.println("         " + type + ": "
+						LoggingUtils.getEvoLogger().info("         " + type + ": "
 						        + deniedCount.get(name).get(type));
 					}
 				}

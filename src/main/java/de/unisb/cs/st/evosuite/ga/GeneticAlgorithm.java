@@ -38,6 +38,7 @@ import de.unisb.cs.st.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition;
 import de.unisb.cs.st.evosuite.testsuite.SearchStatistics;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -662,7 +663,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * So far only used for testing purposes in TestSuiteGenerator
 	 */
 	public void printBudget() {
-		System.out.println("* GA-Budget:");
+		LoggingUtils.getEvoLogger().info("* GA-Budget:");
 		for (StoppingCondition sc : stoppingConditions)
 			System.out.println("\t- " + sc.toString());
 	}

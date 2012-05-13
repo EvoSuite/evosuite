@@ -34,7 +34,7 @@ public class MasterProcess {
 			handler.waitForResult((Properties.GLOBAL_TIMEOUT
 			        + Properties.MINIMIZATION_TIMEOUT + 120) * 1000); // FIXXME: search timeout plus 100 seconds?			
 		} else {
-			System.out.println("* Could not connect to client process");
+			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 		System.exit(0);
 	}

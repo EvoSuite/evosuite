@@ -22,6 +22,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUs
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator;
 import de.unisb.cs.st.evosuite.utils.ReportGenerator.StatisticEntry;
 
@@ -48,11 +49,11 @@ public class CoverageStatistics {
 
 		rememberTests(best.getTests());
 
-		System.out.println("* Measured Coverage:");
+		LoggingUtils.getEvoLogger().info("* Measured Coverage:");
 
 		for (Criterion criterion : supportedCriteria) {
 			TestSuiteFitnessFunction fitness = getFitness(criterion, best);
-			System.out.println("\t- "
+			LoggingUtils.getEvoLogger().info("\t- "
 					+ criterion
 					+ ": "
 					+ NumberFormat.getPercentInstance().format(

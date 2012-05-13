@@ -300,14 +300,14 @@ public class ExternalProcessHandler {
 					}
 
 					if (message.equals(Messages.FINISHED_COMPUTATION)) {
-						System.out.println("* Computation finished");
+						LoggingUtils.getEvoLogger().info("* Computation finished");
 						read = false;
 						killProcess();
 						final_result = data;
 						latch.countDown();
 					} else if (message.equals(Messages.NEED_RESTART)) {
 						//now data represent the current generation
-						System.out.println("* Restarting client process");
+						LoggingUtils.getEvoLogger().info("* Restarting client process");
 						killProcess();
 						/*
 						 * TODO: this will need to be changed, to take into account

@@ -146,7 +146,7 @@ public class EvoSuite {
 					.println("* Found no EvoSuite data in directory \""+base_dir_path+"\" . Run -setup first!");
 			return;
 		} else if (!directory.isDirectory()) {
-			System.out.println("* Found no EvoSuite data in " + directory
+			LoggingUtils.getEvoLogger().info("* Found no EvoSuite data in " + directory
 					+ ". Run -setup first!");
 			return;
 		}
@@ -166,7 +166,7 @@ public class EvoSuite {
 	}
 
 	private static void listClasses() {
-		System.out.println("* The following classes are known: ");
+		LoggingUtils.getEvoLogger().info("* The following classes are known: ");
 		File directory = new File(base_dir_path+separator+Properties.OUTPUT_DIR);
 		logger.debug("Going to scan output directory {}", base_dir_path+separator+Properties.OUTPUT_DIR);
 
@@ -185,7 +185,7 @@ public class EvoSuite {
 		File taskFile = new File(base_dir_path+separator+Properties.OUTPUT_DIR + File.separator
 				+ target + ".task");
 		if (!taskFile.exists()) {
-			System.out.println("* Unknown class: " + target);
+			LoggingUtils.getEvoLogger().info("* Unknown class: " + target);
 			listClasses();
 			System.out
 					.println("* If the class is missing but should be there, consider rerunning -setup, or adapting evosuite-files/evosuite.properties");
@@ -207,7 +207,7 @@ public class EvoSuite {
 		if (Properties.VIRTUAL_FS) {
 			String jarName = setupIOJar();
 			cmdLine.add("-Xbootclasspath/p:" + jarName);
-			System.out.println("* Setting up virtual FS for testing");
+			LoggingUtils.getEvoLogger().info("* Setting up virtual FS for testing");
 			cmdLine.add("-Dvirtual_fs=true");
 		}
 		if (Properties.REPLACE_CALLS) { // TODO perhaps just hand over all properties to client vm? ask Gordon
@@ -341,7 +341,7 @@ public class EvoSuite {
 			try {
 				ClassPathHacker.addFile(entry);
 			} catch (IOException e) {
-				System.out.println("* Error while adding classpath entry: "
+				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
 						+ entry);
 			}
 		}
@@ -361,7 +361,7 @@ public class EvoSuite {
 			handler.killProcess();
 			handler.closeServer();
 		} else {
-			System.out.println("* Could not connect to client process");
+			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 
 		if (Properties.CLIENT_ON_THREAD) {
