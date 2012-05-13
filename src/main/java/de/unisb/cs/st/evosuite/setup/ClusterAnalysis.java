@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.XStream;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 
 /**
  * @author fraser
@@ -204,7 +205,7 @@ public class ClusterAnalysis {
 		readJDKData();
 
 		Collection<String> list = getResources();
-		System.out.println("* Analyzing classpath to satisfy runtime dependencies, found "
+		LoggingUtils.getEvoLogger().info("* Analyzing classpath to satisfy runtime dependencies, found "
 		        + list.size() + " classes");
 		for (String name : list) {
 			if (name.startsWith("java/lang") || name.startsWith("sun")

@@ -126,36 +126,36 @@ public class ScanProject {
 	private static Set<Class<?>> findClasses(File directory, String packageName)
 	        throws ClassNotFoundException {
 		Set<Class<?>> classes = new HashSet<Class<?>>();
-		System.out.println("* Searching in: " + directory);
+		LoggingUtils.getEvoLogger().info("* Searching in: " + directory);
 		if (!directory.exists()) {
 			return classes;
 		}
 		File[] files = directory.listFiles();
 		for (File file : files) {
-			System.out.println("* Found class file: " + file);
+			LoggingUtils.getEvoLogger().info("* Found class file: " + file);
 			if (file.isDirectory()) {
 				assert !file.getName().contains(".");
 				classes.addAll(findClasses(file, packageName + "." + file.getName()));
 			} else if (file.getName().endsWith(".class")) {
 				if (Properties.STUBS) {
-					System.out.println("* Stubs enabled");
+					LoggingUtils.getEvoLogger().info("* Stubs enabled");
 					Class<?> clazz = Class.forName(packageName + '.'
 					        + file.getName().substring(0, file.getName().length() - 6));
 
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
-						System.out.println("* Creating concrete stub for abstract class "
+						LoggingUtils.getEvoLogger().info("* Creating concrete stub for abstract class "
 						        + clazz.getName());
 						ClassFactory cf = new ClassFactory();
 						Class<?> stub = cf.createClass(clazz);
 						if (stub != null)
 							classes.add(stub);
 					} else {
-						System.out.println("* Not creating concrete stub for abstract class "
+						LoggingUtils.getEvoLogger().info("* Not creating concrete stub for abstract class "
 						        + clazz.getName());
 
 					}
 				} else {
-					System.out.println("* Stubs disabled");
+					LoggingUtils.getEvoLogger().info("* Stubs disabled");
 
 				}
 				try {
