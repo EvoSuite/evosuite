@@ -26,8 +26,9 @@ public abstract class HashUtil {
 	public static final int hashCode(Object... components) {
 		return hashCodeWithPrime(DEFAULT_PRIME, components);
 	}
-	
+/*	
 	public static final int hashCode(int... componentHashCodes) {
 		return hashCodeWithPrime(DEFAULT_PRIME, componentHashCodes);
 	}
+*/
 }
