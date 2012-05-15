@@ -746,6 +746,9 @@ public class Properties {
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
 	public static int PROCESS_COMMUNICATION_PORT = -1;
 
+	@Parameter(key = "progress_status_port", group = "Runtime", description = "Port at which the progress status messages are transmitted")
+	public static int PROGRESS_STATUS_PORT = 20080;
+
 	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
 	public static int MAX_STALLED_THREADS = 10;
 
@@ -1234,7 +1237,8 @@ public class Properties {
 					PROJECT_PREFIX = CLASS_PREFIX.substring(0, CLASS_PREFIX.indexOf("."));
 				else
 					PROJECT_PREFIX = CLASS_PREFIX;
-				LoggingUtils.getEvoLogger().info("* Using project prefix: " + PROJECT_PREFIX);
+				LoggingUtils.getEvoLogger().info("* Using project prefix: "
+				                                         + PROJECT_PREFIX);
 			}
 		}
 	}
