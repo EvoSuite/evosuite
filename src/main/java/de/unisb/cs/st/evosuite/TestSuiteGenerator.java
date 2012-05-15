@@ -179,7 +179,8 @@ public class TestSuiteGenerator {
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 		ga = geneticAlgorithm;
 
-		LoggingUtils.getEvoLogger().info("* Generating tests for class " + Properties.TARGET_CLASS);
+		LoggingUtils.getEvoLogger().info("* Generating tests for class "
+		                                         + Properties.TARGET_CLASS);
 		printTestCriterion();
 
 		if (Properties.getTargetClass() == null)
@@ -216,7 +217,8 @@ public class TestSuiteGenerator {
 		analyzing = true;
 		for (Criterion criterion : CoverageStatistics.supportedCriteria) {
 			Properties.CRITERION = criterion;
-			LoggingUtils.getEvoLogger().info("* Analyzing Criterion: " + Properties.CRITERION);
+			LoggingUtils.getEvoLogger().info("* Analyzing Criterion: "
+			                                         + Properties.CRITERION);
 			generateTests();
 
 			// TODO reset method?
@@ -236,7 +238,7 @@ public class TestSuiteGenerator {
 
 		if (TestCluster.getInstance().getTestCalls().isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
-			        + Properties.TARGET_CLASS);
+			                                         + Properties.TARGET_CLASS);
 			return new ArrayList<TestCase>();
 		}
 
@@ -248,14 +250,16 @@ public class TestSuiteGenerator {
 			tests = generateIndividualTests();
 
 		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
-		        + TestCaseExecutor.timeExecuted + "ms");
+		                                         + TestCaseExecutor.timeExecuted + "ms");
 
 		if (Properties.CRITERION == Criterion.DEFUSE) {
 			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION)
 				LoggingUtils.getEvoLogger().info("* Time spent calculating alternative fitness: "
-				        + DefUseFitnessCalculator.alternativeTime + "ms");
+				                                         + DefUseFitnessCalculator.alternativeTime
+				                                         + "ms");
 			LoggingUtils.getEvoLogger().info("* Time spent calculating single fitnesses: "
-			        + DefUseCoverageTestFitness.singleFitnessTime + "ms");
+			                                         + DefUseCoverageTestFitness.singleFitnessTime
+			                                         + "ms");
 		}
 
 		if (Properties.ASSERTIONS) {
@@ -363,7 +367,7 @@ public class TestSuiteGenerator {
 			        / (double) MutationPool.getMutantCounter();
 			SearchStatistics.getInstance().mutationScore(score);
 			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
-			        + NumberFormat.getPercentInstance().format(score));
+			                                         + NumberFormat.getPercentInstance().format(score));
 
 			return;
 
@@ -413,8 +417,9 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().info("* Setting up search algorithm for whole suite generation");
 			ga = setup();
 		} else {
-			LoggingUtils.getEvoLogger().info("* Resuming search algorithm at generation " + ga.getAge()
-			        + " for whole suite generation");
+			LoggingUtils.getEvoLogger().info("* Resuming search algorithm at generation "
+			                                         + ga.getAge()
+			                                         + " for whole suite generation");
 		}
 		long start_time = System.currentTimeMillis() / 1000;
 
@@ -422,8 +427,8 @@ public class TestSuiteGenerator {
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 		ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
-		if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
-			ga.addListener(new ConsoleProgressBar());
+		//if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
+		ga.addListener(new ProgressMonitor());
 
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS
@@ -444,10 +449,14 @@ public class TestSuiteGenerator {
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		long end_time = System.currentTimeMillis() / 1000;
-		LoggingUtils.getEvoLogger().info("* Search finished after " + (end_time - start_time)
-		        + "s and " + ga.getAge() + " generations, "
-		        + MaxStatementsStoppingCondition.getNumExecutedStatements()
-		        + " statements, best individual has fitness " + best.getFitness());
+		LoggingUtils.getEvoLogger().info("* Search finished after "
+		                                         + (end_time - start_time)
+		                                         + "s and "
+		                                         + ga.getAge()
+		                                         + " generations, "
+		                                         + MaxStatementsStoppingCondition.getNumExecutedStatements()
+		                                         + " statements, best individual has fitness "
+		                                         + best.getFitness());
 
 		double fitness = best.getFitness();
 
@@ -472,14 +481,15 @@ public class TestSuiteGenerator {
 
 		statistics.iteration(ga);
 		statistics.minimized(ga.getBestIndividual());
-		LoggingUtils.getEvoLogger().info("* Generated " + best.size() + " tests with total length "
-		        + best.totalLengthOfTestCases());
+		LoggingUtils.getEvoLogger().info("* Generated " + best.size()
+		                                         + " tests with total length "
+		                                         + best.totalLengthOfTestCases());
 
 		if (analyzing)
 			CoverageStatistics.analyzeCoverage(best);
 		else {
 			LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
-			        + NumberFormat.getPercentInstance().format(best.getCoverage()));
+			                                         + NumberFormat.getPercentInstance().format(best.getCoverage()));
 		}
 
 		ga.printBudget();
@@ -620,7 +630,8 @@ public class TestSuiteGenerator {
 		if (Properties.RANDOM_TESTS > 0) {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(goals);
 			minimizer.minimize(suite);
-			LoggingUtils.getEvoLogger().info("* Initial test suite contains " + suite.size() + " tests");
+			LoggingUtils.getEvoLogger().info("* Initial test suite contains "
+			                                         + suite.size() + " tests");
 		}
 
 		return suite;
@@ -762,8 +773,8 @@ public class TestSuiteGenerator {
 			num++;
 		}
 		if (covered_goals > 0)
-			LoggingUtils.getEvoLogger().info("* Random bootstrapping covered " + covered_goals
-			        + " test goals");
+			LoggingUtils.getEvoLogger().info("* Random bootstrapping covered "
+			                                         + covered_goals + " test goals");
 
 		int total_goals = goals.size();
 		if (covered_goals == total_goals)
@@ -773,7 +784,7 @@ public class TestSuiteGenerator {
 
 		long total_budget = Properties.SEARCH_BUDGET;
 		LoggingUtils.getEvoLogger().info("* Budget: "
-		        + NumberFormat.getIntegerInstance().format(total_budget));
+		                                         + NumberFormat.getIntegerInstance().format(total_budget));
 
 		while (current_budget < total_budget && covered_goals < total_goals
 		        && !global_time.isFinished() && !ShutdownTestWriter.isInterrupted()) {
@@ -798,8 +809,10 @@ public class TestSuiteGenerator {
 				ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
 
 				if (Properties.PRINT_CURRENT_GOALS)
-					LoggingUtils.getEvoLogger().info("* Searching for goal " + num + ": "
-					        + fitness_function.toString());
+					LoggingUtils.getEvoLogger().info("* Searching for goal "
+					                                         + num
+					                                         + ": "
+					                                         + fitness_function.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
 				        + fitness_function);
 
@@ -873,7 +886,7 @@ public class TestSuiteGenerator {
 					double coverage = covered_goals;
 					coverage = coverage / total_goals * 100;
 
-					ConsoleProgressBar.printProgressBar((int) percent, (int) coverage);
+					// ConsoleProgressBar.printProgressBar((int) percent, (int) coverage);
 				}
 
 				if (current_budget > total_budget)
@@ -892,7 +905,8 @@ public class TestSuiteGenerator {
 		if (current_budget >= total_budget)
 			LoggingUtils.getEvoLogger().info("! Budget exceeded");
 		else
-			LoggingUtils.getEvoLogger().info("* Remaining budget: " + (total_budget - current_budget));
+			LoggingUtils.getEvoLogger().info("* Remaining budget: "
+			                                         + (total_budget - current_budget));
 
 		stopping_condition.setLimit(Properties.SEARCH_BUDGET);
 		stopping_condition.forceCurrentValue(current_budget);
@@ -906,13 +920,14 @@ public class TestSuiteGenerator {
 			if (uncovered_goals < 10)
 				for (TestFitnessFunction goal : goals) {
 					if (!covered.contains(c)) {
-						LoggingUtils.getEvoLogger().info("! Unable to cover goal " + c + " "
-						        + goal.toString());
+						LoggingUtils.getEvoLogger().info("! Unable to cover goal " + c
+						                                         + " " + goal.toString());
 					}
 					c++;
 				}
 			else
-				LoggingUtils.getEvoLogger().info("! #Goals that were not covered: " + uncovered_goals);
+				LoggingUtils.getEvoLogger().info("! #Goals that were not covered: "
+				                                         + uncovered_goals);
 		}
 
 		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) {
@@ -932,13 +947,16 @@ public class TestSuiteGenerator {
 
 		statistics.searchFinished(suiteGA);
 		long end_time = System.currentTimeMillis() / 1000;
-		LoggingUtils.getEvoLogger().info("* Search finished after " + (end_time - start_time) + "s, "
-		        + current_budget + " statements, best individual has fitness "
-		        + suite.getFitness());
+		LoggingUtils.getEvoLogger().info("* Search finished after "
+		                                         + (end_time - start_time)
+		                                         + "s, "
+		                                         + current_budget
+		                                         + " statements, best individual has fitness "
+		                                         + suite.getFitness());
 
 		if (!analyzing) {
-			LoggingUtils.getEvoLogger().info("* Covered " + covered_goals + "/" + goals.size()
-			        + " goals");
+			LoggingUtils.getEvoLogger().info("* Covered " + covered_goals + "/"
+			                                         + goals.size() + " goals");
 			logger.info("Resulting test suite: " + suite.size() + " tests, length "
 			        + suite.totalLengthOfTestCases());
 		} else {
@@ -965,8 +983,9 @@ public class TestSuiteGenerator {
 		 * minimizer.minimize(suite, suite_fitness); }
 		 */
 		// LoggingUtils.getEvoLogger().info("Resulting test suite has fitness "+suite.getFitness());
-		LoggingUtils.getEvoLogger().info("* Resulting test suite: " + suite.size() + " tests, length "
-		        + suite.totalLengthOfTestCases());
+		LoggingUtils.getEvoLogger().info("* Resulting test suite: " + suite.size()
+		                                         + " tests, length "
+		                                         + suite.totalLengthOfTestCases());
 
 		// Log some stats
 		statistics.iteration(suiteGA);
@@ -1007,7 +1026,8 @@ public class TestSuiteGenerator {
 			if (goal.isCovered(best, result)) {
 				r.add(num);
 				if (Properties.PRINT_COVERED_GOALS)
-					LoggingUtils.getEvoLogger().info("* Additionally covered: " + goal.toString());
+					LoggingUtils.getEvoLogger().info("* Additionally covered: "
+					                                         + goal.toString());
 			}
 		}
 		return r;

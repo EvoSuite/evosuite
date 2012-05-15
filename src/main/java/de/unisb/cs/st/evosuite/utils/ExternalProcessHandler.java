@@ -14,11 +14,11 @@ import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.ClientProcess;
-import de.unisb.cs.st.evosuite.Properties;
-
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
+import de.unisb.cs.st.evosuite.ClientProcess;
+import de.unisb.cs.st.evosuite.ConsoleProgressBar;
+import de.unisb.cs.st.evosuite.Properties;
 
 /*
  * this code should be used by the main process
@@ -35,6 +35,7 @@ public class ExternalProcessHandler {
 	protected Thread output_printer;
 	protected Thread error_printer;
 	protected Thread message_handler;
+	protected Thread progress_printer;
 
 	protected Socket connection;
 	protected ObjectOutputStream out;
@@ -46,18 +47,15 @@ public class ExternalProcessHandler {
 
 	protected Thread processKillHook;
 	protected Thread clientRunningOnThread;
-	
+
 	protected volatile CountDownLatch latch;
-	
-	
+
 	protected String base_dir = System.getProperty("user.dir");
-	
+
 	public ExternalProcessHandler() {
 
 	}
 
-	
-	
 	public void setBaseDir(String base_dir) {
 		this.base_dir = base_dir;
 	}
@@ -72,7 +70,7 @@ public class ExternalProcessHandler {
 			return false;
 		}
 
-		latch = new CountDownLatch(1); 
+		latch = new CountDownLatch(1);
 		final_result = WAITING_FOR_DATA;
 
 		//the following thread is important to make sure that the external process is killed
@@ -89,7 +87,7 @@ public class ExternalProcessHandler {
 		Runtime.getRuntime().addShutdownHook(processKillHook);
 		// now start the process
 
-		if(!Properties.CLIENT_ON_THREAD){
+		if (!Properties.CLIENT_ON_THREAD) {
 			File dir = new File(base_dir);
 			ProcessBuilder builder = new ProcessBuilder(command);
 			builder.directory(dir);
@@ -109,9 +107,9 @@ public class ExternalProcessHandler {
 			 * NOTE: this should only be done for debugging, ie in
 			 * JUnit files created for testing EvoSuite. 
 			 */
-			clientRunningOnThread = new Thread(){
+			clientRunningOnThread = new Thread() {
 				@Override
-				public void run(){
+				public void run() {
 					/*
 					 * NOTE: the handling of the parameters "-D" should be handled
 					 * directly in JUnit by setting the different values in Properties
@@ -161,14 +159,18 @@ public class ExternalProcessHandler {
 			process.destroy();
 		process = null;
 
-		if(clientRunningOnThread != null && clientRunningOnThread.isAlive()){
+		if (clientRunningOnThread != null && clientRunningOnThread.isAlive()) {
 			clientRunningOnThread.interrupt();
 		}
 		clientRunningOnThread = null;
-		
+
 		if (output_printer != null && output_printer.isAlive())
 			output_printer.interrupt();
 		output_printer = null;
+
+		if (progress_printer != null && progress_printer.isAlive())
+			progress_printer.interrupt();
+		progress_printer = null;
 
 		if (error_printer != null && error_printer.isAlive())
 			error_printer.interrupt();
@@ -225,7 +227,7 @@ public class ExternalProcessHandler {
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
 							data = proc_in.read();
-							if (data != -1 && Properties.PRINT_TO_SYSTEM){
+							if (data != -1 && Properties.PRINT_TO_SYSTEM) {
 								System.out.print((char) data);
 							}
 						}
@@ -251,7 +253,7 @@ public class ExternalProcessHandler {
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
 							data = proc_in.read();
-							if (data != -1 && Properties.PRINT_TO_SYSTEM){
+							if (data != -1 && Properties.PRINT_TO_SYSTEM) {
 								System.err.print((char) data);
 							}
 						}
@@ -264,6 +266,11 @@ public class ExternalProcessHandler {
 			};
 
 			error_printer.start();
+		}
+
+		if (Properties.SHOW_PROGRESS
+		        && (progress_printer == null || !progress_printer.isAlive())) {
+			progress_printer = ConsoleProgressBar.startProgressBar();
 		}
 
 	}
@@ -283,8 +290,8 @@ public class ExternalProcessHandler {
 					try {
 						message = (String) in.readObject();
 						data = in.readObject();
-						logger.debug("Received msg: "+message);
-						logger.debug("Received data: "+data);
+						logger.debug("Received msg: " + message);
+						logger.debug("Received data: " + data);
 					} catch (Exception e) {
 						/*
 						 * TODO: this parts need to be improved.
@@ -351,7 +358,8 @@ public class ExternalProcessHandler {
 		try {
 			latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.warn("Thread interrupted while waiting for results from client process",e);
+			logger.warn("Thread interrupted while waiting for results from client process",
+			            e);
 		}
 
 		return final_result;
