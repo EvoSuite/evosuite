@@ -186,7 +186,7 @@ public class EvoSuite {
 			throw new IllegalArgumentException(
 			        "Cannot consider "
 			                + target
-			                + " because it belongs to one of tha packages EvoSuite cannot currently handle");
+			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
 		File taskFile = new File(base_dir_path + separator + Properties.OUTPUT_DIR
 		        + File.separator + target + ".task");
@@ -237,8 +237,9 @@ public class EvoSuite {
 		else
 			cmdLine.add("-Dstrategy=OneBranch");
 		cmdLine.add("-DTARGET_CLASS=" + target);
-		if (Properties.PROJECT_PREFIX != null)
+		if (Properties.PROJECT_PREFIX != null) {
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
+		}
 
 		cmdLine.add("-Dclassloader=true");
 		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
@@ -520,6 +521,9 @@ public class EvoSuite {
 					                                          + base_dir_path);
 					return null;
 				}
+				Properties.getInstance().loadProperties(base_dir_path
+				                                                + separator
+				                                                + Properties.PROPERTIES_FILE);
 			}
 
 			if (line.hasOption("help")) {
