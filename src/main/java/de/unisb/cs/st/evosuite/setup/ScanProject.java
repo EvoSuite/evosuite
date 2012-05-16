@@ -61,7 +61,7 @@ import de.unisb.cs.st.evosuite.utils.Utils;
 public class ScanProject {
 
 	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
-	
+
 	protected static Logger logger = LoggerFactory.getLogger(ScanProject.class);
 
 	//	private static ClassLoader classLoader = new FileClassLoader();
@@ -144,14 +144,14 @@ public class ScanProject {
 
 					if (Modifier.isAbstract(clazz.getModifiers()) && !clazz.isInterface()) {
 						LoggingUtils.getEvoLogger().info("* Creating concrete stub for abstract class "
-						        + clazz.getName());
+						                                         + clazz.getName());
 						ClassFactory cf = new ClassFactory();
 						Class<?> stub = cf.createClass(clazz);
 						if (stub != null)
 							classes.add(stub);
 					} else {
 						LoggingUtils.getEvoLogger().info("* Not creating concrete stub for abstract class "
-						        + clazz.getName());
+						                                         + clazz.getName());
 
 					}
 				} else {
@@ -325,7 +325,7 @@ public class ScanProject {
 				        + ": " + e);
 			} catch (NoClassDefFoundError e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
-				
+
 				System.out.println("  Error while loading "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
@@ -333,20 +333,20 @@ public class ScanProject {
 				//e.printStackTrace();
 			} catch (ExceptionInInitializerError e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
-				
+
 				System.out.println("  Exception in initializer of "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6));
 			} catch (ClassNotFoundException e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
-				
+
 				System.out.println("  Class not found in classpath: "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
 				        + ": " + e);
 			} catch (Throwable e) {
 				LoggingUtils.restorePreviousOutAndErrStream();
-				
+
 				System.out.println("  Unexpected error: "
 				        + directory.getName().substring(0,
 				                                        directory.getName().length() - 6)
@@ -507,6 +507,16 @@ public class ScanProject {
 		for (Class<?> clazz : classes) {
 			names.add(clazz.getName());
 		}
+
+		if (names.size() == 1) {
+			String className = names.get(0);
+			if (className.contains(".")) {
+				return className.substring(0, className.lastIndexOf("."));
+			} else {
+				return ""; // class without package name
+			}
+		}
+
 		String[] nameArray = new String[names.size()];
 		names.toArray(nameArray);
 		String prefix = StringUtil.getCommonPrefix(nameArray);

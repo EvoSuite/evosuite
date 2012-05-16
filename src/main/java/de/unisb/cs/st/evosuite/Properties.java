@@ -307,7 +307,11 @@ public class Properties {
 	@LongValue(min = 1)
 	public static long SEARCH_BUDGET = 1000000;
 
-	public static String PROPERTIES_FILE = "properties_file";
+	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
+	public static String OUTPUT_DIR = "evosuite-files";
+
+	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator
+	        + "evosuite.properties";
 
 	public enum StoppingCondition {
 		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
@@ -724,9 +728,6 @@ public class Properties {
 	@Parameter(key = "target_method", group = "Runtime", description = "Method for which to generate tests")
 	public static String TARGET_METHOD = "";
 
-	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
-	public static String OUTPUT_DIR = "evosuite-files";
-
 	@Parameter(key = "hierarchy_data", group = "Runtime", description = "File in which hierarchy data is stored")
 	public static String HIERARCHY_DATA = "hierarchy.xml";
 
@@ -796,10 +797,7 @@ public class Properties {
 	/**
 	 * Initialize properties from property file or command line parameters
 	 */
-	private void loadProperties() {
-		loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
-		                                      "evosuite-files/evosuite.properties"));
-
+	private void initializeProperties() {
 		for (String parameter : parameterMap.keySet()) {
 			try {
 				String property = System.getProperty(parameter);
@@ -826,6 +824,30 @@ public class Properties {
 		}
 	}
 
+	/**
+	 * Load and initialize a properties file from the default path
+	 */
+	public void loadProperties() {
+		loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
+		                                      "evosuite-files/evosuite.properties"));
+		initializeProperties();
+	}
+
+	/**
+	 * Load and initialize a properties file from a given path
+	 * 
+	 * @param propertiesPath
+	 */
+	public void loadProperties(String propertiesPath) {
+		loadPropertiesFile(propertiesPath);
+		initializeProperties();
+	}
+
+	/**
+	 * Load a properties file
+	 * 
+	 * @param propertiesPath
+	 */
 	public void loadPropertiesFile(String propertiesPath) {
 		properties = new java.util.Properties();
 		try {
