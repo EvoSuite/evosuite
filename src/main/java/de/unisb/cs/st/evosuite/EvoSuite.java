@@ -44,6 +44,7 @@ public class EvoSuite {
 
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
+	private static String evosuiteJar = "";
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
 	        + "java";
 
@@ -51,19 +52,20 @@ public class EvoSuite {
 
 	private static void setup(String target, String[] args, List<String> javaArgs) {
 		String classPath = System.getProperty("java.class.path");
-
-		if (Properties.CP.equals("")) {
-			if (args.length > 0) {
-				for (int i = 0; i < args.length; i++) {
-					classPath += File.pathSeparator + args[i];
-					if (!Properties.CP.equals(""))
-						Properties.CP += File.pathSeparator;
-					Properties.CP += args[i];
-				}
-			}
-		} else {
-			classPath += File.pathSeparator + Properties.CP;
+		if (!evosuiteJar.equals("")) {
+			classPath += File.pathSeparator + evosuiteJar;
 		}
+		Properties.CP = "";
+
+		if (args.length > 0) {
+			for (int i = 0; i < args.length; i++) {
+				classPath += File.pathSeparator + args[i];
+				if (!Properties.CP.equals(""))
+					Properties.CP += File.pathSeparator;
+				Properties.CP += args[i];
+			}
+		}
+
 		Properties.MIN_FREE_MEM = 0;
 		File directory = new File(base_dir_path + separator + Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
@@ -74,12 +76,21 @@ public class EvoSuite {
 		String prefix = "";
 		File targetFile = new File(target);
 		if (targetFile.exists()) {
-			classPath += File.pathSeparator + target;
-			targetParam = target;
-			if (!Properties.CP.equals(""))
+			if (targetFile.isDirectory() || target.endsWith(".jar")) {
 				Properties.CP += File.pathSeparator;
+				Properties.CP += target;
+				classPath += File.pathSeparator + target;
+			} else if (target.endsWith(".class")) {
+				String pathName = targetFile.getParent();
+				Properties.CP += File.pathSeparator;
+				Properties.CP += pathName;
+				classPath += File.pathSeparator + pathName;
+			} else {
+				System.out.println("Failed to set up classpath for " + target);
+				return;
+			}
+			targetParam = target;
 
-			Properties.CP += target;
 		} else {
 			prefix = target; // TODO: Should be proper prefix!
 		}
@@ -91,17 +102,22 @@ public class EvoSuite {
 		parameters.add(classPath);
 		parameters.add("-DPROJECT_PREFIX=" + prefix);
 		parameters.add("-DCP=" + Properties.CP);
-		parameters.add("-Dclassloader=true");
-		parameters.add("-Dshow_progress=true");
+		System.out.println("-DCP=" + Properties.CP);
+		System.out.println("-classpath=" + classPath);
 		parameters.add("-Djava.awt.headless=true");
 		parameters.add("-Dlogback.configurationFile=logback.xml");
 		//this is used to avoid issues in running system test cases
 		//parameters.add("-D"+SystemTest.ALREADY_SETUP+"=true");
 		//NOTE: removed ref to SystemTest as it is in the ./test directory
 		parameters.add("-Dsystemtest.alreadysetup=true");
-		parameters.addAll(javaArgs);
+		for (String arg : javaArgs) {
+			if (!arg.startsWith("-DCP=") && !arg.startsWith("-DPROJECT_PREFIX=")) {
+				parameters.add(arg);
+			}
+		}
 		parameters.add("de.unisb.cs.st.evosuite.setup.ScanProject");
 		parameters.add(targetParam);
+		System.out.println(parameters);
 
 		try {
 			ProcessBuilder builder = new ProcessBuilder(parameters);
@@ -197,6 +213,10 @@ public class EvoSuite {
 			return null;
 		}
 		String classPath = System.getProperty("java.class.path");
+		if (!evosuiteJar.equals("")) {
+			classPath += File.pathSeparator + evosuiteJar;
+		}
+
 		if (Properties.CP.length() > 0 && Properties.CP.charAt(0) == '"')
 			Properties.CP = Properties.CP.substring(1, Properties.CP.length() - 1);
 		classPath += File.pathSeparator + Properties.CP;
@@ -231,7 +251,12 @@ public class EvoSuite {
 			        + Properties.PORT);
 		}
 
-		cmdLine.addAll(args);
+		for (String arg : args) {
+			if (!arg.startsWith("-DCP=")) {
+				cmdLine.add(arg);
+			}
+		}
+
 		if (wholeSuite)
 			cmdLine.add("-Dstrategy=EvoSuite");
 		else
@@ -441,6 +466,7 @@ public class EvoSuite {
 		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
 		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
 		Option mem = OptionBuilder.withArgName("mem").hasArg().withDescription("heap size for client process (in megabytes)").create("mem");
+		Option jar = OptionBuilder.withArgName("jar").hasArg().withDescription("location of EvoSuite jar file to use in client process").create("jar");
 
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
 		Option mocks = new Option("mocks", "Use mock classes");
@@ -459,6 +485,7 @@ public class EvoSuite {
 		options.addOption(criterion);
 		options.addOption(seed);
 		options.addOption(mem);
+		options.addOption(jar);
 		options.addOption(assertions);
 		options.addOption(signature);
 		options.addOption(base_dir);
@@ -494,6 +521,8 @@ public class EvoSuite {
 
 			if (line.hasOption("mem"))
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
+			if (line.hasOption("jar"))
+				evosuiteJar = line.getOptionValue("jar");
 			if (line.hasOption("criterion"))
 				javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
 			if (line.hasOption("sandbox"))
