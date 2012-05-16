@@ -591,6 +591,11 @@ public class EvoSuite {
 	public static void main(String[] args) {
 		EvoSuite evosuite = new EvoSuite();
 		evosuite.parseCommandLine(args);
+		
+		/*
+		 * Some threads could still be running, so we need to kill the process explicitly
+		 */
+		System.exit(0);
 	}
 
 }
