@@ -75,14 +75,17 @@ public class LoggingUtils {
 									ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(socket.getInputStream()));
 									while(socket!=null && socket.isConnected() && !isServerClosed()){
 										ILoggingEvent event = (ILoggingEvent) ois.readObject();
-										// get a logger from the hierarchy. The name of the logger is taken to
-										// be the name contained in the event.
+
+										/*
+										 * We call the appender regardless of level in the master (ie, if the level was
+										 * set in the client and we receive a log message, then we just print it). 
+										 * Note: we use 
+										 * the local logger with same name just for formatting reasons 
+										 */
 										ch.qos.logback.classic.Logger remoteLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(event.getLoggerName());
-										// apply the logger-level filter
-										if (remoteLogger.isEnabledFor(event.getLevel())) {
-											// finally log the event as if was generated locally
+										//if (remoteLogger.isEnabledFor(event.getLevel())) {
 											remoteLogger.callAppenders(event);
-										}
+										//}
 									}
 								} catch(java.io.EOFException eof){
 									//this is normal, do nothing
