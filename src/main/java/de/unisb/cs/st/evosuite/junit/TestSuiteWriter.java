@@ -420,7 +420,8 @@ public class TestSuiteWriter implements Opcodes {
 			}
 		}
 		builder.append(" {\n");
-		for (String line : adapter.getTestString(id, testCases.get(id), result.exposeExceptionMapping()).split("\\r?\\n")) {
+		for (String line : adapter.getTestString(id, testCases.get(id),
+		                                         result.exposeExceptionMapping()).split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
 			// builder.append(";\n");
@@ -446,9 +447,9 @@ public class TestSuiteWriter implements Opcodes {
 		if (!Properties.PROJECT_PREFIX.equals("")) {
 			builder.append("package ");
 			builder.append(Properties.PROJECT_PREFIX);
+			// builder.append(".GeneratedTests;");
+			builder.append(";\n\n");
 		}
-		// builder.append(".GeneratedTests;");
-		builder.append(";\n\n");
 		List<String> suites = new ArrayList<String>();
 
 		File basedir = new File(directory);
