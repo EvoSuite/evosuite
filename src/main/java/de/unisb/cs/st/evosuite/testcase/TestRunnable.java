@@ -150,6 +150,14 @@ public class TestRunnable implements InterfaceTestRunnable {
 						// We simply stop execution at this point
 						break;
 					}
+					if (exceptionThrown instanceof TestCaseExecutor.TimeoutExceeded) {
+						logger.debug("Test timed out!");
+						exceptionsThrown.put(test.size(), exceptionThrown);
+						result.setThrownExceptions(exceptionsThrown);
+						result.reportNewThrownException(test.size(), exceptionThrown);
+						result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+						break;
+					}
 
 					exceptionsThrown.put(num, exceptionThrown);
 					if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
