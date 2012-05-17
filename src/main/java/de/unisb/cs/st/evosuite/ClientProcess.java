@@ -181,7 +181,7 @@ public class ClientProcess implements SearchListener {
 			t.printStackTrace();
 			
 			//sleep 1 sec to be more sure that the above log is recorded
-			try { Thread.sleep(1000);} 
+			try { Thread.sleep(100);} 
 			catch (InterruptedException e) {}
 			
 			if(!Properties.CLIENT_ON_THREAD){

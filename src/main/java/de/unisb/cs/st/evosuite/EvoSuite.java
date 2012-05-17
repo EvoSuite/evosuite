@@ -380,11 +380,10 @@ public class EvoSuite {
 			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
 			        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+
 			handler.killProcess();
 			handler.closeServer();
 		} else {
@@ -400,7 +399,7 @@ public class EvoSuite {
 
 		if (!Properties.CLIENT_ON_THREAD) {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
 			logUtils.closeLogServer();
