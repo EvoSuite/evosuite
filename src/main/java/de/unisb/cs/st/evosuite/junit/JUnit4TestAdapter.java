@@ -19,8 +19,9 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	 */
 	@Override
 	public String getImports() {
-		return "import org.junit.Before;\n" + "import org.junit.Ignore;\n"
-		        + "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n";
+		//		return "import org.junit.Before;\n" + "import org.junit.Ignore;\n"
+		//		        + "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n";
+		return "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n";
 	}
 
 	/* (non-Javadoc)
@@ -49,10 +50,11 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 		builder.append("import org.junit.runners.Suite;\n\n");
 
 		for (String suite : suites) {
-			builder.append("import ");
-			// builder.append(Properties.PROJECT_PREFIX);
-			builder.append(suite);
-			builder.append(";\n");
+			if (suite.contains(".")) {
+				builder.append("import ");
+				builder.append(suite);
+				builder.append(";\n");
+			}
 		}
 		builder.append("\n");
 
