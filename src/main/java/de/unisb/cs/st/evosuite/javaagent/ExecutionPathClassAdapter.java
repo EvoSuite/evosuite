@@ -76,6 +76,8 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 		}
 		mv = new MethodEntryAdapter(mv, methodAccess, className, name, descriptor);
 		mv = new LineNumberMethodAdapter(mv, className, name, descriptor);
+		mv = new ArrayAllocationLimitMethodAdapter(mv, className, name, methodAccess,
+		        descriptor);
 		mv = new ExplicitExceptionHandler(mv, className, name, descriptor);
 		return mv;
 	}

@@ -614,6 +614,9 @@ public class Properties {
 	@Parameter(key = "mutation_timeouts", group = "Test Execution", description = "Number of timeouts before we consider a mutant killed")
 	public static int MUTATION_TIMEOUTS = 3;
 
+	@Parameter(key = "array_limit", group = "Test Execution", description = "Hard limit on array allocation in the code")
+	public static int ARRAY_LIMIT = 1000000;
+
 	@Parameter(key = "max_mutants", group = "Test Execution", description = "Maximum number of mutants to target at the same time")
 	public static int MAX_MUTANTS = 100;
 

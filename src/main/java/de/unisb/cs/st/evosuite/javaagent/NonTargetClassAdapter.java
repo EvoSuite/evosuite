@@ -8,17 +8,17 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
-public class YieldAtLineNumberClassAdapter extends ClassVisitor {
+public class NonTargetClassAdapter extends ClassVisitor {
 
 	private final String className;
 
 	/**
 	 * @param cv
 	 */
-	public YieldAtLineNumberClassAdapter(ClassVisitor cv, String className) {
+	public NonTargetClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
 	}
@@ -28,6 +28,7 @@ public class YieldAtLineNumberClassAdapter extends ClassVisitor {
 	        String signature, final String[] exceptions) {
 
 		MethodVisitor mv = super.visitMethod(access, name, desc, signature, exceptions);
-		return new YieldAtLineNumberMethodAdapter(mv, className, name);
+		mv = new YieldAtLineNumberMethodAdapter(mv, className, name);
+		return mv; //new ArrayAllocationLimitMethodAdapter(mv, className, name, access, desc);
 	}
 }
