@@ -16,7 +16,7 @@ import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.Frame;
 
 /**
- * @author fraser
+ * @author Gordon Fraser
  * 
  */
 public class ErrorConditionMethodAdapter extends GeneratorAdapter {
@@ -236,11 +236,10 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP);
 			tagBranch();
 			super.visitJumpInsn(Opcodes.IFGE, intermediateTarget);
-			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArrayIndexOutOfBoundsException");
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/NegativeArraySizeException");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "java/lang/ArrayIndexOutOfBoundsException", "<init>",
-			                      "()V");
+			                      "java/lang/NegativeArraySizeException", "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(intermediateTarget);
 
@@ -291,11 +290,10 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP);
 			tagBranch();
 			super.visitJumpInsn(Opcodes.IFGE, intermediateTarget);
-			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArrayIndexOutOfBoundsException");
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/NegativeArraySizeException");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "java/lang/ArrayIndexOutOfBoundsException", "<init>",
-			                      "()V");
+			                      "java/lang/NegativeArraySizeException", "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(intermediateTarget);
 
