@@ -113,8 +113,9 @@ public class BytecodeInstrumentation {
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
 		ClassVisitor cv = writer;
-		if (logger.isDebugEnabled())
+		if (logger.isDebugEnabled()) {
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+		}
 
 		// Apply transformations to class under test and its owned
 		// classes
@@ -139,7 +140,7 @@ public class BytecodeInstrumentation {
 
 		} else {
 			logger.debug("Not applying target transformation");
-			cv = new YieldAtLineNumberClassAdapter(cv, className);
+			cv = new NonTargetClassAdapter(cv, className);
 
 			if (Properties.MAKE_ACCESSIBLE) {
 				// Convert protected/default access to public access
