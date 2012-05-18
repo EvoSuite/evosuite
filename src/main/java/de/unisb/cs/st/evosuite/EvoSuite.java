@@ -14,6 +14,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -452,14 +453,7 @@ public class EvoSuite {
 		return jarName;
 	}
 
-	private void setupProperties(List<String> javaOpts) {
-		for (String option : javaOpts) {
-			String p = option.replace("-D", "");
-			int splitPoint = p.indexOf("=");
-			String optionName = p.substring(0, splitPoint);
-			String optionValue = p.substring(splitPoint + 1);
-			System.setProperty(optionName, optionValue);
-		}
+	private void setupProperties() {
 		if (base_dir_path.equals("")) {
 			Properties.getInstance();
 		} else {
@@ -492,6 +486,8 @@ public class EvoSuite {
 
 		Option base_dir = OptionBuilder.withArgName("base_dir").hasArg().withDescription("Working directory").create("base_dir");
 
+		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
+
 		options.addOption(help);
 		options.addOption(generateSuite);
 		options.addOption(generateTests);
@@ -504,35 +500,42 @@ public class EvoSuite {
 		options.addOption(assertions);
 		options.addOption(signature);
 		options.addOption(base_dir);
+		options.addOption(property);
 
 		options.addOption(sandbox);
 		options.addOption(mocks);
 		options.addOption(stubs);
 
 		List<String> javaOpts = new ArrayList<String>();
-		List<String> cmdOpts = new ArrayList<String>();
-		for (String arg : args) {
-			if (arg.startsWith("-D")) {
-				javaOpts.add(arg);
-			} else {
-				cmdOpts.add(arg);
-			}
-		}
 
 		Object result = null;
+		// TODO: Can we replace the version number automatically?
+		String version = EvoSuite.class.getPackage().getImplementationVersion();
+		if (version == null)
+			version = "";
+		System.out.println("* EvoSuite " + version);
 
 		// create the parser
 		CommandLineParser parser = new GnuParser();
 		try {
 			// parse the command line arguments
-			String[] cargs = new String[cmdOpts.size()];
-			cmdOpts.toArray(cargs);
-			CommandLine line = parser.parse(options, cargs);
-			// javaOpts.addAll(Arrays.asList(line.getArgs()));
+			CommandLine line = parser.parse(options, args);
 
 			/*
 			 * NOTE: JVM arguments will not be passed over from the master to the client. So for -Xmx, we need to use "mem"
 			 */
+
+			java.util.Properties properties = line.getOptionProperties("D");
+			Set<String> propertyNames = Properties.getParameters();
+			for (String propertyName : properties.stringPropertyNames()) {
+				if (!propertyNames.contains(propertyName)) {
+					System.err.println("* Unknown property: " + propertyName);
+					System.exit(1);
+				}
+				String propertyValue = properties.getProperty(propertyName);
+				javaOpts.add("-D" + propertyName + "=" + propertyValue);
+				System.setProperty(propertyName, propertyValue);
+			}
 
 			if (line.hasOption("mem"))
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
@@ -567,7 +570,7 @@ public class EvoSuite {
 				}
 			}
 
-			setupProperties(javaOpts);
+			setupProperties();
 
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
