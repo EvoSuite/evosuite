@@ -452,6 +452,22 @@ public class EvoSuite {
 		return jarName;
 	}
 
+	private void setupProperties(List<String> javaOpts) {
+		for (String option : javaOpts) {
+			String p = option.replace("-D", "");
+			int splitPoint = p.indexOf("=");
+			String optionName = p.substring(0, splitPoint);
+			String optionValue = p.substring(splitPoint + 1);
+			System.setProperty(optionName, optionValue);
+		}
+		if (base_dir_path.equals("")) {
+			Properties.getInstance();
+		} else {
+			Properties.getInstance().loadProperties(base_dir_path + separator
+			                                                + Properties.PROPERTIES_FILE);
+		}
+	}
+
 	@SuppressWarnings("static-access")
 	public Object parseCommandLine(String[] args) {
 		Options options = new Options();
@@ -549,10 +565,9 @@ public class EvoSuite {
 					                                          + base_dir_path);
 					return null;
 				}
-				Properties.getInstance().loadProperties(base_dir_path
-				                                                + separator
-				                                                + Properties.PROPERTIES_FILE);
 			}
+
+			setupProperties(javaOpts);
 
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
@@ -590,7 +605,7 @@ public class EvoSuite {
 	public static void main(String[] args) {
 		EvoSuite evosuite = new EvoSuite();
 		evosuite.parseCommandLine(args);
-		
+
 		/*
 		 * Some threads could still be running, so we need to kill the process explicitly
 		 */
