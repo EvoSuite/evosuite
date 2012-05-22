@@ -17,6 +17,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
 import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveExpression;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -208,11 +209,19 @@ public class CompoundTestCase {
 			}
 			if (statement instanceof ReturnStatementPlaceholder) {
 				VariableReference resultVal = methodVarsMap.get(statement.getReturnValue());
+				if (resultVal == null) {
+					throw new IllegalStateException();
+				}
 				AssignmentStatement assignmentStatement = new AssignmentStatement(delegate, retVal, resultVal);
 				addStatement(assignmentStatement);
 				return;
 			}
-			StatementInterface newStmt = statement.clone(delegate);
+			StatementInterface newStmt = statement;
+			if (!(statement instanceof PrimitiveExpression)) {
+				// Since the delegate code is not yet finished, 
+				// cloning of PrimitiveExpressions does not work.
+				newStmt = statement.clone(delegate);
+			}
 			addReplacementVariable(statement.getReturnValue(), newStmt.getReturnValue());
 			methodVarsMap.put(statement.getReturnValue(), newStmt.getReturnValue());
 			addStatement(newStmt);

@@ -82,8 +82,11 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
-		PrimitiveExpression clone = new PrimitiveExpression(newTestCase, retval, leftOperand, operator, rightOperand);
-		return clone;
+		VariableReference newRetVal = new VariableReferenceImpl(newTestCase, retval.getType());
+		VariableReference newLeftOperand = newTestCase.getStatement(leftOperand.getStPosition()).getReturnValue();
+		VariableReference newRightOperand = newTestCase.getStatement(rightOperand.getStPosition()).getReturnValue();
+		return new PrimitiveExpression(newTestCase, newRetVal, newLeftOperand, operator, newRightOperand);
+//		return new PrimitiveExpression(newTestCase, retval, leftOperand, operator, rightOperand);
 	}
 
 	@Override

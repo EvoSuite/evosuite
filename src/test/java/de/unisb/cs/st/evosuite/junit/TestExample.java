@@ -74,8 +74,7 @@ public class TestExample extends ParentTestExample {
 	}
 	
 	protected static int doCalc(int x, int y){
-		//return x + 5;
-		return 5;
+		return x + 5;
 	}
 	
 	protected int doOtherCalc(int x){
