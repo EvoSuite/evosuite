@@ -275,7 +275,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		Constructor<?> constructor = retrieveConstructor(instanceCreation.getType(), paramTypes, paramValues);
 		List<VariableReference> params = convertParams(instanceCreation.arguments(), paramTypes);
 		VariableReference retVal = retrieveVariableReference(instanceCreation, null);
-		retVal.setOriginalCode(instanceCreation.getParent().toString());
+		retVal.setOriginalCode(instanceCreation.toString());
 		ConstructorStatement statement = new ValidConstructorStatement(testCase.getReference(), constructor, retVal,
 				params);
 		testCase.addStatement(statement);
@@ -296,6 +296,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
 			MethodDef methodDef = testCase.getMethod(method.getName());
 			VariableReference retVal = retrieveResultReference(methodInvocation);
+			if (retVal.getOriginalCode() == null) {
+				retVal.setOriginalCode(methodInvocation.toString());
+			}
 			testCase.convertMethod(methodDef, params, retVal);
 			return;
 		}
@@ -699,7 +702,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				continue;
 			}
 			Class<?> argClass = retrieveTypeClass(argumentTypes.get(idx));
-			result.add(retrieveVariableReference(argument, argClass));
+			VariableReference argRef = retrieveVariableReference(argument, argClass);
+			argRef.setOriginalCode(argument.toString());
+			result.add(argRef);
 			idx++;
 		}
 		return result;
@@ -992,6 +997,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		VariableReference leftOperand = retrieveVariableReference(infixExpr.getLeftOperand(), null);
 		Operator operator = Operator.toOperator(infixExpr.getOperator().toString());
 		VariableReference rightOperand = retrieveVariableReference(infixExpr.getRightOperand(), null);
+		if (rightOperand.getOriginalCode() == null) {
+			rightOperand.setOriginalCode(infixExpr.getRightOperand().toString());
+		}
 		PrimitiveExpression expr = new PrimitiveExpression(testCase.getReference(), ref, leftOperand, operator,
 				rightOperand);
 		testCase.addStatement(expr);
