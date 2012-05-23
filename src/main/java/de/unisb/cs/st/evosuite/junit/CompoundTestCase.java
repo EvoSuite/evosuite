@@ -218,7 +218,7 @@ public class CompoundTestCase {
 			}
 			StatementInterface newStmt = statement;
 			if (!(statement instanceof PrimitiveExpression)) {
-				// Since the delegate code is not yet finished, 
+				// Since the delegate code is not yet finished,
 				// cloning of PrimitiveExpressions does not work.
 				newStmt = statement.clone(delegate);
 			}
@@ -226,6 +226,12 @@ public class CompoundTestCase {
 			methodVarsMap.put(statement.getReturnValue(), newStmt.getReturnValue());
 			addStatement(newStmt);
 		}
+	}
+
+	public void discardMethod() {
+		currentScope = TestScope.FIELDS;
+		currentMethod = null;
+		currentMethodVars.clear();
 	}
 
 	public void finalizeMethod() {
