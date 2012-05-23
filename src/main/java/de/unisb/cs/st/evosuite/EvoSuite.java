@@ -13,6 +13,7 @@ import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -509,7 +510,6 @@ public class EvoSuite {
 		List<String> javaOpts = new ArrayList<String>();
 
 		Object result = null;
-		// TODO: Can we replace the version number automatically?
 		String version = EvoSuite.class.getPackage().getImplementationVersion();
 		if (version == null)
 			version = "";
@@ -526,7 +526,8 @@ public class EvoSuite {
 			 */
 
 			java.util.Properties properties = line.getOptionProperties("D");
-			Set<String> propertyNames = Properties.getParameters();
+			Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
+			propertyNames.add("log.level"); // TODO: Maybe this should be an official parameter?
 			for (String propertyName : properties.stringPropertyNames()) {
 				if (!propertyNames.contains(propertyName)) {
 					System.err.println("* Unknown property: " + propertyName);
