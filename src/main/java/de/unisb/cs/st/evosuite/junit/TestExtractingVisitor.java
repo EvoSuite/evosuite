@@ -2,6 +2,7 @@ package de.unisb.cs.st.evosuite.junit;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.AbstractList;
@@ -15,6 +16,8 @@ import java.util.Set;
 import java.util.Stack;
 
 import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
 import org.eclipse.jdt.core.dom.ArrayType;
@@ -29,6 +32,7 @@ import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.IMethodBinding;
 import org.eclipse.jdt.core.dom.ITypeBinding;
 import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.InfixExpression;
 import org.eclipse.jdt.core.dom.MarkerAnnotation;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
@@ -196,6 +200,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final String unqualifiedTest;
 	private final String unqualifiedTestMethod;
 	private Stack<VariableReference> nestedCallResults = new Stack<VariableReference>();
+	private final Map<String, String> imports = new HashMap<String, String>();
 
 	private static final HashSet<Class<?>> PRIMITIVE_CLASSES = new HashSet<Class<?>>();
 
@@ -283,13 +288,25 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public void endVisit(MethodDeclaration node) {
+		if(exceptionReadingMethod){
+			testCase.discardMethod();
+			return;
+		}
 		testCase.finalizeMethod();
 	}
 
 	@Override
 	public void endVisit(MethodInvocation methodInvocation) {
 		// TODO If in constructor, treat calls to this() and super().
-		List<?> paramTypes = Arrays.asList(methodInvocation.resolveMethodBinding().getParameterTypes());
+		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
+		if (methodBinding == null) {
+			String methodName = methodInvocation.getName().toString();
+			if (methodName.equals("fail") || methodName.startsWith("assert")) {
+				logger.warn("We are ignoring fail and assert statements for now.");
+				return;
+			}
+		}
+		List<?> paramTypes = Arrays.asList(methodBinding.getParameterTypes());
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, params);
 		Class<?> declaringClass = method.getDeclaringClass();
@@ -327,6 +344,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	@Override
 	public void endVisit(ReturnStatement returnStatement) {
 		VariableReference returnValue = null;
+		if (returnStatement.getExpression() == null) {
+			logger.warn("Since we do not represent control structures, we ignore explicit empty return statements ('return;').");
+			return;
+		}
 		if (returnStatement.getExpression() instanceof MethodInvocation) {
 			returnValue = testCase.getLastStatement().getReturnValue();
 		} else {
@@ -346,6 +367,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		VariableReference retVal = retrieveResultReference(superMethodInvocation);
 		retVal.setOriginalCode(superMethodInvocation.toString());
 		testCase.convertMethod(methodDef, params, retVal);
+	}
+
+	@Override
+	public boolean visit(ArrayCreation arrayCreation) {
+		Class<?> type = retrieveTypeClass(arrayCreation.resolveTypeBinding());
+		ArrayStatement arrayStatement = new ArrayStatement(testCase.getReference(), type);
+		testCase.addStatement(arrayStatement);
+		return true;
 	}
 
 	@Override
@@ -375,7 +404,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		VariableDeclarationFragment varDeclFrgmnt = (VariableDeclarationFragment) fieldDeclaration.fragments().get(0);
 		Expression expression = varDeclFrgmnt.getInitializer();
-		VariableReference varRef = retrieveVariableReference(expression, null);
+		VariableReference varRef;
+		if (expression == null) {
+			varRef = retrieveDefaultValueAssignment(retrieveTypeClass(varDeclFrgmnt));
+		} else {
+			varRef = retrieveVariableReference(expression, null);
+		}
 		varRef.setOriginalCode(fieldDeclaration.toString());
 		// TODO Use the name here as well?
 		// String name = varDeclFrgmt.getName().getIdentifier();
@@ -383,6 +417,19 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.addVariable(varDeclFrgmnt.resolveBinding(), varRef);
 		testCase.setCurrentScope(TestScope.FIELDS);
 		return true;
+	}
+
+	@Override
+	public boolean visit(ImportDeclaration importDeclaration) {
+		String[] importParts = importDeclaration.toString().split(" ");
+		String fullImport = importParts[importParts.length - 1].replace(";", "").trim();
+		if (fullImport.contains("$")) {
+			imports.put(fullImport.split("$")[1], fullImport);
+		} else {
+			String[] identifiers = fullImport.split("\\.");
+			imports.put(identifiers[identifiers.length - 1], fullImport);
+		}
+		return false;
 	}
 
 	@Override
@@ -418,7 +465,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				testCase.setCurrentScope(TestScope.AFTER);
 			}
 		}
-		return true;
+		return saveMethodCodeExtraction(methodDeclaration);
 	}
 
 	@Override
@@ -524,6 +571,16 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (argument instanceof SimpleType) {
 			SimpleType simpleType = (SimpleType) argument;
 			ITypeBinding binding = simpleType.resolveBinding();
+			if (binding == null) {
+				String result = imports.get(simpleType.toString());
+				if (result != null) {
+					try {
+						return Class.forName(result);
+					} catch (ClassNotFoundException exc) {
+						throw new RuntimeException("Classpath incomplete?", exc);
+					}
+				}
+			}
 			assert binding != null : "Could not resolve binding for " + simpleType + ". Missing sources folder?";
 			return retrieveTypeClass(binding);
 		}
@@ -600,9 +657,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				if (componentType.isPrimitive()) {
 					String clazz = "[" + componentType.getName().toUpperCase().charAt(0);
 					return Class.forName(clazz);
-				} else {
-					return Class.forName("[L" + componentType.getName() + ";");
 				}
+				if (componentType.isArray()) {
+					String clazz = "[" + componentType.getName();
+					return Class.forName(clazz);
+				}
+				return Class.forName("[L" + componentType.getName() + ";");
 			} catch (ClassNotFoundException exc) {
 				throw new RuntimeException(exc);
 			}
@@ -689,6 +749,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (argument instanceof VariableDeclaration) {
 			return retrieveVariableReference((VariableDeclaration) argument);
 		}
+		if (argument instanceof ArrayAccess) {
+			return retrieveVariableReference((ArrayAccess) argument);
+		}
 		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
 	}
 
@@ -767,6 +830,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	private Class<?> loadClass(String className) throws ClassNotFoundException {
+		// TODO Implement loading classes from Properties.CLASSPATH that are not
+		// on BugEx's classpath
 		return TestCluster.classLoader.loadClass(className);
 		// return Class.forName(className);
 	}
@@ -793,6 +858,23 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return retrieveVariableReference(expression, null);
 		}
 		throw new RuntimeException("Callee was null for expression: " + expression);
+	}
+
+	private VariableReference retrieveDefaultValueAssignment(Class<?> typeClass) {
+		if (typeClass.isPrimitive()) {
+			if (typeClass.equals(boolean.class)) {
+				PrimitiveStatement<Boolean> charAssignment = new BooleanPrimitiveStatement(testCase.getReference(),
+						false);
+				testCase.addStatement(charAssignment);
+				return charAssignment.getReturnValue();
+			}
+			PrimitiveStatement<?> numberAssignment = createPrimitiveStatement(typeClass, 0);
+			testCase.addStatement(numberAssignment);
+			return numberAssignment.getReturnValue();
+		}
+		PrimitiveStatement<?> nullAssignment = new NullStatement(testCase.getReference(), typeClass);
+		testCase.addStatement(nullAssignment);
+		return nullAssignment.getReturnValue();
 	}
 
 	private Method retrieveMethod(MethodInvocation methodInvocation, List<VariableReference> params) {
@@ -951,6 +1033,18 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return result;
 	}
 
+	private VariableReference retrieveVariableReference(ArrayAccess arrayAccess) {
+		if (arrayAccess.getParent() instanceof Assignment) {
+			// Assignment assignment = (Assignment)arrayAccess.getParent();
+			// ArrayReference arrayReference =
+			// retrieveVariableReference(arrayAccess.getArray());
+			// testCase.addStatement(arrayStatement);
+			// return arrayStatement.getReturnValue();
+			throw new RuntimeException("Need to implement array access for reading.");
+		}
+		throw new RuntimeException("Need to implement array access for reading.");
+	}
+
 	private VariableReference retrieveVariableReference(ArrayCreation arrayCreation) {
 		Class<?> arrayType = retrieveTypeClass(arrayCreation.getType());
 		AbstractList<?> dimensions = ((AbstractList<?>) arrayCreation
@@ -985,6 +1079,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 					retrieveTypeClass(instanceCreation.getType()));
 			nestedCallResults.push(result);
 			return result;
+		}
+		if (instanceCreation.getParent() instanceof Assignment) {
+			return new ValidVariableReference(testCase.getReference(), retrieveTypeClass(instanceCreation.getType()));
 		}
 		return retrieveVariableReference(instanceCreation.getParent(), varType);
 	}
@@ -1091,4 +1188,35 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.addVariable(variableBinding, result);
 		return result;
 	}
+
+	private boolean saveMethodCodeExtraction(MethodDeclaration methodDeclaration) {
+		exceptionReadingMethod = false;
+		logger.warn("Omittint acceptChild(visitor, getJavadoc());");
+		logger.warn("Omittint acceptChildren(visitor, this.modifiers);");
+		logger.warn("Omittint acceptChildren(visitor, this.typeParameters);");
+		logger.warn("Omittint acceptChild(visitor, getReturnType2());");
+		logger.warn("Omittint acceptChild(visitor, getName());");
+		logger.warn("Omittint acceptChildren(visitor, this.parameters);");
+		logger.warn("Omittint acceptChildren(visitor, this.thrownExceptions);");
+		logger.warn("Method not accessible, would be: methodDeclaration.acceptChild(this, methodDeclaration.getBody());");
+		try {
+			Method acceptChild = ASTNode.class.getDeclaredMethod("acceptChild", ASTVisitor.class, ASTNode.class);
+			acceptChild.setAccessible(true);
+			acceptChild.invoke(methodDeclaration, this, methodDeclaration.getBody());
+		} catch (SecurityException exc) {
+			throw new RuntimeException(exc);
+		} catch (NoSuchMethodException exc) {
+			throw new RuntimeException(exc);
+		} catch (IllegalArgumentException exc) {
+			throw new RuntimeException(exc);
+		} catch (IllegalAccessException exc) {
+			throw new RuntimeException(exc);
+		} catch (InvocationTargetException exc) {
+			logger.error("Exception reading code of method '{}', skipping it!", methodDeclaration.getName(),
+					exc.getCause());
+			exceptionReadingMethod = true;
+		}
+		return false;
+	}
+	private boolean exceptionReadingMethod = false; 
 }
