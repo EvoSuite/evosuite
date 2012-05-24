@@ -268,6 +268,9 @@ public class CompoundTestCase {
 		if (testMethod == null) {
 			throw new RuntimeException("Test did not contain any statements!");
 		}
+		if (methodDefs.get(testMethod) == null) {
+			throw new RuntimeException("Error reading test method " + testMethod + "!");
+		}
 		delegate.addStatements(methodDefs.get(testMethod).getCode());
 		delegate.addStatements(getAfterMethods(overridenMethods));
 		delegate.addStatements(getAfterClassMethods(overridenMethods));

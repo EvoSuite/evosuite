@@ -64,7 +64,8 @@ public class JUnitTestReader implements TestReader {
 		String fileContents = readJavaFile(javaFile);
 		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
 		compilationUnit.accept(testExtractingVisitor);
-		return testCase.finalizeTestCase();
+		TestCase result = testCase.finalizeTestCase();
+		return result;
 	}
 
 	@Override

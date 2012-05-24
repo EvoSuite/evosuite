@@ -125,7 +125,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 		public ValidConstructorStatement(TestCase tc, Constructor<?> constructor, VariableReference retVal,
 				List<VariableReference> parameters) {
-			super(tc, constructor, retVal, parameters);
+			super(tc, constructor, retVal, parameters, false);
 		}
 
 		@Override
@@ -258,6 +258,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
 
+	private boolean exceptionReadingMethod = false;
+
 	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod, TestReader testReader) {
 		super();
 		this.testCase = testCase;
@@ -288,7 +290,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public void endVisit(MethodDeclaration node) {
-		if(exceptionReadingMethod){
+		if (exceptionReadingMethod) {
 			testCase.discardMethod();
 			return;
 		}
@@ -303,6 +305,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			String methodName = methodInvocation.getName().toString();
 			if (methodName.equals("fail") || methodName.startsWith("assert")) {
 				logger.warn("We are ignoring fail and assert statements for now.");
+				for (Expression expression : (List<Expression>) methodInvocation.arguments()) {
+					if ((expression instanceof MethodInvocation) || (expression instanceof ClassInstanceCreation)) {
+						assert !nestedCallResults.isEmpty();
+						nestedCallResults.pop();
+					}
+				}
 				return;
 			}
 		}
@@ -379,6 +387,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public boolean visit(Assignment assignment) {
+		if ((assignment.getRightHandSide() instanceof MethodInvocation)
+				|| (assignment.getRightHandSide() instanceof ClassInstanceCreation)) {
+			// treated in respective endVisit methods
+			return true;
+		}
 		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide(), null);
 		varRef.setOriginalCode(assignment.toString());
 		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
@@ -752,6 +765,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (argument instanceof ArrayAccess) {
 			return retrieveVariableReference((ArrayAccess) argument);
 		}
+		if (argument instanceof Assignment) {
+			return retrieveVariableReference(((Assignment) argument).getLeftHandSide(), null);
+		}
 		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
 	}
 
@@ -1080,9 +1096,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			nestedCallResults.push(result);
 			return result;
 		}
-		if (instanceCreation.getParent() instanceof Assignment) {
-			return new ValidVariableReference(testCase.getReference(), retrieveTypeClass(instanceCreation.getType()));
-		}
 		return retrieveVariableReference(instanceCreation.getParent(), varType);
 	}
 
@@ -1218,5 +1231,4 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		return false;
 	}
-	private boolean exceptionReadingMethod = false; 
 }
