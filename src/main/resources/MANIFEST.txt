@@ -1,3 +1,21 @@
+====
+    Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
+
+    This file is part of EvoSuite.
+
+    EvoSuite is free software: you can redistribute it and/or modify it under the
+    terms of the GNU Lesser Public License as published by the Free Software
+    Foundation, either version 3 of the License, or (at your option) any later
+    version.
+
+    EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+    A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+
+    You should have received a copy of the GNU Public License along with
+    EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+====
+
 Manifest-Version: 1.0
 Premain-Class: de.unisb.cs.st.evosuite.javaagent.TestSuitePreMain
 Rsrc-Class-Path: ./ JavaPlot.jar jutil.jar asm-all-3.3.jar ga-0.1.jar log4j-1.2.16.jar bytecodeTransformer-0.1.jar	 gentyref-1.1.0.jar oumextractor.jar catools.jar guava-r06.jar xpp3-1.1.4c.jar commons-io-1.4.jar jadet.jar commons-lang-2.5.jar javaagent.jar xstream-1.3.1.jar javalanche-mutation-0.3.2.jar ds-util-0.3.1.jar jgrapht-jdk1.6.jar
