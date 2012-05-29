@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -105,7 +105,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		sb.append("<div id=\"post\">");
 
 		// Resulting test case
-		sb.append("<h2 class=title>Test suite</h2>\n");
+		sb.append("<h2 class=title id=tests>Test suite</h2>\n<div class=tests>\n");
 		if (run.tests != null) {
 			int num = 0;
 			for (TestCase test : run.tests) {
@@ -146,7 +146,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		} else {
 			sb.append("No test cases generated");
 		}
-		sb.append("</div>");
+		sb.append("</div></div>");
 		sb.append("<div id=\"post\">");
 
 		// Source code
@@ -226,8 +226,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		// Source code
 		try {
 			Iterable<String> source = html_analyzer.getClassContent(run.className);
-			sb.append("<h2 class=title>Source Code</h2>\n");
-			sb.append("<p>");
+			sb.append("<h2 class=title id=source>Source Code</h2>\n");
+			sb.append("<div class=source><p>");
 			sb.append("<pre class=\"prettyprint\" style=\"border: 1px solid #888;padding: 2px\">");
 			int linecount = 1;
 			for (String line : source) {
@@ -246,7 +246,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			}
 			sb.append("</pre>\n");
 
-			sb.append("</p>\n");
+			sb.append("</p></div>\n");
 		} catch (Exception e) {
 			// Don't display source if there is an error
 		}

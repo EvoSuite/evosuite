@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -481,9 +481,22 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		buffer.append(title);
 		buffer.append("\n</title>\n");
 
-		buffer.append("<link href=\"prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
-		buffer.append("<link href=\"style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
-		buffer.append("<script type=\"text/javascript\" src=\"prettify.js\"></script>\n");
+		buffer.append("<link href=\"files/prettify.css\" type=\"text/css\" rel=\"stylesheet\" />\n");
+		buffer.append("<link href=\"files/style.css\" rel=\"stylesheet\" type=\"text/css\" media=\"screen\"/>\n");
+		buffer.append("<script type=\"text/javascript\" src=\"files/prettify.js\"></script>\n");
+		buffer.append("<script type=\"text/javascript\" src=\"files/jquery.js\"></script>\n");
+		buffer.append("<script type=\"text/javascript\" src=\"files/foldButton.js\"></script>\n");
+		buffer.append("<script type=\"text/javascript\">\n");
+		buffer.append("  $(document).ready(function() {\n");
+		//buffer.append("    $('div.tests').foldButton({'closedText':'open TITLE' });\n");
+		//buffer.append("    $('div.source').foldButton({'closedText':'open TITLE' });\n");
+		//buffer.append("    $('div.statistics').foldButton({'closedText':'open TITLE' });\n");
+		buffer.append("    $('H2#tests').foldButton();\n");
+		buffer.append("    $('H2#source').foldButton();\n");
+		buffer.append("    $('H2#parameters').foldButton();\n");
+		buffer.append("  });");
+		buffer.append("</script>\n");
+		buffer.append("<link href=\"files/foldButton.css\" rel=\"stylesheet\" type=\"text/css\">\n");
 		buffer.append("</head>\n");
 		buffer.append("<body onload=\"prettyPrint()\">\n");
 		buffer.append("<div id=\"wrapper\">\n");
@@ -749,8 +762,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @param buffer
 	 */
 	protected void writeParameterTable(StringBuffer buffer, StatisticEntry entry) {
-		buffer.append("<h2>EvoSuite Parameters</h2>\n");
-		buffer.append("<ul>\n");
+		buffer.append("<h2 id=parameters>EvoSuite Parameters</h2>\n");
+		buffer.append("<div class=statistics><ul>\n");
 		for (String key : Properties.getParameters()) {
 			try {
 				buffer.append("<li>" + key + ": " + Properties.getStringValue(key) + "\n"); // TODO
@@ -764,18 +777,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				e.printStackTrace();
 			}
 		}
-		buffer.append("</ul>\n");
+		buffer.append("</ul></div>\n");
 
-		buffer.append("<h2>Old Parameters</h2>\n");
-		buffer.append("<ul>\n");
-		buffer.append("<li>Algorithm: " + Properties.ALGORITHM.toString() + "\n"); // TODO
-		buffer.append("<li>Population size: " + entry.population_size + "\n");
-		buffer.append("<li>Initial test length: " + entry.chromosome_length + "\n");
-		buffer.append("<li>Stopping condition: " + Properties.STOPPING_CONDITION + ": "
-		        + Properties.SEARCH_BUDGET + "\n");
-		buffer.append("<li>Bloat control factor: " + Properties.BLOAT_FACTOR);
-		buffer.append("<li>Random seed: " + entry.seed + "\n");
-		buffer.append("</ul>\n");
 	}
 
 	/**
@@ -786,46 +789,38 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected void writeResultTable(StringBuffer buffer, StatisticEntry entry) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
 
-		buffer.append("<h2>Statistics</h2>\n");
+		//buffer.append("<h2>Statistics</h2>\n");
 		buffer.append("<ul>\n");
-		buffer.append("<li>Start time: " + sdf.format(new Date(entry.start_time)) + "\n");
-		buffer.append("<li>End time: " + sdf.format(new Date(entry.minimized_time))
-		        + "\n");
-		buffer.append("<li>Fitness evaluations: " + entry.result_fitness_evaluations
-		        + "\n");
-		buffer.append("<li>Tests executed: " + entry.result_tests_executed + "\n");
-		buffer.append("<li>Statements executed: " + entry.result_statements_executed
-		        + "\n");
-		buffer.append("<li>Generations: " + entry.age + "\n");
-		buffer.append("<li>Number of tests before minimization: " + entry.size_final
-		        + "\n");
-		buffer.append("<li>Number of tests after minimization: " + entry.size_minimized
-		        + "\n");
-		buffer.append("<li>Length of tests before minimization: " + entry.length_final
-		        + "\n");
-		buffer.append("<li>Length of tests after minimization: " + entry.length_minimized
-		        + "\n");
-		buffer.append("<li>Total predicates: " + entry.total_branches + "\n");
-		buffer.append("<li>Total branches: " + (2 * entry.total_branches) + "\n");
-		buffer.append("<li>Covered branches: " + entry.covered_branches + "\n");
-		buffer.append("<li>Total methods: " + entry.total_methods + "\n");
-		buffer.append("<li>Covered methods: " + entry.covered_methods + "\n");
-		buffer.append("<li>Methods without branches: " + entry.branchless_methods + "\n");
-		buffer.append("<li>Total coverage goal: " + entry.total_goals + "\n");
-		buffer.append("<li>Covered goals: " + entry.covered_goals + "\n");
+
+		buffer.append("<li>");
+		buffer.append(entry.result_fitness_evaluations);
+		buffer.append(" fitness evaluations, ");
+		buffer.append(entry.age);
+		buffer.append(" generations, ");
+		buffer.append(entry.result_statements_executed);
+		buffer.append(" statements, ");
+		buffer.append(entry.result_tests_executed);
+		buffer.append(" tests.\n");
 
 		long duration_GA = (entry.end_time - entry.start_time) / 1000;
 		long duration_MI = (entry.minimized_time - entry.end_time) / 1000;
 		long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
-		buffer.append("<li>Time for search: "
-		        + String.format("%d:%02d:%02d", duration_GA / 3600,
-		                        (duration_GA % 3600) / 60, (duration_GA % 60)) + "\n");
-		buffer.append("<li>Time for minimization: "
-		        + String.format("%d:%02d:%02d", duration_MI / 3600,
-		                        (duration_MI % 3600) / 60, (duration_MI % 60)) + "\n");
-		buffer.append("<li>Total time: "
+
+		buffer.append("<li>Time: "
 		        + String.format("%d:%02d:%02d", duration_TO / 3600,
-		                        (duration_TO % 3600) / 60, (duration_TO % 60)) + "\n");
+		                        (duration_TO % 3600) / 60, (duration_TO % 60)));
+
+		buffer.append("(Search: "
+		        + String.format("%d:%02d:%02d", duration_GA / 3600,
+		                        (duration_GA % 3600) / 60, (duration_GA % 60)) + ", ");
+		buffer.append("minimization: "
+		        + String.format("%d:%02d:%02d", duration_MI / 3600,
+		                        (duration_MI % 3600) / 60, (duration_MI % 60)) + ")\n");
+
+		buffer.append("<li>Coverage: " + entry.covered_branches + "/"
+		        + (2 * entry.total_branches) + " branches, ");
+		buffer.append(entry.covered_methods + "/" + entry.total_methods + " methods, ");
+		buffer.append(entry.covered_goals + "/" + entry.total_goals + " total goals\n");
 
 		// buffer.append("<li>Elite: "+System.getProperty("GA.elite")+"\n");
 		// buffer.append("<li>Mutation rate: "+System.getProperty("GA.mutation_rate")+"\n");
@@ -921,8 +916,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected void copyFile(String name) {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
-		copyFile(systemResource, new File(REPORT_DIR, name));
-		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/" + name));
+		copyFile(systemResource, new File(REPORT_DIR, "files/" + name));
+		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/files/"
+		        + name));
 	}
 
 	/**
@@ -935,11 +931,16 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		if (statistics.isEmpty())
 			return;
 
-		new File(REPORT_DIR.getAbsolutePath() + "/html/").mkdirs();
+		new File(REPORT_DIR.getAbsolutePath() + "/html/files/").mkdirs();
+		new File(REPORT_DIR.getAbsolutePath() + "/data/").mkdirs();
+		new File(REPORT_DIR.getAbsolutePath() + "/files/").mkdirs();
 
 		copyFile("prettify.js");
 		copyFile("prettify.css");
 		copyFile("style.css");
+		copyFile("foldButton.js");
+		copyFile("foldButton.css");
+		copyFile("jquery.js");
 		copyFile("detected.png");
 		copyFile("not_detected.png");
 		copyFile("img01.jpg");
@@ -959,10 +960,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			}
 		} else {
 
-			writeHTMLHeader(report, "EvoSuite Report for " + Properties.PROJECT_PREFIX);
+			writeHTMLHeader(report, Properties.PROJECT_PREFIX);
 			report.append("<div id=\"header\"><div id=\"logo\">");
-			report.append("<h1 class=title>EvoSuite Report for "
-			        + Properties.PROJECT_PREFIX + "</h1>\n");
+			report.append("<h1 class=title>EvoSuite: " + Properties.PROJECT_PREFIX
+			        + "</h1>\n");
 			report.append("</div></div>");
 			try {
 				report.append("Run on "
