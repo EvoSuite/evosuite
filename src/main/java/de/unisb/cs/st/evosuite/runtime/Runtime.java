@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.io.IOWrapper;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
@@ -41,6 +42,8 @@ public class Runtime {
 		Random.reset();
 		System.reset();
 		if (Properties.VIRTUAL_FS) {
+			//FIXME: this was giving compilation errors
+			//IOWrapper.initialize(Properties.PROJECT_PREFIX); // TODO find a better place for this (so that it only gets executed once before the first test execution)
 			FileSystem.reset();
 		}
 	}
