@@ -40,6 +40,7 @@ import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUsePool;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Definition;
 import de.unisb.cs.st.evosuite.coverage.dataflow.Use;
+import de.unisb.cs.st.evosuite.coverage.ibranch.CallContext;
 
 /**
  * Keep a trace of the program execution
@@ -265,6 +266,7 @@ public class ExecutionTrace {
 	public Map<Integer, Double> falseDistances = Collections.synchronizedMap(new HashMap<Integer, Double>());
 	public Map<Integer, Double> mutantDistances = Collections.synchronizedMap(new HashMap<Integer, Double>());
 	public Set<Integer> touchedMutants = Collections.synchronizedSet(new HashSet<Integer>());
+	public Map<Integer, CallContext> callStacks = Collections.synchronizedMap(new HashMap<Integer, CallContext>());
 
 	public Map<Integer, Double> trueDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
 	public Map<Integer, Double> falseDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
@@ -344,18 +346,32 @@ public class ExecutionTrace {
 		else
 			falseDistancesSum.put(branch, falseDistancesSum.get(branch) + false_distance);
 
-		branchesTrace.add(new BranchEval(branch, true_distance, false_distance));
+		if (Properties.CRITERION == Criterion.IBRANCH) {
+			branchesTrace.add(new BranchEval(branch, true_distance, false_distance,
+			        new CallContext(Thread.currentThread().getStackTrace())));
+		} else {
+			branchesTrace.add(new BranchEval(branch, true_distance, false_distance));
+		}
 	}
 
 	public static class BranchEval {
 		private final int branchId;
 		private final double trueDistance;
 		private final double falseDistance;
+		private CallContext context = null;
 
 		public BranchEval(int branchId, double trueDistance, double falseDistance) {
 			this.branchId = branchId;
 			this.trueDistance = trueDistance;
 			this.falseDistance = falseDistance;
+		}
+
+		public BranchEval(int branchId, double trueDistance, double falseDistance,
+		        CallContext context) {
+			this.branchId = branchId;
+			this.trueDistance = trueDistance;
+			this.falseDistance = falseDistance;
+			this.context = context;
 		}
 
 		public int getBranchId() {
@@ -368,6 +384,10 @@ public class ExecutionTrace {
 
 		public double getFalseDistance() {
 			return falseDistance;
+		}
+
+		public CallContext getContext() {
+			return context;
 		}
 
 		@Override
