@@ -305,7 +305,16 @@
 			</configuration>
 		</plugin>
 
-
+		<plugin>
+		  <groupId>com.mycila.maven-license-plugin</groupId>
+		  <artifactId>maven-license-plugin</artifactId>
+		  <configuration>
+		    <header>src/etc/header.txt</header>
+		    <excludes>
+                      <exclude>src/main/java/de/unisb/cs/st/evosuite/ui/**</exclude>
+                    </excludes>
+		  </configuration>
+		</plugin>
 		<plugin>
 			<groupId>org.apache.maven.plugins</groupId>
 			<artifactId>maven-eclipse-plugin</artifactId>
@@ -426,6 +435,14 @@
               <version>2.7.2</version>
               <configuration>
                  <skipTests>true</skipTests>
+              </configuration>
+            </plugin> 
+            <plugin>
+              <groupId>org.apache.maven.plugins</groupId>
+              <artifactId>maven-source-plugin</artifactId>
+              <version>2.1.2</version>
+              <configuration>
+                 <includePom>true</includePom>
               </configuration>
             </plugin> 
 	    <plugin>
