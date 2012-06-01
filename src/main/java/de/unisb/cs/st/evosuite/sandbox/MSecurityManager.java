@@ -1,22 +1,23 @@
 /**
  * Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package de.unisb.cs.st.evosuite.sandbox;
 
+import java.io.File;
 import java.io.FilePermission;
 import java.security.Permission;
 
@@ -127,9 +128,18 @@ class MSecurityManager extends SecurityManager {
 			// since java cannot guarantee the unique values returned by hashCode() method.
 			if (permName.equals("java.lang.reflect.ReflectPermission"))
 				return true;
-			if (permName.equals("java.util.PropertyPermission"))
+			if (permName.equals("java.util.PropertyPermission")) {
 				if (perm.getActions().equals("read"))
 					return true;
+				else if (perm.getActions().equals("write")) {
+					// AWT classes try to set this when loaded
+					if (perm.getName().equals("sun.awt.exception.handler"))
+						return true;
+					else if (perm.getName().startsWith("apple.awt"))
+						return true;
+				}
+			}
+
 			if (perm.getClass().equals(java.util.logging.LoggingPermission.class)) {
 				return true;
 			}
@@ -170,17 +180,31 @@ class MSecurityManager extends SecurityManager {
 				if (fp.getName().contains(Properties.SANDBOX_FOLDER))
 					return true;
 
-				if (perm.getActions().equals("read")
-				        && fp.getName().endsWith(".properties"))
-					return true;
+				if (perm.getActions().equals("read")) {
+					if (fp.getName().endsWith(".properties"))
+						return true;
 
-				if (perm.getActions().equals("read"))
 					for (StackTraceElement e : stackTraceElements) {
 						if (e.getClassName().startsWith("java.net.URLClassLoader"))
 							return true;
 						if (e.getClassName().startsWith("java.lang.ClassLoader"))
 							return true;
+						if (e.getClassName().startsWith("de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader"))
+							return true;
 					}
+
+					String absoluteName = new File(fp.getName()).getAbsolutePath();
+
+					if (absoluteName.startsWith(System.getProperty("java.home")))
+						return true;
+
+					if (absoluteName.startsWith(System.getProperty("java.io.tmpdir")))
+						return true;
+
+					if (absoluteName.startsWith(System.getProperty("user.dir")))
+						return true;
+
+				}
 			}
 
 			return false;
