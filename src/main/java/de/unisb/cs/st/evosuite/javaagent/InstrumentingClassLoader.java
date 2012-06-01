@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,7 +30,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.ResourceList;
 
 /**
@@ -39,6 +38,7 @@ import de.unisb.cs.st.evosuite.utils.ResourceList;
  * class cannot be an singleton as it might be necessary to do so...
  * 
  * @author roessler
+ * @author Gordon Fraser
  */
 public class InstrumentingClassLoader extends ClassLoader {
 	private final static Logger logger = LoggerFactory.getLogger(InstrumentingClassLoader.class);
@@ -58,43 +58,36 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * Check if we can instrument the given class 
+	 * Check if we can instrument the given class
 	 */
-	public static boolean checkIfCanInstrument(String className){
-		for(String s : getPackagesShouldNotBeInstrumented()){
-			if(className.startsWith(s)){
+	public static boolean checkIfCanInstrument(String className) {
+		for (String s : getPackagesShouldNotBeInstrumented()) {
+			if (className.startsWith(s)) {
 				return false;
 			}
 		}
 		return true;
 	}
-	
+
 	/**
 	 * 
 	 * @return the names of class packages EvoSuite is not going to instrument
 	 */
-	public static String[] getPackagesShouldNotBeInstrumented(){
+	public static String[] getPackagesShouldNotBeInstrumented() {
 		//explicitly blocking client projects such as specmate is only a
 		//temporary solution, TODO allow the user to specify 
 		//packages that should not be instrumented
-		return new String[]{
-			"java.",
-			"javax.",
-			"sun.",
-			"de.unisb.cs.st.evosuite",
-			"de.unisb.cs.st.specmate",
-			"org.xml",
-			"org.w3c"
-		};
+		return new String[] { "java.", "javax.", "sun.", "de.unisb.cs.st.evosuite",
+		        "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
+		        "testing.generation.evosuite" };
 	}
-	
+
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		//if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
-		if (!checkIfCanInstrument(name) || 
-		         (Properties.VIRTUAL_FS && (name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))
-		       ) {
+		if (!checkIfCanInstrument(name)
+		        || (Properties.VIRTUAL_FS && (name.startsWith("org.apache.commons.vfs") || name.startsWith("org.apache.commons.logging")))) {
 			Class<?> result = findLoadedClass(name);
 			if (result != null) {
 				return result;
@@ -115,8 +108,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 					logger.info("Seeing class for first time: " + name);
 					Class<?> instrumentedClass = null;
 					//LoggingUtils.muteCurrentOutAndErrStream();
-					try{
-						instrumentedClass =  instrumentClass(name);
+					try {
+						instrumentedClass = instrumentClass(name);
 					} finally {
 						//LoggingUtils.restorePreviousOutAndErrStream();
 					}

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,7 +31,7 @@ import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 public class ExecutionResult {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
-	
+
 	/** Test case that produced this execution result */
 	public TestCase test;
 
@@ -39,16 +39,16 @@ public class ExecutionResult {
 	public Mutation mutation;
 
 	/** Map statement number to raised exception */
-	private Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
+	protected Map<Integer, Throwable> exceptions = new HashMap<Integer, Throwable>();
 
 	/** Record for each exception if it was explicitly thrown */
 	public Map<Integer, Boolean> explicitExceptions = new HashMap<Integer, Boolean>();
 
 	/** Trace recorded during execution */
-	private ExecutionTrace trace;
+	protected ExecutionTrace trace;
 
 	/** Output traces produced by observers */
-	private final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
+	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
 	// experiment .. tried to remember intermediately calculated ControlFlowDistances .. no real speed up
 	//	public Map<Branch, ControlFlowDistance> intermediateDistances;
@@ -64,60 +64,59 @@ public class ExecutionResult {
 		test = t;
 	}
 
-	public void setThrownExceptions(Map<Integer, Throwable> data){
+	public void setThrownExceptions(Map<Integer, Throwable> data) {
 		exceptions.clear();
-		for(Integer position : data.keySet()){
+		for (Integer position : data.keySet()) {
 			reportNewThrownException(position, data.get(position));
 		}
 	}
-	
-	public Integer getFirstPositionOfThrownException(){
+
+	public Integer getFirstPositionOfThrownException() {
 		Integer min = null;
-		for(Integer position : exceptions.keySet()){
-			if(min==null || position < min){
+		for (Integer position : exceptions.keySet()) {
+			if (min == null || position < min) {
 				min = position;
 			}
 		}
 		return min;
 	}
-	
-	public void reportNewThrownException(Integer position, Throwable t){
+
+	public void reportNewThrownException(Integer position, Throwable t) {
 		exceptions.put(position, t);
 	}
-	
-	public Set<Integer> getPositionsWhereExceptionsWereThrown(){
+
+	public Set<Integer> getPositionsWhereExceptionsWereThrown() {
 		return exceptions.keySet();
 	}
-	
-	public Collection<Throwable> getAllThrownExceptions(){
+
+	public Collection<Throwable> getAllThrownExceptions() {
 		return exceptions.values();
 	}
-	
-	public boolean isThereAnExceptionAtPosition(Integer position){
+
+	public boolean isThereAnExceptionAtPosition(Integer position) {
 		return exceptions.containsKey(position);
 	}
-	
-	public boolean noThrownExceptions(){
+
+	public boolean noThrownExceptions() {
 		return exceptions.isEmpty();
 	}
-	
-	public Throwable getExceptionThrownAtPosition(Integer position){
+
+	public Throwable getExceptionThrownAtPosition(Integer position) {
 		return exceptions.get(position);
 	}
-	
-	public int getNumberOfThrownExceptions(){
+
+	public int getNumberOfThrownExceptions() {
 		return exceptions.size();
 	}
-	
+
 	/**
-	 * 	 shouldn't be used 
+	 * shouldn't be used
 	 */
 	@Deprecated
-	public Map<Integer, Throwable> exposeExceptionMapping(){
+	public Map<Integer, Throwable> exposeExceptionMapping() {
 		return exceptions;
 	}
-	
-	
+
 	/**
 	 * Constructor when executing with mutation
 	 * 
