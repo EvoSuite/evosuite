@@ -1,4 +1,4 @@
-Copyright (C) ${year} Gordon Fraser, Andrea Arcuri
+Copyright (C) ${year} Gordon Fraser, Andrea Arcuri and EvoSuite contributors
 
 This file is part of EvoSuite.
 
