@@ -364,7 +364,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					if (constructor.getDeclaringClass().equals(Properties.getTargetClass()))
 						sutException = true;
 				}
-				boolean notDeclared = !test.getStatement(i).getDeclaredExceptions().contains(t);
+				boolean notDeclared = !test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
 				if (notDeclared && sutException) {
 					/*
 					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating

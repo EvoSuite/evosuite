@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.assertion.OutputTrace;
 import de.unisb.cs.st.evosuite.coverage.mutation.Mutation;
 
-public class ExecutionResult {
+public class ExecutionResult implements Cloneable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
 
@@ -207,7 +207,7 @@ public class ExecutionResult {
 
 		for (Integer i : exceptions.keySet()) {
 			Throwable t = exceptions.get(i);
-			if (!test.getStatement(i).getDeclaredExceptions().contains(t))
+			if (!test.getStatement(i).getDeclaredExceptions().contains(t.getClass()))
 				return true;
 		}
 
