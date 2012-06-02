@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -74,18 +74,21 @@ public class Properties {
 		String description();
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
 	public @interface IntValue {
 		int min() default Integer.MIN_VALUE;
 
 		int max() default Integer.MAX_VALUE;
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
 	public @interface LongValue {
 		long min() default Long.MIN_VALUE;
 
 		long max() default Long.MAX_VALUE;
 	}
 
+	@Retention(RetentionPolicy.RUNTIME)
 	public @interface DoubleValue {
 		double min() default -(Double.MAX_VALUE - 1); // FIXXME: Check
 
