@@ -1,6 +1,6 @@
 #!/bin/bash 
 #
-# Copyright (C) 2012 Gordon Fraser, Andrea Arcuri
+# Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
 #
 # This file is part of EvoSuite.
 #
