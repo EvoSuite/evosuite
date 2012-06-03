@@ -280,7 +280,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
 		if (Properties.VIRTUAL_FS) {
-			test.setAccessedFiles(new ArrayList<String>(IOWrapper.accessedFiles));
+			test.setAccessedFiles(new ArrayList<String>(IOWrapper.getAccessedFiles()));
 			FileSystem.restoreOriginalFS();
 		}
 
