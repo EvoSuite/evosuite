@@ -42,8 +42,7 @@ public class Runtime {
 		Random.reset();
 		System.reset();
 		if (Properties.VIRTUAL_FS) {
-			//FIXME: this was giving compilation errors
-			//IOWrapper.initialize(Properties.PROJECT_PREFIX); // TODO find a better place for this (so that it only gets executed once before the first test execution)
+			IOWrapper.initialize(Properties.PROJECT_PREFIX); // TODO find a better place for this (so that it only gets executed once before the first test execution)
 			FileSystem.reset();
 		}
 	}

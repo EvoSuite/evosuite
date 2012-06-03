@@ -20,15 +20,19 @@
  */
 package de.unisb.cs.st.evosuite.runtime;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+
 import org.apache.commons.vfs2.FileSystemException;
 import org.apache.commons.vfs2.FileSystemManager;
-import org.apache.commons.vfs2.VFS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
-import de.unisb.cs.st.evosuite.testcase.TestCluster;
 
 /**
  * @author fraser
@@ -48,13 +52,23 @@ public class FileSystem {
 	 */
 	public static void setFileContent(EvoSuiteFile fileName, String content) {
 		// Put "content" into "file"
-		logger.info("Writing content to file " + fileName.getPath());
-		/*
-		 * try { // TODO: IOWrapper.accessFiles contains strings! for (File file : File.createdFiles) { if
-		 * (file.getCanonicalPath().equals(fileName.getPath())) { PrintStream stream = new PrintStream(
-		 * file.getRamFile().getContent().getOutputStream()); stream.print(content); break; } } } catch (FileSystemException e) { // TODO
-		 * Auto-generated catch block e.printStackTrace(); } catch (IOException e) { // TODO Auto-generated catch block e.printStackTrace(); }
-		 */
+		try {
+			for (String canonicalPath : IOWrapper.getAccessedFiles()) {
+				if (canonicalPath.equals(fileName.getPath())) {
+					logger.info("Writing content to (virtual) file " + fileName.getPath());
+					File ramFile = new File(fileName.getPath());
+					Writer writer = new BufferedWriter(new FileWriter(ramFile));
+					writer.write(content);
+					writer.close();
+				}
+			}
+		} catch (FileSystemException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	// TODO
@@ -70,21 +84,19 @@ public class FileSystem {
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
 			try {
-				IOWrapper.USE_SIMULATION = false;
-				Class<?> clazz = TestCluster.classLoader
-						.loadClass("org.apache.commons.vfs2.VFS");
-				clazz.getMethod("getManager", new Class<?>[] {}).invoke(null); // throws FileSystemException
-				
-				IOWrapper.initVFS(); // throws NoClassDefError
-				
+				// Class<?> clazz = TestCluster.classLoader
+				// .loadClass("org.apache.commons.vfs2.VFS");
+				// clazz.getMethod("getManager", new Class<?>[] {}).invoke(null); // throws FileSystemException
+
+				IOWrapper.initVFS();
+
 				// for (File f : File.createdFiles) {
 				// f.delete();
 				// }
 				// TODO: Find proper way to clear filesystem
 
-				IOWrapper.accessedFiles.clear();
-
-				IOWrapper.USE_SIMULATION = true;
+				IOWrapper.clearAccessedFiles();
+				IOWrapper.activeVFS = true;
 			} catch (FileSystemException e) {
 				logger.warn("Error during initialization of virtual FS: " + e
 						+ ", " + e.getCause());//
@@ -103,7 +115,7 @@ public class FileSystem {
 
 	public static void restoreOriginalFS() {
 		if (Properties.VIRTUAL_FS) {
-			IOWrapper.USE_SIMULATION = false;
+			IOWrapper.activeVFS = false;
 		}
 	}
 
@@ -113,6 +125,6 @@ public class FileSystem {
 	 * @return
 	 */
 	public static boolean wasAccessed() {
-		return !IOWrapper.accessedFiles.isEmpty();
+		return IOWrapper.filesWereAccessed();
 	}
 }

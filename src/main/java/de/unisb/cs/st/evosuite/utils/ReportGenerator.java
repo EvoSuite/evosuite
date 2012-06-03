@@ -914,7 +914,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	protected void copyFile(String name) {
-		URL systemResource = ClassLoader.getSystemResource("report/" + name);
+		URL systemResource = ClassLoader.getSystemResource("report"+File.separator + name);
 		logger.debug("Copying from resource: " + systemResource);
 		copyFile(systemResource, new File(REPORT_DIR, "files/" + name));
 		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/files/"
