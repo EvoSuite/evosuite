@@ -92,8 +92,8 @@ BinaryExpression<String>{
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof StringMultipleExpression) {
-			StringMultipleExpression other = (StringMultipleExpression) obj;
+		if (obj instanceof StringMultipleComparison) {
+			StringMultipleComparison other = (StringMultipleComparison) obj;
 			
 			boolean other_v_eq = true;
 			
@@ -118,15 +118,25 @@ BinaryExpression<String>{
 
 	protected int size = 0;
 
-	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + left.getSize() + right.getSize();
-		}
-		return size;
-	}
+	//@Override
+	//public int getSize() {
+	//	if (size == 0) {
+	//		size = 1 + left.getSize() + right.getSize();
+	//	}
+	//	return size;
+	//}
 	
-	
+    @Override
+    public int getSize() {
+        if (size == 0) {
+            int other_size = 0;
+            for (int i = 0; i < other_v.size(); i++) {
+                other_size += other_v.get(i).getSize();  
+            }
+            size = 1 + left.getSize() + right.getSize() + other_size;
+        }
+        return size;
+    }
 
 	@Override
 	public Long execute() {
