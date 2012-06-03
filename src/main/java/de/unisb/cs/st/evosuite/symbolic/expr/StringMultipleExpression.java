@@ -110,15 +110,27 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 		return false;
 	}
 
-	protected int size = 0;
-
 	@Override
 	public int getSize() {
-		if (size == 0) {
-			size = 1 + left.getSize() + right.getSize();
-		}
-		return size;
+	    if (size == 0) {
+	        int other_size = 0;
+	        for (int i = 0; i < other_v.size(); i++) {
+	            other_size += other_v.get(i).getSize();   
+	        }
+	        size = 1 + left.getSize() + right.getSize() + other_size;
+	    }
+	    return size;
 	}
+	
+	//protected int size = 0;
+
+	//@Override
+	//public int getSize() {
+	//	if (size == 0) {
+	//		size = 1 + left.getSize() + right.getSize();
+	//	}
+	//	return size;
+	//}
 
 	@Override
 	public String execute() {
