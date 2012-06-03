@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -223,7 +224,7 @@ public class ClusterAnalysis {
 
 		Collection<String> list = getResources();
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath to satisfy runtime dependencies, found "
-		        + list.size() + " classes");
+		                                         + list.size() + " classes");
 		for (String name : list) {
 			if (name.startsWith("java/lang") || name.startsWith("sun")
 			        || name.startsWith("com/sun") || name.startsWith("javax/swing")
@@ -291,8 +292,9 @@ public class ClusterAnalysis {
 	 * @return
 	 */
 	private static int getDistance(String className1, String className2) {
-		String[] package1 = className1.split(".");
-		String[] package2 = className2.split(".");
+		String[] package1 = className1.split("\\.");
+		String[] package2 = className2.split("\\.");
+
 		int distance = 0;
 		int same = 0;
 		int num = 0;
