@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -70,13 +71,12 @@ public class Seeker implements Solver {
 	 * values for the String variables. 
 	 */
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint<?>> constr) {
+	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 
-		if (constr.size() <= 0)
+		if (constraints.size() <= 0)
 			return null;
 
 		HashMap<String, Object> result = new HashMap<String, Object>();
-		List<Constraint<?>> constraints = (List<Constraint<?>>) constr;
 
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
 
@@ -227,7 +227,7 @@ public class Seeker implements Solver {
 		return false;
 	}
 
-	private Set<Variable<?>> getVarsOfSet(List<Constraint<?>> constraints) {
+	private Set<Variable<?>> getVarsOfSet(Collection<Constraint<?>> constraints) {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 
 		for (Constraint<?> cnstr : constraints) {
