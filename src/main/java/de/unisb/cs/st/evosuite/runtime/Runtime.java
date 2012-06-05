@@ -36,51 +36,55 @@ public class Runtime {
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
 	public static void resetRuntime() {
-		if (!Properties.REPLACE_CALLS)
-			return;
+		if (Properties.REPLACE_CALLS) {
+			Random.reset();
+			System.reset();
+		}
 
-		Random.reset();
-		System.reset();
 		if (Properties.VIRTUAL_FS) {
-			IOWrapper.initialize(Properties.PROJECT_PREFIX); // TODO find a better place for this (so that it only gets executed once before the first test execution)
+			IOWrapper.initialize(Properties.PROJECT_PREFIX); // TODO find a better place for this (so that it only gets executed once before the first
+																// test execution)
 			FileSystem.reset();
 		}
 	}
 
 	public static void handleRuntimeAccesses() {
-		if (!Properties.REPLACE_CALLS)
-			return;
+		if (Properties.REPLACE_CALLS) {
 
-		if (Random.wasAccessed()) {
-			try {
-				TestCluster.getInstance().addTestCall(Random.class.getMethod("setNextRandom",
-				                                                             new Class<?>[] { int.class }));
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			if (Random.wasAccessed()) {
+				try {
+					TestCluster.getInstance().addTestCall(
+							Random.class.getMethod("setNextRandom",
+									new Class<?>[] { int.class }));
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			if (System.wasAccessed()) {
+				try {
+					TestCluster.getInstance().addTestCall(
+							System.class.getMethod("setCurrentTimeMillis",
+									new Class<?>[] { long.class }));
+				} catch (SecurityException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (NoSuchMethodException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 			}
 		}
-		if (System.wasAccessed()) {
-			try {
-				TestCluster.getInstance().addTestCall(System.class.getMethod("setCurrentTimeMillis",
-				                                                             new Class<?>[] { long.class }));
-			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
+
 		if (Properties.VIRTUAL_FS && FileSystem.wasAccessed()) {
 			try {
-				TestCluster.getInstance().addTestCall(FileSystem.class.getMethod("setFileContent",
-				                                                                 new Class<?>[] {
-				                                                                         EvoSuiteFile.class,
-				                                                                         String.class }));
+				TestCluster.getInstance().addTestCall(
+						FileSystem.class.getMethod("setFileContent",
+								new Class<?>[] { EvoSuiteFile.class,
+										String.class }));
 				// TODO: Add other methods (setFilePermission, etc)
 
 			} catch (SecurityException e) {

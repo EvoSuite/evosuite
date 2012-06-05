@@ -160,8 +160,9 @@ public class BytecodeInstrumentation {
 			cv = new StaticInitializationClassAdapter(cv, className);
 		}
 
-		// Remove calls to System.exit, Random.*, and System.currentTimeMillis
-		if (Properties.REPLACE_CALLS) {
+		// Replace calls to System.exit, Random.*, and System.currentTimeMillis
+		// and/or replace calls to FileInputStream.available and FIS.skip
+		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
 
