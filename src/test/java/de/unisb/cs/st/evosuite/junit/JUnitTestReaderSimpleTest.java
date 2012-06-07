@@ -109,4 +109,27 @@ public class JUnitTestReaderSimpleTest {
 				"testExample_MockingBird0.executeCmd(int0);\n";
 		Assert.assertEquals(result, code);
 	}
+
+	@Test
+	public void testReadSimpleJUnitTestCase06() {
+		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
+		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test06");
+		testCase.clone();
+		String code = testCase.toCode();
+		String result = "int int0 = 5;\n" + //
+				"int int1 = 5;\n" + //
+				"int[][] intArray0 = new int[int0][int5];\n" + //
+				"colors[0][0] = 0 * 0;\n" + //
+				"colors[0][1] = 0 * 1;\n" + //
+				"colors[0][2] = 0 * 2;\n" + //
+				"colors[0][3] = 0 * 3;\n" + //
+				"colors[0][4] = 0 * 4;\n" + //
+				"colors[1][0] = 1 * 0;\n" + //
+				"colors[1][1] = 1 * 1;\n" + //
+				"colors[1][2] = 1 * 2;\n" + //
+				"colors[1][3] = 1 * 3;\n" + //
+				"colors[1][4] = 1 * 4;\n";
+		Assert.assertEquals(result, code);
+	}
 }

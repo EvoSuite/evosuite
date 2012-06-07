@@ -1,9 +1,14 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.objectweb.asm.commons.GeneratorAdapter;
+
+import de.unisb.cs.st.evosuite.junit.DelegatingTestCase;
 
 /**
  * This class defines an reference to an array element. E.g. foo[3]
@@ -18,8 +23,8 @@ public class ArrayIndex extends VariableReferenceImpl {
 	/**
 	 * Index in the array
 	 */
-	protected int array_index = 0;
-
+	private List<Integer> indices;
+	
 	/**
 	 * If this variable is contained in an array, this is the reference to the
 	 * array
@@ -35,9 +40,13 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            The statement in the test case that declares this variable
 	 */
 	public ArrayIndex(TestCase testCase, ArrayReference array, int index) {
+		this(testCase, array, Collections.singletonList(index));
+	}
+
+	public ArrayIndex(TestCase testCase, ArrayReference array, List<Integer> indices) {
 		super(testCase, new GenericClass(array.getComponentType()));
 		this.array = array;
-		this.array_index = index;
+		this.indices = indices;
 	}
 
 	public ArrayReference getArray() {
@@ -56,11 +65,13 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	public int getArrayIndex() {
-		return array_index;
+		assert indices.size() == 1;
+		return indices.get(0);
 	}
 
 	public void setArrayIndex(int index) {
-		array_index = index;
+		assert indices.size() == 1;
+		indices.set(0, index);
 	}
 
 	@Override
@@ -90,21 +101,31 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 */
 	@Override
 	public String getName() {
-		return array.getName() + "[" + array_index + "]";
+		String result = array.getName();
+		for (int index : indices) {
+			result += "[" + index + "]"; 
+		}
+		return result;
 	}
 
 	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
+		if (indices.size() > 1) {
+			throw new RuntimeException("Not yet implemented for multidimensional arrays!");
+		}
 		array.loadBytecode(mg, locals);
-		mg.push(array_index);
+		mg.push(indices.get(0));
 		mg.arrayLoad(org.objectweb.asm.Type.getType(type.getRawClass()));
 
 	}
 
 	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
+		if (indices.size() > 1) {
+			throw new RuntimeException("Not yet implemented for multidimensional arrays!");
+		}
 		array.loadBytecode(mg, locals);
-		mg.push(array_index);
+		mg.push(indices.get(0));
 		mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
 	}
 
@@ -123,7 +144,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		if (!this.array.same(other.getArray()))
 			return false;
 
-		if (this.array_index != other.getArrayIndex())
+		if (!indices.equals(other.indices))
 			return false;
 
 		if (this.type.equals(r.getGenericClass()))
@@ -142,11 +163,14 @@ public class ArrayIndex extends VariableReferenceImpl {
 	public Object getObject(Scope scope) throws CodeUnderTestException {
 		Object arrayObject = array.getObject(scope);
 		try {
-			if (arrayObject != null) {
-				return Array.get(arrayObject, array_index);
-			} else {
-				throw new CodeUnderTestException(new NullPointerException());
+			for (int idx = 0; idx < indices.size() - 1; idx++) {
+				if (arrayObject == null) {
+					throw new CodeUnderTestException(new NullPointerException());
+				}
+				arrayObject = Array.get(arrayObject, indices.get(idx));
 			}
+			Object result = Array.get(arrayObject, indices.get(indices.size() - 1));
+			return result;
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new CodeUnderTestException(e);
 		}
@@ -164,11 +188,13 @@ public class ArrayIndex extends VariableReferenceImpl {
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
 		Object arrayObject = array.getObject(scope);
 		try {
-			if (arrayObject != null) {
-				Array.set(arrayObject, array_index, value);
-			} else {
-				throw new CodeUnderTestException(new NullPointerException());
+			for (int idx = 0; idx < indices.size() - 1; idx++) {
+				if (arrayObject == null) {
+					throw new CodeUnderTestException(new NullPointerException());
+				}
+				arrayObject = Array.get(arrayObject, indices.get(idx));
 			}
+			Array.set(arrayObject, indices.get(indices.size() - 1), value);
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new CodeUnderTestException(e);
 		}
@@ -179,9 +205,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 */
 	@Override
 	public VariableReference copy(TestCase newTestCase, int offset) {
-		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition()
-		                                                                              + offset).getReturnValue(); //must be set as we only use this to clone whole testcases
-		return new ArrayIndex(newTestCase, otherArray, array_index);
+		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition() + offset).getReturnValue(); 
+		//must be set as we only use this to clone whole testcases
+		return new ArrayIndex(newTestCase, otherArray, indices);
 	}
 
 	/* (non-Javadoc)
@@ -230,7 +256,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		final int prime = 31;
 		int result = super.hashCode();
 		result = prime * result + ((array == null) ? 0 : array.hashCode());
-		result = prime * result + array_index;
+		result = prime * result + indices.hashCode();
 		return result;
 	}
 
@@ -251,7 +277,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 				return false;
 		} else if (!array.equals(other.array))
 			return false;
-		if (array_index != other.array_index)
+		if (!indices.equals(other.indices))
 			return false;
 		return true;
 	}

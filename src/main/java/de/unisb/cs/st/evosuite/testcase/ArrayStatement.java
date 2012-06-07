@@ -23,6 +23,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -41,32 +42,64 @@ import de.unisb.cs.st.evosuite.utils.Randomness;
  * 
  */
 public class ArrayStatement extends AbstractStatement {
+	
+	public static int determineDimensions(java.lang.reflect.Type type) {
+		String name = type.toString().replace("class", "").trim();
+	    int count = 0;
+	    for (int i=0; i < name.length(); i++) {
+	        if (name.charAt(i) == '[') {
+	             count++;
+	        }
+	    }
+	    return count;
+	}
+	
+	private static int[] createRandom(int dimensions) {
+		int[] result = new int[dimensions];
+		for (int idx = 0; idx < dimensions; idx++) {
+			result[idx] = Randomness.nextInt(Properties.MAX_ARRAY) + 1;
+		}
+		return result;
+	}
 
 	private static final long serialVersionUID = -2858236370873914156L;
 
-	private int length = 0;
+	private int[] lengths;
 
+	public ArrayStatement(TestCase tc, ArrayReference arrayReference) {
+		this(tc, arrayReference, createRandom(determineDimensions(arrayReference.getType())));
+	}
+	
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
-		this(tc, type, Randomness.nextInt(Properties.MAX_ARRAY) + 1);
-		logger.debug("Chosen length: " + this.length + "/" + Properties.MAX_ARRAY);
+		this(tc, type, createRandom(determineDimensions(type)));
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
-		super(tc, new ArrayReference(tc, new GenericClass(type), length));
-		this.length = length;
+		this(tc, type, new int[] {length});
 	}
 
+	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int[] length) {
+		this(tc, new ArrayReference(tc, new GenericClass(type), length), length);
+	}
+	
+	public ArrayStatement(TestCase tc, ArrayReference arrayReference, int[] length) {
+		super(tc, arrayReference);
+		this.lengths = length;
+	}
+	
 	public int size() {
-		return length;
+		assert lengths.length == 1;
+		return lengths[0];
 	}
 
 	public void setSize(int size) {
-		this.length = size;
+		assert lengths.length == 1;
+		this.lengths[0] = size;
 	}
 
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
-		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), length);
+		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), lengths);
 		// copy.assertions = copyAssertions(newTestCase, offset);
 		return copy;
 	}
@@ -81,7 +114,7 @@ public class ArrayStatement extends AbstractStatement {
 			return false;
 
 		ArrayStatement as = (ArrayStatement) s;
-		if (length != as.length)
+		if (!Arrays.equals(lengths, as.lengths))
 			return false;
 		if (retval.equals(as.retval)) {
 			return true;
@@ -102,7 +135,7 @@ public class ArrayStatement extends AbstractStatement {
 		try {
 			retval.setObject(scope,
 			                 Array.newInstance((Class<?>) retval.getComponentType(),
-			                                   length));
+			                                   lengths));
 		} catch (CodeUnderTestException e) {
 			exceptionThrown = e.getCause();
 		}
@@ -128,7 +161,7 @@ public class ArrayStatement extends AbstractStatement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = retval.hashCode();
-		result = prime * result + length;
+		result = prime * result + Arrays.hashCode(lengths);	
 		return result;
 	}
 
@@ -142,7 +175,10 @@ public class ArrayStatement extends AbstractStatement {
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
-		mg.push(length);
+		if (lengths.length > 1) {
+			throw new RuntimeException("Not yet implemented for multidimensional arrays!");
+		}
+		mg.push(lengths[0]);
 		mg.newArray(Type.getType((Class<?>) retval.getComponentType()));
 		retval.storeBytecode(mg, locals);
 	}
@@ -176,7 +212,7 @@ public class ArrayStatement extends AbstractStatement {
 			return false;
 
 		ArrayStatement as = (ArrayStatement) s;
-		if (length != as.length)
+		if (!Arrays.equals(lengths, as.lengths))
 			return false;
 		if (retval.same(as.retval)) {
 			return true;
@@ -200,21 +236,22 @@ public class ArrayStatement extends AbstractStatement {
 			}
 		}
 
-		int newLength = length;
-		while (newLength == length) {
+		int dim = Randomness.nextInt(lengths.length - 1);
+		int newLength = lengths[dim];
+		while (newLength == lengths[dim]) {
 			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION)
 				newLength = Randomness.nextInt(maxAssignment, Properties.MAX_ARRAY) + 1;
 			else {
-				int max = Math.min(Math.abs(length - maxAssignment), Properties.MAX_DELTA);
+				int max = Math.min(Math.abs(lengths[dim] - maxAssignment), Properties.MAX_DELTA);
 				if (max > 0)
-					newLength = length + Randomness.nextInt(2 * max) - max;
+					newLength = lengths[dim] + Randomness.nextInt(2 * max) - max;
 				else
-					newLength = length + Randomness.nextInt(Properties.MAX_DELTA);
+					newLength = lengths[dim] + Randomness.nextInt(Properties.MAX_DELTA);
 			}
 		}
 
-		logger.debug("Changing array length from " + length + " to " + newLength);
-		setSize(newLength);
+		logger.debug("Changing array length from " + lengths[dim] + " to " + newLength);
+		lengths[dim] = newLength;
 		return true;
 	}
 
@@ -226,5 +263,9 @@ public class ArrayStatement extends AbstractStatement {
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
+	}
+
+	public void setLengths(int[] lengths) {
+		this.lengths = lengths;
 	}
 }
