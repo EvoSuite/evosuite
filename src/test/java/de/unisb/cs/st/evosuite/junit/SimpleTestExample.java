@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 
-import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -36,7 +35,7 @@ public class SimpleTestExample {
 		System.out.println(date);
 		Date result = formatter.parse(date);
 		System.out.println(result);
-//		Assert.assertNotNull(result);
+		// Assert.assertNotNull(result);
 	}
 
 	@Ignore
@@ -54,5 +53,16 @@ public class SimpleTestExample {
 		MockingBird bird = MockingBird.create(input);
 		int value = 10;
 		bird.executeCmd(value);
+	}
+
+	@Ignore
+	@Test
+	public void test06() {
+		int[][] colors = new int[2][5];
+		for (int idx = 0; idx < colors.length; idx++) {
+			for (int ndx = 0; ndx < colors[idx].length; ndx++) {
+				colors[idx][ndx] = idx * ndx;
+			}
+		}
 	}
 }
