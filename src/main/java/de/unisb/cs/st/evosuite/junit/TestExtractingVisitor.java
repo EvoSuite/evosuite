@@ -97,6 +97,8 @@ import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
 public class TestExtractingVisitor extends LoggingVisitor {
 
 	public static interface TestReader {
+		int getLineNumber(int sourcePos);
+
 		CompoundTestCase readTestCase(String clazz, CompoundTestCase reference);
 	}
 
@@ -500,7 +502,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	public boolean visit(ForStatement forStatement) {
 		// TODO
 		// get number of time loop was executed
-		int loopExecCnt = 1;
+		int lineNumber = testReader.getLineNumber(forStatement.getBody().getStartPosition()) + 1;
+		int loopExecCnt = testValuesDeterminer.getExecutionCount(lineNumber);
 		for (int idx = 0; idx < loopExecCnt; idx++) {
 			acceptChildren(forStatement, forStatement.initializers());
 			acceptChild(forStatement, forStatement.getExpression());
