@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -46,6 +47,7 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import de.unisb.cs.st.evosuite.Properties.Strategy;
 import de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader;
 import de.unisb.cs.st.evosuite.utils.ClassPathHacker;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessHandler;
@@ -192,7 +194,7 @@ public class EvoSuite {
 		int num = 0;
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
-			generateTests(wholeSuite, file.getName().replace(".task", ""), args);
+			generateTests(Strategy.EVOSUITE, file.getName().replace(".task", ""), args);
 			num++;
 		}
 		if (num == 0) {
@@ -215,7 +217,7 @@ public class EvoSuite {
 
 	}
 
-	private static Object generateTests(boolean wholeSuite, String target,
+	private static Object generateTests(Properties.Strategy strategy, String target,
 	        List<String> args) {
 		if (!InstrumentingClassLoader.checkIfCanInstrument(target)) {
 			throw new IllegalArgumentException(
@@ -276,10 +278,19 @@ public class EvoSuite {
 			}
 		}
 
-		if (wholeSuite)
+		switch (strategy) {
+		case EVOSUITE:
 			cmdLine.add("-Dstrategy=EvoSuite");
-		else
+			break;
+		case ONEBRANCH:
 			cmdLine.add("-Dstrategy=OneBranch");
+			break;
+		case RANDOM:
+			cmdLine.add("-Dstrategy=Random");
+			break;
+		default:
+			throw new RuntimeException("Unsupported strategy: " + strategy);
+		}
 		cmdLine.add("-DTARGET_CLASS=" + target);
 		if (Properties.PROJECT_PREFIX != null) {
 			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
@@ -488,6 +499,7 @@ public class EvoSuite {
 		Option generateSuite = new Option("generateSuite", "use whole suite generation");
 		Option generateTests = new Option("generateTests",
 		        "use individual test generation");
+		Option generateRandom = new Option("generateRandom", "use random test generation");
 		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("use given directory/jar file/package prefix for test generation").create("setup");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
 		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
@@ -509,6 +521,7 @@ public class EvoSuite {
 		options.addOption(help);
 		options.addOption(generateSuite);
 		options.addOption(generateTests);
+		options.addOption(generateRandom);
 		options.addOption(setup);
 		options.addOption(targetClass);
 		options.addOption(criterion);
@@ -597,12 +610,20 @@ public class EvoSuite {
 				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts);
 			} else if (line.hasOption("generateTests")) {
 				if (line.hasOption("class"))
-					result = generateTests(false, line.getOptionValue("class"), javaOpts);
+					result = generateTests(Strategy.ONEBRANCH,
+					                       line.getOptionValue("class"), javaOpts);
 				else
 					generateTests(false, javaOpts);
 			} else if (line.hasOption("generateSuite")) {
 				if (line.hasOption("class"))
-					result = generateTests(true, line.getOptionValue("class"), javaOpts);
+					result = generateTests(Strategy.EVOSUITE,
+					                       line.getOptionValue("class"), javaOpts);
+				else
+					generateTests(true, javaOpts);
+			} else if (line.hasOption("generateRandom")) {
+				if (line.hasOption("class"))
+					result = generateTests(Strategy.RANDOM, line.getOptionValue("class"),
+					                       javaOpts);
 				else
 					generateTests(true, javaOpts);
 			} else {
