@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -141,7 +142,7 @@ public class FieldStatement extends AbstractStatement {
 				@Override
 				public void execute() throws InvocationTargetException,
 				        IllegalArgumentException, IllegalAccessException,
-				        InstantiationException {
+				        InstantiationException, CodeUnderTestException {
 					Object source_object;
 					try {
 						source_object = (Modifier.isStatic(field.getModifiers())) ? null
@@ -152,8 +153,8 @@ public class FieldStatement extends AbstractStatement {
 							retval.setObject(scope, null);
 							throw new CodeUnderTestException(new NullPointerException());
 						}
-					} catch (CodeUnderTestException e) {
-						throw CodeUnderTestException.throwException(e.getCause());
+						//} catch (CodeUnderTestException e) {
+						//	throw CodeUnderTestException.throwException(e.getCause());
 					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}
@@ -165,7 +166,8 @@ public class FieldStatement extends AbstractStatement {
 						//assert(ret==null || retval.getVariableClass().isAssignableFrom(ret.getClass())) : "we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
 					} catch (CodeUnderTestException e) {
-						throw CodeUnderTestException.throwException(e);
+						throw e;
+						// throw CodeUnderTestException.throwException(e);
 					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}
