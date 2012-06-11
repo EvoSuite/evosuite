@@ -327,14 +327,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	@Override
-	public void endVisit(ForStatement forStatement) {
-
-		// TODO-JRO Implement method endVisit
-		logger.warn("Method endVisit not implemented!");
-		super.endVisit(forStatement);
-	}
-
-	@Override
 	public void endVisit(IfStatement node) {
 		// TODO-JRO Implement method endVisit
 		logger.warn("Method endVisit not implemented!");
@@ -502,6 +494,20 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.addVariable(varDeclFrgmnt.resolveBinding(), varRef);
 		testCase.setCurrentScope(TestScope.FIELDS);
 		return true;
+	}
+
+	@Override
+	public boolean visit(ForStatement forStatement) {
+		// TODO
+		// get number of time loop was executed
+		int loopExecCnt = 1;
+		for (int idx = 0; idx < loopExecCnt; idx++) {
+			acceptChildren(forStatement, forStatement.initializers());
+			acceptChild(forStatement, forStatement.getExpression());
+			acceptChildren(forStatement, forStatement.updaters());
+			acceptChild(forStatement, forStatement.getBody());
+		}
+		return false;
 	}
 
 	@Override
@@ -814,6 +820,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			ArrayAccess arrayAccess = (ArrayAccess) argument;
 			return retrieveTypeClass(arrayAccess.getArray());
 		}
+		if (argument instanceof Class<?>) {
+			return (Class<?>) argument;
+		}
 		throw new UnsupportedOperationException("Retrieval of type " + argument.getClass() + " not implemented yet!");
 	}
 
@@ -882,6 +891,38 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return retrieveVariableReference(((Assignment) argument).getLeftHandSide(), null);
 		}
 		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
+	}
+
+	private void acceptChild(ASTNode parent, ASTNode child) {
+		try {
+			Method acceptChild = ASTNode.class.getDeclaredMethod("acceptChild", ASTVisitor.class, ASTNode.class);
+			acceptChild.setAccessible(true);
+			acceptChild.invoke(parent, this, child);
+		} catch (Exception exc) {
+			throw new RuntimeException(exc);
+		}
+	}
+
+	private void acceptChildren(ASTNode parent, List<?> childNodes) {
+		try {
+			Method[] allMethods = ASTNode.class.getDeclaredMethods();
+			Method acceptChildren = null;
+			for (Method method : allMethods) {
+				if (method.getName().equals("acceptChildren")) {
+					if (acceptChildren != null) {
+						throw new RuntimeException("Found method 'acceptChildren' more than once!");
+					}
+					acceptChildren = method;
+				}
+			}
+			if (acceptChildren == null) {
+				throw new RuntimeException("Method acceptChildren not found for type ASTNode!");
+			}
+			acceptChildren.setAccessible(true);
+			acceptChildren.invoke(parent, this, childNodes);
+		} catch (Exception exc) {
+			throw new RuntimeException(exc);
+		}
 	}
 
 	private List<VariableReference> convertParams(List<?> arguments, List<?> argumentTypes) {
