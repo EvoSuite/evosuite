@@ -55,7 +55,6 @@ public class SimpleTestExample {
 		bird.executeCmd(value);
 	}
 
-	@Ignore
 	@Test
 	public void test06() {
 		int[][] colors = new int[2][5];
