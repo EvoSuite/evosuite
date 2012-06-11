@@ -8,9 +8,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.junit.runner.Description;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
+import org.junit.runner.notification.RunListener;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -18,6 +20,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
+import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
@@ -30,7 +33,7 @@ import org.objectweb.asm.util.CheckClassAdapter;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 
-public class TestRuntimeValuesDeterminer {
+public class TestRuntimeValuesDeterminer extends RunListener {
 
 	public static class RuntimeValue {
 		private final int lineNumber;
@@ -168,12 +171,14 @@ public class TestRuntimeValuesDeterminer {
 				AbstractInsnNode insnNode = nodeIter.next();
 				if (insnNode.getType() == AbstractInsnNode.LINE) {
 					currentLine = ((LineNumberNode) insnNode).line;
+					methodNode.instructions.insertBefore(insnNode, getLineNumberInstrumentation());
 					continue;
 				}
 				if ((insnNode.getType() == AbstractInsnNode.VAR_INSN)
 						|| (insnNode.getType() == AbstractInsnNode.FIELD_INSN)
 						|| (insnNode.getType() == AbstractInsnNode.IINC_INSN)
-						|| (insnNode.getType() == AbstractInsnNode.INT_INSN)) {
+						|| (insnNode.getType() == AbstractInsnNode.INT_INSN)
+						|| (insnNode.getType() == AbstractInsnNode.INSN)) {
 					methodNode.instructions.insert(insnNode, getInstrumentation(insnNode));
 				}
 			}
@@ -181,9 +186,7 @@ public class TestRuntimeValuesDeterminer {
 		}
 
 		private InsnList getInstrumentation(AbstractInsnNode insnNode) {
-			int opcode = insnNode.getOpcode();
-			InsnList instrumentation = new InsnList();
-			switch (opcode) {
+			switch (insnNode.getOpcode()) {
 			case Opcodes.ISTORE:
 				return localVarValue(insnNode, Opcodes.ILOAD, "I");
 			case Opcodes.LSTORE:
@@ -194,7 +197,9 @@ public class TestRuntimeValuesDeterminer {
 				return localVarValue(insnNode, Opcodes.DLOAD, "F");
 			case Opcodes.ASTORE:
 				return localVarValue(insnNode, Opcodes.ALOAD, "Ljava/lang/Object;");
-			case Opcodes.IASTORE: // -
+			case Opcodes.IINC:
+				return localVarValue(insnNode, Opcodes.ILOAD, "I");
+			case Opcodes.IASTORE:
 			case Opcodes.LASTORE: // -
 			case Opcodes.FASTORE: // -
 			case Opcodes.DASTORE: // -
@@ -202,11 +207,14 @@ public class TestRuntimeValuesDeterminer {
 			case Opcodes.BASTORE: // -
 			case Opcodes.CASTORE: // -
 			case Opcodes.SASTORE:
-				throw new RuntimeException("Not implemented!");
+				// throw new RuntimeException("Not implemented!");
+				logger.error("XASTORE not implemented!");
+				return new InsnList();
 			case Opcodes.PUTSTATIC:
 				throw new RuntimeException("Not implemented!");
 			case Opcodes.PUTFIELD: // -
 				if (insnNode instanceof FieldInsnNode) {
+					InsnList instrumentation = new InsnList();
 					FieldInsnNode fieldInsnNode = (FieldInsnNode) insnNode;
 					instrumentation.add(new InsnNode(Opcodes.DUP));
 					instrumentation.add(new LdcInsnNode(fieldInsnNode.owner));
@@ -221,18 +229,33 @@ public class TestRuntimeValuesDeterminer {
 				}
 				throw new RuntimeException("Not implemented!");
 			}
+			return new InsnList();
+		}
+
+		private InsnList getLineNumberInstrumentation() {
+			InsnList instrumentation = new InsnList();
+			instrumentation.add(new LdcInsnNode(currentLine));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+					"de/unisb/cs/st/evosuite/junit/TestRuntimeValuesDeterminer", "execLine", "(I)V"));
 			return instrumentation;
 		}
 
 		private InsnList localVarValue(AbstractInsnNode insnNode, int opositeOpcode, String param) {
+			int varIdx = -1;
+			if (insnNode instanceof VarInsnNode) {
+				varIdx = ((VarInsnNode) insnNode).var;
+			} else if (insnNode instanceof IincInsnNode) {
+				varIdx = ((IincInsnNode) insnNode).var;
+			} else {
+				throw new RuntimeException("Not implemented for type " + insnNode.getClass());
+			}
 			InsnList instrumentation = new InsnList();
-			VarInsnNode varInsnNode = (VarInsnNode) insnNode;
 			MethodNode methodNode = (MethodNode) mv;
-			if (methodNode.localVariables.size() <= varInsnNode.var) {
+			if (methodNode.localVariables.size() <= varIdx) {
 				throw new RuntimeException("varInsnNode is pointing outside of local variables!");
 			}
-			LocalVariableNode localVariableNode = (LocalVariableNode) methodNode.localVariables.get(varInsnNode.var);
-			instrumentation.add(new VarInsnNode(opositeOpcode, varInsnNode.var));
+			LocalVariableNode localVariableNode = (LocalVariableNode) methodNode.localVariables.get(varIdx);
+			instrumentation.add(new VarInsnNode(opositeOpcode, varIdx));
 			instrumentation.add(new LdcInsnNode(localVariableNode.name));
 			instrumentation.add(new LdcInsnNode(currentLine));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
@@ -289,43 +312,53 @@ public class TestRuntimeValuesDeterminer {
 		}
 	}
 
+	public static void execLine(int lineNumber) {
+		instance.lineExecuted(lineNumber);
+	}
+
 	public static void fieldValueChanged(Object newValue, String owner, String fieldName, int lineNumber) {
 		System.out.println("FieldValue " + owner + "#" + fieldName + " changed in line " + lineNumber + " to value: "
 				+ newValue);
 	}
 
 	public static void localVarValueChanged(double newValue, String localVar, int lineNumber) {
-		System.out.println("LocalVarValue " + localVar + " changed in line " + lineNumber + " to value: " + newValue);
+		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	public static void localVarValueChanged(float newValue, String localVar, int lineNumber) {
-		System.out.println("LocalVarValue " + localVar + " changed in line " + lineNumber + " to value: " + newValue);
+		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	public static void localVarValueChanged(int newValue, String localVar, int lineNumber) {
-		System.out.println("LocalVarValue " + localVar + " changed in line " + lineNumber + " to value: " + newValue);
+		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	public static void localVarValueChanged(long newValue, String localVar, int lineNumber) {
-		System.out.println("LocalVarValue " + localVar + " changed in line " + lineNumber + " to value: " + newValue);
+		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	public static void localVarValueChanged(Object newValue, String localVar, int lineNumber) {
-		System.out.println("LocalVarValue " + localVar + " changed in line " + lineNumber + " to value: " + newValue);
+		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestRuntimeValuesDeterminer.class);
 
 	private static TestRuntimeValuesDeterminer instance;
 
-	private Map<String, VariableValues> mapping = new HashMap<String, VariableValues>();
-
+	private final Map<Integer, Integer> lineExecCnts = new HashMap<Integer, Integer>();
+	private final Map<String, VariableValues> mapping = new HashMap<String, VariableValues>();
 	private final Map<String, Map<String, List<RuntimeValue>>> methodVariables = new HashMap<String, Map<String, List<RuntimeValue>>>();
-
 	private final String testClass;
+	private String currentTest;
 
 	public TestRuntimeValuesDeterminer(String testClass) {
 		this.testClass = testClass;
+		if (instance == null) {
+			instance = this;
+		} else {
+			throw new RuntimeException("Already got an instance of TestRuntimeValuesDeterminer (existing is for test "
+					+ instance.testClass + ").");
+		}
 	}
 
 	public void determineRuntimeValues() {
@@ -333,7 +366,9 @@ public class TestRuntimeValuesDeterminer {
 		// testClass.getConstructors().length
 		boolean enabled = ExecutionTracer.isEnabled();
 		ExecutionTracer.disable();
-		Result result = JUnitCore.runClasses(testClass);
+		JUnitCore jUnitCore = new JUnitCore();
+		jUnitCore.addListener(this);
+		Result result = jUnitCore.run(testClass);
 		logger.info("Ran {} tests to determine runtime values.", result.getRunCount());
 		for (Failure failure : result.getFailures()) {
 			if (failure.getDescription().getDisplayName().startsWith("initializationError")) {
@@ -351,17 +386,26 @@ public class TestRuntimeValuesDeterminer {
 		// and execution of all branches during runtime
 	}
 
+	public int getExecutionCount(int lineNumber) {
+		Integer result = lineExecCnts.get(lineNumber);
+		if (result == null) {
+			return 0;
+		}
+		return result;
+	}
+
 	public <T> T getValue(String variable, int line) {
 		// TODO implement
 		return null;
 	}
 
-	// TODO We need a mapping from the generated bytecode instructions
-	// to the code that are responsible for these
-	public boolean wasExecuted(int lineNr) {
-		// TODO Implement
-		// register execution of every line
-		return false;
+	@Override
+	public void testStarted(Description description) throws Exception {
+		if (!description.getClassName().equals(testClass)) {
+			throw new RuntimeException("Wrong test executed. Should be " + testClass + " but was "
+					+ description.getClassName());
+		}
+		currentTest = description.getMethodName();
 	}
 
 	private Class<?> instrumentTest() {
@@ -372,5 +416,28 @@ public class TestRuntimeValuesDeterminer {
 		} catch (ClassNotFoundException exc) {
 			throw new RuntimeException(exc);
 		}
+	}
+
+	private void lineExecuted(Integer lineNumber) {
+		Integer execCnt = lineExecCnts.get(lineNumber);
+		if (execCnt == null) {
+			execCnt = 0;
+		}
+		execCnt++;
+		lineExecCnts.put(lineNumber, execCnt);
+	}
+
+	private void localVarValueChanged(String localVar, int lineNumber, Object newValue) {
+		Map<String, List<RuntimeValue>> variableValues = methodVariables.get(currentTest);
+		if (variableValues == null) {
+			variableValues = new HashMap<String, List<RuntimeValue>>();
+			methodVariables.put(currentTest, variableValues);
+		}
+		List<RuntimeValue> values = variableValues.get(localVar);
+		if (values == null) {
+			values = new ArrayList<RuntimeValue>();
+			variableValues.put(localVar, values);
+		}
+		values.add(new RuntimeValue(lineNumber, newValue));
 	}
 }

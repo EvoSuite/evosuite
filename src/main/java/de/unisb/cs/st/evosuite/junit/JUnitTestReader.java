@@ -12,7 +12,6 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.junit.TestExtractingVisitor.TestReader;
-import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
@@ -31,28 +30,29 @@ public class JUnitTestReader implements TestReader {
 				}
 				CompoundTestCase testCase = testReader.readJUnitTestCase(javaFile);
 				// TODO Execute test
-//				ExecutionResult tmpResult = JUnitUtils.runTest(testCase);
+				// ExecutionResult tmpResult = JUnitUtils.runTest(testCase);
 				// TODO Find classfile
-//				String testName = 
+				// String testName =
 				// TODO Execute classfile via JUnit
-//				TestRun testRun = JUnitUtils.runTest(testName);
+				// TestRun testRun = JUnitUtils.runTest(testName);
 				// TODO Compare results for individual tests
 			}
 		}
 	}
 
-	private CompoundTestCase readJUnitTestCase(File javaFile) {
-		// TODO-JRO Implement method readJUnitTestCase
-		return null;
-	}
-
 	protected final String[] sources;
 	protected final String[] classpath;
+	protected CompilationUnit compilationUnit;
 
 	public JUnitTestReader(String[] classpath, String[] sources) {
 		super();
 		this.sources = sources;
 		this.classpath = expandClasspath(classpath);
+	}
+
+	@Override
+	public int getLineNumber(int sourcePos) {
+		return compilationUnit.getLineNumber(sourcePos);
 	}
 
 	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
@@ -62,7 +62,7 @@ public class JUnitTestReader implements TestReader {
 		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, method, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
-		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
+		compilationUnit = parseJavaFile(javaFile, fileContents);
 		compilationUnit.accept(testExtractingVisitor);
 		TestCase result = testCase.finalizeTestCase();
 		return result;
@@ -74,7 +74,7 @@ public class JUnitTestReader implements TestReader {
 		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, null, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
-		CompilationUnit compilationUnit = parseJavaFile(javaFile, fileContents);
+		compilationUnit = parseJavaFile(javaFile, fileContents);
 		compilationUnit.accept(testExtractingVisitor);
 		return testCase;
 	}
@@ -159,5 +159,10 @@ public class JUnitTestReader implements TestReader {
 			}
 		}
 		return result.toArray(new String[result.size()]);
+	}
+
+	private CompoundTestCase readJUnitTestCase(File javaFile) {
+		// TODO-JRO Implement method readJUnitTestCase
+		return null;
 	}
 }
