@@ -35,6 +35,46 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 
 public class TestRuntimeValuesDeterminer extends RunListener {
 
+	public static class CursorableTrace {
+		private final List<ExecutedLine> trace = new ArrayList<ExecutedLine>();
+		private int idx = 0;
+
+		private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(CursorableTrace.class);
+
+		public void advanceLoop() {
+			int lastIdx = idx;
+			ExecutedLine lastLine = trace.get(idx);
+			idx++;
+			ExecutedLine nextLine = trace.get(idx);
+			while (nextLine.getLineNumber() > lastLine.getLineNumber()) {
+				lastLine = nextLine;
+				idx++;
+				nextLine = trace.get(idx);
+			}
+			logger.debug("Advancing current line in trace for advanceLoop from {} to {}.", trace.get(lastIdx)
+					.getLineNumber(), trace.get(idx).getLineNumber());
+		}
+
+		public void executedLine(Integer lineNumber, Map<String, Object> variableValues) {
+			trace.add(new ExecutedLine(lineNumber, variableValues));
+		}
+
+		public Object getVariableValueAfter(Integer lineNumber, String variable) {
+			int lastIdx = idx;
+			ExecutedLine executedLine = trace.get(idx);
+			while (!executedLine.getLineNumber().equals(lineNumber)) {
+				idx++;
+				executedLine = trace.get(idx);
+			}
+			if (lastIdx != idx) {
+				logger.debug("Advancing current line in trace for getVariableValuesAfter from {} to {}.",
+						trace.get(lastIdx).getLineNumber(), trace.get(idx).getLineNumber());
+			}
+			logger.debug("Getting variable value for line {} and variable {}.", lineNumber, variable);
+			return executedLine.getVariableValues().get(variable);
+		}
+	}
+
 	public static class RuntimeValue {
 		private final int lineNumber;
 		private final Object value;
@@ -90,6 +130,62 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		public String toString() {
 			return "RuntimeValue [lineNumber=" + lineNumber + ", value=" + value + "]";
 		}
+	}
+
+	private static class ExecutedLine {
+		private final Integer lineNumber;
+		private final Map<String, Object> variableValues;
+
+		public ExecutedLine(Integer lineNumber, Map<String, Object> variableValues) {
+			assert lineNumber != null;
+			this.lineNumber = lineNumber;
+			assert variableValues != null;
+			this.variableValues = new HashMap<String, Object>(variableValues);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			ExecutedLine other = (ExecutedLine) obj;
+			if (!lineNumber.equals(other.lineNumber)) {
+				return false;
+			}
+			if (!variableValues.equals(other.variableValues)) {
+				return false;
+			}
+			return true;
+		}
+
+		public Integer getLineNumber() {
+			return lineNumber;
+		}
+
+		public Map<String, Object> getVariableValues() {
+			return variableValues;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + lineNumber.hashCode();
+			result = prime * result + variableValues.hashCode();
+			return result;
+		}
+
+		@Override
+		public String toString() {
+			return "[" + lineNumber + "=" + variableValues + "]";
+		}
+
 	}
 
 	private static class TestValuesDeterminerClassVisitor extends ClassVisitor {
@@ -303,10 +399,12 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	private static TestRuntimeValuesDeterminer instance;
 
 	private final Map<Integer, Integer> lineExecCnts = new HashMap<Integer, Integer>();
-	private final List<Integer> lineTrace = new ArrayList<Integer>();
+	private final Map<String, CursorableTrace> methodTraces = new HashMap<String, CursorableTrace>();
 	private final Map<String, Map<String, List<RuntimeValue>>> methodVariables = new HashMap<String, Map<String, List<RuntimeValue>>>();
 	private final String testClass;
 	private String currentTest;
+	private CursorableTrace currentTrace;
+	private Map<String, Object> variableValues;
 
 	public TestRuntimeValuesDeterminer(String testClass) {
 		this.testClass = testClass;
@@ -347,16 +445,18 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		return result;
 	}
 
-	public List<Integer> getLineTrace(Integer startLine) {
-		for (int idx = 0; idx < lineTrace.size(); idx++) {
-			if (lineTrace.get(idx).equals(startLine)) {
-				return lineTrace.subList(idx, lineTrace.size());
-			}
-		}
-		throw new RuntimeException("Given line was not executed!");
+	public CursorableTrace getMethodTrace(String method) {
+		return methodTraces.get(method);
 	}
 
 	public Object getValue(String method, String variable, Integer line, Integer iteration) {
+		// TODO This method does not work:
+		// we cannot keep track of when to use which value
+		// in inner loops with conditional code
+		// better: keep a list of current values of the variables
+		// for each line add that list
+		// create a trace class, that traverses this list
+		// and internally keeps a 'cursor'
 		Map<String, List<RuntimeValue>> variableValues = methodVariables.get(method);
 		List<RuntimeValue> values = variableValues.get(variable);
 		int iterCnt = 0;
@@ -388,6 +488,9 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 					+ description.getClassName());
 		}
 		currentTest = description.getMethodName();
+		currentTrace = new CursorableTrace();
+		methodTraces.put(currentTest, currentTrace);
+		variableValues = new HashMap<String, Object>();
 	}
 
 	private Class<?> instrumentTest() {
@@ -407,7 +510,9 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		}
 		execCnt++;
 		lineExecCnts.put(lineNumber, execCnt);
-		lineTrace.add(lineNumber);
+		if (currentTrace != null) {
+			currentTrace.executedLine(lineNumber, variableValues);
+		}
 	}
 
 	private void localVarValueChanged(String localVar, int lineNumber, Object newValue) {
@@ -422,5 +527,6 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			variableValues.put(localVar, values);
 		}
 		values.add(new RuntimeValue(lineNumber, newValue));
+		this.variableValues.put(localVar, newValue);
 	}
 }

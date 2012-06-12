@@ -66,6 +66,7 @@ import org.eclipse.jdt.core.dom.WhileStatement;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.MethodDef;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.ReturnStatementPlaceholder;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.TestScope;
+import de.unisb.cs.st.evosuite.junit.TestRuntimeValuesDeterminer.CursorableTrace;
 import de.unisb.cs.st.evosuite.testcase.ArrayIndex;
 import de.unisb.cs.st.evosuite.testcase.ArrayReference;
 import de.unisb.cs.st.evosuite.testcase.ArrayStatement;
@@ -283,10 +284,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
 
 	private boolean exceptionReadingMethod = false;
-	// TODO This is bad practice: here we rely on global vars
+
+	// TODO This is bad practice: here we rely on a global variable
 	// for something that should be parameters to the methods!
-	private Integer iteration = null;
 	private Integer lineNumber = null;
+
+	private Stack<Integer> iterations = new Stack<Integer>();
+	private Stack<Integer> loopExecCnts = new Stack<Integer>();
+	private CursorableTrace cursorableTrace;
 
 	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod, TestReader testReader) {
 		super();
@@ -465,7 +470,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
 		newAssignment.setOriginalCode(assignment.getRightHandSide().toString());
 		if (varRef instanceof ArrayIndex) {
-			AssignmentStatement assignmentStatement = new AssignmentStatement(testCase.getReference(), varRef, newAssignment);
+			AssignmentStatement assignmentStatement = new AssignmentStatement(testCase.getReference(), varRef,
+					newAssignment);
 			testCase.addStatement(assignmentStatement);
 			return true;
 		}
@@ -505,38 +511,38 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public boolean visit(ForStatement forStatement) {
-		// TODO Keep track of inner and outer loop separately:
-		// keep track of iterations separately
-		// when determining a runtime value:
-		// first get where the variable was defined last
-		// then determine which loop-iteration
-		// then get value accordingly
-		// OR
-		// follow trace, and create code linearly as in trace
-		// recompile and replace with old code
+		int lineNumber = testReader.getLineNumber(forStatement.getBody().getStartPosition());
+		// TODO This works here, but not if inner loop is a while statement
+		// that iterates a different number of times...!
+		// Solution: follow the trace
 		
-		boolean innerLoop = iteration != null;
-		int loopExecCnt = 1;
-		if (!innerLoop) {
-			int lineNumber = testReader.getLineNumber(forStatement.getBody().getStartPosition());
-			// loop head is executed 1 times more than the body...
-			loopExecCnt = testValuesDeterminer.getExecutionCount(lineNumber) - 1;
+		// loop head is executed 1 times more than the body...
+		int loopExecCnt = testValuesDeterminer.getExecutionCount(lineNumber) - 1;
+		if (loopExecCnts.size() > 0) {
+			for (Integer outerLoopExecCnt : loopExecCnts) {
+				// loop head is executed 1 times more than the body...
+				loopExecCnt = (loopExecCnt - 1) / outerLoopExecCnt;
+			}
 		}
-		for (int idx = 0; idx < loopExecCnt; idx++) {
-			if (!innerLoop) {
-				iteration = idx;
+		loopExecCnts.push(loopExecCnt);
+		int idx = 0;
+		for (; idx < loopExecCnt; idx++) {
+			iterations.push(idx);
+			if (idx > 0) {
+				cursorableTrace.advanceLoop();
 			}
 			acceptChildren(forStatement, forStatement.initializers());
 			acceptChild(forStatement, forStatement.getExpression());
 			acceptChildren(forStatement, forStatement.updaters());
 			acceptChild(forStatement, forStatement.getBody());
+			iterations.pop();
 		}
+		iterations.push(idx);
 		acceptChildren(forStatement, forStatement.initializers());
 		acceptChild(forStatement, forStatement.getExpression());
 		acceptChildren(forStatement, forStatement.updaters());
-		if (!innerLoop) {
-			iteration = null;
-		}
+		iterations.pop();
+		loopExecCnts.pop();
 		return false;
 	}
 
@@ -586,6 +592,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				testCase.setCurrentScope(TestScope.AFTER);
 			}
 		}
+		cursorableTrace = testValuesDeterminer.getMethodTrace(methodName);
 		return saveMethodCodeExtraction(methodDeclaration);
 	}
 
@@ -1036,7 +1043,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (index instanceof SimpleName) {
 			String variable = ((SimpleName) index).getIdentifier();
 			Integer lineNumber = testReader.getLineNumber(index.getStartPosition());
-			Object value = testValuesDeterminer.getValue(unqualifiedTestMethod, variable, lineNumber, iteration);
+			Object value = cursorableTrace.getVariableValueAfter(lineNumber, variable);
 			return (Integer) value;
 		}
 		throw new RuntimeException("Method getArrayIndex not implemented for index expression type " + index + "!");
@@ -1046,8 +1053,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (lineNumber == null) {
 			throw new RuntimeException("Don't know in which line we are...");
 		}
-		Object value = testValuesDeterminer
-				.getValue(unqualifiedTestMethod, varBinding.getName(), lineNumber, iteration);
+		Object value = cursorableTrace.getVariableValueAfter(lineNumber, varBinding.getName());
 		if (varClass.isPrimitive()) {
 			PrimitiveStatement<?> numberAssignment = createPrimitiveStatement(varClass, value);
 			testCase.addStatement(numberAssignment);
@@ -1341,7 +1347,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (localVar != null) {
 			return localVar;
 		}
-		if (iteration != null) {
+		if (!iterations.isEmpty()) {
 			return getLoopVariable(varBinding, varClass);
 		}
 		logger.warn("No variable reference found for variable binding {}, creating new one.", varBinding);
