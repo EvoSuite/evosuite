@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -44,6 +45,10 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
 		super(tc, clazz, null);
 		enumClass = clazz;
+		boolean tracerEnabled = ExecutionTracer.isEnabled();
+		if (tracerEnabled)
+			ExecutionTracer.disable();
+
 		try {
 			if (clazz.getEnumConstants().length > 0) {
 				this.value = clazz.getEnumConstants()[0];
@@ -57,13 +62,23 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 			// Loading the Enum class might fail
 			constants = (T[]) new Enum[0];
 		}
+		if (tracerEnabled)
+			ExecutionTracer.enable();
 	}
 
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
 		super(tc, value.getClass(), value);
+		boolean tracerEnabled = ExecutionTracer.isEnabled();
+		if (tracerEnabled)
+			ExecutionTracer.disable();
+
 		enumClass = (Class<T>) retrieveEnumClass(value.getClass());
 		constants = (T[]) retrieveEnumClass(value.getClass()).getEnumConstants();
+
+		if (tracerEnabled)
+			ExecutionTracer.enable();
+
 	}
 
 	private static Class<?> retrieveEnumClass(Class<?> clazz) {
@@ -77,7 +92,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 			throw new RuntimeException("Cannot find enum class: " + clazz);
 	}
 
-	public Class<?> getEnumClass() {
+	public Class<T> getEnumClass() {
 		return enumClass;
 	}
 
