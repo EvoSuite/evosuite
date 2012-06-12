@@ -130,6 +130,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		ExecutionResult result = new ExecutionResult(test, null);
 		Sandbox.setUpMocks();
 		Runtime.resetRuntime();
+		ExecutionTracer.enable();
+
 		int numThreads = Thread.activeCount();
 		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
 		        byteStream));

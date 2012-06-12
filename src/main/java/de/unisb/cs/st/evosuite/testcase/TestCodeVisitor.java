@@ -407,6 +407,34 @@ public class TestCodeVisitor implements TestVisitor {
 			testCode += "\n";
 	}
 
+	private String getEnumValue(EnumPrimitiveStatement<?> statement) {
+		Object value = statement.getValue();
+		Class<?> clazz = statement.getEnumClass();
+		String className = getClassName(clazz);
+
+		try {
+			if (value.getClass().getField(value.toString()) != null)
+				return className + "." + value;
+
+		} catch (NoSuchFieldException e) {
+			// Ignore
+		}
+
+		for (Field field : value.getClass().getDeclaredFields()) {
+			if (field.isEnumConstant()) {
+				try {
+					if (field.get(value).equals(value)) {
+						return className + "." + field.getName();
+					}
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+		}
+		return className + ".valueOf(\"" + value + "\")";
+
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitPrimitiveStatement(de.unisb.cs.st.evosuite.testcase.PrimitiveStatement)
 	 */
@@ -431,13 +459,11 @@ public class TestCodeVisitor implements TestVisitor {
 			        + StringEscapeUtils.escapeJava(value.toString()) + "';\n";
 		} else if (statement instanceof EnumPrimitiveStatement) {
 			if (value != null)
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = "
-				        + NumberFormatter.getNumberString(value) + ";\n";
+				testCode += getClassName(retval) + " " + getVariableName(retval) + " = "
+				        + getEnumValue((EnumPrimitiveStatement<?>) statement) + ";\n";
 			else
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = ("
-				        + ((Class<?>) retval.getType()).getSimpleName() + ") null;\n";
+				testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("
+				        + getClassName(retval) + ") null;\n";
 		} else if (statement instanceof FileNamePrimitiveStatement) {
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			        + getVariableName(retval) + " = \""
@@ -445,8 +471,8 @@ public class TestCodeVisitor implements TestVisitor {
 			        + "\";\n";
 
 		} else {
-			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + getVariableName(retval) + " = " + value + ";\n";
+			testCode += getClassName(retval) + " " + getVariableName(retval) + " = "
+			        + value + ";\n";
 		}
 		addAssertions(statement);
 	}
