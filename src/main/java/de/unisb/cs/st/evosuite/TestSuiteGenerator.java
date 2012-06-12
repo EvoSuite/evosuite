@@ -138,6 +138,7 @@ import de.unisb.cs.st.evosuite.testsuite.TestSuiteMinimizer;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteReplacementFunction;
 import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Randomness;
+import de.unisb.cs.st.evosuite.utils.ResourceController;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
 /**
@@ -171,12 +172,11 @@ public class TestSuiteGenerator {
 	/**
 	 * Generate a test suite for the target class
 	 */
-	public String generateTestSuite(GeneticAlgorithm geneticAlgorithm) {
+	public String generateTestSuite() {
 
 		TestCaseExecutor.initExecutor();
 
-		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
-		ga = geneticAlgorithm;
+		Utils.addURL(ClassFactory.getStubDir() + "/classes/");		
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "
 		                                         + Properties.TARGET_CLASS);
@@ -671,6 +671,8 @@ public class TestSuiteGenerator {
 		suiteGA.setFitnessFunction(fitnessFunction);
 		statistics.searchStarted(suiteGA);
 
+		ga = suiteGA;
+		
 		RandomLengthTestFactory factory = new RandomLengthTestFactory();
 
 		// TODO: Shutdown hook?
@@ -1362,6 +1364,8 @@ public class TestSuiteGenerator {
 			Signal.handle(new Signal("INT"), writer);
 		}
 
+		ga.addListener(new ResourceController());
+		
 		return ga;
 	}
 
@@ -1378,7 +1382,7 @@ public class TestSuiteGenerator {
 			}
 		}
 		TestSuiteGenerator generator = new TestSuiteGenerator();
-		generator.generateTestSuite(null);
+		generator.generateTestSuite();
 		System.exit(0);
 	}
 
