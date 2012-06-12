@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,6 +29,8 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
+
+import de.unisb.cs.st.evosuite.Properties;
 
 /**
  * @author Gordon Fraser
@@ -100,22 +103,24 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 
 		Label origTarget = new Label();
 		Label errorTarget = new Label();
-		visitInsn(Opcodes.DUP);
-		visitFieldInsn(Opcodes.GETSTATIC, "de/unisb/cs/st/evosuite/Properties",
-		               "ARRAY_LIMIT", "I");
-		super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
 
+		// Multidimensional arrays can only have max 256 dimensions
+		if (Properties.ARRAY_LIMIT < 256) {
+			push(dims);
+			visitFieldInsn(Opcodes.GETSTATIC, "de/unisb/cs/st/evosuite/Properties",
+			               "ARRAY_LIMIT", "I");
+			super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
+		}
+
+		// Check each of the dimensions
 		Map<Integer, Integer> to = new HashMap<Integer, Integer>();
-		Type type = Type.getType(desc);
 		for (int i = dims - 1; i >= 0; i--) {
-			int loc = newLocal(type);
+			int loc = newLocal(Type.INT_TYPE);
 			storeLocal(loc);
 			to.put(i, loc);
 		}
-
 		for (int i = 0; i < dims; i++) {
 			loadLocal(to.get(i));
-			dup();
 			visitFieldInsn(Opcodes.GETSTATIC, "de/unisb/cs/st/evosuite/Properties",
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
@@ -130,6 +135,11 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		                      "<init>", "()V");
 		super.visitInsn(Opcodes.ATHROW);
 		super.visitLabel(origTarget);
+
+		// Restore original dimensions
+		for (int i = 0; i < dims; i++) {
+			loadLocal(to.get(i));
+		}
 
 		super.visitMultiANewArrayInsn(desc, dims);
 	}
