@@ -1,6 +1,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -44,9 +45,18 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	public ArrayIndex(TestCase testCase, ArrayReference array, List<Integer> indices) {
-		super(testCase, new GenericClass(array.getComponentType()));
+		super(testCase, new GenericClass(getReturnType(array, indices.size())));
 		this.array = array;
 		this.indices = indices;
+	}
+
+	private static Type getReturnType(ArrayReference array, int indicesCnt) {
+		assert indicesCnt >= 1;
+		Class<?> result = (Class<?>) array.getComponentType();
+		for (int idx = 1; idx < indicesCnt; idx++) {
+			result = (Class<?>) result.getComponentType();
+		}
+		return result;
 	}
 
 	public ArrayReference getArray() {
@@ -282,4 +292,11 @@ public class ArrayIndex extends VariableReferenceImpl {
 		return true;
 	}
 
+	public void setArrayIndices(List<Integer> indices){
+		this.indices = indices;
+	}
+	
+	public List<Integer> getArrayIndices() {
+		return indices;
+	}
 }

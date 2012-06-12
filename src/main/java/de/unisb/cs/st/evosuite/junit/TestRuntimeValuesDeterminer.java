@@ -92,49 +92,6 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		}
 	}
 
-	public static class VariableValues {
-		private final String variableName;
-
-		private final List<RuntimeValue> values = new ArrayList<RuntimeValue>();
-
-		private VariableValues(String variableName) {
-			assert variableName != null;
-			this.variableName = variableName;
-		}
-
-		public void addValue(int lineNumber, Object value) {
-			values.add(new RuntimeValue(lineNumber, value));
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj) {
-				return true;
-			}
-			if (obj == null) {
-				return false;
-			}
-			if (getClass() != obj.getClass()) {
-				return false;
-			}
-			VariableValues other = (VariableValues) obj;
-			if (!variableName.equals(other.variableName)) {
-				return false;
-			}
-			return true;
-		}
-
-		@Override
-		public int hashCode() {
-			return variableName.hashCode();
-		}
-
-		@Override
-		public String toString() {
-			return "VariableValues [variableName=" + variableName + "]";
-		}
-	}
-
 	private static class TestValuesDeterminerClassVisitor extends ClassVisitor {
 
 		public TestValuesDeterminerClassVisitor(ClassWriter cw) {
@@ -346,7 +303,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	private static TestRuntimeValuesDeterminer instance;
 
 	private final Map<Integer, Integer> lineExecCnts = new HashMap<Integer, Integer>();
-	private final Map<String, VariableValues> mapping = new HashMap<String, VariableValues>();
+	private final List<Integer> lineTrace = new ArrayList<Integer>();
 	private final Map<String, Map<String, List<RuntimeValue>>> methodVariables = new HashMap<String, Map<String, List<RuntimeValue>>>();
 	private final String testClass;
 	private String currentTest;
@@ -369,6 +326,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		JUnitCore jUnitCore = new JUnitCore();
 		jUnitCore.addListener(this);
 		Result result = jUnitCore.run(testClass);
+		currentTest = null;
 		logger.info("Ran {} tests to determine runtime values.", result.getRunCount());
 		for (Failure failure : result.getFailures()) {
 			if (failure.getDescription().getDisplayName().startsWith("initializationError")) {
@@ -379,11 +337,6 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		if (enabled) {
 			ExecutionTracer.enable();
 		}
-		// TODO Implement:
-		// instrument test
-		// run test
-		// determine values of all variables
-		// and execution of all branches during runtime
 	}
 
 	public int getExecutionCount(int lineNumber) {
@@ -394,9 +347,38 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		return result;
 	}
 
-	public <T> T getValue(String variable, int line) {
-		// TODO implement
-		return null;
+	public List<Integer> getLineTrace(Integer startLine) {
+		for (int idx = 0; idx < lineTrace.size(); idx++) {
+			if (lineTrace.get(idx).equals(startLine)) {
+				return lineTrace.subList(idx, lineTrace.size());
+			}
+		}
+		throw new RuntimeException("Given line was not executed!");
+	}
+
+	public Object getValue(String method, String variable, Integer line, Integer iteration) {
+		Map<String, List<RuntimeValue>> variableValues = methodVariables.get(method);
+		List<RuntimeValue> values = variableValues.get(variable);
+		int iterCnt = 0;
+		RuntimeValue lastValue = null;
+		for (RuntimeValue runtimeValue : values) {
+			if ((lastValue != null) && (lastValue.getLineNumber() >= runtimeValue.getLineNumber())) {
+				iterCnt++;
+			}
+			if (iterCnt > iteration) {
+				return lastValue.getValue();
+			}
+			if (iteration == iterCnt) {
+				if (runtimeValue.getLineNumber() == line) {
+					return runtimeValue.getValue();
+				}
+				if (runtimeValue.getLineNumber() > line) {
+					return lastValue;
+				}
+			}
+			lastValue = runtimeValue;
+		}
+		throw new RuntimeException("Line was not executed that often!");
 	}
 
 	@Override
@@ -425,6 +407,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		}
 		execCnt++;
 		lineExecCnts.put(lineNumber, execCnt);
+		lineTrace.add(lineNumber);
 	}
 
 	private void localVarValueChanged(String localVar, int lineNumber, Object newValue) {

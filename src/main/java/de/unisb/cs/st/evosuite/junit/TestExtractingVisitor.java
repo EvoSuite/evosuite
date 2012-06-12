@@ -283,6 +283,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
 
 	private boolean exceptionReadingMethod = false;
+	// TODO This is bad practice: here we rely on global vars
+	// for something that should be parameters to the methods!
+	private Integer iteration = null;
+	private Integer lineNumber = null;
 
 	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod, TestReader testReader) {
 		super();
@@ -369,9 +373,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
 			MethodDef methodDef = testCase.getMethod(method.getName());
 			VariableReference retVal = retrieveResultReference(methodInvocation);
-			if (retVal.getOriginalCode() == null) {
-				retVal.setOriginalCode(methodInvocation.toString());
-			}
+			retVal.setOriginalCode(methodInvocation.toString());
 			testCase.convertMethod(methodDef, params, retVal);
 			return;
 		}
@@ -459,10 +461,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return true;
 		}
 		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide(), null);
-		varRef.setOriginalCode(assignment.toString());
+		varRef.setOriginalCode(assignment.getLeftHandSide().toString());
 		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
-		if (newAssignment.getOriginalCode() == null) {
-			newAssignment.setOriginalCode(assignment.toString());
+		newAssignment.setOriginalCode(assignment.getRightHandSide().toString());
+		if (varRef instanceof ArrayIndex) {
+			AssignmentStatement assignmentStatement = new AssignmentStatement(testCase.getReference(), varRef, newAssignment);
+			testCase.addStatement(assignmentStatement);
+			return true;
 		}
 		testCase.variableAssignment(varRef, newAssignment);
 		return true;
@@ -500,15 +505,37 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public boolean visit(ForStatement forStatement) {
-		// TODO
-		// get number of time loop was executed
-		int lineNumber = testReader.getLineNumber(forStatement.getBody().getStartPosition()) + 1;
-		int loopExecCnt = testValuesDeterminer.getExecutionCount(lineNumber);
+		// TODO Keep track of inner and outer loop separately:
+		// keep track of iterations separately
+		// when determining a runtime value:
+		// first get where the variable was defined last
+		// then determine which loop-iteration
+		// then get value accordingly
+		// OR
+		// follow trace, and create code linearly as in trace
+		// recompile and replace with old code
+		
+		boolean innerLoop = iteration != null;
+		int loopExecCnt = 1;
+		if (!innerLoop) {
+			int lineNumber = testReader.getLineNumber(forStatement.getBody().getStartPosition());
+			// loop head is executed 1 times more than the body...
+			loopExecCnt = testValuesDeterminer.getExecutionCount(lineNumber) - 1;
+		}
 		for (int idx = 0; idx < loopExecCnt; idx++) {
+			if (!innerLoop) {
+				iteration = idx;
+			}
 			acceptChildren(forStatement, forStatement.initializers());
 			acceptChild(forStatement, forStatement.getExpression());
 			acceptChildren(forStatement, forStatement.updaters());
 			acceptChild(forStatement, forStatement.getBody());
+		}
+		acceptChildren(forStatement, forStatement.initializers());
+		acceptChild(forStatement, forStatement.getExpression());
+		acceptChildren(forStatement, forStatement.updaters());
+		if (!innerLoop) {
+			iteration = null;
 		}
 		return false;
 	}
@@ -838,6 +865,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		if (argument instanceof SimpleName) {
 			SimpleName simpleName = (SimpleName) argument;
+			lineNumber = testReader.getLineNumber(simpleName.getStartPosition());
 			return retrieveVariableReference(simpleName.resolveBinding(), varType);
 		}
 		if (argument instanceof IVariableBinding) {
@@ -888,7 +916,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return retrieveVariableReference((VariableDeclaration) argument);
 		}
 		if (argument instanceof ArrayAccess) {
-			return retrieveVariableReference(((ArrayAccess) argument).getArray(), null);
+			// return retrieveVariableReference(((ArrayAccess)
+			// argument).getArray(), null);
+			return retrieveVariableReference((ArrayAccess) argument);
 		}
 		if (argument instanceof Assignment) {
 			return retrieveVariableReference(((Assignment) argument).getLeftHandSide(), null);
@@ -1000,6 +1030,30 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return Float.class;
 		}
 		throw new UnsupportedOperationException("Cannot doBoxing for class " + primitiveClass);
+	}
+
+	private Integer getArrayIndex(Expression index) {
+		if (index instanceof SimpleName) {
+			String variable = ((SimpleName) index).getIdentifier();
+			Integer lineNumber = testReader.getLineNumber(index.getStartPosition());
+			Object value = testValuesDeterminer.getValue(unqualifiedTestMethod, variable, lineNumber, iteration);
+			return (Integer) value;
+		}
+		throw new RuntimeException("Method getArrayIndex not implemented for index expression type " + index + "!");
+	}
+
+	private VariableReference getLoopVariable(IVariableBinding varBinding, Class<?> varClass) {
+		if (lineNumber == null) {
+			throw new RuntimeException("Don't know in which line we are...");
+		}
+		Object value = testValuesDeterminer
+				.getValue(unqualifiedTestMethod, varBinding.getName(), lineNumber, iteration);
+		if (varClass.isPrimitive()) {
+			PrimitiveStatement<?> numberAssignment = createPrimitiveStatement(varClass, value);
+			testCase.addStatement(numberAssignment);
+			return numberAssignment.getReturnValue();
+		}
+		throw new RuntimeException("Not implemented!");
 	}
 
 	private Class<?> loadClass(String className) throws ClassNotFoundException {
@@ -1207,28 +1261,22 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	private VariableReference retrieveVariableReference(ArrayAccess arrayAccess) {
-		if (arrayAccess.getParent() instanceof Assignment) {
-			Assignment assignment = (Assignment) arrayAccess.getParent();
-			Expression expr = arrayAccess.getArray();
-			List<Integer> indices = new ArrayList<Integer>();
-			indices.add((Integer) ((NumberLiteral) arrayAccess.getIndex()).resolveConstantExpressionValue());
-			while (expr instanceof ArrayAccess) {
-				ArrayAccess current = (ArrayAccess) expr;
-				expr = (current).getArray();
-				indices.add((Integer) ((NumberLiteral) current.getIndex()).resolveConstantExpressionValue());
-			}
-			Collections.reverse(indices);
-			VariableReference varRef = retrieveVariableReference(expr, null);
-			ArrayReference arrayReference = (ArrayReference) varRef;
-			assert indices.size() == arrayReference.getArrayDimensions();
-			ArrayIndex arrayIndex = new ArrayIndex(testCase.getReference(), arrayReference, indices);
-			VariableReference value = retrieveVariableReference(assignment.getRightHandSide(), null);
-			AssignmentStatement assignmentStatement = new AssignmentStatement(testCase.getReference(), arrayIndex,
-					value);
-			testCase.addStatement(assignmentStatement);
-			return assignmentStatement.getReturnValue();
+		Expression expr = arrayAccess.getArray();
+		List<Integer> indices = new ArrayList<Integer>();
+		// TODO This is a shortcut
+		// we need a variable reference for the index value
+		indices.add(getArrayIndex(arrayAccess.getIndex()));
+		while (expr instanceof ArrayAccess) {
+			ArrayAccess current = (ArrayAccess) expr;
+			expr = current.getArray();
+			indices.add(getArrayIndex(current.getIndex()));
 		}
-		throw new RuntimeException("Need to implement array access for reading.");
+		Collections.reverse(indices);
+		VariableReference varRef = retrieveVariableReference(expr, null);
+		ArrayReference arrayReference = (ArrayReference) varRef;
+		assert indices.size() == arrayReference.getArrayDimensions();
+		ArrayIndex arrayIndex = new ArrayIndex(testCase.getReference(), arrayReference, indices);
+		return arrayIndex;
 	}
 
 	private VariableReference retrieveVariableReference(ArrayCreation arrayCreation) {
@@ -1277,11 +1325,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		VariableReference ref = new VariableReferenceImpl(testCase.getReference(), exprType);
 		VariableReference leftOperand = retrieveVariableReference(infixExpr.getLeftOperand(), null);
+		leftOperand.setOriginalCode(infixExpr.getLeftOperand().toString());
 		Operator operator = Operator.toOperator(infixExpr.getOperator().toString());
 		VariableReference rightOperand = retrieveVariableReference(infixExpr.getRightOperand(), null);
-		if (rightOperand.getOriginalCode() == null) {
-			rightOperand.setOriginalCode(infixExpr.getRightOperand().toString());
-		}
+		rightOperand.setOriginalCode(infixExpr.getRightOperand().toString());
 		PrimitiveExpression expr = new PrimitiveExpression(testCase.getReference(), ref, leftOperand, operator,
 				rightOperand);
 		testCase.addStatement(expr);
@@ -1294,6 +1341,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (localVar != null) {
 			return localVar;
 		}
+		if (iteration != null) {
+			return getLoopVariable(varBinding, varClass);
+		}
+		logger.warn("No variable reference found for variable binding {}, creating new one.", varBinding);
 		return new BoundVariableReferenceImpl(testCase, varClass, varBinding.getName());
 	}
 

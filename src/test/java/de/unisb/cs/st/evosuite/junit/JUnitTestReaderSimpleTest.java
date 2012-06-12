@@ -118,8 +118,8 @@ public class JUnitTestReaderSimpleTest {
 		testCase.clone();
 		String code = testCase.toCode();
 		String result = "int int0 = 5;\n" + //
-				"int int1 = 5;\n" + //
-				"int[][] intArray0 = new int[int0][int5];\n" + //
+				"int int1 = 2;\n" + //
+				"int[][] intArray0 = new int[int0][int1];\n" + //
 				"colors[0][0] = 0 * 0;\n" + //
 				"colors[0][1] = 0 * 1;\n" + //
 				"colors[0][2] = 0 * 2;\n" + //
