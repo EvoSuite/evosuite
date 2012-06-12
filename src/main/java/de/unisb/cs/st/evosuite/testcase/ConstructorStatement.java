@@ -25,6 +25,7 @@ import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -135,6 +136,13 @@ public class ConstructorStatement extends AbstractStatement {
 							assert (false);
 							throw new EvosuiteError(e);
 						}
+					}
+
+					// If this is a non-static member class, the first parameter must not be null
+					if (constructor.getDeclaringClass().isMemberClass()
+					        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
+						if (inputs[0] == null)
+							throw new CodeUnderTestException(new NullPointerException());
 					}
 
 					Object ret = constructor.newInstance(inputs);

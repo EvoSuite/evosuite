@@ -687,15 +687,14 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 		if (constructor.getDeclaringClass().isMemberClass()
 		        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
-			result += getVariableName(retval)
-			        + " = "
+			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
 			        //			        + new GenericClass(
 			        //			                constructor.getDeclaringClass().getEnclosingClass()).getSimpleName()
 			        + ".new "
-			        //+ ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-			        //+ "("
-			        + getClassName(constructor.getDeclaringClass()) + "("
+			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
+			        + constructor.getDeclaringClass().getSimpleName() + "("
+			        //+ getClassName(constructor.getDeclaringClass()) + "("
 			        + parameter_string + ");";
 
 		} else {
