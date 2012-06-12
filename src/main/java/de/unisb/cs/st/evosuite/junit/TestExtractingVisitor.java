@@ -687,7 +687,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				int[] lengths = new int[lengthsVarRefs.size()];
 				int idx = 0;
 				for (VariableReference lengthVarRef : lengthsVarRefs) {
-					lengths[idx] = 0;
+					// TODO This is a hack. We should use the variablereferences instead!
+					lengths[idx] = Integer.valueOf(lengthVarRef.toString());
 					idx++;
 				}
 				arrayStatement.setLengths(lengths);

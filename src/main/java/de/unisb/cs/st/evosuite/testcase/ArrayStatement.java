@@ -268,4 +268,8 @@ public class ArrayStatement extends AbstractStatement {
 	public void setLengths(int[] lengths) {
 		this.lengths = lengths;
 	}
+	
+	public int[] getLengths() {
+		return lengths;
+	}
 }
