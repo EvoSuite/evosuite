@@ -218,7 +218,8 @@ public class ArrayStatement extends AbstractStatement {
 				                               Math.max(maxAssignment + 1,
 				                                        Properties.MAX_ARRAY)) + 1;
 			} else {
-				int max = Math.min(Math.abs(length - maxAssignment), Properties.MAX_DELTA);
+				int max = Math.min(Math.abs(length - maxAssignment - 1),
+				                   Properties.MAX_DELTA);
 				if (max > 0)
 					newLength = length + Randomness.nextInt(2 * max) - max;
 				else
@@ -227,7 +228,7 @@ public class ArrayStatement extends AbstractStatement {
 		}
 
 		// TODO: Need to make sure this doesn't happen by construction
-		if (newLength == 0)
+		if (newLength <= 0)
 			newLength = 1;
 
 		logger.debug("Changing array length from " + length + " to " + newLength);
