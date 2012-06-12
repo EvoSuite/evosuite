@@ -111,6 +111,11 @@ public class TestCodeVisitor implements TestVisitor {
 			name = clazz.getCanonicalName();
 		}
 
+		// We can't use "Test" because of JUnit 
+		if (name.equals("Test")) {
+			name = clazz.getCanonicalName();
+		}
+
 		classNames.put(clazz, name);
 
 		return name;
@@ -123,6 +128,11 @@ public class TestCodeVisitor implements TestVisitor {
 		GenericClass c = new GenericClass(clazz);
 		String name = c.getSimpleName();
 		if (classNames.values().contains(name)) {
+			name = clazz.getCanonicalName();
+		}
+
+		// We can't use "Test" because of JUnit 
+		if (name.equals("Test")) {
 			name = clazz.getCanonicalName();
 		}
 
