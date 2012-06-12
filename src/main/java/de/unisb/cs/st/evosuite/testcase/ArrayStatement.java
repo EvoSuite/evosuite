@@ -32,6 +32,7 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 import de.unisb.cs.st.evosuite.Properties;
+import de.unisb.cs.st.evosuite.utils.LoggingUtils;
 import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
@@ -194,7 +195,17 @@ public class ArrayStatement extends AbstractStatement {
 		for (StatementInterface statement : test) {
 			for (VariableReference var : statement.getVariableReferences()) {
 				if (var.getAdditionalVariableReference() == this.retval) {
-					ArrayIndex index = (ArrayIndex) var;
+					VariableReference currentVar = var;
+					while (currentVar instanceof FieldReference) {
+						currentVar = ((FieldReference) currentVar).getSource();
+					}
+					if (!(currentVar instanceof ArrayIndex)) {
+						LoggingUtils.getEvoLogger().error("Found assignment to array without ArrayIndex:");
+						LoggingUtils.getEvoLogger().error(test.toCode());
+						LoggingUtils.getEvoLogger().error(statement.getPosition() + ", "
+						                                          + statement.getCode());
+					}
+					ArrayIndex index = (ArrayIndex) currentVar;
 					maxAssignment = Math.max(maxAssignment, index.getArrayIndex());
 				}
 			}
