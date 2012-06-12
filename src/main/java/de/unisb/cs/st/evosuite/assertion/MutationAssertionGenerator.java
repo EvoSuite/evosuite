@@ -265,8 +265,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		logger.debug("Running on original");
 		ExecutionResult origResult = runTest(test);
 
-		if (origResult.hasTimeout()) {
-			logger.debug("Skipping test, as it has timeouts");
+		if (origResult.hasTimeout() || origResult.hasTestException()) {
+			logger.debug("Skipping test, as it has timeouts or exceptions");
 			return;
 		}
 
