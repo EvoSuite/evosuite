@@ -117,19 +117,49 @@ public class JUnitTestReaderSimpleTest {
 		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test06");
 		testCase.clone();
 		String code = testCase.toCode();
-		String result = "int int0 = 5;\n" + //
-				"int int1 = 2;\n" + //
-				"int[][] intArray0 = new int[int0][int1];\n" + //
-				"colors[0][0] = 0 * 0;\n" + //
-				"colors[0][1] = 0 * 1;\n" + //
-				"colors[0][2] = 0 * 2;\n" + //
-				"colors[0][3] = 0 * 3;\n" + //
-				"colors[0][4] = 0 * 4;\n" + //
-				"colors[1][0] = 1 * 0;\n" + //
-				"colors[1][1] = 1 * 1;\n" + //
-				"colors[1][2] = 1 * 2;\n" + //
-				"colors[1][3] = 1 * 3;\n" + //
-				"colors[1][4] = 1 * 4;\n";
+		String result = "int int0 = 2;\n" + //
+				"int int1 = 5;\n" + //
+				"int[][] intArray0 = new int[2][5];\n" + //
+				"int int2 = 0;\n" + //
+				"int int3 = 0;\n" + //
+				"int int4 = int2 * int3;\n" + //
+				"intArray0[0][0] = int4;\n" + //
+				"int int5 = 0;\n" + //
+				"int int6 = 1;\n" + //
+				"int int7 = int5 * int6;\n" + //
+				"intArray0[0][1] = int7;\n" + //
+				"int int8 = 0;\n" + //
+				"int int9 = 2;\n" + //
+				"int int10 = int8 * int9;\n" + //
+				"intArray0[0][2] = int10;\n" + //
+				"int int11 = 0;\n" + //
+				"int int12 = 3;\n" + //
+				"int int13 = int11 * int12;\n" + //
+				"intArray0[0][3] = int13;\n" + //
+				"int int14 = 0;\n" + //
+				"int int15 = 4;\n" + //
+				"int int16 = int14 * int15;\n" + //
+				"intArray0[0][4] = int16;\n" + //
+				"int int17 = 1;\n" + //
+				"int int18 = 0;\n" + //
+				"int int19 = int17 * int18;\n" + //
+				"intArray0[1][0] = int19;\n" + //
+				"int int20 = 1;\n" + //
+				"int int21 = 1;\n" + //
+				"int int22 = int20 * int21;\n" + //
+				"intArray0[1][1] = int22;\n" + //
+				"int int23 = 1;\n" + //
+				"int int24 = 2;\n" + //
+				"int int25 = int23 * int24;\n" + //
+				"intArray0[1][2] = int25;\n" + //
+				"int int26 = 1;\n" + //
+				"int int27 = 3;\n" + //
+				"int int28 = int26 * int27;\n" + //
+				"intArray0[1][3] = int28;\n" + //
+				"int int29 = 1;\n" + //
+				"int int30 = 4;\n" + //
+				"int int31 = int29 * int30;\n" + //
+				"intArray0[1][4] = int31;\n";
 		Assert.assertEquals(result, code);
 	}
 }

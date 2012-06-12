@@ -644,16 +644,25 @@ public class TestCodeVisitor implements TestVisitor {
 	@Override
 	public void visitArrayStatement(ArrayStatement statement) {
 		VariableReference retval = statement.getReturnValue();
-		int length = statement.size();
+		int[] lengths = statement.getLengths();
 
-		String type = retval.getSimpleClassName().replaceFirst("\\[\\]", "");
-		String multiDimensions = "";
-		while (type.contains("[]")) {
-			multiDimensions += "[]";
+		String type = retval.getSimpleClassName();
+		String multiDimensions="";
+		if (lengths.length == 1) {
 			type = type.replaceFirst("\\[\\]", "");
+			multiDimensions = "[" + lengths[0] + "]";
+			while (type.contains("[]")) {
+				multiDimensions += "[]";
+				type = type.replaceFirst("\\[\\]", "");
+			}
+		} else {
+			type = type.replaceAll("\\[\\]", "");
+			for (int length : lengths) {
+				multiDimensions += "[" + length + "]";
+			}
 		}
 		testCode += retval.getSimpleClassName() + " " + getVariableName(retval)
-		        + " = new " + type + "[" + length + "]" + multiDimensions + ";\n";
+		        + " = new " + type + multiDimensions + ";\n";
 		addAssertions(statement);
 	}
 
