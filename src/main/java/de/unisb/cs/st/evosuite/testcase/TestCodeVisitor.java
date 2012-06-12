@@ -72,8 +72,12 @@ public class TestCodeVisitor implements TestVisitor {
 				return field.getDeclaringClass().getSimpleName() + "." + field.getName();
 		} else if (var instanceof ArrayIndex) {
 			VariableReference array = ((ArrayIndex) var).getArray();
-			int index = ((ArrayIndex) var).getArrayIndex();
-			return getVariableName(array) + "[" + index + "]";
+			List<Integer> indices = ((ArrayIndex) var).getArrayIndices(); 
+			String result = getVariableName(array);
+			for (Integer index : indices) {
+				result += "[" + index + "]";
+			}
+			return result;
 		} else if (var instanceof ArrayReference) {
 			String className = var.getSimpleClassName();
 			//			int num = 0;
