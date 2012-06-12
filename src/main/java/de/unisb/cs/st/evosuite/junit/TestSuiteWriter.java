@@ -240,6 +240,14 @@ public class TestSuiteWriter implements Opcodes {
 
 		for (ExecutionResult result : results) {
 			result.test.accept(visitor);
+
+			// Iterate over declared exceptions to make sure they are known to the visitor
+			Set<Class<?>> exceptions = result.test.getDeclaredExceptions();
+			if (!exceptions.isEmpty()) {
+				for (Class<?> exception : exceptions) {
+					visitor.getClassName(exception);
+				}
+			}
 			imports.addAll(visitor.getImports());
 			// imports.addAll(result.test.getAccessedClasses());
 			//for (Throwable t : result.getAllThrownExceptions()) {
