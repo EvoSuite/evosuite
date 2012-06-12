@@ -18,6 +18,7 @@
  */
 package de.unisb.cs.st.evosuite.sandbox;
 
+import java.awt.AWTPermission;
 import java.io.File;
 import java.io.FilePermission;
 import java.security.Permission;
@@ -152,6 +153,11 @@ class MSecurityManager extends SecurityManager {
 				if (perm.getName().equals("loadLibrary.net"))
 					return true;
 				if (perm.getName().equals("getProtectionDomain"))
+					return true;
+			}
+
+			if (perm instanceof AWTPermission) {
+				if ("true".equals(System.getProperty("java.awt.headless")))
 					return true;
 			}
 
