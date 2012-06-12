@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,6 +30,7 @@ import de.unisb.cs.st.evosuite.ga.SearchListener;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 import de.unisb.cs.st.evosuite.utils.ExternalProcessUtilities;
 import de.unisb.cs.st.evosuite.utils.LoggingUtils;
+import de.unisb.cs.st.evosuite.utils.Randomness;
 
 /**
  * @author Gordon Fraser
@@ -197,7 +199,8 @@ public class ClientProcess implements SearchListener {
 				System.exit(0);
 			}
 		} catch (Throwable t) {
-			logger.error("Error when generating tests for: " + Properties.TARGET_CLASS, t);
+			logger.error("Error when generating tests for: " + Properties.TARGET_CLASS
+			        + " with seed " + Randomness.getSeed(), t);
 			t.printStackTrace();
 
 			//sleep 1 sec to be more sure that the above log is recorded
