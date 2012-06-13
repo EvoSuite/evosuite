@@ -56,6 +56,7 @@ import org.eclipse.jdt.core.dom.StringLiteral;
 import org.eclipse.jdt.core.dom.SuperMethodInvocation;
 import org.eclipse.jdt.core.dom.SwitchCase;
 import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.ThrowStatement;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclaration;
@@ -312,6 +313,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public void endVisit(ClassInstanceCreation instanceCreation) {
+		if (instanceCreation.getParent() instanceof ThrowStatement) {
+			logger.warn("Ignoring throw statements!");
+			return;
+		}
 		List<?> paramTypes = Arrays.asList(instanceCreation.resolveConstructorBinding().getParameterTypes());
 		List<?> paramValues = instanceCreation.arguments();
 		Constructor<?> constructor = retrieveConstructor(instanceCreation.getType(), paramTypes, paramValues);
@@ -376,6 +381,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		Method method = retrieveMethod(methodInvocation, params);
 		Class<?> declaringClass = method.getDeclaringClass();
 		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
+			// TODO Methods can be declared in an order such that the called
+			// method is not yet read
 			MethodDef methodDef = testCase.getMethod(method.getName());
 			VariableReference retVal = retrieveResultReference(methodInvocation);
 			retVal.setOriginalCode(methodInvocation.toString());
@@ -515,7 +522,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		// TODO This works here, but not if inner loop is a while statement
 		// that iterates a different number of times...!
 		// Solution: follow the trace
-		
+
 		// loop head is executed 1 times more than the body...
 		int loopExecCnt = testValuesDeterminer.getExecutionCount(lineNumber) - 1;
 		if (loopExecCnts.size() > 0) {
@@ -684,14 +691,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				ArrayReference arrayReference = new ValidArrayReference(testCase.getReference(), varType);
 				arrayReference.setOriginalCode(variableDeclStmt.toString());
 				ArrayStatement arrayStatement = new ArrayStatement(testCase.getReference(), arrayReference);
-				int[] lengths = new int[lengthsVarRefs.size()];
-				int idx = 0;
-				for (VariableReference lengthVarRef : lengthsVarRefs) {
-					// TODO This is a hack. We should use the variablereferences instead!
-					lengths[idx] = Integer.valueOf(lengthVarRef.toString());
-					idx++;
-				}
-				arrayStatement.setLengths(lengths);
+				arrayStatement.setLengths(getLengths(variableDeclStmt, lengthsVarRefs));
 				// List<Integer> indices = new ArrayList<Integer>();
 				// indices.add((Integer) ((NumberLiteral)
 				// arrayAccess.getIndex()).resolveConstantExpressionValue());
@@ -1042,12 +1042,57 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	private Integer getArrayIndex(Expression index) {
 		if (index instanceof SimpleName) {
-			String variable = ((SimpleName) index).getIdentifier();
+			String variable = retrieveVariableName(index);
 			Integer lineNumber = testReader.getLineNumber(index.getStartPosition());
 			Object value = cursorableTrace.getVariableValueAfter(lineNumber, variable);
 			return (Integer) value;
 		}
+		if (index instanceof NumberLiteral) {
+			Object value = ((NumberLiteral) index).resolveConstantExpressionValue();
+			return (Integer) value;
+		}
 		throw new RuntimeException("Method getArrayIndex not implemented for index expression type " + index + "!");
+	}
+
+	private int getCurrentIteration() {
+		int iteration = iterations.isEmpty() ? 0 : iterations.peek();
+		return iteration;
+	}
+
+	private int[] getLengths(VariableDeclarationStatement variableDeclStmt, List<VariableReference> lengthsVarRefs) {
+		int[] lengths = new int[lengthsVarRefs.size()];
+		String variable = retrieveVariableName(variableDeclStmt);
+		int lineNumber = testReader.getLineNumber(variableDeclStmt.getStartPosition());
+		int iteration = getCurrentIteration();
+		Object value = testValuesDeterminer.getValue(unqualifiedTestMethod, variable, lineNumber, iteration);
+		int idx = 0;
+		while ((value != null) && value.getClass().isArray()) {
+			if (value instanceof Object[]) {
+				lengths[idx] = ((Object[]) value).length;
+				value = ((Object[]) value)[idx];
+				idx++;
+				continue;
+			}
+			if (value instanceof int[]) {
+				lengths[idx] = ((int[]) value).length;
+				value = ((int[]) value)[idx];
+				idx++;
+				continue;
+			}
+			throw new RuntimeException("Array type " + value.getClass() + " not implemented!");
+		}
+		if (idx == lengths.length) {
+			return lengths;
+		}
+
+		idx = 0;
+		for (VariableReference lengthVarRef : lengthsVarRefs) {
+			// TODO This is a hack. We should use the variablereferences
+			// instead!
+			lengths[idx] = Integer.valueOf(lengthVarRef.toString());
+			idx++;
+		}
+		return lengths;
 	}
 
 	private VariableReference getLoopVariable(IVariableBinding varBinding, Class<?> varClass) {
@@ -1267,6 +1312,21 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return result;
 	}
 
+	private String retrieveVariableName(Object argument) {
+		if (argument instanceof SimpleName) {
+			return ((SimpleName) argument).getIdentifier();
+		}
+		if (argument instanceof VariableDeclarationStatement) {
+			VariableDeclarationStatement variableDeclStmt = (VariableDeclarationStatement) argument;
+			return retrieveVariableName(variableDeclStmt.fragments().get(0));
+		}
+		if (argument instanceof VariableDeclarationFragment) {
+			return retrieveVariableName(((VariableDeclarationFragment) argument).getName());
+		}
+
+		throw new RuntimeException("Not implemented for type " + argument.getClass());
+	}
+
 	private VariableReference retrieveVariableReference(ArrayAccess arrayAccess) {
 		Expression expr = arrayAccess.getArray();
 		List<Integer> indices = new ArrayList<Integer>();
@@ -1288,8 +1348,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	private VariableReference retrieveVariableReference(ArrayCreation arrayCreation) {
 		Class<?> arrayType = retrieveTypeClass(arrayCreation.getType());
-		AbstractList<?> dimensions = ((AbstractList<?>) arrayCreation
-				.getStructuralProperty(ArrayCreation.DIMENSIONS_PROPERTY));
+		List<?> dimensions = ((AbstractList<?>) arrayCreation.getStructuralProperty(ArrayCreation.DIMENSIONS_PROPERTY));
 		if (dimensions.size() > 1) {
 			throw new RuntimeException("Multidimensional arrays not implemented!");
 		}
@@ -1429,6 +1488,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private VariableReference retrieveVariableReference(VariableDeclarationFragment varDeclFrgmnt) {
 		IVariableBinding variableBinding = varDeclFrgmnt.resolveBinding();
 		Class<?> clazz = retrieveTypeClass(variableBinding.getType());
+		if (clazz.isArray()) {
+			ArrayReference arrayReference = new ValidArrayReference(testCase.getReference(), clazz);
+			arrayReference.setOriginalCode(varDeclFrgmnt.toString());
+			testCase.addVariable(varDeclFrgmnt.resolveBinding(), arrayReference);
+			return arrayReference;
+		}
 		VariableReference result = new BoundVariableReferenceImpl(testCase, clazz, variableBinding.getName());
 		testCase.addVariable(variableBinding, result);
 		return result;
