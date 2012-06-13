@@ -57,7 +57,7 @@ public class TestExample extends ParentTestExample {
 		return x + 5;
 	}
 
-	private static BufferedImage createImage(final int width, final int height, final int color) {
+	public static BufferedImage createImage(final int width, final int height, final int color) {
 		if ((width < 1) || (height < 1)) {
 			throw new IllegalArgumentException("ERROR: bad width/height!");
 		}
@@ -65,11 +65,11 @@ public class TestExample extends ParentTestExample {
 		return setImageColor(image, color);
 	}
 
-	private static int createRGBInt(final int valR, final int valG, final int valB) {
+	public static int createRGBInt(final int valR, final int valG, final int valB) {
 		return (valR << 16) | (valG << 8) | (valB);
 	}
 
-	private static BufferedImage setImageColor(final BufferedImage image, final int color) {
+	public static BufferedImage setImageColor(final BufferedImage image, final int color) {
 		if (image == null) {
 			throw new IllegalArgumentException("ERROR: image == null!");
 		}

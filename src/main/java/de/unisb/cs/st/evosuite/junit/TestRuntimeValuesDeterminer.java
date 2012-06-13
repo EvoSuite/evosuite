@@ -22,7 +22,6 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.IincInsnNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.LineNumberNode;
 import org.objectweb.asm.tree.LocalVariableNode;
@@ -55,6 +54,21 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 					.getLineNumber(), trace.get(idx).getLineNumber());
 		}
 
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			CursorableTrace other = (CursorableTrace) obj;
+			return trace.equals(other.trace);
+		}
+
 		public void executedLine(Integer lineNumber, Map<String, Object> variableValues) {
 			trace.add(new ExecutedLine(lineNumber, variableValues));
 		}
@@ -72,6 +86,16 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			}
 			logger.debug("Getting variable value for line {} and variable {}.", lineNumber, variable);
 			return executedLine.getVariableValues().get(variable);
+		}
+
+		@Override
+		public int hashCode() {
+			return trace.hashCode();
+		}
+
+		@Override
+		public String toString() {
+			return "CursorableTrace[" + idx + "=" + trace.get(idx) + " from " + trace.size() + "]";
 		}
 	}
 
@@ -268,16 +292,24 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			case Opcodes.PUTFIELD: // -
 				if (insnNode instanceof FieldInsnNode) {
 					InsnList instrumentation = new InsnList();
-					FieldInsnNode fieldInsnNode = (FieldInsnNode) insnNode;
-					instrumentation.add(new InsnNode(Opcodes.DUP));
-					instrumentation.add(new LdcInsnNode(fieldInsnNode.owner));
-					instrumentation.add(new LdcInsnNode(fieldInsnNode.name));
-					instrumentation.add(new LdcInsnNode(currentLine));
-					instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-							"de/unisb/cs/st/evosuite/junit/TestRuntimeValuesDeterminer", "fieldValueChanged",
-							"(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;I)V"));
-					logger.debug("Adding fieldValueChanged for field {}#{} in line {}.", new Object[] {
-							fieldInsnNode.owner, fieldInsnNode.name, currentLine });
+					logger.error("FieldInsnNode not implemented!");
+					// FieldInsnNode fieldInsnNode = (FieldInsnNode) insnNode;
+					// instrumentation.add(new InsnNode(Opcodes.DUP));
+					// instrumentation.add(new FieldInsnNode(Opcodes.GETFIELD,
+					// fieldInsnNode.owner, fieldInsnNode.name,
+					// fieldInsnNode.desc));
+					// instrumentation.add(new
+					// LdcInsnNode(fieldInsnNode.owner));
+					// instrumentation.add(new LdcInsnNode(fieldInsnNode.name));
+					// instrumentation.add(new LdcInsnNode(currentLine));
+					// instrumentation.add(new
+					// MethodInsnNode(Opcodes.INVOKESTATIC,
+					// "de/unisb/cs/st/evosuite/junit/TestRuntimeValuesDeterminer",
+					// "fieldValueChanged",
+					// "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;I)V"));
+					// logger.debug("Adding fieldValueChanged for field {}#{} in line {}.",
+					// new Object[] {
+					// fieldInsnNode.owner, fieldInsnNode.name, currentLine });
 					return instrumentation;
 				}
 				throw new RuntimeException("Not implemented!");
@@ -321,14 +353,16 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 
 	private static class TransformingClassLoader extends ClassLoader {
 
-		public TransformingClassLoader() {
-			// nothing special
+		private final String testClass;
+		
+		public TransformingClassLoader(String testClass) {
+			assert testClass != null;
+			this.testClass = testClass;
 		}
 
 		@Override
 		public Class<?> loadClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
-			if (isSystemClass(fullyQualifiedTargetClass)
-					|| this.getClass().getName().startsWith(fullyQualifiedTargetClass)) {
+			if (!testClass.equals(fullyQualifiedTargetClass)){
 				return super.loadClass(fullyQualifiedTargetClass);
 			}
 			String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -495,7 +529,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 
 	private Class<?> instrumentTest() {
 		logger.info("Instrumenting class '{}'.", testClass);
-		TransformingClassLoader classLoader = new TransformingClassLoader();
+		TransformingClassLoader classLoader = new TransformingClassLoader(testClass);
 		try {
 			return classLoader.loadClass(testClass);
 		} catch (ClassNotFoundException exc) {

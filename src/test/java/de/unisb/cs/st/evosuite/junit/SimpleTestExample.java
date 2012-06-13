@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.junit;
 
+import java.awt.image.BufferedImage;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -63,5 +64,15 @@ public class SimpleTestExample {
 				colors[idx][ndx] = idx * ndx;
 			}
 		}
+	}
+
+	@Test
+	public void test07() {
+		BufferedImage image = TestExample.createImage(5, 5, 0);
+		int[][] colors = new int[image.getWidth()][image.getHeight()];
+		// TODO Having it as an assignment is different:
+		// colors = new int[image.getWidth()][image.getHeight()];
+		// TODO colors[0][0] = colors[colors.length][colors[colors.length].length];
+		colors[0][0] = colors[1][4];
 	}
 }
