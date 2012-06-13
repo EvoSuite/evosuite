@@ -642,6 +642,10 @@ public class StaticTestCluster extends TestCluster {
 			logger.debug("Skipping deprecated class " + c.getName());
 			return false;
 		}
+		if (c.getName().startsWith("com.sun") || c.getName().startsWith("sun.misc")) {
+			logger.debug("Skipping restricted class " + c.getName());
+			return false;
+		}
 
 		/*
 		 * if(Modifier.isAbstract(c.getModifiers())) return false;
