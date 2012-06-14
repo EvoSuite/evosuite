@@ -58,7 +58,7 @@ public class Utils {
 	 */
 	public static void sleepUntil(long targetTimeMillis) {
 		while (true) {
-			long delta = System.currentTimeMillis() - targetTimeMillis; 
+			long delta = targetTimeMillis - System.currentTimeMillis(); 
 			
 			if (delta <= 0) {
 				break;
