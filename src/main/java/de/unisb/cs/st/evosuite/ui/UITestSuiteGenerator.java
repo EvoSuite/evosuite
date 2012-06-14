@@ -4,6 +4,7 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.security.Permission;
 
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import org.uispec4j.Trigger;
@@ -41,19 +42,21 @@ public class UITestSuiteGenerator {
 		@Override
 		public void run() throws Exception {
 			ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
+			final ClassLoader[] oldEventThreadClassLoader = new ClassLoader[1];
 
 			try {
-				ClassLoader classLoader = TestCluster.classLoader;
+				final ClassLoader classLoader = TestCluster.classLoader;
 				Thread.currentThread().setContextClassLoader(classLoader);
 
 				Class<?> cls = classLoader.loadClass(this.mainClass);
-
-				// cls = Class.forName("samples.calculator.CalculatorPanel");
-				// cls = Class.forName("samples.addressbook.main.Main");
-				// cls = Class.forName("terpword.Ekit");
-				// cls = classLoader.loadClass("org.tss.TerpSpreadSheet");
-				// cls = Class.forName("terppresent.TerpPresent");
-				// cls = Class.forName("org.gjt.sp.jedit.jEdit");
+				
+				SwingUtilities.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						oldEventThreadClassLoader[0] = Thread.currentThread().getContextClassLoader();
+						Thread.currentThread().setContextClassLoader(classLoader);
+					}
+				});
 
 				cls.getMethod("main", new Class<?>[] { String[].class }).invoke(null, new Object[] { new String[] {} });
 			} catch (Exception e) {
@@ -61,6 +64,15 @@ public class UITestSuiteGenerator {
 				e.printStackTrace();
 			} finally {
 				Thread.currentThread().setContextClassLoader(oldClassLoader);
+
+				if (oldEventThreadClassLoader[0] != null) {
+					SwingUtilities.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							Thread.currentThread().setContextClassLoader(oldEventThreadClassLoader[0]);
+						}
+					});
+				}
 			}
 		}
 	}
@@ -83,22 +95,15 @@ public class UITestSuiteGenerator {
 			// with multiple event loops from loading classes
 			UISpec4J.init();
 
-			try {
-				Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
-				Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
-				String filename = String.format("coverage-%d.ec", 0);
-				m.invoke(null, new File(filename), false, false);
-			} catch (Throwable t) {
-				t.printStackTrace();
-			}
-			
 			writeCoverage();
 
+			Properties.INSTRUMENTATION_SKIP_DEBUG = true;
+			
 			Properties.MAX_SIZE = 1000;
 			Properties.SEARCH_BUDGET = Integer.MAX_VALUE;
 
-			// Timeout of 60 seconds per test.
-			Properties.TIMEOUT = 60 * 1000;
+			// Timeout of 2 * 60 seconds per test.
+			Properties.TIMEOUT = 2 * 60 * 1000;
 			Properties.CPU_TIMEOUT = false;
 
 			// String replacement as of 13-Jul-2011 / revision 500:3d19d48a9098
@@ -109,8 +114,6 @@ public class UITestSuiteGenerator {
 			// String replacement still has (another) bug
 			// with jEdit...
 			Properties.STRING_REPLACEMENT = false;
-
-			Properties.OUTPUT_DIR = "/home/flgr/workspace/evosuite/evosuite-files/";
 
 			System.setSecurityManager(new SecurityManager() {
 				@Override
@@ -145,6 +148,11 @@ public class UITestSuiteGenerator {
 
 			Properties.SANDBOX = false;
 			Properties.MOCKS = false;
+			
+			// We don't actually care about the result...
+			// Call this here so later calls to it won't call TestCluster.reset()
+			// (which would otherwise create a new InstrumentingClassLoader and cause severe trouble)
+			Properties.getTargetClass();
 
 			long startTime = System.currentTimeMillis();
 
@@ -255,15 +263,16 @@ public class UITestSuiteGenerator {
 		this.writeStateGraph();
 
 		try {
+			FitnessFunction fitnessFunction = TestSuiteGenerator.getFitnessFunction();
+
 			ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(stateGraph, this.mainMethodTrigger);
-			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory);
+			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory, fitnessFunction);
 
 			GeneticAlgorithm ga = TestSuiteGenerator.getGeneticAlgorithm(testSuiteFactory);
 			TestSuiteGenerator.getSecondaryObjectives(ga);
 
 			ga.setStoppingCondition(getStoppingCondition());
 
-			FitnessFunction fitnessFunction = TestSuiteGenerator.getFitnessFunction();
 
 			ga.setFitnessFunction(fitnessFunction);
 
@@ -313,7 +322,7 @@ public class UITestSuiteGenerator {
 
 			thread.setDaemon(true);
 			thread.start();
-
+			
 			ga.generateSolution();
 
 			AbstractTestSuiteChromosome<ExecutableChromosome> best = (AbstractTestSuiteChromosome<ExecutableChromosome>) ga.getBestIndividual();
