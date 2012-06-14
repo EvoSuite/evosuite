@@ -49,6 +49,37 @@ import com.thoughtworks.xstream.XStream;
 public class Utils {
 
 	/**
+	 * Sleeps at least until the specified time point has passed.
+	 * 
+	 * (Thread.sleep() does something similar, but can stop sleeping before
+	 * the specified time point has passed if the thread is interrupted.)
+	 *  
+	 * @param targetTimeMillis Target time in milliseconds
+	 */
+	public static void sleepUntil(long targetTimeMillis) {
+		while (true) {
+			long delta = System.currentTimeMillis() - targetTimeMillis; 
+			
+			if (delta <= 0) {
+				break;
+			}
+			
+			try {
+				Thread.sleep(delta);
+			} catch (InterruptedException e) { /* OK */ }
+		}
+	}
+
+	/**
+	 * Sleeps at least until the specified amount of time has passed, uninterruptibly.
+	 *  
+	 * @param millis Amount of milliseconds to sleep
+	 */
+	public static void sleepFor(long millis) {
+		sleepUntil(System.currentTimeMillis() + millis);
+	}
+	
+	/**
 	 * Deletes directory and its content.
 	 * 
 	 * @param dirName

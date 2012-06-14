@@ -38,6 +38,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.coverage.branch.BranchPool;
+import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstructionPool;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.utils.LoggingUtils;
@@ -541,6 +542,9 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double USAGE_RATE = 0.5;
 
+	@Parameter(key = "instrumentation_skip_debug", description = "Skip debug information in bytecode instrumentation (needed for compatibility with classes transformed by Emma code instrumentation due to an ASM bug)")
+	public static boolean INSTRUMENTATION_SKIP_DEBUG = false;	
+	
 	@Parameter(key = "instrument_parent", description = "Also count coverage goals in superclasses")
 	public static boolean INSTRUMENT_PARENT = false;
 
@@ -1286,6 +1290,7 @@ public class Properties {
 		BranchPool.reset();
 		TestCluster.reset();
 		DefaultTestFactory.getInstance().reset();
+		BytecodeInstructionPool.clear(); 
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);

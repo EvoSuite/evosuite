@@ -20,8 +20,6 @@ package de.unisb.cs.st.evosuite.testsuite;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.ReplacementFunction;
-import de.unisb.cs.st.evosuite.ga.SelectionFunction;
-import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 
 /**
  * @author Gordon Fraser
@@ -39,8 +37,8 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 		super(false);
 	}
 
-	public int getLengthSum(TestSuiteChromosome chromosome1,
-	        TestSuiteChromosome chromosome2) {
+	public int getLengthSum(AbstractTestSuiteChromosome<?> chromosome1,
+			AbstractTestSuiteChromosome<?> chromosome2) {
 		return chromosome1.totalLengthOfTestCases()
 		        + chromosome2.totalLengthOfTestCases();
 	}
@@ -54,8 +52,8 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 		
 		if (Properties.CHECK_PARENTS_LENGTH) {
 			
-			int offspringLength = getLengthSum((TestSuiteChromosome) offspring1, (TestSuiteChromosome) offspring2);
-			int parentLength = getLengthSum((TestSuiteChromosome) parent1,	 (TestSuiteChromosome) parent2);
+			int offspringLength = getLengthSum((AbstractTestSuiteChromosome<?>) offspring1, (AbstractTestSuiteChromosome<?>) offspring2);
+			int parentLength = getLengthSum((AbstractTestSuiteChromosome<?>) parent1, (AbstractTestSuiteChromosome<?>) parent2);
 			
 			//if equivalent, only accept if it does not increase the length
 			if (cmp==0 &&  offspringLength <= parentLength) {
