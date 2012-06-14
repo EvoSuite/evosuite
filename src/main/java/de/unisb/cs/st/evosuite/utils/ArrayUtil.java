@@ -30,8 +30,8 @@ public abstract class ArrayUtil {
 
 	public static final String DEFAULT_JOIN_SEPARATOR = IterUtil.DEFAULT_JOIN_SEPARATOR;
 
-	public static Object[] box(long[] array) {
-		Object[] result = new Object[array.length];
+	public static Integer[] box(int[] array) {
+		Integer[] result = new Integer[array.length];
 
 		/* Can't use System.arraycopy() -- it doesn't do boxing */
 		for (int i = 0; i < array.length; i++) {
@@ -41,8 +41,19 @@ public abstract class ArrayUtil {
 		return result;
 	}
 
-	public static Object[] box(byte[] array) {
-		Object[] result = new Object[array.length];
+	public static Long[] box(long[] array) {
+		Long[] result = new Long[array.length];
+
+		/* Can't use System.arraycopy() -- it doesn't do boxing */
+		for (int i = 0; i < array.length; i++) {
+			result[i] = array[i];
+		}
+
+		return result;
+	}
+
+	public static Byte[] box(byte[] array) {
+		Byte[] result = new Byte[array.length];
 
 		/* Can't use System.arraycopy() -- it doesn't do boxing */
 		for (int i = 0; i < array.length; i++) {
