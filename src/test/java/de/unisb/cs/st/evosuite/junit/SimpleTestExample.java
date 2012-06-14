@@ -74,5 +74,6 @@ public class SimpleTestExample {
 		// colors = new int[image.getWidth()][image.getHeight()];
 		// TODO colors[0][0] = colors[colors.length][colors[colors.length].length];
 		colors[0][0] = colors[1][4];
+		colors[0][1] = 3 + TestExample.doCalc(4, 5);
 	}
 }

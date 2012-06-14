@@ -168,7 +168,7 @@ public class JUnitTestReaderSimpleTest {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
 		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test07");
-		testCase.clone();
+		// testCase.clone();
 		String code = testCase.toCode();
 		String result = "int int0 = 5;\n" + //
 				"int int1 = 5;\n" + //
@@ -177,7 +177,13 @@ public class JUnitTestReaderSimpleTest {
 				"int[][] intArray0 = new int[5][5];\n" + //
 				"bufferedImage0.getWidth();\n" + //
 				"bufferedImage0.getHeight();\n" + //
-				"intArray0[0][0] = intArray0[1][4];\n";
+				"intArray0[0][0] = intArray0[1][4];\n" + //
+				"int int3 = 4;\n" + //
+				"int int4 = 5;\n" + //
+				"int int5 = TestExample.doCalc(int3, int4);\n" + //
+				"int int6 = 3;\n" + //
+				"int int7 = int6 + int5;\n" + //
+				"intArray0[0][1] = int7;\n";
 		Assert.assertEquals(result, code);
 	}
 }

@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.junit;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
@@ -453,6 +452,16 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestRuntimeValuesDeterminer.class);
 
 	private static TestRuntimeValuesDeterminer instance;
+	private static Object lock = new Object();
+
+	public static TestRuntimeValuesDeterminer getInstance(String testClass) {
+		synchronized (lock) {
+			if ((instance == null) || !instance.testClass.equals(testClass)) {
+				instance = new TestRuntimeValuesDeterminer(testClass);
+			}
+			return instance;
+		}
+	}
 
 	private final Map<Integer, Integer> lineExecCnts = new HashMap<Integer, Integer>();
 	private final Map<String, CursorableTrace> methodTraces = new HashMap<String, CursorableTrace>();
@@ -460,36 +469,33 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	private final String testClass;
 	private String currentTest;
 	private CursorableTrace currentTrace;
+
 	private Map<String, Object> variableValues;
 
-	public TestRuntimeValuesDeterminer(String testClass) {
+	private TestRuntimeValuesDeterminer(String testClass) {
 		this.testClass = testClass;
-		if (instance == null) {
-			instance = this;
-		} else {
-			throw new RuntimeException("Already got an instance of TestRuntimeValuesDeterminer (existing is for test "
-					+ instance.testClass + ").");
-		}
 	}
 
 	public void determineRuntimeValues() {
-		Class<?> testClass = instrumentTest();
-		// testClass.getConstructors().length
-		boolean enabled = ExecutionTracer.isEnabled();
-		ExecutionTracer.disable();
-		JUnitCore jUnitCore = new JUnitCore();
-		jUnitCore.addListener(this);
-		Result result = jUnitCore.run(testClass);
-		currentTest = null;
-		logger.info("Ran {} tests to determine runtime values.", result.getRunCount());
-		for (Failure failure : result.getFailures()) {
-			if (failure.getDescription().getDisplayName().startsWith("initializationError")) {
-				failure.getException().printStackTrace();
-				throw new RuntimeException(failure.getException());
+		synchronized (lock) {
+			Class<?> testClass = instrumentTest();
+			// testClass.getConstructors().length
+			boolean enabled = ExecutionTracer.isEnabled();
+			ExecutionTracer.disable();
+			JUnitCore jUnitCore = new JUnitCore();
+			jUnitCore.addListener(this);
+			Result result = jUnitCore.run(testClass);
+			currentTest = null;
+			logger.info("Ran {} tests to determine runtime values.", result.getRunCount());
+			for (Failure failure : result.getFailures()) {
+				if (failure.getDescription().getDisplayName().startsWith("initializationError")) {
+					failure.getException().printStackTrace();
+					throw new RuntimeException(failure.getException());
+				}
 			}
-		}
-		if (enabled) {
-			ExecutionTracer.enable();
+			if (enabled) {
+				ExecutionTracer.enable();
+			}
 		}
 	}
 
