@@ -106,6 +106,11 @@ public class BytecodeInstrumentation {
 	}
 
 	public byte[] transformBytes(String className, ClassReader reader) {
+		int readFlags = ClassReader.SKIP_FRAMES;
+		
+		if (Properties.INSTRUMENTATION_SKIP_DEBUG)
+			readFlags |= ClassReader.SKIP_DEBUG;
+
 		String classNameWithDots = className.replace('/', '.');
 		TransformationStatistics.reset();
 
@@ -164,13 +169,13 @@ public class BytecodeInstrumentation {
 		if (Properties.REPLACE_CALLS) {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
-
+		
 		// Testability Transformations
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
 		        || shouldTransform(classNameWithDots)) {
 			ClassNode cn = new AnnotatedClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cn, readFlags);
 			logger.info("Starting transformation of " + className);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			if (isTargetClassName(classNameWithDots)
@@ -214,7 +219,7 @@ public class BytecodeInstrumentation {
 			cn.accept(cv);
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cv, readFlags);
 		}
 
 		// Print out bytecode if debug is enabled
