@@ -64,7 +64,15 @@ public class Scope {
 				System.out.println("Trying to access object of class " + o.getClass()
 				        + " as array: " + o);
 			else if (o != null) {
-				arrayRef.setArrayLength(Array.getLength(o));
+				Object value = o;
+				List<Integer> lengths = new ArrayList<Integer>();
+				int idx = 0;
+				while ((value != null) && value.getClass().isArray()) {
+					lengths.set(idx, Array.getLength(value));
+					value = Array.get(value, 0);
+					idx++;
+				}
+				arrayRef.setLengths(lengths);
 			} else
 				arrayRef.setArrayLength(0);
 		}

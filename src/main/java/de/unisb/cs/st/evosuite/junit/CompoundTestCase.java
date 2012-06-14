@@ -281,6 +281,10 @@ public class CompoundTestCase {
 		return className;
 	}
 
+	public Object getCurrentMethod() {
+		return currentMethod.getName();
+	}
+
 	public TestScope getCurrentScope() {
 		return currentScope;
 	}

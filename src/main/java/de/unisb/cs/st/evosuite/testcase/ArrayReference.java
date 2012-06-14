@@ -1,5 +1,7 @@
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.List;
+
 public class ArrayReference extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = 3309591356542131910L;
@@ -67,5 +69,14 @@ public class ArrayReference extends VariableReferenceImpl {
 
 	public int getArrayDimensions() {
 		return lengths.length;
+	}
+
+	public void setLengths(List<Integer> lengths) {
+		this.lengths = new int[lengths.size()];
+		int idx = 0;
+		for (Integer length : lengths) {
+			this.lengths[idx] = length;
+			idx++;
+		}
 	}
 }

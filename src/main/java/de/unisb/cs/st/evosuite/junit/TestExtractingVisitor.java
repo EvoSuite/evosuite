@@ -1,5 +1,6 @@
 package de.unisb.cs.st.evosuite.junit;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -129,10 +130,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	private static class ValidArrayReference extends ArrayReference {
-
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = 1L;
 
 		public ValidArrayReference(DelegatingTestCase testCase, GenericClass clazz, int[] lengths) {
@@ -239,6 +236,18 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private Stack<VariableReference> nestedCallResults = new Stack<VariableReference>();
 	private final Map<String, String> imports = new HashMap<String, String>();
 	private final TestRuntimeValuesDeterminer testValuesDeterminer;
+	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
+
+	private boolean exceptionReadingMethod = false;
+	private CursorableTrace cursorableTrace;
+
+	// TODO Remove the following two:
+	private final Stack<Integer> iterations = new Stack<Integer>();
+	private final Stack<Integer> loopExecCnts = new Stack<Integer>();
+
+	// TODO This is bad practice: here we rely on a global variable
+	// for something that should be parameters to the methods!
+	private Integer lineNumber = null;
 
 	private static final HashSet<Class<?>> PRIMITIVE_CLASSES = new HashSet<Class<?>>();
 
@@ -281,18 +290,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		PRIMITIVE_TYPECODE_MAPPING.put("void", Void.TYPE);
 		PRIMITIVE_TYPECODE_MAPPING.put("boolean", Boolean.TYPE);
 	}
-
-	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
-
-	private boolean exceptionReadingMethod = false;
-
-	// TODO This is bad practice: here we rely on a global variable
-	// for something that should be parameters to the methods!
-	private Integer lineNumber = null;
-
-	private Stack<Integer> iterations = new Stack<Integer>();
-	private Stack<Integer> loopExecCnts = new Stack<Integer>();
-	private CursorableTrace cursorableTrace;
 
 	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod, TestReader testReader) {
 		super();
@@ -351,6 +348,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public void endVisit(MethodDeclaration node) {
+		logger.debug("Finished extracting method {}. It caused {} exception.", testCase.getCurrentMethod(),
+				exceptionReadingMethod ? "an" : "no");
 		if (exceptionReadingMethod) {
 			testCase.discardMethod();
 			return;
@@ -586,9 +585,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public boolean visit(MethodDeclaration methodDeclaration) {
-		String methodName = methodDeclaration.getName().getIdentifier();
-		testCase.newMethod(methodName);
-		if ((unqualifiedTestMethod == null) || !unqualifiedTestMethod.equals(methodName)) {
+		String currentMethodName = methodDeclaration.getName().getIdentifier();
+		logger.debug("Extracting method {}.", currentMethodName);
+		testCase.newMethod(currentMethodName);
+		if ((unqualifiedTestMethod == null) || !unqualifiedTestMethod.equals(currentMethodName)) {
 			if (methodDeclaration.getName().getIdentifier().equals(unqualifiedTest)) {
 				testCase.setCurrentScope(TestScope.CONSTRUCTOR);
 			}
@@ -599,7 +599,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				testCase.setCurrentScope(TestScope.AFTER);
 			}
 		}
-		cursorableTrace = testValuesDeterminer.getMethodTrace(methodName);
+		cursorableTrace = testValuesDeterminer.getMethodTrace(currentMethodName);
 		return saveMethodCodeExtraction(methodDeclaration);
 	}
 
@@ -1054,32 +1054,16 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		throw new RuntimeException("Method getArrayIndex not implemented for index expression type " + index + "!");
 	}
 
-	private int getCurrentIteration() {
-		int iteration = iterations.isEmpty() ? 0 : iterations.peek();
-		return iteration;
-	}
-
 	private int[] getLengths(VariableDeclarationStatement variableDeclStmt, List<VariableReference> lengthsVarRefs) {
 		int[] lengths = new int[lengthsVarRefs.size()];
 		String variable = retrieveVariableName(variableDeclStmt);
 		int lineNumber = testReader.getLineNumber(variableDeclStmt.getStartPosition());
-		int iteration = getCurrentIteration();
-		Object value = testValuesDeterminer.getValue(unqualifiedTestMethod, variable, lineNumber, iteration);
+		Object value = cursorableTrace.getVariableValueAfter(lineNumber, variable);
 		int idx = 0;
 		while ((value != null) && value.getClass().isArray()) {
-			if (value instanceof Object[]) {
-				lengths[idx] = ((Object[]) value).length;
-				value = ((Object[]) value)[idx];
-				idx++;
-				continue;
-			}
-			if (value instanceof int[]) {
-				lengths[idx] = ((int[]) value).length;
-				value = ((int[]) value)[idx];
-				idx++;
-				continue;
-			}
-			throw new RuntimeException("Array type " + value.getClass() + " not implemented!");
+			lengths[idx] = Array.getLength(value);
+			value = Array.get(value, 0);
+			idx++;
 		}
 		if (idx == lengths.length) {
 			return lengths;
