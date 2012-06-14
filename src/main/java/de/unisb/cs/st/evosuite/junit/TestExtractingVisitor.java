@@ -297,8 +297,28 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		this.testReader = testReader;
 		this.unqualifiedTest = testClass.substring(testClass.lastIndexOf(".") + 1, testClass.length());
 		this.unqualifiedTestMethod = testMethod;
-		this.testValuesDeterminer = new TestRuntimeValuesDeterminer(testClass);
+		this.testValuesDeterminer = TestRuntimeValuesDeterminer.getInstance(testClass);
 		testValuesDeterminer.determineRuntimeValues();
+	}
+
+	@Override
+	public void endVisit(Assignment assignment) {
+		if ((assignment.getRightHandSide() instanceof MethodInvocation)
+				|| (assignment.getRightHandSide() instanceof ClassInstanceCreation)) {
+			// treated in respective endVisit methods
+			return;
+		}
+		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide(), null);
+		varRef.setOriginalCode(assignment.getLeftHandSide().toString());
+		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
+		newAssignment.setOriginalCode(assignment.getRightHandSide().toString());
+		if (varRef instanceof ArrayIndex) {
+			AssignmentStatement assignmentStatement = new AssignmentStatement(testCase.getReference(), varRef,
+					newAssignment);
+			testCase.addStatement(assignmentStatement);
+			return;
+		}
+		testCase.variableAssignment(varRef, newAssignment);
 	}
 
 	@Override
@@ -461,27 +481,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	@Override
 	public boolean visit(ArrayCreation arrayCreation) {
-		return true;
-	}
-
-	@Override
-	public boolean visit(Assignment assignment) {
-		if ((assignment.getRightHandSide() instanceof MethodInvocation)
-				|| (assignment.getRightHandSide() instanceof ClassInstanceCreation)) {
-			// treated in respective endVisit methods
-			return true;
-		}
-		VariableReference varRef = retrieveVariableReference(assignment.getLeftHandSide(), null);
-		varRef.setOriginalCode(assignment.getLeftHandSide().toString());
-		VariableReference newAssignment = retrieveVariableReference(assignment.getRightHandSide(), null);
-		newAssignment.setOriginalCode(assignment.getRightHandSide().toString());
-		if (varRef instanceof ArrayIndex) {
-			AssignmentStatement assignmentStatement = new AssignmentStatement(testCase.getReference(), varRef,
-					newAssignment);
-			testCase.addStatement(assignmentStatement);
-			return true;
-		}
-		testCase.variableAssignment(varRef, newAssignment);
 		return true;
 	}
 
