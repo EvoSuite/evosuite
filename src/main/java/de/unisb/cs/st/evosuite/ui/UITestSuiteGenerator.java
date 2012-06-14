@@ -64,49 +64,6 @@ public class UITestSuiteGenerator {
 			}
 		}
 	}
-	
-	static {
-		Thread thread = new Thread(new Runnable() {	
-			private int coverageIdx = 1;
-
-			@Override
-			public void run() {
-				long delay = Properties.UI_BACKGROUND_COVERAGE_DELAY;
-				
-				if (delay < 0)
-					return;
-
-				long currentTime = System.currentTimeMillis();
-				long nextTime = currentTime + delay;
-				
-				while (true) {
-					currentTime = System.currentTimeMillis();
-
-					if (currentTime >= nextTime) {
-						try {
-							Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
-							Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
-							String filename = String.format("coverage-%d.ec", coverageIdx);
-							m.invoke(null, new File(filename), false, false);
-							nextTime = System.currentTimeMillis() + delay;
-							coverageIdx++;
-						} catch (Throwable t) {
-							t.printStackTrace();
-						}
-					} else {
-						try {
-							Thread.sleep(nextTime - currentTime);
-						} catch (InterruptedException e) {
-							/* OK */
-						}
-					}
-				}
-			}
-		}, "Coverage writer thread");
-
-		thread.setDaemon(true);
-		thread.start();
-	}
 
 	public static void main(String[] args) {
 		try {
@@ -126,6 +83,15 @@ public class UITestSuiteGenerator {
 			// with multiple event loops from loading classes
 			UISpec4J.init();
 
+			try {
+				Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
+				Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
+				String filename = String.format("coverage-%d.ec", 0);
+				m.invoke(null, new File(filename), false, false);
+			} catch (Throwable t) {
+				t.printStackTrace();
+			}
+			
 			writeCoverage();
 
 			Properties.MAX_SIZE = 1000;
@@ -247,7 +213,7 @@ public class UITestSuiteGenerator {
 		final SimpleCondition cond = new SimpleCondition();
 
 		try {
-			UIRunner.run(this.stateGraph, new RandomWalkUIController(50) {
+			UIRunner.run(this.stateGraph, new RandomWalkUIController(0) {
 				@Override
 				public void finished(UIRunner uiRunner) {
 					super.finished(uiRunner);
@@ -304,6 +270,49 @@ public class UITestSuiteGenerator {
 			SelectionFunction selectionFunction = TestSuiteGenerator.getSelectionFunction();
 			selectionFunction.setMaximize(false);
 			ga.setSelectionFunction(selectionFunction);
+
+			Thread thread = new Thread(new Runnable() {	
+				private int coverageIdx = 1;
+				private long delay = Properties.UI_BACKGROUND_COVERAGE_DELAY;
+				
+				@Override
+				public void run() {				
+					if (delay < 0)
+						return;
+
+					long currentTime = System.currentTimeMillis();
+					long nextTime = currentTime;
+					
+					while (true) {
+						currentTime = System.currentTimeMillis();
+
+						if (currentTime >= nextTime) {
+							try {
+								Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
+								Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
+								String filename = String.format("coverage-%d.ec", coverageIdx);
+								m.invoke(null, new File(filename), false, false);
+								nextTime = System.currentTimeMillis() + delay;
+								
+								delay *= 1.1;
+								
+								coverageIdx++;
+							} catch (Throwable t) {
+								t.printStackTrace();
+							}
+						} else {
+							try {
+								Thread.sleep(nextTime - currentTime);
+							} catch (InterruptedException e) {
+								/* OK */
+							}
+						}
+					}
+				}
+			}, "Coverage writer thread");
+
+			thread.setDaemon(true);
+			thread.start();
 
 			ga.generateSolution();
 

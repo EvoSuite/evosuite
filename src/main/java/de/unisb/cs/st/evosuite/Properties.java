@@ -103,6 +103,9 @@ public class Properties {
 	@Parameter(key = "test_includes", group = "Test Creation", description = "File containing methods that should be included in testing")
 	public static String TEST_INCLUDES = "test.includes";
 
+	@Parameter(key = "evosuite_use_uispec", group = "Test Creation", description = "If set to true EvoSuite test generation inits UISpec in order to avoid display of UI")
+	public static boolean EVOSUITE_USE_UISPEC = false; 
+	
 	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights (?)")
 	public static boolean MAKE_ACCESSIBLE = true;
 

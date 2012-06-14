@@ -110,7 +110,7 @@ public class UITestChromosome extends ExecutableChromosome {
 
 			for (int i = 0; i < this.actionSequence.size(); i++) {
 				if (Randomness.nextDouble() <= p) {
-					changed = this.actionSequence.changeUnsafe(i);
+					changed |= this.actionSequence.changeUnsafe(i);
 				}
 			}
 		}
@@ -209,8 +209,7 @@ public class UITestChromosome extends ExecutableChromosome {
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		InterfaceTestRunnable callable = new ChromosomeUIController(this);
 
-		executedChromosomes.add(this);
-		executedChromosomeList.add(this);
+		addToExecutedChromosomes(this);
 
 		try {
 			ExecutionResult result = handler.execute(callable, executor,
@@ -218,12 +217,34 @@ public class UITestChromosome extends ExecutableChromosome {
 			                                         Properties.CPU_TIMEOUT);
 			return result;
 		} catch (Exception e) {
-			failingChromosomes.add(this);
-			failingChromosomeList.add(this);
+			addToFailingChromosomes(this);
 			System.out.println("Exception on executing test chromosome for fitness function:");
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	private static UITestChromosome distill(UITestChromosome chromosome) {
+		UITestChromosome result = (UITestChromosome) chromosome.clone();
+		
+		result.lastExecutionResult = null;
+		result.lastMutationResult = null;
+		
+		return result;
+	}
+
+	static void addToFailingChromosomes(UITestChromosome chromosome) {
+		UITestChromosome distilled = distill(chromosome);
+		
+		failingChromosomes.add(distilled);
+		failingChromosomeList.add(distilled);
+	}
+
+	static void addToExecutedChromosomes(UITestChromosome chromosome) {
+		UITestChromosome distilled = distill(chromosome);
+
+		executedChromosomes.add(distilled);
+		executedChromosomeList.add(distilled);
 	}
 
 	public ActionSequence getActionSequence() {

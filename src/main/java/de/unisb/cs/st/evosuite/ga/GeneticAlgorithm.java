@@ -388,10 +388,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @return
 	 */
 	protected List<Chromosome> elitism() {
-		logger.debug("Elitism");
+		logger.debug("Elitism with ELITE = " + Properties.ELITE);
 
 		List<Chromosome> elite = new ArrayList<Chromosome>();
-
+		
 		for (int i = 0; i < Properties.ELITE; i++) {
 			logger.trace("Copying individual " + i + " with fitness "
 			        + population.get(i).getFitness());

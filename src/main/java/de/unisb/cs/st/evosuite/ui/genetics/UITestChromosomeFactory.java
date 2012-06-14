@@ -47,9 +47,8 @@ public class UITestChromosomeFactory implements ChromosomeFactory<UITestChromoso
 			result.setLastExecutionResult(controller.getExecutionResult());
 			result.setChanged(false);
 			
-			UITestChromosome.executedChromosomes.add(result);
-			UITestChromosome.executedChromosomeList.add(result);
-			
+			UITestChromosome.addToExecutedChromosomes(result);
+
 			return result;
 		} catch (Throwable t) {
 			t.printStackTrace();
