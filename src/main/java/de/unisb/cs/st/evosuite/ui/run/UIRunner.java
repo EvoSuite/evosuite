@@ -19,6 +19,7 @@ import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
 import de.unisb.cs.st.evosuite.ui.model.states.UIState;
 import de.unisb.cs.st.evosuite.ui.model.states.UIStateGraph;
 import de.unisb.cs.st.evosuite.utils.SimpleCondition;
+import de.unisb.cs.st.evosuite.utils.Utils;
 
 public class UIRunner implements InterceptionHandler {
 	private static final int MAX_ACTION_COUNT = 1000;
@@ -101,10 +102,8 @@ public class UIRunner implements InterceptionHandler {
 			while (retryCount > 0) {
 				System.out.println("Waiting for window to turn visible...");
 
-				try {
-					Thread.sleep(1000);
-					retryCount--;
-				} catch (InterruptedException e) { /* OK */ }
+				Utils.sleepFor(1000);
+				retryCount--;
 			}
 		
 			if (!window.isVisible().isTrue()) {
