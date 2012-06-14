@@ -79,7 +79,10 @@ public class InstrumentingClassLoader extends ClassLoader {
 		//packages that should not be instrumented
 		return new String[] { "java.", "javax.", "sun.", "de.unisb.cs.st.evosuite",
 		        "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-		        "testing.generation.evosuite" };
+		        "testing.generation.evosuite",
+		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
+		        "apple.", "com.apple."
+		};
 	}
 
 	@Override
