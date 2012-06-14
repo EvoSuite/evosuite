@@ -1,7 +1,9 @@
 package de.unisb.cs.st.evosuite.junit;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -96,6 +98,11 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		@Override
 		public String toString() {
 			return "CursorableTrace[" + idx + "=" + trace.get(idx) + " from " + trace.size() + "]";
+		}
+
+		protected void updateLastLineValues(String variable, Object value) {
+			ExecutedLine executedLine = trace.get(trace.size() - 1);
+			executedLine.getVariableValues().put(variable, value);
 		}
 	}
 
@@ -262,6 +269,17 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			methodNode.accept(next);
 		}
 
+		private int getIndex(AbstractInsnNode insnNode) {
+			try {
+				Field indexField = AbstractInsnNode.class.getDeclaredField("index");
+				indexField.setAccessible(true);
+				Object indexValue = indexField.get(insnNode);
+				return ((Integer) indexValue).intValue();
+			} catch (Exception exc) {
+				throw new RuntimeException(exc);
+			}
+		}
+
 		private InsnList getInstrumentation(AbstractInsnNode insnNode) {
 			switch (insnNode.getOpcode()) {
 			case Opcodes.ISTORE:
@@ -325,6 +343,23 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			return instrumentation;
 		}
 
+		private LocalVariableNode getLocalVariableNode(int varIdx, AbstractInsnNode insnNode, MethodNode methodNode) {
+			int index = getIndex(insnNode);
+			List<?> localVariables = methodNode.localVariables;
+			for (int idx = varIdx; idx < localVariables.size(); idx++) {
+				LocalVariableNode localVariableNode = (LocalVariableNode) localVariables.get(idx);
+				if (localVariableNode.index == varIdx) {
+					int scopeEndIndex = getIndex(localVariableNode.end);
+					if (scopeEndIndex >= index) {
+						// still valid for current line
+						return localVariableNode;
+					}
+				}
+			}
+			throw new RuntimeException("Variable with index " + varIdx + " and end >= " + currentLine
+					+ " not found for method " + ((MethodNode) mv).name + "!");
+		}
+
 		private InsnList localVarValue(AbstractInsnNode insnNode, int opositeOpcode, String param) {
 			int varIdx = -1;
 			if (insnNode instanceof VarInsnNode) {
@@ -339,7 +374,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			if (methodNode.localVariables.size() <= varIdx) {
 				throw new RuntimeException("varInsnNode is pointing outside of local variables!");
 			}
-			LocalVariableNode localVariableNode = (LocalVariableNode) methodNode.localVariables.get(varIdx);
+			LocalVariableNode localVariableNode = getLocalVariableNode(varIdx, insnNode, methodNode);
 			instrumentation.add(new VarInsnNode(opositeOpcode, varIdx));
 			instrumentation.add(new LdcInsnNode(localVariableNode.name));
 			instrumentation.add(new LdcInsnNode(currentLine));
@@ -354,7 +389,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	private static class TransformingClassLoader extends ClassLoader {
 
 		private final String testClass;
-		
+
 		public TransformingClassLoader(String testClass) {
 			assert testClass != null;
 			this.testClass = testClass;
@@ -362,7 +397,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 
 		@Override
 		public Class<?> loadClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
-			if (!testClass.equals(fullyQualifiedTargetClass)){
+			if (!testClass.equals(fullyQualifiedTargetClass)) {
 				return super.loadClass(fullyQualifiedTargetClass);
 			}
 			String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -383,19 +418,6 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			byte[] byteBuffer = writer.toByteArray();
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0, byteBuffer.length);
 			return result;
-		}
-
-		private boolean isSystemClass(String className) {
-			if (className.startsWith("java.")) {
-				return true;
-			}
-			if (className.startsWith("sun.")) {
-				return true;
-			}
-			if (className.startsWith("org.junit.") || className.startsWith("junit.framework")) {
-				return true;
-			}
-			return false;
 		}
 	}
 
@@ -483,38 +505,6 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		return methodTraces.get(method);
 	}
 
-	public Object getValue(String method, String variable, Integer line, Integer iteration) {
-		// TODO This method does not work:
-		// we cannot keep track of when to use which value
-		// in inner loops with conditional code
-		// better: keep a list of current values of the variables
-		// for each line add that list
-		// create a trace class, that traverses this list
-		// and internally keeps a 'cursor'
-		Map<String, List<RuntimeValue>> variableValues = methodVariables.get(method);
-		List<RuntimeValue> values = variableValues.get(variable);
-		int iterCnt = 0;
-		RuntimeValue lastValue = null;
-		for (RuntimeValue runtimeValue : values) {
-			if ((lastValue != null) && (lastValue.getLineNumber() >= runtimeValue.getLineNumber())) {
-				iterCnt++;
-			}
-			if (iterCnt > iteration) {
-				return lastValue.getValue();
-			}
-			if (iteration == iterCnt) {
-				if (runtimeValue.getLineNumber() == line) {
-					return runtimeValue.getValue();
-				}
-				if (runtimeValue.getLineNumber() > line) {
-					return lastValue;
-				}
-			}
-			lastValue = runtimeValue;
-		}
-		throw new RuntimeException("Line was not executed that often!");
-	}
-
 	@Override
 	public void testStarted(Description description) throws Exception {
 		if (!description.getClassName().equals(testClass)) {
@@ -562,5 +552,6 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		}
 		values.add(new RuntimeValue(lineNumber, newValue));
 		this.variableValues.put(localVar, newValue);
+		currentTrace.updateLastLineValues(localVar, newValue);
 	}
 }

@@ -1,6 +1,5 @@
 package de.unisb.cs.st.evosuite.junit;
 
-import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
 import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
 import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
@@ -588,23 +587,26 @@ public class LoggingVisitor extends ASTVisitor {
 		super.endVisit(node);
 	}
 
-//	@Override
-//	public void postVisit(ASTNode node) {
-//		logger.warn("Method postVisitASTNode for " + node + " for " + node + " not implemented!");
-//		super.postVisit(node);
-//	}
-//
-//	@Override
-//	public void preVisit(ASTNode node) {
-//		logger.warn("Method preVisitASTNode for " + node + " for " + node + " not implemented!");
-//		super.preVisit(node);
-//	}
-//
-//	@Override
-//	public boolean preVisit2(ASTNode node) {
-//		logger.warn("Method preVisit2ASTNode for " + node + " for " + node + " not implemented!");
-//		return super.preVisit2(node);
-//	}
+	// @Override
+	// public void postVisit(ASTNode node) {
+	// logger.warn("Method postVisitASTNode for " + node + " for " + node +
+	// " not implemented!");
+	// super.postVisit(node);
+	// }
+	//
+	// @Override
+	// public void preVisit(ASTNode node) {
+	// logger.warn("Method preVisitASTNode for " + node + " for " + node +
+	// " not implemented!");
+	// super.preVisit(node);
+	// }
+	//
+	// @Override
+	// public boolean preVisit2(ASTNode node) {
+	// logger.warn("Method preVisit2ASTNode for " + node + " for " + node +
+	// " not implemented!");
+	// return super.preVisit2(node);
+	// }
 
 	@Override
 	public boolean visit(AnnotationTypeDeclaration node) {
