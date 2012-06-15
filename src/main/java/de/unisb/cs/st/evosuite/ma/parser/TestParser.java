@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -128,7 +129,7 @@ public class TestParser {
 	private TypeTable tt;
 
 	private final UserFeedback editor;
-	
+
 	private TestCase newTestCase;
 
 	private TestCase setupSequence = new DefaultTestCase();
@@ -145,6 +146,10 @@ public class TestParser {
 
 	public TestParser(UserFeedback editor) {
 		this.editor = editor;
+	}
+
+	public TestParser() {
+		this.editor = null;
 	}
 
 	/**
@@ -206,6 +211,40 @@ public class TestParser {
 	}
 
 	/**
+	 * Parse a Java source file and convert a named method to a test
+	 * 
+	 * @param fileName
+	 * @param testName
+	 * @return
+	 */
+	public TestCase parseFile(String fileName, String testName) throws IOException {
+
+		TestCase test = null;
+
+		CompilationUnit cu = null;
+		tt = new TypeTable();
+
+		logger.debug("Parsing file " + fileName);
+		InputStream inputStream = new FileInputStream(new File(fileName));
+
+		try {
+			cu = JavaParser.parse(inputStream);
+			parseImports(cu);
+			parseFields(cu);
+			parseSetUpMethods(cu);
+			test = getTest(cu, testName);
+		} catch (ParseException e) {
+			logger.debug("Error parsing file " + fileName + ": " + e);
+		} catch (Throwable e) {
+			logger.debug("*** Error parsing file " + fileName + ": " + e);
+			e.printStackTrace();
+		} finally {
+			inputStream.close();
+		}
+		return test;
+	}
+
+	/**
 	 * Parse setup and static constructor
 	 * 
 	 * @param cu
@@ -225,12 +264,11 @@ public class TestParser {
 								setupSequence = test;
 								setupTypes = tt.clone();
 							} else {
-								logger.debug("Parsed test is empty: "
-										+ test.toCode());
+								logger.debug("Parsed test is empty: " + test.toCode());
 							}
 						} catch (ParseException e) {
-							logger.debug("Error parsing method "
-									+ method.getName() + ": " + e);
+							logger.debug("Error parsing method " + method.getName()
+							        + ": " + e);
 
 						}
 					}
@@ -263,12 +301,11 @@ public class TestParser {
 							logger.debug("*** Parsed test: " + test.toCode());
 							tests.add(test);
 						} else {
-							logger.debug("*** Parsed test is empty: "
-									+ test.toCode());
+							logger.debug("*** Parsed test is empty: " + test.toCode());
 						}
 					} catch (ParseException e) {
-						logger.debug("*** Error parsing test "
-								+ method.getName() + ": " + e);
+						logger.debug("*** Error parsing test " + method.getName() + ": "
+						        + e);
 
 					}
 				}
@@ -276,6 +313,37 @@ public class TestParser {
 		}
 
 		return tests;
+	}
+
+	private TestCase getTest(CompilationUnit cu, String methodName) {
+		List<TypeDeclaration> types = cu.getTypes();
+		for (TypeDeclaration type : types) {
+			List<BodyDeclaration> members = type.getMembers();
+			for (BodyDeclaration member : members) {
+				if (member instanceof MethodDeclaration) {
+					MethodDeclaration method = (MethodDeclaration) member;
+					if (method.getName().equals("setUp"))
+						continue;
+					if (!method.getName().equals(methodName))
+						continue;
+
+					try {
+						TestCase test = parseTestMethod(method);
+						if (!test.isEmpty()) {
+							logger.debug("*** Parsed test: " + test.toCode());
+							return test;
+						} else {
+							logger.debug("*** Parsed test is empty: " + test.toCode());
+						}
+					} catch (ParseException e) {
+						logger.debug("*** Error parsing test " + method.getName() + ": "
+						        + e);
+
+					}
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -293,10 +361,9 @@ public class TestParser {
 			if (imp.isAsterisk()) {
 				// Load all classes in this package
 				Pattern pattern = Pattern.compile(className.replace(".", "/")
-						+ "/.*.class");
+				        + "/.*.class");
 				for (String resource : ResourceList.getBootResources(pattern)) {
-					imports.add(resource.replace(".class", "")
-							.replace("/", "."));
+					imports.add(resource.replace(".class", "").replace("/", "."));
 				}
 			} else {
 				imports.add(className);
@@ -355,8 +422,7 @@ public class TestParser {
 	 * @param expr
 	 * @throws ParseException
 	 */
-	private VariableReference parseExpression(Expression expr)
-			throws ParseException {
+	private VariableReference parseExpression(Expression expr) throws ParseException {
 		logger.debug("Parsing expression " + expr);
 		if (expr instanceof VariableDeclarationExpr) {
 			VariableDeclarationExpr varDeclExpr = (VariableDeclarationExpr) expr;
@@ -367,17 +433,15 @@ public class TestParser {
 			VariableReference retVar = newSttm.getReturnValue();
 
 			if (varDeclExpr.getVars().get(0).getInit() instanceof ArrayCreationExpr) {
-				ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) varDeclExpr
-						.getVars().get(0).getInit();
+				ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) varDeclExpr.getVars().get(0).getInit();
 				if (arrayCreationExpr.getInitializer() != null
-						&& arrayCreationExpr.getInitializer().getValues() != null) {
+				        && arrayCreationExpr.getInitializer().getValues() != null) {
 					int num = 0;
-					for (Expression valueExpr : arrayCreationExpr
-							.getInitializer().getValues()) {
+					for (Expression valueExpr : arrayCreationExpr.getInitializer().getValues()) {
 						VariableReference value = parseExpression(valueExpr);
 						AssignmentStatement assignment = new AssignmentStatement(
-								newTestCase, new ArrayIndex(newTestCase,
-										(ArrayReference) retVar, num), value);
+						        newTestCase, new ArrayIndex(newTestCase,
+						                (ArrayReference) retVar, num), value);
 						newTestCase.addStatement(assignment);
 						num++;
 					}
@@ -407,8 +471,8 @@ public class TestParser {
 				}
 				return var;
 			} else if (methodCallExpr.getScope() != null
-					&& !methodCallExpr.getScope().toString().equals("this")
-					&& !methodCallExpr.getScope().toString().equals("super")) {
+			        && !methodCallExpr.getScope().toString().equals("this")
+			        && !methodCallExpr.getScope().toString().equals("super")) {
 				AbstractStatement newSttm = createMethodSttm(methodCallExpr);
 				newTestCase.addStatement(newSttm);
 				logger.debug(newSttm.getCode());
@@ -424,16 +488,15 @@ public class TestParser {
 			return parseExpression(((CastExpr) expr).getExpr());
 		} else if (expr instanceof ObjectCreationExpr) {
 			ObjectCreationExpr oexpr = (ObjectCreationExpr) expr;
-			AbstractStatement newSttm = createReferenceType(oexpr,
-					oexpr.getType());
+			AbstractStatement newSttm = createReferenceType(oexpr, oexpr.getType());
 			newTestCase.addStatement(newSttm);
 			return newSttm.getReturnValue();
 		} else if (expr instanceof ArrayInitializerExpr) {
 			// TODO:
 			logger.debug("Array: " + expr);
 		}
-		throw new ParseException(null, "Unknown expression of type "
-				+ expr.getClass() + ": " + expr);
+		throw new ParseException(null, "Unknown expression of type " + expr.getClass()
+		        + ": " + expr);
 	}
 
 	/**
@@ -443,8 +506,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private TestCase parseTestMethod(MethodDeclaration method)
-			throws ParseException {
+	private TestCase parseTestMethod(MethodDeclaration method) throws ParseException {
 		newTestCase = setupSequence.clone();
 		tt = setupTypes.clone();
 		logger.debug("Parsing method " + method.getName());
@@ -455,17 +517,14 @@ public class TestParser {
 		if (method.getParameters() != null) {
 			for (Parameter param : method.getParameters()) {
 				try {
-					DefaultTestFactory factory = DefaultTestFactory
-							.getInstance();
-					VariableReference varRef = factory.attemptGeneration(
-							newTestCase, typeToClass(param.getType()),
-							newTestCase.size());
-					Var var = new Var(param.getId().getName(), param.getType(),
-							varRef);
+					DefaultTestFactory factory = DefaultTestFactory.getInstance();
+					VariableReference varRef = factory.attemptGeneration(newTestCase,
+					                                                     typeToClass(param.getType()),
+					                                                     newTestCase.size());
+					Var var = new Var(param.getId().getName(), param.getType(), varRef);
 					tt.addVar(var);
 				} catch (ConstructionFailedException e) {
-					throw new ParseException(null,
-							"Could not instantiate parameter type");
+					throw new ParseException(null, "Could not instantiate parameter type");
 				}
 			}
 		}
@@ -507,8 +566,8 @@ public class TestParser {
 			for (Statement s : bstmt.getStmts())
 				parseStatement(s);
 		} else {
-			logger.debug("Found statement that is not an expression: "
-					+ statement + ", " + statement.getClass().getName());
+			logger.debug("Found statement that is not an expression: " + statement + ", "
+			        + statement.getClass().getName());
 		}
 	}
 
@@ -555,9 +614,8 @@ public class TestParser {
 					newTestCase.addStatement(createMethodSttm(methodCallExpr));
 				}
 			} catch (ParseException e) {
-				editor.showParseException("Error in line: "
-						+ expr.getBeginLine() + "\nMessage: " + e.getMessage()
-						+ "\nExpr: " + expr);
+				editor.showParseException("Error in line: " + expr.getBeginLine()
+				        + "\nMessage: " + e.getMessage() + "\nExpr: " + expr);
 
 				// if res == null, editor&co. stay unchanged
 				newTestCase = null;
@@ -581,7 +639,7 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private AbstractStatement createVarSttm(VariableDeclarationExpr varDeclExpr)
-			throws ParseException {
+	        throws ParseException {
 		Type parserType = varDeclExpr.getType();
 		VariableDeclarator varDecl = varDeclExpr.getVars().get(0);
 
@@ -592,8 +650,7 @@ public class TestParser {
 			logger.debug("Righthand side is a primitive");
 			return createPrimitiveStatement(varDeclExpr);
 		} else if (parserType instanceof ReferenceType) {
-			logger.debug("Righthand side is a reference type: "
-					+ varDecl.getInit());
+			logger.debug("Righthand side is a reference type: " + varDecl.getInit());
 			return createReferenceType(varDeclExpr);
 		}
 
@@ -614,7 +671,7 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private PrimitiveStatement<?> createPrimitiveStatement(
-			VariableDeclarationExpr varDeclExpr) throws ParseException {
+	        VariableDeclarationExpr varDeclExpr) throws ParseException {
 
 		PrimitiveType primType = (PrimitiveType) varDeclExpr.getType();
 		String init = varDeclExpr.getVars().get(0).getInit().toString();
@@ -627,32 +684,29 @@ public class TestParser {
 			case Char:
 				return new CharPrimitiveStatement(newTestCase, init.charAt(1));
 			case Byte:
-				return new BytePrimitiveStatement(newTestCase,
-						Byte.parseByte(init));
+				return new BytePrimitiveStatement(newTestCase, Byte.parseByte(init));
 			case Short:
-				return new ShortPrimitiveStatement(newTestCase,
-						Short.parseShort(init));
+				return new ShortPrimitiveStatement(newTestCase, Short.parseShort(init));
 			case Int:
-				return new IntPrimitiveStatement(newTestCase,
-						Integer.parseInt(init));
+				return new IntPrimitiveStatement(newTestCase, Integer.parseInt(init));
 			case Long:
 				return new LongPrimitiveStatement(newTestCase,
-						Long.parseLong(init.replace("L", "")));
+				        Long.parseLong(init.replace("L", "")));
 			case Float:
 				return new FloatPrimitiveStatement(newTestCase,
-						Float.parseFloat(init.replace("F", "")));
+				        Float.parseFloat(init.replace("F", "")));
 			case Double:
 				return new DoublePrimitiveStatement(newTestCase,
-						Double.parseDouble(init.replace("D", "")));
+				        Double.parseDouble(init.replace("D", "")));
 			case Boolean:
 				return new BooleanPrimitiveStatement(newTestCase,
-						Boolean.parseBoolean(init));
+				        Boolean.parseBoolean(init));
 			default:
 				throw new ParseException(null, "Can't obtain primitive type.");
 			}
 		} catch (NumberFormatException e) {
 			throw new ParseException(null,
-					"Primitive is assigned a variable, not implemented yet.");
+			        "Primitive is assigned a variable, not implemented yet.");
 		}
 	}
 
@@ -664,38 +718,35 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private AbstractStatement createPrimitiveStatement(LiteralExpr expr)
-			throws ParseException {
+	        throws ParseException {
 		String init = getValue(expr);
 		Class<?> valueClass = literalExprToClass(expr);
 		if (valueClass == null || init.equals("null"))
-			return new NullStatement(newTestCase,
-					valueClass == null ? Object.class : valueClass);
+			return new NullStatement(newTestCase, valueClass == null ? Object.class
+			        : valueClass);
 		else if (valueClass.equals(char.class))
 			return new CharPrimitiveStatement(newTestCase, init.charAt(0));
 		else if (valueClass.equals(byte.class))
 			return new BytePrimitiveStatement(newTestCase, Byte.parseByte(init));
 		else if (valueClass.equals(short.class))
-			return new ShortPrimitiveStatement(newTestCase,
-					Short.parseShort(init));
+			return new ShortPrimitiveStatement(newTestCase, Short.parseShort(init));
 		else if (valueClass.equals(int.class))
 			if (init.startsWith("0x"))
-				return new IntPrimitiveStatement(newTestCase, Integer.parseInt(
-						init.replace("0x", ""), 16));
-			else
 				return new IntPrimitiveStatement(newTestCase,
-						Integer.parseInt(init));
+				        Integer.parseInt(init.replace("0x", ""), 16));
+			else
+				return new IntPrimitiveStatement(newTestCase, Integer.parseInt(init));
 		else if (valueClass.equals(long.class))
-			return new LongPrimitiveStatement(newTestCase, Long.parseLong(init
-					.replace("L", "").replace("l", "")));
+			return new LongPrimitiveStatement(newTestCase,
+			        Long.parseLong(init.replace("L", "").replace("l", "")));
 		else if (valueClass.equals(float.class))
 			return new FloatPrimitiveStatement(newTestCase,
-					Float.parseFloat(init.replace("F", "").replace("f", "")));
+			        Float.parseFloat(init.replace("F", "").replace("f", "")));
 		else if (valueClass.equals(double.class))
 			return new DoublePrimitiveStatement(newTestCase,
-					Double.parseDouble(init.replace("D", "").replace("d", "")));
+			        Double.parseDouble(init.replace("D", "").replace("d", "")));
 		else if (valueClass.equals(boolean.class))
-			return new BooleanPrimitiveStatement(newTestCase,
-					Boolean.parseBoolean(init));
+			return new BooleanPrimitiveStatement(newTestCase, Boolean.parseBoolean(init));
 		else if (valueClass.equals(String.class)) {
 			return new StringPrimitiveStatement(newTestCase, init);
 		} else
@@ -710,36 +761,33 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private AbstractStatement createPrimitiveStatement(UnaryExpr uexpr)
-			throws ParseException {
+	        throws ParseException {
 		LiteralExpr expr = (LiteralExpr) uexpr.getExpr();
 
 		String init = "-" + getValue(expr);
 		Class<?> valueClass = literalExprToClass(expr);
 		if (valueClass == null || init.equals("null"))
-			return new NullStatement(newTestCase,
-					valueClass == null ? Object.class : valueClass);
+			return new NullStatement(newTestCase, valueClass == null ? Object.class
+			        : valueClass);
 		else if (valueClass.equals(char.class))
 			return new CharPrimitiveStatement(newTestCase, init.charAt(0));
 		else if (valueClass.equals(byte.class))
 			return new BytePrimitiveStatement(newTestCase, Byte.parseByte(init));
 		else if (valueClass.equals(short.class))
-			return new ShortPrimitiveStatement(newTestCase,
-					Short.parseShort(init));
+			return new ShortPrimitiveStatement(newTestCase, Short.parseShort(init));
 		else if (valueClass.equals(int.class))
-			return new IntPrimitiveStatement(newTestCase,
-					Integer.parseInt(init));
+			return new IntPrimitiveStatement(newTestCase, Integer.parseInt(init));
 		else if (valueClass.equals(long.class))
-			return new LongPrimitiveStatement(newTestCase, Long.parseLong(init
-					.replace("L", "")));
+			return new LongPrimitiveStatement(newTestCase,
+			        Long.parseLong(init.replace("L", "")));
 		else if (valueClass.equals(float.class))
 			return new FloatPrimitiveStatement(newTestCase,
-					Float.parseFloat(init.replace("F", "")));
+			        Float.parseFloat(init.replace("F", "")));
 		else if (valueClass.equals(double.class))
 			return new DoublePrimitiveStatement(newTestCase,
-					Double.parseDouble(init.replace("D", "")));
+			        Double.parseDouble(init.replace("D", "")));
 		else if (valueClass.equals(boolean.class))
-			return new BooleanPrimitiveStatement(newTestCase,
-					Boolean.parseBoolean(init));
+			return new BooleanPrimitiveStatement(newTestCase, Boolean.parseBoolean(init));
 		else if (valueClass.equals(String.class))
 			return new StringPrimitiveStatement(newTestCase, init);
 		else
@@ -754,16 +802,16 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private AbstractStatement createReferenceType(
-			VariableDeclarationExpr varDeclExpr) throws ParseException {
+	private AbstractStatement createReferenceType(VariableDeclarationExpr varDeclExpr)
+	        throws ParseException {
 		Expression initExpr = varDeclExpr.getVars().get(0).getInit();
 		Type parsType = varDeclExpr.getType();
 
 		return createReferenceType(initExpr, parsType);
 	}
 
-	private AbstractStatement createReferenceType(Expression initExpr,
-			Type parsType) throws ParseException {
+	private AbstractStatement createReferenceType(Expression initExpr, Type parsType)
+	        throws ParseException {
 		AbstractStatement res = null;
 
 		if (initExpr != null) {
@@ -778,22 +826,19 @@ public class TestParser {
 				List<VariableReference> params = getVarRefs(args);
 				Constructor<?> constructor = getConstructor(clazz, paramClasses);
 
-				res = new ConstructorStatement(newTestCase, constructor, clazz,
-						params);
+				res = new ConstructorStatement(newTestCase, constructor, clazz, params);
 			} else if (initExpr instanceof ArrayCreationExpr) {
 				ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) initExpr;
 
 				int arraySize = 0;
 				if (arrayCreationExpr.getDimensions() == null
-						&& arrayCreationExpr.getInitializer().getValues() != null)
-					arraySize = arrayCreationExpr.getInitializer().getValues()
-							.size();
+				        && arrayCreationExpr.getInitializer().getValues() != null)
+					arraySize = arrayCreationExpr.getInitializer().getValues().size();
 				else {
 					try {
 						if (arrayCreationExpr.getDimensions() != null
-								&& !arrayCreationExpr.getDimensions().isEmpty())
-							arraySize = Integer.parseInt(arrayCreationExpr
-									.getDimensions().get(0).toString());
+						        && !arrayCreationExpr.getDimensions().isEmpty())
+							arraySize = Integer.parseInt(arrayCreationExpr.getDimensions().get(0).toString());
 					} catch (NumberFormatException e) {
 						arraySize = 1; // TODO: Better value
 					}
@@ -803,29 +848,27 @@ public class TestParser {
 				Class<?> clazz = typeToClass(arrayCreationExpr.getType());
 				Object array = Array.newInstance(clazz, arraySize);
 
-				res = new ArrayStatement(newTestCase, array.getClass(),
-						arraySize);
+				res = new ArrayStatement(newTestCase, array.getClass(), arraySize);
 			} else if (initExpr instanceof CastExpr) {
 				CastExpr castExpr = (CastExpr) initExpr;
 				logger.debug("Cast expression: " + castExpr);
 				if (castExpr.getExpr() instanceof MethodCallExpr) {
-					logger.debug("Cast expression in method call: "
-							+ castExpr.getExpr());
+					logger.debug("Cast expression in method call: " + castExpr.getExpr());
 					res = createMethodSttm((MethodCallExpr) castExpr.getExpr());
 				} else {
 					logger.debug("Cast expression not in method call: "
-							+ castExpr.getExpr());
+					        + castExpr.getExpr());
 					return createReferenceType(castExpr.getExpr(), parsType);
 				}
 			} else if (initExpr instanceof StringLiteralExpr) {
 				res = new StringPrimitiveStatement(newTestCase,
-						((StringLiteralExpr) initExpr).getValue());
+				        ((StringLiteralExpr) initExpr).getValue());
 			} else if (initExpr instanceof NullLiteralExpr) {
 				res = new NullStatement(newTestCase, typeToClass(parsType));
 			} else if (initExpr instanceof ArrayAccessExpr) {
 				VariableReference rhs = getVarRef(initExpr);
 				VariableReference lhs = new VariableReferenceImpl(newTestCase,
-						typeToClass(parsType));
+				        typeToClass(parsType));
 				return new AssignmentStatement(newTestCase, lhs, rhs);
 			} else if (initExpr instanceof BinaryExpr) {
 				BinaryExpr bexpr = (BinaryExpr) initExpr;
@@ -843,12 +886,11 @@ public class TestParser {
 				Class<?> clazz = typeToClass(parsType).getComponentType();
 				Object array = Array.newInstance(clazz, arraySize);
 
-				res = new ArrayStatement(newTestCase, array.getClass(),
-						arraySize);
+				res = new ArrayStatement(newTestCase, array.getClass(), arraySize);
 			} else if (initExpr instanceof NameExpr) {
 				VariableReference rhs = getVarRef(initExpr);
 				VariableReference lhs = new VariableReferenceImpl(newTestCase,
-						typeToClass(parsType));
+				        typeToClass(parsType));
 				res = new AssignmentStatement(newTestCase, lhs, rhs);
 			} else if (initExpr instanceof ConditionalExpr) {
 				ConditionalExpr cexpr = (ConditionalExpr) initExpr;
@@ -860,8 +902,7 @@ public class TestParser {
 				Field field = getField(initExpr);
 				Class<?> type = field.getType();
 				VariableReference source = null;
-				source = tt.getVarReference(((FieldAccessExpr) initExpr)
-						.getScope().toString());
+				source = tt.getVarReference(((FieldAccessExpr) initExpr).getScope().toString());
 				res = new FieldStatement(newTestCase, field, source, type);
 			}
 
@@ -888,7 +929,7 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private AbstractStatement createMethodSttm(MethodCallExpr methodCallExpr)
-			throws ParseException {
+	        throws ParseException {
 		Expression scope = methodCallExpr.getScope();
 		if (scope == null)
 			throw new ParseException(null, "Scope of method call is null");
@@ -896,8 +937,8 @@ public class TestParser {
 
 		Class<?> clazz = null;
 		try {
-			ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0,
-					null, methodCallExpr.toString(), null);
+			ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0, null,
+			        methodCallExpr.toString(), null);
 			clazz = typeToClass(type);
 		} catch (ParseException e) {
 			clazz = typeToClass(getType(scope));
@@ -909,8 +950,8 @@ public class TestParser {
 		VariableReference callee = getVarRef(scope);
 		List<VariableReference> paramReferences = getVarRefs(args);
 
-		return new MethodStatement(newTestCase, method, callee,
-				method.getReturnType(), paramReferences);
+		return new MethodStatement(newTestCase, method, callee, method.getReturnType(),
+		        paramReferences);
 	}
 
 	/**
@@ -920,18 +961,16 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private AbstractStatement createAssignSttm(AssignExpr assignExpr)
-			throws ParseException {
+	        throws ParseException {
 		VariableReference tarRef = getVarRef(assignExpr.getTarget());
 		VariableReference valRef = getVarRef(assignExpr.getValue());
 		if (tarRef == null) {
-			throw new ParseException(null,
-					"Can not create or find the var reference: "
-							+ assignExpr.getTarget());
+			throw new ParseException(null, "Can not create or find the var reference: "
+			        + assignExpr.getTarget());
 		}
 		if (valRef == null) {
-			throw new ParseException(null,
-					"Can not create or find the var reference: "
-							+ assignExpr.getValue());
+			throw new ParseException(null, "Can not create or find the var reference: "
+			        + assignExpr.getValue());
 		}
 
 		return new AssignmentStatement(newTestCase, tarRef, valRef);
@@ -944,9 +983,9 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private void addNewVarToTT(VariableDeclarationExpr varDeclExpr,
-			AbstractStatement newStatement) throws ParseException {
+	        AbstractStatement newStatement) throws ParseException {
 		tt.addVar(new Var(varDeclExpr.getVars().get(0).getId().getName(),
-				varDeclExpr.getType(), newStatement.getReturnValue()));
+		        varDeclExpr.getType(), newStatement.getReturnValue()));
 	}
 
 	/**
@@ -957,7 +996,7 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private List<VariableReference> getVarRefs(List<Expression> args)
-			throws ParseException {
+	        throws ParseException {
 		List<VariableReference> res = new ArrayList<VariableReference>();
 		if (args != null) {
 			for (Expression expr : args) {
@@ -976,16 +1015,14 @@ public class TestParser {
 			// local var
 			if (fieldInitTable.containsKey(varName)) {
 				if (fieldInitTable.get(varName) == null
-						|| fieldInitTable.get(varName) instanceof NullLiteralExpr) {
-					AbstractStatement nullStatement = new NullStatement(
-							newTestCase, fieldClassTable.get(varName));
-					VariableReference var = newTestCase
-							.addStatement(nullStatement);
+				        || fieldInitTable.get(varName) instanceof NullLiteralExpr) {
+					AbstractStatement nullStatement = new NullStatement(newTestCase,
+					        fieldClassTable.get(varName));
+					VariableReference var = newTestCase.addStatement(nullStatement);
 					return var;
 				} else {
 					// TODO: What if init is primitive?
-					VariableReference var = parseExpression(fieldInitTable
-							.get(varName));
+					VariableReference var = parseExpression(fieldInitTable.get(varName));
 					return var;
 				}
 			} else {
@@ -998,8 +1035,7 @@ public class TestParser {
 	}
 
 	private VariableReference getVarRef(Expression expr) throws ParseException {
-		logger.debug("Checking var ref of " + expr + ", "
-				+ expr.getClass().getName());
+		logger.debug("Checking var ref of " + expr + ", " + expr.getClass().getName());
 		if (expr instanceof NameExpr) {
 			String name = ((NameExpr) expr).getName();
 			logger.debug("NameExpr: " + name);
@@ -1007,11 +1043,11 @@ public class TestParser {
 		} else if (expr instanceof FieldAccessExpr) {
 			FieldAccessExpr fieldAccExpr = (FieldAccessExpr) expr;
 			logger.debug("Found field access: " + expr + " with scope "
-					+ fieldAccExpr.getScope().toString());
+			        + fieldAccExpr.getScope().toString());
 			if (!tt.hasVar(fieldAccExpr.getScope().toString())) {
 				try {
-					ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0,
-							0, 0, null, fieldAccExpr.toString(), null);
+					ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0,
+					        null, fieldAccExpr.toString(), null);
 					typeToClass(type);
 					return null; // Static access!
 				} catch (ParseException e) {
@@ -1021,8 +1057,7 @@ public class TestParser {
 			if (fieldAccExpr.getScope().toString().equals("this")) {
 				return resolve(fieldAccExpr.getField());
 			}
-			VariableReference varRef = resolve(fieldAccExpr.getScope()
-					.toString());
+			VariableReference varRef = resolve(fieldAccExpr.getScope().toString());
 			logger.debug("Field source: " + varRef);
 			// TODO check if static from another class
 			Field field = getField(fieldAccExpr);
@@ -1035,17 +1070,16 @@ public class TestParser {
 			ArrayReference arrayRef = null;
 			if (!(arrayVar instanceof ArrayReference)) {
 				logger.debug("1) Have array variable of type: "
-						+ arrayVar.getVariableClass() + " / "
-						+ arrayVar.getComponentType());
-				Object array = Array
-						.newInstance(arrayVar.getVariableClass(), 0);
+				        + arrayVar.getVariableClass() + " / "
+				        + arrayVar.getComponentType());
+				Object array = Array.newInstance(arrayVar.getVariableClass(), 0);
 				AbstractStatement assign = new AssignmentStatement(newTestCase,
-						new ArrayReference(newTestCase, new GenericClass(
-								array.getClass()), 0), arrayVar);
+				        new ArrayReference(newTestCase,
+				                new GenericClass(array.getClass()), 0), arrayVar);
 				arrayRef = (ArrayReference) newTestCase.addStatement(assign);
 			} else {
 				logger.debug("2) Have array variable of type: "
-						+ arrayVar.getVariableClass());
+				        + arrayVar.getVariableClass());
 				arrayRef = (ArrayReference) getVarRef(arrayAccExpr.getName());
 			}
 			logger.debug("Got array reference " + arrayAccExpr.getName());
@@ -1074,7 +1108,7 @@ public class TestParser {
 		} else if (expr instanceof UnaryExpr) {
 			UnaryExpr uexpr = (UnaryExpr) expr;
 			if (uexpr.getExpr() instanceof LiteralExpr
-					&& uexpr.getOperator() == UnaryExpr.Operator.negative) {
+			        && uexpr.getOperator() == UnaryExpr.Operator.negative) {
 				AbstractStatement value = createPrimitiveStatement(uexpr);
 				return newTestCase.addStatement(value);
 
@@ -1091,21 +1125,19 @@ public class TestParser {
 			return getVarRef(((EnclosedExpr) expr).getInner());
 		} else if (expr instanceof ObjectCreationExpr) {
 			AbstractStatement value = createReferenceType(expr,
-					((ObjectCreationExpr) expr).getType());
+			                                              ((ObjectCreationExpr) expr).getType());
 			return newTestCase.addStatement(value);
 		} else if (expr instanceof ArrayCreationExpr) {
 			ArrayCreationExpr arrayCreationExpr = (ArrayCreationExpr) expr;
 
 			int arraySize = 0;
 			if (arrayCreationExpr.getDimensions() == null
-					&& arrayCreationExpr.getInitializer() != null
-					&& arrayCreationExpr.getInitializer().getValues() != null)
-				arraySize = arrayCreationExpr.getInitializer().getValues()
-						.size();
+			        && arrayCreationExpr.getInitializer() != null
+			        && arrayCreationExpr.getInitializer().getValues() != null)
+				arraySize = arrayCreationExpr.getInitializer().getValues().size();
 			else if (arrayCreationExpr.getDimensions() != null) {
 				try {
-					arraySize = Integer.parseInt(arrayCreationExpr
-							.getDimensions().get(0).toString());
+					arraySize = Integer.parseInt(arrayCreationExpr.getDimensions().get(0).toString());
 				} catch (NumberFormatException e) {
 					// Ignore
 				}
@@ -1114,19 +1146,17 @@ public class TestParser {
 			Class<?> clazz = typeToClass(arrayCreationExpr.getType());
 			Object array = Array.newInstance(clazz, arraySize);
 
-			VariableReference arrayVar = newTestCase
-					.addStatement(new ArrayStatement(newTestCase, array
-							.getClass(), arraySize));
+			VariableReference arrayVar = newTestCase.addStatement(new ArrayStatement(
+			        newTestCase, array.getClass(), arraySize));
 
 			if (arrayCreationExpr.getInitializer() != null
-					&& arrayCreationExpr.getInitializer().getValues() != null) {
+			        && arrayCreationExpr.getInitializer().getValues() != null) {
 				int num = 0;
-				for (Expression valueExpr : arrayCreationExpr.getInitializer()
-						.getValues()) {
+				for (Expression valueExpr : arrayCreationExpr.getInitializer().getValues()) {
 					VariableReference value = parseExpression(valueExpr);
-					AssignmentStatement assignment = new AssignmentStatement(
-							newTestCase, new ArrayIndex(newTestCase,
-									(ArrayReference) arrayVar, num), value);
+					AssignmentStatement assignment = new AssignmentStatement(newTestCase,
+					        new ArrayIndex(newTestCase, (ArrayReference) arrayVar, num),
+					        value);
 					newTestCase.addStatement(assignment);
 					num++;
 				}
@@ -1148,8 +1178,8 @@ public class TestParser {
 				if (fieldClassTable.containsKey(varName)) {
 					return fieldClassTable.get(varName);
 				} else {
-					return typeToClass(new ClassOrInterfaceType(0, 0, 0, 0,
-							null, varName, null));
+					return typeToClass(new ClassOrInterfaceType(0, 0, 0, 0, null,
+					        varName, null));
 				}
 			}
 
@@ -1166,8 +1196,7 @@ public class TestParser {
 			MethodCallExpr methodCallExpr = (MethodCallExpr) expr;
 			Expression scope = methodCallExpr.getScope();
 			if (scope == null)
-				throw new ParseException(null,
-						"Cannot yet handle calls to other methods");
+				throw new ParseException(null, "Cannot yet handle calls to other methods");
 			List<Expression> methodArgs = methodCallExpr.getArgs();
 			Class<?> clazz = typeToClass(getType(scope));
 			String methodName = methodCallExpr.getName();
@@ -1189,8 +1218,8 @@ public class TestParser {
 			BinaryExpr bexpr = (BinaryExpr) expr;
 			return getVarClass(bexpr.getLeft()); // Just use one of the two
 		} else {
-			throw new ParseException(null, "Can not find reference for \""
-					+ expr + "\" " + expr.getClass().getName());
+			throw new ParseException(null, "Can not find reference for \"" + expr + "\" "
+			        + expr.getClass().getName());
 		}
 	}
 
@@ -1201,8 +1230,7 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Class<?>[] getVarClasses(List<Expression> args)
-			throws ParseException {
+	private Class<?>[] getVarClasses(List<Expression> args) throws ParseException {
 		List<Class<?>> tmpRes = new ArrayList<Class<?>>();
 
 		if (args != null) {
@@ -1225,13 +1253,12 @@ public class TestParser {
 
 		Class<?> clazz = null;
 		if (!tt.hasVar(scope.toString())) {
-			ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0,
-					null, scope.toString(), null);
+			ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0, null,
+			        scope.toString(), null);
 			clazz = typeToClass(type);
 
 		} else {
-			logger.debug(fieldExpr.getScope()
-					+ " is not a class, looking further");
+			logger.debug(fieldExpr.getScope() + " is not a class, looking further");
 			clazz = typeToClass(getType(scope));
 		}
 
@@ -1252,8 +1279,8 @@ public class TestParser {
 	private Method getMethod(MethodCallExpr expr) throws ParseException {
 		Class<?> clazz = null;
 		try {
-			ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0,
-					null, expr.getScope().toString(), null);
+			ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0, null,
+			        expr.getScope().toString(), null);
 			clazz = typeToClass(type);
 
 		} catch (Throwable t) {
@@ -1281,8 +1308,8 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Constructor<?> getConstructor(Class<?> clazz,
-			Class<?>[] paramClasses) throws ParseException {
+	private Constructor<?> getConstructor(Class<?> clazz, Class<?>[] paramClasses)
+	        throws ParseException {
 		try {
 			return clazz.getConstructor(paramClasses);
 		} catch (SecurityException e) {
@@ -1293,8 +1320,7 @@ public class TestParser {
 					Class<?>[] constrParams = constr.getParameterTypes();
 					for (int i = 0; i < constrParams.length; i++) {
 						if (paramClasses[i] == null
-								|| constrParams[i]
-										.isAssignableFrom(paramClasses[i])) {
+						        || constrParams[i].isAssignableFrom(paramClasses[i])) {
 							if (i == constrParams.length - 1) {
 								return constr;
 							}
@@ -1305,8 +1331,8 @@ public class TestParser {
 				}
 			}
 		}
-		throw new ParseException(null, "No such constructor in class "
-				+ clazz.getName() + ": " + Arrays.asList(paramClasses));
+		throw new ParseException(null, "No such constructor in class " + clazz.getName()
+		        + ": " + Arrays.asList(paramClasses));
 	}
 
 	/**
@@ -1316,8 +1342,8 @@ public class TestParser {
 	 * @return
 	 * @throws ParseException
 	 */
-	private Method getMethod(Class<?> clazz, String methodName,
-			Class<?>[] paramClasses) throws ParseException {
+	private Method getMethod(Class<?> clazz, String methodName, Class<?>[] paramClasses)
+	        throws ParseException {
 		String classNames = "";
 		try {
 			return clazz.getMethod(methodName, paramClasses);
@@ -1325,8 +1351,7 @@ public class TestParser {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
 			logger.debug("Looking for method " + methodName + " in class "
-					+ clazz.getName() + " with parameters "
-					+ Arrays.asList(paramClasses));
+			        + clazz.getName() + " with parameters " + Arrays.asList(paramClasses));
 			for (Method meth : TestCluster.getMethods(clazz)) {
 				if (meth.getName().equals(methodName)) {
 					if (meth.getParameterTypes().length == paramClasses.length) {
@@ -1334,17 +1359,14 @@ public class TestParser {
 						logger.debug("Checking " + Arrays.asList(methParams));
 						for (int i = 0; i < methParams.length; i++) {
 							if (paramClasses[i] == null
-									|| methParams[i]
-											.isAssignableFrom(paramClasses[i])
-									|| (methParams[i].equals(int.class) && paramClasses[i]
-											.equals(char.class))) {
+							        || methParams[i].isAssignableFrom(paramClasses[i])
+							        || (methParams[i].equals(int.class) && paramClasses[i].equals(char.class))) {
 								logger.debug("Parameter " + i + " matches");
 								if (i == methParams.length - 1) {
 									return meth;
 								}
 							} else {
-								logger.debug("Parameter " + i
-										+ " does not match");
+								logger.debug("Parameter " + i + " does not match");
 								break;
 							}
 						}
@@ -1355,8 +1377,8 @@ public class TestParser {
 				classNames += paramType.getName() + "; ";
 			}
 		}
-		throw new ParseException(null, "Can not find the method: \""
-				+ methodName + "\", with parameter(s): " + classNames);
+		throw new ParseException(null, "Can not find the method: \"" + methodName
+		        + "\", with parameter(s): " + classNames);
 	}
 
 	/**
@@ -1388,19 +1410,18 @@ public class TestParser {
 				return fieldTypeTable.get(fieldAcExpr.getField());
 			}
 			logger.debug("Scope is a FieldAccessExpr: " + expr + " / "
-					+ fieldAcExpr.getScope().toString());
+			        + fieldAcExpr.getScope().toString());
 
 			Class<?> clazz = null;
 			try {
-				ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0,
-						0, null, fieldAcExpr.toString(), null);
+				ClassOrInterfaceType type = new ClassOrInterfaceType(0, 0, 0, 0, null,
+				        fieldAcExpr.toString(), null);
 				clazz = typeToClass(type);
-				return new ClassOrInterfaceType(0, 0, 0, 0, null,
-						clazz.getName(), null);
+				return new ClassOrInterfaceType(0, 0, 0, 0, null, clazz.getName(), null);
 			} catch (ParseException e) {
 				Field field = getField(fieldAcExpr);
-				return new ClassOrInterfaceType(0, 0, 0, 0, null, field
-						.getDeclaringClass().getName(), null);
+				return new ClassOrInterfaceType(0, 0, 0, 0, null,
+				        field.getDeclaringClass().getName(), null);
 			}
 
 			/*
@@ -1415,14 +1436,13 @@ public class TestParser {
 		} else if (expr instanceof MethodCallExpr) {
 			MethodCallExpr methodExpr = (MethodCallExpr) expr;
 			Method method = getMethod(methodExpr);
-			return new ClassOrInterfaceType(0, 0, 0, 0, null, method
-					.getReturnType().getName(), null);
+			return new ClassOrInterfaceType(0, 0, 0, 0, null,
+			        method.getReturnType().getName(), null);
 		} else if (expr instanceof CastExpr) {
 			return ((CastExpr) expr).getType();
 		} else if (expr instanceof StringLiteralExpr) {
 			// StringLiteralExpr sexpr = (StringLiteralExpr) expr;
-			return new ClassOrInterfaceType(0, 0, 0, 0, null,
-					"java.lang.String", null);
+			return new ClassOrInterfaceType(0, 0, 0, 0, null, "java.lang.String", null);
 		} else {
 			logger.debug("Scope is unknown expr: " + expr);
 			logger.debug("Scope is unknown expr: " + expr.getClass());
@@ -1443,8 +1463,7 @@ public class TestParser {
 		} else if (parsType instanceof ReferenceType) {
 			ReferenceType refType = (ReferenceType) parsType;
 			if (refType.getArrayCount() > 0) {
-				Object array = Array.newInstance(
-						typeToClass(refType.getType()), 0);
+				Object array = Array.newInstance(typeToClass(refType.getType()), 0);
 				return array.getClass();
 
 			} else {
@@ -1457,11 +1476,10 @@ public class TestParser {
 		} else if (parsType instanceof VoidType) {
 			throw new ParseException(null, "Can not load class for VoidType.");
 		} else if (parsType instanceof WildcardType) {
-			throw new ParseException(null,
-					"Can not load class for WildcardType: " + parsType);
+			throw new ParseException(null, "Can not load class for WildcardType: "
+			        + parsType);
 		}
-		throw new ParseException(null, "Can not find class for type "
-				+ parsType);
+		throw new ParseException(null, "Can not find class for type " + parsType);
 	}
 
 	/**
@@ -1470,7 +1488,7 @@ public class TestParser {
 	 * @throws ParseException
 	 */
 	private Class<?> primitiveTypeToClass(PrimitiveType primitiveParamType)
-			throws ParseException {
+	        throws ParseException {
 		switch (primitiveParamType.getType()) {
 		case Char:
 			return Character.TYPE;
@@ -1490,7 +1508,7 @@ public class TestParser {
 			return Boolean.TYPE;
 		default:
 			throw new ParseException(null,
-					"convertParams(Type parsType) can't obtain primitive Type");
+			        "convertParams(Type parsType) can't obtain primitive Type");
 		}
 	}
 
@@ -1522,8 +1540,7 @@ public class TestParser {
 		} else if (expr instanceof NullLiteralExpr) {
 			return null; // Object.class; // TODO: This is not quite right
 		}
-		throw new ParseException(null, "Cannot parse type of expression "
-				+ expr);
+		throw new ParseException(null, "Cannot parse type of expression " + expr);
 	}
 
 	/**
@@ -1543,8 +1560,7 @@ public class TestParser {
 		} else if (expr instanceof NullLiteralExpr) {
 			return "null";
 		}
-		throw new ParseException(null, "Cannot parse type of expression "
-				+ expr);
+		throw new ParseException(null, "Cannot parse type of expression " + expr);
 	}
 
 	/**
@@ -1555,41 +1571,37 @@ public class TestParser {
 	private Class<?> coiTypeToClass(Type parsType) throws ParseException {
 		if (parsType.toString().endsWith(")"))
 			throw new ParseException(null, "String is not a classname: "
-					+ parsType.toString());
+			        + parsType.toString());
 		try {
 			return TestCluster.getInstance().getClass(parsType.toString());
 		} catch (ClassNotFoundException e1) {
 			logger.debug("Class not found: " + e1);
 			try {
 				if (parsType.toString().equals("String")) {
-					return TestCluster.getInstance().importClass(
-							"java.lang.String");
+					return TestCluster.getInstance().importClass("java.lang.String");
 				}
 				if (editor == null) {
 					logger.debug("Importing class " + parsType);
 					// If we get to here, we can only guess.
 					try {
-						return testCluster.importClass(Properties.CLASS_PREFIX
-								+ "." + parsType.toString());
+						return testCluster.importClass(Properties.CLASS_PREFIX + "."
+						        + parsType.toString());
 					} catch (ClassNotFoundException e) {
 						// It might also be in java.lang
-						return testCluster.importClass("java.lang."
-								+ parsType.toString());
+						return testCluster.importClass("java.lang." + parsType.toString());
 					}
 				}
-					String className = editor
-					.chooseTargetFile(parsType.toString()).getName();
+				String className = editor.chooseTargetFile(parsType.toString()).getName();
 				if (className != null) {
 					return testCluster.importClass(className);
 				} else {
 					throw new ParseException(null,
-							"Can not load class for ClassOrInterfaceType: "
-									+ parsType);
+					        "Can not load class for ClassOrInterfaceType: " + parsType);
 				}
 			} catch (Throwable e2) {
 				throw new ParseException(null,
-						"Can not load class for ClassOrInterfaceType: "
-								+ parsType + " " + e2);
+				        "Can not load class for ClassOrInterfaceType: " + parsType + " "
+				                + e2);
 			}
 		}
 
