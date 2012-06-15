@@ -1,17 +1,18 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
- *
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Lesser Public License as published by the Free Software
  * Foundation, either version 3 of the License, or (at your option) any later
  * version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -177,9 +178,11 @@ public class TestSuiteGenerator {
 	 */
 	public String generateTestSuite() {
 
+		//DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+		//                           Arrays.asList(Properties.CP.split(":")));
 		TestCaseExecutor.initExecutor();
 
-		Utils.addURL(ClassFactory.getStubDir() + "/classes/");		
+		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "
 		                                         + Properties.TARGET_CLASS);
@@ -308,7 +311,7 @@ public class TestSuiteGenerator {
 				testDir = testDir + "/" + Properties.CRITERION;
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
-			suite.writeTestSuiteMainFile(testDir);
+			// suite.writeTestSuiteMainFile(testDir);
 		}
 	}
 
@@ -334,7 +337,7 @@ public class TestSuiteGenerator {
 				testDir = testDir + "/" + Properties.CRITERION;
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name + tag, testDir);
-			suite.writeTestSuiteMainFile(testDir);
+			// suite.writeTestSuiteMainFile(testDir);
 		}
 	}
 
@@ -451,6 +454,9 @@ public class TestSuiteGenerator {
 
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		long end_time = System.currentTimeMillis() / 1000;
+		// Newline after progress bar
+		if (Properties.SHOW_PROGRESS)
+			LoggingUtils.getEvoLogger().info("");
 		LoggingUtils.getEvoLogger().info("* Search finished after "
 		                                         + (end_time - start_time)
 		                                         + "s and "
@@ -675,7 +681,7 @@ public class TestSuiteGenerator {
 		statistics.searchStarted(suiteGA);
 
 		ga = suiteGA;
-		
+
 		RandomLengthTestFactory factory = new RandomLengthTestFactory();
 
 		// TODO: Shutdown hook?
@@ -1368,7 +1374,7 @@ public class TestSuiteGenerator {
 		}
 
 		ga.addListener(new ResourceController());
-		
+
 		return ga;
 	}
 
