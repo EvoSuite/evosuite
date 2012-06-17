@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -54,6 +54,7 @@ import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
+import de.unisb.cs.st.evosuite.testcase.TestCodeVisitor;
 import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 import de.unisb.cs.st.evosuite.utils.Utils;
 
@@ -72,6 +73,8 @@ public class TestSuiteWriter implements Opcodes {
 	protected Map<Integer, String> testComment = new HashMap<Integer, String>();
 
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
+
+	private final TestCodeVisitor visitor = new TestCodeVisitor();
 
 	class TestFilter implements IOFileFilter {
 		@Override
@@ -233,11 +236,22 @@ public class TestSuiteWriter implements Opcodes {
 	protected String getImports(List<ExecutionResult> results) {
 		StringBuilder builder = new StringBuilder();
 		Set<Class<?>> imports = new HashSet<Class<?>>();
+
 		for (ExecutionResult result : results) {
-			imports.addAll(result.test.getAccessedClasses());
-			for (Throwable t : result.getAllThrownExceptions()) {
-				imports.add(t.getClass());
+			result.test.accept(visitor);
+
+			// Iterate over declared exceptions to make sure they are known to the visitor
+			Set<Class<?>> exceptions = result.test.getDeclaredExceptions();
+			if (!exceptions.isEmpty()) {
+				for (Class<?> exception : exceptions) {
+					visitor.getClassName(exception);
+				}
 			}
+			imports.addAll(visitor.getImports());
+			// imports.addAll(result.test.getAccessedClasses());
+			//for (Throwable t : result.getAllThrownExceptions()) {
+			//	imports.add(t.getClass());
+			//}
 		}
 		Set<String> import_names = new HashSet<String>();
 		for (Class<?> imp : imports) {
@@ -433,12 +447,12 @@ public class TestSuiteWriter implements Opcodes {
 					first = false;
 				else
 					builder.append(", ");
-				builder.append(exception.getSimpleName());
+				builder.append(visitor.getClassName(exception));
 			}
 		}
 		builder.append(" {\n");
 		for (String line : adapter.getTestString(id, testCases.get(id),
-		                                         result.exposeExceptionMapping()).split("\\r?\\n")) {
+		                                         result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
 			builder.append("      ");
 			builder.append(line);
 			// builder.append(";\n");

@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -639,6 +639,10 @@ public class StaticTestCluster extends TestCluster {
 
 		if (!Properties.USE_DEPRECATED && c.isAnnotationPresent(Deprecated.class)) {
 			logger.debug("Skipping deprecated class " + c.getName());
+			return false;
+		}
+		if (c.getName().startsWith("com.sun") || c.getName().startsWith("sun.misc")) {
+			logger.debug("Skipping restricted class " + c.getName());
 			return false;
 		}
 
@@ -1668,7 +1672,9 @@ public class StaticTestCluster extends TestCluster {
 	 */
 	@Override
 	public void resetStaticClasses() {
-		ExecutionTracer.disable();
+		boolean tracerEnabled = ExecutionTracer.isEnabled();
+		if (tracerEnabled)
+			ExecutionTracer.disable();
 		for (Method m : static_initializers) {
 			// TODO: Which classes need to be reset? All?
 			if (!m.getDeclaringClass().equals(Properties.getTargetClass()))
@@ -1688,7 +1694,8 @@ public class StaticTestCluster extends TestCluster {
 			}
 			;
 		}
-		ExecutionTracer.enable();
+		if (tracerEnabled)
+			ExecutionTracer.enable();
 	}
 
 	/**

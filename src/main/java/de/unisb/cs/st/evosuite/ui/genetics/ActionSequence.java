@@ -1,11 +1,7 @@
 package de.unisb.cs.st.evosuite.ui.genetics;
 
 import java.io.Serializable;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import de.unisb.cs.st.evosuite.ui.model.DescriptorBoundUIAction;
 import de.unisb.cs.st.evosuite.ui.model.states.AbstractUIState;
@@ -341,16 +337,16 @@ public class ActionSequence implements Serializable, Cloneable {
 	}
 
 	public boolean insertRandomActionUnsafe() {
-		int[] indices = new int[this.states.size()];
-
-		for (int i = 0; i < indices.length; i++) {
-			indices[i] = i;
+		List<Integer> indices = new ArrayList<Integer>(this.states.size());
+		
+		for (int i = 0; i < indices.size(); i++) {
+			indices.set(i, i);
 		}
 
-		Randomness.shuffle(Arrays.asList(indices));
+		Randomness.shuffle(indices);
 
-		for (int i = 0; i < indices.length; i++) {
-			int prevStateIdx = indices[i];
+		for (int i = 0; i < indices.size(); i++) {
+			int prevStateIdx = indices.get(i);
 			AbstractUIState afterState = this.states.get(prevStateIdx);
 
 			DescriptorBoundUIAction<?> action = afterState.getNewRandomDescriptorBoundAction();
@@ -362,8 +358,8 @@ public class ActionSequence implements Serializable, Cloneable {
 			}
 		}
 
-		for (int i = 0; i < indices.length; i++) {
-			int prevStateIdx = indices[i];
+		for (int i = 0; i < indices.size(); i++) {
+			int prevStateIdx = indices.get(i);
 			AbstractUIState afterState = this.states.get(prevStateIdx);
 
 			DescriptorBoundUIAction<?> action = afterState.getRandomDescriptorBoundAction();

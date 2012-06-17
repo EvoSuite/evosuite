@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -25,11 +25,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.CharUtils;
-import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 import de.unisb.cs.st.evosuite.Properties;
@@ -59,10 +60,28 @@ public class TestCodeVisitor implements TestVisitor {
 
 	protected final Map<VariableReference, String> variableNames = new HashMap<VariableReference, String>();
 
+	protected final Map<Class<?>, String> classNames = new HashMap<Class<?>, String>();
+
 	protected final Map<String, Integer> nextIndices = new HashMap<String, Integer>();
 
 	public String getCode() {
 		return testCode;
+	}
+
+	/**
+	 * Retrieve a list of classes that need to be imported to make this unit
+	 * test compile
+	 * 
+	 * @return
+	 */
+	public Set<Class<?>> getImports() {
+		Set<Class<?>> imports = new HashSet<Class<?>>();
+		for (Class<?> clazz : classNames.keySet()) {
+			String name = classNames.get(clazz);
+			if (!name.contains("."))
+				imports.add(clazz);
+		}
+		return imports;
 	}
 
 	public void setExceptions(Map<Integer, Throwable> exceptions) {
@@ -80,7 +99,48 @@ public class TestCodeVisitor implements TestVisitor {
 		return null;
 	}
 
-	protected String getVariableName(VariableReference var) {
+	public String getClassName(VariableReference var) {
+		Class<?> clazz = var.getVariableClass();
+
+		if (classNames.containsKey(clazz))
+			return classNames.get(clazz);
+
+		String name = var.getSimpleClassName();
+		if (classNames.values().contains(name)) {
+			name = clazz.getCanonicalName();
+		}
+
+		// We can't use "Test" because of JUnit 
+		if (name.equals("Test")) {
+			name = clazz.getCanonicalName();
+		}
+
+		classNames.put(clazz, name);
+
+		return name;
+	}
+
+	public String getClassName(Class<?> clazz) {
+		if (classNames.containsKey(clazz))
+			return classNames.get(clazz);
+
+		GenericClass c = new GenericClass(clazz);
+		String name = c.getSimpleName();
+		if (classNames.values().contains(name)) {
+			name = clazz.getCanonicalName();
+		}
+
+		// We can't use "Test" because of JUnit 
+		if (name.equals("Test")) {
+			name = clazz.getCanonicalName();
+		}
+
+		classNames.put(clazz, name);
+
+		return name;
+	}
+
+	public String getVariableName(VariableReference var) {
 		if (var instanceof ConstantValue) {
 			return var.getName();
 		} else if (var instanceof InputVariable) {
@@ -158,6 +218,9 @@ public class TestCodeVisitor implements TestVisitor {
 	@Override
 	public void visitTestCase(TestCase test) {
 		this.test = test;
+		this.testCode = "";
+		this.variableNames.clear();
+		this.nextIndices.clear();
 	}
 
 	protected void visitPrimitiveAssertion(PrimitiveAssertion assertion) {
@@ -353,6 +416,34 @@ public class TestCodeVisitor implements TestVisitor {
 			testCode += "\n";
 	}
 
+	private String getEnumValue(EnumPrimitiveStatement<?> statement) {
+		Object value = statement.getValue();
+		Class<?> clazz = statement.getEnumClass();
+		String className = getClassName(clazz);
+
+		try {
+			if (value.getClass().getField(value.toString()) != null)
+				return className + "." + value;
+
+		} catch (NoSuchFieldException e) {
+			// Ignore
+		}
+
+		for (Field field : value.getClass().getDeclaredFields()) {
+			if (field.isEnumConstant()) {
+				try {
+					if (field.get(value).equals(value)) {
+						return className + "." + field.getName();
+					}
+				} catch (Exception e) {
+					// ignore
+				}
+			}
+		}
+		return className + ".valueOf(\"" + value + "\")";
+
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitPrimitiveStatement(de.unisb.cs.st.evosuite.testcase.PrimitiveStatement)
 	 */
@@ -377,13 +468,11 @@ public class TestCodeVisitor implements TestVisitor {
 			        + StringEscapeUtils.escapeJava(value.toString()) + "';\n";
 		} else if (statement instanceof EnumPrimitiveStatement) {
 			if (value != null)
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = "
-				        + NumberFormatter.getNumberString(value) + ";\n";
+				testCode += getClassName(retval) + " " + getVariableName(retval) + " = "
+				        + getEnumValue((EnumPrimitiveStatement<?>) statement) + ";\n";
 			else
-				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-				        + getVariableName(retval) + " = ("
-				        + ((Class<?>) retval.getType()).getSimpleName() + ") null;\n";
+				testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("
+				        + getClassName(retval) + ") null;\n";
 		} else if (statement instanceof FileNamePrimitiveStatement) {
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			        + getVariableName(retval) + " = \""
@@ -391,8 +480,8 @@ public class TestCodeVisitor implements TestVisitor {
 			        + "\";\n";
 
 		} else {
-			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + getVariableName(retval) + " = " + value + ";\n";
+			testCode += getClassName(retval) + " " + getVariableName(retval) + " = "
+			        + value + ";\n";
 		}
 		addAssertions(statement);
 	}
@@ -411,17 +500,17 @@ public class TestCodeVisitor implements TestVisitor {
 		Field field = statement.getField();
 
 		if (!retval.getVariableClass().isAssignableFrom(field.getType())) {
-			cast_str += "(" + retval.getSimpleClassName() + ")";
+			cast_str += "(" + getClassName(retval) + ")";
 		}
 
 		if (exception != null) {
-			builder.append(retval.getSimpleClassName());
+			builder.append(getClassName(retval));
 			builder.append(" ");
 			builder.append(getVariableName(retval));
 			builder.append(" = null;\n");
 			builder.append("try {\n  ");
 		} else {
-			builder.append(retval.getSimpleClassName());
+			builder.append(getClassName(retval));
 			builder.append(" ");
 		}
 		if (!Modifier.isStatic(field.getModifiers())) {
@@ -437,7 +526,7 @@ public class TestCodeVisitor implements TestVisitor {
 			builder.append(getVariableName(retval));
 			builder.append(" = ");
 			builder.append(cast_str);
-			builder.append(field.getDeclaringClass().getSimpleName());
+			builder.append(getClassName(field.getDeclaringClass()));
 			builder.append(".");
 			builder.append(field.getName());
 			builder.append(";");
@@ -447,7 +536,7 @@ public class TestCodeVisitor implements TestVisitor {
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
 			builder.append("\n} catch(");
-			builder.append(ClassUtils.getShortClassName(ex));
+			builder.append(getClassName(ex));
 			builder.append(" e) {}");
 		}
 		builder.append("\n");
@@ -480,10 +569,10 @@ public class TestCodeVisitor implements TestVisitor {
 		        && retval.getAdditionalVariableReference() == null && !unused) {
 			if (exception != null) {
 				if (!lastStatement || statement.hasAssertions())
-					result += retval.getSimpleClassName() + " " + getVariableName(retval)
+					result += getClassName(retval) + " " + getVariableName(retval)
 					        + " = " + retval.getDefaultValueString() + ";\n";
 			} else
-				result += retval.getSimpleClassName() + " ";
+				result += getClassName(retval) + " ";
 		}
 		if (exception != null)
 			result += "try {\n  ";
@@ -499,8 +588,7 @@ public class TestCodeVisitor implements TestVisitor {
 			if ((!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null"))
 			        && !method.getParameterTypes()[i].equals(Object.class)
 			        && !method.getParameterTypes()[i].equals(Comparable.class)) {
-				parameter_string += "("
-				        + new GenericClass(method.getParameterTypes()[i]).getSimpleName()
+				parameter_string += "(" + getClassName(method.getParameterTypes()[i])
 				        + ") ";
 			}
 			parameter_string += name;
@@ -509,14 +597,14 @@ public class TestCodeVisitor implements TestVisitor {
 		String callee_str = "";
 		if (!retval.getVariableClass().isAssignableFrom(method.getReturnType())
 		        && !retval.getVariableClass().isAnonymousClass() && !unused) {
-			String name = retval.getSimpleClassName();
+			String name = getClassName(retval);
 			if (!name.matches(".*\\.\\d+$")) {
 				callee_str = "(" + name + ")";
 			}
 		}
 
 		if (Modifier.isStatic(method.getModifiers())) {
-			callee_str += method.getDeclaringClass().getSimpleName();
+			callee_str += getClassName(method.getDeclaringClass());
 		} else {
 			VariableReference callee = statement.getCallee();
 			callee_str += getVariableName(callee);
@@ -538,9 +626,8 @@ public class TestCodeVisitor implements TestVisitor {
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
 			//if (isExpected)
-			result += "\n  fail(\"Expecting exception: "
-			        + ClassUtils.getShortClassName(ex) + "\");";
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			result += "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");";
+			result += "\n} catch(" + getClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
 				//if (!isExpected)
 				//	result += "\n  fail(\"Undeclared exception: "
@@ -592,8 +679,7 @@ public class TestCodeVisitor implements TestVisitor {
 				        && !constructor.getParameterTypes()[i].equals(Object.class)
 				        && !constructor.getParameterTypes()[i].equals(Comparable.class)) {
 					parameter_string += "("
-					        + new GenericClass(constructor.getParameterTypes()[i]).getSimpleName()
-					        + ") ";
+					        + getClassName(constructor.getParameterTypes()[i]) + ") ";
 				}
 
 				parameter_string += name;
@@ -603,28 +689,28 @@ public class TestCodeVisitor implements TestVisitor {
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+getVariableName(retval)+ " = null;\n";
 		if (exception != null) {
-			result = retval.getSimpleClassName() + " " + getVariableName(retval)
-			        + " = null;\n";
+			result = getClassName(retval) + " " + getVariableName(retval) + " = null;\n";
 			result += "try {\n  ";
 		} else {
-			result += retval.getSimpleClassName() + " ";
+			result += getClassName(retval) + " ";
 		}
 		if (constructor.getDeclaringClass().isMemberClass()
 		        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
-			result += getVariableName(retval)
-			        + " = "
+			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
 			        //			        + new GenericClass(
 			        //			                constructor.getDeclaringClass().getEnclosingClass()).getSimpleName()
 			        + ".new "
-			        //+ ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-			        //+ "("
+			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
 			        + constructor.getDeclaringClass().getSimpleName() + "("
+			        //+ getClassName(constructor.getDeclaringClass()) + "("
 			        + parameter_string + ");";
 
 		} else {
+
 			result += getVariableName(retval) + " = new "
-			        + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
+			        + getClassName(constructor.getDeclaringClass())
+			        //			        + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
 			        + "(" + parameter_string + ");";
 		}
 
@@ -635,10 +721,9 @@ public class TestCodeVisitor implements TestVisitor {
 			while (!Modifier.isPublic(ex.getModifiers()))
 				ex = ex.getSuperclass();
 			//if (isExpected)
-			result += "\n  fail(\"Expecting exception: "
-			        + ClassUtils.getShortClassName(ex) + "\");";
+			result += "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");";
 
-			result += "\n} catch(" + ClassUtils.getShortClassName(ex) + " e) {\n";
+			result += "\n} catch(" + getClassName(ex) + " e) {\n";
 			if (exception.getMessage() != null) {
 				//if (!isExpected)
 				//	result += "\n  fail(\"Undeclared exception: "
@@ -664,14 +749,14 @@ public class TestCodeVisitor implements TestVisitor {
 		VariableReference retval = statement.getReturnValue();
 		int length = statement.size();
 
-		String type = retval.getSimpleClassName().replaceFirst("\\[\\]", "");
+		String type = getClassName(retval).replaceFirst("\\[\\]", "");
 		String multiDimensions = "";
 		while (type.contains("[]")) {
 			multiDimensions += "[]";
 			type = type.replaceFirst("\\[\\]", "");
 		}
-		testCode += retval.getSimpleClassName() + " " + getVariableName(retval)
-		        + " = new " + type + "[" + length + "]" + multiDimensions + ";\n";
+		testCode += getClassName(retval) + " " + getVariableName(retval) + " = new "
+		        + type + "[" + length + "]" + multiDimensions + ";\n";
 		addAssertions(statement);
 	}
 
@@ -685,7 +770,7 @@ public class TestCodeVisitor implements TestVisitor {
 		VariableReference parameter = statement.parameter;
 
 		if (!retval.getVariableClass().equals(parameter.getVariableClass()))
-			cast = "(" + retval.getSimpleClassName() + ") ";
+			cast = "(" + getClassName(retval) + ") ";
 
 		testCode += getVariableName(retval) + " = " + cast + getVariableName(parameter)
 		        + ";\n";
@@ -699,8 +784,7 @@ public class TestCodeVisitor implements TestVisitor {
 	public void visitNullStatement(NullStatement statement) {
 		VariableReference retval = statement.getReturnValue();
 
-		testCode += retval.getSimpleClassName() + " " + getVariableName(retval)
-		        + " = null;\n";
+		testCode += getClassName(retval) + " " + getVariableName(retval) + " = null;\n";
 	}
 
 	public void visitStatement(StatementInterface statement) {

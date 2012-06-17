@@ -291,6 +291,7 @@
 	  <header>src/etc/header.txt</header>
 	  <excludes>
 	    <exclude>src/main/java/de/unisb/cs/st/evosuite/ui/**</exclude>
+	    <exclude>LICENSE.txt</exclude>
 	  </excludes>
 	</configuration>
       </plugin>

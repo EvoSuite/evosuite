@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -24,6 +24,7 @@ import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -120,18 +121,27 @@ public class ConstructorStatement extends AbstractStatement {
 				@Override
 				public void execute() throws InvocationTargetException,
 				        IllegalArgumentException, IllegalAccessException,
-				        InstantiationException {
+				        InstantiationException, CodeUnderTestException {
 
 					for (int i = 0; i < parameters.size(); i++) {
 						try {
 							inputs[i] = parameters.get(i).getObject(scope);
 						} catch (CodeUnderTestException e) {
-							throw CodeUnderTestException.throwException(e.getCause());
+							throw e;
+							//throw new CodeUnderTestException(e.getCause());
+							// throw CodeUnderTestException.throwException(e.getCause());
 						} catch (Throwable e) {
 							logger.error("Error encountered: " + e);
 							assert (false);
 							throw new EvosuiteError(e);
 						}
+					}
+
+					// If this is a non-static member class, the first parameter must not be null
+					if (constructor.getDeclaringClass().isMemberClass()
+					        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
+						if (inputs[0] == null)
+							throw new CodeUnderTestException(new NullPointerException());
 					}
 
 					Object ret = constructor.newInstance(inputs);
@@ -140,7 +150,8 @@ public class ConstructorStatement extends AbstractStatement {
 						// assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
 						retval.setObject(scope, ret);
 					} catch (CodeUnderTestException e) {
-						throw CodeUnderTestException.throwException(e);
+						throw e;
+						// throw CodeUnderTestException.throwException(e);
 					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}

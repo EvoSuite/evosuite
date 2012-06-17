@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -30,8 +30,8 @@ public abstract class ArrayUtil {
 
 	public static final String DEFAULT_JOIN_SEPARATOR = IterUtil.DEFAULT_JOIN_SEPARATOR;
 
-	public static Object[] box(long[] array) {
-		Object[] result = new Object[array.length];
+	public static Integer[] box(int[] array) {
+		Integer[] result = new Integer[array.length];
 
 		/* Can't use System.arraycopy() -- it doesn't do boxing */
 		for (int i = 0; i < array.length; i++) {
@@ -41,8 +41,19 @@ public abstract class ArrayUtil {
 		return result;
 	}
 
-	public static Object[] box(byte[] array) {
-		Object[] result = new Object[array.length];
+	public static Long[] box(long[] array) {
+		Long[] result = new Long[array.length];
+
+		/* Can't use System.arraycopy() -- it doesn't do boxing */
+		for (int i = 0; i < array.length; i++) {
+			result[i] = array[i];
+		}
+
+		return result;
+	}
+
+	public static Byte[] box(byte[] array) {
+		Byte[] result = new Byte[array.length];
 
 		/* Can't use System.arraycopy() -- it doesn't do boxing */
 		for (int i = 0; i < array.length; i++) {
