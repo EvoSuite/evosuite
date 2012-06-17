@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
+import de.unisb.cs.st.evosuite.testcase.CodeUnderTestException;
 import de.unisb.cs.st.evosuite.testcase.ConstructorStatement;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
@@ -94,9 +95,12 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				        && t.getStackTrace()[0].getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
 					continue;
 				}
+				// Ignore exceptions thrown in the test code itself
+				if (t instanceof CodeUnderTestException)
+					continue;
 
 				String methodName = "";
-				boolean sutException = false;				
+				boolean sutException = false;
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
 					Method method = ms.getMethod();
@@ -112,12 +116,12 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 
 				boolean notDeclared = !result.test.getStatement(i).getDeclaredExceptions().contains(t.getClass());
-				
+
 				/*
 				 * We only consider exceptions that were thrown directly in the SUT (not called libraries)
 				 * and that are not declared in the signature of the method.
 				 */
-				
+
 				if (notDeclared && sutException) {
 					/*
 					 * we need to distinguish whether it is explicit (ie "throw" in the code, eg for validating
@@ -126,7 +130,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 					boolean isExplicit = isExceptionExplicit.get(result.test).containsKey(i)
 					        && isExceptionExplicit.get(result.test).get(i);
-					
+
 					if (isExplicit) {
 						if (!explicitTypesOfExceptions.containsKey(methodName))
 							explicitTypesOfExceptions.put(methodName,

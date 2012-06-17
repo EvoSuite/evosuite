@@ -2,14 +2,17 @@ package de.unisb.cs.st.evosuite.ui.genetics;
 
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.ga.ChromosomeFactory;
+import de.unisb.cs.st.evosuite.ga.FitnessFunction;
 import de.unisb.cs.st.evosuite.testsuite.CurrentChromosomeTracker;
 
 public class UITestSuiteChromosomeFactory implements ChromosomeFactory<UITestSuiteChromosome> {
 	private static final long serialVersionUID = 1L;
 	private ChromosomeFactory<UITestChromosome> testFactory;
+	private FitnessFunction fitnessFunction;
 
-	public UITestSuiteChromosomeFactory(ChromosomeFactory<UITestChromosome> testFactory) {
+	public UITestSuiteChromosomeFactory(ChromosomeFactory<UITestChromosome> testFactory, FitnessFunction fitnessFunction) {
 		this.testFactory = testFactory;
+		this.fitnessFunction = fitnessFunction;
 	}
 
 	@Override
@@ -22,7 +25,16 @@ public class UITestSuiteChromosomeFactory implements ChromosomeFactory<UITestSui
 		for (int i = 0; i < Properties.NUM_TESTS; i++) {
 			chromosome.addTest(testFactory.getChromosome());
 		}
-
+		
+		// Make sure that chromosomes created by this factory come with pre-computed fitness values
+		// (Chromosomes coming out of here without fitness caused trouble when the budget was used
+		// up right after creating the initial population... since the genetic algorithm removes all
+		// chromosomes which have no associated fitness function after a timeout, the resulting
+		// population would then be empty. This fixes that.)
+		this.fitnessFunction.getFitness(chromosome);
+		// Also Chromosome#setFitness doesn't reset changed to false anymore... weird... do it here.
+		chromosome.setChanged(false);
+		
 		return chromosome;
 	}
 }

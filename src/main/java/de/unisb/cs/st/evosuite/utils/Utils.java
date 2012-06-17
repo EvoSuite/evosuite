@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -48,6 +48,37 @@ import com.thoughtworks.xstream.XStream;
  */
 public class Utils {
 
+	/**
+	 * Sleeps at least until the specified time point has passed.
+	 * 
+	 * (Thread.sleep() does something similar, but can stop sleeping before
+	 * the specified time point has passed if the thread is interrupted.)
+	 *  
+	 * @param targetTimeMillis Target time in milliseconds
+	 */
+	public static void sleepUntil(long targetTimeMillis) {
+		while (true) {
+			long delta = targetTimeMillis - System.currentTimeMillis(); 
+			
+			if (delta <= 0) {
+				break;
+			}
+			
+			try {
+				Thread.sleep(delta);
+			} catch (InterruptedException e) { /* OK */ }
+		}
+	}
+
+	/**
+	 * Sleeps at least until the specified amount of time has passed, uninterruptibly.
+	 *  
+	 * @param millis Amount of milliseconds to sleep
+	 */
+	public static void sleepFor(long millis) {
+		sleepUntil(System.currentTimeMillis() + millis);
+	}
+	
 	/**
 	 * Deletes directory and its content.
 	 * 

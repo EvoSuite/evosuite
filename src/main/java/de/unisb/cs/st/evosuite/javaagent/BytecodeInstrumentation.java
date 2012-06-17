@@ -1,16 +1,16 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
  *
  * This file is part of EvoSuite.
  *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Lesser Public License as published by the Free Software
- * Foundation, either version 3 of the License, or (at your option) any later
- * version.
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
  *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Lesser Public License for more details.
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
@@ -106,6 +106,11 @@ public class BytecodeInstrumentation {
 	}
 
 	public byte[] transformBytes(String className, ClassReader reader) {
+		int readFlags = ClassReader.SKIP_FRAMES;
+		
+		if (Properties.INSTRUMENTATION_SKIP_DEBUG)
+			readFlags |= ClassReader.SKIP_DEBUG;
+
 		String classNameWithDots = className.replace('/', '.');
 		TransformationStatistics.reset();
 
@@ -165,13 +170,13 @@ public class BytecodeInstrumentation {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
-
+		
 		// Testability Transformations
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
 		        || shouldTransform(classNameWithDots)) {
 			ClassNode cn = new AnnotatedClassNode();
-			reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cn, readFlags);
 			logger.info("Starting transformation of " + className);
 			ComparisonTransformation cmp = new ComparisonTransformation(cn);
 			if (isTargetClassName(classNameWithDots)
@@ -215,7 +220,7 @@ public class BytecodeInstrumentation {
 			cn.accept(cv);
 
 		} else {
-			reader.accept(cv, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG); //  | ClassReader.SKIP_DEBUG
+			reader.accept(cv, readFlags);
 		}
 
 		// Print out bytecode if debug is enabled
