@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -197,7 +197,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				hasTimeoutOrTestException = true;
 			}
 
-			for (Entry<String, Integer> entry : result.getTrace().coveredMethods.entrySet()) {
+			for (Entry<String, Integer> entry : result.getTrace().getMethodExecutionCount().entrySet()) {
 				if (!callCount.containsKey(entry.getKey()))
 					callCount.put(entry.getKey(), entry.getValue());
 				else {
@@ -209,7 +209,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				}
 
 			}
-			for (Entry<Integer, Integer> entry : result.getTrace().coveredPredicates.entrySet()) {
+			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
 				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!predicateCount.containsKey(entry.getKey()))
 						predicateCount.put(entry.getKey(), entry.getValue());
@@ -220,7 +220,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					}
 				}
 			}
-			for (Entry<Integer, Double> entry : result.getTrace().trueDistances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().getTrueDistances().entrySet()) {
 				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!trueDistance.containsKey(entry.getKey()))
 						trueDistance.put(entry.getKey(), entry.getValue());
@@ -234,7 +234,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					}
 				}
 			}
-			for (Entry<Integer, Double> entry : result.getTrace().falseDistances.entrySet()) {
+			for (Entry<Integer, Double> entry : result.getTrace().getFalseDistances().entrySet()) {
 				if (!LCSAJPool.isLCSAJBranch(BranchPool.getBranch(entry.getKey()))) {
 					if (!falseDistance.containsKey(entry.getKey()))
 						falseDistance.put(entry.getKey(), entry.getValue());
@@ -251,7 +251,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			if (Properties.BRANCH_STATEMENT) {
 				// Add requirement on statements
-				for (Map<String, Map<Integer, Integer>> coverage : result.getTrace().coverage.values()) {
+				for (Map<String, Map<Integer, Integer>> coverage : result.getTrace().getCoverageData().values()) {
 					for (Map<Integer, Integer> coveredLines : coverage.values())
 						covered_lines.addAll(coveredLines.keySet());
 				}
