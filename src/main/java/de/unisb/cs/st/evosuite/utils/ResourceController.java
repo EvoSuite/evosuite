@@ -106,7 +106,8 @@ public class ResourceController implements SearchListener, StoppingCondition {
 		if (hasExceededResources()) {
 			/*
 			 * TODO: for now, we just stop the search. in case of running out of memory, other options could
-			 * be to reduce the population size 
+			 * be to reduce the population size, eg by using "removeWorstIndividuals". but before that,
+			 * "calculateFitness" need to be-refactored
 			 */
 			stopComputation = true;
 			ga.addStoppingCondition(this);
