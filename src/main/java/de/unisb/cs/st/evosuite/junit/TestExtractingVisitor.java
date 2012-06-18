@@ -26,6 +26,7 @@ import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
 import org.eclipse.jdt.core.dom.ConditionalExpression;
@@ -229,6 +230,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestExtractingVisitor.class);
+
 	private final CompoundTestCase testCase;
 	private final TestReader testReader;
 	private final String unqualifiedTest;
@@ -237,14 +239,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final Map<String, String> imports = new HashMap<String, String>();
 	private final TestRuntimeValuesDeterminer testValuesDeterminer;
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
-
 	private boolean exceptionReadingMethod = false;
-	private CursorableTrace cursorableTrace;
 
+	private CursorableTrace cursorableTrace;
 	// TODO Remove the following two:
 	private final Stack<Integer> iterations = new Stack<Integer>();
-	private final Stack<Integer> loopExecCnts = new Stack<Integer>();
 
+	private final Stack<Integer> loopExecCnts = new Stack<Integer>();
 	// TODO This is bad practice: here we rely on a global variable
 	// for something that should be parameters to the methods!
 	private Integer lineNumber = null;
@@ -381,23 +382,24 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	@Override
 	public void endVisit(MethodInvocation methodInvocation) {
 		// TODO If in constructor, treat calls to this() and super().
+		String methodName = methodInvocation.getName().toString();
+		if (methodName.equals("fail") || methodName.startsWith("assert")) {
+			logger.warn("We are ignoring fail and assert statements for now.");
+			for (Expression expression : (List<Expression>) methodInvocation.arguments()) {
+				if ((expression instanceof MethodInvocation) || (expression instanceof ClassInstanceCreation)) {
+					assert !nestedCallResults.isEmpty();
+					nestedCallResults.pop();
+				}
+			}
+			return;
+		}
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
 		if (methodBinding == null) {
-			String methodName = methodInvocation.getName().toString();
-			if (methodName.equals("fail") || methodName.startsWith("assert")) {
-				logger.warn("We are ignoring fail and assert statements for now.");
-				for (Expression expression : (List<Expression>) methodInvocation.arguments()) {
-					if ((expression instanceof MethodInvocation) || (expression instanceof ClassInstanceCreation)) {
-						assert !nestedCallResults.isEmpty();
-						nestedCallResults.pop();
-					}
-				}
-				return;
-			}
+			throw new RuntimeException("JDT was unable to resolve method for " + methodInvocation);
 		}
 		List<?> paramTypes = Arrays.asList(methodBinding.getParameterTypes());
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
-		Method method = retrieveMethod(methodInvocation, params);
+		Method method = retrieveMethod(methodInvocation, methodBinding, params);
 		Class<?> declaringClass = method.getDeclaringClass();
 		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
 			// TODO Methods can be declared in an order such that the called
@@ -490,6 +492,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			testCase.setCurrentScope(TestScope.STATIC);
 		}
 		return true;
+	}
+
+	@Override
+	public boolean visit(CatchClause node) {
+		logger.warn("We are ignoring catch-clauses for now!");
+		return false;
 	}
 
 	@Override
@@ -617,12 +625,23 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return false;
 		}
 		Type supertype = typeDeclaration.getSuperclassType();
-		if (supertype != null) {
-			String superclass = retrieveTypeClass(supertype).getName();
-			if (!superclass.startsWith("org.junit.") && !superclass.startsWith("junit.")) {
-				testReader.readTestCase(superclass, testCase);
-			}
+		if (supertype == null) {
+			return true;
 		}
+		Class<?> supertypeClass = retrieveTypeClass(supertype);
+		if (supertypeClass == null) {
+			return true;
+		}
+		String superclass = retrieveTypeClass(supertype).getName();
+		if (superclass == null) {
+			return true;
+		}
+		if (superclass.startsWith("org.junit.") || //
+				superclass.startsWith("junit.") || //
+				superclass.startsWith("java.")) {
+			return true;
+		}
+		testReader.readTestCase(superclass, testCase);
 		return true;
 	}
 
@@ -734,41 +753,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		assert argument != null;
 		if (argument instanceof SimpleType) {
 			SimpleType simpleType = (SimpleType) argument;
-			ITypeBinding binding = simpleType.resolveBinding();
-			if (binding == null) {
-				String result = imports.get(simpleType.toString());
-				if (result != null) {
-					try {
-						return Class.forName(result);
-					} catch (ClassNotFoundException exc) {
-						throw new RuntimeException("Classpath incomplete?", exc);
-					}
-				}
-			}
-			assert binding != null : "Could not resolve binding for " + simpleType + ". Missing sources folder?";
-			return retrieveTypeClass(binding);
+			return retrieveTypeClass(simpleType);
 		}
 		if (argument instanceof ITypeBinding) {
 			ITypeBinding binding = (ITypeBinding) argument;
-			String className = binding.getBinaryName();
-			if (binding.isArray()) {
-				if (binding.getElementType().isPrimitive()) {
-					try {
-						return Class.forName(className);
-					} catch (ClassNotFoundException exc) {
-						throw new RuntimeException(exc);
-					}
-				}
-				return Object[].class;
-			}
-			if (binding.isPrimitive()) {
-				return retrievePrimitiveClass(binding.getBinaryName());
-			}
-			try {
-				return loadClass(className);
-			} catch (Exception exc) {
-				throw new RuntimeException(exc);
-			}
+			return retrieveTypeClass(binding);
 		}
 		if (argument instanceof IVariableBinding) {
 			IVariableBinding variableBinding = (IVariableBinding) argument;
@@ -782,31 +771,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return String.class;
 		}
 		if (argument instanceof NumberLiteral) {
-			NumberLiteral numberLiteral = (NumberLiteral) argument;
-			Object value = numberLiteral.resolveConstantExpressionValue();
-			if (numberLiteral.resolveBoxing()) {
-				return value.getClass();
-			}
-			if (value instanceof Integer) {
-				return Integer.TYPE;
-			}
-			if (value instanceof Long) {
-				return Long.TYPE;
-			}
-			if (value instanceof Double) {
-				return Double.TYPE;
-			}
-			if (value instanceof Float) {
-				return Float.TYPE;
-			}
-			if (value instanceof Short) {
-				return Short.TYPE;
-			}
-			if (value instanceof Byte) {
-				return Byte.TYPE;
-			}
-			throw new UnsupportedOperationException("Retrieval of type " + argument.getClass()
-					+ " not implemented yet!");
+			return retrieveTypeClass((NumberLiteral) argument);
 		}
 		if (argument instanceof PrimitiveType) {
 			PrimitiveType primitiveType = (PrimitiveType) argument;
@@ -817,20 +782,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		if (argument instanceof ArrayType) {
 			ArrayType arrayType = (ArrayType) argument;
-			try {
-				Class<?> componentType = retrieveTypeClass(arrayType.getComponentType());
-				if (componentType.isPrimitive()) {
-					String clazz = "[" + componentType.getName().toUpperCase().charAt(0);
-					return Class.forName(clazz);
-				}
-				if (componentType.isArray()) {
-					String clazz = "[" + componentType.getName();
-					return Class.forName(clazz);
-				}
-				return Class.forName("[L" + componentType.getName() + ";");
-			} catch (ClassNotFoundException exc) {
-				throw new RuntimeException(exc);
-			}
+			return retrieveTypeClass(arrayType);
 		}
 		if (argument instanceof ParameterizedType) {
 			ParameterizedType parameterizedType = (ParameterizedType) argument;
@@ -851,7 +803,18 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		if (argument instanceof MethodInvocation) {
 			MethodInvocation methodInvocation = (MethodInvocation) argument;
-			return retrieveTypeClass(methodInvocation.resolveTypeBinding());
+			ITypeBinding typeBinding = methodInvocation.resolveTypeBinding();
+			if (typeBinding != null) {
+				return retrieveTypeClass(typeBinding);
+			}
+			Expression typeExpression = methodInvocation.getExpression();
+			if (typeExpression instanceof MethodInvocation) {
+				MethodInvocation parentMethodInvocation = (MethodInvocation) typeExpression;
+				IMethodBinding parentMethodBinding = parentMethodInvocation.resolveMethodBinding();
+				return retrieveTypeClass(parentMethodBinding.getDeclaringClass());
+			} else {
+				return retrieveTypeClass(typeExpression);
+			}
 		}
 		if (argument instanceof ArrayAccess) {
 			ArrayAccess arrayAccess = (ArrayAccess) argument;
@@ -905,6 +868,9 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return retrieveVariableReference((BooleanLiteral) argument);
 		}
 		if (argument instanceof ITypeBinding) {
+			if (varType != null) {
+				return new ValidVariableReference(testCase.getReference(), varType);
+			}
 			return new ValidVariableReference(testCase.getReference(), retrieveTypeClass(argument));
 		}
 		if (argument instanceof QualifiedName) {
@@ -979,6 +945,19 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			argRef.setOriginalCode(argument.toString());
 			result.add(argRef);
 			idx++;
+		}
+		// TODO Convert last params to array if so
+		if (argumentTypes.size() > 0) {
+			Class<?> lastArgClass = retrieveTypeClass(argumentTypes.get(argumentTypes.size() - 1));
+			if (lastArgClass.isArray()) {
+				List newArguments = new ArrayList();
+				if (!arguments.isEmpty()) {
+					newArguments.addAll(arguments.subList(0, argumentTypes.size() - 1));
+				}
+				List varArgs = arguments.subList(argumentTypes.size() - 1, arguments.size());
+				newArguments.add(toArray(varArgs, lastArgClass.getComponentType()));
+				arguments = newArguments;
+			}
 		}
 		return result;
 	}
@@ -1091,10 +1070,24 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		throw new RuntimeException("Not implemented!");
 	}
 
-	private Class<?> loadClass(String className) throws ClassNotFoundException {
+	private Class<?> loadClass(String className) {
 		// TODO Implement loading classes from Properties.CLASSPATH that are not
 		// on BugEx's classpath
-		return TestCluster.classLoader.loadClass(className);
+		try {
+			return TestCluster.classLoader.loadClass(className);
+		} catch (ClassNotFoundException exc) {
+			String classNameTrial = testCase.getClassName() + "$" + className;
+			try {
+				return TestCluster.classLoader.loadClass(classNameTrial);
+			} catch (ClassNotFoundException inner) {
+				String packageName = testCase.getClassName().substring(0, testCase.getClassName().lastIndexOf("."));
+				try {
+					return TestCluster.classLoader.loadClass(packageName + "." + className);
+				} catch (ClassNotFoundException inner2) {
+					throw new RuntimeException(exc);
+				}
+			}
+		}
 		// return Class.forName(className);
 	}
 
@@ -1139,52 +1132,16 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return nullAssignment.getReturnValue();
 	}
 
-	private Method retrieveMethod(MethodInvocation methodInvocation, List<VariableReference> params) {
-		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-		if (methodBinding != null) {
-			return retrieveMethodFromSources(methodInvocation, methodBinding, params);
-		}
-		return retrieveMethodFromByteCode(methodInvocation);
-	}
-
-	private Method retrieveMethodFromByteCode(MethodInvocation methodInvocation) {
-		String methodName = methodInvocation.getName().getIdentifier();
-		Expression typeExpression = methodInvocation.getExpression();
-		Class<?> declaringClass;
-		if (typeExpression instanceof MethodInvocation) {
-			MethodInvocation parentMethodInvocation = (MethodInvocation) typeExpression;
-			IMethodBinding parentMethodBinding = parentMethodInvocation.resolveMethodBinding();
-			declaringClass = retrieveTypeClass(parentMethodBinding.getDeclaringClass());
-		} else {
-			declaringClass = retrieveTypeClass(typeExpression);
-		}
-		List<Method> result = new ArrayList<Method>();
-		outer: for (Method method : declaringClass.getDeclaredMethods()) {
-			if (!method.getName().equals(methodName)) {
-				continue;
-			}
-			if (method.getParameterTypes().length != methodInvocation.arguments().size()) {
-				continue;
-			}
-			for (int idx = 0; idx < methodInvocation.arguments().size(); idx++) {
-				Expression argExpr = (Expression) methodInvocation.arguments();
-				Class<?> argType = retrieveTypeClass(argExpr);
-				if (!method.getParameterTypes()[idx].isAssignableFrom(argType)) {
-					continue outer;
-				}
-			}
-			result.add(method);
-		}
-		assert result.size() == 1;
-		return result.get(0);
-	}
-
-	private Method retrieveMethodFromSources(MethodInvocation methodInvocation, IMethodBinding methodBinding,
+	private Method retrieveMethod(MethodInvocation methodInvocation, IMethodBinding methodBinding,
 			List<VariableReference> params) {
 		assert methodBinding != null : "Sources missing!";
 		String methodName = methodInvocation.getName().getIdentifier();
 		Class<?> clazz = retrieveTypeClass(methodBinding.getDeclaringClass());
 		Set<Method> methods = retrieveMethods(clazz, methodName, params);
+		if (methods.size() == 1) {
+			return methods.iterator().next();
+		}
+		// TODO Implement varargs methods
 		try {
 			Class<?>[] paramClasses = new Class<?>[methodInvocation.arguments().size()];
 			assert methods.size() > 0;
@@ -1223,22 +1180,95 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		possibleMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
 		possibleMethods.addAll(Arrays.asList(clazz.getMethods()));
 		outer: for (Method method : possibleMethods) {
-			if (method.getName().equals(methodName) && (method.getParameterTypes().length == params.size())) {
-				Class<?>[] declaredParamClasses = method.getParameterTypes();
-				for (int idx = 0; idx < params.size(); idx++) {
-					VariableReference param = params.get(idx);
-					Class<?> actualParamClass = param.getVariableClass();
-					if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
-						if (actualParamClass.isPrimitive()) {
-							actualParamClass = doBoxing(actualParamClass);
-							if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
-								continue outer;
-							}
-						} else {
+			if (!method.getName().equals(methodName)) {
+				continue;
+			}
+			Class<?>[] declaredParamClasses = method.getParameterTypes();
+			if (declaredParamClasses.length == 0) {
+				if (params.size() == 0) {
+					logger.debug("Found method {} to fit for {} without params.", method, methodName);
+					result.add(method);
+					continue;
+				}
+				logger.debug("Method mismatch, because it has no params declared, but there were given.");
+				continue;
+			}
+			if ((declaredParamClasses.length > params.size()) && (declaredParamClasses.length - 1 != params.size())) {
+				logger.debug("Number of declared and actual params do not match for last array param for method {}",
+						method);
+				continue;
+			}
+			for (int idx = 0; idx < declaredParamClasses.length - 1; idx++) {
+				VariableReference param = params.get(idx);
+				Class<?> actualParamClass = param.getVariableClass();
+				if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
+					if (actualParamClass.isPrimitive()) {
+						actualParamClass = doBoxing(actualParamClass);
+						if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
+							logger.debug(
+									"Actual param class {} did not match declared param class {} at param number {} for method {} after autoboxing.",
+									new Object[] { actualParamClass, declaredParamClasses[idx], idx, method });
 							continue outer;
 						}
+					} else {
+						logger.debug(
+								"Actual param class {} did not match declared param class {} at param number {} for method {}.",
+								new Object[] { actualParamClass, declaredParamClasses[idx], idx, method });
+						continue outer;
 					}
 				}
+			}
+			Class<?> lastDeclaredParamType = declaredParamClasses[declaredParamClasses.length - 1];
+			if (declaredParamClasses.length == params.size()) {
+				VariableReference lastParam = params.get(params.size() - 1);
+				Class<?> lastActualParamClass = lastParam.getVariableClass();
+				if (lastDeclaredParamType.isAssignableFrom(lastActualParamClass)) {
+					result.add(method);
+					logger.debug("Found method {} to fit for {} with params {}.", new Object[] { method, methodName,
+							params });
+					continue;
+				}
+				if (lastActualParamClass.isPrimitive()) {
+					lastActualParamClass = doBoxing(lastActualParamClass);
+					if (lastDeclaredParamType.isAssignableFrom(lastActualParamClass)) {
+						result.add(method);
+						logger.debug("Found method {} to fit for {} with params {}.", new Object[] { method,
+								methodName, params });
+						continue outer;
+					}
+				}
+			}
+			if (!lastDeclaredParamType.isArray()) {
+				logger.debug("Number of declared and actual params do not match for method {}.", method);
+				continue;
+			}
+			if (params.size() == 0) {
+				result.add(method);
+				logger.debug("Method with array arg is called without any args.");
+				continue;
+			}
+			// treating method(Object ... arguments)
+			Class<?> arrayElementType = lastDeclaredParamType.getComponentType();
+			for (int idx = declaredParamClasses.length - 1; idx < params.size(); idx++) {
+				VariableReference lastParam = params.get(idx);
+				Class<?> lastActualParamClass = lastParam.getVariableClass();
+				if (!arrayElementType.isAssignableFrom(lastActualParamClass)) {
+					if (lastActualParamClass.isPrimitive()) {
+						lastActualParamClass = doBoxing(lastActualParamClass);
+						if (!arrayElementType.isAssignableFrom(lastActualParamClass)) {
+							logger.debug(
+									"Last param type {} not assignable to array component type {} for method {} after boxing.",
+									new Object[] { lastActualParamClass, arrayElementType, method });
+							continue outer;
+						}
+					} else {
+						logger.debug("Last param type {} not assignable to array component type {} for method {}.",
+								new Object[] { lastActualParamClass, arrayElementType, method });
+						continue outer;
+					}
+				}
+				logger.debug("Found var args params {} to match for method {}.",
+						new Object[] { params.subList(declaredParamClasses.length - 1, params.size()), method });
 				result.add(method);
 			}
 		}
@@ -1269,7 +1299,15 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return retrieveVariableReference(assignment.getLeftHandSide(), null);
 		}
 		IMethodBinding methodBinding = methodInvocation.resolveMethodBinding();
-		result = retrieveVariableReference(methodBinding.getReturnType(), null);
+		ITypeBinding returnType = methodBinding.getReturnType();
+		Class<?> resultClass = null;
+		try {
+			resultClass = retrieveTypeClass(returnType);
+		} catch (Exception exc) {
+			String localClass = methodBinding.getDeclaringClass().getQualifiedName() + "." + returnType.getName();
+			resultClass = loadClass(localClass);
+		}
+		result = retrieveVariableReference(returnType, resultClass);
 		calleeResultMap.put(methodInvocation.toString(), result);
 		return result;
 	}
@@ -1293,6 +1331,87 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		result = retrieveVariableReference(methodBinding.getReturnType(), null);
 		calleeResultMap.put(superMethodInvocation.toString(), result);
 		return result;
+	}
+
+	private Class<?> retrieveTypeClass(ArrayType arrayType) {
+		try {
+			Class<?> componentType = retrieveTypeClass(arrayType.getComponentType());
+			if (componentType.isPrimitive()) {
+				String clazz = "[" + componentType.getName().toUpperCase().charAt(0);
+				return Class.forName(clazz);
+			}
+			if (componentType.isArray()) {
+				String clazz = "[" + componentType.getName();
+				return Class.forName(clazz);
+			}
+			return Class.forName("[L" + componentType.getName() + ";");
+		} catch (ClassNotFoundException exc) {
+			throw new RuntimeException(exc);
+		}
+	}
+
+	private Class<?> retrieveTypeClass(ITypeBinding binding) {
+		String className = binding.getBinaryName();
+		if (className == null) {
+			return null;
+		}
+		if (binding.isArray()) {
+			if (binding.getElementType().isPrimitive()) {
+				try {
+					return Class.forName(className);
+				} catch (ClassNotFoundException exc) {
+					throw new RuntimeException(exc);
+				}
+			}
+			return Object[].class;
+		}
+		if (binding.isPrimitive()) {
+			return retrievePrimitiveClass(binding.getBinaryName());
+		}
+		return loadClass(className);
+	}
+
+	private Class<?> retrieveTypeClass(NumberLiteral numberLiteral) {
+		Object value = numberLiteral.resolveConstantExpressionValue();
+		if (numberLiteral.resolveBoxing()) {
+			return value.getClass();
+		}
+		if (value instanceof Integer) {
+			return Integer.TYPE;
+		}
+		if (value instanceof Long) {
+			return Long.TYPE;
+		}
+		if (value instanceof Double) {
+			return Double.TYPE;
+		}
+		if (value instanceof Float) {
+			return Float.TYPE;
+		}
+		if (value instanceof Short) {
+			return Short.TYPE;
+		}
+		if (value instanceof Byte) {
+			return Byte.TYPE;
+		}
+		throw new UnsupportedOperationException("Retrieval of type " + numberLiteral.getClass()
+				+ " not implemented yet!");
+	}
+
+	private Class<?> retrieveTypeClass(SimpleType simpleType) {
+		ITypeBinding binding = simpleType.resolveBinding();
+		if (binding == null) {
+			String result = imports.get(simpleType.toString());
+			if (result != null) {
+				try {
+					return Class.forName(result);
+				} catch (ClassNotFoundException exc) {
+					throw new RuntimeException("Classpath incomplete?", exc);
+				}
+			}
+		}
+		assert binding != null : "Could not resolve binding for " + simpleType + ". Missing sources folder?";
+		return retrieveTypeClass(binding);
 	}
 
 	private String retrieveVariableName(Object argument) {
@@ -1510,5 +1629,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			exceptionReadingMethod = true;
 		}
 		return false;
+	}
+
+	private Object toArray(List<?> varArgs, Class<?> argClass) {
+		// TODO-JRO Implement method toArray
+		logger.warn("Method toArray not implemented!");
+		return null;
 	}
 }
