@@ -39,7 +39,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
-		//if (instrumentation.isTargetProject(name)) {
+		// if (instrumentation.isTargetProject(name)) {
 		// if (TestCluster.isTargetClassName(name)) {
 		if (BytecodeInstrumentation.isSharedClass(name.replace("/", "."))) {
 			Class<?> result = findLoadedClass(name);
@@ -63,30 +63,26 @@ public class InstrumentingClassLoader extends ClassLoader {
 				}
 			}
 		}
-		//} else {
-		//	logger.trace("Not instrumenting: " + name);
-		//}
+		// } else {
+		// logger.trace("Not instrumenting: " + name);
+		// }
 		/*
-		Class<?> result = findLoadedClass(name);
-		if (result != null) {
-		return result;
-		}
-		result = classLoader.loadClass(name);
-		return result;
-		*/
+		 * Class<?> result = findLoadedClass(name); if (result != null) { return
+		 * result; } result = classLoader.loadClass(name); return result;
+		 */
 	}
 
 	private InputStream findTargetResource(String name) throws FileNotFoundException {
 		Pattern pattern = Pattern.compile(name);
 		Collection<String> resources = ResourceList.getResources(pattern);
-		if (resources.isEmpty())
+		if (resources.isEmpty()) {
 			throw new FileNotFoundException(name);
-		else
+		} else {
 			return new FileInputStream(resources.iterator().next());
+		}
 	}
 
-	private Class<?> instrumentClass(String fullyQualifiedTargetClass)
-	        throws ClassNotFoundException {
+	private Class<?> instrumentClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -96,13 +92,11 @@ public class InstrumentingClassLoader extends ClassLoader {
 					is = findTargetResource(".*" + className + ".class");
 				} catch (FileNotFoundException e) {
 					throw new ClassNotFoundException("Class '" + className + ".class"
-					        + "' should be in target project, but could not be found!");
+							+ "' should be in target project, but could not be found!");
 				}
 			}
-			byte[] byteBuffer = instrumentation.transformBytes(className,
-			                                                   new ClassReader(is));
-			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
-			                              byteBuffer.length);
+			byte[] byteBuffer = instrumentation.transformBytes(className, new ClassReader(is));
+			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0, byteBuffer.length);
 			classes.put(fullyQualifiedTargetClass, result);
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;

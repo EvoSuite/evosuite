@@ -168,7 +168,7 @@ public class JUnitTestReaderSimpleTest {
 		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
 		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
 		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test07");
-		// testCase.clone();
+		testCase.clone();
 		String code = testCase.toCode();
 		String result = "int int0 = 5;\n" + //
 				"int int1 = 5;\n" + //
@@ -184,6 +184,21 @@ public class JUnitTestReaderSimpleTest {
 				"int int6 = 3;\n" + //
 				"int int7 = int6 + int5;\n" + //
 				"intArray0[0][1] = int7;\n";
+		Assert.assertEquals(result, code);
+	}
+
+	@Test
+	public void testReadSimpleJUnitTestCase08() {
+		Properties.PROJECT_PREFIX = "de.unisb.cs.st.evosuite.junit";
+		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
+		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test08");
+		testCase.clone();
+		String code = testCase.toCode();
+		String result = "TestExample.sysoutArray();\n" + //
+				"String[] stringArray0 = new String[]{\"Test\"};\n" + //
+				"TestExample.sysoutArray(stringArray0);\n" + //
+				"String[] stringArray1 = new String[]{\"This \", \"is \", \"a \", \"Test\", \"!\"};\n" + //
+				"TestExample.sysoutArray(stringArray1);\n";
 		Assert.assertEquals(result, code);
 	}
 }

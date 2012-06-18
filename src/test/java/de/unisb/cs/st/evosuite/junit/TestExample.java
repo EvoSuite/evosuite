@@ -43,20 +43,6 @@ public class TestExample extends ParentTestExample {
 		value = 4;
 	}
 
-	@BeforeClass
-	public static void initializeAgain() {
-		value = 42;
-	}
-
-	@BeforeClass
-	public static void initializeOtherValue() {
-		otherValue = -5;
-	}
-
-	protected static int doCalc(int x, int y) {
-		return x + 5;
-	}
-
 	public static BufferedImage createImage(final int width, final int height, final int color) {
 		if ((width < 1) || (height < 1)) {
 			throw new IllegalArgumentException("ERROR: bad width/height!");
@@ -69,6 +55,16 @@ public class TestExample extends ParentTestExample {
 		return (valR << 16) | (valG << 8) | (valB);
 	}
 
+	@BeforeClass
+	public static void initializeAgain() {
+		value = 42;
+	}
+
+	@BeforeClass
+	public static void initializeOtherValue() {
+		otherValue = -5;
+	}
+
 	public static BufferedImage setImageColor(final BufferedImage image, final int color) {
 		if (image == null) {
 			throw new IllegalArgumentException("ERROR: image == null!");
@@ -79,6 +75,18 @@ public class TestExample extends ParentTestExample {
 			}
 		}
 		return image;
+	}
+
+	public static void sysoutArray(String... args) {
+		String result = "";
+		for (String arg : args) {
+			result += arg;
+		}
+		System.out.println(result);
+	}
+
+	protected static int doCalc(int x, int y) {
+		return x + 5;
 	}
 
 	public TestExample() {

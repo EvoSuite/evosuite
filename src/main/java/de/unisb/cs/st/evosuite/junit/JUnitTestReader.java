@@ -108,6 +108,7 @@ public class JUnitTestReader implements TestReader {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setResolveBindings(true);
+		parser.setBindingsRecovery(true);
 		parser.setUnitName(unitName);
 		parser.setEnvironment(classpath, sources, null, true);
 		parser.setSource(fileContents.toCharArray());

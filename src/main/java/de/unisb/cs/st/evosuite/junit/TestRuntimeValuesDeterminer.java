@@ -220,15 +220,18 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 
 	private static class TestValuesDeterminerClassVisitor extends ClassVisitor {
 
-		public TestValuesDeterminerClassVisitor(ClassWriter cw) {
+		private final String fullyQualifiedTargetClass;
+
+		public TestValuesDeterminerClassVisitor(String fullyQualifiedTargetClass, ClassWriter cw) {
 			super(Opcodes.ASM4, cw);
+			this.fullyQualifiedTargetClass = fullyQualifiedTargetClass;
 		}
 
 		@Override
 		public MethodVisitor visitMethod(int access, String name, String desc, String signature, String[] exceptions) {
 			MethodNode methodNode = new MethodNode(access, name, desc, signature, exceptions);
 			MethodVisitor next = super.visitMethod(access, name, desc, signature, exceptions);
-			return new TestValuesDeterminerMethodVisitor(methodNode, next);
+			return new TestValuesDeterminerMethodVisitor(fullyQualifiedTargetClass, methodNode, next);
 		}
 	}
 
@@ -237,11 +240,14 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		private final org.slf4j.Logger logger = org.slf4j.LoggerFactory
 				.getLogger(TestRuntimeValuesDeterminer.TestValuesDeterminerClassVisitor.class);
 
+		private final String fullyQualifiedTargetClass;
 		private int currentLine;
 		private MethodVisitor next;
 
-		public TestValuesDeterminerMethodVisitor(MethodNode methodNode, MethodVisitor next) {
+		public TestValuesDeterminerMethodVisitor(String fullyQualifiedTargetClass, MethodNode methodNode,
+				MethodVisitor next) {
 			super(Opcodes.ASM4, methodNode);
+			this.fullyQualifiedTargetClass = fullyQualifiedTargetClass;
 			this.next = next;
 		}
 
@@ -268,7 +274,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			methodNode.accept(next);
 		}
 
-		private int getIndex(AbstractInsnNode insnNode) {
+		private int getInstructionIndex(AbstractInsnNode insnNode) {
 			try {
 				Field indexField = AbstractInsnNode.class.getDeclaredField("index");
 				indexField.setAccessible(true);
@@ -305,7 +311,9 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 				logger.error("XASTORE not implemented!");
 				return new InsnList();
 			case Opcodes.PUTSTATIC:
-				throw new RuntimeException("Not implemented!");
+				// throw new RuntimeException("Not implemented!");
+				logger.error("PUTSTATIC not implemented!);");
+				return new InsnList();
 			case Opcodes.PUTFIELD: // -
 				if (insnNode instanceof FieldInsnNode) {
 					InsnList instrumentation = new InsnList();
@@ -343,20 +351,20 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 		}
 
 		private LocalVariableNode getLocalVariableNode(int varIdx, AbstractInsnNode insnNode, MethodNode methodNode) {
-			int index = getIndex(insnNode);
+			int instrIdx = getInstructionIndex(insnNode);
 			List<?> localVariables = methodNode.localVariables;
-			for (int idx = varIdx; idx < localVariables.size(); idx++) {
+			for (int idx = 0; idx < localVariables.size(); idx++) {
 				LocalVariableNode localVariableNode = (LocalVariableNode) localVariables.get(idx);
 				if (localVariableNode.index == varIdx) {
-					int scopeEndIndex = getIndex(localVariableNode.end);
-					if (scopeEndIndex >= index) {
+					int scopeEndInstrIdx = getInstructionIndex(localVariableNode.end);
+					if (scopeEndInstrIdx >= instrIdx) {
 						// still valid for current line
 						return localVariableNode;
 					}
 				}
 			}
 			throw new RuntimeException("Variable with index " + varIdx + " and end >= " + currentLine
-					+ " not found for method " + ((MethodNode) mv).name + "!");
+					+ " not found for method " + fullyQualifiedTargetClass + "#" + methodNode.name + "!");
 		}
 
 		private InsnList localVarValue(AbstractInsnNode insnNode, int opositeOpcode, String param) {
@@ -411,7 +419,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 				throw new ClassNotFoundException();
 			}
 			ClassWriter writer = new ClassWriter(reader, ClassWriter.COMPUTE_MAXS);
-			ClassVisitor cv = new TestValuesDeterminerClassVisitor(writer);
+			ClassVisitor cv = new TestValuesDeterminerClassVisitor(fullyQualifiedTargetClass, writer);
 			CheckClassAdapter checkClassAdapter = new CheckClassAdapter(cv);
 			reader.accept(checkClassAdapter, ClassReader.SKIP_FRAMES);
 			byte[] byteBuffer = writer.toByteArray();
