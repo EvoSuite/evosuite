@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,7 +23,6 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -34,10 +33,10 @@ import de.unisb.cs.st.evosuite.coverage.TestFitnessFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
 import de.unisb.cs.st.evosuite.junit.TestSuiteWriter;
+import de.unisb.cs.st.evosuite.testcase.AbstractTestFactory;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestFactory;
 import de.unisb.cs.st.evosuite.testcase.ExecutableChromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
@@ -93,7 +92,7 @@ public class TestSuiteMinimizer {
 		logger.info("Minimizing per test");
 
 		Properties.RECYCLE_CHROMOSOMES = false; // TODO: FIXXME!
-		ExecutionTrace.enableTraceCalls();
+		ExecutionTracer.enableTraceCalls();
 
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
@@ -205,9 +204,9 @@ public class TestSuiteMinimizer {
 	 */
 	@Deprecated
 	private int getNumUncoveredBranches(TestSuiteChromosome suite) {
-		Set<Integer> covered_true = new HashSet<Integer>();
-		Set<Integer> covered_false = new HashSet<Integer>();
-		Set<String> called_methods = new HashSet<String>();
+		Set<Integer> coveredTrue = new HashSet<Integer>();
+		Set<Integer> coveredFalse = new HashSet<Integer>();
+		Set<String> calledMethods = new HashSet<String>();
 		//FIXME 
 		//int total_goals = BranchCoverageSuiteFitness.total_goals;
 		int total_goals = 0;
@@ -223,21 +222,15 @@ public class TestSuiteMinimizer {
 				logger.debug("Skipping test " + num);
 				result = test.getLastExecutionResult();
 			}
-			called_methods.addAll(result.getTrace().coveredMethods.keySet());
-			for (Entry<Integer, Double> entry : result.getTrace().trueDistances.entrySet()) {
-				if (entry.getValue() == 0)
-					covered_true.add(entry.getKey());
-			}
+			calledMethods.addAll(result.getTrace().getCoveredMethods());
+			coveredTrue.addAll(result.getTrace().getCoveredTrueBranches());
+			coveredFalse.addAll(result.getTrace().getCoveredFalseBranches());
 
-			for (Entry<Integer, Double> entry : result.getTrace().falseDistances.entrySet()) {
-				if (entry.getValue() == 0)
-					covered_false.add(entry.getKey());
-			}
 			num++;
 		}
-		logger.debug("Called methods: " + called_methods.size());
+		logger.debug("Called methods: " + calledMethods.size());
 		return total_goals
-		        - (covered_true.size() + covered_false.size() + called_methods.size());
+		        - (coveredTrue.size() + coveredFalse.size() + calledMethods.size());
 	}
 
 	/**
@@ -324,7 +317,7 @@ public class TestSuiteMinimizer {
 					TestChromosome orgiginalTestChromosome = (TestChromosome) testChromosome.clone();
 
 					try {
-						DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+						AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
 						test_factory.deleteStatementGracefully(testChromosome.getTestCase(),
 						                                       i);
 						testChromosome.setChanged(true);

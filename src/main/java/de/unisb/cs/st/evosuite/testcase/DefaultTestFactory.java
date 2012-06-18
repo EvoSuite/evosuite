@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -429,6 +429,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
+	@Override
 	public VariableReference addConstructor(TestCase test, Constructor<?> constructor,
 	        int position, int recursion_depth) throws ConstructionFailedException {
 		if (recursion_depth > Properties.MAX_RECURSION) {
@@ -461,6 +462,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
+	@Override
 	public VariableReference addMethod(TestCase test, Method method, int position,
 	        int recursion_depth) throws ConstructionFailedException {
 		// System.out.println("TG: Looking for callee of type "+method.getDeclaringClass());
@@ -825,7 +827,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private VariableReference attemptGeneration(TestCase test, Type type, int position,
+	@Override
+	protected VariableReference attemptGeneration(TestCase test, Type type, int position,
 	        int recursion_depth, boolean allow_null) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 

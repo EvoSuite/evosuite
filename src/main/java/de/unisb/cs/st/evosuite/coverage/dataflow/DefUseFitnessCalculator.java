@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.Properties.AlternativeFitnessCalculationMode;
 import de.unisb.cs.st.evosuite.Properties.Criterion;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageFactory;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageTestFitness;
@@ -48,20 +47,18 @@ import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
 public class DefUseFitnessCalculator {
 
 	public static long alternativeTime = 0l;
-	
+
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
 
-	private static Logger logger = LoggerFactory
-			.getLogger(DefUseFitnessCalculator.class);
-
+	private static Logger logger = LoggerFactory.getLogger(DefUseFitnessCalculator.class);
 
 	// if alternative fitness calculation is disabled ignore the following
 	// valid modes: "sum", "min", "max", "avg", "single"
 	// private static final String ALTERNATIVE_FITNESS_CALCULATION_MODE =
 	// Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE;
 	// if the mode isn't "sum" the following are ignored
-//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
-//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
+	//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = Properties.PENALIZE_OVERWRITING_DEFINITIONS_FLAT;
+	//	private static boolean PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = Properties.PENALIZE_OVERWRITING_DEFINITIONS_LINEARLY;
 	private static double SINGLE_ALTERNATIVE_FITNESS_RANGE = 1.0; // Properties.ALTERNATIVE_FITNESS_RANGE;
 	// ensure alternative fitness configuration is valid
 	static {
@@ -69,13 +66,13 @@ public class DefUseFitnessCalculator {
 			if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
 				System.out.println("* Alternative fitness calculation enabled");
 				// + Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE);
-//				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
-//						.equals(AlternativeFitnessCalculationMode.SUM)) {
-//
-//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
-//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
-//					SINGLE_ALTERNATIVE_FITNESS_RANGE = 1;
-//				}
+				//				if (!Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
+				//						.equals(AlternativeFitnessCalculationMode.SUM)) {
+				//
+				//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT = false;
+				//					PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY = false;
+				//					SINGLE_ALTERNATIVE_FITNESS_RANGE = 1;
+				//				}
 				// else {
 				// System.out.println("  - Single alternative fitness range: "
 				// + SINGLE_ALTERNATIVE_FITNESS_RANGE);
@@ -87,23 +84,22 @@ public class DefUseFitnessCalculator {
 				// .println("  - Penalizing multiple overwriting definitions: linearly");
 				// }
 			} else {
-				System.out
-						.println("* Alternative fitness calculation disabled!");
+				System.out.println("* Alternative fitness calculation disabled!");
 			}
 	}
 
-	private DefUseCoverageTestFitness goal;
-	private TestChromosome individual;
-	private ExecutionResult result;
+	private final DefUseCoverageTestFitness goal;
+	private final TestChromosome individual;
+	private final ExecutionResult result;
 
-	private Definition goalDefinition;
-	private Use goalUse;
-	private TestFitnessFunction goalDefinitionFitness;
-	private TestFitnessFunction goalUseFitness;
-	private String goalVariable;
+	private final Definition goalDefinition;
+	private final Use goalUse;
+	private final TestFitnessFunction goalDefinitionFitness;
+	private final TestFitnessFunction goalUseFitness;
+	private final String goalVariable;
 
 	public DefUseFitnessCalculator(DefUseCoverageTestFitness goal,
-			TestChromosome individual, ExecutionResult result) {
+	        TestChromosome individual, ExecutionResult result) {
 		this.goal = goal;
 		this.individual = individual;
 		this.result = result;
@@ -156,8 +152,8 @@ public class DefUseFitnessCalculator {
 	 */
 	public double calculateDUFitness() {
 
-//		if (!goalVariable.equals("targetField"))
-//			return 0.0;
+		//		if (!goalVariable.equals("targetField"))
+		//			return 0.0;
 
 		// at first handle special cases where definition is assumed to be
 		// covered if use is covered:
@@ -177,8 +173,8 @@ public class DefUseFitnessCalculator {
 		// if the use was not passed at all just calculate the fitness
 		// over all objects without any filtering
 
-		if (!hasEntriesForId(result.getTrace().passedUses.get(goalVariable),
-				goalUse.getUseId()))
+		if (!hasEntriesForId(result.getTrace().getPassedUses(goalVariable),
+		                     goalUse.getUseId()))
 			return calculateUseFitnessForCompleteTrace();
 
 		// Case 3.
@@ -192,15 +188,14 @@ public class DefUseFitnessCalculator {
 	private double calculateFitnessForObjects() {
 
 		// select considerable objects
-		Set<Integer> objects = determineConsiderableObjects(goal, result
-				.getTrace());
+		Set<Integer> objects = determineConsiderableObjects(goal, result.getTrace());
 
 		// calculate minimal fitness over all objects
 		double fitness = 1;
 		for (Integer object : objects) {
 			logger.debug("current object: " + object);
-			if (!hasEntriesForId(result.getTrace().passedDefinitions
-					.get(goalVariable), object, goalDefinition.getDefId()))
+			if (!hasEntriesForId(result.getTrace().getPassedDefinitions(goalVariable),
+			                     object, goalDefinition.getDefId()))
 				continue;
 
 			double newFitness = calculateFitnessForObject(object);
@@ -222,13 +217,12 @@ public class DefUseFitnessCalculator {
 	private double calculateFitnessForObject(Integer objectId) {
 
 		// filter out trace information from other objects
-		ExecutionTrace objectTrace = result.getTrace().getTraceForObject(
-				objectId);
+		ExecutionTrace objectTrace = result.getTrace().getTraceForObject(objectId);
 		double fitness = 1;
 		// handle special definition case TODO already handled!?
 		if (isSpecialDefinition(goalDefinition)) {
 			double useFitness = callTestFitnessFunctionForTrace(objectTrace,
-					goalUseFitness);
+			                                                    goalUseFitness);
 			fitness = normalize(useFitness);
 			if (Properties.CRITERION == Criterion.DEFUSE && fitness == 0.0)
 				goal.setCovered(individual, objectTrace, objectId);
@@ -236,32 +230,35 @@ public class DefUseFitnessCalculator {
 		}
 
 		// check if goalDefinition is active at any goalUsePosition
-		List<Integer> usePositions = DefUseExecutionTraceAnalyzer
-				.getUsePositions(goalUse, objectTrace, objectId);
-		List<Integer> goalDefinitionPositions = DefUseExecutionTraceAnalyzer
-				.getDefinitionPositions(goalDefinition, objectTrace, objectId);
+		List<Integer> usePositions = DefUseExecutionTraceAnalyzer.getUsePositions(goalUse,
+		                                                                          objectTrace,
+		                                                                          objectId);
+		List<Integer> goalDefinitionPositions = DefUseExecutionTraceAnalyzer.getDefinitionPositions(goalDefinition,
+		                                                                                            objectTrace,
+		                                                                                            objectId);
 
 		for (Integer usePos : usePositions) {
-			int activeDefId = DefUseExecutionTraceAnalyzer
-					.getActiveDefinitionIdAt(goalVariable, objectTrace, usePos,
-							objectId);
+			int activeDefId = DefUseExecutionTraceAnalyzer.getActiveDefinitionIdAt(goalVariable,
+			                                                                       objectTrace,
+			                                                                       usePos,
+			                                                                       objectId);
 			if (activeDefId == goalDefinition.getDefId()) {
 				// Case 3.1.
-				if(Properties.CRITERION == Criterion.DEFUSE)
+				if (Properties.CRITERION == Criterion.DEFUSE)
 					goal.setCovered(individual, objectTrace, objectId);
 				return 0.0;
 			} else {
 				if (Properties.ENABLE_ALTERNATIVE_FITNESS_CALCULATION) {
-					
+
 					long start = System.currentTimeMillis();
-					
+
 					// goalDefinition was not active at usePos
 					// if it was active before, we might have a overwriting
 					// definition
 					if (hasEntryLowerThan(goalDefinitionPositions, usePos)) {
 
-						int goalDefPos = getMaxEntryLowerThan(
-								goalDefinitionPositions, usePos);
+						int goalDefPos = getMaxEntryLowerThan(goalDefinitionPositions,
+						                                      usePos);
 
 						// first check if there was yet another occurrence of
 						// goalUse between usePos and goalDefPos. if so, we
@@ -271,17 +268,19 @@ public class DefUseFitnessCalculator {
 							// Case 3.2.1
 							// calculate fitness for not taking branch of
 							// overwriting definition
-							double alternativeFitness = calculateAlternativeFitness(
-									objectTrace, objectId, usePos, goalDefPos);
-							if (alternativeFitness <= 0.0
-									|| alternativeFitness > 1.0)
+							double alternativeFitness = calculateAlternativeFitness(objectTrace,
+							                                                        objectId,
+							                                                        usePos,
+							                                                        goalDefPos);
+							if (alternativeFitness <= 0.0 || alternativeFitness > 1.0)
 								throw new IllegalStateException(
-										"alternative fitness expected to be in (0,1] "+alternativeFitness);
+								        "alternative fitness expected to be in (0,1] "
+								                + alternativeFitness);
 							if (alternativeFitness < fitness) {
-//								System.out
-//										.println("alternative boost: "
-//												+ fitness + " -> "
-//												+ alternativeFitness);
+								//								System.out
+								//										.println("alternative boost: "
+								//												+ fitness + " -> "
+								//												+ alternativeFitness);
 								fitness = alternativeFitness;
 							}
 						}
@@ -298,15 +297,16 @@ public class DefUseFitnessCalculator {
 		// totally unnecessary
 		// idea: you only have to do this if the last definition for goalVar was
 		// not goalDefinitionId
-		if (!goalUse.isRootBranchDependent()) 
+		if (!goalUse.isRootBranchDependent())
 			// if goal use is root branch
 			// dependent useFitness will
 			// always be 1.0
 			for (Integer goalDefinitionPos : goalDefinitionPositions) {
 				double useFitness;
 				try {
-					useFitness = calculateUseFitnessForDefinitionPos(
-							objectTrace, objectId, goalDefinitionPos);
+					useFitness = calculateUseFitnessForDefinitionPos(objectTrace,
+					                                                 objectId,
+					                                                 goalDefinitionPos);
 				} catch (UnexpectedFitnessException e) {
 					continue;
 				}
@@ -360,15 +360,17 @@ public class DefUseFitnessCalculator {
 	 * 
 	 */
 	public double calculateAlternativeFitness(ExecutionTrace objectTrace,
-			Integer objectId, Integer usePos, int lastGoalDefPos) {
+	        Integer objectId, Integer usePos, int lastGoalDefPos) {
 
-		Map<Integer, Integer> overwritingDefs = DefUseExecutionTraceAnalyzer
-				.getOverwritingDefinitionsBetween(goalDefinition, objectTrace,
-						lastGoalDefPos + 1, usePos, objectId);
+		Map<Integer, Integer> overwritingDefs = DefUseExecutionTraceAnalyzer.getOverwritingDefinitionsBetween(goalDefinition,
+		                                                                                                      objectTrace,
+		                                                                                                      lastGoalDefPos + 1,
+		                                                                                                      usePos,
+		                                                                                                      objectId);
 
 		if (overwritingDefs.isEmpty())
 			throw new IllegalStateException(
-					"if goalDefinition was passed before goalUse but is no longer active there must be an overwriting definition");
+			        "if goalDefinition was passed before goalUse but is no longer active there must be an overwriting definition");
 
 		// if (Properties.ALTERNATIVE_FITNESS_CALCULATION_MODE
 		// .equals(AlternativeFitnessCalculationMode.SINGLE)
@@ -384,14 +386,16 @@ public class DefUseFitnessCalculator {
 		// int overwritingDefinitionCount = 0;
 		for (Integer overwritingDefId : overwritingDefs.keySet()) {
 			// overwritingDefinitionCount++;
-			double overwritingFitness = calculateAlternatveFitnessForOverwritingDefinition(
-					objectTrace, objectId, overwritingDefId, lastGoalDefPos,
-					overwritingDefs.get(overwritingDefId));
+			double overwritingFitness = calculateAlternatveFitnessForOverwritingDefinition(objectTrace,
+			                                                                               objectId,
+			                                                                               overwritingDefId,
+			                                                                               lastGoalDefPos,
+			                                                                               overwritingDefs.get(overwritingDefId));
 
 			if (overwritingFitness <= 0.0
-					|| overwritingFitness > SINGLE_ALTERNATIVE_FITNESS_RANGE)
+			        || overwritingFitness > SINGLE_ALTERNATIVE_FITNESS_RANGE)
 				throw new IllegalStateException(
-						"expected this definition to be >0 and <=SINGLEALTERNATIVE_FITNESS");
+				        "expected this definition to be >0 and <=SINGLEALTERNATIVE_FITNESS");
 
 			// respect penalizing configuration parameters
 			// if (PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT)
@@ -425,7 +429,7 @@ public class DefUseFitnessCalculator {
 		// + alternativeFitness);
 
 		return alternativeFitness;
-//		return normalize(alternativeFitness);
+		//		return normalize(alternativeFitness);
 	}
 
 	/**
@@ -453,15 +457,14 @@ public class DefUseFitnessCalculator {
 	 * interval (0,SINGLE_ALTERNATIVE_FITNESS_RANGE]
 	 */
 	public double calculateAlternatveFitnessForOverwritingDefinition(
-			ExecutionTrace objectTrace, Integer objectId, int overwritingDefId,
-			int traceStart, int traceEnd) {
+	        ExecutionTrace objectTrace, Integer objectId, int overwritingDefId,
+	        int traceStart, int traceEnd) {
 
-		Definition overwritingDefinition = DefUsePool
-				.getDefinitionByDefId(overwritingDefId);
+		Definition overwritingDefinition = DefUsePool.getDefinitionByDefId(overwritingDefId);
 		if (overwritingDefinition == null)
 			throw new IllegalStateException(
-					"expect DefUsePool to know definitions traced by instrumented code. defId: "
-							+ overwritingDefId);
+			        "expect DefUsePool to know definitions traced by instrumented code. defId: "
+			                + overwritingDefId);
 
 		// if the overwritingDefinition is in a root-branch it's not really
 		// avoidable
@@ -470,13 +473,14 @@ public class DefUseFitnessCalculator {
 
 		// get alternative branch
 		StatementCoverageTestFitness overwritingFunction = new StatementCoverageTestFitness(
-				overwritingDefinition);
+		        overwritingDefinition);
 
 		double overwritingFitness;
 		try {
-			overwritingFitness = calculateFitnessForDURange(objectTrace,
-					objectId, overwritingFunction, overwritingDefinition, true,
-					traceStart, traceEnd, false);
+			overwritingFitness = calculateFitnessForDURange(objectTrace, objectId,
+			                                                overwritingFunction,
+			                                                overwritingDefinition, true,
+			                                                traceStart, traceEnd, false);
 			if (overwritingFitness != 0.0)
 				return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 
@@ -486,42 +490,39 @@ public class DefUseFitnessCalculator {
 		// throw new IllegalStateException(
 		// "expect fitness of overwritingDefinition in cut trace to be 0.0 since def was passed");
 
-		BranchCoverageTestFitness coveringOverwritingFitness = overwritingFunction
-				.getLastCoveringFitness();
+		BranchCoverageTestFitness coveringOverwritingFitness = overwritingFunction.getLastCoveringFitness();
 
 		if (coveringOverwritingFitness.getBranch() == null)
 			throw new IllegalStateException(
-					"impossible if overwritingDef not rootBranchDependent()");
+			        "impossible if overwritingDef not rootBranchDependent()");
 		// return SINGLE_ALTERNATIVE_FITNESS_RANGE;
 
-		TestFitnessFunction alternativeFitness = BranchCoverageFactory
-				.createBranchCoverageTestFitness(coveringOverwritingFitness
-						.getBranch(), !coveringOverwritingFitness
-						.getBranchExpressionValue());
+		TestFitnessFunction alternativeFitness = BranchCoverageFactory.createBranchCoverageTestFitness(coveringOverwritingFitness.getBranch(),
+		                                                                                               !coveringOverwritingFitness.getBranchExpressionValue());
 
 		// calculate alternative fitness
 		try {
-			double newFitness = calculateFitnessForDURange(objectTrace,
-					objectId, alternativeFitness, overwritingDefinition, false,
-					traceStart, traceEnd, true);
+			double newFitness = calculateFitnessForDURange(objectTrace, objectId,
+			                                               alternativeFitness,
+			                                               overwritingDefinition, false,
+			                                               traceStart, traceEnd, true);
 			if (newFitness > 1) {
 				int approachPart = (int) newFitness;
 				newFitness -= approachPart;
 			}
 			if (newFitness <= 0 || newFitness > 1) {
 				throw new IllegalStateException(
-						"single alternative fitness out of expected range: "
-								+ newFitness);
+				        "single alternative fitness out of expected range: " + newFitness);
 			}
 
-//			if (newFitness != 0.5) {
-//				System.out.println("HAH: " + newFitness);
-//				System.out.println(alternativeFitness.toString());
-//				System.out.println(overwritingDefinition.toString());
-//				System.out.println(result.test.toCode());
-//				System.out.println(objectTrace.toDefUseTraceInformation(
-//						goalVariable, objectId));
-//			}
+			//			if (newFitness != 0.5) {
+			//				System.out.println("HAH: " + newFitness);
+			//				System.out.println(alternativeFitness.toString());
+			//				System.out.println(overwritingDefinition.toString());
+			//				System.out.println(result.test.toCode());
+			//				System.out.println(objectTrace.toDefUseTraceInformation(
+			//						goalVariable, objectId));
+			//			}
 
 			return SINGLE_ALTERNATIVE_FITNESS_RANGE * newFitness;
 		} catch (UnexpectedFitnessException e) {
@@ -576,9 +577,8 @@ public class DefUseFitnessCalculator {
 			return 0.0;
 		// check ExecutionTrace.passedDefinitions first, because calculating
 		// BranchTestFitness takes time
-		if (hasEntriesForId(result.getTrace().passedDefinitions
-				.get(goalDefinition.getDUVariableName()), goalDefinition
-				.getDefId()))
+		if (hasEntriesForId(result.getTrace().getPassedDefinitions(goalDefinition.getDUVariableName()),
+		                    goalDefinition.getDefId()))
 			return 0.0;
 
 		// return calculated fitness
@@ -604,8 +604,8 @@ public class DefUseFitnessCalculator {
 
 		// check ExecutionTrace.passedUses first, because calculating
 		// BranchTestFitness takes time
-		if (hasEntriesForId(result.getTrace().passedUses.get(goalUse
-				.getDUVariableName()), goalUse.getUseId()))
+		if (hasEntriesForId(result.getTrace().getPassedUses(goalUse.getDUVariableName()),
+		                    goalUse.getUseId()))
 			return 0.0;
 
 		// return calculated fitness
@@ -639,24 +639,25 @@ public class DefUseFitnessCalculator {
 	 * @throws UnexpectedFitnessException
 	 * 
 	 */
-	private double calculateUseFitnessForDefinitionPos(
-			ExecutionTrace targetTrace, Integer objectId, int goalDefinitionPos)
-			throws UnexpectedFitnessException {
+	private double calculateUseFitnessForDefinitionPos(ExecutionTrace targetTrace,
+	        Integer objectId, int goalDefinitionPos) throws UnexpectedFitnessException {
 
-		int previousDefId = DefUseExecutionTraceAnalyzer
-				.getPreviousDefinitionId(goalDefinition.getDUVariableName(),
-						targetTrace, goalDefinitionPos, objectId);
+		int previousDefId = DefUseExecutionTraceAnalyzer.getPreviousDefinitionId(goalDefinition.getDUVariableName(),
+		                                                                         targetTrace,
+		                                                                         goalDefinitionPos,
+		                                                                         objectId);
 		if (previousDefId == goalDefinition.getDefId())
 			return 1.0;
 
-		int overwritingDefPos = DefUseExecutionTraceAnalyzer
-				.getNextOverwritingDefinitionPosition(goalDefinition,
-						targetTrace, goalDefinitionPos, objectId);
+		int overwritingDefPos = DefUseExecutionTraceAnalyzer.getNextOverwritingDefinitionPosition(goalDefinition,
+		                                                                                          targetTrace,
+		                                                                                          goalDefinitionPos,
+		                                                                                          objectId);
 
 		try {
-			return calculateFitnessForDURange(targetTrace, objectId,
-					goalUseFitness, goalUse, true, goalDefinitionPos,
-					overwritingDefPos, true);
+			return calculateFitnessForDURange(targetTrace, objectId, goalUseFitness,
+			                                  goalUse, true, goalDefinitionPos,
+			                                  overwritingDefPos, true);
 		} catch (UnexpectedFitnessException e) {
 			return 1.0;
 		}
@@ -687,17 +688,17 @@ public class DefUseFitnessCalculator {
 	 * 
 	 */
 	private double calculateFitnessForDURange(ExecutionTrace targetTrace,
-			Integer objectId, TestFitnessFunction targetFitness,
-			DefUse targetDU, boolean wantToCoverTargetDU, int duCounterStart,
-			int duCounterEnd, boolean expectNotToBeZero)
-			throws UnexpectedFitnessException {
+	        Integer objectId, TestFitnessFunction targetFitness, DefUse targetDU,
+	        boolean wantToCoverTargetDU, int duCounterStart, int duCounterEnd,
+	        boolean expectNotToBeZero) throws UnexpectedFitnessException {
 
 		// filter trace
-		ExecutionTrace cutTrace = targetTrace.getTraceInDUCounterRange(
-				targetDU, wantToCoverTargetDU, duCounterStart, duCounterEnd);
+		ExecutionTrace cutTrace = targetTrace.getTraceInDUCounterRange(targetDU,
+		                                                               wantToCoverTargetDU,
+		                                                               duCounterStart,
+		                                                               duCounterEnd);
 		// calculate fitness
-		double fitness = callTestFitnessFunctionForTrace(cutTrace,
-				targetFitness);
+		double fitness = callTestFitnessFunctionForTrace(cutTrace, targetFitness);
 
 		// TODO see comment in calculateDUFitness() Case2.
 		// // sanity check
@@ -740,7 +741,7 @@ public class DefUseFitnessCalculator {
 	 * The ExecutionResult is left in it's original state after execution
 	 */
 	private double callTestFitnessFunctionForTrace(ExecutionTrace targetTrace,
-			TestFitnessFunction targetFitness) {
+	        TestFitnessFunction targetFitness) {
 
 		ExecutionTrace originalTrace = result.getTrace();
 		result.setTrace(targetTrace);
@@ -757,15 +758,12 @@ public class DefUseFitnessCalculator {
 	 */
 	private static boolean isSpecialDefinition(Definition definition) {
 		if (definition == null
-				|| (definition.isStaticDefUse() && definition.getMethodName()
-						.startsWith("<clinit>"))) {
+		        || (definition.isStaticDefUse() && definition.getMethodName().startsWith("<clinit>"))) {
 
 			if (definition == null)
-				logger
-						.debug("Assume Parameter-Definition to be covered if the Parameter-Use is covered");
+				logger.debug("Assume Parameter-Definition to be covered if the Parameter-Use is covered");
 			else
-				logger
-						.debug("Assume definition from <clinit> to always be covered");
+				logger.debug("Assume definition from <clinit> to always be covered");
 
 			return true;
 		}
@@ -780,35 +778,31 @@ public class DefUseFitnessCalculator {
 	 * are considered
 	 */
 	private static Set<Integer> determineConsiderableObjects(
-			DefUseCoverageTestFitness goal, ExecutionTrace trace) {
+	        DefUseCoverageTestFitness goal, ExecutionTrace trace) {
 		String goalVariable = goal.getGoalVariable();
 		Definition goalDefinition = goal.getGoalDefinition();
 
 		Set<Integer> objectPool = new HashSet<Integer>();
-		if (trace.passedUses.get(goalVariable) == null)
+		if (trace.getPassedUses(goalVariable) == null)
 			return objectPool;
-		if (trace.passedDefinitions.get(goalVariable) != null)
-			objectPool.addAll(trace.passedDefinitions.get(goalVariable)
-					.keySet());
+		if (trace.getPassedDefinitions(goalVariable) != null)
+			objectPool.addAll(trace.getPassedDefinitions(goalVariable).keySet());
 		if (goalDefinition == null || goalDefinition.isStaticDefUse()) {
 			// in the static case all objects have to be considered
-			objectPool.addAll(trace.passedUses.get(goalVariable).keySet());
+			objectPool.addAll(trace.getPassedUses(goalVariable).keySet());
 			if (DEBUG)
 				logger.debug("Static-goalVariable! Using all known Objects");
 		} else {
 			// on non-static goalVariables only look at objects that have traces
 			// of defs and uses for the goalVariable
 			int oldSize = objectPool.size();
-			objectPool.retainAll(trace.passedUses.get(goalVariable).keySet());
+			objectPool.retainAll(trace.getPassedUses(goalVariable).keySet());
 			if (DEBUG) {
 				logger.debug("NON-Static-goalVariable " + goalVariable);
-				logger.debug("#unused objects: "
-						+ (oldSize - objectPool.size()));
+				logger.debug("#unused objects: " + (oldSize - objectPool.size()));
 				Set<Integer> discardedObjects = new HashSet<Integer>();
-				discardedObjects.addAll(trace.passedDefinitions.get(
-						goalVariable).keySet());
-				discardedObjects.removeAll(trace.passedUses.get(goalVariable)
-						.keySet());
+				discardedObjects.addAll(trace.getPassedDefinitions(goalVariable).keySet());
+				discardedObjects.removeAll(trace.getPassedUses(goalVariable).keySet());
 				for (Integer id : discardedObjects) {
 					logger.debug("  discarded object " + id);
 				}
@@ -838,16 +832,14 @@ public class DefUseFitnessCalculator {
 		return false;
 	}
 
-	public static boolean hasEntryInBetween(List<Integer> list, Integer start,
-			Integer end) {
+	public static boolean hasEntryInBetween(List<Integer> list, Integer start, Integer end) {
 		for (Integer pos : list)
 			if (start < pos && pos < end)
 				return true;
 		return false;
 	}
 
-	public static Integer getMaxEntryLowerThan(List<Integer> list,
-			Integer border) {
+	public static Integer getMaxEntryLowerThan(List<Integer> list, Integer border) {
 		int lastPos = -1;
 		for (Integer defPos : list)
 			if (defPos < border && defPos > lastPos)
@@ -856,7 +848,7 @@ public class DefUseFitnessCalculator {
 	}
 
 	public static boolean hasEntriesForId(
-			Map<Integer, HashMap<Integer, Integer>> objectDUMap, int targetId) {
+	        Map<Integer, HashMap<Integer, Integer>> objectDUMap, int targetId) {
 		if (objectDUMap == null)
 			return false;
 		for (Integer objectId : objectDUMap.keySet())
@@ -867,8 +859,8 @@ public class DefUseFitnessCalculator {
 	}
 
 	public static boolean hasEntriesForId(
-			Map<Integer, HashMap<Integer, Integer>> objectDUMap,
-			Integer objectId, int targetId) {
+	        Map<Integer, HashMap<Integer, Integer>> objectDUMap, Integer objectId,
+	        int targetId) {
 		if (objectDUMap == null)
 			return false;
 		if (objectDUMap.get(objectId) == null)
@@ -883,31 +875,32 @@ public class DefUseFitnessCalculator {
 	 * Only a sanity check function for testing purposes
 	 */
 	public static boolean traceCoversGoal(DefUseCoverageTestFitness goal,
-			Chromosome individual, ExecutionTrace trace) {
+	        Chromosome individual, ExecutionTrace trace) {
 		String goalVariable = goal.getGoalVariable();
 		Use goalUse = goal.getGoalUse();
 		Definition goalDefinition = goal.getGoalDefinition();
 
-		if (trace.passedUses.get(goalVariable) == null)
+		if (trace.getPassedUses(goalVariable) == null)
 			return false;
 		Set<Integer> objectPool = determineConsiderableObjects(goal, trace);
 
 		for (Integer objectID : objectPool) {
-			List<Integer> usePositions = DefUseExecutionTraceAnalyzer
-					.getUsePositions(goalUse, trace, objectID);
+			List<Integer> usePositions = DefUseExecutionTraceAnalyzer.getUsePositions(goalUse,
+			                                                                          trace,
+			                                                                          objectID);
 			// use not reached
 			if (usePositions.size() == 0)
 				continue;
-//			if (goalUse.isParameterUse())
-//				return true;
+			//			if (goalUse.isParameterUse())
+			//				return true;
 			if (isSpecialDefinition(goalDefinition))
 				return true;
 
 			for (Integer usePos : usePositions) {
 
-				if (DefUseExecutionTraceAnalyzer.getActiveDefinitionIdAt(
-						goalVariable, trace, usePos, objectID) == goalDefinition
-						.getDefId())
+				if (DefUseExecutionTraceAnalyzer.getActiveDefinitionIdAt(goalVariable,
+				                                                         trace, usePos,
+				                                                         objectID) == goalDefinition.getDefId())
 					return true;
 			}
 		}

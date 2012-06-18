@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,7 @@ import de.unisb.cs.st.evosuite.coverage.branch.Branch;
 import de.unisb.cs.st.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteChromosome;
 import de.unisb.cs.st.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -51,7 +51,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final BranchCoverageSuiteFitness branchFitness = new BranchCoverageSuiteFitness();
 
 	public LCSAJCoverageSuiteFitness() {
-		ExecutionTrace.enableTraceCalls();
+		ExecutionTracer.enableTraceCalls();
 		for (String className : LCSAJPool.lcsaj_map.keySet()) {
 			for (String methodName : LCSAJPool.lcsaj_map.get(className).keySet())
 				for (LCSAJ lcsaj : LCSAJPool.lcsaj_map.get(className).get(methodName)) {
@@ -113,7 +113,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 						LCSAJFitnesses.put(testFitness.lcsaj, newFitness);
 				}
 			}
-			for (Entry<Integer, Integer> entry : result.getTrace().coveredPredicates.entrySet()) {
+			for (Entry<Integer, Integer> entry : result.getTrace().getPredicateExecutionCount().entrySet()) {
 				if (!trueExecutions.containsKey(entry.getKey()))
 					trueExecutions.put(entry.getKey(), entry.getValue());
 				else {
@@ -133,9 +133,9 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (LCSAJ l : LCSAJFitnesses.keySet()) {
 			fitness += normalize(LCSAJFitnesses.get(l));
 		}
-		
+
 		fitness += branchFitness.getFitness(individual);
-		
+
 		logger.debug("Combined fitness: " + fitness);
 		double missingBranches = 0.0;
 		for (Integer executedID : expectedTrueExecutions.keySet()) {
@@ -158,7 +158,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 
 		fitness += normalize(missingBranches);
-		
+
 		logger.info("Combined fitness with correction: " + fitness);
 
 		updateIndividual(individual, fitness);
