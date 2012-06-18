@@ -11,6 +11,8 @@ import java.util.Set;
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
 
 /**
+ * This interface defines the trace data that is collected during execution.
+ * 
  * @author Gordon Fraser
  * 
  */
@@ -26,49 +28,195 @@ public interface ExecutionTrace {
 	public void branchPassed(int branch, int bytecode_id, double true_distance,
 	        double false_distance);
 
+	/**
+	 * Retrieve minimum branch distance to false branch
+	 * 
+	 * @param branchId
+	 * @return
+	 */
 	public double getFalseDistance(int branchId);
 
+	/**
+	 * Retrieve minimum branch distance to true branch
+	 * 
+	 * @param branchId
+	 * @return
+	 */
 	public double getTrueDistance(int branchId);
 
+	/**
+	 * Retrieve set of branches that evaluated to true
+	 * 
+	 * @return
+	 */
 	public Set<Integer> getCoveredTrueBranches();
 
+	/**
+	 * Retrieve set of branches that evaluated to false
+	 * 
+	 * @return
+	 */
 	public Set<Integer> getCoveredFalseBranches();
 
+	/**
+	 * Retrieve set of branches that were executed
+	 * 
+	 * @return
+	 */
 	public Set<Integer> getCoveredPredicates();
 
+	/**
+	 * Retrieve execution counts for branches
+	 * 
+	 * @return
+	 */
 	public Map<Integer, Integer> getPredicateExecutionCount();
 
+	/**
+	 * Retrieve execution counts for methods
+	 * 
+	 * @return
+	 */
 	public Map<String, Integer> getMethodExecutionCount();
 
+	/**
+	 * Determine if a branch has a true distance stored
+	 * 
+	 * @param predicateId
+	 * @return
+	 */
 	public boolean hasTrueDistance(int predicateId);
 
+	/**
+	 * Determine if a branch has a false distance stored
+	 * 
+	 * @param predicateId
+	 * @return
+	 */
 	public boolean hasFalseDistance(int predicateId);
 
+	/**
+	 * Retrieve map of all minimal true distances
+	 * 
+	 * @return
+	 */
 	public Map<Integer, Double> getTrueDistances();
 
+	/**
+	 * Retrieve map of all minimal false distances
+	 * 
+	 * @return
+	 */
 	public Map<Integer, Double> getFalseDistances();
 
+	/**
+	 * Retrieve the set of line numbers covered
+	 * 
+	 * @param className
+	 * @return
+	 */
 	public Set<Integer> getCoveredLines(String className);
 
+	/**
+	 * Retrieve detailed line coverage count
+	 * 
+	 * @return
+	 */
 	public Map<String, Map<String, Map<Integer, Integer>>> getCoverageData();
 
+	/**
+	 * Retrieve return value data
+	 * 
+	 * @return
+	 */
 	public Map<String, Map<String, Map<Integer, Integer>>> getReturnData();
 
+	/**
+	 * Retrieve data definitions
+	 * 
+	 * @return
+	 */
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getDefinitionData();
 
+	/**
+	 * Retrieve data uses
+	 * 
+	 * @return
+	 */
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getUseData();
 
+	/**
+	 * Retrieve the data definitions for a given variable
+	 * 
+	 * @param variableName
+	 * @return
+	 */
+	public Map<Integer, HashMap<Integer, Integer>> getPassedDefinitions(
+	        String variableName);
+
+	/**
+	 * Retrieve the data uses for a given variable
+	 * 
+	 * @param variableName
+	 * @return
+	 */
+	public Map<Integer, HashMap<Integer, Integer>> getPassedUses(String variableName);
+
+	/**
+	 * Retrieve the exception thrown in this trace
+	 * 
+	 * @return
+	 */
+	public Throwable getExplicitException();
+
+	/**
+	 * Retrieve all traced method calls
+	 * 
+	 * @return
+	 */
 	public List<MethodCall> getMethodCalls();
+
+	/**
+	 * Retrieve the names of all called methods
+	 * 
+	 * @return
+	 */
+	public Set<String> getCoveredMethods();
+
+	/**
+	 * Retrieve the minimum infection distance for a mutant
+	 * 
+	 * @param mutationId
+	 * @return
+	 */
+	public double getMutationDistance(int mutationId);
+
+	/**
+	 * Retrieve all minimal infection distances
+	 * 
+	 * @return
+	 */
+	public Map<Integer, Double> getMutationDistances();
+
+	/**
+	 * Determine is a mutant was executed
+	 * 
+	 * @param mutationId
+	 * @return
+	 */
+	public boolean wasMutationTouched(int mutationId);
+
+	/**
+	 * Retrieve IDs of all executed mutants
+	 * 
+	 * @return
+	 */
+	public Set<Integer> getTouchedMutants();
 
 	/**
 	 * Reset to 0
 	 */
 	public void clear();
-
-	/**
-	 * Create a lazy copy
-	 */
-	// public ExecutionTrace clone();
 
 	/**
 	 * Adds Definition-Use-Coverage trace information for the given definition.
@@ -97,8 +245,10 @@ public interface ExecutionTrace {
 	 */
 	public void exitMethod(String classname, String methodname);
 
-	public Set<String> getCoveredMethods();
-
+	/**
+	 * Finish all method calls. This is called when a method is not exited
+	 * regularly, but through an exception
+	 */
 	public void finishCalls();
 
 	/**
@@ -147,16 +297,21 @@ public interface ExecutionTrace {
 	 */
 	public void linePassed(String className, String methodName, int line);
 
+	/**
+	 * Record a mutant execution
+	 * 
+	 * @param mutationId
+	 * @param distance
+	 */
 	public void mutationPassed(int mutationId, double distance);
 
-	public double getMutationDistance(int mutationId);
-
-	public Map<Integer, Double> getMutationDistances();
-
-	public boolean wasMutationTouched(int mutationId);
-
-	public Set<Integer> getTouchedMutants();
-
+	/**
+	 * Record a return value
+	 * 
+	 * @param className
+	 * @param methodName
+	 * @param value
+	 */
 	public void returnValue(String className, String methodName, int value);
 
 	/**
@@ -190,14 +345,17 @@ public interface ExecutionTrace {
 	 */
 	public void usePassed(Object caller, int useID);
 
-	public Map<Integer, HashMap<Integer, Integer>> getPassedDefinitions(
-	        String variableName);
-
-	public Map<Integer, HashMap<Integer, Integer>> getPassedUses(String variableName);
-
-	public Throwable getExplicitException();
-
+	/**
+	 * Set the exception thrown in this trace
+	 * 
+	 * @param explicitException
+	 */
 	public void setExplicitException(Throwable explicitException);
 
+	/**
+	 * Create a lazy copy
+	 * 
+	 * @return
+	 */
 	public ExecutionTrace lazyClone();
 }
