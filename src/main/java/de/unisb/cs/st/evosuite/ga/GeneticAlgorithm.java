@@ -381,6 +381,26 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		// Sort population
 		sortPopulation();
 	}
+	
+	/**
+	 * It assumes the population being sorted. After removal, at least 2 individuals should be left
+	 * 
+	 * @param numberOfIndividuals
+	 */
+	public void removeWorstIndividuals(int numberOfIndividuals){
+		if(numberOfIndividuals > (population.size() - 2)){
+			throw new IllegalArgumentException("Asked to remove "+numberOfIndividuals+" individuals, but population size is "+population.size());
+		}
+		
+		int desiredSize = population.size() - numberOfIndividuals;
+		for (int i = population.size() - 1; i >= desiredSize; i--) {
+			population.remove(i);
+		}
+	}
+	
+	public int getPopulationSize(){
+		return population.size();
+	}
 
 	/**
 	 * Copy best individuals
