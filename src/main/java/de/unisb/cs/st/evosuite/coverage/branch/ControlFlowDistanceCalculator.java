@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,7 +30,7 @@ import de.unisb.cs.st.evosuite.coverage.TestCoverageGoal;
 import de.unisb.cs.st.evosuite.graphs.cfg.BytecodeInstruction;
 import de.unisb.cs.st.evosuite.graphs.cfg.ControlDependency;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace.MethodCall;
+import de.unisb.cs.st.evosuite.testcase.MethodCall;
 
 /**
  * 
@@ -138,7 +138,7 @@ public class ControlFlowDistanceCalculator {
 
 		ControlFlowDistance d = new ControlFlowDistance();
 
-		for (MethodCall call : result.getTrace().finishedCalls) {
+		for (MethodCall call : result.getTrace().getMethodCalls()) {
 			if (call.className.equals(""))
 				continue;
 			if ((call.className + "." + call.methodName).equals(className + "."
@@ -165,7 +165,7 @@ public class ControlFlowDistanceCalculator {
 		r.setApproachLevel(branch.getInstruction().getActualCFG().getDiameter() + 1);
 
 		// Minimal distance between target node and path
-		for (MethodCall call : result.getTrace().finishedCalls) {
+		for (MethodCall call : result.getTrace().getMethodCalls()) {
 			if (call.className.equals(className) && call.methodName.equals(methodName)) {
 				ControlFlowDistance d2;
 				Set<Branch> handled = new HashSet<Branch>();
@@ -290,11 +290,12 @@ public class ControlFlowDistanceCalculator {
 		}
 
 		for (ControlDependency next : nextToLookAt) {
-			if(instruction.equals(next.getBranch()))
+			if (instruction.equals(next.getBranch()))
 				continue; // avoid loops
-			
+
 			boolean nextValue = next.getBranchExpressionValue();
-			ControlFlowDistance nextDistance = getNonRootDistance(result, call, next.getBranch(),
+			ControlFlowDistance nextDistance = getNonRootDistance(result, call,
+			                                                      next.getBranch(),
 			                                                      nextValue, className,
 			                                                      methodName, handled);
 			r.add(nextDistance);
