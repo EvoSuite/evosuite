@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -59,7 +59,7 @@ public class TestChromosome extends ExecutableChromosome {
 	public TestCase getTestCase() {
 		return test;
 	}
-	
+
 	@Override
 	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
 		assert lastExecutionResult.test.equals(this.test);
@@ -106,8 +106,9 @@ public class TestChromosome extends ExecutableChromosome {
 	protected void copyCachedResults(ExecutableChromosome other) {
 		if (test == null)
 			throw new RuntimeException("Test is null!");
-		this.lastExecutionResult = other.lastExecutionResult.clone();
-		if (this.lastExecutionResult != null) {
+
+		if (other.lastExecutionResult != null) {
+			this.lastExecutionResult = other.lastExecutionResult.clone();
 			this.lastExecutionResult.test = this.test;
 		}
 
@@ -130,7 +131,7 @@ public class TestChromosome extends ExecutableChromosome {
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
 		TestChromosome offspring = new TestChromosome();
-		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
 			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
@@ -261,7 +262,7 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationDelete() {
 		boolean changed = false;
 		double pl = 1d / test.size();
-		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		for (int num = test.size() - 1; num >= 0; num--) {
 
@@ -296,7 +297,7 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationChange() {
 		boolean changed = false;
 		double pl = 1d / test.size();
-		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
 			try {
@@ -339,7 +340,7 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
-		DefaultTestFactory test_factory = DefaultTestFactory.getInstance();
+		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
 
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {

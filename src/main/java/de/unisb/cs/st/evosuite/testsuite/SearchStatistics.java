@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -309,9 +309,9 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
 			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
 
-			covered_methods.addAll(trace.coveredMethods.keySet());
+			covered_methods.addAll(trace.getCoveredMethods());
 
-			for (Entry<Integer, Double> e : trace.trueDistances.entrySet()) {
+			for (Entry<Integer, Double> e : trace.getTrueDistances().entrySet()) {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else
@@ -322,7 +322,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 					true_distance.put(e.getKey(), e.getValue());
 				}
 			}
-			for (Entry<Integer, Double> e : trace.falseDistances.entrySet()) {
+			for (Entry<Integer, Double> e : trace.getFalseDistances().entrySet()) {
 				if (!predicate_count.containsKey(e.getKey()))
 					predicate_count.put(e.getKey(), 1);
 				else

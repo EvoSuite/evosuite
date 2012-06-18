@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,6 +47,8 @@ public class ExecutionTracer {
 	private boolean killSwitch = false;
 
 	private int num_statements = 0;
+
+	private ExecutionTrace trace;
 
 	private static boolean checkCallerThread = true;
 
@@ -84,7 +86,13 @@ public class ExecutionTracer {
 		ExecutionTracer.checkCallerThread = checkCallerThread;
 	}
 
-	private ExecutionTrace trace;
+	public static void disableTraceCalls() {
+		ExecutionTraceImpl.disableTraceCalls();
+	}
+
+	public static void enableTraceCalls() {
+		ExecutionTraceImpl.enableTraceCalls();
+	}
 
 	public static ExecutionTracer getExecutionTracer() {
 		if (instance == null) {
@@ -97,7 +105,7 @@ public class ExecutionTracer {
 	 * Reset for new execution
 	 */
 	public void clear() {
-		trace = new ExecutionTrace();
+		trace = new ExecutionTraceProxy();
 		BooleanHelper.clearStack();
 		num_statements = 0;
 	}
@@ -151,7 +159,7 @@ public class ExecutionTracer {
 	 * @return
 	 */
 	public Throwable getLastException() {
-		return trace.explicitException;
+		return trace.getExplicitException();
 	}
 
 	/**
@@ -641,7 +649,7 @@ public class ExecutionTracer {
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
 
-		tracer.trace.explicitException = (Throwable) exception;
+		tracer.trace.setExplicitException((Throwable) exception);
 
 	}
 
@@ -666,6 +674,6 @@ public class ExecutionTracer {
 	}
 
 	private ExecutionTracer() {
-		trace = new ExecutionTrace();
+		trace = new ExecutionTraceProxy();
 	}
 }

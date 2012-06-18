@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -48,8 +48,8 @@ public class InstrumentingClassLoaderTest {
 		TestUtil.invokeMethod(changed, "trySomethingElse");
 		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
 		execTrace = ExecutionTracer.getExecutionTracer().getTrace();
-		Assert.assertFalse(execTrace.trueDistances.isEmpty());
-		Assert.assertFalse(execTrace.falseDistances.isEmpty());
+		Assert.assertFalse(execTrace.getTrueDistances().isEmpty());
+		Assert.assertFalse(execTrace.getFalseDistances().isEmpty());
 		ExecutionTracer.getExecutionTracer().clear();
 	}
 
@@ -64,8 +64,8 @@ public class InstrumentingClassLoaderTest {
 		ExecutionTracer.getExecutionTracer().clear();
 		original.assess(6);
 		ExecutionTrace execTrace = ExecutionTracer.getExecutionTracer().getTrace();
-		Assert.assertTrue(execTrace.trueDistances.isEmpty());
-		Assert.assertTrue(execTrace.falseDistances.isEmpty());
+		Assert.assertTrue(execTrace.getTrueDistances().isEmpty());
+		Assert.assertTrue(execTrace.getFalseDistances().isEmpty());
 
 		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
 		Class<?> changedClass = instrumentingClassLoader.loadClass(ClassLoaderTestSubject.class.getName());
@@ -83,30 +83,29 @@ public class InstrumentingClassLoaderTest {
 		ExecutionTracer.getExecutionTracer().clear();
 		TestUtil.invokeMethod(changed, "assess", Integer.valueOf(6));
 		execTrace = ExecutionTracer.getExecutionTracer().getTrace();
-		Assert.assertFalse(execTrace.trueDistances.isEmpty());
-		Assert.assertFalse(execTrace.falseDistances.isEmpty());
+		Assert.assertFalse(execTrace.getTrueDistances().isEmpty());
+		Assert.assertFalse(execTrace.getFalseDistances().isEmpty());
 		ExecutionTracer.getExecutionTracer().clear();
 	}
-	
+
 	@Ignore
 	@Test
-	public void testInnerClasses() throws Exception
-	{
+	public void testInnerClasses() throws Exception {
 		Class<? extends InnerClassesTestSubject> originalClass = InnerClassesTestSubject.class;
-		
+
 		Properties.TARGET_CLASS = originalClass.getName();
 		Properties.PROJECT_PREFIX = originalClass.getPackage().getName();
 		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
-		
+
 		Class<?> changedClass = instrumentingClassLoader.loadClass(InnerClassesTestSubject.class.getName());
-		
+
 		Assert.assertEquals(instrumentingClassLoader, changedClass.getClassLoader());
 		Assert.assertTrue(changedClass.hashCode() != originalClass.hashCode());
-		
+
 		InnerClassesTestSubject original = originalClass.newInstance();
 		Assert.assertEquals("abcd", original.toString());
-		
+
 		Object modified = changedClass.newInstance();
-		Assert.assertEquals("abcd", modified.toString());		
+		Assert.assertEquals("abcd", modified.toString());
 	}
 }

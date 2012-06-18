@@ -1,24 +1,23 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package de.unisb.cs.st.evosuite.junit;
 
 import java.util.HashSet;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import org.junit.runner.JUnitCore;
@@ -41,11 +40,11 @@ public class JUnitTestSuite {
 
 	private static Logger logger = LoggerFactory.getLogger(JUnitTestSuite.class);
 
-	private Set<String> covered_methods;
+	private Set<String> coveredMethods;
 
-	private Set<Integer> covered_branches_true;
+	private Set<Integer> coveredBranchesTrue;
 
-	private Set<Integer> covered_branches_false;
+	private Set<Integer> coveredBranchesFalse;
 
 	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -57,25 +56,13 @@ public class JUnitTestSuite {
 			JUnitCore.runClasses(forName);
 			ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
 
-			covered_methods = new HashSet<String>();
-			covered_branches_true = new HashSet<Integer>();
-			covered_branches_false = new HashSet<Integer>();
+			coveredMethods = new HashSet<String>();
+			coveredBranchesTrue = trace.getCoveredTrueBranches();
+			coveredBranchesFalse = trace.getCoveredFalseBranches();
 
-			for (Entry<String, Integer> entry : trace.coveredMethods.entrySet()) {
-				if (!entry.getKey().contains("$"))
-					covered_methods.add(entry.getKey());
-			}
-
-			for (Entry<Integer, Double> entry : trace.trueDistances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					//if (!entry.getKey().contains("$"))
-					covered_branches_true.add(entry.getKey());
-			}
-
-			for (Entry<Integer, Double> entry : trace.falseDistances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					//if (!entry.getKey().contains("$"))
-					covered_branches_false.add(entry.getKey());
+			for (String methodName : trace.getCoveredMethods()) {
+				if (!methodName.contains("$"))
+					coveredMethods.add(methodName);
 			}
 
 		} catch (ClassNotFoundException e) {
@@ -84,41 +71,28 @@ public class JUnitTestSuite {
 	}
 
 	public void runSuite(TestSuiteChromosome chromosome) {
-		covered_methods = new HashSet<String>();
-		covered_branches_true = new HashSet<Integer>();
-		covered_branches_false = new HashSet<Integer>();
+		coveredMethods = new HashSet<String>();
+		coveredBranchesTrue = new HashSet<Integer>();
+		coveredBranchesFalse = new HashSet<Integer>();
 
 		for (TestCase test : chromosome.getTests()) {
 			ExecutionResult result = runTest(test);
-			for (Entry<String, Integer> entry : result.getTrace().coveredMethods.entrySet()) {
-				//if(!entry.getKey().contains("$"))
-				covered_methods.add(entry.getKey());
-			}
-
-			for (Entry<Integer, Double> entry : result.getTrace().trueDistances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					//if(!entry.getKey().contains("$"))
-					covered_branches_true.add(entry.getKey());
-			}
-
-			for (Entry<Integer, Double> entry : result.getTrace().falseDistances.entrySet()) {
-				if (entry.getValue() == 0.0)
-					//if(!entry.getKey().contains("$"))
-					covered_branches_false.add(entry.getKey());
-			}
+			coveredMethods.addAll(result.getTrace().getCoveredMethods());
+			coveredBranchesTrue.addAll(result.getTrace().getCoveredTrueBranches());
+			coveredBranchesFalse.addAll(result.getTrace().getCoveredFalseBranches());
 		}
 	}
 
 	public Set<String> getCoveredMethods() {
-		return covered_methods;
+		return coveredMethods;
 	}
 
 	public Set<Integer> getTrueCoveredBranches() {
-		return covered_branches_true;
+		return coveredBranchesTrue;
 	}
 
 	public Set<Integer> getFalseCoveredBranches() {
-		return covered_branches_false;
+		return coveredBranchesFalse;
 	}
 
 	public ExecutionResult runTest(TestCase test) {

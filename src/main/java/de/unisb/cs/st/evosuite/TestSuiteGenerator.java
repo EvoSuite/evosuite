@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -110,7 +110,7 @@ import de.unisb.cs.st.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.ConstantInliner;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
 import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 import de.unisb.cs.st.evosuite.testcase.JUnitTestChromosomeFactory;
 import de.unisb.cs.st.evosuite.testcase.RandomLengthTestFactory;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
@@ -151,8 +151,12 @@ import de.unisb.cs.st.evosuite.utils.Utils;
 @SuppressWarnings("restriction")
 public class TestSuiteGenerator {
 
-	static { if (Properties.EVOSUITE_USE_UISPEC) { UISpec4J.init(); } }
-	
+	static {
+		if (Properties.EVOSUITE_USE_UISPEC) {
+			UISpec4J.init();
+		}
+	}
+
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
@@ -437,7 +441,7 @@ public class TestSuiteGenerator {
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS
 		        || Properties.CRITERION == Criterion.STATEMENT)
-			ExecutionTrace.enableTraceCalls();
+			ExecutionTracer.enableTraceCalls();
 
 		//TODO: why it was only if "analyzing"???
 		//if (analyzing)
@@ -723,7 +727,7 @@ public class TestSuiteGenerator {
 	public List<TestCase> generateIndividualTests() {
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for individual test generation");
-		ExecutionTrace.enableTraceCalls();
+		ExecutionTracer.enableTraceCalls();
 		if (ga == null)
 			ga = setup();
 		if (analyzing)
@@ -1092,7 +1096,7 @@ public class TestSuiteGenerator {
 		}
 	}
 
-	private static CrossOverFunction getCrossoverFunction() {
+	public static CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
 			return new SinglePointFixedCrossOver();

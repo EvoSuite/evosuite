@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -220,25 +220,25 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		// double sum = getCoverageDifference(getCoverage(orig_trace),
 		// getCoverage(mutant_trace));
 		logger.debug("Calculating coverage impact");
-		double coverage_impact = getCoverageDifference(orig_trace.coverage,
-		                                               mutant_trace.coverage);
+		double coverage_impact = getCoverageDifference(orig_trace.getCoverageData(),
+		                                               mutant_trace.getCoverageData());
 		logger.debug("Coverage impact: " + coverage_impact);
 		logger.debug("Calculating data impact");
-		double data_impact = getCoverageDifference(orig_trace.returnData,
-		                                           mutant_trace.returnData);
+		double data_impact = getCoverageDifference(orig_trace.getReturnData(),
+		                                           mutant_trace.getReturnData());
 		logger.debug("Data impact: " + data_impact);
 
 		double branch_impact = 0.0;
-		for (Integer predicate : orig_trace.coveredPredicates.keySet()) {
-			if (mutant_trace.trueDistances.containsKey(predicate)) {
-				branch_impact += normalize(Math.abs(orig_trace.trueDistances.get(predicate)
-				        - mutant_trace.trueDistances.get(predicate)));
+		for (Integer predicate : orig_trace.getCoveredPredicates()) {
+			if (mutant_trace.hasTrueDistance(predicate)) {
+				branch_impact += normalize(Math.abs(orig_trace.getTrueDistance(predicate)
+				        - mutant_trace.getTrueDistance(predicate)));
 			} else {
 				branch_impact += 1.0;
 			}
-			if (mutant_trace.falseDistances.containsKey(predicate)) {
-				branch_impact += normalize(Math.abs(orig_trace.falseDistances.get(predicate)
-				        - mutant_trace.falseDistances.get(predicate)));
+			if (mutant_trace.hasFalseDistance(predicate)) {
+				branch_impact += normalize(Math.abs(orig_trace.getFalseDistance(predicate)
+				        - mutant_trace.getFalseDistance(predicate)));
 			} else {
 				branch_impact += 1.0;
 			}
@@ -286,7 +286,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		double executionDistance = diameter;
 
 		// Get control flow distance
-		if (!result.getTrace().touchedMutants.contains(mutation.getId()))
+		if (!result.getTrace().getTouchedMutants().contains(mutation.getId()))
 			executionDistance = getExecutionDistance(result);
 		else
 			executionDistance = 0.0;
@@ -299,10 +299,10 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		if (executionDistance <= 0) {
 			// Add infection distance
 			assert (result.getTrace() != null);
-			assert (result.getTrace().mutantDistances != null);
+			// assert (result.getTrace().mutantDistances != null);
 			assert (mutation != null);
-			assert (result.getTrace().touchedMutants.contains(mutation.getId()));
-			infectionDistance = normalize(result.getTrace().mutantDistances.get(mutation.getId()));
+			assert (result.getTrace().getTouchedMutants().contains(mutation.getId()));
+			infectionDistance = normalize(result.getTrace().getMutationDistance(mutation.getId()));
 			logger.debug("Infection distance for mutation = " + infectionDistance);
 
 			// If infected check if it is also killed
