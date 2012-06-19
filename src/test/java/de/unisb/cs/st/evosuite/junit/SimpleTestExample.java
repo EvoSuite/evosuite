@@ -72,14 +72,20 @@ public class SimpleTestExample {
 		int[][] colors = new int[image.getWidth()][image.getHeight()];
 		// TODO Having it as an assignment is different:
 		// colors = new int[image.getWidth()][image.getHeight()];
-		// TODO colors[0][0] = colors[colors.length][colors[colors.length].length];
+		// TODO colors[0][0] =
+		// colors[colors.length][colors[colors.length].length];
 		colors[0][0] = colors[1][4];
 		colors[0][1] = 3 + TestExample.doCalc(4, 5);
 	}
-	
+
 	@Test
-	public void test08(){
+	public void test08() {
+		String[] stringArray0 = new String[0];
+		TestExample.sysoutArray(stringArray0);
 		TestExample.sysoutArray();
+		String[] stringArray2 = new String[1];
+		stringArray2[0] = "Test";
+		TestExample.sysoutArray(stringArray2);
 		TestExample.sysoutArray("Test");
 		TestExample.sysoutArray("This ", "is ", "a ", "Test", "!");
 	}

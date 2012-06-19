@@ -5,7 +5,12 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
+import org.eclipse.jdt.core.JavaCore;
+import org.eclipse.jdt.core.compiler.IProblem;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -43,6 +48,8 @@ public class JUnitTestReader implements TestReader {
 	protected final String[] sources;
 	protected final String[] classpath;
 	protected CompilationUnit compilationUnit;
+
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JUnitTestReader.class);
 
 	public JUnitTestReader(String[] classpath, String[] sources) {
 		super();
@@ -110,9 +117,23 @@ public class JUnitTestReader implements TestReader {
 		parser.setResolveBindings(true);
 		parser.setBindingsRecovery(true);
 		parser.setUnitName(unitName);
-		parser.setEnvironment(classpath, sources, null, true);
+		@SuppressWarnings("unchecked")
+		Hashtable<String, String> options = JavaCore.getDefaultOptions();
+		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		parser.setCompilerOptions(options);
+		parser.setEnvironment(classpath, sources, new String[] { "UTF-8", "UTF-8" }, true);
 		parser.setSource(fileContents.toCharArray());
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
+		Set<String> problems = new HashSet<String>();
+		for (IProblem problem : compilationUnit.getProblems()) {
+			problems.add(problem.toString());
+		}
+		if (!problems.isEmpty()) {
+			logger.warn("Got {} problems compiling the source file: ", problems.size());
+			for (String problem : problems) {
+				logger.warn("{}", problem);
+			}
+		}
 		return compilationUnit;
 	}
 

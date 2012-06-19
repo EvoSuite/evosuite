@@ -194,11 +194,30 @@ public class JUnitTestReaderSimpleTest {
 		TestCase testCase = reader.readJUnitTestCase(SimpleTestExample.class.getName() + "#test08");
 		testCase.clone();
 		String code = testCase.toCode();
-		String result = "TestExample.sysoutArray();\n" + //
-				"String[] stringArray0 = new String[]{\"Test\"};\n" + //
+		String result = "String[] stringArray0 = new String[0];\n" + //
 				"TestExample.sysoutArray(stringArray0);\n" + //
-				"String[] stringArray1 = new String[]{\"This \", \"is \", \"a \", \"Test\", \"!\"};\n" + //
-				"TestExample.sysoutArray(stringArray1);\n";
+				"String[] stringArray1 = new String[0];\n" + //
+				"TestExample.sysoutArray(stringArray1);\n" + //
+				"String[] stringArray2 = new String[1];\n" + //
+				"String string0 = \"Test\";\n" + //
+				"stringArray2[0] = string0;\n" + //
+				"TestExample.sysoutArray(stringArray2);\n" + //
+				"String[] stringArray3 = new String[1];\n" + //
+				"String string1 = \"Test\";\n" + //
+				"stringArray3[0] = string1;\n" + //
+				"TestExample.sysoutArray(stringArray3);\n" + //
+				"String[] stringArray4 = new String[5];\n" + //
+				"String string2 = \"This \";\n" + //
+				"stringArray4[0] = string2;\n" + //
+				"String string3 = \"is \";\n" + //
+				"stringArray4[1] = string3;\n" + //
+				"String string4 = \"a \";\n" + //
+				"stringArray4[2] = string4;\n" + //
+				"String string5 = \"Test\";\n" + //
+				"stringArray4[3] = string5;\n" + //
+				"String string6 = \"!\";\n" + //
+				"stringArray4[4] = string6;\n" + //
+				"TestExample.sysoutArray(stringArray4);\n";
 		Assert.assertEquals(result, code);
 	}
 }
