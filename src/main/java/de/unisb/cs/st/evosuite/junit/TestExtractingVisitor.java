@@ -710,17 +710,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				arrayReference.setOriginalCode(variableDeclStmt.toString());
 				ArrayStatement arrayStatement = new ArrayStatement(testCase.getReference(), arrayReference);
 				arrayStatement.setLengths(getLengths(variableDeclStmt, lengthsVarRefs));
-				// List<Integer> indices = new ArrayList<Integer>();
-				// indices.add((Integer) ((NumberLiteral)
-				// arrayAccess.getIndex()).resolveConstantExpressionValue());
-				// while (expr instanceof ArrayAccess) {
-				// ArrayAccess current = (ArrayAccess) expr;
-				// expr = (current).getArray();
-				// indices.add((Integer) ((NumberLiteral)
-				// current.getIndex()).resolveConstantExpressionValue());
-				// }
-				// Collections.reverse(indices);
-				// arrayStatement.setLengths();
 				testCase.addVariable(varDeclFrgmnt.resolveBinding(), arrayStatement.getReturnValue());
 				testCase.addStatement(arrayStatement);
 			}
@@ -931,10 +920,24 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 	}
 
-	private List<VariableReference> convertParams(List<?> arguments, List<?> argumentTypes) {
+	private List<VariableReference> convertParams(List<?> params, List<?> argumentTypes) {
 		List<VariableReference> result = new ArrayList<VariableReference>();
-		int idx = 0;
-		for (Object argument : arguments) {
+		if ((params.size() == 0) && (argumentTypes.size() == 0)) {
+			return result;
+		}
+		if ((argumentTypes.size() > params.size()) && (argumentTypes.size() - 1 != params.size())) {
+			throw new RuntimeException("Number of declared and actual params do not match!");
+		}
+		int limit = argumentTypes.size();
+		Class<?> lastDeclaredParamType = retrieveTypeClass(argumentTypes.get(argumentTypes.size() - 1));
+		if (lastDeclaredParamType.isArray()) {
+			limit = argumentTypes.size() - 1;
+		}
+		for (int idx = 0; idx < limit; idx++) {
+			if (idx >= params.size()) {
+				break;
+			}
+			Object argument = params.get(idx);
 			if ((argument instanceof MethodInvocation) || (argument instanceof ClassInstanceCreation)) {
 				assert !nestedCallResults.isEmpty();
 				result.add(nestedCallResults.pop());
@@ -944,20 +947,49 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			VariableReference argRef = retrieveVariableReference(argument, argClass);
 			argRef.setOriginalCode(argument.toString());
 			result.add(argRef);
-			idx++;
 		}
-		// TODO Convert last params to array if so
-		if (argumentTypes.size() > 0) {
-			Class<?> lastArgClass = retrieveTypeClass(argumentTypes.get(argumentTypes.size() - 1));
-			if (lastArgClass.isArray()) {
-				List newArguments = new ArrayList();
-				if (!arguments.isEmpty()) {
-					newArguments.addAll(arguments.subList(0, argumentTypes.size() - 1));
-				}
-				List varArgs = arguments.subList(argumentTypes.size() - 1, arguments.size());
-				newArguments.add(toArray(varArgs, lastArgClass.getComponentType()));
-				arguments = newArguments;
+		if (limit == argumentTypes.size()) {
+			return result;
+		}
+		assert lastDeclaredParamType.isArray();
+		if (argumentTypes.size() == params.size()) {
+			Object lastParam = params.get(params.size() - 1);
+			Class<?> lastActualParamType = retrieveTypeClass(lastParam);
+			if (lastParam instanceof MethodInvocation) {
+				assert !nestedCallResults.isEmpty();
+				lastActualParamType = nestedCallResults.peek().getVariableClass();
 			}
+			if (lastActualParamType.isArray()) {
+				if ((lastParam instanceof MethodInvocation) || (lastParam instanceof ClassInstanceCreation)) {
+					assert !nestedCallResults.isEmpty();
+					result.add(nestedCallResults.pop());
+				} else {
+					result.add(retrieveVariableReference(lastParam, null));
+				}
+				return result;
+			}
+		}
+		ArrayReference arrayReference = new ValidArrayReference(testCase.getReference(), lastDeclaredParamType);
+		arrayReference.setOriginalCode(params.toString());
+		ArrayStatement arrayStatement = new ArrayStatement(testCase.getReference(), arrayReference);
+		testCase.addStatement(arrayStatement);
+		result.add(arrayStatement.getReturnValue());
+		arrayStatement.setSize(params.size() - (argumentTypes.size() - 1));
+		int arrayIdx = 0;
+		for (int idx = argumentTypes.size() - 1; idx < params.size(); idx++) {
+			ArrayIndex arrayIndex = new ArrayIndex(testCase.getReference(), arrayReference, arrayIdx);
+			Object param = params.get(idx);
+			VariableReference paramRef = null;
+			if ((param instanceof MethodInvocation) || (param instanceof ClassInstanceCreation)) {
+				assert !nestedCallResults.isEmpty();
+				paramRef = nestedCallResults.pop();
+			} else {
+				paramRef = retrieveVariableReference(param, lastDeclaredParamType.getComponentType());
+			}
+			paramRef.setOriginalCode(param.toString());
+			AssignmentStatement assignment = new AssignmentStatement(testCase.getReference(), arrayIndex, paramRef);
+			testCase.addStatement(assignment);
+			arrayIdx++;
 		}
 		return result;
 	}
@@ -1040,7 +1072,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		int idx = 0;
 		while ((value != null) && value.getClass().isArray()) {
 			lengths[idx] = Array.getLength(value);
-			value = Array.get(value, 0);
+			if (lengths[idx] > 0) {
+				value = Array.get(value, 0);
+			} else {
+				value = null;
+			}
 			idx++;
 		}
 		if (idx == lengths.length) {
@@ -1073,21 +1109,33 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private Class<?> loadClass(String className) {
 		// TODO Implement loading classes from Properties.CLASSPATH that are not
 		// on BugEx's classpath
+		Exception original = null;
 		try {
 			return TestCluster.classLoader.loadClass(className);
 		} catch (ClassNotFoundException exc) {
-			String classNameTrial = testCase.getClassName() + "$" + className;
+			original = exc;
+		}
+		String imported = imports.get(className);
+		if (imported != null) {
 			try {
-				return TestCluster.classLoader.loadClass(classNameTrial);
-			} catch (ClassNotFoundException inner) {
-				String packageName = testCase.getClassName().substring(0, testCase.getClassName().lastIndexOf("."));
-				try {
-					return TestCluster.classLoader.loadClass(packageName + "." + className);
-				} catch (ClassNotFoundException inner2) {
-					throw new RuntimeException(exc);
-				}
+				return TestCluster.classLoader.loadClass(imported);
+			} catch (ClassNotFoundException exc) {
+				// muted
 			}
 		}
+		String classNameTrial = testCase.getClassName() + "$" + className;
+		try {
+			return TestCluster.classLoader.loadClass(classNameTrial);
+		} catch (ClassNotFoundException exc) {
+			// muted
+		}
+		String packageName = testCase.getClassName().substring(0, testCase.getClassName().lastIndexOf("."));
+		try {
+			return TestCluster.classLoader.loadClass(packageName + "." + className);
+		} catch (ClassNotFoundException exc) {
+			// muted
+		}
+		throw new RuntimeException(original);
 		// return Class.forName(className);
 	}
 
@@ -1356,14 +1404,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return null;
 		}
 		if (binding.isArray()) {
-			if (binding.getElementType().isPrimitive()) {
-				try {
-					return Class.forName(className);
-				} catch (ClassNotFoundException exc) {
-					throw new RuntimeException(exc);
-				}
+			try {
+				return Class.forName(className);
+			} catch (ClassNotFoundException exc) {
+				throw new RuntimeException(exc);
 			}
-			return Object[].class;
 		}
 		if (binding.isPrimitive()) {
 			return retrievePrimitiveClass(binding.getBinaryName());
@@ -1629,11 +1674,5 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			exceptionReadingMethod = true;
 		}
 		return false;
-	}
-
-	private Object toArray(List<?> varArgs, Class<?> argClass) {
-		// TODO-JRO Implement method toArray
-		logger.warn("Method toArray not implemented!");
-		return null;
 	}
 }
