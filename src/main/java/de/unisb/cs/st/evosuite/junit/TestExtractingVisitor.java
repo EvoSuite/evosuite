@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -66,6 +68,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 
+import de.unisb.cs.st.evosuite.javaagent.BytecodeInstrumentation;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.MethodDef;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.ReturnStatementPlaceholder;
 import de.unisb.cs.st.evosuite.junit.CompoundTestCase.TestScope;
@@ -97,7 +100,11 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
-
+/**
+ * This class implements the Eclipse JDT Visitor to turn an existing test case (in source code form) into an EvoSuite {@link TestCase}.
+ *  
+ * @author roessler
+ */
 public class TestExtractingVisitor extends LoggingVisitor {
 
 	public static interface TestReader {
@@ -239,6 +246,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final Map<String, String> imports = new HashMap<String, String>();
 	private final TestRuntimeValuesDeterminer testValuesDeterminer;
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
+	private final boolean inlineTestMethods = false;
 	private boolean exceptionReadingMethod = false;
 
 	private CursorableTrace cursorableTrace;
@@ -401,14 +409,16 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, methodBinding, params);
 		Class<?> declaringClass = method.getDeclaringClass();
-		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
-			// TODO Methods can be declared in an order such that the called
-			// method is not yet read
-			MethodDef methodDef = testCase.getMethod(method.getName());
-			VariableReference retVal = retrieveResultReference(methodInvocation);
-			retVal.setOriginalCode(methodInvocation.toString());
-			testCase.convertMethod(methodDef, params, retVal);
-			return;
+		if (inlineTestMethods) {
+			if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
+				// TODO Methods can be declared in an order such that the called
+				// method is not yet read
+				MethodDef methodDef = testCase.getMethod(method.getName());
+				VariableReference retVal = retrieveResultReference(methodInvocation);
+				retVal.setOriginalCode(methodInvocation.toString());
+				testCase.convertMethod(methodDef, params, retVal);
+				return;
+			}
 		}
 		VariableReference callee = null;
 		if (!Modifier.isStatic(method.getModifiers())) {
@@ -812,12 +822,18 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (argument instanceof Class<?>) {
 			return (Class<?>) argument;
 		}
+		if (argument instanceof ClassInstanceCreation) {
+			return retrieveTypeClass(((ClassInstanceCreation) argument).resolveTypeBinding());
+		}
+		if (argument instanceof BooleanLiteral) {
+			return Boolean.TYPE;
+		}
 		throw new UnsupportedOperationException("Retrieval of type " + argument.getClass() + " not implemented yet!");
 	}
 
 	protected VariableReference retrieveVariableReference(Object argument, Class<?> varType) {
 		if (argument instanceof ClassInstanceCreation) {
-			return retrieveVariableReference(varType, (ClassInstanceCreation) argument);
+			return retrieveVariableReference((ClassInstanceCreation) argument, varType);
 		}
 		if (argument instanceof VariableDeclarationFragment) {
 			return retrieveVariableReference((VariableDeclarationFragment) argument);
@@ -1109,34 +1125,25 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private Class<?> loadClass(String className) {
 		// TODO Implement loading classes from Properties.CLASSPATH that are not
 		// on BugEx's classpath
-		Exception original = null;
-		try {
-			return TestCluster.classLoader.loadClass(className);
-		} catch (ClassNotFoundException exc) {
-			original = exc;
-		}
-		String imported = imports.get(className);
-		if (imported != null) {
-			try {
-				return TestCluster.classLoader.loadClass(imported);
-			} catch (ClassNotFoundException exc) {
-				// muted
+		String simpleName = className;
+		if (className.startsWith("[")) {
+			Pattern pattern = Pattern.compile("\\[L([\\.\\w]+);");
+			Matcher matcher = pattern.matcher(className);
+			if (matcher.find()) {
+				simpleName = matcher.group(1);
 			}
 		}
-		String classNameTrial = testCase.getClassName() + "$" + className;
 		try {
-			return TestCluster.classLoader.loadClass(classNameTrial);
+			if (BytecodeInstrumentation.isSharedClass(simpleName)) {
+				return Class.forName(className);
+			}
+			if (!BytecodeInstrumentation.isTargetProject(simpleName)) {
+				return Class.forName(className);
+			}
+			return Class.forName(className, true, TestCluster.classLoader);
 		} catch (ClassNotFoundException exc) {
-			// muted
+			throw new RuntimeException(exc);
 		}
-		String packageName = testCase.getClassName().substring(0, testCase.getClassName().lastIndexOf("."));
-		try {
-			return TestCluster.classLoader.loadClass(packageName + "." + className);
-		} catch (ClassNotFoundException exc) {
-			// muted
-		}
-		throw new RuntimeException(original);
-		// return Class.forName(className);
 	}
 
 	private Number negate(Number value) {
@@ -1228,95 +1235,23 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		possibleMethods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
 		possibleMethods.addAll(Arrays.asList(clazz.getMethods()));
 		outer: for (Method method : possibleMethods) {
-			if (!method.getName().equals(methodName)) {
-				continue;
-			}
-			Class<?>[] declaredParamClasses = method.getParameterTypes();
-			if (declaredParamClasses.length == 0) {
-				if (params.size() == 0) {
-					logger.debug("Found method {} to fit for {} without params.", method, methodName);
-					result.add(method);
-					continue;
-				}
-				logger.debug("Method mismatch, because it has no params declared, but there were given.");
-				continue;
-			}
-			if ((declaredParamClasses.length > params.size()) && (declaredParamClasses.length - 1 != params.size())) {
-				logger.debug("Number of declared and actual params do not match for last array param for method {}",
-						method);
-				continue;
-			}
-			for (int idx = 0; idx < declaredParamClasses.length - 1; idx++) {
-				VariableReference param = params.get(idx);
-				Class<?> actualParamClass = param.getVariableClass();
-				if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
-					if (actualParamClass.isPrimitive()) {
-						actualParamClass = doBoxing(actualParamClass);
-						if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
-							logger.debug(
-									"Actual param class {} did not match declared param class {} at param number {} for method {} after autoboxing.",
-									new Object[] { actualParamClass, declaredParamClasses[idx], idx, method });
+			if (method.getName().equals(methodName) && (method.getParameterTypes().length == params.size())) {
+				Class<?>[] declaredParamClasses = method.getParameterTypes();
+				for (int idx = 0; idx < params.size(); idx++) {
+					VariableReference param = params.get(idx);
+					Class<?> actualParamClass = param.getVariableClass();
+					Class<?> declaredParamClass = declaredParamClasses[idx];
+					if (!declaredParamClass.isAssignableFrom(actualParamClass)) {
+						if (actualParamClass.isPrimitive()) {
+							actualParamClass = doBoxing(actualParamClass);
+							if (!declaredParamClasses[idx].isAssignableFrom(actualParamClass)) {
+								continue outer;
+							}
+						} else {
 							continue outer;
 						}
-					} else {
-						logger.debug(
-								"Actual param class {} did not match declared param class {} at param number {} for method {}.",
-								new Object[] { actualParamClass, declaredParamClasses[idx], idx, method });
-						continue outer;
 					}
 				}
-			}
-			Class<?> lastDeclaredParamType = declaredParamClasses[declaredParamClasses.length - 1];
-			if (declaredParamClasses.length == params.size()) {
-				VariableReference lastParam = params.get(params.size() - 1);
-				Class<?> lastActualParamClass = lastParam.getVariableClass();
-				if (lastDeclaredParamType.isAssignableFrom(lastActualParamClass)) {
-					result.add(method);
-					logger.debug("Found method {} to fit for {} with params {}.", new Object[] { method, methodName,
-							params });
-					continue;
-				}
-				if (lastActualParamClass.isPrimitive()) {
-					lastActualParamClass = doBoxing(lastActualParamClass);
-					if (lastDeclaredParamType.isAssignableFrom(lastActualParamClass)) {
-						result.add(method);
-						logger.debug("Found method {} to fit for {} with params {}.", new Object[] { method,
-								methodName, params });
-						continue outer;
-					}
-				}
-			}
-			if (!lastDeclaredParamType.isArray()) {
-				logger.debug("Number of declared and actual params do not match for method {}.", method);
-				continue;
-			}
-			if (params.size() == 0) {
-				result.add(method);
-				logger.debug("Method with array arg is called without any args.");
-				continue;
-			}
-			// treating method(Object ... arguments)
-			Class<?> arrayElementType = lastDeclaredParamType.getComponentType();
-			for (int idx = declaredParamClasses.length - 1; idx < params.size(); idx++) {
-				VariableReference lastParam = params.get(idx);
-				Class<?> lastActualParamClass = lastParam.getVariableClass();
-				if (!arrayElementType.isAssignableFrom(lastActualParamClass)) {
-					if (lastActualParamClass.isPrimitive()) {
-						lastActualParamClass = doBoxing(lastActualParamClass);
-						if (!arrayElementType.isAssignableFrom(lastActualParamClass)) {
-							logger.debug(
-									"Last param type {} not assignable to array component type {} for method {} after boxing.",
-									new Object[] { lastActualParamClass, arrayElementType, method });
-							continue outer;
-						}
-					} else {
-						logger.debug("Last param type {} not assignable to array component type {} for method {}.",
-								new Object[] { lastActualParamClass, arrayElementType, method });
-						continue outer;
-					}
-				}
-				logger.debug("Found var args params {} to match for method {}.",
-						new Object[] { params.subList(declaredParamClasses.length - 1, params.size()), method });
 				result.add(method);
 			}
 		}
@@ -1404,11 +1339,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return null;
 		}
 		if (binding.isArray()) {
-			try {
-				return Class.forName(className);
-			} catch (ClassNotFoundException exc) {
-				throw new RuntimeException(exc);
-			}
+			return loadClass(className);
 		}
 		if (binding.isPrimitive()) {
 			return retrievePrimitiveClass(binding.getBinaryName());
@@ -1521,13 +1452,21 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return charAssignment.getReturnValue();
 	}
 
-	private VariableReference retrieveVariableReference(Class<?> varType, ClassInstanceCreation instanceCreation) {
+	private VariableReference retrieveVariableReference(ClassInstanceCreation instanceCreation, Class<?> varType) {
 		if ((instanceCreation.getParent() instanceof MethodInvocation)
 				|| (instanceCreation.getParent() instanceof ClassInstanceCreation)) {
 			VariableReference result = new ValidVariableReference(testCase.getReference(),
 					retrieveTypeClass(instanceCreation.getType()));
 			nestedCallResults.push(result);
 			return result;
+		}
+		if ((instanceCreation.getParent() instanceof ExpressionStatement)
+				&& (instanceCreation.getParent().getParent() instanceof Block)) {
+			if (varType == null) {
+				varType = retrieveTypeClass(instanceCreation);
+			}
+			VariableReference varRef = new ValidVariableReference(testCase.getReference(), varType);
+			return varRef;
 		}
 		return retrieveVariableReference(instanceCreation.getParent(), varType);
 	}
@@ -1648,13 +1587,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 
 	private boolean saveMethodCodeExtraction(MethodDeclaration methodDeclaration) {
 		exceptionReadingMethod = false;
-		logger.warn("Omittint acceptChild(visitor, getJavadoc());");
-		logger.warn("Omittint acceptChildren(visitor, this.modifiers);");
-		logger.warn("Omittint acceptChildren(visitor, this.typeParameters);");
-		logger.warn("Omittint acceptChild(visitor, getReturnType2());");
-		logger.warn("Omittint acceptChild(visitor, getName());");
-		logger.warn("Omittint acceptChildren(visitor, this.parameters);");
-		logger.warn("Omittint acceptChildren(visitor, this.thrownExceptions);");
+		logger.warn("Omitting acceptChild(visitor, getJavadoc());");
+		logger.warn("Omitting acceptChildren(visitor, this.modifiers);");
+		logger.warn("Omitting acceptChildren(visitor, this.typeParameters);");
+		logger.warn("Omitting acceptChild(visitor, getReturnType2());");
+		logger.warn("Omitting acceptChild(visitor, getName());");
+		logger.warn("Omitting acceptChildren(visitor, this.parameters);");
+		logger.warn("Omitting acceptChildren(visitor, this.thrownExceptions);");
 		logger.warn("Method not accessible, would be: methodDeclaration.acceptChild(this, methodDeclaration.getBody());");
 		try {
 			Method acceptChild = ASTNode.class.getDeclaredMethod("acceptChild", ASTVisitor.class, ASTNode.class);

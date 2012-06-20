@@ -68,7 +68,11 @@ public class Scope {
 				List<Integer> lengths = new ArrayList<Integer>();
 				int idx = 0;
 				while ((value != null) && value.getClass().isArray()) {
-					lengths.set(idx, Array.getLength(value));
+					if (idx == lengths.size()) {
+						lengths.add(Array.getLength(value));
+					} else {
+						lengths.set(idx, Array.getLength(value));
+					}
 					value = Array.get(value, 0);
 					idx++;
 				}
