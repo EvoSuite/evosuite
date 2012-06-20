@@ -287,7 +287,7 @@ public class VariableReferenceImpl implements VariableReference {
 
 	public void setOriginalCode(String code){
 		if (originalCode != null) {
-			logger.debug("Original code already set, skipping.");
+			logger.debug("Original code already set to '{}', skip setting it to '{}'.", originalCode, code);
 			return;
 		}
 		if (code != null) {

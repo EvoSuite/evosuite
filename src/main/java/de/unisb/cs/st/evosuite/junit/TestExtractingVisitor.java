@@ -100,9 +100,11 @@ import de.unisb.cs.st.evosuite.testcase.TestCase;
 import de.unisb.cs.st.evosuite.testcase.TestCluster;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.testcase.VariableReferenceImpl;
+
 /**
- * This class implements the Eclipse JDT Visitor to turn an existing test case (in source code form) into an EvoSuite {@link TestCase}.
- *  
+ * This class implements the Eclipse JDT Visitor to turn an existing test case
+ * (in source code form) into an EvoSuite {@link TestCase}.
+ * 
  * @author roessler
  */
 public class TestExtractingVisitor extends LoggingVisitor {
@@ -195,10 +197,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			if (Modifier.isStatic(method.getModifiers())) {
 				// TODO: If callee is an array index, this will return an
 				// invalid copy of the cloned variable!
-				return new ValidMethodStatement(newTestCase, method, null, retval, parameters);
+				return new ValidMethodStatement(newTestCase, method, null, retval.getType(), parameters);
 			}
 			VariableReference newCallee = callee.copy(newTestCase, offset);
-			return new MethodStatement(newTestCase, method, newCallee, retval, parameters);
+			return new MethodStatement(newTestCase, method, newCallee, retval.getType(), parameters);
 		}
 
 		@Override
@@ -246,7 +248,6 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final Map<String, String> imports = new HashMap<String, String>();
 	private final TestRuntimeValuesDeterminer testValuesDeterminer;
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
-	private final boolean inlineTestMethods = false;
 	private boolean exceptionReadingMethod = false;
 
 	private CursorableTrace cursorableTrace;
@@ -409,16 +410,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, methodBinding, params);
 		Class<?> declaringClass = method.getDeclaringClass();
-		if (inlineTestMethods) {
-			if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
-				// TODO Methods can be declared in an order such that the called
-				// method is not yet read
-				MethodDef methodDef = testCase.getMethod(method.getName());
-				VariableReference retVal = retrieveResultReference(methodInvocation);
-				retVal.setOriginalCode(methodInvocation.toString());
-				testCase.convertMethod(methodDef, params, retVal);
-				return;
-			}
+		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
+			// TODO Methods can be declared in an order such that the called
+			// method is not yet read
+			MethodDef methodDef = testCase.getMethod(method.getName());
+			VariableReference retVal = retrieveResultReference(methodInvocation);
+			retVal.setOriginalCode(methodInvocation.toString());
+			testCase.convertMethod(methodDef, params, retVal);
+			return;
 		}
 		VariableReference callee = null;
 		if (!Modifier.isStatic(method.getModifiers())) {
@@ -617,6 +616,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			}
 		}
 		cursorableTrace = testValuesDeterminer.getMethodTrace(currentMethodName);
+		calleeResultMap.clear();
 		return saveMethodCodeExtraction(methodDeclaration);
 	}
 
@@ -844,7 +844,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			return retrieveVariableReference(simpleName.resolveBinding(), varType);
 		}
 		if (argument instanceof IVariableBinding) {
-			return retrieveVariableReference((IVariableBinding) argument);
+			return retrieveVariableReference((IVariableBinding) argument, varType);
 		}
 		if (argument instanceof PrefixExpression) {
 			return retrieveVariableReference((PrefixExpression) argument);
@@ -1487,8 +1487,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return ref;
 	}
 
-	private VariableReference retrieveVariableReference(IVariableBinding varBinding) {
-		Class<?> varClass = retrieveTypeClass(varBinding.getType());
+	private VariableReference retrieveVariableReference(IVariableBinding varBinding, Class<?> varClass) {
+		if (varClass == null) {
+			varClass = retrieveTypeClass(varBinding.getType());
+		}
 		VariableReference localVar = testCase.getVariableReference(varBinding);
 		if (localVar != null) {
 			return localVar;
