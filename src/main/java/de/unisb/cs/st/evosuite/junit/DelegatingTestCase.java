@@ -17,6 +17,12 @@ import de.unisb.cs.st.evosuite.testcase.TestVisitor;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
 import de.unisb.cs.st.evosuite.utils.Listener;
 
+/**
+ * This is a wrapper for a {@link TestCase} that allows {@link StatementInterface}s to reference this test case and still exchange the wrapped test case.
+ * 
+ * @author roessler
+ *
+ */
 public class DelegatingTestCase implements TestCase {
 
 	private static final long serialVersionUID = 1L;

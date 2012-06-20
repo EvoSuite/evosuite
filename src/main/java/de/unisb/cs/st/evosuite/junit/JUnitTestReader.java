@@ -45,6 +45,9 @@ public class JUnitTestReader implements TestReader {
 		}
 	}
 
+	private final String SOURCE_JAVA_VERSION = JavaCore.VERSION_1_6;
+	private final String ENCODING = "UTF-8";
+	
 	protected final String[] sources;
 	protected final String[] classpath;
 	protected CompilationUnit compilationUnit;
@@ -119,9 +122,10 @@ public class JUnitTestReader implements TestReader {
 		parser.setUnitName(unitName);
 		@SuppressWarnings("unchecked")
 		Hashtable<String, String> options = JavaCore.getDefaultOptions();
-		options.put(JavaCore.COMPILER_SOURCE, JavaCore.VERSION_1_6);
+		options.put(JavaCore.COMPILER_SOURCE, SOURCE_JAVA_VERSION);
 		parser.setCompilerOptions(options);
-		parser.setEnvironment(classpath, sources, new String[] { "UTF-8", "UTF-8" }, true);
+		String[] encodings = createEncodings(ENCODING, sources.length);
+		parser.setEnvironment(classpath, sources, encodings, true);
 		parser.setSource(fileContents.toCharArray());
 		CompilationUnit compilationUnit = (CompilationUnit) parser.createAST(null);
 		Set<String> problems = new HashSet<String>();
@@ -158,6 +162,14 @@ public class JUnitTestReader implements TestReader {
 			}
 		}
 		return result.toString();
+	}
+
+	private String[] createEncodings(String encoding, int length) {
+		String[] encodings = new String[length];
+		for (int idx = 0; idx < length; idx++) {
+			encodings[idx] = encoding;
+		}
+		return encodings;
 	}
 
 	private String[] expandClasspath(String[] classpath) {

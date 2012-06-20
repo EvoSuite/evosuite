@@ -85,6 +85,12 @@ import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.eclipse.jdt.core.dom.WildcardType;
 
+/**
+ * This is a implementation aid to show all visitor methods that have not been implemented.
+ * 
+ * @author roessler
+ *
+ */
 public class LoggingVisitor extends ASTVisitor {
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(LoggingVisitor.class);

@@ -29,7 +29,7 @@ import de.unisb.cs.st.evosuite.testcase.VariableReference;
  * fields, constructors, @BeforeClass, @Before, @After, @AfterClass annotated
  * methods and possibly a class hierarchy. A CompoundTestCase is used to gather
  * all those statements to eventually combine them into a normal
- * {@link TestCase}.
+ * {@link TestCase} when {@link #finalizeTestCase()} is called.
  * 
  * @author roessler
  * 

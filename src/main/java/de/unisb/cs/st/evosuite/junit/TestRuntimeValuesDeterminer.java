@@ -33,6 +33,13 @@ import org.objectweb.asm.util.CheckClassAdapter;
 
 import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
 
+/**
+ * This class executes an existing test case in binary form to determine its runtime values.
+ * To do that, the test case (NOT the SUT) is instrumented.  
+ * 
+ * @author roessler
+ *
+ */
 public class TestRuntimeValuesDeterminer extends RunListener {
 
 	public static class CursorableTrace {
