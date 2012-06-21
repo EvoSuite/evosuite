@@ -463,7 +463,7 @@ public class EvoSuite {
 		String jarName = tmpDir + File.separator + "evosuite-io.jar";
 
 		// FIXME hack! remove on the long run!
-		URL[] urls = ((URLClassLoader) EvoSuite.class.getClassLoader()).getURLs();
+		URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs();
 		URL evosuiteIO = null;
 		for (URL url : urls) {
 			if (url.getPath().endsWith("evosuite-io-0.2.jar")) {
