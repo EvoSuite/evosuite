@@ -474,11 +474,11 @@ public class TestCodeVisitor implements TestVisitor {
 				testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("
 				        + getClassName(retval) + ") null;\n";
 		} else if (statement instanceof FileNamePrimitiveStatement) {
+			// changed by Daniel
 			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-			        + getVariableName(retval) + " = \""
-			        + StringEscapeUtils.escapeJava(((EvoSuiteFile) value).getPath())
-			        + "\";\n";
-
+			        + getVariableName(retval) + " = new "
+			        + ((Class<?>) retval.getType()).getSimpleName() + "(\""
+			        + ((EvoSuiteFile) value).getPath() + "\");\n";
 		} else {
 			testCode += getClassName(retval) + " " + getVariableName(retval) + " = "
 			        + value + ";\n";
