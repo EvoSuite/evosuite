@@ -380,7 +380,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		public String getCSVFilepath() {
-			return REPORT_DIR.getAbsolutePath() + "/data/statistics_" + className + "-"
+			return REPORT_DIR.getAbsolutePath() + File.separator + getCSVFileName();
+		}
+		
+		public String getCSVFileName() {
+			return "data" + File.separator + "statistics_" + className + "-"
 			        + id + ".csv";
 		}
 
@@ -858,7 +862,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			buffer.append(entry.className);
 			buffer.append("</a></td>");
 			buffer.append("<td><a href=\"");
-			buffer.append(entry.getCSVFilepath());
+			buffer.append(entry.getCSVFileName());
 			buffer.append("\">CSV</a></td>");
 			buffer.append("</tr>\n");
 		}
