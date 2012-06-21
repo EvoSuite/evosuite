@@ -17,12 +17,15 @@
     </encoder>
   </appender>
 
-  <!--
   <logger name="de.unisb.cs.st.evosuite.cfg" level="WARN" />
   <logger name="de.unisb.cs.st.evosuite.coverage.branch" level="WARN" />
-  <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" /> -->
+  <logger name="de.unisb.cs.st.evosuite.testcase" level="WARN" />
+  <logger name="de.unisb.cs.st.evosuite.junit" level="DEBUG" />
+  <logger name="de.unisb.cs.st.evosuite.junit.LoggingVisitor" level="OFF" />
+<!--   <logger name="de.unisb.cs.st.evosuite.testcase" level="TRACE" /> -->
+<!--   <logger name="de.unisb.cs.st.evosuite.junit" level="TRACE" /> -->
 
-  <root level="WARN">
+  <root level="DEBUG">
     <appender-ref ref="STDOUT" />
   </root>
 

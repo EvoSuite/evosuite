@@ -410,14 +410,16 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		List<VariableReference> params = convertParams(methodInvocation.arguments(), paramTypes);
 		Method method = retrieveMethod(methodInvocation, methodBinding, params);
 		Class<?> declaringClass = method.getDeclaringClass();
-		if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
+		if (false) {
 			// TODO Methods can be declared in an order such that the called
 			// method is not yet read
-			MethodDef methodDef = testCase.getMethod(method.getName());
-			VariableReference retVal = retrieveResultReference(methodInvocation);
-			retVal.setOriginalCode(methodInvocation.toString());
-			testCase.convertMethod(methodDef, params, retVal);
-			return;
+			if (testCase.getClassName().equals(declaringClass.getName()) || testCase.isDescendantOf(declaringClass)) {
+				MethodDef methodDef = testCase.getMethod(method.getName());
+				VariableReference retVal = retrieveResultReference(methodInvocation);
+				retVal.setOriginalCode(methodInvocation.toString());
+				testCase.convertMethod(methodDef, params, retVal);
+				return;
+			}
 		}
 		VariableReference callee = null;
 		if (!Modifier.isStatic(method.getModifiers())) {
