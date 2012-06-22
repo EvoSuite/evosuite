@@ -954,27 +954,31 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		Chromosome best = algorithm.getBestIndividual();
-		entry.fitness_history.add(best.getFitness());
-		entry.size_history.add(best.size());
-
-		double average = 0.0;
-		for (Chromosome individual : algorithm.getPopulation()) {
-			average += individual.size();
+		if (statistics.size() > 0) {
+			StatisticEntry entry = statistics.get(statistics.size() - 1);
+			Chromosome best = algorithm.getBestIndividual();
+			entry.fitness_history.add(best.getFitness());
+			entry.size_history.add(best.size());
+	
+			double average = 0.0;
+			for (Chromosome individual : algorithm.getPopulation()) {
+				average += individual.size();
+			}
+	
+			entry.average_length_history.add(average / algorithm.getPopulation().size());
+	
+			// TODO: Need to get data of average size in here - how? Pass population
+			// as parameter?
+			entry.age++;
 		}
-
-		entry.average_length_history.add(average / algorithm.getPopulation().size());
-
-		// TODO: Need to get data of average size in here - how? Pass population
-		// as parameter?
-		entry.age++;
 	}
 
 	@Override
 	public void fitnessEvaluation(Chromosome result) {
-		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		entry.result_fitness_evaluations++;
+		if (statistics.size() > 0) {
+			StatisticEntry entry = statistics.get(statistics.size() - 1);
+			entry.result_fitness_evaluations++;
+		}
 	}
 
 	/*
