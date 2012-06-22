@@ -28,6 +28,7 @@ import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Block;
 import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.CastExpression;
 import org.eclipse.jdt.core.dom.CatchClause;
 import org.eclipse.jdt.core.dom.CharacterLiteral;
 import org.eclipse.jdt.core.dom.ClassInstanceCreation;
@@ -238,8 +239,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 	}
 
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestExtractingVisitor.class);
+	private static Class<?> toClass(java.lang.reflect.Type type) {
+		if (type instanceof java.lang.reflect.ParameterizedType) {
+			return (Class<?>) ((java.lang.reflect.ParameterizedType) type).getRawType();
+		}
+		return (Class<?>) type;
+	}
 
+	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TestExtractingVisitor.class);
 	private final CompoundTestCase testCase;
 	private final TestReader testReader;
 	private final String unqualifiedTest;
@@ -248,13 +255,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	private final Map<String, String> imports = new HashMap<String, String>();
 	private final TestRuntimeValuesDeterminer testValuesDeterminer;
 	private final Map<String, VariableReference> calleeResultMap = new HashMap<String, VariableReference>();
-	private boolean exceptionReadingMethod = false;
 
+	private boolean exceptionReadingMethod = false;
 	private CursorableTrace cursorableTrace;
+
 	// TODO Remove the following two:
 	private final Stack<Integer> iterations = new Stack<Integer>();
-
 	private final Stack<Integer> loopExecCnts = new Stack<Integer>();
+
 	// TODO This is bad practice: here we rely on a global variable
 	// for something that should be parameters to the methods!
 	private Integer lineNumber = null;
@@ -902,6 +910,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 		if (argument instanceof Assignment) {
 			return retrieveVariableReference(((Assignment) argument).getLeftHandSide(), null);
+		}
+		if (argument instanceof CastExpression) {
+			CastExpression castExpression = (CastExpression) argument;
+			VariableReference result = retrieveVariableReference(castExpression.getExpression(), null);
+			Class<?> castClass = retrieveTypeClass(castExpression.resolveTypeBinding());
+			assert castClass.isAssignableFrom(toClass(result.getType()));
+			result.setType(castClass);
+			return result;
 		}
 		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
 	}
