@@ -15,9 +15,6 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-/**
- * 
- */
 package de.unisb.cs.st.evosuite.testcase;
 
 import java.lang.reflect.Constructor;
@@ -154,8 +151,12 @@ public class TestCodeVisitor implements TestVisitor {
 				return field.getDeclaringClass().getSimpleName() + "." + field.getName();
 		} else if (var instanceof ArrayIndex) {
 			VariableReference array = ((ArrayIndex) var).getArray();
-			int index = ((ArrayIndex) var).getArrayIndex();
-			return getVariableName(array) + "[" + index + "]";
+			List<Integer> indices = ((ArrayIndex) var).getArrayIndices(); 
+			String result = getVariableName(array);
+			for (Integer index : indices) {
+				result += "[" + index + "]";
+			}
+			return result;
 		} else if (var instanceof ArrayReference) {
 			String className = var.getSimpleClassName();
 			//			int num = 0;
@@ -486,6 +487,15 @@ public class TestCodeVisitor implements TestVisitor {
 		addAssertions(statement);
 	}
 
+	@Override
+	public void visitPrimitiveExpression(PrimitiveExpression statement) {
+		VariableReference retval = statement.getReturnValue();
+		String expression = ((Class<?>) retval.getType()).getSimpleName() + " " + getVariableName(retval) + " = ";
+		expression += getVariableName(statement.getLeftOperand()) + " " + statement.getOperator().toCode() + " " + getVariableName(statement.getRightOperand());
+		testCode += expression+";\n";
+		addAssertions(statement);
+	}
+
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitFieldStatement(de.unisb.cs.st.evosuite.testcase.FieldStatement)
 	 */
@@ -747,16 +757,25 @@ public class TestCodeVisitor implements TestVisitor {
 	@Override
 	public void visitArrayStatement(ArrayStatement statement) {
 		VariableReference retval = statement.getReturnValue();
-		int length = statement.size();
+		int[] lengths = statement.getLengths();
 
-		String type = getClassName(retval).replaceFirst("\\[\\]", "");
+		String type = getClassName(retval);
 		String multiDimensions = "";
+		if (lengths.length == 1) {
+			type = type.replaceFirst("\\[\\]", "");
+			multiDimensions = "[" + lengths[0] + "]";
 		while (type.contains("[]")) {
 			multiDimensions += "[]";
 			type = type.replaceFirst("\\[\\]", "");
 		}
+		} else {
+			type = type.replaceAll("\\[\\]", "");
+			for (int length : lengths) {
+				multiDimensions += "[" + length + "]";
+			}
+		}
 		testCode += getClassName(retval) + " " + getVariableName(retval) + " = new "
-		        + type + "[" + length + "]" + multiDimensions + ";\n";
+		        + type + multiDimensions + ";\n";
 		addAssertions(statement);
 	}
 

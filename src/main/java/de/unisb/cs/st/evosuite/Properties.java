@@ -618,7 +618,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Test Execution
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
-	public static int TIMEOUT = 5000;
+	public static int TIMEOUT = 60 * 3 * 100;
 
 	@Parameter(key = "shutdown_timeout", group = "Test Execution", description = "Milliseconds grace time to shut down test cleanly")
 	public static int SHUTDOWN_TIMEOUT = 1000;

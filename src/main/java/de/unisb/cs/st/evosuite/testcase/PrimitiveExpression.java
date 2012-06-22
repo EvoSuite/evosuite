@@ -20,6 +20,7 @@ package de.unisb.cs.st.evosuite.testcase;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -72,72 +73,101 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	private static final long serialVersionUID = 1L;
 
-	private final VariableReference leftOperand;
+	private VariableReference leftOperand;
 	private final Operator operator;
-	private final VariableReference rightOperand;
+	private VariableReference rightOperand;
 
-	public PrimitiveExpression(TestCase testCase, VariableReference reference,
-	        VariableReference leftOperand, Operator operator,
-	        VariableReference rightOperand) {
+	public PrimitiveExpression(TestCase testCase, VariableReference reference, VariableReference leftOperand,
+			Operator operator, VariableReference rightOperand) {
 		super(testCase, reference);
 		this.leftOperand = leftOperand;
 		this.operator = operator;
 		this.rightOperand = rightOperand;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader
+	 * (java.lang.ClassLoader)
+	 */
 	@Override
-	public StatementInterface copy(TestCase newTestCase, int offset) {
-		throw new UnsupportedOperationException("Method clone not implemented!");
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op
 	}
 
 	@Override
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
+	public StatementInterface copy(TestCase newTestCase, int offset) {
+		VariableReference newRetVal = new VariableReferenceImpl(newTestCase, retval.getType());
+		VariableReference newLeftOperand = newTestCase.getStatement(leftOperand.getStPosition()).getReturnValue();
+		VariableReference newRightOperand = newTestCase.getStatement(rightOperand.getStPosition()).getReturnValue();
+		return new PrimitiveExpression(newTestCase, newRetVal, newLeftOperand, operator, newRightOperand);
+//		return new PrimitiveExpression(newTestCase, retval, leftOperand, operator, rightOperand);
+	}
+
+	@Override
+	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 		throw new UnsupportedOperationException("Method execute not implemented!");
 	}
 
 	@Override
 	public AccessibleObject getAccessibleObject() {
-		throw new UnsupportedOperationException(
-		        "Method getAccessibleObject not implemented!");
+		throw new UnsupportedOperationException("Method getAccessibleObject not implemented!");
 	}
 
 	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception) {
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
 		throw new UnsupportedOperationException("Method getBytecode not implemented!");
 	}
 
 	@Override
 	public String getCode() {
-		String code = ((Class<?>) retval.getType()).getSimpleName() + " "
-		        + retval.getName() + " = " + leftOperand.getName() + " "
-		        + operator.toCode() + " " + rightOperand.getName() + ";";
+		String code = ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName() + " = "
+				+ leftOperand.getName() + " " + operator.toCode() + " " + rightOperand.getName() + ";";
 		return code;
+	}
+
+	public VariableReference getLeftOperand() {
+		return leftOperand;
+	}
+
+	public Operator getOperator() {
+		return operator;
+	}
+
+	public VariableReference getRightOperand() {
+		return rightOperand;
 	}
 
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		throw new UnsupportedOperationException(
-		        "Method getUniqueVariableReferences not implemented!");
+		throw new UnsupportedOperationException("Method getUniqueVariableReferences not implemented!");
 	}
 
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		throw new UnsupportedOperationException(
-		        "Method getVariableReferences not implemented!");
+		Set<VariableReference> result = new HashSet<VariableReference>();
+		result.add(retval);
+		result.add(leftOperand);
+		result.add(rightOperand);
+		return result;
 	}
 
 	@Override
 	public boolean isAssignmentStatement() {
-		throw new UnsupportedOperationException(
-		        "Method isAssignmentStatement not implemented!");
+		throw new UnsupportedOperationException("Method isAssignmentStatement not implemented!");
 	}
 
 	@Override
-	public void replace(VariableReference old_var, VariableReference new_var) {
-		throw new UnsupportedOperationException("Method replace not implemented!");
+	public void replace(VariableReference oldVar, VariableReference newVar) {
+		if (leftOperand.equals(oldVar)) {
+			leftOperand = newVar;
+		}
+		if (rightOperand.equals(oldVar)) {
+			rightOperand = newVar;
+		}
 	}
 
 	@Override
@@ -145,11 +175,8 @@ public class PrimitiveExpression extends AbstractStatement {
 		throw new UnsupportedOperationException("Method same not implemented!");
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
-	 */
 	@Override
-	public void changeClassLoader(ClassLoader loader) {
-		// No-op
+	public String toString() {
+		return getCode();
 	}
 }

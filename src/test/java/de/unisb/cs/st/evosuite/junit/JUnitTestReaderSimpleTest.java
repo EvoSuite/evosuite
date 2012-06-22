@@ -25,7 +25,7 @@ import org.junit.Test;
 import de.unisb.cs.st.evosuite.Properties;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
 
-public class JUnitTestReaderTest {
+public class JUnitTestReaderSimpleTest {
 
 	private static final String SRCDIR = "src/test/java/";
 

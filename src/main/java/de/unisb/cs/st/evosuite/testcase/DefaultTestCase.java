@@ -764,6 +764,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 				visitor.visitArrayStatement((ArrayStatement) statement);
 			else if (statement instanceof NullStatement)
 				visitor.visitNullStatement((NullStatement) statement);
+			else if (statement instanceof PrimitiveExpression)
+				visitor.visitPrimitiveExpression((PrimitiveExpression) statement);
 			else
 				throw new RuntimeException("Unknown statement type: " + statement);
 		}
