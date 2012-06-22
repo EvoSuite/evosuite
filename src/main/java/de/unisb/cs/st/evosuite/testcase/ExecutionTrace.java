@@ -991,15 +991,17 @@ public class ExecutionTrace {
 	        double true_distance, double false_distance) {
 
 		if (trace_calls) {
-			stack.peek().branchTrace.add(branch); // was: bytecode_id
-			stack.peek().trueDistanceTrace.add(true_distance);
-			stack.peek().falseDistanceTrace.add(false_distance);
-			assert ((true_distance == 0.0) || (false_distance == 0.0));
-			// TODO line_trace ?
-			if (Properties.CRITERION == Criterion.DEFUSE
-			        || Properties.CRITERION == Criterion.ALLDEFS
-			        || TestSuiteGenerator.analyzing) {
-				stack.peek().defuseCounterTrace.add(duCounter);
+			if (stack.peek() != null) {
+				stack.peek().branchTrace.add(branch); // was: bytecode_id
+				stack.peek().trueDistanceTrace.add(true_distance);
+				stack.peek().falseDistanceTrace.add(false_distance);
+				assert ((true_distance == 0.0) || (false_distance == 0.0));
+				// TODO line_trace ?
+				if (Properties.CRITERION == Criterion.DEFUSE
+				        || Properties.CRITERION == Criterion.ALLDEFS
+				        || TestSuiteGenerator.analyzing) {
+					stack.peek().defuseCounterTrace.add(duCounter);
+				}
 			}
 		}
 	}

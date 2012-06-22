@@ -23,6 +23,7 @@ import de.unisb.cs.st.evosuite.ga.BloatControlFunction;
 import de.unisb.cs.st.evosuite.ga.Chromosome;
 import de.unisb.cs.st.evosuite.ga.GeneticAlgorithm;
 import de.unisb.cs.st.evosuite.ga.SearchListener;
+import de.unisb.cs.st.evosuite.testcase.TestChromosome;
 
 /**
  * @author Gordon Fraser
@@ -58,8 +59,12 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 			// logger.debug("Bloat control: "+((TestSuiteChromosome)chromosome).length()
 			// +" > "+ bloat_factor * current_max);
 
-			return ((TestSuiteChromosome) chromosome).totalLengthOfTestCases() > Properties.BLOAT_FACTOR
-			        * current_max;
+			int length = 0;
+			if (chromosome instanceof TestSuiteChromosome)
+				length = ((TestSuiteChromosome) chromosome).totalLengthOfTestCases();
+			if (chromosome instanceof TestChromosome)
+				length = ((TestChromosome) chromosome).size();
+			return length > (Properties.BLOAT_FACTOR * current_max);
 		} else
 			return false; // Don't know max length so can't reject!
 
@@ -71,7 +76,10 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		Chromosome best = algorithm.getBestIndividual();
-		current_max = ((TestSuiteChromosome) best).totalLengthOfTestCases();
+		if (best instanceof TestSuiteChromosome)
+			current_max = ((TestSuiteChromosome) best).totalLengthOfTestCases();
+		if (best instanceof TestChromosome)
+			current_max = ((TestChromosome) best).size();
 		best_fitness = best.getFitness();
 	}
 

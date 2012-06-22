@@ -395,22 +395,24 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		Chromosome result = algorithm.getBestIndividual();
-		StatisticEntry entry = statistics.get(statistics.size() - 1);
-
-		entry.end_time = System.currentTimeMillis();
-		entry.result_tests_executed = MaxTestsStoppingCondition.getNumExecutedTests();
-		entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
-		entry.testExecutionTime = TestCaseExecutor.timeExecuted;
-		entry.goalComputationTime = AbstractFitnessFactory.goalComputationTime;
-		entry.covered_goals = TestSuiteFitnessFunction.getCoveredGoals();
-		entry.timedOut = TestSuiteGenerator.global_time.isFinished();
-		entry.stoppingCondition = TestSuiteGenerator.stopping_condition.getCurrentValue();
-		entry.globalTimeStoppingCondition = TestSuiteGenerator.global_time.getCurrentValue();
-
-		if (result instanceof TestSuiteChromosome) {
-			TestSuiteChromosome best = (TestSuiteChromosome) result;
-			entry.size_final = best.size();
-			entry.length_final = best.totalLengthOfTestCases();
+		if (statistics.size() > 0) {
+			StatisticEntry entry = statistics.get(statistics.size() - 1);
+	
+			entry.end_time = System.currentTimeMillis();
+			entry.result_tests_executed = MaxTestsStoppingCondition.getNumExecutedTests();
+			entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
+			entry.testExecutionTime = TestCaseExecutor.timeExecuted;
+			entry.goalComputationTime = AbstractFitnessFactory.goalComputationTime;
+			entry.covered_goals = TestSuiteFitnessFunction.getCoveredGoals();
+			entry.timedOut = TestSuiteGenerator.global_time.isFinished();
+			entry.stoppingCondition = TestSuiteGenerator.stopping_condition.getCurrentValue();
+			entry.globalTimeStoppingCondition = TestSuiteGenerator.global_time.getCurrentValue();
+	
+			if (result instanceof TestSuiteChromosome) {
+				TestSuiteChromosome best = (TestSuiteChromosome) result;
+				entry.size_final = best.size();
+				entry.length_final = best.totalLengthOfTestCases();
+			}
 		}
 	}
 
@@ -454,15 +456,17 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	public void iteration(GeneticAlgorithm algorithm) {
 		super.iteration(algorithm);
 
-		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		Chromosome best = algorithm.getBestIndividual();
-		if (best instanceof TestSuiteChromosome) {
-			entry.length_history.add(((TestSuiteChromosome) best).totalLengthOfTestCases());
-			entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
-			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
-			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
-			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
-			entry.timeStamps.add(System.currentTimeMillis() - entry.creationTime);
+		if (statistics.size() > 0) {
+			StatisticEntry entry = statistics.get(statistics.size() - 1);
+			Chromosome best = algorithm.getBestIndividual();
+			if (best instanceof TestSuiteChromosome) {
+				entry.length_history.add(((TestSuiteChromosome) best).totalLengthOfTestCases());
+				entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
+				entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
+				entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
+				entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());
+				entry.timeStamps.add(System.currentTimeMillis() - entry.creationTime);
+			}
 		}
 	}
 
