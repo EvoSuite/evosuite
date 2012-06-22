@@ -17,24 +17,29 @@
  */
 package de.unisb.cs.st.evosuite.junit;
 
+import java.io.PrintStream;
+import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import de.unisb.cs.st.evosuite.assertion.Assertion;
-import de.unisb.cs.st.evosuite.ga.ConstructionFailedException;
+import org.eclipse.jdt.core.dom.IVariableBinding;
+import org.objectweb.asm.commons.GeneratorAdapter;
+
+import de.unisb.cs.st.evosuite.testcase.AbstractStatement;
+import de.unisb.cs.st.evosuite.testcase.AssignmentStatement;
 import de.unisb.cs.st.evosuite.testcase.DefaultTestCase;
+import de.unisb.cs.st.evosuite.testcase.PrimitiveExpression;
 import de.unisb.cs.st.evosuite.testcase.Scope;
 import de.unisb.cs.st.evosuite.testcase.StatementInterface;
 import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.TestFitnessFunction;
-import de.unisb.cs.st.evosuite.testcase.TestVisitor;
 import de.unisb.cs.st.evosuite.testcase.VariableReference;
-import de.unisb.cs.st.evosuite.utils.Listener;
 
 /**
  * A compound test case is a test case that is read from an existing JUnit test
@@ -42,359 +47,485 @@ import de.unisb.cs.st.evosuite.utils.Listener;
  * fields, constructors, @BeforeClass, @Before, @After, @AfterClass annotated
  * methods and possibly a class hierarchy. A CompoundTestCase is used to gather
  * all those statements to eventually combine them into a normal
- * {@link TestCase}.
+ * {@link TestCase} when {@link #finalizeTestCase()} is called.
  * 
  * @author roessler
  * 
  */
-public class CompoundTestCase implements TestCase {
-	private final List<StatementInterface> after = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> afterClass = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> before = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> beforeClass = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> constructor = new ArrayList<StatementInterface>();
-	private TestCase delegate = null;
+public class CompoundTestCase {
+	public static class MethodDef {
+		private final String name;
+		private final List<VariableReference> params = new ArrayList<VariableReference>();
+		final List<StatementInterface> code = new ArrayList<StatementInterface>();
+
+		public MethodDef(String name) {
+			super();
+			this.name = name;
+		}
+
+		public void add(StatementInterface statement) {
+			code.add(statement);
+		}
+
+		public List<StatementInterface> getCode() {
+			return code;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public List<VariableReference> getParams() {
+			return params;
+	}
+
+	@Override
+		public String toString() {
+			return name;
+		}
+	}
+
+	public static class ReturnStatementPlaceholder extends AbstractStatement {
+
+		private static final long serialVersionUID = 1L;
+
+		protected ReturnStatementPlaceholder(TestCase tc, VariableReference returnValue) {
+			super(tc, returnValue.getType());
+			retval = returnValue;
+	}
+
+	@Override
+		public StatementInterface copy(TestCase newTestCase, int offset) {
+			throw new UnsupportedOperationException("Method copy not implemented!");
+	}
+
+	@Override
+		public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException,
+				IllegalArgumentException, IllegalAccessException, InstantiationException {
+			throw new UnsupportedOperationException("Method execute not implemented!");
+	}
+
+	@Override
+		public AccessibleObject getAccessibleObject() {
+			throw new UnsupportedOperationException("Method getAccessibleObject not implemented!");
+	}
+
+	@Override
+		public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+			throw new UnsupportedOperationException("Method getBytecode not implemented!");
+		}
+
+	@Override
+		public List<VariableReference> getUniqueVariableReferences() {
+			throw new UnsupportedOperationException("Method getUniqueVariableReferences not implemented!");
+	}
+
+	@Override
+		public Set<VariableReference> getVariableReferences() {
+			throw new UnsupportedOperationException("Method getVariableReferences not implemented!");
+	}
+
+	@Override
+		public boolean isAssignmentStatement() {
+			return false;
+	}
+
+		@Override
+		public void replace(VariableReference oldVar, VariableReference newVar) {
+			if (retval.equals(oldVar)) {
+				retval = newVar;
+		}
+	}
+
+	@Override
+		public boolean same(StatementInterface s) {
+			throw new UnsupportedOperationException("Method same not implemented!");
+	}
+
+	}
+
+	public static enum TestScope {
+		BEFORE_CLASS, STATIC, STATICFIELDS, BEFORE, FIELDS, CONSTRUCTOR, AFTER, AFTER_CLASS, METHOD;
+	}
+
+	public static final String STATIC_BLOCK_METHODNAME = "<static block>";
+
+	private static final long serialVersionUID = 1L;
+
+	private final Map<String, MethodDef> methodDefs = new LinkedHashMap<String, MethodDef>();
+	private final Map<String, VariableReference> currentMethodVars = new HashMap<String, VariableReference>();
+	private final Map<String, VariableReference> fieldVars = new HashMap<String, VariableReference>();
+	private final List<MethodDef> constructors = new ArrayList<MethodDef>();
+	private final List<MethodDef> afterMethods = new ArrayList<MethodDef>();
+	private final List<MethodDef> afterClassMethods = new ArrayList<MethodDef>();
+	private final List<MethodDef> beforeMethods = new ArrayList<MethodDef>();
+	private final List<MethodDef> beforeClassMethods = new ArrayList<MethodDef>();
+	private final List<StatementInterface> staticFields = new ArrayList<StatementInterface>();
 	private final List<StatementInterface> fields = new ArrayList<StatementInterface>();
-	private CompoundTestCase parent;
 	private final List<StatementInterface> staticCode = new ArrayList<StatementInterface>();
-	private final List<StatementInterface> testMethod = new ArrayList<StatementInterface>();
-	private final Set<Listener<Void>> listeners = new HashSet<Listener<Void>>();
+	private final String className;
+	private final String testMethod;
+	// find here or up the hierarchy
+	private CompoundTestCase parent;
+	// Needed for methods and fields:
+	// find method in actual class or up the hierarchy
+	private final CompoundTestCase originalDescendant;
+	private TestScope currentScope = TestScope.FIELDS;
+	private MethodDef currentMethod = null;
 
-	@Override
-	public void accept(TestVisitor visitor) {
-		delegate.accept(visitor);
+	private final DelegatingTestCase delegate;
+
+	public CompoundTestCase(String className, CompoundTestCase child) {
+		child.parent = this;
+		delegate = child.getReference();
+		originalDescendant = child.originalDescendant;
+		this.testMethod = null;
+		this.className = className;
 	}
 
-	@Override
-	public void addAssertions(TestCase other) {
-		delegate.addAssertions(other);
+	public CompoundTestCase(String className, String methodName) {
+		this.testMethod = methodName;
+		this.className = className;
+		delegate = new DelegatingTestCase();
+		originalDescendant = this;
 	}
 
-	@Override
-	public void addCoveredGoal(TestFitnessFunction goal) {
-		delegate.addCoveredGoal(goal);
+	public void addParameter(VariableReference varRef) {
+		currentMethod.getParams().add(varRef);
 	}
 
-	@Override
-	public void addListener(Listener<Void> listener) {
-		listeners.add(listener);
+	public void addStatement(StatementInterface statement) {
+		if (currentScope == TestScope.FIELDS) {
+			fields.add(statement);
+			return;
+		}
+		if (currentScope == TestScope.STATICFIELDS) {
+			staticFields.add(statement);
+			return;
+		}
+		if (currentScope == TestScope.STATIC) {
+			staticCode.add(statement);
+			return;
+		}
+		currentMethod.add(statement);
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#clearCoveredGoals()
-	 */
-	@Override
-	public void clearCoveredGoals() {
-		delegate.clearCoveredGoals();
+	public void addVariable(IVariableBinding varBinding, VariableReference varRef) {
+		if ((currentScope == TestScope.FIELDS) || (currentScope == TestScope.STATICFIELDS)) {
+			fieldVars.put(varBinding.toString(), varRef);
+			return;
+		}
+		currentMethodVars.put(varBinding.toString(), varRef);
 	}
 
-	@Override
-	public VariableReference addStatement(StatementInterface statement) {
-		return delegate.addStatement(statement);
-	}
-
-	@Override
-	public VariableReference addStatement(StatementInterface statement, int position) {
-		return delegate.addStatement(statement, position);
-	}
-
-	@Override
-	public void addStatements(List<? extends StatementInterface> statements) {
-		for (StatementInterface statement : statements) {
-			delegate.addStatement(statement);
+	public void convertMethod(MethodDef methodDef, List<VariableReference> params, VariableReference retVal) {
+		assert methodDef.getParams().size() == params.size();
+		Map<VariableReference, VariableReference> methodVarsMap = new HashMap<VariableReference, VariableReference>();
+		for (StatementInterface statement : methodDef.getCode()) {
+			for (int idx = 0; idx < params.size(); idx++) {
+				statement.replace(methodDef.getParams().get(idx), params.get(idx));
+			}
+			if (statement instanceof ReturnStatementPlaceholder) {
+				VariableReference resultVal = methodVarsMap.get(statement.getReturnValue());
+				if (resultVal == null) {
+					throw new IllegalStateException();
+				}
+				AssignmentStatement assignmentStatement = new AssignmentStatement(delegate, retVal, resultVal);
+				addStatement(assignmentStatement);
+				return;
+			}
+			StatementInterface newStmt = statement;
+			if (!(statement instanceof PrimitiveExpression)) {
+				// Since the delegate code is not yet finished,
+				// cloning of PrimitiveExpressions does not work.
+				newStmt = statement.clone(delegate);
+			}
+			addReplacementVariable(statement.getReturnValue(), newStmt.getReturnValue());
+			methodVarsMap.put(statement.getReturnValue(), newStmt.getReturnValue());
+			addStatement(newStmt);
 		}
 	}
 
-	@Override
-	public void chop(int length) {
-		delegate.chop(length);
+	public void discardMethod() {
+		currentScope = TestScope.FIELDS;
+		currentMethod = null;
+		currentMethodVars.clear();
 	}
 
-	@Override
-	public TestCase clone() {
-		return delegate.clone();
-	}
-
-	@Override
-	public void deleteListener(Listener<Void> listener) {
-		listeners.remove(listener);
-	}
-
-	public void finalizeTestCase() {
-		delegate = new DefaultTestCase();
-		addStatements(getInitializationCode());
-		addStatements(testMethod);
-		addStatements(getDeinitializationCode());
-		for (Listener<Void> listener : listeners) {
-			delegate.addListener(listener);
+	public void finalizeMethod() {
+		String currentMethodName = currentMethod.getName();
+		methodDefs.put(currentMethodName, currentMethod);
+		switch (currentScope) {
+		case AFTER:
+			afterMethods.add(currentMethod);
+			break;
+		case AFTER_CLASS:
+			afterClassMethods.add(currentMethod);
+			break;
+		case BEFORE:
+			beforeMethods.add(currentMethod);
+			break;
+		case BEFORE_CLASS:
+			beforeClassMethods.add(currentMethod);
+			break;
+		case CONSTRUCTOR:
+			constructors.add(currentMethod);
+			break;
 		}
+		currentScope = TestScope.FIELDS;
+		currentMethod = null;
+		currentMethodVars.clear();
 	}
 
-	@Override
-	public Set<Class<?>> getAccessedClasses() {
-		return delegate.getAccessedClasses();
+	public TestCase finalizeTestCase() {
+		Set<String> overridenMethods = Collections.emptySet();
+		delegate.setDelegate(new DefaultTestCase());
+		delegate.addStatements(getStaticInitializationBeforeClassMethods(overridenMethods));
+		delegate.addStatements(getInitializationCode());
+		delegate.addStatements(getBeforeMethods(overridenMethods));
+		if (testMethod == null) {
+			throw new RuntimeException("Test did not contain any statements!");
+		}
+		if (methodDefs.get(testMethod) == null) {
+			throw new RuntimeException("Error reading test method " + testMethod + "!");
+		}
+		delegate.addStatements(methodDefs.get(testMethod).getCode());
+		delegate.addStatements(getAfterMethods(overridenMethods));
+		delegate.addStatements(getAfterClassMethods(overridenMethods));
+		return delegate;
 	}
 
-	public List<StatementInterface> getAfter() {
-		return after;
+	public String getClassName() {
+		return className;
 	}
 
-	public List<StatementInterface> getAfterClass() {
-		return afterClass;
+	public Object getCurrentMethod() {
+		return currentMethod.getName();
 	}
 
-	@Override
-	public List<Assertion> getAssertions() {
-		return delegate.getAssertions();
+	public TestScope getCurrentScope() {
+		return currentScope;
 	}
 
-	public List<StatementInterface> getBefore() {
-		return before;
+	public StatementInterface getLastStatement() {
+		assert currentScope == TestScope.METHOD;
+		return currentMethod.code.get(currentMethod.code.size() - 1);
 	}
 
-	public List<StatementInterface> getBeforeClass() {
-		return beforeClass;
-	}
-
-	/**
-	 * Currently we only support a single no-args constructor.
-	 */
-	public List<StatementInterface> getConstructor() {
-		return constructor;
-	}
-
-	@Override
-	public Set<TestFitnessFunction> getCoveredGoals() {
-		return delegate.getCoveredGoals();
-	}
-
-	@Override
-	public Set<Class<?>> getDeclaredExceptions() {
-		return delegate.getDeclaredExceptions();
-	}
-
-	public List<StatementInterface> getFields() {
-		return fields;
-	}
-
-	@Override
-	public Object getObject(VariableReference reference, Scope scope) {
-		return delegate.getObject(reference, scope);
-	}
-
-	@Override
-	public List<VariableReference> getObjects(int position) {
-		return delegate.getObjects(position);
-	}
-
-	@Override
-	public List<VariableReference> getObjects(Type type, int position) {
-		return delegate.getObjects(type, position);
+	public MethodDef getMethod(String name) {
+		if (originalDescendant != this) {
+			return originalDescendant.getMethodInternally(name);
+		}
+		return getMethodInternally(name);
 	}
 
 	public CompoundTestCase getParent() {
 		return parent;
 	}
 
-	@Override
-	public VariableReference getRandomObject() {
-		return delegate.getRandomObject();
+	public DelegatingTestCase getReference() {
+		return delegate;
 	}
 
-	@Override
-	public VariableReference getRandomObject(int position) {
-		return delegate.getRandomObject(position);
-	}
-
-	@Override
-	public VariableReference getRandomObject(Type type)
-	        throws ConstructionFailedException {
-		return delegate.getRandomObject(type);
-	}
-
-	@Override
-	public VariableReference getRandomObject(Type type, int position)
-	        throws ConstructionFailedException {
-		return delegate.getRandomObject(type, position);
-	}
-
-	@Override
-	public VariableReference getRandomNonNullObject(Type type, int position)
-	        throws ConstructionFailedException {
-		return delegate.getRandomNonNullObject(type, position);
-	}
-
-	@Override
-	public Set<VariableReference> getReferences(VariableReference var) {
-		return delegate.getReferences(var);
-	}
-
-	@Override
-	public VariableReference getReturnValue(int position) {
-		return delegate.getReturnValue(position);
-	}
-
-	@Override
-	public StatementInterface getStatement(int position) {
-		return delegate.getStatement(position);
-	}
-
-	public List<StatementInterface> getStaticCode() {
-		return staticCode;
-	}
-
-	public List<StatementInterface> getTestMethod() {
-		return testMethod;
-	}
-
-	@Override
-	public boolean hasAssertions() {
-		return delegate.hasAssertions();
-	}
-
-	@Override
-	public boolean hasCalls() {
-		return delegate.hasCalls();
-	}
-
-	@Override
-	public boolean hasCastableObject(Type type) {
-		return delegate.hasCastableObject(type);
-	}
-
-	@Override
-	public boolean hasObject(Type type, int position) {
-		return delegate.hasObject(type, position);
-	}
-
-	@Override
-	public boolean hasReferences(VariableReference var) {
-		return delegate.hasReferences(var);
-	}
-
-	@Override
-	public boolean isEmpty() {
-		return delegate.isEmpty();
-	}
-
-	public boolean isFinished() {
-		return delegate != null;
-	}
-
-	@Override
-	public boolean isPrefix(TestCase t) {
-		return delegate.isPrefix(t);
-	}
-
-	@Override
-	public boolean isValid() {
-		return delegate.isValid();
-	}
-
-	@Override
-	public Iterator<StatementInterface> iterator() {
-		return delegate.iterator();
-	}
-
-	@Override
-	public void remove(int position) {
-		delegate.remove(position);
-	}
-
-	@Override
-	public void removeAssertions() {
-		delegate.removeAssertions();
-	}
-
-	@Override
-	public void replace(VariableReference var1, VariableReference var2) {
-		delegate.replace(var1, var2);
-	}
-
-	public void setParent(CompoundTestCase parent) {
-		this.parent = parent;
-	}
-
-	@Override
-	public VariableReference setStatement(StatementInterface statement, int position) {
-		return delegate.setStatement(statement, position);
-	}
-
-	@Override
-	public int size() {
-		if (delegate == null) {
-			return 0;
+	public VariableReference getVariableReference(IVariableBinding varBinding) {
+		if (originalDescendant != this) {
+			return originalDescendant.getVariableReferenceInternally(varBinding);
 		}
-		return delegate.size();
+		return getVariableReferenceInternally(varBinding);
 	}
 
-	@Override
-	public String toCode() {
-		return delegate.toCode();
+	public boolean isDescendantOf(Class<?> declaringClass) {
+		if (parent == null) {
+			return false;
+		}
+		if (parent.className.equals(declaringClass.getName())) {
+			return true;
+		}
+		return parent.isDescendantOf(declaringClass);
 	}
 
-	@Override
-	public String toCode(Map<Integer, Throwable> exceptions) {
-		return delegate.toCode(exceptions);
+	public void newMethod(String methodName) {
+		assert (currentMethod == null) || currentMethod.getCode().isEmpty();
+		assert currentMethodVars.isEmpty();
+		currentScope = TestScope.METHOD;
+		currentMethod = new MethodDef(methodName);
+	}
+
+	public void setCurrentScope(TestScope scope) {
+		this.currentScope = scope;
 	}
 
 	@Override
 	public String toString() {
-		if (delegate != null) {
-			return delegate.toString();
-		}
-		return super.toString();
+		return className;
 	}
 
-	private List<StatementInterface> getDeinitializationCode() {
-		List<StatementInterface> result = new ArrayList<StatementInterface>();
-		result.addAll(after);
-		result.addAll(afterClass);
-		if (parent != null) {
-			List<StatementInterface> parentStatements = parent.getDeinitializationCode();
-			result.addAll(parentStatements);
+	public void variableAssignment(VariableReference varRef, VariableReference newAssignment) {
+		for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
+			if (entry.getValue() == varRef) {
+				currentMethodVars.put(entry.getKey(), newAssignment);
+				return;
+			}
 		}
+		for (Map.Entry<String, VariableReference> entry : fieldVars.entrySet()) {
+			if (entry.getValue() == varRef) {
+				fieldVars.put(entry.getKey(), newAssignment);
+				return;
+			}
+		}
+		if (parent != null) {
+			for (Map.Entry<String, VariableReference> entry : parent.fieldVars.entrySet()) {
+				if (entry.getValue() == varRef) {
+					parent.fieldVars.put(entry.getKey(), newAssignment);
+					return;
+				}
+			}
+		}
+		throw new RuntimeException("Assignment " + varRef + " not found!");
+	}
+
+	private void addReplacementVariable(VariableReference oldValue, VariableReference newValue) {
+		String variable = getVariableFromCurrentScope(oldValue);
+		fieldVars.put(variable, newValue);
+	}
+
+	private List<StatementInterface> getAfterClassMethods(Set<String> overridenMethods) {
+		List<StatementInterface> result = new ArrayList<StatementInterface>();
+		for (MethodDef methodDef : afterClassMethods) {
+			if (!overridenMethods.contains(methodDef.getName())) {
+				result.addAll(methodDef.getCode());
+			}
+		}
+		if (parent != null) {
+			// @AfterClass IF NOT OVERRIDEN
+			// According to Kent Beck, there is no defined order
+			// in which methods of the same leve within one class are called:
+			// http://tech.groups.yahoo.com/group/junit/message/20758
+			result.addAll(parent.getAfterClassMethods(methodDefs.keySet()));
+		}
+		return result;
+	}
+
+	private List<StatementInterface> getAfterMethods(Set<String> overridenMethods) {
+		List<StatementInterface> result = new ArrayList<StatementInterface>();
+		// @After
+		for (MethodDef methodDef : afterMethods) {
+			if (!overridenMethods.contains(methodDef.getName())) {
+				result.addAll(methodDef.getCode());
+	}
+	}
+		if (parent != null) {
+			// parent: @After
+			result.addAll(parent.getAfterMethods(methodDefs.keySet()));
+	}
+		return result;
+	}
+
+	private List<StatementInterface> getBeforeMethods(Set<String> overridenMethods) {
+		List<StatementInterface> result = new ArrayList<StatementInterface>();
+		if (parent != null) {
+			result.addAll(parent.getBeforeMethods(methodDefs.keySet()));
+	}
+		// @Before IF NOT OVERRIDEN
+		// According to Kent Beck, there is no defined order
+		// in which methods of the same leve within one class are called:
+		// http://tech.groups.yahoo.com/group/junit/message/20758
+		for (MethodDef methodDef : beforeMethods) {
+			if (!overridenMethods.contains(methodDef.getName())) {
+				result.addAll(methodDef.getCode());
+	}
+	}
 		return result;
 	}
 
 	private List<StatementInterface> getInitializationCode() {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
-			List<StatementInterface> parentStatements = parent.getInitializationCode();
-			result.addAll(parentStatements);
-		}
-		result.addAll(staticCode);
+			result.addAll(parent.getInitializationCode());
+	}
+		// initialization
 		result.addAll(fields);
-		result.addAll(constructor);
-		result.addAll(beforeClass);
-		result.addAll(before);
+		// constructor
+		result.addAll(getNoArgsConstructor());
 		return result;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
-	 */
-	@Override
-	public Set<VariableReference> getDependencies(VariableReference var) {
-		// TODO Auto-generated method stub
+	private MethodDef getMethodInternally(String name) {
+		MethodDef result = methodDefs.get(name);
+		if (result != null) {
+			return result;
+	}
+		if (parent != null) {
+			return parent.getMethodInternally(name);
+		}
+		throw new RuntimeException("Method " + name + " not found!");
+	}
+
+	private List<StatementInterface> getNoArgsConstructor() {
+		for (MethodDef constructor : constructors) {
+			if (constructor.getParams().isEmpty()) {
+				return constructor.getCode();
+	}
+	}
+		if (constructors.size() > 1) {
+			throw new RuntimeException("Found " + constructors.size() + " constructors, but on no-args constructor!");
+		}
+		return Collections.emptyList();
+	}
+
+	private List<StatementInterface> getStaticInitializationBeforeClassMethods(Set<String> overridenMethods) {
+		List<StatementInterface> result = new ArrayList<StatementInterface>();
+		if (parent != null) {
+			// @BeforeClass IF NOT OVERRIDEN
+			// According to Kent Beck, there is no defined order
+			// in which methods of the same leve within one class are called:
+			// http://tech.groups.yahoo.com/group/junit/message/20758
+			result.addAll(parent.getStaticInitializationBeforeClassMethods(methodDefs.keySet()));
+		}
+		// this: static initialization
+		result.addAll(staticFields);
+		// static blocks
+		result.addAll(staticCode);
+		// @BeforeClass methods
+		for (MethodDef methodDef : beforeClassMethods) {
+			if (!overridenMethods.contains(methodDef.getName())) {
+				result.addAll(methodDef.getCode());
+			}
+		}
+		return result;
+	}
+
+	private String getVariableFromCurrentScope(VariableReference varRef) {
+		if ((currentScope != TestScope.FIELDS) && (currentScope != TestScope.STATICFIELDS)) {
+			for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
+				if (entry.getValue().equals(varRef)) {
+					return entry.getKey();
+				}
+			}
+		}
+		for (Map.Entry<String, VariableReference> entry : fieldVars.entrySet()) {
+			if (entry.getValue().equals(varRef)) {
+				return entry.getKey();
+			}
+		}
+		if (parent != null) {
+			return parent.getVariableFromCurrentScope(varRef);
+		}
 		return null;
 	}
 
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAccessedFiles()
-	 */
-	@Override
-	public List<String> getAccessedFiles() {
-		// TODO Auto-generated method stub
+	private VariableReference getVariableReferenceInternally(IVariableBinding varBinding) {
+		VariableReference varRef = currentMethodVars.get(varBinding.toString());
+		if (varRef != null) {
+			return varRef;
+		}
+		varRef = fieldVars.get(varBinding.toString());
+		if (varRef != null) {
+			return varRef;
+		}
+		if (parent != null) {
+			return parent.getVariableReferenceInternally(varBinding);
+		}
 		return null;
-	}
-
-	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
-	 */
-	@Override
-	public void setAccessedFiles(List<String> files) {
-		// TODO Auto-generated method stub
-
 	}
 }

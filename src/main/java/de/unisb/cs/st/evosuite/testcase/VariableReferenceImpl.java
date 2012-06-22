@@ -46,6 +46,7 @@ public class VariableReferenceImpl implements VariableReference {
 	protected TestCase testCase;
 	protected final PassiveChangeListener<Void> changeListener = new PassiveChangeListener<Void>();
 	protected Integer stPosition;
+	private String originalCode;
 
 	/**
 	 * Constructor
@@ -78,7 +79,8 @@ public class VariableReferenceImpl implements VariableReference {
 		if ((stPosition == null) || changeListener.hasChanged()) {
 			stPosition = null;
 			for (int i = 0; i < testCase.size(); i++) {
-				if (testCase.getStatement(i).getReturnValue().equals(this)) {
+				StatementInterface stmt = testCase.getStatement(i); 
+				if (stmt.getReturnValue().equals(this)) {
 					stPosition = i;
 					break;
 				}
@@ -286,6 +288,11 @@ public class VariableReferenceImpl implements VariableReference {
 		return scope.getObject(this);
 	}
 
+	@Override
+	public String getOriginalCode(){
+		return originalCode;
+	}
+
 	/**
 	 * Set the actual object represented by this variable in a given scope
 	 * 
@@ -299,11 +306,24 @@ public class VariableReferenceImpl implements VariableReference {
 		scope.setObject(this, value);
 	}
 
+	public void setOriginalCode(String code){
+		if (originalCode != null) {
+			logger.debug("Original code already set to '{}', skip setting it to '{}'.", originalCode, code);
+			return;
+		}
+		if (code != null) {
+			this.originalCode = code.trim();
+		}
+	}
+	
 	/**
 	 * Return string representation of the variable
 	 */
 	@Override
 	public String toString() {
+		if (originalCode != null) {
+			return originalCode;
+		}
 		return "VariableReference: Statement " + getStPosition() + ", type "
 		        + type.getTypeName();
 	}

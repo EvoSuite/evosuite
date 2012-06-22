@@ -57,7 +57,7 @@ public class Randomness implements Serializable {
 			}
 		} else {
 			seed = System.currentTimeMillis();
-			logger.debug("No seed given. Using {}.", seed);
+			logger.info("No seed given. Using {}.", seed);
 		}
 		random = new MersenneTwister(seed);
 	}

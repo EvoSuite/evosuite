@@ -17,26 +17,46 @@
  */
 package de.unisb.cs.st.evosuite.testcase;
 
+import java.util.List;
+
 
 public class ArrayReference extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = 3309591356542131910L;
 
-	protected int array_length;
+	private int[] lengths;
+	
+	public ArrayReference(TestCase tc, Class<?> clazz){
+		this(tc, new GenericClass(clazz), new int[ArrayStatement.determineDimensions(clazz)]);
+	}
+	
+	public ArrayReference(TestCase tc, GenericClass clazz, int[] lengths) {
+		super(tc, clazz);
+		assert (lengths.length > 0);
+		this.lengths = lengths;
+	}
 
 	public ArrayReference(TestCase tc, GenericClass clazz, int array_length) {
-		super(tc, clazz);
-		assert (array_length >= 0);
-		this.array_length = array_length;
+		this(tc, clazz, new int[]{array_length});
 	}
 
 	public int getArrayLength() {
-		return array_length;
+		assert lengths.length == 1;
+		return lengths[0];
 	}
 
 	public void setArrayLength(int l) {
 		assert (l >= 0);
-		array_length = l;
+		assert lengths.length == 1;
+		lengths[0] = l;
+	}
+
+	public int[] getLengths() {
+		return lengths;
+	}
+
+	public void setLengths(int[] lengths) {
+		this.lengths = lengths;
 	}
 
 	/**
@@ -47,30 +67,39 @@ public class ArrayReference extends VariableReferenceImpl {
 		VariableReference newRef = newTestCase.getStatement(getStPosition() + offset).getReturnValue();
 		if (newRef instanceof ArrayReference) {
 			ArrayReference otherArray = (ArrayReference) newRef;
-			otherArray.setArrayLength(array_length);
+			otherArray.setLengths(lengths);
 			return otherArray;
 		} else {
 
 			// FIXXME: This part should be redundant
 
 			if (newRef.getComponentType() != null) {
-				ArrayReference otherArray = new ArrayReference(newTestCase, type,
-				        array_length);
-				otherArray.setArrayLength(array_length);
+				ArrayReference otherArray = new ArrayReference(newTestCase, type, lengths);
 				newTestCase.getStatement(getStPosition() + offset).setRetval(otherArray);
 				return otherArray;
 			} else {
 				// This may happen when cloning a method statement which returns an Object that in fact is an array
 				// We'll just create a new ArrayReference in this case.
-				ArrayReference otherArray = new ArrayReference(newTestCase, type,
-				        array_length);
-				otherArray.setArrayLength(array_length);
+				ArrayReference otherArray = new ArrayReference(newTestCase, type, lengths);
 				newTestCase.getStatement(getStPosition() + offset).setRetval(otherArray);
 				return otherArray;
 				//				throw new RuntimeException("After cloning the array disappeared: "
 				//				        + getName() + "/" + newRef.getName() + " in test "
 				//				        + newTestCase.toCode() + " / old test: " + testCase.toCode());
 			}
+		}
+	}
+
+	public int getArrayDimensions() {
+		return lengths.length;
+	}
+
+	public void setLengths(List<Integer> lengths) {
+		this.lengths = new int[lengths.size()];
+		int idx = 0;
+		for (Integer length : lengths) {
+			this.lengths[idx] = length;
+			idx++;
 		}
 	}
 }

@@ -382,7 +382,9 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
-		return copy(newTestCase, 0);
+		StatementInterface result = copy(newTestCase, 0);
+		result.getReturnValue().setOriginalCode(retval.getOriginalCode());
+		return result;
 	}
 
 	/* (non-Javadoc)

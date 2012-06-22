@@ -86,6 +86,14 @@ public class ConstructorStatement extends AbstractStatement {
 		this.parameters = parameters;
 	}
 
+	protected ConstructorStatement(TestCase tc, Constructor<?> constructor,
+	        VariableReference retvar, List<VariableReference> parameters, boolean check) {
+		super(tc, retvar);
+		assert check == false;
+		this.constructor = constructor;
+		this.parameters = parameters;
+	}
+
 	public Constructor<?> getConstructor() {
 		return constructor;
 	}

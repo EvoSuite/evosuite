@@ -177,6 +177,11 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	public Object getObject(Scope scope) throws CodeUnderTestException;
 
 	/**
+	 * @return the code this variable reference stems from or null if it was generated.
+	 */
+	public String getOriginalCode();
+
+	/**
 	 * Set the actual object represented by this variable in a given scope
 	 * 
 	 * @param scope
@@ -189,6 +194,14 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	 */
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException;
 
+	/**
+	 * Set the code fragment that defined this variable reference 
+	 * if imported from an existing test case. 
+	 * 
+	 * @param code The code fragment that defined this variable reference.
+	 */
+	public void setOriginalCode(String code);
+	
 	/**
 	 * Return string representation of the variable
 	 */

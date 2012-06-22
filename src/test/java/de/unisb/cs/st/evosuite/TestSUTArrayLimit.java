@@ -90,7 +90,7 @@ public class TestSUTArrayLimit extends SystemTest{
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n"+best);
 
-		Assert.assertTrue("Optimal coverage: ", best.getCoverage() < 0.99);
+		Assert.assertTrue("Optimal coverage: " + best.getCoverage(), best.getCoverage() < 0.99);
 	}
 
 }

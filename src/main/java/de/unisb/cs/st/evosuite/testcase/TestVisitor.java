@@ -42,4 +42,6 @@ public interface TestVisitor {
 
 	public void visitNullStatement(NullStatement statement);
 
+	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression);
+
 }

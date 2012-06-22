@@ -57,12 +57,29 @@ public class BytecodeInstrumentation {
 		externalPreVisitors.add(factory);
 	}
 
-	public boolean isJavaClass(String className) {
-		return className.startsWith("java.") || className.startsWith("sun.")
-		        || className.startsWith("javax.");
+	public static boolean isJavaClass(String classNameWithDots) {
+		return classNameWithDots.startsWith("java.") // 
+				|| classNameWithDots.startsWith("javax.") //
+				|| classNameWithDots.startsWith("sun.") //
+		        || classNameWithDots.startsWith("apple.")
+		        || classNameWithDots.startsWith("com.apple.");
+	}
+	
+	public static boolean isSharedClass(String classNameWithDots){
+		// this are classes that are used by EvoSuite 
+		// and for which an instrumentation leads to 
+		// bad to detect errors 
+		return isJavaClass(classNameWithDots) //
+			|| classNameWithDots.startsWith("de.unisb.cs.st") //
+			|| classNameWithDots.startsWith("org.xml.sax") //
+			|| classNameWithDots.startsWith("org.mozilla.javascript.gen.c") //
+			|| classNameWithDots.startsWith("daikon.") //
+			|| classNameWithDots.startsWith("org.aspectj.org.eclipse") //
+			|| classNameWithDots.startsWith("junit.framework") //
+			|| classNameWithDots.startsWith("org.junit");
 	}
 
-	public boolean isTargetProject(String className) {
+	public static boolean isTargetProject(String className) {
 		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
 		        && !className.startsWith("java.")
 		        && !className.startsWith("sun.")
@@ -112,6 +129,11 @@ public class BytecodeInstrumentation {
 			readFlags |= ClassReader.SKIP_DEBUG;
 
 		String classNameWithDots = className.replace('/', '.');
+		
+		if (isSharedClass(classNameWithDots)) {
+			throw new RuntimeException("Should not transform a shared class! Load by parent (JVM) classloader.");
+		}
+		
 		TransformationStatistics.reset();
 
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);

@@ -96,7 +96,6 @@ public class JUnitUtils {
 	}
 
 	public static ExecutionResult runTest(TestCase testCase) {
-		Properties.TIMEOUT = 60 * 3 * 100;
 		logger.debug("Execution testCase with timeout {}: \n{}", Properties.TIMEOUT, testCase.toCode());
 		return TestCaseExecutor.getInstance().execute(testCase);
 	}

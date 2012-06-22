@@ -99,6 +99,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Type clazz) {
+		// TODO This kills the benefit of inheritance. 
+		// Let each class implement the clone method instead
+		
 		PrimitiveStatement<?> statement;
 
 		if (clazz == boolean.class) {
@@ -185,6 +188,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
+		if (retval.equals(var1)) {
+			retval = var2;
+		}
 	}
 
 	@Override

@@ -40,6 +40,7 @@ public class InputVariable implements VariableReference {
 	private static final long serialVersionUID = -5552253395284020019L;
 
 	private int numInput = 0;
+	private String originalCode;
 
 	/** Type (class) of the variable */
 	protected GenericClass type;
@@ -372,4 +373,11 @@ public class InputVariable implements VariableReference {
 		return false;
 	}
 
+	public String getOriginalCode() {
+		return originalCode;
+	}
+
+	public void setOriginalCode(String originalCode) {
+		this.originalCode = originalCode;
+	}
 }

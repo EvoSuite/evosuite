@@ -141,8 +141,7 @@ public class GenericClass implements Serializable {
 			        || ((Class<?>) lhsType).equals(void.class))
 				return false;
 
-			//			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
-			return ((Class<?>) lhsType).isAssignableFrom((Class<?>) rhsType);
+			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
 		}
 
 		//	if(lhsType instanceof ParameterizedType && rhsType instanceof ParameterizedType) {
