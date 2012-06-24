@@ -211,8 +211,11 @@ public class Properties {
 	@Parameter(key = "check_best_length", group = "Search Algorithm", description = "Check length against length of best individual")
 	public static boolean CHECK_BEST_LENGTH = true;
 
+	/*
+	 * Note: it is set to false because it gave bad results in the STVR'12 paper 
+	 */
 	@Parameter(key = "check_parents_length", group = "Search Algorithm", description = "Check length against length of parents")
-	public static boolean CHECK_PARENTS_LENGTH = true;
+	public static boolean CHECK_PARENTS_LENGTH = false;
 
 	//@Parameter(key = "check_rank_length", group = "Search Algorithm", description = "Use length in rank selection")
 	//public static boolean CHECK_RANK_LENGTH = false;
@@ -296,7 +299,7 @@ public class Properties {
 
 	@Parameter(key = "chromosome_length", group = "Search Algorithm", description = "Maximum length of chromosomes during search")
 	@IntValue(min = 1, max = 100000)
-	public static int CHROMOSOME_LENGTH = 40;
+	public static int CHROMOSOME_LENGTH = 20;
 
 	@Parameter(key = "population", group = "Search Algorithm", description = "Population size of genetic algorithm")
 	@IntValue(min = 1)
