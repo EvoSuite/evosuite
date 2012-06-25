@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import de.unisb.cs.st.evosuite.coverage.dataflow.DefUse;
+import de.unisb.cs.st.evosuite.testcase.ExecutionTraceImpl.BranchEval;
 
 /**
  * @author gordon
@@ -384,5 +385,25 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	@Override
 	public boolean wasMutationTouched(int mutationId) {
 		return trace.wasMutationTouched(mutationId);
+	}
+
+	@Override
+	public List<BranchEval> getBranchesTrace() {
+		return trace.getBranchesTrace();
+	}
+
+	@Override
+	public Map<Integer, Double> getFalseDistancesSum() {
+		return trace.getTrueDistancesSum();
+	}
+
+	@Override
+	public Map<Integer, Double> getTrueDistancesSum() {
+		return trace.getTrueDistancesSum();
+	}
+
+	@Override
+	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getPassedUses() {
+		return trace.getPassedUses();
 	}
 }
