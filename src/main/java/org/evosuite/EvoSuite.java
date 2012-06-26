@@ -135,7 +135,7 @@ public class EvoSuite {
 				parameters.add(arg);
 			}
 		}
-		parameters.add("de.unisb.cs.st.evosuite.setup.ScanProject");
+		parameters.add("org.evosuite.setup.ScanProject");
 		parameters.add(targetParam);
 		System.out.println(parameters);
 
@@ -297,7 +297,7 @@ public class EvoSuite {
 		}
 
 		cmdLine.add("-Dclassloader=true");
-		cmdLine.add("de.unisb.cs.st.evosuite.ClientProcess");
+		cmdLine.add("org.evosuite.ClientProcess");
 
 		/*
 		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie

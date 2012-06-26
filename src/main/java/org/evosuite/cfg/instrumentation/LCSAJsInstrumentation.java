@@ -220,7 +220,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 						instrumentation.add(new LdcInsnNode(branchId));
 						instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 						instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-						        "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+						        "org/evosuite/testcase/ExecutionTracer",
 						        "passedUnconditionalBranch", "(III)V"));
 						if (v.isLabel())
 							mn.instructions.insert(v.getASMNode(), instrumentation);
