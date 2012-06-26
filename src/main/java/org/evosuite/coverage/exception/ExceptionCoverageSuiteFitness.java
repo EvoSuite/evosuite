@@ -92,7 +92,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					continue;
 				// If the exception was thrown in the test directly, it is also not interesting
 				if (t.getStackTrace().length > 0
-				        && t.getStackTrace()[0].getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+				        && t.getStackTrace()[0].getClassName().startsWith("org.evosuite.testcase")) {
 					continue;
 				}
 				// Ignore exceptions thrown in the test code itself

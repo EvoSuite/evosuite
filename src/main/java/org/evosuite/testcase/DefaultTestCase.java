@@ -86,7 +86,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#size()
+	 * @see org.evosuite.testcase.TestCase#size()
 	 */
 	@Override
 	public int size() {
@@ -94,7 +94,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isEmpty()
+	 * @see org.evosuite.testcase.TestCase#isEmpty()
 	 */
 	@Override
 	public boolean isEmpty() {
@@ -102,7 +102,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#chop(int)
+	 * @see org.evosuite.testcase.TestCase#chop(int)
 	 */
 	@Override
 	public void chop(int length) {
@@ -112,7 +112,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#toCode()
+	 * @see org.evosuite.testcase.TestCase#toCode()
 	 */
 	@Override
 	public String toCode() {
@@ -122,7 +122,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#toCode(java.util.Map)
+	 * @see org.evosuite.testcase.TestCase#toCode(java.util.Map)
 	 */
 	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
@@ -153,7 +153,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObjects(java.lang.reflect.Type, int)
+	 * @see org.evosuite.testcase.TestCase#getObjects(java.lang.reflect.Type, int)
 	 */
 	@Override
 	public List<VariableReference> getObjects(Type type, int position) {
@@ -191,7 +191,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObjects(int)
+	 * @see org.evosuite.testcase.TestCase#getObjects(int)
 	 */
 	@Override
 	public List<VariableReference> getObjects(int position) {
@@ -218,7 +218,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject()
+	 * @see org.evosuite.testcase.TestCase#getRandomObject()
 	 */
 	@Override
 	public VariableReference getRandomObject() {
@@ -226,7 +226,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(int)
+	 * @see org.evosuite.testcase.TestCase#getRandomObject(int)
 	 */
 	@Override
 	public VariableReference getRandomObject(int position) {
@@ -238,7 +238,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type)
+	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type)
 	 */
 	@Override
 	public VariableReference getRandomObject(Type type)
@@ -247,7 +247,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
+	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
 	 */
 	@Override
 	public VariableReference getRandomObject(Type type, int position)
@@ -262,7 +262,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
+	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
 	 */
 	@Override
 	public VariableReference getRandomNonNullObject(Type type, int position)
@@ -282,7 +282,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getObject(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.Scope)
+	 * @see org.evosuite.testcase.TestCase#getObject(org.evosuite.testcase.VariableReference, org.evosuite.testcase.Scope)
 	 */
 	@Override
 	public Object getObject(VariableReference reference, Scope scope) {
@@ -294,7 +294,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
+	 * @see org.evosuite.testcase.TestCase#setStatement(org.evosuite.testcase.Statement, int)
 	 */
 	@Override
 	public VariableReference setStatement(StatementInterface statement, int position) {
@@ -305,7 +305,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addStatement(de.unisb.cs.st.evosuite.testcase.Statement, int)
+	 * @see org.evosuite.testcase.TestCase#addStatement(org.evosuite.testcase.Statement, int)
 	 */
 	@Override
 	public VariableReference addStatement(StatementInterface statement, int position) {
@@ -315,7 +315,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addStatement(de.unisb.cs.st.evosuite.testcase.Statement)
+	 * @see org.evosuite.testcase.TestCase#addStatement(org.evosuite.testcase.Statement)
 	 */
 	@Override
 	public VariableReference addStatement(StatementInterface statement) {
@@ -351,7 +351,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getReturnValue(int)
+	 * @see org.evosuite.testcase.TestCase#getReturnValue(int)
 	 */
 	@Override
 	public VariableReference getReturnValue(int position) {
@@ -359,7 +359,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasReferences(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.TestCase#hasReferences(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public boolean hasReferences(VariableReference var) {
@@ -378,7 +378,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getReferences(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.TestCase#getReferences(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public Set<VariableReference> getReferences(VariableReference var) {
@@ -404,7 +404,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDependencies(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.TestCase#getDependencies(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public Set<VariableReference> getDependencies(VariableReference var) {
@@ -432,7 +432,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#remove(int)
+	 * @see org.evosuite.testcase.TestCase#remove(int)
 	 */
 	@Override
 	public void remove(int position) {
@@ -448,7 +448,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getStatement(int)
+	 * @see org.evosuite.testcase.TestCase#getStatement(int)
 	 */
 	@Override
 	public StatementInterface getStatement(int position) {
@@ -456,7 +456,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isPrefix(de.unisb.cs.st.evosuite.testcase.DefaultTestCase)
+	 * @see org.evosuite.testcase.TestCase#isPrefix(org.evosuite.testcase.DefaultTestCase)
 	 */
 	@Override
 	public boolean isPrefix(TestCase t) {
@@ -515,7 +515,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasObject(java.lang.reflect.Type, int)
+	 * @see org.evosuite.testcase.TestCase#hasObject(java.lang.reflect.Type, int)
 	 */
 	@Override
 	public boolean hasObject(Type type, int position) {
@@ -531,7 +531,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasCastableObject(java.lang.reflect.Type)
+	 * @see org.evosuite.testcase.TestCase#hasCastableObject(java.lang.reflect.Type)
 	 */
 	@Override
 	public boolean hasCastableObject(Type type) {
@@ -563,7 +563,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAccessedClasses()
+	 * @see org.evosuite.testcase.TestCase#getAccessedClasses()
 	 */
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
@@ -602,7 +602,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addAssertions(de.unisb.cs.st.evosuite.testcase.DefaultTestCase)
+	 * @see org.evosuite.testcase.TestCase#addAssertions(org.evosuite.testcase.DefaultTestCase)
 	 */
 	@Override
 	public void addAssertions(TestCase other) {
@@ -616,7 +616,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasAssertions()
+	 * @see org.evosuite.testcase.TestCase#hasAssertions()
 	 */
 	@Override
 	public boolean hasAssertions() {
@@ -628,7 +628,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAssertions()
+	 * @see org.evosuite.testcase.TestCase#getAssertions()
 	 */
 	@Override
 	public List<Assertion> getAssertions() {
@@ -640,7 +640,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#removeAssertions()
+	 * @see org.evosuite.testcase.TestCase#removeAssertions()
 	 */
 	@Override
 	public void removeAssertions() {
@@ -651,7 +651,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#isValid()
+	 * @see org.evosuite.testcase.TestCase#isValid()
 	 */
 	@Override
 	public boolean isValid() {
@@ -662,7 +662,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getDeclaredExceptions()
+	 * @see org.evosuite.testcase.TestCase#getDeclaredExceptions()
 	 */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
@@ -674,7 +674,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#hasCalls()
+	 * @see org.evosuite.testcase.TestCase#hasCalls()
 	 */
 	@Override
 	public boolean hasCalls() {
@@ -687,7 +687,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#addCoveredGoal(de.unisb.cs.st.evosuite.testcase.TestFitnessFunction)
+	 * @see org.evosuite.testcase.TestCase#addCoveredGoal(org.evosuite.testcase.TestFitnessFunction)
 	 */
 	@Override
 	public void addCoveredGoal(TestFitnessFunction goal) {
@@ -696,7 +696,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getCoveredGoals()
+	 * @see org.evosuite.testcase.TestCase#getCoveredGoals()
 	 */
 	@Override
 	public Set<TestFitnessFunction> getCoveredGoals() {
@@ -704,7 +704,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#clearCoveredGoals()
+	 * @see org.evosuite.testcase.TestCase#clearCoveredGoals()
 	 */
 	@Override
 	public void clearCoveredGoals() {
@@ -730,7 +730,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.TestCase#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
@@ -740,7 +740,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#accept(de.unisb.cs.st.evosuite.testcase.TestVisitor)
+	 * @see org.evosuite.testcase.TestCase#accept(org.evosuite.testcase.TestVisitor)
 	 */
 	@Override
 	public void accept(TestVisitor visitor) {
@@ -786,7 +786,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#getAccessedFiles()
+	 * @see org.evosuite.testcase.TestCase#getAccessedFiles()
 	 */
 	@Override
 	public List<String> getAccessedFiles() {
@@ -794,7 +794,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
+	 * @see org.evosuite.testcase.TestCase#setAccessedFiles(java.util.List)
 	 */
 	@Override
 	public void setAccessedFiles(List<String> files) {

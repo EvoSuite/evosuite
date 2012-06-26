@@ -458,7 +458,7 @@ public class Editor implements UserFeedback {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ma.UserFeedback#showParseException(java.lang.
+	 * org.evosuite.ma.UserFeedback#showParseException(java.lang.
 	 * String)
 	 */
 	@Override
@@ -471,7 +471,7 @@ public class Editor implements UserFeedback {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ma.UserFeedback#chooseTargetFile(java.lang.String
+	 * org.evosuite.ma.UserFeedback#chooseTargetFile(java.lang.String
 	 * )
 	 */
 	@Override

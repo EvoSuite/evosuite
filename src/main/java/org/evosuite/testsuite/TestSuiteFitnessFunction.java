@@ -138,7 +138,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#isMaximizationFunction()
+	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()
 	 */
 	@Override
 	public boolean isMaximizationFunction() {

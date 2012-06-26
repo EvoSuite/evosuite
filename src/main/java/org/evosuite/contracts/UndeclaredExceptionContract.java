@@ -34,7 +34,7 @@ import org.evosuite.testcase.StatementInterface;
 public class UndeclaredExceptionContract extends Contract {
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
+	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
@@ -51,7 +51,7 @@ public class UndeclaredExceptionContract extends Contract {
 				StackTraceElement element = exception.getStackTrace()[0];
 
 				// If the exception was thrown in the test directly, it is also not interesting
-				if (element.getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+				if (element.getClassName().startsWith("org.evosuite.testcase")) {
 					return true;
 				}
 

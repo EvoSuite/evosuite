@@ -37,7 +37,7 @@ public class StringComparison extends StringExpression {
 
 	private static final long serialVersionUID = -2959676064390810341L;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringComparison");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringComparison");
 	
 	public StringComparison(Expression<String> left, Operator op, Expression<?> right2, Long con) {
 		super();

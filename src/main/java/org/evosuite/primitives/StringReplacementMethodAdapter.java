@@ -79,7 +79,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		if (owner.equals("java/lang/String")) {
 			if (name.equals("equals")) {
 				logger.debug("Replacing string call equals!");
-				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
+				String replacement_owner = "org/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
 				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
@@ -88,7 +88,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
 			} else if (name.equals("equalsIgnoreCase")) {
 				logger.debug("Replacing string call equalsignorecase!");
-				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
+				String replacement_owner = "org/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "equalsIgnoreCaseDistance";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
 				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,
@@ -97,7 +97,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
 			} else if (name.equals("startsWith")) {
 				logger.debug("Replacing string call startsWith!");
-				String replacement_owner = "de/unisb/cs/st/evosuite/primitives/StringReplacementFunctions";
+				String replacement_owner = "org/evosuite/primitives/StringReplacementFunctions";
 				String replacement_name = "startsWith";
 				String replacement_desc = "(Ljava/lang/String;Ljava/lang/String;)I";
 				super.visitMethodInsn(Opcodes.INVOKESTATIC, replacement_owner,

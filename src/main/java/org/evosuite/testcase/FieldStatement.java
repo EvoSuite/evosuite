@@ -200,7 +200,7 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
@@ -251,7 +251,7 @@ public class FieldStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.
+	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
 	@Override
@@ -322,7 +322,7 @@ public class FieldStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getUniqueVariableReferences()
+	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
@@ -384,7 +384,7 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {

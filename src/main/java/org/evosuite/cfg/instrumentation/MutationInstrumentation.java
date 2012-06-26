@@ -105,7 +105,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, int)
+	 * @see org.evosuite.cfg.instrumentation.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, int)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -172,7 +172,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation#executeOnMainMethod()
+	 * @see org.evosuite.cfg.instrumentation.MethodInstrumentation#executeOnMainMethod()
 	 */
 	@Override
 	public boolean executeOnMainMethod() {
@@ -181,7 +181,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MethodInstrumentation#executeOnExcludedMethods()
+	 * @see org.evosuite.cfg.instrumentation.MethodInstrumentation#executeOnExcludedMethods()
 	 */
 	@Override
 	public boolean executeOnExcludedMethods() {

@@ -45,7 +45,7 @@ public class FixedSizeTestSuiteChromosomeFactory implements
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.ChromosomeFactory#getChromosome()
+	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
 	@Override
 	public TestSuiteChromosome getChromosome() {

@@ -52,7 +52,7 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
 	public long getCurrentValue() {
@@ -60,7 +60,7 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(long limit) {

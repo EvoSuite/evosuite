@@ -34,7 +34,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.AssertionTraceObserver#visit(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {

@@ -79,7 +79,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.
+	 * org.evosuite.ga.FitnessFunction#getFitness(org.
 	 * evosuite.ga.Chromosome)
 	 */
 	@Override

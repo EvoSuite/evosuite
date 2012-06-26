@@ -31,11 +31,11 @@ import gov.nasa.jpf.jvm.MJIEnv;
 //import org.slf4j.LoggerFactory;
 
 
-public class JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker {
+public class JPF_org_evosuite_symbolic_nativepeer_ConcolicMarker {
 	private static int counter = 0;
 
-	static Logger log = JPF.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class.toString());
-//	private static Logger logger = LoggerFactory.getLogger(JPF_de_unisb_cs_st_evosuite_symbolic_nativepeer_ConcolicMarker.class);
+	static Logger log = JPF.getLogger(JPF_org_evosuite_symbolic_nativepeer_ConcolicMarker.class.toString());
+//	private static Logger logger = LoggerFactory.getLogger(JPF_org_evosuite_symbolic_nativepeer_ConcolicMarker.class);
 	
 	public static boolean mark__Z__Z(MJIEnv env, int rcls, boolean v0) {
 		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",

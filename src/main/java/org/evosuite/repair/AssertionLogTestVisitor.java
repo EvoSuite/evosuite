@@ -50,7 +50,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCodeVisitor#visitCompareAssertion(de.unisb.cs.st.evosuite.assertion.CompareAssertion)
+	 * @see org.evosuite.testcase.TestCodeVisitor#visitCompareAssertion(org.evosuite.assertion.CompareAssertion)
 	 */
 	@Override
 	protected void visitCompareAssertion(CompareAssertion assertion) {
@@ -81,7 +81,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCodeVisitor#visitEqualsAssertion(de.unisb.cs.st.evosuite.assertion.EqualsAssertion)
+	 * @see org.evosuite.testcase.TestCodeVisitor#visitEqualsAssertion(org.evosuite.assertion.EqualsAssertion)
 	 */
 	@Override
 	protected void visitEqualsAssertion(EqualsAssertion assertion) {
@@ -112,7 +112,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCodeVisitor#visitInspectorAssertion(de.unisb.cs.st.evosuite.assertion.InspectorAssertion)
+	 * @see org.evosuite.testcase.TestCodeVisitor#visitInspectorAssertion(org.evosuite.assertion.InspectorAssertion)
 	 */
 	@Override
 	protected void visitInspectorAssertion(InspectorAssertion assertion) {
@@ -163,7 +163,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCodeVisitor#visitNullAssertion(de.unisb.cs.st.evosuite.assertion.NullAssertion)
+	 * @see org.evosuite.testcase.TestCodeVisitor#visitNullAssertion(org.evosuite.assertion.NullAssertion)
 	 */
 	@Override
 	protected void visitNullAssertion(NullAssertion assertion) {
@@ -179,7 +179,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCodeVisitor#visitPrimitiveAssertion(de.unisb.cs.st.evosuite.assertion.PrimitiveAssertion)
+	 * @see org.evosuite.testcase.TestCodeVisitor#visitPrimitiveAssertion(org.evosuite.assertion.PrimitiveAssertion)
 	 */
 	@Override
 	protected void visitPrimitiveAssertion(PrimitiveAssertion assertion) {
@@ -231,7 +231,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCodeVisitor#visitPrimitiveFieldAssertion(de.unisb.cs.st.evosuite.assertion.PrimitiveFieldAssertion)
+	 * @see org.evosuite.testcase.TestCodeVisitor#visitPrimitiveFieldAssertion(org.evosuite.assertion.PrimitiveFieldAssertion)
 	 */
 	@Override
 	protected void visitPrimitiveFieldAssertion(PrimitiveFieldAssertion assertion) {

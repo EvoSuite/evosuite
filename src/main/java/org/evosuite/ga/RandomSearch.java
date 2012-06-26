@@ -41,7 +41,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	private static final long serialVersionUID = -7685015421245920459L;
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.GeneticAlgorithm#evolve()
+	 * @see org.evosuite.ga.GeneticAlgorithm#evolve()
 	 */
 	@Override
 	protected void evolve() {
@@ -56,7 +56,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.GeneticAlgorithm#initializePopulation()
+	 * @see org.evosuite.ga.GeneticAlgorithm#initializePopulation()
 	 */
 	@Override
 	public void initializePopulation() {
@@ -65,7 +65,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.GeneticAlgorithm#generateSolution()
+	 * @see org.evosuite.ga.GeneticAlgorithm#generateSolution()
 	 */
 	@Override
 	public void generateSolution() {

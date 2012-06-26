@@ -45,7 +45,7 @@ public class ContainerBooleanInterpreter extends BasicInterpreter {
 	        @SuppressWarnings("rawtypes") List values) throws AnalyzerException {
 		if (insn.getOpcode() == Opcodes.INVOKESTATIC) {
 			MethodInsnNode mn = (MethodInsnNode) insn;
-			if (mn.owner.equals("de/unisb/cs/st/evosuite/javaagent/BooleanHelper")
+			if (mn.owner.equals("org/evosuite/javaagent/BooleanHelper")
 			        && (mn.name.startsWith("collection") || mn.name.startsWith("map"))) {
 				return CONTAINER_BOOLEAN;
 			}

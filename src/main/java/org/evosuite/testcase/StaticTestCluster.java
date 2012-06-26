@@ -1891,7 +1891,7 @@ public class StaticTestCluster extends TestCluster {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.TestCluster#checkDependencies(java.lang
+	 * org.evosuite.testcase.TestCluster#checkDependencies(java.lang
 	 * .reflect.AccessibleObject)
 	 */
 	@Override
@@ -1903,7 +1903,7 @@ public class StaticTestCluster extends TestCluster {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getTestCalls()
+	 * @see org.evosuite.testcase.TestCluster#getTestCalls()
 	 */
 	@Override
 	public List<AccessibleObject> getTestCalls() {
@@ -1914,7 +1914,7 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#addTestCalls(java.lang.reflect.AccessibleObject)
+	 * @see org.evosuite.testcase.TestCluster#addTestCalls(java.lang.reflect.AccessibleObject)
 	 */
 	@Override
 	public void addTestCall(AccessibleObject call) {
@@ -1927,7 +1927,7 @@ public class StaticTestCluster extends TestCluster {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(
+	 * org.evosuite.testcase.TestCluster#getKnownMatchingClasses(
 	 * java.lang.String)
 	 */
 	@Override

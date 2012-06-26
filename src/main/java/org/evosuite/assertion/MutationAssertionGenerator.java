@@ -543,7 +543,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.AssertionGenerator#addAssertions(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public void addAssertions(TestCase test) {

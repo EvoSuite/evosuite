@@ -49,7 +49,7 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
  */
 public abstract class InvVStringHelper {
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.InvVStringHelper");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.bytecode.InvVStringHelper");
 
 	private enum Fcase {
 		ONE, TWO, THREE, FOUR

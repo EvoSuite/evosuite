@@ -111,7 +111,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
+	 * @see org.evosuite.ga.Chromosome#localSearch()
 	 */
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
@@ -268,7 +268,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#compareSecondaryObjective(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public int compareSecondaryObjective(Chromosome o) {

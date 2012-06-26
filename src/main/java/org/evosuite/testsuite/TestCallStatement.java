@@ -111,7 +111,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#execute(de.unisb.cs.st.evosuite
+	 * org.evosuite.testcase.Statement#execute(org.evosuite
 	 * .testcase.Scope, java.io.PrintStream)
 	 */
 	@Override
@@ -140,7 +140,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getCode(java.lang.Throwable)
+	 * org.evosuite.testcase.Statement#getCode(java.lang.Throwable)
 	 */
 	// TODO!
 	/*
@@ -170,7 +170,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.
+	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
 	 */
 	@Override
@@ -183,7 +183,7 @@ public class TestCallStatement extends AbstractStatement {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.evosuite.testcase.Statement#getVariableReferences()
+	 * @see org.evosuite.testcase.Statement#getVariableReferences()
 	 */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
@@ -193,7 +193,7 @@ public class TestCallStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
@@ -202,7 +202,7 @@ public class TestCallStatement extends AbstractStatement {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.evosuite.testcase.Statement#clone()
+	 * @see org.evosuite.testcase.Statement#clone()
 	 */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
@@ -252,7 +252,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getUniqueVariableReferences()
+	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
@@ -276,7 +276,7 @@ public class TestCallStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {

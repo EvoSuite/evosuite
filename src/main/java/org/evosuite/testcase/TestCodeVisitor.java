@@ -214,7 +214,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitTestCase(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 * @see org.evosuite.testcase.TestVisitor#visitTestCase(org.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public void visitTestCase(TestCase test) {
@@ -446,7 +446,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitPrimitiveStatement(de.unisb.cs.st.evosuite.testcase.PrimitiveStatement)
+	 * @see org.evosuite.testcase.TestVisitor#visitPrimitiveStatement(org.evosuite.testcase.PrimitiveStatement)
 	 */
 	@Override
 	public void visitPrimitiveStatement(PrimitiveStatement<?> statement) {
@@ -497,7 +497,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitFieldStatement(de.unisb.cs.st.evosuite.testcase.FieldStatement)
+	 * @see org.evosuite.testcase.TestVisitor#visitFieldStatement(org.evosuite.testcase.FieldStatement)
 	 */
 	@Override
 	public void visitFieldStatement(FieldStatement statement) {
@@ -556,7 +556,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitMethodStatement(de.unisb.cs.st.evosuite.testcase.MethodStatement)
+	 * @see org.evosuite.testcase.TestVisitor#visitMethodStatement(org.evosuite.testcase.MethodStatement)
 	 */
 	@Override
 	public void visitMethodStatement(MethodStatement statement) {
@@ -656,7 +656,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitConstructorStatement(de.unisb.cs.st.evosuite.testcase.ConstructorStatement)
+	 * @see org.evosuite.testcase.TestVisitor#visitConstructorStatement(org.evosuite.testcase.ConstructorStatement)
 	 */
 	@Override
 	public void visitConstructorStatement(ConstructorStatement statement) {
@@ -752,7 +752,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitArrayStatement(de.unisb.cs.st.evosuite.testcase.ArrayStatement)
+	 * @see org.evosuite.testcase.TestVisitor#visitArrayStatement(org.evosuite.testcase.ArrayStatement)
 	 */
 	@Override
 	public void visitArrayStatement(ArrayStatement statement) {
@@ -780,7 +780,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitAssignmentStatement(de.unisb.cs.st.evosuite.testcase.AssignmentStatement)
+	 * @see org.evosuite.testcase.TestVisitor#visitAssignmentStatement(org.evosuite.testcase.AssignmentStatement)
 	 */
 	@Override
 	public void visitAssignmentStatement(AssignmentStatement statement) {
@@ -797,7 +797,7 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitNullStatement(de.unisb.cs.st.evosuite.testcase.NullStatement)
+	 * @see org.evosuite.testcase.TestVisitor#visitNullStatement(org.evosuite.testcase.NullStatement)
 	 */
 	@Override
 	public void visitNullStatement(NullStatement statement) {

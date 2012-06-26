@@ -134,7 +134,7 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
@@ -183,7 +183,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getBytecode(org.objectweb.
+	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
 	@Override
@@ -204,7 +204,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.Statement#getUniqueVariableReferences()
+	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
@@ -212,7 +212,7 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#isValid()
+	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */
 	@Override
 	public boolean isValid() {
@@ -293,7 +293,7 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 * @see org.evosuite.testcase.StatementInterface#mutate(org.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {

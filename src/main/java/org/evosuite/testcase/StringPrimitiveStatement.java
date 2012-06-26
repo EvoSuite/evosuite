@@ -52,7 +52,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#zero()
+	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
 	@Override
 	public void zero() {
@@ -60,7 +60,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
@@ -138,7 +138,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
+	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
 	public void increment() {
 		String s = value;
@@ -152,7 +152,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#randomize()
+	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
 	@Override
 	public void randomize() {

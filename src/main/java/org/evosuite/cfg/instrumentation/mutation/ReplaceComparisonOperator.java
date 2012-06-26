@@ -107,7 +107,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	private static final int FALSE = -2;
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
+	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
@@ -179,7 +179,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
+			        "org/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
 			        "getInfectionDistance", "(IIII)D"));
 			break;
 
@@ -194,7 +194,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
+			        "org/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
 			        "getInfectionDistance", "(III)D"));
 			break;
 
@@ -633,7 +633,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
+	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {

@@ -67,7 +67,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasImproved(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.LocalSearchObjective#hasImproved(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public boolean hasImproved(Chromosome individual) {
@@ -90,7 +90,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasNotWorsened(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.LocalSearchObjective#hasNotWorsened(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public boolean hasNotWorsened(Chromosome individual) {
@@ -113,7 +113,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#hasChanged(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public int hasChanged(Chromosome individual) {
@@ -139,7 +139,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.LocalSearchObjective#getFitnessFunction()
+	 * @see org.evosuite.ga.LocalSearchObjective#getFitnessFunction()
 	 */
 	@Override
 	public FitnessFunction getFitnessFunction() {

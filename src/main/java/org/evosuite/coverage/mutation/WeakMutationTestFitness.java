@@ -39,7 +39,7 @@ public class WeakMutationTestFitness extends MutationTestFitness {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.coverage.mutation.MutationTestFitness#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
+	 * @see org.evosuite.coverage.mutation.MutationTestFitness#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {

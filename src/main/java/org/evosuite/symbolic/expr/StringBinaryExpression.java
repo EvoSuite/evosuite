@@ -37,7 +37,7 @@ BinaryExpression<String>{
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringBinaryExpression");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringBinaryExpression");
 	
 	protected String concretValue;
 

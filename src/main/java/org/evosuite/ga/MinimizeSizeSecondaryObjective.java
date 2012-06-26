@@ -29,8 +29,8 @@ public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
+	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
@@ -43,10 +43,10 @@ public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb
-	 * .cs.st.evosuite.ga.Chromosome, de.unisb.cs.st.evosuite.ga.Chromosome,
-	 * de.unisb.cs.st.evosuite.ga.Chromosome,
-	 * de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * org.evosuite.ga.SecondaryObjective#compareGenerations(de.unisb
+	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome,
+	 * org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,

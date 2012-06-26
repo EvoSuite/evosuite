@@ -41,7 +41,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 	private static final long serialVersionUID = -1812256816400338180L;
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public double getFitness(Chromosome individual) {

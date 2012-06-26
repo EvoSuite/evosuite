@@ -53,7 +53,7 @@ public class CVC3Solver extends Thread implements Solver {
 	private final Pattern paramPattern = Pattern.compile("\\(([0-9a-zA-Z_]+) = (-?[0-9\\.,]+)\\)");
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#getModel(java.util.Collection)
+	 * @see org.evosuite.symbolic.Solver#getModel(java.util.Collection)
 	 */
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
@@ -76,7 +76,7 @@ public class CVC3Solver extends Thread implements Solver {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.symbolic.Solver#solve(java.util.Collection)
+	 * @see org.evosuite.symbolic.Solver#solve(java.util.Collection)
 	 */
 	@Override
 	public boolean solve(Collection<Constraint<?>> constraints) {

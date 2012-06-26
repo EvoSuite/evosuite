@@ -65,7 +65,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#getFitness(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public abstract double getFitness(Chromosome individual);

@@ -31,7 +31,7 @@ import gov.nasa.jpf.jvm.ThreadInfo;
 public class IFEQ extends gov.nasa.jpf.jvm.bytecode.IFEQ {
 	
 	
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.ifeq");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.ifeq");
 	
 	
 	public IFEQ(int targetPc) {

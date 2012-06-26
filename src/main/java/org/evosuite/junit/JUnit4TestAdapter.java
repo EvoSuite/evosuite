@@ -34,7 +34,7 @@ import org.evosuite.testcase.TestCodeVisitor;
 public class JUnit4TestAdapter implements UnitTestAdapter {
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.junit.UnitTestAdapter#getImports()
+	 * @see org.evosuite.junit.UnitTestAdapter#getImports()
 	 */
 	@Override
 	public String getImports() {
@@ -44,7 +44,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.junit.UnitTestAdapter#getClassDefinition(java.lang.String)
+	 * @see org.evosuite.junit.UnitTestAdapter#getClassDefinition(java.lang.String)
 	 */
 	@Override
 	public String getClassDefinition(String testName) {
@@ -52,7 +52,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.junit.UnitTestAdapter#getMethodDefinition(java.lang.String)
+	 * @see org.evosuite.junit.UnitTestAdapter#getMethodDefinition(java.lang.String)
 	 */
 	@Override
 	public String getMethodDefinition(String testName) {
@@ -60,7 +60,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.junit.UnitTestAdapter#getSuite(java.util.List)
+	 * @see org.evosuite.junit.UnitTestAdapter#getSuite(java.util.List)
 	 */
 	@Override
 	public String getSuite(List<String> suites) {
@@ -98,7 +98,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.junit.UnitTestAdapter#getTestString(de.unisb.cs.st.evosuite.testcase.TestCase, java.util.Map)
+	 * @see org.evosuite.junit.UnitTestAdapter#getTestString(org.evosuite.testcase.TestCase, java.util.Map)
 	 */
 	@Override
 	public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions) {
@@ -106,7 +106,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.junit.UnitTestAdapter#getTestString(int, de.unisb.cs.st.evosuite.testcase.TestCase, java.util.Map, de.unisb.cs.st.evosuite.testcase.TestCodeVisitor)
+	 * @see org.evosuite.junit.UnitTestAdapter#getTestString(int, org.evosuite.testcase.TestCase, java.util.Map, org.evosuite.testcase.TestCodeVisitor)
 	 */
 	@Override
 	public String getTestString(int id, TestCase test,

@@ -57,9 +57,9 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb
+	 * org.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb
 	 * .cs.st.evosuite.testcase.TestChromosome,
-	 * de.unisb.cs.st.evosuite.testcase.ExecutionResult)
+	 * org.evosuite.testcase.ExecutionResult)
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {

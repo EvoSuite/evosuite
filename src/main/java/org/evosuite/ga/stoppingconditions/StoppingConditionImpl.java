@@ -52,7 +52,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.ga.SearchListener#iteration(java.util.List)
+	 * @see org.ga.SearchListener#iteration(java.util.List)
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
@@ -63,7 +63,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.ga.SearchListener#searchFinished(java.util.List)
+	 * @see org.ga.SearchListener#searchFinished(java.util.List)
 	 */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
@@ -75,7 +75,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
+	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
 	 * .ga.Chromosome)
 	 */
 	@Override

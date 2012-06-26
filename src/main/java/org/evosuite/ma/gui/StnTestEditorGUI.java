@@ -439,7 +439,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ma.gui.TestEditorGUI#getMainFrame()
+	 * @see org.evosuite.ma.gui.TestEditorGUI#getMainFrame()
 	 */
 	@Override
 	public JFrame getMainFrame() {

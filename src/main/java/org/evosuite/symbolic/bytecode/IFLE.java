@@ -29,7 +29,7 @@ import gov.nasa.jpf.jvm.ThreadInfo;
 
 public class IFLE extends gov.nasa.jpf.jvm.bytecode.IFLE {
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.IFLE");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.bytecode.IFLE");
 	
 	public IFLE(int targetPc) {
 		super(targetPc);

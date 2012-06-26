@@ -49,7 +49,7 @@ public class PathConstraintCollector extends ListenerAdapter {
 	//@SuppressWarnings("unused")
 	//private static Logger logger = LoggerFactory.getLogger(PathConstraintCollector.class);
 	
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic");
 	
 	private HashTableSet<Constraint<?>> last;
 

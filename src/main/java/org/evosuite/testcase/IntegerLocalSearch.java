@@ -36,7 +36,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	private T oldValue;
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.LocalSearch#doSearch(de.unisb.cs.st.evosuite.testcase.TestChromosome, int, de.unisb.cs.st.evosuite.ga.LocalSearchObjective)
+	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
 	@SuppressWarnings("unchecked")
 	@Override

@@ -348,7 +348,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP2);
 			super.visitLdcInsn(opcode);
 			super.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(III)I");
 
 			tagBranch();
@@ -369,7 +369,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP2);
 			super.visitLdcInsn(opcode);
 			super.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(FFI)I");
 
 			tagBranch();
@@ -395,7 +395,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP2_X2);
 			super.visitLdcInsn(opcode);
 			super.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(DDI)I");
 
 			tagBranch();
@@ -421,7 +421,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			super.visitInsn(Opcodes.DUP2_X2);
 			super.visitLdcInsn(opcode);
 			super.visitMethodInsn(Opcodes.INVOKESTATIC,
-			                      "de/unisb/cs/st/evosuite/javaagent/ErrorConditionChecker",
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
 			                      "overflowDistance", "(JJI)I");
 
 			tagBranch();

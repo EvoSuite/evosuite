@@ -113,7 +113,7 @@ public class EqualsAssertion extends Assertion {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#getReferencedVariables()
+	 * @see org.evosuite.assertion.Assertion#getReferencedVariables()
 	 */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {

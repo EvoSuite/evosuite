@@ -99,7 +99,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
+	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
 	 * .ga.Chromosome)
 	 */
 	@Override

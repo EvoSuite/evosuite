@@ -101,7 +101,7 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.ExecutableChromosome#copyCachedResults(de.unisb.cs.st.evosuite.testcase.ExecutableChromosome)
+	 * @see org.evosuite.testcase.ExecutableChromosome#copyCachedResults(org.evosuite.testcase.ExecutableChromosome)
 	 */
 	@Override
 	protected void copyCachedResults(ExecutableChromosome other) {
@@ -173,7 +173,7 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#localSearch()
+	 * @see org.evosuite.ga.Chromosome#localSearch()
 	 */
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
@@ -440,7 +440,7 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#applyDSE()
+	 * @see org.evosuite.ga.Chromosome#applyDSE()
 	 */
 	@Override
 	public void applyDSE(GeneticAlgorithm ga) {
@@ -454,7 +454,7 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.Chromosome#compareSecondaryObjective(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public int compareSecondaryObjective(Chromosome o) {

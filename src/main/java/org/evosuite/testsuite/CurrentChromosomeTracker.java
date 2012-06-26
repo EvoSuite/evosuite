@@ -66,7 +66,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st
+	 * org.evosuite.ga.SearchListener#searchStarted(org
 	 * .evosuite.ga.FitnessFunction)
 	 */
 	@Override
@@ -78,7 +78,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#iteration(java.util.List)
+	 * @see org.evosuite.ga.SearchListener#iteration(java.util.List)
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
@@ -90,7 +90,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#searchFinished(java.util.List)
+	 * org.evosuite.ga.SearchListener#searchFinished(java.util.List)
 	 */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
@@ -102,7 +102,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.
+	 * org.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.
 	 * cs.st.evosuite.ga.Chromosome)
 	 */
 	@Override
@@ -115,7 +115,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.ga.SearchListener#mutation(de.unisb.cs.st.evosuite
+	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
 	 * .ga.Chromosome)
 	 */
 	@Override

@@ -764,7 +764,7 @@ public class TestSuiteDSE {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitMethodStatement(de.unisb.cs.st.evosuite.testcase.MethodStatement)
+		 * @see org.evosuite.testcase.TestVisitor#visitMethodStatement(org.evosuite.testcase.MethodStatement)
 		 */
 		public void visitMethodStatement(TestCase test, MethodStatement statement) {
 			// The problem is that at this point in the test case the parameters might have already changed
@@ -786,7 +786,7 @@ public class TestSuiteDSE {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.testcase.TestVisitor#visitConstructorStatement(de.unisb.cs.st.evosuite.testcase.ConstructorStatement)
+		 * @see org.evosuite.testcase.TestVisitor#visitConstructorStatement(org.evosuite.testcase.ConstructorStatement)
 		 */
 		public void visitConstructorStatement(TestCase test,
 		        ConstructorStatement statement) {

@@ -46,7 +46,7 @@ public class JCrasherExceptionContract extends Contract {
 	private final static List<Class<?>> uncheckedExceptions = Arrays.asList(uncheckedBugExceptions);
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.contracts.Contract#check(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
+	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
@@ -75,7 +75,7 @@ public class JCrasherExceptionContract extends Contract {
 						return true;
 					}
 					// If the exception was thrown in the test directly, it is also not interesting
-					if (element.getClassName().startsWith("de.unisb.cs.st.evosuite.testcase")) {
+					if (element.getClassName().startsWith("org.evosuite.testcase")) {
 						return true;
 					}
 					return false;

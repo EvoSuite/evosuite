@@ -60,7 +60,7 @@ public class Seeker implements Solver {
 
 	static Logger log = LoggerFactory.getLogger(Seeker.class);
 
-	//static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.Seeker");
+	//static Logger log = JPF.getLogger("org.evosuite.symbolic.search.Seeker");
 
 	/* The idea here is to get the expressions and build the constraint 
 	 * dynamically here using Java reflection. This should save us some time

@@ -54,7 +54,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#isFinished()
+	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#isFinished()
 	 */
 	@Override
 	public boolean isFinished() {
@@ -62,7 +62,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#reset()
+	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#reset()
 	 */
 	@Override
 	public void reset() {
@@ -70,7 +70,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#setLimit(int)
+	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(long limit) {
@@ -79,7 +79,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#getLimit()
+	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#getLimit()
 	 */
 	@Override
 	public long getLimit() {
@@ -88,7 +88,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.stoppingconditions.StoppingCondition#getCurrentValue()
+	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#getCurrentValue()
 	 */
 	@Override
 	public long getCurrentValue() {

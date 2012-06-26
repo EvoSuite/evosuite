@@ -107,21 +107,21 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 		super(Opcodes.ASM4, mv, access, methodName, desc);
 		if (Properties.REPLACE_CALLS) {
 			replacementCalls.add(new MethodCallReplacement("java/lang/System", "exit",
-			        "(I)V", "de/unisb/cs/st/evosuite/runtime/System", "exit", "(I)V", false));
+			        "(I)V", "org/evosuite/runtime/System", "exit", "(I)V", false));
 			replacementCalls.add(new MethodCallReplacement("java/lang/System",
-			        "currentTimeMillis", "()J", "de/unisb/cs/st/evosuite/runtime/System",
+			        "currentTimeMillis", "()J", "org/evosuite/runtime/System",
 			        "currentTimeMillis", "()J", false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-			        "()I", "de/unisb/cs/st/evosuite/runtime/Random", "nextInt", "()I", true));
+			        "()I", "org/evosuite/runtime/Random", "nextInt", "()I", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
-			        "(I)I", "de/unisb/cs/st/evosuite/runtime/Random", "nextInt", "(I)I", true));
+			        "(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextDouble",
-			        "()D", "de/unisb/cs/st/evosuite/runtime/Random", "nextDouble", "()D",
+			        "()D", "org/evosuite/runtime/Random", "nextDouble", "()D",
 			        true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextFloat",
-			        "()F", "de/unisb/cs/st/evosuite/runtime/Random", "nextFloat", "()F", true));
+			        "()F", "org/evosuite/runtime/Random", "nextFloat", "()F", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextLong",
-			        "()J", "de/unisb/cs/st/evosuite/runtime/Random", "nextLong", "()J", true));
+			        "()J", "org/evosuite/runtime/Random", "nextLong", "()J", true));
 		} 
 		if (Properties.VIRTUAL_FS) {
 			virtualReplacementCalls.add(new MethodCallReplacement("java/io/FileInputStream", "available",
