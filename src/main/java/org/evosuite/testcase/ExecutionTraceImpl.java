@@ -181,7 +181,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	private Throwable explicitException = null;
 
 	public Map<Integer, Double> falseDistances = Collections.synchronizedMap(new HashMap<Integer, Double>());
-	public Map<Integer, Double> falseDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	private Map<Integer, Double> falseDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
 	// finished_calls;
 	public List<MethodCall> finishedCalls = Collections.synchronizedList(new ArrayList<MethodCall>());
 	public Map<Integer, Object> knownCallerObjects = Collections.synchronizedMap(new HashMap<Integer, Object>());
@@ -206,7 +206,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	public Map<Integer, Double> trueDistances = Collections.synchronizedMap(new HashMap<Integer, Double>());
 
-	public Map<Integer, Double> trueDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
+	private Map<Integer, Double> trueDistancesSum = Collections.synchronizedMap(new HashMap<Integer, Double>());
 
 	public ExecutionTraceImpl() {
 		stack.add(new MethodCall("", "", 0, 0, 0)); // Main method
@@ -518,6 +518,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 	}
 
+	@Override
 	public List<BranchEval> getBranchesTrace() {
 		return branchesTrace;
 	}
@@ -1167,5 +1168,19 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public boolean wasMutationTouched(int mutationId) {
 		return touchedMutants.contains(mutationId);
 	}
+	
+	@Override
+	public Map<Integer, Double> getFalseDistancesSum() {
+		return falseDistancesSum;
+	}
 
+	@Override
+	public Map<Integer, Double> getTrueDistancesSum() {
+		return trueDistancesSum;
+	}
+
+	@Override
+	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getPassedUses() {
+		return passedUses;
+	}
 }

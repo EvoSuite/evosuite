@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.dataflow.DefUse;
-
+import org.evosuite.testcase.ExecutionTraceImpl.BranchEval;
 
 /**
  * This interface defines the trace data that is collected during execution.
@@ -359,4 +359,12 @@ public interface ExecutionTrace {
 	 * @return
 	 */
 	public ExecutionTrace lazyClone();
+
+	List<BranchEval> getBranchesTrace();
+
+	Map<Integer, Double> getFalseDistancesSum();
+
+	Map<Integer, Double> getTrueDistancesSum();
+
+	Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getPassedUses();
 }
