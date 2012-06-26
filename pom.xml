@@ -70,6 +70,62 @@
     <url>http://www.evosuite.org/</url>
   </organization>
 
+  <profiles>
+    <profile>
+      <id>exsyst</id>
+      <activation>
+        <property>
+          <name>exsyst</name>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.5</version>
+            <executions>
+              <execution>
+                <id>add-sources</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${basedir}/src/exsyst/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+      <dependencies>
+	<dependency>
+	  <groupId>emma</groupId>
+	  <artifactId>emma</artifactId>
+	  <version>2.1.5320</version>
+	</dependency>
+
+	<dependency>
+	  <groupId>com.yworks</groupId>  
+	  <artifactId>yfiles</artifactId>
+	  <version>2.8.0.3</version>
+	  <scope>system</scope>
+	  <systemPath>${project.basedir}/lib/y.jar</systemPath>
+	</dependency>
+	<dependency>
+	  <groupId>fork.uispec4j</groupId>
+	  <artifactId>uispec4j</artifactId>
+	  <version>2.4.x</version>
+	  <scope>system</scope>
+	  <systemPath>${project.basedir}/lib/uispec4j-fork.jar</systemPath>
+	</dependency>
+      </dependencies>
+    </profile>
+  </profiles>
+
   <dependencyManagement />
 
   <dependencies>
@@ -271,7 +327,7 @@
 	  </platforms>
 	  <programs>
 	    <program>
-	      <mainClass>de.unisb.cs.st.evosuite.EvoSuite</mainClass>
+	      <mainClass>org.evosuite.EvoSuite</mainClass>
 	      <name>EvoSuite</name>
 	      <commandLineArguments>
 		<!-- Add two predefined command line arguments  
@@ -291,7 +347,6 @@
 	<configuration>
 	  <header>src/etc/header.txt</header>
 	  <excludes>
-	    <exclude>src/main/java/de/unisb/cs/st/evosuite/ui/**</exclude>
 	    <exclude>LICENSE.txt</exclude>
 	  </excludes>
 	</configuration>
