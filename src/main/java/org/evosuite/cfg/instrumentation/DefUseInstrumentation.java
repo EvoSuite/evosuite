@@ -146,7 +146,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation
 					.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-							"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+							"org/evosuite/testcase/ExecutionTracer",
 							"passedUse",
 							"(Ljava/lang/Object;I)V"));
 		}
@@ -162,7 +162,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation
 					.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-							"de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+							"org/evosuite/testcase/ExecutionTracer",
 							"passedDefinition",
 							"(Ljava/lang/Object;I)V"));
 		}

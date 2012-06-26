@@ -71,7 +71,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 		this.visitLdcInsn(fullMethodName);
 		this.visitLdcInsn(line);
 		mv.visitMethodInsn(Opcodes.INVOKESTATIC,
-		                   "de/unisb/cs/st/evosuite/testcase/ExecutionTracer",
+		                   "org/evosuite/testcase/ExecutionTracer",
 		                   "passedLine", "(Ljava/lang/String;Ljava/lang/String;I)V");
 	}
 
