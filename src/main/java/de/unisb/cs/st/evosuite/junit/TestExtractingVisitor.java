@@ -53,6 +53,7 @@ import org.eclipse.jdt.core.dom.ConditionalExpression;
 import org.eclipse.jdt.core.dom.EnhancedForStatement;
 import org.eclipse.jdt.core.dom.Expression;
 import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
 import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.ForStatement;
 import org.eclipse.jdt.core.dom.IMethodBinding;
@@ -456,12 +457,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			testCase.addStatement(methodStatement);
 			return;
 		}
-			VariableReference retVal = retrieveResultReference(methodInvocation);
+		VariableReference retVal = retrieveResultReference(methodInvocation);
 		retVal.setOriginalCode(methodInvocation.toString());
 		methodStatement = new ValidMethodStatement(testCase.getReference(), method, callee, retVal, params);
 		if (!(parent instanceof Block)) {
-				nestedCallResults.push(retVal);
-			}
+			nestedCallResults.push(retVal);
+		}
 		testCase.addStatement(methodStatement);
 	}
 
@@ -498,7 +499,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		// TODO-JRO Implement method endVisit
 		logger.warn("Method endVisit not implemented!");
 		super.endVisit(node);
-		}
+	}
 
 	@Override
 	public void endVisit(SwitchStatement node) {
@@ -642,7 +643,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		cursorableTrace = testValuesDeterminer.getMethodTrace(currentMethodName);
 		calleeResultMap.clear();
 		return saveMethodCodeExtraction(methodDeclaration);
-		}
+	}
 
 	@Override
 	public boolean visit(SingleVariableDeclaration variableDeclaration) {
@@ -781,7 +782,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (argument instanceof ITypeBinding) {
 			ITypeBinding binding = (ITypeBinding) argument;
 			return retrieveTypeClass(binding);
-				}
+		}
 		if (argument instanceof IVariableBinding) {
 			IVariableBinding variableBinding = (IVariableBinding) argument;
 			return retrieveTypeClass(variableBinding.getType());
@@ -835,17 +836,17 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				MethodInvocation parentMethodInvocation = (MethodInvocation) typeExpression;
 				IMethodBinding parentMethodBinding = parentMethodInvocation.resolveMethodBinding();
 				return retrieveTypeClass(parentMethodBinding.getDeclaringClass());
-				} else {
+			} else {
 				return retrieveTypeClass(typeExpression);
 			}
 		}
 		if (argument instanceof ArrayAccess) {
 			ArrayAccess arrayAccess = (ArrayAccess) argument;
 			return retrieveTypeClass(arrayAccess.getArray());
-				}
+		}
 		if (argument instanceof Class<?>) {
 			return (Class<?>) argument;
-			}
+		}
 		if (argument instanceof ClassInstanceCreation) {
 			return retrieveTypeClass(((ClassInstanceCreation) argument).resolveTypeBinding());
 		}
@@ -858,7 +859,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	protected VariableReference retrieveVariableReference(Object argument, Class<?> varType) {
 		if (argument instanceof ClassInstanceCreation) {
 			return retrieveVariableReference((ClassInstanceCreation) argument, varType);
-			}
+		}
 		if (argument instanceof VariableDeclarationFragment) {
 			return retrieveVariableReference((VariableDeclarationFragment) argument);
 		}
@@ -929,9 +930,20 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			CastExpression castExpression = (CastExpression) argument;
 			VariableReference result = retrieveVariableReference(castExpression.getExpression(), null);
 			Class<?> castClass = retrieveTypeClass(castExpression.resolveTypeBinding());
-			assert castClass.isAssignableFrom(toClass(result.getType()));
+			if (!castClass.isAssignableFrom(toClass(result.getType()))) {
+				if (castClass.equals(char.class) && result.getType().equals(int.class)) {
+					logger.debug("Found a char to int cast!");
+				} else {
+					throw new RuntimeException("Illegal ClassCast?! " + castClass + " is not assignable from "
+							+ result.getType() + ".");
+				}
+			}
 			result.setType(castClass);
 			return result;
+		}
+		if (argument instanceof FieldAccess) {
+			FieldAccess fieldAccess = (FieldAccess) argument;
+			return retrieveVariableReference(fieldAccess.getName(), varType);
 		}
 		throw new UnsupportedOperationException("Argument type " + argument.getClass() + " not implemented!");
 	}
@@ -1209,11 +1221,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 						false);
 				testCase.addStatement(charAssignment);
 				return charAssignment.getReturnValue();
-		}
+			}
 			PrimitiveStatement<?> numberAssignment = createPrimitiveStatement(typeClass, 0);
 			testCase.addStatement(numberAssignment);
 			return numberAssignment.getReturnValue();
-	}
+		}
 		PrimitiveStatement<?> nullAssignment = new NullStatement(testCase.getReference(), typeClass);
 		testCase.addStatement(nullAssignment);
 		return nullAssignment.getReturnValue();
@@ -1249,8 +1261,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				try {
 					return clazz.getDeclaredMethod(methodName, paramClasses);
 				} catch (Exception exc2) {
-				throw new RuntimeException(exc);
-			}
+					throw new RuntimeException(exc);
+				}
 			}
 		} catch (WrongMethodBindingException exc) {
 			logger.debug("The resolved method binding is wrong. Will manually correct it...");

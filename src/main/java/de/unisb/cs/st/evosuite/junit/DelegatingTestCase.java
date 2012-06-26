@@ -88,6 +88,14 @@ public class DelegatingTestCase implements TestCase {
 	}
 
 	@Override
+	public boolean equals(Object other) {
+		if (delegate != null) {
+			return delegate.equals(other);
+		}
+		return super.equals(other);
+	}
+
+	@Override
 	public Set<Class<?>> getAccessedClasses() {
 		return delegate.getAccessedClasses();
 	}
@@ -189,6 +197,14 @@ public class DelegatingTestCase implements TestCase {
 	@Override
 	public boolean hasCastableObject(Type type) {
 		return delegate.hasCastableObject(type);
+	}
+
+	@Override
+	public int hashCode() {
+		if (delegate != null) {
+			return delegate.hashCode();
+		}
+		return super.hashCode();
 	}
 
 	@Override

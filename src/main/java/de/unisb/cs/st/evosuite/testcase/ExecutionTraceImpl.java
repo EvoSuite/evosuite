@@ -611,7 +611,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionTrace#getFalseDistance(int)
 	 */
 	@Override
-	public double getFalseDistance(int branchId) {
+	public Double getFalseDistance(int branchId) {
 		return falseDistances.get(branchId);
 	}
 
@@ -821,7 +821,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionTrace#getTrueDistance(int)
 	 */
 	@Override
-	public double getTrueDistance(int branchId) {
+	public Double getTrueDistance(int branchId) {
 		return trueDistances.get(branchId);
 	}
 
@@ -1112,6 +1112,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	        double true_distance, double false_distance) {
 
 		if (traceCalls) {
+			if (stack.isEmpty()) {
+				return;
+			}
 			stack.peek().branchTrace.add(branch); // was: bytecode_id
 			stack.peek().trueDistanceTrace.add(true_distance);
 			stack.peek().falseDistanceTrace.add(false_distance);
