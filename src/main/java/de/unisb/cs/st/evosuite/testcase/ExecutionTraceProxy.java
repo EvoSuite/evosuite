@@ -157,7 +157,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionTrace#getFalseDistance(int)
 	 */
 	@Override
-	public double getFalseDistance(int branchId) {
+	public Double getFalseDistance(int branchId) {
 		return trace.getFalseDistance(branchId);
 	}
 
@@ -264,7 +264,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionTrace#getTrueDistance(int)
 	 */
 	@Override
-	public double getTrueDistance(int branchId) {
+	public Double getTrueDistance(int branchId) {
 		return trace.getTrueDistance(branchId);
 	}
 

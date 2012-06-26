@@ -81,7 +81,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		        "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
 		        "testing.generation.evosuite", "com.yourkit",
 		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-		        "apple.", "com.apple.", "org.junit", "junit.framework"
+		        "apple.", "com.apple.", "org.junit", "junit.framework", "de.unisl.cs.st.bugex"
 		};
 	}
 
