@@ -89,7 +89,7 @@ public class PrimitiveExpression extends AbstractStatement {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader
+	 * org.evosuite.testcase.StatementInterface#changeClassLoader
 	 * (java.lang.ClassLoader)
 	 */
 	@Override

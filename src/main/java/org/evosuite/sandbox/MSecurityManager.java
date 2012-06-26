@@ -197,7 +197,7 @@ class MSecurityManager extends SecurityManager {
 							return true;
 						if (e.getClassName().startsWith("java.lang.ClassLoader"))
 							return true;
-						if (e.getClassName().startsWith("de.unisb.cs.st.evosuite.javaagent.InstrumentingClassLoader"))
+						if (e.getClassName().startsWith("org.evosuite.javaagent.InstrumentingClassLoader"))
 							return true;
 					}
 

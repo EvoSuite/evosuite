@@ -149,7 +149,7 @@ public class CompareAssertion extends Assertion {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#getReferencedVariables()
+	 * @see org.evosuite.assertion.Assertion#getReferencedVariables()
 	 */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {
@@ -160,7 +160,7 @@ public class CompareAssertion extends Assertion {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#isValid()
+	 * @see org.evosuite.assertion.Assertion#isValid()
 	 */
 	@Override
 	public boolean isValid() {

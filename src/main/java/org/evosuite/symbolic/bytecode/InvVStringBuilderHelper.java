@@ -51,7 +51,7 @@ import org.evosuite.testsuite.TestSuiteDSE;
  */
 public abstract class InvVStringBuilderHelper {
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.InvVStringBuilderHelper");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.bytecode.InvVStringBuilderHelper");
 
 	static StringBuilderExpression strB_expr = null;
 

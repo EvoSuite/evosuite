@@ -39,7 +39,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	private int max_length = Properties.MAX_LENGTH;
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.StoppingCondition#isFinished()
+	 * @see org.ga.StoppingCondition#isFinished()
 	 */
 	@Override
 	public boolean isFinished() {
@@ -49,7 +49,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.ga.StoppingCondition#reset()
+	 * @see org.ga.StoppingCondition#reset()
 	 */
 	@Override
 	public void reset() {
@@ -67,7 +67,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#getCurrentValue()
+	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
 	@Override
 	public long getCurrentValue() {
@@ -75,7 +75,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.StoppingCondition#setLimit(int)
+	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
 	@Override
 	public void setLimit(long limit) {

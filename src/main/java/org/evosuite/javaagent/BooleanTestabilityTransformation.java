@@ -730,7 +730,7 @@ public class BooleanTestabilityTransformation {
 		// Get last distance for this branch id, else +/-K
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
@@ -752,7 +752,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformVarInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.VarInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformVarInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.VarInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformVarInsnNode(MethodNode mn, VarInsnNode varNode) {
@@ -768,7 +768,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformFieldInsnNode(MethodNode mn,
@@ -803,7 +803,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	private class BooleanDistanceTransformer extends MethodNodeTransformer {
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformJumpInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.JumpInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformJumpInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.JumpInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformJumpInsnNode(MethodNode mn,
@@ -851,7 +851,7 @@ public class BooleanTestabilityTransformation {
 	private class BooleanIfTransformer extends MethodNodeTransformer {
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformJumpInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.JumpInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformJumpInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.JumpInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformJumpInsnNode(MethodNode mn,
@@ -1088,15 +1088,15 @@ public class BooleanTestabilityTransformation {
 					registerInstruction(mn, varNode, dupNode);
 					MethodInsnNode storeOwner = new MethodInsnNode(
 					        Opcodes.INVOKESTATIC,
-					        "de/unisb/cs/st/evosuite/javaagent/BooleanHelper",
+					        "org/evosuite/javaagent/BooleanHelper",
 					        "setFieldOwner", "(ILjava/lang/Object;)V");
 					mn.instructions.insertBefore(varNode, storeOwner);
 					registerInstruction(mn, varNode, storeOwner);
 					newOwnerLoad1 = new MethodInsnNode(Opcodes.INVOKESTATIC,
-					        "de/unisb/cs/st/evosuite/javaagent/BooleanHelper",
+					        "org/evosuite/javaagent/BooleanHelper",
 					        "getFieldOwner", "(I)Ljava/lang/Object;");
 					newOwnerLoad2 = new MethodInsnNode(Opcodes.INVOKESTATIC,
-					        "de/unisb/cs/st/evosuite/javaagent/BooleanHelper",
+					        "org/evosuite/javaagent/BooleanHelper",
 					        "getFieldOwner", "(I)Ljava/lang/Object;");
 					}
 					*/
@@ -1257,7 +1257,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformFieldInsnNode(MethodNode mn,
@@ -1342,7 +1342,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformVarInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.VarInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformVarInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.VarInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformVarInsnNode(MethodNode mn, VarInsnNode varNode) {
@@ -1408,7 +1408,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	private class InstanceOfTransformer extends MethodNodeTransformer {
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
@@ -1470,7 +1470,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	private class BitwiseOperatorTransformer extends MethodNodeTransformer {
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
@@ -1520,7 +1520,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	private class BooleanArrayTransformer extends MethodNodeTransformer {
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformIntInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.IntInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformIntInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.IntInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformIntInsnNode(MethodNode mn,
@@ -1532,7 +1532,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformMultiANewArrayInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.MultiANewArrayInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformMultiANewArrayInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.MultiANewArrayInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformMultiANewArrayInsnNode(MethodNode mn,
@@ -1552,7 +1552,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
@@ -1587,7 +1587,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
@@ -1620,7 +1620,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformTypeInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.TypeInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformTypeInsnNode(MethodNode mn,
@@ -1649,7 +1649,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	private class BooleanReturnTransformer extends MethodNodeTransformer {
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.InsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformInsnNode(MethodNode mn, InsnNode insnNode) {
@@ -1679,7 +1679,7 @@ public class BooleanTestabilityTransformation {
 	 */
 	private class BooleanCallsTransformer extends MethodNodeTransformer {
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformMethodInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.MethodInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformMethodInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.MethodInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformMethodInsnNode(MethodNode mn,
@@ -1879,7 +1879,7 @@ public class BooleanTestabilityTransformation {
 		}
 
 		/* (non-Javadoc)
-		 * @see de.unisb.cs.st.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
+		 * @see org.evosuite.javaagent.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
 		 */
 		@Override
 		protected AbstractInsnNode transformFieldInsnNode(MethodNode mn,

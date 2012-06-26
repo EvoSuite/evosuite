@@ -60,7 +60,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchStarted(de.unisb.cs.st.evosuite.ga.GeneticAlgorithm)
+	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
@@ -69,7 +69,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#iteration(de.unisb.cs.st.evosuite.ga.GeneticAlgorithm)
+	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
@@ -77,7 +77,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#searchFinished(de.unisb.cs.st.evosuite.ga.GeneticAlgorithm)
+	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
@@ -86,7 +86,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
@@ -95,7 +95,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.SearchListener#modification(de.unisb.cs.st.evosuite.ga.Chromosome)
+	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
 	 */
 	@Override
 	public void modification(Chromosome individual) {

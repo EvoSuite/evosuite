@@ -54,7 +54,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#zero()
+	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
 	@Override
 	public void zero() {
@@ -62,7 +62,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
@@ -70,7 +70,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#delta()
+	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
 	@Override
 	public void delta() {
@@ -79,7 +79,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
+	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
 	@Override
 	public void increment(long delta) {
@@ -87,7 +87,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#randomize()
+	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
 	@Override
 	public void randomize() {
@@ -95,7 +95,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#increment()
+	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
 	@Override
 	public void increment() {
@@ -103,7 +103,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
+	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
 	 */
 	@Override
 	public void setMid(Character min, Character max) {
@@ -111,7 +111,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.NumericalPrimitiveStatement#decrement()
+	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
 	 */
 	@Override
 	public void decrement() {
@@ -119,7 +119,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
+	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
 	 */
 	@Override
 	public boolean isPositive() {

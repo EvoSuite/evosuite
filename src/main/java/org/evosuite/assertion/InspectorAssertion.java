@@ -122,7 +122,7 @@ public class InspectorAssertion extends Assertion {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.Assertion#isValid()
+	 * @see org.evosuite.assertion.Assertion#isValid()
 	 */
 	@Override
 	public boolean isValid() {

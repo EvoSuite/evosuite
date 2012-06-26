@@ -37,7 +37,7 @@ public class PrimePathCoverageFactory extends AbstractFitnessFactory {
 	private static List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
+	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {

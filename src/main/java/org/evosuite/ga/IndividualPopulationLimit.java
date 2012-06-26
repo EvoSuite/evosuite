@@ -34,7 +34,7 @@ public class IndividualPopulationLimit implements PopulationLimit {
 	private static final long serialVersionUID = -3985726226793280031L;
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
+	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
 	 */
 	@Override
 	public boolean isPopulationFull(List<Chromosome> population) {

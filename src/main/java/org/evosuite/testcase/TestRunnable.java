@@ -256,7 +256,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				e = e.getCause();
 			}
 			if (e instanceof AssertionError
-			        && e.getStackTrace()[0].getClassName().contains("de.unisb.cs.st.evosuite")) {
+			        && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
 				//e1.printStackTrace();
 				logger.error("Assertion Error in evosuitecode, for statement \n"
 				        + test.getStatement(num).getCode() + " \n which is number: "
@@ -306,7 +306,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
+	 * @see org.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
 	 */
 	@Override
 	public Map<Integer, Throwable> getExceptionsThrown() {
@@ -316,7 +316,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
+	 * @see org.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
 	 */
 	@Override
 	public boolean isRunFinished() {

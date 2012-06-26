@@ -166,7 +166,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
+	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
@@ -221,7 +221,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceInt", "(IIII)D"));
 		} else if (opcodesLong.contains(opcodeOrig)) {
 			distance.add(new VarInsnNode(Opcodes.LSTORE, numVariable));
@@ -232,7 +232,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceLong", "(JJII)D"));
 			numVariable += 2;
 		} else if (opcodesFloat.contains(opcodeOrig)) {
@@ -241,7 +241,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceFloat", "(FFII)D"));
 		} else if (opcodesDouble.contains(opcodeOrig)) {
 			distance.add(new VarInsnNode(Opcodes.DSTORE, numVariable));
@@ -252,7 +252,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceDouble", "(DDII)D"));
 			numVariable += 2;
 		}
@@ -381,7 +381,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
+	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {

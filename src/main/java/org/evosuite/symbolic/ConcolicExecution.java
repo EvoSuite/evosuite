@@ -93,23 +93,23 @@ public class ConcolicExecution {
 		config.setTarget(targetName);
 
 		//		config.setProperty("vm.insn_factory.class",
-		//		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
+		//		                   "org.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
 		config.setProperty("vm.insn_factory.class",
-		                   "de.unisb.cs.st.evosuite.symbolic.bytecode.ConcolicInstructionFactory");
+		                   "org.evosuite.symbolic.bytecode.ConcolicInstructionFactory");
 		config.setProperty("peer_packages",
-		                   "de.unisb.cs.st.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
+		                   "org.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
 		//		                           + config.getProperty("peer_packages"));
 		//logger.warn(config.getProperty("peer_packages"));
 
 		// We don't want JPF output
 		config.setProperty("report.class",
-		                   "de.unisb.cs.st.evosuite.symbolic.SilentReporter");
+		                   "org.evosuite.symbolic.SilentReporter");
 
 		config.setProperty("log.level", "warning");
 		//config.setProperty("log.level", "info");
 
 		//Configure the search class;
-		config.setProperty("search.class", "de.unisb.cs.st.evosuite.symbolic.PathSearch");
+		config.setProperty("search.class", "org.evosuite.symbolic.PathSearch");
 		config.setProperty("jm.numberOfIterations", "1");
 
 		//Generate the JPF Instance
@@ -331,7 +331,7 @@ public class ConcolicExecution {
 				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
 				//                getMarkMethod(p));
 
-				mg.invokeStatic(Type.getType("Lde/unisb/cs/st/evosuite/symbolic/nativepeer/ConcolicMarker;"),
+				mg.invokeStatic(Type.getType("Lorg/evosuite/symbolic/nativepeer/ConcolicMarker;"),
 				                getMarkMethod(p));
 				p.getReturnValue().storeBytecode(mg, locals);
 

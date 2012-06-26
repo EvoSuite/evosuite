@@ -196,7 +196,7 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getAdditionalVariableReference()
+	 * @see org.evosuite.testcase.VariableReference#getAdditionalVariableReference()
 	 */
 	@Override
 	public VariableReference getAdditionalVariableReference() {
@@ -207,7 +207,7 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.VariableReference#setAdditionalVariableReference(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void setAdditionalVariableReference(VariableReference var) {
@@ -220,7 +220,7 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replaceAdditionalVariableReference(VariableReference var1,
@@ -334,7 +334,7 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
+	 * @see org.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
 	 */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {

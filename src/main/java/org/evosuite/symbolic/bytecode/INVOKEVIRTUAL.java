@@ -31,7 +31,7 @@ import java.util.logging.Logger;
  */
 public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.invokevitrual");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.bytecode.invokevitrual");
 	
 	protected INVOKEVIRTUAL (String clsDescriptor, String methodName, String signature){
 	    super(clsDescriptor, methodName, signature);

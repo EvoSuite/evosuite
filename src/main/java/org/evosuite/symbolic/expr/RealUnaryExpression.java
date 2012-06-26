@@ -30,7 +30,7 @@ public class RealUnaryExpression extends RealExpression implements
 
 	private static final long serialVersionUID = 9086637495150131445L;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.RealUnaryExpression");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.RealUnaryExpression");
 	
 	protected Double concretValue;
 	

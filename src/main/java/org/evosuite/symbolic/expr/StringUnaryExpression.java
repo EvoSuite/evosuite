@@ -37,7 +37,7 @@ UnaryExpression<String>{
 
 	private static final long serialVersionUID = -384874147850376188L;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringUnaryExpression");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringUnaryExpression");
 	
 	protected String concretValue;
 

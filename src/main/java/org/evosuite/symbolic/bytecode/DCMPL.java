@@ -33,7 +33,7 @@ import gov.nasa.jpf.jvm.bytecode.Instruction;
 
 public class DCMPL extends gov.nasa.jpf.jvm.bytecode.DCMPL {
 	
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.bytecode.DCMPL");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.bytecode.DCMPL");
 	
 	@SuppressWarnings("unchecked")
 	@Override

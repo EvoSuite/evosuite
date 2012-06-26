@@ -100,7 +100,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#delta()
+	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
 	@Override
 	public void delta() {
@@ -128,7 +128,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#zero()
+	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
 	@Override
 	public void zero() {
@@ -139,7 +139,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
+	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
 	@Override
 	protected void pushBytecode(GeneratorAdapter mg) {
@@ -147,7 +147,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.PrimitiveStatement#randomize()
+	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
 	@Override
 	public void randomize() {

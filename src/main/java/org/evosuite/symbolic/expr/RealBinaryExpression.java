@@ -30,7 +30,7 @@ public class RealBinaryExpression extends RealExpression implements
 
 	private static final long serialVersionUID = 3095108718393239244L;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.IntegerBinaryExpression");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.IntegerBinaryExpression");
 
 	protected Double concretValue;
 

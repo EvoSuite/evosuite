@@ -44,7 +44,7 @@ public abstract class DistanceEstimator {
 
 	static Logger log = LoggerFactory.getLogger(DistanceEstimator.class);
 
-	//	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.search.DistanceEstimator");
+	//	static Logger log = JPF.getLogger("org.evosuite.symbolic.search.DistanceEstimator");
 
 	/**
 	 * 

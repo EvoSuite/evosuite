@@ -51,7 +51,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getStPosition()
+	 * @see org.evosuite.testcase.VariableReference#getStPosition()
 	 */
 	@Override
 	public int getStPosition() {
@@ -60,7 +60,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getDistance()
+	 * @see org.evosuite.testcase.VariableReference#getDistance()
 	 */
 	@Override
 	public int getDistance() {
@@ -69,7 +69,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setDistance(int)
+	 * @see org.evosuite.testcase.VariableReference#setDistance(int)
 	 */
 	@Override
 	public void setDistance(int distance) {
@@ -78,7 +78,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#clone(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 * @see org.evosuite.testcase.VariableReference#clone(org.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public VariableReference clone(TestCase newTest) {
@@ -95,7 +95,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#copy(de.unisb.cs.st.evosuite.testcase.TestCase, int)
+	 * @see org.evosuite.testcase.VariableReference#copy(org.evosuite.testcase.TestCase, int)
 	 */
 	@Override
 	public VariableReference copy(TestCase newTest, int offset) {
@@ -237,7 +237,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getSimpleClassName()
+	 * @see org.evosuite.testcase.VariableReference#getSimpleClassName()
 	 */
 	@Override
 	public String getSimpleClassName() {
@@ -250,7 +250,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getGenericClass()
+	 * @see org.evosuite.testcase.VariableReference#getGenericClass()
 	 */
 	@Override
 	public GenericClass getGenericClass() {
@@ -258,7 +258,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getObject(de.unisb.cs.st.evosuite.testcase.Scope)
+	 * @see org.evosuite.testcase.VariableReference#getObject(org.evosuite.testcase.Scope)
 	 */
 	@Override
 	public Object getObject(Scope scope) throws CodeUnderTestException {
@@ -266,7 +266,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setObject(de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Object)
+	 * @see org.evosuite.testcase.VariableReference#setObject(org.evosuite.testcase.Scope, java.lang.Object)
 	 */
 	@Override
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
@@ -275,7 +275,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getName()
+	 * @see org.evosuite.testcase.VariableReference#getName()
 	 */
 	@Override
 	public String getName() {
@@ -283,7 +283,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getAdditionalVariableReference()
+	 * @see org.evosuite.testcase.VariableReference#getAdditionalVariableReference()
 	 */
 	@Override
 	public VariableReference getAdditionalVariableReference() {
@@ -292,7 +292,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#setAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.VariableReference#setAdditionalVariableReference(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void setAdditionalVariableReference(VariableReference var) {
@@ -301,7 +301,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replaceAdditionalVariableReference(VariableReference var1,
@@ -311,7 +311,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#loadBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map)
+	 * @see org.evosuite.testcase.VariableReference#loadBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map)
 	 */
 	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
@@ -320,7 +320,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#storeBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map)
+	 * @see org.evosuite.testcase.VariableReference#storeBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map)
 	 */
 	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
@@ -329,7 +329,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
+	 * @see org.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
 	 */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
@@ -338,7 +338,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getDefaultValue()
+	 * @see org.evosuite.testcase.VariableReference#getDefaultValue()
 	 */
 	@Override
 	public Object getDefaultValue() {
@@ -347,7 +347,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#getDefaultValueString()
+	 * @see org.evosuite.testcase.VariableReference#getDefaultValueString()
 	 */
 	@Override
 	public String getDefaultValueString() {
@@ -356,7 +356,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#compareTo(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.VariableReference#compareTo(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public int compareTo(VariableReference other) {
@@ -365,7 +365,7 @@ public class InputVariable implements VariableReference {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.VariableReference#same(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.VariableReference#same(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public boolean same(VariableReference r) {

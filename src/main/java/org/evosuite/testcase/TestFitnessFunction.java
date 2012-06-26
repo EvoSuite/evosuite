@@ -202,7 +202,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.FitnessFunction#isMaximizationFunction()
+	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()
 	 */
 	@Override
 	public boolean isMaximizationFunction() {

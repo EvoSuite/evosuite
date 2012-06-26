@@ -70,7 +70,7 @@ public class BytecodeInstrumentation {
 		// and for which an instrumentation leads to 
 		// bad to detect errors 
 		return isJavaClass(classNameWithDots) //
-			|| classNameWithDots.startsWith("de.unisb.cs.st") //
+			|| classNameWithDots.startsWith("org") //
 			|| classNameWithDots.startsWith("org.xml.sax") //
 			|| classNameWithDots.startsWith("org.mozilla.javascript.gen.c") //
 			|| classNameWithDots.startsWith("daikon.") //
@@ -83,7 +83,7 @@ public class BytecodeInstrumentation {
 		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
 		        && !className.startsWith("java.")
 		        && !className.startsWith("sun.")
-		        && !className.startsWith("de.unisb.cs.st.evosuite")
+		        && !className.startsWith("org.evosuite")
 		        && !className.startsWith("javax.")
 		        && !className.startsWith("org.xml")
 		        && !className.startsWith("org.w3c")

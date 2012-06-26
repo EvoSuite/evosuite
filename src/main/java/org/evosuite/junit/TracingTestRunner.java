@@ -33,7 +33,7 @@ public class TracingTestRunner extends ClassLoader {
 				@Override
 				public void visitLineNumber(int line, Label start) {
 					visitLdcInsn(className + "#" + name + ":" + line);
-					visitMethodInsn(Opcodes.INVOKESTATIC, "de/unisb/cs/st/evosuite/junit/TracingTestRunner",
+					visitMethodInsn(Opcodes.INVOKESTATIC, "org/evosuite/junit/TracingTestRunner",
 							"traceStatement", "(Ljava/lang/String;)V");
 					super.visitLineNumber(line, start);
 				}

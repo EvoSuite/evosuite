@@ -190,7 +190,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.ga.ChromosomeFactory#getChromosome()
+	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
 	@Override
 	public TestChromosome getChromosome() {

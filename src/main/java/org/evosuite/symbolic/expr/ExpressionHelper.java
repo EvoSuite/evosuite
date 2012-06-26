@@ -23,7 +23,7 @@ import java.util.logging.Logger;
 
 public abstract class ExpressionHelper {
 	
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.ExpressionHelper");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.ExpressionHelper");
 	
 	public static long getLongResult(Expression<?> expr) {
 		if (expr instanceof IntegerExpression) {

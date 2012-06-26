@@ -54,7 +54,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.OutputTraceEntry#differs(de.unisb.cs.st.evosuite.assertion.OutputTraceEntry)
+	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
 	 */
 	@Override
 	public boolean differs(OutputTraceEntry other) {
@@ -76,7 +76,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.OutputTraceEntry#getAssertions(de.unisb.cs.st.evosuite.assertion.OutputTraceEntry)
+	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
 	 */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
@@ -101,7 +101,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.OutputTraceEntry#getAssertions()
+	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
 	 */
 	@Override
 	public Set<Assertion> getAssertions() {
@@ -118,7 +118,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.OutputTraceEntry#isDetectedBy(de.unisb.cs.st.evosuite.assertion.Assertion)
+	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
 	 */
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
@@ -131,7 +131,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.assertion.OutputTraceEntry#cloneEntry()
+	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
 	 */
 	@Override
 	public OutputTraceEntry cloneEntry() {

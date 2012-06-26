@@ -43,7 +43,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	protected static Logger logger = LoggerFactory.getLogger(PrimePathInstrumentation.class);
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String, int)
+	 * @see org.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String, int)
 	 */
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName, int access) {
@@ -79,7 +79,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
+	 * @see org.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */
 	@Override
 	public boolean executeOnMainMethod() {
@@ -88,7 +88,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
+	 * @see org.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
 	 */
 	@Override
 	public boolean executeOnExcludedMethods() {

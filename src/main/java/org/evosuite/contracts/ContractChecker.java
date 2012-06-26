@@ -75,7 +75,7 @@ public class ContractChecker extends ExecutionObserver {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
+	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
 	@Override
 	public void output(int position, String output) {
@@ -95,7 +95,7 @@ public class ContractChecker extends ExecutionObserver {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#statement(int, de.unisb.cs.st.evosuite.testcase.Scope, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.ExecutionObserver#statement(int, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
@@ -138,7 +138,7 @@ public class ContractChecker extends ExecutionObserver {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#clear()
+	 * @see org.evosuite.testcase.ExecutionObserver#clear()
 	 */
 	@Override
 	public void clear() {

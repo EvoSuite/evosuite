@@ -50,7 +50,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#clone(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 * @see org.evosuite.testcase.StatementInterface#clone(org.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
@@ -58,7 +58,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#execute(de.unisb.cs.st.evosuite.testcase.Scope, java.io.PrintStream)
+	 * @see org.evosuite.testcase.StatementInterface#execute(org.evosuite.testcase.Scope, java.io.PrintStream)
 	 */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
@@ -68,7 +68,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
+	 * @see org.evosuite.testcase.StatementInterface#getBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
 	 */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
@@ -78,7 +78,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getUniqueVariableReferences()
+	 * @see org.evosuite.testcase.StatementInterface#getUniqueVariableReferences()
 	 */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
@@ -86,7 +86,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getVariableReferences()
+	 * @see org.evosuite.testcase.StatementInterface#getVariableReferences()
 	 */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
@@ -96,14 +96,14 @@ public class NullStatement extends PrimitiveStatement<Void> {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#replace(de.unisb.cs.st.evosuite.testcase.VariableReference, de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#same(de.unisb.cs.st.evosuite.testcase.StatementInterface)
+	 * @see org.evosuite.testcase.StatementInterface#same(org.evosuite.testcase.StatementInterface)
 	 */
 	@Override
 	public boolean same(StatementInterface s) {

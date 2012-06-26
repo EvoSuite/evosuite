@@ -59,7 +59,7 @@ public class ReplaceVariable implements MutationOperator {
 	private static Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
+	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
@@ -158,7 +158,7 @@ public class ReplaceVariable implements MutationOperator {
 		distance.add(copy(mutant));
 		distance.add(cast(type, Type.DOUBLE_TYPE));
 		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
+		        "org/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
 		        "getDistance", "(DD)D"));
 	}
 
@@ -166,7 +166,7 @@ public class ReplaceVariable implements MutationOperator {
 	        InsnList mutant) {
 		distance.add(copy(mutant));
 		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "de/unisb/cs/st/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
+		        "org/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
 		        "getDistance", "(Ljava/lang/Object;Ljava/lang/Object;)D"));
 	}
 
@@ -493,7 +493,7 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(de.unisb.cs.st.evosuite.cfg.BytecodeInstruction)
+	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {

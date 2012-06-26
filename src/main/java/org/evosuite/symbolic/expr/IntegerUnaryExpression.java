@@ -30,7 +30,7 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 
 	private static final long serialVersionUID = 1966395070897274841L;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.IntegerUnaryExpression");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.IntegerUnaryExpression");
 	
 	protected Long concretValue;
 

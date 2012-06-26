@@ -90,7 +90,7 @@ public class ConstantInliner extends ExecutionObserver {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
+	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
 	@Override
 	public void output(int position, String output) {
@@ -99,7 +99,7 @@ public class ConstantInliner extends ExecutionObserver {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#statement(de.unisb.cs.st.evosuite.testcase.StatementInterface, de.unisb.cs.st.evosuite.testcase.Scope, java.lang.Throwable)
+	 * @see org.evosuite.testcase.ExecutionObserver#statement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
@@ -140,7 +140,7 @@ public class ConstantInliner extends ExecutionObserver {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.ExecutionObserver#clear()
+	 * @see org.evosuite.testcase.ExecutionObserver#clear()
 	 */
 	@Override
 	public void clear() {

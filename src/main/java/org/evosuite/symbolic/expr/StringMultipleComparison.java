@@ -39,7 +39,7 @@ BinaryExpression<String>{
 
 	private static final long serialVersionUID = -3844726361666119758L;
 
-	static Logger log = JPF.getLogger("de.unisb.cs.st.evosuite.symbolic.expr.StringMultipleComparison");
+	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringMultipleComparison");
 	
 	protected ArrayList<Expression<?>> other_v;
 

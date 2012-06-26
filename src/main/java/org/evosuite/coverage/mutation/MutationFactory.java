@@ -49,7 +49,7 @@ public class MutationFactory extends AbstractFitnessFactory {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
+	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {

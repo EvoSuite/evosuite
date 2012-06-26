@@ -53,14 +53,14 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		if (opcode == Opcodes.NEWARRAY) {
 			Label origTarget = new Label();
 			visitInsn(Opcodes.DUP);
-			visitFieldInsn(Opcodes.GETSTATIC, "de/unisb/cs/st/evosuite/Properties",
+			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
 			super.visitTypeInsn(Opcodes.NEW,
-			                    "de/unisb/cs/st/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
+			                    "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "de/unisb/cs/st/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
+			                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
@@ -78,14 +78,14 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		if (opcode == Opcodes.ANEWARRAY) {
 			Label origTarget = new Label();
 			visitInsn(Opcodes.DUP);
-			visitFieldInsn(Opcodes.GETSTATIC, "de/unisb/cs/st/evosuite/Properties",
+			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPLT, origTarget);
 			super.visitTypeInsn(Opcodes.NEW,
-			                    "de/unisb/cs/st/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
+			                    "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-			                      "de/unisb/cs/st/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
+			                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
@@ -106,7 +106,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		// Multidimensional arrays can only have max 256 dimensions
 		if (Properties.ARRAY_LIMIT < 256) {
 			push(dims);
-			visitFieldInsn(Opcodes.GETSTATIC, "de/unisb/cs/st/evosuite/Properties",
+			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
 		}
@@ -120,17 +120,17 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 		}
 		for (int i = 0; i < dims; i++) {
 			loadLocal(to.get(i));
-			visitFieldInsn(Opcodes.GETSTATIC, "de/unisb/cs/st/evosuite/Properties",
+			visitFieldInsn(Opcodes.GETSTATIC, "org/evosuite/Properties",
 			               "ARRAY_LIMIT", "I");
 			super.visitJumpInsn(Opcodes.IF_ICMPGE, errorTarget);
 		}
 		goTo(origTarget);
 		super.visitLabel(errorTarget);
 		super.visitTypeInsn(Opcodes.NEW,
-		                    "de/unisb/cs/st/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
+		                    "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded");
 		super.visitInsn(Opcodes.DUP);
 		super.visitMethodInsn(Opcodes.INVOKESPECIAL,
-		                      "de/unisb/cs/st/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
+		                      "org/evosuite/testcase/TestCaseExecutor$TimeoutExceeded",
 		                      "<init>", "()V");
 		super.visitInsn(Opcodes.ATHROW);
 		super.visitLabel(origTarget);

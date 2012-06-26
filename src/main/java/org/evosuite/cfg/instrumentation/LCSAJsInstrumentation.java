@@ -58,7 +58,7 @@ import org.objectweb.asm.tree.TryCatchBlockNode;
 public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
+	 * @see org.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String)
 	 */
 	@SuppressWarnings("unchecked")
 	//using external lib
@@ -233,7 +233,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
+	 * @see org.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
 	 */
 	@Override
 	public boolean executeOnExcludedMethods() {
@@ -241,7 +241,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
+	 * @see org.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */
 	@Override
 	public boolean executeOnMainMethod() {

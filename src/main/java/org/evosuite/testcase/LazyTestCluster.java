@@ -144,7 +144,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#addTestCall(java.lang.reflect.AccessibleObject)
+	 * @see org.evosuite.testcase.TestCluster#addTestCall(java.lang.reflect.AccessibleObject)
 	 */
 	@Override
 	public void addTestCall(AccessibleObject call) {
@@ -991,7 +991,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#resetCluster()
+	 * @see org.evosuite.testcase.TestCluster#resetCluster()
 	 */
 	@Override
 	public void resetCluster() {
@@ -1000,7 +1000,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getClass(java.lang.String)
+	 * @see org.evosuite.testcase.TestCluster#getClass(java.lang.String)
 	 */
 	@Override
 	public Class<?> getClass(String name) throws ClassNotFoundException {
@@ -1009,7 +1009,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#importClass(java.lang.String)
+	 * @see org.evosuite.testcase.TestCluster#importClass(java.lang.String)
 	 */
 	@Override
 	public Class<?> importClass(String name) throws ClassNotFoundException {
@@ -1018,7 +1018,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getRandomGenerator(java.lang.reflect.Type)
+	 * @see org.evosuite.testcase.TestCluster#getRandomGenerator(java.lang.reflect.Type)
 	 */
 	@Override
 	public AccessibleObject getRandomGenerator(Type type)
@@ -1027,7 +1027,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getTestCalls()
+	 * @see org.evosuite.testcase.TestCluster#getTestCalls()
 	 */
 	@Override
 	public List<AccessibleObject> getTestCalls() {
@@ -1038,7 +1038,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getAnalyzedClasses()
+	 * @see org.evosuite.testcase.TestCluster#getAnalyzedClasses()
 	 */
 	@Override
 	public Set<Class<?>> getAnalyzedClasses() {
@@ -1046,7 +1046,7 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
+	 * @see org.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
 	 */
 	@Override
 	public Collection<Class<?>> getKnownMatchingClasses(String name) {

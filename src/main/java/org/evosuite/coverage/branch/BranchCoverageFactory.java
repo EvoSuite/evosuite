@@ -42,7 +42,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
@@ -53,7 +53,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
 	 */
 	public List<TestFitnessFunction> getCoverageGoals(String targetMethod) {
 		long start = System.currentTimeMillis();

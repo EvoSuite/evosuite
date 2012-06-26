@@ -65,7 +65,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
+	 * org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {

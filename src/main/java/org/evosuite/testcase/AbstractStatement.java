@@ -173,7 +173,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#references(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.StatementInterface#references(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public boolean references(VariableReference var) {
@@ -189,7 +189,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#SetRetval(de.unisb.cs.st.evosuite.testcase.VariableReference)
+	 * @see org.evosuite.testcase.StatementInterface#SetRetval(org.evosuite.testcase.VariableReference)
 	 */
 	@Override
 	public void setRetval(VariableReference newRetVal) {
@@ -197,7 +197,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getCode()
+	 * @see org.evosuite.testcase.StatementInterface#getCode()
 	 */
 	@Override
 	public String getCode() {
@@ -219,7 +219,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnType()
+	 * @see org.evosuite.testcase.StatementInterface#getReturnType()
 	 */
 	@Override
 	public Type getReturnType() {
@@ -227,7 +227,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnClass()
+	 * @see org.evosuite.testcase.StatementInterface#getReturnClass()
 	 */
 	@Override
 	public Class<?> getReturnClass() {
@@ -235,7 +235,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getReturnValue()
+	 * @see org.evosuite.testcase.StatementInterface#getReturnValue()
 	 */
 	@Override
 	public VariableReference getReturnValue() {
@@ -261,7 +261,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#hasAssertions()
+	 * @see org.evosuite.testcase.StatementInterface#hasAssertions()
 	 */
 	@Override
 	public boolean hasAssertions() {
@@ -269,7 +269,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#addAssertion(de.unisb.cs.st.evosuite.assertion.Assertion)
+	 * @see org.evosuite.testcase.StatementInterface#addAssertion(org.evosuite.assertion.Assertion)
 	 */
 	@Override
 	public void addAssertion(Assertion assertion) {
@@ -286,7 +286,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#setAssertions(java.util.Set)
+	 * @see org.evosuite.testcase.StatementInterface#setAssertions(java.util.Set)
 	 */
 	@Override
 	public void setAssertions(Set<Assertion> assertions) {
@@ -297,7 +297,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertionCode()
+	 * @see org.evosuite.testcase.StatementInterface#getAssertionCode()
 	 */
 	@Override
 	public String getAssertionCode() {
@@ -310,7 +310,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertions()
+	 * @see org.evosuite.testcase.StatementInterface#removeAssertions()
 	 */
 	@Override
 	public void removeAssertions() {
@@ -318,7 +318,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#removeAssertion(de.unisb.cs.st.evosuite.assertion.Assertion)
+	 * @see org.evosuite.testcase.StatementInterface#removeAssertion(org.evosuite.assertion.Assertion)
 	 */
 	@Override
 	public void removeAssertion(Assertion assertion) {
@@ -326,7 +326,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getAssertions()
+	 * @see org.evosuite.testcase.StatementInterface#getAssertions()
 	 */
 	@Override
 	public Set<Assertion> getAssertions() {
@@ -334,7 +334,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getDeclaredExceptions()
+	 * @see org.evosuite.testcase.StatementInterface#getDeclaredExceptions()
 	 */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
@@ -351,7 +351,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#getPosition()
+	 * @see org.evosuite.testcase.StatementInterface#getPosition()
 	 */
 	@Override
 	public int getPosition() {
@@ -370,7 +370,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#mutate(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 * @see org.evosuite.testcase.StatementInterface#mutate(org.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
@@ -378,7 +378,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#clone(de.unisb.cs.st.evosuite.testcase.TestCase)
+	 * @see org.evosuite.testcase.StatementInterface#clone(org.evosuite.testcase.TestCase)
 	 */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
@@ -388,7 +388,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {

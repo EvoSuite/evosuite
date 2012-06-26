@@ -137,7 +137,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	}
 
 	/* (non-Javadoc)
-	 * @see de.unisb.cs.st.evosuite.testcase.TestFitnessFunction#getFitness(de.unisb.cs.st.evosuite.testcase.TestChromosome, de.unisb.cs.st.evosuite.testcase.ExecutionResult)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
 	@Override
 	public abstract double getFitness(TestChromosome individual, ExecutionResult result);

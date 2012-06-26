@@ -336,7 +336,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 					// instrumentation.add(new LdcInsnNode(currentLine));
 					// instrumentation.add(new
 					// MethodInsnNode(Opcodes.INVOKESTATIC,
-					// "de/unisb/cs/st/evosuite/junit/TestRuntimeValuesDeterminer",
+					// "org/evosuite/junit/TestRuntimeValuesDeterminer",
 					// "fieldValueChanged",
 					// "(Ljava/lang/Object;Ljava/lang/String;Ljava/lang/String;I)V"));
 					// logger.debug("Adding fieldValueChanged for field {}#{} in line {}.",
@@ -353,7 +353,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			InsnList instrumentation = new InsnList();
 			instrumentation.add(new LdcInsnNode(currentLine));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"de/unisb/cs/st/evosuite/junit/TestRuntimeValuesDeterminer", "execLine", "(I)V"));
+					"org/evosuite/junit/TestRuntimeValuesDeterminer", "execLine", "(I)V"));
 			return instrumentation;
 		}
 
@@ -393,7 +393,7 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 			instrumentation.add(new LdcInsnNode(localVariableNode.name));
 			instrumentation.add(new LdcInsnNode(currentLine));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"de/unisb/cs/st/evosuite/junit/TestRuntimeValuesDeterminer", "localVarValueChanged", "(" + param
+					"org/evosuite/junit/TestRuntimeValuesDeterminer", "localVarValueChanged", "(" + param
 							+ "Ljava/lang/String;I)V"));
 			logger.debug("Adding localVarValueChanged for var {} in line {}.", localVariableNode.name, currentLine);
 			return instrumentation;

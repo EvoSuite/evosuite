@@ -58,7 +58,7 @@ public class CallContext {
 
 	public CallContext(StackTraceElement[] stackTrace) {
 		for (StackTraceElement element : stackTrace) {
-			if (!element.getClassName().startsWith("de.unisb.cs.st.evosuite"))
+			if (!element.getClassName().startsWith("org.evosuite"))
 				context.add(new Call(element.getClassName(), element.getMethodName()));
 		}
 	}

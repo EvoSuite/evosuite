@@ -56,7 +56,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb
+	 * org.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb
 	 * .asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String,
 	 * java.lang.String)
 	 */
@@ -173,7 +173,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods
+	 * org.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods
 	 * ()
 	 */
 	@Override
@@ -185,7 +185,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * (non-Javadoc)
 	 * 
 	 * @see
-	 * de.unisb.cs.st.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
+	 * org.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */
 	@Override
 	public boolean executeOnMainMethod() {
