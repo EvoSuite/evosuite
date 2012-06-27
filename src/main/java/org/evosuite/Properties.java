@@ -212,7 +212,7 @@ public class Properties {
 	public static boolean CHECK_BEST_LENGTH = true;
 
 	@Parameter(key = "check_parents_length", group = "Search Algorithm", description = "Check length against length of parents")
-	public static boolean CHECK_PARENTS_LENGTH = true;
+	public static boolean CHECK_PARENTS_LENGTH = false; // note, based on STVR experiments
 
 	//@Parameter(key = "check_rank_length", group = "Search Algorithm", description = "Use length in rank selection")
 	//public static boolean CHECK_RANK_LENGTH = false;
