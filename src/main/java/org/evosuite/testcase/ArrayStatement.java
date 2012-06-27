@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,7 +35,6 @@ import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
  * An array statement creates a new array
  * 
@@ -43,18 +42,18 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * 
  */
 public class ArrayStatement extends AbstractStatement {
-	
+
 	public static int determineDimensions(java.lang.reflect.Type type) {
 		String name = type.toString().replace("class", "").trim();
-	    int count = 0;
-	    for (int i=0; i < name.length(); i++) {
-	        if (name.charAt(i) == '[') {
-	             count++;
-	        }
-	    }
-	    return count;
+		int count = 0;
+		for (int i = 0; i < name.length(); i++) {
+			if (name.charAt(i) == '[') {
+				count++;
+			}
+		}
+		return count;
 	}
-	
+
 	private static int[] createRandom(int dimensions) {
 		int[] result = new int[dimensions];
 		for (int idx = 0; idx < dimensions; idx++) {
@@ -68,26 +67,27 @@ public class ArrayStatement extends AbstractStatement {
 	private int[] lengths;
 
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference) {
-		this(tc, arrayReference, createRandom(determineDimensions(arrayReference.getType())));
+		this(tc, arrayReference,
+		        createRandom(determineDimensions(arrayReference.getType())));
 	}
-	
+
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
 		this(tc, type, createRandom(determineDimensions(type)));
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
-		this(tc, type, new int[] {length});
+		this(tc, type, new int[] { length });
 	}
 
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int[] length) {
 		this(tc, new ArrayReference(tc, new GenericClass(type), length), length);
 	}
-	
+
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference, int[] length) {
 		super(tc, arrayReference);
 		this.lengths = length;
 	}
-	
+
 	public int size() {
 		assert lengths.length == 1;
 		return lengths[0];
@@ -162,7 +162,7 @@ public class ArrayStatement extends AbstractStatement {
 	public int hashCode() {
 		final int prime = 31;
 		int result = retval.hashCode();
-		result = prime * result + Arrays.hashCode(lengths);	
+		result = prime * result + Arrays.hashCode(lengths);
 		return result;
 	}
 
@@ -247,15 +247,19 @@ public class ArrayStatement extends AbstractStatement {
 			}
 		}
 
-		int dim = Randomness.nextInt(lengths.length - 1);
+		int dim = 0;
+		if (lengths.length > 1) {
+			dim = Randomness.nextInt(lengths.length - 1);
+		}
 		int newLength = lengths[dim];
 		while (newLength == lengths[dim]) {
 			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
-				newLength = Randomness.nextInt(maxAssignment, 
-											   Math.max(maxAssignment + 1,
-													   	Properties.MAX_ARRAY)) + 1;
+				newLength = Randomness.nextInt(maxAssignment,
+				                               Math.max(maxAssignment + 1,
+				                                        Properties.MAX_ARRAY)) + 1;
 			} else {
-				int max = Math.min(Math.abs(lengths[dim] - maxAssignment - 1), Properties.MAX_DELTA);
+				int max = Math.min(Math.abs(lengths[dim] - maxAssignment - 1),
+				                   Properties.MAX_DELTA);
 				if (max > 0)
 					newLength = lengths[dim] + Randomness.nextInt(2 * max) - max;
 				else
@@ -266,7 +270,7 @@ public class ArrayStatement extends AbstractStatement {
 		// TODO: Need to make sure this doesn't happen by construction
 		if (newLength <= 0)
 			newLength = 1;
-		
+
 		logger.debug("Changing array length from " + lengths[dim] + " to " + newLength);
 		lengths[dim] = newLength;
 		return true;
@@ -285,7 +289,7 @@ public class ArrayStatement extends AbstractStatement {
 	public void setLengths(int[] lengths) {
 		this.lengths = lengths;
 	}
-	
+
 	public int[] getLengths() {
 		return lengths;
 	}
