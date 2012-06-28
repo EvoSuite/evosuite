@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,7 +42,6 @@ import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Central property repository. All global parameters of EvoSuite should be
@@ -105,8 +104,8 @@ public class Properties {
 	public static String TEST_INCLUDES = "test.includes";
 
 	@Parameter(key = "evosuite_use_uispec", group = "Test Creation", description = "If set to true EvoSuite test generation inits UISpec in order to avoid display of UI")
-	public static boolean EVOSUITE_USE_UISPEC = false; 
-	
+	public static boolean EVOSUITE_USE_UISPEC = false;
+
 	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights (?)")
 	public static boolean MAKE_ACCESSIBLE = true;
 
@@ -546,8 +545,8 @@ public class Properties {
 	public static double USAGE_RATE = 0.5;
 
 	@Parameter(key = "instrumentation_skip_debug", description = "Skip debug information in bytecode instrumentation (needed for compatibility with classes transformed by Emma code instrumentation due to an ASM bug)")
-	public static boolean INSTRUMENTATION_SKIP_DEBUG = false;	
-	
+	public static boolean INSTRUMENTATION_SKIP_DEBUG = false;
+
 	@Parameter(key = "instrument_parent", description = "Also count coverage goals in superclasses")
 	public static boolean INSTRUMENT_PARENT = false;
 
@@ -1293,7 +1292,7 @@ public class Properties {
 		BranchPool.reset();
 		TestCluster.reset();
 		DefaultTestFactory.getInstance().reset();
-		BytecodeInstructionPool.clear(); 
+		BytecodeInstructionPool.clear();
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
