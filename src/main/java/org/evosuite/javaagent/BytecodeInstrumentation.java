@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,7 +32,6 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * The bytecode transformer - transforms bytecode depending on package and
@@ -59,24 +58,24 @@ public class BytecodeInstrumentation {
 
 	public static boolean isJavaClass(String classNameWithDots) {
 		return classNameWithDots.startsWith("java.") // 
-				|| classNameWithDots.startsWith("javax.") //
-				|| classNameWithDots.startsWith("sun.") //
+		        || classNameWithDots.startsWith("javax.") //
+		        || classNameWithDots.startsWith("sun.") //
 		        || classNameWithDots.startsWith("apple.")
 		        || classNameWithDots.startsWith("com.apple.");
 	}
-	
-	public static boolean isSharedClass(String classNameWithDots){
+
+	public static boolean isSharedClass(String classNameWithDots) {
 		// this are classes that are used by EvoSuite 
 		// and for which an instrumentation leads to 
 		// bad to detect errors 
 		return isJavaClass(classNameWithDots) //
-			|| classNameWithDots.startsWith("org") //
-			|| classNameWithDots.startsWith("org.xml.sax") //
-			|| classNameWithDots.startsWith("org.mozilla.javascript.gen.c") //
-			|| classNameWithDots.startsWith("daikon.") //
-			|| classNameWithDots.startsWith("org.aspectj.org.eclipse") //
-			|| classNameWithDots.startsWith("junit.framework") //
-			|| classNameWithDots.startsWith("org.junit");
+		        || classNameWithDots.startsWith("de.unisb.cs.st") //
+		        || classNameWithDots.startsWith("org.xml.sax") //
+		        || classNameWithDots.startsWith("org.mozilla.javascript.gen.c") //
+		        || classNameWithDots.startsWith("daikon.") //
+		        || classNameWithDots.startsWith("org.aspectj.org.eclipse") //
+		        || classNameWithDots.startsWith("junit.framework") //
+		        || classNameWithDots.startsWith("org.junit");
 	}
 
 	public static boolean isTargetProject(String className) {
@@ -84,6 +83,7 @@ public class BytecodeInstrumentation {
 		        && !className.startsWith("java.")
 		        && !className.startsWith("sun.")
 		        && !className.startsWith("org.evosuite")
+		        && !className.startsWith("de.unisb.cs.st.evosuite")
 		        && !className.startsWith("javax.")
 		        && !className.startsWith("org.xml")
 		        && !className.startsWith("org.w3c")
@@ -124,16 +124,17 @@ public class BytecodeInstrumentation {
 
 	public byte[] transformBytes(String className, ClassReader reader) {
 		int readFlags = ClassReader.SKIP_FRAMES;
-		
+
 		if (Properties.INSTRUMENTATION_SKIP_DEBUG)
 			readFlags |= ClassReader.SKIP_DEBUG;
 
 		String classNameWithDots = className.replace('/', '.');
-		
+
 		if (isSharedClass(classNameWithDots)) {
-			throw new RuntimeException("Should not transform a shared class! Load by parent (JVM) classloader.");
+			throw new RuntimeException(
+			        "Should not transform a shared class! Load by parent (JVM) classloader.");
 		}
-		
+
 		TransformationStatistics.reset();
 
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -192,7 +193,7 @@ public class BytecodeInstrumentation {
 		if (Properties.REPLACE_CALLS || Properties.VIRTUAL_FS) {
 			cv = new MethodCallReplacementClassAdapter(cv, className);
 		}
-		
+
 		// Testability Transformations
 		if (classNameWithDots.startsWith(Properties.PROJECT_PREFIX)
 		        || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && classNameWithDots.startsWith(Properties.TARGET_CLASS_PREFIX))
