@@ -403,7 +403,7 @@
 	<configuration>
 	  <archive>
 	    <manifest>
-	      <mainClass>de.unisb.cs.st.evosuite.EvoSuite</mainClass>
+	      <mainClass>org.evosuite.EvoSuite</mainClass>
 	    </manifest>
 	  </archive>
 	  <descriptors>
