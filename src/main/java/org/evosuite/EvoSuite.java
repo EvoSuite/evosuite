@@ -51,7 +51,6 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * @author Gordon Fraser
  * 
@@ -122,8 +121,6 @@ public class EvoSuite {
 		parameters.add(classPath);
 		parameters.add("-DPROJECT_PREFIX=" + prefix);
 		parameters.add("-DCP=" + Properties.CP);
-		System.out.println("-DCP=" + Properties.CP);
-		System.out.println("-classpath=" + classPath);
 		parameters.add("-Djava.awt.headless=true");
 		parameters.add("-Dlogback.configurationFile=logback.xml");
 		//this is used to avoid issues in running system test cases
@@ -137,7 +134,6 @@ public class EvoSuite {
 		}
 		parameters.add("org.evosuite.setup.ScanProject");
 		parameters.add(targetParam);
-		System.out.println(parameters);
 
 		try {
 			ProcessBuilder builder = new ProcessBuilder(parameters);
@@ -467,7 +463,6 @@ public class EvoSuite {
 		URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs();
 		URL evosuiteIO = null;
 		for (URL url : urls) {
-			System.out.println(url.toString());
 			if (url.getPath().endsWith("evosuite-io-0.2.jar")) {
 				evosuiteIO = url;
 				break;
