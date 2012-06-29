@@ -35,6 +35,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
@@ -69,7 +71,6 @@ import com.panayotis.gnuplot.style.PlotStyle;
 import com.panayotis.gnuplot.style.Style;
 import com.panayotis.gnuplot.terminal.FileTerminal;
 import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
-
 
 /**
  * @author Gordon Fraser
@@ -382,10 +383,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public String getCSVFilepath() {
 			return REPORT_DIR.getAbsolutePath() + File.separator + getCSVFileName();
 		}
-		
+
 		public String getCSVFileName() {
-			return "data" + File.separator + "statistics_" + className + "-"
-			        + id + ".csv";
+			return "data" + File.separator + "statistics_" + className + "-" + id
+			        + ".csv.gz";
 		}
 
 		public String getExceptionFilepath() {
@@ -516,19 +517,23 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	protected void writeCSVData(String filename, List<?>... data) {
 		try {
-			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
+			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(filename,
+			        false));
+			out.putNextEntry(new ZipEntry(filename.replace(".gz", "")));
+
+			//BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
 			int length = Integer.MAX_VALUE;
 
-			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements,Time\n");
+			out.write("Generation,Fitness,Coverage,Size,Length,AverageLength,Evaluations,Tests,Statements,Time\n".getBytes());
 			for (List<?> d : data) {
 				length = Math.min(length, d.size());
 			}
 			for (int i = 0; i < length; i++) {
-				out.write("" + i);
+				out.write(("" + i).getBytes());
 				for (List<?> d : data) {
-					out.write("," + d.get(i));
+					out.write(("," + d.get(i)).getBytes());
 				}
-				out.write("\n");
+				out.write("\n".getBytes());
 			}
 			out.close();
 		} catch (IOException e) {
@@ -558,7 +563,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.startsWith("statistics_" + className)
-				        && name.endsWith(".csv"); // && !dir.isDirectory();
+				        && (name.endsWith(".csv.gz") || name.endsWith(".csv")); // && !dir.isDirectory();
 			}
 		};
 		List<String> filenames = new ArrayList<String>();
@@ -567,7 +572,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		if (files != null) {
 			for (File f : files)
 				filenames.add(f.getName());
-			while (filenames.contains("statistics_" + className + "-" + num + ".csv"))
+			while (filenames.contains("statistics_" + className + "-" + num + ".csv")
+			        || filenames.contains("statistics_" + className + "-" + num
+			                + ".csv.gz"))
 				num++;
 		}
 
