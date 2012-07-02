@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,7 +37,6 @@ import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * A test case is a list of statements
@@ -138,7 +137,14 @@ public class DefaultTestCase implements TestCase, Serializable {
 		if (!var.isPrimitive() && !(var instanceof NullReference)) {
 			// add fields of this object to list
 			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
-				FieldReference f = new FieldReference(this, field, var);
+				Type fieldType = field.getType();
+				try {
+					fieldType = field.getGenericType();
+				} catch (java.lang.reflect.GenericSignatureFormatError e) {
+					// Ignore
+					fieldType = field.getType();
+				}
+				FieldReference f = new FieldReference(this, field, fieldType, var);
 				if (f.getDepth() <= 2) {
 					if (type != null) {
 						if (f.isAssignableTo(type) && !variables.contains(f)) {
