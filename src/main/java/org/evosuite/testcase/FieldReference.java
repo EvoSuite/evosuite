@@ -90,6 +90,20 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/**
+	 * We need this constructor to work around a bug in Java Generics which
+	 * causes a java.lang.reflect.GenericSignatureFormatError when accessing
+	 * getType
+	 * 
+	 * @param testCase
+	 * @param type
+	 */
+	public FieldReference(TestCase testCase, Field field, Type type) {
+		super(testCase, type);
+		this.field = field;
+		this.source = null;
+	}
+
+	/**
 	 * Access the field
 	 * 
 	 * @return
@@ -294,12 +308,19 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	@Override
 	public VariableReference copy(TestCase newTestCase, int offset) {
+		Type fieldType = field.getType();
+		try {
+			fieldType = field.getGenericType();
+		} catch (java.lang.reflect.GenericSignatureFormatError e) {
+			// Ignore
+			fieldType = field.getType();
+		}
 		if (source != null) {
 			//			VariableReference otherSource = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 			VariableReference otherSource = source.copy(newTestCase, offset);
-			return new FieldReference(newTestCase, field, otherSource);
+			return new FieldReference(newTestCase, field, fieldType, otherSource);
 		} else {
-			return new FieldReference(newTestCase, field);
+			return new FieldReference(newTestCase, field, fieldType);
 		}
 	}
 
