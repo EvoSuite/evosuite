@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,7 +27,6 @@ import org.evosuite.testcase.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * @author Gordon Fraser
  * 
@@ -39,6 +38,8 @@ public abstract class AssertionGenerator {
 	protected static PrimitiveTraceObserver primitive_observer = new PrimitiveTraceObserver();
 
 	protected static ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
+
+	protected static SameTraceObserver same_observer = new SameTraceObserver();
 
 	protected static InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
 
@@ -54,6 +55,7 @@ public abstract class AssertionGenerator {
 		executor.addObserver(inspector_observer);
 		executor.addObserver(field_observer);
 		executor.addObserver(null_observer);
+		executor.addObserver(same_observer);
 	}
 
 	public abstract void addAssertions(TestCase test);
@@ -76,6 +78,7 @@ public abstract class AssertionGenerator {
 			result.setTrace(inspector_observer.getTrace(), InspectorTraceEntry.class);
 			result.setTrace(field_observer.getTrace(), PrimitiveFieldTraceEntry.class);
 			result.setTrace(null_observer.getTrace(), NullTraceEntry.class);
+			result.setTrace(same_observer.getTrace(), SameTraceEntry.class);
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
