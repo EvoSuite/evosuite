@@ -38,6 +38,7 @@ import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.assertion.NullAssertion;
 import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
+import org.evosuite.assertion.SameAssertion;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.utils.NumberFormatter;
@@ -376,6 +377,19 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 	}
 
+	protected void visitSameAssertion(SameAssertion assertion) {
+		VariableReference source = assertion.getSource();
+		VariableReference dest = assertion.getDest();
+		Object value = assertion.getValue();
+
+		if (((Boolean) value).booleanValue())
+			testCode += "assertSame(" + getVariableName(source) + ", "
+			        + getVariableName(dest) + ");";
+		else
+			testCode += "assertNotSame(" + getVariableName(source) + ", "
+			        + getVariableName(dest) + ");";
+	}
+
 	private void visitAssertion(Assertion assertion) {
 		if (assertion instanceof PrimitiveAssertion) {
 			visitPrimitiveAssertion((PrimitiveAssertion) assertion);
@@ -389,6 +403,8 @@ public class TestCodeVisitor implements TestVisitor {
 			visitCompareAssertion((CompareAssertion) assertion);
 		} else if (assertion instanceof EqualsAssertion) {
 			visitEqualsAssertion((EqualsAssertion) assertion);
+		} else if (assertion instanceof SameAssertion) {
+			visitSameAssertion((SameAssertion) assertion);
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
