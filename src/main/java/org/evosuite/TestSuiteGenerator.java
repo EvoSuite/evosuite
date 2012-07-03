@@ -151,6 +151,7 @@ import de.unisb.cs.st.testcarver.capture.CaptureLog;
 import de.unisb.cs.st.testcarver.capture.Capturer;
 import de.unisb.cs.st.testcarver.capture.CodeGenerator;
 import de.unisb.cs.st.testcarver.capture.PUTFIELDRegistry;
+import de.unisb.cs.st.testcarver.capture.TestCarvingExecutionObserver;
 import de.unisb.cs.st.testcarver.capture.TestCaseCodeGenerator;
 import gnu.trove.list.array.TIntArrayList;
 
@@ -424,8 +425,10 @@ public class TestSuiteGenerator {
 	{
 		final ArrayList<TestCase> result = new ArrayList<TestCase>(testsToBeCarved.size());
 		final TestCaseExecutor executor = TestCaseExecutor.getInstance();
+		final TestCarvingExecutionObserver execObserver = new TestCarvingExecutionObserver();
 		
-
+		executor.addObserver(execObserver);
+		
 		final HashSet<Class<?>> allAccessedClasses   = new HashSet<Class<?>>();
 		
 		// variables needed in loop
@@ -443,10 +446,9 @@ public class TestSuiteGenerator {
 			// execute test case
 			executor.execute(t);
 		
-//			System.out.println("FIELDS:\n" + PUTFIELDRegistry.classFieldsMappinString());
-			
 			// stop capture after best individual has been determined and obtain corresponding capture log
 			log = Capturer.stopCapture();
+			
 			
 			//------------------------------------------------------------------
 			
@@ -491,6 +493,8 @@ public class TestSuiteGenerator {
 			Capturer.clear();
 		}
 			
+		executor.removeObserver(execObserver);
+		
 		return result;
 	}
 	

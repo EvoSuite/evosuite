@@ -57,6 +57,11 @@ public class MethodStatement extends AbstractStatement {
 		this.callee = callee;
 		this.parameters = parameters;
 	}
+	
+	public List<VariableReference> getParameters()
+	{
+		return this.parameters;
+	}
 
 	/**
 	 * This constructor allows you to use an already existing VariableReference
