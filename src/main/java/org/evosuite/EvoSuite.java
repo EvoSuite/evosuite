@@ -210,6 +210,7 @@ public class EvoSuite {
 		        + Properties.OUTPUT_DIR);
 
 		String[] extensions = { "task" };
+		System.out.println("DIR:  " + directory);
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
 			System.out.println("   " + file.getName().replace(".task", ""));
 		}

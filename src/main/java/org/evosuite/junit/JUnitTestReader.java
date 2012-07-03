@@ -131,6 +131,21 @@ public class JUnitTestReader implements TestReader {
 		throw new RuntimeException("Could not find class '" + clazz + "' in sources: " + sourcesString.toString());
 	}
 
+	public TestCase readJUnitTestCase(String className, final String methodName, final CompilationUnit cu) {
+		CompoundTestCase testCase = new CompoundTestCase(className, methodName);
+		
+		
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, className, null, this);
+		
+		compilationUnit = cu; // parseJavaFile(className, fileContent);
+		compilationUnit.accept(testExtractingVisitor);
+		
+		TestCase result = testCase.finalizeTestCase();
+		return result;
+	}
+	
+	
+	
 	protected CompilationUnit parseJavaFile(String unitName, String fileContents) {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);

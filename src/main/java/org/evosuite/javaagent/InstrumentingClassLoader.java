@@ -77,7 +77,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		//explicitly blocking client projects such as specmate is only a
 		//temporary solution, TODO allow the user to specify 
 		//packages that should not be instrumented
-		return new String[] { "java.", "javax.", "sun.", "org.evosuite",
+		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "de.unisb.cs.st.testcarver",
 		        "org.specmate", "org.xml", "org.w3c",
 		        "testing.generation.evosuite", "com.yourkit",
 		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
@@ -165,6 +165,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
 		} catch (Exception e) {
+			e.printStackTrace();
 			throw new ClassNotFoundException(e.getMessage(), e);
 		}
 	}
