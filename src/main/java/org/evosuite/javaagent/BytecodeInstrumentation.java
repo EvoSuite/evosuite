@@ -84,6 +84,7 @@ public class BytecodeInstrumentation {
 		        && !className.startsWith("sun.")
 		        && !className.startsWith("org.evosuite")
 		        && !className.startsWith("de.unisb.cs.st.evosuite")
+		        && !className.startsWith("de.unisb.cs.st.specmate")
 		        && !className.startsWith("javax.")
 		        && !className.startsWith("org.xml")
 		        && !className.startsWith("org.w3c")
