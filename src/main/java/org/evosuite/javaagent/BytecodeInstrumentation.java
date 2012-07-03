@@ -18,6 +18,7 @@
 package org.evosuite.javaagent;
 
 import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,9 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import de.unisb.cs.st.testcarver.instrument.Instrumenter;
+import de.unisb.cs.st.testcarver.instrument.TransformerUtil;
 
 
 /**
@@ -49,6 +53,14 @@ public class BytecodeInstrumentation {
 
 	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
 
+	
+	private final Instrumenter testCarvingInstrumenter;
+	
+	public BytecodeInstrumentation()
+	{
+		this.testCarvingInstrumenter = new Instrumenter();
+	}
+	
 	public static void addClassAdapter(ClassAdapterFactory factory) {
 		externalPostVisitors.add(factory);
 	}
@@ -131,7 +143,7 @@ public class BytecodeInstrumentation {
 		String classNameWithDots = className.replace('/', '.');
 		
 		if (isSharedClass(classNameWithDots)) {
-			throw new RuntimeException("Should not transform a shared class! Load by parent (JVM) classloader.");
+			throw new RuntimeException("Should not transform a shared class (" + classNameWithDots + ")! Load by parent (JVM) classloader.");
 		}
 		
 		TransformationStatistics.reset();
@@ -139,6 +151,8 @@ public class BytecodeInstrumentation {
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 
 		ClassVisitor cv = writer;
+		
+		
 		if (logger.isDebugEnabled()) {
 			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
 		}
@@ -239,12 +253,38 @@ public class BytecodeInstrumentation {
 
 				logger.info("Testability Transformation done: " + className);
 			}
+			
+			
+			//----- 
 			cn.accept(cv);
+			
+			if (Properties.TEST_CARVING) 
+			{
+				if(TransformerUtil.isClassConsideredForInstrumenetation(className))
+				{
+					final ClassReader cr = new ClassReader(writer.toByteArray());
+					final ClassNode cn2 = new ClassNode();
+					cr.accept(cn2, ClassReader.EXPAND_FRAMES);
+					
+					this.testCarvingInstrumenter.transformClassNode(cn2, className);
+					final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+					cn2.accept(cw);
+					
+					if(logger.isDebugEnabled())
+					{
+						final StringWriter sw = new StringWriter();
+						cn2.accept(new TraceClassVisitor(new PrintWriter(sw)));
+						logger.debug("test carving instrumentation result:\n{}", sw);
+					}
 
+					
+					return cw.toByteArray();
+				}
+			}
 		} else {
 			reader.accept(cv, readFlags);
 		}
-
+		
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
