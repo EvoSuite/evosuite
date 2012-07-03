@@ -62,6 +62,7 @@ import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.JUnitTestChromosomeFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -477,7 +478,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	/**
 	 * HTML header
 	 */
-	protected void writeHTMLHeader(StringBuffer buffer, String title) {
+	public static void writeHTMLHeader(StringBuffer buffer, String title) {
 		buffer.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
 		buffer.append("<html>\n");
 		buffer.append("<head>\n");
@@ -509,7 +510,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	/**
 	 * HTML footer
 	 */
-	protected void writeHTMLFooter(StringBuffer buffer) {
+	public static void writeHTMLFooter(StringBuffer buffer) {
 		buffer.append("</div>\n");
 		buffer.append("</body>\n");
 		buffer.append("</html>\n");
@@ -557,7 +558,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 	}
 
-	private int getNumber(final String className) {
+	protected int getNumber(final String className) {
 		int num = 0;
 		FilenameFilter filter = new FilenameFilter() {
 			@Override
@@ -906,7 +907,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	}
 
-	protected void copyFile(URL src, File dest) {
+	public static void copyFile(URL src, File dest) {
 		try {
 			InputStream in;
 			in = src.openStream();
@@ -923,7 +924,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 	}
 
-	protected void copyFile(String name) {
+	public static void copyFile(String name) {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
 		copyFile(systemResource, new File(REPORT_DIR, "files/" + name));
@@ -1007,29 +1008,33 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		return trace.getCoveredLines(className);
 	}
 
-	public ExecutionResult executeTest(TestCase test, String className) {
-		ExecutionResult result = null;
-		try {
-			// logger.trace(test.toCode());
-			TestCaseExecutor executor = TestCaseExecutor.getInstance();
-			result = executor.execute(test);
-			// Map<Integer, Throwable> result = executor.run(test);
-			StatisticEntry entry = statistics.get(statistics.size() - 1);
-			// entry.results.put(test, result);
-			entry.results.put(test, result.exposeExceptionMapping());
+	public ExecutionResult executeTest(TestChromosome testChromosome, String className) {
+		ExecutionResult result = testChromosome.getLastExecutionResult();
 
-		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
+		if (result == null || testChromosome.isChanged()) {
 			try {
-				Thread.sleep(1000);
-				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
-			} catch (Exception e1) {
+				// logger.trace(test.toCode());
+				TestCaseExecutor executor = TestCaseExecutor.getInstance();
+				result = executor.execute(testChromosome.getTestCase());
+
+			} catch (Exception e) {
+				System.out.println("TG: Exception caught: " + e);
 				e.printStackTrace();
-				// TODO: Do some error recovery?
-				System.exit(1);
+				try {
+					Thread.sleep(1000);
+					result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+				} catch (Exception e1) {
+					e.printStackTrace();
+					// TODO: Do some error recovery?
+					System.exit(1);
+				}
 			}
 		}
+		// Map<Integer, Throwable> result = executor.run(test);
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		// entry.results.put(test, result);
+		entry.results.put(testChromosome.getTestCase(), result.exposeExceptionMapping());
+
 		return result;
 	}
 
