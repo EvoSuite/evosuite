@@ -428,6 +428,9 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
+	@Parameter(key = "junit_prefix", group = "Experimental", description = "Prefix of JUnit tests to execute")
+	public static String JUNIT_PREFIX = "";
+
 	@Parameter(key = "log_goals", group = "Output", description = "Create a CSV file for each individual evolution")
 	public static boolean LOG_GOALS = false;
 
