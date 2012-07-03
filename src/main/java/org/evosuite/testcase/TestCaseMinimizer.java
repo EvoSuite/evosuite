@@ -1,25 +1,30 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
@@ -27,7 +32,6 @@ import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.SecondaryObjective;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Remove all statements from a test case that do not contribute to the fitness
@@ -40,10 +44,18 @@ public class TestCaseMinimizer {
 
 	private static Logger logger = LoggerFactory.getLogger(TestCaseMinimizer.class);
 
-	private final TestFitnessFunction fitnessFunction;
+	private final Set<TestFitnessFunction> fitnessFunctions = new HashSet<TestFitnessFunction>();
 
-	private double fitness = 0.0;
-
+	/**
+	 * Constructor
+	 * 
+	 * @param fitnessFunction
+	 *            Fitness function with which to measure whether a statement is
+	 *            necessary
+	 */
+	public TestCaseMinimizer(Collection<TestFitnessFunction> fitnessFunctions) {
+		this.fitnessFunctions.addAll(fitnessFunctions);
+	}
 
 	/**
 	 * Constructor
@@ -53,7 +65,7 @@ public class TestCaseMinimizer {
 	 *            necessary
 	 */
 	public TestCaseMinimizer(TestFitnessFunction fitnessFunction) {
-		this.fitnessFunction = fitnessFunction;
+		this.fitnessFunctions.add(fitnessFunction);
 	}
 
 	/**
@@ -103,6 +115,20 @@ public class TestCaseMinimizer {
 	}
 
 	/**
+	 * Calculate the fitness values for all fitness functions in a map
+	 * 
+	 * @param test
+	 * @return
+	 */
+	public Map<TestFitnessFunction, Double> getFitnessValues(TestChromosome test) {
+		Map<TestFitnessFunction, Double> fitnessMap = new HashMap<TestFitnessFunction, Double>();
+		for (TestFitnessFunction fitness : fitnessFunctions) {
+			fitnessMap.put(fitness, fitness.getFitness(test));
+		}
+		return fitnessMap;
+	}
+
+	/**
 	 * Central minimization function. Loop and try to remove until all
 	 * statements have been checked.
 	 * 
@@ -118,8 +144,9 @@ public class TestCaseMinimizer {
 		/** Factory method that handles statement deletion */
 		AbstractTestFactory testFactory = DefaultTestFactory.getInstance();
 
-		fitness = fitnessFunction.getFitness(c);
-		logger.debug("Start fitness value: " + fitness);
+		Map<TestFitnessFunction, Double> fitness = getFitnessValues(c);
+
+		logger.debug("Start fitness values: " + fitness);
 		boolean changed = true;
 		while (changed) {
 			changed = false;
@@ -137,11 +164,20 @@ public class TestCaseMinimizer {
 					continue;
 				}
 
-				double new_fitness = fitnessFunction.getFitness(c);
+				Map<TestFitnessFunction, Double> newFitness = getFitnessValues(c);
+				//double new_fitness = fitnessFunction.getFitness(c);
 
-				if (!isWorse(fitnessFunction, copy, c)) {
+				boolean isWorse = false;
+				for (TestFitnessFunction fitnessFunction : fitnessFunctions) {
+					if (isWorse(fitnessFunction, copy, c)) {
+						isWorse = true;
+						break;
+					}
+				}
+
+				if (!isWorse) {
 					logger.debug("Keeping shorter version");
-					fitness = new_fitness;
+					fitness = newFitness;
 					changed = true;
 					break;
 				} else {
