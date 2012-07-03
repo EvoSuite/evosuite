@@ -1,21 +1,4 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
- * contributors
- * 
- * This file is part of EvoSuite.
- * 
- * EvoSuite is free software: you can redistribute it and/or modify it under the
- * terms of the GNU Public License as published by the Free Software Foundation,
- * either version 3 of the License, or (at your option) any later version.
- * 
- * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
- * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
- * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
- * You should have received a copy of the GNU Public License along with
- * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
  * 
  */
 package org.evosuite.assertion;
@@ -31,13 +14,13 @@ import org.evosuite.testcase.VariableReference;
  * @author Gordon Fraser
  * 
  */
-public class ComparisonTraceEntry implements OutputTraceEntry {
+public class SameTraceEntry implements OutputTraceEntry {
 
 	private final VariableReference var;
 
 	private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
 
-	public ComparisonTraceEntry(VariableReference var) {
+	public SameTraceEntry(VariableReference var) {
 		this.var = var;
 	}
 
@@ -50,11 +33,11 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	 */
 	@Override
 	public boolean differs(OutputTraceEntry other) {
-		if (other instanceof ComparisonTraceEntry) {
-			if (!((ComparisonTraceEntry) other).var.equals(var))
+		if (other instanceof SameTraceEntry) {
+			if (!((SameTraceEntry) other).var.equals(var))
 				return false;
 
-			ComparisonTraceEntry otherEntry = (ComparisonTraceEntry) other;
+			SameTraceEntry otherEntry = (SameTraceEntry) other;
 			for (VariableReference otherVar : equalityMap.keySet()) {
 				if (!otherEntry.equalityMap.containsKey(otherVar))
 					continue;
@@ -74,8 +57,8 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
 		Set<Assertion> assertions = new HashSet<Assertion>();
 
-		if (other instanceof ComparisonTraceEntry) {
-			ComparisonTraceEntry otherEntry = (ComparisonTraceEntry) other;
+		if (other instanceof SameTraceEntry) {
+			SameTraceEntry otherEntry = (SameTraceEntry) other;
 			for (VariableReference otherVar : equalityMap.keySet()) {
 				if (!otherEntry.equalityMap.containsKey(otherVar))
 					continue;
@@ -84,7 +67,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 					continue;
 
 				if (!otherEntry.equalityMap.get(otherVar).equals(equalityMap.get(otherVar))) {
-					EqualsAssertion assertion = new EqualsAssertion();
+					SameAssertion assertion = new SameAssertion();
 					assertion.source = var;
 					assertion.dest = otherVar;
 					assertion.value = equalityMap.get(otherVar);
@@ -107,7 +90,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 			if (otherVar == null)
 				continue;
 
-			EqualsAssertion assertion = new EqualsAssertion();
+			SameAssertion assertion = new SameAssertion();
 			assertion.source = var;
 			assertion.dest = otherVar;
 			assertion.value = equalityMap.get(otherVar);
@@ -122,8 +105,8 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	 */
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
-		if (assertion instanceof EqualsAssertion) {
-			EqualsAssertion ass = (EqualsAssertion) assertion;
+		if (assertion instanceof SameAssertion) {
+			SameAssertion ass = (SameAssertion) assertion;
 			if (ass.source.equals(var) && equalityMap.containsKey(ass.dest))
 				return !equalityMap.get(ass.dest).equals(ass.value);
 		}
@@ -135,7 +118,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	 */
 	@Override
 	public OutputTraceEntry cloneEntry() {
-		ComparisonTraceEntry copy = new ComparisonTraceEntry(var);
+		SameTraceEntry copy = new SameTraceEntry(var);
 		copy.equalityMap.putAll(equalityMap);
 		return copy;
 	}

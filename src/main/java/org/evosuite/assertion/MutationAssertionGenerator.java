@@ -17,6 +17,7 @@
  */
 package org.evosuite.assertion;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,12 +34,12 @@ import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * This class executes a test case on a unit and all mutants and infers
@@ -57,6 +58,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private static PrimitiveTraceObserver primitiveObserver = new PrimitiveTraceObserver();
 	private static ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
+	private static SameTraceObserver sameObserver = new SameTraceObserver();
 	private static InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
 	private static PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
 	private static NullTraceObserver nullObserver = new NullTraceObserver();
@@ -64,7 +66,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	private final static Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
 
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
-	        ComparisonTraceEntry.class, InspectorTraceEntry.class,
+	        ComparisonTraceEntry.class, SameTraceEntry.class, InspectorTraceEntry.class,
 	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class };
 
 	/**
@@ -77,6 +79,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		executor.newObservers();
 		executor.addObserver(primitiveObserver);
 		executor.addObserver(comparisonObserver);
+		executor.addObserver(sameObserver);
 		executor.addObserver(inspectorObserver);
 		executor.addObserver(fieldObserver);
 		executor.addObserver(nullObserver);
@@ -105,6 +108,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		ExecutionResult result = new ExecutionResult(test, mutant);
 		//resetObservers();
 		comparisonObserver.clear();
+		sameObserver.clear();
 		primitiveObserver.clear();
 		inspectorObserver.clear();
 		fieldObserver.clear();
@@ -119,6 +123,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 
 			result.setTrace(comparisonObserver.getTrace(), ComparisonTraceEntry.class);
+			result.setTrace(sameObserver.getTrace(), SameTraceEntry.class);
 			result.setTrace(primitiveObserver.getTrace(), PrimitiveTraceEntry.class);
 			result.setTrace(inspectorObserver.getTrace(), InspectorTraceEntry.class);
 			result.setTrace(fieldObserver.getTrace(), PrimitiveFieldTraceEntry.class);
@@ -409,7 +414,17 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			}
 
 			if (!test.hasAssertions()) {
-
+				Method inspectorMethod = null;
+				if (test.getStatement(test.size() - 1) instanceof MethodStatement) {
+					MethodStatement methodStatement = (MethodStatement) test.getStatement(test.size() - 1);
+					Method method = methodStatement.getMethod();
+					if (method.getParameterTypes().length == 0) {
+						if (method.getReturnType().isPrimitive()
+						        && !method.getReturnType().equals(void.class)) {
+							inspectorMethod = method;
+						}
+					}
+				}
 				for (OutputTrace<?> trace : origResult.getTraces()) {
 					trace.getAllAssertions(test);
 				}
@@ -429,6 +444,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					for (Assertion ass : target) {
 						if (ass.getReferencedVariables().contains(targetVar)
 						        && !(ass instanceof NullAssertion)) {
+
+							if (ass instanceof InspectorAssertion) {
+								if (((InspectorAssertion) ass).inspector.getMethod().equals(inspectorMethod)) {
+									continue;
+								}
+							}
 
 							test.getStatement(test.size() - 1).addAssertion(ass);
 							logger.debug("Adding assertion " + ass.getCode());
