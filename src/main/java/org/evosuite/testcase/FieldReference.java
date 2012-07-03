@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,6 +25,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,11 +60,45 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/**
+	 * We need this constructor to work around a bug in Java Generics which
+	 * causes a java.lang.reflect.GenericSignatureFormatError when accessing
+	 * getType
+	 * 
+	 * @param testCase
+	 * @param type
+	 */
+	public FieldReference(TestCase testCase, Field field, Type fieldType,
+	        VariableReference source) {
+		super(testCase, fieldType);
+		assert (field != null);
+		assert (source != null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
+		this.field = field;
+		this.source = source;
+		//		logger.info("Creating new field assignment for field " + field + " of object "
+		//		        + source);
+
+	}
+
+	/**
 	 * @param testCase
 	 * @param type
 	 */
 	public FieldReference(TestCase testCase, Field field) {
 		super(testCase, field.getGenericType());
+		this.field = field;
+		this.source = null;
+	}
+
+	/**
+	 * We need this constructor to work around a bug in Java Generics which
+	 * causes a java.lang.reflect.GenericSignatureFormatError when accessing
+	 * getType
+	 * 
+	 * @param testCase
+	 * @param type
+	 */
+	public FieldReference(TestCase testCase, Field field, Type type) {
+		super(testCase, type);
 		this.field = field;
 		this.source = null;
 	}
@@ -273,12 +308,19 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	@Override
 	public VariableReference copy(TestCase newTestCase, int offset) {
+		Type fieldType = field.getType();
+		try {
+			fieldType = field.getGenericType();
+		} catch (java.lang.reflect.GenericSignatureFormatError e) {
+			// Ignore
+			fieldType = field.getType();
+		}
 		if (source != null) {
 			//			VariableReference otherSource = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 			VariableReference otherSource = source.copy(newTestCase, offset);
-			return new FieldReference(newTestCase, field, otherSource);
+			return new FieldReference(newTestCase, field, fieldType, otherSource);
 		} else {
-			return new FieldReference(newTestCase, field);
+			return new FieldReference(newTestCase, field, fieldType);
 		}
 	}
 
