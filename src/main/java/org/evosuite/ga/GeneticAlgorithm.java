@@ -33,7 +33,9 @@ import org.evosuite.Properties.Strategy;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testsuite.SearchStatistics;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -477,6 +479,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @return
 	 */
 	public Chromosome getBestIndividual() {
+		
+		if(population.isEmpty())
+		{
+			return this.chromosomeFactory.getChromosome();
+		}
+		
 		// Assume population is sorted
 		return population.get(0);
 	}
