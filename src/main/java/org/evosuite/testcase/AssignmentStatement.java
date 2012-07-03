@@ -55,6 +55,12 @@ public class AssignmentStatement extends AbstractStatement {
 		//
 	}
 
+	
+	public VariableReference getValue()
+	{
+		return this.parameter;
+	}
+	
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		try {

@@ -4,10 +4,13 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Map;
 
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ConstructorStatement;
@@ -337,7 +340,7 @@ public class TestCaseCodeGenerator
 				 // Person var0 = new Person();
 	
 				final ConstructorStatement constStmt = new ConstructorStatement(testCase, 
-																			    type.getConstructor(methodParamTypeClasses), 
+																			    type.getDeclaredConstructor(methodParamTypeClasses), 
 																			    type, 
 																			    args);
 				
@@ -349,7 +352,7 @@ public class TestCaseCodeGenerator
 				if(CaptureLog.RETURN_TYPE_VOID.equals(returnValue))
 				{
 					final MethodStatement m = new MethodStatement(testCase, 
-											  type.getMethod(methodName, methodParamTypeClasses), 
+											  this.getDeclaredMethod(type, methodName, methodParamTypeClasses), 
 											  this.oidToVarRefMap.get(oid), 
 											  type.getMethod(methodName, methodParamTypeClasses).getReturnType(), 
 											  args);
@@ -361,7 +364,7 @@ public class TestCaseCodeGenerator
 					
 					// Person var0 = var.getPerson();
 					final MethodStatement m = new MethodStatement(testCase, 
-																  type.getMethod(methodName, methodParamTypeClasses), 
+																  this.getDeclaredMethod(type, methodName, methodParamTypeClasses), 
 																  this.oidToVarRefMap.get(oid), 
 																  getClassFromType(returnType),
 																  args);
@@ -396,8 +399,6 @@ public class TestCaseCodeGenerator
 		
 		final String             type           = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
 		final Object             value          = this.log.params.get(logRecNo)[0];
-		
-		System.err.println("TYPE: " + type + " VALUE: " + value);
 		
 		
 		if(value instanceof Class) // Class is a plain type according to log
@@ -493,30 +494,33 @@ public class TestCaseCodeGenerator
 		
 		try 
 		{
-			final Class<?> type = getClassForName(typeName);//Class.forName(typeName, true, StaticTestCluster.classLoader);
-			
-			final FieldStatement fieldAccess;
-		
+			final Class<?> type = getClassForName(typeName);
 			
 			final String   fieldDesc = this.log.descList.get(logRecNo);
 			final Class<?> fieldType = CaptureUtil.getClassFromDesc(fieldDesc);
+			
+			final FieldReference targetFieldRef  = new FieldReference(testCase, this.getDeclaredField(type, fieldName));
+			
+			final AssignmentStatement assignment;
 			
 			final Integer arg = (Integer) methodArgs[0];
 			if(arg == null)
 			{
 				 final NullStatement     nullStmt      = new NullStatement(testCase, fieldType);
 				 final VariableReference nullReference = testCase.addStatement(nullStmt);
-				 fieldAccess						   = new FieldStatement(testCase, type.getField(fieldName), nullReference, fieldType);
+				 
+				 assignment = new AssignmentStatement(testCase, targetFieldRef, nullReference);
 			}
 			else
 			{
-				Field f = type.getDeclaredField(fieldName);
-				f.setAccessible(true);
-				fieldAccess = new FieldStatement(testCase, f, this.oidToVarRefMap.get(arg), fieldType);
+				assignment = new AssignmentStatement(testCase, targetFieldRef, this.oidToVarRefMap.get(arg));
 			}
 			
-			testCase.addStatement(fieldAccess);
-			
+			final VariableReference varRef = testCase.addStatement(assignment);
+			if(arg != null)
+			{
+				this.oidToVarRefMap.put(arg, varRef);
+			}
 		} 
 		catch (final Exception e) 
 		{
@@ -698,10 +702,44 @@ public class TestCaseCodeGenerator
 			throw new RuntimeException(e);
 		}
 	}
-
 	
-	public static void main(String[] args)
+	
+	private Field getDeclaredField(final Class<?> clazz, final String fieldName) throws NoSuchFieldException
 	{
-		System.out.println("______________> " + char[].class.getName());
+		if(clazz == null || Object.class.equals(clazz))
+		{
+			throw new NoSuchFieldException(fieldName);
+		}
+		
+		try
+		{
+			final Field field = clazz.getDeclaredField(fieldName);
+			field.setAccessible(true);
+			return field;
+		}
+		catch(final NoSuchFieldException e)
+		{
+			return getDeclaredField(clazz.getSuperclass(), fieldName);
+		}
+	}
+	
+	
+	private Method getDeclaredMethod(final Class<?> clazz, final String methodName, Class<?>[] paramTypes) throws NoSuchFieldException
+	{
+		if(clazz == null || Object.class.equals(clazz))
+		{
+			throw new NoSuchFieldException(methodName + "(" + Arrays.toString(paramTypes) + ")");
+		}
+		
+		try
+		{
+			final Method m = clazz.getDeclaredMethod(methodName, paramTypes);
+			m.setAccessible(true);
+			return m;
+		}
+		catch(final NoSuchMethodException e)
+		{
+			return getDeclaredMethod(clazz.getSuperclass(), methodName, paramTypes);
+		}
 	}
 }
