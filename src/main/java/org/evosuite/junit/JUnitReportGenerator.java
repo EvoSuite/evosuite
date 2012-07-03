@@ -33,7 +33,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 		entry.covered_goals = coveredGoals;
 		entry.coverage = coverage;
 		entry.className = Properties.TARGET_CLASS;
-		entry.id = getNumber(entry.className);
+		entry.id = getNumber(entry.className) + 1;
 		entry.end_time = System.currentTimeMillis();
 		entry.minimized_time = entry.end_time;
 		entry.start_time = startTime;
