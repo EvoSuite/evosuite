@@ -71,22 +71,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	 */
 	@Override
 	public boolean hasImproved(Chromosome individual) {
-		individual.setChanged(true);
-		suite.setTestChromosome(testIndex, (TestChromosome) individual);
-		LocalSearchBudget.evaluation();
-		double newFitness = fitness.getFitness(suite);
-		if (newFitness < lastFitness) { // TODO: Maximize
-			logger.info("Local search improved fitness from " + lastFitness + " to "
-			        + newFitness);
-			lastFitness = newFitness;
-			lastCoverage = suite.getCoverage();
-			suite.setFitness(lastFitness);
-			return true;
-		} else {
-			suite.setFitness(lastFitness);
-			suite.setCoverage(lastCoverage);
-			return false;
-		}
+		return hasChanged(individual) < 0;
 	}
 
 	/* (non-Javadoc)
@@ -94,22 +79,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	 */
 	@Override
 	public boolean hasNotWorsened(Chromosome individual) {
-		individual.setChanged(true);
-		suite.setTestChromosome(testIndex, (TestChromosome) individual);
-		LocalSearchBudget.evaluation();
-		double newFitness = fitness.getFitness(suite);
-		if (newFitness <= lastFitness) { // TODO: Maximize
-			logger.info("Local search has not increased fitness from " + lastFitness
-			        + " to " + newFitness);
-			lastFitness = newFitness;
-			lastCoverage = suite.getCoverage();
-			suite.setFitness(lastFitness);
-			return true;
-		} else {
-			suite.setFitness(lastFitness);
-			suite.setCoverage(lastCoverage);
-			return false;
-		}
+		return hasChanged(individual) < 1;
 	}
 
 	/* (non-Javadoc)
