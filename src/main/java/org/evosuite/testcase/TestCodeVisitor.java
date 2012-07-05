@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,10 +38,10 @@ import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.assertion.NullAssertion;
 import org.evosuite.assertion.PrimitiveAssertion;
 import org.evosuite.assertion.PrimitiveFieldAssertion;
+import org.evosuite.assertion.SameAssertion;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.utils.NumberFormatter;
-
 
 /**
  * @author fraser
@@ -79,6 +79,10 @@ public class TestCodeVisitor implements TestVisitor {
 				imports.add(clazz);
 		}
 		return imports;
+	}
+
+	public void clearExceptions() {
+		this.exceptions.clear();
 	}
 
 	public void setExceptions(Map<Integer, Throwable> exceptions) {
@@ -151,7 +155,7 @@ public class TestCodeVisitor implements TestVisitor {
 				return field.getDeclaringClass().getSimpleName() + "." + field.getName();
 		} else if (var instanceof ArrayIndex) {
 			VariableReference array = ((ArrayIndex) var).getArray();
-			List<Integer> indices = ((ArrayIndex) var).getArrayIndices(); 
+			List<Integer> indices = ((ArrayIndex) var).getArrayIndices();
 			String result = getVariableName(array);
 			for (Integer index : indices) {
 				result += "[" + index + "]";
@@ -373,6 +377,19 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 	}
 
+	protected void visitSameAssertion(SameAssertion assertion) {
+		VariableReference source = assertion.getSource();
+		VariableReference dest = assertion.getDest();
+		Object value = assertion.getValue();
+
+		if (((Boolean) value).booleanValue())
+			testCode += "assertSame(" + getVariableName(source) + ", "
+			        + getVariableName(dest) + ");";
+		else
+			testCode += "assertNotSame(" + getVariableName(source) + ", "
+			        + getVariableName(dest) + ");";
+	}
+
 	private void visitAssertion(Assertion assertion) {
 		if (assertion instanceof PrimitiveAssertion) {
 			visitPrimitiveAssertion((PrimitiveAssertion) assertion);
@@ -386,6 +403,8 @@ public class TestCodeVisitor implements TestVisitor {
 			visitCompareAssertion((CompareAssertion) assertion);
 		} else if (assertion instanceof EqualsAssertion) {
 			visitEqualsAssertion((EqualsAssertion) assertion);
+		} else if (assertion instanceof SameAssertion) {
+			visitSameAssertion((SameAssertion) assertion);
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
@@ -490,9 +509,12 @@ public class TestCodeVisitor implements TestVisitor {
 	@Override
 	public void visitPrimitiveExpression(PrimitiveExpression statement) {
 		VariableReference retval = statement.getReturnValue();
-		String expression = ((Class<?>) retval.getType()).getSimpleName() + " " + getVariableName(retval) + " = ";
-		expression += getVariableName(statement.getLeftOperand()) + " " + statement.getOperator().toCode() + " " + getVariableName(statement.getRightOperand());
-		testCode += expression+";\n";
+		String expression = ((Class<?>) retval.getType()).getSimpleName() + " "
+		        + getVariableName(retval) + " = ";
+		expression += getVariableName(statement.getLeftOperand()) + " "
+		        + statement.getOperator().toCode() + " "
+		        + getVariableName(statement.getRightOperand());
+		testCode += expression + ";\n";
 		addAssertions(statement);
 	}
 
@@ -764,10 +786,10 @@ public class TestCodeVisitor implements TestVisitor {
 		if (lengths.length == 1) {
 			type = type.replaceFirst("\\[\\]", "");
 			multiDimensions = "[" + lengths[0] + "]";
-		while (type.contains("[]")) {
-			multiDimensions += "[]";
-			type = type.replaceFirst("\\[\\]", "");
-		}
+			while (type.contains("[]")) {
+				multiDimensions += "[]";
+				type = type.replaceFirst("\\[\\]", "");
+			}
 		} else {
 			type = type.replaceAll("\\[\\]", "");
 			for (int length : lengths) {

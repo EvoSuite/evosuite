@@ -117,7 +117,6 @@ import org.evosuite.testcase.VariableReferenceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * @author Yury Pavlov
  * 
@@ -186,7 +185,20 @@ public class TestParser {
 	 * @return
 	 */
 	public Set<TestCase> parseFile(String fileName) throws IOException {
+		Map<String, TestCase> namedTests = parseNamedTests(fileName);
 		Set<TestCase> tests = new HashSet<TestCase>();
+		tests.addAll(namedTests.values());
+		return tests;
+	}
+
+	/**
+	 * Parse a Java source file and convert each method to a test
+	 * 
+	 * @param fileName
+	 * @return
+	 */
+	public Map<String, TestCase> parseNamedTests(String fileName) throws IOException {
+		Map<String, TestCase> tests = new HashMap<String, TestCase>();
 		CompilationUnit cu = null;
 		tt = new TypeTable();
 
@@ -198,7 +210,7 @@ public class TestParser {
 			parseImports(cu);
 			parseFields(cu);
 			parseSetUpMethods(cu);
-			tests.addAll(getAllTests(cu));
+			tests.putAll(getAllTests(cu));
 		} catch (ParseException e) {
 			logger.debug("Error parsing file " + fileName + ": " + e);
 		} catch (Throwable e) {
@@ -283,8 +295,8 @@ public class TestParser {
 	 * @param cu
 	 * @return
 	 */
-	private List<TestCase> getAllTests(CompilationUnit cu) {
-		List<TestCase> tests = new ArrayList<TestCase>();
+	private Map<String, TestCase> getAllTests(CompilationUnit cu) {
+		Map<String, TestCase> tests = new HashMap<String, TestCase>();
 
 		List<TypeDeclaration> types = cu.getTypes();
 		for (TypeDeclaration type : types) {
@@ -299,7 +311,7 @@ public class TestParser {
 						TestCase test = parseTestMethod(method);
 						if (!test.isEmpty()) {
 							logger.debug("*** Parsed test: " + test.toCode());
-							tests.add(test);
+							tests.put(method.getName(), test);
 						} else {
 							logger.debug("*** Parsed test is empty: " + test.toCode());
 						}

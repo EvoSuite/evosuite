@@ -263,11 +263,6 @@
 			<classifier>jar</classifier>
 		</dependency>
 		<dependency>
-			<groupId>net.sf.trove4j</groupId>
-			<artifactId>trove4j</artifactId>
-			<version>3.0.2</version>
-		</dependency>
-	    <dependency>
 			<groupId>org.eclipse.jdt.compiler</groupId>
 			<artifactId>tool</artifactId>
 			<version>1.0.100</version>
@@ -348,17 +343,17 @@
 				</configuration>
 			</plugin>
 
-<!-- 			<plugin> -->
-<!-- 			<groupId>com.mycila.maven-license-plugin</groupId> -->
-<!-- 			<artifactId>maven-license-plugin</artifactId> -->
-<!-- 			<version>1.9</version> -->
-<!-- 			<configuration> -->
-<!-- 			<header>src/etc/header.txt</header> -->
-<!-- 			<excludes> -->
-<!-- 			<exclude>LICENSE.txt</exclude> -->
-<!-- 			</excludes> -->
-<!-- 			</configuration> -->
-<!-- 			</plugin> -->
+			<plugin>
+				<groupId>com.mycila.maven-license-plugin</groupId>
+				<artifactId>maven-license-plugin</artifactId>
+				<version>1.9</version>
+				<configuration>
+					<header>src/etc/header.txt</header>
+					<excludes>
+						<exclude>LICENSE.txt</exclude>
+					</excludes>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-eclipse-plugin</artifactId>
@@ -411,7 +406,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>de.unisb.cs.st.evosuite.EvoSuite</mainClass>
+							<mainClass>org.evosuite.EvoSuite</mainClass>
 						</manifest>
 					</archive>
 					<descriptors>
