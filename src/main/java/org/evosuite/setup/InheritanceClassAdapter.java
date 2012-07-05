@@ -29,14 +29,18 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * Visits given class in order to collect information about class hierarchies
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class InheritanceClassAdapter extends ClassVisitor {
 
 	private String className = null;
 
+	/**
+	 * <p>Constructor for InheritanceClassAdapter.</p>
+	 *
+	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
+	 */
 	public InheritanceClassAdapter(ClassVisitor cv) {
 		super(Opcodes.ASM4, cv);
 	}
@@ -44,6 +48,7 @@ public class InheritanceClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visit(int version, int access, String name, String signature,
 	        String superName, String[] interfaces) {
@@ -66,6 +71,7 @@ public class InheritanceClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
@@ -77,6 +83,7 @@ public class InheritanceClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int arg0, String name, String desc,
 	        String signature, String[] arg4) {
@@ -109,6 +116,7 @@ public class InheritanceClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitEnd()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
 	}
@@ -116,6 +124,7 @@ public class InheritanceClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitInnerClass(String arg0, String arg1, String arg2, int access) {
 	}
@@ -123,6 +132,7 @@ public class InheritanceClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitOuterClass(java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitOuterClass(String arg0, String arg1, String arg2) {
 	}
@@ -130,6 +140,7 @@ public class InheritanceClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitAnnotation(java.lang.String, boolean)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public AnnotationVisitor visitAnnotation(String arg0, boolean arg1) {
 		return null;

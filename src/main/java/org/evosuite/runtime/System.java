@@ -21,8 +21,9 @@
 package org.evosuite.runtime;
 
 /**
+ * <p>System class.</p>
+ *
  * @author fraser
- * 
  */
 public class System {
 
@@ -39,6 +40,8 @@ public class System {
 
 	/**
 	 * Replacement function for System.exit
+	 *
+	 * @param status a int.
 	 */
 	public static void exit(int status) {
 		wasAccessed = true;
@@ -50,6 +53,8 @@ public class System {
 
 	/**
 	 * Replacement function for System.currentTimeMillis
+	 *
+	 * @return a long.
 	 */
 	public static long currentTimeMillis() {
 		wasAccessed = true;
@@ -58,8 +63,8 @@ public class System {
 
 	/**
 	 * Allow setting the time
-	 * 
-	 * @param time
+	 *
+	 * @param time a long.
 	 */
 	public static void setCurrentTimeMillis(long time) {
 		currentTime = time;
@@ -76,8 +81,8 @@ public class System {
 	/**
 	 * Getter to check whether this runtime replacement was accessed during test
 	 * execution
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public static boolean wasAccessed() {
 		return wasAccessed;

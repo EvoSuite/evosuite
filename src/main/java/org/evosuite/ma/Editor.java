@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * The <code>Editor</code> is the main class of the manual editor. It creates
  * {@link Transaction} instance, {@link TestEditorGUI}, {@link SourceCodeGUI}
  * and {@link ParserConnector}.
- * 
+ *
  * @author Yury Pavlov
  */
 public class Editor implements UserFeedback {
@@ -103,7 +103,7 @@ public class Editor implements UserFeedback {
 	/**
 	 * Create an instance of the manual editor, fill all GUIs and set fields.
 	 * Lock the EvoSuite's thread until the manual editor is not finished.
-	 * 
+	 *
 	 * @param ga
 	 *            - {@link GeneticAlgorithm}
 	 */
@@ -212,6 +212,8 @@ public class Editor implements UserFeedback {
 	}
 
 	/**
+	 * <p>Getter for the field <code>uncGoals</code>.</p>
+	 *
 	 * @return uncGoals Set<{@link TestFitnessFunction}>
 	 */
 	public Set<TestFitnessFunction> getUncGoals() {
@@ -221,9 +223,10 @@ public class Editor implements UserFeedback {
 	/**
 	 * Parse a testCase from Editor to EvoSuite's instructions and insert in
 	 * EvoSuite's population. Create coverage for the new TestCase.
-	 * 
-	 * @param testSource
-	 * @throws IOException
+	 *
+	 * @throws IOException if any.
+	 * @param testCode a {@link java.lang.String} object.
+	 * @return a boolean.
 	 */
 	public boolean parseTest(String testCode) {
 		try {
@@ -277,7 +280,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Return the number of TestCases in suite.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getNumOfTestCases() {
@@ -286,7 +289,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Return displacement currentTestCase in Suite.
-	 * 
+	 *
 	 * @return int
 	 */
 	public int getNumOfCurrTest() {
@@ -295,7 +298,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Return current testCase in editor (and GUI).
-	 * 
+	 *
 	 * @return TestCaseTupel
 	 */
 	public TCTuple getCurrTCTup() {
@@ -304,6 +307,8 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Return the source code of test case in form EvoSuite
+	 *
+	 * @return a {@link java.lang.String} object.
 	 */
 	public String getCurrESTCCode() {
 		return currTCTuple.getTestCase().toCode();
@@ -311,6 +316,8 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Returns a source code of the current test case.
+	 *
+	 * @return a {@link java.lang.String} object.
 	 */
 	public String getCurrOrigTCCode() {
 		return currTCTuple.getOrigSourceCode();
@@ -366,7 +373,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Returns the source code of the class.
-	 * 
+	 *
 	 * @return <code>Iterable<{@code String}></code>
 	 */
 	public Iterable<String> getSourceCode() {
@@ -375,7 +382,6 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Creates new TestCase which can be inserted in population.
-	 * 
 	 */
 	public void createNewTCT() {
 		TCTuple newTestCaseTuple = new TCTuple(new DefaultTestCase(),
@@ -418,7 +424,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Gets covered lines of the current test case.
-	 * 
+	 *
 	 * @return <code>Set<{@code Integer}></code>
 	 */
 	public Set<Integer> getCurrCoverage() {
@@ -427,7 +433,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Returns covered lines of the test suite.
-	 * 
+	 *
 	 * @return <code>Set<{@code Integer}></code>
 	 */
 	public Set<Integer> getSuiteCoveredLines() {
@@ -440,7 +446,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * Returns absolute suit's coverage value.
-	 * 
+	 *
 	 * @return <code>int</code>
 	 */
 	public int getSuiteCoveratgeVal() {
@@ -462,6 +468,7 @@ public class Editor implements UserFeedback {
 	 * org.evosuite.ma.UserFeedback#showParseException(java.lang.
 	 * String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void showParseException(String message) {
 		JOptionPane.showMessageDialog(sguiTE.getMainFrame(), message, "Parsing error",
@@ -475,6 +482,7 @@ public class Editor implements UserFeedback {
 	 * org.evosuite.ma.UserFeedback#chooseTargetFile(java.lang.String
 	 * )
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public File chooseTargetFile(String fileName) {
 		final JFileChooser fc = new JFileChooser();
@@ -490,7 +498,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * The dialog to enter a full path of a class.
-	 * 
+	 *
 	 * @param className
 	 *            {@code String}
 	 * @return {@code String} a class path from a user
@@ -503,7 +511,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * The Dialog to choose right class from many.
-	 * 
+	 *
 	 * @param choices
 	 *            {@code String[]} possible choice
 	 * @param className
@@ -519,7 +527,7 @@ public class Editor implements UserFeedback {
 
 	/**
 	 * To show some warning message.
-	 * 
+	 *
 	 * @param message
 	 *            {@code String}
 	 */

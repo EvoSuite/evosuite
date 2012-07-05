@@ -20,8 +20,9 @@ package org.evosuite.ga.stoppingconditions;
 import org.evosuite.Properties;
 
 /**
+ * <p>MaxTestsStoppingCondition class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 
@@ -33,19 +34,29 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	/** Maximum number of evaluations */
 	protected long max_tests = Properties.SEARCH_BUDGET;
 
+	/**
+	 * <p>getNumExecutedTests</p>
+	 *
+	 * @return a long.
+	 */
 	public static long getNumExecutedTests() {
 		return num_tests;
 	}
 
+	/**
+	 * <p>testExecuted</p>
+	 */
 	public static void testExecuted() {
 		num_tests++;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void reset() {
 		num_tests = 0;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
 		return num_tests >= max_tests;
@@ -54,6 +65,7 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		return num_tests;
@@ -62,16 +74,19 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		max_tests = limit;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return max_tests;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		// TODO Auto-generated method stub

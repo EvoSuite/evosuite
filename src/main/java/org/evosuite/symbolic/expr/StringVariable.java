@@ -21,8 +21,9 @@
 package org.evosuite.symbolic.expr;
 
 /**
- * @author krusev
+ * <p>StringVariable class.</p>
  *
+ * @author krusev
  */
 public class StringVariable extends StringExpression implements Variable<String> {
 
@@ -36,6 +37,14 @@ public class StringVariable extends StringExpression implements Variable<String>
 
 	protected String maxValue;
 
+	/**
+	 * <p>Constructor for StringVariable.</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @param concVal a {@link java.lang.String} object.
+	 * @param minValue a {@link java.lang.String} object.
+	 * @param maxValue a {@link java.lang.String} object.
+	 */
 	public StringVariable(String name, String concVal, String minValue, String maxValue) {
 		super();
 		this.name = name;
@@ -45,9 +54,7 @@ public class StringVariable extends StringExpression implements Variable<String>
 	}	
 
 	
-	/**
-	 * @return the concValue
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return concValue;
@@ -55,6 +62,8 @@ public class StringVariable extends StringExpression implements Variable<String>
 	
 
 	/**
+	 * <p>setConcreteValue</p>
+	 *
 	 * @param concValue the concValue to set
 	 */
 	public void setConcreteValue(String concValue) {
@@ -64,12 +73,15 @@ public class StringVariable extends StringExpression implements Variable<String>
 	/*
 	 * store the better value here
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getMaxValue() {
 		return maxValue;
 	}
 
 	/**
+	 * <p>Setter for the field <code>maxValue</code>.</p>
+	 *
 	 * @param maxValue the maxValue to set
 	 */
 	public void setMaxValue(String maxValue) {
@@ -79,28 +91,34 @@ public class StringVariable extends StringExpression implements Variable<String>
 	/*
 	 * store the working value here
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getMinValue() {
 		return minValue;
 	}
 
 	/**
+	 * <p>Setter for the field <code>minValue</code>.</p>
+	 *
 	 * @param minValue the minValue to set
 	 */
 	public void setMinValue(String minValue) {
 		this.minValue = minValue;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return name;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return name + "(" + minValue + ")";
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof StringVariable) {
@@ -110,6 +128,7 @@ public class StringVariable extends StringExpression implements Variable<String>
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		if (hash == 0) {
@@ -118,11 +137,13 @@ public class StringVariable extends StringExpression implements Variable<String>
 		return hash;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		return 1;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		return minValue;

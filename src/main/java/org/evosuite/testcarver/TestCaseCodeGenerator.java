@@ -30,6 +30,11 @@ import de.unisb.cs.st.testcarver.capture.CaptureLog;
 import de.unisb.cs.st.testcarver.capture.CaptureUtil;
 
 
+/**
+ * <p>TestCaseCodeGenerator class.</p>
+ *
+ * @author Gordon Fraser
+ */
 public class TestCaseCodeGenerator 
 {
 	private final CaptureLog log;
@@ -37,6 +42,11 @@ public class TestCaseCodeGenerator
 	//--- source generation
 
 	
+	/**
+	 * <p>Constructor for TestCaseCodeGenerator.</p>
+	 *
+	 * @param log a {@link de.unisb.cs.st.testcarver.capture.CaptureLog} object.
+	 */
 	public TestCaseCodeGenerator(final CaptureLog log)
 	{
 		if(log == null)
@@ -51,6 +61,12 @@ public class TestCaseCodeGenerator
 	
 	
 	// FIXME specifying classes here might not be needed anymore, if we only instrument observed classes...
+	/**
+	 * <p>generateCode</p>
+	 *
+	 * @param observedClasses a {@link java.lang.Class} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase generateCode(final Class<?>...observedClasses)
 	{
 		if(observedClasses == null || observedClasses.length == 0)

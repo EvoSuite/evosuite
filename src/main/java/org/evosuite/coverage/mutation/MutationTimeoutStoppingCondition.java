@@ -28,8 +28,9 @@ import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
 
 
 /**
+ * <p>MutationTimeoutStoppingCondition class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 
@@ -47,6 +48,12 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 
 	private static Set<Mutation> disabled = new HashSet<Mutation>();
 
+	/**
+	 * <p>isDisabled</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * @return a boolean.
+	 */
 	public static boolean isDisabled(Mutation mutation) {
 		return disabled.contains(mutation);
 	}
@@ -54,6 +61,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		return timeouts;
@@ -62,6 +70,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#isFinished()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
 		logger.debug("Number of timeouts registered for this mutant: " + timeouts + "/"
@@ -76,6 +85,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#reset()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void reset() {
 		timeouts = 0;
@@ -85,16 +95,23 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		MAX_TIMEOUTS = (int) limit;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return MAX_TIMEOUTS;
 	}
 
+	/**
+	 * <p>timeOut</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public static void timeOut(Mutation mutation) {
 		timeouts++;
 		if (timeouts >= MAX_TIMEOUTS)
@@ -102,11 +119,17 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 	}
 
 	// TODO: Still need a good way to call this
+	/**
+	 * <p>raisedException</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public static void raisedException(Mutation mutation) {
 		hasException = true;
 		disabled.add(mutation);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		timeouts = (int) value;

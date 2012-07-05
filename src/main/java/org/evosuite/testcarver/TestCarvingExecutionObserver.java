@@ -16,10 +16,18 @@ import org.objectweb.asm.Type;
 
 import de.unisb.cs.st.testcarver.capture.FieldRegistry;
 
+/**
+ * <p>TestCarvingExecutionObserver class.</p>
+ *
+ * @author Gordon Fraser
+ */
 public final class TestCarvingExecutionObserver extends ExecutionObserver
 {
 	private int captureId;
 	
+	/**
+	 * <p>Constructor for TestCarvingExecutionObserver.</p>
+	 */
 	public TestCarvingExecutionObserver()
 	{
 		// We can't know the max captureId calculated in the test carving related 
@@ -30,9 +38,7 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver
 	}
 
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public void output(int position, String output) {
 		// do nothing
@@ -40,6 +46,8 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver
 	
 	
 	/**
+	 * {@inheritDoc}
+	 *
 	 * own comment..
 	 */
 	@Override
@@ -66,9 +74,7 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver
 	}
 	
 
-	/**
-	 * {@inheritDoc}
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public void clear() {
 		// do nothing

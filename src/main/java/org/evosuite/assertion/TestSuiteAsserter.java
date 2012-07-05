@@ -36,11 +36,15 @@ import com.thoughtworks.xstream.XStream;
 
 
 /**
+ * <p>TestSuiteAsserter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestSuiteAsserter {
 
+	/**
+	 * <p>generateAssertions</p>
+	 */
 	@SuppressWarnings("unchecked")
 	public void generateAssertions() {
 		XStream xstream = new XStream();
@@ -102,7 +106,9 @@ public class TestSuiteAsserter {
 	}
 
 	/**
-	 * @param args
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		System.out.println("Creating assertions for test suite.");

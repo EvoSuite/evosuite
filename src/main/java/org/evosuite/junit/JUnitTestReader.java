@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.junit;
 
@@ -35,10 +38,13 @@ import org.evosuite.Properties;
 import org.evosuite.junit.TestExtractingVisitor.TestReader;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCase;
-
-
 public class JUnitTestReader implements TestReader {
 
+	/**
+	 * <p>main</p>
+	 *
+	 * @param args a {@link java.lang.String} object.
+	 */
 	public static void main(String... args) {
 		ExecutionTracer.enable();
 		String[] classpath = Properties.CLASSPATH;
@@ -71,17 +77,30 @@ public class JUnitTestReader implements TestReader {
 
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JUnitTestReader.class);
 
+	/**
+	 * <p>Constructor for JUnitTestReader.</p>
+	 *
+	 * @param classpath an array of {@link java.lang.String} objects.
+	 * @param sources an array of {@link java.lang.String} objects.
+	 */
 	public JUnitTestReader(String[] classpath, String[] sources) {
 		super();
 		this.sources = sources;
 		this.classpath = expandClasspath(classpath);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getLineNumber(int sourcePos) {
 		return compilationUnit.getLineNumber(sourcePos);
 	}
 
+	/**
+	 * <p>readJUnitTestCase</p>
+	 *
+	 * @param qualifiedTestMethod a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
 		String clazz = qualifiedTestMethod.substring(0, qualifiedTestMethod.indexOf("#"));
 		String method = qualifiedTestMethod.substring(qualifiedTestMethod.indexOf("#") + 1);
@@ -95,6 +114,7 @@ public class JUnitTestReader implements TestReader {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public CompoundTestCase readTestCase(String clazz, CompoundTestCase child) {
 		CompoundTestCase testCase = new CompoundTestCase(clazz, child);
@@ -106,6 +126,13 @@ public class JUnitTestReader implements TestReader {
 		return testCase;
 	}
 
+	/**
+	 * <p>extractJavaFile</p>
+	 *
+	 * @param srcDir a {@link java.lang.String} object.
+	 * @param clazz a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	protected String extractJavaFile(String srcDir, String clazz) {
 		clazz = clazz.replaceAll("\\.", File.separator);
 		if (!srcDir.endsWith(File.separator)) {
@@ -114,10 +141,22 @@ public class JUnitTestReader implements TestReader {
 		return srcDir + clazz + ".java";
 	}
 
+	/**
+	 * <p>extractTestMethodName</p>
+	 *
+	 * @param testMethod a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	protected String extractTestMethodName(String testMethod) {
 		return testMethod.substring(testMethod.indexOf("#") + 1);
 	}
 
+	/**
+	 * <p>findTestFile</p>
+	 *
+	 * @param clazz a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	protected String findTestFile(String clazz) {
 		StringBuffer sourcesString = new StringBuffer();
 		for (String dir : sources) {
@@ -131,6 +170,14 @@ public class JUnitTestReader implements TestReader {
 		throw new RuntimeException("Could not find class '" + clazz + "' in sources: " + sourcesString.toString());
 	}
 
+	/**
+	 * <p>readJUnitTestCase</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param cu a {@link org.eclipse.jdt.core.dom.CompilationUnit} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase readJUnitTestCase(String className, final String methodName, final CompilationUnit cu) {
 		CompoundTestCase testCase = new CompoundTestCase(className, methodName);
 		
@@ -146,6 +193,13 @@ public class JUnitTestReader implements TestReader {
 	
 	
 	
+	/**
+	 * <p>parseJavaFile</p>
+	 *
+	 * @param unitName a {@link java.lang.String} object.
+	 * @param fileContents a {@link java.lang.String} object.
+	 * @return a {@link org.eclipse.jdt.core.dom.CompilationUnit} object.
+	 */
 	protected CompilationUnit parseJavaFile(String unitName, String fileContents) {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -173,6 +227,12 @@ public class JUnitTestReader implements TestReader {
 		return compilationUnit;
 	}
 
+	/**
+	 * <p>readJavaFile</p>
+	 *
+	 * @param path a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	protected String readJavaFile(String path) {
 		StringBuffer result = new StringBuffer();
 		BufferedReader reader = null;

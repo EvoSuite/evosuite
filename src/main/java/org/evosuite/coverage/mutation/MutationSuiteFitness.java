@@ -33,8 +33,9 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 
 /**
+ * <p>Abstract MutationSuiteFitness class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
@@ -44,8 +45,12 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final List<TestFitnessFunction> mutationGoals;
 
+	/** Constant <code>mostCoveredGoals=0</code> */
 	public static int mostCoveredGoals = 0;
 
+	/**
+	 * <p>Constructor for MutationSuiteFitness.</p>
+	 */
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory(
 		        Properties.CRITERION == Criterion.WEAKMUTATION ? false : true);
@@ -54,11 +59,19 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		branchFitness = new BranchCoverageSuiteFitness();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
 	}
 
+	/**
+	 * <p>runTest</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param mutant a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
 
 		return MutationTestFitness.runTest(test, mutant);
@@ -67,6 +80,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public abstract double getFitness(Chromosome individual);
 }

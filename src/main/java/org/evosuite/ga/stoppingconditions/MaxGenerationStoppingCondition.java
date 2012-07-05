@@ -23,9 +23,8 @@ import org.evosuite.ga.GeneticAlgorithm;
 
 /**
  * Stop search after a predefined number of iterations
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	
@@ -39,11 +38,18 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	/** Maximum number of iterations */
 	protected long current_iteration = 0;
 
+	/**
+	 * <p>setMaxIterations</p>
+	 *
+	 * @param max a int.
+	 */
 	public void setMaxIterations(int max) {
 		max_iterations = max;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Increase iteration counter
 	 */
 	@Override
@@ -52,6 +58,8 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Stop search after a number of iterations
 	 */
 	@Override
@@ -61,12 +69,15 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 		return current_iteration >= max_iterations;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		current_iteration = 0;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Reset counter
 	 */
 	@Override
@@ -77,11 +88,13 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		max_iterations = limit;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return max_iterations;
@@ -90,11 +103,13 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		return current_iteration;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		current_iteration = value;

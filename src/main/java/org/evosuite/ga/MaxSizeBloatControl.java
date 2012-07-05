@@ -21,15 +21,16 @@ import org.evosuite.Properties;
 
 /**
  * Reject individuals when they exceed a certain size
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxSizeBloatControl implements BloatControlFunction {
 
 	private static final long serialVersionUID = -8241127914702360972L;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Check whether the chromosome is bigger than the max length constant
 	 */
 	@Override

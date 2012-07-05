@@ -26,26 +26,37 @@ import org.evosuite.utils.NumberFormatter;
 
 
 /**
+ * <p>ConstantValue class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ConstantValue extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = -3760942087575495415L;
 
 	/**
-	 * @param testCase
-	 * @param type
+	 * <p>Constructor for ConstantValue.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link org.evosuite.testcase.GenericClass} object.
 	 */
 	public ConstantValue(TestCase testCase, GenericClass type) {
 		super(testCase, type);
 	}
 
+	/**
+	 * <p>Constructor for ConstantValue.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 */
 	public ConstantValue(TestCase testCase, Type type) {
 		this(testCase, new GenericClass(type));
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create a copy of the current variable
 	 */
 	@Override
@@ -57,19 +68,29 @@ public class ConstantValue extends VariableReferenceImpl {
 
 	private Object value;
 
+	/**
+	 * <p>Getter for the field <code>value</code>.</p>
+	 *
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public Object getValue() {
 		return value;
 	}
 
+	/**
+	 * <p>Setter for the field <code>value</code>.</p>
+	 *
+	 * @param value a {@link java.lang.Object} object.
+	 */
 	public void setValue(Object value) {
 		this.value = value;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * The position of the statement, defining this VariableReference, in the
 	 * testcase.
-	 * 
-	 * @return
 	 */
 	@Override
 	public int getStPosition() {
@@ -84,9 +105,9 @@ public class ConstantValue extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return name for source code representation
-	 * 
-	 * @return
 	 */
 	@Override
 	public String getName() {
@@ -94,16 +115,16 @@ public class ConstantValue extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return the actual object represented by this variable for a given scope
-	 * 
-	 * @param scope
-	 *            The scope of the test case execution
 	 */
 	@Override
 	public Object getObject(Scope scope) {
 		return value;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(VariableReference r) {
 		if (r == null)

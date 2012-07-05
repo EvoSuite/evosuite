@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.coverage.statement;
 
@@ -28,8 +31,6 @@ import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-
-
 public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 4609519536866911970L;
@@ -39,6 +40,11 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 	
 	BranchCoverageTestFitness lastCoveringFitness = null;
 
+	/**
+	 * <p>Constructor for StatementCoverageTestFitness.</p>
+	 *
+	 * @param goalInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public StatementCoverageTestFitness(BytecodeInstruction goalInstruction) {
 		if (goalInstruction == null)
 			throw new IllegalArgumentException("null given");
@@ -68,6 +74,7 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 					"an instruction is at least on the root branch of it's method");
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
@@ -92,16 +99,27 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 		return r;
 	}
 	
+	/**
+	 * <p>Getter for the field <code>lastCoveringFitness</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness} object.
+	 */
 	public BranchCoverageTestFitness getLastCoveringFitness() {
 		return lastCoveringFitness;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Statement Goal: " + goalInstruction.getMethodName() + " "
 				+ goalInstruction.toString();
 	}
 
+	/**
+	 * <p>explain</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String explain() {
 		StringBuilder r = new StringBuilder();
 

@@ -26,26 +26,28 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>ShortPrimitiveStatement class.</p>
+ *
  * @author fraser
- * 
  */
 public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> {
 
 	private static final long serialVersionUID = -1041008456902695964L;
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for ShortPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link java.lang.Short} object.
 	 */
 	public ShortPrimitiveStatement(TestCase tc, Short value) {
 		super(tc, short.class, value);
 	}
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for ShortPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public ShortPrimitiveStatement(TestCase tc) {
 		super(tc, short.class, (short) 0);
@@ -54,6 +56,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		value = (short) 0;
@@ -62,6 +65,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
 		mg.push((value).shortValue());
@@ -70,6 +74,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
@@ -79,6 +84,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
 		value = (short) (value + (short) delta);
@@ -87,6 +93,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		int max = Math.min(Properties.MAX_INT, 32767);
@@ -99,6 +106,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment() {
 		increment((short) 1);
@@ -107,6 +115,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setMid(Short min, Short max) {
 		value = (short) (min + ((max - min) / 2));
@@ -115,6 +124,7 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void decrement() {
 		increment(-1);
@@ -123,11 +133,13 @@ public class ShortPrimitiveStatement extends NumericalPrimitiveStatement<Short> 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
 		return value >= 0;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public void negate() {
 		value = (short) -value;

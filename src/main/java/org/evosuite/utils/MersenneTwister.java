@@ -24,15 +24,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-/** 
+/**
  * <h3>MersenneTwister and MersenneTwisterFast</h3>
  * <p><b>Version 13</b>, based on version MT199937(99/10/29)
- * of the Mersenne Twister algorithm found at 
+ * of the Mersenne Twister algorithm found at
  * <a href="http://www.math.keio.ac.jp/matumoto/emt.html">
  * The Mersenne Twister Home Page</a>, with the initialization
  * improved using the new 2002/1/26 initialization algorithm
  * By Sean Luke, October 2004.
- * 
+ *
  * <p><b>MersenneTwister</b> is a drop-in subclass replacement
  * for java.util.Random.  It is properly synchronized and
  * can be used in a multithreaded environment.  On modern VMs such
@@ -96,7 +96,7 @@ import java.io.Serializable;
  * in speed to the point where it is faster than MersenneTwister but slower
  * than MersenneTwisterFast (which should be the case, as it's a less complex
  * algorithm but is synchronized).
- * 
+ *
  * <p><b>Changes Since V5:</b> New empty constructor made to work the same
  * as java.util.Random -- namely, it seeds based on the current time in
  * milliseconds.
@@ -105,17 +105,17 @@ import java.io.Serializable;
  * (see <a href="http://www.math.keio.ac.jp/matumoto/MT2002/emt19937ar.html"</a>
  * http://www.math.keio.ac.jp/matumoto/MT2002/emt19937ar.html</a>)
  *
- * <p>The MersenneTwister code is based on standard MT19937 C/C++ 
+ * <p>The MersenneTwister code is based on standard MT19937 C/C++
  * code by Takuji Nishimura,
  * with suggestions from Topher Cooper and Marc Rieffel, July 1997.
  * The code was originally translated into Java by Michael Lecuyer,
  * January 1999, and the original code is Copyright (c) 1999 by Michael Lecuyer.
  *
  * <h3>Java notes</h3>
- * 
+ *
  * <p>This implementation implements the bug fixes made
  * in Java 1.2's version of Random, which means it can be used with
- * earlier versions of Java.  See 
+ * earlier versions of Java.  See
  * <a href="http://www.javasoft.com/products/jdk/1.2/docs/api/java/util/Random.html">
  * the JDK 1.2 java.util.Random documentation</a> for further documentation
  * on the random-number generation contracts made.  Additionally, there's
@@ -127,7 +127,7 @@ import java.io.Serializable;
  * uses 48 bits.  The Mersenne Twister instead uses 32 bits (int size).
  * So it's best if your seed does not exceed the int range.
  *
- * <p>MersenneTwister can be used reliably 
+ * <p>MersenneTwister can be used reliably
  * on JDK version 1.1.5 or above.  Earlier Java versions have serious bugs in
  * java.util.Random; only MersenneTwisterFast (and not MersenneTwister nor
  * java.util.Random) should be used with them.
@@ -138,33 +138,34 @@ import java.io.Serializable;
  * Portions copyright (c) 1993 by Michael Lecuyer. <br>
  * All rights reserved. <br>
  *
- * <p>Redistribution and use in source and binary forms, with or without 
+ * <p>Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  * <ul>
- * <li> Redistributions of source code must retain the above copyright notice, 
+ * <li> Redistributions of source code must retain the above copyright notice,
  * this list of conditions and the following disclaimer.
- * <li> Redistributions in binary form must reproduce the above copyright notice, 
- * this list of conditions and the following disclaimer in the documentation 
+ * <li> Redistributions in binary form must reproduce the above copyright notice,
+ * this list of conditions and the following disclaimer in the documentation
  * and/or other materials provided with the distribution.
- * <li> Neither the name of the copyright owners, their employers, nor the 
- * names of its contributors may be used to endorse or promote products 
+ * <li> Neither the name of the copyright owners, their employers, nor the
+ * names of its contributors may be used to endorse or promote products
  * derived from this software without specific prior written permission.
  * </ul>
- * <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE 
- * DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNERS OR CONTRIBUTORS BE 
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+ * <p>THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+ * DISCLAIMED.  IN NO EVENT SHALL THE COPYRIGHT OWNERS OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  *
- @version 13
-*/
-
+ * @version 13
+ *
+ * @author Gordon Fraser
+ */
 public class MersenneTwister extends java.util.Random implements Serializable, Cloneable
     {
     /**
@@ -197,6 +198,7 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     private boolean __haveNextNextGaussian;
 
     /* We're overriding all internal data, to my knowledge, so this should be okay */
+    /** {@inheritDoc} */
     @Override
 	public Object clone() throws CloneNotSupportedException
         {
@@ -206,6 +208,12 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         return f;
         }
 
+    /**
+     * <p>stateEquals</p>
+     *
+     * @param o a {@link java.lang.Object} object.
+     * @return a boolean.
+     */
     public boolean stateEquals(Object o)
         {
         if (o==this) return true;
@@ -220,7 +228,12 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         return true;
         }
 
-    /** Reads the entire state of the MersenneTwister RNG from the stream */
+    /**
+     * Reads the entire state of the MersenneTwister RNG from the stream
+     *
+     * @param stream a {@link java.io.DataInputStream} object.
+     * @throws java.io.IOException if any.
+     */
     public void readState(DataInputStream stream) throws IOException
         {
         int len = mt.length;
@@ -234,7 +247,12 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         __haveNextNextGaussian = stream.readBoolean();
         }
         
-    /** Writes the entire state of the MersenneTwister RNG to the stream */
+    /**
+     * Writes the entire state of the MersenneTwister RNG to the stream
+     *
+     * @param stream a {@link java.io.DataOutputStream} object.
+     * @throws java.io.IOException if any.
+     */
     public void writeState(DataOutputStream stream) throws IOException
         {
         int len = mt.length;
@@ -260,6 +278,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     /**
      * Constructor using a given seed.  Though you pass this seed in
      * as a long, it's best to make sure it's actually an integer.
+     *
+     * @param seed a long.
      */
     public MersenneTwister(final long seed)
         {
@@ -272,6 +292,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
      * Your array must have a non-zero length.  Only the first 624 integers
      * in the array are used; if the array is shorter than this then
      * integers are repeatedly used in a wrap-around fashion.
+     *
+     * @param array an array of int.
      */
     public MersenneTwister(final int[] array)
         {
@@ -280,11 +302,12 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         }
     
     /**
+     * {@inheritDoc}
+     *
      * Initalize the pseudo random number generator.  Don't
      * pass in a long that's bigger than an int (Mersenne Twister
-     * only uses the first 32 bits for its seed).   
+     * only uses the first 32 bits for its seed).
      */
-
     @Override
 	synchronized public void setSeed(final long seed)
         {
@@ -321,8 +344,9 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
      * Your array must have a non-zero length.  Only the first 624 integers
      * in the array are used; if the array is shorter than this then
      * integers are repeatedly used in a wrap-around fashion.
+     *
+     * @param array an array of int.
      */
-
     synchronized public void setSeed(final int[] array)
         {
         if (array.length == 0)
@@ -356,6 +380,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
 
 
     /**
+     * {@inheritDoc}
+     *
      * Returns an integer with <i>bits</i> bits filled with a random number.
      */
     @Override
@@ -411,17 +437,25 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         in.defaultReadObject();
         }    
 
-    /** This method is missing from jdk 1.0.x and below.  JDK 1.1
-        includes this for us, but what the heck.*/
+    /**
+     * {@inheritDoc}
+     *
+     * This method is missing from jdk 1.0.x and below.  JDK 1.1
+     *        includes this for us, but what the heck.
+     */
     @Override
 	public boolean nextBoolean() {return next(1) != 0;}
 
-    /** This generates a coin flip with a probability <tt>probability</tt>
-        of returning true, else returning false. <tt>probability</tt> must
-        be between 0.0 and 1.0, inclusive.  Not as precise a random real
-        event as nextBoolean(double), but twice as fast. To explicitly
-        use this, remember you may need to cast to float first. */
-
+    /**
+     * This generates a coin flip with a probability <tt>probability</tt>
+     *        of returning true, else returning false. <tt>probability</tt> must
+     *        be between 0.0 and 1.0, inclusive.  Not as precise a random real
+     *        event as nextBoolean(double), but twice as fast. To explicitly
+     *        use this, remember you may need to cast to float first.
+     *
+     * @param probability a float.
+     * @return a boolean.
+     */
     public boolean nextBoolean (final float probability)
         {
         if (probability < 0.0f || probability > 1.0f)
@@ -431,10 +465,14 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         return nextFloat() < probability; 
         }
 
-    /** This generates a coin flip with a probability <tt>probability</tt>
-        of returning true, else returning false. <tt>probability</tt> must
-        be between 0.0 and 1.0, inclusive. */
-
+    /**
+     * This generates a coin flip with a probability <tt>probability</tt>
+     *        of returning true, else returning false. <tt>probability</tt> must
+     *        be between 0.0 and 1.0, inclusive.
+     *
+     * @param probability a double.
+     * @return a boolean.
+     */
     public boolean nextBoolean (final double probability)
         {
         if (probability < 0.0 || probability > 1.0)
@@ -444,9 +482,12 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         return nextDouble() < probability; 
         }
         
-    /** This method is missing from JDK 1.1 and below.  JDK 1.2
-        includes this for us, but what the heck. */
-
+    /**
+     * {@inheritDoc}
+     *
+     * This method is missing from JDK 1.1 and below.  JDK 1.2
+     *        includes this for us, but what the heck.
+     */
     @Override
 	public int nextInt(final int n) 
         {
@@ -466,10 +507,14 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         return val;
         }
 
-    /** This method is for completness' sake. 
-        Returns a long drawn uniformly from 0 to n-1.  Suffice it to say,
-        n must be > 0, or an IllegalArgumentException is raised. */
-    
+    /**
+     * This method is for completness' sake.
+     *        Returns a long drawn uniformly from 0 to n-1.  Suffice it to say,
+     *        n must be > 0, or an IllegalArgumentException is raised.
+     *
+     * @param n a long.
+     * @return a long.
+     */
     public long nextLong(final long n) 
         {
         if (n<=0)
@@ -486,8 +531,12 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
         }
 
 
-    /** A bug fix for versions of JDK 1.1 and below.  JDK 1.2 fixes
-        this for us, but what the heck. */
+    /**
+     * {@inheritDoc}
+     *
+     * A bug fix for versions of JDK 1.1 and below.  JDK 1.2 fixes
+     *        this for us, but what the heck.
+     */
     @Override
 	public double nextDouble()
         {
@@ -495,54 +544,71 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
             / (double)(1L << 53);
         }
 
-    /** A bug fix for versions of JDK 1.1 and below.  JDK 1.2 fixes
-        this for us, but what the heck. */
-
+    /**
+     * {@inheritDoc}
+     *
+     * A bug fix for versions of JDK 1.1 and below.  JDK 1.2 fixes
+     *        this for us, but what the heck.
+     */
     @Override
 	public float nextFloat()
         {
         return next(24) / ((float)(1 << 24));
         }
 
-    /** A bug fix for all versions of the JDK.  The JDK appears to
-        use all four bytes in an integer as independent byte values!
-        Totally wrong. I've submitted a bug report. */
-
+    /**
+     * {@inheritDoc}
+     *
+     * A bug fix for all versions of the JDK.  The JDK appears to
+     *        use all four bytes in an integer as independent byte values!
+     *        Totally wrong. I've submitted a bug report.
+     */
     @Override
 	public void nextBytes(final byte[] bytes)    
         {
         for (int x=0;x<bytes.length;x++) bytes[x] = (byte)next(8);
         }
 
-    /** For completeness' sake, though it's not in java.util.Random.  */
-    
+    /**
+     * For completeness' sake, though it's not in java.util.Random.
+     *
+     * @return a char.
+     */
     public char nextChar()
         {
         // chars are 16-bit UniCode values
         return (char)(next(16));
         }
 
-    /** For completeness' sake, though it's not in java.util.Random. */
-    
+    /**
+     * For completeness' sake, though it's not in java.util.Random.
+     *
+     * @return a short.
+     */
     public short nextShort()
         {
         return (short)(next(16));
         }
 
-    /** For completeness' sake, though it's not in java.util.Random.  */
-
+    /**
+     * For completeness' sake, though it's not in java.util.Random.
+     *
+     * @return a byte.
+     */
     public byte nextByte()
         {
         return (byte)(next(8));
         }
 
 
-    /** A bug fix for all JDK code including 1.2.  nextGaussian can theoretically
-        ask for the log of 0 and divide it by 0! See Java bug 
-        <a href="http://developer.java.sun.com/developer/bugParade/bugs/4254501.html">
-        http://developer.java.sun.com/developer/bugParade/bugs/4254501.html</a>
-    */
-
+    /**
+     * {@inheritDoc}
+     *
+     * A bug fix for all JDK code including 1.2.  nextGaussian can theoretically
+     *        ask for the log of 0 and divide it by 0! See Java bug
+     *        <a href="http://developer.java.sun.com/developer/bugParade/bugs/4254501.html">
+     *        http://developer.java.sun.com/developer/bugParade/bugs/4254501.html</a>
+     */
     @Override
 	synchronized public double nextGaussian() 
         {
@@ -569,6 +635,8 @@ public class MersenneTwister extends java.util.Random implements Serializable, C
     
     /**
      * Tests the code.
+     *
+     * @param args an array of {@link java.lang.String} objects.
      */
     public static void main(String args[])
         { 

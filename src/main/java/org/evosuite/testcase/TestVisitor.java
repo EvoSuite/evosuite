@@ -21,27 +21,73 @@
 package org.evosuite.testcase;
 
 /**
+ * <p>TestVisitor interface.</p>
+ *
  * @author fraser
- * 
  */
 public interface TestVisitor {
 
+	/**
+	 * <p>visitTestCase</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public void visitTestCase(TestCase test);
 
+	/**
+	 * <p>visitPrimitiveStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.PrimitiveStatement} object.
+	 */
 	public void visitPrimitiveStatement(PrimitiveStatement<?> statement);
 
+	/**
+	 * <p>visitFieldStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.FieldStatement} object.
+	 */
 	public void visitFieldStatement(FieldStatement statement);
 
+	/**
+	 * <p>visitMethodStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.MethodStatement} object.
+	 */
 	public void visitMethodStatement(MethodStatement statement);
 
+	/**
+	 * <p>visitConstructorStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.ConstructorStatement} object.
+	 */
 	public void visitConstructorStatement(ConstructorStatement statement);
 
+	/**
+	 * <p>visitArrayStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.ArrayStatement} object.
+	 */
 	public void visitArrayStatement(ArrayStatement statement);
 
+	/**
+	 * <p>visitAssignmentStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.AssignmentStatement} object.
+	 */
 	public void visitAssignmentStatement(AssignmentStatement statement);
 
+	/**
+	 * <p>visitNullStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.NullStatement} object.
+	 */
 	public void visitNullStatement(NullStatement statement);
 
+	/**
+	 * <p>visitPrimitiveExpression</p>
+	 *
+	 * @param primitiveExpression a {@link org.evosuite.testcase.PrimitiveExpression} object.
+	 */
 	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression);
 
 }

@@ -20,45 +20,43 @@ package org.evosuite.ga;
 
 /**
  * A listener that can be attached to the search
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public interface SearchListener {
 
 	/**
 	 * Called when a new search is started
-	 * 
-	 * @param objective
-	 *            - the fitness function of the search
+	 *
+	 * @param algorithm a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public void searchStarted(GeneticAlgorithm algorithm);
 
 	/**
 	 * Called after each iteration of the search
-	 * 
-	 * @param population
+	 *
+	 * @param algorithm a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public void iteration(GeneticAlgorithm algorithm);
 
 	/**
 	 * Called after the last iteration
-	 * 
-	 * @param population
+	 *
+	 * @param algorithm a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public void searchFinished(GeneticAlgorithm algorithm);
 
 	/**
 	 * Called after every single fitness evaluation
-	 * 
-	 * @param individual
+	 *
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	public void fitnessEvaluation(Chromosome individual);
 
 	/**
 	 * Called before a chromosome is mutated
-	 * 
-	 * @param individual
+	 *
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	public void modification(Chromosome individual);
 

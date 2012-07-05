@@ -31,16 +31,19 @@ import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
 
 /**
+ * <p>StringBooleanInterpreter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class StringBooleanInterpreter extends BasicInterpreter {
 
+	/** Constant <code>STRING_BOOLEAN</code> */
 	public final static BasicValue STRING_BOOLEAN = new BasicValue(null);
 
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue naryOperation(AbstractInsnNode insn,
 	        @SuppressWarnings("rawtypes") List values) throws AnalyzerException {

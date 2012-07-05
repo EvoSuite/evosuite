@@ -29,16 +29,19 @@ import org.evosuite.utils.LoggingUtils;
 
 
 /**
+ * <p>MasterProcess class.</p>
+ *
  * @author Gordon Fraser
  * @author Andrea Arcuri
- * 
  */
 public class MasterProcess {
 
 	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
 	
 	/**
-	 * @param args
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		ExternalProcessHandler handler = new ExternalProcessHandler();

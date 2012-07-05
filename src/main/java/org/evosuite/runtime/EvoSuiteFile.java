@@ -21,17 +21,28 @@
 package org.evosuite.runtime;
 
 /**
+ * <p>EvoSuiteFile class.</p>
+ *
  * @author fraser
- * 
  */
 public class EvoSuiteFile {
 
 	private final String path;
 
+	/**
+	 * <p>Constructor for EvoSuiteFile.</p>
+	 *
+	 * @param path a {@link java.lang.String} object.
+	 */
 	public EvoSuiteFile(String path) {
 		this.path = path;
 	}
 
+	/**
+	 * <p>Getter for the field <code>path</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getPath() {
 		return path;
 	}
@@ -39,6 +50,7 @@ public class EvoSuiteFile {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return path;

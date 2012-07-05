@@ -37,12 +37,17 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * An array statement creates a new array
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ArrayStatement extends AbstractStatement {
 
+	/**
+	 * <p>determineDimensions</p>
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @return a int.
+	 */
 	public static int determineDimensions(java.lang.reflect.Type type) {
 		String name = type.toString().replace("class", "").trim();
 		int count = 0;
@@ -66,38 +71,82 @@ public class ArrayStatement extends AbstractStatement {
 
 	private int[] lengths;
 
+	/**
+	 * <p>Constructor for ArrayStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param arrayReference a {@link org.evosuite.testcase.ArrayReference} object.
+	 */
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference) {
 		this(tc, arrayReference,
 		        createRandom(determineDimensions(arrayReference.getType())));
 	}
 
+	/**
+	 * <p>Constructor for ArrayStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
 		this(tc, type, createRandom(determineDimensions(type)));
 	}
 
+	/**
+	 * <p>Constructor for ArrayStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param length a int.
+	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
 		this(tc, type, new int[] { length });
 	}
 
+	/**
+	 * <p>Constructor for ArrayStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param length an array of int.
+	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int[] length) {
 		this(tc, new ArrayReference(tc, new GenericClass(type), length), length);
 	}
 
+	/**
+	 * <p>Constructor for ArrayStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param arrayReference a {@link org.evosuite.testcase.ArrayReference} object.
+	 * @param length an array of int.
+	 */
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference, int[] length) {
 		super(tc, arrayReference);
 		this.lengths = length;
 	}
 
+	/**
+	 * <p>size</p>
+	 *
+	 * @return a int.
+	 */
 	public int size() {
 		assert lengths.length == 1;
 		return lengths[0];
 	}
 
+	/**
+	 * <p>setSize</p>
+	 *
+	 * @param size a int.
+	 */
 	public void setSize(int size) {
 		assert lengths.length == 1;
 		this.lengths[0] = size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayStatement copy = new ArrayStatement(newTestCase, retval.getType(), lengths);
@@ -105,6 +154,7 @@ public class ArrayStatement extends AbstractStatement {
 		return copy;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -128,6 +178,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
@@ -144,6 +195,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
@@ -154,10 +206,12 @@ public class ArrayStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -173,6 +227,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
@@ -190,6 +245,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
@@ -198,11 +254,13 @@ public class ArrayStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
 		return super.isValid();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
 		if (this == s)
@@ -225,6 +283,7 @@ public class ArrayStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.AbstractStatement#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.AbstractTestFactory)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		int maxAssignment = 0;
@@ -276,20 +335,32 @@ public class ArrayStatement extends AbstractStatement {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		return null;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
 	}
 
+	/**
+	 * <p>Setter for the field <code>lengths</code>.</p>
+	 *
+	 * @param lengths an array of int.
+	 */
 	public void setLengths(int[] lengths) {
 		this.lengths = lengths;
 	}
 
+	/**
+	 * <p>Getter for the field <code>lengths</code>.</p>
+	 *
+	 * @return an array of int.
+	 */
 	public int[] getLengths() {
 		return lengths;
 	}

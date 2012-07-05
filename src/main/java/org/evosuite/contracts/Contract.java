@@ -39,11 +39,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Based on ObjectContract / Randoop
- * 
+ *
  * @author Gordon Fraser
  */
 public abstract class Contract {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(Contract.class);
 
 	protected class Pair {
@@ -56,11 +57,23 @@ public abstract class Contract {
 		}
 	}
 
+	/**
+	 * <p>getAllObjects</p>
+	 *
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @return a {@link java.util.Collection} object.
+	 */
 	protected Collection<Object> getAllObjects(Scope scope) {
 		// TODO: Assignable classes and subclasses?
 		return scope.getObjects(Properties.getTargetClass());
 	}
 
+	/**
+	 * <p>getAllObjectPairs</p>
+	 *
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @return a {@link java.util.Collection} object.
+	 */
 	protected Collection<Pair> getAllObjectPairs(Scope scope) {
 		Set<Pair> pairs = new HashSet<Pair>();
 		for (Object o1 : scope.getObjects(Properties.getTargetClass())) {
@@ -71,6 +84,13 @@ public abstract class Contract {
 		return pairs;
 	}
 
+	/**
+	 * <p>getAffectedObjects</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @return a {@link java.util.Collection} object.
+	 */
 	protected Collection<Object> getAffectedObjects(StatementInterface statement,
 	        Scope scope) {
 		try {
@@ -93,6 +113,13 @@ public abstract class Contract {
 
 	}
 
+	/**
+	 * <p>getAffectedObjectPairs</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @return a {@link java.util.Collection} object.
+	 */
 	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement,
 	        Scope scope) {
 		try {
@@ -137,9 +164,9 @@ public abstract class Contract {
 
 	/**
 	 * Check if this statement is related to the unit under test
-	 * 
-	 * @param statement
-	 * @return
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a boolean.
 	 */
 	protected boolean isTargetStatement(StatementInterface statement) {
 		//if (statement.getReturnClass().equals(Properties.getTargetClass()))
@@ -165,9 +192,9 @@ public abstract class Contract {
 	/**
 	 * Run the test against this contract and determine whether it reports a
 	 * failure
-	 * 
-	 * @param test
-	 * @return
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a boolean.
 	 */
 	public boolean fails(TestCase test) {
 		ContractChecker.setActive(false);
@@ -180,6 +207,14 @@ public abstract class Contract {
 		return !checker.isValid();
 	}
 
+	/**
+	 * <p>check</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @param exception a {@link java.lang.Throwable} object.
+	 * @return a boolean.
+	 */
 	public abstract boolean check(StatementInterface statement, Scope scope,
 	        Throwable exception);
 

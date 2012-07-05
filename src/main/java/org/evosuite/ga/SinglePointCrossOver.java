@@ -21,15 +21,16 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Select one random point in each individual and cross over (TPX)
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class SinglePointCrossOver extends CrossOverFunction {
 
 	private static final long serialVersionUID = 2881387570766261795L;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * A different splitting point is selected for each individual
 	 */
 	@Override

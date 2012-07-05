@@ -27,8 +27,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ValueMinimizer class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ValueMinimizer implements TestVisitor {
 
@@ -120,11 +121,23 @@ public class ValueMinimizer implements TestVisitor {
 
 	private Minimization objective;
 
+	/**
+	 * <p>minimize</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param objective a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 */
 	public void minimize(TestChromosome test, TestFitnessFunction objective) {
 		this.objective = new TestMinimization(objective, test);
 		test.test.accept(this);
 	}
 
+	/**
+	 * <p>minimize</p>
+	 *
+	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * @param objective a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
 	public void minimize(TestSuiteChromosome suite, TestSuiteFitnessFunction objective) {
 		int i = 0;
 		for (TestChromosome test : suite.getTestChromosomes()) {
@@ -221,6 +234,7 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitTestCase(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitTestCase(TestCase test) {
 	}
@@ -228,6 +242,7 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitPrimitiveStatement(org.evosuite.testcase.PrimitiveStatement)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitPrimitiveStatement(PrimitiveStatement<?> statement) {
 		if (statement instanceof NumericalPrimitiveStatement<?>) {
@@ -245,6 +260,7 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitFieldStatement(org.evosuite.testcase.FieldStatement)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitFieldStatement(FieldStatement statement) {
 		// TODO Auto-generated method stub
@@ -254,6 +270,7 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitMethodStatement(org.evosuite.testcase.MethodStatement)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodStatement(MethodStatement statement) {
 		//if (true)
@@ -299,6 +316,7 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitConstructorStatement(org.evosuite.testcase.ConstructorStatement)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitConstructorStatement(ConstructorStatement statement) {
 		// TODO Auto-generated method stub
@@ -308,6 +326,7 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitArrayStatement(org.evosuite.testcase.ArrayStatement)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitArrayStatement(ArrayStatement statement) {
 		// TODO Auto-generated method stub
@@ -317,6 +336,7 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitAssignmentStatement(org.evosuite.testcase.AssignmentStatement)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitAssignmentStatement(AssignmentStatement statement) {
 		// TODO Auto-generated method stub
@@ -326,12 +346,14 @@ public class ValueMinimizer implements TestVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestVisitor#visitNullStatement(org.evosuite.testcase.NullStatement)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitNullStatement(NullStatement statement) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression) {
 		// TODO-JRO Implement method visitPrimitiveExpression

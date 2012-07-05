@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.testcase;
 
@@ -35,7 +38,6 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-
 public class MethodStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = 6134126797102983073L;
@@ -46,6 +48,15 @@ public class MethodStatement extends AbstractStatement {
 
 	protected List<VariableReference> parameters;
 
+	/**
+	 * <p>Constructor for MethodStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param method a {@link java.lang.reflect.Method} object.
+	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param parameters a {@link java.util.List} object.
+	 */
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, type);
@@ -58,6 +69,11 @@ public class MethodStatement extends AbstractStatement {
 		this.parameters = parameters;
 	}
 	
+	/**
+	 * <p>Getter for the field <code>parameters</code>.</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<VariableReference> getParameters()
 	{
 		return this.parameters;
@@ -68,12 +84,12 @@ public class MethodStatement extends AbstractStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 * 
-	 * @param tc
-	 * @param method
-	 * @param callee
-	 * @param retvar
-	 * @param parameters
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param method a {@link java.lang.reflect.Method} object.
+	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param retvar a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param parameters a {@link java.util.List} object.
 	 */
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        VariableReference retvar, List<VariableReference> parameters) {
@@ -87,23 +103,48 @@ public class MethodStatement extends AbstractStatement {
 		this.parameters = parameters;
 	}
 
+	/**
+	 * <p>Getter for the field <code>method</code>.</p>
+	 *
+	 * @return a {@link java.lang.reflect.Method} object.
+	 */
 	public Method getMethod() {
 		return method;
 	}
 
+	/**
+	 * <p>Setter for the field <code>method</code>.</p>
+	 *
+	 * @param method a {@link java.lang.reflect.Method} object.
+	 */
 	public void setMethod(Method method) {
 		assert (method.getReturnType().equals(this.method.getReturnType()));
 		this.method = method;
 	}
 
+	/**
+	 * <p>Getter for the field <code>callee</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public VariableReference getCallee() {
 		return callee;
 	}
 
+	/**
+	 * <p>Setter for the field <code>callee</code>.</p>
+	 *
+	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void setCallee(VariableReference callee) {
 		this.callee = callee;
 	}
 
+	/**
+	 * <p>isStatic</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isStatic() {
 		return Modifier.isStatic(method.getModifiers());
 	}
@@ -112,6 +153,7 @@ public class MethodStatement extends AbstractStatement {
 		return !Modifier.isStatic(method.getModifiers());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
@@ -182,6 +224,7 @@ public class MethodStatement extends AbstractStatement {
 		return exceptionThrown;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isDeclaredException(Throwable t) {
 		for (Class<?> declaredException : method.getExceptionTypes()) {
@@ -191,6 +234,7 @@ public class MethodStatement extends AbstractStatement {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
@@ -226,6 +270,7 @@ public class MethodStatement extends AbstractStatement {
 		return m;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
@@ -247,6 +292,7 @@ public class MethodStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 		if (retval.equals(var1))
@@ -267,21 +313,34 @@ public class MethodStatement extends AbstractStatement {
 		}
 	}
 
+	/**
+	 * <p>getParameterReferences</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<VariableReference> getParameterReferences() {
 		return parameters;
 	}
 
+	/**
+	 * <p>replaceParameterReference</p>
+	 *
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param numParameter a int.
+	 */
 	public void replaceParameterReference(VariableReference var, int numParameter) {
 		assert (numParameter >= 0);
 		assert (numParameter < parameters.size());
 		parameters.set(numParameter, var);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return method.getName() + Type.getMethodDescriptor(method);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -317,6 +376,7 @@ public class MethodStatement extends AbstractStatement {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -334,6 +394,7 @@ public class MethodStatement extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
@@ -422,6 +483,7 @@ public class MethodStatement extends AbstractStatement {
 	 * 
 	 * @see org.evosuite.testcase.Statement#getDeclaredExceptions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = super.getDeclaredExceptions();
@@ -436,6 +498,7 @@ public class MethodStatement extends AbstractStatement {
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		List<VariableReference> references = new ArrayList<VariableReference>();
@@ -456,6 +519,7 @@ public class MethodStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
 		assert (super.isValid());
@@ -468,6 +532,7 @@ public class MethodStatement extends AbstractStatement {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
 		if (this == s)
@@ -503,11 +568,13 @@ public class MethodStatement extends AbstractStatement {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		return method;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
@@ -545,6 +612,7 @@ public class MethodStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		try {

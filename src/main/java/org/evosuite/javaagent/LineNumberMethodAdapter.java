@@ -26,9 +26,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Instruments classes to call the tracer each time a new line of the source
  * code is passed.
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class LineNumberMethodAdapter extends MethodVisitor {
 
@@ -45,6 +44,14 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 
 	int currentLine = 0;
 
+	/**
+	 * <p>Constructor for LineNumberMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 */
 	public LineNumberMethodAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
 		super(Opcodes.ASM4, mv);
@@ -55,6 +62,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 			hadInvokeSpecial = true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitLineNumber(int line, Label start) {
 		super.visitLineNumber(line, start);
@@ -78,6 +86,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodAdapter#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		if (opcode == Opcodes.INVOKESPECIAL) {
@@ -90,6 +99,7 @@ public class LineNumberMethodAdapter extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		int maxNum = 3;

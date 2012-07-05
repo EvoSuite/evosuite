@@ -35,20 +35,22 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 
 /**
+ * <p>FileSystem class.</p>
+ *
  * @author fraser
- * 
  */
 public class FileSystem {
 
 	private static Logger logger = LoggerFactory.getLogger(FileSystem.class);
 
+	/** Constant <code>manager</code> */
 	public static FileSystemManager manager = null;
 
 	/**
 	 * Test method that sets content of a file
-	 * 
-	 * @param fileName
-	 * @param content
+	 *
+	 * @param fileName a {@link org.evosuite.runtime.EvoSuiteFile} object.
+	 * @param content a {@link java.lang.String} object.
 	 */
 	public static void setFileContent(EvoSuiteFile fileName, String content) {
 		// Put "content" into "file"
@@ -79,7 +81,6 @@ public class FileSystem {
 
 	/**
 	 * Reset runtime to initial state
-	 * 
 	 */
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
@@ -113,6 +114,9 @@ public class FileSystem {
 		}
 	}
 
+	/**
+	 * <p>restoreOriginalFS</p>
+	 */
 	public static void restoreOriginalFS() {
 		if (Properties.VIRTUAL_FS) {
 			IOWrapper.activeVFS = false;
@@ -121,8 +125,8 @@ public class FileSystem {
 
 	/**
 	 * Getter to check whether this runtime replacement was accessed during test execution
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public static boolean wasAccessed() {
 		return IOWrapper.filesWereAccessed();

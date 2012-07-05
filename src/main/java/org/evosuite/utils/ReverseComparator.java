@@ -23,14 +23,12 @@ import java.util.Comparator;
 /**
  * Reverses the order of another comparator by reversing the arguments to its
  * {@link #compare(Object, Object) compare} method.
- * 
+ *
  * @since Commons Collections 2.0
  * @version $Revision: 646777 $ $Date: 2008-04-10 13:33:15 +0100 (Thu, 10 Apr
  *          2008) $
- * 
  * @author Henri Yandell
  * @author Michael A. Smith
- * 
  * @see java.util.Collections#reverseOrder()
  */
 public class ReverseComparator implements Comparator, Serializable {
@@ -47,7 +45,7 @@ public class ReverseComparator implements Comparator, Serializable {
 	 * natural ordering. Using this Constructor will create a ReverseComparator
 	 * that is functionally identical to the Comparator returned by
 	 * java.util.Collections.<b>reverseOrder()</b>.
-	 * 
+	 *
 	 * @see java.util.Collections#reverseOrder()
 	 */
 	public ReverseComparator() {
@@ -59,7 +57,7 @@ public class ReverseComparator implements Comparator, Serializable {
 	 * If you pass in <code>null</code>, the ReverseComparator defaults to
 	 * reversing the natural order, as per
 	 * {@link java.util.Collections#reverseOrder()}</b>.
-	 * 
+	 *
 	 * @param comparator
 	 *            Comparator to reverse
 	 */
@@ -73,13 +71,9 @@ public class ReverseComparator implements Comparator, Serializable {
 
 	//-----------------------------------------------------------------------
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Compares two objects in reverse order.
-	 * 
-	 * @param obj1
-	 *            the first object to compare
-	 * @param obj2
-	 *            the second object to compare
-	 * @return negative if obj1 is less, positive if greater, zero if equal
 	 */
 	@Override
 	public int compare(Object obj1, Object obj2) {
@@ -88,10 +82,10 @@ public class ReverseComparator implements Comparator, Serializable {
 
 	//-----------------------------------------------------------------------
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Implement a hash code for this comparator that is consistent with
 	 * {@link #equals(Object) equals}.
-	 * 
-	 * @return a suitable hash code
 	 * @since Commons Collections 3.0
 	 */
 	@Override
@@ -100,6 +94,8 @@ public class ReverseComparator implements Comparator, Serializable {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Returns <code>true</code> iff <i>that</i> Object is is a
 	 * {@link Comparator} whose ordering is known to be equivalent to mine.
 	 * <p>
@@ -108,10 +104,6 @@ public class ReverseComparator implements Comparator, Serializable {
 	 * <code>this.getClass()</code>, and the underlying comparators are equal.
 	 * Subclasses may want to override this behavior to remain consistent with
 	 * the {@link Comparator#equals(Object) equals} contract.
-	 * 
-	 * @param object
-	 *            the object to compare to
-	 * @return true if equal
 	 * @since Commons Collections 3.0
 	 */
 	@Override

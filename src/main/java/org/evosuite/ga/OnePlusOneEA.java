@@ -19,9 +19,8 @@ package org.evosuite.ga;
 
 /**
  * (1+1)EA
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class OnePlusOneEA extends GeneticAlgorithm {
 
@@ -31,13 +30,14 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 
 	/**
 	 * Constructor
-	 * 
-	 * @param factory
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public OnePlusOneEA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
 
@@ -62,6 +62,7 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		currentIteration++;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();
@@ -74,6 +75,7 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 		logger.info("Initial fitness: " + population.get(0).getFitness());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
 		if (population.isEmpty())

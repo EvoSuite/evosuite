@@ -27,23 +27,27 @@ import org.evosuite.ga.GeneticAlgorithm;
 
 /**
  * Base class of decision functions that stop the search
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class StoppingConditionImpl implements StoppingCondition, Serializable {
 
 	private static final long serialVersionUID = -8221978873140881671L;
 
+	/**
+	 * <p>Constructor for StoppingConditionImpl.</p>
+	 */
 	public StoppingConditionImpl() {
 		reset();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome chromosome) {
 
@@ -54,6 +58,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 * 
 	 * @see org.ga.SearchListener#iteration(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -65,6 +70,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 * 
 	 * @see org.ga.SearchListener#searchFinished(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -78,12 +84,14 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
 	 * .ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();
@@ -98,6 +106,11 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 		return r.toString();
 	}
 
+	/**
+	 * <p>getType</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getType() {
 		String type = getClass().toString();
 		try { // just to make sure
@@ -111,6 +124,11 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 		return type;
 	}
 
+	/**
+	 * <p>getValueString</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getValueString() {
 		String value = NumberFormat.getIntegerInstance().format(getCurrentValue());
 		value = StringUtils.leftPad(value, 12);

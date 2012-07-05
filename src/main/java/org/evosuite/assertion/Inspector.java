@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.assertion;
 
@@ -26,8 +29,6 @@ import java.lang.reflect.Method;
 
 import org.evosuite.testcase.TestCluster;
 import org.objectweb.asm.Type;
-
-
 public class Inspector implements Serializable {
 
 	private static final long serialVersionUID = -6865880297202184953L;
@@ -36,11 +37,26 @@ public class Inspector implements Serializable {
 
 	private transient Method method;
 
+	/**
+	 * <p>Constructor for Inspector.</p>
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @param m a {@link java.lang.reflect.Method} object.
+	 */
 	public Inspector(Class<?> clazz, Method m) {
 		this.clazz = clazz;
 		method = m;
 	}
 
+	/**
+	 * <p>getValue</p>
+	 *
+	 * @param object a {@link java.lang.Object} object.
+	 * @return a {@link java.lang.Object} object.
+	 * @throws java.lang.IllegalArgumentException if any.
+	 * @throws java.lang.IllegalAccessException if any.
+	 * @throws java.lang.reflect.InvocationTargetException if any.
+	 */
 	public Object getValue(Object object) throws IllegalArgumentException,
 	        IllegalAccessException, InvocationTargetException {
 
@@ -51,22 +67,43 @@ public class Inspector implements Serializable {
 		return ret;
 	}
 
+	/**
+	 * <p>Getter for the field <code>method</code>.</p>
+	 *
+	 * @return a {@link java.lang.reflect.Method} object.
+	 */
 	public Method getMethod() {
 		return method;
 	}
 
+	/**
+	 * <p>getMethodCall</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethodCall() {
 		return method.getName();
 	}
 
+	/**
+	 * <p>getClassName</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return clazz.getName();
 	}
 
+	/**
+	 * <p>getReturnType</p>
+	 *
+	 * @return a {@link java.lang.Class} object.
+	 */
 	public Class<?> getReturnType() {
 		return method.getReturnType();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -76,6 +113,7 @@ public class Inspector implements Serializable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

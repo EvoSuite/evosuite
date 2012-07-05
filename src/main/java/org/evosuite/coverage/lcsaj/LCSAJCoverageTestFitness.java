@@ -30,9 +30,6 @@ import org.evosuite.testcase.TestFitnessFunction;
 
 /**
  * Evaluate fitness of a single test case with respect to a single LCSAJ
- * 
- * @author
- * 
  */
 public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	private static final long serialVersionUID = 1L;
@@ -43,11 +40,23 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 
 	private double approach;
 
+	/**
+	 * <p>Constructor for LCSAJCoverageTestFitness.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param lcsaj a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
+	 */
 	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
 		lcsaj_finalBranchID = lcsaj.getBranchID(lcsaj.length() - 1);
 	}
 
+	/**
+	 * <p>Constructor for LCSAJCoverageTestFitness.</p>
+	 *
+	 * @param lcsaj a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
+	 */
 	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
 		lcsaj_finalBranchID = lcsaj.getBranchID(lcsaj.length() - 1);
@@ -61,6 +70,7 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	 * .cs.st.evosuite.testcase.TestChromosome,
 	 * org.evosuite.testcase.ExecutionResult)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		approach = lcsaj.length();
@@ -169,11 +179,17 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		return savedFitness;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return lcsaj.toString();
 	}
 
+	/**
+	 * <p>Getter for the field <code>lcsaj</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
+	 */
 	public LCSAJ getLcsaj() {
 		return this.lcsaj;
 	}

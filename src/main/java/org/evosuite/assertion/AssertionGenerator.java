@@ -28,27 +28,39 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>Abstract AssertionGenerator class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class AssertionGenerator {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(AssertionGenerator.class);
 
+	/** Constant <code>primitive_observer</code> */
 	protected static PrimitiveTraceObserver primitive_observer = new PrimitiveTraceObserver();
 
+	/** Constant <code>comparison_observer</code> */
 	protected static ComparisonTraceObserver comparison_observer = new ComparisonTraceObserver();
 
+	/** Constant <code>same_observer</code> */
 	protected static SameTraceObserver same_observer = new SameTraceObserver();
 
+	/** Constant <code>inspector_observer</code> */
 	protected static InspectorTraceObserver inspector_observer = new InspectorTraceObserver();
 
+	/** Constant <code>field_observer</code> */
 	protected static PrimitiveFieldTraceObserver field_observer = new PrimitiveFieldTraceObserver();
 
+	/** Constant <code>null_observer</code> */
 	protected static NullTraceObserver null_observer = new NullTraceObserver();
 
+	/** Constant <code>executor</code> */
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
+	/**
+	 * <p>Constructor for AssertionGenerator.</p>
+	 */
 	public AssertionGenerator() {
 		executor.addObserver(primitive_observer);
 		executor.addObserver(comparison_observer);
@@ -58,13 +70,19 @@ public abstract class AssertionGenerator {
 		executor.addObserver(same_observer);
 	}
 
+	/**
+	 * <p>addAssertions</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public abstract void addAssertions(TestCase test);
 
 	/**
 	 * Execute a test case on the original unit
-	 * 
+	 *
 	 * @param test
 	 *            The test case that should be executed
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	protected ExecutionResult runTest(TestCase test) {
 		ExecutionResult result = new ExecutionResult(test);

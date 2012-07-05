@@ -1,19 +1,22 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
 
@@ -43,6 +46,7 @@ import sun.misc.SignalHandler;
 
 @SuppressWarnings("restriction")
 public class ExternalProcessHandler {
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
 
 	protected ServerSocket server;
@@ -59,6 +63,7 @@ public class ExternalProcessHandler {
 	protected ObjectInputStream in;
 
 	protected Object final_result;
+	/** Constant <code>WAITING_FOR_DATA</code> */
 	protected static final Object WAITING_FOR_DATA = "waiting_for_data_"
 	        + System.currentTimeMillis();
 
@@ -69,18 +74,39 @@ public class ExternalProcessHandler {
 
 	protected String base_dir = System.getProperty("user.dir");
 
+	/**
+	 * <p>Constructor for ExternalProcessHandler.</p>
+	 */
 	public ExternalProcessHandler() {
 
 	}
 
+	/**
+	 * <p>setBaseDir</p>
+	 *
+	 * @param base_dir a {@link java.lang.String} object.
+	 */
 	public void setBaseDir(String base_dir) {
 		this.base_dir = base_dir;
 	}
 
+	/**
+	 * <p>startProcess</p>
+	 *
+	 * @param command an array of {@link java.lang.String} objects.
+	 * @return a boolean.
+	 */
 	public boolean startProcess(String[] command) {
 		return startProcess(command, null);
 	}
 
+	/**
+	 * <p>startProcess</p>
+	 *
+	 * @param command an array of {@link java.lang.String} objects.
+	 * @param population_data a {@link java.lang.Object} object.
+	 * @return a boolean.
+	 */
 	protected boolean startProcess(String[] command, Object population_data) {
 		if (process != null) {
 			logger.warn("Already running an external process");
@@ -166,6 +192,9 @@ public class ExternalProcessHandler {
 		return true;
 	}
 
+	/**
+	 * <p>killProcess</p>
+	 */
 	public void killProcess() {
 		try {
 			Runtime.getRuntime().removeShutdownHook(processKillHook);
@@ -199,6 +228,11 @@ public class ExternalProcessHandler {
 		message_handler = null;
 	}
 
+	/**
+	 * <p>getServerPort</p>
+	 *
+	 * @return a int.
+	 */
 	public int getServerPort() {
 		if (server != null)
 			return server.getLocalPort();
@@ -206,6 +240,11 @@ public class ExternalProcessHandler {
 			return -1;
 	}
 
+	/**
+	 * <p>openServer</p>
+	 *
+	 * @return a int.
+	 */
 	public int openServer() {
 		if (server == null) {
 			try {
@@ -220,6 +259,9 @@ public class ExternalProcessHandler {
 		return -1;
 	}
 
+	/**
+	 * <p>closeServer</p>
+	 */
 	public void closeServer() {
 		if (server != null) {
 			try {
@@ -232,6 +274,9 @@ public class ExternalProcessHandler {
 		}
 	}
 
+	/**
+	 * <p>startExternalProcessPrinter</p>
+	 */
 	protected void startExternalProcessPrinter() {
 
 		if (output_printer == null || !output_printer.isAlive()) {
@@ -293,6 +338,9 @@ public class ExternalProcessHandler {
 
 	}
 
+	/**
+	 * <p>startExternalProcessMessageHandler</p>
+	 */
 	protected void startExternalProcessMessageHandler() {
 		if (message_handler != null && message_handler.isAlive())
 			return;
@@ -350,6 +398,9 @@ public class ExternalProcessHandler {
 		message_handler.start();
 	}
 
+	/**
+	 * <p>startSignalHandler</p>
+	 */
 	protected void startSignalHandler() {
 		Signal.handle(new Signal("INT"), new SignalHandler() {
 
@@ -372,6 +423,12 @@ public class ExternalProcessHandler {
 		});
 	}
 
+	/**
+	 * <p>waitForResult</p>
+	 *
+	 * @param timeout a int.
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public Object waitForResult(int timeout) {
 		try {
 			latch.await(timeout, TimeUnit.MILLISECONDS);

@@ -23,11 +23,18 @@ package org.evosuite.utils;
 import org.apache.commons.lang3.StringEscapeUtils;
 
 /**
+ * <p>NumberFormatter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class NumberFormatter {
 
+	/**
+	 * <p>getNumberString</p>
+	 *
+	 * @param value a {@link java.lang.Object} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getNumberString(Object value) {
 		if (value == null)
 			return "null";
@@ -85,6 +92,12 @@ public class NumberFormatter {
 			return value.toString();
 	}
 
+	/**
+	 * <p>getBoxedClassName</p>
+	 *
+	 * @param value a {@link java.lang.Object} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getBoxedClassName(Object value) {
 		if (value.getClass().equals(Double.class))
 			return "double";

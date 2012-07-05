@@ -28,33 +28,36 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>BytePrimitiveStatement class.</p>
+ *
  * @author fraser
- * 
  */
 public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for BytePrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link java.lang.Byte} object.
 	 */
 	public BytePrimitiveStatement(TestCase tc, Byte value) {
 		super(tc, byte.class, value);
 	}
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for BytePrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public BytePrimitiveStatement(TestCase tc) {
 		super(tc, byte.class, (byte) 0);
 	}
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for BytePrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
 	 */
 	public BytePrimitiveStatement(TestCase tc, Type type) {
 		super(tc, type, (byte) 0);
@@ -65,6 +68,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		value = (byte) 0;
@@ -73,6 +77,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
 		mg.push((value).shortValue());
@@ -81,6 +86,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
@@ -90,6 +96,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
 		value = (byte) (value + delta);
@@ -98,6 +105,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
@@ -109,6 +117,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment() {
 		increment((byte) 1);
@@ -117,6 +126,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void decrement() {
 		increment((byte) -1);
@@ -125,6 +135,7 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setMid(Byte min, Byte max) {
 		value = (byte) (min + ((max - min) / 2));
@@ -133,12 +144,14 @@ public class BytePrimitiveStatement extends NumericalPrimitiveStatement<Byte> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public void negate() {
 		value = (byte) -value;

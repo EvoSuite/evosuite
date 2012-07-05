@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.coverage.exception;
 
@@ -39,8 +42,6 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 1565793073526627496L;
@@ -49,10 +50,14 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected TestSuiteFitnessFunction baseFF;
 
+	/**
+	 * <p>Constructor for ExceptionCoverageSuiteFitness.</p>
+	 */
 	public ExceptionCoverageSuiteFitness() {
 		baseFF = new BranchCoverageSuiteFitness();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		logger.trace("Calculating exception fitness");

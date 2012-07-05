@@ -58,8 +58,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>MutationInstrumentation class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MutationInstrumentation implements MethodInstrumentation {
 
@@ -69,6 +70,9 @@ public class MutationInstrumentation implements MethodInstrumentation {
 
 	private Frame[] frames = new Frame[0];
 
+	/**
+	 * <p>Constructor for MutationInstrumentation.</p>
+	 */
 	public MutationInstrumentation() {
 		mutationOperators = new ArrayList<MutationOperator>();
 
@@ -107,6 +111,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, int)
 	 */
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName, int access) {
@@ -174,6 +179,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MethodInstrumentation#executeOnMainMethod()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean executeOnMainMethod() {
 		// TODO Auto-generated method stub
@@ -183,12 +189,20 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MethodInstrumentation#executeOnExcludedMethods()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean executeOnExcludedMethods() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * <p>addInstrumentation</p>
+	 *
+	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * @param original a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param mutations a {@link java.util.List} object.
+	 */
 	protected void addInstrumentation(MethodNode mn, AbstractInsnNode original,
 	        List<Mutation> mutations) {
 

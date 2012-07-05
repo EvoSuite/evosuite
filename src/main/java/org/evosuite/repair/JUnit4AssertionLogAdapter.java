@@ -27,13 +27,15 @@ import org.evosuite.testcase.TestCase;
 
 
 /**
+ * <p>JUnit4AssertionLogAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class JUnit4AssertionLogAdapter extends JUnit4TestAdapter {
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getImports()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getImports() {
 		return "import org.junit.Before;\n" + "import org.junit.Ignore;\n"
@@ -44,6 +46,7 @@ public class JUnit4AssertionLogAdapter extends JUnit4TestAdapter {
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getTestString(org.evosuite.testcase.TestCase, java.util.Map)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions) {
 		AssertionLogTestVisitor visitor = new AssertionLogTestVisitor(id);

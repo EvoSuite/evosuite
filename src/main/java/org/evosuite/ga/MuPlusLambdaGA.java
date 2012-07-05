@@ -23,9 +23,8 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Alternative version of steady state GA
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MuPlusLambdaGA extends SteadyStateGA {
 
@@ -35,14 +34,16 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 
 	/**
 	 * Generate a new search object
-	 * 
-	 * @param factory
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public MuPlusLambdaGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Perform one iteration of the search
 	 */
 	@Override

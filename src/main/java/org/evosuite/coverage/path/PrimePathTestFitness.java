@@ -26,8 +26,9 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
 /**
+ * <p>PrimePathTestFitness class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimePathTestFitness extends TestFitnessFunction {
 
@@ -41,6 +42,13 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 
 	private final int length;
 
+	/**
+	 * <p>Constructor for PrimePathTestFitness.</p>
+	 *
+	 * @param path a {@link org.evosuite.coverage.path.PrimePath} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 */
 	public PrimePathTestFitness(PrimePath path, String className, String methodName) {
 		this.path = path;
 		this.className = className;
@@ -60,6 +68,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double minMatch = length;
@@ -143,6 +152,7 @@ public class PrimePathTestFitness extends TestFitnessFunction {
 		return minMatch;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return path.toString();

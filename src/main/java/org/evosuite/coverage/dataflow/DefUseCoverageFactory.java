@@ -36,8 +36,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>DefUseCoverageFactory class.</p>
+ *
  * @author Andre Mis
- * 
  */
 public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
@@ -55,6 +56,11 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 	private static Map<DefUseCoverageTestFitness.DefUsePairType, Integer> goalCounts = new HashMap<DefUseCoverageTestFitness.DefUsePairType, Integer>();
 
+	/**
+	 * <p>getDUGoals</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public static List<DefUseCoverageTestFitness> getDUGoals() {
 		if (!called)
 			computeGoals();
@@ -67,6 +73,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 * @see
 	 * org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		if (!called)
@@ -78,7 +85,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * Determines all goals that need to get covered in order to fulfill
 	 * DefUseCoverage
-	 * 
+	 *
 	 * Those are the following: - for each parameterUse this method creates a
 	 * goal trying to cover i - for each duPair with a definition clear path
 	 * inside the methods of the CUT a goal is created - for each definition in
@@ -123,13 +130,13 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * Given a definition and a use, this method creates a DefUseCoverageGoal
 	 * for this DefUsePair.
-	 * 
-	 * 
+	 *
 	 * @param def
 	 *            The definition of the goal
 	 * @param use
 	 *            The use of the goal
 	 * @return The created DefUseCoverageGoal
+	 * @param type a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType} object.
 	 */
 	public static DefUseCoverageTestFitness createGoal(Definition def, Use use,
 			DefUseCoverageTestFitness.DefUsePairType type) {
@@ -149,6 +156,11 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 * Convenience method that retrieves the Definition and Use object for the
 	 * given BytecodeInstructions from the DefUsePool and calls
 	 * createGoal(Definition,Use)
+	 *
+	 * @param def a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param use a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param type a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType} object.
+	 * @return a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
 	 */
 	public static DefUseCoverageTestFitness createGoal(BytecodeInstruction def,
 			BytecodeInstruction use,
@@ -194,6 +206,13 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 //			System.out.println(goal.toString());
 	}
 
+	/**
+	 * <p>retrieveGoal</p>
+	 *
+	 * @param defId a int.
+	 * @param useId a int.
+	 * @return a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
+	 */
 	public static DefUseCoverageTestFitness retrieveGoal(int defId, int useId) {
 
 		Definition def = DefUsePool.getDefinitionByDefId(defId);
@@ -202,6 +221,13 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		return retrieveGoal(def, use);
 	}
 
+	/**
+	 * <p>retrieveGoal</p>
+	 *
+	 * @param def a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param use a {@link org.evosuite.coverage.dataflow.Use} object.
+	 * @return a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
+	 */
 	public static DefUseCoverageTestFitness retrieveGoal(Definition def, Use use) {
 		if (!goalMap.containsKey(def))
 			return null;
@@ -214,6 +240,8 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * For each parameterUse in the CUT this method creates a
 	 * DefUseCoverageTestFitness that tries to cover that use
+	 *
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<DefUseCoverageTestFitness> getParameterGoals() {
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
@@ -228,12 +256,23 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		return r;
 	}
 
+	/**
+	 * <p>getRegsiteredDefinitions</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<Definition> getRegsiteredDefinitions() {
 		if (!called)
 			computeGoals();
 		return new HashSet<Definition>(goalMap.keySet());
 	}
 
+	/**
+	 * <p>getRegisteredGoalsForDefinition</p>
+	 *
+	 * @param def a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @return a {@link java.util.Map} object.
+	 */
 	public static Map<Use, DefUseCoverageTestFitness> getRegisteredGoalsForDefinition(
 			Definition def) {
 		if (!called)
@@ -243,6 +282,11 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 	// Getter
 
+	/**
+	 * <p>getParamGoalsCount</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getParamGoalsCount() {
 		Integer r = goalCounts.get(DefUsePairType.PARAMETER);
 		if (r == null)
@@ -250,6 +294,11 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		return r;
 	}
 
+	/**
+	 * <p>getIntraMethodGoalsCount</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getIntraMethodGoalsCount() {
 		Integer r = goalCounts.get(DefUsePairType.INTRA_METHOD);
 		if (r == null)
@@ -257,6 +306,11 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		return r;
 	}
 
+	/**
+	 * <p>getInterMethodGoalsCount</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getInterMethodGoalsCount() {
 		Integer r = goalCounts.get(DefUsePairType.INTER_METHOD);
 		if (r == null)
@@ -264,6 +318,11 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		return r;
 	}
 
+	/**
+	 * <p>getIntraClassGoalsCount</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getIntraClassGoalsCount() {
 		Integer r = goalCounts.get(DefUsePairType.INTRA_CLASS);
 		if (r == null)

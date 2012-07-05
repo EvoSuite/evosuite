@@ -37,8 +37,9 @@ import cvc3.SatResult;
 import cvc3.ValidityChecker;
 
 /**
+ * <p>CVC3Solver class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class CVC3Solver extends Thread implements Solver {
 
@@ -55,6 +56,7 @@ public class CVC3Solver extends Thread implements Solver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.symbolic.Solver#getModel(java.util.Collection)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 		Map<String, Object> result = null;
@@ -78,6 +80,7 @@ public class CVC3Solver extends Thread implements Solver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.symbolic.Solver#solve(java.util.Collection)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean solve(Collection<Constraint<?>> constraints) {
 		initializeSolver();

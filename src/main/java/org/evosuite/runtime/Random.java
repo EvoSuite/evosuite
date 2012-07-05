@@ -21,8 +21,9 @@
 package org.evosuite.runtime;
 
 /**
+ * <p>Random class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class Random {
 
@@ -36,8 +37,8 @@ public class Random {
 
 	/**
 	 * Replacement function for nextInt
-	 * 
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public static int nextInt() {
 		wasAccessed = true;
@@ -46,8 +47,9 @@ public class Random {
 
 	/**
 	 * Replacement function for nextInt
-	 * 
-	 * @return
+	 *
+	 * @param max a int.
+	 * @return a int.
 	 */
 	public static int nextInt(int max) {
 		wasAccessed = true;
@@ -56,8 +58,8 @@ public class Random {
 
 	/**
 	 * Replacement function for nextFloat
-	 * 
-	 * @return
+	 *
+	 * @return a float.
 	 */
 	public static float nextFloat() {
 		wasAccessed = true;
@@ -66,8 +68,8 @@ public class Random {
 
 	/**
 	 * Replacement function for nextLong
-	 * 
-	 * @return
+	 *
+	 * @return a long.
 	 */
 	public static long nextLong() {
 		wasAccessed = true;
@@ -76,8 +78,8 @@ public class Random {
 
 	/**
 	 * Set the next random number to a value
-	 * 
-	 * @param number
+	 *
+	 * @param number a int.
 	 */
 	public static void setNextRandom(int number) {
 		currentNumber = number;
@@ -94,8 +96,8 @@ public class Random {
 	/**
 	 * Getter to check whether this runtime replacement was accessed during test
 	 * execution
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public static boolean wasAccessed() {
 		return wasAccessed;

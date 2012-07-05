@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,27 +15,36 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-
 public class RealConstant extends RealExpression{
 	private static final long serialVersionUID = 1L;
 	
 	protected double value;
 
+	/**
+	 * <p>Constructor for RealConstant.</p>
+	 *
+	 * @param doubleValue a double.
+	 */
 	public RealConstant(double doubleValue) {
 		this.value=doubleValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double getConcreteValue() {
 		return value;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return Double.toString(value);
 	}
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof RealConstant)
@@ -45,11 +55,13 @@ public class RealConstant extends RealExpression{
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		return 1;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double execute() {
 		return value;

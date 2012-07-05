@@ -27,9 +27,8 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Implementation of steady state GA
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class SteadyStateGA extends GeneticAlgorithm {
 
@@ -41,8 +40,8 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 	/**
 	 * Constructor
-	 * 
-	 * @param factory
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
@@ -50,11 +49,21 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		setReplacementFunction(new FitnessReplacementFunction());
 	}
 
+	/**
+	 * <p>keepOffspring</p>
+	 *
+	 * @param parent1 a {@link org.evosuite.ga.Chromosome} object.
+	 * @param parent2 a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring1 a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring2 a {@link org.evosuite.ga.Chromosome} object.
+	 * @return a boolean.
+	 */
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
 		return replacement_function.keepOffspring(parent1, parent2, offspring1, offspring2);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
 		List<Chromosome> newGeneration = new ArrayList<Chromosome>();
@@ -138,6 +147,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		currentIteration++;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();
@@ -150,6 +160,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		this.notifyIteration();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
 		if (population.isEmpty())
@@ -196,10 +207,20 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		notifySearchFinished();
 	}
 
+	/**
+	 * <p>setReplacementFunction</p>
+	 *
+	 * @param replacement_function a {@link org.evosuite.ga.ReplacementFunction} object.
+	 */
 	public void setReplacementFunction(ReplacementFunction replacement_function) {
 		this.replacement_function = replacement_function;
 	}
 
+	/**
+	 * <p>getReplacementFunction</p>
+	 *
+	 * @return a {@link org.evosuite.ga.ReplacementFunction} object.
+	 */
 	public ReplacementFunction getReplacementFunction() {
 		return replacement_function;
 	}

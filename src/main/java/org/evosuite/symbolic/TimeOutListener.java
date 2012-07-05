@@ -21,18 +21,24 @@ import gov.nasa.jpf.ListenerAdapter;
 import gov.nasa.jpf.jvm.JVM;
 
 /**
- * 
+ * <p>TimeOutListener class.</p>
+ *
  * @author Jan Malburg
- * 
  */
 public class TimeOutListener extends ListenerAdapter {
 	private final long end;
 	private boolean timeOut = false;
 
+	/**
+	 * <p>Constructor for TimeOutListener.</p>
+	 *
+	 * @param timeTillEnd a long.
+	 */
 	public TimeOutListener(long timeTillEnd) {
 		this.end = System.currentTimeMillis() + timeTillEnd;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void instructionExecuted(JVM vm) {
 		if (end < System.currentTimeMillis()) {
@@ -42,6 +48,11 @@ public class TimeOutListener extends ListenerAdapter {
 
 	}
 
+	/**
+	 * <p>isTimeOut</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isTimeOut() {
 		return timeOut;
 	}

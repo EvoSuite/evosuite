@@ -24,9 +24,16 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
+ * <p>PopulationLimit interface.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public interface PopulationLimit extends Serializable {
+	/**
+	 * <p>isPopulationFull</p>
+	 *
+	 * @param population a {@link java.util.List} object.
+	 * @return a boolean.
+	 */
 	public boolean isPopulationFull(List<Chromosome> population);
 }

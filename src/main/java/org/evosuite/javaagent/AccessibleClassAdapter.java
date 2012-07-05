@@ -28,17 +28,18 @@ import org.objectweb.asm.Opcodes;
  * Turn protected / default access rights to public access rights. This is
  * necessary because EvoSuite is not in the same package as the UUT, but the
  * tests will reside in the same package.
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class AccessibleClassAdapter extends ClassVisitor {
 
 	private boolean exclude = false;
 
 	/**
-	 * @param Parent
-	 *            class visitor
+	 * <p>Constructor for AccessibleClassAdapter.</p>
+	 *
+	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public AccessibleClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
@@ -52,6 +53,8 @@ public class AccessibleClassAdapter extends ClassVisitor {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Change subclasses to public
 	 */
 	@Override
@@ -66,6 +69,8 @@ public class AccessibleClassAdapter extends ClassVisitor {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Change fields to public
 	 */
 	@Override
@@ -82,6 +87,8 @@ public class AccessibleClassAdapter extends ClassVisitor {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Change methods to public
 	 */
 	@Override
@@ -101,6 +108,7 @@ public class AccessibleClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitInnerClass(String name, String outerName, String innerName,
 	        int access) {

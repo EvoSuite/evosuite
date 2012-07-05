@@ -24,12 +24,23 @@ import java.util.Map;
 import java.util.concurrent.Callable;
 
 /**
- * @author Sebastian Steenbuck
+ * <p>InterfaceTestRunnable interface.</p>
  *
+ * @author Sebastian Steenbuck
  */
 public interface InterfaceTestRunnable extends Callable<ExecutionResult>{
 	//#TODO steenbuck add javadoc
+	/**
+	 * <p>getExceptionsThrown</p>
+	 *
+	 * @return a {@link java.util.Map} object.
+	 */
 	public Map<Integer, Throwable> getExceptionsThrown(); 
 	
+	/**
+	 * <p>isRunFinished</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isRunFinished();
 }

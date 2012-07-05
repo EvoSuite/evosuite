@@ -26,9 +26,8 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Standard GA implementation
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class StandardGA extends GeneticAlgorithm {
 
@@ -38,13 +37,14 @@ public class StandardGA extends GeneticAlgorithm {
 
 	/**
 	 * Constructor
-	 * 
-	 * @param factory
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public StandardGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
 
@@ -92,6 +92,7 @@ public class StandardGA extends GeneticAlgorithm {
 		currentIteration++;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		notifySearchStarted();
@@ -104,6 +105,7 @@ public class StandardGA extends GeneticAlgorithm {
 		this.notifyIteration();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
 		if (population.isEmpty())

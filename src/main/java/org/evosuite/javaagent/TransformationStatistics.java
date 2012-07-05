@@ -32,49 +32,71 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>TransformationStatistics class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TransformationStatistics {
 
 	private static Logger logger = LoggerFactory.getLogger(TransformationStatistics.class);
 
+	/** Constant <code>transformedBooleanComparison=0</code> */
 	public static int transformedBooleanComparison = 0;
 
+	/** Constant <code>insertedGet=0</code> */
 	public static int insertedGet = 0;
 
+	/** Constant <code>insertedPushInt0=0</code> */
 	public static int insertedPushInt0 = 0;
 
+	/** Constant <code>insertedPushInt1=0</code> */
 	public static int insertedPushInt1 = 0;
 
+	/** Constant <code>insertedPushIntRef=0</code> */
 	public static int insertedPushIntRef = 0;
 
+	/** Constant <code>insertedPushIntNull=0</code> */
 	public static int insertedPushIntNull = 0;
 
+	/** Constant <code>transformedComparison=0</code> */
 	public static int transformedComparison = 0;
 
+	/** Constant <code>transformedImplicitElse=0</code> */
 	public static int transformedImplicitElse = 0;
 
+	/** Constant <code>transformedInstanceOf=0</code> */
 	public static int transformedInstanceOf = 0;
 
+	/** Constant <code>transformedBooleanReturn=0</code> */
 	public static int transformedBooleanReturn = 0;
 
+	/** Constant <code>transformedBooleanParameter=0</code> */
 	public static int transformedBooleanParameter = 0;
 
+	/** Constant <code>transformedBooleanField=0</code> */
 	public static int transformedBooleanField = 0;
 
+	/** Constant <code>transformedBackToBooleanParameter=0</code> */
 	public static int transformedBackToBooleanParameter = 0;
 
+	/** Constant <code>transformedBackToBooleanField=0</code> */
 	public static int transformedBackToBooleanField = 0;
 
+	/** Constant <code>untransformableMethod=0</code> */
 	public static int untransformableMethod = 0;
 
+	/** Constant <code>transformedStringComparison=0</code> */
 	public static int transformedStringComparison = 0;
 
+	/** Constant <code>transformedContainerComparison=0</code> */
 	public static int transformedContainerComparison = 0;
 
+	/** Constant <code>transformedBitwise=0</code> */
 	public static int transformedBitwise = 0;
 
+	/**
+	 * <p>reset</p>
+	 */
 	public static void reset() {
 		transformedBooleanComparison = 0;
 		insertedGet = 0;
@@ -108,6 +130,8 @@ public class TransformationStatistics {
 
 	/**
 	 * Insertion of pushDistance
+	 *
+	 * @param opcode a int.
 	 */
 	public static void insertPush(int opcode) {
 		switch (opcode) {
@@ -224,6 +248,11 @@ public class TransformationStatistics {
 		transformedBitwise++;
 	}
 
+	/**
+	 * <p>writeStatistics</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public static void writeStatistics(String className) {
 		try {
 			String filename = Properties.REPORT_DIR + "/transformation.csv";

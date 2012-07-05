@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
@@ -24,7 +27,6 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 
 
 import gov.nasa.jpf.JPF;
-
 public class RealToStringCast extends StringExpression implements Cast<Double>{
 
 	private static final long serialVersionUID = -5322228289539145088L;
@@ -33,27 +35,36 @@ public class RealToStringCast extends StringExpression implements Cast<Double>{
 	
 	protected Expression<Double> expr;
 
+	/**
+	 * <p>Constructor for RealToStringCast.</p>
+	 *
+	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public RealToStringCast(Expression<Double> _expr) {
 		this.expr = _expr;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		return Double.toString((Double)expr.execute());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return Double.toString((Double)expr.getConcreteValue());
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "(String)" + expr.toString();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -69,6 +80,7 @@ public class RealToStringCast extends StringExpression implements Cast<Double>{
 	}
 	
 	protected int size=0;
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if(size == 0)
@@ -78,6 +90,7 @@ public class RealToStringCast extends StringExpression implements Cast<Double>{
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Double> getConcreteObject() {
 		return expr;

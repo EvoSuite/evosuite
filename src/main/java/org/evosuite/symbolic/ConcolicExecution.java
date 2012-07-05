@@ -49,8 +49,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ConcolicExecution class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ConcolicExecution {
 
@@ -75,15 +76,25 @@ public class ConcolicExecution {
 		logger.info("Created temporary dir for DSE: " + tempDir.getAbsolutePath());
 	}
 
+	/** Constant <code>dirName="tempDir.getAbsolutePath()"</code> */
 	protected static String dirName = tempDir.getAbsolutePath();
 
+	/** Constant <code>className="TestCase"</code> */
 	protected static String className = "TestCase";
 	//	        + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
 	//	                                            Properties.TARGET_CLASS.lastIndexOf("."));
 
+	/** Constant <code>classPath="System.getProperty(java.class.path) + :"{trunked}</code> */
 	protected static String classPath = System.getProperty("java.class.path") + ":"
 	        + dirName;
 
+	/**
+	 * <p>executeConcolic</p>
+	 *
+	 * @param targetName a {@link java.lang.String} object.
+	 * @param classPath a {@link java.lang.String} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<BranchCondition> executeConcolic(String targetName, String classPath) {
 		logger.debug("Setting up JPF");
 
@@ -147,9 +158,9 @@ public class ConcolicExecution {
 
 	/**
 	 * Retrieve the path condition for a given test case
-	 * 
-	 * @param test
-	 * @return
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 
@@ -217,6 +228,12 @@ public class ConcolicExecution {
 	}
 
 	//	@SuppressWarnings("rawtypes")
+	/**
+	 * <p>getPrimitives</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public List<PrimitiveStatement> getPrimitives(TestCase test) {
 
@@ -298,6 +315,7 @@ public class ConcolicExecution {
 	 * @return
 	 */
 	//	@SuppressWarnings("rawtypes") 
+	//	@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -349,11 +367,11 @@ public class ConcolicExecution {
 
 	/**
 	 * Write a test case to disk using the specified symbolic values
-	 * 
-	 * @param statements
-	 * @param test
+	 *
+	 * @param statements a {@link java.util.List} object.
+	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
-	//	@SuppressWarnings("rawtypes") 
+	//	@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
 		//File dir = new File(dirName);

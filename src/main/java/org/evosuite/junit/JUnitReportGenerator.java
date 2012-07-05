@@ -16,8 +16,9 @@ import org.evosuite.utils.ReportGenerator;
 import org.evosuite.utils.Utils;
 
 /**
+ * <p>JUnitReportGenerator class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class JUnitReportGenerator extends ReportGenerator {
 
@@ -25,6 +26,15 @@ public class JUnitReportGenerator extends ReportGenerator {
 
 	private final List<Class<?>> classes;
 
+	/**
+	 * <p>Constructor for JUnitReportGenerator.</p>
+	 *
+	 * @param coveredGoals a int.
+	 * @param totalGoals a int.
+	 * @param coverage a {@link java.util.Set} object.
+	 * @param classes a {@link java.util.List} object.
+	 * @param startTime a long.
+	 */
 	public JUnitReportGenerator(int coveredGoals, int totalGoals, Set<Integer> coverage,
 	        List<Class<?>> classes, long startTime) {
 		this.classes = classes;
@@ -42,9 +52,9 @@ public class JUnitReportGenerator extends ReportGenerator {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Write a file for a particular run
-	 * 
-	 * @param run
 	 */
 	@Override
 	protected String writeRunPage(StatisticEntry run) {
@@ -137,6 +147,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -146,6 +157,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.ReportGenerator#minimized(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void minimized(Chromosome result) {
 		// TODO Auto-generated method stub
@@ -153,7 +165,9 @@ public class JUnitReportGenerator extends ReportGenerator {
 	}
 
 	/**
-	 * @param args
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub

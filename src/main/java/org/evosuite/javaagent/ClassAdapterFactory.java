@@ -23,11 +23,19 @@ package org.evosuite.javaagent;
 import org.objectweb.asm.ClassVisitor;
 
 /**
+ * <p>ClassAdapterFactory interface.</p>
+ *
  * @author fraser
- * 
  */
 public interface ClassAdapterFactory {
 
+	/**
+	 * <p>getVisitor</p>
+	 *
+	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link org.objectweb.asm.ClassVisitor} object.
+	 */
 	public ClassVisitor getVisitor(ClassVisitor cv, String className);
 
 }

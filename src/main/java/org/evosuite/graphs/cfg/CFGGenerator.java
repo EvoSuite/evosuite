@@ -32,27 +32,26 @@ import org.objectweb.asm.tree.analysis.Value;
 /**
  * This classed is used to create the RawControlFlowGraph which can then be used
  * to create the ActualControlFlowGraph
- * 
+ *
  * When analyzing a CUT the BytecodeAnalyzer creates an instance of this class
  * for each method contained in it
- * 
+ *
  * This class's methods get called in the following order:
- * 
+ *
  * - upon constructing, the method at hand is registered via
  * registerMethodNode() which fills the BytecodeInstructionPool with all
  * instructions inside that method
- * 
+ *
  * - then registerControlFlowEdge() is called by the BytecodeAnalyzer for each
  * possible transition from one byteCode instruction to another within the
  * current method. In this step the CFGGenerator asks the
  * BytecodeInstructionPool for the previously created instructions and fills up
  * it's RawControlFlowGraph
- * 
+ *
  * After those calls the RawControlFlowGraph of the method at hand is complete
  * It should contain a Vertex for each BytecodeInstruction inside the specified
  * method and an edge for every possible transition between these instructions
- * 
- * 
+ *
  * @author Andre Mis
  */
 public class CFGGenerator {
@@ -69,13 +68,17 @@ public class CFGGenerator {
 	/**
 	 * Initializes this generator to generate the CFG for the method identified
 	 * by the given parameters
-	 * 
+	 *
 	 * Calls registerMethodNode() which in turn calls
 	 * BytecodeInstructionPool.registerMethodNode() leading to the creation of
 	 * all BytecodeInstruction instances for the method at hand
-	 * 
+	 *
 	 * TODO might not want to give asm.MethodNode to the outside, but rather a
 	 * MyMethodNode extended from BytecodeInstruction or something
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param node a {@link org.objectweb.asm.tree.MethodNode} object.
 	 */
 	public CFGGenerator(String className, String methodName, MethodNode node) {
 		registerMethodNode(node, className, methodName);
@@ -133,9 +136,14 @@ public class CFGGenerator {
 
 	/**
 	 * Internal management of fields and actual building up of the rawGraph
-	 * 
+	 *
 	 * Is called by the corresponding BytecodeAnalyzer whenever it detects a
 	 * control flow edge
+	 *
+	 * @param src a int.
+	 * @param dst a int.
+	 * @param frames an array of {@link org.objectweb.asm.tree.analysis.Frame} objects.
+	 * @param isExceptionEdge a boolean.
 	 */
 	public void registerControlFlowEdge(int src, int dst, Frame[] frames,
 			boolean isExceptionEdge) {
@@ -192,9 +200,10 @@ public class CFGGenerator {
 	/**
 	 * Computes the ActualCFG with BasicBlocks rather then BytecodeInstructions
 	 * for this RawCFG.
-	 * 
+	 *
 	 * See ActualControlFlowGraph and GraphPool for further details.
-	 * 
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph} object.
 	 */
 	public ActualControlFlowGraph computeActualCFG() {
 		BytecodeInstructionPool.logInstructionsIn(className, methodName);
@@ -206,14 +215,29 @@ public class CFGGenerator {
 
 	// getter
 
+	/**
+	 * <p>Getter for the field <code>rawGraph</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
+	 */
 	protected RawControlFlowGraph getRawGraph() {
 		return rawGraph;
 	}
 
+	/**
+	 * <p>Getter for the field <code>className</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return className;
 	}
 
+	/**
+	 * <p>Getter for the field <code>methodName</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethodName() {
 		return methodName;
 	}

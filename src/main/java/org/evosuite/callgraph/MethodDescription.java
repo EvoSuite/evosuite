@@ -34,12 +34,13 @@
 * along with Javalanche.  If not, see <http://www.gnu.org/licenses/>.
 */
 /**
- * 
+ * <p>MethodDescription class.</p>
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.callgraph;
 
 import java.io.Serializable;
-
 public class MethodDescription implements Serializable {
 	/**
 	 * 
@@ -49,6 +50,13 @@ public class MethodDescription implements Serializable {
 	private String methodName;
 	private String desc;
 
+	/**
+	 * <p>Constructor for MethodDescription.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 */
 	public MethodDescription(String className, String methodName, String desc) {
 		super();
 		this.className = className.replace('/', '.');
@@ -56,6 +64,7 @@ public class MethodDescription implements Serializable {
 		this.desc = desc;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -68,6 +77,7 @@ public class MethodDescription implements Serializable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -95,21 +105,43 @@ public class MethodDescription implements Serializable {
 		return true;
 	}
 
+	/**
+	 * <p>Getter for the field <code>className</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return className;
 	}
 
+	/**
+	 * <p>Getter for the field <code>methodName</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethodName() {
 		return methodName;
 	}
 
+	/**
+	 * <p>Getter for the field <code>desc</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getDesc() {
 		return desc;
 	}
 
+	/**
+	 * <p>getSuper</p>
+	 *
+	 * @param superClass a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.callgraph.MethodDescription} object.
+	 */
 	public MethodDescription getSuper(String superClass) {
 		return new MethodDescription(superClass, methodName, desc);
 	}
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return className + "." + methodName + desc;

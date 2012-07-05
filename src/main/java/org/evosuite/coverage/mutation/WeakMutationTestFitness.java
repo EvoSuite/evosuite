@@ -24,15 +24,18 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 
 /**
+ * <p>WeakMutationTestFitness class.</p>
+ *
  * @author fraser
- * 
  */
 public class WeakMutationTestFitness extends MutationTestFitness {
 
 	private static final long serialVersionUID = 7468742584904580204L;
 
 	/**
-	 * @param mutation
+	 * <p>Constructor for WeakMutationTestFitness.</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public WeakMutationTestFitness(Mutation mutation) {
 		super(mutation);
@@ -41,6 +44,7 @@ public class WeakMutationTestFitness extends MutationTestFitness {
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.mutation.MutationTestFitness#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		double fitness = 0.0;
@@ -80,6 +84,7 @@ public class WeakMutationTestFitness extends MutationTestFitness {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Weak " + mutation.toString();

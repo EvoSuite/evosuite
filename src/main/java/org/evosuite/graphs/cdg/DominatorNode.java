@@ -94,11 +94,17 @@ class DominatorNode<V> {
 		return null;
 	}
 
+	/**
+	 * <p>isRootNode</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isRootNode() {
 		// TODO not that nice :/
 		return n == 1;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "DTNode " + n + " - " + node;

@@ -37,8 +37,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>Abstract DistanceEstimator class.</p>
+ *
  * @author krusev
- * 
  */
 public abstract class DistanceEstimator {
 
@@ -47,8 +48,9 @@ public abstract class DistanceEstimator {
 	//	static Logger log = JPF.getLogger("org.evosuite.symbolic.search.DistanceEstimator");
 
 	/**
-	 * 
-	 * @param constraints
+	 * <p>getDistance</p>
+	 *
+	 * @param constraints a {@link java.util.Collection} object.
 	 * @return normalized distance in [0,1]
 	 */
 	public static double getDistance(Collection<Constraint<?>> constraints) {
@@ -165,6 +167,12 @@ public abstract class DistanceEstimator {
 		}
 	}
 
+	/**
+	 * <p>getIntegerDist</p>
+	 *
+	 * @param target a {@link org.evosuite.symbolic.expr.Constraint} object.
+	 * @return a long.
+	 */
 	public static long getIntegerDist(Constraint<?> target) {
 
 		long left = ExpressionHelper.getLongResult(target.getLeftOperand());
@@ -200,6 +208,12 @@ public abstract class DistanceEstimator {
 
 	}
 
+	/**
+	 * <p>getStrDist</p>
+	 *
+	 * @param target a {@link org.evosuite.symbolic.expr.Constraint} object.
+	 * @return a long.
+	 */
 	public static long getStrDist(Constraint<?> target) {
 		Expression<?> exprLeft = target.getLeftOperand();
 		Comparator cmpr = target.getComparator();
@@ -214,6 +228,14 @@ public abstract class DistanceEstimator {
 		}
 	}
 
+	/**
+	 * <p>min</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @param c a int.
+	 * @return a int.
+	 */
 	public static int min(int a, int b, int c) {
 		if (a < b)
 			return Math.min(a, c);
@@ -221,6 +243,13 @@ public abstract class DistanceEstimator {
 			return Math.min(b, c);
 	}
 
+	/**
+	 * <p>editDistance</p>
+	 *
+	 * @param s a {@link java.lang.String} object.
+	 * @param t a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int editDistance(String s, String t) {
 		int n = s.length(); // length of s
 		int m = t.length(); // length of t
@@ -268,6 +297,13 @@ public abstract class DistanceEstimator {
 		return p[n];
 	}
 
+	/**
+	 * <p>StrEquals</p>
+	 *
+	 * @param first a {@link java.lang.String} object.
+	 * @param second a {@link java.lang.Object} object.
+	 * @return a int.
+	 */
 	public static int StrEquals(String first, Object second) {
 		if (first.equals(second))
 			return 0; // Identical
@@ -276,22 +312,50 @@ public abstract class DistanceEstimator {
 		}
 	}
 
+	/**
+	 * <p>StrEqualsIgnoreCase</p>
+	 *
+	 * @param first a {@link java.lang.String} object.
+	 * @param second a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int StrEqualsIgnoreCase(String first, String second) {
 		return StrEquals(first.toLowerCase(), second.toLowerCase());
 	}
 
+	/**
+	 * <p>StrStartsWith</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @param prefix a {@link java.lang.String} object.
+	 * @param start a int.
+	 * @return a int.
+	 */
 	public static int StrStartsWith(String value, String prefix, int start) {
 		int len = Math.min(prefix.length(), value.length());
 		int end = (start + len > value.length()) ? value.length() : start + len;
 		return StrEquals(value.substring(start, end), prefix);
 	}
 
+	/**
+	 * <p>StrEndsWith</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @param suffix a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int StrEndsWith(String value, String suffix) {
 		int len = Math.min(suffix.length(), value.length());
 		String val1 = value.substring(value.length() - len);
 		return StrEquals(val1, suffix);
 	}
 
+	/**
+	 * <p>StrIsEmpty</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int StrIsEmpty(String value) {
 		int len = value.length();
 		if (len == 0) {
@@ -301,6 +365,17 @@ public abstract class DistanceEstimator {
 		}
 	}
 
+	/**
+	 * <p>StrRegionMatches</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @param thisStart a int.
+	 * @param string a {@link java.lang.String} object.
+	 * @param start a int.
+	 * @param length a int.
+	 * @param ignoreCase a boolean.
+	 * @return a int.
+	 */
 	public static int StrRegionMatches(String value, int thisStart, String string,
 	        int start, int length, boolean ignoreCase) {
 		if (value == null || string == null)
@@ -328,6 +403,13 @@ public abstract class DistanceEstimator {
 		                 s2.substring(start, length + start));
 	}
 
+	/**
+	 * <p>StrContains</p>
+	 *
+	 * @param val a {@link java.lang.String} object.
+	 * @param subStr a {@link java.lang.CharSequence} object.
+	 * @return a int.
+	 */
 	public static int StrContains(String val, CharSequence subStr) {
 		int val_length = val.length();
 		int subStr_length = subStr.length();

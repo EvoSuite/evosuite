@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 //
 //Copyright (C) 2005 United States Government as represented by the
@@ -34,7 +37,6 @@
 //DOCUMENTATION, IF PROVIDED, WILL CONFORM TO THE SUBJECT SOFTWARE.
 //
 package org.evosuite.symbolic.expr;
-
 public enum Operator {
 
 	//ALL with ### are not yet implemented in the execute of the according expression
@@ -149,10 +151,16 @@ public enum Operator {
 		this.arity = arity;
 	}
 
+	/**
+	 * <p>Getter for the field <code>arity</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getArity() {
 		return arity;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return " " + str + " ";

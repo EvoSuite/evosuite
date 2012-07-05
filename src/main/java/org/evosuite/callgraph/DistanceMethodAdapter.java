@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.callgraph;
 
@@ -21,7 +24,6 @@ import java.util.Set;
 
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
 public class DistanceMethodAdapter extends MethodVisitor {
 
 	private final String className;
@@ -30,6 +32,16 @@ public class DistanceMethodAdapter extends MethodVisitor {
 	private final ConnectionData connectionData;
 	private final Set<String> packageClasses;
 
+	/**
+	 * <p>Constructor for DistanceMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param description a {@link java.lang.String} object.
+	 * @param connectionData a {@link org.evosuite.callgraph.ConnectionData} object.
+	 * @param packageClasses a {@link java.util.Set} object.
+	 */
 	public DistanceMethodAdapter(MethodVisitor mv, String className, String methodName,
 	        String description, ConnectionData connectionData, Set<String> packageClasses) {
 		super(Opcodes.ASM4, mv);
@@ -42,6 +54,7 @@ public class DistanceMethodAdapter extends MethodVisitor {
 		                             methodName, description);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		String ownerDots = owner.replace('/', '.');

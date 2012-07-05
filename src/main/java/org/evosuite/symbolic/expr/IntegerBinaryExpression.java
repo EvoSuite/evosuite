@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
@@ -23,8 +26,6 @@ import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-
 public class IntegerBinaryExpression extends IntegerExpression implements
         BinaryExpression<Long> {
 
@@ -39,6 +40,14 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	protected Expression<Long> left;
 	protected Expression<Long> right;
 
+	/**
+	 * <p>Constructor for IntegerBinaryExpression.</p>
+	 *
+	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con a {@link java.lang.Long} object.
+	 */
 	public IntegerBinaryExpression(Expression<Long> left2, Operator op2,
 	        Expression<Long> right2, Long con) {
 		this.concretValue = con;
@@ -49,31 +58,37 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 			throw new ConstraintTooLongException();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return concretValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operator getOperator() {
 		return op;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Long> getLeftOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Long> getRightOperand() {
 		return right;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "(" + left + op.toString() + right + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -90,6 +105,7 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	}
 
 	protected int size = 0;
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if (size == 0) {
@@ -98,6 +114,7 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
 		long leftVal = ExpressionHelper.getLongResult(left);

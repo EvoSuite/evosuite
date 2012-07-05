@@ -29,12 +29,14 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>Abstract AssertionTraceObserver class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
         ExecutionObserver {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(AssertionTraceObserver.class);
 
 	protected OutputTrace<T> trace = new OutputTrace<T>();
@@ -42,12 +44,19 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void output(int position, String output) {
 		// Default behavior is to ignore console output
 
 	}
 
+	/**
+	 * <p>visitDependencies</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 */
 	protected void visitDependencies(StatementInterface statement, Scope scope) {
 		for (VariableReference var : currentTest.getDependencies(statement.getReturnValue())) {
 			if (!var.isVoid()) {
@@ -56,17 +65,31 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 		}
 	}
 
+	/**
+	 * <p>visitReturnValue</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 */
 	protected void visitReturnValue(StatementInterface statement, Scope scope) {
 		if (!statement.getReturnClass().equals(void.class))
 			visit(statement, scope, statement.getReturnValue());
 	}
 
+	/**
+	 * <p>visit</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	protected abstract void visit(StatementInterface statement, Scope scope,
 	        VariableReference var);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#statement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		//visitReturnValue(statement, scope);
@@ -76,11 +99,17 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#clear()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void clear() {
 		trace.clear();
 	}
 
+	/**
+	 * <p>Getter for the field <code>trace</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.assertion.OutputTrace} object.
+	 */
 	public OutputTrace<T> getTrace() {
 		return trace.clone();
 	}

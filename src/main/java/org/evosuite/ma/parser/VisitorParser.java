@@ -89,7 +89,7 @@ import org.slf4j.LoggerFactory;
  * Visitor parser. If there is a error during parsing then {@code valid} will be
  * false, but it's still possible to get {@link TestCase} without invalid
  * instructions.
- * 
+ *
  * @author Yury Pavlov
  */
 public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Object> {
@@ -109,14 +109,23 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 	// call from GUI
 	private boolean guiActive = false;
 
+	/**
+	 * <p>Constructor for VisitorParser.</p>
+	 */
 	public VisitorParser() {
 		// to use it without GUI
 	}
 
+	/**
+	 * <p>Constructor for VisitorParser.</p>
+	 *
+	 * @param guiActive a boolean.
+	 */
 	public VisitorParser(boolean guiActive) {
 		this.guiActive = guiActive;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(VariableDeclarationExpr n, Object arg) {
 		// use right side to get properly Statement
@@ -173,6 +182,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(IntegerLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -204,6 +214,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(CharLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -218,6 +229,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(LongLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -232,6 +244,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(DoubleLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -260,6 +273,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(BooleanLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -273,6 +287,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(StringLiteralExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -287,6 +302,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(ObjectCreationExpr n, Object arg) {
 		logger.debug("Visit new Object: " + n);
@@ -319,6 +335,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(FieldAccessExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -347,6 +364,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(ArrayCreationExpr n, Object arg) {
 		logger.debug("i'm here ArrayCreationExpr: " + n);
@@ -437,6 +455,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(AssignExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -474,6 +493,7 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AbstractStatement visit(MethodCallExpr n, Object arg) {
 		AbstractStatement res = null;
@@ -566,10 +586,18 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		valid = false;
 	}
 
+	/**
+	 * <p>Getter for the field <code>newTC</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase getNewTC() {
 		return newTC;
 	}
 
+	/**
+	 * <p>reset</p>
+	 */
 	public void reset() {
 		newTC = new DefaultTestCase();
 		valid = true;
@@ -577,14 +605,31 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		parsErrors.clear();
 	}
 
+	/**
+	 * <p>isValid</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isValid() {
 		return valid;
 	}
 
+	/**
+	 * <p>Getter for the field <code>parsErrors</code>.</p>
+	 *
+	 * @return a {@link java.util.ArrayList} object.
+	 */
 	public ArrayList<String> getParsErrors() {
 		return parsErrors;
 	}
 
+	/**
+	 * <p>getClass</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link java.lang.Class} object.
+	 * @throws japa.parser.ParseException if any.
+	 */
 	public Class<?> getClass(String name) throws ParseException {
 		// First try to find exact match
 		if (name.equals("int"))

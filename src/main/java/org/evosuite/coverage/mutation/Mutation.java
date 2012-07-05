@@ -32,8 +32,9 @@ import org.objectweb.asm.tree.LdcInsnNode;
 
 
 /**
+ * <p>Mutation class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class Mutation {
 
@@ -53,6 +54,17 @@ public class Mutation {
 
 	private final int lineNo;
 
+	/**
+	 * <p>Constructor for Mutation.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param mutationName a {@link java.lang.String} object.
+	 * @param id a int.
+	 * @param original a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mutation a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public Mutation(String className, String methodName, String mutationName, int id,
 	        BytecodeInstruction original, AbstractInsnNode mutation, InsnList distance) {
 		this.className = className;
@@ -66,6 +78,17 @@ public class Mutation {
 		this.lineNo = original.getLineNumber();
 	}
 
+	/**
+	 * <p>Constructor for Mutation.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param mutationName a {@link java.lang.String} object.
+	 * @param id a int.
+	 * @param original a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mutation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public Mutation(String className, String methodName, String mutationName, int id,
 	        BytecodeInstruction original, InsnList mutation, InsnList distance) {
 		this.className = className;
@@ -78,26 +101,56 @@ public class Mutation {
 		this.lineNo = original.getLineNumber();
 	}
 
+	/**
+	 * <p>Getter for the field <code>id</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getId() {
 		return id;
 	}
 
+	/**
+	 * <p>Getter for the field <code>className</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return className;
 	}
 
+	/**
+	 * <p>Getter for the field <code>methodName</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethodName() {
 		return methodName;
 	}
 
+	/**
+	 * <p>getOperandSize</p>
+	 *
+	 * @return a int.
+	 */
 	public int getOperandSize() {
 		return 0;
 	}
 
+	/**
+	 * <p>Getter for the field <code>mutationName</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMutationName() {
 		return id + ": " + mutationName + ", line " + original.getLineNumber();
 	}
 
+	/**
+	 * <p>getControlDependencies</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<BranchCoverageGoal> getControlDependencies() {
 		Set<BranchCoverageGoal> goals = new HashSet<BranchCoverageGoal>();
 		for (ControlDependency cd : original.getControlDependencies()) {
@@ -107,18 +160,38 @@ public class Mutation {
 		return goals;
 	}
 
+	/**
+	 * <p>getOriginalNode</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 */
 	public AbstractInsnNode getOriginalNode() {
 		return original.getASMNode();
 	}
 
+	/**
+	 * <p>Getter for the field <code>mutation</code>.</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public InsnList getMutation() {
 		return mutation;
 	}
 
+	/**
+	 * <p>getInfectionDistance</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public InsnList getInfectionDistance() {
 		return infection;
 	}
 
+	/**
+	 * <p>getDefaultInfectionDistance</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public static InsnList getDefaultInfectionDistance() {
 		InsnList defaultDistance = new InsnList();
 		defaultDistance.add(new LdcInsnNode(0.0));
@@ -128,6 +201,7 @@ public class Mutation {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Mutation " + id + ": " + className + "." + methodName + ":" + lineNo
@@ -137,6 +211,7 @@ public class Mutation {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -152,6 +227,7 @@ public class Mutation {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

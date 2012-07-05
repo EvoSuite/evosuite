@@ -27,8 +27,9 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 
 /**
+ * <p>RemoveFinalMethodAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class RemoveFinalMethodAdapter extends MethodVisitor {
 
@@ -37,7 +38,11 @@ public class RemoveFinalMethodAdapter extends MethodVisitor {
 	private final String className;
 
 	/**
-	 * @param mv
+	 * <p>Constructor for RemoveFinalMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param finalFields a {@link java.util.List} object.
 	 */
 	public RemoveFinalMethodAdapter(String className, MethodVisitor mv,
 	        List<String> finalFields) {
@@ -49,6 +54,7 @@ public class RemoveFinalMethodAdapter extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodAdapter#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		if ((opcode == Opcodes.PUTFIELD || opcode == Opcodes.PUTSTATIC)

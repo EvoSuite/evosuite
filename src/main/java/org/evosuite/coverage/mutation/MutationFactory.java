@@ -30,8 +30,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>MutationFactory class.</p>
+ *
  * @author fraser
- * 
  */
 public class MutationFactory extends AbstractFitnessFactory {
 
@@ -41,9 +42,17 @@ public class MutationFactory extends AbstractFitnessFactory {
 
 	private List<TestFitnessFunction> goals = null;
 
+	/**
+	 * <p>Constructor for MutationFactory.</p>
+	 */
 	public MutationFactory() {
 	}
 
+	/**
+	 * <p>Constructor for MutationFactory.</p>
+	 *
+	 * @param strongMutation a boolean.
+	 */
 	public MutationFactory(boolean strongMutation) {
 		this.strong = strongMutation;
 	}
@@ -51,11 +60,18 @@ public class MutationFactory extends AbstractFitnessFactory {
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		return getCoverageGoals(null);
 	}
 
+	/**
+	 * <p>getCoverageGoals</p>
+	 *
+	 * @param targetMethod a {@link java.lang.String} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<TestFitnessFunction> getCoverageGoals(String targetMethod) {
 		if (goals != null)
 			return goals;

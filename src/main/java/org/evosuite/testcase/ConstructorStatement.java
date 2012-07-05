@@ -41,9 +41,8 @@ import org.objectweb.asm.commons.Method;
 
 /**
  * This statement represents a constructor call
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ConstructorStatement extends AbstractStatement {
 
@@ -58,6 +57,14 @@ public class ConstructorStatement extends AbstractStatement {
 	                                                             "float", "double",
 	                                                             "byte");
 
+	/**
+	 * <p>Constructor for ConstructorStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param parameters a {@link java.util.List} object.
+	 */
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
 		super(tc, new VariableReferenceImpl(tc, type));
@@ -71,11 +78,11 @@ public class ConstructorStatement extends AbstractStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 * 
-	 * @param tc
-	 * @param constructor
-	 * @param retvar
-	 * @param parameters
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 * @param retvar a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param parameters a {@link java.util.List} object.
 	 */
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        VariableReference retvar, List<VariableReference> parameters) {
@@ -86,6 +93,15 @@ public class ConstructorStatement extends AbstractStatement {
 		this.parameters = parameters;
 	}
 
+	/**
+	 * <p>Constructor for ConstructorStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 * @param retvar a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param parameters a {@link java.util.List} object.
+	 * @param check a boolean.
+	 */
 	protected ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        VariableReference retvar, List<VariableReference> parameters, boolean check) {
 		super(tc, retvar);
@@ -94,14 +110,30 @@ public class ConstructorStatement extends AbstractStatement {
 		this.parameters = parameters;
 	}
 
+	/**
+	 * <p>Getter for the field <code>constructor</code>.</p>
+	 *
+	 * @return a {@link java.lang.reflect.Constructor} object.
+	 */
 	public Constructor<?> getConstructor() {
 		return constructor;
 	}
 
+	/**
+	 * <p>Setter for the field <code>constructor</code>.</p>
+	 *
+	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 */
 	public void setConstructor(Constructor<?> constructor) {
 		this.constructor = constructor;
 	}
 
+	/**
+	 * <p>getReturnType</p>
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getReturnType(Class<?> clazz) {
 		String retVal = ClassUtils.getShortClassName(clazz);
 		if (primitiveClasses.contains(retVal))
@@ -111,6 +143,7 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	// TODO: Handle inner classes (need instance parameter for newInstance)
+	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
@@ -186,6 +219,7 @@ public class ConstructorStatement extends AbstractStatement {
 		return exceptionThrown;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
@@ -200,6 +234,7 @@ public class ConstructorStatement extends AbstractStatement {
 		return copy;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
@@ -217,6 +252,7 @@ public class ConstructorStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 
@@ -232,16 +268,28 @@ public class ConstructorStatement extends AbstractStatement {
 		}
 	}
 
+	/**
+	 * <p>getParameterReferences</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<VariableReference> getParameterReferences() {
 		return parameters;
 	}
 
+	/**
+	 * <p>replaceParameterReference</p>
+	 *
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param numParameter a int.
+	 */
 	public void replaceParameterReference(VariableReference var, int numParameter) {
 		assert (numParameter >= 0);
 		assert (numParameter < parameters.size());
 		parameters.set(numParameter, var);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -266,6 +314,7 @@ public class ConstructorStatement extends AbstractStatement {
 		return retval.equals(ms.retval);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 41;
@@ -282,6 +331,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
@@ -356,6 +406,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * 
 	 * @see org.evosuite.testcase.Statement#getDeclaredExceptions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = super.getDeclaredExceptions();
@@ -369,6 +420,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		List<VariableReference> references = new ArrayList<VariableReference>();
@@ -385,6 +437,7 @@ public class ConstructorStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
 		assert (super.isValid());
@@ -394,6 +447,7 @@ public class ConstructorStatement extends AbstractStatement {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
 		if (this == s)
@@ -418,11 +472,13 @@ public class ConstructorStatement extends AbstractStatement {
 		return retval.same(ms.retval);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		return constructor;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
@@ -454,6 +510,7 @@ public class ConstructorStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		try {

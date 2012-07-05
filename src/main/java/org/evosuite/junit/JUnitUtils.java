@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.junit;
 
@@ -58,6 +61,12 @@ public class JUnitUtils {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JUnitUtils.class);
 
+	/**
+	 * <p>readTestCase</p>
+	 *
+	 * @param failingTest a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public static TestCase readTestCase(String failingTest) {
 		String[] classpath = Properties.CLASSPATH;
 		String[] sources = Properties.SOURCEPATH;
@@ -65,6 +74,12 @@ public class JUnitUtils {
 		return testCase;
 	}
 
+	/**
+	 * <p>readTestCases</p>
+	 *
+	 * @param failingTest a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<TestCase> readTestCases(String failingTest) {
 		try {
 			File failingTestFile = new File(failingTest);
@@ -76,6 +91,12 @@ public class JUnitUtils {
 		}
 	}
 
+	/**
+	 * <p>runTest</p>
+	 *
+	 * @param originalTest a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.junit.TestRun} object.
+	 */
 	public static TestRun runTest(String originalTest) {
 		if (originalTest.contains("#")) {
 			originalTest = originalTest.substring(0, originalTest.indexOf("#"));
@@ -95,6 +116,12 @@ public class JUnitUtils {
 		}
 	}
 
+	/**
+	 * <p>runTest</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public static ExecutionResult runTest(TestCase testCase) {
 		logger.debug("Execution testCase with timeout {}: \n{}", Properties.TIMEOUT, testCase.toCode());
 		return TestCaseExecutor.getInstance().execute(testCase);

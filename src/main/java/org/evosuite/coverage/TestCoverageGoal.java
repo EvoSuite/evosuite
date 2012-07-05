@@ -27,27 +27,31 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>Abstract TestCoverageGoal class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class TestCoverageGoal {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(TestCoverageGoal.class);
 
+	/** Constant <code>executor</code> */
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Return true if this coverage goal is covered by the given test
-	 * 
-	 * @param test
-	 * @return
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @return a boolean.
 	 */
 	public abstract boolean isCovered(TestChromosome test);
 
 	/**
 	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @return
+	 *
+	 * @param tests a {@link java.util.List} object.
+	 * @return a boolean.
 	 */
 	public boolean isCovered(List<TestChromosome> tests) {
 		for (TestChromosome test : tests) {
@@ -57,6 +61,12 @@ public abstract class TestCoverageGoal {
 		return false;
 	}
 
+	/**
+	 * <p>hasTimeout</p>
+	 *
+	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a boolean.
+	 */
 	public static boolean hasTimeout(ExecutionResult result) {
 
 		if (result == null) {
@@ -78,12 +88,9 @@ public abstract class TestCoverageGoal {
 
 	/**
 	 * Execute a test case
-	 * 
+	 *
 	 * @param test
 	 *            The test case to execute
-	 * @param mutant
-	 *            The mutation to active (null = no mutation)
-	 * 
 	 * @return Result of the execution
 	 */
 	protected ExecutionResult runTest(TestChromosome test) {

@@ -21,12 +21,12 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * Can be used to create instances of Definition and Use
- * 
+ *
  *  When given an instruction this factory asks the DefUsePool
  * whether it knows this instruction. If it does the pool
  * reveals the initially assigned defUseIDs which are then
  * put into the respective constructors.
- * 
+ *
  * @author Andre Mis
  */
 public class DefUseFactory {
@@ -34,7 +34,9 @@ public class DefUseFactory {
 	/**
 	 * Returns a Use instance given a BytecodeInstruction for which isUse() is
 	 * true
-	 * 
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.evosuite.coverage.dataflow.Use} object.
 	 */
 	public static Use makeUse(BytecodeInstruction instruction) {
 		if (!instruction.isUse())
@@ -55,7 +57,9 @@ public class DefUseFactory {
 	/**
 	 * Returns a Definition instance given a BytecodeInstruction for which
 	 * isDefinition() is true
-	 * 
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 */
 	public static Definition makeDefinition(BytecodeInstruction instruction) {
 		if (!instruction.isDefinition())
@@ -74,15 +78,18 @@ public class DefUseFactory {
 	}
 
 	/**
-	 *  Convenience method to offer DefUse-Functionality for when 
+	 *  Convenience method to offer DefUse-Functionality for when
 	 * it doesn't matter whether a Definition or Use is returned
-	 * 
+	 *
 	 *  Returns a Definition instance
 	 * given a BytecodeInstruction for which isDefinition() is true
 	 *  Otherwise returns a Use instance
 	 * given a BytecodeInstruction for which isUse() is true
-	 * 
+	 *
 	 * WARNING: when given the wrap for an IINC this method will return a Definition
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.evosuite.coverage.dataflow.DefUse} object.
 	 */
 	public static DefUse makeInstance(BytecodeInstruction instruction) {
 		if(!instruction.isDefUse())

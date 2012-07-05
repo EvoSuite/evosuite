@@ -21,8 +21,9 @@
 package org.evosuite.symbolic.expr;
 
 /**
- * @author krusev
+ * <p>Abstract StringExpression class.</p>
  *
+ * @author krusev
  */
 public abstract class StringExpression implements Expression<String> {
 
@@ -32,14 +33,21 @@ public abstract class StringExpression implements Expression<String> {
 	
 	private Expression<?> parent = null;
 	
+	/**
+	 * <p>Getter for the field <code>parent</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<?> getParent() {
 		return this.parent;
 	}
 	
+	/** {@inheritDoc} */
 	public void setParent(Expression<?> expr) {
 		this.parent = expr;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		if (hash == 0) {

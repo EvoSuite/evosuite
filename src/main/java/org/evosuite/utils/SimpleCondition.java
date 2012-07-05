@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,27 +15,37 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
 
 import java.util.concurrent.locks.*;
-
 public class SimpleCondition {
 	private Lock lock;
 	private Condition condition;
 	private boolean wasSignaled = false;
 	
+	/**
+	 * <p>Constructor for SimpleCondition.</p>
+	 */
 	public SimpleCondition() {
 		this.lock = new ReentrantLock();
 		this.condition = this.lock.newCondition();
 		this.lock.lock();
 	}
 	
+	/**
+	 * <p>awaitUninterruptibly</p>
+	 */
 	public void awaitUninterruptibly() {
 		this.condition.awaitUninterruptibly();
 		this.lock.unlock();
 	}
 	
+	/**
+	 * <p>signal</p>
+	 */
 	public synchronized void signal() {
 		this.lock.lock();
 
@@ -46,6 +57,11 @@ public class SimpleCondition {
 		}
 	}
 
+	/**
+	 * <p>wasSignaled</p>
+	 *
+	 * @return a boolean.
+	 */
 	public synchronized boolean wasSignaled() {
 		return this.wasSignaled;
 	}

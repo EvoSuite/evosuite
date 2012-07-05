@@ -32,12 +32,12 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
  * Evaluate fitness of a test suite with respect to all of its def-use pairs
- * 
+ *
  * First simple and naive idea: Just take each DUGoal, calculate the minimal
  * fitness over all results in the suite once a goal is covered don't check for
  * it again in the end sum up all those fitness and that is s the resulting
  * suite-fitness
- * 
+ *
  * @author Andre Mis
  */
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
@@ -46,7 +46,9 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	static List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory
 			.getDUGoals();
 
+	/** Constant <code>totalGoals</code> */
 	public static Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
+	/** Constant <code>mostCoveredGoals</code> */
 	public static Map<DefUsePairType, Integer> mostCoveredGoals = new HashMap<DefUsePairType, Integer>();
 
 	public Map<DefUsePairType, Integer> coveredGoals = new HashMap<DefUsePairType, Integer>();
@@ -58,6 +60,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * org.evosuite.ga.FitnessFunction#getFitness(org.
 	 * evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		logger.trace("Calculating defuse fitness");
@@ -133,6 +136,11 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return countGoalsIn(coveredGoals);
 	}
 
+	/**
+	 * <p>countMostCoveredGoals</p>
+	 *
+	 * @return a int.
+	 */
 	public static int countMostCoveredGoals() {
 		return countGoalsIn(mostCoveredGoals);
 	}
@@ -190,6 +198,9 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		}
 	}
 
+	/**
+	 * <p>printCoverage</p>
+	 */
 	public static void printCoverage() {
 
 		System.out.println("* Time spent optimizing covered goals analysis: "

@@ -39,15 +39,15 @@ import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * Statement assigning a primitive numeric value
- * 
+ *
  * @author Gordon Fraser
- * 
  * @param <T>
  */
 public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static final long serialVersionUID = -7721106626421922833L;
 
+	/** Constant <code>primitive_pool</code> */
 	protected static PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
@@ -55,6 +55,14 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	T value;
 
+	/**
+	 * <p>Constructor for PrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param value a T object.
+	 * @param <T> a T object.
+	 */
 	public PrimitiveStatement(TestCase tc, VariableReference varRef, T value) {
 		super(tc, varRef);
 		this.value = value;
@@ -62,9 +70,10 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Constructor
-	 * 
-	 * @param reference
-	 * @param value
+	 *
+	 * @param value a T object.
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
 	 */
 	public PrimitiveStatement(TestCase tc, Type type, T value) {
 		super(tc, new VariableReferenceImpl(tc, type));
@@ -73,8 +82,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Access the value
-	 * 
-	 * @return
+	 *
+	 * @return a T object.
 	 */
 	public T getValue() {
 		return value;
@@ -82,8 +91,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Set the value
-	 * 
-	 * @param val
+	 *
+	 * @param val a T object.
 	 */
 	public void setValue(T val) {
 		this.value = val;
@@ -92,10 +101,10 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/**
 	 * Generate a primitive statement for given type initialized with default
 	 * value (0)
-	 * 
-	 * @param tc
-	 * @param clazz
-	 * @return
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Type clazz) {
@@ -137,10 +146,12 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Create random primitive statement
-	 * 
-	 * @param reference
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param position a int.
+	 * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
 	public static PrimitiveStatement<?> getRandomStatement(TestCase tc, Type type,
 	        int position, Type clazz) {
@@ -151,6 +162,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		@SuppressWarnings("unchecked")
@@ -161,6 +173,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return clone;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
@@ -176,6 +189,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return exceptionThrown;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
@@ -186,6 +200,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 		if (retval.equals(var1)) {
@@ -193,6 +208,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -206,6 +222,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return (retval.equals(ps.retval) && value.equals(ps.value));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 21;
@@ -226,8 +243,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Push the value on the stack
-	 * 
-	 * @param mg
+	 *
+	 * @param mg a {@link org.objectweb.asm.commons.GeneratorAdapter} object.
 	 */
 	protected abstract void pushBytecode(GeneratorAdapter mg);
 
@@ -238,6 +255,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
@@ -258,11 +276,13 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
 		if (this == s)
@@ -276,6 +296,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return (retval.same(ps.retval) && value.equals(ps.value));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return getCode();
@@ -312,6 +333,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#mutate(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		T oldVal = value;
@@ -339,11 +361,13 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	public abstract void randomize();
 
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		return null;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
@@ -352,6 +376,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		// No-op

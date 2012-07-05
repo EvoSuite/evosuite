@@ -34,8 +34,9 @@ import org.objectweb.asm.util.TraceClassVisitor;
 
 
 /**
- * @author Gordon Fraser
+ * <p>PrintBytecodeTransformer class.</p>
  *
+ * @author Gordon Fraser
  */
 public class PrintBytecodeTransformer implements ClassFileTransformer {
 
@@ -44,6 +45,7 @@ public class PrintBytecodeTransformer implements ClassFileTransformer {
 	/* (non-Javadoc)
      * @see java.lang.instrument.ClassFileTransformer#transform(java.lang.ClassLoader, java.lang.String, java.lang.Class, java.security.ProtectionDomain, byte[])
      */
+    /** {@inheritDoc} */
     @Override
     public byte[] transform(ClassLoader loader, String className,
             Class<?> classBeingRedefined, ProtectionDomain protectionDomain,

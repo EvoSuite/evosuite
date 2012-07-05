@@ -25,8 +25,9 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 
 
 /**
+ * <p>StringToIntCast class.</p>
+ *
  * @author krusev
- * 
  */
 public class StringToIntCast extends IntegerExpression implements Cast<String> {
 
@@ -36,6 +37,12 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 
 	protected Expression<String> expr;
 
+	/**
+	 * <p>Constructor for StringToIntCast.</p>
+	 *
+	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param _concValue a {@link java.lang.Long} object.
+	 */
 	public StringToIntCast(Expression<String> _expr, Long _concValue) {
 		this.expr = _expr;
 		this.concValue = _concValue;
@@ -43,21 +50,25 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 			throw new ConstraintTooLongException();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Object getConcreteValue() {
 		return concValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getConcreteObject() {
 		return expr;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "((INT)" + expr + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -73,6 +84,7 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 
 	protected int size = 0;
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if (size == 0) {
@@ -81,6 +93,7 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
 		return Long.parseLong(((String) expr.execute()));

@@ -44,8 +44,9 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 
 
 /**
+ * <p>Abstract InvVStringHelper class.</p>
+ *
  * @author krusev
- * 
  */
 public abstract class InvVStringHelper {
 
@@ -57,6 +58,14 @@ public abstract class InvVStringHelper {
 
 	//String Comparisons
 
+	/**
+	 * <p>strFncEqualsIgnoreCase</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncEqualsIgnoreCase(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -92,6 +101,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncEquals</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncEquals(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -133,6 +150,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncStartsWith</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public static Instruction strFncStartsWith(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
@@ -202,6 +227,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncEndsWith</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncEndsWith(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -238,6 +271,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncContains</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncContains(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -272,6 +313,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncRegionMatches</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public static Instruction strFncRegionMatches(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
@@ -371,6 +420,14 @@ public abstract class InvVStringHelper {
 
 	// String Operations
 
+	/**
+	 * <p>strFncCompareTo</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncCompareTo(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -407,6 +464,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncCompareToIgnoreCase</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncCompareToIgnoreCase(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -443,6 +508,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncSubstring</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncSubstring(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = true;
@@ -521,6 +594,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncReplace</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncReplace(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = false;
@@ -611,6 +692,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncReplaceAll</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncReplaceAll(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -656,6 +745,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncReplaceFirst</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncReplaceFirst(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
@@ -700,6 +797,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncToLowerCase</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncToLowerCase(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
@@ -734,6 +839,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncToUpperCase</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncToUpperCase(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
@@ -768,6 +881,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncTrim</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncTrim(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
 
@@ -793,6 +914,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncConcat</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncConcat(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -829,6 +958,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncLength</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncLength(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 
@@ -854,6 +991,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncIndexOf</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncIndexOf(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = false;
@@ -1018,6 +1163,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncLastIndexOf</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncLastIndexOf(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		boolean concrete = false;
@@ -1185,6 +1338,14 @@ public abstract class InvVStringHelper {
 		return ins.getNext(ti);
 	}
 
+	/**
+	 * <p>strFncCharAt</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strFncCharAt(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();

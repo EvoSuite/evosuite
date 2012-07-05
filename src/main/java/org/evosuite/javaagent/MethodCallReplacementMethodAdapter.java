@@ -33,8 +33,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>MethodCallReplacementMethodAdapter class.</p>
+ *
  * @author fraser
- * 
  */
 public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 
@@ -100,7 +101,13 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	private final Set<MethodCallReplacement> virtualReplacementCalls = new HashSet<MethodCallReplacement>();
 
 	/**
-	 * @param api
+	 * <p>Constructor for MethodCallReplacementMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param access a int.
+	 * @param desc a {@link java.lang.String} object.
 	 */
 	public MethodCallReplacementMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
@@ -134,6 +141,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		boolean isReplaced = false;

@@ -30,11 +30,13 @@ import org.objectweb.asm.Opcodes;
 
 
 /**
+ * <p>BooleanHelper class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class BooleanHelper {
 
+	/** Constant <code>K=Integer.MAX_VALUE - 2</code> */
 	public static final int K = Integer.MAX_VALUE - 2;
 	//public static final int K = 1000;
 
@@ -42,16 +44,19 @@ public class BooleanHelper {
 
 	private static final int FALSE = -K;
 
+	/**
+	 * <p>clearStack</p>
+	 */
 	public static void clearStack() {
 		lastDistance.clear();
 	}
 
 	/**
 	 * Helper function that is called instead of Object.equals
-	 * 
-	 * @param obj1
-	 * @param obj2
-	 * @return
+	 *
+	 * @param obj1 a {@link java.lang.Object} object.
+	 * @param obj2 a {@link java.lang.Object} object.
+	 * @return a int.
 	 */
 	public static int objectEquals(Object obj1, Object obj2) {
 		return obj1.equals(obj2) ? TRUE : FALSE;
@@ -59,9 +64,9 @@ public class BooleanHelper {
 
 	/**
 	 * Helper function that is called instead of Collection.isEmpty
-	 * 
-	 * @param c
-	 * @return
+	 *
+	 * @param c a {@link java.util.Collection} object.
+	 * @return a int.
 	 */
 	public static int collectionIsEmpty(Collection<?> c) {
 		return c.isEmpty() ? TRUE : -c.size();
@@ -69,10 +74,10 @@ public class BooleanHelper {
 
 	/**
 	 * Helper function that is called instead of Collection.contains
-	 * 
-	 * @param c
-	 * @param o1
-	 * @return
+	 *
+	 * @param c a {@link java.util.Collection} object.
+	 * @param o1 a {@link java.lang.Object} object.
+	 * @return a int.
 	 */
 	public static int collectionContains(Collection<?> c, Object o1) {
 		int matching = 0;
@@ -106,10 +111,10 @@ public class BooleanHelper {
 
 	/**
 	 * Helper function that is called instead of Collection.containsAll
-	 * 
-	 * @param c
-	 * @param o1
-	 * @return
+	 *
+	 * @param c a {@link java.util.Collection} object.
+	 * @param c2 a {@link java.util.Collection} object.
+	 * @return a int.
 	 */
 	public static int collectionContainsAll(Collection<?> c, Collection<?> c2) {
 		int mismatch = 0;
@@ -122,10 +127,10 @@ public class BooleanHelper {
 
 	/**
 	 * Helper function that is called instead of Map.containsKey
-	 * 
-	 * @param c
-	 * @param o1
-	 * @return
+	 *
+	 * @param o1 a {@link java.lang.Object} object.
+	 * @param m a {@link java.util.Map} object.
+	 * @return a int.
 	 */
 	public static int mapContainsKey(Map<?, ?> m, Object o1) {
 		return collectionContains(m.keySet(), o1);
@@ -133,10 +138,10 @@ public class BooleanHelper {
 
 	/**
 	 * Helper function that is called instead of Map.containsValue
-	 * 
-	 * @param c
-	 * @param o1
-	 * @return
+	 *
+	 * @param o1 a {@link java.lang.Object} object.
+	 * @param m a {@link java.util.Map} object.
+	 * @return a int.
 	 */
 	public static int mapContainsValue(Map<?, ?> m, Object o1) {
 		return collectionContains(m.values(), o1);
@@ -144,9 +149,9 @@ public class BooleanHelper {
 
 	/**
 	 * Helper function that is called instead of Map.isEmpty
-	 * 
-	 * @param c
-	 * @return
+	 *
+	 * @param m a {@link java.util.Map} object.
+	 * @return a int.
 	 */
 	public static int mapIsEmpty(Map<?, ?> m) {
 		return m.isEmpty() ? TRUE : -m.size();
@@ -156,9 +161,9 @@ public class BooleanHelper {
 
 	/**
 	 * Keep track of the distance for this predicate
-	 * 
-	 * @param branchId
-	 * @param distance
+	 *
+	 * @param branchId a int.
+	 * @param distance a int.
 	 */
 	public static void pushPredicate(int distance, int branchId) {
 		//		Branch branch = BranchPool.getBranch(branchId);
@@ -171,11 +176,11 @@ public class BooleanHelper {
 
 	/**
 	 * Retrieve the distance of a predicate with its given approximation level
-	 * 
-	 * @param branchId
-	 * @param approximationLevel
-	 * @param value
-	 * @return
+	 *
+	 * @param branchId a int.
+	 * @param approximationLevel a int.
+	 * @param value a int.
+	 * @return a int.
 	 */
 	public static int getDistance(int branchId, int approximationLevel, int value) {
 		int distance = Integer.MAX_VALUE;
@@ -222,10 +227,10 @@ public class BooleanHelper {
 
 	/**
 	 * Replacement function for double comparison
-	 * 
-	 * @param d1
-	 * @param d2
-	 * @return
+	 *
+	 * @param d1 a double.
+	 * @param d2 a double.
+	 * @return a int.
 	 */
 	public static int doubleSub(double d1, double d2) {
 		if (d1 == d2) {
@@ -242,10 +247,10 @@ public class BooleanHelper {
 
 	/**
 	 * Replacement function for float comparison
-	 * 
-	 * @param f1
-	 * @param f2
-	 * @return
+	 *
+	 * @param f1 a float.
+	 * @param f2 a float.
+	 * @return a int.
 	 */
 	public static int floatSub(float f1, float f2) {
 		if (f1 == f2)
@@ -258,6 +263,13 @@ public class BooleanHelper {
 		}
 	}
 
+	/**
+	 * <p>intSub</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @return a int.
+	 */
 	public static int intSub(int a, int b) {
 		long sub = (long) a - (long) b;
 		if (sub < -K)
@@ -269,10 +281,10 @@ public class BooleanHelper {
 
 	/**
 	 * Replacement function for long comparison
-	 * 
-	 * @param l1
-	 * @param l2
-	 * @return
+	 *
+	 * @param l1 a long.
+	 * @param l2 a long.
+	 * @return a int.
 	 */
 	public static int longSub(long l1, long l2) {
 		if (l1 == l2)
@@ -285,6 +297,12 @@ public class BooleanHelper {
 		}
 	}
 
+	/**
+	 * <p>fromDouble</p>
+	 *
+	 * @param d a double.
+	 * @return a int.
+	 */
 	@Deprecated
 	public static int fromDouble(double d) {
 		//logger.info("Converting double " + d);
@@ -306,6 +324,12 @@ public class BooleanHelper {
 		}
 	}
 
+	/**
+	 * <p>fromFloat</p>
+	 *
+	 * @param d a float.
+	 * @return a int.
+	 */
 	@Deprecated
 	public static int fromFloat(float d) {
 		//logger.info("Converting float " + d);
@@ -326,6 +350,12 @@ public class BooleanHelper {
 		}
 	}
 
+	/**
+	 * <p>fromLong</p>
+	 *
+	 * @param d a long.
+	 * @return a int.
+	 */
 	@Deprecated
 	public static int fromLong(long d) {
 		/*
@@ -343,6 +373,12 @@ public class BooleanHelper {
 		return d3;
 	}
 
+	/**
+	 * <p>booleanToInt</p>
+	 *
+	 * @param b a boolean.
+	 * @return a int.
+	 */
 	public static int booleanToInt(boolean b) {
 		if (b)
 			return TRUE;
@@ -350,10 +386,24 @@ public class BooleanHelper {
 			return FALSE;
 	}
 
+	/**
+	 * <p>intToBoolean</p>
+	 *
+	 * @param x a int.
+	 * @return a boolean.
+	 */
 	public static boolean intToBoolean(int x) {
 		return x > 0;
 	}
 
+	/**
+	 * <p>min</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @param c a int.
+	 * @return a int.
+	 */
 	public static int min(int a, int b, int c) {
 		if (a < b)
 			return Math.min(a, c);
@@ -361,6 +411,13 @@ public class BooleanHelper {
 			return Math.min(b, c);
 	}
 
+	/**
+	 * <p>compareBoolean</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @return a int.
+	 */
 	public static int compareBoolean(int a, int b) {
 		if ((a > 0 && b > 0) || (a <= 0 && b <= 0))
 			return Math.abs(a - b);
@@ -368,6 +425,13 @@ public class BooleanHelper {
 			return -1 * Math.abs(a - b);
 	}
 
+	/**
+	 * <p>editDistance_old</p>
+	 *
+	 * @param s a {@link java.lang.String} object.
+	 * @param t a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int editDistance_old(String s, String t) {
 		int d[][]; // matrix
 		int n; // length of s
@@ -436,6 +500,13 @@ public class BooleanHelper {
 		return d[n][m];
 	}
 
+	/**
+	 * <p>editDistance</p>
+	 *
+	 * @param s a {@link java.lang.String} object.
+	 * @param t a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int editDistance(String s, String t) {
 		//if (s == null || t == null) {
 		//	throw new IllegalArgumentException("Strings must not be null");
@@ -508,6 +579,13 @@ public class BooleanHelper {
 	 * Return a positive number if the 2 strings are equal, or a <=0 value representing
 	 * how different they are
 	 */
+	/**
+	 * <p>StringEquals</p>
+	 *
+	 * @param first a {@link java.lang.String} object.
+	 * @param second a {@link java.lang.Object} object.
+	 * @return a int.
+	 */
 	public static int StringEquals(String first, Object second) {
 		if (first == null) {
 			throw new IllegalArgumentException(
@@ -526,6 +604,13 @@ public class BooleanHelper {
 		}
 	}
 
+	/**
+	 * <p>getDistanceBasedOnLeftAlignment</p>
+	 *
+	 * @param a a {@link java.lang.String} object.
+	 * @param b a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int getDistanceBasedOnLeftAlignment(String a, String b) {
 		if (a == b) {
 			assert (false);
@@ -553,10 +638,25 @@ public class BooleanHelper {
 		}
 	}
 
+	/**
+	 * <p>StringEqualsIgnoreCase</p>
+	 *
+	 * @param first a {@link java.lang.String} object.
+	 * @param second a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int StringEqualsIgnoreCase(String first, String second) {
 		return StringEquals(first.toLowerCase(), second.toLowerCase());
 	}
 
+	/**
+	 * <p>StringStartsWith</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @param prefix a {@link java.lang.String} object.
+	 * @param start a int.
+	 * @return a int.
+	 */
 	public static int StringStartsWith(String value, String prefix, int start) {
 		int len = Math.min(prefix.length(), value.length());
 		//System.out.println("StartsWith: " + start + ": " + value + " / " + prefix + ": "
@@ -565,12 +665,25 @@ public class BooleanHelper {
 		return StringEquals(value.substring(start, start + len), prefix);
 	}
 
+	/**
+	 * <p>StringEndsWith</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @param suffix a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int StringEndsWith(String value, String suffix) {
 		int len = Math.min(suffix.length(), value.length());
 		String val1 = value.substring(value.length() - len);
 		return StringEquals(val1, suffix);
 	}
 
+	/**
+	 * <p>StringIsEmpty</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int StringIsEmpty(String value) {
 		int len = value.length();
 		if (len == 0) {
@@ -580,6 +693,17 @@ public class BooleanHelper {
 		}
 	}
 
+	/**
+	 * <p>StringRegionMatches</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @param thisStart a int.
+	 * @param string a {@link java.lang.String} object.
+	 * @param start a int.
+	 * @param length a int.
+	 * @param ignoreCase a boolean.
+	 * @return a int.
+	 */
 	public static int StringRegionMatches(String value, int thisStart, String string,
 	        int start, int length, boolean ignoreCase) {
 		if (value == null || string == null)
@@ -610,10 +734,10 @@ public class BooleanHelper {
 	/**
 	 * Replacement function for the Java instanceof instruction, which returns a
 	 * distance integer
-	 * 
-	 * @param o
-	 * @param c
-	 * @return
+	 *
+	 * @param o a {@link java.lang.Object} object.
+	 * @param c a {@link java.lang.Class} object.
+	 * @return a int.
 	 */
 	public static int instanceOf(Object o, Class<?> c) {
 		if (o == null)
@@ -624,10 +748,11 @@ public class BooleanHelper {
 	/**
 	 * Replacement function for the Java IFNULL instruction, returning a
 	 * distance integer
-	 * 
+	 *
 	 * @param o
 	 * @param opcode
-	 * @return
+	 * @param opcode a int.
+	 * @return a int.
 	 */
 	public static int isNull(Object o, int opcode) {
 		if (opcode == Opcodes.IFNULL)
@@ -636,6 +761,13 @@ public class BooleanHelper {
 			return o != null ? TRUE : FALSE;
 	}
 
+	/**
+	 * <p>IOR</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @return a int.
+	 */
 	public static int IOR(int a, int b) {
 		int ret = 0;
 		if (a > 0 || b > 0) {
@@ -655,10 +787,24 @@ public class BooleanHelper {
 		return ret;
 	}
 
+	/**
+	 * <p>IAND</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @return a int.
+	 */
 	public static int IAND(int a, int b) {
 		return Math.min(a, b);
 	}
 
+	/**
+	 * <p>IXOR</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @return a int.
+	 */
 	public static int IXOR(int a, int b) {
 		int ret = 0;
 		if (a > 0 && b <= 0) {
@@ -674,6 +820,14 @@ public class BooleanHelper {
 		return ret;
 	}
 
+	/**
+	 * <p>isEqual</p>
+	 *
+	 * @param o1 a {@link java.lang.Object} object.
+	 * @param o2 a {@link java.lang.Object} object.
+	 * @param opcode a int.
+	 * @return a int.
+	 */
 	public static int isEqual(Object o1, Object o2, int opcode) {
 		if (opcode == Opcodes.IF_ACMPEQ)
 			return o1 == o2 ? K : -K;
@@ -691,12 +845,22 @@ public class BooleanHelper {
 	private static Stack<Long> parametersLong = new Stack<Long>();
 	private static Stack<Double> parametersDouble = new Stack<Double>();
 
+	/**
+	 * <p>popParameterBooleanFromInt</p>
+	 *
+	 * @return a boolean.
+	 */
 	public static boolean popParameterBooleanFromInt() {
 		int i = parametersInteger.pop();
 		boolean result = i > 0;
 		return result;
 	}
 
+	/**
+	 * <p>popParameterIntFromBoolean</p>
+	 *
+	 * @return a int.
+	 */
 	public static int popParameterIntFromBoolean() {
 		boolean i = parametersBoolean.pop();
 		if (i)
@@ -705,78 +869,174 @@ public class BooleanHelper {
 			return -K;
 	}
 
+	/**
+	 * <p>popParameterBoolean</p>
+	 *
+	 * @return a boolean.
+	 */
 	public static boolean popParameterBoolean() {
 		return parametersBoolean.pop();
 	}
 
+	/**
+	 * <p>popParameterChar</p>
+	 *
+	 * @return a char.
+	 */
 	public static char popParameterChar() {
 		return parametersChar.pop();
 	}
 
+	/**
+	 * <p>popParameterByte</p>
+	 *
+	 * @return a byte.
+	 */
 	public static byte popParameterByte() {
 		return parametersByte.pop();
 	}
 
+	/**
+	 * <p>popParameterShort</p>
+	 *
+	 * @return a short.
+	 */
 	public static short popParameterShort() {
 		return parametersShort.pop();
 	}
 
+	/**
+	 * <p>popParameterInt</p>
+	 *
+	 * @return a int.
+	 */
 	public static int popParameterInt() {
 		return parametersInteger.pop();
 	}
 
+	/**
+	 * <p>popParameterFloat</p>
+	 *
+	 * @return a float.
+	 */
 	public static float popParameterFloat() {
 		return parametersFloat.pop();
 	}
 
+	/**
+	 * <p>popParameterLong</p>
+	 *
+	 * @return a long.
+	 */
 	public static long popParameterLong() {
 		return parametersLong.pop();
 	}
 
+	/**
+	 * <p>popParameterDouble</p>
+	 *
+	 * @return a double.
+	 */
 	public static double popParameterDouble() {
 		return parametersDouble.pop();
 	}
 
+	/**
+	 * <p>popParameterObject</p>
+	 *
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public static Object popParameterObject() {
 		return parametersObject.pop();
 	}
 
+	/**
+	 * <p>popParameter</p>
+	 *
+	 * @param o a {@link java.lang.Object} object.
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public static Object popParameter(Object o) {
 		return parametersObject.pop();
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a boolean.
+	 */
 	public static void pushParameter(boolean o) {
 		parametersBoolean.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a char.
+	 */
 	public static void pushParameter(char o) {
 		parametersChar.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a byte.
+	 */
 	public static void pushParameter(byte o) {
 		parametersByte.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a short.
+	 */
 	public static void pushParameter(short o) {
 		parametersShort.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a int.
+	 */
 	public static void pushParameter(int o) {
 		parametersInteger.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a float.
+	 */
 	public static void pushParameter(float o) {
 		parametersFloat.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a long.
+	 */
 	public static void pushParameter(long o) {
 		parametersLong.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a double.
+	 */
 	public static void pushParameter(double o) {
 		parametersDouble.push(o);
 	}
 
+	/**
+	 * <p>pushParameter</p>
+	 *
+	 * @param o a {@link java.lang.Object} object.
+	 */
 	public static void pushParameter(Object o) {
 		parametersObject.push(o);
 	}

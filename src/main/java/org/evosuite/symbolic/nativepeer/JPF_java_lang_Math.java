@@ -54,13 +54,22 @@ import gov.nasa.jpf.jvm.MJIEnv;
 
 /**
  * MJI NativePeer class for java.lang.Math library abstraction
+ *
+ * @author Gordon Fraser
  */
-
 public class JPF_java_lang_Math {
 
 	@SuppressWarnings("unused")
 	private static Logger log = JPF.getLogger(JPF_java_lang_Math.class.toString());
 	
+	/**
+	 * <p>abs__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double abs__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -79,6 +88,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 	
+	/**
+	 * <p>abs__F__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float abs__F__F(MJIEnv env, int clsObjRef, float a) {
 		Object[] attrs = env.getArgAttributes();
@@ -97,6 +114,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 	
+	/**
+	 * <p>abs__I__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a int.
+	 * @return a int.
+	 */
 	@SuppressWarnings("unchecked")
 	public static int abs__I__I(MJIEnv env, int clsObjRef, int a) {
 		Object[] attrs = env.getArgAttributes();
@@ -115,6 +140,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 	
+	/**
+	 * <p>abs__J__J</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a long.
+	 * @return a long.
+	 */
 	@SuppressWarnings("unchecked")
 	public static long abs__J__J(MJIEnv env, int clsObjRef, long a) {
 		Object[] attrs = env.getArgAttributes();
@@ -133,6 +166,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 	
+	/**
+	 * <p>acos__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double acos__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -152,6 +193,14 @@ public class JPF_java_lang_Math {
 
 	}
 
+	/**
+	 * <p>asin__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double asin__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -170,6 +219,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>atan__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double atan__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -188,6 +245,15 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>atan2__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double atan2__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -214,6 +280,14 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>ceil__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double ceil__D__D(MJIEnv env, int rcls, double v0) {
 		Object[] attrs = env.getArgAttributes();
@@ -232,6 +306,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>cos__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double cos__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -250,6 +332,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>cosh__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double cosh__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -268,6 +358,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>exp__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double exp__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -286,6 +384,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>expm1__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double expm1__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -304,6 +410,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>floor__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double floor__D__D(MJIEnv env, int rcls, double v0) {
 		Object[] attrs = env.getArgAttributes();
@@ -322,6 +436,15 @@ public class JPF_java_lang_Math {
 		}
 	}
 	
+	/**
+	 * <p>IEEEremainder__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double IEEEremainder__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -350,6 +473,14 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 	
+	/**
+	 * <p>log__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double log__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -368,6 +499,15 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>max__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double max__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -397,6 +537,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>max__FF__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @param b a float.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float max__FF__F(MJIEnv env, int clsObjRef, float a, float b) {
 		Object[] attrs = env.getArgAttributes();
@@ -426,6 +575,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>max__II__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a int.
+	 * @param b a int.
+	 * @return a int.
+	 */
 	@SuppressWarnings("unchecked")
 	public static int max__II__I(MJIEnv env, int clsObjRef, int a, int b) {
 		Object[] attrs = env.getArgAttributes();
@@ -455,6 +613,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>max__JJ__J</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a long.
+	 * @param b a long.
+	 * @return a long.
+	 */
 	@SuppressWarnings("unchecked")
 	public static long max__JJ__J(MJIEnv env, int clsObjRef, long a, long b) {
 		Object[] attrs = env.getArgAttributes();
@@ -484,6 +651,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>min__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double min__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -513,6 +689,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>min__FF__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @param b a float.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float min__FF__F(MJIEnv env, int clsObjRef, float a, float b) {
 		Object[] attrs = env.getArgAttributes();
@@ -542,6 +727,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>min__II__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a int.
+	 * @param b a int.
+	 * @return a int.
+	 */
 	@SuppressWarnings("unchecked")
 	public static int min__II__I(MJIEnv env, int clsObjRef, int a, int b) {
 		Object[] attrs = env.getArgAttributes();
@@ -571,6 +765,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>min__JJ__J</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a long.
+	 * @param b a long.
+	 * @return a long.
+	 */
 	@SuppressWarnings("unchecked")
 	public static long min__JJ__J(MJIEnv env, int clsObjRef, long a, long b) {
 		Object[] attrs = env.getArgAttributes();
@@ -600,6 +803,14 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>log10__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double log10__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -618,6 +829,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>log1p__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double log1p__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -636,6 +855,15 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>pow__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double pow__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		
@@ -663,6 +891,14 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>rint__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double rint__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -681,6 +917,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>round__D__J</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a double.
+	 * @return a long.
+	 */
 	@SuppressWarnings("unchecked")
 	public static long round__D__J(MJIEnv env, int rcls, double v0) {
 		Object[] attrs = env.getArgAttributes();
@@ -698,6 +942,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>round__F__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a float.
+	 * @return a int.
+	 */
 	@SuppressWarnings("unchecked")
 	public static int round__F__I(MJIEnv env, int rcls, float v0) {
 		Object[] attrs = env.getArgAttributes();
@@ -715,6 +967,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>sin__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double sin__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -734,6 +994,14 @@ public class JPF_java_lang_Math {
 
 	}
 
+	/**
+	 * <p>sinh__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double sinh__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -753,6 +1021,14 @@ public class JPF_java_lang_Math {
 
 	}
 
+	/**
+	 * <p>sqrt__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double sqrt__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -771,6 +1047,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>tan__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double tan__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -789,6 +1073,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>tanh__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double tanh__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -807,6 +1099,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>toDegrees__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double toDegrees__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -825,6 +1125,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>toRadians__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double toRadians__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -843,6 +1151,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>cbrt__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double cbrt__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -861,6 +1177,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>nextUp__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double nextUp__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -879,6 +1203,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>nextUp__F__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float nextUp__F__F(MJIEnv env, int clsObjRef, float a) {
 		Object[] attrs = env.getArgAttributes();
@@ -897,6 +1229,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>signum__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double signum__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -915,6 +1255,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>signum__F__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float signum__F__F(MJIEnv env, int clsObjRef, float a) {
 		Object[] attrs = env.getArgAttributes();
@@ -933,6 +1281,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>ulp__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double ulp__D__D(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -951,6 +1307,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>ulp__F__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float ulp__F__F(MJIEnv env, int clsObjRef, float a) {
 		Object[] attrs = env.getArgAttributes();
@@ -969,6 +1333,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>getExponent__D__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @return a int.
+	 */
 	@SuppressWarnings("unchecked")
 	public static int getExponent__D__I(MJIEnv env, int clsObjRef, double a) {
 		Object[] attrs = env.getArgAttributes();
@@ -988,6 +1360,14 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>getExponent__F__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @return a int.
+	 */
 	@SuppressWarnings("unchecked")
 	public static int getExponent__F__I(MJIEnv env, int clsObjRef, float a) {
 		Object[] attrs = env.getArgAttributes();
@@ -1007,6 +1387,15 @@ public class JPF_java_lang_Math {
 		}
 	}
 
+	/**
+	 * <p>copySign__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double copySign__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -1036,6 +1425,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>copySign__FF__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @param b a float.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float copySign__FF__F(MJIEnv env, int clsObjRef, float a, float b) {
 		Object[] attrs = env.getArgAttributes();
@@ -1065,6 +1463,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>hypot__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double hypot__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -1094,6 +1501,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>nextAfter__DD__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a double.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double nextAfter__DD__D(MJIEnv env, int clsObjRef, double a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -1123,6 +1539,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>nextAfter__FD__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @param b a double.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float nextAfter__FD__F(MJIEnv env, int clsObjRef, float a, double b) {
 		Object[] attrs = env.getArgAttributes();
@@ -1152,6 +1577,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>scalb__DI__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a double.
+	 * @param b a int.
+	 * @return a double.
+	 */
 	@SuppressWarnings("unchecked")
 	public static double scalb__DI__D(MJIEnv env, int clsObjRef, double a, int b) {
 		Object[] attrs = env.getArgAttributes();
@@ -1181,6 +1615,15 @@ public class JPF_java_lang_Math {
 		return ret;
 	}
 
+	/**
+	 * <p>scalb__FI__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param clsObjRef a int.
+	 * @param a a float.
+	 * @param b a int.
+	 * @return a float.
+	 */
 	@SuppressWarnings("unchecked")
 	public static float scalb__FI__F(MJIEnv env, int clsObjRef, float a, int b) {
 		Object[] attrs = env.getArgAttributes();

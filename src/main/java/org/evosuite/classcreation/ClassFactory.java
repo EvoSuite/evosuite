@@ -32,9 +32,8 @@ import org.evosuite.utils.Utils;
 
 /**
  * Class factory creates stubs for the abstract classes.
- * 
+ *
  * @author Andrey Tarasevich
- * 
  */
 public class ClassFactory {
 
@@ -52,7 +51,7 @@ public class ClassFactory {
 
 	/**
 	 * Creates class stub for the given abstract class.
-	 * 
+	 *
 	 * @param clazz
 	 *            abstract class.
 	 * @return class object iff class stub was successfully created and loaded
@@ -208,6 +207,11 @@ public class ClassFactory {
 		return comment;
 	}
 
+	/**
+	 * <p>getStubDir</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getStubDir() {
 		return stubsDir;
 	}

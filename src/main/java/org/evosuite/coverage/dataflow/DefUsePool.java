@@ -32,14 +32,14 @@ import org.slf4j.LoggerFactory;
 /**
  * This class is supposed to hold all the available information concerning
  * Definitions and Uses.
- * 
+ *
  * The addDefinition()- and addUse()-Method get called by the
  * DefUseInstrumentation whenever it detects a BytecodeInstruction that
  * corresponds to a Definition or Use in the class under test.
- * 
+ *
  * BytecodeInstructions that are not known to this pool can not be instantiated
  * as Definition or Use by the DefUseFactory
- * 
+ *
  * @author Andre Mis
  */
 public class DefUsePool {
@@ -75,27 +75,27 @@ public class DefUsePool {
 
 	/**
 	 * Gets called by DefUseInstrumentation whenever it detects a definition
-	 * 
+	 *
 	 * Registers the given instruction as a definition, assigns a fresh defId
 	 * for it and if the given instruction does not represent an IINC also
 	 * assigns a fresh defUseId to the given instruction.
-	 * 
+	 *
 	 * Warning: - Should the instruction be an IINC it is expected to have
 	 * passed addAsUse() first! - if registering of the given instruction fails
 	 * (like it does for IINCs due to the fact above) for any reason this method
 	 * throws an IllegalStateException!
-	 * 
+	 *
 	 * Return false if the given instruction does not represent an instruction
 	 * which is a definition as defined in ASMWrapper.isDefinition().
-	 * 
+	 *
 	 * Should isKnownAsDefinition() return true for the instruction before
 	 * calling this method, it also returns false. After the call
 	 * isKnownAsDefinition() is expected to return true for the instruction at
 	 * hand however.
-	 * 
-	 * 
+	 *
 	 * @param d
 	 *            CFGVertex corresponding to a Definition in the CUT
+	 * @return a boolean.
 	 */
 	public static boolean addAsDefinition(BytecodeInstruction d) {
 		if (!d.isDefinition()) {
@@ -126,21 +126,22 @@ public class DefUsePool {
 
 	/**
 	 * Gets called by DefUseInstrumentation whenever it detects a use
-	 * 
+	 *
 	 * Registers the given instruction as a use, assigns a fresh useId a fresh
 	 * defUseId to the given instruction.
-	 * 
+	 *
 	 * Return false if the given instruction does not represent an instruction
 	 * which is a use as defined in ASMWrapper.isUse().
-	 * 
+	 *
 	 * Should isKnown() return true for the instruction before calling this
 	 * method, it also returns false.
-	 * 
+	 *
 	 * After the call isKnown() and isKnownAsUse() are expected to return true
 	 * for the instruction at hand however.
-	 * 
+	 *
 	 * @param u
 	 *            CFGVertex corresponding to a Use in the CUT
+	 * @return a boolean.
 	 */
 	public static boolean addAsUse(BytecodeInstruction u) {
 		if (!u.isUse())
@@ -270,6 +271,12 @@ public class DefUsePool {
 
 	// functionality to retrieve information from the pool
 
+	/**
+	 * <p>knowsDefinitionForVariableOf</p>
+	 *
+	 * @param du a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public static boolean knowsDefinitionForVariableOf(BytecodeInstruction du) {
 		if (!du.isDefUse())
 			throw new IllegalArgumentException("defuse expected");
@@ -286,11 +293,23 @@ public class DefUsePool {
 		}
 	}
 
+	/**
+	 * <p>isKnown</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public static boolean isKnown(BytecodeInstruction instruction) {
 
 		return isKnownAsDefinition(instruction) || isKnownAsUse(instruction);
 	}
 
+	/**
+	 * <p>isKnownAsDefinition</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public static boolean isKnownAsDefinition(BytecodeInstruction instruction) {
 
 		if (!instruction.isDefinition())
@@ -299,6 +318,12 @@ public class DefUsePool {
 		return registeredDefs.containsKey(instruction);
 	}
 
+	/**
+	 * <p>isKnownAsUse</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public static boolean isKnownAsUse(BytecodeInstruction instruction) {
 
 		if (!instruction.isUse())
@@ -307,6 +332,11 @@ public class DefUsePool {
 		return registeredUses.containsKey(instruction);
 	}
 
+	/**
+	 * <p>retrieveRegisteredDefinitions</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<Definition> retrieveRegisteredDefinitions() {
 		Set<Definition> r = new HashSet<Definition>();
 		for (Integer defId : registeredDefs.values()) {
@@ -315,6 +345,11 @@ public class DefUsePool {
 		return r;
 	}
 
+	/**
+	 * <p>retrieveRegisteredUses</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<Use> retrieveRegisteredUses() {
 		Set<Use> r = new HashSet<Use>();
 		for (Integer useId : registeredUses.values()) {
@@ -323,6 +358,11 @@ public class DefUsePool {
 		return r;
 	}
 
+	/**
+	 * <p>retrieveRegisteredParameterUses</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<Use> retrieveRegisteredParameterUses() {
 		Set<Use> r = new HashSet<Use>();
 		for (BytecodeInstruction instruction : knownParameterUses) {
@@ -331,6 +371,12 @@ public class DefUsePool {
 		return r;
 	}
 
+	/**
+	 * <p>getDefinitionByInstruction</p>
+	 *
+	 * @param def a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 */
 	public static Definition getDefinitionByInstruction(BytecodeInstruction def) {
 		if(!isKnownAsDefinition(def))
 			return null;
@@ -338,6 +384,12 @@ public class DefUsePool {
 		return getDefinitionByDefId(getRegisteredDefId(def));
 	}
 	
+	/**
+	 * <p>getUseByInstruction</p>
+	 *
+	 * @param use a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.evosuite.coverage.dataflow.Use} object.
+	 */
 	public static Use getUseByInstruction(BytecodeInstruction use) {
 		if(!isKnownAsUse(use))
 			return null;
@@ -348,7 +400,7 @@ public class DefUsePool {
 	
 	/**
 	 * Returns the Use with the given duID
-	 * 
+	 *
 	 * @param duId
 	 *            ID of a Use
 	 * @return The Use with the given duID if such an ID is known for a Use,
@@ -364,7 +416,7 @@ public class DefUsePool {
 
 	/**
 	 * Returns the Definition with the given duID
-	 * 
+	 *
 	 * @param duId
 	 *            ID of a Definition
 	 * @return The Definition with the given duID if such an ID is known for a
@@ -378,6 +430,12 @@ public class DefUsePool {
 		return (Definition) du;
 	}
 
+	/**
+	 * <p>getUseByUseId</p>
+	 *
+	 * @param useId a int.
+	 * @return a {@link org.evosuite.coverage.dataflow.Use} object.
+	 */
 	public static Use getUseByUseId(int useId) {
 
 		for (Use use : defuseIdsToUses.values()) {
@@ -387,6 +445,12 @@ public class DefUsePool {
 		return null;
 	}
 
+	/**
+	 * <p>getDefinitionByDefId</p>
+	 *
+	 * @param defId a int.
+	 * @return a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 */
 	public static Definition getDefinitionByDefId(int defId) {
 
 		for (Definition def : defuseIdsToDefs.values()) {
@@ -396,6 +460,12 @@ public class DefUsePool {
 		return null;
 	}
 
+	/**
+	 * <p>getRegisteredDefUseId</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a int.
+	 */
 	public static int getRegisteredDefUseId(BytecodeInstruction instruction) {
 		if (registeredDUs.containsKey(instruction))
 			return registeredDUs.get(instruction);
@@ -403,6 +473,12 @@ public class DefUsePool {
 		return -1;
 	}
 
+	/**
+	 * <p>getRegisteredDefId</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a int.
+	 */
 	public static int getRegisteredDefId(BytecodeInstruction instruction) {
 		if (registeredDefs.containsKey(instruction))
 			return registeredDefs.get(instruction);
@@ -410,6 +486,12 @@ public class DefUsePool {
 		return -1;
 	}
 
+	/**
+	 * <p>getRegisteredUseId</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a int.
+	 */
 	public static int getRegisteredUseId(BytecodeInstruction instruction) {
 		if (registeredUses.containsKey(instruction))
 			return registeredUses.get(instruction);
@@ -417,6 +499,12 @@ public class DefUsePool {
 		return -1;
 	}
 
+	/**
+	 * <p>isRegisteredParameterUse</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public static boolean isRegisteredParameterUse(
 			BytecodeInstruction instruction) {
 		return knownParameterUses.contains(instruction);
@@ -424,7 +512,7 @@ public class DefUsePool {
 
 	/**
 	 * Returns the number of currently known Definitions
-	 * 
+	 *
 	 * @return the number of currently known Definitions
 	 */
 	public static int getDefCounter() {
@@ -433,7 +521,7 @@ public class DefUsePool {
 
 	/**
 	 * Returns the number of currently known Uses
-	 * 
+	 *
 	 * @return the number of currently known Uses
 	 */
 	public static int getUseCounter() {

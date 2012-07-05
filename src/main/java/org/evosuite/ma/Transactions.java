@@ -23,7 +23,7 @@ import java.util.List;
 /**
  * The <code>Transactions</code> class implements the whole logic to manage
  * {@link Record}s of the manual editor.
- * 
+ *
  * @author Yury Pavlov
  */
 public class Transactions {
@@ -36,7 +36,7 @@ public class Transactions {
 
 	/**
 	 * Creates instance with initial and unmodifiable test suite.
-	 * 
+	 *
 	 * @param testCases
 	 *            <code>List<{@link TCTupel}></code>
 	 */
@@ -48,7 +48,7 @@ public class Transactions {
 	/**
 	 * Push new test suite in the transaction instance and clear alternative
 	 * records.
-	 * 
+	 *
 	 * @param testCases
 	 *            <code>List<{@link TCTupel}></code>
 	 */
@@ -59,7 +59,7 @@ public class Transactions {
 
 	/**
 	 * Returns and removes last record and adds to alternativeRecords
-	 * 
+	 *
 	 * @return <code>List<{@link TCTupel}></code>
 	 */
 	public List<TCTuple> prev() {
@@ -79,7 +79,7 @@ public class Transactions {
 	/**
 	 * If the {@code alternativeRecords} is't empty, then return a last
 	 * {@link Record} from it to {@code records}.
-	 * 
+	 *
 	 * @return <code>List<{@link TCTupel}></code>
 	 */
 	public List<TCTuple> next() {
@@ -93,7 +93,7 @@ public class Transactions {
 
 	/**
 	 * Reset records to initial {@link Record}.
-	 * 
+	 *
 	 * @return <code>List<{@link TCTupel}></code> - first {@link Record}
 	 */
 	public List<TCTuple> reset() {
@@ -107,6 +107,7 @@ public class Transactions {
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder res = new StringBuilder();

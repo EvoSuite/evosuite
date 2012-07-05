@@ -29,8 +29,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>StringLocalSearch class.</p>
+ *
  * @author fraser
- * 
  */
 public class StringLocalSearch implements LocalSearch {
 
@@ -57,6 +58,7 @@ public class StringLocalSearch implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {

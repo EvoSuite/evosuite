@@ -28,9 +28,8 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * MethodVisitor that acts as a proxy to two other visitors
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MultiMethodVisitor extends MethodVisitor {
 
@@ -39,6 +38,12 @@ public class MultiMethodVisitor extends MethodVisitor {
 
 	Map<Label, Label> label_mapping = new HashMap<Label, Label>();
 
+	/**
+	 * <p>Constructor for MultiMethodVisitor.</p>
+	 *
+	 * @param mv1 a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param mv2 a {@link org.objectweb.asm.MethodVisitor} object.
+	 */
 	public MultiMethodVisitor(MethodVisitor mv1, MethodVisitor mv2) {
 		super(Opcodes.ASM4);
 		this.mv1 = mv1;
@@ -59,6 +64,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitAnnotation(java.lang.String, boolean)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public AnnotationVisitor visitAnnotation(String arg0, boolean arg1) {
 		mv1.visitAnnotation(arg0, arg1);
@@ -68,6 +74,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitAnnotationDefault()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public AnnotationVisitor visitAnnotationDefault() {
 		mv1.visitAnnotationDefault();
@@ -77,6 +84,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitAttribute(org.objectweb.asm.Attribute)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitAttribute(Attribute arg0) {
 		mv1.visitAttribute(arg0);
@@ -86,6 +94,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitCode() {
 		mv1.visitCode();
@@ -95,6 +104,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitEnd()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
 		mv1.visitEnd();
@@ -104,6 +114,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitFieldInsn(int arg0, String arg1, String arg2, String arg3) {
 		mv1.visitFieldInsn(arg0, arg1, arg2, arg3);
@@ -113,6 +124,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitFrame(int, int, java.lang.Object[], int, java.lang.Object[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitFrame(int arg0, int arg1, Object[] arg2, int arg3, Object[] arg4) {
 		mv1.visitFrame(arg0, arg1, arg2, arg3, arg4);
@@ -123,6 +135,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitIincInsn(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitIincInsn(int arg0, int arg1) {
 		mv1.visitIincInsn(arg0, arg1);
@@ -132,6 +145,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitInsn(int arg0) {
 		mv1.visitInsn(arg0);
@@ -141,6 +155,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitIntInsn(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitIntInsn(int arg0, int arg1) {
 		mv1.visitIntInsn(arg0, arg1);
@@ -150,6 +165,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitJumpInsn(int, org.objectweb.asm.Label)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitJumpInsn(int arg0, Label arg1) {
 		mv1.visitJumpInsn(arg0, arg1);
@@ -159,6 +175,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitLabel(org.objectweb.asm.Label)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitLabel(Label arg0) {
 		mv1.visitLabel(arg0);
@@ -168,6 +185,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitLdcInsn(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitLdcInsn(Object arg0) {
 		mv1.visitLdcInsn(arg0);
@@ -177,6 +195,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitLineNumber(int, org.objectweb.asm.Label)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitLineNumber(int arg0, Label arg1) {
 		mv1.visitLineNumber(arg0, arg1);
@@ -186,6 +205,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitLocalVariable(java.lang.String, java.lang.String, java.lang.String, org.objectweb.asm.Label, org.objectweb.asm.Label, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitLocalVariable(String arg0, String arg1, String arg2, Label arg3,
 	        Label arg4, int arg5) {
@@ -196,6 +216,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitLookupSwitchInsn(org.objectweb.asm.Label, int[], org.objectweb.asm.Label[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitLookupSwitchInsn(Label arg0, int[] arg1, Label[] arg2) {
 		mv1.visitLookupSwitchInsn(arg0, arg1, arg2);
@@ -209,6 +230,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMaxs(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMaxs(int arg0, int arg1) {
 		mv1.visitMaxs(arg0, arg1);
@@ -218,6 +240,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int arg0, String arg1, String arg2, String arg3) {
 		mv1.visitMethodInsn(arg0, arg1, arg2, arg3);
@@ -227,6 +250,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMultiANewArrayInsn(java.lang.String, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMultiANewArrayInsn(String arg0, int arg1) {
 		mv1.visitMultiANewArrayInsn(arg0, arg1);
@@ -236,6 +260,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitParameterAnnotation(int, java.lang.String, boolean)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public AnnotationVisitor visitParameterAnnotation(int arg0, String arg1, boolean arg2) {
 		mv1.visitParameterAnnotation(arg0, arg1, arg2);
@@ -245,6 +270,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitTableSwitchInsn(int, int, org.objectweb.asm.Label, org.objectweb.asm.Label[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitTableSwitchInsn(int arg0, int arg1, Label arg2, Label[] arg3) {
 		mv1.visitTableSwitchInsn(arg0, arg1, arg2, arg3);
@@ -257,6 +283,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitTryCatchBlock(org.objectweb.asm.Label, org.objectweb.asm.Label, org.objectweb.asm.Label, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitTryCatchBlock(Label arg0, Label arg1, Label arg2, String arg3) {
 		mv1.visitTryCatchBlock(arg0, arg1, arg2, arg3);
@@ -266,6 +293,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitTypeInsn(int, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitTypeInsn(int arg0, String arg1) {
 		mv1.visitTypeInsn(arg0, arg1);
@@ -275,6 +303,7 @@ public class MultiMethodVisitor extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitVarInsn(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitVarInsn(int arg0, int arg1) {
 		mv1.visitVarInsn(arg0, arg1);

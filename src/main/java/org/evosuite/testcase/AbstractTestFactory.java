@@ -28,25 +28,58 @@ import org.evosuite.ga.ConstructionFailedException;
 
 /**
  * Abstract base class of test factory
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class AbstractTestFactory implements Serializable {
 
 	private static final long serialVersionUID = -2328803453596295741L;
 
+	/**
+	 * <p>changeCall</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param call a {@link java.lang.reflect.AccessibleObject} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 */
 	public abstract void changeCall(TestCase test, StatementInterface statement,
 	        AccessibleObject call) throws ConstructionFailedException;
 
+	/**
+	 * <p>insertRandomStatement</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public abstract void insertRandomStatement(TestCase test);
 
+	/**
+	 * <p>appendStatement</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 */
 	public abstract void appendStatement(TestCase test, StatementInterface statement)
 	        throws ConstructionFailedException;
 
+	/**
+	 * <p>deleteStatement</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param position a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 */
 	public abstract void deleteStatement(TestCase test, int position)
 	        throws ConstructionFailedException;
 
+	/**
+	 * <p>deleteStatementGracefully</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param position a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 */
 	public abstract void deleteStatementGracefully(TestCase test, int position)
 	        throws ConstructionFailedException;
 
@@ -56,22 +89,23 @@ public abstract class AbstractTestFactory implements Serializable {
 	 * created instead. Notice that Call is an understatement. This method (at
 	 * least for the DefaultTestFactory) works for Fields, Constructors and
 	 * Methods.
-	 * 
-	 * @param test
-	 * @param statement
-	 * @return
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a boolean.
 	 */
 	public abstract boolean changeRandomCall(TestCase test, StatementInterface statement);
 
 	/**
 	 * Add constructor at given position if max recursion depth has not been
 	 * reached
-	 * 
-	 * @param constructor
-	 * @param position
-	 * @param recursion_depth
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 * @param position a int.
+	 * @param recursion_depth a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public abstract VariableReference addConstructor(TestCase test,
 	        Constructor<?> constructor, int position, int recursion_depth)
@@ -79,22 +113,40 @@ public abstract class AbstractTestFactory implements Serializable {
 
 	/**
 	 * Add method at given position if max recursion depth has not been reached
-	 * 
-	 * @param test
-	 * @param method
-	 * @param position
-	 * @param recursion_depth
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param method a {@link java.lang.reflect.Method} object.
+	 * @param position a int.
+	 * @param recursion_depth a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public abstract VariableReference addMethod(TestCase test, Method method,
 	        int position, int recursion_depth) throws ConstructionFailedException;
 
+	/**
+	 * <p>attemptGeneration</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param position a int.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 */
 	public VariableReference attemptGeneration(TestCase test, Type type, int position)
 	        throws ConstructionFailedException {
 		return attemptGeneration(test, type, position, 0, false);
 	}
 
+	/**
+	 * <p>attemptGenerationOrNull</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param position a int.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 */
 	public VariableReference attemptGenerationOrNull(TestCase test, Type type,
 	        int position) throws ConstructionFailedException {
 		return attemptGeneration(test, type, position, 0, true);
@@ -102,15 +154,14 @@ public abstract class AbstractTestFactory implements Serializable {
 
 	/**
 	 * Try to generate an object of a given type
-	 * 
-	 * @param test
-	 * @param type
-	 * @param position
-	 * @param recursion_depth
-	 * @param constraint
-	 * @param allow_null
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param position a int.
+	 * @param recursion_depth a int.
+	 * @param allow_null a boolean.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	protected abstract VariableReference attemptGeneration(TestCase test, Type type,
 	        int position, int recursion_depth, boolean allow_null)

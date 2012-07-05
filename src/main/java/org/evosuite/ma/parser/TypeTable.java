@@ -26,13 +26,15 @@ import org.evosuite.testcase.VariableReference;
 
 
 /**
+ * <p>TypeTable class.</p>
+ *
  * @author Yury Pavlov
- * 
  */
 public class TypeTable implements Cloneable {
 
 	private final ArrayList<Var> typeTable = new ArrayList<Var>();
 
+	/** {@inheritDoc} */
 	@Override
 	public TypeTable clone() {
 		TypeTable copy = new TypeTable();
@@ -40,10 +42,21 @@ public class TypeTable implements Cloneable {
 		return copy;
 	}
 
+	/**
+	 * <p>addVar</p>
+	 *
+	 * @param var a {@link org.evosuite.ma.parser.Var} object.
+	 */
 	public void addVar(Var var) {
 		typeTable.add(var);
 	}
 
+	/**
+	 * <p>hasVar</p>
+	 *
+	 * @param varName a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public boolean hasVar(String varName) {
 		for (Var tmpVar : typeTable) {
 			if (tmpVar.getVarName().equals(varName)) {
@@ -56,11 +69,11 @@ public class TypeTable implements Cloneable {
 	/**
 	 * Return Type of var if exist. For Static var (first letter is capital)
 	 * return null.
-	 * 
+	 *
 	 * @param varName
 	 *            String
 	 * @return Type of variable.
-	 * @throws ParseException
+	 * @throws japa.parser.ParseException
 	 *             if var not found in TT.
 	 */
 	public Type getType(String varName) throws ParseException {
@@ -77,10 +90,11 @@ public class TypeTable implements Cloneable {
 	}
 
 	/**
-	 * @param methodCallExpr
-	 * @param newTestCase
-	 * @return
-	 * @throws ParseException
+	 * <p>getVarReference</p>
+	 *
+	 * @throws japa.parser.ParseException if any.
+	 * @param varName a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	// TODO implement with HashSet
 	public VariableReference getVarReference(String varName) throws ParseException {
@@ -97,6 +111,7 @@ public class TypeTable implements Cloneable {
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder res = new StringBuilder();
@@ -107,16 +122,18 @@ public class TypeTable implements Cloneable {
 	}
 
 	/**
-	 * 
+	 * <p>reset</p>
 	 */
 	public void reset() {
 		typeTable.clear();
 	}
 
 	/**
-	 * @param name
-	 * @return
-	 * @throws ParseException
+	 * <p>getClass</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @throws japa.parser.ParseException if any.
+	 * @return a {@link java.lang.Class} object.
 	 */
 	public Class<?> getClass(String name) throws ParseException {
 		for (Var var : typeTable) {

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
 
@@ -21,10 +24,10 @@ import java.util.Map;
 import java.util.HashMap;
 
 import org.jgrapht.ext.ComponentAttributeProvider;
-
 public class CCFGNodeAttributeProvider implements ComponentAttributeProvider<CCFGNode> {
 
 	
+	/** {@inheritDoc} */
 	@Override
 	public Map<String, String> getComponentAttributes(CCFGNode node) {
 		Map<String, String> r = new HashMap<String, String>();
