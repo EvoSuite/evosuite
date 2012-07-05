@@ -114,10 +114,9 @@ public class Properties {
 
 	@Parameter(key = "static_hack", group = "Test Creation", description = "Call static constructors after each test execution")
 	public static boolean STATIC_HACK = false;
-	
+
 	@Parameter(key = "test_carving", group = "Test Creation", description = "Enable test carving")
 	public static boolean TEST_CARVING = false;
-
 
 	@Parameter(key = "null_probability", group = "Test Creation", description = "Probability to use null instead of constructing an object")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -767,6 +766,9 @@ public class Properties {
 
 	@Parameter(key = "process_communication_port", group = "Runtime", description = "Port at which the communication with the external process is done")
 	public static int PROCESS_COMMUNICATION_PORT = -1;
+
+	@Parameter(key = "stopping_port", group = "Runtime", description = "Port at which a stopping condition waits for interruption")
+	public static int STOPPING_PORT = -1;
 
 	@Parameter(key = "progress_status_port", group = "Runtime", description = "Port at which the progress status messages are transmitted")
 	public static int PROGRESS_STATUS_PORT = 20080;
