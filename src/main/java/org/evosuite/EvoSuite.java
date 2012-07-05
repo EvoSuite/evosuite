@@ -51,7 +51,6 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * @author Gordon Fraser
  * 
@@ -122,8 +121,6 @@ public class EvoSuite {
 		parameters.add(classPath);
 		parameters.add("-DPROJECT_PREFIX=" + prefix);
 		parameters.add("-DCP=" + Properties.CP);
-		System.out.println("-DCP=" + Properties.CP);
-		System.out.println("-classpath=" + classPath);
 		parameters.add("-Djava.awt.headless=true");
 		parameters.add("-Dlogback.configurationFile=logback.xml");
 		//this is used to avoid issues in running system test cases
@@ -137,7 +134,6 @@ public class EvoSuite {
 		}
 		parameters.add("org.evosuite.setup.ScanProject");
 		parameters.add(targetParam);
-		System.out.println(parameters);
 
 		try {
 			ProcessBuilder builder = new ProcessBuilder(parameters);
@@ -210,7 +206,6 @@ public class EvoSuite {
 		        + Properties.OUTPUT_DIR);
 
 		String[] extensions = { "task" };
-		System.out.println("DIR:  " + directory);
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
 			System.out.println("   " + file.getName().replace(".task", ""));
 		}
@@ -439,6 +434,115 @@ public class EvoSuite {
 		return result;
 	}
 
+	private static void measureCoverage(String targetClass, String junitPrefix,
+	        List<String> args) {
+		if (!InstrumentingClassLoader.checkIfCanInstrument(targetClass)) {
+			throw new IllegalArgumentException(
+			        "Cannot consider "
+			                + targetClass
+			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
+		}
+		String classPath = System.getProperty("java.class.path");
+		if (!evosuiteJar.equals("")) {
+			classPath += File.pathSeparator + evosuiteJar;
+		}
+
+		if (Properties.CP.length() > 0 && Properties.CP.charAt(0) == '"')
+			Properties.CP = Properties.CP.substring(1, Properties.CP.length() - 1);
+		classPath += File.pathSeparator + Properties.CP;
+		ExternalProcessHandler handler = new ExternalProcessHandler();
+		int port = handler.openServer();
+		List<String> cmdLine = new ArrayList<String>();
+		cmdLine.add(JAVA_CMD);
+		cmdLine.add("-cp");
+		cmdLine.add(classPath);
+		cmdLine.add("-Dprocess_communication_port=" + port);
+		cmdLine.add("-Djava.awt.headless=true");
+		cmdLine.add("-Dlogback.configurationFile=logback.xml");
+		cmdLine.add("-Djava.library.path=lib");
+		// cmdLine.add("-Dminimize_values=true");
+
+		for (String arg : args) {
+			if (!arg.startsWith("-DCP=")) {
+				cmdLine.add(arg);
+			}
+		}
+
+		cmdLine.add("-DTARGET_CLASS=" + targetClass);
+		cmdLine.add("-Djunit_prefix=" + junitPrefix);
+		if (Properties.PROJECT_PREFIX != null) {
+			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
+		}
+
+		cmdLine.add("-Dclassloader=true");
+		cmdLine.add("org.evosuite.junit.CoverageAnalysis");
+
+		/*
+		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
+		 * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
+		 */
+		Properties.getInstance();// should force the load, just to be sure
+		Properties.TARGET_CLASS = targetClass;
+		Properties.PROCESS_COMMUNICATION_PORT = port;
+		if (cmdLine.contains("-Dprint_to_system=true")) {
+			Properties.PRINT_TO_SYSTEM = true;
+		} else {
+			Properties.PRINT_TO_SYSTEM = false;
+		}
+
+		LoggingUtils logUtils = new LoggingUtils();
+
+		if (!Properties.CLIENT_ON_THREAD) {
+			/*
+			 * We want to completely mute the SUT. So, we block all outputs from client, and
+			 * use a remote logging
+			 */
+			boolean logServerStarted = logUtils.startLogServer();
+			if (!logServerStarted) {
+				logger.error("Cannot start the log server");
+				return;
+			}
+			int logPort = logUtils.getLogServerPort(); //
+			cmdLine.add(1, "-Dmaster_log_port=" + logPort);
+			cmdLine.add(1, "-Devosuite.log.appender=CLIENT");
+		}
+
+		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
+
+		for (String entry : Properties.CP.split(File.pathSeparator)) {
+			try {
+				ClassPathHacker.addFile(entry);
+			} catch (IOException e) {
+				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
+				                                         + entry);
+			}
+		}
+
+		handler.setBaseDir(base_dir_path);
+		Object result = null;
+		if (handler.startProcess(newArgs)) {
+			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
+			        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+
+			handler.killProcess();
+			handler.closeServer();
+		} else {
+			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
+		}
+
+		if (!Properties.CLIENT_ON_THREAD) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+			logUtils.closeLogServer();
+		}
+	}
+
 	private static void writeFile(InputStream in, File dest) {
 		try {
 			dest.deleteOnExit();
@@ -468,7 +572,6 @@ public class EvoSuite {
 		URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs();
 		URL evosuiteIO = null;
 		for (URL url : urls) {
-			System.out.println(url.toString());
 			if (url.getPath().endsWith("evosuite-io-0.2.jar")) {
 				evosuiteIO = url;
 				break;
@@ -502,9 +605,12 @@ public class EvoSuite {
 		Option generateSuite = new Option("generateSuite", "use whole suite generation");
 		Option generateTests = new Option("generateTests",
 		        "use individual test generation");
+		Option measureCoverage = new Option("measureCoverage",
+		        "measure coverage on existing test cases");
 		Option generateRandom = new Option("generateRandom", "use random test generation");
 		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("use given directory/jar file/package prefix for test generation").create("setup");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
+		Option junitPrefix = OptionBuilder.withArgName("junit").hasArg().withDescription("junit prefix").create("junit");
 		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
 		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
 		Option mem = OptionBuilder.withArgName("mem").hasArg().withDescription("heap size for client process (in megabytes)").create("mem");
@@ -525,8 +631,10 @@ public class EvoSuite {
 		options.addOption(generateSuite);
 		options.addOption(generateTests);
 		options.addOption(generateRandom);
+		options.addOption(measureCoverage);
 		options.addOption(setup);
 		options.addOption(targetClass);
+		options.addOption(junitPrefix);
 		options.addOption(criterion);
 		options.addOption(seed);
 		options.addOption(mem);
@@ -629,6 +737,15 @@ public class EvoSuite {
 					                       javaOpts);
 				else
 					generateTests(true, javaOpts);
+			} else if (line.hasOption("measureCoverage")) {
+				if (line.hasOption("class"))
+					measureCoverage(line.getOptionValue("class"),
+					                line.getOptionValue("junit"), javaOpts);
+				else {
+					System.err.println("Please specify target class");
+					HelpFormatter formatter = new HelpFormatter();
+					formatter.printHelp("EvoSuite", options);
+				}
 			} else {
 				HelpFormatter formatter = new HelpFormatter();
 				formatter.printHelp("EvoSuite", options);

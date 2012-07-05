@@ -47,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
-
 /**
  * Handle test case generation
  * 
@@ -805,11 +804,13 @@ public class DefaultTestFactory extends AbstractTestFactory {
 		return test.addStatement(statement, position);
 	}
 
+	@Override
 	public VariableReference attemptGeneration(TestCase test, Type type, int position)
 	        throws ConstructionFailedException {
 		return attemptGeneration(test, type, position, 0, false);
 	}
 
+	@Override
 	public VariableReference attemptGenerationOrNull(TestCase test, Type type,
 	        int position) throws ConstructionFailedException {
 		return attemptGeneration(test, type, position, 0, true);
@@ -1324,11 +1325,16 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			return calls;
 		}
 
+		GenericClass genericClass = new GenericClass(return_type);
+
 		for (AccessibleObject call : all_calls) {
 			Set<Type> dependencies = null;
 			if (call instanceof Method) {
 				dependencies = getDependencies((Method) call);
 			} else if (call instanceof Constructor<?>) {
+				if (genericClass.isPrimitive())
+					continue;
+
 				dependencies = getDependencies((Constructor<?>) call);
 			} else if (call instanceof Field) {
 				dependencies = getDependencies((Field) call);

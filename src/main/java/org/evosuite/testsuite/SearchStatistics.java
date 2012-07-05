@@ -53,7 +53,6 @@ import org.evosuite.utils.ReportGenerator;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.Type;
 
-
 /**
  * @author Gordon Fraser
  * 
@@ -304,7 +303,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		logger.debug("Calculating line coverage");
 
 		for (TestChromosome test : best.tests) {
-			ExecutionResult result = executeTest(test.getTestCase(), entry.className);
+			ExecutionResult result = executeTest(test, entry.className);
 			ExecutionTrace trace = result.getTrace();
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
 			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
