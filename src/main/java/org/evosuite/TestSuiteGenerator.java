@@ -107,6 +107,8 @@ import org.evosuite.ma.parser.TestParser;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
+import org.evosuite.testcarver.TestCarvingExecutionObserver;
+import org.evosuite.testcarver.TestCaseCodeGenerator;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
@@ -150,9 +152,7 @@ import de.unisb.cs.st.evosuite.io.IOWrapper;
 import de.unisb.cs.st.testcarver.capture.CaptureLog;
 import de.unisb.cs.st.testcarver.capture.Capturer;
 import de.unisb.cs.st.testcarver.capture.CodeGenerator;
-import de.unisb.cs.st.testcarver.capture.PUTFIELDRegistry;
-import de.unisb.cs.st.testcarver.capture.TestCarvingExecutionObserver;
-import de.unisb.cs.st.testcarver.capture.TestCaseCodeGenerator;
+import de.unisb.cs.st.testcarver.capture.FieldRegistry;
 import gnu.trove.list.array.TIntArrayList;
 
 /**
@@ -421,15 +421,23 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * Executes all given test cases and carves their execution. Note that
+	 * the accessed classes of a TestCase are considered as classes to be observed
+	 * (if they do not represent primitive types).
+	 * 
+	 * @param  testsToBeCarved  list of test cases
+	 * @return list of test cases carved from the execution of the given test cases
+	 */
 	private List<TestCase> carveTests(List<TestCase> testsToBeCarved)
 	{
-		final ArrayList<TestCase> result = new ArrayList<TestCase>(testsToBeCarved.size());
-		final TestCaseExecutor executor = TestCaseExecutor.getInstance();
+		final ArrayList<TestCase>          result       = new ArrayList<TestCase>(testsToBeCarved.size());
+		final TestCaseExecutor             executor     = TestCaseExecutor.getInstance();
 		final TestCarvingExecutionObserver execObserver = new TestCarvingExecutionObserver();
-		
 		executor.addObserver(execObserver);
 		
-		final HashSet<Class<?>> allAccessedClasses   = new HashSet<Class<?>>();
+		final HashSet<Class<?>> allAccessedClasses = new HashSet<Class<?>>();
+		final Logger            logger             = LoggingUtils.getEvoLogger();
 		
 		// variables needed in loop
 		CaptureLog              log;
@@ -450,7 +458,7 @@ public class TestSuiteGenerator {
 			log = Capturer.stopCapture();
 			
 			
-			//------------------------------------------------------------------
+			//----- filter accessed classes
 			
 			
 			// remove all classes representing primitive types
@@ -467,29 +475,26 @@ public class TestSuiteGenerator {
 			
 			if(allAccessedClasses.isEmpty())
 			{
-				LoggingUtils.getEvoLogger().warn("There are no classes which can be observed in test\n{}\n --> no test carving performed", t);
+				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed", t);
 				Capturer.clear();
 				continue;
 			}
 			
-			System.out.println("==================================================================================");
-			System.out.println("EVOSUITE TEST:\n" + t);
+			//----- generate code out of capture log
 			
-//			System.out.println(log);
+			logger.debug("Evosuite Test:\n{}", t);
 			
 			// generate carved test with the currently captured log and allAccessedlasses as classes to be observed
-			codeGen = new TestCaseCodeGenerator(log);
+			codeGen        = new TestCaseCodeGenerator(log);
 			carvedTestCase = codeGen.generateCode(allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
-	
 
-			System.out.println("CARVED TEST:\n" + carvedTestCase);
-			System.out.println("==================================================================================");
-
+			logger.debug("Carved Test:\n{}", carvedTestCase);
 			result.add(carvedTestCase);
 			
 			// reuse helper data structures
 			allAccessedClasses.clear();
 			
+			// clear Capturer content to save memory
 			Capturer.clear();
 		}
 			
@@ -571,6 +576,7 @@ public class TestSuiteGenerator {
 		// TODO also consider time for test carving in end_time?
 		if(Properties.TEST_CARVING)
 		{
+			// execute all tests to carve them
 			final List<TestCase> carvedTests = this.carveTests(best.getTests());
 
 			// replace chromosome test cases with carved tests

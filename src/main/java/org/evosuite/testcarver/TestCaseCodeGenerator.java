@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.capture;
+package org.evosuite.testcarver;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -27,6 +27,7 @@ import org.evosuite.testcase.VariableReferenceImpl;
 
 
 import de.unisb.cs.st.testcarver.capture.CaptureLog;
+import de.unisb.cs.st.testcarver.capture.CaptureUtil;
 
 
 public class TestCaseCodeGenerator 
@@ -393,7 +394,7 @@ public class TestCaseCodeGenerator
 		
 		if(this.oidToVarRefMap.containsKey(oid))
 		{
-			// TODO this might happen because of Integer.valueOf o.ä. . Is this approach ok?
+			// TODO this might happen because of Integer.valueOf(), for example. . Is this approach ok?
 			return;
 		}
 		
