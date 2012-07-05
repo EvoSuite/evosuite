@@ -18,8 +18,6 @@
 package org.evosuite;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,12 +27,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.vfs2.FileSystemException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
-import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.MutationAssertionGenerator;
@@ -98,12 +94,11 @@ import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
+import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
-import org.evosuite.junit.JUnitTestReader;
 import org.evosuite.junit.TestSuiteWriter;
-import org.evosuite.ma.parser.TestParser;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
@@ -151,9 +146,6 @@ import sun.misc.Signal;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 import de.unisb.cs.st.testcarver.capture.CaptureLog;
 import de.unisb.cs.st.testcarver.capture.Capturer;
-import de.unisb.cs.st.testcarver.capture.CodeGenerator;
-import de.unisb.cs.st.testcarver.capture.FieldRegistry;
-import gnu.trove.list.array.TIntArrayList;
 
 /**
  * Main entry point
@@ -422,88 +414,83 @@ public class TestSuiteGenerator {
 	}
 
 	/**
-	 * Executes all given test cases and carves their execution. Note that
-	 * the accessed classes of a TestCase are considered as classes to be observed
+	 * Executes all given test cases and carves their execution. Note that the
+	 * accessed classes of a TestCase are considered as classes to be observed
 	 * (if they do not represent primitive types).
 	 * 
-	 * @param  testsToBeCarved  list of test cases
-	 * @return list of test cases carved from the execution of the given test cases
+	 * @param testsToBeCarved
+	 *            list of test cases
+	 * @return list of test cases carved from the execution of the given test
+	 *         cases
 	 */
-	private List<TestCase> carveTests(List<TestCase> testsToBeCarved)
-	{
-		final ArrayList<TestCase>          result       = new ArrayList<TestCase>(testsToBeCarved.size());
-		final TestCaseExecutor             executor     = TestCaseExecutor.getInstance();
+	private List<TestCase> carveTests(List<TestCase> testsToBeCarved) {
+		final ArrayList<TestCase> result = new ArrayList<TestCase>(testsToBeCarved.size());
+		final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 		final TestCarvingExecutionObserver execObserver = new TestCarvingExecutionObserver();
 		executor.addObserver(execObserver);
-		
+
 		final HashSet<Class<?>> allAccessedClasses = new HashSet<Class<?>>();
-		final Logger            logger             = LoggingUtils.getEvoLogger();
-		
+		final Logger logger = LoggingUtils.getEvoLogger();
+
 		// variables needed in loop
-		CaptureLog              log;
-		TestCaseCodeGenerator   codeGen;
-		TestCase                carvedTestCase;
-		for(TestCase t : testsToBeCarved)
-		{
+		CaptureLog log;
+		TestCaseCodeGenerator codeGen;
+		TestCase carvedTestCase;
+		for (TestCase t : testsToBeCarved) {
 			// collect all accessed classes ( = classes to be observed)
 			allAccessedClasses.addAll(t.getAccessedClasses());
-			
+
 			// start capture before genetic algorithm is applied so that all interactions can be captured
 			Capturer.startCapture();
-			
+
 			// execute test case
 			executor.execute(t);
-		
+
 			// stop capture after best individual has been determined and obtain corresponding capture log
 			log = Capturer.stopCapture();
-			
-			
+
 			//----- filter accessed classes
-			
-			
+
 			// remove all classes representing primitive types
 			Class<?> c;
 			final Iterator<Class<?>> iter = allAccessedClasses.iterator();
-			while(iter.hasNext())
-			{
+			while (iter.hasNext()) {
 				c = iter.next();
-				if(c.isPrimitive())
-				{
+				if (c.isPrimitive()) {
 					iter.remove();
 				}
 			}
-			
-			if(allAccessedClasses.isEmpty())
-			{
-				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed", t);
+
+			if (allAccessedClasses.isEmpty()) {
+				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed",
+				            t);
 				Capturer.clear();
 				continue;
 			}
-			
+
 			//----- generate code out of capture log
-			
+
 			logger.debug("Evosuite Test:\n{}", t);
-			
+
 			// generate carved test with the currently captured log and allAccessedlasses as classes to be observed
-			codeGen        = new TestCaseCodeGenerator(log);
+			codeGen = new TestCaseCodeGenerator(log);
 			carvedTestCase = codeGen.generateCode(allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
 
 			logger.debug("Carved Test:\n{}", carvedTestCase);
 			result.add(carvedTestCase);
-			
+
 			// reuse helper data structures
 			allAccessedClasses.clear();
-			
+
 			// clear Capturer content to save memory
 			Capturer.clear();
 		}
-			
+
 		executor.removeObserver(execObserver);
-		
+
 		return result;
 	}
-	
-	
+
 	/**
 	 * Use the EvoSuite approach (Whole test suite generation)
 	 * 
@@ -520,7 +507,7 @@ public class TestSuiteGenerator {
 			                                         + " for whole suite generation");
 		}
 		long start_time = System.currentTimeMillis() / 1000;
-		
+
 		// What's the search target
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
@@ -543,20 +530,16 @@ public class TestSuiteGenerator {
 
 		// Perform search
 		LoggingUtils.getEvoLogger().info("* Starting evolution");
-		
 
-
-		
 		ga.generateSolution();
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		if(best == null)
-		{
+		if (best == null) {
 			LoggingUtils.getEvoLogger().warn("Could not find any suiteable chromosome");
 			return Collections.emptyList();
 		}
-		
+
 		long end_time = System.currentTimeMillis() / 1000;
-		
+
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
@@ -571,22 +554,18 @@ public class TestSuiteGenerator {
 
 		double fitness = best.getFitness();
 
-		
-		
 		// TODO also consider time for test carving in end_time?
-		if(Properties.TEST_CARVING)
-		{
+		if (Properties.TEST_CARVING) {
 			// execute all tests to carve them
 			final List<TestCase> carvedTests = this.carveTests(best.getTests());
 
 			// replace chromosome test cases with carved tests
 			best.clearTests();
-			for(TestCase t : carvedTests)
-			{
+			for (TestCase t : carvedTests) {
 				best.addTest(t);
 			}
 		}
-		
+
 		if (Properties.MINIMIZE_VALUES) {
 			LoggingUtils.getEvoLogger().info("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
@@ -603,7 +582,7 @@ public class TestSuiteGenerator {
 		if (Properties.MINIMIZE) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
-			minimizer.minimize((TestSuiteChromosome) best);
+			minimizer.minimize(best);
 		}
 
 		statistics.iteration(ga);
@@ -1487,6 +1466,12 @@ public class TestSuiteGenerator {
 			//ShutdownTestWriter writer = new ShutdownTestWriter(Thread.currentThread());
 			ShutdownTestWriter writer = new ShutdownTestWriter();
 			ga.addStoppingCondition(writer);
+
+			if (Properties.STOPPING_PORT != -1) {
+				SocketStoppingCondition ss = new SocketStoppingCondition();
+				ss.accept();
+				ga.addStoppingCondition(ss);
+			}
 
 			//Runtime.getRuntime().addShutdownHook(writer);
 			Signal.handle(new Signal("INT"), writer);
