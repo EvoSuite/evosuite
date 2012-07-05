@@ -31,8 +31,9 @@ import org.evosuite.symbolic.search.DistanceEstimator;
 
 
 /**
- * @author krusev
+ * <p>StringMultipleComparison class.</p>
  *
+ * @author krusev
  */
 public class StringMultipleComparison extends StringComparison implements
 BinaryExpression<String>{
@@ -43,6 +44,15 @@ BinaryExpression<String>{
 	
 	protected ArrayList<Expression<?>> other_v;
 
+	/**
+	 * <p>Constructor for StringMultipleComparison.</p>
+	 *
+	 * @param _left a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param _op a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param _right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param _other a {@link java.util.ArrayList} object.
+	 * @param con a {@link java.lang.Long} object.
+	 */
 	public StringMultipleComparison(Expression<String> _left, Operator _op,
 	        Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
 		super(_left, _op, _right, con);
@@ -52,32 +62,39 @@ BinaryExpression<String>{
 	}
 
 	/**
+	 * <p>getOther</p>
+	 *
 	 * @return the other
 	 */
 	public ArrayList<Expression<?>> getOther() {
 		return other_v;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return conVal;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operator getOperator() {
 		return op;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getLeftOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<?> getRightOperand() {
 		return right;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		String str_other_v = "";
@@ -88,6 +105,7 @@ BinaryExpression<String>{
 		return "(" + left + op.toString() + (right==null ? "" : right) + str_other_v + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -127,6 +145,7 @@ BinaryExpression<String>{
 	//	return size;
 	//}
 	
+    /** {@inheritDoc} */
     @Override
     public int getSize() {
         if (size == 0) {
@@ -139,6 +158,7 @@ BinaryExpression<String>{
         return size;
     }
 
+	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
 		try {

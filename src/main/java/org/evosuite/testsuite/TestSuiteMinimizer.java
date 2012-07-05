@@ -44,8 +44,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>TestSuiteMinimizer class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestSuiteMinimizer {
 
@@ -60,10 +61,20 @@ public class TestSuiteMinimizer {
 	/** Assume the search has not started until start_time != 0 */
 	protected static long start_time = 0L;
 
+	/**
+	 * <p>Constructor for TestSuiteMinimizer.</p>
+	 *
+	 * @param factory a {@link org.evosuite.coverage.TestFitnessFactory} object.
+	 */
 	public TestSuiteMinimizer(TestFitnessFactory factory) {
 		this.testFitnessFactory = factory;
 	}
 
+	/**
+	 * <p>minimize</p>
+	 *
+	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 */
 	public void minimize(TestSuiteChromosome suite) {
 		start_time = System.currentTimeMillis();
 
@@ -82,10 +93,8 @@ public class TestSuiteMinimizer {
 	/**
 	 * Minimize test suite with respect to the isCovered Method of the goals
 	 * defined by the supplied TestFitnessFactory
-	 * 
-	 * 
-	 * @param suite
-	 * @param fitness_function
+	 *
+	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void minimizeTests(TestSuiteChromosome suite) {
 
@@ -236,10 +245,8 @@ public class TestSuiteMinimizer {
 	/**
 	 * Minimize test suite with respect to the isCovered Method of the goals
 	 * defined by the supplied TestFitnessFactory
-	 * 
-	 * 
-	 * @param suite
-	 * @param fitness_function
+	 *
+	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void minimizeSuite(TestSuiteChromosome suite) {
 

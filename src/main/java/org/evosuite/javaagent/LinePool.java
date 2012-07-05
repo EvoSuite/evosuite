@@ -28,9 +28,8 @@ import java.util.Set;
 
 /**
  * Keep track of the lines of code in a class
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class LinePool {
 
@@ -39,10 +38,10 @@ public class LinePool {
 
 	/**
 	 * Insert line into map for class
-	 * 
-	 * @param className
-	 * @param methodName
-	 * @param lineNo
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param lineNo a int.
 	 */
 	public static void addLine(String className, String methodName, int lineNo) {
 		if (!lineMap.containsKey(className))
@@ -56,10 +55,10 @@ public class LinePool {
 
 	/**
 	 * Retrieve set of lines
-	 * 
-	 * @param className
-	 * @param methodName
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Integer> getLines(String className, String methodName) {
 		if (lineMap.containsKey(className))
@@ -71,9 +70,9 @@ public class LinePool {
 
 	/**
 	 * Retrieve all lines in a class
-	 * 
-	 * @param className
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Integer> getLines(String className) {
 		Set<Integer> lines = new LinkedHashSet<Integer>();
@@ -85,8 +84,8 @@ public class LinePool {
 
 	/**
 	 * Retrieve all lines in the pool
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Integer> getAllLines() {
 		Set<Integer> lines = new LinkedHashSet<Integer>();

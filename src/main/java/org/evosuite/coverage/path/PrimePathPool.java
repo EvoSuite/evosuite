@@ -26,20 +26,33 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * <p>PrimePathPool class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimePathPool {
 
 	// maps: className -> methodName  -> DUVarName -> branchID -> List of Definitions in that branch 
+	/** Constant <code>primePathMap</code> */
 	public static Map<String, Map<String, List<PrimePath>>> primePathMap = new HashMap<String, Map<String, List<PrimePath>>>();
 
+	/** Constant <code>primePathCounter=0</code> */
 	public static int primePathCounter = 0;
 
+	/**
+	 * <p>getSize</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getSize() {
 		return primePathCounter;
 	}
 
+	/**
+	 * <p>add</p>
+	 *
+	 * @param path a {@link org.evosuite.coverage.path.PrimePath} object.
+	 */
 	public static void add(PrimePath path) {
 		String className = path.className;
 		String methodName = path.methodName;

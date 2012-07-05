@@ -36,7 +36,7 @@ import org.evosuite.testcase.TestCase;
 
 /**
  * Connector between the {@link Editor} and {@link VisitorParser}
- * 
+ *
  * @author Yury Pavlov
  */
 public class ParserConnector {
@@ -45,11 +45,25 @@ public class ParserConnector {
 
 	private final Editor editor;
 
+	/**
+	 * <p>Constructor for ParserConnector.</p>
+	 *
+	 * @param editor a {@link org.evosuite.ma.Editor} object.
+	 * @param guiActive a boolean.
+	 */
 	public ParserConnector(Editor editor, boolean guiActive) {
 		this.editor = editor;
 		tv = new VisitorParser(guiActive);
 	}
 
+	/**
+	 * <p>parseTest</p>
+	 *
+	 * @param testCode a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 * @throws java.io.IOException if any.
+	 * @throws japa.parser.ParseException if any.
+	 */
 	public TestCase parseTest(String testCode) throws IOException, ParseException {
 		tv.reset();
 		CompilationUnit cu = null;
@@ -84,7 +98,7 @@ public class ParserConnector {
 	/**
 	 * To load test cases from file. {@code namePat} the pattern for function
 	 * names which are loaded like test cases.
-	 * 
+	 *
 	 * @param file
 	 *            {@link File}
 	 * @param namePat

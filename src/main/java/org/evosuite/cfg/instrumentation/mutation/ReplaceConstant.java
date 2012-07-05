@@ -36,14 +36,16 @@ import org.objectweb.asm.tree.analysis.Frame;
 
 
 /**
+ * <p>ReplaceConstant class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ReplaceConstant implements MutationOperator {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
@@ -210,6 +212,7 @@ public class ReplaceConstant implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
 		return instruction.isConstant();

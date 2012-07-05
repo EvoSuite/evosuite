@@ -26,8 +26,9 @@ import org.evosuite.testcase.TestChromosome;
 
 
 /**
+ * <p>RelativeSuiteLengthBloatControl class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class RelativeSuiteLengthBloatControl implements BloatControlFunction, SearchListener {
 
@@ -42,6 +43,8 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	                                                  // minimizing fitness!
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Reject individuals that are larger than twice the length of the current
 	 * best individual
 	 */
@@ -71,6 +74,8 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Set current max length to max of best chromosome
 	 */
 	@Override
@@ -83,14 +88,17 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 		best_fitness = best.getFitness();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome result) {
 	}
@@ -102,6 +110,7 @@ public class RelativeSuiteLengthBloatControl implements BloatControlFunction, Se
 	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
 	 * .ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

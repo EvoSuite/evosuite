@@ -18,8 +18,9 @@
 package org.evosuite.sandbox;
 
 /**
+ * <p>EvosuiteFile class.</p>
+ *
  * @author Andrey Tarasevich
- * 
  */
 public class EvosuiteFile {
 	
@@ -27,12 +28,20 @@ public class EvosuiteFile {
 	
 	private String content;
 	
+	/**
+	 * <p>Constructor for EvosuiteFile.</p>
+	 *
+	 * @param fileName a {@link java.lang.String} object.
+	 * @param content a {@link java.lang.String} object.
+	 */
 	public EvosuiteFile(String fileName, String content){
 		this.fileName = fileName;
 		this.content = content;
 	}
 
 	/**
+	 * <p>Getter for the field <code>fileName</code>.</p>
+	 *
 	 * @return the fileName
 	 */
 	public String getFileName() {
@@ -40,6 +49,8 @@ public class EvosuiteFile {
 	}
 
 	/**
+	 * <p>Getter for the field <code>content</code>.</p>
+	 *
 	 * @return the content
 	 */
 	public String getContent() {

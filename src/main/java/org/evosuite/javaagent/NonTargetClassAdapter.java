@@ -25,21 +25,26 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * <p>NonTargetClassAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class NonTargetClassAdapter extends ClassVisitor {
 
 	private final String className;
 
 	/**
-	 * @param cv
+	 * <p>Constructor for NonTargetClassAdapter.</p>
+	 *
+	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public NonTargetClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, final String[] exceptions) {

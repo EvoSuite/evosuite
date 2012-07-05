@@ -149,9 +149,8 @@ import de.unisb.cs.st.testcarver.capture.Capturer;
 
 /**
  * Main entry point
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 @SuppressWarnings("restriction")
 public class TestSuiteGenerator {
@@ -160,11 +159,15 @@ public class TestSuiteGenerator {
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
+	/** Constant <code>zero_fitness</code> */
 	public final static ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 
+	/** Constant <code>global_time</code> */
 	public static final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
+	/** Constant <code>stopping_condition</code> */
 	public static StoppingCondition stopping_condition;
+	/** Constant <code>analyzing=false</code> */
 	public static boolean analyzing = false;
 
 	/*
@@ -177,6 +180,8 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Generate a test suite for the target class
+	 *
+	 * @return a {@link java.lang.String} object.
 	 */
 	public String generateTestSuite() {
 
@@ -215,6 +220,11 @@ public class TestSuiteGenerator {
 
 	/*
 	 * return reference of the GA used in the most recent generateTestSuite()
+	 */
+	/**
+	 * <p>getEmployedGeneticAlgorithm</p>
+	 *
+	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public GeneticAlgorithm getEmployedGeneticAlgorithm() {
 		return ga;
@@ -303,6 +313,11 @@ public class TestSuiteGenerator {
 		return tests;
 	}
 
+	/**
+	 * <p>writeJUnitTests</p>
+	 *
+	 * @param tests a {@link java.util.List} object.
+	 */
 	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
 			TestSuiteWriter suite = new TestSuiteWriter();
@@ -323,7 +338,7 @@ public class TestSuiteGenerator {
 	 * writeJUnitTests(tests) this method adds a given tag to the default file
 	 * name, allowing several test files per class. Instead of TestMyClass.java
 	 * the test cases are written to TestMayClassmytag.java.
-	 * 
+	 *
 	 * @param tests
 	 *            the test cases which should be written to file
 	 * @param tag
@@ -493,8 +508,8 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Use the EvoSuite approach (Whole test suite generation)
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> generateWholeSuite() {
 		// Set up search algorithm
@@ -643,10 +658,21 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getFitnessFunction</p>
+	 *
+	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
 	public static TestSuiteFitnessFunction getFitnessFunction() {
 		return getFitnessFunction(Properties.CRITERION);
 	}
 
+	/**
+	 * <p>getFitnessFunction</p>
+	 *
+	 * @param criterion a {@link org.evosuite.Properties.Criterion} object.
+	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
 	public static TestSuiteFitnessFunction getFitnessFunction(Criterion criterion) {
 		switch (criterion) {
 		case STRONGMUTATION:
@@ -676,10 +702,21 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getFitnessFactory</p>
+	 *
+	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
+	 */
 	public static TestFitnessFactory getFitnessFactory() {
 		return getFitnessFactory(Properties.CRITERION);
 	}
 
+	/**
+	 * <p>getFitnessFactory</p>
+	 *
+	 * @param crit a {@link org.evosuite.Properties.Criterion} object.
+	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
+	 */
 	public static TestFitnessFactory getFitnessFactory(Criterion crit) {
 		switch (crit) {
 		case STRONGMUTATION:
@@ -763,8 +800,8 @@ public class TestSuiteGenerator {
 	/**
 	 * Generate one random test at a time and check if adding it improves
 	 * fitness (1+1)RT
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> generateRandomTests() {
 		LoggingUtils.getEvoLogger().info("* Using random test generation");
@@ -816,8 +853,8 @@ public class TestSuiteGenerator {
 	 * Use the OneBranch approach: The budget for the search is split equally
 	 * among all test goals, and then search is attempted for each goal. If a
 	 * goal is covered, the remaining budget will be used in the next iteration.
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> generateIndividualTests() {
 		// Set up search algorithm
@@ -1172,6 +1209,11 @@ public class TestSuiteGenerator {
 	 * return goals; }
 	 */
 
+	/**
+	 * <p>getStoppingCondition</p>
+	 *
+	 * @return a {@link org.evosuite.ga.stoppingconditions.StoppingCondition} object.
+	 */
 	public static StoppingCondition getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
@@ -1191,6 +1233,11 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getCrossoverFunction</p>
+	 *
+	 * @return a {@link org.evosuite.ga.CrossOverFunction} object.
+	 */
 	public static CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
@@ -1211,6 +1258,11 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getSelectionFunction</p>
+	 *
+	 * @return a {@link org.evosuite.ga.SelectionFunction} object.
+	 */
 	public static SelectionFunction getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
@@ -1222,6 +1274,12 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getChromosomeFactory</p>
+	 *
+	 * @param fitness a {@link org.evosuite.ga.FitnessFunction} object.
+	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	protected static ChromosomeFactory<? extends Chromosome> getChromosomeFactory(
 	        FitnessFunction fitness) {
 
@@ -1270,6 +1328,11 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getDefaultChromosomeFactory</p>
+	 *
+	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	protected static ChromosomeFactory<? extends Chromosome> getDefaultChromosomeFactory() {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
@@ -1279,6 +1342,12 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getSecondaryTestObjective</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
+	 */
 	public static SecondaryObjective getSecondaryTestObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
@@ -1289,6 +1358,12 @@ public class TestSuiteGenerator {
 			        + name + "\"");
 	}
 
+	/**
+	 * <p>getSecondarySuiteObjective</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
+	 */
 	public static SecondaryObjective getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
@@ -1305,6 +1380,11 @@ public class TestSuiteGenerator {
 			        + name + "\"");
 	}
 
+	/**
+	 * <p>getSecondaryObjectives</p>
+	 *
+	 * @param algorithm a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 */
 	public static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
 		String objectives = Properties.SECONDARY_OBJECTIVE;
 
@@ -1322,6 +1402,11 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getPopulationLimit</p>
+	 *
+	 * @return a {@link org.evosuite.ga.PopulationLimit} object.
+	 */
 	public static PopulationLimit getPopulationLimit() {
 		switch (Properties.POPULATION_LIMIT) {
 		case INDIVIDUALS:
@@ -1335,6 +1420,12 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>getGeneticAlgorithm</p>
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 */
 	public static GeneticAlgorithm getGeneticAlgorithm(
 	        ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
@@ -1385,8 +1476,8 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Factory method for search algorithm
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public GeneticAlgorithm setup() {
 
@@ -1483,7 +1574,9 @@ public class TestSuiteGenerator {
 	}
 
 	/**
-	 * @param args
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		if (Properties.VIRTUAL_FS) {

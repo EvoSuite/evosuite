@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,25 +15,37 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
 
 import org.evosuite.graphs.cfg.ControlFlowEdge;
-
 public class CCFGCodeEdge extends CCFGEdge{
 
 	private static final long serialVersionUID = 4200786738903617164L;
 	
 	private ControlFlowEdge cfgEdge;
 	
+	/**
+	 * <p>Constructor for CCFGCodeEdge.</p>
+	 *
+	 * @param cfgEdge a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+	 */
 	public CCFGCodeEdge(ControlFlowEdge cfgEdge) {
 		this.cfgEdge = cfgEdge;
 	}
 
+	/**
+	 * <p>Getter for the field <code>cfgEdge</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+	 */
 	public ControlFlowEdge getCfgEdge() {
 		return cfgEdge;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -41,6 +54,7 @@ public class CCFGCodeEdge extends CCFGEdge{
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -58,6 +72,7 @@ public class CCFGCodeEdge extends CCFGEdge{
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return cfgEdge.toString();

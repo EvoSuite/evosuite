@@ -54,8 +54,9 @@ import org.evosuite.utils.Utils;
 import org.objectweb.asm.Type;
 
 /**
+ * <p>SearchStatistics class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class SearchStatistics extends ReportGenerator implements Serializable {
 
@@ -67,6 +68,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 	}
 
+	/**
+	 * <p>Getter for the field <code>instance</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testsuite.SearchStatistics} object.
+	 */
 	public static SearchStatistics getInstance() {
 		if (instance == null) {
 			instance = new SearchStatistics();
@@ -74,14 +80,19 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		return instance;
 	}
 
+	/**
+	 * <p>Setter for the field <code>instance</code>.</p>
+	 *
+	 * @param statistics a {@link org.evosuite.testsuite.SearchStatistics} object.
+	 */
 	public static void setInstance(SearchStatistics statistics) {
 		instance = statistics;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Write a file for a particular run
-	 * 
-	 * @param run
 	 */
 	@Override
 	protected String writeRunPage(StatisticEntry run) {
@@ -264,11 +275,17 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		return filename;
 	}
 
+	/**
+	 * <p>mutationScore</p>
+	 *
+	 * @param mutationScore a double.
+	 */
 	public void mutationScore(double mutationScore) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.mutationScore = mutationScore;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void minimized(Chromosome chromosome) {
 		TestSuiteChromosome best = (TestSuiteChromosome) chromosome;
@@ -508,11 +525,15 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		return classExceptions.size();
 	}
 
+	/**
+	 * <p>writeStatistics</p>
+	 */
 	public void writeStatistics() {
 		makeDirs();
 		writeCSV();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		Chromosome result = algorithm.getBestIndividual();
@@ -535,6 +556,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		super.searchStarted(algorithm);
@@ -579,6 +601,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		// }
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		super.iteration(algorithm);
@@ -595,6 +618,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		}
 	}
 
+	/**
+	 * <p>getLastStatisticEntry</p>
+	 *
+	 * @return a StatisticEntry object.
+	 */
 	public StatisticEntry getLastStatisticEntry() {
 		return statistics.get(statistics.size() - 1);
 	}

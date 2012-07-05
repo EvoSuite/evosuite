@@ -31,9 +31,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract class of an executable code assertion
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class Assertion implements Serializable {
 
@@ -48,8 +47,10 @@ public abstract class Assertion implements Serializable {
 	/** Statement to which the assertion is added */
 	protected StatementInterface statement;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(Assertion.class);
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -59,6 +60,7 @@ public abstract class Assertion implements Serializable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -83,8 +85,8 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Setter for statement to which assertion is added
-	 * 
-	 * @param statement
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
 	public void setStatement(StatementInterface statement) {
 		this.statement = statement;
@@ -92,8 +94,8 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Getter for statement to which assertion is added
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
 	public StatementInterface getStatement() {
 		return statement;
@@ -101,8 +103,8 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Getter for source variable
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getSource() {
 		return source;
@@ -110,8 +112,8 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Getter for value object
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.lang.Object} object.
 	 */
 	public Object getValue() {
 		return value;
@@ -119,10 +121,14 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * This method returns the Java Code
+	 *
+	 * @return a {@link java.lang.String} object.
 	 */
 	public abstract String getCode();
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return a copy of the assertion
 	 */
 	@Override
@@ -132,6 +138,9 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
+	 *
+	 * @param newTestCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.assertion.Assertion} object.
 	 */
 	public Assertion clone(TestCase newTestCase) {
 		return copy(newTestCase, 0);
@@ -139,21 +148,26 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
+	 *
+	 * @param newTestCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param offset a int.
+	 * @return a {@link org.evosuite.assertion.Assertion} object.
 	 */
 	public abstract Assertion copy(TestCase newTestCase, int offset);
 
 	/**
 	 * Determine if assertion holds in current scope
-	 * 
+	 *
 	 * @param scope
 	 *            The scope of the test case execution
+	 * @return a boolean.
 	 */
 	public abstract boolean evaluate(Scope scope);
 
 	/**
 	 * Return all the variables that are part of this assertion
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<VariableReference> getReferencedVariables() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
@@ -163,8 +177,8 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Self-check
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public boolean isValid() {
 		return source != null && value != null;

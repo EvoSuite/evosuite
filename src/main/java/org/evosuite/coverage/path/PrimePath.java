@@ -31,8 +31,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>PrimePath class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimePath {
 
@@ -51,19 +52,41 @@ public class PrimePath {
 
 	String methodName;
 
+	/**
+	 * <p>Constructor for PrimePath.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 */
 	public PrimePath(String className, String methodName) {
 		this.className = className;
 		this.methodName = methodName;
 	}
 
+	/**
+	 * <p>getLast</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public BytecodeInstruction getLast() {
 		return nodes.get(nodes.size() - 1);
 	}
 
+	/**
+	 * <p>append</p>
+	 *
+	 * @param node a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public void append(BytecodeInstruction node) {
 		nodes.add(node);
 	}
 
+	/**
+	 * <p>getAppended</p>
+	 *
+	 * @param node a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.evosuite.coverage.path.PrimePath} object.
+	 */
 	public PrimePath getAppended(BytecodeInstruction node) {
 		PrimePath copy = new PrimePath(className, methodName);
 		copy.nodes.addAll(nodes);
@@ -71,10 +94,19 @@ public class PrimePath {
 		return copy;
 	}
 
+	/**
+	 * <p>contains</p>
+	 *
+	 * @param vertex a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public boolean contains(BytecodeInstruction vertex) {
 		return nodes.contains(vertex);
 	}
 
+	/**
+	 * <p>condensate</p>
+	 */
 	public void condensate() {
 		for (int position = 0; position < nodes.size(); position++) {
 			BytecodeInstruction node = nodes.get(position);
@@ -98,14 +130,26 @@ public class PrimePath {
 
 	}
 
+	/**
+	 * <p>getSize</p>
+	 *
+	 * @return a int.
+	 */
 	public int getSize() {
 		return nodes.size();
 	}
 
+	/**
+	 * <p>get</p>
+	 *
+	 * @param position a int.
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public BytecodeInstruction get(int position) {
 		return nodes.get(position);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -116,6 +160,7 @@ public class PrimePath {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -143,6 +188,7 @@ public class PrimePath {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();

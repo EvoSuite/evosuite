@@ -25,9 +25,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Instrument classes to keep track of method entry and exit
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MethodEntryAdapter extends AdviceAdapter {
 
@@ -39,6 +38,15 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	String fullMethodName;
 	int access;
 
+	/**
+	 * <p>Constructor for MethodEntryAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param access a int.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 */
 	public MethodEntryAdapter(MethodVisitor mv, int access, String className,
 	        String methodName, String desc) {
 		super(Opcodes.ASM4, mv, access, methodName, desc);
@@ -48,6 +56,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 		this.access = access;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void onMethodEnter() {
 
@@ -69,6 +78,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 		super.onMethodEnter();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void onMethodExit(int opcode) {
 		// TODO: Check for <clinit>
@@ -87,6 +97,7 @@ public class MethodEntryAdapter extends AdviceAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		int maxNum = 3;

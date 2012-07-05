@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,24 +15,41 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.junit;
 
 import org.evosuite.testcase.ExecutionTrace;
-
 public class TestRun {
 	private final ExecutionTrace executionTrace;
 	private final Throwable failure;
 
+	/**
+	 * <p>Constructor for TestRun.</p>
+	 *
+	 * @param executionTrace a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param failure a {@link java.lang.Throwable} object.
+	 */
 	public TestRun(ExecutionTrace executionTrace, Throwable failure) {
 		this.executionTrace = executionTrace;
 		this.failure = failure;
 	}
 
+	/**
+	 * <p>Getter for the field <code>executionTrace</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 */
 	public ExecutionTrace getExecutionTrace() {
 		return executionTrace;
 	}
 
+	/**
+	 * <p>Getter for the field <code>failure</code>.</p>
+	 *
+	 * @return a {@link java.lang.Throwable} object.
+	 */
 	public Throwable getFailure() {
 		return failure;
 	}

@@ -86,6 +86,8 @@ public class FloydWarshall<V, E>
      * Constructs the shortest path array for the given graph.
      *
      * @param g input graph
+     * @param <V> a V object.
+     * @param <E> a E object.
      */
     public FloydWarshall(Graph<V, E> g)
     {
@@ -133,7 +135,6 @@ public class FloydWarshall<V, E>
      *
      * @param v1 first vertex
      * @param v2 second vertex
-     *
      * @return distance, or positive infinity if no path
      */
     public double shortestDistance(V v1, V v2)
@@ -142,6 +143,8 @@ public class FloydWarshall<V, E>
     }
 
     /**
+     * <p>Getter for the field <code>diameter</code>.</p>
+     *
      * @return diameter computed for the graph
      */
     public double getDiameter()

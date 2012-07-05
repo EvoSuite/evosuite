@@ -26,9 +26,8 @@ import org.evosuite.ga.SearchListener;
 
 /**
  * Bloat control that checks an individual against the best test case
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class RelativeTestLengthBloatControl implements BloatControlFunction, SearchListener {
 
@@ -39,6 +38,7 @@ public class RelativeTestLengthBloatControl implements BloatControlFunction, Sea
 	protected double best_fitness = Double.MAX_VALUE; // FIXXME: Assuming
 	                                                  // minimizing fitness!
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isTooLong(Chromosome chromosome) {
 		// Always accept if fitness is better
@@ -58,30 +58,35 @@ public class RelativeTestLengthBloatControl implements BloatControlFunction, Sea
 			return false; // Don't know max length so can't reject!
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome result) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		current_max = ((ExecutableChromosome) algorithm.getBestIndividual()).size();
 		best_fitness = algorithm.getBestIndividual().getFitness();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

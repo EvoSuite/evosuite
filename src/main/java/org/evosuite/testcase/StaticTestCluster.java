@@ -67,9 +67,8 @@ import org.jgrapht.graph.DefaultEdge;
 /**
  * The test cluster contains the information about all classes and their members
  * in the target package
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class StaticTestCluster extends TestCluster {
 
@@ -96,6 +95,7 @@ public class StaticTestCluster extends TestCluster {
 
 	private final List<Method> static_initializers = new ArrayList<Method>();
 
+	/** Constant <code>EXCLUDE</code> */
 	public static final List<String> EXCLUDE = Arrays.asList("<clinit>", "__STATIC_RESET");
 
 	private static Hierarchy hierarchy;
@@ -117,6 +117,7 @@ public class StaticTestCluster extends TestCluster {
 	protected StaticTestCluster() {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void init() {
 		hierarchy = Hierarchy.readFromDefaultLocation();
@@ -156,6 +157,12 @@ public class StaticTestCluster extends TestCluster {
 		return testMatcher.find();
 	}
 
+	/**
+	 * <p>isTargetClassName</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public static boolean isTargetClassName(String className) {
 		if (!Properties.TARGET_CLASS_PREFIX.isEmpty()
 		        && className.startsWith(Properties.TARGET_CLASS_PREFIX)) {
@@ -176,11 +183,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Get a list of all generator objects for the type
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	public Set<AccessibleObject> getGenerators(Type type)
@@ -193,11 +198,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Determine if there are generators
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	public boolean hasGenerator(Type type) {
@@ -208,11 +211,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	public AccessibleObject getRandomGenerator(Type type)
@@ -225,11 +226,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	@SuppressWarnings("deprecation")
@@ -340,6 +339,12 @@ public class StaticTestCluster extends TestCluster {
 
 	}
 
+	/**
+	 * <p>addGenerator</p>
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param call a {@link java.lang.reflect.AccessibleObject} object.
+	 */
 	public void addGenerator(Type type, AccessibleObject call) {
 		if (!generators.containsKey(type)) {
 			cacheGeneratorType(type);
@@ -347,6 +352,12 @@ public class StaticTestCluster extends TestCluster {
 		generators.get(type).add(call);
 	}
 
+	/**
+	 * <p>removeGenerator</p>
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param call a {@link java.lang.reflect.AccessibleObject} object.
+	 */
 	public void removeGenerator(Type type, AccessibleObject call) {
 		if (generators.containsKey(type)) {
 			generators.get(type).remove(call);
@@ -399,10 +410,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
 	 */
 	@Override
 	public List<AccessibleObject> getTestCallsWith(Type type) {
@@ -415,9 +425,9 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<AccessibleObject> getCallsWith(Type type) {
 		if (calls_with.containsKey(type))
@@ -442,10 +452,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
 	 */
 	@Override
 	public List<AccessibleObject> getCallsFor(Type type) {
@@ -468,10 +477,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Get random method or constructor of unit under test
-	 * 
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	public AccessibleObject getRandomTestCall() {
@@ -498,6 +506,8 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * Get entirely random call
+	 *
+	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public AccessibleObject getRandomCall() {
 		return Randomness.choice(calls);
@@ -558,9 +568,9 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * Get the set of fields defined in this class and its superclasses
-	 * 
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Field> getAccessibleFields(Class<?> clazz) {
 		Set<Field> fields = new HashSet<Field>();
@@ -1668,6 +1678,8 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Call each of the duplicated static constructors
 	 */
 	@Override
@@ -1727,6 +1739,8 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Unload all classes; perform cleanup
 	 */
 	@Override
@@ -1747,11 +1761,9 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Find a class that matches the given name
-	 * 
-	 * @param name
-	 * @return
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public Class<?> getClass(String name) throws ClassNotFoundException {
@@ -1783,19 +1795,16 @@ public class StaticTestCluster extends TestCluster {
 
 	}
 
-	/**
-	 * @return the analyzedClasses
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getAnalyzedClasses() {
 		return analyzedClasses;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Integrate a new class into the test cluster
-	 * 
-	 * @param name
-	 * @throws ClassNotFoundException
 	 */
 	@Override
 	public Class<?> importClass(String name) throws ClassNotFoundException {
@@ -1894,6 +1903,7 @@ public class StaticTestCluster extends TestCluster {
 	 * org.evosuite.testcase.TestCluster#checkDependencies(java.lang
 	 * .reflect.AccessibleObject)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void checkDependencies(AccessibleObject o) {
 		// TODO Auto-generated method stub
@@ -1905,6 +1915,7 @@ public class StaticTestCluster extends TestCluster {
 	 * 
 	 * @see org.evosuite.testcase.TestCluster#getTestCalls()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<AccessibleObject> getTestCalls() {
 		List<AccessibleObject> testCalls = new ArrayList<AccessibleObject>();
@@ -1916,6 +1927,7 @@ public class StaticTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#addTestCalls(java.lang.reflect.AccessibleObject)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void addTestCall(AccessibleObject call) {
 		// For now, assume it is a method
@@ -1930,6 +1942,7 @@ public class StaticTestCluster extends TestCluster {
 	 * org.evosuite.testcase.TestCluster#getKnownMatchingClasses(
 	 * java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Collection<Class<?>> getKnownMatchingClasses(String name) {
 		Set<Class<?>> classes = new HashSet<Class<?>>();

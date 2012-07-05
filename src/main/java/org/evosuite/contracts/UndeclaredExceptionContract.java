@@ -28,14 +28,16 @@ import org.evosuite.testcase.StatementInterface;
 
 
 /**
+ * <p>UndeclaredExceptionContract class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class UndeclaredExceptionContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!isTargetStatement(statement))
@@ -76,6 +78,7 @@ public class UndeclaredExceptionContract extends Contract {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Undeclared exception check";

@@ -27,9 +27,8 @@ import org.evosuite.testcase.TestFitnessFunction;
  * Historical concrete TestFitnessFactories only implement the getGoals() method
  * of TestFitnessFactory. Those old Factories can just extend these
  * AstractFitnessFactory to support the new method getFitness()
- * 
+ *
  * @author Sebastian Steenbuck
- * 
  */
 public abstract class AbstractFitnessFactory implements TestFitnessFactory {
 
@@ -40,6 +39,7 @@ public abstract class AbstractFitnessFactory implements TestFitnessFactory {
 	 */
 	public static long goalComputationTime = 0l;
 
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestSuiteChromosome suite) {
 

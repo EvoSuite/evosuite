@@ -37,8 +37,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>StringTransformation class.</p>
+ *
  * @author fraser
- * 
  */
 public class StringTransformation {
 
@@ -46,10 +47,20 @@ public class StringTransformation {
 
 	ClassNode cn;
 
+	/**
+	 * <p>Constructor for StringTransformation.</p>
+	 *
+	 * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
+	 */
 	public StringTransformation(ClassNode cn) {
 		this.cn = cn;
 	}
 
+	/**
+	 * <p>transform</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.ClassNode} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public ClassNode transform() {
 		List<MethodNode> methodNodes = cn.methods;
@@ -169,6 +180,12 @@ public class StringTransformation {
 		return false;
 	}
 
+	/**
+	 * <p>transformMethod</p>
+	 *
+	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * @return a boolean.
+	 */
 	public boolean transformMethod(MethodNode mn) {
 		boolean changed = transformStrings(mn);
 		if (changed) {

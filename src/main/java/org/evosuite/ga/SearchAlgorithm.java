@@ -19,9 +19,8 @@ package org.evosuite.ga;
 
 /**
  * Abstract base class of all search algorithms
- * 
- * @author Gordon Fraser
  *
+ * @author Gordon Fraser
  */
 public interface SearchAlgorithm {
 

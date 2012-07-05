@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
@@ -23,8 +26,6 @@ import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-
 public class IntegerUnaryExpression extends IntegerExpression implements
         UnaryExpression<Long> {
 
@@ -38,6 +39,13 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 
 	protected Expression<Long> expr;
 
+	/**
+	 * <p>Constructor for IntegerUnaryExpression.</p>
+	 *
+	 * @param e a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param con a {@link java.lang.Long} object.
+	 */
 	public IntegerUnaryExpression(Expression<Long> e, Operator op2, Long con) {
 		this.expr = e;
 		this.op = op2;
@@ -46,26 +54,31 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 			throw new ConstraintTooLongException();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return concretValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Long> getOperand() {
 		return expr;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operator getOperator() {
 		return op;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "(" + op.toString() + "(" + expr + "))";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof IntegerUnaryExpression) {
@@ -79,6 +92,7 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 
 	protected int size = 0;
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if (size == 0) {
@@ -87,6 +101,7 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
 		long leftVal = ExpressionHelper.getLongResult(expr);

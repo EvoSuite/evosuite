@@ -65,8 +65,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>TestSuiteDSE class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestSuiteDSE {
 
@@ -76,7 +77,9 @@ public class TestSuiteDSE {
 
 	private final Set<Integer> uncoverableBranches = new HashSet<Integer>();
 
+	/** Constant <code>nrConstraints=0</code> */
 	public static int nrConstraints = 0;
+	/** Constant <code>nrSolvedConstraints=0</code> */
 	public static int nrSolvedConstraints = 0;
 	private int nrCurrConstraints = 0;
 
@@ -84,15 +87,27 @@ public class TestSuiteDSE {
 
 	private final Map<String, Set<Integer>> jpfBranchMap = new HashMap<String, Set<Integer>>();
 
+	/** Constant <code>success=0</code> */
 	public static int success = 0;
+	/** Constant <code>failed=0</code> */
 	public static int failed = 0;
 
 	private final TestSuiteFitnessFunction fitness;
 
+	/**
+	 * <p>Constructor for TestSuiteDSE.</p>
+	 *
+	 * @param fitness a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
 	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
 		this.fitness = fitness;
 	}
 
+	/**
+	 * <p>applyDSE</p>
+	 *
+	 * @param individual a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 */
 	public void applyDSE(TestSuiteChromosome individual) {
 		ConcolicExecution concolicExecution = new ConcolicExecution();
 
@@ -201,8 +216,8 @@ public class TestSuiteDSE {
 
 	/**
 	 * For each uncovered branch try to add a new test
-	 * 
-	 * @param individual
+	 *
+	 * @param individual a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void applyOldDSE(TestSuiteChromosome individual) {
 		long dseEndTime = System.currentTimeMillis() + Properties.DSE_BUDGET;
@@ -467,6 +482,7 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	//@SuppressWarnings("rawtypes")
+	//@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	private TestCase negateCondition(BranchCondition condition, TestCase test,
 	        int localConstraint) {
@@ -691,9 +707,9 @@ public class TestSuiteDSE {
 
 	/**
 	 * Recursively determine constraints in expression
-	 * 
-	 * @param expr
-	 * @param variables
+	 *
+	 * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param variables a {@link java.util.Set} object.
 	 */
 	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {

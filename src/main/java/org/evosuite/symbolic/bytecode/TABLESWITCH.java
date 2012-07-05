@@ -30,23 +30,35 @@ import gov.nasa.jpf.jvm.bytecode.Instruction;
 
 /**
  * Access jump table by index and jump ..., index ...
+ *
+ * @author Gordon Fraser
  */
 public class TABLESWITCH extends gov.nasa.jpf.jvm.bytecode.TABLESWITCH {
 
+	/**
+	 * <p>Constructor for TABLESWITCH.</p>
+	 *
+	 * @param defaultTarget a int.
+	 * @param min a int.
+	 * @param max a int.
+	 */
 	public TABLESWITCH(int defaultTarget, int min, int max) {
 		super(defaultTarget, min, max);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getByteCode() {
 		return 0xAA;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getLength() {
 		return 13 + 2 * matches.length; // <2do> NOT RIGHT: padding!!
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Instruction execute(SystemState ss, KernelState ks, ThreadInfo ti) {

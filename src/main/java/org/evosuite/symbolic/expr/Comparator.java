@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 //
 //Copyright (C) 2005 United States Government as represented by the
@@ -35,7 +38,6 @@
 //
 
 package org.evosuite.symbolic.expr;
-
 public enum Comparator {
 
 	EQ(" == ") {
@@ -111,10 +113,21 @@ public enum Comparator {
 		this.str = str;
 	}
 
+	/**
+	 * <p>not</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 */
 	public abstract Comparator not();
 
+	/**
+	 * <p>swap</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 */
 	public abstract Comparator swap();
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return str;

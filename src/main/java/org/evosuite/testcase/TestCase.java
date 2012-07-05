@@ -31,32 +31,38 @@ import org.evosuite.utils.Listenable;
 
 
 /**
- * 
+ *
  * A test case is a list of statements
- * 
+ *
  * @author Sebastian Steenbuck
- * 
  */
 public interface TestCase extends Iterable<StatementInterface>, Cloneable,
         Listenable<Void> {
 
 	/**
-	 * 
+	 * <p>size</p>
+	 *
 	 * @return Number of statements
 	 */
 	public int size();
 
+	/**
+	 * <p>addStatements</p>
+	 *
+	 * @param statements a {@link java.util.List} object.
+	 */
 	public void addStatements(List<? extends StatementInterface> statements);
 
 	/**
-	 * 
+	 * <p>isEmpty</p>
+	 *
 	 * @return true if size()==0
 	 */
 	public boolean isEmpty();
 
 	/**
 	 * Remove all statements after a given position
-	 * 
+	 *
 	 * @param length
 	 *            Length of the test case after chopping
 	 */
@@ -64,99 +70,95 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Get Java code representation of the test case
-	 * 
+	 *
 	 * @return Code as string
 	 */
 	public String toCode();
 
 	/**
 	 * Get Java code representation of the test case
-	 * 
+	 *
 	 * @return Code as string
+	 * @param exceptions a {@link java.util.Map} object.
 	 */
 	public String toCode(Map<Integer, Throwable> exceptions);
 
 	/**
 	 * Get all objects up to position satisfying constraint
-	 * 
-	 * @param type
-	 * @param position
-	 * @return
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param position a int.
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<VariableReference> getObjects(Type type, int position);
 
 	/**
 	 * Get all objects up to position satisfying constraint
-	 * 
-	 * @param type
-	 * @param position
-	 * @param constraint
-	 * @return
+	 *
+	 * @param position a int.
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<VariableReference> getObjects(int position);
 
 	/**
 	 * Get a random object matching type
-	 * 
-	 * @param type
-	 *            Class we are looking for
+	 *
 	 * @return Random object
-	 * @throws ConstructionFailedException
+	 * @throws ConstructionFailedException if any.
 	 */
 	public VariableReference getRandomObject();
 
 	/**
 	 * Get a random object matching type
-	 * 
-	 * @param type
+	 *
 	 * @param position
 	 *            Upper bound in test case up to which objects are considered
-	 * @return
 	 * @throws ConstructionFailedException
 	 *             if no such object exists
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getRandomObject(int position);
 
 	/**
 	 * Get a random object matching type
-	 * 
+	 *
 	 * @param type
 	 *            Class we are looking for
 	 * @return Random object
-	 * @throws ConstructionFailedException
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
 	 */
 	public VariableReference getRandomObject(Type type)
 	        throws ConstructionFailedException;
 
 	/**
 	 * Get a random object matching type
-	 * 
-	 * @param type
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
 	 * @param position
 	 *            Upper bound in test case up to which objects are considered
-	 * @return
-	 * @throws ConstructionFailedException
+	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getRandomObject(Type type, int position)
 	        throws ConstructionFailedException;
 
 	/**
 	 * Get a random object matching type
-	 * 
-	 * @param type
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
 	 * @param position
 	 *            Upper bound in test case up to which objects are considered
-	 * @return
-	 * @throws ConstructionFailedException
+	 * @throws org.evosuite.ga.ConstructionFailedException
 	 *             if no such object exists
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getRandomNonNullObject(Type type, int position)
 	        throws ConstructionFailedException;
 
 	/**
 	 * Get actual object represented by a variable for a given execution scope
-	 * 
+	 *
 	 * @param reference
 	 *            Variable
 	 * @param scope
@@ -167,7 +169,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Set new statement at position
-	 * 
+	 *
 	 * @param statement
 	 *            New statement
 	 * @param position
@@ -180,7 +182,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Add new statement at position and fix following variable references
-	 * 
+	 *
 	 * @param statement
 	 *            New statement
 	 * @param position
@@ -193,7 +195,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Append new statement at end of test case
-	 * 
+	 *
 	 * @param statement
 	 *            New statement
 	 * @return VariableReference of return value
@@ -202,15 +204,15 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Get return value (variable) of statement at position
-	 * 
-	 * @param position
-	 * @return
+	 *
+	 * @param position a int.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getReturnValue(int position);
 
 	/**
 	 * Check if var is referenced after its definition
-	 * 
+	 *
 	 * @param var
 	 *            Variable to check for
 	 * @return True if there is a use of var
@@ -219,7 +221,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Determine the set of variables that depend on var
-	 * 
+	 *
 	 * @param var
 	 *            Variable to check for
 	 * @return Set of dependent variables
@@ -228,7 +230,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Determine the set of variables that var depends on
-	 * 
+	 *
 	 * @param var
 	 *            Variable to check for
 	 * @return Set of dependency variables
@@ -237,14 +239,14 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Remove statement at position and fix variable references
-	 * 
-	 * @param position
+	 *
+	 * @param position a int.
 	 */
 	public void remove(int position);
 
 	/**
 	 * Access statement by index
-	 * 
+	 *
 	 * @param position
 	 *            Index of statement
 	 * @return Statement at position
@@ -253,7 +255,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Check if this test case is a prefix of t
-	 * 
+	 *
 	 * @param t
 	 *            Test case to check against
 	 * @return True if this test is a prefix of t
@@ -262,7 +264,7 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Check if the test case has an object of a given class
-	 * 
+	 *
 	 * @param type
 	 *            Type to look for
 	 * @param position
@@ -271,36 +273,41 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 */
 	public boolean hasObject(Type type, int position);
 
+	/**
+	 * <p>hasCastableObject</p>
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @return a boolean.
+	 */
 	public boolean hasCastableObject(Type type);
 
 	/**
 	 * Determine the set of classes that are accessed by the test case
-	 * 
+	 *
 	 * @return Set of accessed classes
 	 */
 	public Set<Class<?>> getAccessedClasses();
 
 	/**
 	 * Copy all the assertions from other test case
-	 * 
+	 *
 	 * @param other
 	 *            The other test case
-	 * 
 	 */
 	public void addAssertions(TestCase other);
 
 	/**
 	 * Check if there are any assertions
-	 * 
+	 *
 	 * @return True if there are assertions
 	 */
 	public boolean hasAssertions();
 
 	/**
 	 * Get all assertions that exist for this test case
-	 * 
+	 *
 	 * @return List of assertions
-	 * 
+	 *
 	 *         TODO: Also return ExceptionAssertion?
 	 */
 	public List<Assertion> getAssertions();
@@ -312,15 +319,30 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Check if test case is valid (executable)
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public boolean isValid();
 
+	/**
+	 * <p>getDeclaredExceptions</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Class<?>> getDeclaredExceptions();
 
+	/**
+	 * <p>hasCalls</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean hasCalls();
 
+	/**
+	 * <p>addCoveredGoal</p>
+	 *
+	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 */
 	public void addCoveredGoal(TestFitnessFunction goal);
 
 	/**
@@ -328,13 +350,23 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 */
 	public void clearCoveredGoals();
 
+	/**
+	 * <p>getCoveredGoals</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<TestFitnessFunction> getCoveredGoals();
 
+	/**
+	 * <p>clone</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase clone();
 
 	/**
 	 * Replace a VariableReference with another one
-	 * 
+	 *
 	 * @param var1
 	 *            The old variable
 	 * @param var2
@@ -344,22 +376,22 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 
 	/**
 	 * Handle test visitor
-	 * 
-	 * @param visitor
+	 *
+	 * @param visitor a {@link org.evosuite.testcase.TestVisitor} object.
 	 */
 	public void accept(TestVisitor visitor);
 
 	/**
 	 * Retrieve a list of filenames accessed during the last execution
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<String> getAccessedFiles();
 
 	/**
 	 * Keep track of accessed files
-	 * 
-	 * @param files
+	 *
+	 * @param files a {@link java.util.List} object.
 	 */
 	public void setAccessedFiles(List<String> files);
 

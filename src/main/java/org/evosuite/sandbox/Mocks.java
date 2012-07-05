@@ -65,6 +65,8 @@ class Mocks {
 	private Set<Class<?>> classesMocked = new HashSet<Class<?>>();
 
 	/**
+	 * <p>Getter for the field <code>classesMocked</code>.</p>
+	 *
 	 * @return the classesMocked
 	 */
 	public Set<Class<?>> getClassesMocked() {
@@ -342,6 +344,11 @@ class Mocks {
 		return true;
 	}
 
+	/**
+	 * <p>Getter for the field <code>filesAccessed</code>.</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<String> getFilesAccessed() {
 		return filesAccessed;
 	}

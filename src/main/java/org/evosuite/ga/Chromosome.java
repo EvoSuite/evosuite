@@ -26,15 +26,15 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of chromosomes
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class Chromosome implements Comparable<Chromosome>, Serializable,
         PublicCloneable<Chromosome> {
 
 	private static final long serialVersionUID = -6921897301005213358L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(Chromosome.class);
 
 	/**
@@ -55,8 +55,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Return current fitness value
-	 * 
-	 * @return
+	 *
+	 * @return a double.
 	 */
 	public double getFitness() {
 		return fitness;
@@ -64,8 +64,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Set new fitness value
-	 * 
-	 * @param value
+	 *
+	 * @param value a double.
 	 */
 	public void setFitness(double value) {
 		fitness = value;
@@ -74,30 +74,41 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Is this a valid solution?
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public boolean isSolution() {
 		return solution;
 	}
 
+	/**
+	 * <p>Setter for the field <code>solution</code>.</p>
+	 *
+	 * @param value a boolean.
+	 */
 	public void setSolution(boolean value) {
 		solution = value;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
 	public abstract Chromosome clone();
 
+	/** {@inheritDoc} */
 	@Override
 	public abstract boolean equals(Object obj);
 
+	/** {@inheritDoc} */
 	@Override
 	public abstract int hashCode();
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Determine relative ordering of this chromosome to another chromosome. If
 	 * the fitness values are equal, go through all secondary objectives and try
 	 * to find one where the two are not equal.
@@ -114,9 +125,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Secondary Objectives are specific to chromosome types
-	 * 
-	 * @param o
-	 * @return
+	 *
+	 * @param o a {@link org.evosuite.ga.Chromosome} object.
+	 * @return a int.
 	 */
 	public abstract int compareSecondaryObjective(Chromosome o);
 
@@ -127,10 +138,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Fixed single point cross over
-	 * 
-	 * @param other
-	 * @param position
-	 * @throws ConstructionFailedException
+	 *
+	 * @param other a {@link org.evosuite.ga.Chromosome} object.
+	 * @param position a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
 	 */
 	public void crossOver(Chromosome other, int position)
 	        throws ConstructionFailedException {
@@ -139,37 +150,41 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Single point cross over
-	 * 
-	 * @param other
-	 * @param position1
-	 * @param position2
-	 * @throws ConstructionFailedException
+	 *
+	 * @param other a {@link org.evosuite.ga.Chromosome} object.
+	 * @param position1 a int.
+	 * @param position2 a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
 	 */
 	public abstract void crossOver(Chromosome other, int position1, int position2)
 	        throws ConstructionFailedException;
 
 	/**
 	 * Apply the local search
+	 *
+	 * @param objective a {@link org.evosuite.ga.LocalSearchObjective} object.
 	 */
 	public abstract void localSearch(LocalSearchObjective objective);
 
 	/**
 	 * Apply DSE
+	 *
+	 * @param algorithm a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public abstract void applyDSE(GeneticAlgorithm algorithm);
 
 	/**
 	 * Return length of individual
-	 * 
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public abstract int size();
 
 	/**
 	 * Return whether the chromosome has changed since the fitness value was
 	 * computed last
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public boolean isChanged() {
 		return changed;
@@ -177,8 +192,8 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Set changed status to @param changed
-	 * 
-	 * @param changed
+	 *
+	 * @param changed a boolean.
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;

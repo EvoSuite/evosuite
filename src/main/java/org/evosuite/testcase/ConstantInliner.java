@@ -30,14 +30,18 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Inline all primitive values and null references in the test case
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ConstantInliner extends ExecutionObserver {
 
 	private TestCase test = null;
 
+	/**
+	 * <p>inline</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public void inline(TestCase test) {
 		this.test = test;
 		TestCaseExecutor executor = TestCaseExecutor.getInstance();
@@ -49,10 +53,20 @@ public class ConstantInliner extends ExecutionObserver {
 
 	}
 
+	/**
+	 * <p>inline</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 */
 	public void inline(TestChromosome test) {
 		inline(test.test);
 	}
 
+	/**
+	 * <p>inline</p>
+	 *
+	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 */
 	public void inline(TestSuiteChromosome suite) {
 		for (TestCase test : suite.getTests())
 			inline(test);
@@ -60,7 +74,7 @@ public class ConstantInliner extends ExecutionObserver {
 
 	/**
 	 * Remove all unreferenced variables
-	 * 
+	 *
 	 * @param t
 	 *            The test case
 	 * @return True if something was deleted
@@ -92,6 +106,7 @@ public class ConstantInliner extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void output(int position, String output) {
 		// TODO Auto-generated method stub
@@ -101,6 +116,7 @@ public class ConstantInliner extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#statement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		try {
@@ -142,6 +158,7 @@ public class ConstantInliner extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#clear()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub

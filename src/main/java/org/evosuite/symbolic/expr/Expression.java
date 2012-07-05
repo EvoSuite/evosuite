@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,21 +15,48 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
 import java.io.Serializable;
-
 public abstract interface Expression<T extends Object> extends Serializable{
 	
+	/**
+	 * <p>getParent</p>
+	 *
+	 * @param <T> a T object.
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<?> getParent();
 	
+	/**
+	 * <p>setParent</p>
+	 *
+	 * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public void setParent(Expression<?> expr);
 	
+	/**
+	 * <p>execute</p>
+	 *
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public Object execute();
 	
+	/**
+	 * <p>getConcreteValue</p>
+	 *
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public Object getConcreteValue();
 	
+	/**
+	 * <p>getSize</p>
+	 *
+	 * @return a int.
+	 */
 	public int getSize();
 
 }

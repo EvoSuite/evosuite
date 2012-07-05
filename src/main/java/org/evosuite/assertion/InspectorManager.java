@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.assertion;
 
@@ -35,8 +38,6 @@ import org.evosuite.testcase.TestCluster;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 public class InspectorManager {
 
 	private static InspectorManager instance = null;
@@ -108,6 +109,11 @@ public class InspectorManager {
 		logger.debug("Loaded " + num + " inspectors");
 	}
 
+	/**
+	 * <p>Getter for the field <code>instance</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.assertion.InspectorManager} object.
+	 */
 	public static InspectorManager getInstance() {
 		if (instance == null) {
 			instance = new InspectorManager();
@@ -135,12 +141,24 @@ public class InspectorManager {
 		inspectors.put(clazz, inspectorList);
 	}
 
+	/**
+	 * <p>Getter for the field <code>inspectors</code>.</p>
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<Inspector> getInspectors(Class<?> clazz) {
 		if (!inspectors.containsKey(clazz))
 			determineInspectors(clazz);
 		return inspectors.get(clazz);
 	}
 
+	/**
+	 * <p>removeInspector</p>
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @param inspector a {@link org.evosuite.assertion.Inspector} object.
+	 */
 	public void removeInspector(Class<?> clazz, Inspector inspector) {
 		if (inspectors.containsKey(clazz)) {
 			inspectors.get(clazz).remove(inspector);

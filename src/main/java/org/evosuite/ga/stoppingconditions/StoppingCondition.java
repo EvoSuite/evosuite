@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,16 +15,17 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.ga.SearchListener;
-
 public interface StoppingCondition extends SearchListener {
 
 	/**
 	 * Force a specific amount of used up budget. Handle with care!
-	 * 
+	 *
 	 * @param value
 	 *            The new amount of used up budget for this StoppingCondition
 	 */
@@ -31,20 +33,25 @@ public interface StoppingCondition extends SearchListener {
 
 	/**
 	 * How much of the budget have we used up
-	 * 
-	 * @return
+	 *
+	 * @return a long.
 	 */
 	public abstract long getCurrentValue();
 
 	/**
 	 * Get upper limit of resources
-	 * 
+	 *
 	 * Mainly used for toString()
-	 * 
+	 *
 	 * @return limit
 	 */
 	public abstract long getLimit();
 
+	/**
+	 * <p>isFinished</p>
+	 *
+	 * @return a boolean.
+	 */
 	boolean isFinished();
 
 	/**
@@ -54,8 +61,8 @@ public interface StoppingCondition extends SearchListener {
 
 	/**
 	 * Set new upper limit of resources
-	 * 
-	 * @param limit
+	 *
+	 * @param limit a long.
 	 */
 	void setLimit(long limit);
 }

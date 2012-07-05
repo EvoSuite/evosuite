@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
@@ -23,8 +26,6 @@ import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-
 public class RealUnaryExpression extends RealExpression implements
 		UnaryExpression<Double> {
 
@@ -38,6 +39,13 @@ public class RealUnaryExpression extends RealExpression implements
 	
 	protected Expression<Double> expr;
 
+	/**
+	 * <p>Constructor for RealUnaryExpression.</p>
+	 *
+	 * @param e a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param con a {@link java.lang.Double} object.
+	 */
 	public RealUnaryExpression(Expression<Double> e, Operator op2, Double con) {
 		this.expr=e;
 		this.op=op2;
@@ -46,26 +54,31 @@ public class RealUnaryExpression extends RealExpression implements
 			throw new ConstraintTooLongException();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double getConcreteValue() {
 		return concretValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Double> getOperand() {
 		return expr;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operator getOperator() {
 		return op;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return op.toString()+"("+expr+")";
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof RealUnaryExpression)
@@ -79,6 +92,7 @@ public class RealUnaryExpression extends RealExpression implements
 	}
 	
 	protected int size=0;
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if(size == 0)
@@ -88,6 +102,7 @@ public class RealUnaryExpression extends RealExpression implements
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double execute() {
 		double leftVal = (Double)expr.execute();

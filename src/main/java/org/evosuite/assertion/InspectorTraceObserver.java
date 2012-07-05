@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.assertion;
 
@@ -24,8 +27,6 @@ import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
-
-
 public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTraceEntry> {
 
 	private final InspectorManager manager = InspectorManager.getInstance();
@@ -33,6 +34,7 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
 		// TODO: Check the variable class is complex?

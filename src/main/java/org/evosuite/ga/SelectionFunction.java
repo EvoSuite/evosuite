@@ -26,14 +26,14 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of selection functions
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class SelectionFunction implements Serializable {
 
 	private static final long serialVersionUID = -2514933149542277609L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(SelectionFunction.class);
 
 	/**
@@ -43,17 +43,17 @@ public abstract class SelectionFunction implements Serializable {
 
 	/**
 	 * Return index of next offspring
-	 * 
-	 * @param population
-	 * @return
+	 *
+	 * @param population a {@link java.util.List} object.
+	 * @return a int.
 	 */
 	public abstract int getIndex(List<Chromosome> population);
 
 	/**
 	 * Return two parents
-	 * 
-	 * @param population
-	 * @return
+	 *
+	 * @param population a {@link java.util.List} object.
+	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	public Chromosome select(List<Chromosome> population) {
 		return select(population, 1).get(0);
@@ -61,11 +61,11 @@ public abstract class SelectionFunction implements Serializable {
 
 	/**
 	 * Return n parents
-	 * 
-	 * @param population
+	 *
+	 * @param population a {@link java.util.List} object.
 	 * @param number
 	 *            n
-	 * @return
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<Chromosome> select(List<Chromosome> population, int number) {
 		List<Chromosome> offspring = new ArrayList<Chromosome>();
@@ -77,15 +77,16 @@ public abstract class SelectionFunction implements Serializable {
 
 	/**
 	 * Are we maximizing or minimizing fitness?
-	 * 
-	 * @param max
+	 *
+	 * @param max a boolean.
 	 */
 	public void setMaximize(boolean max) {
 		maximize = max;
 	}
 
 	/**
-	 * 
+	 * <p>isMaximize</p>
+	 *
 	 * @return true is we have to maximize
 	 */
 	public boolean isMaximize() {

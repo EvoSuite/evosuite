@@ -23,29 +23,35 @@ import java.util.Set;
 
 /**
  * Abstract base class of all execution observers
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class ExecutionObserver {
 
 	/** The test case being monitored and executed */
 	protected static TestCase currentTest = null;
 
+	/** Constant <code>WRAPPER_TYPES</code> */
 	@SuppressWarnings("unchecked")
 	protected static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(
 	        Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
 	                      Integer.class, Long.class, Float.class, Double.class,
 	                      Void.class));
 
+	/**
+	 * <p>isWrapperType</p>
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a boolean.
+	 */
 	protected static boolean isWrapperType(Class<?> clazz) {
 		return WRAPPER_TYPES.contains(clazz);
 	}
 
 	/**
 	 * Setter method for current test case
-	 * 
-	 * @param test
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public static void setCurrentTest(TestCase test) {
 		currentTest = test;
@@ -53,8 +59,8 @@ public abstract class ExecutionObserver {
 
 	/**
 	 * Getter method for current test case
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public static TestCase getCurrentTest() {
 		return currentTest;
@@ -62,18 +68,18 @@ public abstract class ExecutionObserver {
 
 	/**
 	 * This is called with the console output of each statement
-	 * 
-	 * @param position
-	 * @param output
+	 *
+	 * @param position a int.
+	 * @param output a {@link java.lang.String} object.
 	 */
 	public abstract void output(int position, String output);
 
 	/**
 	 * After execution of a statement, the result is passed to the observer
-	 * 
-	 * @param statement
-	 * @param scope
-	 * @param exception
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @param exception a {@link java.lang.Throwable} object.
 	 */
 	public abstract void statement(StatementInterface statement, Scope scope,
 	        Throwable exception);
@@ -85,9 +91,9 @@ public abstract class ExecutionObserver {
 
 	/**
 	 * Determine the set of variables that somehow lead to this statement
-	 * 
-	 * @param statement
-	 * @return
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	protected Set<VariableReference> getDependentVariables(StatementInterface statement) {
 		Set<VariableReference> dependencies = new HashSet<VariableReference>();

@@ -32,17 +32,28 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
+ * <p>ComparisonTransformation class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ComparisonTransformation {
 
 	ClassNode cn;
 
+	/**
+	 * <p>Constructor for ComparisonTransformation.</p>
+	 *
+	 * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
+	 */
 	public ComparisonTransformation(ClassNode cn) {
 		this.cn = cn;
 	}
 
+	/**
+	 * <p>transform</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.ClassNode} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public ClassNode transform() {
 		List<MethodNode> methodNodes = cn.methods;
@@ -52,6 +63,11 @@ public class ComparisonTransformation {
 		return cn;
 	}
 
+	/**
+	 * <p>transformMethod</p>
+	 *
+	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
+	 */
 	public void transformMethod(MethodNode mn) {
 		AbstractInsnNode node = mn.instructions.getFirst();
 		while (node != mn.instructions.getLast()) {

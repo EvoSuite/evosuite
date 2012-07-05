@@ -27,19 +27,28 @@ import org.evosuite.Properties.LocalSearchBudgetType;
 
 
 /**
+ * <p>LocalSearchBudget class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class LocalSearchBudget implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = 9152147170303160131L;
 
+	/** Constant <code>attempts=0</code> */
 	protected static int attempts = 0;
 
+	/** Constant <code>startTime=0L</code> */
 	protected static long startTime = 0L;
 
+	/** Constant <code>endTime=0L</code> */
 	protected static long endTime = 0L;
 
+	/**
+	 * <p>isFinished</p>
+	 *
+	 * @return a boolean.
+	 */
 	public static boolean isFinished() {
 		if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.STATEMENTS)
 			return attempts >= Properties.LOCAL_SEARCH_BUDGET;
@@ -50,10 +59,16 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 			        + Properties.LOCAL_SEARCH_BUDGET_TYPE);
 	}
 
+	/**
+	 * <p>evaluation</p>
+	 */
 	public static void evaluation() {
 		attempts++;
 	}
 
+	/**
+	 * <p>localSearchStarted</p>
+	 */
 	public static void localSearchStarted() {
 		startTime = System.currentTimeMillis();
 		endTime = startTime + Properties.LOCAL_SEARCH_BUDGET;
@@ -62,6 +77,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -71,6 +87,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		attempts = 0;
@@ -79,6 +96,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -88,6 +106,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		// TODO Auto-generated method stub
@@ -97,6 +116,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

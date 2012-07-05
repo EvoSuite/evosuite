@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,52 +15,94 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.testcase;
 
 import java.util.List;
-
-
 public class ArrayReference extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = 3309591356542131910L;
 
 	private int[] lengths;
 	
+	/**
+	 * <p>Constructor for ArrayReference.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param clazz a {@link java.lang.Class} object.
+	 */
 	public ArrayReference(TestCase tc, Class<?> clazz){
 		this(tc, new GenericClass(clazz), new int[ArrayStatement.determineDimensions(clazz)]);
 	}
 	
+	/**
+	 * <p>Constructor for ArrayReference.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param clazz a {@link org.evosuite.testcase.GenericClass} object.
+	 * @param lengths an array of int.
+	 */
 	public ArrayReference(TestCase tc, GenericClass clazz, int[] lengths) {
 		super(tc, clazz);
 		assert (lengths.length > 0);
 		this.lengths = lengths;
 	}
 
+	/**
+	 * <p>Constructor for ArrayReference.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param clazz a {@link org.evosuite.testcase.GenericClass} object.
+	 * @param array_length a int.
+	 */
 	public ArrayReference(TestCase tc, GenericClass clazz, int array_length) {
 		this(tc, clazz, new int[]{array_length});
 	}
 
+	/**
+	 * <p>getArrayLength</p>
+	 *
+	 * @return a int.
+	 */
 	public int getArrayLength() {
 		assert lengths.length == 1;
 		return lengths[0];
 	}
 
+	/**
+	 * <p>setArrayLength</p>
+	 *
+	 * @param l a int.
+	 */
 	public void setArrayLength(int l) {
 		assert (l >= 0);
 		assert lengths.length == 1;
 		lengths[0] = l;
 	}
 
+	/**
+	 * <p>Getter for the field <code>lengths</code>.</p>
+	 *
+	 * @return an array of int.
+	 */
 	public int[] getLengths() {
 		return lengths;
 	}
 
+	/**
+	 * <p>Setter for the field <code>lengths</code>.</p>
+	 *
+	 * @param lengths an array of int.
+	 */
 	public void setLengths(int[] lengths) {
 		this.lengths = lengths;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create a copy of the current variable
 	 */
 	@Override
@@ -90,10 +133,20 @@ public class ArrayReference extends VariableReferenceImpl {
 		}
 	}
 
+	/**
+	 * <p>getArrayDimensions</p>
+	 *
+	 * @return a int.
+	 */
 	public int getArrayDimensions() {
 		return lengths.length;
 	}
 
+	/**
+	 * <p>Setter for the field <code>lengths</code>.</p>
+	 *
+	 * @param lengths a {@link java.util.List} object.
+	 */
 	public void setLengths(List<Integer> lengths) {
 		this.lengths = new int[lengths.size()];
 		int idx = 0;

@@ -44,8 +44,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>MaxStatementsStoppingCondition class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 
@@ -62,14 +63,16 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 
 	/**
 	 * Add a given number of executed statements
-	 * 
-	 * @param num
+	 *
+	 * @param num a int.
 	 */
 	public static void statementsExecuted(int num) {
 		current_statement += num;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Finished, if the maximum number of statements has been reached
 	 */
 	@Override
@@ -80,6 +83,8 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Reset counter
 	 */
 	@Override
@@ -87,14 +92,19 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 		current_statement = 0;
 	}
 
+	/**
+	 * <p>getNumExecutedStatements</p>
+	 *
+	 * @return a long.
+	 */
 	public static long getNumExecutedStatements() {
 		return current_statement;
 	}
 
 	/**
 	 * Set new upper limit
-	 * 
-	 * @param max
+	 *
+	 * @param max a int.
 	 */
 	public static void setMaxExecutedStatements(int max) {
 		max_statements = max;
@@ -103,6 +113,7 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		return current_statement;
@@ -111,16 +122,19 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		max_statements = limit;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return max_statements;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		current_statement = value;

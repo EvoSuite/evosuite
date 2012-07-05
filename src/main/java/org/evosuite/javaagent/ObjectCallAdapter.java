@@ -25,20 +25,29 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>ObjectCallAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ObjectCallAdapter extends MethodVisitor {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(ObjectCallAdapter.class);
 
 	Map<String, String> descriptors = null;
 
+	/**
+	 * <p>Constructor for ObjectCallAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param descriptors a {@link java.util.Map} object.
+	 */
 	public ObjectCallAdapter(MethodVisitor mv, Map<String, String> descriptors) {
 		super(Opcodes.ASM4, mv);
 		this.descriptors = descriptors;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		if (descriptors.containsKey(name + desc)) {

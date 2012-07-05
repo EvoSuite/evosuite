@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,24 +15,35 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccg;
 
 import org.evosuite.graphs.ccfg.CCFGNode;
-
-
 public class ClassCallNode extends CCFGNode {
 
 	private String method;
 	
+	/**
+	 * <p>Getter for the field <code>method</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethod() {
 		return method;
 	}
 
+	/**
+	 * <p>Constructor for ClassCallNode.</p>
+	 *
+	 * @param method a {@link java.lang.String} object.
+	 */
 	public ClassCallNode(String method) {
 		this.method = method;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -40,6 +52,7 @@ public class ClassCallNode extends CCFGNode {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -57,6 +70,7 @@ public class ClassCallNode extends CCFGNode {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return method;

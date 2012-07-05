@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,11 +15,12 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
 
 import java.io.Serializable;
-
 public class PassiveChangeListener<T> implements Listener<T>, Serializable {
 
 	private static final long serialVersionUID = -8661407199741916844L;
@@ -29,8 +31,9 @@ public class PassiveChangeListener<T> implements Listener<T>, Serializable {
 	 * Returns whether the listener received any event since the last call of
 	 * this method. Resets this listener such that another call of this method
 	 * without receiving an event in between will return false.
-	 * 
-	 * @return
+	 *
+	 * @param <T> a T object.
+	 * @return a boolean.
 	 */
 	public boolean hasChanged() {
 		boolean result = changed;
@@ -38,6 +41,7 @@ public class PassiveChangeListener<T> implements Listener<T>, Serializable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void receiveEvent(T event) {
 		changed = true;

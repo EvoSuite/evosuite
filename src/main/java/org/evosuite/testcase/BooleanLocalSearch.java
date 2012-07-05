@@ -26,8 +26,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>BooleanLocalSearch class.</p>
+ *
  * @author fraser
- * 
  */
 public class BooleanLocalSearch implements LocalSearch {
 
@@ -38,6 +39,7 @@ public class BooleanLocalSearch implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doSearch(TestChromosome test, int statement,

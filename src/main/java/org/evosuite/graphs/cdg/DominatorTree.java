@@ -30,29 +30,28 @@ import org.jgrapht.graph.DefaultEdge;
 
 
 /**
- * 
+ *
  * Given a CFG this class computes the immediateDominators and the
  * dominatingFrontiers for each CFG vertex
- * 
+ *
  * The current algorithm to determine the immediateDominators runs in time
  * O(e*log n) where e is the number of control flow edges and n the number of
  * CFG vertices and is taken from:
- * 
+ *
  * "A Fast Algorithm for Finding Dominators in a Flowgraph" THOMAS LENGAUER and
  * ROBERT ENDRE TARJAN 1979, Stanford University
- * 
+ *
  * DOI: 10.1145/357062.357071
  * http://portal.acm.org/citation.cfm?doid=357062.357071
- * 
- * 
+ *
+ *
  * The algorithm for computing the dominatingFrontiers when given the
  * immediateDominators is taken from
- * 
+ *
  * "Efficiently Computing Static Single Assignment Form and the Control
  * Dependence Graph" RON CYTRON, JEANNE FERRANTE, BARRY K. ROSEN, and MARK N.
  * WEGMAN IBM Research Division and F. KENNETH ZADECK Brown University 1991
- * 
- * 
+ *
  * @author Andre Mis
  */
 public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdge> {
@@ -69,6 +68,8 @@ public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdg
 	/**
 	 * Will start the computation of all immediateDominators for the given CFG
 	 * which can later be retrieved via getImmediateDominator()
+	 *
+	 * @param cfg a {@link org.evosuite.graphs.cfg.ControlFlowGraph} object.
 	 */
 	public DominatorTree(ControlFlowGraph<V> cfg) {
 		super(DefaultEdge.class);
@@ -160,20 +161,20 @@ public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdg
 	/**
 	 * Given a node of this objects CFG this method returns it's previously
 	 * computed immediateDominator
-	 * 
+	 *
 	 * The immediateDominator iDom of a node v has the following properties:
-	 * 
+	 *
 	 * 1) iDom dominates v
-	 * 
+	 *
 	 * 2) every other dominator of v dominates iDom
-	 * 
+	 *
 	 * A node w dominates v or is a dominator of v if and only if every path
 	 * from the CFG's entryPoint to v contains w
-	 * 
+	 *
 	 * @param v
 	 *            A node within this objects CFG for wich the immediateDominator
 	 *            is to be returned
-	 * @return
+	 * @return a V object.
 	 */
 	public V getImmediateDominator(V v) {
 		if (v == null)
@@ -194,6 +195,12 @@ public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdg
 		return domNode.immediateDominator.node;
 	}
 
+	/**
+	 * <p>Getter for the field <code>dominatingFrontiers</code>.</p>
+	 *
+	 * @param v a V object.
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<V> getDominatingFrontiers(V v) {
 		if (v == null)
 			throw new IllegalStateException("null given");
@@ -297,6 +304,7 @@ public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdg
 		return r;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return "DominatorTree" + graphId;

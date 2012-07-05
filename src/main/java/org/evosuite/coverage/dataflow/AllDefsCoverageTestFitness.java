@@ -29,14 +29,15 @@ import org.evosuite.testcase.TestFitnessFunction;
 /**
  * Evaluate fitness of a single test case with respect to one Definition-Use
  * pair
- * 
+ *
  * For more information look at the comment from method getDistance()
- * 
+ *
  * @author Andre Mis
  */
 public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	
 	private static final long serialVersionUID = 1L;
+	/** Constant <code>singleFitnessTime=0l</code> */
 	public static long singleFitnessTime = 0l;
 	
 	
@@ -45,6 +46,12 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	private Map<Use,DefUseCoverageTestFitness> uses;
 	
 
+	/**
+	 * <p>Constructor for AllDefsCoverageTestFitness.</p>
+	 *
+	 * @param def a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param uses a {@link java.util.Map} object.
+	 */
 	public AllDefsCoverageTestFitness(Definition def, Map<Use,DefUseCoverageTestFitness> uses) {
 		this.targetDef = def;
 		this.goalDefinitionFitness = new StatementCoverageTestFitness(def);
@@ -52,6 +59,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 		
@@ -77,6 +85,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 		return min;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -87,6 +96,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -105,6 +115,7 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "AllDef-Goal "+targetDef.toString();

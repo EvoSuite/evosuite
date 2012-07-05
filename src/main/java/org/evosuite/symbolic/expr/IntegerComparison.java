@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,17 +15,24 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-
 public class IntegerComparison extends IntegerExpression {
 
 	private static final long serialVersionUID = 8551234172104612736L;
 
+	/**
+	 * <p>Constructor for IntegerComparison.</p>
+	 *
+	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con a {@link java.lang.Long} object.
+	 */
 	public IntegerComparison(Expression<Long> left, Expression<Long> right, Long con) {
 		super();
 		this.left = left;
@@ -38,11 +46,13 @@ public class IntegerComparison extends IntegerExpression {
 	private final Expression<Long> left;
 	private final Expression<Long> right;
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return con;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -58,14 +68,25 @@ public class IntegerComparison extends IntegerExpression {
 		return false;
 	}
 
+	/**
+	 * <p>getRightOperant</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<Long> getRightOperant() {
 		return right;
 	}
 
+	/**
+	 * <p>getLeftOperant</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<Long> getLeftOperant() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "(" + left + " cmp " + right + ")";
@@ -73,6 +94,7 @@ public class IntegerComparison extends IntegerExpression {
 
 	protected int size = 0;
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if (size == 0) {
@@ -81,6 +103,7 @@ public class IntegerComparison extends IntegerExpression {
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Object execute() {
 		// this is never used 

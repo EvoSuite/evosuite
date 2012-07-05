@@ -44,11 +44,10 @@ import org.slf4j.LoggerFactory;
 /**
  * This class executes a test case on a unit and all mutants and infers
  * assertions from the resulting traces.
- * 
+ *
  * TODO: This class is a mess.
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MutationAssertionGenerator extends AssertionGenerator {
 
@@ -65,6 +64,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final static Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
 
+	/** Constant <code>observerClasses</code> */
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
 	        ComparisonTraceEntry.class, SameTraceEntry.class, InspectorTraceEntry.class,
 	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class };
@@ -86,10 +86,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Execute a test case on the original unit
-	 * 
-	 * @param test
-	 *            The test case that should be executed
 	 */
 	@Override
 	protected ExecutionResult runTest(TestCase test) {
@@ -230,6 +229,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	}
 
+	/**
+	 * <p>addAssertions</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param mutant a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public void addAssertions(TestCase test, Mutation mutant) {
 		ExecutionResult origResult = runTest(test);
 		ExecutionResult mutantResult = runTest(test, mutant);
@@ -244,9 +249,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	/**
 	 * Generate assertions to kill all the mutants defined in the pool
-	 * 
-	 * @param test
-	 * @param killed
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param killed a {@link java.util.Set} object.
 	 */
 	public void addAssertions(TestCase test, Set<Integer> killed) {
 		addAssertions(test, killed, mutants);
@@ -254,10 +259,10 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	/**
 	 * Add assertions to current test set for given set of mutants
-	 * 
-	 * @param test
-	 * @param killed
-	 * @param mutants
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param killed a {@link java.util.Set} object.
+	 * @param mutants a {@link java.util.Map} object.
 	 */
 	public void addAssertions(TestCase test, Set<Integer> killed,
 	        Map<Integer, Mutation> mutants) {
@@ -566,6 +571,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void addAssertions(TestCase test) {
 		// TODO Auto-generated method stub

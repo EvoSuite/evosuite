@@ -34,25 +34,33 @@ import org.objectweb.asm.tree.analysis.BasicValue;
 
 /**
  * An interpreter that determines which values are real Booleans
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class BooleanValueInterpreter extends BasicInterpreter {
 
+	/** Constant <code>BOOLEAN_VALUE</code> */
 	public final static BasicValue BOOLEAN_VALUE = new BasicValue(Type.BOOLEAN_TYPE);
 
+	/** Constant <code>BOOLEAN_ARRAY</code> */
 	public final static BasicValue BOOLEAN_ARRAY = new BasicValue(Type.getType("[Z"));
 
 	private final boolean isStatic;
 
 	private final Type[] types;
 
+	/**
+	 * <p>Constructor for BooleanValueInterpreter.</p>
+	 *
+	 * @param desc a {@link java.lang.String} object.
+	 * @param isStatic a boolean.
+	 */
 	public BooleanValueInterpreter(String desc, boolean isStatic) {
 		this.types = Type.getArgumentTypes(desc);
 		this.isStatic = isStatic;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue newValue(final Type type) {
 		if (type == null) {
@@ -72,6 +80,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#unaryOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue unaryOperation(AbstractInsnNode insn, BasicValue value)
 	        throws AnalyzerException {
@@ -90,6 +99,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#newOperation(org.objectweb.asm.tree.AbstractInsnNode)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue newOperation(AbstractInsnNode insn) throws AnalyzerException {
 		if (insn.getOpcode() == ICONST_0) {
@@ -110,6 +120,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#binaryOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue binaryOperation(AbstractInsnNode insn, BasicValue value1,
 	        BasicValue value2) throws AnalyzerException {
@@ -127,6 +138,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#copyOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
 	        throws AnalyzerException {
@@ -152,6 +164,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue naryOperation(AbstractInsnNode insn, List values)
 	        throws AnalyzerException {
@@ -170,6 +183,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#merge(org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue merge(BasicValue v, BasicValue w) {
 		if (v == BOOLEAN_VALUE && w == BasicValue.INT_VALUE)

@@ -1,19 +1,22 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- * 
+ *
  * This file is part of EvoSuite.
- * 
+ *
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- * 
+ *
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
 
@@ -29,7 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 public class HtmlAnalyzer implements Serializable {
 
 	private static final long serialVersionUID = -5634296119340294425L;
@@ -38,6 +40,12 @@ public class HtmlAnalyzer implements Serializable {
 
 	private Set<File> files;
 
+	/**
+	 * <p>getClassContent</p>
+	 *
+	 * @param fullClassName a {@link java.lang.String} object.
+	 * @return a {@link java.lang.Iterable} object.
+	 */
 	public Iterable<String> getClassContent(String fullClassName) {
 		if (files == null) {
 			initFiles();
@@ -61,6 +69,12 @@ public class HtmlAnalyzer implements Serializable {
 		return Arrays.asList(msg);
 	}
 
+	/**
+	 * <p>getContainingClassName</p>
+	 *
+	 * @param f a {@link java.io.File} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getContainingClassName(File f) {
 		String name = f.getAbsolutePath();
 		String sep = System.getProperty("file.separator");

@@ -32,9 +32,8 @@ import org.evosuite.testcase.TestChromosome;
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
  * condition, or a method entry
- * 
+ *
  * @author Gordon Fraser, Andre Mis
- * 
  */
 public class BranchCoverageGoal extends TestCoverageGoal implements Serializable {
 
@@ -48,13 +47,18 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	/**
 	 * Can be used to create an arbitrary BranchCoverageGoal trying to cover the
 	 * given Branch
-	 * 
+	 *
 	 * If the given branch is null, this goal will try to cover the root branch
 	 * of the method identified by the given name - meaning it will just try to
 	 * call the method at hand
-	 * 
+	 *
 	 * Otherwise this goal will try to reach the given branch and if value is
 	 * true, make the branchInstruction jump and visa versa
+	 *
+	 * @param branch a {@link org.evosuite.coverage.branch.Branch} object.
+	 * @param value a boolean.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
 	 */
 	public BranchCoverageGoal(Branch branch, boolean value, String className,
 	        String methodName) {
@@ -78,6 +82,13 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		}
 	}
 
+	/**
+	 * <p>Constructor for BranchCoverageGoal.</p>
+	 *
+	 * @param cd a {@link org.evosuite.graphs.cfg.ControlDependency} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 */
 	public BranchCoverageGoal(ControlDependency cd, String className, String methodName) {
 		this(cd.getBranch(), cd.getBranchExpressionValue(), className, methodName);
 	}
@@ -85,9 +96,9 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	/**
 	 * Methods that have no branches don't need a cfg, so we just set the cfg to
 	 * null
-	 * 
-	 * @param className
-	 * @param methodName
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
 	 */
 	public BranchCoverageGoal(String className, String methodName) {
 		this.branch = null;
@@ -99,13 +110,16 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 
 	/**
 	 * Determines whether this goals is connected to the given goal
-	 * 
+	 *
 	 * This is the case when this goals target branch is control dependent on
 	 * the target branch of the given goal or visa versa
-	 * 
+	 *
 	 * This is used in the ChromosomeRecycler to determine if tests produced to
 	 * cover one goal should be used initially when trying to cover the other
 	 * goal
+	 *
+	 * @param goal a {@link org.evosuite.coverage.branch.BranchCoverageGoal} object.
+	 * @return a boolean.
 	 */
 	public boolean isConnectedTo(BranchCoverageGoal goal) {
 		if (branch == null || goal.branch == null) {
@@ -134,9 +148,9 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	//	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Determine if there is an existing test case covering this goal
-	 * 
-	 * @return
 	 */
 	@Override
 	public boolean isCovered(TestChromosome test) {
@@ -148,6 +162,12 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 			return false;
 	}
 
+	/**
+	 * <p>getDistance</p>
+	 *
+	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.coverage.ControlFlowDistance} object.
+	 */
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 
 		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch,
@@ -210,6 +230,8 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	// inherited from Object
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Readable representation
 	 */
 	@Override
@@ -227,6 +249,7 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		return name;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -246,6 +269,7 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

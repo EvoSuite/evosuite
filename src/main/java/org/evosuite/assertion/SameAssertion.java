@@ -12,8 +12,9 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 
 /**
+ * <p>SameAssertion class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class SameAssertion extends Assertion {
 
@@ -21,10 +22,20 @@ public class SameAssertion extends Assertion {
 
 	protected VariableReference dest;
 
+	/**
+	 * <p>Getter for the field <code>dest</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public VariableReference getDest() {
 		return dest;
 	}
 
+	/**
+	 * <p>Setter for the field <code>dest</code>.</p>
+	 *
+	 * @param dest a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void setDest(VariableReference dest) {
 		this.dest = dest;
 	}
@@ -32,6 +43,7 @@ public class SameAssertion extends Assertion {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.Assertion#getCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
 		if (((Boolean) value).booleanValue())
@@ -43,6 +55,7 @@ public class SameAssertion extends Assertion {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.Assertion#copy(org.evosuite.testcase.TestCase, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
 		SameAssertion s = new SameAssertion();
@@ -55,6 +68,7 @@ public class SameAssertion extends Assertion {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.Assertion#evaluate(org.evosuite.testcase.Scope)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
@@ -77,6 +91,7 @@ public class SameAssertion extends Assertion {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -88,6 +103,7 @@ public class SameAssertion extends Assertion {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -110,6 +126,7 @@ public class SameAssertion extends Assertion {
 	 * 
 	 * @see org.evosuite.assertion.Assertion#getReferencedVariables()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();

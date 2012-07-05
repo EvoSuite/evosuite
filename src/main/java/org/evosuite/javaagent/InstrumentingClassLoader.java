@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * <em>Note:</em> Do not inadvertently use multiple instances of this class in
  * the application! This may lead to hard to detect and debug errors. Yet this
  * class cannot be an singleton as it might be necessary to do so...
- * 
+ *
  * @author roessler
  * @author Gordon Fraser
  */
@@ -45,11 +45,19 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final ClassLoader classLoader;
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 
+	/**
+	 * <p>Constructor for InstrumentingClassLoader.</p>
+	 */
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
 		setClassAssertionStatus(Properties.TARGET_CLASS, true);
 	}
 
+	/**
+	 * <p>Constructor for InstrumentingClassLoader.</p>
+	 *
+	 * @param instrumentation a {@link org.evosuite.javaagent.BytecodeInstrumentation} object.
+	 */
 	public InstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
 		super(InstrumentingClassLoader.class.getClassLoader());
 		classLoader = InstrumentingClassLoader.class.getClassLoader();
@@ -58,6 +66,9 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	/**
 	 * Check if we can instrument the given class
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a boolean.
 	 */
 	public static boolean checkIfCanInstrument(String className) {
 		for (String s : getPackagesShouldNotBeInstrumented()) {
@@ -69,7 +80,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * 
+	 * <p>getPackagesShouldNotBeInstrumented</p>
+	 *
 	 * @return the names of class packages EvoSuite is not going to instrument
 	 */
 	public static String[] getPackagesShouldNotBeInstrumented() {
@@ -83,6 +95,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		        "apple.", "com.apple.", "org.junit", "junit.framework" };
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Class<?> loadClass(String name) throws ClassNotFoundException {
 		//if (instrumentation.isTargetProject(name)) {

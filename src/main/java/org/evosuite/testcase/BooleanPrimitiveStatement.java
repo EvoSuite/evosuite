@@ -25,24 +25,26 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>BooleanPrimitiveStatement class.</p>
+ *
  * @author fraser
- * 
  */
 public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boolean> {
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for BooleanPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link java.lang.Boolean} object.
 	 */
 	public BooleanPrimitiveStatement(TestCase tc, Boolean value) {
 		super(tc, boolean.class, value);
 	}
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for BooleanPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public BooleanPrimitiveStatement(TestCase tc) {
 		super(tc, boolean.class, false);
@@ -53,6 +55,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		value = false;
@@ -61,6 +64,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
 		mg.push((value).booleanValue());
@@ -69,6 +73,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 		value = !value.booleanValue();
@@ -77,6 +82,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
 		delta();
@@ -85,6 +91,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		value = Randomness.nextBoolean();
@@ -93,6 +100,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment() {
 		delta();
@@ -101,6 +109,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void decrement() {
 		delta();
@@ -109,6 +118,7 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setMid(Boolean min, Boolean max) {
 		// TODO Auto-generated method stub
@@ -118,11 +128,13 @@ public class BooleanPrimitiveStatement extends NumericalPrimitiveStatement<Boole
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
 		return !value;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public void negate() {
 		value = !value;

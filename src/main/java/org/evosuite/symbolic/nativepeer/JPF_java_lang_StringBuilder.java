@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.nativepeer;
 
@@ -35,11 +38,15 @@ import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testsuite.TestSuiteDSE;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 public class JPF_java_lang_StringBuilder {
 	static Logger log = LoggerFactory.getLogger(JPF_java_lang_StringBuilder.class);
 		
+	/**
+	 * <p>$init____</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 */
 	public static void $init____ (MJIEnv env, int robj) {
 		log.debug("we are in the constructor");
 		StringBuilderExpression result = new StringBuilderExpression(null);
@@ -49,6 +56,13 @@ public class JPF_java_lang_StringBuilder {
 		env.getHeap().get(robj).setReferenceField("value", charArrayRef);
 	}
 	
+	/**
+	 * <p>$init__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param i a int.
+	 */
 	public static void $init__I (MJIEnv env, int robj, int i) {
 		log.debug("we are in init__I");
 		StringBuilderExpression result = new StringBuilderExpression(null);
@@ -58,6 +72,13 @@ public class JPF_java_lang_StringBuilder {
 		env.getHeap().get(robj).setReferenceField("value", charArrayRef);
 	}
 	
+	/**
+	 * <p>$init__Ljava_lang_String_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param rString a int.
+	 */
 	@SuppressWarnings("unchecked")
 	public static void $init__Ljava_lang_String_2 (MJIEnv env, int robj, int rString) {
 		log.debug("we are in init__Ljava_lang_String_2");
@@ -80,6 +101,13 @@ public class JPF_java_lang_StringBuilder {
 		env.setIntField(robj, "count", len);
 	}
 	
+	/**
+	 * <p>$init__Ljava_lang_CharSequence_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param rCharSeq a int.
+	 */
 	public static void $init__Ljava_lang_CharSequence_2 (MJIEnv env, int robj, int rCharSeq) {
 		log.debug("we are in init__Ljava_lang_CharSequence_2");
 		String str = env.getStringObject(rCharSeq);
@@ -96,6 +124,14 @@ public class JPF_java_lang_StringBuilder {
 		env.setIntField(robj, "count", len);
 	}
 
+	/**
+	 * <p>append__Ljava_lang_String_2__Ljava_lang_StringBuilder_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param rString a int.
+	 * @return a int.
+	 */
 	public static int append__Ljava_lang_String_2__Ljava_lang_StringBuilder_2 (MJIEnv env, int robj, int rString) {
 		log.debug("we are in append");
 		
@@ -133,6 +169,14 @@ public class JPF_java_lang_StringBuilder {
 		return robj;
 	}
 	
+	/**
+	 * <p>append__I__Ljava_lang_StringBuilder_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param val a int.
+	 * @return a int.
+	 */
 	public static int append__I__Ljava_lang_StringBuilder_2 (MJIEnv env, int robj, int val) {
 		log.debug("we are in append");
 		
@@ -169,6 +213,14 @@ public class JPF_java_lang_StringBuilder {
 		return robj;
 	}
 	
+	/**
+	 * <p>append__C__Ljava_lang_StringBuilder_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param val a char.
+	 * @return a int.
+	 */
 	public static int append__C__Ljava_lang_StringBuilder_2 (MJIEnv env, int robj, char val) {
 		log.debug("we are in append");
 		
@@ -204,6 +256,14 @@ public class JPF_java_lang_StringBuilder {
 		return robj;
 	}
 	
+	/**
+	 * <p>append__Z__Ljava_lang_StringBuilder_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param val a boolean.
+	 * @return a int.
+	 */
 	public static int append__Z__Ljava_lang_StringBuilder_2 (MJIEnv env, int robj, boolean val) {
 		log.debug("we are in append");
 		
@@ -239,6 +299,14 @@ public class JPF_java_lang_StringBuilder {
 		return robj;
 	}
 	
+	/**
+	 * <p>append__J__Ljava_lang_StringBuilder_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param val a long.
+	 * @return a int.
+	 */
 	public static int append__J__Ljava_lang_StringBuilder_2 (MJIEnv env, int robj, long val) {
 		log.debug("we are in append");
 		
@@ -274,6 +342,14 @@ public class JPF_java_lang_StringBuilder {
 		return robj;
 	}
 	
+	/**
+	 * <p>append__D__Ljava_lang_StringBuilder_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param val a double.
+	 * @return a int.
+	 */
 	public static int append__D__Ljava_lang_StringBuilder_2 (MJIEnv env, int robj, double val) {
 		log.debug("we are in append");
 		
@@ -309,6 +385,14 @@ public class JPF_java_lang_StringBuilder {
 		return robj;
 	}
 	
+	/**
+	 * <p>append__F__Ljava_lang_StringBuilder_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @param val a float.
+	 * @return a int.
+	 */
 	public static int append__F__Ljava_lang_StringBuilder_2 (MJIEnv env, int robj, float val) {
 		log.debug("we are in append");
 		
@@ -344,6 +428,13 @@ public class JPF_java_lang_StringBuilder {
 		return robj;
 	}
 	
+	/**
+	 * <p>toString____Ljava_lang_String_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param robj a int.
+	 * @return a int.
+	 */
 	public static int toString____Ljava_lang_String_2 (MJIEnv env, int robj) {
 		int valueRef = env.getReferenceField(robj, "value");
 		int pointer = env.newString(new String(env.getCharArrayObject(valueRef)));

@@ -42,8 +42,9 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 
 /**
+ * <p>TestRunnable class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
@@ -67,10 +68,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 	public Set<ExecutionObserver> observers;
 
 	/**
-	 * 
-	 * @param tc
-	 * @param scope
-	 * @param observers
+	 * <p>Constructor for TestRunnable.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @param observers a {@link java.util.Set} object.
 	 */
 	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		test = tc;
@@ -120,6 +122,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult call() {
 
@@ -308,6 +311,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Map<Integer, Throwable> getExceptionsThrown() {
 		HashMap<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
@@ -318,6 +322,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isRunFinished() {
 		return runFinished;

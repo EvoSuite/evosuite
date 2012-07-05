@@ -26,26 +26,28 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>StringPrimitiveStatement class.</p>
+ *
  * @author fraser
- * 
  */
 public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 
 	private static final long serialVersionUID = 274445526699835887L;
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for StringPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link java.lang.String} object.
 	 */
 	public StringPrimitiveStatement(TestCase tc, String value) {
 		super(tc, String.class, value);
 	}
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for StringPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public StringPrimitiveStatement(TestCase tc) {
 		super(tc, String.class, "");
@@ -54,6 +56,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		value = "";
@@ -62,6 +65,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
 		mg.push(value);
@@ -93,6 +97,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 		return s;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 
@@ -140,6 +145,9 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
+	/**
+	 * <p>increment</p>
+	 */
 	public void increment() {
 		String s = value;
 		if (s.isEmpty()) {
@@ -154,6 +162,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)

@@ -27,14 +27,16 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 
 /**
+ * <p>JUnit4TestAdapter class.</p>
+ *
  * @author fraser
- * 
  */
 public class JUnit4TestAdapter implements UnitTestAdapter {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getImports()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getImports() {
 		//		return "import org.junit.Before;\n" + "import org.junit.Ignore;\n"
@@ -45,6 +47,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getClassDefinition(java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getClassDefinition(String testName) {
 		return "public class " + testName;
@@ -53,6 +56,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getMethodDefinition(java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getMethodDefinition(String testName) {
 		return "  @Test\n  public void " + testName + "() ";
@@ -61,6 +65,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getSuite(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getSuite(List<String> suites) {
 		StringBuilder builder = new StringBuilder();
@@ -99,6 +104,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getTestString(org.evosuite.testcase.TestCase, java.util.Map)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getTestString(int id, TestCase test, Map<Integer, Throwable> exceptions) {
 		return test.toCode(exceptions);
@@ -107,6 +113,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/* (non-Javadoc)
 	 * @see org.evosuite.junit.UnitTestAdapter#getTestString(int, org.evosuite.testcase.TestCase, java.util.Map, org.evosuite.testcase.TestCodeVisitor)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getTestString(int id, TestCase test,
 	        Map<Integer, Throwable> exceptions, TestCodeVisitor visitor) {

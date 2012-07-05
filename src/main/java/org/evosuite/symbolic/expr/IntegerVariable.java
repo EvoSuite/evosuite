@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,9 +15,10 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-
 public class IntegerVariable extends IntegerExpression implements Variable<Long> {
 
 	private static final long serialVersionUID = 6302073364874210525L;
@@ -29,6 +31,14 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 
 	protected long maxValue;
 
+	/**
+	 * <p>Constructor for IntegerVariable.</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @param conV a long.
+	 * @param minValue a long.
+	 * @param maxValue a long.
+	 */
 	public IntegerVariable(String name, long conV, long minValue, long maxValue) {
 		super();
 		this.name = name;
@@ -37,35 +47,46 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		this.maxValue = maxValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return concreteValue;
 	}
 	
+	/**
+	 * <p>Setter for the field <code>concreteValue</code>.</p>
+	 *
+	 * @param con a {@link java.lang.Long} object.
+	 */
 	public void setConcreteValue(Long con) {
 		concreteValue = con;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return name;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getMinValue() {
 		return minValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getMaxValue() {
 		return maxValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return this.name + "(" + concreteValue + ")";
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object obj) {
@@ -76,6 +97,7 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		if (hash == 0) {
@@ -84,11 +106,13 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		return hash;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		return 1;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
 		return concreteValue;

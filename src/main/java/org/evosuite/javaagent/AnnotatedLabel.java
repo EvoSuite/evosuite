@@ -24,17 +24,26 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.tree.LabelNode;
 
 /**
+ * <p>AnnotatedLabel class.</p>
+ *
  * @author fraser
- * 
  */
 public class AnnotatedLabel extends Label {
 
 	protected LabelNode parent;
 
+	/**
+	 * <p>Constructor for AnnotatedLabel.</p>
+	 */
 	public AnnotatedLabel() {
 		this.parent = null;
 	}
 
+	/**
+	 * <p>Constructor for AnnotatedLabel.</p>
+	 *
+	 * @param parent a {@link org.objectweb.asm.tree.LabelNode} object.
+	 */
 	public AnnotatedLabel(LabelNode parent) {
 		this.parent = parent;
 	}

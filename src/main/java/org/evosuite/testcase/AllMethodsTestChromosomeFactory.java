@@ -37,13 +37,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>AllMethodsTestChromosomeFactory class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
 
 	private static final long serialVersionUID = -420224349882780856L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
@@ -118,6 +120,8 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Generate a random chromosome
 	 */
 	@Override
@@ -130,8 +134,8 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	/**
 	 * Provided so that subtypes of this factory type can modify the returned
 	 * TestCase
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	protected TestCase getNewTestCase() {
 		return new DefaultTestCase();
@@ -139,8 +143,8 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 
 	/**
 	 * How many methods do we still need to cover?
-	 * 
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public int getNumUncoveredMethods() {
 		return remainingMethods.size();

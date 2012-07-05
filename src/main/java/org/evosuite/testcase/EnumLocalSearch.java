@@ -28,9 +28,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Local search on enum values means we simply iterate over all possible values
  * the enum can take
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class EnumLocalSearch implements LocalSearch {
 
@@ -41,6 +40,7 @@ public class EnumLocalSearch implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
+	/** {@inheritDoc} */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void doSearch(TestChromosome test, int statement,

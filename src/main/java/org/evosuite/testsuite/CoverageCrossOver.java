@@ -35,8 +35,9 @@ import org.evosuite.utils.Randomness;
 
 
 /**
+ * <p>CoverageCrossOver class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class CoverageCrossOver extends CrossOverFunction {
 
@@ -45,6 +46,7 @@ public class CoverageCrossOver extends CrossOverFunction {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.CrossOverFunction#crossOver(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void crossOver(Chromosome parent1, Chromosome parent2)
 	        throws ConstructionFailedException {

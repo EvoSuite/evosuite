@@ -34,12 +34,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Testing might require adapting function signatures, for example Object
  * classes.
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ObjectSignatureAdapter extends ClassVisitor {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(ObjectSignatureAdapter.class);
 
 	private final String className;
@@ -49,7 +49,10 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 	private Map<String, String> descriptors = new HashMap<String, String>();
 
 	/**
-	 * 
+	 * <p>Constructor for ObjectSignatureAdapter.</p>
+	 *
+	 * @param visitor a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public ObjectSignatureAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
@@ -84,6 +87,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
 	        String signature, String[] exceptions) {

@@ -25,24 +25,23 @@ import org.objectweb.asm.tree.LabelNode;
 
 /**
  * An object of this class corresponds to a Branch inside the class under test.
- * 
+ *
  * Branches are created by the CFGMethodAdapter via the BranchPool. Each Branch
  * holds its corresponding BytecodeInstruction from the RawControlFlowGraph and
  * is associated with a unique actualBranchId.
- * 
+ *
  * A Branch can either come from a jump instruction, as defined in
  * BytecodeInstruction.isBranch() - which will be called normal branches - or it
  * can be associated with a case: of a switch statement as defined in
  * BytecodeInstruction.isSwitch() - which will be called switch case branches.
  * Only BytecodeInstructions satisfying BytecodeInstruction.isActualbranch() are
  * expected to be associated with a Branch object.
- * 
+ *
  * For SWITCH statements each case <key>: block corresponds to a Branch that can
  * be created by constructing a Branch with the SWITCH statement and the <key>
  * as the targetCaseValue. The default: case of switch statement can also be
  * modeled this way - it has the targetCaseValue set to null.
- * 
- * 
+ *
  * @author Andre Mis
  */
 public class Branch implements Serializable {
@@ -68,6 +67,9 @@ public class Branch implements Serializable {
 	/**
 	 * Constructor for usual jump instruction Branches, that are not SWITCH
 	 * instructions.
+	 *
+	 * @param branchInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param actualBranchId a int.
 	 */
 	public Branch(BytecodeInstruction branchInstruction, int actualBranchId) {
 		if (!branchInstruction.isBranch())
@@ -83,7 +85,11 @@ public class Branch implements Serializable {
 
 	/**
 	 * Constructor for switch case branches
-	 * 
+	 *
+	 * @param switchInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param targetCaseValue a {@link java.lang.Integer} object.
+	 * @param targetLabel a {@link org.objectweb.asm.tree.LabelNode} object.
+	 * @param actualBranchId a int.
 	 */
 	public Branch(BytecodeInstruction switchInstruction, Integer targetCaseValue,
 	        LabelNode targetLabel, int actualBranchId) {
@@ -105,18 +111,38 @@ public class Branch implements Serializable {
 			        "expect branch to have actualBranchId set to positive value");
 	}
 
+	/**
+	 * <p>Getter for the field <code>actualBranchId</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getActualBranchId() {
 		return actualBranchId;
 	}
 
+	/**
+	 * <p>isDefaultCase</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isDefaultCase() {
 		return isSwitch && targetCaseValue == null;
 	}
 
+	/**
+	 * <p>isActualCase</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isActualCase() {
 		return isSwitch && targetCaseValue != null;
 	}
 
+	/**
+	 * <p>Getter for the field <code>targetCaseValue</code>.</p>
+	 *
+	 * @return a {@link java.lang.Integer} object.
+	 */
 	public Integer getTargetCaseValue() {
 		// in order to avoid confusion when targetCaseValue is null
 		if (!isSwitch)
@@ -126,6 +152,11 @@ public class Branch implements Serializable {
 		return targetCaseValue; // null for default case
 	}
 
+	/**
+	 * <p>Getter for the field <code>targetLabel</code>.</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.LabelNode} object.
+	 */
 	public LabelNode getTargetLabel() {
 		if (!isSwitch)
 			throw new IllegalStateException("call only allowed on switch instructions");
@@ -133,22 +164,43 @@ public class Branch implements Serializable {
 		return targetLabel;
 	}
 
+	/**
+	 * <p>Getter for the field <code>instruction</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public BytecodeInstruction getInstruction() {
 		return instruction;
 	}
 
+	/**
+	 * <p>getClassName</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return instruction.getClassName();
 	}
 
+	/**
+	 * <p>getMethodName</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethodName() {
 		return instruction.getMethodName();
 	}
 
+	/**
+	 * <p>isSwitchCaseBranch</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isSwitchCaseBranch() {
 		return isSwitch;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -162,6 +214,7 @@ public class Branch implements Serializable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -188,6 +241,7 @@ public class Branch implements Serializable {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		String r = "I" + instruction.getInstructionId();
@@ -205,10 +259,20 @@ public class Branch implements Serializable {
 		return r;
 	}
 
+	/**
+	 * <p>isInstrumented</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isInstrumented() {
 		return isInstrumented;
 	}
 
+	/**
+	 * <p>setInstrumented</p>
+	 *
+	 * @param isInstrumented a boolean.
+	 */
 	public void setInstrumented(boolean isInstrumented) {
 		this.isInstrumented = isInstrumented;
 	}

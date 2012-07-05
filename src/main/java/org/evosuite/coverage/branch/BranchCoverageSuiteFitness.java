@@ -45,9 +45,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Fitness function for a whole test suite for all branches
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
@@ -69,12 +68,16 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	public int totalGoals;
 
+	/** Constant <code>mostCoveredGoals=0</code> */
 	public static int mostCoveredGoals = 0;
 
 	protected boolean check = false;
 
 	private final Set<String> publicTargetMethods = new HashSet<String>();
 
+	/**
+	 * <p>Constructor for BranchCoverageSuiteFitness.</p>
+	 */
 	public BranchCoverageSuiteFitness() {
 
 		String prefix = Properties.TARGET_CLASS_PREFIX;
@@ -171,6 +174,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Execute all tests and count covered branches
 	 */
 	@SuppressWarnings("unchecked")
@@ -397,9 +402,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * This method can be used for debugging purposes to ensure that the fitness
 	 * calculation is deterministic
-	 * 
-	 * @param suite
-	 * @param fitness
+	 *
+	 * @param suite a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
+	 * @param fitness a double.
 	 */
 	protected void checkFitness(AbstractTestSuiteChromosome<ExecutableChromosome> suite,
 	        double fitness) {

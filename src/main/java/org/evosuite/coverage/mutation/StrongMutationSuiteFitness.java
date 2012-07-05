@@ -35,18 +35,21 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 
 /**
+ * <p>StrongMutationSuiteFitness class.</p>
+ *
  * @author fraser
- * 
  */
 public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 	private static final long serialVersionUID = -9124328839917834720L;
 
+	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
 
@@ -56,6 +59,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		runTestSuite((TestSuiteChromosome) individual);

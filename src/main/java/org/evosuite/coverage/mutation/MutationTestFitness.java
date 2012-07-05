@@ -35,8 +35,9 @@ import org.evosuite.testcase.TestFitnessFunction;
 
 
 /**
+ * <p>Abstract MutationTestFitness class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class MutationTestFitness extends TestFitnessFunction {
 
@@ -48,6 +49,11 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 
 	protected final int diameter;
 
+	/**
+	 * <p>Constructor for MutationTestFitness.</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
 		controlDependencies.addAll(mutation.getControlDependencies());
@@ -56,15 +62,28 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		diameter = cfg.getDiameter();
 	}
 
+	/**
+	 * <p>Getter for the field <code>mutation</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public Mutation getMutation() {
 		return mutation;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
 	}
 
+	/**
+	 * <p>runTest</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param mutant a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public static ExecutionResult runTest(TestCase test, Mutation mutant) {
 
 		ExecutionResult result = new ExecutionResult(test, mutant);
@@ -99,6 +118,12 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 		return result;
 	}
 
+	/**
+	 * <p>getExecutionDistance</p>
+	 *
+	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a double.
+	 */
 	protected double getExecutionDistance(ExecutionResult result) {
 		double fitness = 0.0;
 		if (!result.getTrace().wasMutationTouched(mutation.getId()))
@@ -139,12 +164,14 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return mutation.toString();

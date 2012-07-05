@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,13 +15,30 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-
 public  interface Variable<T extends Object> extends Expression<T> {
 
+	/**
+	 * <p>getName</p>
+	 *
+	 * @param <T> a T object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getName();
 	
+	/**
+	 * <p>getMinValue</p>
+	 *
+	 * @return a T object.
+	 */
 	public T getMinValue();
+	/**
+	 * <p>getMaxValue</p>
+	 *
+	 * @return a T object.
+	 */
 	public T getMaxValue();
 }

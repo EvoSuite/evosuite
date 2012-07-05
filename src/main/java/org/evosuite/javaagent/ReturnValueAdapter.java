@@ -24,9 +24,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Instrument classes to trace return values
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ReturnValueAdapter extends MethodVisitor {
 
@@ -39,6 +38,14 @@ public class ReturnValueAdapter extends MethodVisitor {
 
 	protected String methodName;
 
+	/**
+	 * <p>Constructor for ReturnValueAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 */
 	public ReturnValueAdapter(MethodVisitor mv, String className, String methodName,
 	        String desc) {
 		super(Opcodes.ASM4, mv);
@@ -52,6 +59,7 @@ public class ReturnValueAdapter extends MethodVisitor {
 		LONG, INTEGER, FLOAT, DOUBLE
 	};
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitInsn(int opcode) {
 		if (!methodName.equals("<clinit>")) {

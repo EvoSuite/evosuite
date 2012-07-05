@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,13 +15,24 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.cfg;
 
 import org.objectweb.asm.tree.AbstractInsnNode;
-
 public class BytecodeInstructionFactory {
 
+	/**
+	 * <p>createBytecodeInstruction</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param instructionId a int.
+	 * @param jpfId a int.
+	 * @param node a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public static BytecodeInstruction createBytecodeInstruction(String className,
 	        String methodName, int instructionId, int jpfId, AbstractInsnNode node) {
 

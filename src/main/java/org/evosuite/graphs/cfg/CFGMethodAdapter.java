@@ -49,12 +49,11 @@ import org.slf4j.LoggerFactory;
  * Create a minimized control flow graph for the method and store it. In
  * addition, this adapter also adds instrumentation for branch distance
  * measurement
- * 
+ *
  * defUse, concurrency and LCSAJs instrumentation is also added (if the
  * properties are set).
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class CFGMethodAdapter extends MethodVisitor {
 
@@ -86,6 +85,17 @@ public class CFGMethodAdapter extends MethodVisitor {
 	private final int access;
 	private final String className;
 
+	/**
+	 * <p>Constructor for CFGMethodAdapter.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param access a int.
+	 * @param name a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 * @param signature a {@link java.lang.String} object.
+	 * @param exceptions an array of {@link java.lang.String} objects.
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 */
 	public CFGMethodAdapter(String className, int access, String name, String desc,
 	        String signature, String[] exceptions, MethodVisitor mv) {
 
@@ -103,6 +113,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		this.plain_name = name;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
 
@@ -211,6 +222,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * 
 	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		int maxNum = 7;
@@ -242,8 +254,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 	/**
 	 * Returns a set with all unique methodNames of methods.
-	 * 
+	 *
 	 * @return A set with all unique methodNames of methods.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public static Set<String> getMethods(String className) {
 		Set<String> targetMethods = new HashSet<String>();
@@ -258,8 +271,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 	/**
 	 * Returns a set with all unique methodNames of methods.
-	 * 
+	 *
 	 * @return A set with all unique methodNames of methods.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public static Set<String> getMethodsPrefix(String className) {
 		Set<String> matchingMethods = new HashSet<String>();
@@ -275,8 +289,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 	/**
 	 * Returns a set with all unique methodNames of methods.
-	 * 
+	 *
 	 * @return A set with all unique methodNames of methods.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public static int getNumMethodsPrefix(String className) {
 		int num = 0;
@@ -292,8 +307,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 	/**
 	 * Returns a set with all unique methodNames of methods.
-	 * 
+	 *
 	 * @return A set with all unique methodNames of methods.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public static int getNumMethodsMemberClasses(String className) {
 		int num = 0;

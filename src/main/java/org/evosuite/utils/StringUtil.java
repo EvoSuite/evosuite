@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,10 +15,17 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
-
 public abstract class StringUtil {
+	/**
+	 * <p>escapeQuotes</p>
+	 *
+	 * @param str a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String escapeQuotes(String str) {
 		return str.replaceAll("['\"\\\\]", "\\\\$0");
 	}
@@ -25,10 +33,10 @@ public abstract class StringUtil {
 	/**
 	 * Compares all Strings in an array and returns the initial sequence of
 	 * characters that is common to all of them.
-	 * 
+	 *
 	 * For example,
 	 * <code>getCommonPrefix(new String[] {"i am a machine", "i am a robot"}) -> "i am a "</code>
-	 * 
+	 *
 	 * <pre>
 	 * StringUtils.getCommonPrefix(null) = ""
 	 * StringUtils.getCommonPrefix(new String[] {}) = ""
@@ -48,7 +56,7 @@ public abstract class StringUtil {
 	 * StringUtils.getCommonPrefix(new String[] {"xyz", "abcde"}) = ""
 	 * StringUtils.getCommonPrefix(new String[] {"i am a machine", "i am a robot"}) = "i am a "
 	 * </pre>
-	 * 
+	 *
 	 * @param strs
 	 *            array of String objects, entries may be null
 	 * @return the initial sequence of characters that are common to all Strings
@@ -79,10 +87,10 @@ public abstract class StringUtil {
 	/**
 	 * Compares all Strings in an array and returns the index at which the
 	 * Strings begin to differ.
-	 * 
+	 *
 	 * For example,
 	 * <code>indexOfDifference(new String[] {"i am a machine", "i am a robot"}) -> 7</code>
-	 * 
+	 *
 	 * <pre>
 	 * StringUtils.indexOfDifference(null) = -1
 	 * StringUtils.indexOfDifference(new String[] {}) = -1
@@ -102,7 +110,7 @@ public abstract class StringUtil {
 	 * StringUtils.indexOfDifference(new String[] {"xyz", "abcde"}) = 0
 	 * StringUtils.indexOfDifference(new String[] {"i am a machine", "i am a robot"}) = 7
 	 * </pre>
-	 * 
+	 *
 	 * @param strs
 	 *            array of strings, entries may be null
 	 * @return the index where the strings begin to differ; -1 if they are all

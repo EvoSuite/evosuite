@@ -34,14 +34,18 @@ import org.objectweb.asm.Opcodes;
 
 /**
  * Visits given class in order to collect information about classes used.
- * 
+ *
  * @author Andrey Tarasevich
- * 
  */
 public class CIClassAdapter extends ClassVisitor {
 
 	private String className;
 
+	/**
+	 * <p>Constructor for CIClassAdapter.</p>
+	 *
+	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
+	 */
 	public CIClassAdapter(ClassVisitor cv) {
 		super(Opcodes.ASM4, cv);
 	}
@@ -49,6 +53,7 @@ public class CIClassAdapter extends ClassVisitor {
 	CIMethodAdapter mv = new CIMethodAdapter();
 	private final Set<String> classesReferenced = new HashSet<String>();
 
+	/** {@inheritDoc} */
 	@Override
 	public void visit(int version, int access, String name, String signature,
 	        String superName, String[] interfaces) {
@@ -56,6 +61,7 @@ public class CIClassAdapter extends ClassVisitor {
 		super.visit(version, access, name, signature, superName, interfaces);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
@@ -65,6 +71,7 @@ public class CIClassAdapter extends ClassVisitor {
 		return null;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {
@@ -75,6 +82,7 @@ public class CIClassAdapter extends ClassVisitor {
 		return mv;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
 		saveCItoFile(mv.getClassesReferenced());

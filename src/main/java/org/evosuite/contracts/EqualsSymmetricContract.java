@@ -27,14 +27,16 @@ import org.evosuite.testcase.StatementInterface;
 
 
 /**
+ * <p>EqualsSymmetricContract class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class EqualsSymmetricContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 		for (Pair pair : getAllObjectPairs(scope)) {
@@ -66,6 +68,7 @@ public class EqualsSymmetricContract extends Contract {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Equals symmetric check";

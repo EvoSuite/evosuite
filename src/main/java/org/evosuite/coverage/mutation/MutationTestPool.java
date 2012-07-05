@@ -40,8 +40,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>MutationTestPool class.</p>
+ *
  * @author fraser
- * 
  */
 public class MutationTestPool implements SearchListener {
 
@@ -64,6 +65,11 @@ public class MutationTestPool implements SearchListener {
 		Randomness.shuffle(allMutantFitnessFunctions);
 	}
 
+	/**
+	 * <p>getUncoveredMutants</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<Mutation> getUncoveredMutants() {
 		Set<Mutation> mutants = new HashSet<Mutation>();
 		for (Mutation m : allMutants) {
@@ -76,10 +82,21 @@ public class MutationTestPool implements SearchListener {
 		return mutants;
 	}
 
+	/**
+	 * <p>isCovered</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * @return a boolean.
+	 */
 	public static boolean isCovered(Mutation mutation) {
 		return testMap.containsKey(mutation);
 	}
 
+	/**
+	 * <p>getUncoveredFitnessFunctions</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<MutationTestFitness> getUncoveredFitnessFunctions() {
 		Set<MutationTestFitness> mutants = new HashSet<MutationTestFitness>();
 		//int num = 0;
@@ -94,15 +111,20 @@ public class MutationTestPool implements SearchListener {
 		return mutants;
 	}
 
+	/**
+	 * <p>getCoveredMutants</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getCoveredMutants() {
 		return testMap.size();
 	}
 
 	/**
 	 * Keep a copy of a test that covers a mutant
-	 * 
-	 * @param mutation
-	 * @param test
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
 	public static void addTest(Mutation mutation, TestChromosome test) {
 		testMap.put(mutation, test);
@@ -112,6 +134,7 @@ public class MutationTestPool implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -121,6 +144,7 @@ public class MutationTestPool implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -130,6 +154,7 @@ public class MutationTestPool implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		TestSuiteChromosome solution = (TestSuiteChromosome) algorithm.getBestIndividual();
@@ -144,6 +169,7 @@ public class MutationTestPool implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		// TODO Auto-generated method stub
@@ -153,6 +179,7 @@ public class MutationTestPool implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

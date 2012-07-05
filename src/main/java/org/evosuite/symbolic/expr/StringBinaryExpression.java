@@ -29,8 +29,9 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 
 
 /**
- * @author krusev
+ * <p>StringBinaryExpression class.</p>
  *
+ * @author krusev
  */
 public class StringBinaryExpression extends StringExpression implements
 BinaryExpression<String>{
@@ -46,6 +47,14 @@ BinaryExpression<String>{
 	protected Expression<String> left;
 	protected Expression<?> right;
 
+	/**
+	 * <p>Constructor for StringBinaryExpression.</p>
+	 *
+	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con a {@link java.lang.String} object.
+	 */
 	public StringBinaryExpression(Expression<String> left2, Operator op2,
 	        Expression<?> right2, String con) {
 		this.concretValue = con;
@@ -56,31 +65,37 @@ BinaryExpression<String>{
 			throw new ConstraintTooLongException();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return concretValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operator getOperator() {
 		return op;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getLeftOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<?> getRightOperand() {
 		return right;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "(" + left + op.toString() + right + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -97,6 +112,7 @@ BinaryExpression<String>{
 	}
 	
 	protected int size = 0;
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if (size == 0) {
@@ -105,6 +121,7 @@ BinaryExpression<String>{
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		String first = (String)left.execute();

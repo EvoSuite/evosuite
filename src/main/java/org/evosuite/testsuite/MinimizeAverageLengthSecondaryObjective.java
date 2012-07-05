@@ -21,8 +21,9 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.SecondaryObjective;
 
 /**
+ * <p>MinimizeAverageLengthSecondaryObjective class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective {
 
@@ -40,6 +41,7 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective 
 	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
 	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
 		return (int) Math.signum(getAverageLength(chromosome1)
@@ -55,6 +57,7 @@ public class MinimizeAverageLengthSecondaryObjective extends SecondaryObjective 
 	 * org.evosuite.ga.Chromosome,
 	 * org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {

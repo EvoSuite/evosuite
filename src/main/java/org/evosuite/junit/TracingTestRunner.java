@@ -15,6 +15,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.util.CheckClassAdapter;
 
+/**
+ * <p>TracingTestRunner class.</p>
+ *
+ * @author Gordon Fraser
+ */
 public class TracingTestRunner extends ClassLoader {
 
 	private static class StatementTracingVisitor extends ClassVisitor {
@@ -43,6 +48,11 @@ public class TracingTestRunner extends ClassLoader {
 
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(TracingTestRunner.class);
 
+	/**
+	 * <p>main</p>
+	 *
+	 * @param args a {@link java.lang.String} object.
+	 */
 	public static void main(String... args) {
 		if (args.length < 1) {
 			System.out.println("Give test class to run as argument.");
@@ -50,6 +60,11 @@ public class TracingTestRunner extends ClassLoader {
 		new TracingTestRunner().traceTest(args[0]);
 	}
 
+	/**
+	 * <p>traceStatement</p>
+	 *
+	 * @param location a {@link java.lang.String} object.
+	 */
 	public static void traceStatement(String location) {
 		String code = readCode(location).trim();
 		if (code.isEmpty() || code.equals("}")) {
@@ -87,6 +102,7 @@ public class TracingTestRunner extends ClassLoader {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Class<?> loadClass(String fullyQualifiedTargetClass) throws ClassNotFoundException {
 		if (isSystemClass(fullyQualifiedTargetClass)) {

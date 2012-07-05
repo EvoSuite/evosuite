@@ -28,8 +28,9 @@ import org.evosuite.utils.Randomness;
 
 
 /**
+ * <p>JUnitTestSuiteChromosomeFactory class.</p>
+ *
  * @author fraser
- * 
  */
 public class JUnitTestSuiteChromosomeFactory implements
         ChromosomeFactory<TestSuiteChromosome> {
@@ -38,6 +39,11 @@ public class JUnitTestSuiteChromosomeFactory implements
 
 	private final ChromosomeFactory<TestChromosome> defaultFactory;
 
+	/**
+	 * <p>Constructor for JUnitTestSuiteChromosomeFactory.</p>
+	 *
+	 * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	public JUnitTestSuiteChromosomeFactory(
 	        ChromosomeFactory<TestChromosome> defaultFactory) {
 		this.defaultFactory = defaultFactory;
@@ -46,6 +52,7 @@ public class JUnitTestSuiteChromosomeFactory implements
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public TestSuiteChromosome getChromosome() {
 		double P_delta = 0.1d;

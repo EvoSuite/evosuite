@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>FailingTestSet class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class FailingTestSet {
 
@@ -51,11 +52,11 @@ public class FailingTestSet {
 
 	/**
 	 * Keep track of a new observed contract violation
-	 * 
-	 * @param test
-	 * @param contract
-	 * @param statement
-	 * @param exception
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param contract a {@link org.evosuite.contracts.Contract} object.
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param exception a {@link java.lang.Throwable} object.
 	 */
 	public static void addFailingTest(TestCase test, Contract contract,
 	        StatementInterface statement, Throwable exception) {
@@ -70,8 +71,8 @@ public class FailingTestSet {
 
 	/**
 	 * How many violations have we observed in total?
-	 * 
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public static int getNumberOfViolations() {
 		return violationCount;
@@ -79,9 +80,9 @@ public class FailingTestSet {
 
 	/**
 	 * How many violations of this contract have we observed in total?
-	 * 
-	 * @param contract
-	 * @return
+	 *
+	 * @param contract a {@link org.evosuite.contracts.Contract} object.
+	 * @return a int.
 	 */
 	public static int getNumberOfViolations(Contract contract) {
 		int num = 0;
@@ -94,9 +95,9 @@ public class FailingTestSet {
 
 	/**
 	 * How many violations of this contract have we observed in total?
-	 * 
-	 * @param contract
-	 * @return
+	 *
+	 * @param contractClass a {@link java.lang.Class} object.
+	 * @return a int.
 	 */
 	public static int getNumberOfViolations(Class<?> contractClass) {
 		int num = 0;
@@ -109,8 +110,8 @@ public class FailingTestSet {
 
 	/**
 	 * How many unique violations have we observed?
-	 * 
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public static int getNumberOfUniqueViolations() {
 		return violations.size();
@@ -139,6 +140,9 @@ public class FailingTestSet {
 
 	/**
 	 * Determine if we already have an instance of this violation
+	 *
+	 * @param violation a {@link org.evosuite.contracts.ContractViolation} object.
+	 * @return a boolean.
 	 */
 	public static boolean hasViolation(ContractViolation violation) {
 		for (ContractViolation oldViolation : violations) {

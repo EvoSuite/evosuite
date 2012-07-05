@@ -23,8 +23,9 @@ import japa.parser.ParseException;
 import japa.parser.ast.type.Type;
 
 /**
+ * <p>Var class.</p>
+ *
  * @author Yury Pavlov
- * 
  */
 public class Var {
 
@@ -34,6 +35,14 @@ public class Var {
 
 	private final VariableReference varRef;
 
+	/**
+	 * <p>Constructor for Var.</p>
+	 *
+	 * @param varName a {@link java.lang.String} object.
+	 * @param varType a {@link japa.parser.ast.type.Type} object.
+	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+	 * @throws japa.parser.ParseException if any.
+	 */
 	public Var(String varName, Type varType, VariableReference varRef)
 	        throws ParseException {
 		if (varName.isEmpty()) {
@@ -53,6 +62,8 @@ public class Var {
 	}
 
 	/**
+	 * <p>Getter for the field <code>varName</code>.</p>
+	 *
 	 * @return String
 	 */
 	public String getVarName() {
@@ -60,6 +71,8 @@ public class Var {
 	}
 
 	/**
+	 * <p>Getter for the field <code>varType</code>.</p>
+	 *
 	 * @return Type
 	 */
 	public Type getVarType() {
@@ -67,6 +80,8 @@ public class Var {
 	}
 
 	/**
+	 * <p>Getter for the field <code>varRef</code>.</p>
+	 *
 	 * @return the varRef
 	 */
 	public VariableReference getVarRef() {
@@ -78,6 +93,7 @@ public class Var {
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Var name: " + varName + " | Var type: " + varType + " | Var reference: "

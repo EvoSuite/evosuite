@@ -21,12 +21,11 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * An object of this class corresponds to a Definition inside the class under test.
- * 
+ *
  * Definitions are created by the DefUseFactory via the DefUsePool.
- * 
+ *
  * @author Andre Mis
  */
-
 public class Definition extends DefUse {
 
 	Definition(BytecodeInstruction wrap, int defuseId, int defId, int useId,
@@ -41,12 +40,15 @@ public class Definition extends DefUse {
 	/**
 	 * Determines whether this Definition can be an active definition
 	 * for the given instruction.
-	 * 
-	 *  This is the case if instruction constitutes a Use for the 
+	 *
+	 *  This is the case if instruction constitutes a Use for the
 	 *  same variable as this Definition
-	 *  
+	 *
 	 *  Not to be confused with DefUse.canBecomeActiveDefinitionFor,
 	 *  which is sort of the dual to this method
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
 	 */
 	public boolean canBeActiveFor(BytecodeInstruction instruction) {
 		if(!instruction.isUse())

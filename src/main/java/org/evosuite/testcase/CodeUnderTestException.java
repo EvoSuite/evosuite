@@ -21,14 +21,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Used to wrap exceptions thrown in code under test. This is needed as VariableReference.getObjects/.setObject 
+ * Used to wrap exceptions thrown in code under test. This is needed as VariableReference.getObjects/.setObject
  * and AbstractStatement.execute() do not operate on the same layer.
- * 
- * With the introduction of FieldReferences VariableReferences can throw arbitrary (of cource wrapped) exceptions, 
- * as a Field.get() can trigger static{} blocks
- * 
- * @author Sebastian Steenbuck
  *
+ * With the introduction of FieldReferences VariableReferences can throw arbitrary (of cource wrapped) exceptions,
+ * as a Field.get() can trigger static{} blocks
+ *
+ * @author Sebastian Steenbuck
  */
 public class CodeUnderTestException extends Exception{
 
@@ -38,18 +37,24 @@ public class CodeUnderTestException extends Exception{
 	private static final long serialVersionUID = 1L;
 	private static final Logger logger = LoggerFactory.getLogger(CodeUnderTestException.class);
 	
+	/**
+	 * <p>Constructor for CodeUnderTestException.</p>
+	 *
+	 * @param cause a {@link java.lang.Throwable} object.
+	 */
 	public CodeUnderTestException(Throwable cause){
 		super(cause);
 	}
 
 	/**
-	 * Used by code calling VariableReference.setObject/2 and .getObject()/1 
-	 * @param e
+	 * Used by code calling VariableReference.setObject/2 and .getObject()/1
+	 *
+	 * @param e a {@link java.lang.Throwable} object.
 	 * @return only there to make the compiler happy, this method always throws an exception
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws NullPointerException
-	 * @throws ExceptionInInitializerError
+	 * @throws java.lang.IllegalAccessException if any.
+	 * @throws java.lang.IllegalArgumentException if any.
+	 * @throws java.lang.NullPointerException if any.
+	 * @throws java.lang.ExceptionInInitializerError if any.
 	 * @throws AssertionError if e wasn't one of listed for types
 	 */
 	public static Error throwException(Throwable e) throws IllegalAccessException, IllegalArgumentException, NullPointerException, ExceptionInInitializerError{

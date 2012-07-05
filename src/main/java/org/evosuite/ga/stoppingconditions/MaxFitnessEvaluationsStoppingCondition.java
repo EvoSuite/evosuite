@@ -23,9 +23,8 @@ import org.evosuite.ga.Chromosome;
 
 /**
  * Stop search after a predefined maximum search depth
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImpl {
 	
@@ -41,6 +40,8 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	protected static long current_evaluation = 0;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Stop when maximum number of fitness evaluations has been reached
 	 */
 	@Override
@@ -50,6 +51,8 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Keep track of the number of fitness evaluations
 	 */
 	@Override
@@ -59,12 +62,16 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 
 	/**
 	 * Static getter method
+	 *
+	 * @return a long.
 	 */
 	public static long getNumFitnessEvaluations() {
 		return current_evaluation;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * At the end, reset
 	 */
 	@Override
@@ -75,11 +82,13 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		max_evaluations = limit;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return max_evaluations;
@@ -88,11 +97,13 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		return current_evaluation;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		current_evaluation = value;

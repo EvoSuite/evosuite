@@ -24,27 +24,44 @@ import org.evosuite.ga.SelectionFunction;
 
 
 /**
+ * <p>TestCaseReplacementFunction class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestCaseReplacementFunction extends ReplacementFunction {
 
 	private static final long serialVersionUID = 2894768695219052674L;
 
+	/**
+	 * <p>Constructor for TestCaseReplacementFunction.</p>
+	 *
+	 * @param maximize a boolean.
+	 */
 	public TestCaseReplacementFunction(boolean maximize) {
 		super(maximize);
 	}
 
+	/**
+	 * <p>Constructor for TestCaseReplacementFunction.</p>
+	 */
 	public TestCaseReplacementFunction() {
 		super(false);
 	}
 
+	/**
+	 * <p>getLengthSum</p>
+	 *
+	 * @param chromosome1 a {@link org.evosuite.testcase.ExecutableChromosome} object.
+	 * @param chromosome2 a {@link org.evosuite.testcase.ExecutableChromosome} object.
+	 * @return a int.
+	 */
 	public int getLengthSum(ExecutableChromosome chromosome1,
 	        ExecutableChromosome chromosome2) {
 		return chromosome1.size() + chromosome2.size();
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {

@@ -23,19 +23,48 @@ package org.evosuite.assertion;
 import java.util.Set;
 
 /**
+ * <p>OutputTraceEntry interface.</p>
+ *
  * @author fraser
- * 
  */
 public interface OutputTraceEntry {
 
+	/**
+	 * <p>differs</p>
+	 *
+	 * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
+	 * @return a boolean.
+	 */
 	public boolean differs(OutputTraceEntry other);
 
+	/**
+	 * <p>getAssertions</p>
+	 *
+	 * @param other a {@link org.evosuite.assertion.OutputTraceEntry} object.
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Assertion> getAssertions(OutputTraceEntry other);
 
+	/**
+	 * <p>getAssertions</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Assertion> getAssertions();
 
+	/**
+	 * <p>isDetectedBy</p>
+	 *
+	 * @param assertion a {@link org.evosuite.assertion.Assertion} object.
+	 * @return a boolean.
+	 */
 	public boolean isDetectedBy(Assertion assertion);
 
+	/**
+	 * <p>cloneEntry</p>
+	 *
+	 * @return a {@link org.evosuite.assertion.OutputTraceEntry} object.
+	 */
 	public OutputTraceEntry cloneEntry();
 
 }

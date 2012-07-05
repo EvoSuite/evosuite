@@ -25,14 +25,14 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
 
 
 /**
- * @author
- * 
+ * <p>LCSAJCoverageFactory class.</p>
  */
 public class LCSAJCoverageFactory extends AbstractFitnessFactory {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();

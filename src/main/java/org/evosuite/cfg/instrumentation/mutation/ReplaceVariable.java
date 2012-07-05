@@ -51,8 +51,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ReplaceVariable class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ReplaceVariable implements MutationOperator {
 
@@ -61,6 +62,7 @@ public class ReplaceVariable implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
@@ -128,6 +130,12 @@ public class ReplaceVariable implements MutationOperator {
 		}
 	}
 
+	/**
+	 * <p>copy</p>
+	 *
+	 * @param orig a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public static InsnList copy(InsnList orig) {
 		Iterator<?> it = orig.iterator();
 		InsnList copy = new InsnList();
@@ -152,6 +160,13 @@ public class ReplaceVariable implements MutationOperator {
 		return copy;
 	}
 
+	/**
+	 * <p>addPrimitiveDistanceCheck</p>
+	 *
+	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param type a {@link org.objectweb.asm.Type} object.
+	 * @param mutant a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public static void addPrimitiveDistanceCheck(InsnList distance, Type type,
 	        InsnList mutant) {
 		distance.add(cast(type, Type.DOUBLE_TYPE));
@@ -162,6 +177,13 @@ public class ReplaceVariable implements MutationOperator {
 		        "getDistance", "(DD)D"));
 	}
 
+	/**
+	 * <p>addReferenceDistanceCheck</p>
+	 *
+	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param type a {@link org.objectweb.asm.Type} object.
+	 * @param mutant a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public static void addReferenceDistanceCheck(InsnList distance, Type type,
 	        InsnList mutant) {
 		distance.add(copy(mutant));
@@ -170,6 +192,14 @@ public class ReplaceVariable implements MutationOperator {
 		        "getDistance", "(Ljava/lang/Object;Ljava/lang/Object;)D"));
 	}
 
+	/**
+	 * <p>getInfectionDistance</p>
+	 *
+	 * @param type a {@link org.objectweb.asm.Type} object.
+	 * @param original a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param mutant a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public InsnList getInfectionDistance(Type type, AbstractInsnNode original,
 	        InsnList mutant) {
 		// TODO: Treat reference types different!
@@ -204,10 +234,24 @@ public class ReplaceVariable implements MutationOperator {
 		return distance;
 	}
 
+	/**
+	 * <p>getDistance</p>
+	 *
+	 * @param val1 a double.
+	 * @param val2 a double.
+	 * @return a double.
+	 */
 	public static double getDistance(double val1, double val2) {
 		return val1 == val2 ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>getDistance</p>
+	 *
+	 * @param obj1 a {@link java.lang.Object} object.
+	 * @param obj2 a {@link java.lang.Object} object.
+	 * @return a double.
+	 */
 	public static double getDistance(Object obj1, Object obj2) {
 		if (obj1 == null) {
 			return obj2 == null ? 1.0 : 0.0;
@@ -436,11 +480,12 @@ public class ReplaceVariable implements MutationOperator {
 	/**
 	 * Generates the instructions to cast a numerical value from one type to
 	 * another.
-	 * 
+	 *
 	 * @param from
 	 *            the type of the top stack value
 	 * @param to
 	 *            the type into which this value must be cast.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public static InsnList cast(final Type from, final Type to) {
 		InsnList list = new InsnList();
@@ -495,6 +540,7 @@ public class ReplaceVariable implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
 		return instruction.isLocalVarUse()

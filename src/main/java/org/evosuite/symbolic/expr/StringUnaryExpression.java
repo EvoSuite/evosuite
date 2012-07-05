@@ -29,8 +29,9 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import gov.nasa.jpf.JPF;
 
 /**
- * @author krusev
+ * <p>StringUnaryExpression class.</p>
  *
+ * @author krusev
  */
 public class StringUnaryExpression extends StringExpression implements
 UnaryExpression<String>{
@@ -47,6 +48,13 @@ UnaryExpression<String>{
 
 	protected Expression<String> left;
 
+	/**
+	 * <p>Constructor for StringUnaryExpression.</p>
+	 *
+	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param con a {@link java.lang.String} object.
+	 */
 	public StringUnaryExpression(Expression<String> left2, Operator op2, String con) {
 		this.concretValue = con;
 		this.left = left2;
@@ -55,26 +63,31 @@ UnaryExpression<String>{
 			throw new ConstraintTooLongException();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return concretValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operator getOperator() {
 		return op;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return left + "." + op.toString().trim() + "(" + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -90,6 +103,7 @@ UnaryExpression<String>{
 	}
 
 	protected int size=0;
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if(size == 0)
@@ -99,6 +113,7 @@ UnaryExpression<String>{
 		return size;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		String exOn = (String)left.execute();

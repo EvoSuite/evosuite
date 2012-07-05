@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.bytecode;
 
@@ -32,8 +35,6 @@ import org.evosuite.symbolic.expr.RealComparison;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 public class PathConstraint {
 
 	private static PathConstraint ins = null;
@@ -45,6 +46,11 @@ public class PathConstraint {
 		this.storedStateMap = new HashMap<Integer, HashTableSet<Constraint<?>>>();
 	};
 
+	/**
+	 * <p>getInstance</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.bytecode.PathConstraint} object.
+	 */
 	public static PathConstraint getInstance() {
 		if (ins == null) {
 			throw new RuntimeException("PathConstraint not initalized");
@@ -55,19 +61,35 @@ public class PathConstraint {
 	private HashTableSet<Constraint<?>> pathConstraints;
 	private final Map<Integer, HashTableSet<Constraint<?>>> storedStateMap;
 
+	/**
+	 * <p>init</p>
+	 */
 	public static void init() {
 		ins = new PathConstraint();
 	}
 
+	/**
+	 * <p>getCurrentConstraints</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.HashTableSet} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public HashTableSet<Constraint<?>> getCurrentConstraints() {
 		return (HashTableSet<Constraint<?>>) pathConstraints.clone();
 	}
 
+	/**
+	 * <p>log</p>
+	 */
 	public void log() {
 		logger.info("Working so far");
 	}
 
+	/**
+	 * <p>addConstraint</p>
+	 *
+	 * @param c a {@link org.evosuite.symbolic.expr.Constraint} object.
+	 */
 	public void addConstraint(Constraint<?> c) {
 		if (c != null) {
 			Constraint<?> c_opt = removeCMPFormConstraint(c);
@@ -79,7 +101,7 @@ public class PathConstraint {
 
 	/**
 	 * Called from Dummy
-	 * 
+	 *
 	 * @param search
 	 *            the search object
 	 */
@@ -91,7 +113,7 @@ public class PathConstraint {
 
 	/**
 	 * Called from Dummy
-	 * 
+	 *
 	 * @param search
 	 *            the search object
 	 */

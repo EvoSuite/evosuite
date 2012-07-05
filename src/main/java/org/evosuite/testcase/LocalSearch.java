@@ -23,11 +23,19 @@ package org.evosuite.testcase;
 import org.evosuite.ga.LocalSearchObjective;
 
 /**
+ * <p>LocalSearch interface.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public interface LocalSearch {
 
+	/**
+	 * <p>doSearch</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param statement a int.
+	 * @param objective a {@link org.evosuite.ga.LocalSearchObjective} object.
+	 */
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective);
 

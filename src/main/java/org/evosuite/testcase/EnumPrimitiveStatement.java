@@ -29,8 +29,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>EnumPrimitiveStatement class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatement<T> {
 
@@ -40,6 +41,13 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 	private final Class<T> enumClass;
 
+	/**
+	 * <p>Constructor for EnumPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @param <T> a T object.
+	 */
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
 		super(tc, clazz, null);
@@ -65,6 +73,12 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 			ExecutionTracer.enable();
 	}
 
+	/**
+	 * <p>Constructor for EnumPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a T object.
+	 */
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
 		super(tc, value.getClass(), value);
@@ -91,10 +105,20 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 			throw new RuntimeException("Cannot find enum class: " + clazz);
 	}
 
+	/**
+	 * <p>Getter for the field <code>enumClass</code>.</p>
+	 *
+	 * @return a {@link java.lang.Class} object.
+	 */
 	public Class<T> getEnumClass() {
 		return enumClass;
 	}
 
+	/**
+	 * <p>getEnumValues</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<T> getEnumValues() {
 		return Arrays.asList(constants);
 	}
@@ -102,6 +126,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 		if (constants.length == 0)
@@ -130,6 +155,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		if (constants.length == 0)
@@ -141,6 +167,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void pushBytecode(GeneratorAdapter mg) {
 		mg.getStatic(Type.getType(enumClass), value.name(), Type.getType(enumClass));
@@ -149,6 +176,7 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		if (constants.length > 1) {

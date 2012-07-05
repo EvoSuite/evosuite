@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.callgraph;
 
@@ -30,8 +33,6 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
-
-
 public class DistanceTransformer implements ClassFileTransformer {
 
 	public static class ClassEntry {
@@ -113,12 +114,16 @@ public class DistanceTransformer implements ClassFileTransformer {
 
 	Set<ClassEntry> classes = new HashSet<ClassEntry>();
 
+	/**
+	 * <p>saveData</p>
+	 */
 	public void saveData() {
 		traceLock.set(false);
 		data.save();
 		Utils.writeXML(classes, Properties.OUTPUT_DIR + "/" + Properties.HIERARCHY_DATA);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	@Deprecated
 	public byte[] transform(ClassLoader loader, String className,
@@ -147,10 +152,20 @@ public class DistanceTransformer implements ClassFileTransformer {
 		return cv.getSupers();
 	}
 
+	/**
+	 * <p>getConnectionData</p>
+	 *
+	 * @return a {@link org.evosuite.callgraph.ConnectionData} object.
+	 */
 	public ConnectionData getConnectionData() {
 		return data;
 	}
 
+	/**
+	 * <p>Getter for the field <code>classes</code>.</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<ClassEntry> getClasses() {
 		return classes;
 	}

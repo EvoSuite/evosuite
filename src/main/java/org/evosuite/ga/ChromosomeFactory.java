@@ -21,12 +21,17 @@ import java.io.Serializable;
 
 /**
  * Factory for chromosomes used by the GA
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public interface ChromosomeFactory<T extends Chromosome> extends Serializable {
 
+	/**
+	 * <p>getChromosome</p>
+	 *
+	 * @param <T> a T object.
+	 * @return a T object.
+	 */
 	public T getChromosome();
 
 }

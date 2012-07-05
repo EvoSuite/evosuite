@@ -26,8 +26,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ArrayLocalSearch class.</p>
+ *
  * @author fraser
- * 
  */
 public class ArrayLocalSearch implements LocalSearch {
 
@@ -38,6 +39,7 @@ public class ArrayLocalSearch implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {

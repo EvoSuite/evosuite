@@ -37,8 +37,9 @@ import org.evosuite.ma.Editor;
 import jsyntaxpane.DefaultSyntaxKit;
 
 /**
+ * <p>SourceCodeGUI class.</p>
+ *
  * @author Yury Pavlov
- * 
  */
 public class SourceCodeGUI {
 
@@ -54,9 +55,8 @@ public class SourceCodeGUI {
 
 	/**
 	 * Initialize the contents of the frame.
-	 * 
-	 * @param editor
-	 * @wbp.parser.entryPoint
+	 *
+	 * @param editor a {@link org.evosuite.ma.Editor} object.
 	 */
 	public void createWindow(Editor editor) {
 		this.editor = editor;
@@ -86,10 +86,7 @@ public class SourceCodeGUI {
 	}
 
 	/**
-	 * @param sourceCodeTextPane
-	 * @param editor
-	 * @param sourceCodeScrollPane
-	 * 
+	 * <p>printSourceCode</p>
 	 */
 	public void printSourceCode() {
 		// Print Source code
@@ -135,7 +132,7 @@ public class SourceCodeGUI {
 	}
 
 	/**
-	 * 
+	 * <p>close</p>
 	 */
 	public void close() {
 		if (frmSourceCode != null) {

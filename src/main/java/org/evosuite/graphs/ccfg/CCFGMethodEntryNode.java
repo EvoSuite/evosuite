@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,27 +15,45 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
-
 public class CCFGMethodEntryNode extends CCFGNode {
 
 	private String method;
 	private CCFGCodeNode entryInstruction;
 	
+	/**
+	 * <p>Constructor for CCFGMethodEntryNode.</p>
+	 *
+	 * @param method a {@link java.lang.String} object.
+	 * @param entryInstruction a {@link org.evosuite.graphs.ccfg.CCFGCodeNode} object.
+	 */
 	public CCFGMethodEntryNode(String method, CCFGCodeNode entryInstruction) {
 		this.method = method;
 		this.entryInstruction = entryInstruction;
 	}
 	
+	/**
+	 * <p>Getter for the field <code>method</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethod() {
 		return method;
 	}
 
+	/**
+	 * <p>Getter for the field <code>entryInstruction</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.ccfg.CCFGCodeNode} object.
+	 */
 	public CCFGCodeNode getEntryInstruction() {
 		return entryInstruction;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -46,6 +65,7 @@ public class CCFGMethodEntryNode extends CCFGNode {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -68,6 +88,7 @@ public class CCFGMethodEntryNode extends CCFGNode {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Entry: "+method;

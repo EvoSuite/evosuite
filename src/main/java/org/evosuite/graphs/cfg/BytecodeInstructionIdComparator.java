@@ -23,12 +23,15 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * Orders CFGVertices according to their id
- * 
+ *
  * This is mainly used to put BytecodeInstructions into a PriorityQueue
  * in ControlFlowGraph.getMaximalInitialDistance()
+ *
+ * @author Gordon Fraser
  */
 public class BytecodeInstructionIdComparator implements Comparator<BytecodeInstruction> {
 
+	/** {@inheritDoc} */
 	@Override
 	public int compare(BytecodeInstruction arg0, BytecodeInstruction arg1) {
 

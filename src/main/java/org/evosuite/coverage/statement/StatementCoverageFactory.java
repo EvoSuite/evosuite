@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.coverage.statement;
 
@@ -26,13 +29,12 @@ import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
-
-
 public class StatementCoverageFactory extends AbstractFitnessFactory {
 
 	private static boolean called = false;
 	private static List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
 	
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		
@@ -79,6 +81,11 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 		return !ins.isLabel() && !ins.isLineNumber();
 	}
 
+	/**
+	 * <p>retrieveCoverageGoals</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public static List<TestFitnessFunction> retrieveCoverageGoals() {
 		if(!called)
 			computeGoals();

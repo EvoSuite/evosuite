@@ -21,8 +21,9 @@
 package org.evosuite.coverage.mutation;
 
 /**
+ * <p>MutationExecutionResult class.</p>
+ *
  * @author fraser
- * 
  */
 public class MutationExecutionResult {
 
@@ -35,6 +36,8 @@ public class MutationExecutionResult {
 	boolean hasException = false;
 
 	/**
+	 * <p>Getter for the field <code>numAssertions</code>.</p>
+	 *
 	 * @return the numAssertions
 	 */
 	public int getNumAssertions() {
@@ -42,6 +45,8 @@ public class MutationExecutionResult {
 	}
 
 	/**
+	 * <p>Setter for the field <code>numAssertions</code>.</p>
+	 *
 	 * @param numAssertions
 	 *            the numAssertions to set
 	 */
@@ -50,6 +55,8 @@ public class MutationExecutionResult {
 	}
 
 	/**
+	 * <p>Getter for the field <code>impact</code>.</p>
+	 *
 	 * @return the impact
 	 */
 	public double getImpact() {
@@ -57,6 +64,8 @@ public class MutationExecutionResult {
 	}
 
 	/**
+	 * <p>Setter for the field <code>impact</code>.</p>
+	 *
 	 * @param impact
 	 *            the impact to set
 	 */
@@ -65,6 +74,8 @@ public class MutationExecutionResult {
 	}
 
 	/**
+	 * <p>hasTimeout</p>
+	 *
 	 * @return the hasTimeout
 	 */
 	public boolean hasTimeout() {
@@ -72,6 +83,8 @@ public class MutationExecutionResult {
 	}
 
 	/**
+	 * <p>Setter for the field <code>hasTimeout</code>.</p>
+	 *
 	 * @param hasTimeout
 	 *            the hasTimeout to set
 	 */
@@ -80,6 +93,8 @@ public class MutationExecutionResult {
 	}
 
 	/**
+	 * <p>hasException</p>
+	 *
 	 * @return the hasException
 	 */
 	public boolean hasException() {
@@ -87,8 +102,9 @@ public class MutationExecutionResult {
 	}
 
 	/**
-	 * @param hasTimeout
-	 *            the hasTimeout to set
+	 * <p>Setter for the field <code>hasException</code>.</p>
+	 *
+	 * @param hasException a boolean.
 	 */
 	public void setHasException(boolean hasException) {
 		this.hasException = hasException;

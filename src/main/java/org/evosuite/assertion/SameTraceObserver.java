@@ -9,14 +9,16 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
 
 /**
+ * <p>SameTraceObserver class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.AssertionTraceObserver#visit(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visit(StatementInterface statement, Scope scope, VariableReference var) {
 		try {

@@ -38,9 +38,8 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * Statement that accesses an instance/class field
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class FieldStatement extends AbstractStatement {
 
@@ -53,6 +52,14 @@ public class FieldStatement extends AbstractStatement {
 	private final String className;
 	private final String fieldName;
 
+	/**
+	 * <p>Constructor for FieldStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field a {@link java.lang.reflect.Field} object.
+	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 */
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        java.lang.reflect.Type type) {
 		super(tc, new VariableReferenceImpl(tc, type));
@@ -70,11 +77,11 @@ public class FieldStatement extends AbstractStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 * 
-	 * @param tc
-	 * @param field
-	 * @param source
-	 * @param ret_var
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field a {@link java.lang.reflect.Field} object.
+	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param ret_var a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        VariableReference ret_var) {
@@ -101,18 +108,34 @@ public class FieldStatement extends AbstractStatement {
 		return this;
 	}
 
+	/**
+	 * <p>Getter for the field <code>source</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public VariableReference getSource() {
 		return source;
 	}
 
+	/**
+	 * <p>Setter for the field <code>source</code>.</p>
+	 *
+	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void setSource(VariableReference source) {
 		this.source = source;
 	}
 
+	/**
+	 * <p>isStatic</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isStatic() {
 		return Modifier.isStatic(field.getModifiers());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		if (Modifier.isStatic(field.getModifiers())) {
@@ -130,6 +153,7 @@ public class FieldStatement extends AbstractStatement {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
@@ -186,6 +210,7 @@ public class FieldStatement extends AbstractStatement {
 		return exceptionThrown;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> references = new HashSet<VariableReference>();
@@ -202,6 +227,7 @@ public class FieldStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 		if (!Modifier.isStatic(field.getModifiers())) {
@@ -212,6 +238,7 @@ public class FieldStatement extends AbstractStatement {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -229,6 +256,7 @@ public class FieldStatement extends AbstractStatement {
 			return retval.equals(fs.retval) && field.equals(fs.field);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 51;
@@ -238,10 +266,20 @@ public class FieldStatement extends AbstractStatement {
 		return result;
 	}
 
+	/**
+	 * <p>Getter for the field <code>field</code>.</p>
+	 *
+	 * @return a {@link java.lang.reflect.Field} object.
+	 */
 	public Field getField() {
 		return field;
 	}
 
+	/**
+	 * <p>Setter for the field <code>field</code>.</p>
+	 *
+	 * @param field a {@link java.lang.reflect.Field} object.
+	 */
 	public void setField(Field field) {
 		assert (this.field.getType().equals(field.getType()));
 		this.field = field;
@@ -254,6 +292,7 @@ public class FieldStatement extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
@@ -324,11 +363,13 @@ public class FieldStatement extends AbstractStatement {
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
 		if (this == s)
@@ -346,11 +387,13 @@ public class FieldStatement extends AbstractStatement {
 			return retval.same(fs.retval) && field.equals(fs.field);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		return field;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
@@ -386,6 +429,7 @@ public class FieldStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		try {

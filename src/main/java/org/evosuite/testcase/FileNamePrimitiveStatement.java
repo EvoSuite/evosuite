@@ -27,18 +27,18 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * This class is a wrapper for a string that represents a filename
- * 
+ *
  * @author fraser
- * 
  */
 public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile> {
 
 	private static final long serialVersionUID = 4402006999670328128L;
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for FileNamePrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link org.evosuite.runtime.EvoSuiteFile} object.
 	 */
 	public FileNamePrimitiveStatement(TestCase tc, EvoSuiteFile value) {
 		super(tc, EvoSuiteFile.class, value);
@@ -48,6 +48,7 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 		// TODO Auto-generated method stub
@@ -57,6 +58,7 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		// TODO Auto-generated method stub
@@ -66,6 +68,7 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void pushBytecode(GeneratorAdapter mg) {
 		// TODO Auto-generated method stub
@@ -75,6 +78,7 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		// TODO: Check if any files were accessed

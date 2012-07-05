@@ -53,12 +53,11 @@ import org.evosuite.utils.Utils;
 
 /**
  * Generates classes from given abstract methods and constructors.
- * 
+ *
  * Most of the code is written with AST API, but reflection API is used in order
  * to get abstract class parameters: methods, constructors etc.
- * 
+ *
  * @author Andrey Tarasevich
- * 
  */
 public class SourceCodeGenerator {
 
@@ -93,6 +92,8 @@ public class SourceCodeGenerator {
 	private boolean abstractClass = false;
 
 	/**
+	 * <p>Constructor for SourceCodeGenerator.</p>
+	 *
 	 * @param clazz
 	 *            class for which stub should be generated.
 	 */
@@ -125,7 +126,7 @@ public class SourceCodeGenerator {
 
 	/**
 	 * Generates stub source code.
-	 * 
+	 *
 	 * @return compilation unit of the stub
 	 */
 	@SuppressWarnings("unchecked")

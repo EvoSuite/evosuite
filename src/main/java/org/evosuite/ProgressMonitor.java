@@ -33,8 +33,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 
 /**
+ * <p>ProgressMonitor class.</p>
+ *
  * @author gordon
- * 
  */
 public class ProgressMonitor implements SearchListener, Serializable {
 
@@ -44,10 +45,19 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	protected ObjectOutputStream out;
 	protected boolean connected = false;
 
+	/**
+	 * <p>Constructor for ProgressMonitor.</p>
+	 */
 	public ProgressMonitor() {
 		connected = connectToMainProcess(Properties.PROGRESS_STATUS_PORT);
 	}
 
+	/**
+	 * <p>connectToMainProcess</p>
+	 *
+	 * @param port a int.
+	 * @return a boolean.
+	 */
 	public boolean connectToMainProcess(int port) {
 
 		try {
@@ -60,6 +70,12 @@ public class ProgressMonitor implements SearchListener, Serializable {
 		return true;
 	}
 
+	/**
+	 * <p>updateStatus</p>
+	 *
+	 * @param percent a int.
+	 * @param coverage a int.
+	 */
 	public void updateStatus(int percent, int coverage) {
 		if (connected) {
 			try {
@@ -81,6 +97,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		stoppingCondition = TestSuiteGenerator.getStoppingCondition();
@@ -90,6 +107,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		long current = stoppingCondition.getCurrentValue();
@@ -100,6 +118,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		System.out.println("");
@@ -109,6 +128,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		long current = stoppingCondition.getCurrentValue();
@@ -118,6 +138,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

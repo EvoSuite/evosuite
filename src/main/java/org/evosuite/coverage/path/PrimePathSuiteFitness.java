@@ -33,8 +33,9 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 
 /**
+ * <p>PrimePathSuiteFitness class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 
@@ -42,6 +43,9 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 
 	List<TestFitnessFunction> goals;
 
+	/**
+	 * <p>Constructor for PrimePathSuiteFitness.</p>
+	 */
 	public PrimePathSuiteFitness() {
 		PrimePathCoverageFactory factory = new PrimePathCoverageFactory();
 		goals = factory.getCoverageGoals();
@@ -51,6 +55,7 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;

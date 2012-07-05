@@ -41,8 +41,9 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 
 
 /**
+ * <p>PathConstraintCollector class.</p>
+ *
  * @author Jan Malburg
- * 
  */
 public class PathConstraintCollector extends ListenerAdapter {
 
@@ -66,6 +67,7 @@ public class PathConstraintCollector extends ListenerAdapter {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void executeInstruction(JVM vm) {
 		Instruction ins = vm.getNextInstruction();
@@ -74,6 +76,7 @@ public class PathConstraintCollector extends ListenerAdapter {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void instructionExecuted(JVM vm) {
 		if (vm.getLastInstruction() instanceof IfInstruction) {
@@ -109,6 +112,13 @@ public class PathConstraintCollector extends ListenerAdapter {
 		}
 	}
 
+	/**
+	 * <p>getSetOfNewConstraints</p>
+	 *
+	 * @param oldC a {@link org.evosuite.symbolic.HashTableSet} object.
+	 * @param newC a {@link org.evosuite.symbolic.HashTableSet} object.
+	 * @return a {@link java.util.Set} object.
+	 */
 	@SuppressWarnings("unchecked")
 	protected Set<Constraint<?>> getSetOfNewConstraints(HashTableSet<Constraint<?>> oldC,
 	        HashTableSet<Constraint<?>> newC) {

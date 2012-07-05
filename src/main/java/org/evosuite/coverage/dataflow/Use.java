@@ -21,12 +21,11 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 
 /**
  * An object of this class corresponds to a Use inside the class under test.
- * 
+ *
  * Uses are created by the DefUseFactory via the DefUsePool.
- * 
+ *
  * @author Andre Mis
  */
-
 public class Use extends DefUse {
 
 	Use(BytecodeInstruction wrap, int defuseId, int defId, int useId,

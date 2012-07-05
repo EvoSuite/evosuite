@@ -28,18 +28,23 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
 
 /**
  * Represents the method call structure of a class in a graph.
- * 
+ *
  * The graph contains a node for each of the classes methods with edges
- * going from a method node to each of its called methods. 
- * 
+ * going from a method node to each of its called methods.
+ *
  * Edges are labeled with the BytecodeInstruction of the corresponding call.
- * 
+ *
  * @author Andre Mis
  */
 public class ClassCallGraph extends EvoSuiteGraph<ClassCallNode, ClassCallEdge> {
 
 	private String className;
 	
+	/**
+	 * <p>Constructor for ClassCallGraph.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public ClassCallGraph(String className) {
 		super(ClassCallEdge.class);
 		
@@ -76,6 +81,12 @@ public class ClassCallGraph extends EvoSuiteGraph<ClassCallNode, ClassCallEdge> 
 		}
 	}
 	
+	/**
+	 * <p>getNodeByMethodName</p>
+	 *
+	 * @param methodName a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.graphs.ccg.ClassCallNode} object.
+	 */
 	public ClassCallNode getNodeByMethodName(String methodName) {
 		ClassCallNode r = null;
 //		System.out.println("getting node by methodName "+methodName);
@@ -94,17 +105,24 @@ public class ClassCallGraph extends EvoSuiteGraph<ClassCallNode, ClassCallEdge> 
 		return r;
 	}
 	
+	/**
+	 * <p>Getter for the field <code>className</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return className;
 	}
 
 	// toDot util
 	
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return "CCG_" + className;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String dotSubFolder() {
 		return toFileString(className) + "/";

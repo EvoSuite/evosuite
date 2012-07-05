@@ -25,11 +25,17 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 /**
+ * <p>ConsoleProgressBar class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ConsoleProgressBar {
 
+	/**
+	 * <p>startProgressBar</p>
+	 *
+	 * @return a {@link java.lang.Thread} object.
+	 */
 	public static Thread startProgressBar() {
 		Thread progressPrinter = new Thread() {
 

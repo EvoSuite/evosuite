@@ -31,8 +31,9 @@ import org.objectweb.asm.tree.InsnList;
 
 
 /**
+ * <p>MutationPool class.</p>
+ *
  * @author fraser
- * 
  */
 public class MutationPool {
 
@@ -44,6 +45,17 @@ public class MutationPool {
 
 	private static int numMutations = 0;
 
+	/**
+	 * <p>addMutation</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param mutationName a {@link java.lang.String} object.
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mutation a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @return a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public static Mutation addMutation(String className, String methodName,
 	        String mutationName, BytecodeInstruction instruction,
 	        AbstractInsnNode mutation, InsnList distance) {
@@ -62,6 +74,17 @@ public class MutationPool {
 		return mutationObject;
 	}
 
+	/**
+	 * <p>addMutation</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param mutationName a {@link java.lang.String} object.
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mutation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @return a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public static Mutation addMutation(String className, String methodName,
 	        String mutationName, BytecodeInstruction instruction, InsnList mutation,
 	        InsnList distance) {
@@ -82,8 +105,12 @@ public class MutationPool {
 
 	/**
 	 * Returns a List containing all mutants in the given class and method
-	 * 
+	 *
 	 * Should no such mutant exist an empty List is returned
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Mutation> retrieveMutationsInMethod(String className,
 	        String methodName) {
@@ -96,6 +123,11 @@ public class MutationPool {
 		return r;
 	}
 
+	/**
+	 * <p>getMutants</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public static List<Mutation> getMutants() {
 		List<Mutation> mutants = new ArrayList<Mutation>();
 		mutants.addAll(mutationIdMap.values());
@@ -113,7 +145,7 @@ public class MutationPool {
 
 	/**
 	 * Returns the number of currently known mutants
-	 * 
+	 *
 	 * @return The number of currently known mutants
 	 */
 	public static int getMutantCounter() {

@@ -23,14 +23,17 @@ import org.evosuite.ga.Chromosome;
 
 
 /**
+ * <p>MaxLengthBloatControl class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxLengthBloatControl implements BloatControlFunction {
 
 	private static final long serialVersionUID = -5019773997815280164L;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Check whether the chromosome is bigger than the max length constant
 	 */
 	@Override

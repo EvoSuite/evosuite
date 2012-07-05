@@ -25,9 +25,8 @@ import org.evosuite.ga.GeneticAlgorithm;
 /**
  * Stop search when a maximum (average) length has been reached. Used for
  * experiments on length bloat.
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	
@@ -41,6 +40,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.ga.StoppingCondition#isFinished()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
 		if (average_length >= max_length)
@@ -51,12 +51,14 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.ga.StoppingCondition#reset()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void reset() {
 		average_length = 0.0;
 		max_length = Properties.MAX_LENGTH;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		double avg = 0.0;
@@ -69,6 +71,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		return (long) average_length;
@@ -77,16 +80,19 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		max_length = (int) limit;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return (long) (max_length + 0.5);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		// TODO Auto-generated method stub
