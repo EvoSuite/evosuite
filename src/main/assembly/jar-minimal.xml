@@ -51,6 +51,7 @@
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <excludes>
+        <exclude>jmockit:*</exclude>
         <exclude>jpf:jpf-annotations</exclude>
         <exclude>jpf:jpf-classes</exclude>
         <exclude>jpf:jpf-core</exclude>
