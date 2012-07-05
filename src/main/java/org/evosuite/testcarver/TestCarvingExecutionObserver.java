@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.capture;
+package org.evosuite.testcarver;
 
 import java.lang.reflect.Field;
 
@@ -13,6 +13,8 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Type;
+
+import de.unisb.cs.st.testcarver.capture.FieldRegistry;
 
 public final class TestCarvingExecutionObserver extends ExecutionObserver
 {
@@ -53,7 +55,7 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver
 				final FieldReference fieldRef = (FieldReference) left;
 				final Field			 field    = fieldRef.getField();
 				
-				PUTFIELDRegistry.notifyModification(this.captureId, 
+				FieldRegistry.notifyModification(this.captureId, 
 													Type.getInternalName(field.getDeclaringClass()), 
 													field.getName(), 
 													Type.getDescriptor(field.getType()));
