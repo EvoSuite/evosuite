@@ -25,6 +25,7 @@ import javax.swing.UIManager;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.exsyst.ui.genetics.ChromosomeUIController;
 import org.exsyst.ui.genetics.UITestChromosome;
+import org.uispec4j.UISpec4J;
 
 import sun.awt.AWTAutoShutdown;
 
