@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,7 +29,6 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 public class HtmlAnalyzer implements Serializable {
 
@@ -70,7 +69,10 @@ public class HtmlAnalyzer implements Serializable {
 			name = name.substring(0, name.length() - 5);
 		}
 		int i = name.lastIndexOf(Properties.PROJECT_PREFIX);
-		if (i < 0) {
+		int j = name.lastIndexOf(sep);
+		if (i > j) {
+
+		} else if (i < 0) {
 			name = "";
 		} else {
 			name = name.substring(i);
