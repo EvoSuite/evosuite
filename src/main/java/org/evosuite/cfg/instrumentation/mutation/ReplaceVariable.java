@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,10 +49,11 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>ReplaceVariable class.</p>
- *
+ * <p>
+ * ReplaceVariable class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class ReplaceVariable implements MutationOperator {
@@ -131,9 +132,12 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	/**
-	 * <p>copy</p>
-	 *
-	 * @param orig a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * copy
+	 * </p>
+	 * 
+	 * @param orig
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public static InsnList copy(InsnList orig) {
@@ -161,11 +165,16 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	/**
-	 * <p>addPrimitiveDistanceCheck</p>
-	 *
-	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param type a {@link org.objectweb.asm.Type} object.
-	 * @param mutant a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * addPrimitiveDistanceCheck
+	 * </p>
+	 * 
+	 * @param distance
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param type
+	 *            a {@link org.objectweb.asm.Type} object.
+	 * @param mutant
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public static void addPrimitiveDistanceCheck(InsnList distance, Type type,
 	        InsnList mutant) {
@@ -178,11 +187,16 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	/**
-	 * <p>addReferenceDistanceCheck</p>
-	 *
-	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param type a {@link org.objectweb.asm.Type} object.
-	 * @param mutant a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * addReferenceDistanceCheck
+	 * </p>
+	 * 
+	 * @param distance
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param type
+	 *            a {@link org.objectweb.asm.Type} object.
+	 * @param mutant
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public static void addReferenceDistanceCheck(InsnList distance, Type type,
 	        InsnList mutant) {
@@ -193,11 +207,16 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	/**
-	 * <p>getInfectionDistance</p>
-	 *
-	 * @param type a {@link org.objectweb.asm.Type} object.
-	 * @param original a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
-	 * @param mutant a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * getInfectionDistance
+	 * </p>
+	 * 
+	 * @param type
+	 *            a {@link org.objectweb.asm.Type} object.
+	 * @param original
+	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param mutant
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public InsnList getInfectionDistance(Type type, AbstractInsnNode original,
@@ -235,10 +254,14 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	/**
-	 * <p>getDistance</p>
-	 *
-	 * @param val1 a double.
-	 * @param val2 a double.
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param val1
+	 *            a double.
+	 * @param val2
+	 *            a double.
 	 * @return a double.
 	 */
 	public static double getDistance(double val1, double val2) {
@@ -246,18 +269,21 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	/**
-	 * <p>getDistance</p>
-	 *
-	 * @param obj1 a {@link java.lang.Object} object.
-	 * @param obj2 a {@link java.lang.Object} object.
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param obj1
+	 *            a {@link java.lang.Object} object.
+	 * @param obj2
+	 *            a {@link java.lang.Object} object.
 	 * @return a double.
 	 */
 	public static double getDistance(Object obj1, Object obj2) {
-		if (obj1 == null) {
-			return obj2 == null ? 1.0 : 0.0;
-		} else {
-			return obj1.equals(obj2) ? 1.0 : 0.0;
-		}
+		if (obj1 == obj2)
+			return 1.0;
+		else
+			return 0.0;
 	}
 
 	/**
@@ -480,7 +506,7 @@ public class ReplaceVariable implements MutationOperator {
 	/**
 	 * Generates the instructions to cast a numerical value from one type to
 	 * another.
-	 *
+	 * 
 	 * @param from
 	 *            the type of the top stack value
 	 * @param to
