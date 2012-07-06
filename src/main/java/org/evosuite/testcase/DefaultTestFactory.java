@@ -49,7 +49,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * Handle test case generation
- *
+ * 
  * @author Gordon Fraser
  */
 public class DefaultTestFactory extends AbstractTestFactory {
@@ -73,7 +73,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>reset</p>
+	 * <p>
+	 * reset
+	 * </p>
 	 */
 	public void reset() {
 		// MethodDescriptorReplacement.getInstance().reset();
@@ -81,8 +83,10 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.DefaultTestFactory} object.
 	 */
 	public static DefaultTestFactory getInstance() {
@@ -92,7 +96,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>resetRecursion</p>
+	 * <p>
+	 * resetRecursion
+	 * </p>
 	 */
 	public void resetRecursion() {
 		currentRecursion.clear();
@@ -148,10 +154,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>insertRandomCallOnObject</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param position a int.
+	 * <p>
+	 * insertRandomCallOnObject
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param position
+	 *            a int.
 	 */
 	public void insertRandomCallOnObject(TestCase test, int position) {
 		// Select a random variable
@@ -161,7 +171,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
 			        + var.getClassName());
 		// Add call for this variable at random position
-		if (var != null) {
+		if (var != null && !var.isPrimitive()) {
 			logger.debug("Chosen object: " + var.getName());
 			if (var instanceof ArrayReference) {
 				logger.debug("Chosen object is array ");
@@ -232,7 +242,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Insert a random statement at a random position in the test
 	 */
 	@Override
@@ -268,7 +278,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Delete the statement at position from the test case and remove all
 	 * references to it
 	 */
@@ -322,9 +332,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Append statement s, trying to satisfy parameters
-	 *
+	 * 
 	 * Called from TestChromosome when doing crossover
 	 */
 	@Override
@@ -393,7 +403,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			for (int i = position + 1; i < test.size(); i++) {
 				StatementInterface s = test.getStatement(i);
 				if (s.references(var)) {
-					s.replace(var, Randomness.choice(alternatives));
+					VariableReference replacementVar = Randomness.choice(alternatives);
+					s.replace(var, replacementVar);
 				}
 			}
 		}
@@ -434,7 +445,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Add constructor at given position if max recursion depth has not been
 	 * reached
 	 */
@@ -463,7 +474,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Add method at given position if max recursion depth has not been reached
 	 */
 	@Override
@@ -486,6 +497,8 @@ public class DefaultTestFactory extends AbstractTestFactory {
 					// TODO: Would casting be an option here?
 					callee = test.getRandomNonNullObject(method.getDeclaringClass(),
 					                                     position);
+					if (callee.isPrimitive())
+						throw new ConstructionFailedException("Primitive");
 					logger.debug("Found callee of type "
 					        + method.getDeclaringClass().getName() + ": "
 					        + callee.getName());
@@ -523,12 +536,17 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * Add method at given position if max recursion depth has not been reached
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param position a int.
-	 * @param recursion_depth a int.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
-	 * @param field a {@link java.lang.reflect.Field} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param position
+	 *            a int.
+	 * @param recursion_depth
+	 *            a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
+	 * @param field
+	 *            a {@link java.lang.reflect.Field} object.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference addFieldAssignment(TestCase test, Field field, int position,
@@ -577,11 +595,15 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * Add a field to the test case
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param field a {@link java.lang.reflect.Field} object.
-	 * @param position a int.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field
+	 *            a {@link java.lang.reflect.Field} object.
+	 * @param position
+	 *            a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference addField(TestCase test, Field field, int position)
@@ -686,13 +708,20 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>assignArray</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param array a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param array_index a int.
-	 * @param position a int.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * <p>
+	 * assignArray
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param array
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param array_index
+	 *            a int.
+	 * @param position
+	 *            a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public void assignArray(TestCase test, VariableReference array, int array_index,
 	        int position) throws ConstructionFailedException {
@@ -710,14 +739,22 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>assignArray</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param array a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param array_index a int.
-	 * @param position a int.
-	 * @param objects a {@link java.util.List} object.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * <p>
+	 * assignArray
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param array
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param array_index
+	 *            a int.
+	 * @param position
+	 *            a int.
+	 * @param objects
+	 *            a {@link java.util.List} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	protected void assignArray(TestCase test, VariableReference array, int array_index,
 	        int position, List<VariableReference> objects)
@@ -797,12 +834,17 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>addTestCall</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param position a int.
+	 * <p>
+	 * addTestCall
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param position
+	 *            a int.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public VariableReference addTestCall(TestCase test, int position)
 	        throws ConstructionFailedException {
@@ -852,7 +894,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Try to generate an object of a given type
 	 */
 	@Override
@@ -1012,9 +1054,11 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * Insert a random call at given position
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param position a int.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param position
+	 *            a int.
 	 */
 	public void insertRandomCall(TestCase test, int position) {
 		int previous_length = test.size();
@@ -1037,9 +1081,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 				addMethod(test, m, position, 0);
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
-				//logger.info("Adding field assignment " + f.getName());
-				name = f.getName();
-				addFieldAssignment(test, f, position, 0);
+				if (!Modifier.isFinal(f.getModifiers())) {
+
+					//logger.info("Adding field assignment " + f.getName());
+					name = f.getName();
+					addFieldAssignment(test, f, position, 0);
+				}
 			} else {
 				logger.error("Got type other than method or constructor!");
 			}
@@ -1064,7 +1111,7 @@ public class DefaultTestFactory extends AbstractTestFactory {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Replace the statement with a new statement using given call
 	 */
 	@Override
@@ -1078,8 +1125,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			Method method = (Method) call;
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
-			if (!Modifier.isStatic(method.getModifiers()))
+			if (!Modifier.isStatic(method.getModifiers())) {
 				callee = test.getRandomNonNullObject(method.getDeclaringClass(), position);
+				if (callee.isPrimitive())
+					throw new ConstructionFailedException("Primitive");
+			}
+
 			List<VariableReference> parameters = new ArrayList<VariableReference>();
 			for (Type type : getParameterTypes(callee, method)) {
 				parameters.add(test.getRandomObject(type, position));
@@ -1152,10 +1203,14 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>getParameterTypes</p>
-	 *
-	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param method a {@link java.lang.reflect.Method} object.
+	 * <p>
+	 * getParameterTypes
+	 * </p>
+	 * 
+	 * @param callee
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param method
+	 *            a {@link java.lang.reflect.Method} object.
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Type> getParameterTypes(VariableReference callee, Method method) {
@@ -1166,9 +1221,12 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>getParameterTypes</p>
-	 *
-	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 * <p>
+	 * getParameterTypes
+	 * </p>
+	 * 
+	 * @param constructor
+	 *            a {@link java.lang.reflect.Constructor} object.
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Type> getParameterTypes(Constructor<?> constructor) {
@@ -1176,14 +1234,21 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>addConstructorWith</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param parameter a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param constructor a {@link java.lang.reflect.Constructor} object.
-	 * @param position a int.
+	 * <p>
+	 * addConstructorWith
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param parameter
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param constructor
+	 *            a {@link java.lang.reflect.Constructor} object.
+	 * @param position
+	 *            a int.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public VariableReference addConstructorWith(TestCase test,
 	        VariableReference parameter, Constructor<?> constructor, int position)
@@ -1216,14 +1281,21 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>addMethodFor</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param method a {@link java.lang.reflect.Method} object.
-	 * @param position a int.
+	 * <p>
+	 * addMethodFor
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param callee
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param method
+	 *            a {@link java.lang.reflect.Method} object.
+	 * @param position
+	 *            a int.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
 	        Method method, int position) throws ConstructionFailedException {
@@ -1248,14 +1320,21 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>addFieldFor</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param field a {@link java.lang.reflect.Field} object.
-	 * @param position a int.
+	 * <p>
+	 * addFieldFor
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param callee
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param field
+	 *            a {@link java.lang.reflect.Field} object.
+	 * @param position
+	 *            a int.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public VariableReference addFieldFor(TestCase test, VariableReference callee,
 	        Field field, int position) throws ConstructionFailedException {
@@ -1285,14 +1364,21 @@ public class DefaultTestFactory extends AbstractTestFactory {
 	}
 
 	/**
-	 * <p>addMethodWith</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param parameter a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param method a {@link java.lang.reflect.Method} object.
-	 * @param position a int.
+	 * <p>
+	 * addMethodWith
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param parameter
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param method
+	 *            a {@link java.lang.reflect.Method} object.
+	 * @param position
+	 *            a int.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public VariableReference addMethodWith(TestCase test, VariableReference parameter,
 	        Method method, int position) throws ConstructionFailedException {
@@ -1304,6 +1390,9 @@ public class DefaultTestFactory extends AbstractTestFactory {
 			                                             // probability here?
 			try {
 				callee = test.getRandomObject(method.getDeclaringClass(), position);
+				if (callee.isPrimitive())
+					throw new ConstructionFailedException("Primitive");
+
 				logger.debug("Found callee of type "
 				        + method.getDeclaringClass().getName() + ": " + callee.getName());
 			} catch (ConstructionFailedException e) {
