@@ -38,15 +38,16 @@ import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * This class executes a test case on a unit and all mutants and infers
  * assertions from the resulting traces.
- *
+ * 
  * TODO: This class is a mess.
- *
+ * 
  * @author Gordon Fraser
  */
 public class MutationAssertionGenerator extends AssertionGenerator {
@@ -87,7 +88,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Execute a test case on the original unit
 	 */
 	@Override
@@ -230,10 +231,14 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	}
 
 	/**
-	 * <p>addAssertions</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param mutant a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * <p>
+	 * addAssertions
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param mutant
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public void addAssertions(TestCase test, Mutation mutant) {
 		ExecutionResult origResult = runTest(test);
@@ -249,9 +254,11 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	/**
 	 * Generate assertions to kill all the mutants defined in the pool
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param killed a {@link java.util.Set} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param killed
+	 *            a {@link java.util.Set} object.
 	 */
 	public void addAssertions(TestCase test, Set<Integer> killed) {
 		addAssertions(test, killed, mutants);
@@ -259,13 +266,19 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	/**
 	 * Add assertions to current test set for given set of mutants
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param killed a {@link java.util.Set} object.
-	 * @param mutants a {@link java.util.Map} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param killed
+	 *            a {@link java.util.Set} object.
+	 * @param mutants
+	 *            a {@link java.util.Map} object.
 	 */
 	public void addAssertions(TestCase test, Set<Integer> killed,
 	        Map<Integer, Mutation> mutants) {
+
+		if (test.isEmpty())
+			return;
 
 		logger.debug("Generating assertions");
 
@@ -289,10 +302,13 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			} else
 				executedMutants.add(mutants.get(mutationId));
 		}
-		logger.info("Running test " + test.hashCode() + " on " + executedMutants.size()
-		        + "/" + mutants.size() + " mutants");
 
+		Randomness.shuffle(executedMutants);
+
+		int numExecutedMutants = 0;
 		for (Mutation m : executedMutants) {
+
+			numExecutedMutants++;
 
 			assert (m != null);
 			if (timedOutMutations.containsKey(m)) {
@@ -301,6 +317,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					continue;
 				}
 			}
+			if (numExecutedMutants > Properties.MAX_MUTANTS_PER_TEST)
+				break;
 
 			/*
 			if (killed.contains(m.getId())) {
