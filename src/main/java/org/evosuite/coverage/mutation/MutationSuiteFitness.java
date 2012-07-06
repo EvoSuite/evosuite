@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,10 +31,11 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-
 /**
- * <p>Abstract MutationSuiteFitness class.</p>
- *
+ * <p>
+ * Abstract MutationSuiteFitness class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
@@ -49,7 +50,9 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 	public static int mostCoveredGoals = 0;
 
 	/**
-	 * <p>Constructor for MutationSuiteFitness.</p>
+	 * <p>
+	 * Constructor for MutationSuiteFitness.
+	 * </p>
 	 */
 	public MutationSuiteFitness() {
 		MutationFactory factory = new MutationFactory(
@@ -65,11 +68,19 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 		return runTest(test, null);
 	}
 
+	public int getNumMutants() {
+		return mutationGoals.size();
+	}
+
 	/**
-	 * <p>runTest</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param mutant a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * <p>
+	 * runTest
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param mutant
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
