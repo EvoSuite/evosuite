@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,18 +33,15 @@ import org.evosuite.Properties.Strategy;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testsuite.SearchStatistics;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Abstract superclass of genetic algorithms
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable {
@@ -88,8 +85,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Constructor
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * 
+	 * @param factory
+	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public GeneticAlgorithm(ChromosomeFactory<? extends Chromosome> factory) {
 		chromosomeFactory = factory;
@@ -105,7 +103,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Local search is only applied every X generations
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	protected boolean shouldApplyLocalSearch() {
@@ -135,7 +133,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * DSE is only applied every X generations
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	protected boolean shouldApplyDSE() {
@@ -170,7 +168,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Generate solution
 	 */
 	@Override
@@ -180,11 +178,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * Fills the population at first with recycled chromosomes - for more
 	 * information see recycleChromosomes() and ChromosomeRecycler - and after
 	 * that, the population is filled with random chromosomes.
-	 *
+	 * 
 	 * This method guarantees at least a proportion of
 	 * Properties.initially_enforeced_Randomness % of random chromosomes
-	 *
-	 * @param population_size a int.
+	 * 
+	 * @param population_size
+	 *            a int.
 	 */
 	protected void generateInitialPopulation(int population_size) {
 		boolean recycle = Properties.RECYCLE_CHROMOSOMES;
@@ -201,11 +200,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	/**
 	 * Adds to the current population all chromosomes that had a good
 	 * performance on a goal that was similar to the current fitness_function.
-	 *
+	 * 
 	 * For more information look at ChromosomeRecycler and
 	 * TestFitnessFunction.isSimilarTo()
-	 *
-	 * @param population_size a int.
+	 * 
+	 * @param population_size
+	 *            a int.
 	 */
 	protected void recycleChromosomes(int population_size) {
 		if (fitnessFunction == null)
@@ -229,11 +229,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	/**
 	 * This method can be used to kick out chromosomes when the population is
 	 * possibly overcrowded
-	 *
+	 * 
 	 * Depending on the Property "starve_by_fitness" chromosome are either
 	 * kicked out randomly or according to their fitness
-	 *
-	 * @param limit a int.
+	 * 
+	 * @param limit
+	 *            a int.
 	 */
 	protected void starveToLimit(int limit) {
 		if (Properties.STARVE_BY_FITNESS)
@@ -245,8 +246,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	/**
 	 * This method can be used to kick out random chromosomes in the current
 	 * population until the given limit is reached again.
-	 *
-	 * @param limit a int.
+	 * 
+	 * @param limit
+	 *            a int.
 	 */
 	protected void starveRandomly(int limit) {
 		while (population.size() > limit) {
@@ -258,8 +260,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	/**
 	 * This method can be used to kick out the worst chromosomes in the current
 	 * population until the given limit is reached again.
-	 *
-	 * @param limit a int.
+	 * 
+	 * @param limit
+	 *            a int.
 	 */
 	protected void starveByFitness(int limit) {
 		calculateFitness();
@@ -270,8 +273,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Generate random population of given size
-	 *
-	 * @param population_size a int.
+	 * 
+	 * @param population_size
+	 *            a int.
 	 */
 	protected void generateRandomPopulation(int population_size) {
 		logger.debug("Creating random population");
@@ -298,8 +302,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Set new fitness function (i.e., for new mutation)
-	 *
-	 * @param function a {@link org.evosuite.ga.FitnessFunction} object.
+	 * 
+	 * @param function
+	 *            a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
 	public void setFitnessFunction(FitnessFunction function) {
 		fitnessFunction = function;
@@ -308,7 +313,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Get currently used fitness function
-	 *
+	 * 
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
 	public FitnessFunction getFitnessFunction() {
@@ -317,8 +322,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Set new fitness function (i.e., for new mutation)
-	 *
-	 * @param function a {@link org.evosuite.ga.SelectionFunction} object.
+	 * 
+	 * @param function
+	 *            a {@link org.evosuite.ga.SelectionFunction} object.
 	 */
 	public void setSelectionFunction(SelectionFunction function) {
 		selectionFunction = function;
@@ -326,7 +332,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Get currently used fitness function
-	 *
+	 * 
 	 * @return a {@link org.evosuite.ga.SelectionFunction} object.
 	 */
 	public SelectionFunction getSelectionFunction() {
@@ -335,8 +341,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Set new bloat control function
-	 *
-	 * @param bloat_control a {@link org.evosuite.ga.BloatControlFunction} object.
+	 * 
+	 * @param bloat_control
+	 *            a {@link org.evosuite.ga.BloatControlFunction} object.
 	 */
 	public void setBloatControl(BloatControlFunction bloat_control) {
 		this.bloatControl.clear();
@@ -345,8 +352,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Set new bloat control function
-	 *
-	 * @param bloat_control a {@link org.evosuite.ga.BloatControlFunction} object.
+	 * 
+	 * @param bloat_control
+	 *            a {@link org.evosuite.ga.BloatControlFunction} object.
 	 */
 	public void addBloatControl(BloatControlFunction bloat_control) {
 		this.bloatControl.add(bloat_control);
@@ -354,8 +362,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Check whether individual is suitable according to bloat control functions
-	 *
-	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+	 * 
+	 * @param chromosome
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
 	public boolean isTooLong(Chromosome chromosome) {
@@ -368,7 +377,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Get number of iterations
-	 *
+	 * 
 	 * @return Number of iterations
 	 */
 	public int getAge() {
@@ -396,42 +405,47 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		// Sort population
 		sortPopulation();
 	}
-	
+
 	/**
-	 * It assumes the population being sorted. After removal, at least 2 individuals should be left
-	 *
-	 * @param numberOfIndividuals a int.
+	 * It assumes the population being sorted. After removal, at least 2
+	 * individuals should be left
+	 * 
+	 * @param numberOfIndividuals
+	 *            a int.
 	 */
-	public void removeWorstIndividuals(int numberOfIndividuals){
-		if(numberOfIndividuals > (population.size() - 2)){
-			throw new IllegalArgumentException("Asked to remove "+numberOfIndividuals+" individuals, but population size is "+population.size());
+	public void removeWorstIndividuals(int numberOfIndividuals) {
+		if (numberOfIndividuals > (population.size() - 2)) {
+			throw new IllegalArgumentException("Asked to remove " + numberOfIndividuals
+			        + " individuals, but population size is " + population.size());
 		}
-		
+
 		int desiredSize = population.size() - numberOfIndividuals;
 		for (int i = population.size() - 1; i >= desiredSize; i--) {
 			population.remove(i);
 		}
 	}
-	
+
 	/**
-	 * <p>getPopulationSize</p>
-	 *
+	 * <p>
+	 * getPopulationSize
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
-	public int getPopulationSize(){
+	public int getPopulationSize() {
 		return population.size();
 	}
 
 	/**
 	 * Copy best individuals
-	 *
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	protected List<Chromosome> elitism() {
 		logger.debug("Elitism with ELITE = " + Properties.ELITE);
 
 		List<Chromosome> elite = new ArrayList<Chromosome>();
-		
+
 		for (int i = 0; i < Properties.ELITE; i++) {
 			logger.trace("Copying individual " + i + " with fitness "
 			        + population.get(i).getFitness());
@@ -443,7 +457,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Create random individuals
-	 *
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	protected List<Chromosome> randomism() {
@@ -459,9 +473,11 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Penalty if individual is not unique
-	 *
-	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
-	 * @param generation a {@link java.util.List} object.
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param generation
+	 *            a {@link java.util.List} object.
 	 */
 	protected void kinCompensation(Chromosome individual, List<Chromosome> generation) {
 
@@ -493,24 +509,24 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Return the individual with the highest fitChromosomeess
-	 *
+	 * 
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	public Chromosome getBestIndividual() {
-		
-		if(population.isEmpty())
-		{
+
+		if (population.isEmpty()) {
 			return this.chromosomeFactory.getChromosome();
 		}
-		
+
 		// Assume population is sorted
 		return population.get(0);
 	}
 
 	/**
 	 * Set a new factory method
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * 
+	 * @param factory
+	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public void setChromosomeFactory(ChromosomeFactory<? extends Chromosome> factory) {
 		chromosomeFactory = factory;
@@ -518,8 +534,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Set a new xover function
-	 *
-	 * @param crossover a {@link org.evosuite.ga.CrossOverFunction} object.
+	 * 
+	 * @param crossover
+	 *            a {@link org.evosuite.ga.CrossOverFunction} object.
 	 */
 	public void setCrossOverFunction(CrossOverFunction crossover) {
 		this.crossoverFunction = crossover;
@@ -527,8 +544,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Add a new search listener
-	 *
-	 * @param listener a {@link org.evosuite.ga.SearchListener} object.
+	 * 
+	 * @param listener
+	 *            a {@link org.evosuite.ga.SearchListener} object.
 	 */
 	public void addListener(SearchListener listener) {
 		listeners.add(listener);
@@ -536,8 +554,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Remove a search listener
-	 *
-	 * @param listener a {@link org.evosuite.ga.SearchListener} object.
+	 * 
+	 * @param listener
+	 *            a {@link org.evosuite.ga.SearchListener} object.
 	 */
 	public void removeListener(SearchListener listener) {
 		listeners.remove(listener);
@@ -572,8 +591,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Notify all search listeners of fitness evaluation
-	 *
-	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+	 * 
+	 * @param chromosome
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	protected void notifyEvaluation(Chromosome chromosome) {
 		for (SearchListener listener : listeners) {
@@ -583,8 +603,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Notify all search listeners of a mutation
-	 *
-	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+	 * 
+	 * @param chromosome
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	protected void notifyMutation(Chromosome chromosome) {
 		for (SearchListener listener : listeners) {
@@ -608,7 +629,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Accessor for population Chromosome *
-	 *
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Chromosome> getPopulation() {
@@ -617,8 +638,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Determine if the next generation has reached its size limit
-	 *
-	 * @param nextGeneration a {@link java.util.List} object.
+	 * 
+	 * @param nextGeneration
+	 *            a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
 	public boolean isNextPopulationFull(List<Chromosome> nextGeneration) {
@@ -627,8 +649,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Set a new population limit function
-	 *
-	 * @param limit a {@link org.evosuite.ga.PopulationLimit} object.
+	 * 
+	 * @param limit
+	 *            a {@link org.evosuite.ga.PopulationLimit} object.
 	 */
 	public void setPopulationLimit(PopulationLimit limit) {
 		this.populationLimit = limit;
@@ -636,7 +659,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Determine whether any of the stopping conditions hold
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	protected boolean isFinished() {
@@ -649,9 +672,13 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	// TODO: Override equals method in StoppingCondition
 	/**
-	 * <p>addStoppingCondition</p>
-	 *
-	 * @param condition a {@link org.evosuite.ga.stoppingconditions.StoppingCondition} object.
+	 * <p>
+	 * addStoppingCondition
+	 * </p>
+	 * 
+	 * @param condition
+	 *            a {@link org.evosuite.ga.stoppingconditions.StoppingCondition}
+	 *            object.
 	 */
 	public void addStoppingCondition(StoppingCondition condition) {
 		Iterator<StoppingCondition> it = stoppingConditions.iterator();
@@ -667,9 +694,13 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	// TODO: Override equals method in StoppingCondition
 	/**
-	 * <p>setStoppingCondition</p>
-	 *
-	 * @param condition a {@link org.evosuite.ga.stoppingconditions.StoppingCondition} object.
+	 * <p>
+	 * setStoppingCondition
+	 * </p>
+	 * 
+	 * @param condition
+	 *            a {@link org.evosuite.ga.stoppingconditions.StoppingCondition}
+	 *            object.
 	 */
 	public void setStoppingCondition(StoppingCondition condition) {
 		stoppingConditions.clear();
@@ -679,9 +710,13 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * <p>removeStoppingCondition</p>
-	 *
-	 * @param condition a {@link org.evosuite.ga.stoppingconditions.StoppingCondition} object.
+	 * <p>
+	 * removeStoppingCondition
+	 * </p>
+	 * 
+	 * @param condition
+	 *            a {@link org.evosuite.ga.stoppingconditions.StoppingCondition}
+	 *            object.
 	 */
 	public void removeStoppingCondition(StoppingCondition condition) {
 		Iterator<StoppingCondition> it = stoppingConditions.iterator();
@@ -694,7 +729,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * <p>resetStoppingConditions</p>
+	 * <p>
+	 * resetStoppingConditions
+	 * </p>
 	 */
 	public void resetStoppingConditions() {
 		for (StoppingCondition c : stoppingConditions) {
@@ -703,9 +740,12 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * <p>setStoppingConditionLimit</p>
-	 *
-	 * @param value a int.
+	 * <p>
+	 * setStoppingConditionLimit
+	 * </p>
+	 * 
+	 * @param value
+	 *            a int.
 	 */
 	public void setStoppingConditionLimit(int value) {
 		for (StoppingCondition c : stoppingConditions) {
@@ -714,10 +754,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * <p>isBetterOrEqual</p>
-	 *
-	 * @param chromosome1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param chromosome2 a {@link org.evosuite.ga.Chromosome} object.
+	 * <p>
+	 * isBetterOrEqual
+	 * </p>
+	 * 
+	 * @param chromosome1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param chromosome2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
 	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
@@ -730,10 +774,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * <p>getBest</p>
-	 *
-	 * @param chromosome1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param chromosome2 a {@link org.evosuite.ga.Chromosome} object.
+	 * <p>
+	 * getBest
+	 * </p>
+	 * 
+	 * @param chromosome1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param chromosome2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
@@ -745,7 +793,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	/**
 	 * Prints out all information regarding this GAs stopping conditions
-	 *
+	 * 
 	 * So far only used for testing purposes in TestSuiteGenerator
 	 */
 	public void printBudget() {
@@ -755,8 +803,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	}
 
 	/**
-	 * <p>getBudgetString</p>
-	 *
+	 * <p>
+	 * getBudgetString
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getBudgetString() {
