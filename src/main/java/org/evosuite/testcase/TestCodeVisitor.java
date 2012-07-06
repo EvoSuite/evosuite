@@ -29,7 +29,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.CompareAssertion;
 import org.evosuite.assertion.EqualsAssertion;
@@ -44,9 +43,11 @@ import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.utils.NumberFormatter;
 
 /**
- * <p>TestCodeVisitor class.</p>
- *
- * @author fraser
+ * The TestCodeVisitor is a visitor that produces a String representation of a
+ * test case. This is the preferred way to produce executable code from EvoSuite
+ * tests.
+ * 
+ * @author Gordon Fraser
  */
 public class TestCodeVisitor implements TestVisitor {
 
@@ -63,8 +64,10 @@ public class TestCodeVisitor implements TestVisitor {
 	protected final Map<String, Integer> nextIndices = new HashMap<String, Integer>();
 
 	/**
-	 * <p>getCode</p>
-	 *
+	 * <p>
+	 * getCode
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getCode() {
@@ -74,49 +77,64 @@ public class TestCodeVisitor implements TestVisitor {
 	/**
 	 * Retrieve a list of classes that need to be imported to make this unit
 	 * test compile
-	 *
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Class<?>> getImports() {
 		Set<Class<?>> imports = new HashSet<Class<?>>();
 		for (Class<?> clazz : classNames.keySet()) {
 			String name = classNames.get(clazz);
-			if (!name.contains("."))
+			// If there's a dot in the name, then we assume this is the 
+			// fully qualified name and we don't need to import
+			if (!name.contains(".")) {
 				imports.add(clazz);
+			}
 		}
 		return imports;
 	}
 
 	/**
-	 * <p>clearExceptions</p>
+	 * <p>
+	 * clearExceptions
+	 * </p>
 	 */
 	public void clearExceptions() {
 		this.exceptions.clear();
 	}
 
 	/**
-	 * <p>Setter for the field <code>exceptions</code>.</p>
-	 *
-	 * @param exceptions a {@link java.util.Map} object.
+	 * <p>
+	 * Setter for the field <code>exceptions</code>.
+	 * </p>
+	 * 
+	 * @param exceptions
+	 *            a {@link java.util.Map} object.
 	 */
 	public void setExceptions(Map<Integer, Throwable> exceptions) {
 		this.exceptions.putAll(exceptions);
 	}
 
 	/**
-	 * <p>setException</p>
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param exception a {@link java.lang.Throwable} object.
+	 * <p>
+	 * setException
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param exception
+	 *            a {@link java.lang.Throwable} object.
 	 */
 	public void setException(StatementInterface statement, Throwable exception) {
 		exceptions.put(statement.getPosition(), exception);
 	}
 
 	/**
-	 * <p>getException</p>
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * <p>
+	 * getException
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
 	 * @return a {@link java.lang.Throwable} object.
 	 */
 	protected Throwable getException(StatementInterface statement) {
@@ -127,9 +145,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>getClassName</p>
-	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * getClassName
+	 * </p>
+	 * 
+	 * @param var
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName(VariableReference var) {
@@ -154,9 +175,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>getClassName</p>
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
+	 * <p>
+	 * getClassName
+	 * </p>
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName(Class<?> clazz) {
@@ -180,9 +204,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>getVariableName</p>
-	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * getVariableName
+	 * </p>
+	 * 
+	 * @param var
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getVariableName(VariableReference var) {
@@ -274,9 +301,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitPrimitiveAssertion</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.PrimitiveAssertion} object.
+	 * <p>
+	 * visitPrimitiveAssertion
+	 * </p>
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.PrimitiveAssertion} object.
 	 */
 	protected void visitPrimitiveAssertion(PrimitiveAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -313,9 +343,13 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitPrimitiveFieldAssertion</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.PrimitiveFieldAssertion} object.
+	 * <p>
+	 * visitPrimitiveFieldAssertion
+	 * </p>
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.PrimitiveFieldAssertion}
+	 *            object.
 	 */
 	protected void visitPrimitiveFieldAssertion(PrimitiveFieldAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -346,9 +380,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitInspectorAssertion</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.InspectorAssertion} object.
+	 * <p>
+	 * visitInspectorAssertion
+	 * </p>
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.InspectorAssertion} object.
 	 */
 	protected void visitInspectorAssertion(InspectorAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -385,9 +422,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitNullAssertion</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.NullAssertion} object.
+	 * <p>
+	 * visitNullAssertion
+	 * </p>
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.NullAssertion} object.
 	 */
 	protected void visitNullAssertion(NullAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -399,9 +439,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitCompareAssertion</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.CompareAssertion} object.
+	 * <p>
+	 * visitCompareAssertion
+	 * </p>
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.CompareAssertion} object.
 	 */
 	protected void visitCompareAssertion(CompareAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -426,9 +469,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitEqualsAssertion</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.EqualsAssertion} object.
+	 * <p>
+	 * visitEqualsAssertion
+	 * </p>
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.EqualsAssertion} object.
 	 */
 	protected void visitEqualsAssertion(EqualsAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -453,9 +499,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitSameAssertion</p>
-	 *
-	 * @param assertion a {@link org.evosuite.assertion.SameAssertion} object.
+	 * <p>
+	 * visitSameAssertion
+	 * </p>
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.SameAssertion} object.
 	 */
 	protected void visitSameAssertion(SameAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -677,12 +726,10 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 
 		boolean lastStatement = statement.getPosition() == statement.tc.size() - 1;
-		boolean unused = exception != null
-		        || (test != null && Properties.ASSERTIONS ? !test.hasReferences(retval)
-		                : false);
+		boolean unused = test != null && !test.hasReferences(retval);
 
-		if (retval.getType() != Void.TYPE
-		        && retval.getAdditionalVariableReference() == null && !unused) {
+		if (!retval.isVoid() && retval.getAdditionalVariableReference() == null
+		        && !unused) {
 			if (exception != null) {
 				if (!lastStatement || statement.hasAssertions())
 					result += getClassName(retval) + " " + getVariableName(retval)
@@ -917,9 +964,12 @@ public class TestCodeVisitor implements TestVisitor {
 	}
 
 	/**
-	 * <p>visitStatement</p>
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * <p>
+	 * visitStatement
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
 	public void visitStatement(StatementInterface statement) {
 		if (statement instanceof PrimitiveStatement<?>)
