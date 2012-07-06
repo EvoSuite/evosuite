@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * Central property repository. All global parameters of EvoSuite should be
  * declared as fields here, using the appropriate annotation. Access is possible
  * directly via the fields, or with getter/setter methods.
- *
+ * 
  * @author Gordon Fraser
  */
 public class Properties {
@@ -379,7 +379,10 @@ public class Properties {
 	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
 	public static String OUTPUT_DIR = "evosuite-files";
 
-	/** Constant <code>PROPERTIES_FILE="OUTPUT_DIR + File.separatorevosuite.pro"{trunked}</code> */
+	/**
+	 * Constant
+	 * <code>PROPERTIES_FILE="OUTPUT_DIR + File.separatorevosuite.pro"{trunked}</code>
+	 */
 	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator
 	        + "evosuite.properties";
 
@@ -564,6 +567,9 @@ public class Properties {
 	/** Constant <code>ASSERTION_STRATEGY</code> */
 	@Parameter(key = "assertion_strategy", group = "Output", description = "Which assertions to generate")
 	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.MUTATION;
+
+	@Parameter(key = "max_mutants_per_test", group = "Output", description = "How many mutants to use when trying to find assertions for a test")
+	public static int MAX_MUTANTS_PER_TEST = 100;
 
 	/** Constant <code>TEST_DIR="evosuite-tests"</code> */
 	@Parameter(key = "test_dir", group = "Output", description = "Directory in which to place JUnit tests")
@@ -969,7 +975,7 @@ public class Properties {
 
 	/**
 	 * Get all parameters that are available
-	 *
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<String> getParameters() {
@@ -1034,8 +1040,9 @@ public class Properties {
 
 	/**
 	 * Load and initialize a properties file from a given path
-	 *
-	 * @param propertiesPath a {@link java.lang.String} object.
+	 * 
+	 * @param propertiesPath
+	 *            a {@link java.lang.String} object.
 	 */
 	public void loadProperties(String propertiesPath) {
 		loadPropertiesFile(propertiesPath);
@@ -1044,8 +1051,9 @@ public class Properties {
 
 	/**
 	 * Load a properties file
-	 *
-	 * @param propertiesPath a {@link java.lang.String} object.
+	 * 
+	 * @param propertiesPath
+	 *            a {@link java.lang.String} object.
 	 */
 	public void loadPropertiesFile(String propertiesPath) {
 		properties = new java.util.Properties();
@@ -1085,9 +1093,11 @@ public class Properties {
 
 	/**
 	 * Get class of parameter
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getType(String key) throws NoSuchParameterException {
@@ -1100,9 +1110,11 @@ public class Properties {
 
 	/**
 	 * Get description string of parameter
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getDescription(String key) throws NoSuchParameterException {
@@ -1116,9 +1128,11 @@ public class Properties {
 
 	/**
 	 * Get group name of parameter
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getGroup(String key) throws NoSuchParameterException {
@@ -1132,9 +1146,11 @@ public class Properties {
 
 	/**
 	 * Get integer boundaries
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
 	 * @return a {@link org.evosuite.Properties.IntValue} object.
 	 */
 	public static IntValue getIntLimits(String key) throws NoSuchParameterException {
@@ -1147,9 +1163,11 @@ public class Properties {
 
 	/**
 	 * Get long boundaries
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
 	 * @return a {@link org.evosuite.Properties.LongValue} object.
 	 */
 	public static LongValue getLongLimits(String key) throws NoSuchParameterException {
@@ -1162,9 +1180,11 @@ public class Properties {
 
 	/**
 	 * Get double boundaries
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
 	 * @return a {@link org.evosuite.Properties.DoubleValue} object.
 	 */
 	public static DoubleValue getDoubleLimits(String key) throws NoSuchParameterException {
@@ -1177,11 +1197,15 @@ public class Properties {
 
 	/**
 	 * Get an integer parameter value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 * @return a int.
 	 */
 	public static int getIntegerValue(String key) throws NoSuchParameterException,
@@ -1194,11 +1218,15 @@ public class Properties {
 
 	/**
 	 * Get an integer parameter value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 * @return a long.
 	 */
 	public static long getLongValue(String key) throws NoSuchParameterException,
@@ -1211,11 +1239,15 @@ public class Properties {
 
 	/**
 	 * Get a boolean parameter value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 * @return a boolean.
 	 */
 	public static boolean getBooleanValue(String key) throws NoSuchParameterException,
@@ -1228,11 +1260,15 @@ public class Properties {
 
 	/**
 	 * Get a double parameter value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 * @return a double.
 	 */
 	public static double getDoubleValue(String key) throws NoSuchParameterException,
@@ -1245,11 +1281,15 @@ public class Properties {
 
 	/**
 	 * Get parameter value as string (works for all types)
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getStringValue(String key) throws NoSuchParameterException,
@@ -1275,12 +1315,17 @@ public class Properties {
 
 	/**
 	 * Set parameter to new integer value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @param value a int.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalAccessException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @param value
+	 *            a int.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
 	 */
 	public void setValue(String key, int value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
@@ -1300,12 +1345,17 @@ public class Properties {
 
 	/**
 	 * Set parameter to new long value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @param value a long.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalAccessException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @param value
+	 *            a long.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
 	 */
 	public void setValue(String key, long value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
@@ -1325,12 +1375,17 @@ public class Properties {
 
 	/**
 	 * Set parameter to new boolean value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @param value a boolean.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalAccessException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @param value
+	 *            a boolean.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
 	 */
 	public void setValue(String key, boolean value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
@@ -1343,12 +1398,17 @@ public class Properties {
 
 	/**
 	 * Set parameter to new double value
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @param value a double.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @param value
+	 *            a double.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 */
 	public void setValue(String key, double value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
@@ -1366,12 +1426,17 @@ public class Properties {
 
 	/**
 	 * Set parameter to new value from String
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @param value a {@link java.lang.String} object.
-	 * @throws org.evosuite.Properties.NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @param value
+	 *            a {@link java.lang.String} object.
+	 * @throws org.evosuite.Properties.NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setValue(String key, String value) throws NoSuchParameterException,
@@ -1402,13 +1467,20 @@ public class Properties {
 	}
 
 	/**
-	 * <p>setValue</p>
-	 *
-	 * @param key a {@link java.lang.String} object.
-	 * @param value an array of {@link java.lang.String} objects.
-	 * @throws org.evosuite.Properties$NoSuchParameterException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
+	 * <p>
+	 * setValue
+	 * </p>
+	 * 
+	 * @param key
+	 *            a {@link java.lang.String} object.
+	 * @param value
+	 *            an array of {@link java.lang.String} objects.
+	 * @throws org.evosuite.Properties$NoSuchParameterException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
 	 */
 	public void setValue(String key, String[] value) throws NoSuchParameterException,
 	        IllegalArgumentException, IllegalAccessException {
@@ -1429,7 +1501,7 @@ public class Properties {
 
 	/**
 	 * Singleton accessor
-	 *
+	 * 
 	 * @return a {@link org.evosuite.Properties} object.
 	 */
 	public static Properties getInstance() {
@@ -1475,7 +1547,7 @@ public class Properties {
 
 	/**
 	 * Get class object of class under test
-	 *
+	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getTargetClass() {
@@ -1499,7 +1571,7 @@ public class Properties {
 
 	/**
 	 * Get class object of class under test
-	 *
+	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
 	@Deprecated
@@ -1524,8 +1596,9 @@ public class Properties {
 
 	/**
 	 * Update the evosuite.properties file with the current setting
-	 *
-	 * @param fileName a {@link java.lang.String} object.
+	 * 
+	 * @param fileName
+	 *            a {@link java.lang.String} object.
 	 */
 	public void writeConfiguration(String fileName) {
 		StringBuffer buffer = new StringBuffer();
@@ -1584,7 +1657,9 @@ public class Properties {
 	}
 
 	/**
-	 * <p>resetToDefaults</p>
+	 * <p>
+	 * resetToDefaults
+	 * </p>
 	 */
 	public void resetToDefaults() {
 		instance = new Properties(false);
