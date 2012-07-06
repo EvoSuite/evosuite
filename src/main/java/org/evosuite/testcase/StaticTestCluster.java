@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -63,11 +63,10 @@ import org.jgrapht.DirectedGraph;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 
-
 /**
  * The test cluster contains the information about all classes and their members
  * in the target package
- *
+ * 
  * @author Gordon Fraser
  */
 public class StaticTestCluster extends TestCluster {
@@ -158,9 +157,12 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
-	 * <p>isTargetClassName</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * isTargetClassName
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public static boolean isTargetClassName(String className) {
@@ -184,7 +186,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Get a list of all generator objects for the type
 	 */
 	@Override
@@ -199,7 +201,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Determine if there are generators
 	 */
 	@Override
@@ -212,7 +214,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Randomly select one generator
 	 */
 	@Override
@@ -227,7 +229,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Randomly select one generator
 	 */
 	@Override
@@ -340,10 +342,14 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
-	 * <p>addGenerator</p>
-	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param call a {@link java.lang.reflect.AccessibleObject} object.
+	 * <p>
+	 * addGenerator
+	 * </p>
+	 * 
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param call
+	 *            a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public void addGenerator(Type type, AccessibleObject call) {
 		if (!generators.containsKey(type)) {
@@ -353,10 +359,14 @@ public class StaticTestCluster extends TestCluster {
 	}
 
 	/**
-	 * <p>removeGenerator</p>
-	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param call a {@link java.lang.reflect.AccessibleObject} object.
+	 * <p>
+	 * removeGenerator
+	 * </p>
+	 * 
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param call
+	 *            a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public void removeGenerator(Type type, AccessibleObject call) {
 		if (generators.containsKey(type)) {
@@ -388,17 +398,19 @@ public class StaticTestCluster extends TestCluster {
 			} else if (o instanceof Method) {
 				Method m = (Method) o;
 				if (GenericClass.isAssignable(type, m.getGenericReturnType())) {
-					g.add(o);
+					GenericClass gc = new GenericClass(type);
+					if (gc.isPrimitive() == m.getReturnType().isPrimitive())
+						g.add(o);
 				}
 				// else if(m.getReturnType().isAssignableFrom(type) &&
 				// m.getName().equals("getInstance"))
 				// g.add(o);
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
+				//logger.info("Checking if field " + f.getName() + " of type "
+				//        + f.getType() + " can be used for class " + type);
 				if (GenericClass.isAssignable(type, f.getGenericType())) {
 					g.add(f);
-				} else if (type.toString().contains("EvosuiteFile")) {
-					logger.info("Found EvosuiteFile generator " + type + "/" + f);
 				}
 			}
 		}
@@ -411,7 +423,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return all calls that have a parameter with given type
 	 */
 	@Override
@@ -425,8 +437,9 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * 
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<AccessibleObject> getCallsWith(Type type) {
@@ -453,7 +466,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return all calls that have a parameter with given type
 	 */
 	@Override
@@ -478,7 +491,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Get random method or constructor of unit under test
 	 */
 	@Override
@@ -506,7 +519,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * Get entirely random call
-	 *
+	 * 
 	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public AccessibleObject getRandomCall() {
@@ -568,8 +581,9 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * Get the set of fields defined in this class and its superclasses
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Field> getAccessibleFields(Class<?> clazz) {
@@ -697,8 +711,9 @@ public class StaticTestCluster extends TestCluster {
 			return false;
 		}
 
-		if (Modifier.isPublic(f.getModifiers()))
+		if (Modifier.isPublic(f.getModifiers())) {
 			return true;
+		}
 
 		/*
 		 * if(Modifier.isProtected(f.getModifiers())) return true;
@@ -1144,12 +1159,11 @@ public class StaticTestCluster extends TestCluster {
 				// Add all fields
 				for (Field field : getFields(clazz)) {
 					if (canUse(field) && matches(field.getName(), restriction)) {
-						// logger.info("Adding field " + classname + "." +
-						// field.getName());
-						if (!Modifier.isFinal(field.getModifiers())) {
-							calls.add(field);
-							test_fields.add(field);
-						}
+						logger.debug("Adding field " + classname + "." + field.getName());
+						//if (!Modifier.isFinal(field.getModifiers())) {
+						calls.add(field);
+						test_fields.add(field);
+						//}
 						// addGenerator(field, field.getType());
 					}
 				}
@@ -1679,7 +1693,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Call each of the duplicated static constructors
 	 */
 	@Override
@@ -1740,7 +1754,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Unload all classes; perform cleanup
 	 */
 	@Override
@@ -1762,7 +1776,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Find a class that matches the given name
 	 */
 	@Override
@@ -1803,7 +1817,7 @@ public class StaticTestCluster extends TestCluster {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Integrate a new class into the test cluster
 	 */
 	@Override
