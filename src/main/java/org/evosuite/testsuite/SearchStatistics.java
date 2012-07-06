@@ -54,8 +54,10 @@ import org.evosuite.utils.Utils;
 import org.objectweb.asm.Type;
 
 /**
- * <p>SearchStatistics class.</p>
- *
+ * <p>
+ * SearchStatistics class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class SearchStatistics extends ReportGenerator implements Serializable {
@@ -69,8 +71,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testsuite.SearchStatistics} object.
 	 */
 	public static SearchStatistics getInstance() {
@@ -81,9 +85,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	}
 
 	/**
-	 * <p>Setter for the field <code>instance</code>.</p>
-	 *
-	 * @param statistics a {@link org.evosuite.testsuite.SearchStatistics} object.
+	 * <p>
+	 * Setter for the field <code>instance</code>.
+	 * </p>
+	 * 
+	 * @param statistics
+	 *            a {@link org.evosuite.testsuite.SearchStatistics} object.
 	 */
 	public static void setInstance(SearchStatistics statistics) {
 		instance = statistics;
@@ -91,7 +98,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Write a file for a particular run
 	 */
 	@Override
@@ -101,12 +108,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		writeHTMLHeader(sb, run.className);
 
 		sb.append("<div id=\"header\"><div id=\"logo\">");
-		sb.append("<h1>");
+		sb.append("<h2>");
 		sb.append(run.className);
 		sb.append(": ");
 		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
-		sb.append("</h1></div></div>\n");
+		sb.append("</h2></div></div>\n");
 		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		writeResultTable(sb, run);
@@ -276,9 +283,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	}
 
 	/**
-	 * <p>mutationScore</p>
-	 *
-	 * @param mutationScore a double.
+	 * <p>
+	 * mutationScore
+	 * </p>
+	 * 
+	 * @param mutationScore
+	 *            a double.
 	 */
 	public void mutationScore(double mutationScore) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
@@ -526,7 +536,9 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	}
 
 	/**
-	 * <p>writeStatistics</p>
+	 * <p>
+	 * writeStatistics
+	 * </p>
 	 */
 	public void writeStatistics() {
 		makeDirs();
@@ -619,8 +631,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	}
 
 	/**
-	 * <p>getLastStatisticEntry</p>
-	 *
+	 * <p>
+	 * getLastStatisticEntry
+	 * </p>
+	 * 
 	 * @return a StatisticEntry object.
 	 */
 	public StatisticEntry getLastStatisticEntry() {
