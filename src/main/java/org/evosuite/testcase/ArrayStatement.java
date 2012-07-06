@@ -37,15 +37,18 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * An array statement creates a new array
- *
+ * 
  * @author Gordon Fraser
  */
 public class ArrayStatement extends AbstractStatement {
 
 	/**
-	 * <p>determineDimensions</p>
-	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * determineDimensions
+	 * </p>
+	 * 
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a int.
 	 */
 	public static int determineDimensions(java.lang.reflect.Type type) {
@@ -72,10 +75,14 @@ public class ArrayStatement extends AbstractStatement {
 	private int[] lengths;
 
 	/**
-	 * <p>Constructor for ArrayStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param arrayReference a {@link org.evosuite.testcase.ArrayReference} object.
+	 * <p>
+	 * Constructor for ArrayStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param arrayReference
+	 *            a {@link org.evosuite.testcase.ArrayReference} object.
 	 */
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference) {
 		this(tc, arrayReference,
@@ -83,43 +90,62 @@ public class ArrayStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Constructor for ArrayStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * Constructor for ArrayStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type) {
 		this(tc, type, createRandom(determineDimensions(type)));
 	}
 
 	/**
-	 * <p>Constructor for ArrayStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param length a int.
+	 * <p>
+	 * Constructor for ArrayStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param length
+	 *            a int.
 	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int length) {
 		this(tc, type, new int[] { length });
 	}
 
 	/**
-	 * <p>Constructor for ArrayStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param length an array of int.
+	 * <p>
+	 * Constructor for ArrayStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param length
+	 *            an array of int.
 	 */
 	public ArrayStatement(TestCase tc, java.lang.reflect.Type type, int[] length) {
 		this(tc, new ArrayReference(tc, new GenericClass(type), length), length);
 	}
 
 	/**
-	 * <p>Constructor for ArrayStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param arrayReference a {@link org.evosuite.testcase.ArrayReference} object.
-	 * @param length an array of int.
+	 * <p>
+	 * Constructor for ArrayStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param arrayReference
+	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 * @param length
+	 *            an array of int.
 	 */
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference, int[] length) {
 		super(tc, arrayReference);
@@ -127,22 +153,27 @@ public class ArrayStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>size</p>
-	 *
+	 * <p>
+	 * size
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int size() {
-		assert lengths.length == 1;
+		// assert lengths.length == 1;
 		return lengths[0];
 	}
 
 	/**
-	 * <p>setSize</p>
-	 *
-	 * @param size a int.
+	 * <p>
+	 * setSize
+	 * </p>
+	 * 
+	 * @param size
+	 *            a int.
 	 */
 	public void setSize(int size) {
-		assert lengths.length == 1;
+		/// assert lengths.length == 1;
 		this.lengths[0] = size;
 	}
 
@@ -348,17 +379,22 @@ public class ArrayStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Setter for the field <code>lengths</code>.</p>
-	 *
-	 * @param lengths an array of int.
+	 * <p>
+	 * Setter for the field <code>lengths</code>.
+	 * </p>
+	 * 
+	 * @param lengths
+	 *            an array of int.
 	 */
 	public void setLengths(int[] lengths) {
 		this.lengths = lengths;
 	}
 
 	/**
-	 * <p>Getter for the field <code>lengths</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>lengths</code>.
+	 * </p>
+	 * 
 	 * @return an array of int.
 	 */
 	public int[] getLengths() {
