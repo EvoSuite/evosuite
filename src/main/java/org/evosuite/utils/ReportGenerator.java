@@ -74,8 +74,10 @@ import com.panayotis.gnuplot.terminal.FileTerminal;
 import com.panayotis.gnuplot.terminal.GNUPlotTerminal;
 
 /**
- * <p>Abstract ReportGenerator class.</p>
- *
+ * <p>
+ * Abstract ReportGenerator class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public abstract class ReportGenerator implements SearchListener, Serializable {
@@ -423,11 +425,16 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected static final HtmlAnalyzer html_analyzer = new HtmlAnalyzer();
 
 	/**
-	 * <p>writeIntegerChart</p>
-	 *
-	 * @param values a {@link java.util.List} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param title a {@link java.lang.String} object.
+	 * <p>
+	 * writeIntegerChart
+	 * </p>
+	 * 
+	 * @param values
+	 *            a {@link java.util.List} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param title
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeIntegerChart(List<Integer> values, String className,
@@ -460,11 +467,16 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>writeDoubleChart</p>
-	 *
-	 * @param values a {@link java.util.List} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param title a {@link java.lang.String} object.
+	 * <p>
+	 * writeDoubleChart
+	 * </p>
+	 * 
+	 * @param values
+	 *            a {@link java.util.List} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param title
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeDoubleChart(List<Double> values, String className, String title) {
@@ -498,9 +510,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * HTML header
-	 *
-	 * @param buffer a {@link java.lang.StringBuffer} object.
-	 * @param title a {@link java.lang.String} object.
+	 * 
+	 * @param buffer
+	 *            a {@link java.lang.StringBuffer} object.
+	 * @param title
+	 *            a {@link java.lang.String} object.
 	 */
 	public static void writeHTMLHeader(StringBuffer buffer, String title) {
 		buffer.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01 Frameset//EN\" \"http://www.w3.org/TR/html4/frameset.dtd\">\n");
@@ -533,8 +547,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * HTML footer
-	 *
-	 * @param buffer a {@link java.lang.StringBuffer} object.
+	 * 
+	 * @param buffer
+	 *            a {@link java.lang.StringBuffer} object.
 	 */
 	public static void writeHTMLFooter(StringBuffer buffer) {
 		buffer.append("</div>\n");
@@ -543,10 +558,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>writeCSVData</p>
-	 *
-	 * @param filename a {@link java.lang.String} object.
-	 * @param data a {@link java.util.List} object.
+	 * <p>
+	 * writeCSVData
+	 * </p>
+	 * 
+	 * @param filename
+	 *            a {@link java.lang.String} object.
+	 * @param data
+	 *            a {@link java.util.List} object.
 	 */
 	protected void writeCSVData(String filename, List<?>... data) {
 		try {
@@ -575,10 +594,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>writeExceptionData</p>
-	 *
-	 * @param filename a {@link java.lang.String} object.
-	 * @param exceptions a {@link java.util.Map} object.
+	 * <p>
+	 * writeExceptionData
+	 * </p>
+	 * 
+	 * @param filename
+	 *            a {@link java.lang.String} object.
+	 * @param exceptions
+	 *            a {@link java.util.Map} object.
 	 */
 	protected void writeExceptionData(String filename,
 	        Map<String, Set<Class<?>>> exceptions) {
@@ -597,9 +620,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>getNumber</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * getNumber
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
 	protected int getNumber(final String className) {
@@ -628,8 +654,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * Write a file for a particular run
-	 *
-	 * @param run a {@link org.evosuite.utils.ReportGenerator.StatisticEntry} object.
+	 * 
+	 * @param run
+	 *            a {@link org.evosuite.utils.ReportGenerator.StatisticEntry}
+	 *            object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeRunPage(StatisticEntry run) {
@@ -638,12 +666,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		writeHTMLHeader(sb, run.className);
 
 		sb.append("<div id=\"header\"><div id=\"logo\">");
-		sb.append("<h1>");
+		sb.append("<h2>");
 		sb.append(run.className);
 		sb.append(": ");
 		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
-		sb.append("</h1></div></div>\n");
+		sb.append("</h2></div></div>\n");
 		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		writeResultTable(sb, run);
@@ -814,9 +842,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * Write some overall stats
-	 *
-	 * @param buffer a {@link java.lang.StringBuffer} object.
-	 * @param entry a {@link org.evosuite.utils.ReportGenerator.StatisticEntry} object.
+	 * 
+	 * @param buffer
+	 *            a {@link java.lang.StringBuffer} object.
+	 * @param entry
+	 *            a {@link org.evosuite.utils.ReportGenerator.StatisticEntry}
+	 *            object.
 	 */
 	protected void writeParameterTable(StringBuffer buffer, StatisticEntry entry) {
 		buffer.append("<h2 id=parameters>EvoSuite Parameters</h2>\n");
@@ -840,9 +871,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * Write some overall stats
-	 *
-	 * @param buffer a {@link java.lang.StringBuffer} object.
-	 * @param entry a {@link org.evosuite.utils.ReportGenerator.StatisticEntry} object.
+	 * 
+	 * @param buffer
+	 *            a {@link java.lang.StringBuffer} object.
+	 * @param entry
+	 *            a {@link org.evosuite.utils.ReportGenerator.StatisticEntry}
+	 *            object.
 	 */
 	protected void writeResultTable(StringBuffer buffer, StatisticEntry entry) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
@@ -890,8 +924,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * The big table of results
-	 *
-	 * @param buffer a {@link java.lang.StringBuffer} object.
+	 * 
+	 * @param buffer
+	 *            a {@link java.lang.StringBuffer} object.
 	 */
 	protected void writeRunTable(StringBuffer buffer) {
 		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
@@ -926,7 +961,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>writeCSV</p>
+	 * <p>
+	 * writeCSV
+	 * </p>
 	 */
 	public void writeCSV() {
 		if (statistics.isEmpty())
@@ -958,10 +995,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>copyFile</p>
-	 *
-	 * @param src a {@link java.net.URL} object.
-	 * @param dest a {@link java.io.File} object.
+	 * <p>
+	 * copyFile
+	 * </p>
+	 * 
+	 * @param src
+	 *            a {@link java.net.URL} object.
+	 * @param dest
+	 *            a {@link java.io.File} object.
 	 */
 	public static void copyFile(URL src, File dest) {
 		try {
@@ -981,9 +1022,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>copyFile</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
+	 * <p>
+	 * copyFile
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
 	 */
 	public static void copyFile(String name) {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
@@ -1066,10 +1110,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>getCoveredLines</p>
-	 *
-	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * getCoveredLines
+	 * </p>
+	 * 
+	 * @param trace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getCoveredLines(ExecutionTrace trace, String className) {
@@ -1077,10 +1125,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>executeTest</p>
-	 *
-	 * @param testChromosome a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * executeTest
+	 * </p>
+	 * 
+	 * @param testChromosome
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	public ExecutionResult executeTest(TestChromosome testChromosome, String className) {
@@ -1114,14 +1166,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	}
 
 	/**
-	 * <p>minimized</p>
-	 *
-	 * @param result a {@link org.evosuite.ga.Chromosome} object.
+	 * <p>
+	 * minimized
+	 * </p>
+	 * 
+	 * @param result
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	public abstract void minimized(Chromosome result);
 
 	/**
-	 * <p>makeDirs</p>
+	 * <p>
+	 * makeDirs
+	 * </p>
 	 */
 	protected void makeDirs() {
 		REPORT_DIR.mkdirs();
