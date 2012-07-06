@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -57,10 +57,11 @@ import org.objectweb.asm.commons.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>TestSuiteWriter class.</p>
- *
+ * <p>
+ * TestSuiteWriter class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class TestSuiteWriter implements Opcodes {
@@ -99,7 +100,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Check if there are test cases
-	 *
+	 * 
 	 * @return True if there are no test cases
 	 */
 	public boolean isEmpty() {
@@ -107,8 +108,10 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	/**
-	 * <p>size</p>
-	 *
+	 * <p>
+	 * size
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int size() {
@@ -117,8 +120,9 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Check if test suite has a test case that is a prefix of test.
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a boolean.
 	 */
 	public boolean hasPrefix(TestCase test) {
@@ -133,8 +137,9 @@ public class TestSuiteWriter implements Opcodes {
 	 * Add test to suite. If the test is a prefix of an existing test, just keep
 	 * existing test. If an existing test is a prefix of the test, replace the
 	 * existing test.
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return Index of the test case
 	 */
 	public int insertTest(TestCase test) {
@@ -166,10 +171,14 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	/**
-	 * <p>insertTest</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param comment a {@link java.lang.String} object.
+	 * <p>
+	 * insertTest
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param comment
+	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
 	public int insertTest(TestCase test, String comment) {
@@ -183,9 +192,12 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	/**
-	 * <p>insertTests</p>
-	 *
-	 * @param tests a {@link java.util.List} object.
+	 * <p>
+	 * insertTests
+	 * </p>
+	 * 
+	 * @param tests
+	 *            a {@link java.util.List} object.
 	 */
 	public void insertTests(List<TestCase> tests) {
 		for (TestCase test : tests)
@@ -194,7 +206,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Get all test cases
-	 *
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> getTestCases() {
@@ -202,9 +214,12 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	/**
-	 * <p>runTest</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * <p>
+	 * runTest
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	public ExecutionResult runTest(TestCase test) {
@@ -226,8 +241,9 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Create subdirectory for package in test directory
-	 *
-	 * @param directory a {@link java.lang.String} object.
+	 * 
+	 * @param directory
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String makeDirectory(String directory) {
@@ -240,8 +256,9 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Create subdirectory for package in test directory
-	 *
-	 * @param directory a {@link java.lang.String} object.
+	 * 
+	 * @param directory
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String mainDirectory(String directory) {
@@ -255,8 +272,9 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Determine packages that need to be imported in the JUnit file
-	 *
-	 * @param results a {@link java.util.List} object.
+	 * 
+	 * @param results
+	 *            a {@link java.util.List} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String getImports(List<ExecutionResult> results) {
@@ -273,6 +291,12 @@ public class TestSuiteWriter implements Opcodes {
 					visitor.getClassName(exception);
 				}
 			}
+
+			// Also include thrown exceptions
+			for (Throwable t : result.getAllThrownExceptions()) {
+				visitor.getClassName(t.getClass());
+			}
+
 			imports.addAll(visitor.getImports());
 			// imports.addAll(result.test.getAccessedClasses());
 			//for (Throwable t : result.getAllThrownExceptions()) {
@@ -312,7 +336,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * When writing out the JUnit test file, each test can have a text comment
-	 *
+	 * 
 	 * @param num
 	 *            Index of test case
 	 * @return Comment for test case
@@ -371,9 +395,11 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * JUnit file header
-	 *
-	 * @param name a {@link java.lang.String} object.
-	 * @param results a {@link java.util.List} object.
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @param results
+	 *            a {@link java.util.List} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String getHeader(String name, List<ExecutionResult> results) {
@@ -399,7 +425,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * JUnit file footer
-	 *
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String getFooter() {
@@ -408,7 +434,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Create JUnit file for given class name
-	 *
+	 * 
 	 * @param name
 	 *            Name of the class file
 	 * @return String representation of JUnit test file
@@ -432,11 +458,12 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Create JUnit file for given class name
-	 *
+	 * 
 	 * @param name
 	 *            Name of the class file
 	 * @return String representation of JUnit test file
-	 * @param testId a int.
+	 * @param testId
+	 *            a int.
 	 */
 	public String getUnitTest(String name, int testId) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
@@ -453,11 +480,12 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Convert one test case to a Java method
-	 *
+	 * 
 	 * @param id
 	 *            Index of the test case
 	 * @return String representation of test case
-	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	protected String testToString(int id, ExecutionResult result) {
 
@@ -495,7 +523,7 @@ public class TestSuiteWriter implements Opcodes {
 	/**
 	 * Update/create the main file of the test suite. The main test file simply
 	 * includes all automatically generated test suites in the same directory
-	 *
+	 * 
 	 * @param directory
 	 *            Directory of generated test files
 	 */
@@ -530,7 +558,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Create JUnit test suite for class
-	 *
+	 * 
 	 * @param name
 	 *            Name of the class
 	 * @param directory
@@ -569,8 +597,9 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Get bytecode representation of test class
-	 *
-	 * @param name a {@link java.lang.String} object.
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
 	 * @return an array of byte.
 	 */
 	public byte[] getBytecode(String name) {
@@ -619,9 +648,11 @@ public class TestSuiteWriter implements Opcodes {
 
 	/**
 	 * Create JUnit test suite in bytecode
-	 *
-	 * @param name a {@link java.lang.String} object.
-	 * @param directory a {@link java.lang.String} object.
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @param directory
+	 *            a {@link java.lang.String} object.
 	 */
 	public void writeTestSuiteClass(String name, String directory) {
 		String dir = makeDirectory(directory);
