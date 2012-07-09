@@ -36,10 +36,9 @@ import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 
-
 /**
  * Chromosome representation of test cases
- *
+ * 
  * @author Gordon Fraser
  */
 public class TestChromosome extends ExecutableChromosome {
@@ -53,17 +52,22 @@ public class TestChromosome extends ExecutableChromosome {
 	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
 	/**
-	 * <p>setTestCase</p>
-	 *
-	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * <p>
+	 * setTestCase
+	 * </p>
+	 * 
+	 * @param testCase
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public void setTestCase(TestCase testCase) {
 		test = testCase;
 	}
 
 	/**
-	 * <p>getTestCase</p>
-	 *
+	 * <p>
+	 * getTestCase
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getTestCase() {
@@ -88,7 +92,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
@@ -138,7 +142,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Single point cross over
 	 */
 	@Override
@@ -165,7 +169,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Two chromosomes are equal if their tests are equal
 	 */
 	@Override
@@ -203,7 +207,9 @@ public class TestChromosome extends ExecutableChromosome {
 				break;
 
 			LocalSearch search = null;
-			if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
+			if (test.getStatement(i) instanceof NullStatement) {
+				search = new NullReferenceSearch();
+			} else if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
 				Class<?> type = test.getReturnValue(i).getVariableClass();
 				if (type.equals(Integer.class) || type.equals(int.class)) {
 					search = new IntegerLocalSearch<Integer>();
@@ -243,7 +249,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Each statement is mutated with probability 1/l
 	 */
 	@Override
@@ -428,7 +434,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * The size of a chromosome is the length of its test case
 	 */
 	@Override
@@ -459,8 +465,10 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/**
-	 * <p>hasException</p>
-	 *
+	 * <p>
+	 * hasException
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean hasException() {
@@ -507,8 +515,9 @@ public class TestChromosome extends ExecutableChromosome {
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives
-	 *
-	 * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
+	 * 
+	 * @param objective
+	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
 	public static void addSecondaryObjective(SecondaryObjective objective) {
 		secondaryObjectives.add(objective);
@@ -516,16 +525,19 @@ public class TestChromosome extends ExecutableChromosome {
 
 	/**
 	 * Remove secondary objective from list, if it is there
-	 *
-	 * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
+	 * 
+	 * @param objective
+	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
 	public static void removeSecondaryObjective(SecondaryObjective objective) {
 		secondaryObjectives.remove(objective);
 	}
 
 	/**
-	 * <p>Getter for the field <code>secondaryObjectives</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>secondaryObjectives</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<SecondaryObjective> getSecondaryObjectives() {
