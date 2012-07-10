@@ -202,7 +202,15 @@ public class TestChromosome extends ExecutableChromosome {
 		//logger.info("Test before local search: " + test.toCode());
 		double oldFitness = getFitness();
 
-		for (int i = 0; i < test.size(); i++) {
+		// Only apply local search up to the point where an exception was thrown
+		int lastPosition = test.size() - 1;
+		if (lastExecutionResult != null) {
+			lastPosition = lastExecutionResult.getFirstPositionOfThrownException();
+		}
+
+		//We count down to make the code work when lines are
+		//added during the search (see NullReferenceSearch).
+		for (int i = lastPosition; i >= 0; i--) {
 			if (LocalSearchBudget.isFinished())
 				break;
 
