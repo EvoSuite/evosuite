@@ -60,6 +60,12 @@ public class ReplaceVariable implements MutationOperator {
 
 	private static Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
 
+	private class VariableNotFoundException extends Exception {
+		public VariableNotFoundException(String msg) {
+			super(msg);
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
@@ -75,30 +81,37 @@ public class ReplaceVariable implements MutationOperator {
 		}
 		logger.debug("Starting variable replacement in " + methodName);
 
-		String origName = getName(mn, instruction.getASMNode());
+		try {
+			String origName = getName(mn, instruction.getASMNode());
 
-		for (Entry<String, InsnList> mutation : getReplacements(mn, className,
-		                                                        instruction.getASMNode()).entrySet()) {
-			// insert mutation into pool			
-			Mutation mutationObject = MutationPool.addMutation(className,
-			                                                   methodName,
-			                                                   "ReplaceVariable "
-			                                                           + origName
-			                                                           + " -> "
-			                                                           + mutation.getKey(),
-			                                                   instruction,
-			                                                   mutation.getValue(),
-			                                                   getInfectionDistance(getType(mn,
-			                                                                                instruction.getASMNode()),
-			                                                                        instruction.getASMNode(),
-			                                                                        mutation.getValue()));
-			mutations.add(mutationObject);
+			for (Entry<String, InsnList> mutation : getReplacements(
+			                                                        mn,
+			                                                        className,
+			                                                        instruction.getASMNode()).entrySet()) {
+				// insert mutation into pool			
+				Mutation mutationObject = MutationPool.addMutation(className,
+				                                                   methodName,
+				                                                   "ReplaceVariable "
+				                                                           + origName
+				                                                           + " -> "
+				                                                           + mutation.getKey(),
+				                                                   instruction,
+				                                                   mutation.getValue(),
+				                                                   getInfectionDistance(getType(mn,
+				                                                                                instruction.getASMNode()),
+				                                                                        instruction.getASMNode(),
+				                                                                        mutation.getValue()));
+				mutations.add(mutationObject);
+			}
+		} catch (VariableNotFoundException e) {
+			logger.info("Variable not found: " + instruction);
 		}
 		logger.debug("Finished variable replacement in " + methodName);
 		return mutations;
 	}
 
-	private Type getType(MethodNode mn, AbstractInsnNode node) {
+	private Type getType(MethodNode mn, AbstractInsnNode node)
+	        throws VariableNotFoundException {
 		if (node instanceof VarInsnNode) {
 			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
 			return Type.getType(var.desc);
@@ -115,7 +128,8 @@ public class ReplaceVariable implements MutationOperator {
 		}
 	}
 
-	private String getName(MethodNode mn, AbstractInsnNode node) {
+	private String getName(MethodNode mn, AbstractInsnNode node)
+	        throws VariableNotFoundException {
 		if (node instanceof VarInsnNode) {
 			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
 			return var.name;
@@ -310,7 +324,7 @@ public class ReplaceVariable implements MutationOperator {
 				//if (!origVar.desc.startsWith("L"))
 				variables.putAll(getLocalReplacements(mn, origVar.desc, node));
 				variables.putAll(getFieldReplacements(mn, className, origVar.desc, node));
-			} catch (RuntimeException e) {
+			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
 				Iterator<?> it = mn.localVariables.iterator();
 				while (it.hasNext()) {
@@ -330,9 +344,13 @@ public class ReplaceVariable implements MutationOperator {
 			}
 		} else if (node instanceof IincInsnNode) {
 			IincInsnNode incNode = (IincInsnNode) node;
-			LocalVariableNode origVar = getLocal(mn, node, incNode.var);
+			try {
+				LocalVariableNode origVar = getLocal(mn, node, incNode.var);
 
-			variables.putAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
+				variables.putAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
+			} catch (VariableNotFoundException e) {
+				logger.info("Could not find variable, not replacing it: " + incNode.var);
+			}
 
 		} else {
 			//throw new RuntimeException("Unknown type: " + node);
@@ -341,7 +359,8 @@ public class ReplaceVariable implements MutationOperator {
 		return variables;
 	}
 
-	private LocalVariableNode getLocal(MethodNode mn, AbstractInsnNode node, int index) {
+	private LocalVariableNode getLocal(MethodNode mn, AbstractInsnNode node, int index)
+	        throws VariableNotFoundException {
 		int currentId = mn.instructions.indexOf(node);
 		for (Object v : mn.localVariables) {
 			LocalVariableNode localVar = (LocalVariableNode) v;
@@ -353,7 +372,7 @@ public class ReplaceVariable implements MutationOperator {
 				return localVar;
 		}
 
-		throw new RuntimeException("Could not find local variable " + index
+		throw new VariableNotFoundException("Could not find local variable " + index
 		        + " at position " + currentId + ", have variables: "
 		        + mn.localVariables.size());
 	}
