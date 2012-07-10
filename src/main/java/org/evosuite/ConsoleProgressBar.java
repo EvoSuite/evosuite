@@ -107,8 +107,7 @@ public class ConsoleProgressBar {
 						in.readInt(); // phases
 						coverage = in.readInt();
 						in.readObject(); // phase name
-
-						if (percent != -1 && phase == 0) {
+						if (percent != -1 && phase <= 1) {
 							printProgressBar(percent, coverage);
 						}
 					}
