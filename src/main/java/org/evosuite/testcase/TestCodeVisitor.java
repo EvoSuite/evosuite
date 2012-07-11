@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.CompareAssertion;
 import org.evosuite.assertion.EqualsAssertion;
@@ -726,7 +727,8 @@ public class TestCodeVisitor implements TestVisitor {
 		}
 
 		boolean lastStatement = statement.getPosition() == statement.tc.size() - 1;
-		boolean unused = test != null && !test.hasReferences(retval);
+		boolean unused = !Properties.ASSERTIONS ? exception != null : test != null
+		        && !test.hasReferences(retval);
 
 		if (!retval.isVoid() && retval.getAdditionalVariableReference() == null
 		        && !unused) {
@@ -734,8 +736,9 @@ public class TestCodeVisitor implements TestVisitor {
 				if (!lastStatement || statement.hasAssertions())
 					result += getClassName(retval) + " " + getVariableName(retval)
 					        + " = " + retval.getDefaultValueString() + ";\n";
-			} else
+			} else {
 				result += getClassName(retval) + " ";
+			}
 		}
 		if (exception != null)
 			result += "try {\n  ";
