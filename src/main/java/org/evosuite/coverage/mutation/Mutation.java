@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,13 +30,14 @@ import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.LdcInsnNode;
 
-
 /**
- * <p>Mutation class.</p>
- *
+ * <p>
+ * Mutation class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
-public class Mutation {
+public class Mutation implements Comparable<Mutation> {
 
 	private final int id;
 
@@ -55,15 +56,24 @@ public class Mutation {
 	private final int lineNo;
 
 	/**
-	 * <p>Constructor for Mutation.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param mutationName a {@link java.lang.String} object.
-	 * @param id a int.
-	 * @param original a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param mutation a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
-	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * Constructor for Mutation.
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param mutationName
+	 *            a {@link java.lang.String} object.
+	 * @param id
+	 *            a int.
+	 * @param original
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mutation
+	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param distance
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public Mutation(String className, String methodName, String mutationName, int id,
 	        BytecodeInstruction original, AbstractInsnNode mutation, InsnList distance) {
@@ -79,15 +89,24 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>Constructor for Mutation.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param mutationName a {@link java.lang.String} object.
-	 * @param id a int.
-	 * @param original a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param mutation a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param distance a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * Constructor for Mutation.
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param mutationName
+	 *            a {@link java.lang.String} object.
+	 * @param id
+	 *            a int.
+	 * @param original
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mutation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param distance
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public Mutation(String className, String methodName, String mutationName, int id,
 	        BytecodeInstruction original, InsnList mutation, InsnList distance) {
@@ -102,8 +121,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>Getter for the field <code>id</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>id</code>.
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getId() {
@@ -111,8 +132,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>Getter for the field <code>className</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>className</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
@@ -120,8 +143,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>Getter for the field <code>methodName</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>methodName</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMethodName() {
@@ -129,8 +154,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>getOperandSize</p>
-	 *
+	 * <p>
+	 * getOperandSize
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getOperandSize() {
@@ -138,8 +165,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>Getter for the field <code>mutationName</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>mutationName</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMutationName() {
@@ -147,8 +176,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>getControlDependencies</p>
-	 *
+	 * <p>
+	 * getControlDependencies
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BranchCoverageGoal> getControlDependencies() {
@@ -161,8 +192,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>getOriginalNode</p>
-	 *
+	 * <p>
+	 * getOriginalNode
+	 * </p>
+	 * 
 	 * @return a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
 	 */
 	public AbstractInsnNode getOriginalNode() {
@@ -170,8 +203,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>Getter for the field <code>mutation</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>mutation</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public InsnList getMutation() {
@@ -179,8 +214,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>getInfectionDistance</p>
-	 *
+	 * <p>
+	 * getInfectionDistance
+	 * </p>
+	 * 
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public InsnList getInfectionDistance() {
@@ -188,8 +225,10 @@ public class Mutation {
 	}
 
 	/**
-	 * <p>getDefaultInfectionDistance</p>
-	 *
+	 * <p>
+	 * getDefaultInfectionDistance
+	 * </p>
+	 * 
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public static InsnList getDefaultInfectionDistance() {
@@ -257,6 +296,14 @@ public class Mutation {
 		} else if (!mutationName.equals(other.mutationName))
 			return false;
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(Mutation o) {
+		return lineNo - o.lineNo;
 	}
 
 }

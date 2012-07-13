@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.coverage.lcsaj;
@@ -31,7 +30,8 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-public class LCSAJ {
+
+public class LCSAJ implements Comparable<LCSAJ> {
 
 	private static Logger logger = LoggerFactory.getLogger(LCSAJ.class);
 
@@ -48,11 +48,16 @@ public class LCSAJ {
 	private int positionReached = 0;
 
 	/**
-	 * <p>Constructor for LCSAJ.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param start a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * <p>
+	 * Constructor for LCSAJ.
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param start
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public LCSAJ(String className, String methodName, BytecodeInstruction start) {
 		this.className = className;
@@ -63,7 +68,7 @@ public class LCSAJ {
 			if (methodName.startsWith("<init>") && start.getInstructionId() <= 1) {
 
 			}
-			if (Properties.STRATEGY != Strategy.EVOSUITE){
+			if (Properties.STRATEGY != Strategy.EVOSUITE) {
 				start.forceBranch();
 				BranchPool.registerAsBranch(start);
 				logger.info("Registering new branch for start node");
@@ -76,9 +81,12 @@ public class LCSAJ {
 
 	//Copy constructor
 	/**
-	 * <p>Constructor for LCSAJ.</p>
-	 *
-	 * @param l a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
+	 * <p>
+	 * Constructor for LCSAJ.
+	 * </p>
+	 * 
+	 * @param l
+	 *            a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
 	 */
 	public LCSAJ(LCSAJ l) {
 		this.className = l.getClassName();
@@ -90,8 +98,10 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>getID</p>
-	 *
+	 * <p>
+	 * getID
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getID() {
@@ -102,16 +112,19 @@ public class LCSAJ {
 	 * Set an (not necessarily unique) new ID for a LCSAJ. While adding a LCSAJ
 	 * into the Pool the number is set to its occurrence during the detection of
 	 * all LCSAJ in a method
-	 *
-	 * @param id a int.
+	 * 
+	 * @param id
+	 *            a int.
 	 */
 	public void setID(int id) {
 		this.id = id;
 	}
 
 	/**
-	 * <p>getBranchInstructions</p>
-	 *
+	 * <p>
+	 * getBranchInstructions
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Branch> getBranchInstructions() {
@@ -119,9 +132,12 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>getBranch</p>
-	 *
-	 * @param position a int.
+	 * <p>
+	 * getBranch
+	 * </p>
+	 * 
+	 * @param position
+	 *            a int.
 	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
 	 */
 	public Branch getBranch(int position) {
@@ -129,9 +145,12 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>getBranchID</p>
-	 *
-	 * @param position a int.
+	 * <p>
+	 * getBranchID
+	 * </p>
+	 * 
+	 * @param position
+	 *            a int.
 	 * @return a int.
 	 */
 	public int getBranchID(int position) {
@@ -139,8 +158,10 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>getStartBranch</p>
-	 *
+	 * <p>
+	 * getStartBranch
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
 	 */
 	public Branch getStartBranch() {
@@ -148,8 +169,10 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>getLastBranch</p>
-	 *
+	 * <p>
+	 * getLastBranch
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
 	 */
 	public Branch getLastBranch() {
@@ -157,8 +180,10 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>getLastNodeAccessed</p>
-	 *
+	 * <p>
+	 * getLastNodeAccessed
+	 * </p>
+	 * 
 	 * @return a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
 	 */
 	public AbstractInsnNode getLastNodeAccessed() {
@@ -166,8 +191,10 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>Getter for the field <code>className</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>className</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
@@ -175,8 +202,10 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>Getter for the field <code>methodName</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>methodName</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMethodName() {
@@ -184,10 +213,14 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>lookupInstruction</p>
-	 *
-	 * @param id a int.
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * <p>
+	 * lookupInstruction
+	 * </p>
+	 * 
+	 * @param id
+	 *            a int.
+	 * @param instruction
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public void lookupInstruction(int id, BytecodeInstruction instruction) {
 		lastAccessedNode = instruction.getASMNode();
@@ -199,7 +232,8 @@ public class LCSAJ {
 		} else if (instruction.isReturn() || instruction.isThrow()
 		        || instruction.isGoto()) {
 
-			if (Properties.STRATEGY != Strategy.EVOSUITE && !BranchPool.isKnownAsBranch(instruction)) {
+			if (Properties.STRATEGY != Strategy.EVOSUITE
+			        && !BranchPool.isKnownAsBranch(instruction)) {
 				instruction.forceBranch();
 				BranchPool.registerAsBranch(instruction);
 				logger.info("Registering new branch");
@@ -211,8 +245,10 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>length</p>
-	 *
+	 * <p>
+	 * length
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int length() {
@@ -233,20 +269,37 @@ public class LCSAJ {
 	}
 
 	/**
-	 * <p>Setter for the field <code>positionReached</code>.</p>
-	 *
-	 * @param position a int.
+	 * <p>
+	 * Setter for the field <code>positionReached</code>.
+	 * </p>
+	 * 
+	 * @param position
+	 *            a int.
 	 */
 	public void setPositionReached(int position) {
 		this.positionReached = position;
 	}
 
 	/**
-	 * <p>getdPositionReached</p>
-	 *
+	 * <p>
+	 * getdPositionReached
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getdPositionReached() {
 		return this.positionReached;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(LCSAJ o) {
+		for (int i = 0; i < Math.min(branches.size(), o.length()); i++) {
+			if (branches.get(i).compareTo(o.getBranch(i)) != 0)
+				return branches.get(i).compareTo(o.getBranch(i));
+		}
+		return length() - o.length();
 	}
 }

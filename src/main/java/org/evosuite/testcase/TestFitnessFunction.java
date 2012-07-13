@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,10 +24,9 @@ import org.evosuite.ga.ChromosomeRecycler;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 
-
 /**
  * Abstract base class for fitness functions for test case chromosomes
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class TestFitnessFunction extends FitnessFunction implements
@@ -42,7 +41,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 
 	/**
 	 * Execute a test case
-	 *
+	 * 
 	 * @param test
 	 *            The test case to execute
 	 * @return Result of the execution
@@ -74,10 +73,14 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	/**
-	 * <p>getFitness</p>
-	 *
-	 * @param individual a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * <p>
+	 * getFitness
+	 * </p>
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
 	 * @return a double.
 	 */
 	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
@@ -105,17 +108,18 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * This function is used by the ChromosomeRecycler to determine whether an
 	 * older TestChromosome that covered the given goal should be added to the
 	 * initial population for this TestFitnessFunction
-	 *
+	 * 
 	 * Each CoverageTestFitness can override this method in order to define when
 	 * two goals are similar to each other in a way that tests covering one of
 	 * them is likely to cover the other one too or is at least expected to
 	 * provide a good fitness for it
-	 *
+	 * 
 	 * If this method does not get overwritten ChromosomeRecycling obviously
 	 * won't work and disabling it using Properties.recycle_chromosomes is
 	 * encouraged in order to avoid unnecessary performance loss
-	 *
-	 * @param goal a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 * 
+	 * @param goal
+	 *            a {@link org.evosuite.testcase.TestFitnessFunction} object.
 	 * @return a boolean.
 	 */
 	public boolean isSimilarTo(TestFitnessFunction goal) {
@@ -130,31 +134,31 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	/**
 	 * This function is used for initial preordering of goals in the individual
 	 * test case generation in TestSuiteGenerator
-	 *
+	 * 
 	 * The idea is to search for easy goals first and reuse their
 	 * TestChromosomes later when looking for harder goals that depend for
 	 * example on Branches that were already covered by the easier goal.
-	 *
+	 * 
 	 * So the general idea is that a TestFitnessFunction with a higher
 	 * difficulty is concerned with CFGVertices deep down in the CDG one with a
 	 * lower difficulty with vertices near the root-branch of their method.
-	 *
+	 * 
 	 * Each CoverageTestFitness can override this method to define which goals
 	 * should be searched for first (low difficulty) and which goals should be
 	 * postponed initially
-	 *
+	 * 
 	 * Disclaimer:
-	 *
+	 * 
 	 * If this method does not get overwritten preordering of goals by
 	 * difficulty obviously won't work and disabling it using
 	 * Properties.preorder_goals_by_difficulty is encouraged in order to avoid
 	 * unnecessary performance loss
-	 *
+	 * 
 	 * Also the whole idea of the difficulty value is to boost the performance
 	 * gain in terms of GA-evolutions the ChromosomeRecycler is supposed to
 	 * achieve. So if recycling is disabled or not implemented preordering
 	 * should be disabled too.
-	 *
+	 * 
 	 * @return a int.
 	 */
 	public int getDifficulty() {
@@ -166,18 +170,17 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Used to preorder goals by difficulty
 	 */
 	@Override
-	public int compareTo(TestFitnessFunction other) {
-		return new Integer(getDifficulty()).compareTo(other.getDifficulty());
-	}
+	public abstract int compareTo(TestFitnessFunction other);
 
 	/**
 	 * Determine if there is an existing test case covering this goal
-	 *
-	 * @param tests a {@link java.util.List} object.
+	 * 
+	 * @param tests
+	 *            a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(List<TestCase> tests) {
@@ -189,9 +192,27 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	/**
-	 * <p>isCovered</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * Determine if there is an existing test case covering this goal
+	 * 
+	 * @param tests
+	 *            a {@link java.util.List} object.
+	 * @return a boolean.
+	 */
+	public boolean isCoveredByResults(List<ExecutionResult> tests) {
+		for (ExecutionResult result : tests) {
+			if (isCovered(result))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * <p>
+	 * isCovered
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestCase test) {
@@ -201,9 +222,12 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	/**
-	 * <p>isCovered</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestChromosome} object.
+	 * <p>
+	 * isCovered
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestChromosome tc) {
@@ -218,10 +242,14 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	/**
-	 * <p>isCovered</p>
-	 *
-	 * @param individual a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * <p>
+	 * isCovered
+	 * </p>
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
 	 * @return a boolean.
 	 */
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
@@ -231,6 +259,20 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 			individual.test.addCoveredGoal(this);
 		}
 		return covered;
+	}
+
+	/**
+	 * Helper function if this is used without a chromosome
+	 * 
+	 * @param result
+	 * @return
+	 */
+	public boolean isCovered(ExecutionResult result) {
+		TestChromosome chromosome = new TestChromosome();
+		chromosome.setTestCase(result.test);
+		chromosome.setLastExecutionResult(result);
+		chromosome.setChanged(false);
+		return isCovered(chromosome, result);
 	}
 
 	/* (non-Javadoc)
