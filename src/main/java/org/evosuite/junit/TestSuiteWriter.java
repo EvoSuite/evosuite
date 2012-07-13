@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -40,6 +41,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.repair.JUnit4AssertionLogAdapter;
 import org.evosuite.testcase.ExecutionResult;
@@ -433,6 +435,48 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	/**
+	 * Iterate over all coverage goals (e.g. branches) and determine which of
+	 * these are covered only by the original test case
+	 * 
+	 * @param factory
+	 */
+	private List<TestFitnessFunction> determineUniqueGoals(ExecutionResult result,
+	        List<ExecutionResult> allResults) {
+		List<TestFitnessFunction> uniqueGoals = new ArrayList<TestFitnessFunction>();
+		List<ExecutionResult> otherResults = new ArrayList<ExecutionResult>(allResults);
+		otherResults.remove(result);
+		List<TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+		for (TestFitnessFunction goal : goals) {
+			if (goal.isCovered(result)) {
+				if (!goal.isCoveredByResults(otherResults)) {
+					// This is a goal that is uniquely covered only by the target test
+					uniqueGoals.add(goal);
+				}
+			}
+		}
+		Collections.sort(uniqueGoals);
+		return uniqueGoals;
+	}
+
+	/**
+	 * Iterate over all coverage goals (e.g. branches) and determine which of
+	 * these are covered only by the original test case
+	 * 
+	 * @param factory
+	 */
+	private List<TestFitnessFunction> determineCoveredGoals(ExecutionResult result) {
+		List<TestFitnessFunction> coveredGoals = new ArrayList<TestFitnessFunction>();
+		List<TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+		for (TestFitnessFunction goal : goals) {
+			if (goal.isCovered(result)) {
+				coveredGoals.add(goal);
+			}
+		}
+		Collections.sort(coveredGoals);
+		return coveredGoals;
+	}
+
+	/**
 	 * Create JUnit file for given class name
 	 * 
 	 * @param name
@@ -445,10 +489,45 @@ public class TestSuiteWriter implements Opcodes {
 			results.add(runTest(testCases.get(i)));
 		}
 
+		final Map<TestCase, List<TestFitnessFunction>> goals = new HashMap<TestCase, List<TestFitnessFunction>>();
+		for (int i = 0; i < testCases.size(); i++) {
+			List<TestFitnessFunction> coveredGoals = determineUniqueGoals(results.get(i),
+			                                                              results);
+			if (coveredGoals.isEmpty())
+				coveredGoals = determineCoveredGoals(results.get(i));
+
+			goals.put(testCases.get(i), coveredGoals);
+		}
+
+		List<Integer> testOrder = new ArrayList<Integer>();
+		for (int i = 0; i < testCases.size(); i++) {
+			testOrder.add(i);
+		}
+		Collections.sort(testOrder, new Comparator<Integer>() {
+
+			@Override
+			public int compare(Integer i, Integer j) {
+				TestCase test1 = testCases.get(i);
+				TestCase test2 = testCases.get(j);
+				List<TestFitnessFunction> goals1 = goals.get(test1);
+				List<TestFitnessFunction> goals2 = goals.get(test2);
+
+				for (int k = 0; k < Math.min(goals1.size(), goals2.size()); k++) {
+					int val = goals1.get(goals1.size() - k - 1).compareTo(goals2.get(goals2.size()
+					                                                              - k - 1));
+					//int val = goals1.get(k).compareTo(goals2.get(k));
+					if (val != 0)
+						return val;
+				}
+				return goals1.size() - goals2.size();
+			}
+
+		});
+
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results));
-		for (int i = 0; i < testCases.size(); i++) {
+		for (Integer i : testOrder) {
 			builder.append(testToString(i, results.get(i)));
 		}
 		builder.append(getFooter());

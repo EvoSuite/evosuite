@@ -33,10 +33,11 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
-
 /**
- * <p>Abstract MutationTestFitness class.</p>
- *
+ * <p>
+ * Abstract MutationTestFitness class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public abstract class MutationTestFitness extends TestFitnessFunction {
@@ -50,9 +51,12 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	protected final int diameter;
 
 	/**
-	 * <p>Constructor for MutationTestFitness.</p>
-	 *
-	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * <p>
+	 * Constructor for MutationTestFitness.
+	 * </p>
+	 * 
+	 * @param mutation
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
@@ -63,8 +67,10 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	}
 
 	/**
-	 * <p>Getter for the field <code>mutation</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>mutation</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public Mutation getMutation() {
@@ -78,10 +84,14 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	}
 
 	/**
-	 * <p>runTest</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param mutant a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * <p>
+	 * runTest
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param mutant
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	public static ExecutionResult runTest(TestCase test, Mutation mutant) {
@@ -119,9 +129,12 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	}
 
 	/**
-	 * <p>getExecutionDistance</p>
-	 *
-	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * <p>
+	 * getExecutionDistance
+	 * </p>
+	 * 
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
 	 * @return a double.
 	 */
 	protected double getExecutionDistance(ExecutionResult result) {
@@ -175,5 +188,16 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	@Override
 	public String toString() {
 		return mutation.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#compareTo(org.evosuite.testcase.TestFitnessFunction)
+	 */
+	@Override
+	public int compareTo(TestFitnessFunction other) {
+		if (other instanceof MutationTestFitness) {
+			return mutation.compareTo(((MutationTestFitness) other).getMutation());
+		}
+		return 0;
 	}
 }

@@ -27,7 +27,6 @@ import org.evosuite.testcase.MethodCall;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
-
 /**
  * Evaluate fitness of a single test case with respect to a single LCSAJ
  */
@@ -41,11 +40,16 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	private double approach;
 
 	/**
-	 * <p>Constructor for LCSAJCoverageTestFitness.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param lcsaj a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
+	 * <p>
+	 * Constructor for LCSAJCoverageTestFitness.
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param lcsaj
+	 *            a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
 	 */
 	public LCSAJCoverageTestFitness(String className, String methodName, LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
@@ -53,9 +57,12 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	/**
-	 * <p>Constructor for LCSAJCoverageTestFitness.</p>
-	 *
-	 * @param lcsaj a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
+	 * <p>
+	 * Constructor for LCSAJCoverageTestFitness.
+	 * </p>
+	 * 
+	 * @param lcsaj
+	 *            a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
 	 */
 	public LCSAJCoverageTestFitness(LCSAJ lcsaj) {
 		this.lcsaj = lcsaj;
@@ -185,9 +192,22 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 		return lcsaj.toString();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#compareTo(org.evosuite.testcase.TestFitnessFunction)
+	 */
+	@Override
+	public int compareTo(TestFitnessFunction other) {
+		if (other instanceof LCSAJCoverageTestFitness) {
+			return lcsaj.compareTo(((LCSAJCoverageTestFitness) other).getLcsaj());
+		}
+		return 0;
+	}
+
 	/**
-	 * <p>Getter for the field <code>lcsaj</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>lcsaj</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
 	 */
 	public LCSAJ getLcsaj() {
