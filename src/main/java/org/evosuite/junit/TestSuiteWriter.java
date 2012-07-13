@@ -527,8 +527,9 @@ public class TestSuiteWriter implements Opcodes {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results));
+		int num = 0;
 		for (Integer i : testOrder) {
-			builder.append(testToString(i, results.get(i)));
+			builder.append(testToString(num++, i, results.get(i)));
 		}
 		builder.append(getFooter());
 
@@ -551,7 +552,7 @@ public class TestSuiteWriter implements Opcodes {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name + "_" + testId, results));
-		builder.append(testToString(testId, results.get(0)));
+		builder.append(testToString(testId, testId, results.get(0)));
 		builder.append(getFooter());
 
 		return builder.toString();
@@ -566,14 +567,14 @@ public class TestSuiteWriter implements Opcodes {
 	 * @param result
 	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
-	protected String testToString(int id, ExecutionResult result) {
+	protected String testToString(int number, int id, ExecutionResult result) {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
 		builder.append("   //");
 		builder.append(getInformation(id));
 		builder.append("\n");
-		builder.append(adapter.getMethodDefinition("test" + id));
+		builder.append(adapter.getMethodDefinition("test" + number));
 		Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
 		if (!exceptions.isEmpty()) {
 			builder.append("throws ");
