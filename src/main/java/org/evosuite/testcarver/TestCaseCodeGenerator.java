@@ -5,18 +5,15 @@ import gnu.trove.map.hash.TIntObjectHashMap;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Map;
 
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.FieldReference;
-import org.evosuite.testcase.FieldStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.PrimitiveStatement;
@@ -29,7 +26,7 @@ import org.evosuite.testcase.VariableReferenceImpl;
 import de.unisb.cs.st.testcarver.capture.CaptureLog;
 import de.unisb.cs.st.testcarver.capture.CaptureUtil;
 
-
+@Deprecated
 public class TestCaseCodeGenerator 
 {
 	private final CaptureLog log;
