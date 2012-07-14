@@ -277,7 +277,6 @@ public class BytecodeInstrumentation {
 						logger.debug("test carving instrumentation result:\n{}", sw);
 					}
 
-					
 					return cw.toByteArray();
 				}
 			}

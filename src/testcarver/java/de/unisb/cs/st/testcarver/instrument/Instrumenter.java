@@ -101,6 +101,59 @@ public final class Instrumenter
 	}
 	
 	
+	private void addFieldRegistryRegisterCall(final MethodNode methodNode)
+	{
+		AbstractInsnNode ins = null;
+		ListIterator<AbstractInsnNode> iter = methodNode.instructions.iterator();
+		
+		int numInvokeSpecials = 0; // number of invokespecial calls before actual constructor call
+		
+		while(iter.hasNext())
+		{
+			ins = iter.next();
+			
+			if(ins instanceof MethodInsnNode)
+			{
+				MethodInsnNode mins = (MethodInsnNode) ins;
+				if(ins.getOpcode()== Opcodes.INVOKESPECIAL)
+				{
+					if(mins.name.startsWith("<init>"))
+					{
+						if(numInvokeSpecials == 0)
+						{
+							break;
+						}
+						else
+						{
+							numInvokeSpecials--;
+						}
+					}
+				}
+			}
+			else if (ins instanceof TypeInsnNode)
+			{
+				TypeInsnNode typeIns = (TypeInsnNode) ins;
+				if(typeIns.getOpcode() == Opcodes.NEW || typeIns.getOpcode() == Opcodes.NEWARRAY)
+				{
+					numInvokeSpecials++;
+				}
+			}
+		}
+		
+		
+		final InsnList instructions = new InsnList();
+		
+		instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+		instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
+								  "de/unisb/cs/st/testcarver/capture/FieldRegistry", 
+								  "register", 
+								  "(Ljava/lang/Object;)V"));
+
+		
+		
+		 methodNode.instructions.insert(ins, instructions);
+	}
+	
 	@SuppressWarnings("unchecked")
 	public void transformClassNode(ClassNode cn, final String internalClassName)
 	{
@@ -126,6 +179,11 @@ public final class Instrumenter
 		{
 			methodNode = methodIter.next();
 		
+			if(methodNode.name.equals("<init>"))
+			{
+				this.addFieldRegistryRegisterCall(methodNode);
+			}
+			
 			// consider only public methods which are not abstract or native
 			if( ! TransformerUtil.isPrivate(methodNode.access)  &&
 				! TransformerUtil.isAbstract(methodNode.access) &&
@@ -136,58 +194,6 @@ public final class Instrumenter
 				this.instrumentGETXXXFieldAccesses(cn, internalClassName, methodNode);
 				
 				this.instrumentMethod(cn, internalClassName, methodNode, wrappedMethods);
-			}
-			else if(methodNode.name.equals("<init>"))
-			{
-				AbstractInsnNode ins = null;
-				ListIterator<AbstractInsnNode> iter = methodNode.instructions.iterator();
-				
-				int numInvokeSpecials = 0; // number of invokespecial calls before actual constructor call
-				
-				while(iter.hasNext())
-				{
-					ins = iter.next();
-					
-					if(ins instanceof MethodInsnNode)
-					{
-						MethodInsnNode mins = (MethodInsnNode) ins;
-						if(ins.getOpcode()== Opcodes.INVOKESPECIAL)
-						{
-							if(mins.name.startsWith("<init>"))
-							{
-								if(numInvokeSpecials == 0)
-								{
-									break;
-								}
-								else
-								{
-									numInvokeSpecials--;
-								}
-							}
-						}
-					}
-					else if (ins instanceof TypeInsnNode)
-					{
-						TypeInsnNode typeIns = (TypeInsnNode) ins;
-						if(typeIns.getOpcode() == Opcodes.NEW || typeIns.getOpcode() == Opcodes.NEWARRAY)
-						{
-							numInvokeSpecials++;
-						}
-					}
-				}
-				
-				
-				final InsnList instructions = new InsnList();
-				
-				instructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-				instructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-										  "de/unisb/cs/st/testcarver/capture/FieldRegistry", 
-										  "register", 
-										  "(Ljava/lang/Object;)V"));
-
-				
-				
-				 methodNode.instructions.insert(ins, instructions);
 			}
 		}
 		
@@ -545,17 +551,17 @@ public final class Instrumenter
 			}
 
 			// TODO first if unnecessary?
-			if(wrappingMethodNode.name.equals("<init>"))
-			{
-				if(! TransformerUtil.isAbstract(classNode.access))
-				{
-					wInstructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
-					wInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
-											  "de/unisb/cs/st/testcarver/capture/FieldRegistry", 
-											  "register", 
-											  "(Ljava/lang/Object;)V"));
-				}
-			}
+//			if(wrappingMethodNode.name.equals("<init>"))
+//			{
+//				if(! TransformerUtil.isAbstract(classNode.access))
+//				{
+//					wInstructions.add(new VarInsnNode(Opcodes.ALOAD, 0));
+//					wInstructions.add(new MethodInsnNode(Opcodes.INVOKESTATIC, 
+//											  "de/unisb/cs/st/testcarver/capture/FieldRegistry", 
+//											  "register", 
+//											  "(Ljava/lang/Object;)V"));
+//				}
+//			}
 			
 			
 			

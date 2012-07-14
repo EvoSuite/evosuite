@@ -61,7 +61,7 @@ public final class CaptureUtil
 		
 		try 
 		{
-			return Class.forName(type.getClassName());
+			return Class.forName(type.getInternalName().replace('/', '.'));
 		} 
 		catch (final ClassNotFoundException e) 
 		{
