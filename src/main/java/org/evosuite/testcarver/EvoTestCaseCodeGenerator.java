@@ -380,48 +380,61 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase>
 	}
 	
 	
-	private final Class<?> getClassForName(final String type)
+	
+	
+	
+	private final Class<?> getClassForName(String type)
 	{
 		try 
 		{
-			if(type.equals("Boolean"))
+			if( type.equals("boolean"))
 			{
 				return Boolean.TYPE;
 			}
-			else if(type.equals("Byte"))
+			else if(type.equals("byte"))
 			{
 				return Byte.TYPE;
 			}
-			else if(type.equals("Character"))
+			else if( type.equals("char"))
 			{
 				return Character.TYPE;
 			}
-			else if(type.equals("Double"))
+			else if( type.equals("double"))
 			{
 				return Double.TYPE;
 			}
-			else if(type.equals("Float"))
+			else if(type.equals("float"))
 			{
 				return Float.TYPE;
 			}
-			else if(type.equals("Integer"))
+			else if(type.equals("int"))
 			{
 				return Integer.TYPE;
 			}
-			else if(type.equals("Long"))
+			else if( type.equals("long"))
 			{
 				return Long.TYPE;
 			}
-			else if(type.equals("Short"))
+			else if(type.equals("short"))
 			{
 				return Short.TYPE;
 			}
-			else if(type.equals("String"))
+			else if(type.equals("String") ||type.equals("Boolean") ||type.equals("Boolean") || type.equals("Short") ||type.equals("Long") ||
+					type.equals("Integer") || type.equals("Float") || type.equals("Double") ||type.equals("Byte") || 
+					type.equals("Character") )
 			{
-				return Class.forName("java.lang.String", true, StaticTestCluster.classLoader);
+				return Class.forName("java.lang." + type, true, StaticTestCluster.classLoader);
 			}
 		
-			return Class.forName(type, true, StaticTestCluster.classLoader);
+			if(type.endsWith("[]"))
+			{
+				type = type.replace("[]", "");
+				return Class.forName("[L" + type + ";", true, StaticTestCluster.classLoader);
+			}
+			else
+			{
+				return Class.forName(type.replace('/', '.'), true, StaticTestCluster.classLoader);
+			}
 		} 
 		catch (final ClassNotFoundException e) 
 		{
