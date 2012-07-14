@@ -123,7 +123,7 @@ public final class Capturer
 		logs.addAll( (ArrayList<CaptureLog>) xstream.fromXML(in));
 	}
 	
-	
+	synchronized
 	public static void clear()
 	{
 		currentLog = null;
@@ -134,7 +134,7 @@ public final class Capturer
 		FieldRegistry.clear();
 	}
 	
-	
+	synchronized
 	public static void startCapture()
 	{
 		LOG.info("Starting Capturer...");
@@ -150,7 +150,7 @@ public final class Capturer
 		LOG.info("Capturer has been started successfully");
 	}
 	
-	
+	synchronized
 	public static void startCapture(final String classesToBeObservedString)
 	{
 		if(classesToBeObservedString == null)
@@ -174,7 +174,7 @@ public final class Capturer
 		Capturer.startCapture(args);
 	}
 	
-	
+	synchronized
 	public static void startCapture(final List<String> classesToBeObserved)
 	{
 		LOG.info("Starting Capturer...");
@@ -205,6 +205,7 @@ public final class Capturer
 		LOG.info("Capturer has been started successfully");
 	}
 	
+	synchronized
 	public static CaptureLog stopCapture()
 	{
 		LOG.info("Stopping Capturer...");
@@ -227,13 +228,14 @@ public final class Capturer
 		return null;
 	}
 	
+	synchronized
 	public static boolean isCapturing()
 	{
 		return isCaptureStarted;
 	}
 
 	
-	
+	synchronized
 	public static void capture(final int captureId, final Object receiver, final String methodName, final String methodDesc, final Object[] methodParams)
 	{
 		if(isCaptureStarted)
@@ -241,7 +243,6 @@ public final class Capturer
 			isCaptureStarted = false;
 			if(LOG.isDebugEnabled())
 			{
-				
 				LOG.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} " + Arrays.toString(methodParams), 
 																					  new Object[]{ captureId, 
 																					 System.identityHashCode(receiver), 
@@ -250,13 +251,20 @@ public final class Capturer
 																					 methodDesc});				
 				
 			}
-			
 			currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
 			isCaptureStarted = true;
 		}
 	}
 	
 	
+	@SuppressWarnings("unchecked")
+	synchronized
+	public static List<CaptureLog> getCaptureLogs()
+	{
+		return (List<CaptureLog>) logs.clone();
+	}
+	
+	synchronized
 	public static void enable(final int captureId, final Object receiver, final Object returnValue)
 	{
 		if(isCaptureStarted)

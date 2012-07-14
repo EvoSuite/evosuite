@@ -168,16 +168,16 @@ public final class CaptureLog implements Cloneable
 			if(receiver instanceof Class) //this can only happen, if there is a static method call 
 			{
 				final Class<?> c = (Class<?>) receiver;
-				this.oidClassNames.add(c.getName());
+				this.oidClassNames.add(c.getName());//.replaceFirst("\\$\\d+$", ""));
 			}
 			else if(this.isPlain(receiver))
 			{
 				// we don't need fully qualified name for plain types
-				this.oidClassNames.add(receiver.getClass().getSimpleName());
+				this.oidClassNames.add(receiver.getClass().getSimpleName());//.replaceFirst("\\$\\d+$", ""));
 			}
 			else
 			{
-				this.oidClassNames.add(receiver.getClass().getName());
+				this.oidClassNames.add(receiver.getClass().getName());//.replaceFirst("\\$\\d+$", ""));
 			}
 			
 			

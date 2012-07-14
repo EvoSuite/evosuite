@@ -7,6 +7,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 
@@ -43,6 +44,7 @@ import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
+import org.evosuite.testcase.StaticTestCluster;
 
 
 public class CodeGenerator 
@@ -197,30 +199,32 @@ public class CodeGenerator
 		
 		int captureId = -1;
 		
-		// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
-		for(int currentRecord = this.log.oidRecMapping.get(currentOID); currentRecord < numLogRecords; currentRecord++)
+		try
 		{
-			currentOID = this.log.objectIds.getQuick(currentRecord);
-				
-			if(targetOIDs.contains(currentOID))
+			// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
+			for(int currentRecord = this.log.oidRecMapping.get(currentOID); currentRecord < numLogRecords; currentRecord++)
 			{
-				this.restorceCodeFromLastPosTo(packageName, currentOID, currentRecord, postprocessing, ast, block);
+				currentOID = this.log.objectIds.getQuick(currentRecord);
 
-				// forward to end of method call sequence
-				captureId = this.log.captureIds.getQuick(currentRecord);
-						
-				while(! (this.log.objectIds.getQuick(currentRecord) == currentOID &&
-						 this.log.captureIds.getQuick(currentRecord) == captureId && 
-						 this.log.methodNames.get(currentRecord).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
+				if(targetOIDs.contains(currentOID))
 				{
-					currentRecord++;
+					this.restorceCodeFromLastPosTo(packageName, currentOID, currentRecord, postprocessing, ast, block);
+
+					// forward to end of method call sequence
+					currentRecord = findEndOfMethod(currentRecord, currentOID);
+					
+					// each method call is considered as object state modification -> so save last object modification
+					this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID), currentRecord);
 				}
-				
-				// each method call is considered as object state modification -> so save last object modification
-				this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID), currentRecord);
-			}
-		}		
-		
+			}		
+			
+		}
+		catch(Exception e)
+		{
+			System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n"+this.log);
+			throw new RuntimeException(e.getMessage(), e);
+		}
+
 		
 		if(this.isXStreamNeeded)
 		{
@@ -277,6 +281,31 @@ public class CodeGenerator
 	}
 	
 	
+    private void updateInitRec(final int currentOID, final int currentRecord)
+    {
+    	final int infoRec = this.log.oidRecMapping.get(currentOID); 
+    	if(currentRecord > this.log.oidInitRecNo.getQuick(infoRec))
+    	{
+    		this.log.oidInitRecNo.setQuick(infoRec, currentRecord);
+    	}
+    }
+	
+    
+    private int findEndOfMethod(final int currentRecord, final int currentOID)
+    {
+    	int record = currentRecord;
+		
+    	final int captureId = this.log.captureIds.getQuick(currentRecord);
+		while(! (this.log.objectIds.getQuick(record) == currentOID &&
+				 this.log.captureIds.getQuick(record) == captureId && 
+				 this.log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
+		{
+			record++;
+		}
+		
+		return record;
+    }
+	
 	@SuppressWarnings("unchecked")
 	private void restorceCodeFromLastPosTo(final String packageName, final int oid, final int end, final boolean postprocessing, final AST ast, final Block block)
 	{
@@ -297,11 +326,8 @@ public class CodeGenerator
    		    currentRecord = -currentRecord;
 		}
 		
-		
 		String methodName;
 		int    currentOID;
-		int    captureId;
-		
 		Object[] methodArgs;
 		Integer  methodArgOID;
 		
@@ -323,30 +349,18 @@ public class CodeGenerator
 					PostProcessor.notifyRecentlyProcessedLogRecNo(currentRecord);
 					this.createPlainInitStmt(currentRecord, block, ast);
 					
-					this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID), currentRecord);
 					
-					// TODO: NOT NICE!!! DO IT ALSO FOR PLAIN AND NOT OBSERVED INIT to be consistent
- 				    captureId = this.log.captureIds.getQuick(currentRecord);
-					while(! (this.log.objectIds.getQuick(currentRecord) == currentOID &&
-							 this.log.captureIds.getQuick(currentRecord) == captureId && 
-							 this.log.methodNames.get(currentRecord).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
-					{
-						currentRecord++;
-					}
+					
+					currentRecord = findEndOfMethod(currentRecord, currentOID);
+					
+					this.updateInitRec(currentOID, currentRecord);
 				}
 				else if(CaptureLog.NOT_OBSERVED_INIT.equals(methodName)) // e.g. Person var = (Person) XSTREAM.fromXML("<xml/>");
 				{
 					PostProcessor.notifyRecentlyProcessedLogRecNo(currentRecord);
 					this.createUnobservedInitStmt(currentRecord, block, ast);
 					
-					// TODO: NOT NICE!!! DO IT ALSO FOR PLAIN AND NOT OBSERVED INIT to be consistent
- 				    captureId = this.log.captureIds.getQuick(currentRecord);
-					while(! (this.log.objectIds.getQuick(currentRecord) == currentOID &&
-							 this.log.captureIds.getQuick(currentRecord) == captureId && 
-							 this.log.methodNames.get(currentRecord).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
-					{
-						currentRecord++;
-					}
+					currentRecord = findEndOfMethod(currentRecord, currentOID);
 				}
 				else if(CaptureLog.PUTFIELD.equals(methodName) || CaptureLog.PUTSTATIC.equals(methodName) || // field write access such as p.id = id or Person.staticVar = "something"
 						CaptureLog.GETFIELD.equals(methodName) || CaptureLog.GETSTATIC.equals(methodName))   // field READ access such as "int a =  p.id" or "String var = Person.staticVar"
@@ -371,23 +385,16 @@ public class CodeGenerator
 					}
 					
 					
-					// TODO: NOT NICE!!! DO IT ALSO FOR PLAIN AND NOT OBSERVED INIT to be consistent
- 				    captureId = this.log.captureIds.getQuick(currentRecord);
-					while(! (this.log.objectIds.getQuick(currentRecord) == currentOID &&
-							 this.log.captureIds.getQuick(currentRecord) == captureId && 
-							 this.log.methodNames.get(currentRecord).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
-					{
-						currentRecord++;
-					}
+					currentRecord = findEndOfMethod(currentRecord, currentOID);
 					
 					if(CaptureLog.GETFIELD.equals(methodName) || CaptureLog.GETSTATIC.equals(methodName))
 					{
 						// GETFIELD and GETSTATIC should only happen, if we obtain an instance whose creation has not been observed
-						this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID), currentRecord);
+						this.updateInitRec(currentOID, currentRecord);
 						
 						if(returnValue != -1)
 						{
-							this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(returnValue), currentRecord);
+							this.updateInitRec(returnValue, currentRecord);
 						}
 					}
 				}
@@ -411,25 +418,17 @@ public class CodeGenerator
 					
 					// forward to end of method call sequence
 					
-					captureId = this.log.captureIds.getQuick(currentRecord);
-					
-					while(! (this.log.objectIds.getQuick(currentRecord) == currentOID &&
-							 this.log.captureIds.getQuick(currentRecord) == captureId && 
-							 this.log.methodNames.get(currentRecord).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
-					{
-						currentRecord++;
-					}
+					currentRecord = findEndOfMethod(currentRecord, currentOID);
 					
 					// each method call is considered as object state modification -> so save last object modification
-					this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID), currentRecord);
+					this.updateInitRec(currentOID, currentRecord);
 					
-
 					if(returnValue != -1)
 					{
 						// if returnValue has not type VOID, mark current log record as record where the return value instance was created
 						// --> if an object is created within an observed method, it would not be semantically correct
 						//     (and impossible to handle properly) to create an extra instance of the return value type outside this method
-						this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(returnValue), currentRecord);
+						this.updateInitRec(returnValue, currentRecord);
 					}
 					
 					
@@ -440,7 +439,7 @@ public class CodeGenerator
 						methodArgOID = (Integer) methodArgs[i];
 						if(methodArgOID != null && methodArgOID != oid) 
 						{
-							this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(methodArgOID), currentRecord);
+							this.updateInitRec(methodArgOID, currentRecord);
 						}
 					}
 				}
@@ -777,16 +776,18 @@ public class CodeGenerator
 		final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
 		for(int i = 0; i < methodParamTypes.length; i++)
 		{
-			methodParamTypeClasses[i] = getClassFromType(methodParamTypes[i]);
+			methodParamTypeClasses[i] = getClassForName(methodParamTypes[i].getClassName());
 		}
 		
 		final String  typeName  = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
-		Class<?> type;
-		try {
-			type = Class.forName(typeName);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		Class<?> type = getClassForName(typeName);
+		
+//		Class<?> type;
+//		try {
+//			type = Class.forName(typeName);
+//		} catch (ClassNotFoundException e) {
+//			throw new RuntimeException(e);
+//		}
 		
 		final boolean haveSamePackage = type.getPackage().getName().equals(packageName); // TODO might be nicer...
 		
@@ -821,6 +822,14 @@ public class CodeGenerator
 			vd.setInitializer(ast.newNullLiteral());
 			methodBlock.statements().add(stmt);	
 			
+			try
+			{
+				this.getConstructorModifiers(type,methodParamTypeClasses);
+			}
+			catch(Exception e)
+			{
+				e.printStackTrace();
+			}
 			
 			final int     constructorTypeModifiers = this.getConstructorModifiers(type,methodParamTypeClasses);
 			final boolean isPublic                 = java.lang.reflect.Modifier.isPublic(constructorTypeModifiers);
@@ -1150,12 +1159,12 @@ public class CodeGenerator
 		final String  fieldName = this.log.namesOfAccessedFields.get(captureId);
 		final String  typeName  = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
 		
-		Class<?> type;
-		try {
-			type = Class.forName(typeName);
-		} catch (ClassNotFoundException e) {
-			throw new RuntimeException(e);
-		}
+		Class<?> type = getClassForName(typeName);
+//		try {
+//			type = Class.forName(typeName);
+//		} catch (ClassNotFoundException e) {
+//			throw new RuntimeException(e);
+//		}
 		
 		final int     fieldTypeModifiers       = this.getFieldModifiers(type, fieldName);
 		final boolean isPublic                 = java.lang.reflect.Modifier.isPublic(fieldTypeModifiers);
@@ -1268,12 +1277,12 @@ public class CodeGenerator
 			final String  fieldName       = this.log.namesOfAccessedFields.get(captureId);
 			final String  receiverVarName = this.oidToVarMapping.get(oid);
 			
-			Class<?> type;
-			try {
-				type = Class.forName(typeName);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+			final Class<?> type = getClassForName(typeName);
+//			try {
+//				type = Class.forName(typeName);
+//			} catch (ClassNotFoundException e) {
+//				throw new RuntimeException(e);
+//			}
 			
 			final int     fieldTypeModifiers       = this.getFieldModifiers(type, fieldName);
 			final boolean isPublic                 = java.lang.reflect.Modifier.isPublic(fieldTypeModifiers);
@@ -1851,45 +1860,147 @@ public class CodeGenerator
 	
 	
 	
-	private final Class<?> getClassFromType(final org.objectweb.asm.Type type)
+//	private final Class<?> getClassFromType(final org.objectweb.asm.Type type)
+//	{
+//		
+//		if(type.equals(org.objectweb.asm.Type.BOOLEAN_TYPE))
+//		{
+//			return Boolean.TYPE;
+//		}
+//		else if(type.equals(org.objectweb.asm.Type.BYTE_TYPE))
+//		{
+//			return Byte.TYPE;
+//		}
+//		else if(type.equals(org.objectweb.asm.Type.CHAR_TYPE))
+//		{
+//			return Character.TYPE;
+//		}
+//		else if(type.equals(org.objectweb.asm.Type.DOUBLE_TYPE))
+//		{
+//			return Double.TYPE;
+//		}
+//		else if(type.equals(org.objectweb.asm.Type.FLOAT_TYPE))
+//		{
+//			return Float.TYPE;
+//		}
+//		else if(type.equals(org.objectweb.asm.Type.INT_TYPE))
+//		{
+//			return Integer.TYPE;
+//		}
+//		else if(type.equals(org.objectweb.asm.Type.LONG_TYPE))
+//		{
+//			return Long.TYPE;
+//		}
+//		else if(type.equals(org.objectweb.asm.Type.SHORT_TYPE))
+//		{
+//			return Short.TYPE;
+//		}
+//		else if(type.getSort() == org.objectweb.asm.Type.ARRAY)
+//		{
+//			final org.objectweb.asm.Type elementType = type.getElementType();
+//			
+//			if(elementType.equals(org.objectweb.asm.Type.BOOLEAN_TYPE))
+//			{
+//				return boolean[].class;
+//			}
+//			else if(elementType.equals(org.objectweb.asm.Type.BYTE_TYPE))
+//			{
+//				return byte[].class;
+//			}
+//			else if(elementType.equals(org.objectweb.asm.Type.CHAR_TYPE))
+//			{
+//				return char[].class;
+//			}
+//			else if(elementType.equals(org.objectweb.asm.Type.DOUBLE_TYPE))
+//			{
+//				return double[].class;
+//			}
+//			else if(elementType.equals(org.objectweb.asm.Type.FLOAT_TYPE))
+//			{
+//				return float[].class;
+//			}
+//			else if(elementType.equals(org.objectweb.asm.Type.INT_TYPE))
+//			{
+//				return int[].class;
+//			}
+//			else if(elementType.equals(org.objectweb.asm.Type.LONG_TYPE))
+//			{
+//				return long[].class;
+//			}
+//			else if(elementType.equals(org.objectweb.asm.Type.SHORT_TYPE))
+//			{
+//				return short[].class;
+//			}
+//		}
+//		
+//		try 
+//		{
+//			return Class.forName(type.getClassName(), true, StaticTestCluster.classLoader);
+//		} 
+//		catch (final ClassNotFoundException e) 
+//		{
+//			throw new RuntimeException(e);
+//		}
+//	}
+	
+	private final Class<?> getClassForName(String type)
 	{
-		
-		if(type.equals(org.objectweb.asm.Type.BOOLEAN_TYPE))
-		{
-			return Boolean.TYPE;
-		}
-		else if(type.equals(org.objectweb.asm.Type.BYTE_TYPE))
-		{
-			return Byte.TYPE;
-		}
-		else if(type.equals(org.objectweb.asm.Type.CHAR_TYPE))
-		{
-			return Character.TYPE;
-		}
-		else if(type.equals(org.objectweb.asm.Type.DOUBLE_TYPE))
-		{
-			return Double.TYPE;
-		}
-		else if(type.equals(org.objectweb.asm.Type.FLOAT_TYPE))
-		{
-			return Float.TYPE;
-		}
-		else if(type.equals(org.objectweb.asm.Type.INT_TYPE))
-		{
-			return Integer.TYPE;
-		}
-		else if(type.equals(org.objectweb.asm.Type.LONG_TYPE))
-		{
-			return Long.TYPE;
-		}
-		else if(type.equals(org.objectweb.asm.Type.SHORT_TYPE))
-		{
-			return Short.TYPE;
-		}
-		
 		try 
 		{
-			return Class.forName(type.getClassName());
+			if( type.equals("boolean"))
+			{
+				return Boolean.TYPE;
+			}
+			else if(type.equals("byte"))
+			{
+				return Byte.TYPE;
+			}
+			else if( type.equals("char"))
+			{
+				return Character.TYPE;
+			}
+			else if( type.equals("double"))
+			{
+				return Double.TYPE;
+			}
+			else if(type.equals("float"))
+			{
+				return Float.TYPE;
+			}
+			else if(type.equals("int"))
+			{
+				return Integer.TYPE;
+			}
+			else if( type.equals("long"))
+			{
+				return Long.TYPE;
+			}
+			else if(type.equals("short"))
+			{
+				return Short.TYPE;
+			}
+			else if(type.equals("String") ||type.equals("Boolean") ||type.equals("Boolean") || type.equals("Short") ||type.equals("Long") ||
+					type.equals("Integer") || type.equals("Float") || type.equals("Double") ||type.equals("Byte") || 
+					type.equals("Character") )
+			{
+				return Class.forName("java.lang." + type);
+			}
+		
+//			if(type.endsWith(";") && ! type.startsWith("["))
+//			{
+//				type = type.replaceFirst("L", "");
+//				type = type.replace(";", "");
+//			}
+			
+			if(type.endsWith("[]"))
+			{
+				type = type.replace("[]", "");
+				return Class.forName("[L" + type + ";");
+			}
+			else
+			{
+				return Class.forName(type);
+			}
 		} 
 		catch (final ClassNotFoundException e) 
 		{
@@ -1897,5 +2008,10 @@ public class CodeGenerator
 		}
 	}
 	
+	
+	public static void main(String[] args)
+	{
+		System.out.println("$2CalculatorPanel$1".replaceFirst("\\$\\d+$", ""));
+	}
 	
 }
