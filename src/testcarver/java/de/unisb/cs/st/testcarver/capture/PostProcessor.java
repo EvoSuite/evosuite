@@ -18,6 +18,10 @@ import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
 
+import de.unisb.cs.st.testcarver.codegen.CaptureLogAnalyzer;
+import de.unisb.cs.st.testcarver.codegen.CodeGenerator;
+import de.unisb.cs.st.testcarver.codegen.ICaptureLogAnalyzer;
+import de.unisb.cs.st.testcarver.codegen.JUnitCodeGenerator;
 import de.unisb.cs.st.testcarver.configuration.Configuration;
 import de.unisb.cs.st.testcarver.exception.CapturerException;
 
@@ -57,20 +61,32 @@ public final class PostProcessor
 		{
 			fout = new FileOutputStream(targetFile);
 			
-			final CodeGenerator generator = new CodeGenerator(log);
+//			final CodeGenerator generator = new CodeGenerator(log);
+			
+			final ICaptureLogAnalyzer analyzer = new CaptureLogAnalyzer();
+			final JUnitCodeGenerator codeGen = new JUnitCodeGenerator(testName, packageName);
+			
 			final String code;
 			
 			if(postprocessing)
 			{
-				code = generator.generateCodeForPostProcessing(testName, packageName, observedClasses).toString();
+				codeGen.enablePostProcessingCodeGeneration();
+				analyzer.analyze(log, codeGen, observedClasses);
+				code = codeGen.getCode().toString();
+//				code = generator.generateCodeForPostProcessing(testName, packageName, observedClasses).toString();
 			}
 			else
 			{
 				// if recent log recno is contained in failed records,
 				// remove it as the very last statement has to throw an exception, if it threw one in
 				// the original program run
-				failedRecords.remove(recentLogRecNo);
-				code = generator.generateFinalCode(testName, packageName, failedRecords, observedClasses).toString();
+				failedRecords.remove(recentLogRecNo)
+				;
+				codeGen.disablePostProcessingCodeGeneration(failedRecords);
+				analyzer.analyze(log, codeGen, observedClasses);
+				code = codeGen.getCode().toString();
+				
+//				code = generator.generateFinalCode(testName, packageName, failedRecords, observedClasses).toString();
 			}
 			
 			// TODO not nice but how can blank line be inserted with JDT?

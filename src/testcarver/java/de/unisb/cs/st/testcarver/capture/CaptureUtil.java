@@ -25,7 +25,6 @@ public final class CaptureUtil
 	public static final Class<?> getClassFromDesc(final String desc)
 	{
 		final Type type = Type.getType(desc);
-		
 		if(type.equals(Type.BOOLEAN_TYPE))
 		{
 			return Boolean.class;

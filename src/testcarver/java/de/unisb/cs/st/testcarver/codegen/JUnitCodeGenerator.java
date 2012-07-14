@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.capture;
+package de.unisb.cs.st.testcarver.codegen;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -7,8 +7,6 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -44,13 +42,17 @@ import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
-import org.evosuite.testcase.StaticTestCluster;
+
+import de.unisb.cs.st.testcarver.capture.CaptureLog;
+import de.unisb.cs.st.testcarver.capture.CaptureUtil;
+import de.unisb.cs.st.testcarver.capture.PostProcessor;
 
 
-public class CodeGenerator 
+public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 {
-	private final CaptureLog log;
 
+	
+	
 	//--- source generation
 	private final TIntObjectHashMap<String>   oidToVarMapping;
 	private final TIntObjectHashMap<Class<?>> oidToTypeMapping;
@@ -58,63 +60,24 @@ public class CodeGenerator
 	private int         varCounter;
 	private TIntHashSet failedRecords;
 	
+	private boolean postprocessing;
+	
+	
 	private boolean isNewInstanceMethodNeeded;
 	private boolean isCallMethodMethodNeeded;
 	private boolean isSetFieldMethodNeeded;
 	private boolean isGetFieldMethodNeeded;
 	private boolean isXStreamNeeded;
 	
-	public CodeGenerator(final CaptureLog log)
-	{
-		if(log == null)
-		{
-			throw new NullPointerException();
-		}
-		
-		this.log              = log.clone();
-		this.oidToVarMapping  = new TIntObjectHashMap<String>();
-		this.oidToTypeMapping = new TIntObjectHashMap<Class<?>>();
-		this.varCounter       = 0;
-		
-		
-		this.isNewInstanceMethodNeeded = false;
-		this.isCallMethodMethodNeeded  = false;
-		this.isSetFieldMethodNeeded    = false;
-		this.isGetFieldMethodNeeded    = false;
-		this.isXStreamNeeded           = false;
-	}
-
 	
+	private String cuName;
+	private String packageName;
 	
-	public CompilationUnit generateCodeForPostProcessing(final String cuName, final String packageName, final Class<?>...observedClasses)
-	{
-		return this.generateCode(cuName, packageName, true, observedClasses);
-	}
-	
-	public CompilationUnit generateFinalCode(final String cuName, final String packageName, final TIntArrayList failedRecords, final Class<?>...observedClasses)
-	{
-		if(failedRecords == null)
-		{
-			throw new NullPointerException("list of failed records must not be null");
-		}
-		
-		this.failedRecords = new TIntHashSet(failedRecords);
-		return this.generateCode(cuName, packageName, false, observedClasses);
-	}
-	
-	
-	// FIXME specifying classes here might not be needed anymore, if we only instrument observed classes...
-	@SuppressWarnings("unchecked")
-	private CompilationUnit generateCode(final String cuName, final String packageName, final boolean postprocessing, final Class<?>...observedClasses)
+	public JUnitCodeGenerator(final String cuName, final String packageName)
 	{
 		if(cuName == null || cuName.isEmpty())
 		{
 			throw new IllegalArgumentException("Illegal compilation unit name: " + cuName);
-		}
-	
-		if(observedClasses == null || observedClasses.length == 0)
-		{
-			throw new IllegalArgumentException("No observed classes specified");
 		}
 		
 		if(packageName == null)
@@ -122,32 +85,58 @@ public class CodeGenerator
 			throw new NullPointerException("package name must not be null");
 		}
 		
-		//--- 1. step: extract class names
-		final HashSet<String> observedClassNames = new HashSet<String>();
-		for(int i = 0; i < observedClasses.length; i++)
-		{
-			observedClassNames.add(observedClasses[i].getName());
-		}
-			
+		this.packageName = packageName;
+		this.cuName = cuName;
 		
-		//--- 2. step: get all oids of the instances of the observed classes
-		//    NOTE: They are implicitly sorted by INIT_REC_NO because of the natural object creation order captured by the 
-		//    instrumentation
-		final TIntArrayList targetOIDs = new TIntArrayList();
-		final int numInfoRecs = this.log.oidClassNames.size();
-		for(int i = 0; i < numInfoRecs; i++)
-		{
-			if(observedClassNames.contains(this.log.oidClassNames.get(i)))
-			{
-				targetOIDs.add(this.log.oids.getQuick(i));
-			}
-		}
-
+		this.oidToVarMapping  = new TIntObjectHashMap<String>();
+		this.oidToTypeMapping = new TIntObjectHashMap<Class<?>>();
+		this.failedRecords    = new TIntHashSet();
 		
-		//--- 3. step: init compilation unit
+		this.init();
+	}
 
-		final AST ast = AST.newAST(AST.JLS3);
-		CompilationUnit cu = ast.newCompilationUnit();
+	
+	private void init()
+	{
+		this.oidToVarMapping.clear();
+		this.oidToTypeMapping.clear();
+		this.failedRecords.clear();
+		
+		this.varCounter       = 0;
+		
+		this.postprocessing = false;
+		
+		this.isNewInstanceMethodNeeded = false;
+		this.isCallMethodMethodNeeded  = false;
+		this.isSetFieldMethodNeeded    = false;
+		this.isGetFieldMethodNeeded    = false;
+		this.isXStreamNeeded           = false;
+	}
+	
+	public void enablePostProcessingCodeGeneration()
+	{
+		this.postprocessing = true;
+	}
+	
+	public void disablePostProcessingCodeGeneration(final TIntArrayList failedRecords)
+	{
+		this.postprocessing = false;
+		this.failedRecords.addAll(failedRecords);
+	}
+	
+	
+	
+
+	private AST ast;
+	private CompilationUnit cu;
+	private Block methodBlock;
+	TypeDeclaration td;
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void before(CaptureLog log) {
+		ast = AST.newAST(AST.JLS3);
+		cu = ast.newCompilationUnit();
 
 		// package declaration
 		final PackageDeclaration p1 = ast.newPackageDeclaration();
@@ -160,7 +149,7 @@ public class CodeGenerator
 		cu.imports().add(id);
 		
 		// class declaration
-		final TypeDeclaration td = ast.newTypeDeclaration();
+		td = ast.newTypeDeclaration();
 		td.setName(ast.newSimpleName(cuName));
 		td.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 		cu.types().add(td);
@@ -183,52 +172,22 @@ public class CodeGenerator
 		md.modifiers().add(ast.newModifier(Modifier.ModifierKeyword.PUBLIC_KEYWORD));
 		td.bodyDeclarations().add(md);
 		
-		final Block block = ast.newBlock();
-		md.setBody(block);
-
-		// no invocations on objects of observed classes -> return empty but compilable CompilationUnit
-		if(targetOIDs.isEmpty())
-		{
-			return cu;
-		}
+		methodBlock = ast.newBlock();
+		md.setBody(methodBlock);
 		
-		//--- 4. step: generating code starting with OID with lowest log rec no.
+	}
 
-		final int numLogRecords = this.log.objectIds.size();
-		int currentOID = targetOIDs.getQuick(0);
-		
-		int captureId = -1;
-		
-		try
-		{
-			// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
-			for(int currentRecord = this.log.oidRecMapping.get(currentOID); currentRecord < numLogRecords; currentRecord++)
-			{
-				currentOID = this.log.objectIds.getQuick(currentRecord);
 
-				if(targetOIDs.contains(currentOID))
-				{
-					this.restorceCodeFromLastPosTo(packageName, currentOID, currentRecord, postprocessing, ast, block);
 
-					// forward to end of method call sequence
-					currentRecord = findEndOfMethod(currentRecord, currentOID);
-					
-					// each method call is considered as object state modification -> so save last object modification
-					this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID), currentRecord);
-				}
-			}		
-			
-		}
-		catch(Exception e)
-		{
-			System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n"+this.log);
-			throw new RuntimeException(e.getMessage(), e);
-		}
 
-		
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void after(CaptureLog log) 
+	{
 		if(this.isXStreamNeeded)
 		{
-			id = ast.newImportDeclaration();
+			ImportDeclaration id = ast.newImportDeclaration();
 			id.setName(ast.newName(new String[] { "com", "thoughtworks", "xstream", "XStream" }));
 			cu.imports().add(id);
 			
@@ -276,177 +235,41 @@ public class CodeGenerator
 			this.createNewInstanceMethod(td, cu, ast);
 			this.isNewInstanceMethodNeeded = false;
 		}
-		
-		return cu;
 	}
-	
-	
-    private void updateInitRec(final int currentOID, final int currentRecord)
-    {
-    	final int infoRec = this.log.oidRecMapping.get(currentOID); 
-    	if(currentRecord > this.log.oidInitRecNo.getQuick(infoRec))
-    	{
-    		this.log.oidInitRecNo.setQuick(infoRec, currentRecord);
-    	}
-    }
-	
-    
-    private int findEndOfMethod(final int currentRecord, final int currentOID)
-    {
-    	int record = currentRecord;
-		
-    	final int captureId = this.log.captureIds.getQuick(currentRecord);
-		while(! (this.log.objectIds.getQuick(record) == currentOID &&
-				 this.log.captureIds.getQuick(record) == captureId && 
-				 this.log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
-		{
-			record++;
-		}
-		
-		return record;
-    }
-	
-	@SuppressWarnings("unchecked")
-	private void restorceCodeFromLastPosTo(final String packageName, final int oid, final int end, final boolean postprocessing, final AST ast, final Block block)
+
+
+
+	@Override
+	public CompilationUnit getCode() {
+		return this.cu;
+	}
+
+
+	@Override
+	public void clear() 
 	{
-		final int oidInfoRecNo = this.log.oidRecMapping.get(oid);
-		
-		// start from last OID modification point
-		int currentRecord = this.log.oidInitRecNo.get(oidInfoRecNo);
-		if(currentRecord > 0)
-		{
-			// last modification of object happened here
-			// -> we start looking for interesting records after retrieved record
-			currentRecord++;				
-		}
-		else
-		{
-			// object new instance statement
-			// -> retrieved loc record no is included
-   		    currentRecord = -currentRecord;
-		}
-		
-		String methodName;
-		int    currentOID;
-		Object[] methodArgs;
-		Integer  methodArgOID;
-		
-		Integer returnValue;
-		Object returnValueObj;
-		
-		for(; currentRecord <= end; currentRecord++)
-		{
-			currentOID     = this.log.objectIds.getQuick(currentRecord);
-			returnValueObj = this.log.returnValues.get(currentRecord);
-			returnValue    = returnValueObj.equals(CaptureLog.RETURN_TYPE_VOID) ? -1 : (Integer) returnValueObj;
-			
-			if(oid == currentOID ||	returnValue == oid)
-			{
-				methodName = this.log.methodNames.get(currentRecord);
-				
-				if(CaptureLog.PLAIN_INIT.equals(methodName)) // e.g. String var = "Hello World";
-				{
-					PostProcessor.notifyRecentlyProcessedLogRecNo(currentRecord);
-					this.createPlainInitStmt(currentRecord, block, ast);
-					
-					
-					
-					currentRecord = findEndOfMethod(currentRecord, currentOID);
-					
-					this.updateInitRec(currentOID, currentRecord);
-				}
-				else if(CaptureLog.NOT_OBSERVED_INIT.equals(methodName)) // e.g. Person var = (Person) XSTREAM.fromXML("<xml/>");
-				{
-					PostProcessor.notifyRecentlyProcessedLogRecNo(currentRecord);
-					this.createUnobservedInitStmt(currentRecord, block, ast);
-					
-					currentRecord = findEndOfMethod(currentRecord, currentOID);
-				}
-				else if(CaptureLog.PUTFIELD.equals(methodName) || CaptureLog.PUTSTATIC.equals(methodName) || // field write access such as p.id = id or Person.staticVar = "something"
-						CaptureLog.GETFIELD.equals(methodName) || CaptureLog.GETSTATIC.equals(methodName))   // field READ access such as "int a =  p.id" or "String var = Person.staticVar"
-				{
-					
-					if(CaptureLog.PUTFIELD.equals(methodName) || CaptureLog.PUTSTATIC.equals(methodName))
-					{
-						// a field assignment has always one argument
-						methodArgs = this.log.params.get(currentRecord);
-						methodArgOID = (Integer) methodArgs[0];
-						if(methodArgOID != null && methodArgOID != oid)
-						{
-							// create history of assigned value
-							this.restorceCodeFromLastPosTo(packageName, methodArgOID, currentRecord, postprocessing, ast, block);
-						}
-
-						this.createFieldWriteAccessStmt(packageName, currentRecord, block, ast);
-					}
-					else
-					{
-						this.createFieldReadAccessStmt(packageName, currentRecord, block, ast);
-					}
-					
-					
-					currentRecord = findEndOfMethod(currentRecord, currentOID);
-					
-					if(CaptureLog.GETFIELD.equals(methodName) || CaptureLog.GETSTATIC.equals(methodName))
-					{
-						// GETFIELD and GETSTATIC should only happen, if we obtain an instance whose creation has not been observed
-						this.updateInitRec(currentOID, currentRecord);
-						
-						if(returnValue != -1)
-						{
-							this.updateInitRec(returnValue, currentRecord);
-						}
-					}
-				}
-				else // var0.call(someArg) or Person var0 = new Person()
-				{
-					methodArgs = this.log.params.get(currentRecord);
-					
-					for(int i = 0; i < methodArgs.length; i++)
-					{
-						// there can only be OIDs or null
-						methodArgOID = (Integer) methodArgs[i];
-						if(methodArgOID != null && methodArgOID != oid)
-						{
-							this.restorceCodeFromLastPosTo(packageName, methodArgOID, currentRecord, postprocessing, ast, block);
-						}
-					}
-					
-					PostProcessor.notifyRecentlyProcessedLogRecNo(currentRecord);
-					this.createMethodCallStmt(packageName, currentRecord, postprocessing, block, ast);
-					block.statements().add(ast.newEmptyStatement());
-					
-					// forward to end of method call sequence
-					
-					currentRecord = findEndOfMethod(currentRecord, currentOID);
-					
-					// each method call is considered as object state modification -> so save last object modification
-					this.updateInitRec(currentOID, currentRecord);
-					
-					if(returnValue != -1)
-					{
-						// if returnValue has not type VOID, mark current log record as record where the return value instance was created
-						// --> if an object is created within an observed method, it would not be semantically correct
-						//     (and impossible to handle properly) to create an extra instance of the return value type outside this method
-						this.updateInitRec(returnValue, currentRecord);
-					}
-					
-					
-					// consider each passed argument as being modified at the end of the method call sequence
-					for(int i = 0; i < methodArgs.length; i++)
-					{
-						// there can only be OIDs or null
-						methodArgOID = (Integer) methodArgs[i];
-						if(methodArgOID != null && methodArgOID != oid) 
-						{
-							this.updateInitRec(methodArgOID, currentRecord);
-						}
-					}
-				}
-			}
-		}
+		this.init();
 	}
+	
 
+	
+//	
+//	public CompilationUnit generateCodeForPostProcessing(final String cuName, final String packageName, final Class<?>...observedClasses)
+//	{
+//		return this.generateCode(cuName, packageName, true, observedClasses);
+//	}
+//	
+//	public CompilationUnit generateFinalCode(final String cuName, final String packageName, v, final Class<?>...observedClasses)
+//	{
+//		if(failedRecords == null)
+//		{
+//			throw new NullPointerException("list of failed records must not be null");
+//		}
+//		
+//		this.failedRecords = new TIntHashSet(failedRecords);
+//		return this.generateCode(cuName, packageName, false, observedClasses);
+//	}
+	
 	
 	
 	private String createNewVarName(final int oid, final String typeName)
@@ -762,15 +585,18 @@ public class CodeGenerator
 	
 	
 	@SuppressWarnings("unchecked")
-	private void createMethodCallStmt(final String packageName, final int logRecNo, final boolean postprocessing, final Block methodBlock, final AST ast)
+	@Override
+	public void createMethodCallStmt(CaptureLog log, int logRecNo) 
 	{
+		PostProcessor.notifyRecentlyProcessedLogRecNo(logRecNo);
+		
 		// assumption: all necessary statements are created and there is one variable for reach referenced object
-		final int      oid        = this.log.objectIds.get(logRecNo);
-		final Object[] methodArgs = this.log.params.get(logRecNo);
-		final String   methodName = this.log.methodNames.get(logRecNo);
+		final int      oid        = log.objectIds.get(logRecNo);
+		final Object[] methodArgs = log.params.get(logRecNo);
+		final String   methodName = log.methodNames.get(logRecNo);
 		
 		
-		final  String                   methodDesc       = this.log.descList.get(logRecNo);
+		final  String                   methodDesc       = log.descList.get(logRecNo);
 		final  org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
 		
 		final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
@@ -779,7 +605,7 @@ public class CodeGenerator
 			methodParamTypeClasses[i] = getClassForName(methodParamTypes[i].getClassName());
 		}
 		
-		final String  typeName  = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
+		final String  typeName  = log.oidClassNames.get(log.oidRecMapping.get(oid));
 		Class<?> type = getClassForName(typeName);
 		
 //		Class<?> type;
@@ -871,11 +697,11 @@ public class CodeGenerator
 		{
 			String returnVarName = null;
 			
-			final String desc       = this.log.descList.get(logRecNo);
+			final String desc       = log.descList.get(logRecNo);
 			final String returnType = org.objectweb.asm.Type.getReturnType(desc).getClassName();
 			
 			
-			final Object returnValue = this.log.returnValues.get(logRecNo);
+			final Object returnValue = log.returnValues.get(logRecNo);
 			if(! CaptureLog.RETURN_TYPE_VOID.equals(returnValue))
 			{
 				Integer returnValueOID = (Integer) returnValue;
@@ -933,10 +759,10 @@ public class CodeGenerator
 			{
 			    mi = ast.newMethodInvocation();
 				 
-				if( this.log.isStaticCallList.get(logRecNo)) 
+				if( log.isStaticCallList.get(logRecNo)) 
 				{
 					// can only happen, if this is a static method call (because constructor statement has been reported)
-					final String tmpType = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
+					final String tmpType = log.oidClassNames.get(log.oidRecMapping.get(oid));
 					mi.setExpression(ast.newName(tmpType.split("\\.")));
 				}
 				else
@@ -991,9 +817,6 @@ public class CodeGenerator
 		
 		if(arguments != null)
 		{
-//			final  String                   methodDesc       = this.log.descList.get(logRecNo);
-//			final  org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
-
 			Class<?> methodParamType;
 			Class<?> argType;
 			
@@ -1018,7 +841,17 @@ public class CodeGenerator
 					{
 						// we need an up-cast
 						final CastExpression cast = ast.newCastExpression();
-						cast.setType(ast.newSimpleType(ast.newName(methodParamType.getName())));
+						
+						if(methodParamType.getName().contains("."))
+						{
+							cast.setType(ast.newSimpleType(ast.newName(methodParamType.getName())));
+							
+						}
+						else
+						{
+							cast.setType(ast.newSimpleType(ast.newSimpleName(methodParamType.getName())));
+						}
+						
 						cast.setExpression(ast.newSimpleName(this.oidToVarMapping.get(arg)));
 						arguments.add(cast);
 					}
@@ -1028,11 +861,14 @@ public class CodeGenerator
 	}
 	
 	@SuppressWarnings("unchecked")
-	private void createPlainInitStmt(final int logRecNo, final Block methodBlock, final AST ast)
+	@Override
+	public void createPlainInitStmt(CaptureLog log, int logRecNo) 
 	{
+		PostProcessor.notifyRecentlyProcessedLogRecNo(logRecNo);
+		
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
-		final int    oid   = this.log.objectIds.get(logRecNo);
+		final int    oid   = log.objectIds.get(logRecNo);
 		
 		if(this.oidToVarMapping.containsKey(oid))
 		{
@@ -1040,8 +876,8 @@ public class CodeGenerator
 			return;
 		}
 		
-		final String type  = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
-		final Object value = this.log.params.get(logRecNo)[0];
+		final String type  = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final Object value = log.params.get(logRecNo)[0];
 		
 		
 		final VariableDeclarationFragment vd = ast.newVariableDeclarationFragment();
@@ -1109,13 +945,16 @@ public class CodeGenerator
 	
 	
 	@SuppressWarnings("unchecked")
-	private void createUnobservedInitStmt(final int logRecNo, final Block methodBlock, final AST ast)
+	@Override
+	public void createUnobservedInitStmt(CaptureLog log, int logRecNo) 
 	{
+		PostProcessor.notifyRecentlyProcessedLogRecNo(logRecNo);
+		
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
-		final int    oid     = this.log.objectIds.get(logRecNo);
-		final String type    = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
-		final Object value   = this.log.params.get(logRecNo)[0];
+		final int    oid     = log.objectIds.get(logRecNo);
+		final String type    = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final Object value   = log.params.get(logRecNo)[0];
 		this.isXStreamNeeded = true;
 		
 		final VariableDeclarationFragment vd = ast.newVariableDeclarationFragment();
@@ -1147,29 +986,24 @@ public class CodeGenerator
 	
 	
 	@SuppressWarnings("unchecked")
-	private void createFieldWriteAccessStmt(final String packageName, final int logRecNo, final Block methodBlock, final AST ast)
-	{
+	@Override
+	public void createFieldWriteAccessStmt(CaptureLog log, int logRecNo) {
+
 		// assumption: all necessary statements are created and there is one variable for reach referenced object
 		
-		final Object[] methodArgs = this.log.params.get(logRecNo);
-		final String   methodName = this.log.methodNames.get(logRecNo);
-		final int      oid        = this.log.objectIds.get(logRecNo);
-		final int      captureId  = this.log.captureIds.get(logRecNo);
+		final Object[] methodArgs = log.params.get(logRecNo);
+		final String   methodName = log.methodNames.get(logRecNo);
+		final int      oid        = log.objectIds.get(logRecNo);
+		final int      captureId  = log.captureIds.get(logRecNo);
 		
-		final String  fieldName = this.log.namesOfAccessedFields.get(captureId);
-		final String  typeName  = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
+		final String  fieldName = log.namesOfAccessedFields.get(captureId);
+		final String  typeName  = log.oidClassNames.get(log.oidRecMapping.get(oid));
 		
-		Class<?> type = getClassForName(typeName);
-//		try {
-//			type = Class.forName(typeName);
-//		} catch (ClassNotFoundException e) {
-//			throw new RuntimeException(e);
-//		}
-		
-		final int     fieldTypeModifiers       = this.getFieldModifiers(type, fieldName);
-		final boolean isPublic                 = java.lang.reflect.Modifier.isPublic(fieldTypeModifiers);
-		final boolean haveSamePackage          = type.getPackage().getName().equals(packageName); // TODO might be nicer...
-		final boolean isReflectionAccessNeeded = ! isPublic && ! haveSamePackage;
+		final Class<?> type                     = getClassForName(typeName);
+		final int      fieldTypeModifiers       = this.getFieldModifiers(type, fieldName);
+		final boolean  isPublic                 = java.lang.reflect.Modifier.isPublic(fieldTypeModifiers);
+		final boolean  haveSamePackage          = type.getPackage().getName().equals(packageName); // TODO might be nicer...
+		final boolean  isReflectionAccessNeeded = ! isPublic && ! haveSamePackage;
 		
 		
 		if(isReflectionAccessNeeded)
@@ -1207,8 +1041,7 @@ public class CodeGenerator
 			FieldAccess fa = ast.newFieldAccess();
 			if(CaptureLog.PUTSTATIC.equals(methodName))
 			{
-//				final String type = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
-				fa.setExpression(ast.newName(typeName));//.split("\\.")));
+				fa.setExpression(ast.newName(typeName));
 			}
 			else
 			{
@@ -1230,7 +1063,7 @@ public class CodeGenerator
 			else
 			{
 				final Class<?> argType   = this.oidToTypeMapping.get(arg);
-				final String   fieldDesc = this.log.descList.get(logRecNo);
+				final String   fieldDesc = log.descList.get(logRecNo);
 				final Class<?> fieldType = CaptureUtil.getClassFromDesc(fieldDesc);
 				
 				if(fieldType.isAssignableFrom(argType))
@@ -1252,38 +1085,29 @@ public class CodeGenerator
 		}
 	}	
 	
-	
-	
 	@SuppressWarnings("unchecked")
-	private void createFieldReadAccessStmt(final String packageName, final int logRecNo, final Block methodBlock, final AST ast)
+	@Override
+	public void createFieldReadAccessStmt(CaptureLog log, int logRecNo) 
 	{
-		// assumption: all necessary statements are created and there is one variable for reach referenced object
-		
-		final String   methodName = this.log.methodNames.get(logRecNo);
-		final int      oid        = this.log.objectIds.get(logRecNo);
-		final int      captureId  = this.log.captureIds.get(logRecNo);
+		final String   methodName = log.methodNames.get(logRecNo);
+		final int      oid        = log.objectIds.get(logRecNo);
+		final int      captureId  = log.captureIds.get(logRecNo);
 		
 		
 		
 		String returnVarName = null;
 		
-		final Object returnValue = this.log.returnValues.get(logRecNo);
+		final Object returnValue = log.returnValues.get(logRecNo);
 		if(! CaptureLog.RETURN_TYPE_VOID.equals(returnValue))
 		{
 			Integer 	  returnValueOID  = (Integer) returnValue;
-			final String  descriptor 	  = this.log.descList.get(logRecNo);
+			final String  descriptor 	  = log.descList.get(logRecNo);
 			final String  fieldTypeName   = org.objectweb.asm.Type.getType(descriptor).getClassName();
-			final String  typeName        = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
-			final String  fieldName       = this.log.namesOfAccessedFields.get(captureId);
+			final String  typeName        = log.oidClassNames.get(log.oidRecMapping.get(oid));
+			final String  fieldName       = log.namesOfAccessedFields.get(captureId);
 			final String  receiverVarName = this.oidToVarMapping.get(oid);
 			
 			final Class<?> type = getClassForName(typeName);
-//			try {
-//				type = Class.forName(typeName);
-//			} catch (ClassNotFoundException e) {
-//				throw new RuntimeException(e);
-//			}
-			
 			final int     fieldTypeModifiers       = this.getFieldModifiers(type, fieldName);
 			final boolean isPublic                 = java.lang.reflect.Modifier.isPublic(fieldTypeModifiers);
 			final boolean haveSamePackage          = type.getPackage().getName().equals(packageName); // TODO might be nicer...
@@ -1333,7 +1157,7 @@ public class CodeGenerator
 				FieldAccess fa = ast.newFieldAccess();
 				if(CaptureLog.GETSTATIC.equals(methodName))
 				{
-					final String classType = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
+					final String classType = log.oidClassNames.get(log.oidRecMapping.get(oid));
 					fa.setExpression(ast.newName(classType.split("\\.")));
 				}
 				else
@@ -1859,90 +1683,6 @@ public class CodeGenerator
 	}
 	
 	
-	
-//	private final Class<?> getClassFromType(final org.objectweb.asm.Type type)
-//	{
-//		
-//		if(type.equals(org.objectweb.asm.Type.BOOLEAN_TYPE))
-//		{
-//			return Boolean.TYPE;
-//		}
-//		else if(type.equals(org.objectweb.asm.Type.BYTE_TYPE))
-//		{
-//			return Byte.TYPE;
-//		}
-//		else if(type.equals(org.objectweb.asm.Type.CHAR_TYPE))
-//		{
-//			return Character.TYPE;
-//		}
-//		else if(type.equals(org.objectweb.asm.Type.DOUBLE_TYPE))
-//		{
-//			return Double.TYPE;
-//		}
-//		else if(type.equals(org.objectweb.asm.Type.FLOAT_TYPE))
-//		{
-//			return Float.TYPE;
-//		}
-//		else if(type.equals(org.objectweb.asm.Type.INT_TYPE))
-//		{
-//			return Integer.TYPE;
-//		}
-//		else if(type.equals(org.objectweb.asm.Type.LONG_TYPE))
-//		{
-//			return Long.TYPE;
-//		}
-//		else if(type.equals(org.objectweb.asm.Type.SHORT_TYPE))
-//		{
-//			return Short.TYPE;
-//		}
-//		else if(type.getSort() == org.objectweb.asm.Type.ARRAY)
-//		{
-//			final org.objectweb.asm.Type elementType = type.getElementType();
-//			
-//			if(elementType.equals(org.objectweb.asm.Type.BOOLEAN_TYPE))
-//			{
-//				return boolean[].class;
-//			}
-//			else if(elementType.equals(org.objectweb.asm.Type.BYTE_TYPE))
-//			{
-//				return byte[].class;
-//			}
-//			else if(elementType.equals(org.objectweb.asm.Type.CHAR_TYPE))
-//			{
-//				return char[].class;
-//			}
-//			else if(elementType.equals(org.objectweb.asm.Type.DOUBLE_TYPE))
-//			{
-//				return double[].class;
-//			}
-//			else if(elementType.equals(org.objectweb.asm.Type.FLOAT_TYPE))
-//			{
-//				return float[].class;
-//			}
-//			else if(elementType.equals(org.objectweb.asm.Type.INT_TYPE))
-//			{
-//				return int[].class;
-//			}
-//			else if(elementType.equals(org.objectweb.asm.Type.LONG_TYPE))
-//			{
-//				return long[].class;
-//			}
-//			else if(elementType.equals(org.objectweb.asm.Type.SHORT_TYPE))
-//			{
-//				return short[].class;
-//			}
-//		}
-//		
-//		try 
-//		{
-//			return Class.forName(type.getClassName(), true, StaticTestCluster.classLoader);
-//		} 
-//		catch (final ClassNotFoundException e) 
-//		{
-//			throw new RuntimeException(e);
-//		}
-//	}
-	
 	private final Class<?> getClassForName(String type)
 	{
 		try 
@@ -1986,12 +1726,6 @@ public class CodeGenerator
 				return Class.forName("java.lang." + type);
 			}
 		
-//			if(type.endsWith(";") && ! type.startsWith("["))
-//			{
-//				type = type.replaceFirst("L", "");
-//				type = type.replace(";", "");
-//			}
-			
 			if(type.endsWith("[]"))
 			{
 				type = type.replace("[]", "");
@@ -1999,7 +1733,7 @@ public class CodeGenerator
 			}
 			else
 			{
-				return Class.forName(type);
+				return Class.forName(type.replace('/', '.'));
 			}
 		} 
 		catch (final ClassNotFoundException e) 
@@ -2008,10 +1742,6 @@ public class CodeGenerator
 		}
 	}
 	
-	
-	public static void main(String[] args)
-	{
-		System.out.println("$2CalculatorPanel$1".replaceFirst("\\$\\d+$", ""));
-	}
+
 	
 }

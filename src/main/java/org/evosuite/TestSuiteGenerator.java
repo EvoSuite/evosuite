@@ -18,8 +18,6 @@
 package org.evosuite;
 
 import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Modifier;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -29,12 +27,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.vfs2.FileSystemException;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.Properties.TheReplacementFunction;
-import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.MutationAssertionGenerator;
@@ -101,14 +97,12 @@ import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
-import org.evosuite.junit.JUnitTestReader;
 import org.evosuite.junit.TestSuiteWriter;
-import org.evosuite.ma.parser.TestParser;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
+import org.evosuite.testcarver.EvoTestCaseCodeGenerator;
 import org.evosuite.testcarver.TestCarvingExecutionObserver;
-import org.evosuite.testcarver.TestCaseCodeGenerator;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
@@ -151,9 +145,7 @@ import sun.misc.Signal;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 import de.unisb.cs.st.testcarver.capture.CaptureLog;
 import de.unisb.cs.st.testcarver.capture.Capturer;
-import de.unisb.cs.st.testcarver.capture.CodeGenerator;
-import de.unisb.cs.st.testcarver.capture.FieldRegistry;
-import gnu.trove.list.array.TIntArrayList;
+import de.unisb.cs.st.testcarver.codegen.CaptureLogAnalyzer;
 
 /**
  * Main entry point
@@ -161,7 +153,6 @@ import gnu.trove.list.array.TIntArrayList;
  * @author Gordon Fraser
  * 
  */
-@SuppressWarnings("restriction")
 public class TestSuiteGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
@@ -441,8 +432,12 @@ public class TestSuiteGenerator {
 		
 		// variables needed in loop
 		CaptureLog              log;
-		TestCaseCodeGenerator   codeGen;
 		TestCase                carvedTestCase;
+		
+		
+		final CaptureLogAnalyzer       analyzer = new CaptureLogAnalyzer();
+		final EvoTestCaseCodeGenerator codeGen  = new EvoTestCaseCodeGenerator();
+		
 		for(TestCase t : testsToBeCarved)
 		{
 			// collect all accessed classes ( = classes to be observed)
@@ -485,9 +480,11 @@ public class TestSuiteGenerator {
 			logger.debug("Evosuite Test:\n{}", t);
 			
 			// generate carved test with the currently captured log and allAccessedlasses as classes to be observed
-			codeGen        = new TestCaseCodeGenerator(log);
-			carvedTestCase = codeGen.generateCode(allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
-
+			
+			analyzer.analyze(log, codeGen, allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
+			carvedTestCase = codeGen.getCode();
+			codeGen.clear();
+			
 			logger.debug("Carved Test:\n{}", carvedTestCase);
 			result.add(carvedTestCase);
 			
