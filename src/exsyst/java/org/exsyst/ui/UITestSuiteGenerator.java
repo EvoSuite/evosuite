@@ -4,7 +4,6 @@ import java.io.*;
 import java.lang.reflect.Method;
 import java.security.Permission;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -20,37 +19,26 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SelectionFunction;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.testcarver.TestCarvingEvoUtil;
 import org.evosuite.testcarver.TestCarvingExecutionObserver;
 import org.evosuite.testcase.ExecutableChromosome;
-import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCluster;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.SimpleCondition;
 import org.slf4j.Logger;
 import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
-import org.uispec4j.Window;
-import org.uispec4j.interception.handlers.InterceptionHandler;
-import org.uispec4j.interception.toolkit.UISpecDisplay;
 
 import sun.awt.AWTAutoShutdown;
 import org.exsyst.ui.genetics.*;
-import org.exsyst.ui.model.DescriptorBoundUIAction;
-import org.exsyst.ui.model.states.AbstractUIState;
 import org.exsyst.ui.model.states.UIStateGraph;
 import org.exsyst.ui.run.RandomWalkUIController;
-import org.exsyst.ui.run.UIEnvironment;
 import org.exsyst.ui.run.UIRunner;
 import org.exsyst.ui.util.ReplayUITestHelper;
 
 import de.unisb.cs.st.testcarver.capture.CaptureLog;
 import de.unisb.cs.st.testcarver.capture.Capturer;
-import de.unisb.cs.st.testcarver.capture.CodeGenerator;
 import de.unisb.cs.st.testcarver.capture.PostProcessor;
 
 public class UITestSuiteGenerator {
