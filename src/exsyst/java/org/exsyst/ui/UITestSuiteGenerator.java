@@ -5,7 +5,6 @@ import java.lang.reflect.Method;
 import java.security.Permission;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.swing.SwingUtilities;
@@ -412,60 +411,51 @@ public class UITestSuiteGenerator {
 	
 	private void carveTests(List<UITestChromosome> testsToBeCarved)
 	{
-		final List<CaptureLog> logs = this.executeAndCapture(testsToBeCarved);
-		final Logger            logger             = LoggingUtils.getEvoLogger();
+		final List<CaptureLog> logs   = this.executeAndCapture(testsToBeCarved);
+		final Logger           logger = LoggingUtils.getEvoLogger();
 		
-		final HashSet<Class<?>> allAccessedClasses = new HashSet<Class<?>>();
-
-		final ArrayList<String>     packages        = new ArrayList<String>();
-		final ArrayList<Class<?>[]> observedClasses = new ArrayList<Class<?>[]>();
-		
-		final ArrayList<CaptureLog> logsToBeDeleted = new ArrayList<CaptureLog>();
+		final HashSet<Class<?>>     allAccessedClasses = new HashSet<Class<?>>();
+		final ArrayList<String>     packages           = new ArrayList<String>();
+		final ArrayList<Class<?>[]> observedClasses    = new ArrayList<Class<?>[]>();
+		final ArrayList<CaptureLog> logsToBeDeleted    = new ArrayList<CaptureLog>();
 		
 		CaptureLog log;
 		
 		final int numLogs = logs.size();
 		for(int i = 0; i < numLogs; i++)
 		{
-			log     = logs.get(i);
-			
-			// remove all classes representing primitive types
-			Class<?> c;
-			final Iterator<Class<?>> iter = allAccessedClasses.iterator();
-			while(iter.hasNext())
-			{
-				c = iter.next();
-				if(c.isPrimitive())
-				{
-					iter.remove();
-				}
-			}
+			log = logs.get(i);
 			
 			for(String className : log.oidClassNames)
 			{
 				if(className.startsWith(Properties.TARGET_CLASS_PREFIX) && ! className.contains("$"))
 				{
-					try {
+					try 
+					{
 						allAccessedClasses.add(Class.forName(className));
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+					} 
+					catch (final ClassNotFoundException e) 
+					{
+						logger.warn("an error occurred while resolving target class {} -> ignored", className, e);
 					}
 				}
 			}
 			
-			try {
+			try 
+			{
 				allAccessedClasses.remove(Class.forName(((MainTrigger)this.mainMethodTrigger).getMainClass().getName()));
-			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} 
+			catch (final ClassNotFoundException e) 
+			{
+				logger.warn("an error occurred while resolving main class", e);
+				logsToBeDeleted.add(log);
+				continue;
 			}
 				
 			if(allAccessedClasses.isEmpty())
 			{
 				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed", testsToBeCarved.get(i));
 				logsToBeDeleted.add(log);
-				Capturer.clear();
 				continue;
 			}
 			
@@ -478,13 +468,8 @@ public class UITestSuiteGenerator {
 		
 		try 
 		{
-			logger.info("start postprocessing captured data");
-			System.out.println("LOGS: " + logs.size() );
-			System.out.println("ACC CLASS: " + observedClasses);
 			PostProcessor.init();
 			PostProcessor.process(logs, packages, observedClasses);
-			logger.info("end postprocessing captured data");
-			
 		} 
 		catch (final Exception e) 
 		{
