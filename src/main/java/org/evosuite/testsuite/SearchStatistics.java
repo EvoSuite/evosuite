@@ -32,6 +32,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
@@ -469,6 +470,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
 		entry.covered_branchless_methods = coveredBranchlessMethods;
+		BranchCoverageSuiteFitness f = new BranchCoverageSuiteFitness();
+
 		//System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
@@ -574,13 +577,13 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)
+		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchCountForMemberClasses(Properties.TARGET_CLASS)
 		        : BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
 
-		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
+		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchlessMethodsMemberClasses(Properties.TARGET_CLASS).size()
 		        : BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
 
-		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS)
+		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsMemberClasses(Properties.TARGET_CLASS)
 		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
 		// TODO in order for this to work even when the criterion is neither
