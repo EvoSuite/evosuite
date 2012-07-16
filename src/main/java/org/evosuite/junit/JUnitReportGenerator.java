@@ -16,8 +16,10 @@ import org.evosuite.utils.ReportGenerator;
 import org.evosuite.utils.Utils;
 
 /**
- * <p>JUnitReportGenerator class.</p>
- *
+ * <p>
+ * JUnitReportGenerator class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class JUnitReportGenerator extends ReportGenerator {
@@ -27,13 +29,20 @@ public class JUnitReportGenerator extends ReportGenerator {
 	private final List<Class<?>> classes;
 
 	/**
-	 * <p>Constructor for JUnitReportGenerator.</p>
-	 *
-	 * @param coveredGoals a int.
-	 * @param totalGoals a int.
-	 * @param coverage a {@link java.util.Set} object.
-	 * @param classes a {@link java.util.List} object.
-	 * @param startTime a long.
+	 * <p>
+	 * Constructor for JUnitReportGenerator.
+	 * </p>
+	 * 
+	 * @param coveredGoals
+	 *            a int.
+	 * @param totalGoals
+	 *            a int.
+	 * @param coverage
+	 *            a {@link java.util.Set} object.
+	 * @param classes
+	 *            a {@link java.util.List} object.
+	 * @param startTime
+	 *            a long.
 	 */
 	public JUnitReportGenerator(int coveredGoals, int totalGoals, Set<Integer> coverage,
 	        List<Class<?>> classes, long startTime) {
@@ -53,7 +62,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Write a file for a particular run
 	 */
 	@Override
@@ -63,12 +72,12 @@ public class JUnitReportGenerator extends ReportGenerator {
 		writeHTMLHeader(sb, run.className);
 
 		sb.append("<div id=\"header\"><div id=\"logo\">");
-		sb.append("<h1>");
+		sb.append("<h2>");
 		sb.append(run.className);
 		sb.append(": ");
 		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
-		sb.append("</h1></div></div>\n");
+		sb.append("</h2></div></div>\n");
 		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		// writeResultTable(sb, run);
@@ -165,9 +174,12 @@ public class JUnitReportGenerator extends ReportGenerator {
 	}
 
 	/**
-	 * <p>main</p>
-	 *
-	 * @param args an array of {@link java.lang.String} objects.
+	 * <p>
+	 * main
+	 * </p>
+	 * 
+	 * @param args
+	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
