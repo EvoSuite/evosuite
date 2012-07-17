@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,10 +36,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
-
 /**
  * Statement assigning a primitive numeric value
- *
+ * 
  * @author Gordon Fraser
  * @param <T>
  */
@@ -56,12 +55,18 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	T value;
 
 	/**
-	 * <p>Constructor for PrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param value a T object.
-	 * @param <T> a T object.
+	 * <p>
+	 * Constructor for PrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param varRef
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param value
+	 *            a T object.
+	 * @param <T>
+	 *            a T object.
 	 */
 	public PrimitiveStatement(TestCase tc, VariableReference varRef, T value) {
 		super(tc, varRef);
@@ -70,10 +75,13 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Constructor
-	 *
-	 * @param value a T object.
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * 
+	 * @param value
+	 *            a T object.
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	public PrimitiveStatement(TestCase tc, Type type, T value) {
 		super(tc, new VariableReferenceImpl(tc, type));
@@ -82,7 +90,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Access the value
-	 *
+	 * 
 	 * @return a T object.
 	 */
 	public T getValue() {
@@ -91,8 +99,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Set the value
-	 *
-	 * @param val a T object.
+	 * 
+	 * @param val
+	 *            a T object.
 	 */
 	public void setValue(T val) {
 		this.value = val;
@@ -101,16 +110,18 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/**
 	 * Generate a primitive statement for given type initialized with default
 	 * value (0)
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param clazz
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Type clazz) {
 		// TODO This kills the benefit of inheritance. 
 		// Let each class implement the clone method instead
-		
+
 		PrimitiveStatement<?> statement;
 
 		if (clazz == boolean.class) {
@@ -146,11 +157,15 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Create random primitive statement
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param position a int.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param position
+	 *            a int.
 	 * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
 	public static PrimitiveStatement<?> getRandomStatement(TestCase tc, Type type,
@@ -243,8 +258,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/**
 	 * Push the value on the stack
-	 *
-	 * @param mg a {@link org.objectweb.asm.commons.GeneratorAdapter} object.
+	 * 
+	 * @param mg
+	 *            a {@link org.objectweb.asm.commons.GeneratorAdapter} object.
 	 */
 	protected abstract void pushBytecode(GeneratorAdapter mg);
 
@@ -259,6 +275,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
+
+		pushBytecode(mg);
 		if (value != null) {
 			Class<?> clazz = value.getClass();
 			if (!clazz.equals(retval.getVariableClass())) {
@@ -266,7 +284,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 				        org.objectweb.asm.Type.getType(retval.getVariableClass()));
 			}
 		}
-		pushBytecode(mg);
 		retval.storeBytecode(mg, locals);
 	}
 
