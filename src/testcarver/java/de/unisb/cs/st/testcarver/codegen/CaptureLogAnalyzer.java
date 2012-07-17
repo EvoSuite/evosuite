@@ -1,6 +1,8 @@
 package de.unisb.cs.st.testcarver.codegen;
 
 import gnu.trove.list.array.TIntArrayList;
+
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 
 import de.unisb.cs.st.testcarver.capture.CaptureLog;
@@ -79,12 +81,15 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
     
     private int findEndOfMethod(final CaptureLog log, final int currentRecord, final int currentOID)
     {
+    	final int numRecords = log.objectIds.size();
+    	
     	int record = currentRecord;
-		
+    	
     	final int captureId = log.captureIds.getQuick(currentRecord);
 		while(! (log.objectIds.getQuick(record) == currentOID &&
 				 log.captureIds.getQuick(record) == captureId && 
-				 log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
+				 log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD))
+				&& record < numRecords)
 		{
 			record++;
 		}

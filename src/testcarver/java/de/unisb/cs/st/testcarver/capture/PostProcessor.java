@@ -172,6 +172,10 @@ public final class PostProcessor
 			for(int j = 0; j < classes.length; j++)
 			{
 				testClassNameBuilder.append(classes[j].getSimpleName());
+				if(testClassNameBuilder.length() >= 50)
+				{
+					break;
+				}
 			}
 			testClassNameBuilder.append("CarvedTest");
 			
@@ -208,7 +212,7 @@ public final class PostProcessor
 			
 			if(! wasCompilationSuccess)
 			{
-				System.err.println("Compilen lief nitt...für " + targetFile);
+				System.err.println("Compilation was not not successful for " + targetFile);
 				fileManager.close();
 				continue;
 			}
