@@ -291,10 +291,6 @@ public class ConcolicExecution {
 	        PrimitiveStatement<?> statement) {
 		//Class<?> clazz = statement.getReturnValue().getVariableClass();
 		Class<?> clazz = statement.getValue().getClass();
-		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
-			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
-		}
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) statement.getValue()).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
@@ -315,6 +311,11 @@ public class ConcolicExecution {
 			mg.push(((String) statement.getValue()));
 		} else
 			logger.error("Found primitive of unknown type: " + clazz.getName());
+		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
+			mg.cast(org.objectweb.asm.Type.getType(clazz),
+			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
+		}
+
 	}
 
 	/**
