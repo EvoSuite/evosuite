@@ -24,15 +24,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>RandomSearch class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class RandomSearch extends GeneticAlgorithm {
 
 	private static Logger logger = LoggerFactory.getLogger(RandomSearch.class);
 
 	/**
-	 * @param factory
+	 * <p>Constructor for RandomSearch.</p>
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public RandomSearch(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
@@ -43,6 +46,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.GeneticAlgorithm#evolve()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
 		Chromosome newChromosome = chromosomeFactory.getChromosome();
@@ -58,6 +62,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.GeneticAlgorithm#initializePopulation()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void initializePopulation() {
 		generateRandomPopulation(1);
@@ -67,6 +72,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.GeneticAlgorithm#generateSolution()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void generateSolution() {
 		notifySearchStarted();

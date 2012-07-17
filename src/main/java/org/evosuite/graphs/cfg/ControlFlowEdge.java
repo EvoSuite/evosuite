@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,13 +15,13 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.cfg;
 
 import org.evosuite.coverage.branch.Branch;
 import org.jgrapht.graph.DefaultEdge;
-
-
 public class ControlFlowEdge extends DefaultEdge {
 
 	private static final long serialVersionUID = -5009449930477928101L;
@@ -28,15 +29,29 @@ public class ControlFlowEdge extends DefaultEdge {
 	private ControlDependency cd;
 	private boolean isExceptionEdge;
 
+	/**
+	 * <p>Constructor for ControlFlowEdge.</p>
+	 */
 	public ControlFlowEdge() {
 		this.cd = null;
 		this.isExceptionEdge = false;
 	}
 
+	/**
+	 * <p>Constructor for ControlFlowEdge.</p>
+	 *
+	 * @param isExceptionEdge a boolean.
+	 */
 	public ControlFlowEdge(boolean isExceptionEdge) {
 		this.isExceptionEdge = isExceptionEdge;
 	}
 	
+	/**
+	 * <p>Constructor for ControlFlowEdge.</p>
+	 *
+	 * @param cd a {@link org.evosuite.graphs.cfg.ControlDependency} object.
+	 * @param isExceptionEdge a boolean.
+	 */
 	public ControlFlowEdge(ControlDependency cd, boolean isExceptionEdge) {
 		this.cd = cd;
 		this.isExceptionEdge = isExceptionEdge;
@@ -45,6 +60,8 @@ public class ControlFlowEdge extends DefaultEdge {
 
 	/**
 	 * Sort of a copy constructor
+	 *
+	 * @param clone a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
 	 */
 	public ControlFlowEdge(ControlFlowEdge clone) {
 		if(clone != null) {
@@ -53,14 +70,29 @@ public class ControlFlowEdge extends DefaultEdge {
 		}
 	}
 
+	/**
+	 * <p>getControlDependency</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.ControlDependency} object.
+	 */
 	public ControlDependency getControlDependency() {
 		return cd;
 	}
 
+	/**
+	 * <p>hasControlDependency</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean hasControlDependency() {
 		return cd != null;
 	}
 	
+	/**
+	 * <p>getBranchInstruction</p>
+	 *
+	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
+	 */
 	public Branch getBranchInstruction() {
 		if(cd == null)
 			return null;
@@ -68,10 +100,20 @@ public class ControlFlowEdge extends DefaultEdge {
 		return cd.getBranch();
 	}
 	
+	/**
+	 * <p>isExceptionEdge</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isExceptionEdge() {
 		return isExceptionEdge;
 	}
 
+	/**
+	 * <p>getBranchExpressionValue</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean getBranchExpressionValue() {
 		if(hasControlDependency())
 			return cd.getBranchExpressionValue();
@@ -107,6 +149,7 @@ public class ControlFlowEdge extends DefaultEdge {
 //		return true;
 //	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		String r = "";

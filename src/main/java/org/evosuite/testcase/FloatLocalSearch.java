@@ -29,8 +29,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>FloatLocalSearch class.</p>
+ *
  * @author fraser
- * 
  */
 public class FloatLocalSearch<T extends Number> implements LocalSearch {
 
@@ -41,6 +42,7 @@ public class FloatLocalSearch<T extends Number> implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doSearch(TestChromosome test, int statement,

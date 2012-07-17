@@ -29,13 +29,32 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * <p>
  * Create an instance of the {@link #Editor} class if {@code iterCount} reach the
  * predefined ({@link Properties#MA_MAX_ITERATIONS}) value.
- * 
+ *
  * @see Properties#MA_ACTIVE
  * @see Properties#MA_BRANCHES_CALC
  * @see Properties#MA_TARGET_COVERAGE
  * @see Properties#MA_WIDE_GUI
  * @see Properties#MA_MIN_DELTA_COVERAGE
- * 
+ * @see Properties#MA_ACTIVE
+ * @see Properties#MA_BRANCHES_CALC
+ * @see Properties#MA_TARGET_COVERAGE
+ * @see Properties#MA_WIDE_GUI
+ * @see Properties#MA_MIN_DELTA_COVERAGE
+ * @see Properties#MA_ACTIVE
+ * @see Properties#MA_BRANCHES_CALC
+ * @see Properties#MA_TARGET_COVERAGE
+ * @see Properties#MA_WIDE_GUI
+ * @see Properties#MA_MIN_DELTA_COVERAGE
+ * @see Properties#MA_ACTIVE
+ * @see Properties#MA_BRANCHES_CALC
+ * @see Properties#MA_TARGET_COVERAGE
+ * @see Properties#MA_WIDE_GUI
+ * @see Properties#MA_MIN_DELTA_COVERAGE
+ * @see Properties#MA_ACTIVE
+ * @see Properties#MA_BRANCHES_CALC
+ * @see Properties#MA_TARGET_COVERAGE
+ * @see Properties#MA_WIDE_GUI
+ * @see Properties#MA_MIN_DELTA_COVERAGE
  * @author Yury Pavlov
  */
 public class Connector {
@@ -49,7 +68,7 @@ public class Connector {
 	/**
 	 * Call this function in the {@link GeneticAlgorithm} after each population to check, when we must
 	 * start the manual editor.
-	 * 
+	 *
 	 * @param ga - {@link GeneticAlgorithm}
 	 */
 	public static void externalCall(GeneticAlgorithm ga) {

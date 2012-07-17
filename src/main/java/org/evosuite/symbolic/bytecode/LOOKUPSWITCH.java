@@ -30,23 +30,34 @@ import gov.nasa.jpf.jvm.bytecode.Instruction;
 
 /**
  * Access jump table by key match and jump ..., key => ...
+ *
+ * @author Gordon Fraser
  */
 public class LOOKUPSWITCH extends gov.nasa.jpf.jvm.bytecode.LOOKUPSWITCH {
 
+	/**
+	 * <p>Constructor for LOOKUPSWITCH.</p>
+	 *
+	 * @param defaultTarget a int.
+	 * @param numberOfTargets a int.
+	 */
 	protected LOOKUPSWITCH(int defaultTarget, int numberOfTargets) {
 		super(defaultTarget, numberOfTargets);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getByteCode() {
 		return 0xAB;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getLength() {
 		return 10 + 2 * matches.length; // <2do> NOT RIGHT: padding!!
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Instruction execute(SystemState ss, KernelState ks, ThreadInfo ti) {

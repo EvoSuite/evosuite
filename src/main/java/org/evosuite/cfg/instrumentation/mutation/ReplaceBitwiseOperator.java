@@ -41,8 +41,9 @@ import org.objectweb.asm.tree.analysis.Frame;
 
 
 /**
+ * <p>ReplaceBitwiseOperator class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ReplaceBitwiseOperator implements MutationOperator {
 
@@ -73,6 +74,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
@@ -139,6 +141,13 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		throw new RuntimeException("Unknown opcode: " + opcode);
 	}
 
+	/**
+	 * <p>getInfectionDistance</p>
+	 *
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
 		InsnList distance = new InsnList();
 
@@ -189,6 +198,15 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		return distance;
 	}
 
+	/**
+	 * <p>getInfectionDistanceInt</p>
+	 *
+	 * @param x a int.
+	 * @param y a int.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistanceInt(int x, int y, int opcodeOrig,
 	        int opcodeNew) {
 		if (opcodeOrig == Opcodes.ISHR && opcodeNew == Opcodes.IUSHR) {
@@ -207,6 +225,15 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		return origValue == newValue ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>getInfectionDistanceLong</p>
+	 *
+	 * @param x a long.
+	 * @param y a int.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistanceLong(long x, int y, int opcodeOrig,
 	        int opcodeNew) {
 		if (opcodeOrig == Opcodes.LSHR && opcodeNew == Opcodes.LUSHR) {
@@ -224,6 +251,15 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		return origValue == newValue ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>getInfectionDistanceLong</p>
+	 *
+	 * @param x a long.
+	 * @param y a long.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistanceLong(long x, long y, int opcodeOrig,
 	        int opcodeNew) {
 
@@ -232,6 +268,14 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		return origValue == newValue ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>calculate</p>
+	 *
+	 * @param x a int.
+	 * @param y a int.
+	 * @param opcode a int.
+	 * @return a int.
+	 */
 	public static int calculate(int x, int y, int opcode) {
 		switch (opcode) {
 		case Opcodes.IAND:
@@ -250,6 +294,14 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 		throw new RuntimeException("Unknown integer opcode: " + opcode);
 	}
 
+	/**
+	 * <p>calculate</p>
+	 *
+	 * @param x a long.
+	 * @param y a long.
+	 * @param opcode a int.
+	 * @return a long.
+	 */
 	public static long calculate(long x, long y, int opcode) {
 		switch (opcode) {
 		case Opcodes.LAND:
@@ -271,6 +323,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
 		AbstractInsnNode node = instruction.getASMNode();

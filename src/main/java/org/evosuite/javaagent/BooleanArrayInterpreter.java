@@ -32,23 +32,31 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>BooleanArrayInterpreter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class BooleanArrayInterpreter extends BasicInterpreter {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(BooleanArrayInterpreter.class);
 
+	/** Constant <code>BYTE</code> */
 	public final static BasicValue BYTE = new BasicValue(null);
 
+	/** Constant <code>BOOLEAN</code> */
 	public final static BasicValue BOOLEAN = new BasicValue(null);
 
+	/** Constant <code>BOOLEAN_ARRAY</code> */
 	public final static BasicValue BOOLEAN_ARRAY = new BasicValue(null);
 
+	/** Constant <code>BYTE_ARRAY</code> */
 	public final static BasicValue BYTE_ARRAY = new BasicValue(null);
 
+	/** Constant <code>INT_ARRAY</code> */
 	public final static BasicValue INT_ARRAY = new BasicValue(null);
 
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue newValue(Type type) {
 		if (type == null) {
@@ -153,6 +161,7 @@ public class BooleanArrayInterpreter extends BasicInterpreter {
 		}
 		*/
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("rawtypes")
 	@Override
 	public BasicValue naryOperation(AbstractInsnNode insn, List values)

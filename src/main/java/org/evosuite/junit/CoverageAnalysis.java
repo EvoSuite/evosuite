@@ -40,8 +40,9 @@ import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
 
 /**
+ * <p>CoverageAnalysis class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class CoverageAnalysis {
 
@@ -50,8 +51,6 @@ public class CoverageAnalysis {
 	/**
 	 * Identify all JUnit tests starting with the given name prefix, instrument
 	 * and run tests
-	 * 
-	 * @param target
 	 */
 	public static void analyzeCoverage() {
 		TestCluster.getInstance();
@@ -120,9 +119,10 @@ public class CoverageAnalysis {
 
 	/**
 	 * Analyze all classes that can be found in a given directory
-	 * 
-	 * @param directory
-	 * @throws ClassNotFoundException
+	 *
+	 * @param directory a {@link java.io.File} object.
+	 * @throws ClassNotFoundException if any.
+	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Class<?>> getClasses(File directory) {
 		if (directory.getName().endsWith(".class")) {
@@ -198,6 +198,12 @@ public class CoverageAnalysis {
 		}
 	}
 
+	/**
+	 * <p>getClassesJar</p>
+	 *
+	 * @param file a {@link java.io.File} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public static List<Class<?>> getClassesJar(File file) {
 
 		List<Class<?>> classes = new ArrayList<Class<?>>();
@@ -340,6 +346,9 @@ public class CoverageAnalysis {
 		return false;
 	}
 
+	/**
+	 * <p>run</p>
+	 */
 	public void run() {
 
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
@@ -359,6 +368,11 @@ public class CoverageAnalysis {
 		util.informSearchIsFinished(null);
 	}
 
+	/**
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
+	 */
 	public static void main(String[] args) {
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");

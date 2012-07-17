@@ -30,8 +30,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>TestSuiteLocalSearchObjective class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
@@ -47,6 +48,13 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 
 	private double lastCoverage;
 
+	/**
+	 * <p>Constructor for TestSuiteLocalSearchObjective.</p>
+	 *
+	 * @param fitness a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * @param index a int.
+	 */
 	public TestSuiteLocalSearchObjective(TestSuiteFitnessFunction fitness,
 	        TestSuiteChromosome suite, int index) {
 		this.fitness = fitness;
@@ -69,6 +77,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasImproved(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean hasImproved(Chromosome individual) {
 		return hasChanged(individual) < 0;
@@ -77,6 +86,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasNotWorsened(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean hasNotWorsened(Chromosome individual) {
 		return hasChanged(individual) < 1;
@@ -85,6 +95,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hasChanged(Chromosome individual) {
 		individual.setChanged(true);
@@ -111,6 +122,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#getFitnessFunction()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public FitnessFunction getFitnessFunction() {
 		return fitness;

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,14 +15,16 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
-
 public class CCFGFrameEdge extends CCFGEdge {
 
 	private static final long serialVersionUID = 8223049010545407697L;
 
 	
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "";

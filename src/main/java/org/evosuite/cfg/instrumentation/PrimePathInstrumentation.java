@@ -35,16 +35,19 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>PrimePathInstrumentation class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimePathInstrumentation implements MethodInstrumentation {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(PrimePathInstrumentation.class);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb.asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String, java.lang.String, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName, int access) {
 		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
@@ -81,6 +84,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean executeOnMainMethod() {
 		// TODO Auto-generated method stub
@@ -90,6 +94,7 @@ public class PrimePathInstrumentation implements MethodInstrumentation {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean executeOnExcludedMethods() {
 		// TODO Auto-generated method stub

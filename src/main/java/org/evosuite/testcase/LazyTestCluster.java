@@ -44,8 +44,9 @@ import com.googlecode.gentyref.GenericTypeReflector;
 
 
 /**
+ * <p>LazyTestCluster class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class LazyTestCluster extends TestCluster {
 
@@ -81,6 +82,7 @@ public class LazyTestCluster extends TestCluster {
 	private LazyTestCluster() {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected void init() {
 		analyzeTarget();
@@ -88,8 +90,8 @@ public class LazyTestCluster extends TestCluster {
 
 	/**
 	 * Singleton accessor
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.LazyTestCluster} object.
 	 */
 	public static LazyTestCluster getInstance() {
 		if (instance == null)
@@ -99,11 +101,10 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return all calls for a given class. This method is called for existing
 	 * types, so we do not include constructors.
-	 * 
-	 * @param type
-	 * @return
 	 */
 	@Override
 	public List<AccessibleObject> getCallsFor(Type type) {
@@ -129,10 +130,9 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
 	 */
 	@Override
 	public List<AccessibleObject> getTestCallsWith(Type type) {
@@ -146,6 +146,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#addTestCall(java.lang.reflect.AccessibleObject)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void addTestCall(AccessibleObject call) {
 		assert (call instanceof Method);
@@ -205,10 +206,10 @@ public class LazyTestCluster extends TestCluster {
 
 	/**
 	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public AccessibleObject getRandomGenerator(Class<?> clazz)
 	        throws ConstructionFailedException {
@@ -250,11 +251,9 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	@SuppressWarnings("deprecation")
@@ -332,10 +331,9 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Get a list of all generator objects for the type
-	 * 
-	 * @param type
-	 * @return
 	 */
 	@Override
 	public boolean hasGenerator(Type type) {
@@ -343,11 +341,9 @@ public class LazyTestCluster extends TestCluster {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Get a list of all generator objects for the type
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	public Set<AccessibleObject> getGenerators(Type type)
@@ -357,10 +353,10 @@ public class LazyTestCluster extends TestCluster {
 
 	/**
 	 * Get a list of all generator objects for the type
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<AccessibleObject> getGenerators(Class<?> clazz)
 	        throws ConstructionFailedException {
@@ -372,20 +368,19 @@ public class LazyTestCluster extends TestCluster {
 
 	/**
 	 * Get a list of all generator objects for the type
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @throws ConstructionFailedException if any.
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a boolean.
 	 */
 	public boolean hasGenerator(Class<?> clazz) {
 		return generators.containsKey(clazz);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Get random method or constructor of unit under test
-	 * 
-	 * @return
-	 * @throws ConstructionFailedException
 	 */
 	@Override
 	public AccessibleObject getRandomTestCall() {
@@ -464,9 +459,9 @@ public class LazyTestCluster extends TestCluster {
 
 	/**
 	 * Analyze a class and integrate into test cluster
-	 * 
-	 * @param name
-	 * @return
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link java.lang.Class} object.
 	 */
 	public Class<?> loadClass(String name) {
 		try {
@@ -489,9 +484,8 @@ public class LazyTestCluster extends TestCluster {
 
 	/**
 	 * Analyze a class and integrate into test cluster
-	 * 
-	 * @param name
-	 * @return
+	 *
+	 * @param target a {@link java.lang.Class} object.
 	 */
 	public void loadClass(Class<?> target) {
 		//assert (target.getClassLoader() == classLoader) : "Class " + target.getName()
@@ -577,6 +571,8 @@ public class LazyTestCluster extends TestCluster {
 	 * @param target
 	 * @param generatorClass
 	 */
+	// Problem 1: Generators map does not store right target class
+	// Problem 2: Do we need to include all superclass constructors etc?
 	// Problem 1: Generators map does not store right target class
 	// Problem 2: Do we need to include all superclass constructors etc?
 	private void loadGenerators(Class<?> target, Class<?> generatorClass) {
@@ -919,8 +915,8 @@ public class LazyTestCluster extends TestCluster {
 	/**
 	 * Determine if we have generators for all parameters, and delete method if
 	 * not
-	 * 
-	 * @param m
+	 *
+	 * @param m a {@link java.lang.reflect.Method} object.
 	 */
 	public void checkDependencies(Method m) {
 		List<Class<?>> dependencies = new ArrayList<Class<?>>();
@@ -942,8 +938,8 @@ public class LazyTestCluster extends TestCluster {
 	/**
 	 * Determine if we have generators for all parameters, and delete method if
 	 * not
-	 * 
-	 * @param m
+	 *
+	 * @param c a {@link java.lang.reflect.Constructor} object.
 	 */
 	public void checkDependencies(Constructor<?> c) {
 		List<Class<?>> dependencies = new ArrayList<Class<?>>();
@@ -964,8 +960,8 @@ public class LazyTestCluster extends TestCluster {
 	/**
 	 * Determine if we have generators for all parameters, and delete method if
 	 * not
-	 * 
-	 * @param m
+	 *
+	 * @param f a {@link java.lang.reflect.Field} object.
 	 */
 	public void checkDependencies(Field f) {
 		if (!hasGenerator(f.getDeclaringClass())) {
@@ -979,6 +975,7 @@ public class LazyTestCluster extends TestCluster {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void checkDependencies(AccessibleObject o) {
 		if (o instanceof Method) {
@@ -993,6 +990,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#resetCluster()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void resetCluster() {
 		// TODO Auto-generated method stub
@@ -1002,6 +1000,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#getClass(java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Class<?> getClass(String name) throws ClassNotFoundException {
 		// TODO Auto-generated method stub
@@ -1011,6 +1010,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#importClass(java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Class<?> importClass(String name) throws ClassNotFoundException {
 		// TODO Auto-generated method stub
@@ -1020,6 +1020,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#getRandomGenerator(java.lang.reflect.Type)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getRandomGenerator(Type type)
 	        throws ConstructionFailedException {
@@ -1029,6 +1030,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#getTestCalls()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<AccessibleObject> getTestCalls() {
 		List<AccessibleObject> testCalls = new ArrayList<AccessibleObject>();
@@ -1040,6 +1042,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#getAnalyzedClasses()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getAnalyzedClasses() {
 		return analyzedClasses;
@@ -1048,6 +1051,7 @@ public class LazyTestCluster extends TestCluster {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCluster#getKnownMatchingClasses(java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Collection<Class<?>> getKnownMatchingClasses(String name) {
 		Set<Class<?>> classes = new HashSet<Class<?>>();
@@ -1058,6 +1062,12 @@ public class LazyTestCluster extends TestCluster {
 		return classes;
 	}
 
+	/**
+	 * <p>isTargetClassName</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public boolean isTargetClassName(String className) {
 		// TODO: Implement me...
 		return true;

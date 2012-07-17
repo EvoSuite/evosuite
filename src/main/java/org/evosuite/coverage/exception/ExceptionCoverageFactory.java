@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.coverage.exception;
 
@@ -22,10 +25,9 @@ import java.util.List;
 
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-
-
 public class ExceptionCoverageFactory extends AbstractFitnessFactory {
 
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		return new ArrayList<TestFitnessFunction>();

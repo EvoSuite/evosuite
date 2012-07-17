@@ -44,8 +44,9 @@ import org.objectweb.asm.tree.analysis.Frame;
 
 
 /**
+ * <p>ReplaceArithmeticOperator class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ReplaceArithmeticOperator implements MutationOperator {
 
@@ -104,6 +105,12 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		throw new RuntimeException("Unknown opcode: " + opcode);
 	}
 
+	/**
+	 * <p>getNextIndex</p>
+	 *
+	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * @return a int.
+	 */
 	@SuppressWarnings("rawtypes")
 	public static int getNextIndex(MethodNode mn) {
 		Iterator it = mn.localVariables.iterator();
@@ -168,6 +175,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
@@ -212,6 +220,13 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		return replacement;
 	}
 
+	/**
+	 * <p>getInfectionDistance</p>
+	 *
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
 		InsnList distance = new InsnList();
 
@@ -276,6 +291,15 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		}
 	}
 
+	/**
+	 * <p>getInfectionDistanceInt</p>
+	 *
+	 * @param x a int.
+	 * @param y a int.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistanceInt(int x, int y, int opcodeOrig,
 	        int opcodeNew) {
 		if (y == 0) {
@@ -286,6 +310,15 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		return origValue == newValue ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>getInfectionDistanceLong</p>
+	 *
+	 * @param x a long.
+	 * @param y a long.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistanceLong(long x, long y, int opcodeOrig,
 	        int opcodeNew) {
 		if (y == 0L) {
@@ -296,6 +329,15 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		return origValue == newValue ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>getInfectionDistanceFloat</p>
+	 *
+	 * @param x a float.
+	 * @param y a float.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistanceFloat(float x, float y, int opcodeOrig,
 	        int opcodeNew) {
 		if (y == 0.0F) {
@@ -306,6 +348,15 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		return origValue == newValue ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>getInfectionDistanceDouble</p>
+	 *
+	 * @param x a double.
+	 * @param y a double.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistanceDouble(double x, double y, int opcodeOrig,
 	        int opcodeNew) {
 		if (y == 0.0) {
@@ -316,6 +367,14 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		return origValue == newValue ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>calculate</p>
+	 *
+	 * @param x a int.
+	 * @param y a int.
+	 * @param opcode a int.
+	 * @return a int.
+	 */
 	public static int calculate(int x, int y, int opcode) {
 		switch (opcode) {
 		case Opcodes.IADD:
@@ -332,6 +391,14 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		throw new RuntimeException("Unknown integer opcode: " + opcode);
 	}
 
+	/**
+	 * <p>calculate</p>
+	 *
+	 * @param x a long.
+	 * @param y a long.
+	 * @param opcode a int.
+	 * @return a long.
+	 */
 	public static long calculate(long x, long y, int opcode) {
 		switch (opcode) {
 		case Opcodes.LADD:
@@ -348,6 +415,14 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		throw new RuntimeException("Unknown integer opcode: " + opcode);
 	}
 
+	/**
+	 * <p>calculate</p>
+	 *
+	 * @param x a float.
+	 * @param y a float.
+	 * @param opcode a int.
+	 * @return a float.
+	 */
 	public static float calculate(float x, float y, int opcode) {
 		switch (opcode) {
 		case Opcodes.FADD:
@@ -364,6 +439,14 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 		throw new RuntimeException("Unknown integer opcode: " + opcode);
 	}
 
+	/**
+	 * <p>calculate</p>
+	 *
+	 * @param x a double.
+	 * @param y a double.
+	 * @param opcode a int.
+	 * @return a double.
+	 */
 	public static double calculate(double x, double y, int opcode) {
 		switch (opcode) {
 		case Opcodes.DADD:
@@ -383,6 +466,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
 		AbstractInsnNode node = instruction.getASMNode();

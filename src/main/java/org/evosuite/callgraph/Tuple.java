@@ -16,12 +16,13 @@
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ * <p>Tuple class.</p>
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.callgraph;
 
 import java.io.Serializable;
-
 public class Tuple implements Serializable {
 	private static final long serialVersionUID = 1L;
 
@@ -29,12 +30,19 @@ public class Tuple implements Serializable {
 
 	MethodDescription end;
 
+	/**
+	 * <p>Constructor for Tuple.</p>
+	 *
+	 * @param m1 a {@link org.evosuite.callgraph.MethodDescription} object.
+	 * @param m2 a {@link org.evosuite.callgraph.MethodDescription} object.
+	 */
 	public Tuple(MethodDescription m1, MethodDescription m2) {
 		super();
 		this.start = m1;
 		this.end = m2;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -44,6 +52,7 @@ public class Tuple implements Serializable {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -66,14 +75,25 @@ public class Tuple implements Serializable {
 		return true;
 	}
 
+	/**
+	 * <p>Getter for the field <code>start</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.callgraph.MethodDescription} object.
+	 */
 	public MethodDescription getStart() {
 		return start;
 	}
 
+	/**
+	 * <p>Getter for the field <code>end</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.callgraph.MethodDescription} object.
+	 */
 	public MethodDescription getEnd() {
 		return end;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return start + " - " + end;

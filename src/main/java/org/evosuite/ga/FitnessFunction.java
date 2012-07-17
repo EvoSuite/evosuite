@@ -24,21 +24,21 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of fitness functions
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class FitnessFunction implements Serializable {
 
 	private static final long serialVersionUID = -8876797554111396910L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(FitnessFunction.class);
 
 	/**
 	 * Make sure that the individual gets to know about its fitness
-	 * 
-	 * @param individual
-	 * @param fitness
+	 *
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
+	 * @param fitness a double.
 	 */
 	protected void updateIndividual(Chromosome individual, double fitness) {
 		individual.setFitness(fitness);
@@ -47,17 +47,18 @@ public abstract class FitnessFunction implements Serializable {
 	/**
 	 * Calculate and set fitness function #TODO the 'set fitness' part should be
 	 * done by some abstract super class of all FitnessFunctions
-	 * 
-	 * @param individual
+	 *
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 * @return new fitness
 	 */
 	public abstract double getFitness(Chromosome individual);
 
 	/**
 	 * Normalize a value using Andrea's normalization function
-	 * 
-	 * @param value
-	 * @return
+	 *
+	 * @param value a double.
+	 * @return a double.
+	 * @throws java.lang.IllegalArgumentException if any.
 	 */
 	public static double normalize(double value) throws IllegalArgumentException {
 		if (value < 0d) {
@@ -68,8 +69,8 @@ public abstract class FitnessFunction implements Serializable {
 
 	/**
 	 * Do we need to maximize, or minimize this function?
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public abstract boolean isMaximizationFunction();
 }

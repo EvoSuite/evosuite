@@ -25,9 +25,8 @@ import org.evosuite.symbolic.expr.Constraint;
 
 /**
  * Interface for SMT solvers
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public interface Solver {
 	// Set<SymbolicParameter> solveConjunction(ConjunctiveCombination
@@ -35,17 +34,19 @@ public interface Solver {
 
 	/**
 	 * Get concrete values for the parameters used in the path conditions.
-	 * 
+	 *
 	 * @return A {@link Map} where the name of the parameter is the key and the
 	 *         concrete value that the solver used is the object.
+	 * @param constraints a {@link java.util.Collection} object.
 	 */
 	Map<String, Object> getModel(Collection<Constraint<?>> constraints);
 
 	/**
 	 * Determines whether the given PathConditions could be solved.
-	 * 
+	 *
 	 * @return <code>true</code> if the path conditions could be solved, and a
 	 *         concrete model is obtainable via {@link #getConcreteModel()}.
+	 * @param constraints a {@link java.util.Collection} object.
 	 */
 	boolean solve(Collection<Constraint<?>> constraints);
 }

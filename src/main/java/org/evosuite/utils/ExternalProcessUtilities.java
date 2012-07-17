@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
 
@@ -29,17 +32,25 @@ import org.slf4j.LoggerFactory;
 /*
  * this could should be used by the external process that run the test case
  */
-
 public class ExternalProcessUtilities {
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessUtilities.class);
 
 	protected Socket connection;
 	protected ObjectOutputStream out;
 	protected ObjectInputStream in;
 
+	/**
+	 * <p>Constructor for ExternalProcessUtilities.</p>
+	 */
 	public ExternalProcessUtilities() {
 	}
 
+	/**
+	 * <p>connectToMainProcess</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean connectToMainProcess() {
 
 		try {
@@ -54,6 +65,11 @@ public class ExternalProcessUtilities {
 		return true;
 	}
 
+	/**
+	 * <p>receiveInstruction</p>
+	 *
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public Object receiveInstruction() {
 		try {
 			String message = (String) in.readObject();
@@ -70,14 +86,30 @@ public class ExternalProcessUtilities {
 		throw new RuntimeException("no valid message received");
 	}
 
+	/**
+	 * <p>askForRestart</p>
+	 *
+	 * @param population_data a {@link java.lang.Object} object.
+	 */
 	public void askForRestart(Object population_data) {
 		sendFinalMessage(Messages.NEED_RESTART, population_data);
 	}
 
+	/**
+	 * <p>informSearchIsFinished</p>
+	 *
+	 * @param population_data a {@link java.lang.Object} object.
+	 */
 	public void informSearchIsFinished(Object population_data) {
 		sendFinalMessage(Messages.FINISHED_COMPUTATION, population_data);
 	}
 
+	/**
+	 * <p>sendFinalMessage</p>
+	 *
+	 * @param message a {@link java.lang.String} object.
+	 * @param population_data a {@link java.lang.Object} object.
+	 */
 	public void sendFinalMessage(String message, Object population_data) {
 		try {
 			out.writeObject(message);

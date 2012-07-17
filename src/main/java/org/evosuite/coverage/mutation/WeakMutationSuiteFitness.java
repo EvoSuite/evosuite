@@ -33,8 +33,9 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 
 
 /**
+ * <p>WeakMutationSuiteFitness class.</p>
+ *
  * @author fraser
- * 
  */
 public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 
@@ -43,6 +44,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		List<ExecutionResult> results = runTestSuite((TestSuiteChromosome) individual);

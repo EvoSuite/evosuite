@@ -21,17 +21,41 @@
 package org.evosuite.ga;
 
 /**
+ * <p>LocalSearchObjective interface.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public interface LocalSearchObjective {
 
+	/**
+	 * <p>hasImproved</p>
+	 *
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
+	 * @return a boolean.
+	 */
 	public boolean hasImproved(Chromosome individual);
 
+	/**
+	 * <p>hasNotWorsened</p>
+	 *
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
+	 * @return a boolean.
+	 */
 	public boolean hasNotWorsened(Chromosome individual);
 
+	/**
+	 * <p>hasChanged</p>
+	 *
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
+	 * @return a int.
+	 */
 	public int hasChanged(Chromosome individual);
 
+	/**
+	 * <p>getFitnessFunction</p>
+	 *
+	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
+	 */
 	public FitnessFunction getFitnessFunction();
 
 }

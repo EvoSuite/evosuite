@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>AllDefsCoverageFactory class.</p>
+ *
  * @author Andre Mis
- * 
  */
 public class AllDefsCoverageFactory extends AbstractFitnessFactory {
 
@@ -44,6 +45,7 @@ public class AllDefsCoverageFactory extends AbstractFitnessFactory {
 	 * @see
 	 * org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 

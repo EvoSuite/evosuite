@@ -27,8 +27,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>YieldAtLineNumberMethodAdapter class.</p>
+ *
  * @author fraser
- * 
  */
 public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	@SuppressWarnings("unused")
@@ -42,6 +43,13 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 
 	int currentLine = 0;
 
+	/**
+	 * <p>Constructor for YieldAtLineNumberMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 */
 	public YieldAtLineNumberMethodAdapter(MethodVisitor mv, String className,
 	        String methodName) {
 		super(Opcodes.ASM4, mv);
@@ -51,6 +59,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 			hadInvokeSpecial = true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitLineNumber(int line, Label start) {
 		super.visitLineNumber(line, start);
@@ -70,6 +79,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodAdapter#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		if (opcode == Opcodes.INVOKESPECIAL) {
@@ -82,6 +92,7 @@ public class YieldAtLineNumberMethodAdapter extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitInsn(int opcode) {
 		if (opcode == Opcodes.ATHROW) {

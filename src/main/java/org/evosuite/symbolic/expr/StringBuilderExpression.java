@@ -25,8 +25,9 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 
 
 /**
- * @author krusev
+ * <p>StringBuilderExpression class.</p>
  *
+ * @author krusev
  */
 public class StringBuilderExpression extends StringExpression {
 
@@ -36,6 +37,11 @@ public class StringBuilderExpression extends StringExpression {
 	protected boolean undef_func;
 	protected Expression<String> expr;
 
+	/**
+	 * <p>Constructor for StringBuilderExpression.</p>
+	 *
+	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public StringBuilderExpression(Expression<String> _expr) {
 		this.expr = _expr;
 		this.undef_func = false;
@@ -43,14 +49,29 @@ public class StringBuilderExpression extends StringExpression {
 			throw new ConstraintTooLongException();
 	}
 
+	/**
+	 * <p>Getter for the field <code>expr</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<String> getExpr() {
 		return expr;
 	}
 
+	/**
+	 * <p>Setter for the field <code>expr</code>.</p>
+	 *
+	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public void setExpr(Expression<String> _expr) {
 		expr = _expr;
 	}
 	
+	/**
+	 * <p>append</p>
+	 *
+	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public void append(Expression<String> _expr) {
 		if (expr == null)
 			expr = _expr;
@@ -84,19 +105,29 @@ public class StringBuilderExpression extends StringExpression {
 		}
 	}
 	
+	/**
+	 * <p>has_undef_func</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean has_undef_func() {
 		return undef_func;
 	}
 
+	/**
+	 * <p>set_undef_func</p>
+	 */
 	public void set_undef_func() {
 		undef_func = true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "StringBuilder(" + expr.toString() + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -113,6 +144,7 @@ public class StringBuilderExpression extends StringExpression {
 
 	protected int size = 0;
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		int expr_size = 0;
@@ -124,12 +156,14 @@ public class StringBuilderExpression extends StringExpression {
 		return size;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		
 		return (String) expr.getConcreteValue();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		return (String) expr.execute();

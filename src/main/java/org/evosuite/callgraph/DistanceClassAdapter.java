@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.callgraph;
 
@@ -22,13 +25,19 @@ import java.util.Set;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
-
 public class DistanceClassAdapter extends ClassVisitor {
 
 	private String className;
 	private final ConnectionData connectionData;
 	private final Set<String> packageClasses;
 
+	/**
+	 * <p>Constructor for DistanceClassAdapter.</p>
+	 *
+	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param connectionData a {@link org.evosuite.callgraph.ConnectionData} object.
+	 * @param packageClasses a {@link java.util.Set} object.
+	 */
 	public DistanceClassAdapter(ClassVisitor cv, ConnectionData connectionData,
 	        Set<String> packageClasses) {
 		super(Opcodes.ASM4, cv);
@@ -36,6 +45,7 @@ public class DistanceClassAdapter extends ClassVisitor {
 		this.packageClasses = packageClasses;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visit(int version, int access, String name, String signature,
 	        String superName, String[] interfaces) {
@@ -43,6 +53,7 @@ public class DistanceClassAdapter extends ClassVisitor {
 		this.className = name;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {

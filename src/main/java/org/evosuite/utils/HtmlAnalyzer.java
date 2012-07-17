@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
 
@@ -29,8 +32,6 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 public class HtmlAnalyzer implements Serializable {
 
 	private static final long serialVersionUID = -5634296119340294425L;
@@ -39,6 +40,12 @@ public class HtmlAnalyzer implements Serializable {
 
 	private Set<File> files;
 
+	/**
+	 * <p>getClassContent</p>
+	 *
+	 * @param fullClassName a {@link java.lang.String} object.
+	 * @return a {@link java.lang.Iterable} object.
+	 */
 	public Iterable<String> getClassContent(String fullClassName) {
 		if (files == null) {
 			initFiles();
@@ -62,6 +69,12 @@ public class HtmlAnalyzer implements Serializable {
 		return Arrays.asList(msg);
 	}
 
+	/**
+	 * <p>getContainingClassName</p>
+	 *
+	 * @param f a {@link java.io.File} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getContainingClassName(File f) {
 		String name = f.getAbsolutePath();
 		String sep = System.getProperty("file.separator");
@@ -70,7 +83,10 @@ public class HtmlAnalyzer implements Serializable {
 			name = name.substring(0, name.length() - 5);
 		}
 		int i = name.lastIndexOf(Properties.PROJECT_PREFIX);
-		if (i < 0) {
+		int j = name.lastIndexOf(sep);
+		if (i > j) {
+
+		} else if (i < 0) {
 			name = "";
 		} else {
 			name = name.substring(i);

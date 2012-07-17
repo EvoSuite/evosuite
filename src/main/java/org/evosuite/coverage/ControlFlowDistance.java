@@ -23,8 +23,9 @@ package org.evosuite.coverage;
 import org.evosuite.ga.FitnessFunction;
 
 /**
+ * <p>ControlFlowDistance class.</p>
+ *
  * @author Gordon Fraser, Andre Mis
- * 
  */
 public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 
@@ -44,8 +45,11 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 
 	/**
 	 * Can be used to create an arbitrary ControlFlowDistance
-	 * 
+	 *
 	 * However approachLevel and branchDistance are expected to be positive
+	 *
+	 * @param approachLevel a int.
+	 * @param branchDistance a double.
 	 */
 	public ControlFlowDistance(int approachLevel, double branchDistance) {
 		if (approachLevel < 0 || branchDistance < 0.0)
@@ -56,6 +60,7 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 		this.branchDistance = branchDistance;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int compareTo(ControlFlowDistance o) {
 		ControlFlowDistance d = o;
@@ -73,6 +78,9 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 		}
 	}
 
+	/**
+	 * <p>increaseApproachLevel</p>
+	 */
 	public void increaseApproachLevel() {
 		approachLevel++;
 		if (approachLevel < 0)
@@ -80,10 +88,20 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 			        "expect approach Level to always be positive - overflow?");
 	}
 
+	/**
+	 * <p>Getter for the field <code>approachLevel</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getApproachLevel() {
 		return approachLevel;
 	}
 
+	/**
+	 * <p>Setter for the field <code>approachLevel</code>.</p>
+	 *
+	 * @param approachLevel a int.
+	 */
 	public void setApproachLevel(int approachLevel) {
 		if (approachLevel < 0)
 			throw new IllegalArgumentException(
@@ -92,10 +110,20 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 		this.approachLevel = approachLevel;
 	}
 
+	/**
+	 * <p>Getter for the field <code>branchDistance</code>.</p>
+	 *
+	 * @return a double.
+	 */
 	public double getBranchDistance() {
 		return branchDistance;
 	}
 
+	/**
+	 * <p>Setter for the field <code>branchDistance</code>.</p>
+	 *
+	 * @param branchDistance a double.
+	 */
 	public void setBranchDistance(double branchDistance) {
 		if (branchDistance < 0.0)
 			throw new IllegalArgumentException("expect branchDistance to be positive");
@@ -103,11 +131,17 @@ public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
 		this.branchDistance = branchDistance;
 	}
 
+	/**
+	 * <p>getResultingBranchFitness</p>
+	 *
+	 * @return a double.
+	 */
 	public double getResultingBranchFitness() {
 
 		return approachLevel + FitnessFunction.normalize(branchDistance);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Approach = " + approachLevel + ", branch distance = " + branchDistance;

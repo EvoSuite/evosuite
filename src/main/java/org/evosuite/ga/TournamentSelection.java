@@ -25,15 +25,16 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Select an individual from a population as winner of a number of tournaments
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class TournamentSelection extends SelectionFunction {
 
 	private static final long serialVersionUID = -7465418404056357932L;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Perform the tournament on the population, return one index
 	 */
 	@Override

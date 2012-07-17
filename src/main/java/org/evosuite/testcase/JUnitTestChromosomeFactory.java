@@ -41,8 +41,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>JUnitTestChromosomeFactory class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
 
@@ -56,8 +57,8 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 
 	/**
 	 * Attempt to read the test case
-	 * 
-	 * @param className
+	 *
+	 * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public JUnitTestChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory) {
 		this.defaultFactory = defaultFactory;
@@ -68,6 +69,11 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 
 	}
 
+	/**
+	 * <p>getNumTests</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getNumTests() {
 		return userTests.size();
 	}
@@ -113,6 +119,12 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 
 	}
 
+	/**
+	 * <p>getTestFiles</p>
+	 *
+	 * @param fullClassName a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<String> getTestFiles(String fullClassName) {
 		String shortClassName = Properties.getTargetClass().getSimpleName();
 		Pattern pattern1 = Pattern.compile(".*Test.*");
@@ -151,6 +163,12 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 		return testFiles;
 	}
 
+	/**
+	 * <p>getContainingClassName</p>
+	 *
+	 * @param f a {@link java.io.File} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getContainingClassName(File f) {
 		String name = f.getAbsolutePath();
 		String sep = System.getProperty("file.separator");
@@ -192,6 +210,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public TestChromosome getChromosome() {
 		int N_mutations = Properties.SEED_MUTATIONS;

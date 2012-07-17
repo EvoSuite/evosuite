@@ -35,23 +35,28 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 
 /**
  * this class is used to get help on some customization of logging facility
- * 
+ *
  * @author arcuri
- * 
  */
 public class LoggingUtils {
 
 	private static final Logger log = LoggerFactory.getLogger(LoggingUtils.class);
 
+	/** Constant <code>DEFAULT_OUT</code> */
 	public static final PrintStream DEFAULT_OUT = System.out;
+	/** Constant <code>DEFAULT_ERR</code> */
 	public static final PrintStream DEFAULT_ERR = System.err;
 
 	private static final String EVO_LOGGER = "evo_logger";
 
+	/** Constant <code>latestOut</code> */
 	protected static PrintStream latestOut = null;
+	/** Constant <code>latestErr</code> */
 	protected static PrintStream latestErr = null;
 
+	/** Constant <code>LOG_TARGET="log.target"</code> */
 	public static final String LOG_TARGET = "log.target";
+	/** Constant <code>LOG_LEVEL="log.level"</code> */
 	public static final String LOG_LEVEL = "log.level";
 
 	private static volatile boolean alreadyMuted = false;
@@ -61,14 +66,27 @@ public class LoggingUtils {
 	private final ExecutorService logConnections = Executors.newSingleThreadExecutor();
 	private final ExecutorService logHandler = Executors.newCachedThreadPool();
 
+	/**
+	 * <p>Constructor for LoggingUtils.</p>
+	 */
 	public LoggingUtils() {
 
 	}
 
+	/**
+	 * <p>getEvoLogger</p>
+	 *
+	 * @return a {@link org.slf4j.Logger} object.
+	 */
 	public static Logger getEvoLogger() {
 		return LoggerFactory.getLogger(EVO_LOGGER);
 	}
 
+	/**
+	 * <p>startLogServer</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean startLogServer() {
 		try {
 			serverSocket = new ServerSocket();
@@ -122,10 +140,20 @@ public class LoggingUtils {
 		}
 	}
 
+	/**
+	 * <p>isServerClosed</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isServerClosed() {
 		return serverSocket == null || serverSocket.isClosed() || !serverSocket.isBound();
 	}
 
+	/**
+	 * <p>getLogServerPort</p>
+	 *
+	 * @return a {@link java.lang.Integer} object.
+	 */
 	public Integer getLogServerPort() {
 		if (isServerClosed()) {
 			return null;
@@ -133,6 +161,9 @@ public class LoggingUtils {
 		return serverSocket.getLocalPort();
 	}
 
+	/**
+	 * <p>closeLogServer</p>
+	 */
 	public void closeLogServer() {
 		if (serverSocket != null && !serverSocket.isClosed()) {
 			try {
@@ -186,11 +217,11 @@ public class LoggingUtils {
 	 * In logback.xml we use properties like ${log.level}. But before doing any
 	 * logging, we need to be sure they have been set. If not, we put them to
 	 * default values
-	 * 
+	 *
 	 * NOTE: this functionality might be deprecated now, as one can set default
 	 * values in the log xml files by using ":-"
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public static boolean checkAndSetLogLevel() {
 

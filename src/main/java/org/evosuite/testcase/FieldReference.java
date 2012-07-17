@@ -31,8 +31,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>FieldReference class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class FieldReference extends VariableReferenceImpl {
 
@@ -45,8 +46,11 @@ public class FieldReference extends VariableReferenceImpl {
 	private VariableReference source;
 
 	/**
-	 * @param testCase
-	 * @param type
+	 * <p>Constructor for FieldReference.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field a {@link java.lang.reflect.Field} object.
+	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public FieldReference(TestCase testCase, Field field, VariableReference source) {
 		super(testCase, field.getGenericType());
@@ -63,9 +67,11 @@ public class FieldReference extends VariableReferenceImpl {
 	 * We need this constructor to work around a bug in Java Generics which
 	 * causes a java.lang.reflect.GenericSignatureFormatError when accessing
 	 * getType
-	 * 
-	 * @param testCase
-	 * @param type
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field a {@link java.lang.reflect.Field} object.
+	 * @param fieldType a {@link java.lang.reflect.Type} object.
+	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public FieldReference(TestCase testCase, Field field, Type fieldType,
 	        VariableReference source) {
@@ -80,8 +86,10 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/**
-	 * @param testCase
-	 * @param type
+	 * <p>Constructor for FieldReference.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field a {@link java.lang.reflect.Field} object.
 	 */
 	public FieldReference(TestCase testCase, Field field) {
 		super(testCase, field.getGenericType());
@@ -93,9 +101,10 @@ public class FieldReference extends VariableReferenceImpl {
 	 * We need this constructor to work around a bug in Java Generics which
 	 * causes a java.lang.reflect.GenericSignatureFormatError when accessing
 	 * getType
-	 * 
-	 * @param testCase
-	 * @param type
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param field a {@link java.lang.reflect.Field} object.
 	 */
 	public FieldReference(TestCase testCase, Field field, Type type) {
 		super(testCase, type);
@@ -105,8 +114,8 @@ public class FieldReference extends VariableReferenceImpl {
 
 	/**
 	 * Access the field
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.lang.reflect.Field} object.
 	 */
 	public Field getField() {
 		return field;
@@ -114,18 +123,17 @@ public class FieldReference extends VariableReferenceImpl {
 
 	/**
 	 * Access the source object
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getSource() {
 		return source;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return the actual object represented by this variable for a given scope
-	 * 
-	 * @param scope
-	 *            The scope of the test case execution
 	 */
 	@Override
 	public Object getObject(Scope scope) throws CodeUnderTestException {
@@ -155,12 +163,9 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Set the actual object represented by this variable in a given scope
-	 * 
-	 * @param scope
-	 *            The scope of the test case execution
-	 * @param value
-	 *            The value to be assigned
 	 */
 	@Override
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
@@ -233,6 +238,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getAdditionalVariableReference()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public VariableReference getAdditionalVariableReference() {
 		if (source != null && source.getAdditionalVariableReference() != null)
@@ -244,6 +250,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#setAdditionalVariableReference(org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setAdditionalVariableReference(VariableReference var) {
 		if (source != null
@@ -257,6 +264,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2) {
@@ -268,6 +276,7 @@ public class FieldReference extends VariableReferenceImpl {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getStPosition() {
 		for (int i = 0; i < testCase.size(); i++) {
@@ -291,9 +300,9 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return name for source code representation
-	 * 
-	 * @return
 	 */
 	@Override
 	public String getName() {
@@ -304,6 +313,8 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create a copy of the current variable
 	 */
 	@Override
@@ -327,8 +338,8 @@ public class FieldReference extends VariableReferenceImpl {
 	/**
 	 * Determine the nesting level of the field access (I.e., how many dots in
 	 * the expression)
-	 * 
-	 * @return
+	 *
+	 * @return a int.
 	 */
 	public int getDepth() {
 		int depth = 1;
@@ -341,6 +352,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -353,6 +365,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -378,6 +391,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		try {

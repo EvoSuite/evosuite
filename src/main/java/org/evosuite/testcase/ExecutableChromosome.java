@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.testcase;
 
@@ -24,8 +27,6 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationExecutionResult;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-
-
 public abstract class ExecutableChromosome extends Chromosome {
 	private static final long serialVersionUID = 1L;
 
@@ -33,38 +34,80 @@ public abstract class ExecutableChromosome extends Chromosome {
 
 	protected transient Map<Mutation, MutationExecutionResult> lastMutationResult = new HashMap<Mutation, MutationExecutionResult>();
 
+	/**
+	 * <p>Constructor for ExecutableChromosome.</p>
+	 */
 	public ExecutableChromosome() {
 		super();
 	}
 
+	/**
+	 * <p>Setter for the field <code>lastExecutionResult</code>.</p>
+	 *
+	 * @param lastExecutionResult a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
 		this.lastExecutionResult = lastExecutionResult;
 	}
 
+	/**
+	 * <p>Getter for the field <code>lastExecutionResult</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public ExecutionResult getLastExecutionResult() {
 		return lastExecutionResult;
 	}
 
+	/**
+	 * <p>Setter for the field <code>lastExecutionResult</code>.</p>
+	 *
+	 * @param lastExecutionResult a {@link org.evosuite.coverage.mutation.MutationExecutionResult} object.
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public void setLastExecutionResult(MutationExecutionResult lastExecutionResult,
 	        Mutation mutation) {
 		this.lastMutationResult.put(mutation, lastExecutionResult);
 	}
 
+	/**
+	 * <p>Getter for the field <code>lastExecutionResult</code>.</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * @return a {@link org.evosuite.coverage.mutation.MutationExecutionResult} object.
+	 */
 	public MutationExecutionResult getLastExecutionResult(Mutation mutation) {
 		return lastMutationResult.get(mutation);
 	}
 
+	/**
+	 * <p>clearCachedResults</p>
+	 */
 	public void clearCachedResults() {
 		this.lastExecutionResult = null;
 		lastMutationResult.clear();
 	}
 
+	/**
+	 * <p>clearCachedMutationResults</p>
+	 */
 	public void clearCachedMutationResults() {
 		lastMutationResult.clear();
 	}
 
+	/**
+	 * <p>copyCachedResults</p>
+	 *
+	 * @param other a {@link org.evosuite.testcase.ExecutableChromosome} object.
+	 */
 	protected abstract void copyCachedResults(ExecutableChromosome other);
 
+	/**
+	 * <p>executeForFitnessFunction</p>
+	 *
+	 * @param testSuiteFitnessFunction a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	abstract public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction);
 }

@@ -32,8 +32,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>InputVariable class.</p>
+ *
  * @author fraser
- * 
  */
 public class InputVariable implements VariableReference {
 
@@ -45,6 +46,12 @@ public class InputVariable implements VariableReference {
 	/** Type (class) of the variable */
 	protected GenericClass type;
 
+	/**
+	 * <p>Constructor for InputVariable.</p>
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @param num a int.
+	 */
 	public InputVariable(Type clazz, int num) {
 		numInput = num;
 		type = new GenericClass(clazz);
@@ -53,6 +60,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getStPosition()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int getStPosition() {
 		// TODO Auto-generated method stub
@@ -62,6 +70,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getDistance()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int getDistance() {
 		// TODO Auto-generated method stub
@@ -71,6 +80,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#setDistance(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setDistance(int distance) {
 		// TODO Auto-generated method stub
@@ -80,12 +90,15 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#clone(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public VariableReference clone(TestCase newTest) {
 		return copy(newTest, 0);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create a copy of the current variable
 	 */
 	@Override
@@ -97,12 +110,15 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#copy(org.evosuite.testcase.TestCase, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public VariableReference copy(TestCase newTest, int offset) {
 		return newTest.getStatement(getStPosition() + offset).getReturnValue();
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return class name
 	 */
 	@Override
@@ -110,17 +126,21 @@ public class InputVariable implements VariableReference {
 		return type.getClassName();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getComponentName() {
 		return type.getComponentName();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Type getComponentType() {
 		return type.getComponentType();
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if variable is an enumeration
 	 */
 	@Override
@@ -129,6 +149,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if variable is a primitive type
 	 */
 	@Override
@@ -137,6 +159,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if variable is void
 	 */
 	@Override
@@ -145,6 +169,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if variable is a string
 	 */
 	@Override
@@ -153,6 +179,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if type of variable is a primitive wrapper
 	 */
 	@Override
@@ -161,10 +189,9 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if other type can be assigned to this variable
-	 * 
-	 * @param other
-	 *            Right hand side of the assignment
 	 */
 	@Override
 	public boolean isAssignableFrom(Type other) {
@@ -172,10 +199,9 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if this variable can by assigned to a variable of other type
-	 * 
-	 * @param other
-	 *            Left hand side of the assignment
 	 */
 	@Override
 	public boolean isAssignableTo(Type other) {
@@ -183,10 +209,9 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if other type can be assigned to this variable
-	 * 
-	 * @param other
-	 *            Right hand side of the assignment
 	 */
 	@Override
 	public boolean isAssignableFrom(VariableReference other) {
@@ -194,10 +219,9 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return true if this variable can by assigned to a variable of other type
-	 * 
-	 * @param other
-	 *            Left hand side of the assignment
 	 */
 	@Override
 	public boolean isAssignableTo(VariableReference other) {
@@ -205,6 +229,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return type of this variable
 	 */
 	@Override
@@ -213,6 +239,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Set type of this variable
 	 */
 	@Override
@@ -221,6 +249,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return raw class of this variable
 	 */
 	@Override
@@ -229,6 +259,8 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return raw class of this variable's component
 	 */
 	@Override
@@ -239,6 +271,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getSimpleClassName()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getSimpleClassName() {
 		// TODO: Workaround for bug in commons lang
@@ -252,6 +285,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getGenericClass()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public GenericClass getGenericClass() {
 		return type;
@@ -260,6 +294,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getObject(org.evosuite.testcase.Scope)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Object getObject(Scope scope) throws CodeUnderTestException {
 		return scope.getObject(this);
@@ -268,6 +303,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#setObject(org.evosuite.testcase.Scope, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
 		scope.setObject(this, value);
@@ -277,6 +313,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getName()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return "input" + numInput;
@@ -285,6 +322,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getAdditionalVariableReference()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public VariableReference getAdditionalVariableReference() {
 		// TODO Auto-generated method stub
@@ -294,6 +332,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#setAdditionalVariableReference(org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setAdditionalVariableReference(VariableReference var) {
 		// TODO Auto-generated method stub
@@ -303,6 +342,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2) {
@@ -313,6 +353,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#loadBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		// TODO Auto-generated method stub
@@ -322,6 +363,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#storeBytecode(org.objectweb.asm.commons.GeneratorAdapter, java.util.Map)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		// TODO Auto-generated method stub
@@ -331,6 +373,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		// TODO Auto-generated method stub
@@ -340,6 +383,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getDefaultValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Object getDefaultValue() {
 		// TODO Auto-generated method stub
@@ -349,6 +393,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getDefaultValueString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getDefaultValueString() {
 		// TODO Auto-generated method stub
@@ -358,6 +403,7 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#compareTo(org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareTo(VariableReference other) {
 		// TODO Auto-generated method stub
@@ -367,16 +413,23 @@ public class InputVariable implements VariableReference {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#same(org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(VariableReference r) {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	/**
+	 * <p>Getter for the field <code>originalCode</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getOriginalCode() {
 		return originalCode;
 	}
 
+	/** {@inheritDoc} */
 	public void setOriginalCode(String originalCode) {
 		this.originalCode = originalCode;
 	}

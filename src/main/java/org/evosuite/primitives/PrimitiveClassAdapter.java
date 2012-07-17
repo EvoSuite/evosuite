@@ -23,8 +23,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * <p>PrimitiveClassAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimitiveClassAdapter extends ClassVisitor {
 
@@ -38,13 +39,17 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 	private final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
-	 * @param arg0
+	 * <p>Constructor for PrimitiveClassAdapter.</p>
+	 *
+	 * @param visitor a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 		//this.className = className;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
@@ -60,6 +65,7 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
 	        String signature, String[] exceptions) {

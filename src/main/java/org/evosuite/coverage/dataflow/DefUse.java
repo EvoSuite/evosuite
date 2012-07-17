@@ -23,8 +23,8 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * Abstract superclass for all Definitions and Uses 
- * 
+ * Abstract superclass for all Definitions and Uses
+ *
  * @author Andre Mis
  */
 public class DefUse extends BytecodeInstruction {
@@ -39,6 +39,15 @@ public class DefUse extends BytecodeInstruction {
 	String varName; 
 	
 	
+	/**
+	 * <p>Constructor for DefUse.</p>
+	 *
+	 * @param wrap a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param defuseId a int.
+	 * @param defId a int.
+	 * @param useId a int.
+	 * @param isParameterUse a boolean.
+	 */
 	protected DefUse(BytecodeInstruction wrap, int defuseId, int defId, int useId, boolean isParameterUse) {
 		super(wrap);
 		if(!isDefUse())
@@ -60,12 +69,15 @@ public class DefUse extends BytecodeInstruction {
 	/**
 	 *  Determines whether the given BytecodeInstruction constitutes
 	 * a Definition that can potentially become an active Definition for this DefUse
-	 * 
+	 *
 	 * in the sense that if control flow passes through the instruction
 	 * of the given Definition that Definition becomes  active for this DefUse's variable
-	 * 
+	 *
 	 * This is the case if the given Definition defines the same variable as this DefUse
 	 * So a Definition canBecomeActive for itself
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
 	 */
 	public boolean canBecomeActiveDefinition(BytecodeInstruction instruction) {
 		if(!instruction.isDefinition())
@@ -78,12 +90,21 @@ public class DefUse extends BytecodeInstruction {
 	
 	/**
 	 *  Determines whether the given DefUse reads or writes the same variable
-	 * as this DefUse 
+	 * as this DefUse
+	 *
+	 * @param du a {@link org.evosuite.coverage.dataflow.DefUse} object.
+	 * @return a boolean.
 	 */
 	public boolean sharesVariableWith(DefUse du) {
 		return varName.equals(du.varName);
 	}
 	
+	/**
+	 * <p>sharesVariableWith</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public boolean sharesVariableWith(BytecodeInstruction instruction) {
 		if(!instruction.isDefUse())
 			return false;
@@ -91,6 +112,11 @@ public class DefUse extends BytecodeInstruction {
 		return varName.equals(instruction.getDUVariableName());
 	}
 	
+	/**
+	 * <p>getDUVariableType</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getDUVariableType() {
 		if(isFieldDU())
 			return "Field";
@@ -103,6 +129,7 @@ public class DefUse extends BytecodeInstruction {
 		return "UNKNOWN";
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String getDUVariableName() {
 		return varName;
@@ -110,18 +137,38 @@ public class DefUse extends BytecodeInstruction {
 	
 	// getter
 	
+	/**
+	 * <p>getDefUseId</p>
+	 *
+	 * @return a int.
+	 */
 	public int getDefUseId() {
 		return defuseId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>useId</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getUseId() {
 		return useId;
 	}
 
+	/**
+	 * <p>Getter for the field <code>defId</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getDefId() {
 		return defId;
 	}
 	
+	/**
+	 * <p>isParameterUse</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isParameterUse() {
 		return isParameterUse;
 	}
@@ -147,6 +194,7 @@ public class DefUse extends BytecodeInstruction {
 //		return super.equals(obj);
 //	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder r = new StringBuilder();

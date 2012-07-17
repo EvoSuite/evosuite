@@ -23,16 +23,14 @@ import org.evosuite.Properties;
 import org.evosuite.utils.Randomness;
 
 
-/**
- * Select individual by rank
- * 
- * @author Gordon Fraser
- * 
- */
+	/**
+	 * {@inheritDoc}
+	 *
+	 * Select individual by rank
+	 */
 public class RankSelection extends SelectionFunction {
 
 	private static final long serialVersionUID = 7849303009915557682L;
-
 	@Override
 	/**
 	 * Select index of next offspring

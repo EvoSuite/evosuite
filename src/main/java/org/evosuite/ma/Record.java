@@ -24,7 +24,7 @@ import java.util.List;
  * The <code>Record</code> class implement a data structure which used by
  * {@link Transaction} class to save informations about current state (takes
  * only a test suite into account) of the manual editor.
- * 
+ *
  * @author Yury Pavlov
  */
 public class Record {
@@ -33,7 +33,7 @@ public class Record {
 
 	/**
 	 * Create and save deep copy of a test suite.
-	 * 
+	 *
 	 * @param testCases
 	 *            - <code>List<{@link TCTuple}></code> is a test suite of the
 	 *            manual editor from which we create deep copy.
@@ -52,6 +52,7 @@ public class Record {
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuilder res = new StringBuilder();
@@ -66,7 +67,7 @@ public class Record {
 
 	/**
 	 * Retrieve the saved test suite.
-	 * 
+	 *
 	 * @return testCases
 	 */
 	public ArrayList<TCTuple> getTestCases() {

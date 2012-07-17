@@ -29,8 +29,9 @@ import org.evosuite.testcase.VariableReference;
 
 
 /**
+ * <p>InspectorTraceEntry class.</p>
+ *
  * @author fraser
- * 
  */
 public class InspectorTraceEntry implements OutputTraceEntry {
 
@@ -38,14 +39,30 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 
 	private final VariableReference var;
 
+	/**
+	 * <p>Constructor for InspectorTraceEntry.</p>
+	 *
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public InspectorTraceEntry(VariableReference var) {
 		this.var = var;
 	}
 
+	/**
+	 * <p>addValue</p>
+	 *
+	 * @param inspector a {@link org.evosuite.assertion.Inspector} object.
+	 * @param value a {@link java.lang.Object} object.
+	 */
 	public void addValue(Inspector inspector, Object value) {
 		inspectorMap.put(inspector, value);
 	}
 
+	/**
+	 * <p>size</p>
+	 *
+	 * @return a int.
+	 */
 	public int size() {
 		return inspectorMap.size();
 	}
@@ -53,6 +70,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean differs(OutputTraceEntry other) {
 		if (other instanceof InspectorTraceEntry) {
@@ -77,6 +95,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -106,6 +125,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -124,6 +144,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof InspectorAssertion) {
@@ -138,6 +159,7 @@ public class InspectorTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public OutputTraceEntry cloneEntry() {
 		InspectorTraceEntry copy = new InspectorTraceEntry(var);

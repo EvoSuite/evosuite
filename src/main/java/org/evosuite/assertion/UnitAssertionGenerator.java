@@ -28,8 +28,9 @@ import org.evosuite.testcase.TestCase;
 
 
 /**
+ * <p>UnitAssertionGenerator class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class UnitAssertionGenerator extends AssertionGenerator {
 
@@ -54,6 +55,7 @@ public class UnitAssertionGenerator extends AssertionGenerator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void addAssertions(TestCase test) {
 		ExecutionResult result = runTest(test);

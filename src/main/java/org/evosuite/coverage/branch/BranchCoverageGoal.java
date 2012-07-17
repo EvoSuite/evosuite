@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,15 +28,14 @@ import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 
-
 /**
  * A single branch coverage goal Either true/false evaluation of a jump
  * condition, or a method entry
  * 
  * @author Gordon Fraser, Andre Mis
- * 
  */
-public class BranchCoverageGoal extends TestCoverageGoal implements Serializable {
+public class BranchCoverageGoal extends TestCoverageGoal implements Serializable,
+        Comparable<BranchCoverageGoal> {
 
 	private static final long serialVersionUID = 2962922303111452419L;
 	transient Branch branch;
@@ -44,6 +43,8 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 
 	String className;
 	String methodName;
+
+	private int lineNumber;
 
 	/**
 	 * Can be used to create an arbitrary BranchCoverageGoal trying to cover the
@@ -55,6 +56,15 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	 * 
 	 * Otherwise this goal will try to reach the given branch and if value is
 	 * true, make the branchInstruction jump and visa versa
+	 * 
+	 * @param branch
+	 *            a {@link org.evosuite.coverage.branch.Branch} object.
+	 * @param value
+	 *            a boolean.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
 	 */
 	public BranchCoverageGoal(Branch branch, boolean value, String className,
 	        String methodName) {
@@ -71,13 +81,28 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		this.methodName = methodName;
 
 		if (branch != null) {
+			lineNumber = branch.getInstruction().getLineNumber();
 			if (!branch.getMethodName().equals(methodName)
 			        || !branch.getClassName().equals(className))
 				throw new IllegalArgumentException(
 				        "expect explicitly given information about a branch to coincide with the information given by that branch");
+		} else {
+			lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
 		}
 	}
 
+	/**
+	 * <p>
+	 * Constructor for BranchCoverageGoal.
+	 * </p>
+	 * 
+	 * @param cd
+	 *            a {@link org.evosuite.graphs.cfg.ControlDependency} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 */
 	public BranchCoverageGoal(ControlDependency cd, String className, String methodName) {
 		this(cd.getBranch(), cd.getBranchExpressionValue(), className, methodName);
 	}
@@ -87,7 +112,9 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	 * null
 	 * 
 	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @param methodName
+	 *            a {@link java.lang.String} object.
 	 */
 	public BranchCoverageGoal(String className, String methodName) {
 		this.branch = null;
@@ -95,6 +122,7 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 
 		this.className = className;
 		this.methodName = methodName;
+		lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
 	}
 
 	/**
@@ -106,6 +134,11 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	 * This is used in the ChromosomeRecycler to determine if tests produced to
 	 * cover one goal should be used initially when trying to cover the other
 	 * goal
+	 * 
+	 * @param goal
+	 *            a {@link org.evosuite.coverage.branch.BranchCoverageGoal}
+	 *            object.
+	 * @return a boolean.
 	 */
 	public boolean isConnectedTo(BranchCoverageGoal goal) {
 		if (branch == null || goal.branch == null) {
@@ -134,9 +167,9 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	//	}
 
 	/**
-	 * Determine if there is an existing test case covering this goal
+	 * {@inheritDoc}
 	 * 
-	 * @return
+	 * Determine if there is an existing test case covering this goal
 	 */
 	@Override
 	public boolean isCovered(TestChromosome test) {
@@ -148,6 +181,15 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 			return false;
 	}
 
+	/**
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a {@link org.evosuite.coverage.ControlFlowDistance} object.
+	 */
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 
 		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch,
@@ -210,6 +252,8 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 	// inherited from Object
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * Readable representation
 	 */
 	@Override
@@ -227,6 +271,7 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		return name;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -246,6 +291,7 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -277,6 +323,14 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		else {
 			return this.value == other.value;
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	@Override
+	public int compareTo(BranchCoverageGoal o) {
+		return lineNumber - o.lineNumber;
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

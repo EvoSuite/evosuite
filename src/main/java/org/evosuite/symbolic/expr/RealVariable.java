@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,9 +15,10 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-
 public class RealVariable extends RealExpression implements Variable<Double>{
 	private static final long serialVersionUID = 1L;
 	
@@ -25,6 +27,14 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 	protected double minValue;
 	protected double maxValue;
 	
+	/**
+	 * <p>Constructor for RealVariable.</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @param conV a double.
+	 * @param minValue a double.
+	 * @param maxValue a double.
+	 */
 	public RealVariable(String name, double conV, double minValue, double maxValue) {
 		super();
 		this.name = name;
@@ -33,36 +43,47 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 		this.maxValue = maxValue;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public Double getConcreteValue() {
 		return concreteValue;
 	}
 
 
+	/**
+	 * <p>Setter for the field <code>concreteValue</code>.</p>
+	 *
+	 * @param conV a double.
+	 */
 	public void setConcreteValue(double conV) {
 		this.concreteValue = conV;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return name;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double getMinValue() {
 		return minValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double getMaxValue() {
 		return maxValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return this.name + "(" + concreteValue + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof RealVariable)
@@ -73,6 +94,7 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		if(hash==0)
@@ -82,11 +104,13 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 		return hash;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		return 1;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double execute() {
 		return concreteValue;

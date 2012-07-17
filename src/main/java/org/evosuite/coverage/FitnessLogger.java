@@ -37,8 +37,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>FitnessLogger class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class FitnessLogger implements SearchListener {
 
@@ -59,6 +60,7 @@ public class FitnessLogger implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.FitnessFunction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		evaluations = 0;
@@ -79,6 +81,7 @@ public class FitnessLogger implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#iteration(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		if (algorithm.getPopulation().isEmpty())
@@ -93,6 +96,7 @@ public class FitnessLogger implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#searchFinished(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		if (name == null)
@@ -118,6 +122,7 @@ public class FitnessLogger implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		evaluations++;
@@ -126,6 +131,7 @@ public class FitnessLogger implements SearchListener {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub

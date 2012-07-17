@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
@@ -24,7 +27,6 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 
 
 import gov.nasa.jpf.JPF;
-
 public class IntToStringCast extends StringExpression implements Cast<Long>{
 	
 	private static final long serialVersionUID = 2414222998301630838L;
@@ -33,27 +35,36 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 	
 	protected Expression<Long> intVar;
 
+	/**
+	 * <p>Constructor for IntToStringCast.</p>
+	 *
+	 * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public IntToStringCast(Expression<Long> expr) {
 		this.intVar = expr;
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		return Long.toString((Long)intVar.execute());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return Long.toString((Long)intVar.getConcreteValue());
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return intVar.toString();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -68,6 +79,7 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 	}
 	
 	protected int size=0;
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if(size == 0)
@@ -77,6 +89,7 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Long> getConcreteObject() {
 		return intVar;

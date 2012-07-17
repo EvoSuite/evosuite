@@ -30,9 +30,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * An object always has to equal itself
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class EqualsContract extends Contract {
 
@@ -42,6 +41,7 @@ public class EqualsContract extends Contract {
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 		for (Object object : getAllObjects(scope)) {
@@ -77,6 +77,7 @@ public class EqualsContract extends Contract {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Equality check";

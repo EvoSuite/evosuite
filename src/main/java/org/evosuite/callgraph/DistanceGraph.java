@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,22 +15,24 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 /*
 * Copyright (C) 2011 Saarland University
-* 
+*
 * This file is part of Javalanche.
-* 
+*
 * Javalanche is free software: you can redistribute it and/or modify
 * it under the terms of the GNU Lesser Public License as published by
 * the Free Software Foundation, either version 3 of the License, or
 * (at your option) any later version.
-* 
+*
 * Javalanche is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU Lesser Public License for more details.
-* 
+*
 * You should have received a copy of the GNU Lesser Public License
 * along with Javalanche.  If not, see <http://www.gnu.org/licenses/>.
 */
@@ -43,7 +46,6 @@ import org.jgrapht.UndirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleGraph;
-
 public class DistanceGraph {
 
 	private static Logger logger = LoggerFactory.getLogger(DistanceGraph.class);
@@ -52,6 +54,12 @@ public class DistanceGraph {
 	private UndirectedGraph<MethodDescription, DefaultEdge> g;
 	private Set<MethodDescription> allMethods;
 
+	/**
+	 * <p>Constructor for DistanceGraph.</p>
+	 *
+	 * @param data a {@link org.evosuite.callgraph.ConnectionData} object.
+	 * @param hierarchy a {@link org.evosuite.callgraph.Hierarchy} object.
+	 */
 	public DistanceGraph(ConnectionData data, Hierarchy hierarchy) {
 		// this.data = data;
 		this.hierarchy = hierarchy;
@@ -73,6 +81,13 @@ public class DistanceGraph {
 		}
 	}
 
+	/**
+	 * <p>getDistance</p>
+	 *
+	 * @param start a {@link org.evosuite.callgraph.MethodDescription} object.
+	 * @param end a {@link org.evosuite.callgraph.MethodDescription} object.
+	 * @return a int.
+	 */
 	public int getDistance(MethodDescription start, MethodDescription end) {
 		if (!(g.containsVertex(start) && g.containsVertex(end))) {
 			return -1;
@@ -99,12 +114,23 @@ public class DistanceGraph {
 		return (int) pathLength;
 	}
 
+	/**
+	 * <p>getDefault</p>
+	 *
+	 * @return a {@link org.evosuite.callgraph.DistanceGraph} object.
+	 */
 	public static DistanceGraph getDefault() {
 		ConnectionData data = ConnectionData.read();
 		Hierarchy hierarchy = Hierarchy.readFromDefaultLocation();
 		return new DistanceGraph(data, hierarchy);
 	}
 
+	/**
+	 * <p>getMetodDesc</p>
+	 *
+	 * @param fullMethodName a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.callgraph.MethodDescription} object.
+	 */
 	public MethodDescription getMetodDesc(String fullMethodName) {
 		String className = fullMethodName.substring(0, fullMethodName
 				.indexOf('@'));

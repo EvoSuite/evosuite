@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.testsuite;
 
@@ -28,8 +31,6 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.utils.Randomness;
-
-
 public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome> extends
         Chromosome {
 	private static final long serialVersionUID = 1L;
@@ -51,18 +52,28 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		super();
 	}
 	
+	/**
+	 * <p>Constructor for AbstractTestSuiteChromosome.</p>
+	 *
+	 * @param testChromosomeFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	protected AbstractTestSuiteChromosome(ChromosomeFactory<T> testChromosomeFactory) {
 		this.testChromosomeFactory = testChromosomeFactory;
 	}
 
+	/**
+	 * <p>Getter for the field <code>testChromosomeFactory</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	public ChromosomeFactory<T> getTestChromosomeFactory() {
 		return testChromosomeFactory;
 	}
 
 	/**
 	 * Creates a deep copy of source.
-	 * 
-	 * @param source
+	 *
+	 * @param source a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
 	 */
 	@SuppressWarnings("unchecked")
 	protected AbstractTestSuiteChromosome(AbstractTestSuiteChromosome<T> source) {
@@ -77,12 +88,22 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		this.coverage = source.coverage;
 	}
 
+	/**
+	 * <p>addTest</p>
+	 *
+	 * @param test a T object.
+	 */
 	public void addTest(T test) {
 		tests.add(test);
 		unmodifiableTests.add(false);
 		this.setChanged(true);
 	}
 
+	/**
+	 * <p>addTests</p>
+	 *
+	 * @param tests a {@link java.util.Collection} object.
+	 */
 	public void addTests(Collection<T> tests) {
 		for (T test : tests) {
 			tests.add(test);
@@ -92,6 +113,11 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 			this.setChanged(true);
 	}
 
+	/**
+	 * <p>addUnmodifiableTest</p>
+	 *
+	 * @param test a T object.
+	 */
 	public void addUnmodifiableTest(T test) {
 		tests.add(test);
 		unmodifiableTests.add(true);
@@ -99,6 +125,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Keep up to position1, append copy of other from position2 on
 	 */
 	@SuppressWarnings("unchecked")
@@ -126,6 +154,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		this.setChanged(true);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -146,12 +175,15 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		return tests.hashCode();
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Apply mutation on test suite level
 	 */
 	@Override
@@ -187,6 +219,8 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	}
 
 	/**
+	 * <p>totalLengthOfTestCases</p>
+	 *
 	 * @return Sum of the lengths of the test cases
 	 */
 	public int totalLengthOfTestCases() {
@@ -196,34 +230,64 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 		return length;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int size() {
 		return tests.size();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public abstract void localSearch(LocalSearchObjective objective);
 
+	/** {@inheritDoc} */
 	@Override
 	public abstract AbstractTestSuiteChromosome<T> clone();
 
+	/**
+	 * <p>getTestChromosome</p>
+	 *
+	 * @param index a int.
+	 * @return a T object.
+	 */
 	public T getTestChromosome(int index) {
 		return tests.get(index);
 	}
 
+	/**
+	 * <p>getTestChromosomes</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<T> getTestChromosomes() {
 		return tests;
 	}
 
+	/**
+	 * <p>setTestChromosome</p>
+	 *
+	 * @param index a int.
+	 * @param test a T object.
+	 */
 	public void setTestChromosome(int index, T test) {
 		tests.set(index, test);
 		this.setChanged(true);
 	}
 
+	/**
+	 * <p>Getter for the field <code>coverage</code>.</p>
+	 *
+	 * @return a double.
+	 */
 	public double getCoverage() {
 		return coverage;
 	}
 
+	/**
+	 * <p>Setter for the field <code>coverage</code>.</p>
+	 *
+	 * @param coverage a double.
+	 */
 	public void setCoverage(double coverage) {
 		this.coverage = coverage;
 	}

@@ -30,9 +30,8 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * This class defines an reference to an array element. E.g. foo[3]
- * 
+ *
  * @author Sebastian Steenbuck
- * 
  */
 public class ArrayIndex extends VariableReferenceImpl {
 
@@ -51,16 +50,22 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	/**
 	 * Constructor
-	 * 
-	 * @param type
-	 *            The type (class) of the variable
-	 * @param position
-	 *            The statement in the test case that declares this variable
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param array a {@link org.evosuite.testcase.ArrayReference} object.
+	 * @param index a int.
 	 */
 	public ArrayIndex(TestCase testCase, ArrayReference array, int index) {
 		this(testCase, array, Collections.singletonList(index));
 	}
 
+	/**
+	 * <p>Constructor for ArrayIndex.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param array a {@link org.evosuite.testcase.ArrayReference} object.
+	 * @param indices a {@link java.util.List} object.
+	 */
 	public ArrayIndex(TestCase testCase, ArrayReference array, List<Integer> indices) {
 		super(testCase, new GenericClass(getReturnType(array, indices.size())));
 		this.array = array;
@@ -76,31 +81,54 @@ public class ArrayIndex extends VariableReferenceImpl {
 		return result;
 	}
 
+	/**
+	 * <p>Getter for the field <code>array</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.ArrayReference} object.
+	 */
 	public ArrayReference getArray() {
 		return array;
 	}
 
+	/**
+	 * <p>Setter for the field <code>array</code>.</p>
+	 *
+	 * @param r a {@link org.evosuite.testcase.ArrayReference} object.
+	 */
 	public void setArray(ArrayReference r) {
 		array = r;
 	}
 
 	/**
 	 * Return true if variable is an array
+	 *
+	 * @return a boolean.
 	 */
 	public boolean isArrayIndex() {
 		return true;
 	}
 
+	/**
+	 * <p>getArrayIndex</p>
+	 *
+	 * @return a int.
+	 */
 	public int getArrayIndex() {
 		assert indices.size() == 1;
 		return indices.get(0);
 	}
 
+	/**
+	 * <p>setArrayIndex</p>
+	 *
+	 * @param index a int.
+	 */
 	public void setArrayIndex(int index) {
 		assert indices.size() == 1;
 		indices.set(0, index);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getStPosition() {
 		assert (array != null);
@@ -122,9 +150,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return name for source code representation
-	 * 
-	 * @return
 	 */
 	@Override
 	public String getName() {
@@ -135,6 +163,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void loadBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		if (indices.size() > 1) {
@@ -146,6 +175,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void storeBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals) {
 		if (indices.size() > 1) {
@@ -156,6 +186,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(VariableReference r) {
 		if (r == null)
@@ -181,10 +212,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return the actual object represented by this variable for a given scope
-	 * 
-	 * @param scope
-	 *            The scope of the test case execution
 	 */
 	@Override
 	public Object getObject(Scope scope) throws CodeUnderTestException {
@@ -204,12 +234,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Set the actual object represented by this variable in a given scope
-	 * 
-	 * @param scope
-	 *            The scope of the test case execution
-	 * @param value
-	 *            The value to be assigned
 	 */
 	@Override
 	public void setObject(Scope scope, Object value) throws CodeUnderTestException {
@@ -228,6 +255,8 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create a copy of the current variable
 	 */
 	@Override
@@ -240,6 +269,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#getAdditionalVariableReference()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public VariableReference getAdditionalVariableReference() {
 		if (array.getAdditionalVariableReference() == null)
@@ -251,6 +281,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#setAdditionalVariableReference(org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setAdditionalVariableReference(VariableReference var) {
 		assert (var instanceof ArrayReference);
@@ -260,6 +291,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.VariableReference#replaceAdditionalVariableReference(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replaceAdditionalVariableReference(VariableReference var1,
 	        VariableReference var2) {
@@ -278,6 +310,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#hashCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -290,6 +323,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -309,10 +343,20 @@ public class ArrayIndex extends VariableReferenceImpl {
 		return true;
 	}
 
+	/**
+	 * <p>setArrayIndices</p>
+	 *
+	 * @param indices a {@link java.util.List} object.
+	 */
 	public void setArrayIndices(List<Integer> indices){
 		this.indices = indices;
 	}
 	
+	/**
+	 * <p>getArrayIndices</p>
+	 *
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<Integer> getArrayIndices() {
 		return indices;
 	}

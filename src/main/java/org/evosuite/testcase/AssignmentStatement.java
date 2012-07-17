@@ -34,9 +34,8 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 /**
  * An assignment statement assigns a variable to another variable. This is only
  * used to assign to array indices
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class AssignmentStatement extends AbstractStatement {
 
@@ -44,6 +43,13 @@ public class AssignmentStatement extends AbstractStatement {
 
 	protected VariableReference parameter;
 
+	/**
+	 * <p>Constructor for AssignmentStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param value a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public AssignmentStatement(TestCase tc, VariableReference var, VariableReference value) {
 		super(tc, var);
 		this.parameter = value;
@@ -56,11 +62,17 @@ public class AssignmentStatement extends AbstractStatement {
 	}
 
 	
+	/**
+	 * <p>getValue</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public VariableReference getValue()
 	{
 		return this.parameter;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		try {
@@ -89,6 +101,7 @@ public class AssignmentStatement extends AbstractStatement {
 		return null;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(final Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
@@ -124,6 +137,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
@@ -142,6 +156,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 		if (parameter.equals(var1))
@@ -155,6 +170,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -163,6 +179,7 @@ public class AssignmentStatement extends AbstractStatement {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -192,6 +209,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
@@ -212,6 +230,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
@@ -220,6 +239,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#isValid()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
 		assert (super.isValid());
@@ -234,6 +254,7 @@ public class AssignmentStatement extends AbstractStatement {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
 		if (this == s)
@@ -301,6 +322,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#mutate(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		assert (isValid());
@@ -334,11 +356,13 @@ public class AssignmentStatement extends AbstractStatement {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		return null;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
 		return true;

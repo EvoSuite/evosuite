@@ -27,18 +27,18 @@ import org.evosuite.testcase.StatementInterface;
 
 /**
  * No method should throw an AssertionError
- * 
+ *
  * Note: this case is bit tricky, because assertions are disabled by default.
  * They need to be enabled when the JVM is started
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class AssertionErrorContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!Properties.ENABLE_ASSERTS_FOR_SUT) {
@@ -58,6 +58,7 @@ public class AssertionErrorContract extends Contract {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Assertion failed";

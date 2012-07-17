@@ -28,9 +28,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of execution traces
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
@@ -42,9 +41,11 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Insert a new entry into the trace
-	 * 
-	 * @param position
-	 * @param entry
+	 *
+	 * @param position a int.
+	 * @param entry a T object.
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param <T> a T object.
 	 */
 	public void addEntry(int position, VariableReference var, T entry) {
 		if (!trace.containsKey(position))
@@ -55,10 +56,10 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Get the current entry at the given position
-	 * 
-	 * @param position
-	 * @param var
-	 * @return
+	 *
+	 * @param position a int.
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a T object.
 	 */
 	public T getEntry(int position, VariableReference var) {
 		if (!trace.containsKey(position)) {
@@ -74,10 +75,10 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Get the current entry at the given position
-	 * 
-	 * @param position
-	 * @param var
-	 * @return
+	 *
+	 * @param position a int.
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @return a boolean.
 	 */
 	public boolean containsEntry(int position, VariableReference var) {
 		if (!trace.containsKey(position)) {
@@ -93,9 +94,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Binary decision whether the two traces differ in any way
-	 * 
-	 * @param other
-	 * @return
+	 *
+	 * @param other a {@link org.evosuite.assertion.OutputTrace} object.
+	 * @return a boolean.
 	 */
 	public boolean differs(OutputTrace<?> other) {
 		for (Integer statement : trace.keySet()) {
@@ -112,9 +113,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Count the number of differences between two traces
-	 * 
-	 * @param other
-	 * @return
+	 *
+	 * @param other a {@link org.evosuite.assertion.OutputTrace} object.
+	 * @return a int.
 	 */
 	public int numDiffer(OutputTrace<?> other) {
 		int num = 0;
@@ -133,10 +134,10 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Get all assertions based on trace differences
-	 * 
-	 * @param test
-	 * @param other
-	 * @return
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param other a {@link org.evosuite.assertion.OutputTrace} object.
+	 * @return a int.
 	 */
 	public int getAssertions(TestCase test, OutputTrace<?> other) {
 		int num = 0;
@@ -159,9 +160,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Get all possible assertions
-	 * 
-	 * @param test
-	 * @return
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a int.
 	 */
 	public int getAllAssertions(TestCase test) {
 		int num = 0;
@@ -182,9 +183,9 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 	/**
 	 * Check if this trace makes the assertion fail
-	 * 
-	 * @param assertion
-	 * @return
+	 *
+	 * @param assertion a {@link org.evosuite.assertion.Assertion} object.
+	 * @return a boolean.
 	 */
 	public boolean isDetectedBy(Assertion assertion) {
 		assert (assertion.isValid());
@@ -206,6 +207,7 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 		trace.clear();
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public OutputTrace<T> clone() {

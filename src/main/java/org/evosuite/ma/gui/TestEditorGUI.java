@@ -26,13 +26,24 @@ import org.evosuite.ma.Editor;
 
 
 /**
+ * <p>TestEditorGUI interface.</p>
+ *
  * @author Yury Pavlov
- * 
  */
 public interface TestEditorGUI {
 
+	/**
+	 * <p>createMainWindow</p>
+	 *
+	 * @param editor a {@link org.evosuite.ma.Editor} object.
+	 */
 	public void createMainWindow(final Editor editor);
 
+	/**
+	 * <p>getMainFrame</p>
+	 *
+	 * @return a {@link javax.swing.JFrame} object.
+	 */
 	public JFrame getMainFrame();
 	
 }

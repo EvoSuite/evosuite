@@ -24,10 +24,8 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Roulette wheel selection
- * 
+ *
  * @author Gordon Fraser
- * 
- * 
  */
 public class FitnessProportionateSelection extends SelectionFunction {
 
@@ -39,6 +37,7 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	 */
 	private double sum_value = 0.0;
 
+	/** {@inheritDoc} */
 	@Override
 	public int getIndex(List<Chromosome> population) {
 		//special case
@@ -93,12 +92,9 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Return n parents
-	 * 
-	 * @param population
-	 * @param number
-	 *            n
-	 * @return
 	 */
 	@Override
 	public List<Chromosome> select(List<Chromosome> population, int number) {

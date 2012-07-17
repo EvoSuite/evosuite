@@ -27,8 +27,9 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 
 
 /**
+ * <p>StringMultipleExpression class.</p>
+ *
  * @author krusev
- * 
  */
 public class StringMultipleExpression extends StringBinaryExpression implements
         BinaryExpression<String> {
@@ -37,6 +38,15 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 
 	protected ArrayList<Expression<?>> other_v;
 
+	/**
+	 * <p>Constructor for StringMultipleExpression.</p>
+	 *
+	 * @param _left a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param _op a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param _right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param _other a {@link java.util.ArrayList} object.
+	 * @param con a {@link java.lang.String} object.
+	 */
 	public StringMultipleExpression(Expression<String> _left, Operator _op,
 	        Expression<?> _right, ArrayList<Expression<?>> _other, String con) {
 		super(_left, _op, _right, con);
@@ -46,32 +56,39 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 	}
 
 	/**
+	 * <p>getOther</p>
+	 *
 	 * @return the other
 	 */
 	public ArrayList<Expression<?>> getOther() {
 		return other_v;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return super.getConcreteValue();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Operator getOperator() {
 		return super.getOperator();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getLeftOperand() {
 		return super.getLeftOperand();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<?> getRightOperand() {
 		return super.getRightOperand();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		String str_other_v = "";
@@ -83,6 +100,7 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 		        + ")";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -111,6 +129,7 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 	    if (size == 0) {
@@ -133,6 +152,7 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 	//	return size;
 	//}
 
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		String first = (String) left.execute();

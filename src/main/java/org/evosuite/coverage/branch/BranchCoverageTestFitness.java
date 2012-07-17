@@ -25,12 +25,10 @@ import org.evosuite.testcase.MethodCall;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
-
 /**
  * Fitness function for a single test on a single branch
  * 
  * @author Gordon Fraser
- * 
  */
 public class BranchCoverageTestFitness extends TestFitnessFunction {
 
@@ -41,28 +39,71 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 
 	/**
 	 * Constructor - fitness is specific to a branch
+	 * 
+	 * @param goal
+	 *            a {@link org.evosuite.coverage.branch.BranchCoverageGoal}
+	 *            object.
 	 */
 	public BranchCoverageTestFitness(BranchCoverageGoal goal) {
 		assert goal != null;
 		this.goal = goal;
 	}
 
+	/**
+	 * <p>
+	 * getBranch
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
+	 */
 	public Branch getBranch() {
 		return goal.branch;
 	}
 
+	/**
+	 * <p>
+	 * getClassName
+	 * </p>
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return goal.className;
 	}
 
+	/**
+	 * <p>
+	 * getMethod
+	 * </p>
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethod() {
 		return goal.methodName;
 	}
 
+	/**
+	 * <p>
+	 * getBranchExpressionValue
+	 * </p>
+	 * 
+	 * @return a boolean.
+	 */
 	public boolean getBranchExpressionValue() {
 		return goal.value;
 	}
 
+	/**
+	 * <p>
+	 * getUnfitness
+	 * </p>
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testcase.ExecutableChromosome} object.
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a double.
+	 */
 	public double getUnfitness(ExecutableChromosome individual, ExecutionResult result) {
 
 		double sum = 0.0;
@@ -102,6 +143,8 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * Calculate approach level + branch distance
 	 */
 	@Override
@@ -122,6 +165,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return fitness;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isSimilarTo(TestFitnessFunction other) {
 		if (other instanceof DefUseCoverageTestFitness) {
@@ -147,11 +191,13 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 	//			return goal.getDifficulty();
 	//	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return goal.toString();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -160,6 +206,7 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -175,6 +222,18 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		} else if (!goal.equals(other.goal))
 			return false;
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#compareTo(org.evosuite.testcase.TestFitnessFunction)
+	 */
+	@Override
+	public int compareTo(TestFitnessFunction other) {
+		if (other instanceof BranchCoverageTestFitness) {
+			BranchCoverageTestFitness otherBranchFitness = (BranchCoverageTestFitness) other;
+			return goal.compareTo(otherBranchFitness.goal);
+		}
+		return 0;
 	}
 
 }

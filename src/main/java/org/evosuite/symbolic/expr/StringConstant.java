@@ -21,8 +21,9 @@
 package org.evosuite.symbolic.expr;
 
 /**
- * @author krusev
+ * <p>StringConstant class.</p>
  *
+ * @author krusev
  */
 public class StringConstant extends StringExpression {
 
@@ -30,20 +31,28 @@ public class StringConstant extends StringExpression {
 
 	protected String value;
 
+	/**
+	 * <p>Constructor for StringConstant.</p>
+	 *
+	 * @param StringValue a {@link java.lang.String} object.
+	 */
 	public StringConstant(String StringValue) {
 		this.value = StringValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return value;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return value;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof StringConstant) {
@@ -53,11 +62,13 @@ public class StringConstant extends StringExpression {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		return 1;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String execute() {
 		return value;

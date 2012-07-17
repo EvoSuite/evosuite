@@ -33,8 +33,9 @@ import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.Frame;
 
 /**
+ * <p>ErrorConditionMethodAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 
@@ -47,8 +48,14 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	private Frame[] frames;
 
 	/**
-     * 
-     */
+	 * <p>Constructor for ErrorConditionMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param access a int.
+	 * @param desc a {@link java.lang.String} object.
+	 */
 	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
 		//super(Opcodes.ASM4, mv, access, methodName, desc);
@@ -69,6 +76,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		// If non-static, add a null check
@@ -105,6 +113,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitFieldInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		// If non-static, add a null check
@@ -158,6 +167,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitTypeInsn(int, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
 
@@ -186,6 +196,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitInsn(int opcode) {
 		// Check *DIV for divisonbyzero
@@ -442,6 +453,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitCode() {
 		MethodNode mn = (MethodNode) mv;
@@ -458,6 +470,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitEnd()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
 		MethodNode mn = (MethodNode) mv;
@@ -467,6 +480,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		super.visitMaxs(maxStack + 4, maxLocals);

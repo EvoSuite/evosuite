@@ -32,14 +32,14 @@ import org.slf4j.LoggerFactory;
 /**
  * Duplicate static initializers in methods, such that we can explicitly restore
  * the initial state of classes.
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class StaticInitializationClassAdapter extends ClassVisitor {
 
 	private final String className;
 
+	/** Constant <code>static_classes</code> */
 	public static List<String> static_classes = new ArrayList<String>();
 
 	private static Logger logger = LoggerFactory.getLogger(StaticInitializationClassAdapter.class);
@@ -48,11 +48,18 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 
 	private final List<String> finalFields = new ArrayList<String>();
 
+	/**
+	 * <p>Constructor for StaticInitializationClassAdapter.</p>
+	 *
+	 * @param visitor a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public StaticInitializationClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visit(int version, int access, String name, String signature,
 	        String superName, String[] interfaces) {
@@ -63,6 +70,7 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visitField(int, java.lang.String, java.lang.String, java.lang.String, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
@@ -72,6 +80,7 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 		return super.visitField(access, name, desc, signature, value);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
 	        String signature, String[] exceptions) {

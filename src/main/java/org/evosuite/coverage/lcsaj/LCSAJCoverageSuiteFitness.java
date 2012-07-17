@@ -34,9 +34,8 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
  * Evaluate fitness of a test suite with respect to all LCSAJs of a class
- * 
+ *
  * @author Merlin Lang
- * 
  */
 public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
@@ -51,6 +50,9 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private final BranchCoverageSuiteFitness branchFitness = new BranchCoverageSuiteFitness();
 
+	/**
+	 * <p>Constructor for LCSAJCoverageSuiteFitness.</p>
+	 */
 	public LCSAJCoverageSuiteFitness() {
 		ExecutionTracer.enableTraceCalls();
 		for (String className : LCSAJPool.lcsaj_map.keySet()) {
@@ -82,6 +84,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * org.evosuite.ga.FitnessFunction#getFitness(org.
 	 * evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 

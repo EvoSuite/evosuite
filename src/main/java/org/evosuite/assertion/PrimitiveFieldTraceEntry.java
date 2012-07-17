@@ -30,8 +30,9 @@ import org.evosuite.testcase.VariableReference;
 
 
 /**
+ * <p>PrimitiveFieldTraceEntry class.</p>
+ *
  * @author fraser
- * 
  */
 public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 
@@ -39,15 +40,20 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 
 	private final VariableReference var;
 
+	/**
+	 * <p>Constructor for PrimitiveFieldTraceEntry.</p>
+	 *
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public PrimitiveFieldTraceEntry(VariableReference var) {
 		this.var = var;
 	}
 
 	/**
 	 * Insert a new value into the map
-	 * 
-	 * @param field
-	 * @param value
+	 *
+	 * @param field a {@link java.lang.reflect.Field} object.
+	 * @param value a {@link java.lang.Object} object.
 	 */
 	public void addValue(Field field, Object value) {
 		fieldMap.put(field, value);
@@ -56,6 +62,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean differs(OutputTraceEntry other) {
 		if (other instanceof PrimitiveFieldTraceEntry) {
@@ -78,6 +85,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -103,6 +111,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -120,6 +129,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof PrimitiveFieldAssertion) {
@@ -133,6 +143,7 @@ public class PrimitiveFieldTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public OutputTraceEntry cloneEntry() {
 		PrimitiveFieldTraceEntry copy = new PrimitiveFieldTraceEntry(var);

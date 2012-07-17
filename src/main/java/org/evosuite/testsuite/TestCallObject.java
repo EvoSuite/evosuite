@@ -28,8 +28,9 @@ import org.evosuite.testcase.TestCase;
 
 
 /**
+ * <p>TestCallObject class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestCallObject extends AccessibleObject {
 
@@ -39,16 +40,31 @@ public class TestCallObject extends AccessibleObject {
 
 	private int num;
 
+	/**
+	 * <p>Constructor for TestCallObject.</p>
+	 *
+	 * @param num a int.
+	 */
 	public TestCallObject(int num) {
 		this.num = num;
 		this.returnType = Properties.getTargetClass();
 		testCase = getTest().clone();
 	}
 
+	/**
+	 * <p>Getter for the field <code>num</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNum() {
 		return num;
 	}
 
+	/**
+	 * <p>Setter for the field <code>num</code>.</p>
+	 *
+	 * @param num a int.
+	 */
 	public void setNum(int num) {
 		this.num = num;
 	}
@@ -57,6 +73,11 @@ public class TestCallObject extends AccessibleObject {
 	 * public TestCallObject(TestSuiteChromosome suite, TestChromosome test) {
 	 * this.testSuite = suite; this.testCase = test; this.returnType =
 	 * Properties.getTargetClass(); }
+	 */
+	/**
+	 * <p>getTest</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getTest() {
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
@@ -69,6 +90,11 @@ public class TestCallObject extends AccessibleObject {
 			return suite.tests.get(num).getTestCase();
 	}
 
+	/**
+	 * <p>getSuite</p>
+	 *
+	 * @return a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 */
 	public TestSuiteChromosome getSuite() {
 		CurrentChromosomeTracker<?> tracker = CurrentChromosomeTracker.getInstance();
 		TestSuiteChromosome suite = (TestSuiteChromosome) tracker.getCurrentChromosome();
@@ -76,6 +102,8 @@ public class TestCallObject extends AccessibleObject {
 	}
 
 	/**
+	 * <p>Setter for the field <code>returnType</code>.</p>
+	 *
 	 * @param returnType
 	 *            the returnType to set
 	 */
@@ -84,6 +112,8 @@ public class TestCallObject extends AccessibleObject {
 	}
 
 	/**
+	 * <p>Getter for the field <code>returnType</code>.</p>
+	 *
 	 * @return the returnType
 	 */
 	public Type getReturnType() {

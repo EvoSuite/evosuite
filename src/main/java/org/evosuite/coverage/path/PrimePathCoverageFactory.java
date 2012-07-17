@@ -29,8 +29,9 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
 
 
 /**
+ * <p>PrimePathCoverageFactory class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimePathCoverageFactory extends AbstractFitnessFactory {
 
@@ -39,6 +40,7 @@ public class PrimePathCoverageFactory extends AbstractFitnessFactory {
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		if (!goals.isEmpty())

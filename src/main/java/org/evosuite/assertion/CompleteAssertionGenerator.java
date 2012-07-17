@@ -24,14 +24,16 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
 
 /**
+ * <p>CompleteAssertionGenerator class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class CompleteAssertionGenerator extends AssertionGenerator {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.AssertionGenerator#addAssertions(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void addAssertions(TestCase test) {
 		ExecutionResult result = runTest(test);

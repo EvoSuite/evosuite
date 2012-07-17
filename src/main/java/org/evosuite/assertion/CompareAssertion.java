@@ -28,9 +28,8 @@ import org.evosuite.testcase.VariableReference;
 
 /**
  * Assertion on comparison value of two objects
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class CompareAssertion extends Assertion {
 
@@ -38,15 +37,27 @@ public class CompareAssertion extends Assertion {
 
 	protected VariableReference dest;
 
+	/**
+	 * <p>Getter for the field <code>dest</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public VariableReference getDest() {
 		return dest;
 	}
 
+	/**
+	 * <p>Setter for the field <code>dest</code>.</p>
+	 *
+	 * @param dest a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void setDest(VariableReference dest) {
 		this.dest = dest;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create a copy of the compare assertion
 	 */
 	@Override
@@ -59,6 +70,8 @@ public class CompareAssertion extends Assertion {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * This method returns the Java Code
 	 */
 	@Override
@@ -78,10 +91,9 @@ public class CompareAssertion extends Assertion {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Determine if assertion holds in current scope
-	 * 
-	 * @param scope
-	 *            The scope of the test case execution
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
@@ -105,6 +117,7 @@ public class CompareAssertion extends Assertion {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -113,6 +126,7 @@ public class CompareAssertion extends Assertion {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -151,6 +165,7 @@ public class CompareAssertion extends Assertion {
 	 * 
 	 * @see org.evosuite.assertion.Assertion#getReferencedVariables()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
@@ -162,6 +177,7 @@ public class CompareAssertion extends Assertion {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.Assertion#isValid()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
 		return super.isValid() && dest != null;

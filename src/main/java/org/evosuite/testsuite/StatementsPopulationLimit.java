@@ -28,8 +28,9 @@ import org.evosuite.ga.PopulationLimit;
 
 
 /**
+ * <p>StatementsPopulationLimit class.</p>
+ *
  * @author fraser
- * 
  */
 public class StatementsPopulationLimit implements PopulationLimit {
 
@@ -38,6 +39,7 @@ public class StatementsPopulationLimit implements PopulationLimit {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isPopulationFull(List<Chromosome> population) {
 		int numStatements = 0;

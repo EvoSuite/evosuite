@@ -28,13 +28,17 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 
 /**
+ * <p>Runtime class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class Runtime {
 
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
+	/**
+	 * <p>resetRuntime</p>
+	 */
 	public static void resetRuntime() {
 		if (Properties.REPLACE_CALLS) {
 			Random.reset();
@@ -49,6 +53,9 @@ public class Runtime {
 		}
 	}
 
+	/**
+	 * <p>handleRuntimeAccesses</p>
+	 */
 	public static void handleRuntimeAccesses() {
 		if (Properties.REPLACE_CALLS) {
 

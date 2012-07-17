@@ -47,22 +47,30 @@ import org.evosuite.testcase.TestChromosome;
 
 
 /**
+ * <p>StrongMutationTestFitness class.</p>
+ *
  * @author fraser
- * 
  */
 public class StrongMutationTestFitness extends MutationTestFitness {
 
 	private static final long serialVersionUID = -262199037689935052L;
 
+	/** Constant <code>observerClasses</code> */
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
 	        ComparisonTraceEntry.class, InspectorTraceEntry.class,
 	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class };
 
+	/** Constant <code>observers</code> */
 	protected static AssertionTraceObserver<?>[] observers = {
 	        new PrimitiveTraceObserver(), new ComparisonTraceObserver(),
 	        new InspectorTraceObserver(), new PrimitiveFieldTraceObserver(),
 	        new NullTraceObserver() };
 
+	/**
+	 * <p>Constructor for StrongMutationTestFitness.</p>
+	 *
+	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 */
 	public StrongMutationTestFitness(Mutation mutation) {
 		super(mutation);
 		for (AssertionTraceObserver<?> observer : observers) {
@@ -71,11 +79,13 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult runTest(TestCase test) {
 		return runTest(test, null);
 	}
 
+	/** {@inheritDoc} */
 	public static ExecutionResult runTest(TestCase test, Mutation mutant) {
 
 		ExecutionResult result = new ExecutionResult(test, mutant);
@@ -269,6 +279,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestFitnessFunction#getFitness(org.evosuite.testcase.TestChromosome, org.evosuite.testcase.ExecutionResult)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
 
@@ -357,6 +368,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Strong " + mutation.toString();

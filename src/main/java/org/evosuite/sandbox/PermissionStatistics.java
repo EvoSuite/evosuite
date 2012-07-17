@@ -31,8 +31,9 @@ import org.evosuite.utils.LoggingUtils;
 
 
 /**
+ * <p>PermissionStatistics class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PermissionStatistics {
 
@@ -54,6 +55,11 @@ public class PermissionStatistics {
 		recentAccess = new HashSet<String>();
 	}
 
+	/**
+	 * <p>Getter for the field <code>instance</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.sandbox.PermissionStatistics} object.
+	 */
 	public static PermissionStatistics getInstance() {
 		if (instance == null) {
 			instance = new PermissionStatistics();
@@ -61,10 +67,18 @@ public class PermissionStatistics {
 		return instance;
 	}
 
+	/**
+	 * <p>getRecentFileReadPermissions</p>
+	 *
+	 * @return an array of {@link java.lang.String} objects.
+	 */
 	public String[] getRecentFileReadPermissions() {
 		return recentAccess.toArray(new String[0]);
 	}
 
+	/**
+	 * <p>resetRecentStatistic</p>
+	 */
 	public void resetRecentStatistic() {
 		recentAccess.clear();
 	}
@@ -80,6 +94,11 @@ public class PermissionStatistics {
 		}
 	}
 
+	/**
+	 * <p>permissionAllowed</p>
+	 *
+	 * @param permission a {@link java.security.Permission} object.
+	 */
 	public void permissionAllowed(Permission permission) {
 		rememberRecentReadFilePermissions(permission);
 		String name = permission.getClass().getName();
@@ -106,6 +125,11 @@ public class PermissionStatistics {
 		deniedClassCount.put(permissionClass, getCurrentCount(permissionClass) + 1);
 	}
 
+	/**
+	 * <p>permissionDenied</p>
+	 *
+	 * @param permission a {@link java.security.Permission} object.
+	 */
 	public void permissionDenied(Permission permission) {
 		incCurrentCount(permission.getClass());
 		rememberRecentReadFilePermissions(permission);
@@ -125,9 +149,9 @@ public class PermissionStatistics {
 
 	/**
 	 * Retrieve the number of times a particular permission was denied
-	 * 
-	 * @param permission
-	 * @return
+	 *
+	 * @param permission a {@link java.security.Permission} object.
+	 * @return a int.
 	 */
 	public int getPermissionDeniedCount(Permission permission) {
 		String name = permission.getClass().getName();
@@ -140,62 +164,137 @@ public class PermissionStatistics {
 		return 0;
 	}
 
+	/**
+	 * <p>getNumAllPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumAllPermission() {
 		return getCurrentCount(java.security.AllPermission.class);
 	}
 
+	/**
+	 * <p>getNumSecurityPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumSecurityPermission() {
 		return getCurrentCount(java.security.SecurityPermission.class);
 	}
 
+	/**
+	 * <p>getNumUnresolvedPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumUnresolvedPermission() {
 		return getCurrentCount(java.security.UnresolvedPermission.class);
 	}
 
+	/**
+	 * <p>getNumAWTPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumAWTPermission() {
 		return getCurrentCount(java.awt.AWTPermission.class);
 	}
 
+	/**
+	 * <p>getNumFilePermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumFilePermission() {
 		return getCurrentCount(java.io.FilePermission.class);
 	}
 
+	/**
+	 * <p>getNumSerializablePermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumSerializablePermission() {
 		return getCurrentCount(java.io.SerializablePermission.class);
 	}
 
+	/**
+	 * <p>getNumReflectPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumReflectPermission() {
 		return getCurrentCount(java.lang.reflect.ReflectPermission.class);
 	}
 
+	/**
+	 * <p>getNumRuntimePermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumRuntimePermission() {
 		return getCurrentCount(java.lang.RuntimePermission.class);
 	}
 
+	/**
+	 * <p>getNumNetPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumNetPermission() {
 		return getCurrentCount(java.net.NetPermission.class);
 	}
 
+	/**
+	 * <p>getNumSocketPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumSocketPermission() {
 		return getCurrentCount(java.net.SocketPermission.class);
 	}
 
+	/**
+	 * <p>getNumSQLPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumSQLPermission() {
 		return getCurrentCount(java.sql.SQLPermission.class);
 	}
 
+	/**
+	 * <p>getNumPropertyPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumPropertyPermission() {
 		return getCurrentCount(java.util.PropertyPermission.class);
 	}
 
+	/**
+	 * <p>getNumLoggingPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumLoggingPermission() {
 		return getCurrentCount(java.util.logging.LoggingPermission.class);
 	}
 
+	/**
+	 * <p>getNumSSLPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumSSLPermission() {
 		return getCurrentCount(javax.net.ssl.SSLPermission.class);
 	}
 
+	/**
+	 * <p>getNumAuthPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumAuthPermission() {
 		return getCurrentCount(javax.security.auth.AuthPermission.class)
 		        + getCurrentCount(javax.security.auth.PrivateCredentialPermission.class)
@@ -203,10 +302,20 @@ public class PermissionStatistics {
 		        + getCurrentCount(javax.security.auth.kerberos.ServicePermission.class);
 	}
 
+	/**
+	 * <p>getNumAudioPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumAudioPermission() {
 		return getCurrentCount(javax.sound.sampled.AudioPermission.class);
 	}
 
+	/**
+	 * <p>getNumOtherPermission</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumOtherPermission() {
 		int sum = getNumAllPermission() + getNumSecurityPermission()
 		        + getNumUnresolvedPermission() + getNumAWTPermission()
@@ -224,10 +333,18 @@ public class PermissionStatistics {
 		return total - sum;
 	}
 
+	/**
+	 * <p>hasDeniedPermissions</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean hasDeniedPermissions() {
 		return !deniedCount.isEmpty();
 	}
 
+	/**
+	 * <p>printStatistics</p>
+	 */
 	public void printStatistics() {
 
 		if (hasDeniedPermissions()) {
@@ -246,10 +363,20 @@ public class PermissionStatistics {
 
 	private int maxThreads = 1;
 
+	/**
+	 * <p>countThreads</p>
+	 *
+	 * @param numThreads a int.
+	 */
 	public void countThreads(int numThreads) {
 		maxThreads = Math.max(maxThreads, numThreads);
 	}
 
+	/**
+	 * <p>Getter for the field <code>maxThreads</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getMaxThreads() {
 		return maxThreads;
 	}

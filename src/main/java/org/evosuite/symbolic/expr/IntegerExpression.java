@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,9 +15,10 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-
 public abstract class IntegerExpression implements Expression<Long> {
 
 	private static final long serialVersionUID = 2896502683190522448L;
@@ -26,15 +28,22 @@ public abstract class IntegerExpression implements Expression<Long> {
 	
 	private Expression<?> parent = null;
 	
+	/**
+	 * <p>Getter for the field <code>parent</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<?> getParent() {
 		return this.parent;
 	}
 	
+	/** {@inheritDoc} */
 	public void setParent(Expression<?> expr) {
 		this.parent = expr;
 	}
 
 	
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		if (hash == 0) {

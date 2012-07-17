@@ -40,16 +40,16 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
 
 /**
  * This class computes the Class Control Flow Graph (CCFG) of a CUT.
- * 
+ *
  * Given the ClassCallGraph the CCFG is generated as follows:
- * 
+ *
  * The RawControlFlowGraph (CFG) of each method in the target class is retrieved
  * from the GraphPool and imported into this CCFG. BytecodeInstructions are
  * imported as CCFGCodeNodes and ControlFlowEdges as CCFGCodeEdges. Additionally
  * each CFG is enclosed by a CCFGMethodEntryNode and CCFGMethodExitNode with an
  * edge from the entry node to the first instruction in the CFG and an edge from
  * each exit instruction in the CFG to the exit node.
- * 
+ *
  * After that each method call instruction as defined in
  * BytecodeInstruction.isMethodCall() is replaced by two new nodes
  * CCFGMethodCallNode and CCFGMethodReturnNode that are labeled with that call
@@ -63,7 +63,7 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
  * methods - as defined by BytecodeInstruction.isStaticMethodCall() - or calls
  * to methods on the same object (this) as defined by
  * BytecodeInstruction.isMethodCallOnSameObject().
- * 
+ *
  * All this is enclosed by a frame consisting of five CCFGFrameNodes of
  * different types. This frame has two dedicated ENTRY and EXIT nodes connected
  * via a third node LOOP. The LOOP node has an outgoing edge to CALL which in
@@ -71,14 +71,14 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
  * in this graph. Analogously the CCFGMethodExitNode of each public method has
  * an outgoing edge to the CCFGFrameNode RETURN which in turn has an outgoing
  * edge back to LOOP. All these edges are CCFGFrameEdges.
- * 
+ *
  * The frame simulates the possible calls to the CUT a test can potentially
  * make. After starting (ENTRY->LOOP) a test can make arbitrary calls to public
  * methods (LOOP->CALL) that can in turn call other methods of the class
  * (CCFGMethodCallEdges). After returning from a public method call
  * (RETURN->LOOP) the test can either make more calls to the class (LOOP->CALL)
  * or stop (LOOP->EXIT).
- * 
+ *
  * The construction of the CCFG is inspired by: Proc. of the Second ACM SIGSOFT
  * Symp. on the Foundations of Softw. Eng., December 1994, pages 154-164
  * "Performing Data Flow Testing on Classes" Mary Jean Harrold and Gregg
@@ -86,8 +86,7 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
  * but our construction differs a little (we don't import the CCG and then
  * replace method nodes with CFGs but rather import CFGs and connect them
  * directly).
- * 
- * 
+ *
  * @author Andre Mis
  */
 public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
@@ -269,6 +268,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	/**
 	 * Given the ClassCallGraph of a class this constructor will build up the
 	 * corresponding CCFG using the RCFGs from the GraphPool.
+	 *
+	 * @param ccg a {@link org.evosuite.graphs.ccg.ClassCallGraph} object.
 	 */
 	public ClassControlFlowGraph(ClassCallGraph ccg) {
 		super(CCFGEdge.class);
@@ -286,6 +287,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * activeDefs after each run then create intra-class pairs from these uses
 	 * and defs and during each single run we detect intra and inter method
 	 * pairs
+	 *
+	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<DefUseCoverageTestFitness> determineDefUsePairs() {
 
@@ -1248,6 +1251,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return GraphPool.getRawCFG(className, ccgNode.getMethod());
 	}
 
+	/**
+	 * <p>getMethodExitOf</p>
+	 *
+	 * @param methodEntry a {@link org.evosuite.graphs.ccfg.CCFGMethodEntryNode} object.
+	 * @return a {@link org.evosuite.graphs.ccfg.CCFGMethodExitNode} object.
+	 */
 	public CCFGMethodExitNode getMethodExitOf(CCFGMethodEntryNode methodEntry) {
 		if (methodEntry == null)
 			return null;
@@ -1255,6 +1264,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return methodExits.get(methodEntry.getMethod());
 	}
 
+	/**
+	 * <p>getMethodEntryOf</p>
+	 *
+	 * @param methodExit a {@link org.evosuite.graphs.ccfg.CCFGMethodExitNode} object.
+	 * @return a {@link org.evosuite.graphs.ccfg.CCFGMethodEntryNode} object.
+	 */
 	public CCFGMethodEntryNode getMethodEntryOf(CCFGMethodExitNode methodExit) {
 		if (methodExit == null)
 			return null;
@@ -1426,6 +1441,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				getFrameNode(FrameNodeType.LOOP), new CCFGFrameEdge());
 	}
 
+	/**
+	 * <p>getFrameNode</p>
+	 *
+	 * @param type a {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph.FrameNodeType} object.
+	 * @return a {@link org.evosuite.graphs.ccfg.CCFGFrameNode} object.
+	 */
 	public CCFGFrameNode getFrameNode(FrameNodeType type) {
 		return frameNodes.get(type);
 	}
@@ -1461,11 +1482,13 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		registerEdgeAttributeProvider(new CCFGEdgeAttributeProvider());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return "CCFG_" + className;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String dotSubFolder() {
 		return toFileString(className) + "/";

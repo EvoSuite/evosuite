@@ -29,8 +29,9 @@ import org.evosuite.testcase.TestChromosome;
 
 
 /**
+ * <p>CurrentChromosomeTracker class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 @SuppressWarnings("unchecked")
 //we can't know CType at instantiation type
@@ -51,8 +52,8 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 
 	/**
 	 * Singleton accessor
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testsuite.CurrentChromosomeTracker} object.
 	 */
 	@SuppressWarnings("rawtypes")
 	public static CurrentChromosomeTracker<?> getInstance() {
@@ -69,6 +70,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * org.evosuite.ga.SearchListener#searchStarted(org
 	 * .evosuite.ga.FitnessFunction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -80,6 +82,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * 
 	 * @see org.evosuite.ga.SearchListener#iteration(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -92,6 +95,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * @see
 	 * org.evosuite.ga.SearchListener#searchFinished(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
@@ -105,6 +109,7 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * org.evosuite.ga.SearchListener#fitnessEvaluation(de.unisb.
 	 * cs.st.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		// TODO Auto-generated method stub
@@ -118,16 +123,27 @@ public class CurrentChromosomeTracker<CType extends Chromosome> implements Searc
 	 * org.evosuite.ga.SearchListener#mutation(org.evosuite
 	 * .ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		currentSuite = (CType) individual;
 	}
 
+	/**
+	 * <p>getCurrentChromosome</p>
+	 *
+	 * @return a CType object.
+	 */
 	public CType getCurrentChromosome() {
 		return currentSuite;
 	}
 
 	// TODO: This is very inefficient
+	/**
+	 * <p>changed</p>
+	 *
+	 * @param changed a {@link org.evosuite.testcase.TestChromosome} object.
+	 */
 	public void changed(TestChromosome changed) {
 		if (Properties.CALL_PROBABILITY > 0) {
 			TestSuiteChromosome suite = (TestSuiteChromosome) currentSuite;

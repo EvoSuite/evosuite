@@ -23,21 +23,37 @@ import org.evosuite.ga.ReplacementFunction;
 
 
 /**
+ * <p>TestSuiteReplacementFunction class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestSuiteReplacementFunction extends ReplacementFunction {
 
 	private static final long serialVersionUID = -8472469271120247395L;
 
+	/**
+	 * <p>Constructor for TestSuiteReplacementFunction.</p>
+	 *
+	 * @param maximize a boolean.
+	 */
 	public TestSuiteReplacementFunction(boolean maximize) {
 		super(maximize);
 	}
 
+	/**
+	 * <p>Constructor for TestSuiteReplacementFunction.</p>
+	 */
 	public TestSuiteReplacementFunction() {
 		super(false);
 	}
 
+	/**
+	 * <p>getLengthSum</p>
+	 *
+	 * @param chromosome1 a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
+	 * @param chromosome2 a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
+	 * @return a int.
+	 */
 	public int getLengthSum(AbstractTestSuiteChromosome<?> chromosome1,
 			AbstractTestSuiteChromosome<?> chromosome2) {
 		return chromosome1.totalLengthOfTestCases()
@@ -45,6 +61,7 @@ public class TestSuiteReplacementFunction extends ReplacementFunction {
 	}
 
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {

@@ -94,6 +94,7 @@ import org.evosuite.ga.stoppingconditions.MaxGenerationStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
+import org.evosuite.ga.stoppingconditions.SocketStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
 import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
@@ -151,7 +152,6 @@ import de.unisb.cs.st.evosuite.io.IOWrapper;
  * Main entry point
  * 
  * @author Gordon Fraser
- * 
  */
 public class TestSuiteGenerator {
 
@@ -159,12 +159,18 @@ public class TestSuiteGenerator {
 
 	private final SearchStatistics statistics = SearchStatistics.getInstance();
 
+	/** Constant <code>zero_fitness</code> */
 	public final static ZeroFitnessStoppingCondition zero_fitness = new ZeroFitnessStoppingCondition();
 
+	/** Constant <code>global_time</code> */
 	public static final GlobalTimeStoppingCondition global_time = new GlobalTimeStoppingCondition();
 
+	/** Constant <code>stopping_condition</code> */
 	public static StoppingCondition stopping_condition;
+	/** Constant <code>analyzing=false</code> */
 	public static boolean analyzing = false;
+
+	private final ProgressMonitor progressMonitor = new ProgressMonitor();
 
 	/*
 	 * FIXME: a field is needed for "ga" to avoid a large re-factoring of the code.
@@ -176,12 +182,15 @@ public class TestSuiteGenerator {
 
 	/**
 	 * Generate a test suite for the target class
+	 * 
+	 * @return a {@link java.lang.String} object.
 	 */
 	public String generateTestSuite() {
 
 		//DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 		//                           Arrays.asList(Properties.CP.split(":")));
 		TestCaseExecutor.initExecutor();
+		setupProgressMonitor();
 
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 
@@ -215,6 +224,13 @@ public class TestSuiteGenerator {
 	/*
 	 * return reference of the GA used in the most recent generateTestSuite()
 	 */
+	/**
+	 * <p>
+	 * getEmployedGeneticAlgorithm
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 */
 	public GeneticAlgorithm getEmployedGeneticAlgorithm() {
 		return ga;
 	}
@@ -235,6 +251,18 @@ public class TestSuiteGenerator {
 		Properties.CRITERION = Criterion.ANALYZE;
 		CoverageStatistics.computeCombinedCoverages();
 		CoverageStatistics.writeCSV();
+	}
+
+	private void setupProgressMonitor() {
+		int phases = 1;
+		if (Properties.ASSERTIONS)
+			phases++;
+		//if (Properties.JUNIT_TESTS)
+		//	phases++;
+		if (Properties.MINIMIZE || Properties.INLINE || Properties.MINIMIZE_VALUES)
+			phases++;
+
+		progressMonitor.setNumberOfPhases(phases);
 	}
 
 	private List<TestCase> generateTests() {
@@ -270,6 +298,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.ASSERTIONS) {
 			LoggingUtils.getEvoLogger().info("* Generating assertions");
+			progressMonitor.setCurrentPhase("Generating assertions");
 			if (Properties.CRITERION == Criterion.MUTATION
 			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 				handleMutations(tests);
@@ -279,6 +308,7 @@ public class TestSuiteGenerator {
 			}
 		}
 
+		//progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		writeJUnitTests(tests);
 
 		if (Properties.CHECK_CONTRACTS) {
@@ -302,6 +332,14 @@ public class TestSuiteGenerator {
 		return tests;
 	}
 
+	/**
+	 * <p>
+	 * writeJUnitTests
+	 * </p>
+	 * 
+	 * @param tests
+	 *            a {@link java.util.List} object.
+	 */
 	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
 			TestSuiteWriter suite = new TestSuiteWriter();
@@ -363,9 +401,11 @@ public class TestSuiteGenerator {
 			}
 			MutationAssertionGenerator masserter = new MutationAssertionGenerator();
 			Set<Integer> tkilled = new HashSet<Integer>();
+			int numTest = 0;
 			for (TestCase test : tests) {
 				//Set<Integer> killed = new HashSet<Integer>();
 				masserter.addAssertions(test, tkilled);
+				progressMonitor.updateStatus((100 * numTest++) / tests.size());
 				//tkilled.addAll(killed);
 			}
 			Properties.CRITERION = oldCriterion;
@@ -391,7 +431,10 @@ public class TestSuiteGenerator {
 		// TODO better method name?
 		MutationAssertionGenerator asserter = new MutationAssertionGenerator();
 		Set<Integer> tkilled = new HashSet<Integer>();
+		int num = 0;
 		for (TestCase test : tests) {
+			progressMonitor.updateStatus((100 * num++) / tests.size());
+
 			//Set<Integer> killed = new HashSet<Integer>();
 			asserter.addAssertions(test, tkilled);
 			//tkilled.addAll(killed);
@@ -413,23 +456,24 @@ public class TestSuiteGenerator {
 	}
 
 	/**
-	 * Executes all given test cases and carves their execution. Note that
-	 * the accessed classes of a TestCase are considered as classes to be observed
+	 * Executes all given test cases and carves their execution. Note that the
+	 * accessed classes of a TestCase are considered as classes to be observed
 	 * (if they do not represent primitive types).
 	 * 
-	 * @param  testsToBeCarved  list of test cases
-	 * @return list of test cases carved from the execution of the given test cases
+	 * @param testsToBeCarved
+	 *            list of test cases
+	 * @return list of test cases carved from the execution of the given test
+	 *         cases
 	 */
-	private List<TestCase> carveTests(List<TestCase> testsToBeCarved)
-	{
-		final ArrayList<TestCase>          result       = new ArrayList<TestCase>(testsToBeCarved.size());
-		final TestCaseExecutor             executor     = TestCaseExecutor.getInstance();
+	private List<TestCase> carveTests(List<TestCase> testsToBeCarved) {
+		final ArrayList<TestCase> result = new ArrayList<TestCase>(testsToBeCarved.size());
+		final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 		final TestCarvingExecutionObserver execObserver = new TestCarvingExecutionObserver();
 		executor.addObserver(execObserver);
-		
+
 		final HashSet<Class<?>> allAccessedClasses = new HashSet<Class<?>>();
-		final Logger            logger             = LoggingUtils.getEvoLogger();
-		
+		final Logger logger = LoggingUtils.getEvoLogger();
+
 		// variables needed in loop
 		CaptureLog              log;
 		TestCase                carvedTestCase;
@@ -442,43 +486,39 @@ public class TestSuiteGenerator {
 		{
 			// collect all accessed classes ( = classes to be observed)
 			allAccessedClasses.addAll(t.getAccessedClasses());
-			
+
 			// start capture before genetic algorithm is applied so that all interactions can be captured
 			Capturer.startCapture();
-			
+
 			// execute test case
 			executor.execute(t);
-		
+
 			// stop capture after best individual has been determined and obtain corresponding capture log
 			log = Capturer.stopCapture();
-			
-			
+
 			//----- filter accessed classes
-			
-			
+
 			// remove all classes representing primitive types
 			Class<?> c;
 			final Iterator<Class<?>> iter = allAccessedClasses.iterator();
-			while(iter.hasNext())
-			{
+			while (iter.hasNext()) {
 				c = iter.next();
-				if(c.isPrimitive())
-				{
+				if (c.isPrimitive()) {
 					iter.remove();
 				}
 			}
-			
-			if(allAccessedClasses.isEmpty())
-			{
-				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed", t);
+
+			if (allAccessedClasses.isEmpty()) {
+				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed",
+				            t);
 				Capturer.clear();
 				continue;
 			}
-			
+
 			//----- generate code out of capture log
-			
+
 			logger.debug("Evosuite Test:\n{}", t);
-			
+
 			// generate carved test with the currently captured log and allAccessedlasses as classes to be observed
 			
 			analyzer.analyze(log, codeGen, allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
@@ -487,24 +527,23 @@ public class TestSuiteGenerator {
 			
 			logger.debug("Carved Test:\n{}", carvedTestCase);
 			result.add(carvedTestCase);
-			
+
 			// reuse helper data structures
 			allAccessedClasses.clear();
-			
+
 			// clear Capturer content to save memory
 			Capturer.clear();
 		}
-			
+
 		executor.removeObserver(execObserver);
-		
+
 		return result;
 	}
-	
-	
+
 	/**
 	 * Use the EvoSuite approach (Whole test suite generation)
 	 * 
-	 * @return
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> generateWholeSuite() {
 		// Set up search algorithm
@@ -517,13 +556,13 @@ public class TestSuiteGenerator {
 			                                         + " for whole suite generation");
 		}
 		long start_time = System.currentTimeMillis() / 1000;
-		
+
 		// What's the search target
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 		ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
 		//if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
-		ga.addListener(new ProgressMonitor());
+		ga.addListener(progressMonitor);
 
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS
@@ -540,20 +579,17 @@ public class TestSuiteGenerator {
 
 		// Perform search
 		LoggingUtils.getEvoLogger().info("* Starting evolution");
-		
+		progressMonitor.setCurrentPhase("Generating test cases");
 
-
-		
 		ga.generateSolution();
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		if(best == null)
-		{
+		if (best == null) {
 			LoggingUtils.getEvoLogger().warn("Could not find any suiteable chromosome");
 			return Collections.emptyList();
 		}
-		
+
 		long end_time = System.currentTimeMillis() / 1000;
-		
+
 		// Newline after progress bar
 		if (Properties.SHOW_PROGRESS)
 			LoggingUtils.getEvoLogger().info("");
@@ -568,40 +604,42 @@ public class TestSuiteGenerator {
 
 		double fitness = best.getFitness();
 
-		
-		
 		// TODO also consider time for test carving in end_time?
-		if(Properties.TEST_CARVING)
-		{
+		if (Properties.TEST_CARVING) {
 			// execute all tests to carve them
 			final List<TestCase> carvedTests = this.carveTests(best.getTests());
 
 			// replace chromosome test cases with carved tests
 			best.clearTests();
-			for(TestCase t : carvedTests)
-			{
+			for (TestCase t : carvedTests) {
 				best.addTest(t);
 			}
 		}
-		
+
+		progressMonitor.setCurrentPhase("Reducing tests");
 		if (Properties.MINIMIZE_VALUES) {
 			LoggingUtils.getEvoLogger().info("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
 			assert (fitness >= best.getFitness());
 		}
+		progressMonitor.updateStatus(33);
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();
+			// progressMonitor.setCurrentPhase("Inlining constants");
 			inliner.inline(best);
 			assert (fitness >= best.getFitness());
 		}
+		progressMonitor.updateStatus(66);
 
 		if (Properties.MINIMIZE) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
+			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
-			minimizer.minimize((TestSuiteChromosome) best);
+			minimizer.minimize(best);
 		}
+		progressMonitor.updateStatus(99);
 
 		statistics.iteration(ga);
 		statistics.minimized(best);
@@ -661,10 +699,26 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getFitnessFunction
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
 	public static TestSuiteFitnessFunction getFitnessFunction() {
 		return getFitnessFunction(Properties.CRITERION);
 	}
 
+	/**
+	 * <p>
+	 * getFitnessFunction
+	 * </p>
+	 * 
+	 * @param criterion
+	 *            a {@link org.evosuite.Properties.Criterion} object.
+	 * @return a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
 	public static TestSuiteFitnessFunction getFitnessFunction(Criterion criterion) {
 		switch (criterion) {
 		case STRONGMUTATION:
@@ -694,10 +748,26 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getFitnessFactory
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
+	 */
 	public static TestFitnessFactory getFitnessFactory() {
 		return getFitnessFactory(Properties.CRITERION);
 	}
 
+	/**
+	 * <p>
+	 * getFitnessFactory
+	 * </p>
+	 * 
+	 * @param crit
+	 *            a {@link org.evosuite.Properties.Criterion} object.
+	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
+	 */
 	public static TestFitnessFactory getFitnessFactory(Criterion crit) {
 		switch (crit) {
 		case STRONGMUTATION:
@@ -782,7 +852,7 @@ public class TestSuiteGenerator {
 	 * Generate one random test at a time and check if adding it improves
 	 * fitness (1+1)RT
 	 * 
-	 * @return
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> generateRandomTests() {
 		LoggingUtils.getEvoLogger().info("* Using random test generation");
@@ -835,7 +905,7 @@ public class TestSuiteGenerator {
 	 * among all test goals, and then search is attempted for each goal. If a
 	 * goal is covered, the remaining budget will be used in the next iteration.
 	 * 
-	 * @return
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> generateIndividualTests() {
 		// Set up search algorithm
@@ -1190,6 +1260,14 @@ public class TestSuiteGenerator {
 	 * return goals; }
 	 */
 
+	/**
+	 * <p>
+	 * getStoppingCondition
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.ga.stoppingconditions.StoppingCondition}
+	 *         object.
+	 */
 	public static StoppingCondition getStoppingCondition() {
 		logger.info("Setting stopping condition: " + Properties.STOPPING_CONDITION);
 		switch (Properties.STOPPING_CONDITION) {
@@ -1209,6 +1287,13 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getCrossoverFunction
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.ga.CrossOverFunction} object.
+	 */
 	public static CrossOverFunction getCrossoverFunction() {
 		switch (Properties.CROSSOVER_FUNCTION) {
 		case SINGLEPOINTFIXED:
@@ -1229,6 +1314,13 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getSelectionFunction
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.ga.SelectionFunction} object.
+	 */
 	public static SelectionFunction getSelectionFunction() {
 		switch (Properties.SELECTION_FUNCTION) {
 		case ROULETTEWHEEL:
@@ -1240,6 +1332,15 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getChromosomeFactory
+	 * </p>
+	 * 
+	 * @param fitness
+	 *            a {@link org.evosuite.ga.FitnessFunction} object.
+	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	protected static ChromosomeFactory<? extends Chromosome> getChromosomeFactory(
 	        FitnessFunction fitness) {
 
@@ -1288,6 +1389,13 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getDefaultChromosomeFactory
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	protected static ChromosomeFactory<? extends Chromosome> getDefaultChromosomeFactory() {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
@@ -1297,6 +1405,15 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getSecondaryTestObjective
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
+	 */
 	public static SecondaryObjective getSecondaryTestObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
@@ -1307,6 +1424,15 @@ public class TestSuiteGenerator {
 			        + name + "\"");
 	}
 
+	/**
+	 * <p>
+	 * getSecondarySuiteObjective
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.ga.SecondaryObjective} object.
+	 */
 	public static SecondaryObjective getSecondarySuiteObjective(String name) {
 		if (name.equalsIgnoreCase("size"))
 			return new MinimizeSizeSecondaryObjective();
@@ -1323,6 +1449,14 @@ public class TestSuiteGenerator {
 			        + name + "\"");
 	}
 
+	/**
+	 * <p>
+	 * getSecondaryObjectives
+	 * </p>
+	 * 
+	 * @param algorithm
+	 *            a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 */
 	public static void getSecondaryObjectives(GeneticAlgorithm algorithm) {
 		String objectives = Properties.SECONDARY_OBJECTIVE;
 
@@ -1340,6 +1474,13 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getPopulationLimit
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.ga.PopulationLimit} object.
+	 */
 	public static PopulationLimit getPopulationLimit() {
 		switch (Properties.POPULATION_LIMIT) {
 		case INDIVIDUALS:
@@ -1353,6 +1494,15 @@ public class TestSuiteGenerator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getGeneticAlgorithm
+	 * </p>
+	 * 
+	 * @param factory
+	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 */
 	public static GeneticAlgorithm getGeneticAlgorithm(
 	        ChromosomeFactory<? extends Chromosome> factory) {
 		switch (Properties.ALGORITHM) {
@@ -1404,7 +1554,7 @@ public class TestSuiteGenerator {
 	/**
 	 * Factory method for search algorithm
 	 * 
-	 * @return
+	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public GeneticAlgorithm setup() {
 
@@ -1485,6 +1635,12 @@ public class TestSuiteGenerator {
 			ShutdownTestWriter writer = new ShutdownTestWriter();
 			ga.addStoppingCondition(writer);
 
+			if (Properties.STOPPING_PORT != -1) {
+				SocketStoppingCondition ss = new SocketStoppingCondition();
+				ss.accept();
+				ga.addStoppingCondition(ss);
+			}
+
 			//Runtime.getRuntime().addShutdownHook(writer);
 			Signal.handle(new Signal("INT"), writer);
 		}
@@ -1495,7 +1651,12 @@ public class TestSuiteGenerator {
 	}
 
 	/**
+	 * <p>
+	 * main
+	 * </p>
+	 * 
 	 * @param args
+	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		if (Properties.VIRTUAL_FS) {

@@ -29,12 +29,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Local search on the parameters of a function call
- * 
+ *
  * 1. null/non-null 2. Other assignable values in test case 3. Type hierarchy
- * 
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ParameterLocalSearch implements LocalSearch {
 
@@ -57,6 +55,7 @@ public class ParameterLocalSearch implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {

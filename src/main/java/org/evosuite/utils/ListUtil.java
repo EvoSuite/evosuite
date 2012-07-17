@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,16 +15,32 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.utils;
 
 import java.util.*;
-
 public abstract class ListUtil {
+	/**
+	 * <p>tail</p>
+	 *
+	 * @param list a {@link java.util.List} object.
+	 * @param <T> a T object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public static <T> List<T> tail(List<T> list) {
 		return list.subList(1, list.size());
 	}
 
+	/**
+	 * <p>anyEquals</p>
+	 *
+	 * @param list a {@link java.util.List} object.
+	 * @param obj a T object.
+	 * @param <T> a T object.
+	 * @return a boolean.
+	 */
 	public static <T> boolean anyEquals(List<T> list, T obj) {
 		for (T item : list) {
 			if (item.equals(obj)) {
@@ -34,12 +51,27 @@ public abstract class ListUtil {
 		return false;
 	}
 	
+	/**
+	 * <p>shuffledList</p>
+	 *
+	 * @param list a {@link java.util.List} object.
+	 * @param <T> a T object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public static <T> List<T> shuffledList(List<T> list) {
 		ArrayList<T> result = new ArrayList<T>(list);
 		Collections.shuffle(result);
 		return result;
 	}
 
+	/**
+	 * <p>shuffledList</p>
+	 *
+	 * @param list a {@link java.util.List} object.
+	 * @param rnd a {@link java.util.Random} object.
+	 * @param <T> a T object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public static <T> List<T> shuffledList(List<T> list, Random rnd) {
 		ArrayList<T> result = new ArrayList<T>(list);
 		Collections.shuffle(result, rnd);

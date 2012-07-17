@@ -30,8 +30,9 @@ import org.evosuite.symbolic.search.DistanceEstimator;
 
 
 /**
- * @author krusev
+ * <p>StringComparison class.</p>
  *
+ * @author krusev
  */
 public class StringComparison extends StringExpression {
 
@@ -39,6 +40,14 @@ public class StringComparison extends StringExpression {
 
 	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringComparison");
 	
+	/**
+	 * <p>Constructor for StringComparison.</p>
+	 *
+	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con a {@link java.lang.Long} object.
+	 */
 	public StringComparison(Expression<String> left, Operator op, Expression<?> right2, Long con) {
 		super();
 		this.left = left;
@@ -54,11 +63,13 @@ public class StringComparison extends StringExpression {
 	protected final Expression<String> left;
 	protected final Expression<?> right;
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return conVal;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -75,14 +86,25 @@ public class StringComparison extends StringExpression {
 		return false;
 	}
 
+	/**
+	 * <p>getRightOperand</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<?> getRightOperand() {
 		return right;
 	}
 
+	/**
+	 * <p>getLeftOperand</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<String> getLeftOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "(" + left + op.toString() + right + ")";
@@ -90,6 +112,7 @@ public class StringComparison extends StringExpression {
 
 	protected int size = 0;
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if (size == 0) {
@@ -98,10 +121,16 @@ public class StringComparison extends StringExpression {
 		return size;
 	}
 
+	/**
+	 * <p>getOperator</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
+	 */
 	public Operator getOperator() {
 		return op;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
 		try {

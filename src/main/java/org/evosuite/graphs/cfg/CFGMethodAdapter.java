@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,13 +37,13 @@ import org.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.javaagent.AnnotatedMethodNode;
 import org.evosuite.testcase.StaticTestCluster;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Create a minimized control flow graph for the method and store it. In
@@ -54,7 +54,6 @@ import org.slf4j.LoggerFactory;
  * properties are set).
  * 
  * @author Gordon Fraser
- * 
  */
 public class CFGMethodAdapter extends MethodVisitor {
 
@@ -86,6 +85,28 @@ public class CFGMethodAdapter extends MethodVisitor {
 	private final int access;
 	private final String className;
 
+	private int lineNumber = 0;
+
+	/**
+	 * <p>
+	 * Constructor for CFGMethodAdapter.
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param access
+	 *            a int.
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @param desc
+	 *            a {@link java.lang.String} object.
+	 * @param signature
+	 *            a {@link java.lang.String} object.
+	 * @param exceptions
+	 *            an array of {@link java.lang.String} objects.
+	 * @param mv
+	 *            a {@link org.objectweb.asm.MethodVisitor} object.
+	 */
 	public CFGMethodAdapter(String className, int access, String name, String desc,
 	        String signature, String[] exceptions, MethodVisitor mv) {
 
@@ -103,6 +124,16 @@ public class CFGMethodAdapter extends MethodVisitor {
 		this.plain_name = name;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.MethodVisitor#visitLineNumber(int, org.objectweb.asm.Label)
+	 */
+	@Override
+	public void visitLineNumber(int line, Label start) {
+		lineNumber = line;
+		super.visitLineNumber(line, start);
+	}
+
+	/** {@inheritDoc} */
 	@Override
 	public void visitEnd() {
 
@@ -211,6 +242,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * 
 	 * @see org.objectweb.asm.commons.LocalVariablesSorter#visitMaxs(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMaxs(int maxStack, int maxLocals) {
 		int maxNum = 7;
@@ -222,7 +254,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		if (BranchPool.getBranchCountForMethod(className, methodName) == 0) {
 			if (isUsable()) {
 				logger.debug("Method has no branches: " + id);
-				BranchPool.addBranchlessMethod(className, id);
+				BranchPool.addBranchlessMethod(className, id, lineNumber);
 			}
 		}
 	}
@@ -244,6 +276,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * Returns a set with all unique methodNames of methods.
 	 * 
 	 * @return A set with all unique methodNames of methods.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 */
 	public static Set<String> getMethods(String className) {
 		Set<String> targetMethods = new HashSet<String>();
@@ -260,6 +294,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * Returns a set with all unique methodNames of methods.
 	 * 
 	 * @return A set with all unique methodNames of methods.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 */
 	public static Set<String> getMethodsPrefix(String className) {
 		Set<String> matchingMethods = new HashSet<String>();
@@ -277,6 +313,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * Returns a set with all unique methodNames of methods.
 	 * 
 	 * @return A set with all unique methodNames of methods.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 */
 	public static int getNumMethodsPrefix(String className) {
 		int num = 0;
@@ -294,6 +332,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * Returns a set with all unique methodNames of methods.
 	 * 
 	 * @return A set with all unique methodNames of methods.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 */
 	public static int getNumMethodsMemberClasses(String className) {
 		int num = 0;

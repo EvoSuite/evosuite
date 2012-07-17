@@ -48,9 +48,8 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * methods and possibly a class hierarchy. A CompoundTestCase is used to gather
  * all those statements to eventually combine them into a normal
  * {@link TestCase} when {@link #finalizeTestCase()} is called.
- * 
+ *
  * @author roessler
- * 
  */
 public class CompoundTestCase {
 	public static class MethodDef {
@@ -148,6 +147,7 @@ public class CompoundTestCase {
 		BEFORE_CLASS, STATIC, STATICFIELDS, BEFORE, FIELDS, CONSTRUCTOR, AFTER, AFTER_CLASS, METHOD;
 	}
 
+	/** Constant <code>STATIC_BLOCK_METHODNAME="<static block>"</code> */
 	public static final String STATIC_BLOCK_METHODNAME = "<static block>";
 
 	private static final long serialVersionUID = 1L;
@@ -175,6 +175,12 @@ public class CompoundTestCase {
 
 	private final DelegatingTestCase delegate;
 
+	/**
+	 * <p>Constructor for CompoundTestCase.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param child a {@link org.evosuite.junit.CompoundTestCase} object.
+	 */
 	public CompoundTestCase(String className, CompoundTestCase child) {
 		child.parent = this;
 		delegate = child.getReference();
@@ -183,6 +189,12 @@ public class CompoundTestCase {
 		this.className = className;
 	}
 
+	/**
+	 * <p>Constructor for CompoundTestCase.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 */
 	public CompoundTestCase(String className, String methodName) {
 		this.testMethod = methodName;
 		this.className = className;
@@ -190,10 +202,20 @@ public class CompoundTestCase {
 		originalDescendant = this;
 	}
 
+	/**
+	 * <p>addParameter</p>
+	 *
+	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void addParameter(VariableReference varRef) {
 		currentMethod.getParams().add(varRef);
 	}
 
+	/**
+	 * <p>addStatement</p>
+	 *
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 */
 	public void addStatement(StatementInterface statement) {
 		if (currentScope == TestScope.FIELDS) {
 			fields.add(statement);
@@ -210,6 +232,12 @@ public class CompoundTestCase {
 		currentMethod.add(statement);
 	}
 
+	/**
+	 * <p>addVariable</p>
+	 *
+	 * @param varBinding a {@link org.eclipse.jdt.core.dom.IVariableBinding} object.
+	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void addVariable(IVariableBinding varBinding, VariableReference varRef) {
 		if ((currentScope == TestScope.FIELDS) || (currentScope == TestScope.STATICFIELDS)) {
 			fieldVars.put(varBinding.toString(), varRef);
@@ -218,6 +246,13 @@ public class CompoundTestCase {
 		currentMethodVars.put(varBinding.toString(), varRef);
 	}
 
+	/**
+	 * <p>convertMethod</p>
+	 *
+	 * @param methodDef a {@link org.evosuite.junit.CompoundTestCase.MethodDef} object.
+	 * @param params a {@link java.util.List} object.
+	 * @param retVal a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void convertMethod(MethodDef methodDef, List<VariableReference> params, VariableReference retVal) {
 		assert methodDef.getParams().size() == params.size();
 		Map<VariableReference, VariableReference> methodVarsMap = new HashMap<VariableReference, VariableReference>();
@@ -246,12 +281,18 @@ public class CompoundTestCase {
 		}
 	}
 
+	/**
+	 * <p>discardMethod</p>
+	 */
 	public void discardMethod() {
 		currentScope = TestScope.FIELDS;
 		currentMethod = null;
 		currentMethodVars.clear();
 	}
 
+	/**
+	 * <p>finalizeMethod</p>
+	 */
 	public void finalizeMethod() {
 		String currentMethodName = currentMethod.getName();
 		methodDefs.put(currentMethodName, currentMethod);
@@ -277,6 +318,11 @@ public class CompoundTestCase {
 		currentMethodVars.clear();
 	}
 
+	/**
+	 * <p>finalizeTestCase</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase finalizeTestCase() {
 		Set<String> overridenMethods = Collections.emptySet();
 		delegate.setDelegate(new DefaultTestCase());
@@ -295,23 +341,49 @@ public class CompoundTestCase {
 		return delegate;
 	}
 
+	/**
+	 * <p>Getter for the field <code>className</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return className;
 	}
 
+	/**
+	 * <p>Getter for the field <code>currentMethod</code>.</p>
+	 *
+	 * @return a {@link java.lang.Object} object.
+	 */
 	public Object getCurrentMethod() {
 		return currentMethod.getName();
 	}
 
+	/**
+	 * <p>Getter for the field <code>currentScope</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.junit.CompoundTestCase.TestScope} object.
+	 */
 	public TestScope getCurrentScope() {
 		return currentScope;
 	}
 
+	/**
+	 * <p>getLastStatement</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
+	 */
 	public StatementInterface getLastStatement() {
 		assert currentScope == TestScope.METHOD;
 		return currentMethod.code.get(currentMethod.code.size() - 1);
 	}
 
+	/**
+	 * <p>getMethod</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.junit.CompoundTestCase.MethodDef} object.
+	 */
 	public MethodDef getMethod(String name) {
 		if (originalDescendant != this) {
 			return originalDescendant.getMethodInternally(name);
@@ -319,14 +391,30 @@ public class CompoundTestCase {
 		return getMethodInternally(name);
 	}
 
+	/**
+	 * <p>Getter for the field <code>parent</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.junit.CompoundTestCase} object.
+	 */
 	public CompoundTestCase getParent() {
 		return parent;
 	}
 
+	/**
+	 * <p>getReference</p>
+	 *
+	 * @return a {@link org.evosuite.junit.DelegatingTestCase} object.
+	 */
 	public DelegatingTestCase getReference() {
 		return delegate;
 	}
 
+	/**
+	 * <p>getVariableReference</p>
+	 *
+	 * @param varBinding a {@link org.eclipse.jdt.core.dom.IVariableBinding} object.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public VariableReference getVariableReference(IVariableBinding varBinding) {
 		if (originalDescendant != this) {
 			return originalDescendant.getVariableReferenceInternally(varBinding);
@@ -334,6 +422,12 @@ public class CompoundTestCase {
 		return getVariableReferenceInternally(varBinding);
 	}
 
+	/**
+	 * <p>isDescendantOf</p>
+	 *
+	 * @param declaringClass a {@link java.lang.Class} object.
+	 * @return a boolean.
+	 */
 	public boolean isDescendantOf(Class<?> declaringClass) {
 		if (parent == null) {
 			return false;
@@ -344,6 +438,11 @@ public class CompoundTestCase {
 		return parent.isDescendantOf(declaringClass);
 	}
 
+	/**
+	 * <p>newMethod</p>
+	 *
+	 * @param methodName a {@link java.lang.String} object.
+	 */
 	public void newMethod(String methodName) {
 		assert (currentMethod == null) || currentMethod.getCode().isEmpty();
 		assert currentMethodVars.isEmpty();
@@ -351,15 +450,27 @@ public class CompoundTestCase {
 		currentMethod = new MethodDef(methodName);
 	}
 
+	/**
+	 * <p>Setter for the field <code>currentScope</code>.</p>
+	 *
+	 * @param scope a {@link org.evosuite.junit.CompoundTestCase.TestScope} object.
+	 */
 	public void setCurrentScope(TestScope scope) {
 		this.currentScope = scope;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return className;
 	}
 
+	/**
+	 * <p>variableAssignment</p>
+	 *
+	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param newAssignment a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void variableAssignment(VariableReference varRef, VariableReference newAssignment) {
 		for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
 			if (entry.getValue() == varRef) {

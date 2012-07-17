@@ -25,8 +25,9 @@ import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 
 /**
+ * <p>SingleContractChecker class.</p>
+ *
  * @author fraser
- * 
  */
 public class SingleContractChecker extends ExecutionObserver {
 
@@ -34,10 +35,20 @@ public class SingleContractChecker extends ExecutionObserver {
 
 	private boolean valid = true;
 
+	/**
+	 * <p>Constructor for SingleContractChecker.</p>
+	 *
+	 * @param contract a {@link org.evosuite.contracts.Contract} object.
+	 */
 	public SingleContractChecker(Contract contract) {
 		this.contract = contract;
 	}
 
+	/**
+	 * <p>isValid</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isValid() {
 		return valid;
 	}
@@ -45,6 +56,7 @@ public class SingleContractChecker extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void output(int position, String output) {
 		// TODO Auto-generated method stub
@@ -54,6 +66,7 @@ public class SingleContractChecker extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#statement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 		try {
@@ -69,6 +82,7 @@ public class SingleContractChecker extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#clear()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void clear() {
 		// TODO Auto-generated method stub

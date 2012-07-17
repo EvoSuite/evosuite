@@ -23,8 +23,9 @@ import org.evosuite.testcase.ExecutableChromosome;
 
 
 /**
+ * <p>MinimizeMaxLengthSecondaryObjective class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective {
 
@@ -45,6 +46,7 @@ public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective {
 	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
 	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
 		return getMaxLength(chromosome1) - getMaxLength(chromosome2);
@@ -59,6 +61,7 @@ public class MinimizeMaxLengthSecondaryObjective extends SecondaryObjective {
 	 * org.evosuite.ga.Chromosome,
 	 * org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {

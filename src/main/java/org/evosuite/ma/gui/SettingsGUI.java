@@ -36,8 +36,9 @@ import org.evosuite.Properties;
 
 
 /**
+ * <p>SettingsGUI class.</p>
+ *
  * @author Yury Pavlov
- * 
  */
 public class SettingsGUI extends JDialog implements ActionListener {
 
@@ -51,8 +52,8 @@ public class SettingsGUI extends JDialog implements ActionListener {
 
 	/**
 	 * Create the dialog.
-	 * 
-	 * @param frame
+	 *
+	 * @param frame a {@link javax.swing.JFrame} object.
 	 */
 	public SettingsGUI(final JFrame frame) {
 		super(frame);
@@ -123,6 +124,7 @@ public class SettingsGUI extends JDialog implements ActionListener {
 		setVisible(true);
 	}
 
+	/** {@inheritDoc} */
 	public void actionPerformed(ActionEvent e) {
 		if ("Save".equals(e.getActionCommand())) {
 			String delta = deltaField.getText();

@@ -23,23 +23,50 @@ package org.evosuite.javaagent;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * <p>ErrorConditionChecker class.</p>
+ *
  * @author fraser
- * 
  */
 public class ErrorConditionChecker {
 
+	/**
+	 * <p>scale</p>
+	 *
+	 * @param value a float.
+	 * @return a int.
+	 */
 	public static int scale(float value) {
 		return (Integer.MAX_VALUE - 2) * (int) Math.ceil((value / (value + 1.0F)));
 	}
 
+	/**
+	 * <p>scale</p>
+	 *
+	 * @param value a double.
+	 * @return a int.
+	 */
 	public static int scale(double value) {
 		return (Integer.MAX_VALUE - 2) * (int) Math.ceil((value / (value + 1.0)));
 	}
 
+	/**
+	 * <p>scale</p>
+	 *
+	 * @param value a long.
+	 * @return a int.
+	 */
 	public static int scale(long value) {
 		return (Integer.MAX_VALUE - 2) * (int) Math.ceil((value / (value + 1L)));
 	}
 
+	/**
+	 * <p>overflowDistance</p>
+	 *
+	 * @param op1 a int.
+	 * @param op2 a int.
+	 * @param opcode a int.
+	 * @return a int.
+	 */
 	public static int overflowDistance(int op1, int op2, int opcode) {
 		int result = 0;
 
@@ -85,6 +112,14 @@ public class ErrorConditionChecker {
 		return 1;
 	}
 
+	/**
+	 * <p>overflowDistance</p>
+	 *
+	 * @param op1 a float.
+	 * @param op2 a float.
+	 * @param opcode a int.
+	 * @return a int.
+	 */
 	public static int overflowDistance(float op1, float op2, int opcode) {
 		float result = 0.0F;
 		switch (opcode) {
@@ -122,6 +157,14 @@ public class ErrorConditionChecker {
 		return 1;
 	}
 
+	/**
+	 * <p>overflowDistance</p>
+	 *
+	 * @param op1 a double.
+	 * @param op2 a double.
+	 * @param opcode a int.
+	 * @return a int.
+	 */
 	public static int overflowDistance(double op1, double op2, int opcode) {
 		double result = 0.0;
 		switch (opcode) {
@@ -159,6 +202,14 @@ public class ErrorConditionChecker {
 		return 1;
 	}
 
+	/**
+	 * <p>overflowDistance</p>
+	 *
+	 * @param op1 a long.
+	 * @param op2 a long.
+	 * @param opcode a int.
+	 * @return a int.
+	 */
 	public static int overflowDistance(long op1, long op2, int opcode) {
 		long result = 0L;
 

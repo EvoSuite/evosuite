@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ContractChecker class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ContractChecker extends ExecutionObserver {
 
@@ -52,6 +53,9 @@ public class ContractChecker extends ExecutionObserver {
 
 	private static boolean active = true;
 
+	/**
+	 * <p>Constructor for ContractChecker.</p>
+	 */
 	public ContractChecker() {
 		// Default from EvoSuite
 		contracts.add(new UndeclaredExceptionContract());
@@ -70,6 +74,11 @@ public class ContractChecker extends ExecutionObserver {
 		contracts.add(new EqualsSymmetricContract());
 	}
 
+	/**
+	 * <p>Setter for the field <code>active</code>.</p>
+	 *
+	 * @param isActive a boolean.
+	 */
 	public static void setActive(boolean isActive) {
 		active = isActive;
 	}
@@ -77,6 +86,7 @@ public class ContractChecker extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void output(int position, String output) {
 		// TODO Auto-generated method stub
@@ -85,8 +95,8 @@ public class ContractChecker extends ExecutionObserver {
 
 	/**
 	 * Set the current test case, on which we check oracles while it is executed
-	 * 
-	 * @param test
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public static void currentTest(TestCase test) {
 		currentTest = test;
@@ -97,6 +107,7 @@ public class ContractChecker extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#statement(int, org.evosuite.testcase.Scope, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
 
@@ -140,6 +151,7 @@ public class ContractChecker extends ExecutionObserver {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#clear()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void clear() {
 		valid = true;

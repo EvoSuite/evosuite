@@ -25,8 +25,9 @@ import org.evosuite.ga.GeneticAlgorithm;
 
 
 /**
+ * <p>GlobalTimeStoppingCondition class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	
@@ -37,8 +38,10 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	/** Assume the search has not started until start_time != 0 */
 	protected static long start_time = 0L;
 	
+	/** Constant <code>pause_time=0L</code> */
 	protected static long pause_time = 0L;
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		if (start_time == 0)
@@ -48,6 +51,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		long current_time = System.currentTimeMillis();
@@ -57,6 +61,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#isFinished()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
 		long current_time = System.currentTimeMillis();
@@ -71,6 +76,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#reset()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void reset() {
 		if (start_time == 0)
@@ -80,7 +86,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	/**
 	 * Fully resets the stopping condition. The start time is set to the current
 	 * time and thus "no time has elapsed so far".
-	 * If you want a conditional reset which only has an effect if the 
+	 * If you want a conditional reset which only has an effect if the
 	 * start time has never been changed use <tt>reset()</tt>.
 	 */
 	public void fullReset() {
@@ -90,29 +96,35 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		// TODO Auto-generated method stub
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		// TODO Auto-generated method stub
 		return Properties.GLOBAL_TIMEOUT;
 	}
 
+	/**
+	 * <p>forceReset</p>
+	 */
 	public static void forceReset() {
 		start_time = 0;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		start_time = value;
 	}
 	
 	/**
-	 * Remember start pause time 
+	 * Remember start pause time
 	 */
 	public void pause() {
 		pause_time = System.currentTimeMillis();

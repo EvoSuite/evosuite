@@ -26,17 +26,19 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>CharPrimitiveStatement class.</p>
+ *
  * @author fraser
- * 
  */
 public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Character> {
 
 	private static final long serialVersionUID = -1960567565801078784L;
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for CharPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link java.lang.Character} object.
 	 */
 	public CharPrimitiveStatement(TestCase tc, Character value) {
 		super(tc, char.class, value);
@@ -44,9 +46,9 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	}
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for CharPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public CharPrimitiveStatement(TestCase tc) {
 		super(tc, char.class, (char) 0);
@@ -56,6 +58,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		value = (char) 0;
@@ -64,6 +67,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
 		mg.push((value).charValue());
@@ -72,6 +76,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
@@ -81,6 +86,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
 		value = (char) (value + delta);
@@ -89,6 +95,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		value = (char) (Randomness.nextChar());
@@ -97,6 +104,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment() {
 		increment((char) 1);
@@ -105,6 +113,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setMid(Character min, Character max) {
 		value = (char) (min + ((max - min) / 2));
@@ -113,6 +122,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void decrement() {
 		increment(-1);
@@ -121,6 +131,7 @@ public class CharPrimitiveStatement extends NumericalPrimitiveStatement<Characte
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
 		return value >= 0;

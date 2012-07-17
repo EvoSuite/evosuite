@@ -22,21 +22,26 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * <p>PrimitivePoolMethodAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimitivePoolMethodAdapter extends MethodVisitor {
 
 	private final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
-	 * @param mv
+	 * <p>Constructor for PrimitivePoolMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
 	 */
 	public PrimitivePoolMethodAdapter(MethodVisitor mv) {
 		super(Opcodes.ASM4, mv);
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * This is a hack to avoid deadlocks because we are only testing single
 	 * threaded stuff. This will be replaced with something nicer once Sebastian
 	 * has found a solution
@@ -63,6 +68,7 @@ public class PrimitivePoolMethodAdapter extends MethodVisitor {
 		super.visitLookupSwitchInsn(dflt, keys, labels);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
 		if (opcode == Opcodes.BIPUSH || opcode == Opcodes.SIPUSH) {
@@ -71,6 +77,7 @@ public class PrimitivePoolMethodAdapter extends MethodVisitor {
 		super.visitIntInsn(opcode, operand);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitLdcInsn(Object cst) {
 		primitive_pool.add(cst);

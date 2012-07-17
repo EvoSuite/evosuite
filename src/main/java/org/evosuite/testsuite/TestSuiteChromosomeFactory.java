@@ -25,8 +25,9 @@ import org.evosuite.utils.Randomness;
 
 
 /**
+ * <p>TestSuiteChromosomeFactory class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteChromosome> {
 
@@ -35,10 +36,18 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 	/** Factory to manipulate and generate method sequences */
 	private ChromosomeFactory<TestChromosome> testChromosomeFactory;
 
+	/**
+	 * <p>Constructor for TestSuiteChromosomeFactory.</p>
+	 */
 	public TestSuiteChromosomeFactory() {
 		testChromosomeFactory = new RandomLengthTestFactory();
 	}
 
+	/**
+	 * <p>Constructor for TestSuiteChromosomeFactory.</p>
+	 *
+	 * @param testFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	public TestSuiteChromosomeFactory(ChromosomeFactory<TestChromosome> testFactory) {
 		testChromosomeFactory = testFactory;
 
@@ -47,10 +56,16 @@ public class TestSuiteChromosomeFactory implements ChromosomeFactory<TestSuiteCh
 		// test_factory = new OUMTestChromosomeFactory();
 	}
 
+	/**
+	 * <p>setTestFactory</p>
+	 *
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 */
 	public void setTestFactory(ChromosomeFactory<TestChromosome> factory) {
 		testChromosomeFactory = factory;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public TestSuiteChromosome getChromosome() {
 

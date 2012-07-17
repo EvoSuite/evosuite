@@ -27,8 +27,9 @@ import org.evosuite.testcase.VariableReference;
 
 
 /**
+ * <p>PrimitiveTraceEntry class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimitiveTraceEntry implements OutputTraceEntry {
 
@@ -36,6 +37,12 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 
 	protected Object value;
 
+	/**
+	 * <p>Constructor for PrimitiveTraceEntry.</p>
+	 *
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param value a {@link java.lang.Object} object.
+	 */
 	public PrimitiveTraceEntry(VariableReference var, Object value) {
 		this.var = var;
 		this.value = value;
@@ -44,6 +51,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean differs(OutputTraceEntry other) {
 		if (other instanceof PrimitiveTraceEntry) {
@@ -57,6 +65,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertion(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -78,6 +87,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertion()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -93,6 +103,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof PrimitiveAssertion) {
@@ -106,6 +117,7 @@ public class PrimitiveTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public OutputTraceEntry cloneEntry() {
 		return new PrimitiveTraceEntry(var, value);

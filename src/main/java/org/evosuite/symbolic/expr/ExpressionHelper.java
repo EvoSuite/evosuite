@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,17 +15,24 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
 import gov.nasa.jpf.JPF;
 
 import java.util.logging.Logger;
-
 public abstract class ExpressionHelper {
 	
 	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.ExpressionHelper");
 	
+	/**
+	 * <p>getLongResult</p>
+	 *
+	 * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @return a long.
+	 */
 	public static long getLongResult(Expression<?> expr) {
 		if (expr instanceof IntegerExpression) {
 			return (Long)((IntegerExpression)expr).execute();

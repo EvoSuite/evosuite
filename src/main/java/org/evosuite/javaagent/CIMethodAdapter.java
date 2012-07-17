@@ -29,50 +29,63 @@ import org.objectweb.asm.Opcodes;
 /**
  * Visits all instructions in method, that could possibly contain references to
  * the classes used in the given class
- * 
+ *
  * @author Andrey Tarasevich
- * 
  */
 public class CIMethodAdapter extends MethodVisitor {
 
 	private final Set<String> classesReferenced = new HashSet<String>();
 
+	/**
+	 * <p>Getter for the field <code>classesReferenced</code>.</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<String> getClassesReferenced() {
 		return classesReferenced;
 	}
 
+	/**
+	 * <p>Constructor for CIMethodAdapter.</p>
+	 */
 	public CIMethodAdapter() {
 		super(Opcodes.ASM4); //, new EmptyVisitor());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		classesReferenced.addAll(Utils.classesDescFromString(owner));
 		classesReferenced.addAll(Utils.classesDescFromString(desc));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
 		classesReferenced.addAll(Utils.classesDescFromString(owner));
 		classesReferenced.addAll(Utils.classesDescFromString(desc));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitLocalVariable(String name, String desc, String signature,
 	        Label start, Label end, int index) {
 		classesReferenced.addAll(Utils.classesDescFromString(desc));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
 		classesReferenced.addAll(Utils.classesDescFromString(desc));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
 		classesReferenced.addAll(Utils.classesDescFromString(type));
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitTryCatchBlock(Label start, Label end, Label handler, String type) {
 		classesReferenced.addAll(Utils.classesDescFromString(type));

@@ -35,13 +35,15 @@ import org.evosuite.Properties;
 
 /**
  * list resources available from the classpath @ *
+ *
+ * @author Gordon Fraser
  */
 public class ResourceList {
 
 	/**
 	 * for all elements of java.class.path get a Collection of resources Pattern
 	 * pattern = Pattern.compile(".*"); gets all resources
-	 * 
+	 *
 	 * @param pattern
 	 *            the pattern to match
 	 * @return the resources in the order they are found
@@ -66,7 +68,7 @@ public class ResourceList {
 	/**
 	 * for all elements of java.class.path get a Collection of resources Pattern
 	 * pattern = Pattern.compile(".*"); gets all resources
-	 * 
+	 *
 	 * @param pattern
 	 *            the pattern to match
 	 * @return the resources in the order they are found
@@ -81,6 +83,13 @@ public class ResourceList {
 		return result;
 	}
 
+	/**
+	 * <p>getResources</p>
+	 *
+	 * @param element a {@link java.lang.String} object.
+	 * @param pattern a {@link java.util.regex.Pattern} object.
+	 * @return a {@link java.util.Collection} object.
+	 */
 	public static Collection<String> getResources(final String element,
 	        final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();

@@ -43,19 +43,21 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ConcolicMutation class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ConcolicMutation {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(ConcolicMutation.class);
 
 	/**
 	 * Generate new constraint and ask solver for solution
-	 * 
-	 * @param condition
-	 * @param test
-	 * @return
+	 *
+	 * @param condition a {@link org.evosuite.symbolic.BranchCondition} object.
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 //	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SuppressWarnings("unchecked")

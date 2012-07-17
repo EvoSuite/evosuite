@@ -37,8 +37,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>MethodDescriptorReplacement class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MethodDescriptorReplacement implements Serializable {
 
@@ -66,6 +67,9 @@ public class MethodDescriptorReplacement implements Serializable {
 		getDescriptorMapping();
 	}
 
+	/**
+	 * <p>reset</p>
+	 */
 	public void reset() {
 		descriptors.clear();
 		return_types.clear();
@@ -89,11 +93,11 @@ public class MethodDescriptorReplacement implements Serializable {
 
 	/**
 	 * Check if we need to change anything here
-	 * 
-	 * @param className
-	 * @param methodName
-	 * @param descriptor
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param descriptor a {@link java.lang.String} object.
+	 * @return a boolean.
 	 */
 	public boolean hasKey(String className, String methodName, String descriptor) {
 		return descriptors.containsKey(className + "." + methodName + descriptor);
@@ -101,11 +105,11 @@ public class MethodDescriptorReplacement implements Serializable {
 
 	/**
 	 * Get the actual replacement, if there is one
-	 * 
-	 * @param className
-	 * @param methodName
-	 * @param descriptor
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param descriptor a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
 	 */
 	public String get(String className, String methodName, String descriptor) {
 		if (hasKey(className, methodName, descriptor))
@@ -114,10 +118,23 @@ public class MethodDescriptorReplacement implements Serializable {
 			return descriptor;
 	}
 
+	/**
+	 * <p>getParameterTypes</p>
+	 *
+	 * @param method a {@link java.lang.reflect.Method} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<Type> getParameterTypes(Method method) {
 		return getParameterTypes(method.getDeclaringClass(), method);
 	}
 
+	/**
+	 * <p>getParameterTypes</p>
+	 *
+	 * @param callee a {@link java.lang.reflect.Type} object.
+	 * @param method a {@link java.lang.reflect.Method} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<Type> getParameterTypes(Type callee, Method method) {
 		if (method_parameters.containsKey(method))
 			return method_parameters.get(method);
@@ -185,6 +202,12 @@ public class MethodDescriptorReplacement implements Serializable {
 		}
 	}
 
+	/**
+	 * <p>getParameterTypes</p>
+	 *
+	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<Type> getParameterTypes(Constructor<?> constructor) {
 		if (constructor_parameters.containsKey(constructor))
 			return constructor_parameters.get(constructor);
@@ -268,10 +291,10 @@ public class MethodDescriptorReplacement implements Serializable {
 
 	/**
 	 * Type of return value of a method
-	 * 
-	 * @param className
-	 * @param method
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param method a {@link java.lang.reflect.Method} object.
+	 * @return a {@link java.lang.reflect.Type} object.
 	 */
 	public Type getReturnType(String className, Method method) {
 		if (return_types.containsKey(method))

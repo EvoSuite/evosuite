@@ -23,9 +23,8 @@ import org.evosuite.ga.GeneticAlgorithm;
 
 /**
  * Stop search after a predefined amount of time
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 
@@ -36,12 +35,15 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 
 	protected long start_time;
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		start_time = System.currentTimeMillis();
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * We are finished when the time is up
 	 */
 	@Override
@@ -51,6 +53,8 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Reset
 	 */
 	@Override
@@ -61,11 +65,13 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		max_seconds = limit;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return max_seconds;
@@ -74,12 +80,14 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		long current_time = System.currentTimeMillis();
 		return (current_time - start_time) / 1000;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		start_time = value;
