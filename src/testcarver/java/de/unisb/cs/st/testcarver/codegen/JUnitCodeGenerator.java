@@ -311,6 +311,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			
 			String extractedType = type.substring(type.indexOf('L') + 1, type.length() - 1);
 			extractedType        = extractedType.replaceFirst("java\\.lang\\.", "");
+			extractedType        = extractedType.replace('$', '.');
 			
 			return ast.newArrayType(this.createAstType(extractedType, ast), arrayDim);
 		}
@@ -370,15 +371,44 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			final String[] fragments = type.split("\\.");
 			if(fragments.length == 1)
 			{
-				return ast.newSimpleType(ast.newSimpleName(fragments[0]));
+				if(fragments[0].contains("$"))
+				{
+					System.out.println("TYPE 1: " + fragments[0].replace('$', '.'));
+					return ast.newSimpleType(ast.newName(fragments[0].replace('$', '.')));
+				}
+				else
+				{
+					System.out.println("TYPE 2: " + fragments[0]);
+					return ast.newSimpleType(ast.newSimpleName(fragments[0]));
+				}
 			}
 			
-		
+
+			
 			final String[] pkgArray = new String[fragments.length - 1];
 			System.arraycopy(fragments, 0, pkgArray, 0, pkgArray.length);
 			final SimpleType pkgType = ast.newSimpleType(ast.newName(pkgArray));
 			
-			return  ast.newQualifiedType( pkgType,  ast.newSimpleName(fragments[fragments.length - 1]));
+			final String clazzName = fragments[fragments.length - 1];
+			if(clazzName.contains("$"))
+			{
+				System.out.println("TYPE 3: " + clazzName.replace('$', '.'));
+				final String[] clazzSplit = clazzName.split("\\$");
+				
+				final String[] newPkgType = new String[pkgArray.length + clazzSplit.length - 1];
+				System.arraycopy(pkgArray,   0, newPkgType, 0,               pkgArray.length);
+				System.arraycopy(clazzSplit, 0, newPkgType, pkgArray.length, clazzSplit.length - 1);
+				
+				
+				return  ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1]));
+			}
+			else
+			{
+				System.out.println("TYPE 4: " + fragments[0]);
+				return  ast.newQualifiedType( pkgType, ast.newSimpleName(clazzName));
+			}
+			
+//			return  ast.newQualifiedType( pkgType,  ast.newSimpleName(fragments[fragments.length - 1].replace('$', '.')));
 		}
 	}
 	
