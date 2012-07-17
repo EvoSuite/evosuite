@@ -32,6 +32,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
@@ -54,8 +55,11 @@ import org.evosuite.utils.Utils;
 import org.objectweb.asm.Type;
 
 /**
- * @author Gordon Fraser
+ * <p>
+ * SearchStatistics class.
+ * </p>
  * 
+ * @author Gordon Fraser
  */
 public class SearchStatistics extends ReportGenerator implements Serializable {
 
@@ -67,6 +71,13 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 	}
 
+	/**
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.testsuite.SearchStatistics} object.
+	 */
 	public static SearchStatistics getInstance() {
 		if (instance == null) {
 			instance = new SearchStatistics();
@@ -74,14 +85,22 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		return instance;
 	}
 
+	/**
+	 * <p>
+	 * Setter for the field <code>instance</code>.
+	 * </p>
+	 * 
+	 * @param statistics
+	 *            a {@link org.evosuite.testsuite.SearchStatistics} object.
+	 */
 	public static void setInstance(SearchStatistics statistics) {
 		instance = statistics;
 	}
 
 	/**
-	 * Write a file for a particular run
+	 * {@inheritDoc}
 	 * 
-	 * @param run
+	 * Write a file for a particular run
 	 */
 	@Override
 	protected String writeRunPage(StatisticEntry run) {
@@ -90,12 +109,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		writeHTMLHeader(sb, run.className);
 
 		sb.append("<div id=\"header\"><div id=\"logo\">");
-		sb.append("<h1>");
+		sb.append("<h2>");
 		sb.append(run.className);
 		sb.append(": ");
 		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
-		sb.append("</h1></div></div>\n");
+		sb.append("</h2></div></div>\n");
 		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
 
 		writeResultTable(sb, run);
@@ -264,11 +283,20 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		return filename;
 	}
 
+	/**
+	 * <p>
+	 * mutationScore
+	 * </p>
+	 * 
+	 * @param mutationScore
+	 *            a double.
+	 */
 	public void mutationScore(double mutationScore) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.mutationScore = mutationScore;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void minimized(Chromosome chromosome) {
 		TestSuiteChromosome best = (TestSuiteChromosome) chromosome;
@@ -442,6 +470,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
 		entry.covered_branchless_methods = coveredBranchlessMethods;
+		BranchCoverageSuiteFitness f = new BranchCoverageSuiteFitness();
+
 		//System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
@@ -508,11 +538,17 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		return classExceptions.size();
 	}
 
+	/**
+	 * <p>
+	 * writeStatistics
+	 * </p>
+	 */
 	public void writeStatistics() {
 		makeDirs();
 		writeCSV();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		Chromosome result = algorithm.getBestIndividual();
@@ -535,18 +571,19 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
-		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchCountForClass(Properties.TARGET_CLASS)
+		entry.total_branches = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchCountForMemberClasses(Properties.TARGET_CLASS)
 		        : BranchPool.getBranchCountForPrefix(Properties.TARGET_CLASS_PREFIX);
 
-		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchlessMethods(Properties.TARGET_CLASS).size()
+		entry.branchless_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? BranchPool.getBranchlessMethodsMemberClasses(Properties.TARGET_CLASS).size()
 		        : BranchPool.getBranchlessMethodsPrefix(Properties.TARGET_CLASS_PREFIX).size();
 
-		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS)
+		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsMemberClasses(Properties.TARGET_CLASS)
 		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
 		// TODO in order for this to work even when the criterion is neither
@@ -579,6 +616,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		// }
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		super.iteration(algorithm);
@@ -595,6 +633,13 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		}
 	}
 
+	/**
+	 * <p>
+	 * getLastStatisticEntry
+	 * </p>
+	 * 
+	 * @return a StatisticEntry object.
+	 */
 	public StatisticEntry getLastStatisticEntry() {
 		return statistics.get(statistics.size() - 1);
 	}

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,17 +15,24 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-
 public class RealConstraint extends Constraint<Double> {
 
 	private static final long serialVersionUID = 6021027178547577289L;
 
+	/**
+	 * <p>Constructor for RealConstraint.</p>
+	 *
+	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param cmp a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public RealConstraint(Expression<Double> left, Comparator cmp,
 	        Expression<Double> right) {
 		super();
@@ -40,21 +48,25 @@ public class RealConstraint extends Constraint<Double> {
 	protected Expression<Double> left;
 	protected Expression<Double> right;
 
+	/** {@inheritDoc} */
 	@Override
 	public Comparator getComparator() {
 		return cmp;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Double> getLeftOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<Double> getRightOperand() {
 		return right;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return left + cmp.toString() + right;

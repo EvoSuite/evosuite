@@ -38,25 +38,25 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>Abstract TestSuiteFitnessFunction class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
+	/** Constant <code>executor</code> */
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
-	 * 
+	 *
 	 * @param test
 	 *            The test case to execute
-	 * @param mutant
-	 *            The mutation to active (null = no mutation)
-	 * 
 	 * @return Result of the execution
 	 */
 	public ExecutionResult runTest(TestCase test) {
@@ -89,6 +89,12 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return result;
 	}
 
+	/**
+	 * <p>runTestSuite</p>
+	 *
+	 * @param suite a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	protected List<ExecutionResult> runTestSuite(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		CurrentChromosomeTracker.getInstance().modification(suite);
@@ -113,6 +119,11 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 		return results;
 	}
 
+	/**
+	 * <p>getCoveredGoals</p>
+	 *
+	 * @return a int.
+	 */
 	public static int getCoveredGoals() {
 
 		// TODO could be done nicer for arbitrary criteria but tbh right now it
@@ -140,6 +151,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isMaximizationFunction() {
 		return false;

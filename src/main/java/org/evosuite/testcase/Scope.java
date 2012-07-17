@@ -32,9 +32,8 @@ import java.util.Set;
 
 /**
  * This class represents the state of a test case execution
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class Scope {
 
@@ -49,7 +48,7 @@ public class Scope {
 
 	/**
 	 * Set variable to new value
-	 * 
+	 *
 	 * @param reference
 	 *            VariableReference
 	 * @param o
@@ -105,7 +104,7 @@ public class Scope {
 
 	/**
 	 * Get current value of variable
-	 * 
+	 *
 	 * @param reference
 	 *            VariableReference we are looking for
 	 * @return Current value of reference
@@ -116,7 +115,7 @@ public class Scope {
 
 	/**
 	 * Get all elements in scope of type
-	 * 
+	 *
 	 * @param type
 	 *            Class we are looking for
 	 * @return List of VariableReferences
@@ -140,7 +139,7 @@ public class Scope {
 
 	/**
 	 * Get all objects in scope
-	 * 
+	 *
 	 * @return Collection of all Objects
 	 */
 	public Collection<Object> getObjects() {
@@ -149,8 +148,9 @@ public class Scope {
 
 	/**
 	 * Get all objects of a given type in scope
-	 * 
+	 *
 	 * @return Collection of all Objects
+	 * @param type a {@link java.lang.reflect.Type} object.
 	 */
 	// TODO: Need to add all fields and stuff as well?
 	public Collection<Object> getObjects(Type type) {

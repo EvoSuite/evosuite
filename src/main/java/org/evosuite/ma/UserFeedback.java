@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,16 +15,17 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.ma;
 
 import java.io.File;
-
-
 public interface UserFeedback {
 	
 	/**
-	 * Creates a dialog to choose right class file. 
+	 * Creates a dialog to choose right class file.
+	 *
 	 * @param className {@code String} - name of the class to load
 	 * @return loaded {@link File}
 	 */
@@ -31,6 +33,7 @@ public interface UserFeedback {
 
 	/**
 	 * Used by the parser to show errors.
+	 *
 	 * @param message {@code String}
 	 */
 	void showParseException(String message);

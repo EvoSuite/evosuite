@@ -21,12 +21,24 @@
 package org.evosuite.symbolic.expr;
 
 /**
- * @author krusev
+ * <p>Abstract Cast interface.</p>
  *
+ * @author krusev
  */
 public abstract interface Cast<T> {
 
+	/**
+	 * <p>getConcreteObject</p>
+	 *
+	 * @param <T> a T object.
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<T> getConcreteObject();
 	
+	/**
+	 * <p>getSize</p>
+	 *
+	 * @return a int.
+	 */
 	public int getSize();
 }

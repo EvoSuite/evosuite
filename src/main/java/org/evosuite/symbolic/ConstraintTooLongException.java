@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,17 +15,26 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic;
-
 public class ConstraintTooLongException extends RuntimeException {
 
 	private static final long serialVersionUID = -7625075607830941781L;
 	
+	/**
+	 * <p>Constructor for ConstraintTooLongException.</p>
+	 */
 	public ConstraintTooLongException(){
 		super();
 	}
 
+	/**
+	 * <p>Constructor for ConstraintTooLongException.</p>
+	 *
+	 * @param msg a {@link java.lang.String} object.
+	 */
 	public ConstraintTooLongException(String msg){
 		super(msg);
 	}

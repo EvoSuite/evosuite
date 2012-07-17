@@ -46,9 +46,8 @@ import com.thoughtworks.xstream.XStream;
 
 /**
  * Pool of interesting method sequences for different objects
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ObjectPool {
 
@@ -76,8 +75,8 @@ public class ObjectPool {
 
 	/**
 	 * Singleton accessor
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.primitives.ObjectPool} object.
 	 */
 	public static ObjectPool getInstance() {
 		if (instance == null)
@@ -88,9 +87,9 @@ public class ObjectPool {
 
 	/**
 	 * Check if there are sequences for given Type
-	 * 
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @return a boolean.
 	 */
 	public boolean hasSequence(Type clazz) {
 		return pool.containsKey(clazz);
@@ -98,9 +97,9 @@ public class ObjectPool {
 
 	/**
 	 * Randomly choose a sequence for a given Type
-	 * 
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getRandomSequence(Type clazz) {
 		return Randomness.choice(pool.get(clazz));
@@ -108,9 +107,9 @@ public class ObjectPool {
 
 	/**
 	 * Retrieve all possible sequences for a given Type
-	 * 
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<TestCase> getSequences(Type clazz) {
 		return pool.get(clazz);
@@ -118,9 +117,9 @@ public class ObjectPool {
 
 	/**
 	 * Insert a new sequence for given Type
-	 * 
-	 * @param clazz
-	 * @param sequence
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @param sequence a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public void addSequence(Type clazz, TestCase sequence) {
 		if (!pool.containsKey(clazz))
@@ -149,9 +148,9 @@ public class ObjectPool {
 
 	/**
 	 * Write given sequence to disk
-	 * 
-	 * @param clazz
-	 * @param sequence
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @param sequence a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public void storeSequence(Type clazz, TestCase sequence) {
 		try {

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic;
 
@@ -22,25 +25,32 @@ import java.util.Collection;
 import java.util.Hashtable;
 import java.util.Iterator;
 import java.util.Set;
-
 public class HashTableSet<E> extends AbstractSet<E> implements Cloneable, Set<E> {
 
 	protected Hashtable<E, E> table;
 
+	/**
+	 * <p>Constructor for HashTableSet.</p>
+	 *
+	 * @param <E> a E object.
+	 */
 	public HashTableSet() {
 		this.table = new Hashtable<E, E>();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean add(E e) {
 		return null == table.put(e, e);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean containsAll(Collection<?> c) {
 		return super.containsAll(c);
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public Object clone() {
@@ -49,21 +59,25 @@ public class HashTableSet<E> extends AbstractSet<E> implements Cloneable, Set<E>
 		return ret;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean contains(Object o) {
 		return table.containsKey(o);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean remove(Object o) {
 		return null != table.remove(o);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Iterator<E> iterator() {
 		return table.keySet().iterator();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int size() {
 		return table.size();

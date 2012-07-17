@@ -40,9 +40,8 @@ import org.slf4j.LoggerFactory;
 /**
  * The bytecode transformer - transforms bytecode depending on package and
  * whether it is the class under test
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class BytecodeInstrumentation {
 
@@ -55,19 +54,38 @@ public class BytecodeInstrumentation {
 	
 	private final Instrumenter testCarvingInstrumenter;
 	
+	/**
+	 * <p>Constructor for BytecodeInstrumentation.</p>
+	 */
 	public BytecodeInstrumentation()
 	{
 		this.testCarvingInstrumenter = new Instrumenter();
 	}
 	
+	/**
+	 * <p>addClassAdapter</p>
+	 *
+	 * @param factory a {@link org.evosuite.javaagent.ClassAdapterFactory} object.
+	 */
 	public static void addClassAdapter(ClassAdapterFactory factory) {
 		externalPostVisitors.add(factory);
 	}
 
+	/**
+	 * <p>addPreClassAdapter</p>
+	 *
+	 * @param factory a {@link org.evosuite.javaagent.ClassAdapterFactory} object.
+	 */
 	public static void addPreClassAdapter(ClassAdapterFactory factory) {
 		externalPreVisitors.add(factory);
 	}
 
+	/**
+	 * <p>isJavaClass</p>
+	 *
+	 * @param classNameWithDots a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public static boolean isJavaClass(String classNameWithDots) {
 		return classNameWithDots.startsWith("java.") // 
 		        || classNameWithDots.startsWith("javax.") //
@@ -76,6 +94,12 @@ public class BytecodeInstrumentation {
 		        || classNameWithDots.startsWith("com.apple.");
 	}
 
+	/**
+	 * <p>isSharedClass</p>
+	 *
+	 * @param classNameWithDots a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public static boolean isSharedClass(String classNameWithDots) {
 		// this are classes that are used by EvoSuite 
 		// and for which an instrumentation leads to 
@@ -90,6 +114,12 @@ public class BytecodeInstrumentation {
 		        || classNameWithDots.startsWith("org.junit");
 	}
 
+	/**
+	 * <p>isTargetProject</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public static boolean isTargetProject(String className) {
 		return (className.startsWith(Properties.PROJECT_PREFIX) || (!Properties.TARGET_CLASS_PREFIX.isEmpty() && className.startsWith(Properties.TARGET_CLASS_PREFIX)))
 		        && !className.startsWith("java.")
@@ -105,6 +135,12 @@ public class BytecodeInstrumentation {
 		        && !className.startsWith("daikon.");
 	}
 
+	/**
+	 * <p>shouldTransform</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public boolean shouldTransform(String className) {
 		if (!Properties.TT)
 			return false;
@@ -135,6 +171,13 @@ public class BytecodeInstrumentation {
 		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
 	}
 
+	/**
+	 * <p>transformBytes</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param reader a {@link org.objectweb.asm.ClassReader} object.
+	 * @return an array of byte.
+	 */
 	public byte[] transformBytes(String className, ClassReader reader) {
 		int readFlags = ClassReader.SKIP_FRAMES;
 

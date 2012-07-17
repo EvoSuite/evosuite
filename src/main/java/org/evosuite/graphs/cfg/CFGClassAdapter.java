@@ -27,9 +27,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * The CFGClassAdapter calls a CFG generator for relevant methods
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class CFGClassAdapter extends ClassVisitor {
 
@@ -43,9 +42,9 @@ public class CFGClassAdapter extends ClassVisitor {
 
 	/**
 	 * Constructor
-	 * 
-	 * @param visitor
-	 * @param className
+	 *
+	 * @param visitor a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
 	 */
 	public CFGClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
@@ -55,6 +54,7 @@ public class CFGClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassAdapter#visit(int, int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visit(int version, int access, String name, String signature,
 	        String superName, String[] interfaces) {
@@ -69,6 +69,7 @@ public class CFGClassAdapter extends ClassVisitor {
 	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
 	        String signature, String[] exceptions) {

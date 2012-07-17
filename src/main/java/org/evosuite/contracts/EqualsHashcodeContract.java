@@ -28,15 +28,15 @@ import org.evosuite.testcase.StatementInterface;
 
 /**
  * o1.equals(o2) => o1.hashCode() == o2.hashCode()
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class EqualsHashcodeContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 		for (Pair pair : getAllObjectPairs(scope)) {
@@ -71,6 +71,7 @@ public class EqualsHashcodeContract extends Contract {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Equals hashcode check";

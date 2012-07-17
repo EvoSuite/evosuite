@@ -29,13 +29,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * EvoSuite can run out of resources: eg out of memory, or too many threads that are stalled and
- * cannot be killed. 
- * 
+ * cannot be killed.
+ *
  * There can be several ways to handle these cases. The simplest is to to just stop the search.
  * Note: stopping the search when EvoSuite is close to run of memory is important because, if it does
  * actually run out of memory, when it will not be able to write down the results obtained so far!
- * 
  *
+ * @author Gordon Fraser
  */
 public class ResourceController implements SearchListener, StoppingCondition {
 
@@ -84,23 +84,27 @@ public class ResourceController implements SearchListener, StoppingCondition {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
 		ga = algorithm;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
 		if (hasExceededResources()) {
@@ -115,40 +119,47 @@ public class ResourceController implements SearchListener, StoppingCondition {
 		}		
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void modification(Chromosome individual) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		// TODO Auto-generated method stub
 		
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
 		return stopComputation;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void reset() {
 		stopComputation = false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		// TODO Auto-generated method stub

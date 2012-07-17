@@ -36,12 +36,10 @@ import org.evosuite.testsuite.CurrentChromosomeTracker;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.utils.Randomness;
 
-
 /**
  * Chromosome representation of test cases
  * 
  * @author Gordon Fraser
- * 
  */
 public class TestChromosome extends ExecutableChromosome {
 
@@ -53,20 +51,37 @@ public class TestChromosome extends ExecutableChromosome {
 	/** Secondary objectives used during ranking */
 	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
+	/**
+	 * <p>
+	 * setTestCase
+	 * </p>
+	 * 
+	 * @param testCase
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public void setTestCase(TestCase testCase) {
 		test = testCase;
 	}
 
+	/**
+	 * <p>
+	 * getTestCase
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase getTestCase() {
 		return test;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void setLastExecutionResult(ExecutionResult lastExecutionResult) {
 		assert lastExecutionResult.test.equals(this.test);
 		this.lastExecutionResult = lastExecutionResult;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void setChanged(boolean changed) {
 		super.setChanged(changed);
@@ -76,6 +91,8 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
@@ -103,6 +120,7 @@ public class TestChromosome extends ExecutableChromosome {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutableChromosome#copyCachedResults(org.evosuite.testcase.ExecutableChromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void copyCachedResults(ExecutableChromosome other) {
 		if (test == null)
@@ -123,9 +141,9 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/**
-	 * Single point cross over
+	 * {@inheritDoc}
 	 * 
-	 * @throws ConstructionFailedException
+	 * Single point cross over
 	 */
 	@Override
 	public void crossOver(Chromosome other, int position1, int position2)
@@ -150,6 +168,8 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * Two chromosomes are equal if their tests are equal
 	 */
 	@Override
@@ -167,6 +187,7 @@ public class TestChromosome extends ExecutableChromosome {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		return test.hashCode();
@@ -175,17 +196,28 @@ public class TestChromosome extends ExecutableChromosome {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.Chromosome#localSearch()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
 		//logger.info("Test before local search: " + test.toCode());
 		double oldFitness = getFitness();
 
-		for (int i = 0; i < test.size(); i++) {
+		// Only apply local search up to the point where an exception was thrown
+		int lastPosition = test.size() - 1;
+		if (lastExecutionResult != null && !isChanged()) {
+			lastPosition = lastExecutionResult.getFirstPositionOfThrownException();
+		}
+
+		//We count down to make the code work when lines are
+		//added during the search (see NullReferenceSearch).
+		for (int i = lastPosition; i >= 0; i--) {
 			if (LocalSearchBudget.isFinished())
 				break;
 
 			LocalSearch search = null;
-			if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
+			if (test.getStatement(i) instanceof NullStatement) {
+				search = new NullReferenceSearch();
+			} else if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
 				Class<?> type = test.getReturnValue(i).getVariableClass();
 				if (type.equals(Integer.class) || type.equals(int.class)) {
 					search = new IntegerLocalSearch<Integer>();
@@ -224,6 +256,8 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * Each statement is mutated with probability 1/l
 	 */
 	@Override
@@ -407,6 +441,8 @@ public class TestChromosome extends ExecutableChromosome {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * The size of a chromosome is the length of its test case
 	 */
 	@Override
@@ -414,6 +450,7 @@ public class TestChromosome extends ExecutableChromosome {
 		return test.size();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int compareTo(Chromosome o) {
 		int result = super.compareTo(o);
@@ -429,11 +466,19 @@ public class TestChromosome extends ExecutableChromosome {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return test.toCode();
 	}
 
+	/**
+	 * <p>
+	 * hasException
+	 * </p>
+	 * 
+	 * @return a boolean.
+	 */
 	public boolean hasException() {
 		return lastExecutionResult == null ? false
 		        : !lastExecutionResult.noThrownExceptions();
@@ -442,11 +487,13 @@ public class TestChromosome extends ExecutableChromosome {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.Chromosome#applyDSE()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void applyDSE(GeneticAlgorithm ga) {
 		// TODO Auto-generated method stub
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult executeForFitnessFunction(
 	        TestSuiteFitnessFunction testSuiteFitnessFunction) {
@@ -456,6 +503,7 @@ public class TestChromosome extends ExecutableChromosome {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.Chromosome#compareSecondaryObjective(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareSecondaryObjective(Chromosome o) {
 		int objective = 0;
@@ -477,6 +525,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 * objectives
 	 * 
 	 * @param objective
+	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
 	public static void addSecondaryObjective(SecondaryObjective objective) {
 		secondaryObjectives.add(objective);
@@ -486,14 +535,18 @@ public class TestChromosome extends ExecutableChromosome {
 	 * Remove secondary objective from list, if it is there
 	 * 
 	 * @param objective
+	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
 	public static void removeSecondaryObjective(SecondaryObjective objective) {
 		secondaryObjectives.remove(objective);
 	}
 
 	/**
+	 * <p>
+	 * Getter for the field <code>secondaryObjectives</code>.
+	 * </p>
 	 * 
-	 * @return
+	 * @return a {@link java.util.List} object.
 	 */
 	public static List<SecondaryObjective> getSecondaryObjectives() {
 		return secondaryObjectives;

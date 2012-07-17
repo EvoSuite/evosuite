@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.testsuite;
 
@@ -41,27 +44,39 @@ import org.evosuite.utils.ReportGenerator;
 import org.evosuite.utils.ReportGenerator.StatisticEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 public class CoverageStatistics {
 
+	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory
 			.getLogger(ReportGenerator.class);
 
+	/** Constant <code>coverages</code> */
 	protected static Map<Criterion, Map<Criterion, Double>> coverages = new HashMap<Criterion, Map<Criterion, Double>>();
+	/** Constant <code>defuseCoverage</code> */
 	protected static Map<Criterion, DefUseCoverageSuiteFitness> defuseCoverage = new HashMap<Criterion, DefUseCoverageSuiteFitness>();
+	/** Constant <code>combinedCoverages</code> */
 	protected static Map<Criterion, Double> combinedCoverages = new HashMap<Criterion, Double>();
+	/** Constant <code>statistics</code> */
 	protected static Map<Criterion, StatisticEntry> statistics = new HashMap<Criterion, StatisticEntry>();
+	/** Constant <code>tests</code> */
 	protected static Map<Criterion, List<TestCase>> tests = new HashMap<Criterion, List<TestCase>>();
 
+	/** Constant <code>REPORT_DIR</code> */
 	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
 
+	/** Constant <code>outputFile="REPORT_DIR.getAbsolutePath()/coverage.c"{trunked}</code> */
 	protected static String outputFile = REPORT_DIR.getAbsolutePath()
 			+ "/coverage.csv";
 
+	/** Constant <code>supportedCriteria</code> */
 	public static Criterion[] supportedCriteria = { Criterion.DEFUSE,
 			Criterion.ALLDEFS, Criterion.BRANCH, Criterion.STATEMENT };
 
+	/**
+	 * <p>analyzeCoverage</p>
+	 *
+	 * @param best a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 */
 	public static void analyzeCoverage(TestSuiteChromosome best) {
 
 		rememberTests(best.getTests());
@@ -86,6 +101,9 @@ public class CoverageStatistics {
 				.getLastStatisticEntry());
 	}
 
+	/**
+	 * <p>computeCombinedCoverages</p>
+	 */
 	public static void computeCombinedCoverages() {
 
 		// create big suite
@@ -117,6 +135,9 @@ public class CoverageStatistics {
 		return fitness;
 	}
 
+	/**
+	 * <p>writeCSV</p>
+	 */
 	public static void writeCSV() {
 
 		try {

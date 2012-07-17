@@ -23,17 +23,21 @@ package org.evosuite.testcase;
 import java.lang.reflect.Type;
 
 /**
+ * <p>Abstract NumericalPrimitiveStatement class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class NumericalPrimitiveStatement<T> extends PrimitiveStatement<T> {
 
 	private static final long serialVersionUID = 476613542969677702L;
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for NumericalPrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param value a T object.
+	 * @param <T> a T object.
 	 */
 	public NumericalPrimitiveStatement(TestCase tc, Type type, T value) {
 		super(tc, type, value);
@@ -51,15 +55,15 @@ public abstract class NumericalPrimitiveStatement<T> extends PrimitiveStatement<
 
 	/**
 	 * Change value by delta
-	 * 
-	 * @param delta
+	 *
+	 * @param delta a long.
 	 */
 	public abstract void increment(long delta);
 
 	/**
 	 * Change value by delta
-	 * 
-	 * @param delta
+	 *
+	 * @param delta a double.
 	 */
 	public void increment(double delta) {
 		increment((long) delta);
@@ -67,16 +71,16 @@ public abstract class NumericalPrimitiveStatement<T> extends PrimitiveStatement<
 
 	/**
 	 * Needed for binary search
-	 * 
-	 * @param min
-	 * @param max
+	 *
+	 * @param min a T object.
+	 * @param max a T object.
 	 */
 	public abstract void setMid(T min, T max);
 
 	/**
 	 * Is the value >= 0?
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public abstract boolean isPositive();
 

@@ -31,8 +31,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>BranchCoverageFactory class.</p>
+ *
  * @author Gordon Fraser, Andre Mis
- * 
  */
 public class BranchCoverageFactory extends AbstractFitnessFactory {
 
@@ -44,6 +45,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 * @see
 	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		return getCoverageGoals(Properties.TARGET_METHOD);
@@ -54,6 +56,12 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 * 
 	 * @see
 	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
+	 */
+	/**
+	 * <p>getCoverageGoals</p>
+	 *
+	 * @param targetMethod a {@link java.lang.String} object.
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestFitnessFunction> getCoverageGoals(String targetMethod) {
 		long start = System.currentTimeMillis();
@@ -104,6 +112,9 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * Create a fitness function for branch coverage aimed at executing the
 	 * given ControlDependency.
+	 *
+	 * @param cd a {@link org.evosuite.graphs.cfg.ControlDependency} object.
+	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness} object.
 	 */
 	public static BranchCoverageTestFitness createBranchCoverageTestFitness(
 	        ControlDependency cd) {
@@ -114,6 +125,10 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * Create a fitness function for branch coverage aimed at executing the
 	 * Branch identified by b as defined by branchExpressionValue.
+	 *
+	 * @param b a {@link org.evosuite.coverage.branch.Branch} object.
+	 * @param branchExpressionValue a boolean.
+	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness} object.
 	 */
 	public static BranchCoverageTestFitness createBranchCoverageTestFitness(Branch b,
 	        boolean branchExpressionValue) {
@@ -126,6 +141,10 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 * Create a fitness function for branch coverage aimed at covering the root
 	 * branch of the given method in the given class. Covering a root branch
 	 * means entering the method.
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param method a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness} object.
 	 */
 	public static BranchCoverageTestFitness createRootBranchTestFitness(String className,
 	        String method) {
@@ -137,6 +156,9 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * Convenience method calling createRootBranchTestFitness(class,method) with
 	 * the respective class and method of the given BytecodeInstruction.
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness} object.
 	 */
 	public static BranchCoverageTestFitness createRootBranchTestFitness(
 	        BytecodeInstruction instruction) {

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,27 +15,38 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccg;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.jgrapht.graph.DefaultEdge;
-
-
 public class ClassCallEdge extends DefaultEdge {
 
 	private static final long serialVersionUID = 7136724698608115327L;
 
 	private BytecodeInstruction callInstruction;
 	
+	/**
+	 * <p>Constructor for ClassCallEdge.</p>
+	 *
+	 * @param callInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public ClassCallEdge(BytecodeInstruction callInstruction) {
 		this.callInstruction = callInstruction;
 	}
 	
+	/**
+	 * <p>Getter for the field <code>callInstruction</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public BytecodeInstruction getCallInstruction() {
 		return callInstruction;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -44,6 +56,7 @@ public class ClassCallEdge extends DefaultEdge {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -61,6 +74,7 @@ public class ClassCallEdge extends DefaultEdge {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return callInstruction.toString();

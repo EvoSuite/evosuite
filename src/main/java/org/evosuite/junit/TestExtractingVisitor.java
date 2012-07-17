@@ -122,7 +122,7 @@ import org.evosuite.testcase.PrimitiveExpression.Operator;
 /**
  * This class implements the Eclipse JDT Visitor to turn an existing test case
  * (in source code form) into an EvoSuite {@link TestCase}.
- * 
+ *
  * @author roessler
  */
 public class TestExtractingVisitor extends LoggingVisitor {
@@ -323,6 +323,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		PRIMITIVE_TYPECODE_MAPPING.put("boolean", Boolean.TYPE);
 	}
 
+	/**
+	 * <p>Constructor for TestExtractingVisitor.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.junit.CompoundTestCase} object.
+	 * @param testClass a {@link java.lang.String} object.
+	 * @param testMethod a {@link java.lang.String} object.
+	 * @param testReader a {@link org.evosuite.junit.TestExtractingVisitor.TestReader} object.
+	 */
 	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod, TestReader testReader) {
 		super();
 		this.testCase = testCase;
@@ -333,6 +341,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testValuesDeterminer.determineRuntimeValues();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(Assignment assignment) {
 		if ((assignment.getRightHandSide() instanceof MethodInvocation)
@@ -353,6 +362,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.variableAssignment(varRef, newAssignment);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(Block node) {
 		if (testCase.getCurrentScope() == TestScope.STATIC) {
@@ -360,6 +370,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(ClassInstanceCreation instanceCreation) {
 		if (instanceCreation.getParent() instanceof ThrowStatement) {
@@ -377,6 +388,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.addStatement(statement);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(ConditionalExpression node) {
 		// TODO-JRO Implement method endVisit
@@ -384,6 +396,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		super.endVisit(node);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(EnhancedForStatement node) {
 		// TODO-JRO Implement method endVisit
@@ -391,6 +404,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		super.endVisit(node);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(IfStatement node) {
 		// TODO-JRO Implement method endVisit
@@ -398,6 +412,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		super.endVisit(node);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(MethodDeclaration node) {
 		logger.debug("Finished extracting method {}. It caused {} exception.", testCase.getCurrentMethod(),
@@ -409,6 +424,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.finalizeMethod();
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void endVisit(MethodInvocation methodInvocation) {
@@ -465,6 +481,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.addStatement(methodStatement);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(ReturnStatement returnStatement) {
 		VariableReference returnValue = null;
@@ -482,6 +499,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.addStatement(returnStmt);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(SuperMethodInvocation superMethodInvocation) {
 		List<?> paramTypes = Arrays.asList(superMethodInvocation.resolveMethodBinding().getParameterTypes());
@@ -493,6 +511,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		testCase.convertMethod(methodDef, params, retVal);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(SwitchCase node) {
 		// TODO-JRO Implement method endVisit
@@ -500,6 +519,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		super.endVisit(node);
 		}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(SwitchStatement node) {
 		// TODO-JRO Implement method endVisit
@@ -507,6 +527,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		super.endVisit(node);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void endVisit(WhileStatement node) {
 		// TODO-JRO Implement method endVisit
@@ -514,11 +535,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		super.endVisit(node);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(ArrayCreation arrayCreation) {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(Block node) {
 		if (testCase.getCurrentScope() == TestScope.FIELDS) {
@@ -527,12 +550,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(CatchClause node) {
 		logger.warn("We are ignoring catch-clauses for now!");
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(FieldDeclaration fieldDeclaration) {
 		if (Modifier.isStatic(fieldDeclaration.getModifiers())) {
@@ -555,6 +580,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(ForStatement forStatement) {
 		int lineNumber = testReader.getLineNumber(forStatement.getBody().getStartPosition());
@@ -592,6 +618,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(ImportDeclaration importDeclaration) {
 		String[] importParts = importDeclaration.toString().split(" ");
@@ -605,6 +632,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(MarkerAnnotation markerAnnotation) {
 		String annotation = markerAnnotation.toString();
@@ -623,6 +651,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(MethodDeclaration methodDeclaration) {
 		String currentMethodName = methodDeclaration.getName().getIdentifier();
@@ -644,6 +673,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return saveMethodCodeExtraction(methodDeclaration);
 		}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(SingleVariableDeclaration variableDeclaration) {
 		VariableReference varRef = retrieveVariableReference(variableDeclaration);
@@ -652,6 +682,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean visit(TypeDeclaration typeDeclaration) {
 		if (!unqualifiedTest.equals(typeDeclaration.getName().getIdentifier())) {
@@ -679,6 +710,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean visit(VariableDeclarationStatement variableDeclStmt) {
@@ -751,6 +783,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return true;
 	}
 
+	/**
+	 * <p>extractArgumentClasses</p>
+	 *
+	 * @param arguments a {@link java.util.List} object.
+	 * @return an array of {@link java.lang.Class} objects.
+	 */
 	protected Class<?>[] extractArgumentClasses(List<?> arguments) {
 		Class<?>[] argClasses = new Class<?>[arguments.size()];
 		for (int idx = 0; idx < arguments.size(); idx++) {
@@ -760,6 +798,14 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return argClasses;
 	}
 
+	/**
+	 * <p>retrieveConstructor</p>
+	 *
+	 * @param type a {@link org.eclipse.jdt.core.dom.Type} object.
+	 * @param argumentTypes a {@link java.util.List} object.
+	 * @param arguments a {@link java.util.List} object.
+	 * @return a {@link java.lang.reflect.Constructor} object.
+	 */
 	protected Constructor<?> retrieveConstructor(Type type, List<?> argumentTypes, List<?> arguments) {
 		Class<?>[] argClasses = extractArgumentClasses(argumentTypes);
 		Constructor<?> constructor = null;
@@ -772,6 +818,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		return constructor;
 	}
 
+	/**
+	 * <p>retrieveTypeClass</p>
+	 *
+	 * @param argument a {@link java.lang.Object} object.
+	 * @return a {@link java.lang.Class} object.
+	 */
 	protected Class<?> retrieveTypeClass(Object argument) {
 		assert argument != null;
 		if (argument instanceof SimpleType) {
@@ -855,6 +907,13 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		throw new UnsupportedOperationException("Retrieval of type " + argument.getClass() + " not implemented yet!");
 	}
 
+	/**
+	 * <p>retrieveVariableReference</p>
+	 *
+	 * @param argument a {@link java.lang.Object} object.
+	 * @param varType a {@link java.lang.Class} object.
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	protected VariableReference retrieveVariableReference(Object argument, Class<?> varType) {
 		if (argument instanceof ClassInstanceCreation) {
 			return retrieveVariableReference((ClassInstanceCreation) argument, varType);

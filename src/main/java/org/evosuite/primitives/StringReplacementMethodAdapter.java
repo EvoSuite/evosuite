@@ -29,11 +29,13 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.LocalVariablesSorter;
 
 /**
+ * <p>StringReplacementMethodAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(StringReplacementMethodAdapter.class);
 
 	private final Map<Integer, Integer> flags = new HashMap<Integer, Integer>();
@@ -43,7 +45,11 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 	private int current_write = -1;
 
 	/**
-	 * @param arg0
+	 * <p>Constructor for StringReplacementMethodAdapter.</p>
+	 *
+	 * @param access a int.
+	 * @param desc a {@link java.lang.String} object.
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
 	 */
 	public StringReplacementMethodAdapter(int access, String desc, MethodVisitor mv) {
 		super(access, desc, mv);
@@ -74,6 +80,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
 		if (owner.equals("java/lang/String")) {
@@ -113,6 +120,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitVarInsn(int opcode, int var) {
 		// Need to know which variable is on the top of the stack
@@ -144,6 +152,7 @@ public class StringReplacementMethodAdapter extends LocalVariablesSorter {
 		super.visitVarInsn(opcode, var);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void visitJumpInsn(int opcode, Label label) {
 		if ((opcode == Opcodes.IFEQ || opcode == Opcodes.IFNE)

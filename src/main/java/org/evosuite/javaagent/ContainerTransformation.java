@@ -38,8 +38,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>ContainerTransformation class.</p>
+ *
  * @author fraser
- * 
  */
 public class ContainerTransformation {
 
@@ -47,10 +48,20 @@ public class ContainerTransformation {
 
 	ClassNode cn;
 
+	/**
+	 * <p>Constructor for ContainerTransformation.</p>
+	 *
+	 * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
+	 */
 	public ContainerTransformation(ClassNode cn) {
 		this.cn = cn;
 	}
 
+	/**
+	 * <p>transform</p>
+	 *
+	 * @return a {@link org.objectweb.asm.tree.ClassNode} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public ClassNode transform() {
 		List<MethodNode> methodNodes = cn.methods;
@@ -168,6 +179,12 @@ public class ContainerTransformation {
 		return changed;
 	}
 
+	/**
+	 * <p>transformMethod</p>
+	 *
+	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * @return a boolean.
+	 */
 	public boolean transformMethod(MethodNode mn) {
 
 		boolean changed = transformContainers(mn);

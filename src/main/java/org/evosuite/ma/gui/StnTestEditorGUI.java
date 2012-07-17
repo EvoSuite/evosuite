@@ -50,6 +50,8 @@ import org.evosuite.ma.Editor;
 import jsyntaxpane.DefaultSyntaxKit;
 
 /**
+ * <p>StnTestEditorGUI class.</p>
+ *
  * @author Yury Pavlov
  */
 public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
@@ -67,9 +69,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 
 	private Editor editor;
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
+	/** {@inheritDoc} */
 	public void createMainWindow(final Editor editor) {
 		this.editor = editor;
 		Dimension dim = Toolkit.getDefaultToolkit().getScreenSize();
@@ -418,6 +418,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 		mainFrame.dispose();
 	}
 
+	/** {@inheritDoc} */
 	public void actionPerformed(ActionEvent actionEvent) {
 		if (actionEvent.getActionCommand().equals("Prev test")) {
 			prevTest();
@@ -441,6 +442,7 @@ public class StnTestEditorGUI implements ActionListener, TestEditorGUI {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ma.gui.TestEditorGUI#getMainFrame()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public JFrame getMainFrame() {
 		return mainFrame;

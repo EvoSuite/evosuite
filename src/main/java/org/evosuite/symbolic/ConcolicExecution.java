@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -47,10 +47,12 @@ import org.objectweb.asm.commons.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * @author Gordon Fraser
+ * <p>
+ * ConcolicExecution class.
+ * </p>
  * 
+ * @author Gordon Fraser
  */
 public class ConcolicExecution {
 
@@ -75,15 +77,32 @@ public class ConcolicExecution {
 		logger.info("Created temporary dir for DSE: " + tempDir.getAbsolutePath());
 	}
 
+	/** Constant <code>dirName="tempDir.getAbsolutePath()"</code> */
 	protected static String dirName = tempDir.getAbsolutePath();
 
+	/** Constant <code>className="TestCase"</code> */
 	protected static String className = "TestCase";
 	//	        + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
 	//	                                            Properties.TARGET_CLASS.lastIndexOf("."));
 
+	/**
+	 * Constant
+	 * <code>classPath="System.getProperty(java.class.path) + :"{trunked}</code>
+	 */
 	protected static String classPath = System.getProperty("java.class.path") + ":"
 	        + dirName;
 
+	/**
+	 * <p>
+	 * executeConcolic
+	 * </p>
+	 * 
+	 * @param targetName
+	 *            a {@link java.lang.String} object.
+	 * @param classPath
+	 *            a {@link java.lang.String} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<BranchCondition> executeConcolic(String targetName, String classPath) {
 		logger.debug("Setting up JPF");
 
@@ -102,8 +121,7 @@ public class ConcolicExecution {
 		//logger.warn(config.getProperty("peer_packages"));
 
 		// We don't want JPF output
-		config.setProperty("report.class",
-		                   "org.evosuite.symbolic.SilentReporter");
+		config.setProperty("report.class", "org.evosuite.symbolic.SilentReporter");
 
 		config.setProperty("log.level", "warning");
 		//config.setProperty("log.level", "info");
@@ -149,7 +167,8 @@ public class ConcolicExecution {
 	 * Retrieve the path condition for a given test case
 	 * 
 	 * @param test
-	 * @return
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @return a {@link java.util.List} object.
 	 */
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 
@@ -217,6 +236,15 @@ public class ConcolicExecution {
 	}
 
 	//	@SuppressWarnings("rawtypes")
+	/**
+	 * <p>
+	 * getPrimitives
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	@SuppressWarnings("unchecked")
 	public List<PrimitiveStatement> getPrimitives(TestCase test) {
 
@@ -263,10 +291,6 @@ public class ConcolicExecution {
 	        PrimitiveStatement<?> statement) {
 		//Class<?> clazz = statement.getReturnValue().getVariableClass();
 		Class<?> clazz = statement.getValue().getClass();
-		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
-			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
-		}
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) statement.getValue()).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
@@ -287,6 +311,11 @@ public class ConcolicExecution {
 			mg.push(((String) statement.getValue()));
 		} else
 			logger.error("Found primitive of unknown type: " + clazz.getName());
+		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
+			mg.cast(org.objectweb.asm.Type.getType(clazz),
+			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
+		}
+
 	}
 
 	/**
@@ -298,6 +327,7 @@ public class ConcolicExecution {
 	 * @return
 	 */
 	//	@SuppressWarnings("rawtypes") 
+	//	@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
@@ -336,8 +366,13 @@ public class ConcolicExecution {
 				p.getReturnValue().storeBytecode(mg, locals);
 
 			} else {
-				statement.getBytecode(mg, locals, result.getExceptionThrownAtPosition(num));
+				statement.getBytecode(mg, locals,
+				                      result.getExceptionThrownAtPosition(num));
 			}
+
+			// Only write bytecode up to the point of exception, anything beyond that doesn't count towards coverage
+			if (result.isThereAnExceptionAtPosition(num))
+				break;
 			num++;
 		}
 		mg.visitInsn(Opcodes.RETURN);
@@ -351,9 +386,11 @@ public class ConcolicExecution {
 	 * Write a test case to disk using the specified symbolic values
 	 * 
 	 * @param statements
+	 *            a {@link java.util.List} object.
 	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
-	//	@SuppressWarnings("rawtypes") 
+	//	@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
 		//File dir = new File(dirName);

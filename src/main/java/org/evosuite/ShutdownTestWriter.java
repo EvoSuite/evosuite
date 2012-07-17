@@ -26,8 +26,9 @@ import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 /**
+ * <p>ShutdownTestWriter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 @SuppressWarnings("restriction")
 public class ShutdownTestWriter extends StoppingConditionImpl implements SignalHandler {
@@ -39,6 +40,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	/* (non-Javadoc)
 	 * @see sun.misc.SignalHandler#handle(sun.misc.Signal)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void handle(Signal arg0) {
 		System.out.println("\n* User requested search stop");
@@ -49,6 +51,11 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 		interrupted = true;
 	}
 
+	/**
+	 * <p>isInterrupted</p>
+	 *
+	 * @return a boolean.
+	 */
 	public static boolean isInterrupted() {
 		return interrupted;
 	}
@@ -56,6 +63,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#isFinished()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
 		return interrupted;
@@ -64,6 +72,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#reset()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void reset() {
 		// interrupted = false;
@@ -72,6 +81,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		// TODO Auto-generated method stub
@@ -81,6 +91,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#getLimit()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		// TODO Auto-generated method stub
@@ -90,12 +101,14 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.stoppingconditions.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		// TODO Auto-generated method stub
 		return 0;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		// TODO Auto-generated method stub

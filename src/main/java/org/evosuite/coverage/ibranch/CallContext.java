@@ -24,8 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * <p>CallContext class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class CallContext {
 
@@ -56,6 +57,11 @@ public class CallContext {
 
 	private final List<Call> context = new ArrayList<Call>();
 
+	/**
+	 * <p>Constructor for CallContext.</p>
+	 *
+	 * @param stackTrace an array of {@link java.lang.StackTraceElement} objects.
+	 */
 	public CallContext(StackTraceElement[] stackTrace) {
 		for (StackTraceElement element : stackTrace) {
 			if (!element.getClassName().startsWith("org.evosuite"))
@@ -65,19 +71,29 @@ public class CallContext {
 
 	/**
 	 * Determine if the concrete stack trace matches this call context
-	 * 
-	 * @param stackTrace
-	 * @return
+	 *
+	 * @param stackTrace an array of {@link java.lang.StackTraceElement} objects.
+	 * @return a boolean.
 	 */
 	public boolean matches(StackTraceElement[] stackTrace) {
 		// TODO: Implement
 		return false;
 	}
 
+	/**
+	 * <p>getRootClassName</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getRootClassName() {
 		return context.get(0).getClassName();
 	}
 
+	/**
+	 * <p>getRootMethodName</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getRootMethodName() {
 		return context.get(0).getMethodName();
 	}
@@ -85,6 +101,7 @@ public class CallContext {
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		String result = "";

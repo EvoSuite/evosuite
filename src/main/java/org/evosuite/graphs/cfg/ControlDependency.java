@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,14 +15,14 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.cfg;
 
 import java.io.Serializable;
 
 import org.evosuite.coverage.branch.Branch;
-
-
 public class ControlDependency implements Serializable {
 
 	private static final long serialVersionUID = 6288839964561655730L;
@@ -29,6 +30,12 @@ public class ControlDependency implements Serializable {
 	private final Branch branch;
 	private final boolean branchExpressionValue;
 
+	/**
+	 * <p>Constructor for ControlDependency.</p>
+	 *
+	 * @param branch a {@link org.evosuite.coverage.branch.Branch} object.
+	 * @param branchExpressionValue a boolean.
+	 */
 	public ControlDependency(Branch branch, boolean branchExpressionValue) {
 		if (branch == null)
 			throw new IllegalArgumentException(
@@ -38,10 +45,20 @@ public class ControlDependency implements Serializable {
 		this.branchExpressionValue = branchExpressionValue;
 	}
 
+	/**
+	 * <p>Getter for the field <code>branch</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
+	 */
 	public Branch getBranch() {
 		return branch;
 	}
 
+	/**
+	 * <p>Getter for the field <code>branchExpressionValue</code>.</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean getBranchExpressionValue() {
 		return branchExpressionValue;
 	}
@@ -74,6 +91,7 @@ public class ControlDependency implements Serializable {
 //		return true;
 //	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 

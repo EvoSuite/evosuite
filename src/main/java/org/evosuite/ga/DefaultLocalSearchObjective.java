@@ -23,8 +23,9 @@ package org.evosuite.ga;
 import java.io.Serializable;
 
 /**
+ * <p>DefaultLocalSearchObjective class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class DefaultLocalSearchObjective implements LocalSearchObjective, Serializable {
 
@@ -32,6 +33,11 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 
 	private final FitnessFunction fitness;
 
+	/**
+	 * <p>Constructor for DefaultLocalSearchObjective.</p>
+	 *
+	 * @param fitness a {@link org.evosuite.ga.FitnessFunction} object.
+	 */
 	public DefaultLocalSearchObjective(FitnessFunction fitness) {
 		this.fitness = fitness;
 	}
@@ -39,6 +45,7 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasImproved(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean hasImproved(Chromosome individual) {
 		// TODO Auto-generated method stub
@@ -48,6 +55,7 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#getFitnessFunction()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public FitnessFunction getFitnessFunction() {
 		return fitness;
@@ -56,6 +64,7 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasChanged(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int hasChanged(Chromosome individual) {
 		// TODO Auto-generated method stub
@@ -65,6 +74,7 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.LocalSearchObjective#hasNotWorsened(org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean hasNotWorsened(Chromosome individual) {
 		// TODO Auto-generated method stub

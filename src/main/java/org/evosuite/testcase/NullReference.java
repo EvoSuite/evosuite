@@ -21,22 +21,24 @@ import java.lang.reflect.Type;
 
 /**
  * Special case of VariableInstance pointing to null
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class NullReference extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = -6172885297590386463L;
 
 	/**
-	 * @param type
-	 * @param position
+	 * <p>Constructor for NullReference.</p>
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public NullReference(TestCase testCase, Type type) {
 		super(testCase, type);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public VariableReference clone() {
 		throw new UnsupportedOperationException();

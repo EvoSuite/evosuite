@@ -32,9 +32,10 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ClientProcess class.</p>
+ *
  * @author Gordon Fraser
  * @author Andrea Arcuri
- * 
  */
 public class ClientProcess {
 
@@ -44,8 +45,12 @@ public class ClientProcess {
 
 	private final ExternalProcessUtilities util = new ExternalProcessUtilities();
 
+	/** Constant <code>geneticAlgorithmStatus</code> */
 	public static GeneticAlgorithm geneticAlgorithmStatus;
 
+	/**
+	 * <p>run</p>
+	 */
 	public void run() {
 
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
@@ -82,6 +87,11 @@ public class ClientProcess {
 
 	
 
+	/**
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
+	 */
 	public static void main(String[] args) {
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");

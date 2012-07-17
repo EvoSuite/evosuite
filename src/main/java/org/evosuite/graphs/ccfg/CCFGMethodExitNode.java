@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,27 +15,45 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
-
 public class CCFGMethodExitNode extends CCFGNode {
 
 	private String method;
 
+	/**
+	 * <p>Constructor for CCFGMethodExitNode.</p>
+	 *
+	 * @param method a {@link java.lang.String} object.
+	 */
 	public CCFGMethodExitNode(String method) {
 		this.method = method;
 	}
 
+	/**
+	 * <p>isExitOfMethodEntry</p>
+	 *
+	 * @param methodEntry a {@link org.evosuite.graphs.ccfg.CCFGMethodEntryNode} object.
+	 * @return a boolean.
+	 */
 	public boolean isExitOfMethodEntry(CCFGMethodEntryNode methodEntry) {
 		if (methodEntry == null)
 			return false;
 		return methodEntry.getMethod().equals(method);
 	}
 
+	/**
+	 * <p>Getter for the field <code>method</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethod() {
 		return method;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -43,6 +62,7 @@ public class CCFGMethodExitNode extends CCFGNode {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -60,6 +80,7 @@ public class CCFGMethodExitNode extends CCFGNode {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Exit: " + method;

@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.assertion;
 
@@ -21,8 +24,6 @@ import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.NumberFormatter;
-
-
 public class InspectorAssertion extends Assertion {
 
 	private static final long serialVersionUID = -4080051661226820222L;
@@ -30,10 +31,16 @@ public class InspectorAssertion extends Assertion {
 	// VariableReference value;
 	protected Inspector inspector;
 
+	/**
+	 * <p>Getter for the field <code>inspector</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.assertion.Inspector} object.
+	 */
 	public Inspector getInspector() {
 		return inspector;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
 		InspectorAssertion s = new InspectorAssertion();
@@ -44,6 +51,7 @@ public class InspectorAssertion extends Assertion {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
 		if (value == null) {
@@ -73,6 +81,7 @@ public class InspectorAssertion extends Assertion {
 			        + inspector.getMethodCall() + "());";
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
@@ -95,6 +104,7 @@ public class InspectorAssertion extends Assertion {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -103,6 +113,7 @@ public class InspectorAssertion extends Assertion {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -124,6 +135,7 @@ public class InspectorAssertion extends Assertion {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.Assertion#isValid()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
 		return source != null;

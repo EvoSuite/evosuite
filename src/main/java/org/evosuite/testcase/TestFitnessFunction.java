@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,18 +24,17 @@ import org.evosuite.ga.ChromosomeRecycler;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 
-
 /**
  * Abstract base class for fitness functions for test case chromosomes
  * 
  * @author Gordon Fraser
- * 
  */
 public abstract class TestFitnessFunction extends FitnessFunction implements
         Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
 
+	/** Constant <code>executor</code> */
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	static boolean warnedAboutIsSimilarTo = false;
@@ -45,9 +44,6 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * 
 	 * @param test
 	 *            The test case to execute
-	 * @param mutant
-	 *            The mutation to active (null = no mutation)
-	 * 
 	 * @return Result of the execution
 	 */
 	public ExecutionResult runTest(TestCase test) {
@@ -76,8 +72,20 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		return result;
 	}
 
+	/**
+	 * <p>
+	 * getFitness
+	 * </p>
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a double.
+	 */
 	public abstract double getFitness(TestChromosome individual, ExecutionResult result);
 
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		logger.trace("Executing test case on original");
@@ -109,6 +117,10 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * If this method does not get overwritten ChromosomeRecycling obviously
 	 * won't work and disabling it using Properties.recycle_chromosomes is
 	 * encouraged in order to avoid unnecessary performance loss
+	 * 
+	 * @param goal
+	 *            a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 * @return a boolean.
 	 */
 	public boolean isSimilarTo(TestFitnessFunction goal) {
 		//		if (!warnedAboutIsSimilarTo && Properties.RECYCLE_CHROMOSOMES) {
@@ -146,6 +158,8 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	 * gain in terms of GA-evolutions the ChromosomeRecycler is supposed to
 	 * achieve. So if recycling is disabled or not implemented preordering
 	 * should be disabled too.
+	 * 
+	 * @return a int.
 	 */
 	public int getDifficulty() {
 		//		if (Properties.PREORDER_GOALS_BY_DIFFICULTY)
@@ -155,17 +169,19 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	}
 
 	/**
+	 * {@inheritDoc}
+	 * 
 	 * Used to preorder goals by difficulty
 	 */
 	@Override
-	public int compareTo(TestFitnessFunction other) {
-		return new Integer(getDifficulty()).compareTo(other.getDifficulty());
-	}
+	public abstract int compareTo(TestFitnessFunction other);
 
 	/**
 	 * Determine if there is an existing test case covering this goal
 	 * 
-	 * @return
+	 * @param tests
+	 *            a {@link java.util.List} object.
+	 * @return a boolean.
 	 */
 	public boolean isCovered(List<TestCase> tests) {
 		for (TestCase test : tests) {
@@ -175,12 +191,45 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		return false;
 	}
 
+	/**
+	 * Determine if there is an existing test case covering this goal
+	 * 
+	 * @param tests
+	 *            a {@link java.util.List} object.
+	 * @return a boolean.
+	 */
+	public boolean isCoveredByResults(List<ExecutionResult> tests) {
+		for (ExecutionResult result : tests) {
+			if (isCovered(result))
+				return true;
+		}
+		return false;
+	}
+
+	/**
+	 * <p>
+	 * isCovered
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a boolean.
+	 */
 	public boolean isCovered(TestCase test) {
 		TestChromosome c = new TestChromosome();
 		c.test = test;
 		return isCovered(c);
 	}
 
+	/**
+	 * <p>
+	 * isCovered
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @return a boolean.
+	 */
 	public boolean isCovered(TestChromosome tc) {
 		ExecutionResult result = tc.getLastExecutionResult();
 		if (result == null || tc.isChanged()) {
@@ -192,6 +241,17 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		return isCovered(tc, result);
 	}
 
+	/**
+	 * <p>
+	 * isCovered
+	 * </p>
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @return a boolean.
+	 */
 	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
 		boolean covered = getFitness(individual, result) == 0.0;
 		if (covered) {
@@ -201,9 +261,24 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		return covered;
 	}
 
+	/**
+	 * Helper function if this is used without a chromosome
+	 * 
+	 * @param result
+	 * @return
+	 */
+	public boolean isCovered(ExecutionResult result) {
+		TestChromosome chromosome = new TestChromosome();
+		chromosome.setTestCase(result.test);
+		chromosome.setLastExecutionResult(result);
+		chromosome.setChanged(false);
+		return isCovered(chromosome, result);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isMaximizationFunction() {
 		return false;

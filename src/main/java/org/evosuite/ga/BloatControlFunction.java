@@ -22,12 +22,17 @@ import java.io.Serializable;
 /**
  * The bloat control function is queried before adding an offspring to the next
  * generation. If it returns true, the parent survives.
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public interface BloatControlFunction extends Serializable {
 
+	/**
+	 * <p>isTooLong</p>
+	 *
+	 * @param chromosome a {@link org.evosuite.ga.Chromosome} object.
+	 * @return a boolean.
+	 */
 	public boolean isTooLong(Chromosome chromosome);
 
 }

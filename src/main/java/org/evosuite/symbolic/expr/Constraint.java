@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,23 +15,41 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
 import java.io.Serializable;
-
 public abstract class Constraint<T extends Object> implements Serializable {
 
 	private static final long serialVersionUID = 7547747352755232472L;
 
+	/**
+	 * <p>getComparator</p>
+	 *
+	 * @param <T> a T object.
+	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 */
 	abstract public Comparator getComparator();
 
+	/**
+	 * <p>getLeftOperand</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	abstract public Expression<?> getLeftOperand();
 
+	/**
+	 * <p>getRightOperand</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	abstract public Expression<?> getRightOperand();
 
 	private int hash = 0;
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		if (hash != 0) {
@@ -44,6 +63,11 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 	protected int size = 0;
 
+	/**
+	 * <p>Getter for the field <code>size</code>.</p>
+	 *
+	 * @return a int.
+	 */
 	public int getSize() {
 		if (size == 0) {
 			size = 1 + getLeftOperand().getSize() + getRightOperand().getSize();
@@ -51,6 +75,7 @@ public abstract class Constraint<T extends Object> implements Serializable {
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj == this) {
@@ -72,8 +97,8 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 	/**
 	 * Sound but not complete
-	 * 
-	 * @return
+	 *
+	 * @return a boolean.
 	 */
 	public boolean isSolveable() {
 		if (getLeftOperand().equals(getRightOperand())) {

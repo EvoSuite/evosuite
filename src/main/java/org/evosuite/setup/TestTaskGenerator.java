@@ -47,8 +47,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>TestTaskGenerator class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestTaskGenerator {
 
@@ -62,7 +63,7 @@ public class TestTaskGenerator {
 
 	/**
 	 * Get the set of public/default constructors
-	 * 
+	 *
 	 * @param clazz
 	 *            The class to be analyzed
 	 * @return The set of accessible constructors
@@ -84,7 +85,7 @@ public class TestTaskGenerator {
 
 	/**
 	 * Get the set of public/default methods
-	 * 
+	 *
 	 * @param clazz
 	 *            The class to be analyzed
 	 * @return The set of accessible methods
@@ -105,7 +106,7 @@ public class TestTaskGenerator {
 
 	/**
 	 * Get the set of public/default fields
-	 * 
+	 *
 	 * @param clazz
 	 *            The class to be analyzed
 	 * @return The set of accessible fields
@@ -126,7 +127,7 @@ public class TestTaskGenerator {
 
 	/**
 	 * Read classes to be excluded
-	 * 
+	 *
 	 * @return Map from classname to methods that should not be used
 	 */
 	public static Map<String, List<String>> getExcludesFromFile() {
@@ -204,7 +205,7 @@ public class TestTaskGenerator {
 
 	/**
 	 * Get list of all classes in the given prefix
-	 * 
+	 *
 	 * @param prefix
 	 *            Package prefix
 	 * @return List of classnames in prefix that are not excluded The list is
@@ -242,7 +243,7 @@ public class TestTaskGenerator {
 
 	/**
 	 * Check if class is accessible
-	 * 
+	 *
 	 * @param c
 	 *            Class to check
 	 * @return Returns true if class is either public or has default access
@@ -267,7 +268,7 @@ public class TestTaskGenerator {
 
 	/**
 	 * Check if method is accessible
-	 * 
+	 *
 	 * @param m
 	 *            Method to check
 	 * @return Returns true is method is accessible and not a special case
@@ -380,8 +381,8 @@ public class TestTaskGenerator {
 
 	/**
 	 * Check if constructor is usable
-	 * 
-	 * @param c
+	 *
+	 * @param c a {@link java.lang.reflect.Constructor} object.
 	 * @return True if constructor is accessible (public/package)
 	 */
 	public static boolean canUse(Constructor<?> c) {
@@ -395,6 +396,13 @@ public class TestTaskGenerator {
 		return true;
 	}
 
+	/**
+	 * <p>isExcluded</p>
+	 *
+	 * @param classname a {@link java.lang.String} object.
+	 * @param methodname a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	protected static boolean isExcluded(String classname, String methodname) {
 		if (method_excludes.containsKey(classname)
 		        && method_excludes.get(classname).contains(methodname))
@@ -406,9 +414,9 @@ public class TestTaskGenerator {
 	/**
 	 * Get all constructors for a class and add all accessible constructors to
 	 * test candidates
-	 * 
-	 * @param candidates
-	 * @param classname
+	 *
+	 * @param candidates a {@link java.util.Set} object.
+	 * @param clazz a {@link java.lang.Class} object.
 	 */
 	protected static void addConstructors(Set<String> candidates, Class<?> clazz) {
 		if (!canUse(clazz)) {
@@ -441,8 +449,8 @@ public class TestTaskGenerator {
 	/**
 	 * Get all constructors for a class and add all accessible methods to test
 	 * candidates
-	 * 
-	 * @param candidates
+	 *
+	 * @param candidates a {@link java.util.Set} object.
 	 * @param clazz
 	 *            .getName()
 	 */
@@ -471,9 +479,9 @@ public class TestTaskGenerator {
 	/**
 	 * Get all constructors for a class and add all accessible fields to test
 	 * candidates
-	 * 
-	 * @param candidates
-	 * @param classname
+	 *
+	 * @param candidates a {@link java.util.Set} object.
+	 * @param clazz a {@link java.lang.Class} object.
 	 */
 	protected static void addFields(Set<String> candidates, Class<?> clazz) {
 		if (!canUse(clazz)) {
@@ -490,9 +498,9 @@ public class TestTaskGenerator {
 	/**
 	 * Get all constructors for a class and add all accessible methods to test
 	 * candidates
-	 * 
-	 * @param candidates
-	 * @param classname
+	 *
+	 * @param candidates a {@link java.util.Set} object.
+	 * @param clazz a {@link java.lang.Class} object.
 	 */
 	protected static void addObjectMethods(Set<String> candidates, Class<?> clazz) {
 		for (Method method : getMethods(clazz)) {
@@ -518,9 +526,9 @@ public class TestTaskGenerator {
 
 	/**
 	 * Write set of possible inspector methods to file
-	 * 
-	 * @param classname
-	 * @param filename
+	 *
+	 * @param filename a {@link java.lang.String} object.
+	 * @param clazz a {@link java.lang.Class} object.
 	 */
 	protected static void writeInspectors(Class<?> clazz, String filename) {
 		StringBuffer sb = new StringBuffer();
@@ -550,9 +558,9 @@ public class TestTaskGenerator {
 
 	/**
 	 * Write test case generation task file
-	 * 
-	 * @param candidates
-	 * @param filename
+	 *
+	 * @param candidates a {@link java.util.Set} object.
+	 * @param filename a {@link java.lang.String} object.
 	 */
 	protected static void writeTask(Set<String> candidates, String filename) {
 		StringBuffer sb = new StringBuffer();
@@ -564,6 +572,12 @@ public class TestTaskGenerator {
 		Utils.writeFile(sb.toString(), file);
 	}
 
+	/**
+	 * <p>writeObjectMethods</p>
+	 *
+	 * @param methods a {@link java.util.Set} object.
+	 * @param filename a {@link java.lang.String} object.
+	 */
 	protected static void writeObjectMethods(Set<String> methods, String filename) {
 		StringBuffer sb = new StringBuffer();
 		File file = new File(Properties.OUTPUT_DIR, filename);
@@ -574,6 +588,12 @@ public class TestTaskGenerator {
 		Utils.writeFile(sb.toString(), file);
 	}
 
+	/**
+	 * <p>writeTestCluster</p>
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @param filename a {@link java.lang.String} object.
+	 */
 	protected static void writeTestCluster(Class<?> clazz, String filename) {
 
 		StringBuffer sb = new StringBuffer();
@@ -585,6 +605,13 @@ public class TestTaskGenerator {
 		Utils.writeFile(sb.toString(), file);
 	}
 
+	/**
+	 * <p>suggestTask</p>
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a boolean.
+	 * @throws java.lang.Throwable if any.
+	 */
 	protected static boolean suggestTask(Class<?> clazz) throws Throwable {
 		String classname = clazz.getName();
 
@@ -719,7 +746,7 @@ public class TestTaskGenerator {
 	/**
 	 * Central function of the task creator. Creates test task files, mutation
 	 * task files, and inspector files
-	 * 
+	 *
 	 * @param prefix
 	 *            Project prefix
 	 */
@@ -766,9 +793,8 @@ public class TestTaskGenerator {
 	/**
 	 * Central function of the task creator. Creates test task files, mutation
 	 * task files, and inspector files
-	 * 
-	 * @param prefix
-	 *            Project prefix
+	 *
+	 * @param classes a {@link java.util.Set} object.
 	 */
 	protected static void suggestTasks(Set<Class<?>> classes) {
 		int num = 0;
@@ -789,8 +815,8 @@ public class TestTaskGenerator {
 
 	/**
 	 * Entry point - generate task files
-	 * 
-	 * @param args
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		LoggingUtils.getEvoLogger().info("* Analyzing " + prefix);

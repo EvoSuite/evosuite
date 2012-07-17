@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,16 +15,23 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-
 public class RealComparison extends RealExpression {
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * <p>Constructor for RealComparison.</p>
+	 *
+	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con a {@link java.lang.Long} object.
+	 */
 	public RealComparison(Expression<Double> left, Expression<Double> right,
 			Long con) {
 		super();
@@ -38,11 +46,13 @@ public class RealComparison extends RealExpression {
 	private Expression<Double> left;
 	private Expression<Double> right;
 	
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return con;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if(obj==this)
@@ -60,20 +70,32 @@ public class RealComparison extends RealExpression {
 		return false;
 	}
 
+	/**
+	 * <p>getRightOperant</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<Double> getRightOperant() {
 		return right;
 	}
 
+	/**
+	 * <p>getLeftOperant</p>
+	 *
+	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public Expression<Double> getLeftOperant() {
 		return left;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "("+left+" cmp "+right+")";
 	}
 	
 	protected int size=0;
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		if(size==0)
@@ -83,6 +105,7 @@ public class RealComparison extends RealExpression {
 		return size;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Double execute() {
 		// this is never used

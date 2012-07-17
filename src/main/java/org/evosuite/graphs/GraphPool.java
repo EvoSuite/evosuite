@@ -33,15 +33,15 @@ import org.slf4j.LoggerFactory;
 /**
  * Gives access to all Graphs computed during CUT analysis such as CFGs created
  * by the CFGGenerator and BytcodeAnalyzer in the CFGMethodAdapter
- * 
+ *
  * For each CUT and each of their methods a Raw- and an ActualControlFlowGraph
  * instance are stored within this pool. Additionally a ControlDependenceGraph
  * is computed and stored for each such method.
- * 
+ *
  * This pool also offers the possibility to generate the ClassCallGraph and
  * ClassControlFlowGraph for a CUT. They represents the call hierarchy and
  * interaction of different methods within a class.
- * 
+ *
  * @author Andre Mis
  */
 public class GraphPool {
@@ -77,6 +77,13 @@ public class GraphPool {
 
 	// retrieve graphs
 
+	/**
+	 * <p>getRawCFG</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
+	 */
 	public static RawControlFlowGraph getRawCFG(String className,
 			String methodName) {
 
@@ -89,6 +96,12 @@ public class GraphPool {
 		return rawCFGs.get(className).get(methodName);
 	}
 
+	/**
+	 * <p>Getter for the field <code>rawCFGs</code>.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link java.util.Map} object.
+	 */
 	public static Map<String, RawControlFlowGraph> getRawCFGs(String className) {
 		if (rawCFGs.get(className) == null) {
 			logger.warn("Class unknown: " + className);
@@ -99,6 +112,13 @@ public class GraphPool {
 		return rawCFGs.get(className);
 	}
 
+	/**
+	 * <p>getActualCFG</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph} object.
+	 */
 	public static ActualControlFlowGraph getActualCFG(String className,
 			String methodName) {
 
@@ -108,6 +128,13 @@ public class GraphPool {
 		return actualCFGs.get(className).get(methodName);
 	}
 
+	/**
+	 * <p>getCDG</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.graphs.cdg.ControlDependenceGraph} object.
+	 */
 	public static ControlDependenceGraph getCDG(String className,
 			String methodName) {
 
@@ -119,6 +146,11 @@ public class GraphPool {
 
 	// register graphs
 
+	/**
+	 * <p>registerRawCFG</p>
+	 *
+	 * @param cfg a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
+	 */
 	public static void registerRawCFG(RawControlFlowGraph cfg) {
 		String className = cfg.getClassName();
 		String methodName = cfg.getMethodName();
@@ -139,6 +171,11 @@ public class GraphPool {
 			cfg.toDot();
 	}
 
+	/**
+	 * <p>registerActualCFG</p>
+	 *
+	 * @param cfg a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph} object.
+	 */
 	public static void registerActualCFG(ActualControlFlowGraph cfg) {
 		String className = cfg.getClassName();
 		String methodName = cfg.getMethodName();
@@ -189,9 +226,12 @@ public class GraphPool {
 
 	/**
 	 * Computes the CCFG for the given class
-	 * 
+	 *
 	 * If no CFG is known for the given class, an IllegalArgumentException is
 	 * thrown
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph} object.
 	 */
 	public static ClassControlFlowGraph computeCCFG(String className) {
 		if (rawCFGs.get(className) == null)
@@ -210,18 +250,32 @@ public class GraphPool {
 		return ccfg;
 	}
 
+	/**
+	 * <p>clear</p>
+	 */
 	public static void clear() {
 		rawCFGs.clear();
 		actualCFGs.clear();
 		controlDependencies.clear();
 	}
 
+	/**
+	 * <p>clear</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public static void clear(String className) {
 		rawCFGs.remove(className);
 		actualCFGs.remove(className);
 		controlDependencies.remove(className);
 	}
 
+	/**
+	 * <p>clear</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 */
 	public static void clear(String className, String methodName) {
 		if (rawCFGs.containsKey(className))
 			rawCFGs.get(className).remove(methodName);

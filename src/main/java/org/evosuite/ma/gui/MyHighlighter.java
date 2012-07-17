@@ -16,7 +16,9 @@
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 /**
- * 
+ * <p>MyHighlighter class.</p>
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.ma.gui;
 
@@ -27,23 +29,18 @@ import java.awt.Rectangle;
 import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.JTextComponent;
-
 public class MyHighlighter extends DefaultHighlighter {
 
 	private JTextComponent component;
 
-	/**
-	 * @see javax.swing.text.DefaultHighlighter#install(javax.swing.text.JTextComponent)
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public final void install(final JTextComponent c) {
 		super.install(c);
 		this.component = c;
 	}
 
-	/**
-	 * @see javax.swing.text.DefaultHighlighter#deinstall(javax.swing.text.JTextComponent)
-	 */
+	/** {@inheritDoc} */
 	@Override
 	public final void deinstall(final JTextComponent c) {
 		super.deinstall(c);
@@ -51,8 +48,9 @@ public class MyHighlighter extends DefaultHighlighter {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Same algo, except width is not modified with the insets.
-	 * 
 	 * @see javax.swing.text.DefaultHighlighter#paint(java.awt.Graphics)
 	 */
 	@Override

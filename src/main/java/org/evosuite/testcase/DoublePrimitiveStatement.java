@@ -26,26 +26,28 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>DoublePrimitiveStatement class.</p>
+ *
  * @author fraser
- * 
  */
 public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double> {
 
 	private static final long serialVersionUID = 6229514439946892566L;
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for DoublePrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value a {@link java.lang.Double} object.
 	 */
 	public DoublePrimitiveStatement(TestCase tc, Double value) {
 		super(tc, double.class, value);
 	}
 
 	/**
-	 * @param tc
-	 * @param type
-	 * @param value
+	 * <p>Constructor for DoublePrimitiveStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public DoublePrimitiveStatement(TestCase tc) {
 		super(tc, double.class, 0.0);
@@ -54,6 +56,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#zero()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void zero() {
 		value = new Double(0.0);
@@ -62,6 +65,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#pushBytecode(org.objectweb.asm.commons.GeneratorAdapter)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void pushBytecode(GeneratorAdapter mg) {
 		mg.push((value).doubleValue());
@@ -70,6 +74,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#delta()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void delta() {
 		int delta = Randomness.nextInt(2 * Properties.MAX_DELTA) - Properties.MAX_DELTA;
@@ -79,6 +84,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment(long delta) {
 		value = value + delta;
@@ -87,6 +93,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment(double delta) {
 		value = value + delta;
@@ -95,6 +102,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#randomize()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
@@ -106,6 +114,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void increment() {
 		increment(1.0);
@@ -114,6 +123,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#setMid(java.lang.Object, java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setMid(Double min, Double max) {
 		value = (double) (min + ((max - min) / 2));
@@ -122,6 +132,7 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#decrement()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void decrement() {
 		increment(-1.0);
@@ -130,11 +141,13 @@ public class DoublePrimitiveStatement extends NumericalPrimitiveStatement<Double
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.NumericalPrimitiveStatement#isPositive()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isPositive() {
 		return value >= 0;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public void negate() {
 		value = -value;

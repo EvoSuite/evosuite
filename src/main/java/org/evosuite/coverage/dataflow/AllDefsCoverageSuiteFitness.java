@@ -33,9 +33,6 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
  * Evaluate fitness of a test suite with respect to all of its def-use pairs
- * 
- * @author
- * 
  */
 public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
@@ -43,8 +40,10 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	static List<TestFitnessFunction> goals = TestSuiteGenerator
 			.getFitnessFactory(Criterion.ALLDEFS).getCoverageGoals();
 
+	/** Constant <code>totalGoals=goals.size()</code> */
 	public static int totalGoals = goals.size();
 
+	/** Constant <code>mostCoveredGoals=0</code> */
 	public static int mostCoveredGoals = 0;
 
 	/*
@@ -54,6 +53,7 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * org.evosuite.ga.FitnessFunction#getFitness(org.
 	 * evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		logger.trace("Calculating defuse fitness");

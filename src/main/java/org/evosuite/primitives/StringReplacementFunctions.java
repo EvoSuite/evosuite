@@ -18,11 +18,18 @@
 package org.evosuite.primitives;
 
 /**
- * @author Gordon Fraser
+ * <p>StringReplacementFunctions class.</p>
  *
+ * @author Gordon Fraser
  */
 public class StringReplacementFunctions {
 
+	/**
+	 * <p>isEmptyDistance</p>
+	 *
+	 * @param str a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int isEmptyDistance(String str) {
 		if(str.isEmpty())
 			return 0;
@@ -30,6 +37,14 @@ public class StringReplacementFunctions {
 			return str.length() + 1;
 	}
 	
+	/**
+	 * <p>min</p>
+	 *
+	 * @param a a int.
+	 * @param b a int.
+	 * @param c a int.
+	 * @return a int.
+	 */
 	public static int min(int a, int b, int c) {
 		if(a < b)
 			return Math.min(a, c);
@@ -37,6 +52,13 @@ public class StringReplacementFunctions {
 			return Math.min(b, c);
 	}
 	
+	/**
+	 * <p>OED</p>
+	 *
+	 * @param s1 a {@link java.lang.String} object.
+	 * @param s2 a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int OED(String s1, String s2) {
 		// The edit distance of an empty string and a given string is the length of the given string
 		int n = s1.length ();
@@ -61,6 +83,13 @@ public class StringReplacementFunctions {
 		return min(OED(s+a, t) + 127, OED(s, t+b) + 127, OED(s, t) + cost);
 	}
 
+	/**
+	 * <p>editDistance</p>
+	 *
+	 * @param s a {@link java.lang.String} object.
+	 * @param t a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int editDistance (String s, String t)
 	{
 		int d[][]; // matrix
@@ -131,6 +160,13 @@ public class StringReplacementFunctions {
 		return d[n][m];
 	}
 	
+	/**
+	 * <p>getLevenshteinDistance</p>
+	 *
+	 * @param s a {@link java.lang.String} object.
+	 * @param t a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int getLevenshteinDistance (String s, String t) {
 		if (s == null || t == null) {
 			throw new IllegalArgumentException("Strings must not be null");
@@ -199,6 +235,13 @@ public class StringReplacementFunctions {
 		return p[n];
 	}
 	
+	/**
+	 * <p>equalsDistance</p>
+	 *
+	 * @param first a {@link java.lang.String} object.
+	 * @param second a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int equalsDistance(String first, String second) {
 		if(first.equals(second))
 			return 0; // Identical
@@ -219,10 +262,24 @@ public class StringReplacementFunctions {
 		}
 	}
 	
+	/**
+	 * <p>equalsIgnoreCaseDistance</p>
+	 *
+	 * @param first a {@link java.lang.String} object.
+	 * @param second a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int equalsIgnoreCaseDistance(String first, String second) {
 		return equalsDistance(first.toLowerCase(), second.toLowerCase());
 	}
 	
+	/**
+	 * <p>startsWith</p>
+	 *
+	 * @param value a {@link java.lang.String} object.
+	 * @param prefix a {@link java.lang.String} object.
+	 * @return a int.
+	 */
 	public static int startsWith(String value, String prefix) {
 		int len = Math.min(prefix.length(), value.length());
 		return equalsDistance(value.substring(0, len), prefix);

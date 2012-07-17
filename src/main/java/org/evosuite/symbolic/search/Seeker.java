@@ -53,8 +53,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>Seeker class.</p>
+ *
  * @author krusev
- * 
  */
 public class Seeker implements Solver {
 
@@ -69,6 +70,7 @@ public class Seeker implements Solver {
 	 * In getModel we need to build the constraints and search for better input 
 	 * values for the String variables. 
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
 
@@ -221,6 +223,7 @@ public class Seeker implements Solver {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean solve(Collection<Constraint<?>> constraints) {
 		return false;

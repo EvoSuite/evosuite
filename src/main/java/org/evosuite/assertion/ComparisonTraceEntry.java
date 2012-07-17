@@ -28,8 +28,9 @@ import java.util.Set;
 import org.evosuite.testcase.VariableReference;
 
 /**
+ * <p>ComparisonTraceEntry class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ComparisonTraceEntry implements OutputTraceEntry {
 
@@ -37,10 +38,21 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 
 	private final Map<VariableReference, Boolean> equalityMap = new HashMap<VariableReference, Boolean>();
 
+	/**
+	 * <p>Constructor for ComparisonTraceEntry.</p>
+	 *
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public ComparisonTraceEntry(VariableReference var) {
 		this.var = var;
 	}
 
+	/**
+	 * <p>addEntry</p>
+	 *
+	 * @param other a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param value a boolean.
+	 */
 	public void addEntry(VariableReference other, boolean value) {
 		equalityMap.put(other, value);
 	}
@@ -48,6 +60,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean differs(OutputTraceEntry other) {
 		if (other instanceof ComparisonTraceEntry) {
@@ -70,6 +83,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -99,6 +113,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -120,6 +135,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof EqualsAssertion) {
@@ -133,6 +149,7 @@ public class ComparisonTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public OutputTraceEntry cloneEntry() {
 		ComparisonTraceEntry copy = new ComparisonTraceEntry(var);

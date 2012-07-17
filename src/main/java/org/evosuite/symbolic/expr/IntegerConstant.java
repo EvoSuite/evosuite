@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,29 +15,38 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-
 public class IntegerConstant extends IntegerExpression {
 
 	private static final long serialVersionUID = 3770747666367222441L;
 
 	protected long value;
 
+	/**
+	 * <p>Constructor for IntegerConstant.</p>
+	 *
+	 * @param longValue a long.
+	 */
 	public IntegerConstant(long longValue) {
 		this.value = longValue;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return value;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return Long.toString(value);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (obj instanceof IntegerConstant) {
@@ -46,11 +56,13 @@ public class IntegerConstant extends IntegerExpression {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
 		return 1;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
 		return value;

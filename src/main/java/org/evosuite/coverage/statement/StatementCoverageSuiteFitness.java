@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.coverage.statement;
 
@@ -27,14 +30,14 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-
-
 public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -4479582777935260157L;
 
+	/** Constant <code>mostCoveredGoals=0</code> */
 	public static int mostCoveredGoals = 0;
 	
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(Chromosome individual) {
 		TestSuiteChromosome suite = (TestSuiteChromosome)individual;

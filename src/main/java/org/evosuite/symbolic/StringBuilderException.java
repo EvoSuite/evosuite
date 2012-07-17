@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,15 +15,21 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic;
-
 public class StringBuilderException extends RuntimeException {
 
 	private static final long serialVersionUID = 1483727613653631273L;
 
 	
 
+	/**
+	 * <p>Constructor for StringBuilderException.</p>
+	 *
+	 * @param msg a {@link java.lang.String} object.
+	 */
 	public StringBuilderException(String msg) {
 		super(msg);
 	}

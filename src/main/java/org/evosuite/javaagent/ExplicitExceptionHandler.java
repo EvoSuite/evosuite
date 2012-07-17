@@ -25,8 +25,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * <p>ExplicitExceptionHandler class.</p>
+ *
  * @author gordon
- * 
  */
 public class ExplicitExceptionHandler extends MethodVisitor {
 
@@ -38,6 +39,14 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 
 	int currentLine = 0;
 
+	/**
+	 * <p>Constructor for ExplicitExceptionHandler.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 */
 	public ExplicitExceptionHandler(MethodVisitor mv, String className,
 	        String methodName, String desc) {
 		super(Opcodes.ASM4, mv);
@@ -48,6 +57,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitLabel(org.objectweb.asm.Label)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitLabel(Label label) {
 		if (label instanceof AnnotatedLabel) {
@@ -65,6 +75,7 @@ public class ExplicitExceptionHandler extends MethodVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitInsn(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitInsn(int opcode) {
 		if (opcode == Opcodes.ATHROW && !inErrorBranch) {

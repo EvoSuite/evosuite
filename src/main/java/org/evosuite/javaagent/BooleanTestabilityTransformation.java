@@ -68,14 +68,13 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Transform everything Boolean to ints.
- * 
+ *
  * This transformation replaces: - TRUE/FALSE with +K/-K - IFEQ/IFNE with
  * IFLE/IFGT - Signatures in fields and calls - Inserts calls to remember
  * distance of last boolean calculation - Inserts calls to recall distance of
  * last boolean calculation when Boolean is used
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class BooleanTestabilityTransformation {
 
@@ -89,6 +88,11 @@ public class BooleanTestabilityTransformation {
 
 	private MethodNode currentMethodNode = null;
 
+	/**
+	 * <p>Constructor for BooleanTestabilityTransformation.</p>
+	 *
+	 * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
+	 */
 	public BooleanTestabilityTransformation(ClassNode cn) {
 		this.cn = cn;
 		this.className = cn.name.replace("/", ".");
@@ -96,8 +100,8 @@ public class BooleanTestabilityTransformation {
 
 	/**
 	 * Transform all methods and fields
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.objectweb.asm.tree.ClassNode} object.
 	 */
 	public ClassNode transform() {
 
@@ -159,6 +163,14 @@ public class BooleanTestabilityTransformation {
 		}
 	}
 
+	/**
+	 * <p>getOriginalNameDesc</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getOriginalNameDesc(String className, String methodName,
 	        String desc) {
 		String key = className.replace(".", "/") + "/" + methodName + desc;
@@ -173,6 +185,14 @@ public class BooleanTestabilityTransformation {
 		}
 	}
 
+	/**
+	 * <p>getOriginalDesc</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
+	 */
 	public static String getOriginalDesc(String className, String methodName, String desc) {
 		String key = className.replace(".", "/") + "/" + methodName + desc;
 		if (DescriptorMapping.getInstance().originalDesc.containsKey(key)) {
@@ -184,6 +204,14 @@ public class BooleanTestabilityTransformation {
 		}
 	}
 
+	/**
+	 * <p>hasTransformedParameters</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public static boolean hasTransformedParameters(String className, String methodName,
 	        String desc) {
 		String key = className.replace(".", "/") + "/" + methodName + desc;
@@ -197,6 +225,14 @@ public class BooleanTestabilityTransformation {
 		return false;
 	}
 
+	/**
+	 * <p>isTransformedField</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param fieldName a {@link java.lang.String} object.
+	 * @param desc a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
 	public static boolean isTransformedField(String className, String fieldName,
 	        String desc) {
 		return DescriptorMapping.getInstance().isTransformedField(className, fieldName,

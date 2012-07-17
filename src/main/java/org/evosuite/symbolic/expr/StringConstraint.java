@@ -25,13 +25,21 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 
 
 /**
- * @author krusev
+ * <p>StringConstraint class.</p>
  *
+ * @author krusev
  */
 public class StringConstraint extends Constraint<String> {
 
 	private static final long serialVersionUID = 5871101668137509725L;
 
+	/**
+	 * <p>Constructor for StringConstraint.</p>
+	 *
+	 * @param left a {@link org.evosuite.symbolic.expr.StringExpression} object.
+	 * @param cmp a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 * @param right a {@link org.evosuite.symbolic.expr.StringExpression} object.
+	 */
 	public StringConstraint(StringExpression left, Comparator cmp, StringExpression right) {
 		super();
 		this.left = left;
@@ -46,21 +54,25 @@ public class StringConstraint extends Constraint<String> {
 	protected Expression<String> left;
 	protected Expression<String> right;
 
+	/** {@inheritDoc} */
 	@Override
 	public Comparator getComparator() {
 		return cmp;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getLeftOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getRightOperand() {
 		return right;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return left + cmp.toString() + right;

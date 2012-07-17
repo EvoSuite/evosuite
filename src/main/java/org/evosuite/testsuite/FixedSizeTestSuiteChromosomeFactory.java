@@ -26,8 +26,9 @@ import org.evosuite.testcase.TestChromosome;
 
 
 /**
+ * <p>FixedSizeTestSuiteChromosomeFactory class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class FixedSizeTestSuiteChromosomeFactory implements
         ChromosomeFactory<TestSuiteChromosome> {
@@ -39,6 +40,11 @@ public class FixedSizeTestSuiteChromosomeFactory implements
 
 	private final int size;
 
+	/**
+	 * <p>Constructor for FixedSizeTestSuiteChromosomeFactory.</p>
+	 *
+	 * @param size a int.
+	 */
 	public FixedSizeTestSuiteChromosomeFactory(int size) {
 		testChromosomeFactory = new RandomLengthTestFactory();
 		this.size = size;
@@ -47,6 +53,7 @@ public class FixedSizeTestSuiteChromosomeFactory implements
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.ChromosomeFactory#getChromosome()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public TestSuiteChromosome getChromosome() {
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(

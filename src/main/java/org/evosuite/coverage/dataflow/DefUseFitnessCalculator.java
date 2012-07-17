@@ -38,14 +38,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
- * 
+ *
  * This class is like a library containing all methods needed to calculate a
  * DefUseCoverage-Fitness
- * 
+ *
  * @author Andre Mis
  */
 public class DefUseFitnessCalculator {
 
+	/** Constant <code>alternativeTime=0l</code> */
 	public static long alternativeTime = 0l;
 
 	private final static boolean DEBUG = Properties.DEFUSE_DEBUG_MODE;
@@ -98,6 +99,13 @@ public class DefUseFitnessCalculator {
 	private final TestFitnessFunction goalUseFitness;
 	private final String goalVariable;
 
+	/**
+	 * <p>Constructor for DefUseFitnessCalculator.</p>
+	 *
+	 * @param goal a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
+	 * @param individual a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public DefUseFitnessCalculator(DefUseCoverageTestFitness goal,
 	        TestChromosome individual, ExecutionResult result) {
 		this.goal = goal;
@@ -116,39 +124,41 @@ public class DefUseFitnessCalculator {
 	/**
 	 * Calculates the DefinitionUseCoverage fitness for the given DUPair on the
 	 * given ExecutionResult
-	 * 
+	 *
 	 * The fitness is calculated as follows:
-	 * 
+	 *
 	 * If the goalDefinition is not passed in the result at all: This method
 	 * returns 1 + normalize(goalDefinitionFitness) where goalDefinition equals
 	 * the BranchCoverageTestFitness for the Branch that the CFGVertex of this
 	 * goals definition is control dependent on (goalDefinitionBranch)
-	 * 
+	 *
 	 * If the goalDefinition is passed, but the goalUse is not passed at all:
 	 * This method returns the normalized BranchCoverageTestFitness for the
 	 * Branch that the CFGVertex of this goals Use is control dependent on
 	 * (goalUseBranch)
-	 * 
+	 *
 	 * If both the goalDefinition and the goalUse were passed at least once in
 	 * the given result: 1. If and only if at any goalUsePosition the active
 	 * definition was the goalDefinition the Definition-Use-Pair of this goal is
 	 * covered and the method returns 0
-	 * 
+	 *
 	 * Otherwise this method returns the minimum of the following: 1. For all
 	 * goalUsePositions if there was an overwriting definition, the normalized
 	 * sum over all such overwriting definitions of the normalized
 	 * BranchCoverageTestFitness for not taking the branch with the overwriting
 	 * definition look at calculateAltenativeFitness()
-	 * 
+	 *
 	 * For all goalDefPositions the normalized BranchCoverageTestFitness for the
 	 * goalUseBranch in the ExecutionTrace where every trace information is
 	 * filtered out except the information traced between the occurrence of the
 	 * goalDefinitionPosition and the next overwritingDefinitionPosition look at
 	 * calculateUseFitnessForDefinitionPosition()
-	 * 
+	 *
 	 * If this goals definition is not a static variable the trace information
 	 * of all constructed objects of the CUT are handled separately and the
 	 * minimum over all individually calculated fitness is returned
+	 *
+	 * @return a double.
 	 */
 	public double calculateDUFitness() {
 
@@ -324,22 +334,22 @@ public class DefUseFitnessCalculator {
 	/**
 	 * Computes the alternative fitness for all overwriting definitions for the
 	 * given usePos
-	 * 
+	 *
 	 * The alternative fitness is calculated as follows:
-	 * 
+	 *
 	 * For each definition that overwrote the goalDefinition before usePos was
 	 * reached this method calculates the BranchCoverageTestFitness for the
 	 * alternative branch that would not have passed the overwriting definition.
-	 * 
+	 *
 	 * Let' call each such calculated fitness an
 	 * "alternative fitness for an overwriting definition" s.
 	 * calculateAlternativeFitnessForOverwritingDefinition()
-	 * 
+	 *
 	 * Now there are several possibilities how the alternative fitness for all
 	 * overwriting definitions can be computed from the alternative fitness for
 	 * a single overwriting definition. The mode can be configured by setting
 	 * ALTERNATIVE_FITNESS_CALCULATION_MODE to the respective value noted:
-	 * 
+	 *
 	 * - all singled fitness are summed up and normalized again - MODE: "sum" -
 	 * if you wish not to normalize the sum if there was only 1 overwriting
 	 * definition set DONT_NORMALIZE_SINGLE_OVERWRITING_DEFINITION_SUM - in
@@ -349,15 +359,19 @@ public class DefUseFitnessCalculator {
 	 * all single fitness is taken - MODE: "avg" - only consider traces where
 	 * there is just one overwriting - MODE: "single" definition and return the
 	 * single alternative fitness
-	 * 
+	 *
 	 * Additionally there are two mutually not exclusive ways to penalize
 	 * multiple overwriting definitions:
-	 * 
+	 *
 	 * - PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_FLAT adds i to the i'th
 	 * single fitness - PENALIZE_MULTIPLE_OVERWRITING_DEFINITIONS_LINEARLY
 	 * multiplies the i'th fitness by i
-	 * 
-	 * 
+	 *
+	 * @param objectTrace a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param objectId a {@link java.lang.Integer} object.
+	 * @param usePos a {@link java.lang.Integer} object.
+	 * @param lastGoalDefPos a int.
+	 * @return a double.
 	 */
 	public double calculateAlternativeFitness(ExecutionTrace objectTrace,
 	        Integer objectId, Integer usePos, int lastGoalDefPos) {
@@ -435,11 +449,11 @@ public class DefUseFitnessCalculator {
 	/**
 	 * Computes the "alternative fitness for an overwriting definition" as
 	 * follows:
-	 * 
+	 *
 	 * The definition must overwrite the goalDefinition before usePos was
 	 * reached Then this method calculates the BranchCoverageTestFitness for the
 	 * alternative branch that would not have passed the overwriting definition.
-	 * 
+	 *
 	 * Such a fitness should be in the interval (0,1]: - 1 if and only if the
 	 * overwriting definition was in a root-branch - otherwise the approach
 	 * level should have been 0 so the resulting fitness is a normalized branch
@@ -447,14 +461,21 @@ public class DefUseFitnessCalculator {
 	 * ExecutionTrace where the alternative branch would have actually been hit
 	 * (which can happen for example in loops) is filtered out the resulting
 	 * fitness can't be 0
-	 * 
+	 *
 	 * An alternative fitness for an overwriting definition is uses for the
 	 * calculation of the alternative fitness of a given ExecutionResult s.
 	 * calculateAlternativeFitness()
-	 * 
+	 *
 	 * Since calculateAlternativeFitness() normalizes the return of this method
 	 * again the above described fitness is linearly stretched to be in the
 	 * interval (0,SINGLE_ALTERNATIVE_FITNESS_RANGE]
+	 *
+	 * @param objectTrace a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param objectId a {@link java.lang.Integer} object.
+	 * @param overwritingDefId a int.
+	 * @param traceStart a int.
+	 * @param traceEnd a int.
+	 * @return a double.
 	 */
 	public double calculateAlternatveFitnessForOverwritingDefinition(
 	        ExecutionTrace objectTrace, Integer objectId, int overwritingDefId,
@@ -819,12 +840,25 @@ public class DefUseFitnessCalculator {
 
 	// auxiliary methods
 
+	/**
+	 * <p>normalize</p>
+	 *
+	 * @param value a double.
+	 * @return a double.
+	 */
 	public static double normalize(double value) {
 		// TODO just copied this from FitnessFunction because it was not visible
 		// from here
 		return value / (1.0 + value);
 	}
 
+	/**
+	 * <p>hasEntryLowerThan</p>
+	 *
+	 * @param list a {@link java.util.List} object.
+	 * @param border a {@link java.lang.Integer} object.
+	 * @return a boolean.
+	 */
 	public static boolean hasEntryLowerThan(List<Integer> list, Integer border) {
 		for (Integer pos : list)
 			if (pos < border)
@@ -832,6 +866,14 @@ public class DefUseFitnessCalculator {
 		return false;
 	}
 
+	/**
+	 * <p>hasEntryInBetween</p>
+	 *
+	 * @param list a {@link java.util.List} object.
+	 * @param start a {@link java.lang.Integer} object.
+	 * @param end a {@link java.lang.Integer} object.
+	 * @return a boolean.
+	 */
 	public static boolean hasEntryInBetween(List<Integer> list, Integer start, Integer end) {
 		for (Integer pos : list)
 			if (start < pos && pos < end)
@@ -839,6 +881,13 @@ public class DefUseFitnessCalculator {
 		return false;
 	}
 
+	/**
+	 * <p>getMaxEntryLowerThan</p>
+	 *
+	 * @param list a {@link java.util.List} object.
+	 * @param border a {@link java.lang.Integer} object.
+	 * @return a {@link java.lang.Integer} object.
+	 */
 	public static Integer getMaxEntryLowerThan(List<Integer> list, Integer border) {
 		int lastPos = -1;
 		for (Integer defPos : list)
@@ -847,6 +896,13 @@ public class DefUseFitnessCalculator {
 		return lastPos;
 	}
 
+	/**
+	 * <p>hasEntriesForId</p>
+	 *
+	 * @param objectDUMap a {@link java.util.Map} object.
+	 * @param targetId a int.
+	 * @return a boolean.
+	 */
 	public static boolean hasEntriesForId(
 	        Map<Integer, HashMap<Integer, Integer>> objectDUMap, int targetId) {
 		if (objectDUMap == null)
@@ -858,6 +914,14 @@ public class DefUseFitnessCalculator {
 		return false;
 	}
 
+	/**
+	 * <p>hasEntriesForId</p>
+	 *
+	 * @param objectDUMap a {@link java.util.Map} object.
+	 * @param objectId a {@link java.lang.Integer} object.
+	 * @param targetId a int.
+	 * @return a boolean.
+	 */
 	public static boolean hasEntriesForId(
 	        Map<Integer, HashMap<Integer, Integer>> objectDUMap, Integer objectId,
 	        int targetId) {
@@ -873,6 +937,11 @@ public class DefUseFitnessCalculator {
 
 	/**
 	 * Only a sanity check function for testing purposes
+	 *
+	 * @param goal a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
+	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
+	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @return a boolean.
 	 */
 	public static boolean traceCoversGoal(DefUseCoverageTestFitness goal,
 	        Chromosome individual, ExecutionTrace trace) {

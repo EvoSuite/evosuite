@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,17 +15,19 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.assertion;
 
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
-
 public class NullAssertion extends Assertion {
 
 	private static final long serialVersionUID = 8486987896764253928L;
 
+	/** {@inheritDoc} */
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
 		NullAssertion s = new NullAssertion();
@@ -34,6 +37,7 @@ public class NullAssertion extends Assertion {
 		return s;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
@@ -48,6 +52,7 @@ public class NullAssertion extends Assertion {
 
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
 		if (((Boolean) value).booleanValue()) {

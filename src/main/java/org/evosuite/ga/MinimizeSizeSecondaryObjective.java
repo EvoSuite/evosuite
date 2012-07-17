@@ -18,8 +18,9 @@
 package org.evosuite.ga;
 
 /**
+ * <p>MinimizeSizeSecondaryObjective class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 
@@ -32,6 +33,7 @@ public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 	 * org.evosuite.ga.SecondaryObjective#compareChromosomes(de.unisb
 	 * .cs.st.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
 		logger.debug("Comparing sizes: " + chromosome1.size() + " vs "
@@ -48,6 +50,7 @@ public class MinimizeSizeSecondaryObjective extends SecondaryObjective {
 	 * org.evosuite.ga.Chromosome,
 	 * org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {

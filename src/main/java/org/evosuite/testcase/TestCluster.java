@@ -43,11 +43,13 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>Abstract TestCluster class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class TestCluster {
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(TestCluster.class);
 
 	/**
@@ -61,8 +63,8 @@ public abstract class TestCluster {
 
 	/**
 	 * Instance accessor
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCluster} object.
 	 */
 	public static synchronized TestCluster getInstance() {
 		if (instance == null) {
@@ -76,6 +78,9 @@ public abstract class TestCluster {
 		return instance;
 	}
 
+	/**
+	 * <p>init</p>
+	 */
 	protected void init() {
 	}
 
@@ -83,6 +88,9 @@ public abstract class TestCluster {
 
 	private static Set<Method> staticInitializers = new HashSet<Method>();
 
+	/**
+	 * <p>reset</p>
+	 */
 	public static void reset() {
 		classLoader = new InstrumentingClassLoader();
 		finalClasses.clear();
@@ -90,6 +98,11 @@ public abstract class TestCluster {
 		instance = null;
 	}
 
+	/**
+	 * <p>registerStaticInitializer</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public static void registerStaticInitializer(String className) {
 		finalClasses.add(className);
 	}
@@ -157,34 +170,35 @@ public abstract class TestCluster {
 
 	/**
 	 * Find a class that matches the given name
-	 * 
-	 * @param name
-	 * @return
-	 * @throws ClassNotFoundException
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @throws java.lang.ClassNotFoundException if any.
+	 * @return a {@link java.lang.Class} object.
 	 */
 	public abstract Class<?> getClass(String name) throws ClassNotFoundException;
 
 	/**
 	 * Integrate a new class into the test cluster
-	 * 
-	 * @param name
-	 * @throws ClassNotFoundException
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @throws java.lang.ClassNotFoundException if any.
+	 * @return a {@link java.lang.Class} object.
 	 */
 	public abstract Class<?> importClass(String name) throws ClassNotFoundException;
 
 	/**
 	 * Retrieve all classes that match the given postfix
-	 * 
-	 * @param name
-	 * @return
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link java.util.Collection} object.
 	 */
 	public abstract Collection<Class<?>> getKnownMatchingClasses(String name);
 
 	/**
 	 * Retrieve all classes in the classpath that match the given postfix
-	 * 
-	 * @param name
-	 * @return
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link java.util.Collection} object.
 	 */
 	public Collection<String> getMatchingClasses(String name) {
 		Pattern pattern = Pattern.compile(".*" + name + ".class");
@@ -202,101 +216,102 @@ public abstract class TestCluster {
 
 	/**
 	 * Set of classes that have been analyzed already
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.Set} object.
 	 */
 	public abstract Set<Class<?>> getAnalyzedClasses();
 
 	/**
 	 * Determine if there are generators
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @throws ConstructionFailedException if any.
+	 * @return a boolean.
 	 */
 	public abstract boolean hasGenerator(Type type);
 
 	/**
 	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public abstract AccessibleObject getRandomGenerator(Type type)
 	        throws ConstructionFailedException;
 
 	/**
 	 * Randomly select one generator
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @param excluded a {@link java.util.Set} object.
+	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public abstract AccessibleObject getRandomGenerator(Type type,
 	        Set<AccessibleObject> excluded) throws ConstructionFailedException;
 
 	/**
 	 * Get a list of all generator objects for the type
-	 * 
-	 * @param type
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public abstract Set<AccessibleObject> getGenerators(Type type)
 	        throws ConstructionFailedException;
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @return a {@link java.util.List} object.
 	 */
 	public abstract List<AccessibleObject> getCallsFor(Type type);
 
 	/**
 	 * Return all calls that have a parameter with given type
-	 * 
-	 * @param type
-	 * @return
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @return a {@link java.util.List} object.
 	 */
 	public abstract List<AccessibleObject> getTestCallsWith(Type type);
 
 	/**
 	 * Get random method or constructor of unit under test
-	 * 
-	 * @return
-	 * @throws ConstructionFailedException
+	 *
+	 * @throws ConstructionFailedException if any.
+	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public abstract AccessibleObject getRandomTestCall();
 
 	/**
 	 * Get a list of all test calls (i.e., constructors and methods)
-	 * 
-	 * @return
+	 *
+	 * @return a {@link java.util.List} object.
 	 */
 	public abstract List<AccessibleObject> getTestCalls();
 
 	/**
 	 * Add a test call
-	 * 
-	 * @return
+	 *
+	 * @param call a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public abstract void addTestCall(AccessibleObject call);
 
 	/**
 	 * Determine if we have generators for all parameters, and delete method if
 	 * not
-	 * 
-	 * @param o
+	 *
+	 * @param o a {@link java.lang.reflect.AccessibleObject} object.
 	 */
 	public abstract void checkDependencies(AccessibleObject o);
 
 	/**
 	 * Get the set of constructors defined in this class and its superclasses
-	 * 
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
 		Map<String, Constructor<?>> helper = new HashMap<String, Constructor<?>>();
@@ -328,9 +343,9 @@ public abstract class TestCluster {
 
 	/**
 	 * Get the set of methods defined in this class and its superclasses
-	 * 
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Method> getMethods(Class<?> clazz) {
 
@@ -369,9 +384,9 @@ public abstract class TestCluster {
 
 	/**
 	 * Get the set of fields defined in this class and its superclasses
-	 * 
-	 * @param clazz
-	 * @return
+	 *
+	 * @param clazz a {@link java.lang.Class} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Field> getFields(Class<?> clazz) {
 		// TODO: Helper not necessary here!

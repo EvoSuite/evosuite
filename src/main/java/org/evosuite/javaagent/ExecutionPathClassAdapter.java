@@ -28,9 +28,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Take care of all instrumentation that is necessary to trace executions
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ExecutionPathClassAdapter extends ClassVisitor {
 
@@ -45,6 +44,12 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(ExecutionPathClassAdapter.class);
 
+	/**
+	 * <p>Constructor for ExecutionPathClassAdapter.</p>
+	 *
+	 * @param visitor a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className.replace('/', '.');
@@ -56,6 +61,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	 * @see org.objectweb.asm.ClassAdapter#visitMethod(int, java.lang.String,
 	 * java.lang.String, java.lang.String, java.lang.String[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int methodAccess, String name, String descriptor,
 	        String signature, String[] exceptions) {

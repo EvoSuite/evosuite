@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,11 +15,12 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.repair;
 
 import java.io.File;
-
 public class TestFixer {
 	
 	protected final File projectDir;
@@ -27,6 +29,13 @@ public class TestFixer {
 	
 	protected final File fixedTestClassDir;
 
+	/**
+	 * <p>Constructor for TestFixer.</p>
+	 *
+	 * @param projectDir a {@link java.io.File} object.
+	 * @param fixedTestSrcDir a {@link java.io.File} object.
+	 * @param fixedTestClassDir a {@link java.io.File} object.
+	 */
 	public TestFixer(File projectDir, File fixedTestSrcDir,
 			File fixedTestClassDir) {
 		super();
@@ -35,10 +44,20 @@ public class TestFixer {
 		this.fixedTestClassDir = fixedTestClassDir;
 	}
 	
+	/**
+	 * <p>fixNonCompilingTest</p>
+	 *
+	 * @param testSrc a {@link java.io.File} object.
+	 */
 	public void fixNonCompilingTest(File testSrc) {
 		// TODO implement glue for Stefan's code
 	}
 	
+	/**
+	 * <p>fixFailedAssertion</p>
+	 *
+	 * @param testSrc a {@link java.io.File} object.
+	 */
 	public void fixFailedAssertion(File testSrc) {
 		// TODO implement glue for Stefan's code
 	}

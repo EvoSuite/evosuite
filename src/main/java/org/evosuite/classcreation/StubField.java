@@ -22,9 +22,8 @@ import org.eclipse.jdt.core.dom.Type;
 
 /**
  * Class to store information about stub's fields and field setters.
- * 
- * @author Andrey Tarasevich
  *
+ * @author Andrey Tarasevich
  */
 public class StubField {
 	
@@ -33,6 +32,14 @@ public class StubField {
 	private Type fieldSetterType;
 	private String fieldName;
 	
+	/**
+	 * <p>Constructor for StubField.</p>
+	 *
+	 * @param fieldName a {@link java.lang.String} object.
+	 * @param fieldValue a {@link org.eclipse.jdt.core.dom.Expression} object.
+	 * @param fieldType a {@link org.eclipse.jdt.core.dom.Type} object.
+	 * @param fieldSetterType a {@link org.eclipse.jdt.core.dom.Type} object.
+	 */
 	public StubField(String fieldName, Expression fieldValue,
 			Type fieldType, Type fieldSetterType){
 		this.fieldName = fieldName;
@@ -42,6 +49,8 @@ public class StubField {
 	}
 
 	/**
+	 * <p>Getter for the field <code>fieldValue</code>.</p>
+	 *
 	 * @return the fieldValue
 	 */
 	public Expression getFieldValue() {
@@ -49,6 +58,8 @@ public class StubField {
 	}
 
 	/**
+	 * <p>Getter for the field <code>fieldType</code>.</p>
+	 *
 	 * @return the fieldType
 	 */
 	public Type getFieldType() {
@@ -56,6 +67,8 @@ public class StubField {
 	}
 
 	/**
+	 * <p>Getter for the field <code>fieldSetterType</code>.</p>
+	 *
 	 * @return the fieldSetterType
 	 */
 	public Type getFieldSetterType() {
@@ -63,6 +76,8 @@ public class StubField {
 	}
 
 	/**
+	 * <p>Getter for the field <code>fieldName</code>.</p>
+	 *
 	 * @return the fieldName
 	 */
 	public String getFieldName() {

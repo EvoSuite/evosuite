@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,13 +15,13 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
 
 import org.evosuite.graphs.ccfg.CCFGEdge;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-
-
 public class CCFGMethodCallEdge extends CCFGEdge {
 
 	private static final long serialVersionUID = -1638791707105165885L;
@@ -29,6 +30,12 @@ public class CCFGMethodCallEdge extends CCFGEdge {
 	
 	private boolean isCallingEdge;
 	
+	/**
+	 * <p>Constructor for CCFGMethodCallEdge.</p>
+	 *
+	 * @param callInstruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param isCallingEdge a boolean.
+	 */
 	public CCFGMethodCallEdge(BytecodeInstruction callInstruction, boolean isCallingEdge) {
 		this.callInstruction = callInstruction;
 		this.isCallingEdge = isCallingEdge;
@@ -36,17 +43,25 @@ public class CCFGMethodCallEdge extends CCFGEdge {
 	
 	
 	/**
-	 * Marks whether this is a calling edge or a returning edge 
+	 * Marks whether this is a calling edge or a returning edge
+	 *
+	 * @return a boolean.
 	 */
 	public boolean isCallingEdge() {
 		return isCallingEdge;
 	}
 
 
+	/**
+	 * <p>Getter for the field <code>callInstruction</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public BytecodeInstruction getCallInstruction() {
 		return callInstruction;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return (isCallingEdge?"calling ":"returning from ")+callInstruction.getCalledMethod();

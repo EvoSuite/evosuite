@@ -25,10 +25,12 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.MethodNode;
 
 /**
+ * <p>AnnotatedClassNode class.</p>
+ *
  * @author fraser
- * 
  */
 public class AnnotatedClassNode extends ClassNode {
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(final int access, final String name,
 	        final String desc, final String signature, final String[] exceptions) {

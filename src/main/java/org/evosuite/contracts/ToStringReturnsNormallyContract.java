@@ -28,14 +28,16 @@ import org.evosuite.testcase.TestCaseExecutor.TimeoutExceeded;
 
 
 /**
+ * <p>ToStringReturnsNormallyContract class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ToStringReturnsNormallyContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 		for (Object object : getAllObjects(scope)) {
@@ -68,6 +70,7 @@ public class ToStringReturnsNormallyContract extends Contract {
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "toString returns normally check";

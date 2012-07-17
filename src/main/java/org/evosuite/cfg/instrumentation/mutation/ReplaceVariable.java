@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -49,18 +49,27 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * @author Gordon Fraser
+ * <p>
+ * ReplaceVariable class.
+ * </p>
  * 
+ * @author Gordon Fraser
  */
 public class ReplaceVariable implements MutationOperator {
 
 	private static Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
 
+	private class VariableNotFoundException extends Exception {
+		public VariableNotFoundException(String msg) {
+			super(msg);
+		}
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
@@ -72,30 +81,37 @@ public class ReplaceVariable implements MutationOperator {
 		}
 		logger.debug("Starting variable replacement in " + methodName);
 
-		String origName = getName(mn, instruction.getASMNode());
+		try {
+			String origName = getName(mn, instruction.getASMNode());
 
-		for (Entry<String, InsnList> mutation : getReplacements(mn, className,
-		                                                        instruction.getASMNode()).entrySet()) {
-			// insert mutation into pool			
-			Mutation mutationObject = MutationPool.addMutation(className,
-			                                                   methodName,
-			                                                   "ReplaceVariable "
-			                                                           + origName
-			                                                           + " -> "
-			                                                           + mutation.getKey(),
-			                                                   instruction,
-			                                                   mutation.getValue(),
-			                                                   getInfectionDistance(getType(mn,
-			                                                                                instruction.getASMNode()),
-			                                                                        instruction.getASMNode(),
-			                                                                        mutation.getValue()));
-			mutations.add(mutationObject);
+			for (Entry<String, InsnList> mutation : getReplacements(
+			                                                        mn,
+			                                                        className,
+			                                                        instruction.getASMNode()).entrySet()) {
+				// insert mutation into pool			
+				Mutation mutationObject = MutationPool.addMutation(className,
+				                                                   methodName,
+				                                                   "ReplaceVariable "
+				                                                           + origName
+				                                                           + " -> "
+				                                                           + mutation.getKey(),
+				                                                   instruction,
+				                                                   mutation.getValue(),
+				                                                   getInfectionDistance(getType(mn,
+				                                                                                instruction.getASMNode()),
+				                                                                        instruction.getASMNode(),
+				                                                                        mutation.getValue()));
+				mutations.add(mutationObject);
+			}
+		} catch (VariableNotFoundException e) {
+			logger.info("Variable not found: " + instruction);
 		}
 		logger.debug("Finished variable replacement in " + methodName);
 		return mutations;
 	}
 
-	private Type getType(MethodNode mn, AbstractInsnNode node) {
+	private Type getType(MethodNode mn, AbstractInsnNode node)
+	        throws VariableNotFoundException {
 		if (node instanceof VarInsnNode) {
 			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
 			return Type.getType(var.desc);
@@ -112,7 +128,8 @@ public class ReplaceVariable implements MutationOperator {
 		}
 	}
 
-	private String getName(MethodNode mn, AbstractInsnNode node) {
+	private String getName(MethodNode mn, AbstractInsnNode node)
+	        throws VariableNotFoundException {
 		if (node instanceof VarInsnNode) {
 			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
 			return var.name;
@@ -128,6 +145,15 @@ public class ReplaceVariable implements MutationOperator {
 		}
 	}
 
+	/**
+	 * <p>
+	 * copy
+	 * </p>
+	 * 
+	 * @param orig
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public static InsnList copy(InsnList orig) {
 		Iterator<?> it = orig.iterator();
 		InsnList copy = new InsnList();
@@ -152,6 +178,18 @@ public class ReplaceVariable implements MutationOperator {
 		return copy;
 	}
 
+	/**
+	 * <p>
+	 * addPrimitiveDistanceCheck
+	 * </p>
+	 * 
+	 * @param distance
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param type
+	 *            a {@link org.objectweb.asm.Type} object.
+	 * @param mutant
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public static void addPrimitiveDistanceCheck(InsnList distance, Type type,
 	        InsnList mutant) {
 		distance.add(cast(type, Type.DOUBLE_TYPE));
@@ -162,6 +200,18 @@ public class ReplaceVariable implements MutationOperator {
 		        "getDistance", "(DD)D"));
 	}
 
+	/**
+	 * <p>
+	 * addReferenceDistanceCheck
+	 * </p>
+	 * 
+	 * @param distance
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param type
+	 *            a {@link org.objectweb.asm.Type} object.
+	 * @param mutant
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public static void addReferenceDistanceCheck(InsnList distance, Type type,
 	        InsnList mutant) {
 		distance.add(copy(mutant));
@@ -170,6 +220,19 @@ public class ReplaceVariable implements MutationOperator {
 		        "getDistance", "(Ljava/lang/Object;Ljava/lang/Object;)D"));
 	}
 
+	/**
+	 * <p>
+	 * getInfectionDistance
+	 * </p>
+	 * 
+	 * @param type
+	 *            a {@link org.objectweb.asm.Type} object.
+	 * @param original
+	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param mutant
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public InsnList getInfectionDistance(Type type, AbstractInsnNode original,
 	        InsnList mutant) {
 		// TODO: Treat reference types different!
@@ -204,16 +267,37 @@ public class ReplaceVariable implements MutationOperator {
 		return distance;
 	}
 
+	/**
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param val1
+	 *            a double.
+	 * @param val2
+	 *            a double.
+	 * @return a double.
+	 */
 	public static double getDistance(double val1, double val2) {
 		return val1 == val2 ? 1.0 : 0.0;
 	}
 
+	/**
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param obj1
+	 *            a {@link java.lang.Object} object.
+	 * @param obj2
+	 *            a {@link java.lang.Object} object.
+	 * @return a double.
+	 */
 	public static double getDistance(Object obj1, Object obj2) {
-		if (obj1 == null) {
-			return obj2 == null ? 1.0 : 0.0;
-		} else {
-			return obj1.equals(obj2) ? 1.0 : 0.0;
-		}
+		if (obj1 == obj2)
+			return 1.0;
+		else
+			return 0.0;
 	}
 
 	/**
@@ -240,7 +324,7 @@ public class ReplaceVariable implements MutationOperator {
 				//if (!origVar.desc.startsWith("L"))
 				variables.putAll(getLocalReplacements(mn, origVar.desc, node));
 				variables.putAll(getFieldReplacements(mn, className, origVar.desc, node));
-			} catch (RuntimeException e) {
+			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
 				Iterator<?> it = mn.localVariables.iterator();
 				while (it.hasNext()) {
@@ -260,9 +344,13 @@ public class ReplaceVariable implements MutationOperator {
 			}
 		} else if (node instanceof IincInsnNode) {
 			IincInsnNode incNode = (IincInsnNode) node;
-			LocalVariableNode origVar = getLocal(mn, node, incNode.var);
+			try {
+				LocalVariableNode origVar = getLocal(mn, node, incNode.var);
 
-			variables.putAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
+				variables.putAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
+			} catch (VariableNotFoundException e) {
+				logger.info("Could not find variable, not replacing it: " + incNode.var);
+			}
 
 		} else {
 			//throw new RuntimeException("Unknown type: " + node);
@@ -271,7 +359,8 @@ public class ReplaceVariable implements MutationOperator {
 		return variables;
 	}
 
-	private LocalVariableNode getLocal(MethodNode mn, AbstractInsnNode node, int index) {
+	private LocalVariableNode getLocal(MethodNode mn, AbstractInsnNode node, int index)
+	        throws VariableNotFoundException {
 		int currentId = mn.instructions.indexOf(node);
 		for (Object v : mn.localVariables) {
 			LocalVariableNode localVar = (LocalVariableNode) v;
@@ -283,7 +372,7 @@ public class ReplaceVariable implements MutationOperator {
 				return localVar;
 		}
 
-		throw new RuntimeException("Could not find local variable " + index
+		throw new VariableNotFoundException("Could not find local variable " + index
 		        + " at position " + currentId + ", have variables: "
 		        + mn.localVariables.size());
 	}
@@ -441,6 +530,7 @@ public class ReplaceVariable implements MutationOperator {
 	 *            the type of the top stack value
 	 * @param to
 	 *            the type into which this value must be cast.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public static InsnList cast(final Type from, final Type to) {
 		InsnList list = new InsnList();
@@ -495,6 +585,7 @@ public class ReplaceVariable implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
 		return instruction.isLocalVarUse()

@@ -118,8 +118,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>TestParser class.</p>
+ *
  * @author Yury Pavlov
- * 
  */
 public class TestParser {
 
@@ -143,10 +144,18 @@ public class TestParser {
 
 	private final TestCluster testCluster = TestCluster.getInstance();
 
+	/**
+	 * <p>Constructor for TestParser.</p>
+	 *
+	 * @param editor a {@link org.evosuite.ma.UserFeedback} object.
+	 */
 	public TestParser(UserFeedback editor) {
 		this.editor = editor;
 	}
 
+	/**
+	 * <p>Constructor for TestParser.</p>
+	 */
 	public TestParser() {
 		this.editor = null;
 	}
@@ -180,9 +189,10 @@ public class TestParser {
 
 	/**
 	 * Parse a Java source file and convert each method to a test
-	 * 
-	 * @param fileName
-	 * @return
+	 *
+	 * @param fileName a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public Set<TestCase> parseFile(String fileName) throws IOException {
 		Map<String, TestCase> namedTests = parseNamedTests(fileName);
@@ -193,9 +203,10 @@ public class TestParser {
 
 	/**
 	 * Parse a Java source file and convert each method to a test
-	 * 
-	 * @param fileName
-	 * @return
+	 *
+	 * @param fileName a {@link java.lang.String} object.
+	 * @return a {@link java.util.Map} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public Map<String, TestCase> parseNamedTests(String fileName) throws IOException {
 		Map<String, TestCase> tests = new HashMap<String, TestCase>();
@@ -224,10 +235,11 @@ public class TestParser {
 
 	/**
 	 * Parse a Java source file and convert a named method to a test
-	 * 
-	 * @param fileName
-	 * @param testName
-	 * @return
+	 *
+	 * @param fileName a {@link java.lang.String} object.
+	 * @param testName a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 * @throws java.io.IOException if any.
 	 */
 	public TestCase parseFile(String fileName, String testName) throws IOException {
 
@@ -587,10 +599,11 @@ public class TestParser {
 	 * Parse a testCase in form of {@link String} to List<StatementInterface>
 	 * statements, create {@link TestCase} and save it to the List of tests in
 	 * {@link GeneticAlgorithm}
-	 * 
+	 *
 	 * @param testCode
 	 *            to parse
-	 * @throws IOException
+	 * @throws java.io.IOException if any.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase parseTest(String testCode) throws IOException {
 		CompilationUnit cu = null;
@@ -1619,6 +1632,13 @@ public class TestParser {
 
 	}
 
+	/**
+	 * <p>getClass</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 * @return a {@link java.lang.Class} object.
+	 * @throws java.lang.ClassNotFoundException if any.
+	 */
 	public Class<?> getClass(String name) throws ClassNotFoundException {
 
 		// First try to find exact match

@@ -21,15 +21,16 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Cross over individuals at relative position
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class SinglePointRelativeCrossOver extends CrossOverFunction {
 
 	private static final long serialVersionUID = -5320348525459502224L;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * The splitting point is not an absolute value but a relative value (eg, at
 	 * position 70% of n). For example, if n1=10 and n2=20 and splitting point
 	 * is 70%, we would have position 7 in the first and 14 in the second.

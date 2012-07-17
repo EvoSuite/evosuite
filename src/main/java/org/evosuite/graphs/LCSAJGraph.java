@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs;
 
@@ -28,8 +31,6 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
 import org.kohsuke.graphviz.Node;
-
-
 public class LCSAJGraph {
 	
 	private RawControlFlowGraph graph;
@@ -38,12 +39,23 @@ public class LCSAJGraph {
 	
 	private boolean fitnessGraph;
 	
+	/**
+	 * <p>Constructor for LCSAJGraph.</p>
+	 *
+	 * @param lcsaj a {@link org.evosuite.coverage.lcsaj.LCSAJ} object.
+	 * @param fitnessGraph a boolean.
+	 */
 	public LCSAJGraph(LCSAJ lcsaj, boolean fitnessGraph) {
 		graph = GraphPool.getRawCFG(lcsaj.getClassName(), lcsaj.getMethodName());
 		this.lcsaj = lcsaj;
 		this.fitnessGraph = fitnessGraph;
 	}
 	
+	/**
+	 * <p>generate</p>
+	 *
+	 * @param file a {@link java.io.File} object.
+	 */
 	public void generate(File file){
 		if (fitnessGraph)
 			System.out.println("Generating Graph for uncoverd LCSAJ No: "+lcsaj.getID()+ " in " +lcsaj.getClassName() +"/"+lcsaj.getMethodName());

@@ -25,16 +25,20 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * <p>MethodCallReplacementClassAdapter class.</p>
+ *
  * @author fraser
- * 
  */
 public class MethodCallReplacementClassAdapter extends ClassVisitor {
 
 	private final String className;
 
 	/**
-     * 
-     */
+	 * <p>Constructor for MethodCallReplacementClassAdapter.</p>
+	 *
+	 * @param cv a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public MethodCallReplacementClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
 		this.className = className;
@@ -43,6 +47,7 @@ public class MethodCallReplacementClassAdapter extends ClassVisitor {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.ClassVisitor#visitMethod(int, java.lang.String, java.lang.String, java.lang.String, java.lang.String[])
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {

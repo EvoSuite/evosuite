@@ -25,21 +25,28 @@ import org.evosuite.testcase.TestFitnessFunction;
 
 /**
  * This adapters allows the use of a TestSuiteFitnessFunction as a TestFitnessFactory for the purpose of TestSuite minimization.
- * @author Sebastian Steenbuck
  *
+ * @author Sebastian Steenbuck
  */
 public class TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter implements TestFitnessFactory{
 
 	private final TestSuiteFitnessFunction testSuiteFitness;
+	/**
+	 * <p>Constructor for TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter.</p>
+	 *
+	 * @param testSuiteFitness a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 */
 	public TestSuiteFitnessFunc_to_TestFitnessFactory_Adapter(TestSuiteFitnessFunction testSuiteFitness){
 		this.testSuiteFitness=testSuiteFitness;
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public List<TestFitnessFunction> getCoverageGoals() {
 		throw new UnsupportedOperationException();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public double getFitness(TestSuiteChromosome suite) {
 		return testSuiteFitness.getFitness(suite);

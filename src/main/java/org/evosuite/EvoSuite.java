@@ -52,8 +52,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>EvoSuite class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class EvoSuite {
 
@@ -64,6 +65,7 @@ public class EvoSuite {
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
 	private static String evosuiteJar = "";
+	/** Constant <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code> */
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
 	        + "java";
 
@@ -597,6 +599,12 @@ public class EvoSuite {
 		}
 	}
 
+	/**
+	 * <p>parseCommandLine</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
+	 * @return a {@link java.lang.Object} object.
+	 */
 	@SuppressWarnings("static-access")
 	public Object parseCommandLine(String[] args) {
 		Options options = new Options();
@@ -762,7 +770,9 @@ public class EvoSuite {
 	}
 
 	/**
-	 * @param args
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		EvoSuite evosuite = new EvoSuite();

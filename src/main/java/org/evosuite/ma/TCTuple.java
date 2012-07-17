@@ -26,7 +26,7 @@ import org.evosuite.testcase.TestCase;
 /**
  * The <code>TCTuple</code> class is a data structure which are used by
  * {@link Editor} class to store and manage test cases.
- * 
+ *
  * @author Yury Pavlov
  */
 public class TCTuple implements Cloneable {
@@ -39,8 +39,10 @@ public class TCTuple implements Cloneable {
 	private String origSourceCode = "";
 
 	/**
-	 * @param testCase
-	 * @param coverage
+	 * <p>Constructor for TCTuple.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param coverage a {@link java.util.Set} object.
 	 */
 	public TCTuple(TestCase testCase, Set<Integer> coverage) {
 		this.testCase = testCase;
@@ -48,9 +50,11 @@ public class TCTuple implements Cloneable {
 	}
 
 	/**
-	 * @param testCase
-	 * @param coverage
-	 * @param origSourceCode
+	 * <p>Constructor for TCTuple.</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @param coverage a {@link java.util.Set} object.
+	 * @param origSourceCode a {@link java.lang.String} object.
 	 */
 	public TCTuple(TestCase testCase, Set<Integer> coverage, String origSourceCode) {
 		this.testCase = testCase;
@@ -59,6 +63,8 @@ public class TCTuple implements Cloneable {
 	}
 
 	/**
+	 * <p>Getter for the field <code>coverage</code>.</p>
+	 *
 	 * @return the coverage
 	 */
 	public Set<Integer> getCoverage() {
@@ -66,6 +72,8 @@ public class TCTuple implements Cloneable {
 	}
 
 	/**
+	 * <p>Getter for the field <code>testCase</code>.</p>
+	 *
 	 * @return the testCase
 	 */
 	public TestCase getTestCase() {
@@ -77,6 +85,7 @@ public class TCTuple implements Cloneable {
 	 * 
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -88,7 +97,7 @@ public class TCTuple implements Cloneable {
 	/**
 	 * Returns a shallow copy of this <tt>TestCaseTuple</tt> instance. (The
 	 * elements themselves are not copied.)
-	 * 
+	 *
 	 * @return a clone of this <tt>TestCaseTuple</tt> instance
 	 */
 	public TCTuple clone() {
@@ -108,6 +117,7 @@ public class TCTuple implements Cloneable {
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		// main target of this representation just to identify diff.
@@ -119,6 +129,8 @@ public class TCTuple implements Cloneable {
 	}
 
 	/**
+	 * <p>Setter for the field <code>origSourceCode</code>.</p>
+	 *
 	 * @param origSourceCode
 	 *            the origSourceCode to set
 	 */
@@ -127,6 +139,8 @@ public class TCTuple implements Cloneable {
 	}
 
 	/**
+	 * <p>Getter for the field <code>origSourceCode</code>.</p>
+	 *
 	 * @return the origSourceCode
 	 */
 	public String getOrigSourceCode() {

@@ -54,13 +54,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ScanProject class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ScanProject {
 
 	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(ScanProject.class);
 
 	//	private static ClassLoader classLoader = new FileClassLoader();
@@ -252,6 +254,12 @@ public class ScanProject {
 	/**
 	 * Analyze all classes of a given package prefix that can be found in the
 	 * classpath
+	 *
+	 * @param packageName a {@link java.lang.String} object.
+	 * @param silent a boolean.
+	 * @return a {@link java.util.Set} object.
+	 * @throws java.lang.ClassNotFoundException if any.
+	 * @throws java.io.IOException if any.
 	 */
 	public static Set<Class<?>> getClasses(String packageName, boolean silent)
 	        throws ClassNotFoundException, IOException {
@@ -272,9 +280,10 @@ public class ScanProject {
 
 	/**
 	 * Analyze all classes that can be found in a given directory
-	 * 
-	 * @param directory
-	 * @throws ClassNotFoundException
+	 *
+	 * @param directory a {@link java.io.File} object.
+	 * @throws ClassNotFoundException if any.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Class<?>> getClasses(File directory) {
 		//if (directory.getName().endsWith(".jar")) {
@@ -364,6 +373,12 @@ public class ScanProject {
 		}
 	}
 
+	/**
+	 * <p>getClassesJar</p>
+	 *
+	 * @param file a {@link java.io.File} object.
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<Class<?>> getClassesJar(File file) {
 
 		Set<Class<?>> set = new HashSet<Class<?>>();
@@ -449,6 +464,11 @@ public class ScanProject {
 
 	}
 
+	/**
+	 * <p>analyzeClasses</p>
+	 *
+	 * @param classes a {@link java.util.Set} object.
+	 */
 	public static void analyzeClasses(Set<Class<?>> classes) {
 
 		System.out.println("* Analyzing target classes");
@@ -527,8 +547,8 @@ public class ScanProject {
 
 	/**
 	 * Entry point - generate task files
-	 * 
-	 * @param args
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		//System.out.println("Scanning project for test suite generation.");

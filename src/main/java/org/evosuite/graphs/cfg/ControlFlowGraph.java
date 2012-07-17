@@ -31,18 +31,18 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class for both forms of CFGs inside EvoSuite
- * 
+ *
  * One implementation of this is cfg.RawControlFlowGraph, which is also known as
  * the complete CFG The other implementation of this is
  * cfg.ActualControlFlowGraph which is also known as the minimal CFG Look at the
  * respective classes for more detailed information
- * 
+ *
  * The CFGs can be accessed via the GraphPool which holds for each CUT and each
  * of their methods a complete and a minimal CFG
- * 
+ *
  * CFGs are created by the CFGGenerator during the analysis of the CUTs'
  * byteCode performed by the BytecodeAnalyzer
- * 
+ *
  * @author Gordon Fraser, Andre Mis
  */
 public abstract class ControlFlowGraph<V> extends
@@ -59,6 +59,10 @@ public abstract class ControlFlowGraph<V> extends
 
 	/**
 	 * Creates a fresh and empty CFG for the given class and method
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param access a int.
 	 */
 	protected ControlFlowGraph(String className, String methodName, int access) {
 		super(ControlFlowEdge.class);
@@ -74,6 +78,11 @@ public abstract class ControlFlowGraph<V> extends
 	/**
 	 * Creates a CFG determined by the given jGraph for the given class and
 	 * method
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param access a int.
+	 * @param jGraph a {@link org.jgrapht.graph.DefaultDirectedGraph} object.
 	 */
 	protected ControlFlowGraph(String className, String methodName, int access,
 			DefaultDirectedGraph<V, ControlFlowEdge> jGraph) {
@@ -87,6 +96,13 @@ public abstract class ControlFlowGraph<V> extends
 		this.access = access;
 	}
 
+	/**
+	 * <p>leadsToNode</p>
+	 *
+	 * @param e a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+	 * @param b a V object.
+	 * @return a boolean.
+	 */
 	public boolean leadsToNode(ControlFlowEdge e, V b) {
 
 		Set<V> handled = new HashSet<V>();
@@ -121,21 +137,27 @@ public abstract class ControlFlowGraph<V> extends
 	/**
 	 * Can be used to retrieve an instruction contained in this CFG identified
 	 * by it's instructionId
-	 * 
+	 *
 	 * If no such instruction exists in this CFG, null is returned
+	 *
+	 * @param instructionId a int.
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public abstract BytecodeInstruction getInstruction(int instructionId);
 
 	/**
 	 * Determines, whether a given instruction is contained in this CFG
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
 	 */
 	public abstract boolean containsInstruction(BytecodeInstruction instruction);
 
 	/**
 	 * Computes the diameter of this CFG and the mutation distances
-	 * 
+	 *
 	 * Since both takes some time this is not automatically done on each CFG
-	 * 
+	 *
 	 * GraphPool will automatically call this immediately after the
 	 * instantiation of an ActualControlFlowGraph, but not after the creation of
 	 * a RawControlFlowGraph
@@ -149,9 +171,11 @@ public abstract class ControlFlowGraph<V> extends
 
 	/**
 	 * Returns the Diameter of this CFG
-	 * 
+	 *
 	 * If the diameter of this graph was not computed previously it is computed
 	 * first
+	 *
+	 * @return a int.
 	 */
 	public int getDiameter() {
 		if (diameter == -1) {
@@ -162,6 +186,9 @@ public abstract class ControlFlowGraph<V> extends
 		return diameter;
 	}
 
+	/**
+	 * <p>computeDiameter</p>
+	 */
 	protected void computeDiameter() {
 		// The diameter is just an upper bound for the approach level
 		// Let's try to use something that's easier to compute than
@@ -173,6 +200,11 @@ public abstract class ControlFlowGraph<V> extends
 		 */
 	}
 
+	/**
+	 * <p>determineEntryPoint</p>
+	 *
+	 * @return a V object.
+	 */
 	public V determineEntryPoint() {
 		Set<V> candidates = determineEntryPoints();
 
@@ -193,35 +225,67 @@ public abstract class ControlFlowGraph<V> extends
 		return null;
 	}
 
+	/**
+	 * <p>Getter for the field <code>className</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return className;
 	}
 
+	/**
+	 * <p>Getter for the field <code>methodName</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethodName() {
 		return methodName;
 	}
 
+	/**
+	 * <p>getMethodAccess</p>
+	 *
+	 * @return a int.
+	 */
 	public int getMethodAccess() {
 		return access;
 	}
 
+	/**
+	 * <p>isPublicMethod</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isPublicMethod() {
 		return (access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC;
 	}
 
+	/**
+	 * <p>isStaticMethod</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isStaticMethod() {
 		return (access & Opcodes.ACC_STATIC) == Opcodes.ACC_STATIC;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return methodName + " " + getCFGType();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	protected String dotSubFolder() {
 		return toFileString(className) + "/" + getCFGType() + "/";
 	}
 
+	/**
+	 * <p>getCFGType</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public abstract String getCFGType();
 }

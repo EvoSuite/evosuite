@@ -21,9 +21,8 @@ import org.evosuite.ga.GeneticAlgorithm;
 
 /**
  * Stop the search when the fitness has reached 0 (assuming minimization)
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 
@@ -33,6 +32,8 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	private double last_fitness = Double.MAX_VALUE;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Update information on currently lowest fitness
 	 */
 	@Override
@@ -41,6 +42,8 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Returns true if best individual has fitness <= 0.0
 	 */
 	@Override
@@ -49,6 +52,8 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Reset currently observed best fitness
 	 */
 	@Override
@@ -59,11 +64,13 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
 		// Do nothing
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
 		return 0;
@@ -72,15 +79,20 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
 		return (long) (last_fitness + 0.5); // TODO: Why +0.5??
 	}
 
+	/**
+	 * <p>setFinished</p>
+	 */
 	public void setFinished() {
 		last_fitness = 0.0;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		// TODO Auto-generated method stub

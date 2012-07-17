@@ -32,14 +32,16 @@ import org.evosuite.testcase.VariableReference;
 
 
 /**
+ * <p>NullPointerExceptionContract class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class NullPointerExceptionContract extends Contract {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.contracts.Contract#check(org.evosuite.testcase.TestCase, org.evosuite.testcase.Statement, org.evosuite.testcase.Scope, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!isTargetStatement(statement))
@@ -86,6 +88,7 @@ public class NullPointerExceptionContract extends Contract {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "NullPointerException";

@@ -27,39 +27,50 @@ import java.util.ArrayList;
 
 /**
  * This reporter stays silents
- * 
+ *
  * @author Jan Malburg
- * 
  */
 public class SilentReporter extends Reporter {
 
+	/**
+	 * <p>Constructor for SilentReporter.</p>
+	 *
+	 * @param conf a {@link gov.nasa.jpf.Config} object.
+	 * @param jpf a {@link gov.nasa.jpf.JPF} object.
+	 */
 	public SilentReporter(Config conf, JPF jpf) {
 		super(conf, jpf);
 		//this.publishers = new ArrayList<Publisher>();
 		this.publishers = new Publisher[0];
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(Search search) {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void stateAdvanced(Search search) {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchConstraintHit(Search search) {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(Search search) {
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean hasToReportTrace() {
 		return false;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean hasToReportOutput() {
 		return false;

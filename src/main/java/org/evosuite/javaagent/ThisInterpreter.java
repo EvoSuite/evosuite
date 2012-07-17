@@ -29,16 +29,19 @@ import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
 
 /**
+ * <p>ThisInterpreter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ThisInterpreter extends BasicInterpreter {
 
+	/** Constant <code>THIS_VALUE</code> */
 	public final static BasicValue THIS_VALUE = new BasicValue(Type.INT_TYPE);
 
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#copyOperation(org.objectweb.asm.tree.AbstractInsnNode, org.objectweb.asm.tree.analysis.BasicValue)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue copyOperation(AbstractInsnNode insn, BasicValue value)
 	        throws AnalyzerException {
@@ -54,6 +57,7 @@ public class ThisInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#merge(org.objectweb.asm.tree.analysis.BasicValue, org.objectweb.asm.tree.analysis.BasicValue)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue merge(BasicValue v, BasicValue w) {
 		if (v == THIS_VALUE && w == BasicValue.REFERENCE_VALUE)

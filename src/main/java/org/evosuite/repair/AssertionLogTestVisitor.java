@@ -36,8 +36,9 @@ import org.evosuite.utils.NumberFormatter;
 
 
 /**
+ * <p>AssertionLogTestVisitor class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class AssertionLogTestVisitor extends TestCodeVisitor {
 
@@ -45,6 +46,11 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 
 	private int numAssertion = 0;
 
+	/**
+	 * <p>Constructor for AssertionLogTestVisitor.</p>
+	 *
+	 * @param id a int.
+	 */
 	public AssertionLogTestVisitor(int id) {
 		testId = id;
 	}
@@ -52,6 +58,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCodeVisitor#visitCompareAssertion(org.evosuite.assertion.CompareAssertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visitCompareAssertion(CompareAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -83,6 +90,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCodeVisitor#visitEqualsAssertion(org.evosuite.assertion.EqualsAssertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visitEqualsAssertion(EqualsAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -114,6 +122,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCodeVisitor#visitInspectorAssertion(org.evosuite.assertion.InspectorAssertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visitInspectorAssertion(InspectorAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -165,6 +174,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCodeVisitor#visitNullAssertion(org.evosuite.assertion.NullAssertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visitNullAssertion(NullAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -181,6 +191,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCodeVisitor#visitPrimitiveAssertion(org.evosuite.assertion.PrimitiveAssertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visitPrimitiveAssertion(PrimitiveAssertion assertion) {
 		VariableReference source = assertion.getSource();
@@ -233,6 +244,7 @@ public class AssertionLogTestVisitor extends TestCodeVisitor {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCodeVisitor#visitPrimitiveFieldAssertion(org.evosuite.assertion.PrimitiveFieldAssertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	protected void visitPrimitiveFieldAssertion(PrimitiveFieldAssertion assertion) {
 		VariableReference source = assertion.getSource();

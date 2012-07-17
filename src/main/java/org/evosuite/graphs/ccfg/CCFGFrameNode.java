@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,21 +15,33 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
-
 public class CCFGFrameNode extends CCFGNode {
 
 	private ClassControlFlowGraph.FrameNodeType type;
 	
+	/**
+	 * <p>Constructor for CCFGFrameNode.</p>
+	 *
+	 * @param type a {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph.FrameNodeType} object.
+	 */
 	public CCFGFrameNode(ClassControlFlowGraph.FrameNodeType type) {
 		this.type = type;
 	}
 	
+	/**
+	 * <p>Getter for the field <code>type</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph.FrameNodeType} object.
+	 */
 	public ClassControlFlowGraph.FrameNodeType getType() {
 		return type;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return "Frame "+type.toString();

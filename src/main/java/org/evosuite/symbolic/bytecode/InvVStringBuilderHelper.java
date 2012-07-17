@@ -46,8 +46,9 @@ import org.evosuite.testsuite.TestSuiteDSE;
 
 
 /**
+ * <p>Abstract InvVStringBuilderHelper class.</p>
+ *
  * @author krusev
- * 
  */
 public abstract class InvVStringBuilderHelper {
 
@@ -55,6 +56,14 @@ public abstract class InvVStringBuilderHelper {
 
 	static StringBuilderExpression strB_expr = null;
 
+	/**
+	 * <p>strB_fnc_toString</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 */
 	public static Instruction strB_fnc_toString(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
@@ -85,13 +94,10 @@ public abstract class InvVStringBuilderHelper {
 
 	/**
 	 * Adds the appropriate StringExpression to the fake stack.
-	 * 
-	 * @param sf
-	 *            the current stack frame
-	 * @param pp
-	 *            the instruction that was executed 2 instructions ago if it is
-	 *            init or append than we have the plus operator else it can only
-	 *            be aload_? and thus a normal string builder
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
 	 */
 	public static void strB_fnc_append(KernelState ks, ThreadInfo ti, INVOKEVIRTUAL ins) {
 
@@ -289,6 +295,14 @@ public abstract class InvVStringBuilderHelper {
 		}
 	}
 
+	/**
+	 * <p>isStrB_all_impl_op</p>
+	 *
+	 * @param ks a {@link gov.nasa.jpf.jvm.KernelState} object.
+	 * @param ti a {@link gov.nasa.jpf.jvm.ThreadInfo} object.
+	 * @param ins a {@link org.evosuite.symbolic.bytecode.INVOKEVIRTUAL} object.
+	 * @return a boolean.
+	 */
 	public static boolean isStrB_all_impl_op(KernelState ks, ThreadInfo ti,
 	        INVOKEVIRTUAL ins) {
 		StackFrame sf = ti.getTopFrame();
@@ -304,6 +318,11 @@ public abstract class InvVStringBuilderHelper {
 		return variables.size() <= 0;
 	}
 
+	/**
+	 * <p>throw_away</p>
+	 *
+	 * @param cause a {@link java.lang.String} object.
+	 */
 	public static void throw_away(String cause) {
 		throw new StringBuilderException("StringBuilder: unsupported operation: " + cause);
 	}

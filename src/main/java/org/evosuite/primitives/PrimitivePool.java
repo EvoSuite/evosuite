@@ -28,8 +28,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>PrimitivePool class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class PrimitivePool {
 
@@ -75,6 +76,11 @@ public class PrimitivePool {
 		doublePool.add(-1.0);
 	}
 
+	/**
+	 * <p>Getter for the field <code>instance</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.primitives.PrimitivePool} object.
+	 */
 	public static PrimitivePool getInstance() {
 		if (instance == null)
 			instance = new PrimitivePool();
@@ -82,6 +88,11 @@ public class PrimitivePool {
 		return instance;
 	}
 
+	/**
+	 * <p>add</p>
+	 *
+	 * @param object a {@link java.lang.Object} object.
+	 */
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
 		logger.debug("Adding to pool: " + object + " of class ");
@@ -135,43 +146,93 @@ public class PrimitivePool {
 		}
 	}
 
+	/**
+	 * <p>getStrings</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<String> getStrings() {
 		return stringPool;
 	}
 
+	/**
+	 * <p>getIntegers</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Integer> getIntegers() {
 		return intPool;
 	}
 
+	/**
+	 * <p>getFloats</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Float> getFloats() {
 		return floatPool;
 	}
 
+	/**
+	 * <p>getDoubles</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Double> getDoubles() {
 		return doublePool;
 	}
 
+	/**
+	 * <p>getLongs</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Long> getLongs() {
 		return longPool;
 	}
 
+	/**
+	 * <p>getRandomString</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getRandomString() {
 		return Randomness.choice(stringPool);
 	}
 
+	/**
+	 * <p>getRandomInt</p>
+	 *
+	 * @return a int.
+	 */
 	public int getRandomInt() {
 		int r = Randomness.choice(intPool);
 		return r;
 	}
 
+	/**
+	 * <p>getRandomFloat</p>
+	 *
+	 * @return a float.
+	 */
 	public float getRandomFloat() {
 		return Randomness.choice(floatPool);
 	}
 
+	/**
+	 * <p>getRandomDouble</p>
+	 *
+	 * @return a double.
+	 */
 	public double getRandomDouble() {
 		return Randomness.choice(doublePool);
 	}
 
+	/**
+	 * <p>getRandomLong</p>
+	 *
+	 * @return a long.
+	 */
 	public long getRandomLong() {
 		return Randomness.choice(longPool);
 	}

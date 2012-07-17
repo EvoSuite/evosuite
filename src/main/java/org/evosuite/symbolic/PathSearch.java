@@ -30,14 +30,21 @@ import org.evosuite.Properties;
 
 
 /**
- * 
+ * <p>PathSearch class.</p>
+ *
  * @author Jan Malburg
- * 
  */
 public class PathSearch extends Search {
 
 	private final Map<Integer, List<gov.nasa.jpf.Error>> errormap;
 
+	/**
+	 * <p>Constructor for PathSearch.</p>
+	 *
+	 * @param config a {@link gov.nasa.jpf.Config} object.
+	 * @param vm a {@link gov.nasa.jpf.jvm.JVM} object.
+	 * @param iterations a int.
+	 */
 	public PathSearch(Config config, JVM vm, int iterations) {
 		super(config, vm);
 		if (iterations <= 0) {
@@ -47,10 +54,21 @@ public class PathSearch extends Search {
 		errormap = new HashMap<Integer, List<gov.nasa.jpf.Error>>();
 	}
 
+	/**
+	 * <p>Constructor for PathSearch.</p>
+	 *
+	 * @param config a {@link gov.nasa.jpf.Config} object.
+	 * @param vm a {@link gov.nasa.jpf.jvm.JVM} object.
+	 */
 	public PathSearch(Config config, JVM vm) {
 		this(config, vm, config.getInt("jm.numberOfIterations", 1));
 	}
 
+	/**
+	 * <p>getErrorMap</p>
+	 *
+	 * @return a {@link java.util.Map} object.
+	 */
 	public Map<Integer, List<gov.nasa.jpf.Error>> getErrorMap() {
 		return errormap;
 	}
@@ -60,6 +78,7 @@ public class PathSearch extends Search {
 	@SuppressWarnings("unused")
 	private long startTime;
 
+	/** {@inheritDoc} */
 	@Override
 	public void search() {
 		int path = 1;
@@ -110,12 +129,14 @@ public class PathSearch extends Search {
 		notifySearchFinished();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isEndState() {
 		//vm.restoreState don`t reset the original impl.
 		return vm.isEndState();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean supportsBacktrack() {
 		return false;

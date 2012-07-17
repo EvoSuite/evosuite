@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.bytecode;
 
@@ -24,13 +27,18 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 
 import gov.nasa.jpf.jvm.StackFrame;
 import gov.nasa.jpf.jvm.ThreadInfo;
-
 public class IF_ICMPGE extends gov.nasa.jpf.jvm.bytecode.IF_ICMPGE {
 
+	/**
+	 * <p>Constructor for IF_ICMPGE.</p>
+	 *
+	 * @param targetPc a int.
+	 */
 	public IF_ICMPGE(int targetPc) {
 		super(targetPc);
 	}
 
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean popConditionValue(ThreadInfo ti) {

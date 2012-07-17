@@ -30,16 +30,19 @@ import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.BasicValue;
 
 /**
+ * <p>ContainerBooleanInterpreter class.</p>
+ *
  * @author fraser
- * 
  */
 public class ContainerBooleanInterpreter extends BasicInterpreter {
 
+	/** Constant <code>CONTAINER_BOOLEAN</code> */
 	public final static BasicValue CONTAINER_BOOLEAN = new BasicValue(null);
 
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public BasicValue naryOperation(AbstractInsnNode insn,
 	        @SuppressWarnings("rawtypes") List values) throws AnalyzerException {

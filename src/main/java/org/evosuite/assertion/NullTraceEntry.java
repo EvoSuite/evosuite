@@ -27,8 +27,9 @@ import org.evosuite.testcase.VariableReference;
 
 
 /**
+ * <p>NullTraceEntry class.</p>
+ *
  * @author fraser
- * 
  */
 public class NullTraceEntry implements OutputTraceEntry {
 
@@ -36,6 +37,12 @@ public class NullTraceEntry implements OutputTraceEntry {
 
 	private final VariableReference var;
 
+	/**
+	 * <p>Constructor for NullTraceEntry.</p>
+	 *
+	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param result a boolean.
+	 */
 	public NullTraceEntry(VariableReference var, boolean result) {
 		this.var = var;
 		this.isNull = result;
@@ -44,6 +51,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#differs(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean differs(OutputTraceEntry other) {
 		if (other instanceof NullTraceEntry) {
@@ -58,6 +66,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions(org.evosuite.assertion.OutputTraceEntry)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions(OutputTraceEntry other) {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -79,6 +88,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#getAssertions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
 		Set<Assertion> assertions = new HashSet<Assertion>();
@@ -94,6 +104,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#isDetectedBy(org.evosuite.assertion.Assertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof NullAssertion) {
@@ -107,6 +118,7 @@ public class NullTraceEntry implements OutputTraceEntry {
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.OutputTraceEntry#cloneEntry()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public OutputTraceEntry cloneEntry() {
 		return new NullTraceEntry(var, isNull);

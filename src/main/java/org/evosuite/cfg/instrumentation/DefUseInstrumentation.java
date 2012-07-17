@@ -44,8 +44,9 @@ import org.objectweb.asm.tree.VarInsnNode;
 
 
 /**
+ * <p>DefUseInstrumentation class.</p>
+ *
  * @author copied from CFGMethodAdapter
- * 
  */
 public class DefUseInstrumentation implements MethodInstrumentation {
 
@@ -60,6 +61,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * .asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String,
 	 * java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void analyze(MethodNode mn, String className, String methodName,
@@ -176,6 +178,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * org.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods
 	 * ()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean executeOnExcludedMethods() {
 		return true;
@@ -187,6 +190,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * @see
 	 * org.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean executeOnMainMethod() {
 		return false;

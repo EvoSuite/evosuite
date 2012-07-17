@@ -42,18 +42,17 @@ import com.thoughtworks.xstream.XStream;
 
 /**
  * Class with different useful and widely used methods.
- * 
+ *
  * @author Andrey Tarasevich.
- * 
  */
 public class Utils {
 
 	/**
 	 * Sleeps at least until the specified time point has passed.
-	 * 
+	 *
 	 * (Thread.sleep() does something similar, but can stop sleeping before
 	 * the specified time point has passed if the thread is interrupted.)
-	 *  
+	 *
 	 * @param targetTimeMillis Target time in milliseconds
 	 */
 	public static void sleepUntil(long targetTimeMillis) {
@@ -72,7 +71,7 @@ public class Utils {
 
 	/**
 	 * Sleeps at least until the specified amount of time has passed, uninterruptibly.
-	 *  
+	 *
 	 * @param millis Amount of milliseconds to sleep
 	 */
 	public static void sleepFor(long millis) {
@@ -81,7 +80,7 @@ public class Utils {
 	
 	/**
 	 * Deletes directory and its content.
-	 * 
+	 *
 	 * @param dirName
 	 *            - name of the directory to delete
 	 */
@@ -101,7 +100,7 @@ public class Utils {
 
 	/**
 	 * Create directory and subdirectories if any.
-	 * 
+	 *
 	 * @param dirName
 	 *            - name of the directory to create
 	 * @return true if directory is created successfully, false otherwise
@@ -114,7 +113,7 @@ public class Utils {
 	/**
 	 * Move file to another directory. If file already exist in {@code dest} it
 	 * will be rewritten.
-	 * 
+	 *
 	 * @param source
 	 *            - source file
 	 * @param dest
@@ -141,7 +140,7 @@ public class Utils {
 	 * Hack for adding URL with stubs to the ClassPath. Although the stubs path
 	 * is on the ClassPath ClassLoader can not load stub class if directory does
 	 * not exist during JVM initialization.
-	 * 
+	 *
 	 * @param path
 	 *            - path to the folder or jar.
 	 * @return true if ClassPath updated successfully.
@@ -172,7 +171,7 @@ public class Utils {
 	/**
 	 * Parse input string and searches for the ASM-like descriptions of the
 	 * classes.
-	 * 
+	 *
 	 * @param input
 	 *            string, where class description should be
 	 * @return Set of class's names in ASM manner or empty set if none were
@@ -204,7 +203,7 @@ public class Utils {
 
 	/**
 	 * Read file line by line into list.
-	 * 
+	 *
 	 * @param fileName
 	 *            - name of the file to read from
 	 * @return content of the file in a list
@@ -227,7 +226,7 @@ public class Utils {
 
 	/**
 	 * Read file line by line into list.
-	 * 
+	 *
 	 * @param file
 	 *            - file to read from
 	 * @return content of the file in a list
@@ -250,7 +249,7 @@ public class Utils {
 
 	/**
 	 * Write string to file
-	 * 
+	 *
 	 * @param fileName
 	 *            - name of the file to write to
 	 * @param content
@@ -266,7 +265,7 @@ public class Utils {
 
 	/**
 	 * Write string to file
-	 * 
+	 *
 	 * @param file
 	 *            - file to write to
 	 * @param content
@@ -301,11 +300,10 @@ public class Utils {
 
 	/**
 	 * Write string to file
-	 * 
+	 *
 	 * @param fileName
 	 *            - name of the file to write to
-	 * @param content
-	 *            - text to write into the file
+	 * @param data a {@link java.lang.Object} object.
 	 */
 	public static void writeXML(Object data, String fileName) {
 		try {
@@ -318,11 +316,11 @@ public class Utils {
 
 	/**
 	 * Write string to file
-	 * 
+	 *
 	 * @param fileName
 	 *            - name of the file to write to
-	 * @param content
-	 *            - text to write into the file
+	 * @param <T> a T object.
+	 * @return a T object.
 	 */
 	@SuppressWarnings("unchecked")
 	public static <T> T readXML(String fileName) {
@@ -340,7 +338,7 @@ public class Utils {
 	/**
 	 * Get package name from the class. Sometimes this maybe tricky, since
 	 * clazz.getPackage() could return null
-	 * 
+	 *
 	 * @param clazz
 	 *            - class which package should be determined
 	 * @return package name of the class

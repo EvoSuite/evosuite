@@ -24,9 +24,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>TournamentChromosomeFactory class.</p>
+ *
  * @author Gordon Fraser
  * @param <T>
- * 
  */
 public class TournamentChromosomeFactory<T extends Chromosome> implements
         ChromosomeFactory<T> {
@@ -41,6 +42,13 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 
 	private final int tournamentSize = 10;
 
+	/**
+	 * <p>Constructor for TournamentChromosomeFactory.</p>
+	 *
+	 * @param fitness a {@link org.evosuite.ga.FitnessFunction} object.
+	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * @param <T> a T object.
+	 */
 	public TournamentChromosomeFactory(FitnessFunction fitness,
 	        ChromosomeFactory<T> factory) {
 		this.fitnessFunction = fitness;
@@ -48,6 +56,8 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * This factory produces <i>tournamentSize</i> individuals, and returns the
 	 * best one
 	 */

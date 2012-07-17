@@ -43,14 +43,20 @@ import cvc3.Expr;
 import cvc3.ValidityChecker;
 
 /**
+ * <p>CVC3Converter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class CVC3Converter {
 	private static Logger logger = LoggerFactory.getLogger(CVC3Converter.class);
 
 	private final CVC3Expr cvc3;
 
+	/**
+	 * <p>Constructor for CVC3Converter.</p>
+	 *
+	 * @param vc a {@link cvc3.ValidityChecker} object.
+	 */
 	public CVC3Converter(ValidityChecker vc) {
 		cvc3 = new CVC3Expr(vc);
 	}
@@ -154,12 +160,24 @@ public class CVC3Converter {
 		}
 	}
 
+	/**
+	 * <p>visit</p>
+	 *
+	 * @param constraint a {@link org.evosuite.symbolic.expr.Constraint} object.
+	 * @return a {@link cvc3.Expr} object.
+	 */
 	public Expr visit(Constraint<?> constraint) {
 		logger.debug("Converting " + constraint);
 		return visitConstraint(constraint.getComparator(), constraint.getLeftOperand(),
 		                       constraint.getRightOperand());
 	}
 
+	/**
+	 * <p>convert</p>
+	 *
+	 * @param constraints a {@link java.util.Collection} object.
+	 * @return a {@link cvc3.Expr} object.
+	 */
 	public Expr convert(Collection<Constraint<?>> constraints) {
 		Expr expr = null;
 		for (Constraint<?> c : constraints) {

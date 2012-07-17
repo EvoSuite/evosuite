@@ -33,8 +33,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>JUnitTestSuite class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class JUnitTestSuite {
 
@@ -48,6 +49,11 @@ public class JUnitTestSuite {
 
 	private final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
+	/**
+	 * <p>runSuite</p>
+	 *
+	 * @param name a {@link java.lang.String} object.
+	 */
 	public void runSuite(String name) {
 		try {
 			Class<?> forName = null;
@@ -70,6 +76,11 @@ public class JUnitTestSuite {
 		}
 	}
 
+	/**
+	 * <p>runSuite</p>
+	 *
+	 * @param chromosome a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 */
 	public void runSuite(TestSuiteChromosome chromosome) {
 		coveredMethods = new HashSet<String>();
 		coveredBranchesTrue = new HashSet<Integer>();
@@ -83,18 +94,39 @@ public class JUnitTestSuite {
 		}
 	}
 
+	/**
+	 * <p>Getter for the field <code>coveredMethods</code>.</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<String> getCoveredMethods() {
 		return coveredMethods;
 	}
 
+	/**
+	 * <p>getTrueCoveredBranches</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Integer> getTrueCoveredBranches() {
 		return coveredBranchesTrue;
 	}
 
+	/**
+	 * <p>getFalseCoveredBranches</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	public Set<Integer> getFalseCoveredBranches() {
 		return coveredBranchesFalse;
 	}
 
+	/**
+	 * <p>runTest</p>
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public ExecutionResult runTest(TestCase test) {
 
 		ExecutionResult result = new ExecutionResult(test, null);

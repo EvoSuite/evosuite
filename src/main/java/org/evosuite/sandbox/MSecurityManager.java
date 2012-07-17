@@ -46,6 +46,8 @@ class MSecurityManager extends SecurityManager {
 	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Overridden method for checking permissions for any operation.
 	 */
 	@Override

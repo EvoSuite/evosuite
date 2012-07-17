@@ -31,9 +31,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract superclass of test case statements
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class AbstractStatement implements StatementInterface, Serializable {
 
@@ -72,6 +71,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	private static final long serialVersionUID = 8993506743384548704L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(AbstractStatement.class);
 
 	protected VariableReference retval;
@@ -81,12 +81,24 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	protected Throwable exceptionThrown = null;
 
+	/**
+	 * <p>Constructor for AbstractStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param retval a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	protected AbstractStatement(TestCase tc, VariableReference retval) {
 		assert (retval != null);
 		this.retval = retval;
 		this.tc = tc;
 	}
 
+	/**
+	 * <p>Constructor for AbstractStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 */
 	protected AbstractStatement(TestCase tc, Type type) {
 		GenericClass c = new GenericClass(type);
 		if (c.isArray()) {
@@ -101,13 +113,13 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * This method abstracts the exception handling away from the concrete
 	 * statements. Thereby hopefully enabling us to have a more consistent
 	 * approach to exceptions.
-	 * 
-	 * @param code
-	 * @return
-	 * @throws InvocationTargetException
-	 * @throws IllegalArgumentException
-	 * @throws IllegalAccessException
-	 * @throws InstantiationException
+	 *
+	 * @param code a {@link org.evosuite.testcase.AbstractStatement.Executer} object.
+	 * @throws java.lang.reflect.InvocationTargetException if any.
+	 * @throws java.lang.IllegalArgumentException if any.
+	 * @throws java.lang.IllegalAccessException if any.
+	 * @throws java.lang.InstantiationException if any.
+	 * @return a {@link java.lang.Throwable} object.
 	 */
 	protected Throwable exceptionHandler(Executer code) throws InvocationTargetException,
 	        IllegalArgumentException, IllegalAccessException, InstantiationException {
@@ -175,11 +187,17 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#references(org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean references(VariableReference var) {
 		return getVariableReferences().contains(var);
 	}
 
+	/**
+	 * <p>getAssertionReferences</p>
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
 	protected Set<VariableReference> getAssertionReferences() {
 		Set<VariableReference> variables = new HashSet<VariableReference>();
 		for (Assertion assertion : assertions) {
@@ -191,6 +209,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#SetRetval(org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setRetval(VariableReference newRetVal) {
 		this.retval = newRetVal;
@@ -199,11 +218,13 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
 		return getCode(null);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getCode(Throwable exception) {
 		TestCodeVisitor visitor = new TestCodeVisitor();
@@ -213,6 +234,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return code.substring(0, code.length() - 2);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public final StatementInterface clone() {
 		throw new UnsupportedOperationException("Use statementInterface.clone(TestCase)");
@@ -221,6 +243,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getReturnType()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Type getReturnType() {
 		return retval.getType();
@@ -229,6 +252,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getReturnClass()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Class<?> getReturnClass() {
 		return retval.getVariableClass();
@@ -237,15 +261,16 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getReturnValue()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public VariableReference getReturnValue() {
 		return retval;
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Create copies of all attached assertions
-	 * 
-	 * @return List of the assertion copies
 	 */
 	@Override
 	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset) {
@@ -263,6 +288,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#hasAssertions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean hasAssertions() {
 		return !assertions.isEmpty();
@@ -271,6 +297,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#addAssertion(org.evosuite.assertion.Assertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void addAssertion(Assertion assertion) {
 		if (assertion == null) {
@@ -288,6 +315,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#setAssertions(java.util.Set)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void setAssertions(Set<Assertion> assertions) {
 		for (Assertion assertion : assertions)
@@ -299,6 +327,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getAssertionCode()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public String getAssertionCode() {
 		String ret_val = "";
@@ -312,6 +341,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#removeAssertions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void removeAssertions() {
 		assertions.clear();
@@ -320,6 +350,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#removeAssertion(org.evosuite.assertion.Assertion)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void removeAssertion(Assertion assertion) {
 		assertions.remove(assertion);
@@ -328,6 +359,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getAssertions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Assertion> getAssertions() {
 		return assertions;
@@ -336,12 +368,19 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getDeclaredExceptions()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = new HashSet<Class<?>>();
 		return ex;
 	}
 
+	/**
+	 * <p>getExceptionClass</p>
+	 *
+	 * @param t a {@link java.lang.Throwable} object.
+	 * @return a {@link java.lang.Class} object.
+	 */
 	public static Class<?> getExceptionClass(Throwable t) {
 		Class<?> clazz = t.getClass();
 		while (!Modifier.isPublic(clazz.getModifiers())) {
@@ -353,17 +392,20 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#getPosition()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int getPosition() {
 		return retval.getStPosition();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
 		retval.getStPosition();
 		return true;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isDeclaredException(Throwable t) {
 		return false;
@@ -372,6 +414,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#mutate(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean mutate(TestCase test, AbstractTestFactory factory) {
 		return false;
@@ -380,6 +423,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#clone(org.evosuite.testcase.TestCase)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface clone(TestCase newTestCase) {
 		StatementInterface result = copy(newTestCase, 0);
@@ -390,6 +434,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		for (VariableReference var : getVariableReferences()) {
@@ -397,6 +442,9 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		}
 	}
 
+	/**
+	 * <p>negate</p>
+	 */
 	public void negate() {
 	}
 }

@@ -27,8 +27,9 @@ import org.evosuite.Properties.DSEBudgetType;
 
 
 /**
+ * <p>DSEBudget class.</p>
+ *
  * @author fraser
- * 
  */
 public class DSEBudget implements Serializable {
 
@@ -36,12 +37,18 @@ public class DSEBudget implements Serializable {
 
 	private static int attempts = 0;
 
+	/** Constant <code>startTime=0L</code> */
 	protected static long startTime = 0L;
 
+	/** Constant <code>endTime=0L</code> */
 	protected static long endTime = 0L;
 
+	/** Constant <code>lastIndividualFinished=0L</code> */
 	protected static long lastIndividualFinished = 0L;
 
+	/**
+	 * <p>DSEStarted</p>
+	 */
 	public static void DSEStarted() {
 		startTime = System.currentTimeMillis();
 		endTime = startTime + Properties.DSE_BUDGET;
@@ -49,6 +56,11 @@ public class DSEBudget implements Serializable {
 		lastIndividualFinished = startTime;
 	}
 
+	/**
+	 * <p>isFinished</p>
+	 *
+	 * @return a boolean.
+	 */
 	public static boolean isFinished() {
 		if (Properties.DSE_BUDGET_TYPE == DSEBudgetType.INDIVIDUALS)
 			return attempts >= Properties.DSE_BUDGET;
@@ -59,6 +71,11 @@ public class DSEBudget implements Serializable {
 			        + Properties.DSE_BUDGET_TYPE);
 	}
 
+	/**
+	 * <p>isHalfRemaining</p>
+	 *
+	 * @return a boolean.
+	 */
 	public static boolean isHalfRemaining() {
 		if (Properties.DSE_BUDGET_TYPE != DSEBudgetType.TIME)
 			return false;
@@ -71,6 +88,9 @@ public class DSEBudget implements Serializable {
 		return false;
 	}
 
+	/**
+	 * <p>evaluation</p>
+	 */
 	public static void evaluation() {
 		attempts++;
 		lastIndividualFinished = System.currentTimeMillis();

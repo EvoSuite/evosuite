@@ -25,8 +25,9 @@ import org.evosuite.symbolic.expr.Constraint;
 
 
 /**
+ * <p>BranchCondition class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class BranchCondition {
 	public Instruction ins;
@@ -34,6 +35,13 @@ public class BranchCondition {
 	public final Set<Constraint<?>> reachingConstraints;
 	public final Set<Constraint<?>> localConstraints;
 
+	/**
+	 * <p>Constructor for BranchCondition.</p>
+	 *
+	 * @param ins a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 * @param reachingConstraints a {@link java.util.Set} object.
+	 * @param localConstraints a {@link java.util.Set} object.
+	 */
 	public BranchCondition(Instruction ins, Set<Constraint<?>> reachingConstraints,
 	        Set<Constraint<?>> localConstraints) {
 		this.ins = ins;
@@ -41,6 +49,7 @@ public class BranchCondition {
 		this.localConstraints = localConstraints;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		String ret = "Branch condition with " + reachingConstraints.size()

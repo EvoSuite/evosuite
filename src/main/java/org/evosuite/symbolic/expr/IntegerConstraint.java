@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,17 +15,24 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-
 public class IntegerConstraint extends Constraint<Long> {
 
 	private static final long serialVersionUID = 5345957507046422507L;
 
+	/**
+	 * <p>Constructor for IntegerConstraint.</p>
+	 *
+	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param cmp a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 */
 	public IntegerConstraint(Expression<?> left, Comparator cmp, Expression<?> right) {
 		super();
 		this.left = left;
@@ -39,21 +47,25 @@ public class IntegerConstraint extends Constraint<Long> {
 	protected Expression<?> left;
 	protected Expression<?> right;
 
+	/** {@inheritDoc} */
 	@Override
 	public Comparator getComparator() {
 		return cmp;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<?> getLeftOperand() {
 		return left;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Expression<?> getRightOperand() {
 		return right;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return left + cmp.toString() + right;

@@ -42,9 +42,8 @@ import org.slf4j.LoggerFactory;
 /**
  * The test case executor manages thread creation/deletion to execute a test
  * case
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestCaseExecutor implements ThreadFactory {
 
@@ -72,10 +71,17 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	private final Set<Thread> stalledThreads = new HashSet<Thread>();
 
+	/** Constant <code>timeExecuted=0</code> */
 	public static long timeExecuted = 0;
 
+	/** Constant <code>testsExecuted=0</code> */
 	public static int testsExecuted = 0;
 
+	/**
+	 * <p>Getter for the field <code>instance</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCaseExecutor} object.
+	 */
 	public static synchronized TestCaseExecutor getInstance() {
 		if (instance == null)
 			instance = new TestCaseExecutor();
@@ -85,12 +91,9 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	/**
 	 * Execute a test case
-	 * 
+	 *
 	 * @param test
 	 *            The test case to execute
-	 * @param mutant
-	 *            The mutation to active (null = no mutation)
-	 * 
 	 * @return Result of the execution
 	 */
 	public static ExecutionResult runTest(TestCase test) {
@@ -128,15 +131,24 @@ public class TestCaseExecutor implements ThreadFactory {
 		private static final long serialVersionUID = -5314228165430676893L;
 	}
 
+	/**
+	 * <p>setup</p>
+	 */
 	public void setup() {
 		// start own thread
 	}
 
+	/**
+	 * <p>pullDown</p>
+	 */
 	public static void pullDown() {
 		if (instance != null)
 			instance.executor.shutdownNow();
 	}
 
+	/**
+	 * <p>initExecutor</p>
+	 */
 	public static void initExecutor() {
 		if (instance != null) {
 			if (instance.executor == null) {
@@ -150,6 +162,11 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 	}
 
+	/**
+	 * <p>addObserver</p>
+	 *
+	 * @param observer a {@link org.evosuite.testcase.ExecutionObserver} object.
+	 */
 	public void addObserver(ExecutionObserver observer) {
 		if (!observers.contains(observer)) {
 			logger.debug("Adding observer " + observer);
@@ -162,6 +179,11 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	}
 
+	/**
+	 * <p>removeObserver</p>
+	 *
+	 * @param observer a {@link org.evosuite.testcase.ExecutionObserver} object.
+	 */
 	public void removeObserver(ExecutionObserver observer) {
 		if (observers.contains(observer)) {
 			logger.debug("Removing observer " + observer);
@@ -169,6 +191,9 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 	}
 
+	/**
+	 * <p>newObservers</p>
+	 */
 	public void newObservers() {
 		observers = new LinkedHashSet<ExecutionObserver>();
 		if (Properties.CHECK_CONTRACTS) {
@@ -185,9 +210,9 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	/**
 	 * Execute a test case on a new scope
-	 * 
-	 * @param tc
-	 * @return
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	public ExecutionResult execute(TestCase tc) {
 		Scope scope = new Scope();
@@ -196,10 +221,10 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	/**
 	 * Execute a test case on an existing scope
-	 * 
-	 * @param tc
-	 * @param scope
-	 * @return
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	@SuppressWarnings("deprecation")
 	public ExecutionResult execute(TestCase tc, Scope scope) {
@@ -354,6 +379,11 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 	}
 
+	/**
+	 * <p>getNumStalledThreads</p>
+	 *
+	 * @return a int.
+	 */
 	public int getNumStalledThreads() {
 		Iterator<Thread> iterator = stalledThreads.iterator();
 		while (iterator.hasNext()) {
@@ -365,6 +395,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		return stalledThreads.size();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Thread newThread(Runnable r) {
 		if (currentThread != null && currentThread.isAlive()) {

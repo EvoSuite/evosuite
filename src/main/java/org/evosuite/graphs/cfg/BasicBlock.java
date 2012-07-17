@@ -32,9 +32,9 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This class is used to represent basic blocks in the control flow graph.
- * 
+ *
  * A basic block is a list of instructions for which the following holds:
- * 
+ *
  * Whenever control flow reaches the first instruction of this blocks list,
  * control flow will pass through all the instructions of this list successively
  * and not pass another instruction in the mean time. The first element in this
@@ -42,19 +42,18 @@ import org.slf4j.LoggerFactory;
  * list and the same would still hold true Finally the last element in this list
  * does not have a child inside the CFG that could be appended to the list such
  * that the above still holds true
- * 
+ *
  * In other words: - the first/last element of this blocks list has either 0 or
  * >=2 parents/children in the CFG - every other element in the list has exactly
  * 1 parent and exactly 1 child in the raw CFG
- * 
- * 
+ *
+ *
  * Taken from:
- * 
+ *
  * "Efficiently Computing Static Single Assignment Form and the Control
  * Dependence Graph" RON CYTRON, JEANNE FERRANTE, BARRY K. ROSEN, and MARK N.
  * WEGMAN IBM Research Division and F. KENNETH ZADECK Brown University 1991
- * 
- * 
+ *
  * @see cfg.ActualControlFlowGraph
  * @author Andre Mis
  */
@@ -85,6 +84,13 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 	// TODO remember distance to each control dependent Branch in order to speed
 	// up ControlFlowDistance calculation even more
 
+	/**
+	 * <p>Constructor for BasicBlock.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param blockNodes a {@link java.util.List} object.
+	 */
 	public BasicBlock(String className, String methodName,
 	        List<BytecodeInstruction> blockNodes) {
 		if (className == null || methodName == null || blockNodes == null)
@@ -101,6 +107,9 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	/**
 	 * Used by Entry- and ExitBlocks
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
 	 */
 	protected BasicBlock(String className, String methodName) {
 		if (className == null || methodName == null)
@@ -116,8 +125,10 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	/**
 	 * Returns the ControlDependenceGraph of this instructions method
-	 * 
+	 *
 	 * Convenience method. Redirects the call to GraphPool.getCDG()
+	 *
+	 * @return a {@link org.evosuite.graphs.cdg.ControlDependenceGraph} object.
 	 */
 	public ControlDependenceGraph getCDG() {
 
@@ -133,9 +144,11 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 	 * Returns all branchIds of Branches this instruction is directly control
 	 * dependent on as determined by the ControlDependenceGraph for this
 	 * instruction's method.
-	 * 
+	 *
 	 * If this instruction is control dependent on the root branch the id -1
 	 * will be contained in this set
+	 *
+	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getControlDependentBranchIds() {
 
@@ -152,11 +165,13 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 	 * dependent on as determined by the ControlDependenceGraph. If this
 	 * instruction is only dependent on the root branch this method returns an
 	 * empty set
-	 * 
+	 *
 	 * If this instruction is a Branch and it is dependent on itself - which can
 	 * happen in loops for example - the returned set WILL contain this. If you
 	 * do not need the full set in order to avoid loops, call
 	 * getAllControlDependentBranches instead
+	 *
+	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<ControlDependency> getControlDependencies() {
 
@@ -167,6 +182,11 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		return controlDependencies;
 	}
 
+	/**
+	 * <p>hasControlDependenciesSet</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean hasControlDependenciesSet() {
 		return controlDependencies != null;
 	}
@@ -223,6 +243,12 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	// retrieve information
 
+	/**
+	 * <p>containsInstruction</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a boolean.
+	 */
 	public boolean containsInstruction(BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
@@ -230,6 +256,12 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		return instructions.contains(instruction);
 	}
 
+	/**
+	 * <p>constainsInstruction</p>
+	 *
+	 * @param insnNode a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @return a boolean.
+	 */
 	public boolean constainsInstruction(AbstractInsnNode insnNode) {
 		for (BytecodeInstruction instruction : instructions) {
 			if (instruction.getASMNode().equals(instruction))
@@ -238,18 +270,33 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		return false;
 	}
 
+	/**
+	 * <p>getFirstInstruction</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public BytecodeInstruction getFirstInstruction() {
 		if (instructions.isEmpty())
 			return null;
 		return instructions.get(0);
 	}
 
+	/**
+	 * <p>getLastInstruction</p>
+	 *
+	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 */
 	public BytecodeInstruction getLastInstruction() {
 		if (instructions.isEmpty())
 			return null;
 		return instructions.get(instructions.size() - 1);
 	}
 
+	/**
+	 * <p>getFirstLine</p>
+	 *
+	 * @return a int.
+	 */
 	public int getFirstLine() {
 		for (BytecodeInstruction ins : instructions)
 			if (ins.hasLineNumberSet())
@@ -258,6 +305,11 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		return -1;
 	}
 
+	/**
+	 * <p>getLastLine</p>
+	 *
+	 * @return a int.
+	 */
 	public int getLastLine() {
 
 		int r = -1;
@@ -269,19 +321,39 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		return r;
 	}
 
+	/**
+	 * <p>getName</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getName() {
 		return (isAuxiliaryBlock ? "aux" : "") + "BasicBlock " + id;
 		// +" - "+methodName;
 	}
 
+	/**
+	 * <p>Getter for the field <code>className</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getClassName() {
 		return className;
 	}
 
+	/**
+	 * <p>Getter for the field <code>methodName</code>.</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String getMethodName() {
 		return methodName;
 	}
 
+	/**
+	 * <p>explain</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String explain() {
 		StringBuilder r = new StringBuilder();
 		r.append(getName() + ":\n");
@@ -297,6 +369,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	// inherited from Object
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 
@@ -317,6 +390,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		return r;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 
@@ -350,6 +424,9 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 	// sanity check
 
+	/**
+	 * <p>checkSanity</p>
+	 */
 	public void checkSanity() {
 
 		logger.debug("checking sanity of " + toString());
@@ -371,10 +448,20 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		// TODO handle specialBlocks
 	}
 
+	/**
+	 * <p>isEntryBlock</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isEntryBlock() {
 		return false;
 	}
 
+	/**
+	 * <p>isExitBlock</p>
+	 *
+	 * @return a boolean.
+	 */
 	public boolean isExitBlock() {
 		return false;
 	}
@@ -382,6 +469,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 	/* (non-Javadoc)
 	 * @see java.lang.Iterable#iterator()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Iterator<BytecodeInstruction> iterator() {
 		return instructions.iterator();

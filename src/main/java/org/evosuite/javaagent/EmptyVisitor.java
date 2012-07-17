@@ -27,8 +27,9 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 /**
+ * <p>EmptyVisitor class.</p>
+ *
  * @author fraser
- * 
  */
 public class EmptyVisitor extends ClassVisitor {
 
@@ -45,15 +46,20 @@ public class EmptyVisitor extends ClassVisitor {
 		}
 	};
 
+	/**
+	 * <p>Constructor for EmptyVisitor.</p>
+	 */
 	public EmptyVisitor() {
 		super(Opcodes.ASM4);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AnnotationVisitor visitAnnotation(String desc, boolean visible) {
 		return av;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public FieldVisitor visitField(int access, String name, String desc,
 	        String signature, Object value) {
@@ -66,6 +72,7 @@ public class EmptyVisitor extends ClassVisitor {
 		};
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public MethodVisitor visitMethod(int access, String name, String desc,
 	        String signature, String[] exceptions) {

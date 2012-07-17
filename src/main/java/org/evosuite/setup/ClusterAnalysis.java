@@ -49,8 +49,9 @@ import com.thoughtworks.xstream.XStream;
 
 
 /**
+ * <p>ClusterAnalysis class.</p>
+ *
  * @author fraser
- * 
  */
 public class ClusterAnalysis {
 
@@ -158,6 +159,9 @@ public class ClusterAnalysis {
 
 	}
 
+	/**
+	 * <p>readJDKData</p>
+	 */
 	@SuppressWarnings("unchecked")
 	public static void readJDKData() {
 		XStream xstream = new XStream();
@@ -174,10 +178,20 @@ public class ClusterAnalysis {
 		logger.debug("Read JDK data: " + inheritanceData.size());
 	}
 
+	/**
+	 * <p>getResources</p>
+	 *
+	 * @return a {@link java.util.Collection} object.
+	 */
 	public static Collection<String> getResources() {
 		return getResources(Properties.CP);
 	}
 
+	/**
+	 * <p>getAllResources</p>
+	 *
+	 * @return a {@link java.util.Collection} object.
+	 */
 	public static Collection<String> getAllResources() {
 		Collection<String> retval = getResources(System.getProperty("java.class.path",
 		                                                            "."));
@@ -213,6 +227,9 @@ public class ClusterAnalysis {
 		return retval;
 	}
 
+	/**
+	 * <p>readAllClasses</p>
+	 */
 	public static void readAllClasses() {
 		if (!generatorData.isEmpty()) {
 			logger.info("Have already read data");
@@ -248,6 +265,12 @@ public class ClusterAnalysis {
 		// System.out.println("Finished analyzing " + list.size() + " classes");
 	}
 
+	/**
+	 * <p>addSubclass</p>
+	 *
+	 * @param superClass a {@link java.lang.String} object.
+	 * @param subClass a {@link java.lang.String} object.
+	 */
 	public static void addSubclass(String superClass, String subClass) {
 		if (!inheritanceData.containsKey(superClass))
 			inheritanceData.put(superClass, new LinkedHashSet<String>());
@@ -256,6 +279,12 @@ public class ClusterAnalysis {
 		// System.out.println("Subclass relation: " + superClass + " <- " + subClass);
 	}
 
+	/**
+	 * <p>addParameter</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param parameterClass a {@link java.lang.String} object.
+	 */
 	public static void addParameter(String className, String parameterClass) {
 		if (!parameterData.containsKey(className))
 			parameterData.put(className, new LinkedHashSet<String>());
@@ -263,6 +292,12 @@ public class ClusterAnalysis {
 		parameterData.get(className).add(parameterClass);
 	}
 
+	/**
+	 * <p>addGenerator</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param targetName a {@link java.lang.String} object.
+	 */
 	public static void addGenerator(String className, String targetName) {
 
 		if (targetName.matches(".*\\$\\d+$"))
@@ -279,6 +314,11 @@ public class ClusterAnalysis {
 		generatorData.get(targetName).add(className);
 	}
 
+	/**
+	 * <p>addAbstract</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 */
 	public static void addAbstract(String className) {
 		abstractClasses.add(className);
 	}
@@ -312,9 +352,9 @@ public class ClusterAnalysis {
 
 	/**
 	 * Determine the closest concrete implementation of this type
-	 * 
-	 * @param className
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getFirstSubclass(final String className) {
 		List<String> subClasses = new ArrayList<String>(getSubclasses(className));
@@ -339,9 +379,9 @@ public class ClusterAnalysis {
 
 	/**
 	 * Determine all direct and indirect subclasses
-	 * 
-	 * @param className
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<String> getSubclasses(String className) {
 		Set<String> subclasses = new HashSet<String>();
@@ -369,9 +409,9 @@ public class ClusterAnalysis {
 
 	/**
 	 * Determine set of classes that this class depends on
-	 * 
-	 * @param className
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<String> getDependencies(String className) {
 		Set<String> dependencies = new LinkedHashSet<String>();
@@ -409,9 +449,9 @@ public class ClusterAnalysis {
 
 	/**
 	 * Determine set of classes that can generate a certain type
-	 * 
-	 * @param className
-	 * @return
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<String> getGenerators(String className) {
 		Set<String> generatorClasses = new HashSet<String>();
@@ -437,6 +477,11 @@ public class ClusterAnalysis {
 		return generatorClasses;
 	}
 
+	/**
+	 * <p>main</p>
+	 *
+	 * @param args an array of {@link java.lang.String} objects.
+	 */
 	public static void main(String[] args) {
 		generateJDKCluster();
 	}

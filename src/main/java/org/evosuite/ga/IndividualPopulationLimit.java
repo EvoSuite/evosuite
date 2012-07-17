@@ -26,8 +26,9 @@ import org.evosuite.Properties;
 
 
 /**
+ * <p>IndividualPopulationLimit class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class IndividualPopulationLimit implements PopulationLimit {
 
@@ -36,6 +37,7 @@ public class IndividualPopulationLimit implements PopulationLimit {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.PopulationLimit#isPopulationFull(java.util.List)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isPopulationFull(List<Chromosome> population) {
 		return population.size() >= Properties.POPULATION;

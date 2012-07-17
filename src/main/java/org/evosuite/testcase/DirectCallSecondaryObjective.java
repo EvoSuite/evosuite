@@ -31,8 +31,9 @@ import org.objectweb.asm.Type;
 
 
 /**
+ * <p>DirectCallSecondaryObjective class.</p>
+ *
  * @author fraser
- * 
  */
 public class DirectCallSecondaryObjective extends SecondaryObjective {
 
@@ -40,6 +41,11 @@ public class DirectCallSecondaryObjective extends SecondaryObjective {
 
 	private final String targetName;
 
+	/**
+	 * <p>Constructor for DirectCallSecondaryObjective.</p>
+	 *
+	 * @param goal a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness} object.
+	 */
 	public DirectCallSecondaryObjective(BranchCoverageTestFitness goal) {
 		this.goal = goal;
 		this.targetName = goal.getMethod();
@@ -65,6 +71,7 @@ public class DirectCallSecondaryObjective extends SecondaryObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
 		TestChromosome test1 = (TestChromosome) chromosome1;
@@ -85,6 +92,7 @@ public class DirectCallSecondaryObjective extends SecondaryObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {

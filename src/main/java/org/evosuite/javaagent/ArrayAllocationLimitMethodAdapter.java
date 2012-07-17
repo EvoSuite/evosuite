@@ -32,13 +32,20 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>ArrayAllocationLimitMethodAdapter class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 
 	/**
-	 * 
+	 * <p>Constructor for ArrayAllocationLimitMethodAdapter.</p>
+	 *
+	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param access a int.
+	 * @param desc a {@link java.lang.String} object.
 	 */
 	public ArrayAllocationLimitMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
@@ -48,6 +55,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitIntInsn(int, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
 		if (opcode == Opcodes.NEWARRAY) {
@@ -72,6 +80,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitTypeInsn(int, java.lang.String)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
 
@@ -97,6 +106,7 @@ public class ArrayAllocationLimitMethodAdapter extends GeneratorAdapter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMultiANewArrayInsn(java.lang.String, int)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void visitMultiANewArrayInsn(String desc, int dims) {
 

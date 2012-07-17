@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,6 +15,8 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.assertion;
 
@@ -24,22 +27,31 @@ import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
-
-
 public class EqualsAssertion extends Assertion {
 
 	private static final long serialVersionUID = 1427358542327670617L;
 
 	protected VariableReference dest;
 
+	/**
+	 * <p>Getter for the field <code>dest</code>.</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public VariableReference getDest() {
 		return dest;
 	}
 
+	/**
+	 * <p>Setter for the field <code>dest</code>.</p>
+	 *
+	 * @param dest a {@link org.evosuite.testcase.VariableReference} object.
+	 */
 	public void setDest(VariableReference dest) {
 		this.dest = dest;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public Assertion copy(TestCase newTestCase, int offset) {
 		EqualsAssertion s = new EqualsAssertion();
@@ -49,6 +61,7 @@ public class EqualsAssertion extends Assertion {
 		return s;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
 		if (source.isPrimitive() && dest.isPrimitive()) {
@@ -66,6 +79,7 @@ public class EqualsAssertion extends Assertion {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean evaluate(Scope scope) {
 		try {
@@ -85,6 +99,7 @@ public class EqualsAssertion extends Assertion {
 		}
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -93,6 +108,7 @@ public class EqualsAssertion extends Assertion {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -115,6 +131,7 @@ public class EqualsAssertion extends Assertion {
 	 * 
 	 * @see org.evosuite.assertion.Assertion#getReferencedVariables()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferencedVariables() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();

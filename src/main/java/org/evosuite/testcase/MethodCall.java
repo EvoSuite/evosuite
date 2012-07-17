@@ -1,11 +1,13 @@
+
 /**
- * 
+ * <p>MethodCall class.</p>
+ *
+ * @author Gordon Fraser
  */
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
 import java.util.List;
-
 public class MethodCall implements Cloneable {
 	public String className;
 	public String methodName;
@@ -18,6 +20,15 @@ public class MethodCall implements Cloneable {
 	public int callingObjectID;
 	public int callDepth;
 
+	/**
+	 * <p>Constructor for MethodCall.</p>
+	 *
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param methodId a int.
+	 * @param callingObjectID a int.
+	 * @param callDepth a int.
+	 */
 	public MethodCall(String className, String methodName, int methodId,
 	        int callingObjectID, int callDepth) {
 		this.className = className;
@@ -32,6 +43,7 @@ public class MethodCall implements Cloneable {
 		this.callDepth = callDepth;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		StringBuffer ret = new StringBuffer();
@@ -61,6 +73,11 @@ public class MethodCall implements Cloneable {
 		return ret.toString();
 	}
 
+	/**
+	 * <p>explain</p>
+	 *
+	 * @return a {@link java.lang.String} object.
+	 */
 	public String explain() {
 		// TODO StringBuilder-explain() functions to construct string templates like explainList()
 		StringBuffer r = new StringBuffer();
@@ -116,6 +133,7 @@ public class MethodCall implements Cloneable {
 		return r.toString();
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public MethodCall clone() {
 		MethodCall copy = new MethodCall(className, methodName, methodId,

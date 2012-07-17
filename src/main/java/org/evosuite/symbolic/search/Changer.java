@@ -32,8 +32,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>Changer class.</p>
+ *
  * @author krusev
- * 
  */
 public class Changer {
 
@@ -45,6 +46,9 @@ public class Changer {
 
 	private double oldDist = Double.MAX_VALUE;
 
+	/**
+	 * <p>Constructor for Changer.</p>
+	 */
 	public Changer() {
 
 	}
@@ -139,6 +143,14 @@ public class Changer {
 		intVar.setConcreteValue(newVal);
 	}
 
+	/**
+	 * <p>strLocalSearch</p>
+	 *
+	 * @param strVar a {@link org.evosuite.symbolic.expr.StringVariable} object.
+	 * @param cnstr a {@link java.util.Collection} object.
+	 * @param varsToChange a {@link java.util.HashMap} object.
+	 * @return a boolean.
+	 */
 	public boolean strLocalSearch(StringVariable strVar, Collection<Constraint<?>> cnstr,
 	        HashMap<String, Object> varsToChange) {
 
@@ -234,6 +246,14 @@ public class Changer {
 		return improvement;
 	}
 
+	/**
+	 * <p>intLocalSearch</p>
+	 *
+	 * @param intVar a {@link org.evosuite.symbolic.expr.IntegerVariable} object.
+	 * @param cnstr a {@link java.util.Collection} object.
+	 * @param varsToChange a {@link java.util.HashMap} object.
+	 * @return a boolean.
+	 */
 	public boolean intLocalSearch(IntegerVariable intVar,
 	        Collection<Constraint<?>> cnstr, HashMap<String, Object> varsToChange) {
 		double newDist;
@@ -284,6 +304,14 @@ public class Changer {
 		return false;
 	}
 
+	/**
+	 * <p>realLocalSearch</p>
+	 *
+	 * @param realVar a {@link org.evosuite.symbolic.expr.RealVariable} object.
+	 * @param cnstr a {@link java.util.Collection} object.
+	 * @param varsToChange a {@link java.util.HashMap} object.
+	 * @return a boolean.
+	 */
 	public boolean realLocalSearch(RealVariable realVar, Collection<Constraint<?>> cnstr,
 	        HashMap<String, Object> varsToChange) {
 		boolean improvement = false;

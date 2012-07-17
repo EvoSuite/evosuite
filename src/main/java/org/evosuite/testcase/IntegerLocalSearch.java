@@ -26,8 +26,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>IntegerLocalSearch class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class IntegerLocalSearch<T> implements LocalSearch {
 
@@ -38,6 +39,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
+	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void doSearch(TestChromosome test, int statement,

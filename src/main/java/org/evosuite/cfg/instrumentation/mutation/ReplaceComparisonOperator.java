@@ -44,8 +44,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ReplaceComparisonOperator class.</p>
+ *
  * @author fraser
- * 
  */
 public class ReplaceComparisonOperator implements MutationOperator {
 
@@ -109,6 +110,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
@@ -165,6 +167,13 @@ public class ReplaceComparisonOperator implements MutationOperator {
 		return mutations;
 	}
 
+	/**
+	 * <p>getInfectionDistance</p>
+	 *
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
 	public InsnList getInfectionDistance(int opcodeOrig, int opcodeNew) {
 		InsnList distance = new InsnList();
 		switch (opcodeOrig) {
@@ -205,6 +214,15 @@ public class ReplaceComparisonOperator implements MutationOperator {
 		return distance;
 	}
 
+	/**
+	 * <p>getInfectionDistance</p>
+	 *
+	 * @param left a int.
+	 * @param right a int.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistance(int left, int right, int opcodeOrig,
 	        int opcodeNew) {
 		long val = (long) left - (long) right;
@@ -341,6 +359,14 @@ public class ReplaceComparisonOperator implements MutationOperator {
 		        + opcodeNew);
 	}
 
+	/**
+	 * <p>getInfectionDistance</p>
+	 *
+	 * @param intVal a int.
+	 * @param opcodeOrig a int.
+	 * @param opcodeNew a int.
+	 * @return a double.
+	 */
 	public static double getInfectionDistance(int intVal, int opcodeOrig, int opcodeNew) {
 		long val = intVal;
 		switch (opcodeOrig) {
@@ -635,6 +661,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#isApplicable(org.evosuite.cfg.BytecodeInstruction)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
 		return instruction.isBranch();

@@ -24,22 +24,22 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Cross over two individuals
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public abstract class CrossOverFunction implements Serializable {
 
 	private static final long serialVersionUID = -4765602400132319324L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(CrossOverFunction.class);
 
 	/**
 	 * Replace parents with crossed over individuals
-	 * 
-	 * @param parent1
-	 * @param parent2
-	 * @throws ConstructionFailedException
+	 *
+	 * @param parent1 a {@link org.evosuite.ga.Chromosome} object.
+	 * @param parent2 a {@link org.evosuite.ga.Chromosome} object.
+	 * @throws org.evosuite.ga.ConstructionFailedException if any.
 	 */
 	public abstract void crossOver(Chromosome parent1, Chromosome parent2)
 	        throws ConstructionFailedException;

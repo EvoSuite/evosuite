@@ -26,21 +26,33 @@ import gov.nasa.jpf.jvm.bytecode.Instruction;
 import java.util.logging.Logger;
 
 /**
+ * <p>INVOKEVIRTUAL class.</p>
+ *
  * @author krusev
- * 
  */
 public class INVOKEVIRTUAL extends gov.nasa.jpf.jvm.bytecode.INVOKEVIRTUAL {
 
 	static Logger log = JPF.getLogger("org.evosuite.symbolic.bytecode.invokevitrual");
 	
+	/**
+	 * <p>Constructor for INVOKEVIRTUAL.</p>
+	 *
+	 * @param clsDescriptor a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @param signature a {@link java.lang.String} object.
+	 */
 	protected INVOKEVIRTUAL (String clsDescriptor, String methodName, String signature){
 	    super(clsDescriptor, methodName, signature);
 	  }
 	
+	/**
+	 * <p>Constructor for INVOKEVIRTUAL.</p>
+	 */
 	public INVOKEVIRTUAL () {
 		super();
 	}
 	
+	/** {@inheritDoc} */
 	@Override
 	public Instruction execute(SystemState ss, KernelState ks, ThreadInfo ti) {
 

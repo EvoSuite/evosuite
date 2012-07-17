@@ -21,15 +21,16 @@ import org.evosuite.utils.Randomness;
 
 /**
  * Cross individuals at identical point
- * 
+ *
  * @author Gordon Fraser
- * 
  */
 public class SinglePointFixedCrossOver extends CrossOverFunction {
 
 	private static final long serialVersionUID = 1215946828935020651L;
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * The splitting point for to individuals p1, p2 is selected within
 	 * min(length(p1),length(p2))
 	 */

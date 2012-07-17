@@ -25,9 +25,8 @@ import org.evosuite.utils.Utils;
 
 /**
  * Class which controls enabling and disabling sandbox.
- * 
+ *
  * @author Andrey Tarasevich
- * 
  */
 public class Sandbox {
 
@@ -43,6 +42,7 @@ public class Sandbox {
 	/** Array of files accessed during test generation */
 	private static ArrayList<EvosuiteFile> accessedFiles = new ArrayList<EvosuiteFile>();
 
+	/** Constant <code>lastAccessedFile</code> */
 	public static EvosuiteFile lastAccessedFile = null;;
 
 	private static PermissionStatistics statistics = PermissionStatistics.getInstance();
@@ -95,7 +95,7 @@ public class Sandbox {
 
 	/**
 	 * Checks if class is currently replaced by its mock.
-	 * 
+	 *
 	 * @param clazz
 	 *            class to check
 	 * @return true if class is mocked, false otherwise
@@ -104,12 +104,23 @@ public class Sandbox {
 		return mocks.getClassesMocked().contains(clazz);
 	}
 
+	/**
+	 * <p>canUseFileContentGeneration</p>
+	 *
+	 * @return a boolean.
+	 */
 	public static boolean canUseFileContentGeneration() {
 		if (Properties.MOCKS && Properties.SANDBOX)
 			return !accessedFiles.isEmpty();
 		return false;
 	}
 
+	/**
+	 * <p>generateFileContent</p>
+	 *
+	 * @param file a {@link org.evosuite.sandbox.EvosuiteFile} object.
+	 * @param content a {@link java.lang.String} object.
+	 */
 	public static void generateFileContent(EvosuiteFile file, String content) {
 		if (file == null)
 			return;

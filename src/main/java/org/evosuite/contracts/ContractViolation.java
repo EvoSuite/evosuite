@@ -32,8 +32,9 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>ContractViolation class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class ContractViolation {
 
@@ -48,6 +49,14 @@ public class ContractViolation {
 
 	private final Throwable exception;
 
+	/**
+	 * <p>Constructor for ContractViolation.</p>
+	 *
+	 * @param contract a {@link org.evosuite.contracts.Contract} object.
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param exception a {@link java.lang.Throwable} object.
+	 */
 	public ContractViolation(Contract contract, TestCase test,
 	        StatementInterface statement, Throwable exception) {
 		this.contract = contract;
@@ -58,8 +67,8 @@ public class ContractViolation {
 
 	/**
 	 * Getter for test case
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getTestCase() {
 		return test;
@@ -67,8 +76,8 @@ public class ContractViolation {
 
 	/**
 	 * Getter for contract that was violated
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.contracts.Contract} object.
 	 */
 	public Contract getContract() {
 		return contract;
@@ -104,9 +113,9 @@ public class ContractViolation {
 
 	/**
 	 * Determine if we have already seen an instance of this violation
-	 * 
-	 * @param other
-	 * @return
+	 *
+	 * @param other a {@link org.evosuite.contracts.ContractViolation} object.
+	 * @return a boolean.
 	 */
 	public boolean same(ContractViolation other) {
 

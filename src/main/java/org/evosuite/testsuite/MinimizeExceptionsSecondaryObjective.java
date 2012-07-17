@@ -26,8 +26,9 @@ import org.evosuite.testcase.ExecutableChromosome;
 
 
 /**
+ * <p>MinimizeExceptionsSecondaryObjective class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 
@@ -45,6 +46,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SecondaryObjective#compareChromosomes(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareChromosomes(Chromosome chromosome1, Chromosome chromosome2) {
 		return getNumExceptions(chromosome1) - getNumExceptions(chromosome2);
@@ -53,6 +55,7 @@ public class MinimizeExceptionsSecondaryObjective extends SecondaryObjective {
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.SecondaryObjective#compareGenerations(org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome, org.evosuite.ga.Chromosome)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public int compareGenerations(Chromosome parent1, Chromosome parent2,
 	        Chromosome child1, Chromosome child2) {

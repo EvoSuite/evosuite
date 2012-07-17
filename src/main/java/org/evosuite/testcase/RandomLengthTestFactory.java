@@ -25,13 +25,15 @@ import org.slf4j.LoggerFactory;
 
 
 /**
+ * <p>RandomLengthTestFactory class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome> {
 
 	private static final long serialVersionUID = -5202578461625984100L;
 
+	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
 	/**
@@ -69,6 +71,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	}
 
 	/**
+	 * {@inheritDoc}
+	 *
 	 * Generate a random chromosome
 	 */
 	@Override
@@ -81,8 +85,8 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	/**
 	 * Provided so that subtypes of this factory type can modify the returned
 	 * TestCase
-	 * 
-	 * @return
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	protected TestCase getNewTestCase() {
 		return new DefaultTestCase();

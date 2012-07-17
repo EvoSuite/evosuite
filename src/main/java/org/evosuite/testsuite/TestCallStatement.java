@@ -44,8 +44,9 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 
 /**
+ * <p>TestCallStatement class.</p>
+ *
  * @author Gordon Fraser
- * 
  */
 public class TestCallStatement extends AbstractStatement {
 
@@ -53,6 +54,13 @@ public class TestCallStatement extends AbstractStatement {
 
 	private final TestCallObject testCall;
 
+	/**
+	 * <p>Constructor for TestCallStatement.</p>
+	 *
+	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * @param call a {@link org.evosuite.testsuite.TestCallObject} object.
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 */
 	public TestCallStatement(TestCase tc, TestCallObject call, Type type) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.testCall = call;
@@ -60,12 +68,9 @@ public class TestCallStatement extends AbstractStatement {
 
 	/**
 	 * Execute a test case
-	 * 
+	 *
 	 * @param test
 	 *            The test case to execute
-	 * @param mutant
-	 *            The mutation to active (null = no mutation)
-	 * 
 	 * @return Result of the execution
 	 */
 	public Object runTest(TestCase test) {
@@ -114,6 +119,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#execute(org.evosuite
 	 * .testcase.Scope, java.io.PrintStream)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Throwable execute(Scope scope, PrintStream out)
 	        throws InvocationTargetException, IllegalArgumentException,
@@ -173,6 +179,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * org.evosuite.testcase.Statement#getBytecode(org.objectweb.
 	 * asm.commons.GeneratorAdapter, java.util.Map, java.lang.Throwable)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        Throwable exception) {
@@ -185,6 +192,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * 
 	 * @see org.evosuite.testcase.Statement#getVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
 		Set<VariableReference> vars = new HashSet<VariableReference>();
@@ -195,6 +203,7 @@ public class TestCallStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#replace(org.evosuite.testcase.VariableReference, org.evosuite.testcase.VariableReference)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void replace(VariableReference var1, VariableReference var2) {
 	}
@@ -204,6 +213,7 @@ public class TestCallStatement extends AbstractStatement {
 	 * 
 	 * @see org.evosuite.testcase.Statement#clone()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		TestCallStatement statement = new TestCallStatement(newTestCase, testCall,
@@ -211,6 +221,7 @@ public class TestCallStatement extends AbstractStatement {
 		return statement;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -219,6 +230,7 @@ public class TestCallStatement extends AbstractStatement {
 		return result;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object s) {
 		if (this == s)
@@ -236,14 +248,29 @@ public class TestCallStatement extends AbstractStatement {
 		return true;
 	}
 
+	/**
+	 * <p>getTest</p>
+	 *
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public TestCase getTest() {
 		return testCall.getTest();
 	}
 
+	/**
+	 * <p>getTestNum</p>
+	 *
+	 * @return a int.
+	 */
 	public int getTestNum() {
 		return testCall.getNum();
 	}
 
+	/**
+	 * <p>setTestNum</p>
+	 *
+	 * @param num a int.
+	 */
 	public void setTestNum(int num) {
 		testCall.setNum(num);
 	}
@@ -254,22 +281,26 @@ public class TestCallStatement extends AbstractStatement {
 	 * @see
 	 * org.evosuite.testcase.Statement#getUniqueVariableReferences()
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
 		return new ArrayList<VariableReference>(getVariableReferences());
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean same(StatementInterface s) {
 		return equals(s);
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public AccessibleObject getAccessibleObject() {
 		assert (false); //not supposed to be called
 		return null;
 	}
 
+	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
 		return false;
@@ -278,6 +309,7 @@ public class TestCallStatement extends AbstractStatement {
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
+	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		// No-op
