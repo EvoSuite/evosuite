@@ -25,6 +25,8 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.primitives.PrimitiveClassAdapter;
+import org.evosuite.testcarver.instrument.Instrumenter;
+import org.evosuite.testcarver.instrument.TransformerUtil;
 import org.evosuite.testcase.StaticTestCluster;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -34,8 +36,6 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.testcarver.instrument.Instrumenter;
-import de.unisb.cs.st.testcarver.instrument.TransformerUtil;
 
 /**
  * The bytecode transformer - transforms bytecode depending on package and

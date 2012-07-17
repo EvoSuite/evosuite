@@ -101,8 +101,11 @@ import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
-import org.evosuite.testcarver.EvoTestCaseCodeGenerator;
-import org.evosuite.testcarver.TestCarvingExecutionObserver;
+import org.evosuite.testcarver.capture.CaptureLog;
+import org.evosuite.testcarver.capture.Capturer;
+import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
+import org.evosuite.testcarver.testcase.EvoTestCaseCodeGenerator;
+import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
@@ -143,9 +146,6 @@ import org.slf4j.LoggerFactory;
 
 import sun.misc.Signal;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
-import de.unisb.cs.st.testcarver.capture.CaptureLog;
-import de.unisb.cs.st.testcarver.capture.Capturer;
-import de.unisb.cs.st.testcarver.codegen.CaptureLogAnalyzer;
 
 /**
  * Main entry point

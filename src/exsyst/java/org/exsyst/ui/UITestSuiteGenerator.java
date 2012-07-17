@@ -18,7 +18,10 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SelectionFunction;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
-import org.evosuite.testcarver.TestCarvingExecutionObserver;
+import org.evosuite.testcarver.capture.CaptureLog;
+import org.evosuite.testcarver.capture.Capturer;
+import org.evosuite.testcarver.codegen.PostProcessor;
+import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCluster;
@@ -36,9 +39,6 @@ import org.exsyst.ui.run.RandomWalkUIController;
 import org.exsyst.ui.run.UIRunner;
 import org.exsyst.ui.util.ReplayUITestHelper;
 
-import de.unisb.cs.st.testcarver.capture.CaptureLog;
-import de.unisb.cs.st.testcarver.capture.Capturer;
-import de.unisb.cs.st.testcarver.capture.PostProcessor;
 
 public class UITestSuiteGenerator {
 	private static final int TIME_LIMIT_SECONDS = Integer.valueOf(System.getProperty("timelimit", "" + Properties.GLOBAL_TIMEOUT));
@@ -257,27 +257,27 @@ public class UITestSuiteGenerator {
 
 	@SuppressWarnings("unchecked")
 	private AbstractTestSuiteChromosome<ExecutableChromosome> generateTestSuite() {
-//		Thread t = new Thread(new Runnable() {
-//			@Override
-//			public void run() {
-//				while (true) {
-//					try {
-//						Thread.sleep(5 * 60 * 1000);
-//					} catch (InterruptedException e) {
-//					}
-//
-//					try {
-//						UITestSuiteGenerator.this.writeStateGraph();
-//					} catch (Exception e) {
-//						System.err.println("Error writing state graph!");
-//						e.printStackTrace();
-//					}
-//				}
-//			}
-//		}, "State Graph Writer");
-//
-//		t.setDaemon(true);
-//		t.start();
+		Thread t = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while (true) {
+					try {
+						Thread.sleep(5 * 60 * 1000);
+					} catch (InterruptedException e) {
+					}
+
+					try {
+						UITestSuiteGenerator.this.writeStateGraph();
+					} catch (Exception e) {
+						System.err.println("Error writing state graph!");
+						e.printStackTrace();
+					}
+				}
+			}
+		}, "State Graph Writer");
+
+		t.setDaemon(true);
+		t.start();
 
 		this.writeStateGraph();
 
@@ -299,48 +299,48 @@ public class UITestSuiteGenerator {
 			selectionFunction.setMaximize(false);
 			ga.setSelectionFunction(selectionFunction);
 
-//			Thread thread = new Thread(new Runnable() {	
-//				private int coverageIdx = 1;
-//				private long delay = Properties.UI_BACKGROUND_COVERAGE_DELAY;
-//				
-//				@Override
-//				public void run() {				
-//					if (delay < 0)
-//						return;
-//
-//					long currentTime = System.currentTimeMillis();
-//					long nextTime = currentTime;
-//					
-//					while (true) {
-//						currentTime = System.currentTimeMillis();
-//
-//						if (currentTime >= nextTime) {
-//							try {
-//								Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
-//								Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
-//								String filename = String.format("coverage-%d.ec", coverageIdx);
-//								m.invoke(null, new File(filename), false, false);
-//								nextTime = System.currentTimeMillis() + delay;
-//								
-//								delay *= 1.1;
-//								
-//								coverageIdx++;
-//							} catch (Throwable t) {
-//								t.printStackTrace();
-//							}
-//						} else {
-//							try {
-//								Thread.sleep(nextTime - currentTime);
-//							} catch (InterruptedException e) {
-//								/* OK */
-//							}
-//						}
-//					}
-//				}
-//			}, "Coverage writer thread");
-//
-//			thread.setDaemon(true);
-//			thread.start();
+			Thread thread = new Thread(new Runnable() {	
+				private int coverageIdx = 1;
+				private long delay = Properties.UI_BACKGROUND_COVERAGE_DELAY;
+				
+				@Override
+				public void run() {				
+					if (delay < 0)
+						return;
+
+					long currentTime = System.currentTimeMillis();
+					long nextTime = currentTime;
+					
+					while (true) {
+						currentTime = System.currentTimeMillis();
+
+						if (currentTime >= nextTime) {
+							try {
+								Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
+								Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
+								String filename = String.format("coverage-%d.ec", coverageIdx);
+								m.invoke(null, new File(filename), false, false);
+								nextTime = System.currentTimeMillis() + delay;
+								
+								delay *= 1.1;
+								
+								coverageIdx++;
+							} catch (Throwable t) {
+								t.printStackTrace();
+							}
+						} else {
+							try {
+								Thread.sleep(nextTime - currentTime);
+							} catch (InterruptedException e) {
+								/* OK */
+							}
+						}
+					}
+				}
+			}, "Coverage writer thread");
+
+			thread.setDaemon(true);
+			thread.start();
 			
 			ga.generateSolution();
 
@@ -348,7 +348,6 @@ public class UITestSuiteGenerator {
 		 
 			if(Properties.TEST_CARVING)
 			{
-				System.err.println("--------------------------------------- CARVING");
 				final List<ExecutableChromosome> chromosomes    = best.getTestChromosomes();
 				final int                        numChromosomes = chromosomes.size();
 				final ArrayList<UITestChromosome>        testCases      = new ArrayList<UITestChromosome>(numChromosomes);
@@ -360,9 +359,6 @@ public class UITestSuiteGenerator {
 				
 				this.carveTests(testCases);
 			}
-			
-			
-			
 			
 			return best;
 		} 
@@ -473,6 +469,7 @@ public class UITestSuiteGenerator {
 		} 
 		catch (final Exception e) 
 		{
+			e.printStackTrace();
 			logger.error("an error occurred while postprocessing captured data", e);
 		}
 		
