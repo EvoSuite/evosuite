@@ -122,7 +122,8 @@ public class ArrayReference extends VariableReferenceImpl {
 	 *            an array of int.
 	 */
 	public void setLengths(int[] lengths) {
-		this.lengths = lengths;
+		for (int i = 0; i < lengths.length; i++)
+			this.lengths[i] = lengths[i];
 	}
 
 	/**

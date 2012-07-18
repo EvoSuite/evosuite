@@ -149,7 +149,7 @@ public class ArrayStatement extends AbstractStatement {
 	 */
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference, int[] length) {
 		super(tc, arrayReference);
-		this.lengths = length;
+		setLengths(length);
 	}
 
 	/**
@@ -316,7 +316,7 @@ public class ArrayStatement extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+	public boolean mutate(TestCase test, TestFactory factory) {
 		int maxAssignment = 0;
 		for (StatementInterface statement : test) {
 			for (VariableReference var : statement.getVariableReferences()) {
@@ -387,7 +387,10 @@ public class ArrayStatement extends AbstractStatement {
 	 *            an array of int.
 	 */
 	public void setLengths(int[] lengths) {
-		this.lengths = lengths;
+		this.lengths = new int[lengths.length];
+		for (int i = 0; i < lengths.length; i++) {
+			this.lengths[i] = lengths[i];
+		}
 	}
 
 	/**

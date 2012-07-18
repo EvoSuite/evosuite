@@ -36,8 +36,7 @@ import java.util.Set;
 
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.testcase.DefaultTestFactory;
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -680,6 +679,9 @@ public class Properties {
 	/** Constant <code>INSTRUMENT_PARENT=false</code> */
 	@Parameter(key = "instrument_parent", description = "Also count coverage goals in superclasses")
 	public static boolean INSTRUMENT_PARENT = false;
+
+	@Parameter(key = "instrument_context", description = "Also instrument methods called from the SUT")
+	public static boolean INSTRUMENT_CONTEXT = false;
 
 	/** Constant <code>BREAK_ON_EXCEPTION=true</code> */
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
@@ -1557,7 +1559,7 @@ public class Properties {
 
 		BranchPool.reset();
 		TestCluster.reset();
-		DefaultTestFactory.getInstance().reset();
+		org.evosuite.testcase.TestFactory.getInstance().reset();
 		BytecodeInstructionPool.clear();
 
 		try {

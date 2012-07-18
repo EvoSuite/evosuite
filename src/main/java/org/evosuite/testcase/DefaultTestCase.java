@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A test case is a list of statements
- *
+ * 
  * @author Gordon Fraser
  */
 public class DefaultTestCase implements TestCase, Serializable {
@@ -73,8 +74,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/**
 	 * Convenience constructor
-	 *
-	 * @param statements a {@link java.util.List} object.
+	 * 
+	 * @param statements
+	 *            a {@link java.util.List} object.
 	 */
 	public DefaultTestCase(List<StatementInterface> statements) {
 		if (statements instanceof ListenableList) {
@@ -141,7 +143,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		if (!var.isPrimitive() && !(var instanceof NullReference)) {
 			// add fields of this object to list
-			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
+			for (Field field : TestClusterGenerator.getAccessibleFields(var.getVariableClass())) {
 				Type fieldType = field.getType();
 				try {
 					fieldType = field.getGenericType();
@@ -503,7 +505,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Equality check
 	 */
 	// public boolean equals(TestCase t) {
@@ -574,7 +576,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a copy of the test case
 	 */
 	@Override
@@ -828,9 +830,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/**
-	 * <p>changeClassLoader</p>
-	 *
-	 * @param loader a {@link java.lang.ClassLoader} object.
+	 * <p>
+	 * changeClassLoader
+	 * </p>
+	 * 
+	 * @param loader
+	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader) {
 		for (StatementInterface s : statements) {

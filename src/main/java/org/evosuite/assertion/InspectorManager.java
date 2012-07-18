@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.assertion;
@@ -34,10 +33,11 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 public class InspectorManager {
 
 	private static InspectorManager instance = null;
@@ -110,8 +110,10 @@ public class InspectorManager {
 	}
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.assertion.InspectorManager} object.
 	 */
 	public static InspectorManager getInstance() {
@@ -142,9 +144,12 @@ public class InspectorManager {
 	}
 
 	/**
-	 * <p>Getter for the field <code>inspectors</code>.</p>
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
+	 * <p>
+	 * Getter for the field <code>inspectors</code>.
+	 * </p>
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Inspector> getInspectors(Class<?> clazz) {
@@ -154,10 +159,14 @@ public class InspectorManager {
 	}
 
 	/**
-	 * <p>removeInspector</p>
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
-	 * @param inspector a {@link org.evosuite.assertion.Inspector} object.
+	 * <p>
+	 * removeInspector
+	 * </p>
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
+	 * @param inspector
+	 *            a {@link org.evosuite.assertion.Inspector} object.
 	 */
 	public void removeInspector(Class<?> clazz, Inspector inspector) {
 		if (inspectors.containsKey(clazz)) {

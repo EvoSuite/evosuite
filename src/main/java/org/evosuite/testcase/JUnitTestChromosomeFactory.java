@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,16 +33,18 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ma.parser.TestParser;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>JUnitTestChromosomeFactory class.</p>
- *
+ * <p>
+ * JUnitTestChromosomeFactory class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
@@ -57,21 +59,25 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 
 	/**
 	 * Attempt to read the test case
-	 *
-	 * @param defaultFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * 
+	 * @param defaultFactory
+	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public JUnitTestChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory) {
 		this.defaultFactory = defaultFactory;
 		if (userTests.isEmpty())
 			userTests.addAll(filter(readTestCases()));
-		LoggingUtils.getEvoLogger().info("* Found " + userTests.size() + " relevant tests");
+		LoggingUtils.getEvoLogger().info("* Found " + userTests.size()
+		                                         + " relevant tests");
 		// getManualCoverage();
 
 	}
 
 	/**
-	 * <p>getNumTests</p>
-	 *
+	 * <p>
+	 * getNumTests
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int getNumTests() {
@@ -82,7 +88,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 		Set<TestCase> relevantTests = new HashSet<TestCase>();
 		for (TestCase test : tests) {
 			for (Class<?> clazz : test.getAccessedClasses()) {
-				if (StaticTestCluster.isTargetClassName(clazz.getName())) {
+				if (TestCluster.isTargetClassName(clazz.getName())) {
 					relevantTests.add(test);
 					logger.info("TestCase: " + test.toCode());
 					break;
@@ -120,9 +126,12 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 	}
 
 	/**
-	 * <p>getTestFiles</p>
-	 *
-	 * @param fullClassName a {@link java.lang.String} object.
+	 * <p>
+	 * getTestFiles
+	 * </p>
+	 * 
+	 * @param fullClassName
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<String> getTestFiles(String fullClassName) {
@@ -164,9 +173,12 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 	}
 
 	/**
-	 * <p>getContainingClassName</p>
-	 *
-	 * @param f a {@link java.io.File} object.
+	 * <p>
+	 * getContainingClassName
+	 * </p>
+	 * 
+	 * @param f
+	 *            a {@link java.io.File} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getContainingClassName(File f) {

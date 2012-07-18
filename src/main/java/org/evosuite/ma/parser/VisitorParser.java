@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -58,6 +58,8 @@ import java.util.Queue;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.ma.Editor;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.AbstractStatement;
 import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
@@ -79,17 +81,15 @@ import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.ShortPrimitiveStatement;
 import org.evosuite.testcase.StringPrimitiveStatement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCluster;
 import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Visitor parser. If there is a error during parsing then {@code valid} will be
  * false, but it's still possible to get {@link TestCase} without invalid
  * instructions.
- *
+ * 
  * @author Yury Pavlov
  */
 public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Object> {
@@ -110,16 +110,21 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 	private boolean guiActive = false;
 
 	/**
-	 * <p>Constructor for VisitorParser.</p>
+	 * <p>
+	 * Constructor for VisitorParser.
+	 * </p>
 	 */
 	public VisitorParser() {
 		// to use it without GUI
 	}
 
 	/**
-	 * <p>Constructor for VisitorParser.</p>
-	 *
-	 * @param guiActive a boolean.
+	 * <p>
+	 * Constructor for VisitorParser.
+	 * </p>
+	 * 
+	 * @param guiActive
+	 *            a boolean.
 	 */
 	public VisitorParser(boolean guiActive) {
 		this.guiActive = guiActive;
@@ -255,19 +260,23 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			try {
 				switch (primType.getType()) {
 				case Float:
-					res = new FloatPrimitiveStatement(newTC, Float.parseFloat(init.replace("F", "")));
+					res = new FloatPrimitiveStatement(newTC,
+					        Float.parseFloat(init.replace("F", "")));
 					break;
 				case Double:
-					res = new DoublePrimitiveStatement(newTC, Double.parseDouble(init.replace("D", "")));
+					res = new DoublePrimitiveStatement(newTC,
+					        Double.parseDouble(init.replace("D", "")));
 					break;
 				default:
-					res = new DoublePrimitiveStatement(newTC, Double.parseDouble(init.replace("D", "")));
+					res = new DoublePrimitiveStatement(newTC,
+					        Double.parseDouble(init.replace("D", "")));
 				}
 			} catch (NumberFormatException e) {
 				addParsError("Primitive is assigned a var, not implemented yet.", n);
 			}
 		} else {
-			res = new DoublePrimitiveStatement(newTC, Double.parseDouble(init.replace("D", "")));
+			res = new DoublePrimitiveStatement(newTC,
+			        Double.parseDouble(init.replace("D", "")));
 		}
 		checkedAddNewSttm(n, res);
 		return res;
@@ -326,7 +335,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			for (Class<?> class1 : paramClasses) {
 				logger.debug("Params clazzs loaded: " + class1);
 			}
-			Constructor<?> constructor = getConstructor(clazz, paramClasses.toArray(new Class<?>[paramClasses.size()]));
+			Constructor<?> constructor = getConstructor(clazz,
+			                                            paramClasses.toArray(new Class<?>[paramClasses.size()]));
 			res = new ConstructorStatement(newTC, constructor, clazz, params);
 		} catch (ParseException e) {
 			addParsError(e.getMessage(), n);
@@ -434,10 +444,10 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 					for (int k = 0; k < sizes[i]; k++) {
 						// logger.debug("Add array: " +
 						// lowArrays.remove());
-						VariableReference haElRef = new ArrayIndex(newTC, (ArrayReference) currentDim.get(j)
-								.getReturnValue(), k);
-						AbstractStatement tmpAs = new AssignmentStatement(newTC, haElRef, prevDim.remove()
-								.getReturnValue());
+						VariableReference haElRef = new ArrayIndex(newTC,
+						        (ArrayReference) currentDim.get(j).getReturnValue(), k);
+						AbstractStatement tmpAs = new AssignmentStatement(newTC, haElRef,
+						        prevDim.remove().getReturnValue());
 						checkedAddNewSttm(n, tmpAs);
 					}
 					logger.debug("Switch to the next ha");
@@ -471,7 +481,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			// try to create var for this value
 			logger.debug("Try create new RHS");
 			AbstractStatement lhsSttm = separator(value, null,
-					"tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
+			                                      "tEmPoRaLvArIaBlE" + n.getBeginLine()
+			                                              + n.getBeginColumn());
 			logger.debug("rhs created: " + lhsSttm);
 			lhs = lhsSttm.getReturnValue();
 			logger.debug("New RHS is: " + lhs);
@@ -482,7 +493,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			// try to create var for this value
 			logger.debug("Try create new RHS");
 			AbstractStatement rhsSttm = separator(value, null,
-					"tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
+			                                      "tEmPoRaLvArIaBlE" + n.getBeginLine()
+			                                              + n.getBeginColumn());
 			logger.debug("rhs created: " + rhsSttm);
 			rhs = rhsSttm.getReturnValue();
 			logger.debug("New RHS is: " + rhs);
@@ -504,7 +516,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			Class<?>[] paramClasses = getVarClasses(paramReferences);
 			Method method = getMethod(n, paramClasses);
 			VariableReference callee = getVarRef(n.getScope());
-			res = new MethodStatement(newTC, method, callee, method.getReturnType(), paramReferences);
+			res = new MethodStatement(newTC, method, callee, method.getReturnType(),
+			        paramReferences);
 		} catch (ParseException e) {
 			addParsError(e.getMessage(), n);
 		}
@@ -518,7 +531,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		Operator op = n.getOperator();
 		logger.debug("i'm here UnaryExpr");
 		logger.debug(n.getOperator().toString());
-		res = separator(expr, arg, "tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
+		res = separator(expr, arg,
+		                "tEmPoRaLvArIaBlE" + n.getBeginLine() + n.getBeginColumn());
 		if (res != null) {
 			if (op == Operator.negative || op == Operator.not) {
 				res.negate();
@@ -579,7 +593,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 
 	private void addParsError(String msg, Expression n) {
 		if (n != null) {
-			parsErrors.add("Expression: " + n + ".\nIn line: " + n.getBeginLine() + ".\nSay: " + msg);
+			parsErrors.add("Expression: " + n + ".\nIn line: " + n.getBeginLine()
+			        + ".\nSay: " + msg);
 		} else {
 			parsErrors.add(msg);
 		}
@@ -587,8 +602,10 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 	}
 
 	/**
-	 * <p>Getter for the field <code>newTC</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>newTC</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getNewTC() {
@@ -596,7 +613,9 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 	}
 
 	/**
-	 * <p>reset</p>
+	 * <p>
+	 * reset
+	 * </p>
 	 */
 	public void reset() {
 		newTC = new DefaultTestCase();
@@ -606,8 +625,10 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 	}
 
 	/**
-	 * <p>isValid</p>
-	 *
+	 * <p>
+	 * isValid
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isValid() {
@@ -615,8 +636,10 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 	}
 
 	/**
-	 * <p>Getter for the field <code>parsErrors</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>parsErrors</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.util.ArrayList} object.
 	 */
 	public ArrayList<String> getParsErrors() {
@@ -624,11 +647,15 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 	}
 
 	/**
-	 * <p>getClass</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
+	 * <p>
+	 * getClass
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.Class} object.
-	 * @throws japa.parser.ParseException if any.
+	 * @throws japa.parser.ParseException
+	 *             if any.
 	 */
 	public Class<?> getClass(String name) throws ParseException {
 		// First try to find exact match
@@ -709,7 +736,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return res.toArray(new Class<?>[res.size()]);
 	}
 
-	private List<VariableReference> getVarRefs(List<Expression> args) throws ParseException {
+	private List<VariableReference> getVarRefs(List<Expression> args)
+	        throws ParseException {
 		List<VariableReference> res = new ArrayList<VariableReference>();
 		if (args != null) {
 			for (Expression expr : args) {
@@ -750,14 +778,17 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			VariableReference avRef = getVarRef(arrayAccExpr.getName());
 			ArrayReference arrayRef = null;
 			if (avRef instanceof ArrayReference) {
-				logger.debug("2) Have array's variable of type: " + avRef.getVariableClass());
+				logger.debug("2) Have array's variable of type: "
+				        + avRef.getVariableClass());
 				arrayRef = (ArrayReference) avRef;
 			} else {
-				logger.debug("1) Have array variable of type: " + avRef.getVariableClass() + " / "
-						+ avRef.getComponentType());
+				logger.debug("1) Have array variable of type: "
+				        + avRef.getVariableClass() + " / " + avRef.getComponentType());
 				int size = ((ArrayStatement) newTC.getStatement(avRef.getStPosition())).size();
-				AbstractStatement newArray = new ArrayStatement(newTC, avRef.getVariableClass(), size);
-				AbstractStatement assign = new AssignmentStatement(newTC, newArray.getReturnValue(), avRef);
+				AbstractStatement newArray = new ArrayStatement(newTC,
+				        avRef.getVariableClass(), size);
+				AbstractStatement assign = new AssignmentStatement(newTC,
+				        newArray.getReturnValue(), avRef);
 				newTC.addStatement(newArray);
 				arrayRef = (ArrayReference) newTC.addStatement(assign);
 			}
@@ -787,26 +818,26 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			return getVarRef(((EnclosedExpr) expr).getInner());
 		} else if (expr instanceof ObjectCreationExpr) {
 			logger.debug("create Ref for objectCreat");
-			return separator((ObjectCreationExpr) expr, null, "tEmPoRaLvArIaBlE" + expr.getBeginColumn())
-					.getReturnValue();
+			return separator(expr, null, "tEmPoRaLvArIaBlE" + expr.getBeginColumn()).getReturnValue();
 		} else if (expr instanceof ArrayCreationExpr) {
-			return separator((ArrayCreationExpr) expr, null, "tEmPoRaLvArIaBlE" + expr.getBeginColumn())
-					.getReturnValue();
+			return separator(expr, null, "tEmPoRaLvArIaBlE" + expr.getBeginColumn()).getReturnValue();
 		}
 		throw new ParseException(null, "Can't find reference for variable: " + expr);
 	}
 
-	private Constructor<?> getConstructor(Class<?> clazz, Class<?>[] paramClasses) throws ParseException {
+	private Constructor<?> getConstructor(Class<?> clazz, Class<?>[] paramClasses)
+	        throws ParseException {
 		try {
 			return clazz.getConstructor(paramClasses);
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			for (Constructor<?> constr : TestCluster.getConstructors(clazz)) {
+			for (Constructor<?> constr : TestClusterGenerator.getConstructors(clazz)) {
 				if (constr.getParameterTypes().length == paramClasses.length) {
 					Class<?>[] constrParams = constr.getParameterTypes();
 					for (int i = 0; i < constrParams.length; i++) {
-						if (paramClasses[i] == null || constrParams[i].isAssignableFrom(paramClasses[i])) {
+						if (paramClasses[i] == null
+						        || constrParams[i].isAssignableFrom(paramClasses[i])) {
 							if (i == constrParams.length - 1) {
 								return constr;
 							}
@@ -817,8 +848,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 				}
 			}
 		}
-		throw new ParseException(null, "No such constructor in class " + clazz.getName() + ": "
-				+ Arrays.asList(paramClasses));
+		throw new ParseException(null, "No such constructor in class " + clazz.getName()
+		        + ": " + Arrays.asList(paramClasses));
 	}
 
 	private Field getField(FieldAccessExpr expr) throws ParseException {
@@ -837,7 +868,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 		return null;
 	}
 
-	private Method getMethod(MethodCallExpr expr, Class<?>[] paramClasses) throws ParseException {
+	private Method getMethod(MethodCallExpr expr, Class<?>[] paramClasses)
+	        throws ParseException {
 		Expression scope = expr.getScope();
 		logger.debug("getMethod(MethodCallExpr expr: " + expr);
 		logger.debug("Method's scope: " + scope);
@@ -854,16 +886,18 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				logger.debug("Looking for method " + methodName + " in class " + clazz.getName() + " with parameters "
-						+ Arrays.asList(paramClasses));
-				for (Method meth : TestCluster.getMethods(clazz)) {
+				logger.debug("Looking for method " + methodName + " in class "
+				        + clazz.getName() + " with parameters "
+				        + Arrays.asList(paramClasses));
+				for (Method meth : TestClusterGenerator.getMethods(clazz)) {
 					if (meth.getName().equals(methodName)) {
 						if (meth.getParameterTypes().length == paramClasses.length) {
 							Class<?>[] methParams = meth.getParameterTypes();
 							logger.debug("Checking " + Arrays.asList(methParams));
 							for (int i = 0; i < methParams.length; i++) {
-								if (paramClasses[i] == null || methParams[i].isAssignableFrom(paramClasses[i])
-										|| (methParams[i].equals(int.class) && paramClasses[i].equals(char.class))) {
+								if (paramClasses[i] == null
+								        || methParams[i].isAssignableFrom(paramClasses[i])
+								        || (methParams[i].equals(int.class) && paramClasses[i].equals(char.class))) {
 									logger.debug("Parameter " + i + " matches");
 									if (i == methParams.length - 1) {
 										return meth;
@@ -880,8 +914,8 @@ public class VisitorParser extends GenericVisitorAdapter<AbstractStatement, Obje
 					classNames.append(paramType.getName() + "; ");
 				}
 			}
-			throw new ParseException(null, "Can not find the method: \"" + methodName + "\", with parameter(s): "
-					+ classNames);
+			throw new ParseException(null, "Can not find the method: \"" + methodName
+			        + "\", with parameter(s): " + classNames);
 		}
 		return null;
 	}

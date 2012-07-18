@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,18 +19,16 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.evosuite.junit.DelegatingTestCase;
 import org.objectweb.asm.commons.GeneratorAdapter;
-
 
 /**
  * This class defines an reference to an array element. E.g. foo[3]
- *
+ * 
  * @author Sebastian Steenbuck
  */
 public class ArrayIndex extends VariableReferenceImpl {
@@ -50,40 +48,50 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	/**
 	 * Constructor
-	 *
-	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param array a {@link org.evosuite.testcase.ArrayReference} object.
-	 * @param index a int.
+	 * 
+	 * @param testCase
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param array
+	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 * @param index
+	 *            a int.
 	 */
 	public ArrayIndex(TestCase testCase, ArrayReference array, int index) {
 		this(testCase, array, Collections.singletonList(index));
 	}
 
 	/**
-	 * <p>Constructor for ArrayIndex.</p>
-	 *
-	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param array a {@link org.evosuite.testcase.ArrayReference} object.
-	 * @param indices a {@link java.util.List} object.
+	 * <p>
+	 * Constructor for ArrayIndex.
+	 * </p>
+	 * 
+	 * @param testCase
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param array
+	 *            a {@link org.evosuite.testcase.ArrayReference} object.
+	 * @param indices
+	 *            a {@link java.util.List} object.
 	 */
 	public ArrayIndex(TestCase testCase, ArrayReference array, List<Integer> indices) {
 		super(testCase, new GenericClass(getReturnType(array, indices.size())));
 		this.array = array;
-		this.indices = indices;
+		setArrayIndices(indices);
 	}
 
 	private static Type getReturnType(ArrayReference array, int indicesCnt) {
 		assert indicesCnt >= 1;
 		Class<?> result = (Class<?>) array.getComponentType();
 		for (int idx = 1; idx < indicesCnt; idx++) {
-			result = (Class<?>) result.getComponentType();
+			result = result.getComponentType();
 		}
 		return result;
 	}
 
 	/**
-	 * <p>Getter for the field <code>array</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>array</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.ArrayReference} object.
 	 */
 	public ArrayReference getArray() {
@@ -91,9 +99,12 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
-	 * <p>Setter for the field <code>array</code>.</p>
-	 *
-	 * @param r a {@link org.evosuite.testcase.ArrayReference} object.
+	 * <p>
+	 * Setter for the field <code>array</code>.
+	 * </p>
+	 * 
+	 * @param r
+	 *            a {@link org.evosuite.testcase.ArrayReference} object.
 	 */
 	public void setArray(ArrayReference r) {
 		array = r;
@@ -101,7 +112,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	/**
 	 * Return true if variable is an array
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isArrayIndex() {
@@ -109,8 +120,10 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
-	 * <p>getArrayIndex</p>
-	 *
+	 * <p>
+	 * getArrayIndex
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getArrayIndex() {
@@ -119,9 +132,12 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
-	 * <p>setArrayIndex</p>
-	 *
-	 * @param index a int.
+	 * <p>
+	 * setArrayIndex
+	 * </p>
+	 * 
+	 * @param index
+	 *            a int.
 	 */
 	public void setArrayIndex(int index) {
 		assert indices.size() == 1;
@@ -151,14 +167,14 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return name for source code representation
 	 */
 	@Override
 	public String getName() {
 		String result = array.getName();
 		for (int index : indices) {
-			result += "[" + index + "]"; 
+			result += "[" + index + "]";
 		}
 		return result;
 	}
@@ -213,7 +229,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return the actual object represented by this variable for a given scope
 	 */
 	@Override
@@ -222,8 +238,8 @@ public class ArrayIndex extends VariableReferenceImpl {
 		try {
 			for (int idx = 0; idx < indices.size() - 1; idx++) {
 				if (arrayObject == null) {
-				throw new CodeUnderTestException(new NullPointerException());
-			}
+					throw new CodeUnderTestException(new NullPointerException());
+				}
 				arrayObject = Array.get(arrayObject, indices.get(idx));
 			}
 			Object result = Array.get(arrayObject, indices.get(indices.size() - 1));
@@ -235,7 +251,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Set the actual object represented by this variable in a given scope
 	 */
 	@Override
@@ -244,8 +260,8 @@ public class ArrayIndex extends VariableReferenceImpl {
 		try {
 			for (int idx = 0; idx < indices.size() - 1; idx++) {
 				if (arrayObject == null) {
-				throw new CodeUnderTestException(new NullPointerException());
-			}
+					throw new CodeUnderTestException(new NullPointerException());
+				}
 				arrayObject = Array.get(arrayObject, indices.get(idx));
 			}
 			Array.set(arrayObject, indices.get(indices.size() - 1), value);
@@ -256,12 +272,13 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a copy of the current variable
 	 */
 	@Override
 	public VariableReference copy(TestCase newTestCase, int offset) {
-		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition() + offset).getReturnValue(); 
+		ArrayReference otherArray = (ArrayReference) newTestCase.getStatement(array.getStPosition()
+		                                                                              + offset).getReturnValue();
 		//must be set as we only use this to clone whole testcases
 		return new ArrayIndex(newTestCase, otherArray, indices);
 	}
@@ -344,17 +361,22 @@ public class ArrayIndex extends VariableReferenceImpl {
 	}
 
 	/**
-	 * <p>setArrayIndices</p>
-	 *
-	 * @param indices a {@link java.util.List} object.
+	 * <p>
+	 * setArrayIndices
+	 * </p>
+	 * 
+	 * @param indices
+	 *            a {@link java.util.List} object.
 	 */
-	public void setArrayIndices(List<Integer> indices){
-		this.indices = indices;
+	public void setArrayIndices(List<Integer> indices) {
+		this.indices = new ArrayList<Integer>(indices);
 	}
-	
+
 	/**
-	 * <p>getArrayIndices</p>
-	 *
+	 * <p>
+	 * getArrayIndices
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<Integer> getArrayIndices() {

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,10 +28,9 @@ import org.evosuite.assertion.Assertion;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Abstract superclass of test case statements
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class AbstractStatement implements StatementInterface, Serializable {
@@ -82,10 +81,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	protected Throwable exceptionThrown = null;
 
 	/**
-	 * <p>Constructor for AbstractStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param retval a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * Constructor for AbstractStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param retval
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	protected AbstractStatement(TestCase tc, VariableReference retval) {
 		assert (retval != null);
@@ -94,10 +97,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/**
-	 * <p>Constructor for AbstractStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * Constructor for AbstractStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	protected AbstractStatement(TestCase tc, Type type) {
 		GenericClass c = new GenericClass(type);
@@ -113,12 +120,18 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * This method abstracts the exception handling away from the concrete
 	 * statements. Thereby hopefully enabling us to have a more consistent
 	 * approach to exceptions.
-	 *
-	 * @param code a {@link org.evosuite.testcase.AbstractStatement.Executer} object.
-	 * @throws java.lang.reflect.InvocationTargetException if any.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
-	 * @throws java.lang.InstantiationException if any.
+	 * 
+	 * @param code
+	 *            a {@link org.evosuite.testcase.AbstractStatement.Executer}
+	 *            object.
+	 * @throws java.lang.reflect.InvocationTargetException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
+	 * @throws java.lang.InstantiationException
+	 *             if any.
 	 * @return a {@link java.lang.Throwable} object.
 	 */
 	protected Throwable exceptionHandler(Executer code) throws InvocationTargetException,
@@ -194,8 +207,10 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/**
-	 * <p>getAssertionReferences</p>
-	 *
+	 * <p>
+	 * getAssertionReferences
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	protected Set<VariableReference> getAssertionReferences() {
@@ -269,7 +284,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create copies of all attached assertions
 	 */
 	@Override
@@ -376,9 +391,12 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/**
-	 * <p>getExceptionClass</p>
-	 *
-	 * @param t a {@link java.lang.Throwable} object.
+	 * <p>
+	 * getExceptionClass
+	 * </p>
+	 * 
+	 * @param t
+	 *            a {@link java.lang.Throwable} object.
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public static Class<?> getExceptionClass(Throwable t) {
@@ -416,7 +434,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+	public boolean mutate(TestCase test, TestFactory factory) {
 		return false;
 	}
 
@@ -443,7 +461,9 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	}
 
 	/**
-	 * <p>negate</p>
+	 * <p>
+	 * negate
+	 * </p>
 	 */
 	public void negate() {
 	}

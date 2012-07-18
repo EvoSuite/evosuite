@@ -34,6 +34,7 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.ga.DSEBudget;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.expr.BinaryExpression;
@@ -54,7 +55,6 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
-import org.evosuite.testcase.StaticTestCluster;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
@@ -63,10 +63,11 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>TestSuiteDSE class.</p>
- *
+ * <p>
+ * TestSuiteDSE class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class TestSuiteDSE {
@@ -95,18 +96,25 @@ public class TestSuiteDSE {
 	private final TestSuiteFitnessFunction fitness;
 
 	/**
-	 * <p>Constructor for TestSuiteDSE.</p>
-	 *
-	 * @param fitness a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 * <p>
+	 * Constructor for TestSuiteDSE.
+	 * </p>
+	 * 
+	 * @param fitness
+	 *            a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
+	 *            object.
 	 */
 	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
 		this.fitness = fitness;
 	}
 
 	/**
-	 * <p>applyDSE</p>
-	 *
-	 * @param individual a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * <p>
+	 * applyDSE
+	 * </p>
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void applyDSE(TestSuiteChromosome individual) {
 		ConcolicExecution concolicExecution = new ConcolicExecution();
@@ -216,8 +224,9 @@ public class TestSuiteDSE {
 
 	/**
 	 * For each uncovered branch try to add a new test
-	 *
-	 * @param individual a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void applyOldDSE(TestSuiteChromosome individual) {
 		long dseEndTime = System.currentTimeMillis() + Properties.DSE_BUDGET;
@@ -436,7 +445,7 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	private boolean isUncovered(BranchCondition branch) {
-		if (!StaticTestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName())) {
+		if (!TestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName())) {
 			return false;
 		}
 
@@ -707,9 +716,11 @@ public class TestSuiteDSE {
 
 	/**
 	 * Recursively determine constraints in expression
-	 *
-	 * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param variables a {@link java.util.Set} object.
+	 * 
+	 * @param expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param variables
+	 *            a {@link java.util.Set} object.
 	 */
 	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {

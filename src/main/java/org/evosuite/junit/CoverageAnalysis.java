@@ -22,12 +22,11 @@ import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.StaticTestCluster;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestCluster;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
@@ -40,8 +39,10 @@ import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
 
 /**
- * <p>CoverageAnalysis class.</p>
- *
+ * <p>
+ * CoverageAnalysis class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class CoverageAnalysis {
@@ -81,7 +82,7 @@ public class CoverageAnalysis {
 				try {
 					Class<?> clazz = Class.forName(resource.replaceAll(".class", "").replaceAll("/",
 					                                                                            "."),
-					                               true, StaticTestCluster.classLoader);
+					                               true, TestCluster.classLoader);
 					if (isTest(clazz)) {
 						classes.add(clazz);
 					}
@@ -107,7 +108,7 @@ public class CoverageAnalysis {
 
 			try {
 				Class<?> junitClass = Class.forName(Properties.JUNIT_PREFIX, true,
-				                                    StaticTestCluster.classLoader);
+				                                    TestCluster.classLoader);
 				classes.add(junitClass);
 			} catch (ClassNotFoundException e) {
 				// Second, try if the target name is a package name
@@ -119,9 +120,11 @@ public class CoverageAnalysis {
 
 	/**
 	 * Analyze all classes that can be found in a given directory
-	 *
-	 * @param directory a {@link java.io.File} object.
-	 * @throws ClassNotFoundException if any.
+	 * 
+	 * @param directory
+	 *            a {@link java.io.File} object.
+	 * @throws ClassNotFoundException
+	 *             if any.
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Class<?>> getClasses(File directory) {
@@ -144,7 +147,7 @@ public class CoverageAnalysis {
 
 				// Use default classLoader
 				Class<?> clazz = Class.forName(className.replace("/", "."), true,
-				                               StaticTestCluster.classLoader);
+				                               TestCluster.classLoader);
 				LoggingUtils.restorePreviousOutAndErrStream();
 
 				//clazz = Class.forName(clazz.getName());
@@ -199,9 +202,12 @@ public class CoverageAnalysis {
 	}
 
 	/**
-	 * <p>getClassesJar</p>
-	 *
-	 * @param file a {@link java.io.File} object.
+	 * <p>
+	 * getClassesJar
+	 * </p>
+	 * 
+	 * @param file
+	 *            a {@link java.io.File} object.
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Class<?>> getClassesJar(File file) {
@@ -232,7 +238,7 @@ public class CoverageAnalysis {
 			try {
 				Class<?> clazz = Class.forName(fileName.replace(".class", "").replace("/",
 				                                                                      "."),
-				                               true, StaticTestCluster.classLoader);
+				                               true, TestCluster.classLoader);
 				classes.add(clazz);
 			} catch (IllegalAccessError ex) {
 				System.setOut(old_out);
@@ -347,7 +353,9 @@ public class CoverageAnalysis {
 	}
 
 	/**
-	 * <p>run</p>
+	 * <p>
+	 * run
+	 * </p>
 	 */
 	public void run() {
 
@@ -369,9 +377,12 @@ public class CoverageAnalysis {
 	}
 
 	/**
-	 * <p>main</p>
-	 *
-	 * @param args an array of {@link java.lang.String} objects.
+	 * <p>
+	 * main
+	 * </p>
+	 * 
+	 * @param args
+	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		try {

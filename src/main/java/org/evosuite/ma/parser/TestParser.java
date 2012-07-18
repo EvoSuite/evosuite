@@ -86,8 +86,9 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ma.UserFeedback;
 import org.evosuite.setup.ResourceList;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.AbstractStatement;
-import org.evosuite.testcase.AbstractTestFactory;
 import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.ArrayStatement;
@@ -97,7 +98,6 @@ import org.evosuite.testcase.BytePrimitiveStatement;
 import org.evosuite.testcase.CharPrimitiveStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.DefaultTestFactory;
 import org.evosuite.testcase.DoublePrimitiveStatement;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.FieldStatement;
@@ -111,15 +111,17 @@ import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.ShortPrimitiveStatement;
 import org.evosuite.testcase.StringPrimitiveStatement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>TestParser class.</p>
- *
+ * <p>
+ * TestParser class.
+ * </p>
+ * 
  * @author Yury Pavlov
  */
 public class TestParser {
@@ -145,16 +147,21 @@ public class TestParser {
 	private final TestCluster testCluster = TestCluster.getInstance();
 
 	/**
-	 * <p>Constructor for TestParser.</p>
-	 *
-	 * @param editor a {@link org.evosuite.ma.UserFeedback} object.
+	 * <p>
+	 * Constructor for TestParser.
+	 * </p>
+	 * 
+	 * @param editor
+	 *            a {@link org.evosuite.ma.UserFeedback} object.
 	 */
 	public TestParser(UserFeedback editor) {
 		this.editor = editor;
 	}
 
 	/**
-	 * <p>Constructor for TestParser.</p>
+	 * <p>
+	 * Constructor for TestParser.
+	 * </p>
 	 */
 	public TestParser() {
 		this.editor = null;
@@ -189,10 +196,12 @@ public class TestParser {
 
 	/**
 	 * Parse a Java source file and convert each method to a test
-	 *
-	 * @param fileName a {@link java.lang.String} object.
+	 * 
+	 * @param fileName
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.Set} object.
-	 * @throws java.io.IOException if any.
+	 * @throws java.io.IOException
+	 *             if any.
 	 */
 	public Set<TestCase> parseFile(String fileName) throws IOException {
 		Map<String, TestCase> namedTests = parseNamedTests(fileName);
@@ -203,10 +212,12 @@ public class TestParser {
 
 	/**
 	 * Parse a Java source file and convert each method to a test
-	 *
-	 * @param fileName a {@link java.lang.String} object.
+	 * 
+	 * @param fileName
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.Map} object.
-	 * @throws java.io.IOException if any.
+	 * @throws java.io.IOException
+	 *             if any.
 	 */
 	public Map<String, TestCase> parseNamedTests(String fileName) throws IOException {
 		Map<String, TestCase> tests = new HashMap<String, TestCase>();
@@ -235,11 +246,14 @@ public class TestParser {
 
 	/**
 	 * Parse a Java source file and convert a named method to a test
-	 *
-	 * @param fileName a {@link java.lang.String} object.
-	 * @param testName a {@link java.lang.String} object.
+	 * 
+	 * @param fileName
+	 *            a {@link java.lang.String} object.
+	 * @param testName
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
-	 * @throws java.io.IOException if any.
+	 * @throws java.io.IOException
+	 *             if any.
 	 */
 	public TestCase parseFile(String fileName, String testName) throws IOException {
 
@@ -541,7 +555,7 @@ public class TestParser {
 		if (method.getParameters() != null) {
 			for (Parameter param : method.getParameters()) {
 				try {
-					AbstractTestFactory factory = DefaultTestFactory.getInstance();
+					TestFactory factory = TestFactory.getInstance();
 					VariableReference varRef = factory.attemptGeneration(newTestCase,
 					                                                     typeToClass(param.getType()),
 					                                                     newTestCase.size());
@@ -599,10 +613,11 @@ public class TestParser {
 	 * Parse a testCase in form of {@link String} to List<StatementInterface>
 	 * statements, create {@link TestCase} and save it to the List of tests in
 	 * {@link GeneticAlgorithm}
-	 *
+	 * 
 	 * @param testCode
 	 *            to parse
-	 * @throws java.io.IOException if any.
+	 * @throws java.io.IOException
+	 *             if any.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase parseTest(String testCode) throws IOException {
@@ -1340,7 +1355,7 @@ public class TestParser {
 		} catch (SecurityException e) {
 			e.printStackTrace();
 		} catch (NoSuchMethodException e) {
-			for (Constructor<?> constr : TestCluster.getConstructors(clazz)) {
+			for (Constructor<?> constr : TestClusterGenerator.getConstructors(clazz)) {
 				if (constr.getParameterTypes().length == paramClasses.length) {
 					Class<?>[] constrParams = constr.getParameterTypes();
 					for (int i = 0; i < constrParams.length; i++) {
@@ -1377,7 +1392,7 @@ public class TestParser {
 		} catch (NoSuchMethodException e) {
 			logger.debug("Looking for method " + methodName + " in class "
 			        + clazz.getName() + " with parameters " + Arrays.asList(paramClasses));
-			for (Method meth : TestCluster.getMethods(clazz)) {
+			for (Method meth : TestClusterGenerator.getMethods(clazz)) {
 				if (meth.getName().equals(methodName)) {
 					if (meth.getParameterTypes().length == paramClasses.length) {
 						Class<?>[] methParams = meth.getParameterTypes();
@@ -1633,11 +1648,15 @@ public class TestParser {
 	}
 
 	/**
-	 * <p>getClass</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
+	 * <p>
+	 * getClass
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.Class} object.
-	 * @throws java.lang.ClassNotFoundException if any.
+	 * @throws java.lang.ClassNotFoundException
+	 *             if any.
 	 */
 	public Class<?> getClass(String name) throws ClassNotFoundException {
 

@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.testcase;
@@ -34,10 +33,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
+
 public class MethodStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = 6134126797102983073L;
@@ -49,13 +51,20 @@ public class MethodStatement extends AbstractStatement {
 	protected List<VariableReference> parameters;
 
 	/**
-	 * <p>Constructor for MethodStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param method a {@link java.lang.reflect.Method} object.
-	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param parameters a {@link java.util.List} object.
+	 * <p>
+	 * Constructor for MethodStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param method
+	 *            a {@link java.lang.reflect.Method} object.
+	 * @param callee
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param parameters
+	 *            a {@link java.util.List} object.
 	 */
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
@@ -68,14 +77,15 @@ public class MethodStatement extends AbstractStatement {
 		this.callee = callee;
 		this.parameters = parameters;
 	}
-	
+
 	/**
-	 * <p>Getter for the field <code>parameters</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>parameters</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<VariableReference> getParameters()
-	{
+	public List<VariableReference> getParameters() {
 		return this.parameters;
 	}
 
@@ -84,12 +94,17 @@ public class MethodStatement extends AbstractStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param method a {@link java.lang.reflect.Method} object.
-	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param retvar a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param parameters a {@link java.util.List} object.
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param method
+	 *            a {@link java.lang.reflect.Method} object.
+	 * @param callee
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param retvar
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param parameters
+	 *            a {@link java.util.List} object.
 	 */
 	public MethodStatement(TestCase tc, Method method, VariableReference callee,
 	        VariableReference retvar, List<VariableReference> parameters) {
@@ -104,8 +119,10 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Getter for the field <code>method</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>method</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.reflect.Method} object.
 	 */
 	public Method getMethod() {
@@ -113,9 +130,12 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Setter for the field <code>method</code>.</p>
-	 *
-	 * @param method a {@link java.lang.reflect.Method} object.
+	 * <p>
+	 * Setter for the field <code>method</code>.
+	 * </p>
+	 * 
+	 * @param method
+	 *            a {@link java.lang.reflect.Method} object.
 	 */
 	public void setMethod(Method method) {
 		assert (method.getReturnType().equals(this.method.getReturnType()));
@@ -123,8 +143,10 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Getter for the field <code>callee</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>callee</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getCallee() {
@@ -132,17 +154,22 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Setter for the field <code>callee</code>.</p>
-	 *
-	 * @param callee a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * Setter for the field <code>callee</code>.
+	 * </p>
+	 * 
+	 * @param callee
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public void setCallee(VariableReference callee) {
 		this.callee = callee;
 	}
 
 	/**
-	 * <p>isStatic</p>
-	 *
+	 * <p>
+	 * isStatic
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isStatic() {
@@ -188,6 +215,7 @@ public class MethodStatement extends AbstractStatement {
 						throw e;
 						// throw CodeUnderTestException.throwException(e.getCause());
 					} catch (Throwable e) {
+						e.printStackTrace();
 						throw new EvosuiteError(e);
 					}
 
@@ -199,6 +227,7 @@ public class MethodStatement extends AbstractStatement {
 						throw e;
 						// throw CodeUnderTestException.throwException(e);
 					} catch (Throwable e) {
+						e.printStackTrace();
 						throw new EvosuiteError(e);
 					}
 				}
@@ -314,8 +343,10 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>getParameterReferences</p>
-	 *
+	 * <p>
+	 * getParameterReferences
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<VariableReference> getParameterReferences() {
@@ -323,10 +354,14 @@ public class MethodStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>replaceParameterReference</p>
-	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param numParameter a int.
+	 * <p>
+	 * replaceParameterReference
+	 * </p>
+	 * 
+	 * @param var
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param numParameter
+	 *            a int.
 	 */
 	public void replaceParameterReference(VariableReference var, int numParameter) {
 		assert (numParameter >= 0);
@@ -618,7 +653,7 @@ public class MethodStatement extends AbstractStatement {
 		try {
 			Class<?> oldClass = method.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Method newMethod : TestCluster.getMethods(newClass)) {
+			for (Method newMethod : TestClusterGenerator.getMethods(newClass)) {
 				if (newMethod.getName().equals(this.method.getName())) {
 					boolean equals = true;
 					Class<?>[] oldParameters = this.method.getParameterTypes();

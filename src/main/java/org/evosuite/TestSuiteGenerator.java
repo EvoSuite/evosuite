@@ -20,6 +20,7 @@ package org.evosuite;
 import java.io.File;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -102,6 +103,8 @@ import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
@@ -119,7 +122,6 @@ import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCaseMinimizer;
 import org.evosuite.testcase.TestCaseReplacementFunction;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.TestCluster;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -187,8 +189,9 @@ public class TestSuiteGenerator {
 	 */
 	public String generateTestSuite() {
 
-		//DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-		//                           Arrays.asList(Properties.CP.split(":")));
+		LoggingUtils.getEvoLogger().info("* Analyzing classpath");
+		DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+		                           Arrays.asList(Properties.CP.split(":")));
 		TestCaseExecutor.initExecutor();
 		setupProgressMonitor();
 
@@ -475,15 +478,13 @@ public class TestSuiteGenerator {
 		final Logger logger = LoggingUtils.getEvoLogger();
 
 		// variables needed in loop
-		CaptureLog              log;
-		TestCase                carvedTestCase;
-		
-		
-		final CaptureLogAnalyzer       analyzer = new CaptureLogAnalyzer();
-		final EvoTestCaseCodeGenerator codeGen  = new EvoTestCaseCodeGenerator();
-		
-		for(TestCase t : testsToBeCarved)
-		{
+		CaptureLog log;
+		TestCase carvedTestCase;
+
+		final CaptureLogAnalyzer analyzer = new CaptureLogAnalyzer();
+		final EvoTestCaseCodeGenerator codeGen = new EvoTestCaseCodeGenerator();
+
+		for (TestCase t : testsToBeCarved) {
 			// collect all accessed classes ( = classes to be observed)
 			allAccessedClasses.addAll(t.getAccessedClasses());
 
@@ -520,11 +521,13 @@ public class TestSuiteGenerator {
 			logger.debug("Evosuite Test:\n{}", t);
 
 			// generate carved test with the currently captured log and allAccessedlasses as classes to be observed
-			
-			analyzer.analyze(log, codeGen, allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
+
+			analyzer.analyze(log,
+			                 codeGen,
+			                 allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
 			carvedTestCase = codeGen.getCode();
 			codeGen.clear();
-			
+
 			logger.debug("Carved Test:\n{}", carvedTestCase);
 			result.add(carvedTestCase);
 
