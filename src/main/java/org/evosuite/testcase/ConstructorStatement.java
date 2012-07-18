@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,6 +33,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -41,7 +43,7 @@ import org.objectweb.asm.commons.Method;
 
 /**
  * This statement represents a constructor call
- *
+ * 
  * @author Gordon Fraser
  */
 public class ConstructorStatement extends AbstractStatement {
@@ -58,12 +60,18 @@ public class ConstructorStatement extends AbstractStatement {
 	                                                             "byte");
 
 	/**
-	 * <p>Constructor for ConstructorStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param constructor a {@link java.lang.reflect.Constructor} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
-	 * @param parameters a {@link java.util.List} object.
+	 * <p>
+	 * Constructor for ConstructorStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param constructor
+	 *            a {@link java.lang.reflect.Constructor} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param parameters
+	 *            a {@link java.util.List} object.
 	 */
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        java.lang.reflect.Type type, List<VariableReference> parameters) {
@@ -78,11 +86,15 @@ public class ConstructorStatement extends AbstractStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param constructor a {@link java.lang.reflect.Constructor} object.
-	 * @param retvar a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param parameters a {@link java.util.List} object.
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param constructor
+	 *            a {@link java.lang.reflect.Constructor} object.
+	 * @param retvar
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param parameters
+	 *            a {@link java.util.List} object.
 	 */
 	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        VariableReference retvar, List<VariableReference> parameters) {
@@ -94,13 +106,20 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Constructor for ConstructorStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param constructor a {@link java.lang.reflect.Constructor} object.
-	 * @param retvar a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param parameters a {@link java.util.List} object.
-	 * @param check a boolean.
+	 * <p>
+	 * Constructor for ConstructorStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param constructor
+	 *            a {@link java.lang.reflect.Constructor} object.
+	 * @param retvar
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param parameters
+	 *            a {@link java.util.List} object.
+	 * @param check
+	 *            a boolean.
 	 */
 	protected ConstructorStatement(TestCase tc, Constructor<?> constructor,
 	        VariableReference retvar, List<VariableReference> parameters, boolean check) {
@@ -111,8 +130,10 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Getter for the field <code>constructor</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>constructor</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.reflect.Constructor} object.
 	 */
 	public Constructor<?> getConstructor() {
@@ -120,18 +141,24 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Setter for the field <code>constructor</code>.</p>
-	 *
-	 * @param constructor a {@link java.lang.reflect.Constructor} object.
+	 * <p>
+	 * Setter for the field <code>constructor</code>.
+	 * </p>
+	 * 
+	 * @param constructor
+	 *            a {@link java.lang.reflect.Constructor} object.
 	 */
 	public void setConstructor(Constructor<?> constructor) {
 		this.constructor = constructor;
 	}
 
 	/**
-	 * <p>getReturnType</p>
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
+	 * <p>
+	 * getReturnType
+	 * </p>
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getReturnType(Class<?> clazz) {
@@ -269,8 +296,10 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>getParameterReferences</p>
-	 *
+	 * <p>
+	 * getParameterReferences
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<VariableReference> getParameterReferences() {
@@ -278,10 +307,14 @@ public class ConstructorStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>replaceParameterReference</p>
-	 *
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param numParameter a int.
+	 * <p>
+	 * replaceParameterReference
+	 * </p>
+	 * 
+	 * @param var
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param numParameter
+	 *            a int.
 	 */
 	public void replaceParameterReference(VariableReference var, int numParameter) {
 		assert (numParameter >= 0);
@@ -516,7 +549,7 @@ public class ConstructorStatement extends AbstractStatement {
 		try {
 			Class<?> oldClass = constructor.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Constructor<?> newConstructor : TestCluster.getConstructors(newClass)) {
+			for (Constructor<?> newConstructor : TestClusterGenerator.getConstructors(newClass)) {
 				boolean equals = true;
 				Class<?>[] oldParameters = this.constructor.getParameterTypes();
 				Class<?>[] newParameters = newConstructor.getParameterTypes();

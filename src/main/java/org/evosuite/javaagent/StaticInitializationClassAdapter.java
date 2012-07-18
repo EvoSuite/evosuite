@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,7 +20,7 @@ package org.evosuite.javaagent;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -28,11 +28,10 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Duplicate static initializers in methods, such that we can explicitly restore
  * the initial state of classes.
- *
+ * 
  * @author Gordon Fraser
  */
 public class StaticInitializationClassAdapter extends ClassVisitor {
@@ -49,10 +48,14 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 	private final List<String> finalFields = new ArrayList<String>();
 
 	/**
-	 * <p>Constructor for StaticInitializationClassAdapter.</p>
-	 *
-	 * @param visitor a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for StaticInitializationClassAdapter.
+	 * </p>
+	 * 
+	 * @param visitor
+	 *            a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 */
 	public StaticInitializationClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);

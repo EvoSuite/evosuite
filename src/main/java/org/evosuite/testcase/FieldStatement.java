@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -38,7 +39,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
  * Statement that accesses an instance/class field
- *
+ * 
  * @author Gordon Fraser
  */
 public class FieldStatement extends AbstractStatement {
@@ -53,12 +54,18 @@ public class FieldStatement extends AbstractStatement {
 	private final String fieldName;
 
 	/**
-	 * <p>Constructor for FieldStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param field a {@link java.lang.reflect.Field} object.
-	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * Constructor for FieldStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field
+	 *            a {@link java.lang.reflect.Field} object.
+	 * @param source
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        java.lang.reflect.Type type) {
@@ -77,11 +84,15 @@ public class FieldStatement extends AbstractStatement {
 	 * as retvar. This should only be done, iff an old statement is replaced
 	 * with this statement. And already existing objects should in the future
 	 * reference this object.
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param field a {@link java.lang.reflect.Field} object.
-	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param ret_var a {@link org.evosuite.testcase.VariableReference} object.
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param field
+	 *            a {@link java.lang.reflect.Field} object.
+	 * @param source
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param ret_var
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public FieldStatement(TestCase tc, Field field, VariableReference source,
 	        VariableReference ret_var) {
@@ -109,8 +120,10 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Getter for the field <code>source</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>source</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getSource() {
@@ -118,17 +131,22 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Setter for the field <code>source</code>.</p>
-	 *
-	 * @param source a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * Setter for the field <code>source</code>.
+	 * </p>
+	 * 
+	 * @param source
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public void setSource(VariableReference source) {
 		this.source = source;
 	}
 
 	/**
-	 * <p>isStatic</p>
-	 *
+	 * <p>
+	 * isStatic
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isStatic() {
@@ -267,8 +285,10 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Getter for the field <code>field</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>field</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.reflect.Field} object.
 	 */
 	public Field getField() {
@@ -276,9 +296,12 @@ public class FieldStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Setter for the field <code>field</code>.</p>
-	 *
-	 * @param field a {@link java.lang.reflect.Field} object.
+	 * <p>
+	 * Setter for the field <code>field</code>.
+	 * </p>
+	 * 
+	 * @param field
+	 *            a {@link java.lang.reflect.Field} object.
 	 */
 	public void setField(Field field) {
 		assert (this.field.getType().equals(field.getType()));

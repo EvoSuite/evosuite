@@ -29,6 +29,7 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.LocalSearchBudget;
 import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.ga.SecondaryObjective;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.ConcolicMutation;
@@ -150,14 +151,14 @@ public class TestChromosome extends ExecutableChromosome {
 	        throws ConstructionFailedException {
 		logger.debug("Crossover starting");
 		TestChromosome offspring = new TestChromosome();
-		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
+		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int i = 0; i < position1; i++) {
 			offspring.test.addStatement(test.getStatement(i).clone(offspring.test));
 		}
 		for (int i = position2; i < other.size(); i++) {
-			test_factory.appendStatement(offspring.test,
-			                             ((TestChromosome) other).test.getStatement(i));
+			testFactory.appendStatement(offspring.test,
+			                            ((TestChromosome) other).test.getStatement(i));
 		}
 		if (!Properties.CHECK_MAX_LENGTH
 		        || offspring.test.size() <= Properties.CHROMOSOME_LENGTH) {
@@ -205,7 +206,9 @@ public class TestChromosome extends ExecutableChromosome {
 		// Only apply local search up to the point where an exception was thrown
 		int lastPosition = test.size() - 1;
 		if (lastExecutionResult != null && !isChanged()) {
-			lastPosition = lastExecutionResult.getFirstPositionOfThrownException();
+			Integer lastPos = lastExecutionResult.getFirstPositionOfThrownException();
+			if (lastPos != null)
+				lastPosition = lastPos.intValue();
 		}
 
 		//We count down to make the code work when lines are
@@ -297,7 +300,7 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationDelete() {
 		boolean changed = false;
 		double pl = 1d / test.size();
-		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
+		TestFactory testFactory = TestFactory.getInstance();
 
 		for (int num = test.size() - 1; num >= 0; num--) {
 
@@ -309,7 +312,7 @@ public class TestChromosome extends ExecutableChromosome {
 					TestCase copy = test.clone();
 					// test_factory.deleteStatement(test, num);
 					changed = true;
-					test_factory.deleteStatementGracefully(copy, num);
+					testFactory.deleteStatementGracefully(copy, num);
 					test = copy;
 
 				} catch (ConstructionFailedException e) {
@@ -332,7 +335,7 @@ public class TestChromosome extends ExecutableChromosome {
 	private boolean mutationChange() {
 		boolean changed = false;
 		double pl = 1d / test.size();
-		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
+		TestFactory testFactory = TestFactory.getInstance();
 
 		if (Randomness.nextDouble() < Properties.CONCOLIC_MUTATION) {
 			try {
@@ -349,11 +352,11 @@ public class TestChromosome extends ExecutableChromosome {
 				if (Randomness.nextDouble() <= pl) {
 					assert (test.isValid());
 					int oldDistance = statement.getReturnValue().getDistance();
-					if (statement.mutate(test, test_factory)) {
+					if (statement.mutate(test, testFactory)) {
 						changed = true;
 						assert (test.isValid());
 					} else if (!statement.isAssignmentStatement()) {
-						if (test_factory.changeRandomCall(test, statement))
+						if (testFactory.changeRandomCall(test, statement))
 							changed = true;
 						assert (test.isValid());
 					}
@@ -375,14 +378,14 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		final double ALPHA = Properties.P_STATEMENT_INSERTION; //0.5;
 		int count = 0;
-		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
+		TestFactory testFactory = TestFactory.getInstance();
 
 		while (Randomness.nextDouble() <= Math.pow(ALPHA, count)
 		        && (!Properties.CHECK_MAX_LENGTH || size() < Properties.CHROMOSOME_LENGTH)) {
 			count++;
 			// Insert at position as during initialization (i.e., using helper
 			// sequences)
-			test_factory.insertRandomStatement(test);
+			testFactory.insertRandomStatement(test);
 			changed = true;
 		}
 		return changed;
@@ -407,7 +410,7 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean mutated = false;
 		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
 		for (BranchCondition branch : branches) {
-			if (StaticTestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName()))
+			if (TestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName()))
 				targetBranches.add(branch);
 		}
 		// Select random branch

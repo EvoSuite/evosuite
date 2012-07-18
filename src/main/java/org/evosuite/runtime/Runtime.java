@@ -21,15 +21,17 @@
 package org.evosuite.runtime;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.setup.TestCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 
 /**
- * <p>Runtime class.</p>
- *
+ * <p>
+ * Runtime class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class Runtime {
@@ -37,7 +39,9 @@ public class Runtime {
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
 	/**
-	 * <p>resetRuntime</p>
+	 * <p>
+	 * resetRuntime
+	 * </p>
 	 */
 	public static void resetRuntime() {
 		if (Properties.REPLACE_CALLS) {
@@ -54,7 +58,9 @@ public class Runtime {
 	}
 
 	/**
-	 * <p>handleRuntimeAccesses</p>
+	 * <p>
+	 * handleRuntimeAccesses
+	 * </p>
 	 */
 	public static void handleRuntimeAccesses() {
 		if (Properties.REPLACE_CALLS) {

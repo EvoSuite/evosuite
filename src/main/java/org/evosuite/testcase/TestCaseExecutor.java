@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,14 +35,14 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.setup.TestCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * The test case executor manages thread creation/deletion to execute a test
  * case
- *
+ * 
  * @author Gordon Fraser
  */
 public class TestCaseExecutor implements ThreadFactory {
@@ -78,8 +78,10 @@ public class TestCaseExecutor implements ThreadFactory {
 	public static int testsExecuted = 0;
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCaseExecutor} object.
 	 */
 	public static synchronized TestCaseExecutor getInstance() {
@@ -91,7 +93,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	/**
 	 * Execute a test case
-	 *
+	 * 
 	 * @param test
 	 *            The test case to execute
 	 * @return Result of the execution
@@ -132,14 +134,18 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	/**
-	 * <p>setup</p>
+	 * <p>
+	 * setup
+	 * </p>
 	 */
 	public void setup() {
 		// start own thread
 	}
 
 	/**
-	 * <p>pullDown</p>
+	 * <p>
+	 * pullDown
+	 * </p>
 	 */
 	public static void pullDown() {
 		if (instance != null)
@@ -147,7 +153,9 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	/**
-	 * <p>initExecutor</p>
+	 * <p>
+	 * initExecutor
+	 * </p>
 	 */
 	public static void initExecutor() {
 		if (instance != null) {
@@ -163,9 +171,12 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	/**
-	 * <p>addObserver</p>
-	 *
-	 * @param observer a {@link org.evosuite.testcase.ExecutionObserver} object.
+	 * <p>
+	 * addObserver
+	 * </p>
+	 * 
+	 * @param observer
+	 *            a {@link org.evosuite.testcase.ExecutionObserver} object.
 	 */
 	public void addObserver(ExecutionObserver observer) {
 		if (!observers.contains(observer)) {
@@ -180,9 +191,12 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	/**
-	 * <p>removeObserver</p>
-	 *
-	 * @param observer a {@link org.evosuite.testcase.ExecutionObserver} object.
+	 * <p>
+	 * removeObserver
+	 * </p>
+	 * 
+	 * @param observer
+	 *            a {@link org.evosuite.testcase.ExecutionObserver} object.
 	 */
 	public void removeObserver(ExecutionObserver observer) {
 		if (observers.contains(observer)) {
@@ -192,7 +206,9 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	/**
-	 * <p>newObservers</p>
+	 * <p>
+	 * newObservers
+	 * </p>
 	 */
 	public void newObservers() {
 		observers = new LinkedHashSet<ExecutionObserver>();
@@ -210,8 +226,9 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	/**
 	 * Execute a test case on a new scope
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	public ExecutionResult execute(TestCase tc) {
@@ -221,9 +238,11 @@ public class TestCaseExecutor implements ThreadFactory {
 
 	/**
 	 * Execute a test case on an existing scope
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param scope
+	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	@SuppressWarnings("deprecation")
@@ -380,8 +399,10 @@ public class TestCaseExecutor implements ThreadFactory {
 	}
 
 	/**
-	 * <p>getNumStalledThreads</p>
-	 *
+	 * <p>
+	 * getNumStalledThreads
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumStalledThreads() {

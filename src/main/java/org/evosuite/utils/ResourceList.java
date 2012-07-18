@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,18 +36,27 @@ import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
 
-
 /**
  * list resources available from the classpath @ *
- *
+ * 
  * @author Gordon Fraser
  */
 public class ResourceList {
 
+	public static boolean hasClass(String className) {
+		Pattern pattern = Pattern.compile(className.replaceAll("\\.", "/") + ".class");
+		final String[] classPathElements = Properties.CP.split(":");
+		for (final String element : classPathElements) {
+			if (!getResources(element, pattern).isEmpty())
+				return true;
+		}
+		return false;
+	}
+
 	/**
 	 * for all elements of java.class.path get a Collection of resources Pattern
 	 * pattern = Pattern.compile(".*"); gets all resources
-	 *
+	 * 
 	 * @param pattern
 	 *            the pattern to match
 	 * @return the resources in the order they are found
@@ -62,10 +71,20 @@ public class ResourceList {
 		return retval;
 	}
 
+	public static Collection<String> getResources(final Pattern pattern,
+	        String classPathElement) {
+		final ArrayList<String> retval = new ArrayList<String>();
+		retval.addAll(getResources(classPathElement, pattern));
+		return retval;
+	}
+
 	/**
-	 * <p>getAllResources</p>
-	 *
-	 * @param pattern a {@link java.util.regex.Pattern} object.
+	 * <p>
+	 * getAllResources
+	 * </p>
+	 * 
+	 * @param pattern
+	 *            a {@link java.util.regex.Pattern} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	public static Collection<String> getAllResources(final Pattern pattern) {
@@ -80,7 +99,7 @@ public class ResourceList {
 	/**
 	 * for all elements of java.class.path get a Collection of resources Pattern
 	 * pattern = Pattern.compile(".*"); gets all resources
-	 *
+	 * 
 	 * @param pattern
 	 *            the pattern to match
 	 * @return the resources in the order they are found
