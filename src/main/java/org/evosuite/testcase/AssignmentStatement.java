@@ -28,7 +28,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -129,11 +128,6 @@ public class AssignmentStatement extends AbstractStatement {
 					// for an abstract supertype and not the concrete type that we need!
 					throw e;
 				} catch (CodeUnderTestException e) {
-					LoggingUtils.getEvoLogger().info("CodeUnderTestException "
-					                                         + e.getCause());
-					for (StackTraceElement elem : e.getCause().getStackTrace()) {
-						LoggingUtils.getEvoLogger().info(elem.toString());
-					}
 					throw e;
 				} catch (Throwable e) {
 					throw new EvosuiteError(e);
