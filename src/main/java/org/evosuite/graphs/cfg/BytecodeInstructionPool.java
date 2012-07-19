@@ -354,4 +354,20 @@ public class BytecodeInstructionPool {
 
 		return instructionMap.get(ins.getClassName()).get(ins.getMethodName()).remove(ins);
 	}
+	
+	public static int getFirstLineNumberOfMethod(String className, String methodName) {
+		if(instructionMap.get(className)==null)
+			throw new IllegalArgumentException("unknown class "+className);
+		if(instructionMap.get(className).get(methodName)==null)
+			throw new IllegalArgumentException("unknown method "+methodName+" in class "+className);
+		if(instructionMap.get(className).get(methodName).isEmpty())
+			throw new IllegalArgumentException("no instructions in method "+methodName+" in class "+className);
+		
+		int r = Integer.MAX_VALUE;
+		for(BytecodeInstruction ins : instructionMap.get(className).get(methodName)) {
+			if(ins.getLineNumber()<r)
+				r = ins.getLineNumber();
+		}
+		return r;
+	}
 }
