@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,20 +20,18 @@
  */
 package org.evosuite;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.ga.SearchListener;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>ClientProcess class.</p>
- *
+ * <p>
+ * ClientProcess class.
+ * </p>
+ * 
  * @author Gordon Fraser
  * @author Andrea Arcuri
  */
@@ -49,10 +47,12 @@ public class ClientProcess {
 	public static GeneticAlgorithm geneticAlgorithmStatus;
 
 	/**
-	 * <p>run</p>
+	 * <p>
+	 * run
+	 * </p>
 	 */
 	public void run() {
-
+		Properties.getInstance();
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		                                         + Properties.PROCESS_COMMUNICATION_PORT);
 		if (!util.connectToMainProcess()) {
@@ -73,7 +73,7 @@ public class ClientProcess {
 		generator.generateTestSuite();
 
 		GeneticAlgorithm ga = generator.getEmployedGeneticAlgorithm();
-		
+
 		if (Properties.CLIENT_ON_THREAD) {
 			/*
 			 * this is done when the client is run on same JVM, to avoid
@@ -81,16 +81,17 @@ public class ClientProcess {
 			 */
 			geneticAlgorithmStatus = ga;
 		}
-		
+
 		util.informSearchIsFinished(ga);
 	}
 
-	
-
 	/**
-	 * <p>main</p>
-	 *
-	 * @param args an array of {@link java.lang.String} objects.
+	 * <p>
+	 * main
+	 * </p>
+	 * 
+	 * @param args
+	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
 		try {
