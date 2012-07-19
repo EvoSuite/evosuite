@@ -34,6 +34,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 
 /**
@@ -44,7 +45,8 @@ import org.evosuite.Properties;
 public class ResourceList {
 
 	public static boolean hasClass(String className) {
-		Pattern pattern = Pattern.compile(className.replaceAll("\\.", File.separator)
+		Pattern pattern = Pattern.compile(className.replaceAll("\\.",
+		                                                       StringEscapeUtils.escapeJava(File.separator))
 		        + ".class");
 		final String[] classPathElements = Properties.CP.split(":");
 		for (final String element : classPathElements) {
