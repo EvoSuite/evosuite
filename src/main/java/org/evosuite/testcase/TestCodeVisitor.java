@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -287,6 +288,24 @@ public class TestCodeVisitor implements TestVisitor {
 			variableNames.put(var, variableName);
 		}
 		return variableNames.get(var);
+	}
+
+	/**
+	 * Retrieve the names of all known variables
+	 * 
+	 * @return
+	 */
+	public Collection<String> getVariableNames() {
+		return variableNames.values();
+	}
+
+	/**
+	 * Retrieve the names of all known classes
+	 * 
+	 * @return
+	 */
+	public Collection<String> getClassNames() {
+		return classNames.values();
 	}
 
 	/* (non-Javadoc)
