@@ -648,6 +648,7 @@ public class EvoSuite {
 			/*
 			 * NOTE: JVM arguments will not be passed over from the master to the client. So for -Xmx, we need to use "mem"
 			 */
+			setupProperties();
 
 			java.util.Properties properties = line.getOptionProperties("D");
 			Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
@@ -695,7 +696,6 @@ public class EvoSuite {
 				}
 			}
 
-			setupProperties();
 			String cp = "";
 			if (line.hasOption("cp")) {
 				String[] cpEntries = line.getOptionValues("cp");
