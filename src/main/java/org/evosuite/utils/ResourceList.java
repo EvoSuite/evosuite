@@ -44,7 +44,8 @@ import org.evosuite.Properties;
 public class ResourceList {
 
 	public static boolean hasClass(String className) {
-		Pattern pattern = Pattern.compile(className.replaceAll("\\.", "/") + ".class");
+		Pattern pattern = Pattern.compile(className.replaceAll("\\.", File.separator)
+		        + ".class");
 		final String[] classPathElements = Properties.CP.split(":");
 		for (final String element : classPathElements) {
 			if (!getResources(element, pattern).isEmpty())
