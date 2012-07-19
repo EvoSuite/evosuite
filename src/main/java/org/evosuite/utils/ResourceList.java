@@ -29,12 +29,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
-import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 
 /**
@@ -45,9 +45,10 @@ import org.evosuite.Properties;
 public class ResourceList {
 
 	public static boolean hasClass(String className) {
-		Pattern pattern = Pattern.compile(className.replaceAll("\\.",
-		                                                       StringEscapeUtils.escapeJava(File.separator))
+		Pattern pattern = Pattern.compile(".*"+className.replaceAll("\\.",
+		                                                       Matcher.quoteReplacement(Pattern.quote(File.separator)))
 		        + ".class");
+		
 		final String[] classPathElements = Properties.CP.split(":");
 		for (final String element : classPathElements) {
 			if (!getResources(element, pattern).isEmpty())
@@ -177,7 +178,7 @@ public class ResourceList {
 				retval.addAll(getResourcesFromDirectory(file, pattern, dirName));
 			} else {
 				try {
-					final String fileName = file.getCanonicalPath().replace(dirName + "/",
+					final String fileName = file.getCanonicalPath().replace(dirName + File.separator,
 					                                                        "");
 					final boolean accept = pattern.matcher(fileName).matches();
 					if (accept) {
