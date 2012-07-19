@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *
  * Whenever control flow reaches the first instruction of this blocks list,
  * control flow will pass through all the instructions of this list successively
- * and not pass another instruction in the mean time. The first element in this
+ * and not pass another instruction of the underlying method in the mean time. The first element in this
  * blocks list does not have a parent in the CFG that can be prepended to the
  * list and the same would still hold true Finally the last element in this list
  * does not have a child inside the CFG that could be appended to the list such
