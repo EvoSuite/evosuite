@@ -521,6 +521,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		if (checkInvocationBound(invocationCount, callStack))
 			return invocationCount;
 
+	//	if (node instanceof CCFGFieldClassCallNode); //TODO add the analysis here
+	//	else
 		if (node instanceof CCFGCodeNode)
 			handleCodeNode(investigatedMethod, node, callStack, activeDefs,
 					freeUses, foundPairs);
@@ -852,13 +854,6 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				&& !handled.contains(nextNode)
 				&& !((CCFGCodeNode) nextNode).getCodeInstruction().isDefUse()) {
 			node = nextNode;
-			// XXX TODO Togliere sta roba
-			/*
-			 * if (node instanceof CCFGMethodCallNode){ CCFGMethodCallNode asd =
-			 * (CCFGMethodCallNode)node;
-			 * System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAA "
-			 * +asd.getCalledMethod().toString()); } //XXX TODO fino a qui
-			 */
 		}
 		return node;
 	}

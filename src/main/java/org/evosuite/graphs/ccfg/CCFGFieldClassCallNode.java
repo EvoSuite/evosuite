@@ -16,11 +16,15 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  *
-  
  */
 package org.evosuite.graphs.ccfg;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+/**
+ * This class represent a method call of a field class. 
+ * @author Mattia Vivanti
+ *
+ */
 public class CCFGFieldClassCallNode extends CCFGCodeNode {
 
 	private String className;
