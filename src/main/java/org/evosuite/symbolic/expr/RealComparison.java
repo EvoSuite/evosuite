@@ -22,7 +22,7 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-public class RealComparison extends RealExpression {
+public class RealComparison extends IntegerExpression {
 	private static final long serialVersionUID = 1L;
 
 	/**
