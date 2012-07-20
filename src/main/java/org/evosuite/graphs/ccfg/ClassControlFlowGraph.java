@@ -1374,13 +1374,22 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return temp;
 	}
 
+	/**
+	 * import CFGs nodes. If the node is a method call to a method of a field
+	 * class, a new CCFGFieldClassCallNode is created. Otherwise, a normale
+	 * CCFGCodeNode is created
+	 * 
+	 * @param cfg
+	 * @param temp
+	 */
+
 	private void importCFGNodes(RawControlFlowGraph cfg,
 			Map<BytecodeInstruction, CCFGCodeNode> temp) {
 
 		// add BytecodeInstructions as CCFGCodeNodes
 		for (BytecodeInstruction code : cfg.vertexSet()) {
 			CCFGCodeNode node;
-			if (code.isMethodCall() && code.isMethodCallOfField()) {
+			if (code.isMethodCallOfField()) {
 				node = new CCFGFieldClassCallNode(code, code.getCalledMethodsClass(), code.getCalledMethod());
 			} else {
 				node = new CCFGCodeNode(code);

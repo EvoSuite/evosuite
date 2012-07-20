@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  *
- * @author Gordon Fraser
+  
  */
 package org.evosuite.graphs.ccfg;
 
@@ -37,59 +37,19 @@ public class CCFGFieldClassCallNode extends CCFGCodeNode {
 		this.className=className;
 		this.methodName=methodName;
 	}
-//	
-//	/**
-//	 * <p>getMethod</p>
-//	 *
-//	 * @return a {@link java.lang.String} object.
-//	 */
-//	public String getMethod() {
-//		return codeInstruction.getMethodName();
-//	}
-//	
-//	/**
-//	 * <p>Getter for the field <code>codeInstruction</code>.</p>
-//	 *
-//	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-//	 */
-//	public BytecodeInstruction getCodeInstruction() {
-//		return codeInstruction;
-//	}
-//	
-//	/** {@inheritDoc} */
-//	@Override
-//	public int hashCode() {
-//		final int prime = 31;
-//		int result = 1;
-//		result = prime * result
-//				+ ((codeInstruction == null) ? 0 : codeInstruction.hashCode());
-//		return result;
-//	}
-//
-//	/** {@inheritDoc} */
-//	@Override
-//	public boolean equals(Object obj) {
-//		if (this == obj)
-//			return true;
-//		if (obj == null)
-//			return false;
-//		if (getClass() != obj.getClass())
-//			return false;
-//		CCFGFieldClassCallNode other = (CCFGFieldClassCallNode) obj;
-//		if (codeInstruction == null) {
-//			if (other.codeInstruction != null)
-//				return false;
-//		} else if (!codeInstruction.equals(other.codeInstruction))
-//			return false;
-//		return true;
-//	}
-//
-//	/** {@inheritDoc} */
-//	@Override
-//	public String toString() {
-//		if(codeInstruction.isMethodCall())
-//			return codeInstruction.toString()+" in class "+codeInstruction.getCalledMethodsClass();
-//		else
-//			return codeInstruction.toString();
-//	}
+
+	/**
+	 * @return the className
+	 */
+	public String getClassName() {
+		return className;
+	}
+
+	/**
+	 * @return the methodName
+	 */
+	public String getMethodName() {
+		return methodName;
+	}
+ 
 }
