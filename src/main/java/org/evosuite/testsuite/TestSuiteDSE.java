@@ -141,8 +141,8 @@ public class TestSuiteDSE {
 			expandedChromosome.setTestCase(expandedTest);
 			List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
 			for (BranchCondition branch : branches) {
-				String index = branch.ins.getMethodInfo().getFullName()
-				        + branch.ins.getInstructionIndex();
+				String index = branch.getFullName()
+				        + branch.getInstructionIndex();
 				if (!solvedConstraints.containsKey(index))
 					solvedConstraints.put(index,
 					                      new HashMap<Integer, Map<Comparator, Set<BranchCondition>>>());
@@ -184,7 +184,8 @@ public class TestSuiteDSE {
 						        + comparatorConstraints.get(c).size()
 						        + " candidate constraints");
 						BranchCondition branch = Randomness.choice(comparatorConstraints.get(c));
-						TestCase newTest = negateCondition(branch,
+						TestCase newTest = negateCondition(branch.reachingConstraints,
+															branch.localConstraints,
 						                                   expandedTests.get(branch),
 						                                   localConstraint);
 						if (newTest != null) {
@@ -224,7 +225,7 @@ public class TestSuiteDSE {
 		clearBranches();
 		determineCoveredBranches(individual);
 
-		ConcolicExecution concolicExecution = new ConcolicExecution();
+		ConcolicExecution concolicExecution =new ConcolicExecution();
 
 		logger.info("Applying DSE to suite of size " + individual.size());
 		logger.info("Starting with " + uncoveredBranches.size() + " candidate branches");
@@ -263,7 +264,7 @@ public class TestSuiteDSE {
 
 				// For each uncovered branch
 				for (BranchCondition branch : branches) {
-					String className = branch.ins.getMethodInfo().getClassName();
+					String className = branch.getClassName();
 
 					// TODO: Need to match prefixes?
 					if (!className.equals(Properties.TARGET_CLASS)
@@ -275,10 +276,10 @@ public class TestSuiteDSE {
 					//logger.debug("Current branch: " + branch);
 					if (isUncovered(branch) && coverable(branch)) {
 						logger.info("Trying to cover branch "
-						        + branch.ins.getInstructionIndex() + ": " + branch);
+						        + branch.getInstructionIndex() + ": " + branch);
 
 						// Try to solve negated constraint
-						TestCase newTest = negateCondition(branch, expandedTest);
+						TestCase newTest = negateCondition(branch.reachingConstraints, branch.localConstraints, expandedTest);
 
 						// If successful, add resulting test to test suite
 						if (newTest != null) {
@@ -323,7 +324,7 @@ public class TestSuiteDSE {
 						}
 					} else {
 						logger.debug("Already covered or uncoverable branch "
-						        + branch.ins.getInstructionIndex());// + ": " + branch);
+						        + branch.getInstructionIndex());// + ": " + branch);
 
 					}
 				}
@@ -339,11 +340,11 @@ public class TestSuiteDSE {
 	}
 
 	private boolean coverable(BranchCondition branch) {
-		return !(uncoverableBranches.contains(branch.ins.getInstructionIndex()));
+		return !(uncoverableBranches.contains(branch.getInstructionIndex()));
 	}
 
 	private void setUncoverable(BranchCondition branch) {
-		uncoverableBranches.add(branch.ins.getInstructionIndex());
+		uncoverableBranches.add(branch.getInstructionIndex());
 	}
 
 	private void addBranch(Branch b) {
@@ -436,16 +437,16 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	private boolean isUncovered(BranchCondition branch) {
-		if (!StaticTestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName())) {
+		if (!StaticTestCluster.isTargetClassName(branch.getClassName())) {
 			return false;
 		}
 
-		String jpfName = branch.ins.getMethodInfo().getFullName();
+		String jpfName = branch.getFullName();
 		if (!jpfBranchMap.containsKey(jpfName)) {
 			return false;
 		}
 
-		if (jpfBranchMap.get(jpfName).contains(branch.ins.getInstructionIndex())) {
+		if (jpfBranchMap.get(jpfName).contains(branch.getInstructionIndex())) {
 			return true;
 		}
 
@@ -470,8 +471,10 @@ public class TestSuiteDSE {
 		return false;
 	}
 
-	private TestCase negateCondition(BranchCondition condition, TestCase test) {
-		return negateCondition(condition, test, 0);
+	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints, 
+                                     Set<Constraint<?>> localConstraints, 
+                                     TestCase test) {
+		return negateCondition(reachingConstraints, localConstraints, test, 0);
 	}
 
 	/**
@@ -484,12 +487,14 @@ public class TestSuiteDSE {
 	//@SuppressWarnings("rawtypes")
 	//@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	private TestCase negateCondition(BranchCondition condition, TestCase test,
+	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints, 
+			                         Set<Constraint<?>> localConstraints, 
+			                         TestCase test,
 	        int localConstraint) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-		constraints.addAll(condition.reachingConstraints);
+		constraints.addAll(reachingConstraints);
 		//constraints.addAll(condition.localConstraints);
-		Iterator<Constraint<?>> iterator = condition.localConstraints.iterator();
+		Iterator<Constraint<?>> iterator = localConstraints.iterator();
 		int num = 0;
 		Constraint<Long> c = null;
 		while (iterator.hasNext()) {

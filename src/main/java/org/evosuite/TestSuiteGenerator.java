@@ -734,6 +734,8 @@ public class TestSuiteGenerator {
 			return new AllDefsCoverageSuiteFitness();
 		case EXCEPTION:
 			return new ExceptionCoverageSuiteFitness();
+		case LOOP_INV_CANDIDATE_FALSE_BRANCH:
+			return new BranchCoverageSuiteFitness();			
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");

@@ -407,7 +407,8 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean mutated = false;
 		List<BranchCondition> targetBranches = new ArrayList<BranchCondition>();
 		for (BranchCondition branch : branches) {
-			if (StaticTestCluster.isTargetClassName(branch.ins.getMethodInfo().getClassName()))
+			String className = branch.getClassName();
+			if (StaticTestCluster.isTargetClassName(className))
 				targetBranches.add(branch);
 		}
 		// Select random branch
@@ -417,7 +418,7 @@ public class TestChromosome extends ExecutableChromosome {
 		else
 			branch = Randomness.choice(targetBranches);
 
-		logger.debug("Trying to negate branch " + branch.ins.getInstructionIndex()
+		logger.debug("Trying to negate branch " + branch.getInstructionIndex()
 		        + " - have " + targetBranches.size() + "/" + branches.size()
 		        + " target branches");
 

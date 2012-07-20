@@ -17,9 +17,6 @@
  */
 package org.evosuite.symbolic;
 
-import gov.nasa.jpf.Config;
-import gov.nasa.jpf.JPF;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,6 +44,12 @@ import org.objectweb.asm.commons.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.uta.cse.dsc.DscHandler;
+import edu.uta.cse.dsc.MainConfig;
+import edu.uta.cse.dsc.SymbolicExecutionResult;
+import edu.uta.cse.dsc.ast.JvmVariable;
+import edu.uta.cse.dsc.pcdump.ast.DscBranchCondition;
+
 /**
  * <p>
  * ConcolicExecution class.
@@ -54,7 +57,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ConcolicExecution {
+public class ConcolicExecution  {
 
 	@SuppressWarnings("unused")
 	private List<gov.nasa.jpf.Error> errors;
@@ -103,64 +106,45 @@ public class ConcolicExecution {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<BranchCondition> executeConcolic(String targetName, String classPath) {
-		logger.debug("Setting up JPF");
+	protected List<BranchCondition> executeConcolic(String targetName,
+			String classPath) {
 
-		String[] strs = new String[0];
-		Config config = JPF.createConfig(strs);
-		config.setProperty("classpath", config.getProperty("classpath") + "," + classPath);
-		config.setTarget(targetName);
+		logger.debug("Setting up Dsc");
+		logger.debug("Dsc target=" + targetName);
+		logger.debug("Dsc classPath=" + classPath);
 
-		//		config.setProperty("vm.insn_factory.class",
-		//		                   "org.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
-		config.setProperty("vm.insn_factory.class",
-		                   "org.evosuite.symbolic.bytecode.ConcolicInstructionFactory");
-		config.setProperty("peer_packages",
-		                   "org.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
-		//		                           + config.getProperty("peer_packages"));
-		//logger.warn(config.getProperty("peer_packages"));
+		DscHandler dsc_handler = new DscHandler(classPath);
+		int dsc_ret_val = dsc_handler.mainEntry(new String[] {/*
+															 * "conf_evo_dumper.txt"
+															 * ,
+															 */targetName,
+				"main" });
+		logger.debug("Dsc ended!");
+		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {
+			logger.info("Dsc success");
+			SymbolicExecutionResult symbolicExecResult = dsc_handler.getSymbolicExecutionResult();
+			List<DscBranchCondition> path_constraint = symbolicExecResult
+					.getBranchConditions();
 
-		// We don't want JPF output
-		config.setProperty("report.class", "org.evosuite.symbolic.SilentReporter");
+			Map<JvmVariable, String> symbolicVariables = symbolicExecResult.getSymbolicVariables();
+			
+			logger.debug("symbolicVariables=" + symbolicVariables.values().toString());
+			PathConstraintAdapter adapter = new PathConstraintAdapter(symbolicVariables);
+			List<BranchCondition> branches = adapter.transform(path_constraint);
 
-		config.setProperty("log.level", "warning");
-		//config.setProperty("log.level", "info");
+			
+			logger.debug("NrOfBranches=" + branches.size());
+			
+			File file = new File(dirName + "/", className + ".class");
+			file.deleteOnExit();
 
-		//Configure the search class;
-		config.setProperty("search.class", "org.evosuite.symbolic.PathSearch");
-		config.setProperty("jm.numberOfIterations", "1");
+			return branches;
 
-		//Generate the JPF Instance
-		JPF jpf = new JPF(config);
-		this.pcg = new PathConstraintCollector();
-		jpf.getVM().addListener(pcg);
-		jpf.getSearch().addListener(pcg);
-
-		//Run the SUT
-		logger.debug("Running concolic execution");
-		PrintStream old_out = System.out;
-		PrintStream old_err = System.err;
-		System.setOut(out);
-		System.setErr(out);
-		try {
-			jpf.run();
-		} catch (Throwable t) {
-			logger.warn("Exception while executing test: " + classPath + " " + targetName
-			        + ": " + t);
-			t.printStackTrace();
-		} finally {
-			System.setOut(old_out);
-			System.setErr(old_err);
+		} else {
+			logger.info("Dsc failed!");
+			throw new RuntimeException("Dsc failed!");
 		}
-		logger.debug("Finished concolic execution");
-		logger.debug("Conditions collected: " + pcg.conditions.size());
 
-		this.errors = jpf.getSearch().getErrors();
-
-		File file = new File(dirName + "/", className + ".class");
-		file.deleteOnExit();
-
-		return pcg.conditions;
 	}
 
 	/**
@@ -311,10 +295,12 @@ public class ConcolicExecution {
 			mg.push(((String) statement.getValue()));
 		} else
 			logger.error("Found primitive of unknown type: " + clazz.getName());
+		/*
 		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
 			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
 		}
+		*/
 
 	}
 
@@ -357,11 +343,12 @@ public class ConcolicExecution {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
 				logger.debug("Marking variable: {}", p);
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
-				mg.push(p.getReturnValue().getName());
+				String var_name = p.getReturnValue().getName();
+				mg.push(var_name);
 				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
 				//                getMarkMethod(p));
 
-				mg.invokeStatic(Type.getType("Lorg/evosuite/symbolic/nativepeer/ConcolicMarker;"),
+				mg.invokeStatic(Type.getType("Lorg/evosuite/symbolic/dsc/ConcolicMarker;"),
 				                getMarkMethod(p));
 				p.getReturnValue().storeBytecode(mg, locals);
 

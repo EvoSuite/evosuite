@@ -416,6 +416,8 @@ public class MethodStatement extends AbstractStatement {
 					mg.cast(Type.getType(parameter.getVariableClass()),
 					        Type.getType(method.getParameterTypes()[num]));
 				}
+			} else if (parameter.getVariableClass().isPrimitive()) {
+				mg.box(Type.getType(parameter.getVariableClass()));
 			}
 			num++;
 		}

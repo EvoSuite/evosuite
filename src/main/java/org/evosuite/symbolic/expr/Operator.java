@@ -63,6 +63,7 @@ public enum Operator {
 	IOR("ior", 2), //
 	SHR("ishr", 2), //
 	SHL("ishl", 2), //
+	USHR("iushr", 2), //
 	IXOR("ixor", 2), //
 
 	// More complex Math operators
