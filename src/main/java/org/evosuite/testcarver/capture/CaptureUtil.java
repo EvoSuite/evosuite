@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.capture;
+package org.evosuite.testcarver.capture;
 
 import org.objectweb.asm.Type;
 
@@ -25,7 +25,6 @@ public final class CaptureUtil
 	public static final Class<?> getClassFromDesc(final String desc)
 	{
 		final Type type = Type.getType(desc);
-		
 		if(type.equals(Type.BOOLEAN_TYPE))
 		{
 			return Boolean.class;
@@ -61,7 +60,7 @@ public final class CaptureUtil
 		
 		try 
 		{
-			return Class.forName(type.getClassName());
+			return Class.forName(type.getInternalName().replace('/', '.'));
 		} 
 		catch (final ClassNotFoundException e) 
 		{

@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.configuration;
+package org.evosuite.testcarver.configuration;
 
 import java.util.Properties;
 

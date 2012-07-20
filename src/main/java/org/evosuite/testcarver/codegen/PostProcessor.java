@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.capture;
+package org.evosuite.testcarver.codegen;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -13,13 +13,14 @@ import java.util.regex.Pattern;
 import javax.tools.*;
 
 import org.eclipse.jdt.internal.compiler.tool.EclipseCompiler;
+import org.evosuite.testcarver.capture.CaptureLog;
+import org.evosuite.testcarver.configuration.Configuration;
+import org.evosuite.testcarver.exception.CapturerException;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 
 
-import de.unisb.cs.st.testcarver.configuration.Configuration;
-import de.unisb.cs.st.testcarver.exception.CapturerException;
 
 import gnu.trove.list.array.TIntArrayList;
 
@@ -57,20 +58,32 @@ public final class PostProcessor
 		{
 			fout = new FileOutputStream(targetFile);
 			
-			final CodeGenerator generator = new CodeGenerator(log);
+//			final CodeGenerator generator = new CodeGenerator(log);
+			
+			final ICaptureLogAnalyzer analyzer = new CaptureLogAnalyzer();
+			final JUnitCodeGenerator codeGen = new JUnitCodeGenerator(testName, packageName);
+			
 			final String code;
 			
 			if(postprocessing)
 			{
-				code = generator.generateCodeForPostProcessing(testName, packageName, observedClasses).toString();
+				codeGen.enablePostProcessingCodeGeneration();
+				analyzer.analyze(log, codeGen, observedClasses);
+				code = codeGen.getCode().toString();
+//				code = generator.generateCodeForPostProcessing(testName, packageName, observedClasses).toString();
 			}
 			else
 			{
 				// if recent log recno is contained in failed records,
 				// remove it as the very last statement has to throw an exception, if it threw one in
 				// the original program run
-				failedRecords.remove(recentLogRecNo);
-				code = generator.generateFinalCode(testName, packageName, failedRecords, observedClasses).toString();
+				failedRecords.remove(recentLogRecNo)
+				;
+				codeGen.disablePostProcessingCodeGeneration(failedRecords);
+				analyzer.analyze(log, codeGen, observedClasses);
+				code = codeGen.getCode().toString();
+				
+//				code = generator.generateFinalCode(testName, packageName, failedRecords, observedClasses).toString();
 			}
 			
 			// TODO not nice but how can blank line be inserted with JDT?
@@ -156,6 +169,10 @@ public final class PostProcessor
 			for(int j = 0; j < classes.length; j++)
 			{
 				testClassNameBuilder.append(classes[j].getSimpleName());
+				if(testClassNameBuilder.length() >= 50)
+				{
+					break;
+				}
 			}
 			testClassNameBuilder.append("CarvedTest");
 			
@@ -192,7 +209,7 @@ public final class PostProcessor
 			
 			if(! wasCompilationSuccess)
 			{
-				System.err.println("Compilen lief nitt...für " + targetFile);
+				System.err.println("Compilation was not not successful for " + targetFile);
 				fileManager.close();
 				continue;
 			}
