@@ -50,6 +50,7 @@ public class CCFGNodeAttributeProvider implements ComponentAttributeProvider<CCF
 			r.put("fillcolor", rgbColor);
 			r.put("fontsize", "12");
 			r.put("fontcolor", "white");
+			r.put("shape", "hexagon");
 		} else if(node instanceof CCFGCodeNode) {
 			String method = ((CCFGCodeNode)node).getCodeInstruction().getMethodName();
 			String rgbColor = generateSaturatedColor(method);

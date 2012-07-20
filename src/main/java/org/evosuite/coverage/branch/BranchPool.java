@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
@@ -130,8 +131,9 @@ public class BranchPool {
 		if (isKnownAsBranch(instruction))
 			return;
 		if (!DependencyAnalysis.shouldInstrument(instruction.getClassName(),
-		                                         instruction.getMethodName()))
+		                                         instruction.getMethodName())) {
 			return;
+		}
 		// throw new
 		// IllegalArgumentException("branches can only be added to the pool once");
 

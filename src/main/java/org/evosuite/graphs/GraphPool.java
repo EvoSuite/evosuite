@@ -27,6 +27,7 @@ import org.evosuite.graphs.cdg.ControlDependenceGraph;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,6 +76,13 @@ public class GraphPool {
 	 */
 	private static Map<String, Map<String, ControlDependenceGraph>> controlDependencies = new HashMap<String, Map<String, ControlDependenceGraph>>();
 
+	/**
+	 * Cache of all created CCFGs
+	 * 
+	 * Maps from classNames to computed CCFG of that class
+	 */
+	private static Map<String, ClassControlFlowGraph> ccfgs = new HashMap<String, ClassControlFlowGraph>(); 
+	
 	// retrieve graphs
 
 	/**
@@ -240,6 +248,23 @@ public class GraphPool {
 		if (Properties.WRITE_CFG)
 			cd.toDot();
 	}
+	
+	/**
+	 * Ensures this GraphPool knows the CCFG for the given class and then returns it.
+	 * 
+	 * @param className the name of the class of the CCFG as a {@link java.lang.String}	
+	 * @return The cached CCFG of type {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph}
+	 */
+	public static ClassControlFlowGraph getCCFG(String className) {
+		if(!ccfgs.containsKey(className)) {
+			ccfgs.put(className, computeCCFG(className));
+		}
+		return ccfgs.get(className);
+	}
+	
+	public static boolean canMakeCCFGForClass(String className) {
+		return rawCFGs.containsKey(className);
+	}
 
 	/**
 	 * Computes the CCFG for the given class
@@ -251,7 +276,7 @@ public class GraphPool {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph} object.
 	 */
-	public static ClassControlFlowGraph computeCCFG(String className) {
+	private static ClassControlFlowGraph computeCCFG(String className) {
 		if (rawCFGs.get(className) == null)
 			throw new IllegalArgumentException(
 			        "can't compute CCFG, don't know CFGs for class " + className);
@@ -264,6 +289,16 @@ public class GraphPool {
 		if (Properties.WRITE_CFG)
 			ccfg.toDot();
 
+		// TODO remove the following lines once purity analysis is implemented
+		// they are just for testing purposes
+//		for(String methodInCCFG : rawCFGs.get(className).keySet()) {
+//			if(ccfg.isPure(methodInCCFG))
+//				LoggingUtils.getEvoLogger().info("PURE method:\t"+className+"."+methodInCCFG);
+//			else
+//				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+className+"."+methodInCCFG);
+//		}
+			
+		
 		return ccfg;
 	}
 
