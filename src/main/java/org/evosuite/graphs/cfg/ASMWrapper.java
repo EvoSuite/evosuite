@@ -626,7 +626,7 @@ public abstract class ASMWrapper {
 		// ALOAD_0
 		// (this)
 	}
-
+ 
 	/**
 	 * Determines whether this is the special ALOAD that pushes 'this' onto the
 	 * stack

@@ -961,6 +961,33 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		}
 		throw new IllegalStateException("should be unreachable");
 	}
+	
+	/**
+	 *
+	 * @return a boolean.
+	 */
+	//TODO comments and ISTATIC?
+	public boolean isMethodCallOfField() {
+		if (!isMethodCall())
+			return false;
+
+		// the object on which this method is called is on top of the stack
+		// minus the number of arguments the called method has
+		int stackPos = frame.getStackSize()
+				- (1 + getCalledMethodsArgumentCount());
+		SourceValue source = (SourceValue) frame.getStack(stackPos);
+		if (source.insns.size() != 1) {
+			// we don't know for sure, let's be conservative
+			return false;
+		}
+		for (Object sourceIns : source.insns) {
+			AbstractInsnNode sourceInstruction = (AbstractInsnNode) sourceIns;
+			BytecodeInstruction src = BytecodeInstructionPool.getInstruction(
+					className, methodName, sourceInstruction);
+			return src.isFieldUse();
+		}
+		throw new IllegalStateException("should be unreachable");
+	}
 
 	/**
 	 * <p>
@@ -1058,6 +1085,9 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	@Override
 	public int compareTo(BytecodeInstruction o) {
+		if(o==null){
+			System.out.println("aaaaaaaaaaaaaa");
+		}
 		return getLineNumber() - o.getLineNumber();
 	}
 

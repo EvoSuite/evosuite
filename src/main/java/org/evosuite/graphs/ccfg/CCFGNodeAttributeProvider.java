@@ -43,6 +43,13 @@ public class CCFGNodeAttributeProvider implements ComponentAttributeProvider<CCF
 		} else if(node instanceof CCFGMethodExitNode) {
 			r.put("style", "filled");
 			r.put("shape", "invtriangle");
+		} else if(node instanceof CCFGFieldClassCallNode) {
+			String method = ((CCFGFieldClassCallNode)node).getCodeInstruction().getMethodName();
+			String rgbColor = generateBColor(method);
+			r.put("style", "filled");
+			r.put("fillcolor", rgbColor);
+			r.put("fontsize", "12");
+			r.put("fontcolor", "white");
 		} else if(node instanceof CCFGCodeNode) {
 			String method = ((CCFGCodeNode)node).getCodeInstruction().getMethodName();
 			String rgbColor = generateSaturatedColor(method);
@@ -67,6 +74,13 @@ public class CCFGNodeAttributeProvider implements ComponentAttributeProvider<CCF
 		float h = Math.abs(obj.hashCode()) / (float)Integer.MAX_VALUE;
 //		return h+",0.75,0.65";
 		return h+",0.85,0.55";
+	}
+	
+	private String generateBColor(Object obj) {
+		
+		float h = Math.abs(obj.hashCode()) / (float)Integer.MAX_VALUE;
+//		return h+",0.75,0.65";
+		return h+",0.85,0.95";
 	}
 
 }
