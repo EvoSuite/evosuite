@@ -105,10 +105,11 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	protected ControlFlowEdge addEdge(BytecodeInstruction src,
 			BytecodeInstruction target, boolean isExceptionEdge) {
 
-		if (src.isBranch())
-			return addBranchEdge(src, target, isExceptionEdge);
-		else if (src.isSwitch())
-			return addSwitchBranchEdge(src, target, isExceptionEdge);
+		if(BranchPool.isKnownAsBranch(src))
+			if (src.isBranch())
+				return addBranchEdge(src, target, isExceptionEdge);
+			else if (src.isSwitch())
+				return addSwitchBranchEdge(src, target, isExceptionEdge);
 
 		return addUnlabeledEdge(src, target, isExceptionEdge);
 	}

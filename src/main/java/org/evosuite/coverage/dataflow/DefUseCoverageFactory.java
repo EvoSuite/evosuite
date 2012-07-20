@@ -121,7 +121,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
 		ClassControlFlowGraph ccfg = GraphPool
-				.computeCCFG(Properties.TARGET_CLASS);
+				.getCCFG(Properties.TARGET_CLASS);
 		Set<DefUseCoverageTestFitness> r = ccfg.determineDefUsePairs();
 
 		return r;

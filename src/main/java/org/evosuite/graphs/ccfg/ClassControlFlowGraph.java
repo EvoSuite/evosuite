@@ -36,6 +36,7 @@ import org.evosuite.graphs.ccg.ClassCallNode;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * This class computes the Class Control Flow Graph (CCFG) of a CUT.
@@ -115,6 +116,17 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	private Set<CCFGMethodEntryNode> publicMethods = new HashSet<CCFGMethodEntryNode>();
 
 	private Map<FrameNodeType, CCFGFrameNode> frameNodes = new HashMap<FrameNodeType, CCFGFrameNode>();
+
+	// cache of already analyzed methods that are known to be pure or impure
+	// respectively
+	private Set<String> pureMethods = new HashSet<String>();
+	private Set<String> impureMethods = new HashSet<String>();
+
+	// auxilary set for purity analysis to keep track of methods that are
+	// currently
+	// being analyzed across several CCFGs. elements are of the form
+	// <className>.<methodName>
+	private static Set<String> methodsInPurityAnalysis = new HashSet<String>();
 
 	// debug profiling
 	private long timeSpentMingling = 0l;
@@ -521,8 +533,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		if (checkInvocationBound(invocationCount, callStack))
 			return invocationCount;
 
-	//	if (node instanceof CCFGFieldClassCallNode); //TODO add the analysis here
-	//	else
+		// if (node instanceof CCFGFieldClassCallNode); //TODO add the analysis
+		// here
+		// else
 		if (node instanceof CCFGCodeNode)
 			handleCodeNode(investigatedMethod, node, callStack, activeDefs,
 					freeUses, foundPairs);
@@ -1103,6 +1116,120 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		analyzedMethods = null;
 	}
 
+	// purity analysis
+
+	public boolean isPure(String methodName) {
+		if (pureMethods.contains(methodName))
+			return true;
+		else if (impureMethods.contains(methodName))
+			return false;
+
+		boolean isPure = analyzePurity(methodName);
+		if (isPure) {
+			pureMethods.add(methodName);
+			return true;
+		} else {
+			impureMethods.add(methodName);
+			return false;
+		}
+	}
+
+	private boolean analyzePurity(String methodName) {
+
+		CCFGMethodEntryNode entry = getMethodEntryOf(methodName);
+		Set<CCFGNode> handled = new HashSet<CCFGNode>();
+
+//		LoggingUtils.getEvoLogger().info(
+//				"Starting purity analysis of " + methodName);
+
+		// add methodName to set of currently analyzed methods
+		methodsInPurityAnalysis.add(className + "." + methodName);
+		boolean r = analyzePurity(methodName, entry, handled);
+		// remove methodName from set of currently analyzed methods
+		methodsInPurityAnalysis.remove(className + "." + methodName);
+
+		return r;
+	}
+
+	private boolean analyzePurity(String analyzedMethod, CCFGNode currentNode,
+			Set<CCFGNode> handled) {
+
+		if (handled.contains(currentNode)) {
+			// if we already handled the node we know it is pure otherwise we
+			// would have returned
+			return true;
+		}
+		handled.add(currentNode);
+
+		// the node at which analysis is supposed to continue
+		// used for skipping intermediate nodes for CCFGMethodCallNodes
+		CCFGNode nextNode = currentNode;
+
+		if (currentNode instanceof CCFGFieldClassCallNode) {
+			CCFGFieldClassCallNode fieldCall = (CCFGFieldClassCallNode) currentNode;
+			// TODO for now we will have to ignore classes that we are not able
+			// to analyze.
+			// this should only happen for classes in java.*
+			if (GraphPool.canMakeCCFGForClass(fieldCall.getClassName())) {
+				String toAnalyze = fieldCall.getClassName() + "."
+						+ fieldCall.getMethodName();
+				if (!methodsInPurityAnalysis.contains(toAnalyze)) {
+					ClassControlFlowGraph ccfg = GraphPool.getCCFG(fieldCall
+							.getClassName());
+					if (!ccfg.isPure(fieldCall.getMethodName())) {
+						// if fieldCall is impure this method is also impure
+						return false;
+					}
+				}
+			}
+			// otherwise proceed
+		} else if (currentNode instanceof CCFGCodeNode) {
+			CCFGCodeNode codeNode = (CCFGCodeNode) currentNode;
+			// it this node alters the state of this object this method is
+			// impure
+			if (codeNode.getCodeInstruction().isFieldDefinition())
+				return false;
+			// otherwise proceed
+		} else if (currentNode instanceof CCFGMethodExitNode) {
+			CCFGMethodExitNode methodExit = (CCFGMethodExitNode) currentNode;
+			// if we encounter the end of the analyzed method and have not
+			// detected
+			// impurity yet then the method is pure
+			if (methodExit.getMethod().equals(analyzedMethod))
+				return true;
+			else
+				throw new IllegalStateException(
+						"MethodExitNodes from methods other then the currently analyzed one should not be reached");
+		} else if (currentNode instanceof CCFGMethodCallNode) {
+			CCFGMethodCallNode callNode = (CCFGMethodCallNode) currentNode;
+			// avoid loops in analysis
+			String toAnalyze = className + "." + callNode.getCalledMethod();
+			if (!methodsInPurityAnalysis.contains(toAnalyze)) {
+				// if another method of this class is called check that
+				// method
+				// it the called method is impure then this method is impure
+				if (!isPure(callNode.getCalledMethod()))
+					return false;
+			}
+			// otherwise proceed after the method call has taken place
+			nextNode = callNode.getReturnNode();
+		} else if (currentNode instanceof CCFGMethodEntryNode) {
+			// do nothing special
+		} else
+			throw new IllegalStateException(
+					"purity analysis should not reach this kind of CCFGNode: "
+							+ currentNode.getClass().toString());
+
+		Set<CCFGNode> children = getChildren(nextNode);
+		for (CCFGNode child : children) {
+			if (!analyzePurity(analyzedMethod, child, handled))
+				return false;
+		}
+
+		// no child was impure so this method is pure
+		return true;
+	}
+
 	// sanity functions
 
 	/**
@@ -1371,7 +1498,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 	/**
 	 * import CFGs nodes. If the node is a method call to a method of a field
-	 * class, a new CCFGFieldClassCallNode is created. Otherwise, a normale
+	 * class, a new CCFGFieldClassCallNode is created. Otherwise, a normal
 	 * CCFGCodeNode is created
 	 * 
 	 * @param cfg
@@ -1385,7 +1512,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		for (BytecodeInstruction code : cfg.vertexSet()) {
 			CCFGCodeNode node;
 			if (code.isMethodCallOfField()) {
-				node = new CCFGFieldClassCallNode(code, code.getCalledMethodsClass(), code.getCalledMethod());
+				node = new CCFGFieldClassCallNode(code,
+						code.getCalledMethodsClass(), code.getCalledMethod());
 			} else {
 				node = new CCFGCodeNode(code);
 			}
