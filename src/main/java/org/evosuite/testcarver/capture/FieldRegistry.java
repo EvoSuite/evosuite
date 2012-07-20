@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.capture;
+package org.evosuite.testcarver.capture;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;

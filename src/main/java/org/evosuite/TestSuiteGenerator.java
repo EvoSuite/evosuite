@@ -102,8 +102,11 @@ import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
-import org.evosuite.testcarver.TestCarvingExecutionObserver;
-import org.evosuite.testcarver.TestCaseCodeGenerator;
+import org.evosuite.testcarver.capture.CaptureLog;
+import org.evosuite.testcarver.capture.Capturer;
+import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
+import org.evosuite.testcarver.testcase.EvoTestCaseCodeGenerator;
+import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
@@ -144,15 +147,12 @@ import org.slf4j.LoggerFactory;
 
 import sun.misc.Signal;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
-import de.unisb.cs.st.testcarver.capture.CaptureLog;
-import de.unisb.cs.st.testcarver.capture.Capturer;
 
 /**
  * Main entry point
  * 
  * @author Gordon Fraser
  */
-@SuppressWarnings("restriction")
 public class TestSuiteGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestSuiteGenerator.class);
@@ -475,10 +475,15 @@ public class TestSuiteGenerator {
 		final Logger logger = LoggingUtils.getEvoLogger();
 
 		// variables needed in loop
-		CaptureLog log;
-		TestCaseCodeGenerator codeGen;
-		TestCase carvedTestCase;
-		for (TestCase t : testsToBeCarved) {
+		CaptureLog              log;
+		TestCase                carvedTestCase;
+		
+		
+		final CaptureLogAnalyzer       analyzer = new CaptureLogAnalyzer();
+		final EvoTestCaseCodeGenerator codeGen  = new EvoTestCaseCodeGenerator();
+		
+		for(TestCase t : testsToBeCarved)
+		{
 			// collect all accessed classes ( = classes to be observed)
 			allAccessedClasses.addAll(t.getAccessedClasses());
 
@@ -515,9 +520,11 @@ public class TestSuiteGenerator {
 			logger.debug("Evosuite Test:\n{}", t);
 
 			// generate carved test with the currently captured log and allAccessedlasses as classes to be observed
-			codeGen = new TestCaseCodeGenerator(log);
-			carvedTestCase = codeGen.generateCode(allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
-
+			
+			analyzer.analyze(log, codeGen, allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
+			carvedTestCase = codeGen.getCode();
+			codeGen.clear();
+			
 			logger.debug("Carved Test:\n{}", carvedTestCase);
 			result.add(carvedTestCase);
 

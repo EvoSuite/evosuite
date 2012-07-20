@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.exception;
+package org.evosuite.testcarver.exception;
 
 @SuppressWarnings("serial")
 public final class CapturerException extends RuntimeException

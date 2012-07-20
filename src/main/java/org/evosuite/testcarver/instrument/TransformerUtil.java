@@ -1,4 +1,4 @@
-package de.unisb.cs.st.testcarver.instrument;
+package org.evosuite.testcarver.instrument;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -58,39 +58,10 @@ public class TransformerUtil {
 				   className.startsWith("java") ||
 				   className.startsWith("java/lang") ||
 				   className.startsWith("$Proxy") || // ignore all dynamic proxies (http://docs.oracle.com/javase/1.3/docs/guide/reflection/proxy.html)
-				   className.startsWith("de/unisb/cs/st/testcarver") //||
-//				   className.startsWith("com/thoughtworks/xstream") ||
-//				   className.startsWith("org/xmlpull") ||
-//				   className.startsWith("gnu/trove") ||
-//				   className.startsWith("org/eclipse/jdt") ||
-//				   className.startsWith("org/slf4j") ||
-//				   className.contains("log4j")
+				   className.startsWith("org/evosuite/testcarver")
 				   );
 	}
 	
-	
-//	public static boolean isClassConsideredForInstrumenetation(final String className)
-//	{
-//		// we exclude standard java and sun packages as well the Prototype package
-//		// TODO use regex for check
-//		// TODO use configuration for exclusion
-//		
-//		
-//		  return! (
-////				  	className.startsWith("sun") ||
-////				   className.startsWith("com/sun") ||
-////				   className.startsWith("java") ||
-//				  className.startsWith("java/lang") ||
-//				   className.startsWith("$Proxy") || // ignore all dynamic proxies (http://docs.oracle.com/javase/1.3/docs/guide/reflection/proxy.html)
-//				   className.startsWith("de/unisb/cs/st/testcarver") ||
-////				   className.startsWith("com/thoughtworks/xstream") ||
-////				   className.startsWith("org/xmlpull") ||
-////				   className.startsWith("gnu/trove") ||
-////				   className.startsWith("org/eclipse/jdt") ||
-//				   className.startsWith("org/slf4j") ||
-//				   className.contains("log4j")
-//				   );
-//	}
 	
 	public static boolean isDependency(final String className)
 	{
