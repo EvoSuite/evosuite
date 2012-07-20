@@ -37,19 +37,18 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 
-
 /**
  * This class computes the Class Control Flow Graph (CCFG) of a CUT.
- *
+ * 
  * Given the ClassCallGraph the CCFG is generated as follows:
- *
+ * 
  * The RawControlFlowGraph (CFG) of each method in the target class is retrieved
  * from the GraphPool and imported into this CCFG. BytecodeInstructions are
  * imported as CCFGCodeNodes and ControlFlowEdges as CCFGCodeEdges. Additionally
  * each CFG is enclosed by a CCFGMethodEntryNode and CCFGMethodExitNode with an
  * edge from the entry node to the first instruction in the CFG and an edge from
  * each exit instruction in the CFG to the exit node.
- *
+ * 
  * After that each method call instruction as defined in
  * BytecodeInstruction.isMethodCall() is replaced by two new nodes
  * CCFGMethodCallNode and CCFGMethodReturnNode that are labeled with that call
@@ -63,7 +62,7 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
  * methods - as defined by BytecodeInstruction.isStaticMethodCall() - or calls
  * to methods on the same object (this) as defined by
  * BytecodeInstruction.isMethodCallOnSameObject().
- *
+ * 
  * All this is enclosed by a frame consisting of five CCFGFrameNodes of
  * different types. This frame has two dedicated ENTRY and EXIT nodes connected
  * via a third node LOOP. The LOOP node has an outgoing edge to CALL which in
@@ -71,14 +70,14 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
  * in this graph. Analogously the CCFGMethodExitNode of each public method has
  * an outgoing edge to the CCFGFrameNode RETURN which in turn has an outgoing
  * edge back to LOOP. All these edges are CCFGFrameEdges.
- *
+ * 
  * The frame simulates the possible calls to the CUT a test can potentially
  * make. After starting (ENTRY->LOOP) a test can make arbitrary calls to public
  * methods (LOOP->CALL) that can in turn call other methods of the class
  * (CCFGMethodCallEdges). After returning from a public method call
  * (RETURN->LOOP) the test can either make more calls to the class (LOOP->CALL)
  * or stop (LOOP->EXIT).
- *
+ * 
  * The construction of the CCFG is inspired by: Proc. of the Second ACM SIGSOFT
  * Symp. on the Foundations of Softw. Eng., December 1994, pages 154-164
  * "Performing Data Flow Testing on Classes" Mary Jean Harrold and Gregg
@@ -86,7 +85,7 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
  * but our construction differs a little (we don't import the CCG and then
  * replace method nodes with CFGs but rather import CFGs and connect them
  * directly).
- *
+ * 
  * @author Andre Mis
  */
 public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
@@ -268,8 +267,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	/**
 	 * Given the ClassCallGraph of a class this constructor will build up the
 	 * corresponding CCFG using the RCFGs from the GraphPool.
-	 *
-	 * @param ccg a {@link org.evosuite.graphs.ccg.ClassCallGraph} object.
+	 * 
+	 * @param ccg
+	 *            a {@link org.evosuite.graphs.ccg.ClassCallGraph} object.
 	 */
 	public ClassControlFlowGraph(ClassCallGraph ccg) {
 		super(CCFGEdge.class);
@@ -287,7 +287,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * activeDefs after each run then create intra-class pairs from these uses
 	 * and defs and during each single run we detect intra and inter method
 	 * pairs
-	 *
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<DefUseCoverageTestFitness> determineDefUsePairs() {
@@ -303,7 +303,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			if (publicMethodEntry.getEntryInstruction() == null)
 				throw new IllegalStateException(
 						"expect each CCFGMethodEntryNode to have its entryInstruction set");
-			
+
 			r.addAll(determineInterMethodPairs(publicMethodEntry));
 		}
 		// create intra-method pairs
@@ -451,7 +451,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		System.out.print("* Searching for pairs in " + methodEntry.getMethod()
 				+ " ... ");
-		
+
 		warnedAboutAbortion = false;
 
 		// initialize variables
@@ -470,26 +470,28 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		// check if search was aborted
 		Integer rerunCalls = 0;
-//		if (calls >= UPPER_PAIR_SEARCH_INVOCATION_BOUND) {
-//			System.out.println();
-//			System.out.println("* ABORTED pairSearch for method"
-//					+ methodEntry.getMethod());
-//			
-//			System.out.print("* Re-Searching for pairs without concidering loops in " + methodEntry.getMethod()
-//					+ " ... ");
-//			// if we previously tried to analyze this method but had to abort
-//			// try to rerun without handling loops
-//			activeDefs = createInitialActiveDefs();
-//			Set<BytecodeInstruction> freeUses2 = new HashSet<BytecodeInstruction>();
-//			callStack = createInitialCallStack(methodEntry);
-//			rerunCalls = determineInterMethodPairs(methodEntry,
-//					methodEntry.getEntryInstruction(), new HashSet<CCFGNode>(),
-//					new HashSet<CCFGEdge>(), activeDefs, freeUses2, foundPairs,
-//					callStack, 0, false);
-//			freeUses.addAll(freeUses2);
-//
-//			spentTime = System.currentTimeMillis() - start;
-//		}
+		// if (calls >= UPPER_PAIR_SEARCH_INVOCATION_BOUND) {
+		// System.out.println();
+		// System.out.println("* ABORTED pairSearch for method"
+		// + methodEntry.getMethod());
+		//
+		// System.out.print("* Re-Searching for pairs without concidering loops in "
+		// + methodEntry.getMethod()
+		// + " ... ");
+		// // if we previously tried to analyze this method but had to abort
+		// // try to rerun without handling loops
+		// activeDefs = createInitialActiveDefs();
+		// Set<BytecodeInstruction> freeUses2 = new
+		// HashSet<BytecodeInstruction>();
+		// callStack = createInitialCallStack(methodEntry);
+		// rerunCalls = determineInterMethodPairs(methodEntry,
+		// methodEntry.getEntryInstruction(), new HashSet<CCFGNode>(),
+		// new HashSet<CCFGEdge>(), activeDefs, freeUses2, foundPairs,
+		// callStack, 0, false);
+		// freeUses.addAll(freeUses2);
+		//
+		// spentTime = System.currentTimeMillis() - start;
+		// }
 
 		mingled = timeSpentMingling - mingled;
 
@@ -511,7 +513,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			Stack<MethodCall> callStack, int invocationCount,
 			boolean handleLoops) {
 
-//		System.out.println("  processing "+node.toString());
+		System.out.println("  processing " + node.toString());
 
 		handleHandledNodesSet(node, handled);
 
@@ -544,11 +546,10 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 						handleLoops))
 					continue;
 
-//				System.out.println("  nextChild of "+node.toString()+" is "+child.toString());
-//				for(MethodCall mc : callStack)
-//					System.out.println("    "+mc.toString());
-				
-				
+				// System.out.println("  nextChild of "+node.toString()+" is "+child.toString());
+				// for(MethodCall mc : callStack)
+				// System.out.println("    "+mc.toString());
+
 				// we don't want to take every child into account all the time
 				// for example if we previously found a methodCallNode and then
 				// later visit a MethodExitNode we do want to follow the edge
@@ -559,7 +560,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// follow the edges from there to methodReturnNodes
 
 				Stack<MethodCall> nextCallStack = callStack;
-				
+
 				if (child instanceof CCFGMethodReturnNode) {
 					if (handleReturnNodeChild(child, callStack))
 						continue;
@@ -571,11 +572,11 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 					if (alreadyAnalzedMethod(callNode.getCalledMethod())) {
 
 						nextCallStack = copyCallStack(callStack);
-						
+
 						// use previously stored information
 						activeDefs = handleMethodCallNodeChild(callNode,
-								activeDefs, freeUses, foundPairs, nextCallStack,
-								investigatedMethod);
+								activeDefs, freeUses, foundPairs,
+								nextCallStack, investigatedMethod);
 						// now we can continue our search with the
 						// CCFGMethodReturnNode of our call
 						child = callNode.getReturnNode();
@@ -638,7 +639,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		return activeDefs;
 	}
-	
+
 	/**
 	 * If the given Set of handled nodes already contains the given node, an
 	 * IllegalStateException is thrown, because that should not happen.
@@ -787,7 +788,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			}
 		}
 	}
-	
+
 	/**
 	 * When we go back to previously visited nodes we do not have to visit nodes
 	 * after our current node again. If we follow backEdges we do that so we
@@ -849,9 +850,16 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		while (outDegreeOf(node) == 1
 				&& (nextNode = getSingleChild(node)) instanceof CCFGCodeNode
 				&& !handled.contains(nextNode)
-				&& !((CCFGCodeNode) nextNode).getCodeInstruction().isDefUse())
+				&& !((CCFGCodeNode) nextNode).getCodeInstruction().isDefUse()) {
 			node = nextNode;
-
+			// XXX TODO Togliere sta roba
+			/*
+			 * if (node instanceof CCFGMethodCallNode){ CCFGMethodCallNode asd =
+			 * (CCFGMethodCallNode)node;
+			 * System.out.println("AAAAAAAAAAAAAAAAAAAAAAAAAAA "
+			 * +asd.getCalledMethod().toString()); } //XXX TODO fino a qui
+			 */
+		}
 		return node;
 	}
 
@@ -971,7 +979,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Creates a new MethodCall object for the given MethodCallNode and pushes
 	 * it onto the given callStack.
@@ -980,11 +988,11 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			CCFGMethodCallNode callNode) {
 
 		MethodCall call = MethodCall.constructForCallNode(callNode);
-		updateCallStackForCall(callStack,call);
+		updateCallStackForCall(callStack, call);
 	}
 
 	/**
-	 * Pushes the given MethodCall object onto the given callStack 
+	 * Pushes the given MethodCall object onto the given callStack
 	 */
 	private void updateCallStackForCall(Stack<MethodCall> callStack,
 			MethodCall call) {
@@ -1015,7 +1023,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				activeDef, freeUse, type);
 		if (goal != null) {
 			foundPairs.add(goal);
-			// System.out.println("  created goal: " + goal.toString());
+			System.out.println();
+			System.out.println("  created goal: " + goal.toString());
 		}
 	}
 
@@ -1137,11 +1146,11 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		if (!callStack.peek().getCalledMethodName()
 				.equals(code.getMethodName())) {
-			
-			for(MethodCall mc : callStack) {
-				System.out.println("  "+mc.toString());
+
+			for (MethodCall mc : callStack) {
+				System.out.println("  " + mc.toString());
 			}
-			
+
 			throw new IllegalStateException(
 					"insane callStack: peek is in method "
 							+ callStack.peek().getCalledMethodName()
@@ -1210,7 +1219,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			return false;
 		return publicMethods.contains(node);
 	}
-	
+
 	private Set<Map<String, VariableDefinition>> createInitialActiveDefs() {
 		Set<Map<String, VariableDefinition>> activeDefs = new HashSet<Map<String, VariableDefinition>>();
 		// add initial activeDefMap
@@ -1252,9 +1261,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	/**
-	 * <p>getMethodExitOf</p>
-	 *
-	 * @param methodEntry a {@link org.evosuite.graphs.ccfg.CCFGMethodEntryNode} object.
+	 * <p>
+	 * getMethodExitOf
+	 * </p>
+	 * 
+	 * @param methodEntry
+	 *            a {@link org.evosuite.graphs.ccfg.CCFGMethodEntryNode} object.
 	 * @return a {@link org.evosuite.graphs.ccfg.CCFGMethodExitNode} object.
 	 */
 	public CCFGMethodExitNode getMethodExitOf(CCFGMethodEntryNode methodEntry) {
@@ -1265,9 +1277,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	/**
-	 * <p>getMethodEntryOf</p>
-	 *
-	 * @param methodExit a {@link org.evosuite.graphs.ccfg.CCFGMethodExitNode} object.
+	 * <p>
+	 * getMethodEntryOf
+	 * </p>
+	 * 
+	 * @param methodExit
+	 *            a {@link org.evosuite.graphs.ccfg.CCFGMethodExitNode} object.
 	 * @return a {@link org.evosuite.graphs.ccfg.CCFGMethodEntryNode} object.
 	 */
 	public CCFGMethodEntryNode getMethodEntryOf(CCFGMethodExitNode methodExit) {
@@ -1364,7 +1379,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		// add BytecodeInstructions as CCFGCodeNodes
 		for (BytecodeInstruction code : cfg.vertexSet()) {
-			CCFGCodeNode node = new CCFGCodeNode(code);
+			CCFGCodeNode node;
+			if (code.isMethodCall() && code.isMethodCallOfField()) {
+				node = new CCFGFieldClassCallNode(code, code.getCalledMethodsClass(), code.getCalledMethod());
+			} else {
+				node = new CCFGCodeNode(code);
+			}
 			addVertex(node);
 			temp.put(code, node);
 		}
@@ -1375,7 +1395,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		// add ControlFlowEdges as CCFGCodeEdges
 		for (ControlFlowEdge e : cfg.edgeSet()) {
-			if(e.isExceptionEdge())
+			if (e.isExceptionEdge())
 				continue;
 			CCFGCodeNode src = temp.get(cfg.getEdgeSource(e));
 			CCFGCodeNode target = temp.get(cfg.getEdgeTarget(e));
@@ -1442,9 +1462,14 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	/**
-	 * <p>getFrameNode</p>
-	 *
-	 * @param type a {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph.FrameNodeType} object.
+	 * <p>
+	 * getFrameNode
+	 * </p>
+	 * 
+	 * @param type
+	 *            a
+	 *            {@link org.evosuite.graphs.ccfg.ClassControlFlowGraph.FrameNodeType}
+	 *            object.
 	 * @return a {@link org.evosuite.graphs.ccfg.CCFGFrameNode} object.
 	 */
 	public CCFGFrameNode getFrameNode(FrameNodeType type) {
