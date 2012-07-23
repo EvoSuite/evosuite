@@ -1136,6 +1136,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 	private boolean analyzePurity(String methodName) {
 
+		if(!methodEntries.containsKey(methodName)) {
+			// workaround to deal with abstract methods for now
+			// default behaviour for unknown things is "pure" for now
+			return true;
+		}
+		
 		CCFGMethodEntryNode entry = getMethodEntryOf(methodName);
 		Set<CCFGNode> handled = new HashSet<CCFGNode>();
 
@@ -1504,7 +1510,6 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * @param cfg
 	 * @param temp
 	 */
-
 	private void importCFGNodes(RawControlFlowGraph cfg,
 			Map<BytecodeInstruction, CCFGCodeNode> temp) {
 
