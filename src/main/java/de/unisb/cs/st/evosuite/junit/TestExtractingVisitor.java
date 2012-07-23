@@ -213,13 +213,17 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		@Override
 		public StatementInterface copy(TestCase newTestCase, int offset) {
 			// Code was partly copied from MethodStatement
+			ArrayList<VariableReference> new_params = new ArrayList<VariableReference>();
+			for (VariableReference r : parameters) {
+				new_params.add(r.copy(newTestCase, offset));
+			}
 			if (Modifier.isStatic(method.getModifiers())) {
 				// TODO: If callee is an array index, this will return an
 				// invalid copy of the cloned variable!
-				return new ValidMethodStatement(newTestCase, method, null, retval.getType(), parameters);
+				return new ValidMethodStatement(newTestCase, method, null, retval.getType(), new_params);
 			}
 			VariableReference newCallee = callee.copy(newTestCase, offset);
-			return new MethodStatement(newTestCase, method, newCallee, retval.getType(), parameters);
+			return new MethodStatement(newTestCase, method, newCallee, retval.getType(), new_params);
 		}
 
 		@Override

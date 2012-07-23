@@ -159,7 +159,7 @@ public class BranchPool {
 		addBranchToMap(b);
 		branchIdMap.put(branchCounter, b);
 
-		logger.info("Branch " + branchCounter + " at line " + v.getLineNumber());
+		logger.debug("Branch " + branchCounter + " at line " + v.getLineNumber());
 	}
 
 	private static void registerSwitchInstruction(BytecodeInstruction v) {
@@ -298,7 +298,7 @@ public class BranchPool {
 
 	private static void addBranchToMap(Branch b) {
 		
-		logger.info("Adding to map the branch {}",b);
+		logger.debug("Adding to map the branch {}",b);
 		
 		String className = b.getClassName();
 		String methodName = b.getMethodName();
