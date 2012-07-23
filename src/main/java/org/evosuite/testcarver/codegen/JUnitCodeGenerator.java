@@ -49,9 +49,6 @@ import org.evosuite.testcarver.capture.CaptureUtil;
 
 public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 {
-
-	
-	
 	//--- source generation
 	private final TIntObjectHashMap<String>   oidToVarMapping;
 	private final TIntObjectHashMap<Class<?>> oidToTypeMapping;
@@ -249,29 +246,13 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 	{
 		this.init();
 	}
-	
 
-	
-//	
-//	public CompilationUnit generateCodeForPostProcessing(final String cuName, final String packageName, final Class<?>...observedClasses)
-//	{
-//		return this.generateCode(cuName, packageName, true, observedClasses);
-//	}
-//	
-//	public CompilationUnit generateFinalCode(final String cuName, final String packageName, v, final Class<?>...observedClasses)
-//	{
-//		if(failedRecords == null)
-//		{
-//			throw new NullPointerException("list of failed records must not be null");
-//		}
-//		
-//		this.failedRecords = new TIntHashSet(failedRecords);
-//		return this.generateCode(cuName, packageName, false, observedClasses);
-//	}
-	
-	
-	
 	private String createNewVarName(final int oid, final String typeName)
+	{
+		return this.createNewVarName(oid, typeName, false);
+	}
+	
+	private String createNewVarName(final int oid, final String typeName, final boolean asObject)
 	{
 		if(this.oidToVarMapping.containsKey(oid))
 		{
@@ -280,7 +261,14 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		
 		try
 		{
-			this.oidToTypeMapping.put(oid, Class.forName(typeName));
+			if(asObject)
+			{
+				this.oidToTypeMapping.put(oid, Object.class);
+			}
+			else
+			{
+				this.oidToTypeMapping.put(oid, Class.forName(typeName));
+			}
 		}
 		catch(final ClassNotFoundException e)
 		{
@@ -974,14 +962,14 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
 		final int    oid     = log.objectIds.get(logRecNo);
-		final String type    = log.oidClassNames.get(log.oidRecMapping.get(oid));
+//		final String type    = log.oidClassNames.get(log.oidRecMapping.get(oid));
 		final Object value   = log.params.get(logRecNo)[0];
 		this.isXStreamNeeded = true;
 		
 		final VariableDeclarationFragment vd = ast.newVariableDeclarationFragment();
 		// handling because there must always be a new instantiation statement for pseudo inits
 		this.oidToVarMapping.remove(oid);
-		vd.setName(ast.newSimpleName(this.createNewVarName(oid, type)));
+		vd.setName(ast.newSimpleName(this.createNewVarName(oid, log.oidClassNames.get(log.oidRecMapping.get(oid)), true)));
 		
 		final MethodInvocation methodInvocation = ast.newMethodInvocation();
 		final Name name = ast.newSimpleName("XSTREAM");
@@ -992,14 +980,15 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		xmlParam.setLiteralValue((String) value);
 		methodInvocation.arguments().add(xmlParam);
 		
-		final CastExpression castExpr = ast.newCastExpression();
-		castExpr.setType(this.createAstType(type, ast));
-		castExpr.setExpression(methodInvocation);
+//		final CastExpression castExpr = ast.newCastExpression();
+//		castExpr.setType(this.createAstType(type, ast));
+//		castExpr.setExpression(methodInvocation);
 		
-		vd.setInitializer(castExpr);
+//		vd.setInitializer(castExpr);
+		vd.setInitializer(methodInvocation);
 		
 		final VariableDeclarationStatement vs = ast.newVariableDeclarationStatement(vd);
-		vs.setType(this.createAstType(type, ast));
+		vs.setType(this.createAstType("Object", ast));
 				
 		methodBlock.statements().add(vs);
 	}	
