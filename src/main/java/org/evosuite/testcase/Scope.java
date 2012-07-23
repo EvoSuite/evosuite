@@ -73,7 +73,6 @@ public class Scope {
 					}
 					if (Array.getLength(value) == 0)
 						break;
-
 					value = Array.get(value, 0);
 					idx++;
 				}
