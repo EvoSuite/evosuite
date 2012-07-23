@@ -259,6 +259,7 @@ public class GraphPool {
 		if(!ccfgs.containsKey(className)) {
 			ccfgs.put(className, computeCCFG(className));
 		}
+		
 		return ccfgs.get(className);
 	}
 	
@@ -288,16 +289,6 @@ public class GraphPool {
 		ClassControlFlowGraph ccfg = new ClassControlFlowGraph(ccg);
 		if (Properties.WRITE_CFG)
 			ccfg.toDot();
-
-		// TODO remove the following lines once purity analysis is implemented
-		// they are just for testing purposes
-//		for(String methodInCCFG : rawCFGs.get(className).keySet()) {
-//			if(ccfg.isPure(methodInCCFG))
-//				LoggingUtils.getEvoLogger().info("PURE method:\t"+className+"."+methodInCCFG);
-//			else
-//				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+className+"."+methodInCCFG);
-//		}
-			
 		
 		return ccfg;
 	}

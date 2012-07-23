@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
@@ -145,7 +146,7 @@ public class DependencyAnalysis {
 		}
 
 		// Also analyze if it is in the calltree and we are considering the context
-		if (Properties.INSTRUMENT_CONTEXT) {
+		if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) {
 			if (callTree.isCalledClass(className)) {
 				return true;
 			}

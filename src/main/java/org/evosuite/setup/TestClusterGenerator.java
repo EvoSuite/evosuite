@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.javaagent.BooleanTestabilityTransformation;
 import org.evosuite.testcase.GenericClass;
 import org.junit.Test;
@@ -64,7 +65,7 @@ public class TestClusterGenerator {
 		TestCluster.setInheritanceTree(inheritanceTree);
 		initializeTargetMethods();
 
-		if (Properties.INSTRUMENT_CONTEXT) {
+		if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) {
 			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
 				try {
 					TestCluster.classLoader.loadClass(callTreeClass);

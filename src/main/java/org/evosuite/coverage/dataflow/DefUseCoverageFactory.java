@@ -31,6 +31,7 @@ import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +95,15 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 */
 	public static void computeGoals() {
 
+		// TODO remove the following lines once purity analysis is implemented
+		// they are just for testing purposes
+		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
+			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
+				LoggingUtils.getEvoLogger().info("PURE method:\t"+methodInCCFG);
+			else
+				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+methodInCCFG);
+		}
+		
 		long start = System.currentTimeMillis();
 		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
