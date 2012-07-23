@@ -1,0 +1,325 @@
+
+/**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ *
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
+ */
+package org.evosuite.symbolic.nativepeer;
+
+
+import java.util.logging.Logger;
+
+import org.evosuite.symbolic.expr.IntegerVariable;
+import org.evosuite.symbolic.expr.RealVariable;
+import org.evosuite.symbolic.expr.StringVariable;
+
+import gov.nasa.jpf.JPF;
+import gov.nasa.jpf.jvm.MJIEnv;
+
+//import org.slf4j.Logger;
+//import org.slf4j.LoggerFactory;
+public class JPF_org_evosuite_symbolic_nativepeer_ConcolicMarker {
+	private static int counter = 0;
+
+	static Logger log = JPF.getLogger(JPF_org_evosuite_symbolic_nativepeer_ConcolicMarker.class.toString());
+//	private static Logger logger = LoggerFactory.getLogger(JPF_org_evosuite_symbolic_nativepeer_ConcolicMarker.class);
+	
+	/**
+	 * <p>mark__Z__Z</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a boolean.
+	 * @return a boolean.
+	 */
+	public static boolean mark__Z__Z(MJIEnv env, int rcls, boolean v0) {
+		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
+				v0 ? 1 : 0, Integer.MIN_VALUE, Integer.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__C__C</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a char.
+	 * @return a char.
+	 */
+	public static char mark__C__C(MJIEnv env, int rcls, char v0) {
+		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
+		        v0, Character.MIN_VALUE, Character.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__S__S</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a short.
+	 * @return a short.
+	 */
+	public static short mark__S__S(MJIEnv env, int rcls, short v0) {
+		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
+				v0, Short.MIN_VALUE, Short.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__B__B</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a byte.
+	 * @return a byte.
+	 */
+	public static byte mark__B__B(MJIEnv env, int rcls, byte v0) {
+		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
+				v0, Byte.MIN_VALUE, Byte.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__I__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a int.
+	 * @return a int.
+	 */
+	public static int mark__I__I(MJIEnv env, int rcls, int v0) {
+		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
+				v0, Integer.MIN_VALUE, Integer.MAX_VALUE));
+//		logger.info("Marked integer!");
+		return v0;
+	}
+
+	/**
+	 * <p>mark__J__J</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a long.
+	 * @return a long.
+	 */
+	public static long mark__J__J(MJIEnv env, int rcls, long v0) {
+		env.setReturnAttribute(new IntegerVariable("mark" + counter++ + "__SYM",
+				v0, Long.MIN_VALUE, Long.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__F__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a float.
+	 * @return a float.
+	 */
+	public static float mark__F__F(MJIEnv env, int rcls, float v0) {
+		env.setReturnAttribute(new RealVariable("mark" + counter++ + "__SYM",
+				v0, -Float.MAX_VALUE, Float.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__D__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a double.
+	 * @return a double.
+	 */
+	public static double mark__D__D(MJIEnv env, int rcls, double v0) {
+		env.setReturnAttribute(new RealVariable("mark" + counter++ + "__SYM",
+				v0, -Double.MAX_VALUE, Double.MAX_VALUE));
+		return v0;
+	}
+	
+	//here are the two new ones ===============================================
+	
+	/**
+	 * <p>mark__Ljava_lang_String_2__Ljava_lang_String_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param rString a int.
+	 * @return a int.
+	 */
+	public static int mark__Ljava_lang_String_2__Ljava_lang_String_2(MJIEnv env, 
+			int rcls, int rString) {
+		String str = env.getStringObject(rString);
+		
+		env.setReturnAttribute(new StringVariable("mark" + counter++ + "__SYM",
+		        str, str, str));
+
+		return rString;
+	}
+
+	/**
+	 * <p>mark__Ljava_lang_String_2Ljava_lang_String_2__Ljava_lang_String_2</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param rString a int.
+	 * @param rString1 a int.
+	 * @return a int.
+	 */
+	public static int mark__Ljava_lang_String_2Ljava_lang_String_2__Ljava_lang_String_2(
+			MJIEnv env, int rcls, int rString, int rString1) {
+		String str = env.getStringObject(rString);
+
+		env.setReturnAttribute(new StringVariable(env.getStringObject(rString1) 
+				+ "__SYM", str, str, str));
+
+		return rString;
+	}
+
+	
+	//=========================================================================
+	
+	
+	
+	/**
+	 * <p>mark__ZLjava_lang_String_2__Z</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a boolean.
+	 * @param rString1 a int.
+	 * @return a boolean.
+	 */
+	public static boolean mark__ZLjava_lang_String_2__Z(MJIEnv env, int rcls, boolean v0,
+	        int rString1) {
+		env.setReturnAttribute(new IntegerVariable(env.getStringObject(rString1)
+		        + "__SYM", v0 ? 1:0, Integer.MIN_VALUE, Integer.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__CLjava_lang_String_2__C</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a char.
+	 * @param rString1 a int.
+	 * @return a char.
+	 */
+	public static char mark__CLjava_lang_String_2__C(MJIEnv env, int rcls, char v0,
+	        int rString1) {
+		env.setReturnAttribute(new IntegerVariable(env.getStringObject(rString1)
+		        + "__SYM", v0, Character.MIN_VALUE, Character.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__SLjava_lang_String_2__S</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a short.
+	 * @param rString1 a int.
+	 * @return a short.
+	 */
+	public static short mark__SLjava_lang_String_2__S(MJIEnv env, int rcls, short v0,
+	        int rString1) {
+		env.setReturnAttribute(new IntegerVariable(env.getStringObject(rString1)
+		        + "__SYM", v0, Short.MIN_VALUE, Short.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__BLjava_lang_String_2__B</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a byte.
+	 * @param rString1 a int.
+	 * @return a byte.
+	 */
+	public static byte mark__BLjava_lang_String_2__B(MJIEnv env, int rcls, byte v0,
+	        int rString1) {
+		env.setReturnAttribute(new IntegerVariable(env.getStringObject(rString1)
+		        + "__SYM", v0, Byte.MIN_VALUE, Byte.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__ILjava_lang_String_2__I</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a int.
+	 * @param rString1 a int.
+	 * @return a int.
+	 */
+	public static int mark__ILjava_lang_String_2__I(MJIEnv env, int rcls, int v0,
+	        int rString1) {
+		env.setReturnAttribute(new IntegerVariable(env.getStringObject(rString1)
+		        + "__SYM", v0, Integer.MIN_VALUE, Integer.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__JLjava_lang_String_2__J</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a long.
+	 * @param rString1 a int.
+	 * @return a long.
+	 */
+	public static long mark__JLjava_lang_String_2__J(MJIEnv env, int rcls, long v0,
+	        int rString1) {
+		env.setReturnAttribute(new IntegerVariable(env.getStringObject(rString1)
+		        + "__SYM", v0, Long.MIN_VALUE, Long.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__FLjava_lang_String_2__F</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a float.
+	 * @param rString1 a int.
+	 * @return a float.
+	 */
+	public static float mark__FLjava_lang_String_2__F(MJIEnv env, int rcls, float v0,
+	        int rString1) {
+		env.setReturnAttribute(new RealVariable(env.getStringObject(rString1) + "__SYM",
+		        v0, -Float.MAX_VALUE, Float.MAX_VALUE));
+		return v0;
+	}
+
+	/**
+	 * <p>mark__DLjava_lang_String_2__D</p>
+	 *
+	 * @param env a {@link gov.nasa.jpf.jvm.MJIEnv} object.
+	 * @param rcls a int.
+	 * @param v0 a double.
+	 * @param rString1 a int.
+	 * @return a double.
+	 */
+	public static double mark__DLjava_lang_String_2__D(MJIEnv env, int rcls, double v0,
+	        int rString1) {
+		env.setReturnAttribute(new RealVariable(env.getStringObject(rString1) + "__SYM",
+				v0, -Double.MAX_VALUE, Double.MAX_VALUE));
+		return v0;
+	}
+}

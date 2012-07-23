@@ -38,11 +38,11 @@
       <outputDirectory>/</outputDirectory>
       <excludes>
 	<exclude>*.jar</exclude>
-        <exclude>de/unisb/cs/st/evosuite/ui/**/*.class</exclude>
-        <exclude>de/unisb/cs/st/evosuite/ma/*.class</exclude>
-        <exclude>de/unisb/cs/st/evosuite/ma/parser/*.class</exclude>
-        <exclude>de/unisb/cs/st/evosuite/ma/gui/*.class</exclude>
-        <exclude>de/unisb/cs/st/evosuite/symbolic/**/*.class</exclude>
+        <exclude>org/evosuite/ui/**/*.class</exclude>
+        <exclude>org/evosuite/ma/*.class</exclude>
+        <exclude>org/evosuite/ma/parser/*.class</exclude>
+        <exclude>org/evosuite/ma/gui/*.class</exclude>
+        <exclude>org/evosuite/symbolic/**/*.class</exclude>
       </excludes>
     </fileSet>
   </fileSets>
@@ -51,6 +51,7 @@
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <excludes>
+        <exclude>jmockit:*</exclude>
         <exclude>jpf:jpf-annotations</exclude>
         <exclude>jpf:jpf-classes</exclude>
         <exclude>jpf:jpf-core</exclude>
