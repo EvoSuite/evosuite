@@ -120,7 +120,12 @@ public class LoggingUtils {
 										remoteLogger.callAppenders(event);
 										//}
 									}
-								} catch (java.io.EOFException eof) {
+								} catch(java.net.SocketException se){
+									/*
+									 * FIXME: this can happen if client dies or is stopped by master with "destroy" in Windows. It is not a big problem,
+									 * but anyway how we stop clients will need to be refactored
+									 */
+								}catch (java.io.EOFException eof) {
 									//this is normal, do nothing
 								} catch (Exception e) {
 									log.error("Problem in reading loggings", e);
