@@ -71,6 +71,13 @@ class MSecurityManager extends SecurityManager {
 		for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 			if (e.getClassName().startsWith("java.awt"))
 				return true;
+
+			if (e.getClassName().startsWith("javax.swing"))
+				return true;
+
+			// Also treat the logmanager like AWT stuff, it is just as weird
+			if (e.getClassName().startsWith("java.util.logging.LogManager"))
+				return true;
 		}
 		return false;
 	}
@@ -162,6 +169,8 @@ class MSecurityManager extends SecurityManager {
 					return true;
 				if (perm.getName().equals("getProtectionDomain"))
 					return true;
+				if (perm.getName().startsWith("getenv."))
+					return true;
 				if ("true".equals(System.getProperty("java.awt.headless"))
 				        && isAWTThread()) {
 					if (perm.getName().equals("shutdownHooks"))
@@ -216,6 +225,9 @@ class MSecurityManager extends SecurityManager {
 						if (e.getClassName().startsWith("java.lang.ClassLoader"))
 							return true;
 						if (e.getClassName().startsWith("org.evosuite.javaagent.InstrumentingClassLoader"))
+							return true;
+						// Allow Logback configuration, because the logback.xml is in evosuite.jar
+						if (e.getClassName().startsWith("ch.qos.logback.core.joran.GenericConfigurator"))
 							return true;
 					}
 
