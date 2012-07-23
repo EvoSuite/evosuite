@@ -1,3 +1,4 @@
+
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -14,27 +15,26 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @author Gordon Fraser
  */
-package de.unisb.cs.st.evosuite.junit;
+package org.evosuite.junit;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
+import org.evosuite.ma.UserFeedback;
+import org.evosuite.ma.parser.TestParser;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.ExecutionTrace;
+import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCaseExecutor;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 
-import de.unisb.cs.st.evosuite.Properties;
-import de.unisb.cs.st.evosuite.ma.UserFeedback;
-import de.unisb.cs.st.evosuite.ma.parser.TestParser;
-import de.unisb.cs.st.evosuite.testcase.ExecutionResult;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTrace;
-import de.unisb.cs.st.evosuite.testcase.ExecutionTracer;
-import de.unisb.cs.st.evosuite.testcase.TestCase;
-import de.unisb.cs.st.evosuite.testcase.TestCaseExecutor;
 
 @SuppressWarnings("synthetic-access")
 public class JUnitUtils {
@@ -59,35 +59,27 @@ public class JUnitUtils {
 
 	}
 
-	private static final Map<String, TestCase> cache = new HashMap<String, TestCase>();
-
-	private static final Set<String> unreadableTestsCache = new HashSet<String>();
-
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JUnitUtils.class);
 
+	/**
+	 * <p>readTestCase</p>
+	 *
+	 * @param failingTest a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
 	public static TestCase readTestCase(String failingTest) {
-		if (cache.get(failingTest) != null) {
-			return cache.get(failingTest);
-		}
-		if (unreadableTestsCache.contains(failingTest)) {
-			return null;
-		}
-		try {
-			String[] classpath = Properties.CLASSPATH;
-			String[] sources = Properties.SOURCEPATH;
-			TestCase testCase = new JUnitTestReader(classpath, sources).readJUnitTestCase(failingTest);
-			assert testCase.equals(testCase.clone());
-			cache.put(failingTest, testCase);
-			return testCase;
-		} catch (Exception exc) {
-			logger.error("Exception reading test case {}.", failingTest, exc);
-		} catch (AssertionError error) {
-			logger.error("Assertion error reading test case {}.", failingTest, error);
-		}
-		unreadableTestsCache.add(failingTest);
-		return null;
+		String[] classpath = Properties.CLASSPATH;
+		String[] sources = Properties.SOURCEPATH;
+		TestCase testCase = new JUnitTestReader(classpath, sources).readJUnitTestCase(failingTest);
+		return testCase;
 	}
 
+	/**
+	 * <p>readTestCases</p>
+	 *
+	 * @param failingTest a {@link java.lang.String} object.
+	 * @return a {@link java.util.Set} object.
+	 */
 	public static Set<TestCase> readTestCases(String failingTest) {
 		try {
 			File failingTestFile = new File(failingTest);
@@ -99,6 +91,12 @@ public class JUnitUtils {
 		}
 	}
 
+	/**
+	 * <p>runTest</p>
+	 *
+	 * @param originalTest a {@link java.lang.String} object.
+	 * @return a {@link org.evosuite.junit.TestRun} object.
+	 */
 	public static TestRun runTest(String originalTest) {
 		if (originalTest.contains("#")) {
 			originalTest = originalTest.substring(0, originalTest.indexOf("#"));
@@ -118,6 +116,12 @@ public class JUnitUtils {
 		}
 	}
 
+	/**
+	 * <p>runTest</p>
+	 *
+	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
 	public static ExecutionResult runTest(TestCase testCase) {
 		logger.debug("Execution testCase with timeout {}: \n{}", Properties.TIMEOUT, testCase.toCode());
 		return TestCaseExecutor.getInstance().execute(testCase);
