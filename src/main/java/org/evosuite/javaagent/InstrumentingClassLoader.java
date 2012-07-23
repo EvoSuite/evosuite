@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * <em>Note:</em> Do not inadvertently use multiple instances of this class in
  * the application! This may lead to hard to detect and debug errors. Yet this
  * class cannot be an singleton as it might be necessary to do so...
- *
+ * 
  * @author roessler
  * @author Gordon Fraser
  */
@@ -46,7 +46,9 @@ public class InstrumentingClassLoader extends ClassLoader {
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 
 	/**
-	 * <p>Constructor for InstrumentingClassLoader.</p>
+	 * <p>
+	 * Constructor for InstrumentingClassLoader.
+	 * </p>
 	 */
 	public InstrumentingClassLoader() {
 		this(new BytecodeInstrumentation());
@@ -54,9 +56,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * <p>Constructor for InstrumentingClassLoader.</p>
-	 *
-	 * @param instrumentation a {@link org.evosuite.javaagent.BytecodeInstrumentation} object.
+	 * <p>
+	 * Constructor for InstrumentingClassLoader.
+	 * </p>
+	 * 
+	 * @param instrumentation
+	 *            a {@link org.evosuite.javaagent.BytecodeInstrumentation}
+	 *            object.
 	 */
 	public InstrumentingClassLoader(BytecodeInstrumentation instrumentation) {
 		super(InstrumentingClassLoader.class.getClassLoader());
@@ -66,8 +72,9 @@ public class InstrumentingClassLoader extends ClassLoader {
 
 	/**
 	 * Check if we can instrument the given class
-	 *
-	 * @param className a {@link java.lang.String} object.
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public static boolean checkIfCanInstrument(String className) {
@@ -80,19 +87,23 @@ public class InstrumentingClassLoader extends ClassLoader {
 	}
 
 	/**
-	 * <p>getPackagesShouldNotBeInstrumented</p>
-	 *
+	 * <p>
+	 * getPackagesShouldNotBeInstrumented
+	 * </p>
+	 * 
 	 * @return the names of class packages EvoSuite is not going to instrument
 	 */
 	public static String[] getPackagesShouldNotBeInstrumented() {
 		//explicitly blocking client projects such as specmate is only a
 		//temporary solution, TODO allow the user to specify 
 		//packages that should not be instrumented
-		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "de.unisb.cs.st.testcarver",
-		        "de.unisb.cs.st.evosuite", "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
+		return new String[] { "java.", "javax.", "sun.", "org.evosuite",
+		        "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",
+		        "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
 		        "testing.generation.evosuite", "com.yourkit",
 		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-		        "apple.", "com.apple.", "org.junit", "junit.framework" };
+		        "apple.", "com.apple.", "org.junit", "junit.framework",
+		        "org.apache.xerces.dom3" };
 	}
 
 	/** {@inheritDoc} */
