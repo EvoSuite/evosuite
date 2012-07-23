@@ -52,12 +52,12 @@ done
 ##
 ## Main class of EvoSuite
 ##
-#evosuite_suite=de.unisb.cs.st.evosuite.testsuite.DiagnosisTest
-evosuite_suite=de.unisb.cs.st.evosuite.TestSuiteGenerator
-evosuite_scan=de.unisb.cs.st.evosuite.setup.ScanProject
-evosuite_tasks=de.unisb.cs.st.evosuite.setup.TestTaskGenerator
-evosuite_master=de.unisb.cs.st.evosuite.MasterProcess
-evosuite_client=de.unisb.cs.st.evosuite.ClientProcess
+#evosuite_suite=org.evosuite.testsuite.DiagnosisTest
+evosuite_suite=org.evosuite.TestSuiteGenerator
+evosuite_scan=org.evosuite.setup.ScanProject
+evosuite_tasks=org.evosuite.setup.TestTaskGenerator
+evosuite_master=org.evosuite.MasterProcess
+evosuite_client=org.evosuite.ClientProcess
 
 
 ##

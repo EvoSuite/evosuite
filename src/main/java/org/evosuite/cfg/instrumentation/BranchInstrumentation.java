@@ -1,0 +1,455 @@
+/**
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ *
+ * This file is part of EvoSuite.
+ *
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ *
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ *
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ */
+/**
+ * 
+ */
+package org.evosuite.cfg.instrumentation;
+
+import java.util.Iterator;
+import java.util.List;
+
+import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.graphs.GraphPool;
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.javaagent.AnnotatedLabel;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.InsnNode;
+import org.objectweb.asm.tree.JumpInsnNode;
+import org.objectweb.asm.tree.LabelNode;
+import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LookupSwitchInsnNode;
+import org.objectweb.asm.tree.MethodInsnNode;
+import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TableSwitchInsnNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
+/**
+ * <p>BranchInstrumentation class.</p>
+ *
+ * @author Copied from CFGMethodAdapter
+ */
+public class BranchInstrumentation implements MethodInstrumentation {
+
+	/** Constant <code>logger</code> */
+	protected static Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.evosuite.cfg.MethodInstrumentation#analyze(org.objectweb
+	 * .asm.tree.MethodNode, org.jgrapht.Graph, java.lang.String,
+	 * java.lang.String, int)
+	 */
+	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void analyze(MethodNode mn, String className, String methodName, int access) {
+		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
+		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
+		while (j.hasNext()) {
+			AbstractInsnNode in = j.next();
+			for (BytecodeInstruction v : graph.vertexSet()) {
+
+				// If this is in the CFG and it's a branch...
+				if (in.equals(v.getASMNode())) {
+					if (v.isBranch()) {
+						if (in.getPrevious() instanceof LabelNode) {
+							LabelNode label = (LabelNode) in.getPrevious();
+							if (label.getLabel() instanceof AnnotatedLabel) {
+								AnnotatedLabel aLabel = (AnnotatedLabel) label.getLabel();
+								if (aLabel.info == Boolean.TRUE) {
+									logger.info("Found artificial branch!");
+									Branch b = BranchPool.getBranchForInstruction(v);
+									b.setInstrumented(true);
+								} else {
+									logger.info("Found AnnotatedNode ... confused!");
+
+								}
+							}
+						}
+						mn.instructions.insertBefore(v.getASMNode(),
+						                             getInstrumentation(v));
+
+					} else if (v.isSwitch()) {
+
+						mn.instructions.insertBefore(v.getASMNode(),
+						                             getSwitchInstrumentation(v, mn,
+						                                                      className,
+						                                                      methodName));
+
+					}
+				}
+			}
+		}
+		mn.maxStack += 3;
+	}
+
+	/**
+	 * <p>getInstrumentation</p>
+	 *
+	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
+	protected InsnList getInstrumentation(BytecodeInstruction instruction) {
+		if (instruction == null)
+			throw new IllegalArgumentException("null given");
+		if (!instruction.isActualBranch())
+			throw new IllegalArgumentException("branch instruction expected");
+		if (!BranchPool.isKnownAsNormalBranchInstruction(instruction))
+			throw new IllegalArgumentException(
+			        "expect given instruction to be known by the BranchPool as a normal branch isntruction");
+
+		int opcode = instruction.getASMNode().getOpcode();
+		int instructionId = instruction.getInstructionId();
+		int branchId = BranchPool.getActualBranchIdForNormalBranchInstruction(instruction);
+		if (branchId < 0)
+			throw new IllegalStateException(
+			        "expect BranchPool to know branchId for alle branch instructions");
+
+		InsnList instrumentation = new InsnList();
+
+		switch (opcode) {
+		case Opcodes.IFEQ:
+		case Opcodes.IFNE:
+		case Opcodes.IFLT:
+		case Opcodes.IFGE:
+		case Opcodes.IFGT:
+		case Opcodes.IFLE:
+			instrumentation.add(new InsnNode(Opcodes.DUP));
+			instrumentation.add(new LdcInsnNode(opcode));
+			// instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(IIII)V"));
+			logger.debug("Adding passedBranch val=?, opcode=" + opcode + ", branch="
+			        + branchId + ", bytecode_id=" + instructionId);
+
+			break;
+		case Opcodes.IF_ICMPEQ:
+		case Opcodes.IF_ICMPNE:
+		case Opcodes.IF_ICMPLT:
+		case Opcodes.IF_ICMPGE:
+		case Opcodes.IF_ICMPGT:
+		case Opcodes.IF_ICMPLE:
+			instrumentation.add(new InsnNode(Opcodes.DUP2));
+			instrumentation.add(new LdcInsnNode(opcode));
+			// instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(IIIII)V"));
+			break;
+		case Opcodes.IF_ACMPEQ:
+		case Opcodes.IF_ACMPNE:
+			instrumentation.add(new InsnNode(Opcodes.DUP2));
+			instrumentation.add(new LdcInsnNode(opcode));
+			// instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(Ljava/lang/Object;Ljava/lang/Object;III)V"));
+			break;
+		case Opcodes.IFNULL:
+		case Opcodes.IFNONNULL:
+			instrumentation.add(new InsnNode(Opcodes.DUP));
+			instrumentation.add(new LdcInsnNode(opcode));
+			// instrumentation.add(new LdcInsnNode(id));
+			instrumentation.add(new LdcInsnNode(branchId));
+			instrumentation.add(new LdcInsnNode(instructionId));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(Ljava/lang/Object;III)V"));
+			break;
+		}
+		return instrumentation;
+	}
+
+	/**
+	 * Creates the instrumentation for switch statements as follows:
+	 *
+	 * For each case <key>: in the switch, two calls to the ExecutionTracer are
+	 * added to the instrumentation, indicating whether the case is hit directly
+	 * or not. This is done by addInstrumentationForSwitchCases().
+	 *
+	 * Additionally in order to trace the execution of the default: case of the
+	 * switch, the following instrumentation is added using
+	 * addDefaultCaseInstrumentation():
+	 *
+	 * A new switch, holding the same <key>s as the original switch we want to
+	 * cover. All cases point to a label after which a call to the
+	 * ExecutionTracer is added, indicating that the default case was not hit
+	 * directly. Symmetrically the new switch has a default case: holding a call
+	 * to the ExecutionTracer to indicate that the default will be hit directly.
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
+	protected InsnList getSwitchInstrumentation(BytecodeInstruction v, MethodNode mn,
+	        String className, String methodName) {
+		InsnList instrumentation = new InsnList();
+
+		if (!v.isSwitch())
+			throw new IllegalArgumentException("switch instruction expected");
+
+		addInstrumentationForDefaultSwitchCase(v, instrumentation);
+
+		addInstrumentationForSwitchCases(v, instrumentation, className, methodName);
+
+		return instrumentation;
+	}
+
+	/**
+	 * For each actual case <key>: of a switch this method adds instrumentation
+	 * for the Branch corresponding to that case to the given instruction list.
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param className a {@link java.lang.String} object.
+	 * @param methodName a {@link java.lang.String} object.
+	 */
+	protected void addInstrumentationForSwitchCases(BytecodeInstruction v,
+	        InsnList instrumentation, String className, String methodName) {
+
+		if (!v.isSwitch())
+			throw new IllegalArgumentException("switch instruction expected");
+
+		List<Branch> caseBranches = BranchPool.getCaseBranchesForSwitch(v);
+
+		if (caseBranches == null || caseBranches.isEmpty())
+			throw new IllegalStateException(
+			        "expect BranchPool to know at least one Branch for each switch instruction");
+
+		for (Branch targetCaseBranch : caseBranches) {
+			if (targetCaseBranch.isDefaultCase())
+				continue; // handled elsewhere
+
+			Integer targetCaseValue = targetCaseBranch.getTargetCaseValue();
+			Integer targetCaseBranchId = targetCaseBranch.getActualBranchId();
+
+			instrumentation.add(new InsnNode(Opcodes.DUP));
+			instrumentation.add(new LdcInsnNode(targetCaseValue));
+			instrumentation.add(new LdcInsnNode(Opcodes.IF_ICMPEQ));
+			instrumentation.add(new LdcInsnNode(targetCaseBranchId));
+			instrumentation.add(new LdcInsnNode(v.getInstructionId()));
+			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
+			        "(IIIII)V"));
+		}
+	}
+
+	/**
+	 * <p>addInstrumentationForDefaultSwitchCase</p>
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
+	protected void addInstrumentationForDefaultSwitchCase(BytecodeInstruction v,
+	        InsnList instrumentation) {
+
+		if (v.isTableSwitch())
+			addInstrumentationForDefaultTableswitchCase(v, instrumentation);
+
+		if (v.isLookupSwitch())
+			addInstrumentationForDefaultLookupswitchCase(v, instrumentation);
+
+	}
+
+	/**
+	 * <p>addInstrumentationForDefaultTableswitchCase</p>
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
+	protected void addInstrumentationForDefaultTableswitchCase(BytecodeInstruction v,
+	        InsnList instrumentation) {
+
+		if (!v.isTableSwitch())
+			throw new IllegalArgumentException("tableswitch instruction expected");
+
+		// setup instructions
+
+		TableSwitchInsnNode toInstrument = (TableSwitchInsnNode) v.getASMNode();
+
+		LabelNode caseLabel = new LabelNode();
+		LabelNode defaultLabel = new LabelNode();
+		LabelNode endLabel = new LabelNode();
+
+		int keySize = (toInstrument.max - toInstrument.min) + 1;
+		LabelNode[] caseLabels = new LabelNode[keySize];
+		for (int i = 0; i < keySize; i++)
+			caseLabels[i] = caseLabel;
+
+		TableSwitchInsnNode mySwitch = new TableSwitchInsnNode(toInstrument.min,
+		        toInstrument.max, defaultLabel, caseLabels);
+
+		// add instrumentation
+		addDefaultCaseInstrumentation(v, instrumentation, mySwitch, defaultLabel,
+		                              caseLabel, endLabel);
+
+	}
+
+	/**
+	 * <p>addInstrumentationForDefaultLookupswitchCase</p>
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 */
+	protected void addInstrumentationForDefaultLookupswitchCase(BytecodeInstruction v,
+	        InsnList instrumentation) {
+
+		if (!v.isLookupSwitch())
+			throw new IllegalArgumentException("lookup switch expected");
+
+		// setup instructions
+		LookupSwitchInsnNode toInstrument = (LookupSwitchInsnNode) v.getASMNode();
+
+		LabelNode caseLabel = new LabelNode();
+		LabelNode defaultLabel = new LabelNode();
+		LabelNode endLabel = new LabelNode();
+
+		int keySize = toInstrument.keys.size();
+
+		int[] keys = new int[keySize];
+		LabelNode[] labels = new LabelNode[keySize];
+		for (int i = 0; i < keySize; i++) {
+			keys[i] = (Integer) toInstrument.keys.get(i);
+			labels[i] = caseLabel;
+		}
+
+		LookupSwitchInsnNode myLookup = new LookupSwitchInsnNode(defaultLabel, keys,
+		        labels);
+
+		addDefaultCaseInstrumentation(v, instrumentation, myLookup, defaultLabel,
+		                              caseLabel, endLabel);
+
+	}
+
+	/**
+	 * <p>addDefaultCaseInstrumentation</p>
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param mySwitch a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param defaultLabel a {@link org.objectweb.asm.tree.LabelNode} object.
+	 * @param caseLabel a {@link org.objectweb.asm.tree.LabelNode} object.
+	 * @param endLabel a {@link org.objectweb.asm.tree.LabelNode} object.
+	 */
+	protected void addDefaultCaseInstrumentation(BytecodeInstruction v,
+	        InsnList instrumentation, AbstractInsnNode mySwitch, LabelNode defaultLabel,
+	        LabelNode caseLabel, LabelNode endLabel) {
+
+		int defaultCaseBranchId = BranchPool.getDefaultBranchForSwitch(v).getActualBranchId();
+
+		// add helper switch
+		instrumentation.add(new InsnNode(Opcodes.DUP));
+		instrumentation.add(mySwitch);
+
+		// add call for default case not covered
+		instrumentation.add(caseLabel);
+		addDefaultCaseNotCoveredCall(v, instrumentation, defaultCaseBranchId);
+
+		// jump over default (break)
+		instrumentation.add(new JumpInsnNode(Opcodes.GOTO, endLabel));
+
+		// add call for default case covered
+		instrumentation.add(defaultLabel);
+		addDefaultCaseCoveredCall(v, instrumentation, defaultCaseBranchId);
+
+		instrumentation.add(endLabel);
+
+	}
+
+	/**
+	 * <p>addDefaultCaseCoveredCall</p>
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param defaultCaseBranchId a int.
+	 */
+	protected void addDefaultCaseCoveredCall(BytecodeInstruction v,
+	        InsnList instrumentation, int defaultCaseBranchId) {
+
+		instrumentation.add(new LdcInsnNode(0));
+		instrumentation.add(new LdcInsnNode(Opcodes.IFEQ));
+		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
+		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
+		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
+		        "(IIII)V"));
+
+	}
+
+	/**
+	 * <p>addDefaultCaseNotCoveredCall</p>
+	 *
+	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param defaultCaseBranchId a int.
+	 */
+	protected void addDefaultCaseNotCoveredCall(BytecodeInstruction v,
+	        InsnList instrumentation, int defaultCaseBranchId) {
+
+		instrumentation.add(new LdcInsnNode(0));
+		instrumentation.add(new LdcInsnNode(Opcodes.IFNE));
+		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
+		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
+		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
+		        "(IIII)V"));
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.evosuite.cfg.MethodInstrumentation#executeOnExcludedMethods
+	 * ()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public boolean executeOnExcludedMethods() {
+		return false;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.evosuite.cfg.MethodInstrumentation#executeOnMainMethod()
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public boolean executeOnMainMethod() {
+		return false;
+	}
+
+}
