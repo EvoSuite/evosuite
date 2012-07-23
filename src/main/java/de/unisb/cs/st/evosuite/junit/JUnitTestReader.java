@@ -22,10 +22,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.jdt.core.JavaCore;
@@ -71,8 +69,6 @@ public class JUnitTestReader implements TestReader {
 	protected final String[] classpath;
 	protected CompilationUnit compilationUnit;
 
-	private final Map<String, TestCase> cache = new HashMap<String, TestCase>();
-	
 	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JUnitTestReader.class);
 
 	public JUnitTestReader(String[] classpath, String[] sources) {
@@ -87,9 +83,6 @@ public class JUnitTestReader implements TestReader {
 	}
 
 	public TestCase readJUnitTestCase(String qualifiedTestMethod) {
-		if (cache.get(qualifiedTestMethod) != null) {
-			return cache.get(qualifiedTestMethod);
-		}
 		String clazz = qualifiedTestMethod.substring(0, qualifiedTestMethod.indexOf("#"));
 		String method = qualifiedTestMethod.substring(qualifiedTestMethod.indexOf("#") + 1);
 		CompoundTestCase testCase = new CompoundTestCase(clazz, method);
@@ -99,10 +92,9 @@ public class JUnitTestReader implements TestReader {
 		compilationUnit = parseJavaFile(javaFile, fileContents);
 		compilationUnit.accept(testExtractingVisitor);
 		TestCase result = testCase.finalizeTestCase();
-		cache.put(qualifiedTestMethod, result);
 		return result;
 	}
-
+	
 	@Override
 	public CompoundTestCase readTestCase(String clazz, CompoundTestCase child) {
 		CompoundTestCase testCase = new CompoundTestCase(clazz, child);

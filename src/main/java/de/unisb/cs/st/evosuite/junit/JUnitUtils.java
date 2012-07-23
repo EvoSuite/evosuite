@@ -19,6 +19,9 @@ package de.unisb.cs.st.evosuite.junit;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.runner.JUnitCore;
@@ -56,13 +59,33 @@ public class JUnitUtils {
 
 	}
 
+	private static final Map<String, TestCase> cache = new HashMap<String, TestCase>();
+
+	private static final Set<String> unreadableTestsCache = new HashSet<String>();
+
 	private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(JUnitUtils.class);
 
 	public static TestCase readTestCase(String failingTest) {
-		String[] classpath = Properties.CLASSPATH;
-		String[] sources = Properties.SOURCEPATH;
-		TestCase testCase = new JUnitTestReader(classpath, sources).readJUnitTestCase(failingTest);
-		return testCase;
+		if (cache.get(failingTest) != null) {
+			return cache.get(failingTest);
+		}
+		if (unreadableTestsCache.contains(failingTest)) {
+			return null;
+		}
+		try {
+			String[] classpath = Properties.CLASSPATH;
+			String[] sources = Properties.SOURCEPATH;
+			TestCase testCase = new JUnitTestReader(classpath, sources).readJUnitTestCase(failingTest);
+			assert testCase.equals(testCase.clone());
+			cache.put(failingTest, testCase);
+			return testCase;
+		} catch (Exception exc) {
+			logger.error("Exception reading test case {}.", failingTest, exc);
+		} catch (AssertionError error) {
+			logger.error("Assertion error reading test case {}.", failingTest, error);
+		}
+		unreadableTestsCache.add(failingTest);
+		return null;
 	}
 
 	public static Set<TestCase> readTestCases(String failingTest) {
