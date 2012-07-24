@@ -108,6 +108,7 @@ import org.evosuite.testcase.LongPrimitiveStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.PrimitiveExpression;
+import org.evosuite.testcase.PrimitiveExpression.Operator;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.ShortPrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -116,13 +117,11 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCluster;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
-import org.evosuite.testcase.PrimitiveExpression.Operator;
-
 
 /**
  * This class implements the Eclipse JDT Visitor to turn an existing test case
  * (in source code form) into an EvoSuite {@link TestCase}.
- *
+ * 
  * @author roessler
  */
 public class TestExtractingVisitor extends LoggingVisitor {
@@ -328,12 +327,19 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	/**
-	 * <p>Constructor for TestExtractingVisitor.</p>
-	 *
-	 * @param testCase a {@link org.evosuite.junit.CompoundTestCase} object.
-	 * @param testClass a {@link java.lang.String} object.
-	 * @param testMethod a {@link java.lang.String} object.
-	 * @param testReader a {@link org.evosuite.junit.TestExtractingVisitor.TestReader} object.
+	 * <p>
+	 * Constructor for TestExtractingVisitor.
+	 * </p>
+	 * 
+	 * @param testCase
+	 *            a {@link org.evosuite.junit.CompoundTestCase} object.
+	 * @param testClass
+	 *            a {@link java.lang.String} object.
+	 * @param testMethod
+	 *            a {@link java.lang.String} object.
+	 * @param testReader
+	 *            a {@link org.evosuite.junit.TestExtractingVisitor.TestReader}
+	 *            object.
 	 */
 	public TestExtractingVisitor(CompoundTestCase testCase, String testClass, String testMethod, TestReader testReader) {
 		super();
@@ -476,12 +482,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 			testCase.addStatement(methodStatement);
 			return;
 		}
-			VariableReference retVal = retrieveResultReference(methodInvocation);
+		VariableReference retVal = retrieveResultReference(methodInvocation);
 		retVal.setOriginalCode(methodInvocation.toString());
 		methodStatement = new ValidMethodStatement(testCase.getReference(), method, callee, retVal, params);
 		if (!(parent instanceof Block)) {
-				nestedCallResults.push(retVal);
-			}
+			nestedCallResults.push(retVal);
+		}
 		testCase.addStatement(methodStatement);
 	}
 
@@ -521,7 +527,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		// TODO-JRO Implement method endVisit
 		logger.warn("Method endVisit not implemented!");
 		super.endVisit(node);
-		}
+	}
 
 	/** {@inheritDoc} */
 	@Override
@@ -604,7 +610,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		int idx = 0;
 		for (; idx < loopExecCnt; idx++) {
 			iterations.push(idx);
-			if (idx > 0) {
+			if ((idx > 0) && (cursorableTrace != null)) {
 				cursorableTrace.advanceLoop();
 			}
 			acceptChildren(forStatement, forStatement.initializers());
@@ -675,7 +681,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		cursorableTrace = testValuesDeterminer.getMethodTrace(currentMethodName);
 		calleeResultMap.clear();
 		return saveMethodCodeExtraction(methodDeclaration);
-		}
+	}
 
 	/** {@inheritDoc} */
 	@Override
@@ -788,9 +794,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	/**
-	 * <p>extractArgumentClasses</p>
-	 *
-	 * @param arguments a {@link java.util.List} object.
+	 * <p>
+	 * extractArgumentClasses
+	 * </p>
+	 * 
+	 * @param arguments
+	 *            a {@link java.util.List} object.
 	 * @return an array of {@link java.lang.Class} objects.
 	 */
 	protected Class<?>[] extractArgumentClasses(List<?> arguments) {
@@ -803,11 +812,16 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	/**
-	 * <p>retrieveConstructor</p>
-	 *
-	 * @param type a {@link org.eclipse.jdt.core.dom.Type} object.
-	 * @param argumentTypes a {@link java.util.List} object.
-	 * @param arguments a {@link java.util.List} object.
+	 * <p>
+	 * retrieveConstructor
+	 * </p>
+	 * 
+	 * @param type
+	 *            a {@link org.eclipse.jdt.core.dom.Type} object.
+	 * @param argumentTypes
+	 *            a {@link java.util.List} object.
+	 * @param arguments
+	 *            a {@link java.util.List} object.
 	 * @return a {@link java.lang.reflect.Constructor} object.
 	 */
 	protected Constructor<?> retrieveConstructor(Type type, List<?> argumentTypes, List<?> arguments) {
@@ -823,9 +837,12 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	/**
-	 * <p>retrieveTypeClass</p>
-	 *
-	 * @param argument a {@link java.lang.Object} object.
+	 * <p>
+	 * retrieveTypeClass
+	 * </p>
+	 * 
+	 * @param argument
+	 *            a {@link java.lang.Object} object.
 	 * @return a {@link java.lang.Class} object.
 	 */
 	protected Class<?> retrieveTypeClass(Object argument) {
@@ -837,7 +854,7 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (argument instanceof ITypeBinding) {
 			ITypeBinding binding = (ITypeBinding) argument;
 			return retrieveTypeClass(binding);
-				}
+		}
 		if (argument instanceof IVariableBinding) {
 			IVariableBinding variableBinding = (IVariableBinding) argument;
 			return retrieveTypeClass(variableBinding.getType());
@@ -891,17 +908,17 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				MethodInvocation parentMethodInvocation = (MethodInvocation) typeExpression;
 				IMethodBinding parentMethodBinding = parentMethodInvocation.resolveMethodBinding();
 				return retrieveTypeClass(parentMethodBinding.getDeclaringClass());
-				} else {
+			} else {
 				return retrieveTypeClass(typeExpression);
 			}
 		}
 		if (argument instanceof ArrayAccess) {
 			ArrayAccess arrayAccess = (ArrayAccess) argument;
 			return retrieveTypeClass(arrayAccess.getArray());
-				}
+		}
 		if (argument instanceof Class<?>) {
 			return (Class<?>) argument;
-			}
+		}
 		if (argument instanceof ClassInstanceCreation) {
 			return retrieveTypeClass(((ClassInstanceCreation) argument).resolveTypeBinding());
 		}
@@ -912,16 +929,20 @@ public class TestExtractingVisitor extends LoggingVisitor {
 	}
 
 	/**
-	 * <p>retrieveVariableReference</p>
-	 *
-	 * @param argument a {@link java.lang.Object} object.
-	 * @param varType a {@link java.lang.Class} object.
+	 * <p>
+	 * retrieveVariableReference
+	 * </p>
+	 * 
+	 * @param argument
+	 *            a {@link java.lang.Object} object.
+	 * @param varType
+	 *            a {@link java.lang.Class} object.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	protected VariableReference retrieveVariableReference(Object argument, Class<?> varType) {
 		if (argument instanceof ClassInstanceCreation) {
 			return retrieveVariableReference((ClassInstanceCreation) argument, varType);
-			}
+		}
 		if (argument instanceof VariableDeclarationFragment) {
 			return retrieveVariableReference((VariableDeclarationFragment) argument);
 		}
@@ -1165,8 +1186,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		if (index instanceof SimpleName) {
 			String variable = retrieveVariableName(index);
 			Integer lineNumber = testReader.getLineNumber(index.getStartPosition());
-			Object value = cursorableTrace.getVariableValueAfter(lineNumber, variable);
-			return (Integer) value;
+			if (cursorableTrace != null) {
+				Object value = cursorableTrace.getVariableValueAfter(lineNumber, variable);
+				return (Integer) value;
+			}
+			throw new RuntimeException("Cannot determine array index without trace for " + index + "!");
 		}
 		if (index instanceof NumberLiteral) {
 			Object value = ((NumberLiteral) index).resolveConstantExpressionValue();
@@ -1179,7 +1203,10 @@ public class TestExtractingVisitor extends LoggingVisitor {
 		int[] lengths = new int[lengthsVarRefs.size()];
 		String variable = retrieveVariableName(variableDeclStmt);
 		int lineNumber = testReader.getLineNumber(variableDeclStmt.getStartPosition());
-		Object value = cursorableTrace.getVariableValueAfter(lineNumber, variable);
+		Object value = null;
+		if (cursorableTrace != null) {
+			value = cursorableTrace.getVariableValueAfter(lineNumber, variable);
+		}
 		int idx = 0;
 		while ((value != null) && value.getClass().isArray()) {
 			lengths[idx] = Array.getLength(value);
@@ -1272,11 +1299,11 @@ public class TestExtractingVisitor extends LoggingVisitor {
 						false);
 				testCase.addStatement(charAssignment);
 				return charAssignment.getReturnValue();
-		}
+			}
 			PrimitiveStatement<?> numberAssignment = createPrimitiveStatement(typeClass, 0);
 			testCase.addStatement(numberAssignment);
 			return numberAssignment.getReturnValue();
-	}
+		}
 		PrimitiveStatement<?> nullAssignment = new NullStatement(testCase.getReference(), typeClass);
 		testCase.addStatement(nullAssignment);
 		return nullAssignment.getReturnValue();
@@ -1312,8 +1339,8 @@ public class TestExtractingVisitor extends LoggingVisitor {
 				try {
 					return clazz.getDeclaredMethod(methodName, paramClasses);
 				} catch (Exception exc2) {
-				throw new RuntimeException(exc);
-			}
+					throw new RuntimeException(exc);
+				}
 			}
 		} catch (WrongMethodBindingException exc) {
 			logger.debug("The resolved method binding is wrong. Will manually correct it...");
