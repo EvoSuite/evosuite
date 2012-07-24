@@ -1,5 +1,9 @@
 package org.evosuite.symbolic;
 
+import java.util.ArrayList;
+import java.util.Collections;
+
+import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerExpression;
@@ -14,6 +18,15 @@ import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealToIntegerCast;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 import org.evosuite.symbolic.expr.RealVariable;
+import org.evosuite.symbolic.expr.StringBinaryExpression;
+import org.evosuite.symbolic.expr.StringComparison;
+import org.evosuite.symbolic.expr.StringConstant;
+import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.StringMultipleComparison;
+import org.evosuite.symbolic.expr.StringMultipleExpression;
+import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.StringUnaryExpression;
+import org.evosuite.symbolic.expr.StringVariable;
 
 import edu.uta.cse.dsc.ast.BitVector32;
 import edu.uta.cse.dsc.ast.BitVector32Visitor;
@@ -23,6 +36,7 @@ import edu.uta.cse.dsc.ast.DoubleExpression;
 import edu.uta.cse.dsc.ast.DoubleExpressionVisitor;
 import edu.uta.cse.dsc.ast.FloatExpression;
 import edu.uta.cse.dsc.ast.FloatExpressionVisitor;
+import edu.uta.cse.dsc.ast.Reference;
 import edu.uta.cse.dsc.ast.bitvector.BitVector32Variable;
 import edu.uta.cse.dsc.ast.bitvector.BitVector64Variable;
 import edu.uta.cse.dsc.ast.bitvector.Bv32ExtendingAnBv64;
@@ -64,8 +78,6 @@ import edu.uta.cse.dsc.ast.fp.FpSLt;
 import edu.uta.cse.dsc.ast.fp.FpSRem;
 import edu.uta.cse.dsc.ast.fp.FpSub;
 import edu.uta.cse.dsc.ast.functions.math.ABS;
-import edu.uta.cse.dsc.ast.functions.math.ABS.Bv32;
-import edu.uta.cse.dsc.ast.functions.math.ABS.Bv64;
 import edu.uta.cse.dsc.ast.functions.math.ACOS;
 import edu.uta.cse.dsc.ast.functions.math.ASIN;
 import edu.uta.cse.dsc.ast.functions.math.ATAN;
@@ -88,8 +100,6 @@ import edu.uta.cse.dsc.ast.functions.math.MAX;
 import edu.uta.cse.dsc.ast.functions.math.MIN;
 import edu.uta.cse.dsc.ast.functions.math.NextAfter;
 import edu.uta.cse.dsc.ast.functions.math.NextUp;
-import edu.uta.cse.dsc.ast.functions.math.NextUp.Fp32;
-import edu.uta.cse.dsc.ast.functions.math.NextUp.Fp64;
 import edu.uta.cse.dsc.ast.functions.math.POW;
 import edu.uta.cse.dsc.ast.functions.math.RINT;
 import edu.uta.cse.dsc.ast.functions.math.ROUND;
@@ -103,6 +113,35 @@ import edu.uta.cse.dsc.ast.functions.math.TANH;
 import edu.uta.cse.dsc.ast.functions.math.ToDegrees;
 import edu.uta.cse.dsc.ast.functions.math.ToRadians;
 import edu.uta.cse.dsc.ast.functions.math.ULP;
+import edu.uta.cse.dsc.ast.functions.string.StringCharAt;
+import edu.uta.cse.dsc.ast.functions.string.StringCompareTo;
+import edu.uta.cse.dsc.ast.functions.string.StringCompareToIgnoreCase;
+import edu.uta.cse.dsc.ast.functions.string.StringConcat;
+import edu.uta.cse.dsc.ast.functions.string.StringEndsWith;
+import edu.uta.cse.dsc.ast.functions.string.StringEquals;
+import edu.uta.cse.dsc.ast.functions.string.StringEqualsIgnoreCase;
+import edu.uta.cse.dsc.ast.functions.string.StringIndexOfC;
+import edu.uta.cse.dsc.ast.functions.string.StringIndexOfCI;
+import edu.uta.cse.dsc.ast.functions.string.StringIndexOfS;
+import edu.uta.cse.dsc.ast.functions.string.StringIndexOfSI;
+import edu.uta.cse.dsc.ast.functions.string.StringLastIndexOfC;
+import edu.uta.cse.dsc.ast.functions.string.StringLastIndexOfCI;
+import edu.uta.cse.dsc.ast.functions.string.StringLastIndexOfS;
+import edu.uta.cse.dsc.ast.functions.string.StringLastIndexOfSI;
+import edu.uta.cse.dsc.ast.functions.string.StringLength;
+import edu.uta.cse.dsc.ast.functions.string.StringRegionMatches;
+import edu.uta.cse.dsc.ast.functions.string.StringReplaceAll;
+import edu.uta.cse.dsc.ast.functions.string.StringReplaceC;
+import edu.uta.cse.dsc.ast.functions.string.StringReplaceFirst;
+import edu.uta.cse.dsc.ast.functions.string.StringStartsWith;
+import edu.uta.cse.dsc.ast.functions.string.StringSubstring;
+import edu.uta.cse.dsc.ast.functions.string.StringToLowerCase;
+import edu.uta.cse.dsc.ast.functions.string.StringToUpperCase;
+import edu.uta.cse.dsc.ast.functions.string.StringTrim;
+import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
+import edu.uta.cse.dsc.ast.reference.LiteralNullReference;
+import edu.uta.cse.dsc.ast.reference.ReferenceVariable;
+import edu.uta.cse.dsc.ast.reference.ReferenceVisitor;
 import edu.uta.cse.dsc.ast.ufunction.Bv32ValuedInstanceMethod;
 import edu.uta.cse.dsc.ast.ufunction.Bv64InstanceMethod;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectBv32;
@@ -125,7 +164,8 @@ import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectFp64;
  * 
  */
 public class JvmExpressionTranslator implements BitVector32Visitor,
-		BitVector64Visitor, FloatExpressionVisitor, DoubleExpressionVisitor {
+		BitVector64Visitor, FloatExpressionVisitor, DoubleExpressionVisitor,
+		ReferenceVisitor {
 
 	private final SymbolicExecState symbolicExecState;
 
@@ -2172,6 +2212,782 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 				.min(left_concrete_value, right_concrete_value);
 		return new IntegerBinaryExpression(left, op, right,
 				(long) concrete_value);
+	}
+
+	/**
+	 * Translates a lenght(string) expression into a
+	 * StringToIntCast(StringUnary(LENGTH)) expression.
+	 * 
+	 * It uses String.length() to compute the concrete value;
+	 */
+	@Override
+	public Object visit(StringLength str) {
+		StringExpression str_expr_one = (StringExpression) str.getStringParam()
+				.accept(this);
+		String str_concrete_value = (String) str_expr_one.getConcreteValue();
+		int concrete_value = str_concrete_value.length();
+		StringUnaryExpression strUnExpr = new StringUnaryExpression(
+				str_expr_one, Operator.LENGTH, Integer.toString(concrete_value));
+		return new StringToIntCast(strUnExpr, (long) (concrete_value));
+
+	}
+
+	@Override
+	public Object visit(ReferenceVariable r) {
+
+		if (!r.getStaticTypeClass().equals(String.class)) {
+			throw new IllegalArgumentException(
+					"Cannot handle references of type "
+							+ r.getStaticTypeClass().getName());
+		}
+
+		Reference symbolic_value = symbolicExecState.getSymbolicRefValue(r);
+		StringExpression string_expr = (StringExpression) symbolic_value
+				.accept(this);
+		if (symbolicExecState.isMarked(r)) {
+
+			String concreteValue = (String) string_expr.getConcreteValue();
+			String symbolic_name = symbolicExecState.getSymbolicName(r);
+			return new StringVariable(symbolic_name, concreteValue,
+					concreteValue, concreteValue);
+		} else {
+
+			return string_expr;
+		}
+	}
+
+	@Override
+	public Object visit(LiteralNonNullReference r) {
+		if (!r.getDynamicType().getType().equals(String.class)) {
+			throw new IllegalArgumentException(
+					"Cannot handle references of type "
+							+ r.getDynamicType().getType());
+		}
+
+		String str_constant = r.getStringConstant();
+		StringConstant c = new StringConstant(str_constant);
+		return c;
+	}
+
+	@Override
+	public Object visit(LiteralNullReference r) {
+		if (!r.getDynamicType().getType().equals(String.class)) {
+			throw new IllegalArgumentException(
+					"Cannot handle references of type "
+							+ r.getDynamicType().getType());
+		}
+
+		return null;
+	}
+
+	/**
+	 * Translates a trim(string) expression into a StringUnaryExpression(TRIM)
+	 * instance.
+	 * 
+	 * It uses String.trim() to compute the concrete value;
+	 */
+	@Override
+	public Object visit(StringTrim str) {
+		StringExpression str_param = (StringExpression) str.getStringParam()
+				.accept(this);
+		String str_param_concrete_value = (String) str_param.getConcreteValue();
+		String concrete_value = str_param_concrete_value.trim();
+		StringUnaryExpression strUnExpr = new StringUnaryExpression(str_param,
+				Operator.TRIM, concrete_value);
+		return strUnExpr;
+	}
+
+	/**
+	 * Translates a toUpperCase(string) expression into a
+	 * StringUnaryExpression(TOUPPERCASE) instance.
+	 * 
+	 * It uses String.toUpperCase() to compute the concrete value;
+	 */
+	@Override
+	public Object visit(StringToUpperCase str) {
+		StringExpression str_param = (StringExpression) str.getStringParam()
+				.accept(this);
+		String str_param_concrete_value = (String) str_param.getConcreteValue();
+		String concrete_value = str_param_concrete_value.toUpperCase();
+		StringUnaryExpression strUnExpr = new StringUnaryExpression(str_param,
+				Operator.TOUPPERCASE, concrete_value);
+		return strUnExpr;
+	}
+
+	/**
+	 * Translates a toLowerCase(string) expression into a
+	 * StringUnaryExpression(TOLOWERCASE) instance.
+	 * 
+	 * It uses String.toLowerCase() to compute the concrete value;
+	 */
+	@Override
+	public Object visit(StringToLowerCase str) {
+		StringExpression str_param = (StringExpression) str.getStringParam()
+				.accept(this);
+		String str_param_concrete_value = (String) str_param.getConcreteValue();
+		String concrete_value = str_param_concrete_value.toLowerCase();
+		StringUnaryExpression strUnExpr = new StringUnaryExpression(str_param,
+				Operator.TOLOWERCASE, concrete_value);
+		return strUnExpr;
+	}
+
+	/**
+	 * Translates a compareTo(string,string) expression into a
+	 * StringToIntCast(StringBinaryExpression(COMPARETO)) expression.
+	 * 
+	 * It uses String.compareTo() to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringCompareTo str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.compareTo(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.COMPARETO, str_param_2,
+				Integer.toString(concrete_value));
+		return new StringToIntCast(strBExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a compareToIgnoreCase(string,string) expression into a
+	 * StringToIntCast(StringBinaryExpression(COMPARETOIGNORECASE)) expression.
+	 * 
+	 * It uses String.compareToIgnoreCase() to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringCompareToIgnoreCase str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.compareToIgnoreCase(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.COMPARETOIGNORECASE, str_param_2,
+				Integer.toString(concrete_value));
+		return new StringToIntCast(strBExpr, (long) concrete_value);
+
+	}
+
+	/**
+	 * Translates a indexOf(string,string) expression into a
+	 * StringToIntCast(StringBinaryExpression(INDEXOFS)) expression.
+	 * 
+	 * It uses String.indexOf(string,string) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringIndexOfS str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.indexOf(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.INDEXOFS, str_param_2,
+				Integer.toString(concrete_value));
+		return new StringToIntCast(strBExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a lastIndexOf(string,string) expression into a
+	 * StringToIntCast(StringBinaryExpression(LASTINDEXOFS)) expression.
+	 * 
+	 * It uses String.lastIndexOf(string,string) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringLastIndexOfS str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.lastIndexOf(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.LASTINDEXOFS, str_param_2,
+				Integer.toString(concrete_value));
+		return new StringToIntCast(strBExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a indexOf(string,int) expression into a
+	 * StringToIntCast(StringBinaryExpression(INDEXOFC)) expression.
+	 * 
+	 * It uses String.indexOf(string,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringIndexOfC str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		IntegerExpression str_param_2 = (IntegerExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		int str_param_2_concrete_value = ((Long) str_param_2.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.indexOf(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.INDEXOFC, str_param_2,
+				Integer.toString(concrete_value));
+		return new StringToIntCast(strBExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a lastIndexOf(string,int) expression into a
+	 * StringToIntCast(StringBinaryExpression(LASTINDEXOFC)) expression.
+	 * 
+	 * It uses String.lastIndexOf(string,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringLastIndexOfC str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		IntegerExpression str_param_2 = (IntegerExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		int str_param_2_concrete_value = ((Long) str_param_2.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.lastIndexOf(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.LASTINDEXOFC, str_param_2,
+				Integer.toString(concrete_value));
+		return new StringToIntCast(strBExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a charAt(string,int) expression into a
+	 * StringToIntCast(StringBinaryExpression(CHARAT)) expression.
+	 * 
+	 * It uses String.charAt(string,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringCharAt str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		IntegerExpression str_param_2 = (IntegerExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		int str_param_2_concrete_value = ((Long) str_param_2.getConcreteValue())
+				.intValue();
+
+		char concrete_value = str_param_1_concrete_value
+				.charAt(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.CHARAT, str_param_2,
+				Character.toString(concrete_value));
+		return new StringToIntCast(strBExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a concat(string,string) expression into a
+	 * StringBinaryExpression(CONCAT) expression.
+	 * 
+	 * It uses String.concat(string,string) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringConcat str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		String concrete_value = str_param_1_concrete_value
+				.concat(str_param_2_concrete_value);
+		StringBinaryExpression strBExpr = new StringBinaryExpression(
+				str_param_1, Operator.CONCAT, str_param_2, concrete_value);
+		return strBExpr;
+	}
+
+	/**
+	 * Translates a replaceAll(string,string,string) expression into a
+	 * StringMultipleExpression(REPLACEALL).
+	 * 
+	 * It uses String.replaceAll(string,string) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringReplaceAll r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		StringExpression str_param_2 = (StringExpression) r.getParam1().accept(
+				this);
+		StringExpression str_param_3 = (StringExpression) r.getParam2().accept(
+				this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+		String str_param_3_concrete_value = (String) str_param_3
+				.getConcreteValue();
+
+		String concrete_value = str_param_1_concrete_value.replaceAll(
+				str_param_2_concrete_value, str_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.REPLACEALL, str_param_2,
+				new ArrayList<Expression<?>>(
+						Collections.singletonList(str_param_3)), concrete_value);
+
+		return strTExpr;
+	}
+
+	/**
+	 * Translates a replaceAll(string,string,string) expression into a
+	 * StringMultipleExpression(REPLACEFIRST).
+	 * 
+	 * It uses String.replaceFirst(string,string) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringReplaceFirst r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		StringExpression str_param_2 = (StringExpression) r.getParam1().accept(
+				this);
+		StringExpression str_param_3 = (StringExpression) r.getParam2().accept(
+				this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+		String str_param_3_concrete_value = (String) str_param_3
+				.getConcreteValue();
+
+		String concrete_value = str_param_1_concrete_value.replaceFirst(
+				str_param_2_concrete_value, str_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.REPLACEFIRST, str_param_2,
+				new ArrayList<Expression<?>>(
+						Collections.singletonList(str_param_3)), concrete_value);
+
+		return strTExpr;
+	}
+
+	/**
+	 * Translates a replace(string,char,char) expression into a
+	 * StringMultipleExpression(REPLACEC).
+	 * 
+	 * It uses String.replace(char,char) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringReplaceC r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		IntegerExpression int_param_2 = (IntegerExpression) r.getParam1()
+				.accept(this);
+		IntegerExpression int_param_3 = (IntegerExpression) r.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		char int_param_2_concrete_value = (char) ((Long) int_param_2
+				.getConcreteValue()).intValue();
+		char int_param_3_concrete_value = (char) ((Long) int_param_3
+				.getConcreteValue()).intValue();
+
+		String concrete_value = str_param_1_concrete_value.replace(
+				int_param_2_concrete_value, int_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.REPLACEC, int_param_2,
+				new ArrayList<Expression<?>>(
+						Collections.singletonList(int_param_3)), concrete_value);
+
+		return strTExpr;
+	}
+
+	/**
+	 * Translates a substring(string,int,int) expression into a
+	 * StringMultipleExpression(SUBSTRING).
+	 * 
+	 * It uses String.substring(int,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringSubstring r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		IntegerExpression int_param_2 = (IntegerExpression) r.getParam1()
+				.accept(this);
+		IntegerExpression int_param_3 = (IntegerExpression) r.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		int int_param_2_concrete_value = ((Long) int_param_2.getConcreteValue())
+				.intValue();
+		int int_param_3_concrete_value = ((Long) int_param_3.getConcreteValue())
+				.intValue();
+
+		String concrete_value = str_param_1_concrete_value.substring(
+				int_param_2_concrete_value, int_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.SUBSTRING, int_param_2,
+				new ArrayList<Expression<?>>(
+						Collections.singletonList(int_param_3)), concrete_value);
+
+		return strTExpr;
+	}
+
+	/**
+	 * Translates a lastIndexOfCI(string,int,int) expression into a
+	 * StringToIntCast(StringMultipleExpression(LASTINDEXOFCI)).
+	 * 
+	 * It uses String.lastIndexOf(int,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringLastIndexOfCI r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		IntegerExpression int_param_2 = (IntegerExpression) r.getParam1()
+				.accept(this);
+		IntegerExpression int_param_3 = (IntegerExpression) r.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		int int_param_2_concrete_value = ((Long) int_param_2.getConcreteValue())
+				.intValue();
+		int int_param_3_concrete_value = ((Long) int_param_3.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value.lastIndexOf(
+				int_param_2_concrete_value, int_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.LASTINDEXOFCI, int_param_2,
+				new ArrayList<Expression<?>>(Collections
+						.singletonList(int_param_3)),
+				Integer.toString(concrete_value));
+
+		return new StringToIntCast(strTExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a indexOfCI(string,int,int) expression into a
+	 * StringToIntCast(StringMultipleExpression(INDEXOFCI)).
+	 * 
+	 * It uses String.indexOf(int,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringIndexOfCI r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		IntegerExpression int_param_2 = (IntegerExpression) r.getParam1()
+				.accept(this);
+		IntegerExpression int_param_3 = (IntegerExpression) r.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		int int_param_2_concrete_value = ((Long) int_param_2.getConcreteValue())
+				.intValue();
+		int int_param_3_concrete_value = ((Long) int_param_3.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value.indexOf(
+				int_param_2_concrete_value, int_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.INDEXOFCI, int_param_2,
+				new ArrayList<Expression<?>>(Collections
+						.singletonList(int_param_3)),
+				Integer.toString(concrete_value));
+
+		return new StringToIntCast(strTExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a indexOfSI(string,string,int) expression into a
+	 * StringToIntCast(StringMultipleExpression(INDEXOFSI)).
+	 * 
+	 * It uses String.indexOf(string,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringIndexOfSI r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		StringExpression str_param_2 = (StringExpression) r.getParam1().accept(
+				this);
+		IntegerExpression int_param_3 = (IntegerExpression) r.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+		int int_param_3_concrete_value = ((Long) int_param_3.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value.indexOf(
+				str_param_2_concrete_value, int_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.INDEXOFSI, str_param_2,
+				new ArrayList<Expression<?>>(Collections
+						.singletonList(int_param_3)),
+				Integer.toString(concrete_value));
+
+		return new StringToIntCast(strTExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a lastIndexOfSI(string,string,int) expression into a
+	 * StringToIntCast(StringMultipleExpression(LASTINDEXOFSI)).
+	 * 
+	 * It uses String.lastIndexOf(string,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringLastIndexOfSI r) {
+		StringExpression str_param_1 = (StringExpression) r.getStringReceiver()
+				.accept(this);
+		StringExpression str_param_2 = (StringExpression) r.getParam1().accept(
+				this);
+		IntegerExpression int_param_3 = (IntegerExpression) r.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+		int int_param_3_concrete_value = ((Long) int_param_3.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value.lastIndexOf(
+				str_param_2_concrete_value, int_param_3_concrete_value);
+
+		StringMultipleExpression strTExpr = new StringMultipleExpression(
+				str_param_1, Operator.LASTINDEXOFSI, str_param_2,
+				new ArrayList<Expression<?>>(Collections
+						.singletonList(int_param_3)),
+				Integer.toString(concrete_value));
+
+		return new StringToIntCast(strTExpr, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a equals(string,object) expression into a
+	 * StringToIntCast(StringComparison(EQUALS)).
+	 * 
+	 * It uses String.equals(Object) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringEquals str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+
+		StringExpression object_param_2 = null;
+
+		if (str.getParam() instanceof LiteralNonNullReference) {
+			LiteralNonNullReference literal = (LiteralNonNullReference) str
+					.getParam();
+			if (literal.getDynamicType().getType().equals(String.class)) {
+				object_param_2 = (StringExpression) str.getParam().accept(this);
+			}
+		} else if (str.getParam() instanceof ReferenceVariable) {
+			ReferenceVariable r = (ReferenceVariable) str.getParam();
+			if (r.getStaticTypeClass().equals(String.class)) {
+				object_param_2 = (StringExpression) str.getParam().accept(this);
+			}
+		}
+
+		if (object_param_2 == null) {
+			// return false if param is null or non string
+			return new IntegerConstant((long) 0);
+		} else {
+			// otherwise compare to other string
+			String str_param_1_concrete_value = (String) str_param_1
+					.getConcreteValue();
+			Object object_param_2_concrete_value = object_param_2
+					.getConcreteValue();
+
+			int concrete_value = str_param_1_concrete_value
+					.equals(object_param_2_concrete_value) ? 1 : 0;
+
+			StringComparison strComp = new StringComparison(str_param_1,
+					Operator.EQUALS, object_param_2, (long) concrete_value);
+			return new StringToIntCast(strComp, (long) concrete_value);
+		}
+	}
+
+	/**
+	 * Translates a equalsIgnoreCase(string,string) expression into a
+	 * StringToIntCast(StringComparison(EQUALSIGNORECASE)).
+	 * 
+	 * It uses String.equalsIgnoreCase(string) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringEqualsIgnoreCase str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.equalsIgnoreCase(str_param_2_concrete_value) ? 1 : 0;
+
+		StringComparison strComp = new StringComparison(str_param_1,
+				Operator.EQUALSIGNORECASE, str_param_2, (long) concrete_value);
+		return new StringToIntCast(strComp, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a endsWith(string,string) expression into a
+	 * StringToIntCast(StringComparison(ENDSWITH)).
+	 * 
+	 * It uses String.endsWith(string) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringEndsWith str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.endsWith(str_param_2_concrete_value) ? 1 : 0;
+
+		StringComparison strComp = new StringComparison(str_param_1,
+				Operator.ENDSWITH, str_param_2, (long) concrete_value);
+		return new StringToIntCast(strComp, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a startsWith(string,string,int) expression into a
+	 * StringToIntCast(StringMultipleComparison(STARTSWITH)).
+	 * 
+	 * It uses String.startsWith(string,int) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringStartsWith str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam1()
+				.accept(this);
+		IntegerExpression int_param_3 = (IntegerExpression) str.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+		int int_param_3_concrete_value = ((Long) int_param_3.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value.startsWith(
+				str_param_2_concrete_value, int_param_3_concrete_value) ? 1 : 0;
+
+		StringMultipleComparison strComp = new StringMultipleComparison(
+				str_param_1,
+				Operator.STARTSWITH,
+				str_param_2,
+				new ArrayList<Expression<?>>(Collections.singleton(int_param_3)),
+				(long) concrete_value);
+		return new StringToIntCast(strComp, (long) concrete_value);
+	}
+
+	/**
+	 * Translates a regionMatches(string,boolean,int,string,int,int) expression
+	 * into a StringToIntCast(StringMultipleComparison(REGIONMATCHES)).
+	 * 
+	 * It uses String.regionMatches(...) to compute the concrete value.
+	 */
+	@Override
+	public Object visit(StringRegionMatches str) {
+		StringExpression str_param_1 = (StringExpression) str.getStrReceiver()
+				.accept(this);
+		IntegerExpression int_param_2 = (IntegerExpression) str.getIgnoreCase()
+				.accept(this);
+		IntegerExpression int_param_3 = (IntegerExpression) str.getToffset()
+				.accept(this);
+		StringExpression str_param_4 = (StringExpression) str.getOtherString()
+				.accept(this);
+		IntegerExpression int_param_5 = (IntegerExpression) str.getOoffset()
+				.accept(this);
+		IntegerExpression int_param_6 = (IntegerExpression) str.getLen()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		boolean int_param_2_concrete_value = ((Long) int_param_2
+				.getConcreteValue()) == 1 ? true : false;
+		int int_param_3_concrete_value = ((Long) int_param_2.getConcreteValue())
+				.intValue();
+		String str_param_4_concrete_value = (String) str_param_4
+				.getConcreteValue();
+		int int_param_5_concrete_value = ((Long) int_param_5.getConcreteValue())
+				.intValue();
+		int int_param_6_concrete_value = ((Long) int_param_6.getConcreteValue())
+				.intValue();
+
+		int concrete_value = str_param_1_concrete_value.regionMatches(
+				int_param_2_concrete_value, int_param_3_concrete_value,
+				str_param_4_concrete_value, int_param_5_concrete_value,
+				int_param_6_concrete_value) ? 1 : 0;
+
+		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+		other.add(int_param_3);
+		other.add(int_param_5);
+		other.add(int_param_6);
+		other.add(int_param_2);
+
+		StringMultipleComparison strComp = new StringMultipleComparison(
+				str_param_1, Operator.REGIONMATCHES, str_param_4, other,
+				(long) concrete_value);
+		return new StringToIntCast(strComp, (long) concrete_value);
+
 	}
 
 	/*

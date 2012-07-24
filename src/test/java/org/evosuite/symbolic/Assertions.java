@@ -25,4 +25,23 @@ public class Assertions {
 			throw new RuntimeException("check failed!");
 		}
 	}
+	
+	public static void checkEquals(boolean l, boolean r) {
+		if (l != r) {
+			throw new RuntimeException("check failed!");
+		}
+	}
+	
+	public static void checkNotEquals(boolean l, boolean r) {
+		if (l == r) {
+			throw new RuntimeException("check failed!");
+		}
+	}
+
+	public static void checkEquals(char l, char r) {
+		if (l != r) {
+			throw new RuntimeException("check failed!");
+		}
+	}
+
 }
