@@ -641,7 +641,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Double getFalseDistance(int branchId) {
+	public double getFalseDistance(int branchId) {
 		return falseDistances.get(branchId);
 	}
 
@@ -871,7 +871,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Double getTrueDistance(int branchId) {
+	public double getTrueDistance(int branchId) {
 		return trueDistances.get(branchId);
 	}
 
