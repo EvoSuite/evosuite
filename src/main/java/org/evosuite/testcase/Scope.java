@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,7 +32,7 @@ import java.util.Set;
 
 /**
  * This class represents the state of a test case execution
- *
+ * 
  * @author Gordon Fraser
  */
 public class Scope {
@@ -48,7 +48,7 @@ public class Scope {
 
 	/**
 	 * Set variable to new value
-	 *
+	 * 
 	 * @param reference
 	 *            VariableReference
 	 * @param o
@@ -71,6 +71,8 @@ public class Scope {
 					} else {
 						lengths.set(idx, Array.getLength(value));
 					}
+					if (Array.getLength(value) == 0)
+						break;
 					value = Array.get(value, 0);
 					idx++;
 				}
@@ -104,7 +106,7 @@ public class Scope {
 
 	/**
 	 * Get current value of variable
-	 *
+	 * 
 	 * @param reference
 	 *            VariableReference we are looking for
 	 * @return Current value of reference
@@ -115,7 +117,7 @@ public class Scope {
 
 	/**
 	 * Get all elements in scope of type
-	 *
+	 * 
 	 * @param type
 	 *            Class we are looking for
 	 * @return List of VariableReferences
@@ -139,7 +141,7 @@ public class Scope {
 
 	/**
 	 * Get all objects in scope
-	 *
+	 * 
 	 * @return Collection of all Objects
 	 */
 	public Collection<Object> getObjects() {
@@ -148,9 +150,10 @@ public class Scope {
 
 	/**
 	 * Get all objects of a given type in scope
-	 *
+	 * 
 	 * @return Collection of all Objects
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	// TODO: Need to add all fields and stuff as well?
 	public Collection<Object> getObjects(Type type) {
