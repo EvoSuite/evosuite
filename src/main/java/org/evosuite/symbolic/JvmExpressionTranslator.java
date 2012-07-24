@@ -117,6 +117,7 @@ import edu.uta.cse.dsc.ast.functions.string.StringCharAt;
 import edu.uta.cse.dsc.ast.functions.string.StringCompareTo;
 import edu.uta.cse.dsc.ast.functions.string.StringCompareToIgnoreCase;
 import edu.uta.cse.dsc.ast.functions.string.StringConcat;
+import edu.uta.cse.dsc.ast.functions.string.StringContains;
 import edu.uta.cse.dsc.ast.functions.string.StringEndsWith;
 import edu.uta.cse.dsc.ast.functions.string.StringEquals;
 import edu.uta.cse.dsc.ast.functions.string.StringEqualsIgnoreCase;
@@ -129,9 +130,13 @@ import edu.uta.cse.dsc.ast.functions.string.StringLastIndexOfCI;
 import edu.uta.cse.dsc.ast.functions.string.StringLastIndexOfS;
 import edu.uta.cse.dsc.ast.functions.string.StringLastIndexOfSI;
 import edu.uta.cse.dsc.ast.functions.string.StringLength;
+import edu.uta.cse.dsc.ast.functions.string.StringReference;
+import edu.uta.cse.dsc.ast.functions.string.StringReferenceNonNullLiteral;
+import edu.uta.cse.dsc.ast.functions.string.StringReferenceVariable;
 import edu.uta.cse.dsc.ast.functions.string.StringRegionMatches;
 import edu.uta.cse.dsc.ast.functions.string.StringReplaceAll;
 import edu.uta.cse.dsc.ast.functions.string.StringReplaceC;
+import edu.uta.cse.dsc.ast.functions.string.StringReplaceCS;
 import edu.uta.cse.dsc.ast.functions.string.StringReplaceFirst;
 import edu.uta.cse.dsc.ast.functions.string.StringStartsWith;
 import edu.uta.cse.dsc.ast.functions.string.StringSubstring;
@@ -2234,7 +2239,6 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(ReferenceVariable r) {
-
 		if (!r.getStaticTypeClass().equals(String.class)) {
 			throw new IllegalArgumentException(
 					"Cannot handle references of type "
@@ -2831,6 +2835,8 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 			if (r.getStaticTypeClass().equals(String.class)) {
 				object_param_2 = (StringExpression) str.getParam().accept(this);
 			}
+		} else if (str.getParam() instanceof StringReference) {
+			object_param_2 = (StringExpression) str.getParam().accept(this);
 		}
 
 		if (object_param_2 == null) {
@@ -2990,6 +2996,72 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 
 	}
 
+	/**
+	 * This method translates a contains(string,string) expression into a
+	 * StringToIntCast(StringComparison(CONTAINS)) expression.
+	 * 
+	 * It uses String.contains(CharSequence) to compute its concrete value.
+	 */
+	@Override
+	public Object visit(StringContains str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+
+		StringExpression str_param_2 = null;
+		Reference param = str.getParam();
+		str_param_2 = (StringExpression) param.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+
+		int concrete_value = str_param_1_concrete_value
+				.contains(str_param_2_concrete_value) ? 1 : 0;
+
+		StringComparison strComp = new StringComparison(str_param_1,
+				Operator.CONTAINS, str_param_2, (long) concrete_value);
+		return new StringToIntCast(strComp, (long) concrete_value);
+	}
+
+	@Override
+	public Object visit(StringReplaceCS str) {
+		StringExpression str_param_1 = (StringExpression) str
+				.getStringReceiver().accept(this);
+		StringExpression str_param_2 = (StringExpression) str.getParam1()
+				.accept(this);
+		StringExpression str_param_3 = (StringExpression) str.getParam2()
+				.accept(this);
+
+		String str_param_1_concrete_value = (String) str_param_1
+				.getConcreteValue();
+		String str_param_2_concrete_value = (String) str_param_2
+				.getConcreteValue();
+		String str_param_3_concrete_value = (String) str_param_3
+				.getConcreteValue();
+
+		String concrete_value = str_param_1_concrete_value.replace(
+				str_param_2_concrete_value, str_param_3_concrete_value);
+
+		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
+		other.add(str_param_3);
+		return new StringMultipleExpression(str_param_1, Operator.REPLACECS,
+				str_param_2, other, concrete_value);
+
+	}
+
+	@Override
+	public Object visit(StringReferenceVariable r) {
+		return r.getReferenceVariable().accept(this);
+	}
+	
+
+	@Override
+	public Object visit(StringReferenceNonNullLiteral r) {
+		return r.getReferenceNonNullLiteral().accept(this);
+
+	}
+
 	/*
 	 * <code>
 	 * ===================================================================
@@ -3065,5 +3137,6 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 		throw new IllegalStateException(
 				"ArraySelectFp32 is not a valid AST instance");
 	}
+
 
 }
