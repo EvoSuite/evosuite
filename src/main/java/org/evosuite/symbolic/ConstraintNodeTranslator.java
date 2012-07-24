@@ -13,8 +13,10 @@ import org.evosuite.symbolic.expr.RealConstant;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealVariable;
+import org.evosuite.symbolic.expr.StringConstant;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.StringVariable;
 
 import edu.uta.cse.dsc.ast.BitVector32;
 import edu.uta.cse.dsc.ast.BitVector64;
@@ -67,8 +69,7 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 		if (e instanceof BitVector32) {
 			BitVector32 bitVector32 = (BitVector32) e;
-			Object e_visit = bitVector32
-					.accept(expressionTranslator);
+			Object e_visit = bitVector32.accept(expressionTranslator);
 			IntegerExpression integerExpr = (IntegerExpression) e_visit;
 			return integerExpr;
 		} else if (e instanceof BitVector64) {
@@ -141,8 +142,10 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 					literalReference);
 
 			if (hasConcolicMarker) {
-				throw new IllegalArgumentException(
-						"concolic markers for Object not yet implemented!");
+				// treat reference as String (no concolic marker for Object type)
+				LiteralNonNullReference string_reference = (LiteralNonNullReference) literalReference;
+				return buildNewSmbolicVariableDefinition(fresh_var,
+						string_reference);
 			}
 		} else if (symbolicExecState.isSymbolicFloatMapping(map_var)) {
 			// float
@@ -178,6 +181,21 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		}
 
 		return null;
+	}
+
+	private StringConstraint buildNewSmbolicVariableDefinition(JvmVariable fresh_var,
+			LiteralNonNullReference string_reference) {
+		String var_name_str;
+		if (this.symbolicExecState.isMarked(fresh_var)) {
+			var_name_str = this.symbolicExecState.getSymbolicName(fresh_var);
+		} else {
+			var_name_str = fresh_var.getName();
+		}
+		String str = string_reference.getStringConstant();
+		StringVariable v = new StringVariable(var_name_str, str, str, str);
+		StringConstant c = new StringConstant(str);
+
+		return new StringConstraint(v, Comparator.EQ, c);
 	}
 
 	private RealConstraint buildNewSymbolicVariableDefinition(
@@ -269,7 +287,6 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 		LiteralReference index_literal_reference = lookUpReference((Reference) index_expr);
 		LiteralNonNullReference index_literal_non_null_reference = (LiteralNonNullReference) index_literal_reference;
-
 
 		if (map_expr instanceof JavaFieldVariable) {
 			// create empty mapping case

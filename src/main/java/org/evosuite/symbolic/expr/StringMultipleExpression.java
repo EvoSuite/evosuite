@@ -132,7 +132,7 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
-	    if (size == 0) {
+	    if (size == 0 && other_v!=null) {
 	        int other_size = 0;
 	        for (int i = 0; i < other_v.size(); i++) {
 	            other_size += other_v.get(i).getSize();   

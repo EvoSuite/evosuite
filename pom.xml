@@ -291,6 +291,11 @@
 			<scope>system</scope>
 			<systemPath>${project.basedir}/lib/uispec4j-fork.jar</systemPath>
 		</dependency>
+		 <dependency>
+                 <groupId>fr.inria.gforge.spoon</groupId>
+                 <artifactId>spoon-core</artifactId>
+                 <version>1.4.2</version>
+         </dependency>
 	</dependencies>
 	<repositories>
 
