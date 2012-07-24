@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.junit;
@@ -89,7 +89,7 @@ public class JUnitTestReader implements TestReader {
 		String[] sourcepath = Properties.SOURCEPATH;
 		JUnitTestReader testReader = new JUnitTestReader(classpath, sourcepath);
 		List<File> javaTestFiles = getAllJavaFiles(new File(args[0]));
-		Map<File, Map<String, TestCase>> allTests = new HashMap<File, Map<String,TestCase>>();
+		Map<File, Map<String, TestCase>> allTests = new HashMap<File, Map<String, TestCase>>();
 		for (File test : javaTestFiles) {
 			Map<String, TestCase> allTestsInFile = testReader.readTests(test.getAbsolutePath());
 			allTests.put(test, allTestsInFile);
@@ -143,6 +143,12 @@ public class JUnitTestReader implements TestReader {
 		this.classpath = expandClasspath(classpath);
 	}
 
+	public JUnitTestReader() {
+		super();
+		this.classpath = Properties.CP.split(File.pathSeparator);
+		this.sources = new String[0];
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public int getLineNumber(int sourcePos) {
@@ -162,7 +168,8 @@ public class JUnitTestReader implements TestReader {
 		String clazz = qualifiedTestMethod.substring(0, qualifiedTestMethod.indexOf("#"));
 		String method = qualifiedTestMethod.substring(qualifiedTestMethod.indexOf("#") + 1);
 		CompoundTestCase testCase = new CompoundTestCase(clazz, method);
-		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, method, this);
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase,
+		        clazz, method, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
 		compilationUnit = parseJavaFile(javaFile, fileContents);
@@ -184,10 +191,12 @@ public class JUnitTestReader implements TestReader {
 	 *            a {@link org.eclipse.jdt.core.dom.CompilationUnit} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public TestCase readJUnitTestCase(String className, final String methodName, final CompilationUnit cu) {
+	public TestCase readJUnitTestCase(String className, final String methodName,
+	        final CompilationUnit cu) {
 		CompoundTestCase testCase = new CompoundTestCase(className, methodName);
 
-		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, className, null, this);
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase,
+		        className, null, this);
 
 		compilationUnit = cu; // parseJavaFile(className, fileContent);
 		compilationUnit.accept(testExtractingVisitor);
@@ -200,7 +209,8 @@ public class JUnitTestReader implements TestReader {
 	@Override
 	public CompoundTestCase readTestCase(String clazz, CompoundTestCase child) {
 		CompoundTestCase testCase = new CompoundTestCase(clazz, child);
-		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, null, this);
+		TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase,
+		        clazz, null, this);
 		String javaFile = findTestFile(clazz);
 		String fileContents = readJavaFile(javaFile);
 		compilationUnit = parseJavaFile(javaFile, fileContents);
@@ -217,7 +227,8 @@ public class JUnitTestReader implements TestReader {
 		String clazz = methodsExtractor.getClassName();
 		for (String method : methodsExtractor.getMethods()) {
 			CompoundTestCase testCase = new CompoundTestCase(clazz, method);
-			TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(testCase, clazz, method, this);
+			TestExtractingVisitor testExtractingVisitor = new TestExtractingVisitor(
+			        testCase, clazz, method, this);
 			compilationUnit.accept(testExtractingVisitor);
 			result.put(method, testCase.finalizeTestCase());
 		}
@@ -275,7 +286,8 @@ public class JUnitTestReader implements TestReader {
 			}
 			sourcesString.append(dir).append(";");
 		}
-		throw new RuntimeException("Could not find class '" + clazz + "' in sources: " + sourcesString.toString());
+		throw new RuntimeException("Could not find class '" + clazz + "' in sources: "
+		        + sourcesString.toString());
 	}
 
 	/**
@@ -361,7 +373,8 @@ public class JUnitTestReader implements TestReader {
 		if (classpath != null) {
 			for (String classpathEntry : classpath) {
 				if (classpathEntry.endsWith("*")) {
-					File dir = new File(classpathEntry.substring(0, classpathEntry.length() - 1));
+					File dir = new File(
+					        classpathEntry.substring(0, classpathEntry.length() - 1));
 					for (File file : dir.listFiles()) {
 						if (file.getName().endsWith(".jar")) {
 							try {

@@ -184,7 +184,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Double getFalseDistance(int branchId) {
+	public double getFalseDistance(int branchId) {
 		return trace.getFalseDistance(branchId);
 	}
 
@@ -304,7 +304,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Double getTrueDistance(int branchId) {
+	public double getTrueDistance(int branchId) {
 		return trace.getTrueDistance(branchId);
 	}
 

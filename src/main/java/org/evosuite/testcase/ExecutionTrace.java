@@ -35,7 +35,7 @@ public interface ExecutionTrace {
 	 * @param branchId a int.
 	 * @return a double.
 	 */
-	public Double getFalseDistance(int branchId);
+	public double getFalseDistance(int branchId);
 
 	/**
 	 * Retrieve minimum branch distance to true branch
@@ -43,7 +43,7 @@ public interface ExecutionTrace {
 	 * @param branchId a int.
 	 * @return a double.
 	 */
-	public Double getTrueDistance(int branchId);
+	public double getTrueDistance(int branchId);
 
 	/**
 	 * Retrieve set of branches that evaluated to true
