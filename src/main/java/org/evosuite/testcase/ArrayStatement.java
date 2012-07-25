@@ -40,6 +40,10 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * 
  * @author Gordon Fraser
  */
+/*
+ *  TODO: The length is currently stored in ArrayReference and the ArrayStatement.
+ *  This is bound to lead to inconsistencies. 
+ */
 public class ArrayStatement extends AbstractStatement {
 
 	/**
@@ -149,7 +153,8 @@ public class ArrayStatement extends AbstractStatement {
 	 */
 	public ArrayStatement(TestCase tc, ArrayReference arrayReference, int[] length) {
 		super(tc, arrayReference);
-		this.lengths = length;
+		setLengths(length);
+		arrayReference.setLengths(lengths);
 	}
 
 	/**
@@ -288,6 +293,21 @@ public class ArrayStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isValid() {
+		int maxAssignment = 0;
+		for (StatementInterface statement : this.tc) {
+			for (VariableReference var : statement.getVariableReferences()) {
+				if (var.getAdditionalVariableReference() == this.retval) {
+					VariableReference currentVar = var;
+					while (currentVar instanceof FieldReference) {
+						currentVar = ((FieldReference) currentVar).getSource();
+					}
+					ArrayIndex index = (ArrayIndex) currentVar;
+					maxAssignment = Math.max(maxAssignment, index.getArrayIndex());
+				}
+			}
+		}
+		if (maxAssignment > lengths[0])
+			return false;
 		return super.isValid();
 	}
 
@@ -361,8 +381,8 @@ public class ArrayStatement extends AbstractStatement {
 		if (newLength <= 0)
 			newLength = 1;
 
-		logger.debug("Changing array length from " + lengths[dim] + " to " + newLength);
 		lengths[dim] = newLength;
+		((ArrayReference) retval).setLengths(lengths);
 		return true;
 	}
 
@@ -387,7 +407,11 @@ public class ArrayStatement extends AbstractStatement {
 	 *            an array of int.
 	 */
 	public void setLengths(int[] lengths) {
-		this.lengths = lengths;
+		this.lengths = new int[lengths.length];
+		for (int i = 0; i < lengths.length; i++) {
+			this.lengths[i] = lengths[i];
+		}
+		((ArrayReference) retval).setLengths(lengths);
 	}
 
 	/**
