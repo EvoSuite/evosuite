@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,6 +28,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,7 +36,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 
 /**
  * this class is used to get help on some customization of logging facility
- *
+ * 
  * @author arcuri
  */
 public class LoggingUtils {
@@ -67,15 +68,19 @@ public class LoggingUtils {
 	private final ExecutorService logHandler = Executors.newCachedThreadPool();
 
 	/**
-	 * <p>Constructor for LoggingUtils.</p>
+	 * <p>
+	 * Constructor for LoggingUtils.
+	 * </p>
 	 */
 	public LoggingUtils() {
 
 	}
 
 	/**
-	 * <p>getEvoLogger</p>
-	 *
+	 * <p>
+	 * getEvoLogger
+	 * </p>
+	 * 
 	 * @return a {@link org.slf4j.Logger} object.
 	 */
 	public static Logger getEvoLogger() {
@@ -83,8 +88,10 @@ public class LoggingUtils {
 	}
 
 	/**
-	 * <p>startLogServer</p>
-	 *
+	 * <p>
+	 * startLogServer
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean startLogServer() {
@@ -120,12 +127,12 @@ public class LoggingUtils {
 										remoteLogger.callAppenders(event);
 										//}
 									}
-								} catch(java.net.SocketException se){
+								} catch (java.net.SocketException se) {
 									/*
 									 * FIXME: this can happen if client dies or is stopped by master with "destroy" in Windows. It is not a big problem,
 									 * but anyway how we stop clients will need to be refactored
 									 */
-								}catch (java.io.EOFException eof) {
+								} catch (java.io.EOFException eof) {
 									//this is normal, do nothing
 								} catch (Exception e) {
 									log.error("Problem in reading loggings", e);
@@ -146,8 +153,10 @@ public class LoggingUtils {
 	}
 
 	/**
-	 * <p>isServerClosed</p>
-	 *
+	 * <p>
+	 * isServerClosed
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isServerClosed() {
@@ -155,8 +164,10 @@ public class LoggingUtils {
 	}
 
 	/**
-	 * <p>getLogServerPort</p>
-	 *
+	 * <p>
+	 * getLogServerPort
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.Integer} object.
 	 */
 	public Integer getLogServerPort() {
@@ -167,7 +178,9 @@ public class LoggingUtils {
 	}
 
 	/**
-	 * <p>closeLogServer</p>
+	 * <p>
+	 * closeLogServer
+	 * </p>
 	 */
 	public void closeLogServer() {
 		if (serverSocket != null && !serverSocket.isClosed()) {
@@ -222,19 +235,21 @@ public class LoggingUtils {
 	 * In logback.xml we use properties like ${log.level}. But before doing any
 	 * logging, we need to be sure they have been set. If not, we put them to
 	 * default values
-	 *
+	 * 
 	 * NOTE: this functionality might be deprecated now, as one can set default
 	 * values in the log xml files by using ":-"
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public static boolean checkAndSetLogLevel() {
 
 		boolean usingDefault = false;
 
-		String logLevel = System.getProperty(LOG_LEVEL);
-		if (logLevel == null || logLevel.trim().equals("")) {
-			System.setProperty(LOG_LEVEL, "WARN");
+		System.setProperty(LOG_LEVEL, Properties.LOG_LEVEL);
+		if (Properties.LOG_TARGET != null)
+			System.setProperty(LOG_TARGET, Properties.LOG_TARGET);
+
+		if (Properties.LOG_LEVEL.equals("WARN")) {
 			usingDefault = true;
 		}
 
