@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A test case is a list of statements
- *
+ * 
  * @author Gordon Fraser
  */
 public class DefaultTestCase implements TestCase, Serializable {
@@ -73,8 +73,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/**
 	 * Convenience constructor
-	 *
-	 * @param statements a {@link java.util.List} object.
+	 * 
+	 * @param statements
+	 *            a {@link java.util.List} object.
 	 */
 	public DefaultTestCase(List<StatementInterface> statements) {
 		if (statements instanceof ListenableList) {
@@ -503,7 +504,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Equality check
 	 */
 	// public boolean equals(TestCase t) {
@@ -574,7 +575,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a copy of the test case
 	 */
 	@Override
@@ -693,7 +694,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public boolean isValid() {
 		for (StatementInterface s : statements) {
-			assert (s.isValid());
+			assert (s.isValid()) : toCode();
 		}
 		return true;
 	}
@@ -828,9 +829,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	/**
-	 * <p>changeClassLoader</p>
-	 *
-	 * @param loader a {@link java.lang.ClassLoader} object.
+	 * <p>
+	 * changeClassLoader
+	 * </p>
+	 * 
+	 * @param loader
+	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader) {
 		for (StatementInterface s : statements) {
