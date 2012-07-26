@@ -393,7 +393,7 @@ public class ExternalProcessHandler {
 						 * we should try to re-start based on the partial info received so far, eg
 						 * the best solutions found so far which was sent to master
 						 */
-						logger.error("Error in reading message ", e);
+						logger.error("Error in reading message. Likely the client has crashed. Error message: "+e.getMessage());
 						message = Messages.FINISHED_COMPUTATION;
 						data = null;
 					}
