@@ -22,8 +22,10 @@ import java.util.Set;
 
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cdg.ControlDependenceGraph;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -117,6 +119,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.jpfId,
 		        wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
 		this.forcedBranch = wrap.forcedBranch;
+		this.frame = wrap.frame;
 	}
 
 	/**
@@ -920,56 +923,75 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * Determines whether this instruction calls a method on its own Object
 	 * ('this')
 	 * 
+	 * This is done using the getSourceOfMethodInvocationInstruction() method
+	 * and checking if the return of that method is an ALOAD_0 instruction
+	 * 
+	 * @return a boolean.
+	 */
+	public boolean isMethodCallOnSameObject() {
+		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
+		if(srcInstruction == null)
+			return false;
+		return srcInstruction.isALOAD0();
+	}
+
+	/**
+	 * Determines whether this instruction calls a method on a field variable
+	 * 
+	 * This is done using the getSourceOfMethodInvocationInstruction() method
+	 * and checking if the return of that method is a field use instruction
+	 * 
+	 * @return a boolean.
+	 */
+	//TODO comments and ISTATIC?
+	public boolean isMethodCallOfField() {
+		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
+		if(srcInstruction == null)
+			return false;
+		return srcInstruction.isFieldUse();
+	}
+	
+	/**
+	 * Determines the name of the field variable this method call is invoked on
+	 * 
+	 * This is done using the getSourceOfMethodInvocationInstruction() method
+	 * and returning its variable name
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
+	public String getFieldMethodCallName() {
+		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
+		if(srcInstruction == null)
+			return null;
+		return srcInstruction.getDUVariableName();
+	}
+	
+	/**
+	 * If this is a method call instruction this method will return the instruction
+	 * that loaded the reference of the Object the method is invoked onto the stack.   
+	 * 
 	 * This is done using the CFGFrame created by the SourceInterpreter() of the
 	 * BytecodeAnalyzer via the CFGGenerator
 	 * 
-	 * If the reference on top of the stack minus the number of the called
-	 * methods argument (which is the one to the object on which the method is
-	 * called) was produced by an ALOAD_0 instruction, the method will be called
-	 * on 'this' and this method will return true
+	 * The reference is found on top of the stack minus the number of the called
+	 * methods argument
 	 * 
-	 * Note that the method call could be called on 'this' even though this
-	 * method returns false. This can happen when aliasing is involved. If you
-	 * first store 'this' in a local variable and then call a method on that
-	 * variable the call will go to 'this' but this method will return false.
+	 * Note that the method call could be called on an instruction even though this
+	 * method returns null. This can happen when aliasing is involved. If you
+	 * first store the object in a local variable and then call a method on that
+	 * variable this method will return null.
 	 * 
 	 * see PairTestClass.sourceCallerTest() for an even worse example.
 	 * 
 	 * TODO: this could be done better by following the SourceValues even
 	 * further.
-	 * 
-	 * @return a boolean.
+	 * @return
 	 */
-	public boolean isMethodCallOnSameObject() {
+	public BytecodeInstruction getSourceOfMethodInvocationInstruction() {
 		if (!isMethodCall())
-			return false;
-
-		// the object on which this method is called is on top of the stack
-		// minus the number of arguments the called method has
-		int stackPos = frame.getStackSize() - (1 + getCalledMethodsArgumentCount());
-		SourceValue source = (SourceValue) frame.getStack(stackPos);
-		if (source.insns.size() != 1) {
-			// we don't know for sure, let's be conservative
-			return false;
-		}
-		for (Object sourceIns : source.insns) {
-			AbstractInsnNode sourceInstruction = (AbstractInsnNode) sourceIns;
-			BytecodeInstruction src = BytecodeInstructionPool.getInstruction(className,
-			                                                                 methodName,
-			                                                                 sourceInstruction);
-			return src.isALOAD0();
-		}
-		throw new IllegalStateException("should be unreachable");
-	}
-	
-	/**
-	 *
-	 * @return a boolean.
-	 */
-	//TODO comments and ISTATIC?
-	public boolean isMethodCallOfField() {
-		if (!isMethodCall())
-			return false;
+			return null;
+		if(frame == null)
+			throw new IllegalStateException("expect each BytecodeInstruction to have its CFGFrame set");
 
 		// the object on which this method is called is on top of the stack
 		// minus the number of arguments the called method has
@@ -978,17 +1000,45 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		SourceValue source = (SourceValue) frame.getStack(stackPos);
 		if (source.insns.size() != 1) {
 			// we don't know for sure, let's be conservative
-			return false;
+			return null;
 		}
 		for (Object sourceIns : source.insns) {
 			AbstractInsnNode sourceInstruction = (AbstractInsnNode) sourceIns;
 			BytecodeInstruction src = BytecodeInstructionPool.getInstruction(
 					className, methodName, sourceInstruction);
-			return src.isFieldUse();
+			return src;
 		}
 		throw new IllegalStateException("should be unreachable");
 	}
-
+	
+	public boolean isFieldMethodCallDefinition() {
+		if (!isMethodCallOfField())
+			return false;
+		// before this instruction is categorized in the DefUsePool we do not know if
+		// this instruction calls a pure or impure method, so we just label it
+		// as both a Use and Definition for now
+		if(!(DefUsePool.isKnownAsUse(this) || DefUsePool.isKnownAsDefinition(this))) {
+			return true;
+		}
+		// once the DefUsePool knows about this instruction we only return true if it was
+		// categorized as a Use
+		return DefUsePool.isKnownAsDefinition(this);
+	}
+	
+	public boolean isFieldMethodCallUse() {
+		if (!isMethodCallOfField())
+			return false;
+		// before this instruction is categorized in the DefUsePool we do not know if
+		// this instruction calls a pure or impure method, so we just label it
+		// as both a Use and Definition for now
+		if(!(DefUsePool.isKnownAsUse(this) || DefUsePool.isKnownAsDefinition(this))) {
+			return true;
+		}
+		// once the DefUsePool knows about this instruction we only return true if it was
+		// categorized as a Use
+		return DefUsePool.isKnownAsUse(this);
+	}
+	
 	/**
 	 * <p>
 	 * isCallToPublicMethod
@@ -1085,9 +1135,6 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	@Override
 	public int compareTo(BytecodeInstruction o) {
-		if(o==null){
-			System.out.println("aaaaaaaaaaaaaa");
-		}
 		return getLineNumber() - o.getLineNumber();
 	}
 
