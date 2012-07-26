@@ -447,6 +447,9 @@ public class MethodStatement extends AbstractStatement {
 		for (VariableReference parameter : parameters) {
 			parameter.loadBytecode(mg, locals);
 			if (method.getParameterTypes()[num].isPrimitive()) {
+				if (parameter.getGenericClass().isWrapperType()) {
+					mg.unbox(Type.getType(parameter.getVariableClass()));
+				}
 				if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting!");
 					mg.cast(Type.getType(parameter.getVariableClass()),
@@ -476,8 +479,13 @@ public class MethodStatement extends AbstractStatement {
 			}
 		}
 
-		if (!retval.isVoid())
+		if (!retval.isVoid()) {
+			if (!retval.getVariableClass().equals(method.getReturnType())) {
+				mg.cast(Type.getType(method.getReturnType()),
+				        Type.getType(retval.getVariableClass()));
+			}
 			retval.storeBytecode(mg, locals);
+		}
 
 		// if(exception != null) {
 		mg.mark(end);
