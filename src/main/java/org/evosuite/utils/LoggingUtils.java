@@ -130,9 +130,14 @@ public class LoggingUtils {
 								} catch (java.net.SocketException se) {
 									/*
 									 * FIXME: this can happen if client dies or is stopped by master with "destroy" in Windows. It is not a big problem,
-									 * but anyway how we stop clients will need to be refactored
+									 * but anyway how we stop clients will need to be refactored.
+									 * It can also happen if client just crash. As we already report such info in ExternalProcessHandler, we do not need to
+									 * log it here
 									 */
-								} catch (java.io.EOFException eof) {
+								} catch(java.io.UTFDataFormatException utfe){
+									//as above
+								}
+								catch (java.io.EOFException eof) {
 									//this is normal, do nothing
 								} catch (Exception e) {
 									log.error("Problem in reading loggings", e);
