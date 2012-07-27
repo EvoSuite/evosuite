@@ -134,7 +134,7 @@ public class ConcolicExecution {
 			PathConstraintAdapter adapter = new PathConstraintAdapter(symbolicVariables);
 			List<BranchCondition> branches = adapter.transform(path_constraint);
 
-			logger.debug("NrOfBranches=" + branches.size());
+			logger.info("NrOfBranches=" + branches.size());
 			File file = new File(dirName + "/", className + ".class");
 			// file.deleteOnExit();
 
