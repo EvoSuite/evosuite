@@ -114,6 +114,11 @@ public class ConcolicExecution  {
 		logger.debug("Dsc classPath=" + classPath);
 
 		DscHandler dsc_handler = new DscHandler(classPath);
+		MainConfig.get().LOG_AST_COUNTS=false;
+		MainConfig.get().LOG_MODEL_COUNTS=false;
+		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL=false;
+		MainConfig.get().LOG_SUMMARY=false;
+		
 		int dsc_ret_val = dsc_handler.mainEntry(new String[] {/*
 															 * "conf_evo_dumper.txt"
 															 * ,
@@ -133,7 +138,7 @@ public class ConcolicExecution  {
 			List<BranchCondition> branches = adapter.transform(path_constraint);
 
 			
-			logger.debug("NrOfBranches=" + branches.size());
+			logger.info("NrOfBranches=" + branches.size());
 			
 			File file = new File(dirName + "/", className + ".class");
 			file.deleteOnExit();
