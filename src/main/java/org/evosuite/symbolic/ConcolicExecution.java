@@ -113,6 +113,11 @@ public class ConcolicExecution {
 		logger.debug("Dsc classPath=" + classPath);
 
 		DscHandler dsc_handler = new DscHandler(classPath);
+		MainConfig.get().LOG_AST_COUNTS = false;
+		MainConfig.get().LOG_MODEL_COUNTS = false;
+		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
+		MainConfig.get().LOG_SUMMARY = false;
+
 		int dsc_ret_val = dsc_handler.mainEntry(new String[] {/*
 		                                                      * "conf_evo_dumper.txt"
 		                                                      * ,
@@ -130,7 +135,6 @@ public class ConcolicExecution {
 			List<BranchCondition> branches = adapter.transform(path_constraint);
 
 			logger.debug("NrOfBranches=" + branches.size());
-
 			File file = new File(dirName + "/", className + ".class");
 			// file.deleteOnExit();
 
@@ -234,6 +238,8 @@ public class ConcolicExecution {
 
 			if (s instanceof PrimitiveStatement) {
 				PrimitiveStatement ps = (PrimitiveStatement) s;
+				if (ps.getValue() == null)
+					continue;
 				Class<?> t = ps.getReturnClass();
 				if (t.equals(Integer.class) || t.equals(int.class)) {
 					p.add(ps);
@@ -273,7 +279,8 @@ public class ConcolicExecution {
 	private void getPrimitiveValue(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        PrimitiveStatement<?> statement) {
 		//Class<?> clazz = statement.getReturnValue().getVariableClass();
-		Class<?> clazz = statement.getValue().getClass();
+		Class<?> clazz = statement.getValue() != null ? statement.getValue().getClass()
+		        : statement.getReturnClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) statement.getValue()).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
