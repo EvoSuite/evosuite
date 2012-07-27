@@ -263,8 +263,8 @@ public class TestSuiteDSE {
 				TestCase expandedTest = expandTestCase(test.getTestCase());
 				TestChromosome expandedChromosome = new TestChromosome();
 				expandedChromosome.setTestCase(expandedTest);
-				//test.setTestCase(expandedTest);
-				//test.clearCachedResults();
+				test.setTestCase(expandedTest);
+				test.clearCachedResults();
 
 				logger.info("DSE start");
 				// Apply DSE to gather constraints
