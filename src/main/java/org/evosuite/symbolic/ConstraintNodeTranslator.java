@@ -23,6 +23,7 @@ import edu.uta.cse.dsc.ast.BitVector64;
 import edu.uta.cse.dsc.ast.BoundVariable;
 import edu.uta.cse.dsc.ast.DoubleExpression;
 import edu.uta.cse.dsc.ast.FloatExpression;
+import edu.uta.cse.dsc.ast.JvmExpression;
 import edu.uta.cse.dsc.ast.JvmVariable;
 import edu.uta.cse.dsc.ast.Reference;
 import edu.uta.cse.dsc.ast.bitvector.BitVector32Variable;
@@ -34,9 +35,8 @@ import edu.uta.cse.dsc.ast.fp.DoubleVariable;
 import edu.uta.cse.dsc.ast.fp.FloatLiteral;
 import edu.uta.cse.dsc.ast.fp.FloatVariable;
 import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
-import edu.uta.cse.dsc.ast.reference.LiteralReference;
-import edu.uta.cse.dsc.ast.reference.ReferenceVariable;
 import edu.uta.cse.dsc.ast.z3array.JavaFieldVariable;
+import edu.uta.cse.dsc.ast.z3array.Z3ArrayLiteral;
 import edu.uta.cse.dsc.ast.z3array.Z3ArrayVariable;
 import edu.uta.cse.dsc.pcdump.ast.AndConstraint;
 import edu.uta.cse.dsc.pcdump.ast.ConstraintNodeVisitor;
@@ -48,16 +48,16 @@ import edu.uta.cse.dsc.pcdump.ast.OrConstraint;
 import edu.uta.cse.dsc.pcdump.ast.SelectConstraint;
 import edu.uta.cse.dsc.pcdump.ast.UpdateConstraint;
 
-public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
+public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
-	private final SymbolicExecState symbolicExecState;
+	private final ConcolicState concolicState;
 
 	private final JvmExpressionTranslator expressionTranslator;
 
 	public ConstraintNodeTranslator(Map<JvmVariable, String> symbolicVariables) {
-		this.symbolicExecState = new SymbolicExecState(symbolicVariables);
+		this.concolicState = new ConcolicState(symbolicVariables);
 		this.expressionTranslator = new JvmExpressionTranslator(
-				symbolicExecState);
+				concolicState);
 	}
 
 	private IntegerExpression translateToIntegerExpr(
@@ -102,92 +102,65 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 		JvmVariable fresh_var = (JvmVariable) fresh_var_expr;
 		Z3ArrayVariable<?, ?> map_var = (Z3ArrayVariable<?, ?>) map_expr;
+		JvmExpression index_jvm_expr = (JvmExpression) index_expr;
 
-		LiteralReference index_literal_reference = lookUpReference((Reference) index_expr);
-		LiteralNonNullReference index_literal = (LiteralNonNullReference) index_literal_reference;
+		JvmExpression evalIndex = evaluateConcrete(index_jvm_expr);
+		JvmExpression symbolicValue = this.concolicState.getSymbolicValue(
+				map_var, evalIndex);
+		JvmExpression concreteValue = this.concolicState.getConcreteValue(
+				map_var, evalIndex);
 
-		boolean hasConcolicMarker = this.symbolicExecState.isMarked(fresh_var);
+		this.concolicState.declareNewSymbolicVariable(fresh_var,
+				symbolicValue, concreteValue);
 
-		if (symbolicExecState.isSymbolicIntMapping(map_var)) {
-			// int case
-			BitVector32 bitVector32 = symbolicExecState.getSymbolicIntValue(
-					map_var, index_literal);
-			this.symbolicExecState.declareNewSymbolicVariable(fresh_var,
-					bitVector32);
-
-			if (hasConcolicMarker) {
-				LiteralBitVector32 literalBitVector32 = (LiteralBitVector32) bitVector32;
-				return buildNewSymbolicVariableDefinition(fresh_var,
-						literalBitVector32);
-			}
-
-		} else if (symbolicExecState.isSymbolicLongMapping(map_var)) {
-			// long case
-			BitVector64 bitVector64 = symbolicExecState.getSymbolicLongValue(
-					map_var, index_literal);
-			this.symbolicExecState.declareNewSymbolicVariable(fresh_var,
-					bitVector64);
-
-			if (hasConcolicMarker) {
-				LiteralBitVector64 literalBitVector64 = (LiteralBitVector64) bitVector64;
-				return buildNewSymbolicVariableDefinition(fresh_var,
-						literalBitVector64);
-			}
-
-		} else if (symbolicExecState.isSymbolicRefMapping(map_var)) {
-			// object case
-			LiteralReference literalReference = symbolicExecState
-					.getSymbolicRefValue(map_var, index_literal);
-			this.symbolicExecState.declareNewSymbolicVariable(fresh_var,
-					literalReference);
-
-			if (hasConcolicMarker) {
-				// treat reference as String (no concolic marker for Object type)
-				LiteralNonNullReference string_reference = (LiteralNonNullReference) literalReference;
-				return buildNewSmbolicVariableDefinition(fresh_var,
-						string_reference);
-			}
-		} else if (symbolicExecState.isSymbolicFloatMapping(map_var)) {
-			// float
-			FloatExpression floatExpression = symbolicExecState
-					.getSymbolicFloatValue(map_var, index_literal);
-			this.symbolicExecState.declareNewSymbolicVariable(fresh_var,
-					floatExpression);
-
-			if (hasConcolicMarker) {
-				FloatLiteral floatLiteral = (FloatLiteral) floatExpression;
-				return buildNewSymbolicVariableDefinition(fresh_var,
-						floatLiteral);
-			}
-
-		} else if (symbolicExecState.isSymbolicDoubleMapping(map_var)) {
-			// double
-			DoubleExpression doubleExpression = symbolicExecState
-					.getSymbolicDoubleValue(map_var, index_literal);
-			this.symbolicExecState.declareNewSymbolicVariable(fresh_var,
-					doubleExpression);
-
-			if (hasConcolicMarker) {
-				DoubleLiteral doubleLiteral = (DoubleLiteral) doubleExpression;
-				return buildNewSymbolicVariableDefinition(fresh_var,
-						doubleLiteral);
-			}
-
+		if (this.concolicState.isMarked(fresh_var)) {
+			return buildNewSymbolicVariableDefinition(fresh_var, symbolicValue);
+		} else {
+			return null;
 		}
 
-		else {
-			throw new IllegalStateException("Unknown mapping: "
-					+ map_var.getName());
-		}
-
-		return null;
 	}
 
-	private StringConstraint buildNewSmbolicVariableDefinition(JvmVariable fresh_var,
-			LiteralNonNullReference string_reference) {
+	private Object buildNewSymbolicVariableDefinition(JvmVariable fresh_var,
+			JvmExpression symbolicValue) {
+
+		if (symbolicValue instanceof LiteralBitVector32) {
+			// int
+			LiteralBitVector32 arg = (LiteralBitVector32) symbolicValue;
+			return buildNewSymbolicVariableDefinition(fresh_var, arg);
+
+		} else if (symbolicValue instanceof LiteralBitVector64) {
+			// long
+			LiteralBitVector64 arg = (LiteralBitVector64) symbolicValue;
+			return buildNewSymbolicVariableDefinition(fresh_var, arg);
+		}
+		if (symbolicValue instanceof FloatExpression) {
+			// float
+			FloatLiteral arg = (FloatLiteral) symbolicValue;
+			return buildNewSymbolicVariableDefinition(fresh_var, arg);
+
+		} else if (symbolicValue instanceof DoubleExpression) {
+			// double
+			DoubleLiteral arg = (DoubleLiteral) symbolicValue;
+			return buildNewSymbolicVariableDefinition(fresh_var, arg);
+
+		} else if (symbolicValue instanceof LiteralNonNullReference) {
+			// Object
+			LiteralNonNullReference arg = (LiteralNonNullReference) symbolicValue;
+			return buildNewSymbolicVariableDefinition(fresh_var, arg);
+
+		} else {
+			throw new IllegalArgumentException(
+					"Cannot handle symbolic value definition of class "
+							+ symbolicValue.getClass().getName());
+		}
+	}
+
+	private StringConstraint buildNewSymbolicVariableDefinition(
+			JvmVariable fresh_var, LiteralNonNullReference string_reference) {
 		String var_name_str;
-		if (this.symbolicExecState.isMarked(fresh_var)) {
-			var_name_str = this.symbolicExecState.getSymbolicName(fresh_var);
+		if (this.concolicState.isMarked(fresh_var)) {
+			var_name_str = this.concolicState.getSymbolicName(fresh_var);
 		} else {
 			var_name_str = fresh_var.getName();
 		}
@@ -201,8 +174,8 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 	private RealConstraint buildNewSymbolicVariableDefinition(
 			JvmVariable fresh_var, FloatLiteral valueOf) {
 		String var_name_str;
-		if (this.symbolicExecState.isMarked(fresh_var)) {
-			var_name_str = this.symbolicExecState.getSymbolicName(fresh_var);
+		if (this.concolicState.isMarked(fresh_var)) {
+			var_name_str = this.concolicState.getSymbolicName(fresh_var);
 		} else {
 			var_name_str = fresh_var.getName();
 		}
@@ -216,8 +189,8 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 	private RealConstraint buildNewSymbolicVariableDefinition(
 			JvmVariable fresh_var, DoubleLiteral valueOf) {
 		String var_name_str;
-		if (this.symbolicExecState.isMarked(fresh_var)) {
-			var_name_str = this.symbolicExecState.getSymbolicName(fresh_var);
+		if (this.concolicState.isMarked(fresh_var)) {
+			var_name_str = this.concolicState.getSymbolicName(fresh_var);
 		} else {
 			var_name_str = fresh_var.getName();
 		}
@@ -231,8 +204,8 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 	private IntegerConstraint buildNewSymbolicVariableDefinition(
 			JvmVariable fresh_var, LiteralBitVector32 valueOf) {
 		String var_name_str;
-		if (this.symbolicExecState.isMarked(fresh_var)) {
-			var_name_str = this.symbolicExecState.getSymbolicName(fresh_var);
+		if (this.concolicState.isMarked(fresh_var)) {
+			var_name_str = this.concolicState.getSymbolicName(fresh_var);
 		} else {
 			var_name_str = fresh_var.getName();
 		}
@@ -247,8 +220,8 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 			JvmVariable fresh_var, LiteralBitVector64 valueOf) {
 
 		String var_name_str;
-		if (this.symbolicExecState.isMarked(fresh_var)) {
-			var_name_str = this.symbolicExecState.getSymbolicName(fresh_var);
+		if (this.concolicState.isMarked(fresh_var)) {
+			var_name_str = this.concolicState.getSymbolicName(fresh_var);
 		} else {
 			var_name_str = fresh_var.getName();
 		}
@@ -258,17 +231,6 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		IntegerConstant c = new IntegerConstant(concreteValue);
 
 		return new IntegerConstraint(v, Comparator.EQ, c);
-	}
-
-	private LiteralReference lookUpReference(Reference reference) {
-		if (reference instanceof LiteralReference) {
-			LiteralReference literalReference = (LiteralReference) reference;
-			return literalReference;
-		} else if (reference instanceof ReferenceVariable) {
-			return symbolicExecState.getSymbolicRefValue(reference);
-		} else
-			throw new IllegalArgumentException(reference.getClass().getName()
-					+ " is not a supported type of Reference");
 	}
 
 	/**
@@ -285,61 +247,53 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 		Z3ArrayVariable<?, ?> fresh_map_variable = (Z3ArrayVariable<?, ?>) fresh_var_expr;
 
-		LiteralReference index_literal_reference = lookUpReference((Reference) index_expr);
-		LiteralNonNullReference index_literal_non_null_reference = (LiteralNonNullReference) index_literal_reference;
+		JvmExpression value_jvm_expr = (JvmExpression) value_expr;
+		JvmExpression index_jvm_expr = (JvmExpression) index_expr;
 
-		if (map_expr instanceof JavaFieldVariable) {
-			// create empty mapping case
-			JavaFieldVariable javaFieldVariable = (JavaFieldVariable) map_expr;
-			symbolicExecState.declareNewSymbolicMapping(fresh_map_variable,
-					javaFieldVariable);
-
-		} else if (map_expr instanceof Z3ArrayVariable<?, ?>) {
-			// update existing mapping case
-			Z3ArrayVariable<?, ?> map_variable = (Z3ArrayVariable<?, ?>) map_expr;
-			symbolicExecState.declareNewSymbolicMapping(fresh_map_variable,
-					map_variable);
-
+		JvmExpression symbolic_value = evaluateSymbolic(value_jvm_expr);
+		JvmExpression concrete_value;
+		if (!symbolic_value.containsJvmVariable()) {
+			concrete_value = symbolic_value;
 		} else {
-			throw new IllegalArgumentException("Implement this:"
-					+ map_expr.getClass().getName());
+			concrete_value = evaluateConcrete(value_jvm_expr);
 		}
 
-		if (value_expr instanceof BitVector32) {
-			// int case
-			BitVector32 bitVector32 = (BitVector32) value_expr;
-			symbolicExecState.updateSymbolicMapping(fresh_map_variable,
-					index_literal_non_null_reference, bitVector32);
+		JvmExpression eval_index = evaluateConcrete(index_jvm_expr);
 
-		} else if (value_expr instanceof BitVector64) {
-			// long case
-			BitVector64 bitVector64 = (BitVector64) value_expr;
-			symbolicExecState.updateSymbolicMapping(fresh_map_variable,
-					index_literal_non_null_reference, bitVector64);
+		if (eval_index.containsJvmVariable()) {
+			System.out.println("index contains var!");
+		}
 
-		} else if (value_expr instanceof Reference) {
-			// Object case
-			Reference reference = (Reference) value_expr;
-			LiteralReference literalReference = lookUpReference(reference);
-			symbolicExecState.updateSymbolicMapping(fresh_map_variable,
-					index_literal_non_null_reference, literalReference);
+		if (map_expr.getClass().equals(Z3ArrayVariable.class)) {
 
-		} else if (value_expr instanceof FloatExpression) {
-			// float case
-			FloatExpression floatExpression = (FloatExpression) value_expr;
-			symbolicExecState.updateSymbolicMapping(fresh_map_variable,
-					index_literal_non_null_reference, floatExpression);
+			// existing mapping
+			Z3ArrayVariable<?, ?> map_variable = (Z3ArrayVariable<?, ?>) map_expr;
 
-		} else if (value_expr instanceof DoubleExpression) {
-			// double case
-			DoubleExpression doubleExpression = (DoubleExpression) value_expr;
-			symbolicExecState.updateSymbolicMapping(fresh_map_variable,
-					index_literal_non_null_reference, doubleExpression);
+			concolicState.updateExistingMapping(fresh_map_variable,
+					map_variable, eval_index, symbolic_value, concrete_value);
+
+		} else if (map_expr.getClass().equals(JavaFieldVariable.class)) {
+
+			// new field
+			Reference reference_index = (Reference) eval_index;
+			JavaFieldVariable javaFieldVariable = (JavaFieldVariable) map_expr;
+			concolicState.createNewFieldMapping(fresh_map_variable,
+					javaFieldVariable, reference_index, symbolic_value,
+					concrete_value);
+
+		} else if (map_expr.getClass().equals(Z3ArrayLiteral.class)) {
+
+			// new array
+			BitVector32 int_index = (BitVector32) eval_index;
+			Z3ArrayLiteral<?, ?> arrayLiteral = (Z3ArrayLiteral<?, ?>) map_expr;
+			concolicState.createNewArrayMapping(fresh_map_variable,
+					arrayLiteral, int_index, symbolic_value, concrete_value);
 
 		} else {
-			// unknown case
-			throw new IllegalStateException(" update case for "
-					+ value_expr.getClass().getName() + " is not implemented!");
+
+			throw new IllegalStateException(
+					"Cannot handle update for map argument of type "
+							+ map_expr.getClass().getName());
 		}
 
 		// no recursive visit
@@ -352,42 +306,26 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		edu.uta.cse.dsc.ast.Expression right_expr = c.getRight();
 		Comparator comp = Comparator.EQ;
 
-		if (isIntegerOrLong(left_expr) && isIntegerOrLong(right_expr)) {
-			if (left_expr instanceof BitVector32Variable) {
-				BitVector32Variable bitVector32Variable = (BitVector32Variable) left_expr;
-
-				if (!this.symbolicExecState
-						.isAlreadyDefined(bitVector32Variable)) {
-					BitVector32 symbolic_value = (BitVector32) right_expr;
-					this.symbolicExecState.declareNewSymbolicVariable(
-							bitVector32Variable, symbolic_value);
-				}
-			} else if (left_expr instanceof BitVector64Variable) {
-				BitVector64Variable bitVector64Variable = (BitVector64Variable) left_expr;
-				if (!this.symbolicExecState
-						.isAlreadyDefined(bitVector64Variable)) {
-					BitVector64 symbolic_value = (BitVector64) right_expr;
-					this.symbolicExecState.declareNewSymbolicVariable(
-							bitVector64Variable, symbolic_value);
+		if (left_expr instanceof JvmVariable) {
+			JvmVariable left_variable = (JvmVariable) left_expr;
+			if (!this.concolicState.isAlreadyDefined(left_variable)) {
+				JvmExpression right_jvm_expr = (JvmExpression) right_expr;
+				JvmExpression symbolic_eval_right = evaluateSymbolic(right_jvm_expr);
+				JvmExpression concrete_eval_right;
+				if (!symbolic_eval_right.containsJvmVariable()) {
+					concrete_eval_right = symbolic_eval_right;
+				} else {
+					concrete_eval_right = evaluateConcrete(right_jvm_expr);
 				}
 
-			} else if (left_expr instanceof FloatVariable) {
-				FloatVariable floatVariable = (FloatVariable) left_expr;
-				if (!this.symbolicExecState.isAlreadyDefined(floatVariable)) {
-					FloatExpression symbolic_value = (FloatExpression) right_expr;
-					this.symbolicExecState.declareNewSymbolicVariable(
-							floatVariable, symbolic_value);
-				}
+				this.concolicState
+						.declareNewSymbolicVariable(left_variable,
+								symbolic_eval_right, concrete_eval_right);
 
-			} else if (left_expr instanceof DoubleVariable) {
-				DoubleVariable doubleVariable = (DoubleVariable) left_expr;
-				if (!this.symbolicExecState.isAlreadyDefined(doubleVariable)) {
-					FloatExpression symbolic_value = (FloatExpression) right_expr;
-					this.symbolicExecState.declareNewSymbolicVariable(
-							doubleVariable, symbolic_value);
-				}
 			}
+		}
 
+		if (isIntegerOrLong(left_expr) && isIntegerOrLong(right_expr)) {
 			return buildNewIntegerConstraint(left_expr, comp, right_expr);
 		} else if (isFloatOrDouble(left_expr) && isFloatOrDouble(right_expr)) {
 			return buildNewRealConstraint(left_expr, comp, right_expr);
@@ -422,7 +360,24 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 	}
 
 	private RealExpression translateToRealExpr(edu.uta.cse.dsc.ast.Expression e) {
-		throw new UnsupportedOperationException("Not yet implemented");
+		if (!isFloatOrDouble(e)) {
+			throw new IllegalArgumentException(e.toString()
+					+ " is not a valid real expression");
+		}
+
+		if (e instanceof FloatExpression) {
+			FloatExpression fp32 = (FloatExpression) e;
+			Object e_visit = fp32.accept(expressionTranslator);
+			RealExpression realExpr = (RealExpression) e_visit;
+			return realExpr;
+		} else if (e instanceof BitVector64) {
+			DoubleExpression fp64 = (DoubleExpression) e;
+			Object e_visit = fp64.accept(expressionTranslator);
+			RealExpression realExpr = (RealExpression) e_visit;
+			return realExpr;
+		} else {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	private boolean isObject(edu.uta.cse.dsc.ast.Expression e) {
@@ -537,7 +492,72 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 	}
 
 	public void clear() {
-		symbolicExecState.clear();
+		concolicState.clear();
+	}
+
+	private JvmExpression evaluateConcrete(JvmExpression e) {
+		ConcreteEvaluator concreteEvaluator = new ConcreteEvaluator(
+				this.concolicState);
+		if (e instanceof BitVector32) {
+			BitVector32 bv32 = (BitVector32) e;
+			BitVector32 eval_bv32 = (BitVector32) bv32
+					.accept(concreteEvaluator);
+			return eval_bv32;
+		} else if (e instanceof BitVector64) {
+			BitVector64 bv64 = (BitVector64) e;
+			BitVector64 eval_bv64 = (BitVector64) bv64
+					.accept(concreteEvaluator);
+			return eval_bv64;
+		} else if (e instanceof FloatExpression) {
+			FloatExpression fp32 = (FloatExpression) e;
+			FloatExpression eval_fp32 = (FloatExpression) fp32
+					.accept(concreteEvaluator);
+			return eval_fp32;
+		} else if (e instanceof DoubleExpression) {
+			DoubleExpression fp64 = (DoubleExpression) e;
+			DoubleExpression eval_fp64 = (DoubleExpression) fp64
+					.accept(concreteEvaluator);
+			return eval_fp64;
+		} else if (e instanceof Reference) {
+			Reference ref = (Reference) e;
+			Reference eval_ref = (Reference) ref.accept(concreteEvaluator);
+			return eval_ref;
+		} else {
+			throw new IllegalArgumentException();
+		}
+	}
+
+	private JvmExpression evaluateSymbolic(JvmExpression e) {
+
+		SymbolicEvaluator symbolicEvaluator = new SymbolicEvaluator(
+				this.concolicState);
+		if (e instanceof BitVector32) {
+			BitVector32 bv32 = (BitVector32) e;
+			BitVector32 eval_bv32 = (BitVector32) bv32
+					.accept(symbolicEvaluator);
+			return eval_bv32;
+		} else if (e instanceof BitVector64) {
+			BitVector64 bv64 = (BitVector64) e;
+			BitVector64 eval_bv64 = (BitVector64) bv64
+					.accept(symbolicEvaluator);
+			return eval_bv64;
+		} else if (e instanceof FloatExpression) {
+			FloatExpression fp32 = (FloatExpression) e;
+			FloatExpression eval_fp32 = (FloatExpression) fp32
+					.accept(symbolicEvaluator);
+			return eval_fp32;
+		} else if (e instanceof DoubleExpression) {
+			DoubleExpression fp64 = (DoubleExpression) e;
+			DoubleExpression eval_fp64 = (DoubleExpression) fp64
+					.accept(symbolicEvaluator);
+			return eval_fp64;
+		} else if (e instanceof Reference) {
+			Reference ref = (Reference) e;
+			Reference eval_ref = (Reference) ref.accept(symbolicEvaluator);
+			return eval_ref;
+		} else {
+			throw new IllegalArgumentException();
+		}
 	}
 
 }
