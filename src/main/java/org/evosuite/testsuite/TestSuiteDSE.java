@@ -580,6 +580,8 @@ public class TestSuiteDSE {
 							p.setValue(value.shortValue());
 						else if (p.getValue().getClass().equals(Boolean.class))
 							p.setValue(value.intValue() > 0);
+						else if (p.getValue().getClass().equals(Byte.class))
+							p.setValue(value.byteValue() > 0);
 						else
 							logger.warn("New value is of an unsupported type: "
 							        + p.getValue().getClass() + val);
