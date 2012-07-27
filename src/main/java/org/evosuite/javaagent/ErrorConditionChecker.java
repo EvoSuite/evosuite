@@ -160,7 +160,7 @@ public class ErrorConditionChecker {
 			        + scaleTo(Math.abs((long) op1) + Math.abs((long) op2), HALFWAY);
 		} else if (op1 >= 0 && op2 > 0) {
 			// In this case we can't have an overflow yet
-			return HALFWAY + scaleTo(Math.abs((long) op2), HALFWAY);
+			return HALFWAY + scaleTo(op2, HALFWAY);
 		} else if (op1 < 0 && op2 <= 0) {
 			return HALFWAY + scaleTo(Math.abs((long) op1), HALFWAY);
 		} else {
@@ -178,7 +178,7 @@ public class ErrorConditionChecker {
 			        + scaleTo(Math.abs((long) op1) + Math.abs((long) op2), HALFWAY);
 		} else if (op1 >= 0 && op2 > 0) {
 			// In this case we can't have an overflow yet
-			return HALFWAY + scaleTo(Math.abs((long) op1), HALFWAY);
+			return HALFWAY + scaleTo(op1, HALFWAY);
 		} else if (op1 < 0 && op2 <= 0) {
 			return HALFWAY + scaleTo(Math.abs((long) op2), HALFWAY);
 		} else {
