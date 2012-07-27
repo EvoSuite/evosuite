@@ -1060,8 +1060,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				activeDef, freeUse, type);
 		if (goal != null) {
 			foundPairs.add(goal);
-			System.out.println();
-			System.out.println("  created goal: " + goal.toString());
+//			System.out.println();
+//			System.out.println("  created goal: " + goal.toString());
 		}
 	}
 
