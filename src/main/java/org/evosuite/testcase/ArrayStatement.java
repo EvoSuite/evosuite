@@ -221,9 +221,11 @@ public class ArrayStatement extends AbstractStatement {
 	        IllegalAccessException, InstantiationException {
 		// Add array variable to pool
 		try {
-			retval.setObject(scope,
-			                 Array.newInstance((Class<?>) retval.getComponentType(),
-			                                   lengths));
+			Class<?> componentType = retval.getComponentClass();
+			while (componentType.isArray())
+				componentType = componentType.getComponentType();
+			retval.setObject(scope, Array.newInstance(componentType, lengths));
+
 		} catch (CodeUnderTestException e) {
 			exceptionThrown = e.getCause();
 		}
