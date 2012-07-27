@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.testcase;
@@ -40,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
+
 public class GenericClass implements Serializable {
 
 	private static final long serialVersionUID = -3307107227790458308L;
@@ -47,9 +47,12 @@ public class GenericClass implements Serializable {
 	private static Logger logger = LoggerFactory.getLogger(GenericClass.class);
 
 	/**
-	 * <p>isAssignableTo</p>
-	 *
-	 * @param lhsType a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * isAssignableTo
+	 * </p>
+	 * 
+	 * @param lhsType
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableTo(Type lhsType) {
@@ -57,9 +60,12 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>isAssignableFrom</p>
-	 *
-	 * @param rhsType a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * isAssignableFrom
+	 * </p>
+	 * 
+	 * @param rhsType
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableFrom(Type rhsType) {
@@ -67,9 +73,12 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>isAssignableTo</p>
-	 *
-	 * @param lhsType a {@link org.evosuite.testcase.GenericClass} object.
+	 * <p>
+	 * isAssignableTo
+	 * </p>
+	 * 
+	 * @param lhsType
+	 *            a {@link org.evosuite.testcase.GenericClass} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableTo(GenericClass lhsType) {
@@ -77,9 +86,12 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>isAssignableFrom</p>
-	 *
-	 * @param rhsType a {@link org.evosuite.testcase.GenericClass} object.
+	 * <p>
+	 * isAssignableFrom
+	 * </p>
+	 * 
+	 * @param rhsType
+	 *            a {@link org.evosuite.testcase.GenericClass} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableFrom(GenericClass rhsType) {
@@ -88,7 +100,7 @@ public class GenericClass implements Serializable {
 
 	/**
 	 * Return true if variable is an enumeration
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isEnum() {
@@ -97,7 +109,7 @@ public class GenericClass implements Serializable {
 
 	/**
 	 * Return true if variable is a primitive type
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isPrimitive() {
@@ -105,8 +117,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>isString</p>
-	 *
+	 * <p>
+	 * isString
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isString() {
@@ -115,7 +129,7 @@ public class GenericClass implements Serializable {
 
 	/**
 	 * Return true if variable is void
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isVoid() {
@@ -124,7 +138,7 @@ public class GenericClass implements Serializable {
 
 	/**
 	 * Return true if variable is an array
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isArray() {
@@ -132,8 +146,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>getComponentType</p>
-	 *
+	 * <p>
+	 * getComponentType
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.reflect.Type} object.
 	 */
 	public Type getComponentType() {
@@ -141,8 +157,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>getComponentClass</p>
-	 *
+	 * <p>
+	 * getComponentClass
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.reflect.Type} object.
 	 */
 	public Type getComponentClass() {
@@ -160,18 +178,48 @@ public class GenericClass implements Serializable {
 
 	/**
 	 * Return true if type of variable is a primitive wrapper
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isWrapperType() {
 		return WRAPPER_TYPES.contains(raw_class);
 	}
 
+	public Class<?> getUnboxedType() {
+		if (isWrapperType()) {
+			if (raw_class.equals(Integer.class))
+				return int.class;
+			else if (raw_class.equals(Byte.class))
+				return byte.class;
+			else if (raw_class.equals(Short.class))
+				return short.class;
+			else if (raw_class.equals(Long.class))
+				return long.class;
+			else if (raw_class.equals(Float.class))
+				return float.class;
+			else if (raw_class.equals(Double.class))
+				return double.class;
+			else if (raw_class.equals(Character.class))
+				return char.class;
+			else if (raw_class.equals(Boolean.class))
+				return boolean.class;
+			else if (raw_class.equals(Void.class))
+				return void.class;
+			else
+				throw new RuntimeException("Unknown boxed type: " + raw_class);
+		}
+		return raw_class;
+	}
+
 	/**
-	 * <p>isSubclass</p>
-	 *
-	 * @param superclass a {@link java.lang.reflect.Type} object.
-	 * @param subclass a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * isSubclass
+	 * </p>
+	 * 
+	 * @param superclass
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param subclass
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a boolean.
 	 */
 	public static boolean isSubclass(Type superclass, Type subclass) {
@@ -185,10 +233,14 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>isAssignable</p>
-	 *
-	 * @param lhsType a {@link java.lang.reflect.Type} object.
-	 * @param rhsType a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * isAssignable
+	 * </p>
+	 * 
+	 * @param lhsType
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param rhsType
+	 *            a {@link java.lang.reflect.Type} object.
 	 * @return a boolean.
 	 */
 	public static boolean isAssignable(Type lhsType, Type rhsType) {
@@ -306,8 +358,9 @@ public class GenericClass implements Serializable {
 
 	/**
 	 * Generate a generic class by from a type
-	 *
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * 
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	public GenericClass(Type type) {
 		this.type = type;
@@ -317,8 +370,9 @@ public class GenericClass implements Serializable {
 	/**
 	 * Generate a generic class by setting all generic parameters to the unbound
 	 * wildcard ("?")
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
 	 */
 	public GenericClass(Class<?> clazz) {
 		this.type = GenericTypeReflector.addWildcardParameters(clazz);
@@ -326,8 +380,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>getRawClass</p>
-	 *
+	 * <p>
+	 * getRawClass
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public Class<?> getRawClass() {
@@ -335,8 +391,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>type</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>type</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.reflect.Type} object.
 	 */
 	public Type getType() {
@@ -344,8 +402,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>getTypeName</p>
-	 *
+	 * <p>
+	 * getTypeName
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getTypeName() {
@@ -353,8 +413,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>getComponentName</p>
-	 *
+	 * <p>
+	 * getComponentName
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getComponentName() {
@@ -362,8 +424,10 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>getClassName</p>
-	 *
+	 * <p>
+	 * getClassName
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
@@ -376,8 +440,10 @@ public class GenericClass implements Serializable {
 	                                                             "byte");
 
 	/**
-	 * <p>getSimpleName</p>
-	 *
+	 * <p>
+	 * getSimpleName
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getSimpleName() {
@@ -472,9 +538,12 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
-	 * <p>changeClassLoader</p>
-	 *
-	 * @param loader a {@link java.lang.ClassLoader} object.
+	 * <p>
+	 * changeClassLoader
+	 * </p>
+	 * 
+	 * @param loader
+	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader) {
 		try {
