@@ -37,6 +37,8 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.PureMethodsList;
+import org.objectweb.asm.Type;
 
 /**
  * This class computes the Class Control Flow Graph (CCFG) of a CUT.
@@ -1198,15 +1200,16 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		// the node at which analysis is supposed to continue
 		// used for skipping intermediate nodes for CCFGMethodCallNodes
 		CCFGNode nextNode = currentNode;
-
+		
 		if (currentNode instanceof CCFGFieldClassCallNode) {
 			CCFGFieldClassCallNode fieldCall = (CCFGFieldClassCallNode) currentNode;
 			// TODO for now we will have to ignore classes that we are not able
 			// to analyze.
 			// this should only happen for classes in java.*
+			String toAnalyze = fieldCall.getClassName() + "."
+					+ fieldCall.getMethodName();
 			if (GraphPool.canMakeCCFGForClass(fieldCall.getClassName())) {
-				String toAnalyze = fieldCall.getClassName() + "."
-						+ fieldCall.getMethodName();
+				
 				if (!methodsInPurityAnalysis.contains(toAnalyze)) {
 					ClassControlFlowGraph ccfg = GraphPool.getCCFG(fieldCall
 							.getClassName());
@@ -1216,6 +1219,38 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 					}
 				}
 			}
+			
+		/*	else{
+
+				//The format that ASM for types and the one used in my data file is different: in particular ASM uses the 
+				//Class.getName format for types see http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#getName(), while the data
+				//file with the pure methods uses the qualified name. 
+				//For instance, in my file is: java.blabla.ClassExample.method(java.util.List,java.lang.Class[])
+				//ASM returns java.blabla.ClassExample.method(Ljava.util.List;[Ljava.lang.Class)V.
+				//The conversion from qualified name to the JVM/ASM format is not so straightforward, 
+				//well it's not a very complicate problem but there some corner cases that I have to check. 
+				//In the mean time this method convert the ASM/JVM format into the normal one, using an utility 
+				//of ASM.
+				//The file with the method list is in src/resources, it SHOULD be accurate but not perfect, some methods are missing for sure.
+				
+				if(toAnalyze.startsWith("java.")){
+					 
+					String paraz = fieldCall.getOnlyParameters();
+					Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(fieldCall.getOnlyParameters());
+					String newParams = "";
+					if(parameters.length!=0){
+						for (Type i : parameters) {
+							newParams = newParams + "," + i.getClassName();
+						}
+						newParams = newParams.substring(1, newParams.length());
+					}
+					toAnalyze=fieldCall.getClassName() + "." + fieldCall.getOnlyMethodName()+"("+newParams+")";
+					//System.out.println(toAnalyze);
+					
+					return PureMethodsList.instance.checkPurity(toAnalyze);
+				}
+			}
+			*/
 			// otherwise proceed
 		} else if (currentNode instanceof CCFGCodeNode) {
 			CCFGCodeNode codeNode = (CCFGCodeNode) currentNode;
@@ -1546,7 +1581,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			CCFGCodeNode node;
 			if (code.isMethodCallOfField()) {
 				node = new CCFGFieldClassCallNode(code,
-						code.getCalledMethodsClass(), code.getCalledMethod());
+						code.getCalledMethodsClass(), code.getCalledMethodName(), code.getMethodCallDescriptor());
 			} else {
 				node = new CCFGCodeNode(code);
 			}

@@ -99,6 +99,13 @@ public abstract class ASMWrapper {
 
 		return getType();
 	}
+	
+	public String getMethodCallDescriptor() {
+		if (!isMethodCall())
+			return null;
+		MethodInsnNode meth = (MethodInsnNode) asmNode;
+		return meth.desc;
+	}
 
 	/**
 	 * <p>
@@ -366,6 +373,19 @@ public abstract class ASMWrapper {
 		return meth.name + meth.desc;
 	}
 
+	/**
+	 * Returns the conjunction of the name  of the method
+	 * called by this instruction
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
+	public String getCalledMethodName() {
+		if (!isMethodCall())
+			return null;
+		MethodInsnNode meth = (MethodInsnNode) asmNode;
+		return meth.name;
+	}
+	
 	/**
 	 * Returns true if and only if the class of the method called by this
 	 * instruction is the same as the given className
