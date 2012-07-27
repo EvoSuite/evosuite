@@ -115,6 +115,11 @@ import edu.uta.cse.dsc.ast.functions.string.StringSubstring;
 import edu.uta.cse.dsc.ast.functions.string.StringToLowerCase;
 import edu.uta.cse.dsc.ast.functions.string.StringToUpperCase;
 import edu.uta.cse.dsc.ast.functions.string.StringTrim;
+import edu.uta.cse.dsc.ast.reference.LiteralArray.LABv32;
+import edu.uta.cse.dsc.ast.reference.LiteralArray.LABv64;
+import edu.uta.cse.dsc.ast.reference.LiteralArray.LAFp32;
+import edu.uta.cse.dsc.ast.reference.LiteralArray.LAFp64;
+import edu.uta.cse.dsc.ast.reference.LiteralArray.LARef;
 import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
 import edu.uta.cse.dsc.ast.reference.LiteralNullReference;
 import edu.uta.cse.dsc.ast.reference.ReferenceVariable;
@@ -1257,6 +1262,32 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 		}
 	}
 
+	@Override
+	public Object visit(LABv32 r) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Object visit(LABv64 r) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Object visit(LAFp32 r) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Object visit(LAFp64 r) {
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public Object visit(LARef r) {
+		throw new UnsupportedOperationException();
+	}
+
+	
 	/*
 	 * <code>
 	 * ===================================================================
@@ -1332,5 +1363,6 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 		throw new IllegalStateException(
 				"ArraySelectFp32 is not a valid AST instance");
 	}
+
 
 }
