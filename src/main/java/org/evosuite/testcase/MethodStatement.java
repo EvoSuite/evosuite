@@ -481,8 +481,12 @@ public class MethodStatement extends AbstractStatement {
 
 		if (!retval.isVoid()) {
 			if (!retval.getVariableClass().equals(method.getReturnType())) {
-				mg.cast(Type.getType(method.getReturnType()),
-				        Type.getType(retval.getVariableClass()));
+				if (!retval.getVariableClass().isPrimitive()) {
+					mg.checkCast(Type.getType(retval.getVariableClass()));
+				} else {
+					mg.cast(Type.getType(method.getReturnType()),
+					        Type.getType(retval.getVariableClass()));
+				}
 			}
 			retval.storeBytecode(mg, locals);
 		}
