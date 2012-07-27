@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -33,8 +33,10 @@ import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.Frame;
 
 /**
- * <p>ErrorConditionMethodAdapter class.</p>
- *
+ * <p>
+ * ErrorConditionMethodAdapter class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class ErrorConditionMethodAdapter extends GeneratorAdapter {
@@ -48,13 +50,20 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	private Frame[] frames;
 
 	/**
-	 * <p>Constructor for ErrorConditionMethodAdapter.</p>
-	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param access a int.
-	 * @param desc a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for ErrorConditionMethodAdapter.
+	 * </p>
+	 * 
+	 * @param mv
+	 *            a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param access
+	 *            a int.
+	 * @param desc
+	 *            a {@link java.lang.String} object.
 	 */
 	public ErrorConditionMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
@@ -353,6 +362,25 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		case Opcodes.IADD:
 		case Opcodes.ISUB:
 		case Opcodes.IMUL:
+			Label origTarget2 = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
+			super.visitInsn(Opcodes.DUP2);
+			super.visitLdcInsn(opcode);
+			super.visitMethodInsn(Opcodes.INVOKESTATIC,
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
+			                      "underflowDistance", "(III)I");
+
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IFGT, origTarget2);
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
+			super.visitInsn(Opcodes.DUP);
+			super.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ArithmeticException",
+			                      "<init>", "()V");
+			super.visitInsn(Opcodes.ATHROW);
+			super.visitLabel(origTarget2);
+
+		case Opcodes.IDIV:
 			Label origTarget1 = new Label();
 			// Label origTarget = new AnnotatedLabel();
 			// origTarget.info = Boolean.FALSE;
@@ -370,11 +398,32 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget1);
+
 			break;
+
 		case Opcodes.FADD:
 		case Opcodes.FSUB:
 		case Opcodes.FMUL:
-			Label origTarget2 = new Label();
+
+			Label origTarget4 = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
+			super.visitInsn(Opcodes.DUP2);
+			super.visitLdcInsn(opcode);
+			super.visitMethodInsn(Opcodes.INVOKESTATIC,
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
+			                      "underflowDistance", "(FFI)I");
+
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IFGE, origTarget4);
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
+			super.visitInsn(Opcodes.DUP);
+			super.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ArithmeticException",
+			                      "<init>", "()V");
+			super.visitInsn(Opcodes.ATHROW);
+			super.visitLabel(origTarget4);
+		case Opcodes.FDIV:
+			Label origTarget3 = new Label();
 			// Label origTarget = new AnnotatedLabel();
 			// origTarget.info = Boolean.FALSE;
 			super.visitInsn(Opcodes.DUP2);
@@ -384,22 +433,47 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "overflowDistance", "(FFI)I");
 
 			tagBranch();
-			super.visitJumpInsn(Opcodes.IFGE, origTarget2);
+			super.visitJumpInsn(Opcodes.IFGE, origTarget3);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ArithmeticException",
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
-			super.visitLabel(origTarget2);
+			super.visitLabel(origTarget3);
 
 			break;
 		case Opcodes.DADD:
 		case Opcodes.DSUB:
 		case Opcodes.DMUL:
-			Label origTarget3 = new Label();
+
+			Label origTarget6 = new Label();
+			int loc = newLocal(Type.DOUBLE_TYPE);
 			// Label origTarget = new AnnotatedLabel();
 			// origTarget.info = Boolean.FALSE;
-			int loc = newLocal(Type.DOUBLE_TYPE);
+			storeLocal(loc);
+			super.visitInsn(Opcodes.DUP2);
+			loadLocal(loc);
+			super.visitInsn(Opcodes.DUP2_X2);
+			super.visitLdcInsn(opcode);
+			super.visitMethodInsn(Opcodes.INVOKESTATIC,
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
+			                      "underflowDistance", "(DDI)I");
+
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IFGE, origTarget6);
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
+			super.visitInsn(Opcodes.DUP);
+			super.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ArithmeticException",
+			                      "<init>", "()V");
+			super.visitInsn(Opcodes.ATHROW);
+			super.visitLabel(origTarget6);
+
+		case Opcodes.DDIV:
+			loc = newLocal(Type.DOUBLE_TYPE);
+			Label origTarget5 = new Label();
+			// Label origTarget = new AnnotatedLabel();
+			// origTarget.info = Boolean.FALSE;
+
 			storeLocal(loc);
 			super.visitInsn(Opcodes.DUP2);
 			loadLocal(loc);
@@ -410,22 +484,44 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "overflowDistance", "(DDI)I");
 
 			tagBranch();
-			super.visitJumpInsn(Opcodes.IFGE, origTarget3);
+			super.visitJumpInsn(Opcodes.IFGE, origTarget5);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ArithmeticException",
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
-			super.visitLabel(origTarget3);
+			super.visitLabel(origTarget5);
+
 			break;
 
 		case Opcodes.LADD:
 		case Opcodes.LSUB:
 		case Opcodes.LMUL:
-			Label origTarget4 = new Label();
+			Label origTarget8 = new Label();
+			int loc2 = newLocal(Type.LONG_TYPE);
+			storeLocal(loc2);
+			super.visitInsn(Opcodes.DUP2);
+			loadLocal(loc2);
+			super.visitInsn(Opcodes.DUP2_X2);
+			super.visitLdcInsn(opcode);
+			super.visitMethodInsn(Opcodes.INVOKESTATIC,
+			                      "org/evosuite/javaagent/ErrorConditionChecker",
+			                      "underflowDistance", "(JJI)I");
+
+			tagBranch();
+			super.visitJumpInsn(Opcodes.IFGE, origTarget8);
+			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
+			super.visitInsn(Opcodes.DUP);
+			super.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ArithmeticException",
+			                      "<init>", "()V");
+			super.visitInsn(Opcodes.ATHROW);
+			super.visitLabel(origTarget8);
+		case Opcodes.LDIV:
+
+			Label origTarget7 = new Label();
 			// Label origTarget = new AnnotatedLabel();
 			// origTarget.info = Boolean.FALSE;
-			int loc2 = newLocal(Type.LONG_TYPE);
+			loc2 = newLocal(Type.LONG_TYPE);
 			storeLocal(loc2);
 			super.visitInsn(Opcodes.DUP2);
 			loadLocal(loc2);
@@ -436,13 +532,14 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "overflowDistance", "(JJI)I");
 
 			tagBranch();
-			super.visitJumpInsn(Opcodes.IFGE, origTarget4);
+			super.visitJumpInsn(Opcodes.IFGE, origTarget7);
 			super.visitTypeInsn(Opcodes.NEW, "java/lang/ArithmeticException");
 			super.visitInsn(Opcodes.DUP);
 			super.visitMethodInsn(Opcodes.INVOKESPECIAL, "java/lang/ArithmeticException",
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
-			super.visitLabel(origTarget4);
+			super.visitLabel(origTarget7);
+
 			break;
 		}
 		// Check I*, D*, F*, L* for overflows
