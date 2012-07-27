@@ -2239,12 +2239,6 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(ReferenceVariable r) {
-		if (!r.getStaticTypeClass().equals(String.class)) {
-			throw new IllegalArgumentException(
-					"Cannot handle references of type "
-							+ r.getStaticTypeClass().getName());
-		}
-
 		Reference symbolic_value = symbolicExecState.getSymbolicRefValue(r);
 		StringExpression string_expr = (StringExpression) symbolic_value
 				.accept(this);

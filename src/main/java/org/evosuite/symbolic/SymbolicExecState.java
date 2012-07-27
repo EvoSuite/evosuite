@@ -29,7 +29,7 @@ public class SymbolicExecState {
 
 	private final HashMap<String, SymbolicExecMapping<BitVector32>> intMappings;
 	private final HashMap<String, SymbolicExecMapping<BitVector64>> longMappings;
-	private final HashMap<String, SymbolicExecMapping<LiteralReference>> refMappings;
+	private final HashMap<String, SymbolicExecMapping<Reference>> refMappings;
 	private final HashMap<String, SymbolicExecMapping<FloatExpression>> floatMappings;
 	private final HashMap<String, SymbolicExecMapping<DoubleExpression>> doubleMappings;
 
@@ -38,7 +38,7 @@ public class SymbolicExecState {
 	private final HashMap<String, FloatExpression> floatVariables;
 	private final HashMap<String, DoubleExpression> doubleVariables;
 
-	private final HashMap<String, LiteralReference> refVariables;
+	private final HashMap<String, Reference> refVariables;
 	private final HashMap<JvmVariable, String> symbolicVariables;
 
 	private final HashMap<String, JvmExpression>[] all_mappings;
@@ -49,7 +49,7 @@ public class SymbolicExecState {
 		this.longMappings = new HashMap<String, SymbolicExecMapping<BitVector64>>();
 		this.floatMappings = new HashMap<String, SymbolicExecMapping<FloatExpression>>();
 		this.doubleMappings = new HashMap<String, SymbolicExecMapping<DoubleExpression>>();
-		this.refMappings = new HashMap<String, SymbolicExecMapping<LiteralReference>>();
+		this.refMappings = new HashMap<String, SymbolicExecMapping<Reference>>();
 
 		all_mappings = new HashMap[] { intMappings, longMappings, refMappings,
 				floatMappings, doubleMappings };
@@ -58,7 +58,7 @@ public class SymbolicExecState {
 		this.longVariables = new HashMap<String, BitVector64>();
 		this.floatVariables = new HashMap<String, FloatExpression>();
 		this.doubleVariables = new HashMap<String, DoubleExpression>();
-		this.refVariables = new HashMap<String, LiteralReference>();
+		this.refVariables = new HashMap<String, Reference>();
 
 		this.symbolicVariables = new HashMap<JvmVariable, String>(
 				symbolicVariables);
@@ -100,7 +100,7 @@ public class SymbolicExecState {
 
 	public void updateSymbolicMapping(Z3ArrayVariable<?, ?> map_var,
 			LiteralNonNullReference index_reference,
-			LiteralReference new_symbolic_value) {
+			Reference new_symbolic_value) {
 		String map_var_str = map_var.getName();
 		if (!refMappings.containsKey(map_var_str)) {
 			throw new IllegalArgumentException(map_var
@@ -146,7 +146,7 @@ public class SymbolicExecState {
 			doubleMappings.put(fresh_map_var_str, mapping);
 
 		} else if (Object.class.isAssignableFrom(fieldType)) {
-			SymbolicExecMapping<LiteralReference> mapping = new SymbolicExecMapping<LiteralReference>(
+			SymbolicExecMapping<Reference> mapping = new SymbolicExecMapping<Reference>(
 					java_field_variable);
 			refMappings.put(fresh_map_var_str, mapping);
 
@@ -196,9 +196,9 @@ public class SymbolicExecState {
 		} else if (refMappings.containsKey(old_map_var_str)) {
 			// object
 
-			SymbolicExecMapping<LiteralReference> old_map = refMappings
+			SymbolicExecMapping<Reference> old_map = refMappings
 					.get(old_map_var_str);
-			SymbolicExecMapping<LiteralReference> new_map = new SymbolicExecMapping<LiteralReference>(
+			SymbolicExecMapping<Reference> new_map = new SymbolicExecMapping<Reference>(
 					old_map);
 			refMappings.put(fresh_map_var_str, new_map);
 
@@ -252,7 +252,7 @@ public class SymbolicExecState {
 	}
 
 	public void declareNewSymbolicVariable(JvmVariable fresh_var,
-			LiteralReference symbolic_value) {
+			Reference symbolic_value) {
 
 		String fresh_var_str = fresh_var.getName();
 		if (refVariables.containsKey(fresh_var_str))
@@ -307,7 +307,7 @@ public class SymbolicExecState {
 		}
 		return this.intVariables.get(v_str);
 	}
-	
+
 	public FloatExpression getSymbolicFloatValue(FloatVariable v) {
 		String v_str = v.getName();
 		if (!this.floatVariables.containsKey(v_str)) {
@@ -348,7 +348,7 @@ public class SymbolicExecState {
 		return longMappings.get(map_var_str).get(index_literal);
 	}
 
-	public LiteralReference getSymbolicRefValue(Z3ArrayVariable<?, ?> map_var,
+	public Reference getSymbolicRefValue(Z3ArrayVariable<?, ?> map_var,
 			LiteralNonNullReference index_literal) {
 		String map_var_str = map_var.getName();
 		if (!refMappings.containsKey(map_var_str)) {
@@ -367,7 +367,7 @@ public class SymbolicExecState {
 		return this.symbolicVariables.containsKey(v);
 	}
 
-	public LiteralReference getSymbolicRefValue(Reference v) {
+	public Reference getSymbolicRefValue(Reference v) {
 		String v_str = v.toString();
 		if (!this.refVariables.containsKey(v_str)) {
 			throw new IllegalArgumentException(v.toString()
@@ -501,8 +501,7 @@ public class SymbolicExecState {
 		String v_str = v.getName();
 		return this.floatVariables.containsKey(v_str);
 	}
-	
-	
+
 	public boolean isAlreadyDefined(DoubleVariable v) {
 		String v_str = v.getName();
 		return this.doubleVariables.containsKey(v_str);

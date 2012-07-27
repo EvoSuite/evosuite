@@ -103,7 +103,7 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		JvmVariable fresh_var = (JvmVariable) fresh_var_expr;
 		Z3ArrayVariable<?, ?> map_var = (Z3ArrayVariable<?, ?>) map_expr;
 
-		LiteralReference index_literal_reference = lookUpReference((Reference) index_expr);
+		LiteralReference index_literal_reference = (LiteralReference)lookUpReference((Reference) index_expr);
 		LiteralNonNullReference index_literal = (LiteralNonNullReference) index_literal_reference;
 
 		boolean hasConcolicMarker = this.symbolicExecState.isMarked(fresh_var);
@@ -136,14 +136,15 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 		} else if (symbolicExecState.isSymbolicRefMapping(map_var)) {
 			// object case
-			LiteralReference literalReference = symbolicExecState
-					.getSymbolicRefValue(map_var, index_literal);
+			Reference reference = symbolicExecState.getSymbolicRefValue(
+					map_var, index_literal);
 			this.symbolicExecState.declareNewSymbolicVariable(fresh_var,
-					literalReference);
+					reference);
 
 			if (hasConcolicMarker) {
-				// treat reference as String (no concolic marker for Object type)
-				LiteralNonNullReference string_reference = (LiteralNonNullReference) literalReference;
+				// treat reference as String (no concolic marker for Object
+				// type)
+				LiteralNonNullReference string_reference = (LiteralNonNullReference) reference;
 				return buildNewSmbolicVariableDefinition(fresh_var,
 						string_reference);
 			}
@@ -183,8 +184,8 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		return null;
 	}
 
-	private StringConstraint buildNewSmbolicVariableDefinition(JvmVariable fresh_var,
-			LiteralNonNullReference string_reference) {
+	private StringConstraint buildNewSmbolicVariableDefinition(
+			JvmVariable fresh_var, LiteralNonNullReference string_reference) {
 		String var_name_str;
 		if (this.symbolicExecState.isMarked(fresh_var)) {
 			var_name_str = this.symbolicExecState.getSymbolicName(fresh_var);
@@ -260,13 +261,13 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		return new IntegerConstraint(v, Comparator.EQ, c);
 	}
 
-	private LiteralReference lookUpReference(Reference reference) {
+	private Reference lookUpReference(Reference reference) {
 		if (reference instanceof LiteralReference) {
 			LiteralReference literalReference = (LiteralReference) reference;
 			return literalReference;
 		} else if (reference instanceof ReferenceVariable) {
 			return symbolicExecState.getSymbolicRefValue(reference);
-		} else
+		} else 
 			throw new IllegalArgumentException(reference.getClass().getName()
 					+ " is not a supported type of Reference");
 	}
@@ -285,7 +286,7 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 		Z3ArrayVariable<?, ?> fresh_map_variable = (Z3ArrayVariable<?, ?>) fresh_var_expr;
 
-		LiteralReference index_literal_reference = lookUpReference((Reference) index_expr);
+		LiteralReference index_literal_reference = (LiteralReference) lookUpReference((Reference) index_expr);
 		LiteralNonNullReference index_literal_non_null_reference = (LiteralNonNullReference) index_literal_reference;
 
 		if (map_expr instanceof JavaFieldVariable) {
@@ -320,9 +321,8 @@ public class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		} else if (value_expr instanceof Reference) {
 			// Object case
 			Reference reference = (Reference) value_expr;
-			LiteralReference literalReference = lookUpReference(reference);
 			symbolicExecState.updateSymbolicMapping(fresh_map_variable,
-					index_literal_non_null_reference, literalReference);
+					index_literal_non_null_reference, reference);
 
 		} else if (value_expr instanceof FloatExpression) {
 			// float case
