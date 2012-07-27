@@ -57,7 +57,7 @@ import edu.uta.cse.dsc.pcdump.ast.DscBranchCondition;
  * 
  * @author Gordon Fraser
  */
-public class ConcolicExecution  {
+public class ConcolicExecution {
 
 	@SuppressWarnings("unused")
 	private List<gov.nasa.jpf.Error> errors;
@@ -106,8 +106,7 @@ public class ConcolicExecution  {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	protected List<BranchCondition> executeConcolic(String targetName,
-			String classPath) {
+	protected List<BranchCondition> executeConcolic(String targetName, String classPath) {
 
 		logger.debug("Setting up Dsc");
 		logger.debug("Dsc target=" + targetName);
@@ -115,28 +114,25 @@ public class ConcolicExecution  {
 
 		DscHandler dsc_handler = new DscHandler(classPath);
 		int dsc_ret_val = dsc_handler.mainEntry(new String[] {/*
-															 * "conf_evo_dumper.txt"
-															 * ,
-															 */targetName,
-				"main" });
+		                                                      * "conf_evo_dumper.txt"
+		                                                      * ,
+		                                                      */targetName, "main" });
 		logger.debug("Dsc ended!");
 		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {
 			logger.info("Dsc success");
 			SymbolicExecutionResult symbolicExecResult = dsc_handler.getSymbolicExecutionResult();
-			List<DscBranchCondition> path_constraint = symbolicExecResult
-					.getBranchConditions();
+			List<DscBranchCondition> path_constraint = symbolicExecResult.getBranchConditions();
 
 			Map<JvmVariable, String> symbolicVariables = symbolicExecResult.getSymbolicVariables();
-			
+
 			logger.debug("symbolicVariables=" + symbolicVariables.values().toString());
 			PathConstraintAdapter adapter = new PathConstraintAdapter(symbolicVariables);
 			List<BranchCondition> branches = adapter.transform(path_constraint);
 
-			
 			logger.debug("NrOfBranches=" + branches.size());
-			
+
 			File file = new File(dirName + "/", className + ".class");
-			file.deleteOnExit();
+			// file.deleteOnExit();
 
 			return branches;
 
@@ -157,6 +153,7 @@ public class ConcolicExecution  {
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 
 		writeTestCase(getPrimitives(test.getTestCase()), test);
+		logger.info("Executing concolic: " + test.getTestCase().toCode());
 		List<BranchCondition> conditions = executeConcolic(className, classPath);
 
 		return conditions;
@@ -258,6 +255,8 @@ public class ConcolicExecution  {
 					//==========--------
 				} else if (t.equals(String.class)) {
 					p.add(ps);
+				} else {
+					logger.warn("WHAT NON-PRIMITIVE PRIMITIVES ARE THERE?? " + t);
 				}
 			}
 		}
@@ -341,7 +340,7 @@ public class ConcolicExecution  {
 			logger.debug("Current statement: {}", statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
-				logger.debug("Marking variable: {}", p);
+				logger.debug("Marking variable: {} - {}", p, p.getReturnValue().getName());
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
 				String var_name = p.getReturnValue().getName();
 				mg.push(var_name);

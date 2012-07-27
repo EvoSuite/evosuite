@@ -448,7 +448,7 @@ public class MethodStatement extends AbstractStatement {
 			parameter.loadBytecode(mg, locals);
 			if (method.getParameterTypes()[num].isPrimitive()) {
 				if (parameter.getGenericClass().isWrapperType()) {
-					mg.unbox(Type.getType(parameter.getVariableClass()));
+					mg.unbox(Type.getType(parameter.getGenericClass().getUnboxedType()));
 				}
 				if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting!");

@@ -63,10 +63,11 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>TestSuiteDSE class.</p>
- *
+ * <p>
+ * TestSuiteDSE class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class TestSuiteDSE {
@@ -94,19 +95,28 @@ public class TestSuiteDSE {
 
 	private final TestSuiteFitnessFunction fitness;
 
+	private final Map<String, Integer> variablePositionMap = new HashMap<String, Integer>();
+
 	/**
-	 * <p>Constructor for TestSuiteDSE.</p>
-	 *
-	 * @param fitness a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 * <p>
+	 * Constructor for TestSuiteDSE.
+	 * </p>
+	 * 
+	 * @param fitness
+	 *            a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
+	 *            object.
 	 */
 	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
 		this.fitness = fitness;
 	}
 
 	/**
-	 * <p>applyDSE</p>
-	 *
-	 * @param individual a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * <p>
+	 * applyDSE
+	 * </p>
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void applyDSE(TestSuiteChromosome individual) {
 		ConcolicExecution concolicExecution = new ConcolicExecution();
@@ -141,8 +151,7 @@ public class TestSuiteDSE {
 			expandedChromosome.setTestCase(expandedTest);
 			List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
 			for (BranchCondition branch : branches) {
-				String index = branch.getFullName()
-				        + branch.getInstructionIndex();
+				String index = branch.getFullName() + branch.getInstructionIndex();
 				if (!solvedConstraints.containsKey(index))
 					solvedConstraints.put(index,
 					                      new HashMap<Integer, Map<Comparator, Set<BranchCondition>>>());
@@ -185,7 +194,7 @@ public class TestSuiteDSE {
 						        + " candidate constraints");
 						BranchCondition branch = Randomness.choice(comparatorConstraints.get(c));
 						TestCase newTest = negateCondition(branch.reachingConstraints,
-															branch.localConstraints,
+						                                   branch.localConstraints,
 						                                   expandedTests.get(branch),
 						                                   localConstraint);
 						if (newTest != null) {
@@ -217,15 +226,16 @@ public class TestSuiteDSE {
 
 	/**
 	 * For each uncovered branch try to add a new test
-	 *
-	 * @param individual a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * 
+	 * @param individual
+	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void applyOldDSE(TestSuiteChromosome individual) {
 		long dseEndTime = System.currentTimeMillis() + Properties.DSE_BUDGET;
 		clearBranches();
 		determineCoveredBranches(individual);
 
-		ConcolicExecution concolicExecution =new ConcolicExecution();
+		ConcolicExecution concolicExecution = new ConcolicExecution();
 
 		logger.info("Applying DSE to suite of size " + individual.size());
 		logger.info("Starting with " + uncoveredBranches.size() + " candidate branches");
@@ -279,7 +289,9 @@ public class TestSuiteDSE {
 						        + branch.getInstructionIndex() + ": " + branch);
 
 						// Try to solve negated constraint
-						TestCase newTest = negateCondition(branch.reachingConstraints, branch.localConstraints, expandedTest);
+						TestCase newTest = negateCondition(branch.reachingConstraints,
+						                                   branch.localConstraints,
+						                                   expandedTest);
 
 						// If successful, add resulting test to test suite
 						if (newTest != null) {
@@ -471,9 +483,8 @@ public class TestSuiteDSE {
 		return false;
 	}
 
-	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints, 
-                                     Set<Constraint<?>> localConstraints, 
-                                     TestCase test) {
+	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints,
+	        Set<Constraint<?>> localConstraints, TestCase test) {
 		return negateCondition(reachingConstraints, localConstraints, test, 0);
 	}
 
@@ -487,10 +498,8 @@ public class TestSuiteDSE {
 	//@SuppressWarnings("rawtypes")
 	//@SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints, 
-			                         Set<Constraint<?>> localConstraints, 
-			                         TestCase test,
-	        int localConstraint) {
+	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints,
+	        Set<Constraint<?>> localConstraints, TestCase test, int localConstraint) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(reachingConstraints);
 		//constraints.addAll(condition.localConstraints);
@@ -561,9 +570,6 @@ public class TestSuiteDSE {
 						String name = ((String) key).replace("__SYM", "");
 						//logger.warn("New long value for " + name + " is " + value);
 						PrimitiveStatement p = getStatement(newTest, name);
-						assert (p != null) : "Could not find variable " + name
-						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode() + ", seed: " + Randomness.getSeed();
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) value.intValue());
 						else if (p.getValue().getClass().equals(Long.class))
@@ -712,9 +718,11 @@ public class TestSuiteDSE {
 
 	/**
 	 * Recursively determine constraints in expression
-	 *
-	 * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param variables a {@link java.util.Set} object.
+	 * 
+	 * @param expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param variables
+	 *            a {@link java.util.Set} object.
 	 */
 	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
