@@ -29,6 +29,8 @@ public class CCFGFieldClassCallNode extends CCFGCodeNode {
 
 	private String className;
 	private String methodName;
+	private String methodParameters;
+	
 		
 //	
 	/**
@@ -36,10 +38,11 @@ public class CCFGFieldClassCallNode extends CCFGCodeNode {
 	 *
 	 * @param code a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
-	public CCFGFieldClassCallNode(BytecodeInstruction code, String className, String methodName) {
+	public CCFGFieldClassCallNode(BytecodeInstruction code, String className, String methodName, String methodParameters) {
 		super(code);
 		this.className=className;
 		this.methodName=methodName;
+		this.methodParameters = methodParameters;
 	}
 
 	/**
@@ -53,7 +56,15 @@ public class CCFGFieldClassCallNode extends CCFGCodeNode {
 	 * @return the methodName
 	 */
 	public String getMethodName() {
+		return methodName+methodParameters;
+	}
+	
+	public String getOnlyMethodName(){
 		return methodName;
+	}
+	
+	public String getOnlyParameters(){
+		return methodParameters;
 	}
  
 }
