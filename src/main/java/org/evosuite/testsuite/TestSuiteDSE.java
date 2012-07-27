@@ -576,6 +576,8 @@ public class TestSuiteDSE {
 							p.setValue(value);
 						else if (p.getValue().getClass().equals(Integer.class))
 							p.setValue(value.intValue());
+						else if (p.getValue().getClass().equals(Short.class))
+							p.setValue(value.shortValue());
 						else if (p.getValue().getClass().equals(Boolean.class))
 							p.setValue(value.intValue() > 0);
 						else
