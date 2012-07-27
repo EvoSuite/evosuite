@@ -159,23 +159,23 @@ import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectFp32;
 import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectFp64;
 
 /**
- * Translates a <code>edu.uta.cse.dsc.ast.BitVector32</code> expression into a
- * <code>org.evosuite.symbolic.expr.IntegerExpression</code>.
+ * Translates a <code>edu.uta.cse.dsc.ast.JvmExpression</code> expression into a
+ * <code>org.evosuite.symbolic.expr.Expression</code>.
  * 
- * If a given <code>BitVector32Variable</code> is not marked as <b>symbolic</b>,
- * then it returns its concrete value.
+ * If a given <code>JvmVariable</code> is not marked as <b>symbolic</b>, then it
+ * returns its concrete value.
  * 
  * @author galeotti
  * 
  */
-public class JvmExpressionTranslator implements BitVector32Visitor,
+public final class JvmExpressionTranslator implements BitVector32Visitor,
 		BitVector64Visitor, FloatExpressionVisitor, DoubleExpressionVisitor,
 		ReferenceVisitor {
 
-	private final SymbolicExecState symbolicExecState;
+	private final ConcolicState concolicState;
 
-	public JvmExpressionTranslator(SymbolicExecState symbolicExecState) {
-		this.symbolicExecState = symbolicExecState;
+	public JvmExpressionTranslator(ConcolicState concolicState) {
+		this.concolicState = concolicState;
 	}
 
 	/**
@@ -187,12 +187,13 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 	 */
 	@Override
 	public Object visit(BitVector32Variable b) {
-		BitVector32 symbolic_value = symbolicExecState.getSymbolicIntValue(b);
+		BitVector32 symbolic_value = (BitVector32) concolicState
+				.getSymbolicValue(b);
 		IntegerExpression integer_expr = (IntegerExpression) symbolic_value
 				.accept(this);
-		if (symbolicExecState.isMarked(b)) {
+		if (concolicState.isMarked(b)) {
 			long concreteValue = (Long) integer_expr.getConcreteValue();
-			String symbolic_name = symbolicExecState.getSymbolicName(b);
+			String symbolic_name = concolicState.getSymbolicName(b);
 			return new IntegerVariable(symbolic_name, concreteValue,
 					Integer.MIN_VALUE, Integer.MAX_VALUE);
 		} else {
@@ -531,14 +532,14 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 	 */
 	@Override
 	public Object visit(FloatVariable f) {
-		FloatExpression symbolic_value = symbolicExecState
-				.getSymbolicFloatValue(f);
+		FloatExpression symbolic_value = (FloatExpression) concolicState
+				.getSymbolicValue(f);
 		RealExpression float_expr = (RealExpression) symbolic_value
 				.accept(this);
-		if (symbolicExecState.isMarked(f)) {
+		if (concolicState.isMarked(f)) {
 
 			double concreteValue = (Double) float_expr.getConcreteValue();
-			String symbolic_name = symbolicExecState.getSymbolicName(f);
+			String symbolic_name = concolicState.getSymbolicName(f);
 			return new RealVariable(symbolic_name, concreteValue,
 					Float.MIN_VALUE, Float.MAX_VALUE);
 		} else {
@@ -733,12 +734,13 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 	 */
 	@Override
 	public Object visit(BitVector64Variable b) {
-		BitVector64 symbolic_value = symbolicExecState.getSymbolicLongValue(b);
+		BitVector64 symbolic_value = (BitVector64) concolicState
+				.getSymbolicValue(b);
 		IntegerExpression integer_expr = (IntegerExpression) symbolic_value
 				.accept(this);
-		if (symbolicExecState.isMarked(b)) {
+		if (concolicState.isMarked(b)) {
 			long concreteValue = (Long) integer_expr.getConcreteValue();
-			String symbolic_name = symbolicExecState.getSymbolicName(b);
+			String symbolic_name = concolicState.getSymbolicName(b);
 			return new IntegerVariable(symbolic_name, concreteValue,
 					Long.MIN_VALUE, Long.MAX_VALUE);
 		} else {
@@ -1204,14 +1206,14 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 	 */
 	@Override
 	public Object visit(DoubleVariable f) {
-		DoubleExpression symbolic_value = symbolicExecState
-				.getSymbolicDoubleValue(f);
+		DoubleExpression symbolic_value = (DoubleExpression) concolicState
+				.getSymbolicValue(f);
 		RealExpression float_expr = (RealExpression) symbolic_value
 				.accept(this);
-		if (symbolicExecState.isMarked(f)) {
+		if (concolicState.isMarked(f)) {
 
 			double concreteValue = (Double) float_expr.getConcreteValue();
-			String symbolic_name = symbolicExecState.getSymbolicName(f);
+			String symbolic_name = concolicState.getSymbolicName(f);
 			return new RealVariable(symbolic_name, concreteValue,
 					Double.MIN_VALUE, Double.MAX_VALUE);
 		} else {
@@ -2239,13 +2241,14 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(ReferenceVariable r) {
-		Reference symbolic_value = symbolicExecState.getSymbolicRefValue(r);
+		Reference symbolic_value = (Reference) concolicState
+				.getSymbolicValue(r);
 		StringExpression string_expr = (StringExpression) symbolic_value
 				.accept(this);
-		if (symbolicExecState.isMarked(r)) {
+		if (concolicState.isMarked(r)) {
 
 			String concreteValue = (String) string_expr.getConcreteValue();
-			String symbolic_name = symbolicExecState.getSymbolicName(r);
+			String symbolic_name = concolicState.getSymbolicName(r);
 			return new StringVariable(symbolic_name, concreteValue,
 					concreteValue, concreteValue);
 		} else {
@@ -3048,7 +3051,6 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 	public Object visit(StringReferenceVariable r) {
 		return r.getReferenceVariable().accept(this);
 	}
-	
 
 	@Override
 	public Object visit(StringReferenceNonNullLiteral r) {
@@ -3131,6 +3133,5 @@ public class JvmExpressionTranslator implements BitVector32Visitor,
 		throw new IllegalStateException(
 				"ArraySelectFp32 is not a valid AST instance");
 	}
-
 
 }
