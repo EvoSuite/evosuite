@@ -266,13 +266,11 @@ public class GenericClass implements Serializable {
 		if (lhsType instanceof Class<?> && ((Class<?>) lhsType).isArray()
 		        && rhsType instanceof GenericArrayType) {
 			//logger.warn("Checking generic array 2 "+lhsType+"/"+rhsType);
-			logger.info("Case 7");
 			return isAssignable(((Class<?>) lhsType).getComponentType(),
 			                    ((GenericArrayType) rhsType).getGenericComponentType());
 		}
 		if (rhsType instanceof Class<?> && ((Class<?>) rhsType).isArray()
 		        && lhsType instanceof GenericArrayType) {
-			logger.info("Case 8");
 			//logger.warn("Checking generic array 3 "+lhsType+"/"+rhsType);
 			return isAssignable(((GenericArrayType) lhsType).getGenericComponentType(),
 			                    ((Class<?>) rhsType).getComponentType());
