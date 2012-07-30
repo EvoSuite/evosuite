@@ -148,6 +148,8 @@ public final class Capturer
 		currentLog = new CaptureLog();
 		isCaptureStarted = true;
 		
+		FieldRegistry.restoreForegoingGETSTATIC();
+		
 		LOG.info("Capturer has been started successfully");
 	}
 	
@@ -203,6 +205,8 @@ public final class Capturer
 		}
 		Capturer.classesToBeObserved.add(clazzes);
 		
+		FieldRegistry.restoreForegoingGETSTATIC();
+		
 		LOG.info("Capturer has been started successfully");
 	}
 	
@@ -222,6 +226,9 @@ public final class Capturer
 			LOG.info("Capturer has been stopped successfully");
 			
 			FieldRegistry.clear();
+			
+			
+			System.out.println("LOG: " + log);
 			
 			return log;
 		}

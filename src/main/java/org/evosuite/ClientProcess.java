@@ -22,6 +22,7 @@ package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;

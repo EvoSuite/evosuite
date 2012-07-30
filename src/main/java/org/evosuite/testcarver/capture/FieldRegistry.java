@@ -5,6 +5,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,9 @@ public final class FieldRegistry
 	private static final HashMap<String, List<Object>>        classInstanceMapping            = new HashMap<String, List<Object>>();
 	private static final HashMap<String, Map<String, Field>>  classFieldsMapping               = new HashMap<String, Map<String, Field>>();
 	private static final HashMap<Object, Map<String, Object>> instanceRecentFieldValuesMapping = new HashMap<Object, Map<String,Object>>();
+	
+	private static final HashSet<Class<?>> CLASSES = new HashSet<Class<?>>();
+	
 	
 	private static final Logger LOG = LoggerFactory.getLogger(FieldRegistry.class);
 
@@ -105,6 +109,8 @@ public final class FieldRegistry
 							Capturer.capture(captureId, receiver, CaptureLog.GETSTATIC, Type.getDescriptor(f.getType()), new Object[]{ f.getName() });
 							Capturer.enable( captureId, receiver, v);
 
+							CLASSES.add((Class<?>)receiver);
+							
 							// TODO proper capture id handling
 							captureId--;
 						}
@@ -378,14 +384,6 @@ public final class FieldRegistry
 	}
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
 	synchronized
 	public static void clear()
 	{
@@ -394,6 +392,18 @@ public final class FieldRegistry
 		instanceRecentFieldValuesMapping.clear();
 		captureId = Integer.MAX_VALUE;
 	}
+	
+	
+	
+	synchronized
+	public static void restoreForegoingGETSTATIC()
+	{
+		for(Class<?> c : CLASSES)
+		{
+			register(c);
+		}
+	}
+	
 	
 	
 	public static String classFieldsMappinString()
