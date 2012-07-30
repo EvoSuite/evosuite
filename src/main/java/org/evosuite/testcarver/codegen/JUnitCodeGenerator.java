@@ -405,7 +405,15 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 
 				System.err.println("PKGTYPE: " + Arrays.toString(newPkgType) + " clz: " + clazzSplit[clazzSplit.length - 1]);
 				
-				return  ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1]));
+				if(clazzName.endsWith("[]"))
+				{
+					final QualifiedType t = ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1].replace("[]", "")));
+					return ast.newArrayType(t);
+				}
+				else
+				{
+					return  ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1]));
+				}
 			}
 		}
 	}

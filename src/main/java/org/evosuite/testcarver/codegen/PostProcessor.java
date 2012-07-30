@@ -166,14 +166,14 @@ public final class PostProcessor
 				throw new IllegalArgumentException("there must be at least one class to be observed");
 			}
 	
-			for(int j = 0; j < classes.length; j++)
-			{
-				testClassNameBuilder.append(classes[j].getSimpleName());
-				if(testClassNameBuilder.length() >= 50)
-				{
-					break;
-				}
-			}
+//			for(int j = 0; j < classes.length; j++)
+//			{
+//				testClassNameBuilder.append(classes[j].getSimpleName());
+//				if(testClassNameBuilder.length() >= 10)
+//				{
+//					break;
+//				}
+//			}
 			testClassNameBuilder.append("CarvedTest");
 			
 			
