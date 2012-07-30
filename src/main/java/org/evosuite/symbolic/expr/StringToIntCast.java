@@ -23,10 +23,11 @@ package org.evosuite.symbolic.expr;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 
-
 /**
- * <p>StringToIntCast class.</p>
- *
+ * <p>
+ * StringToIntCast class.
+ * </p>
+ * 
  * @author krusev
  */
 public class StringToIntCast extends IntegerExpression implements Cast<String> {
@@ -38,10 +39,14 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 	protected Expression<String> expr;
 
 	/**
-	 * <p>Constructor for StringToIntCast.</p>
-	 *
-	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param _concValue a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for StringToIntCast.
+	 * </p>
+	 * 
+	 * @param _expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param _concValue
+	 *            a {@link java.lang.Long} object.
 	 */
 	public StringToIntCast(Expression<String> _expr, Long _concValue) {
 		this.expr = _expr;
@@ -76,7 +81,8 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 		}
 		if (obj instanceof StringToIntCast) {
 			StringToIntCast other = (StringToIntCast) obj;
-			return this.expr.equals(other.expr) && this.concValue.equals(other.concValue);
+			return this.expr.equals(other.expr)
+					&& this.concValue.equals(other.concValue);
 		}
 
 		return false;
@@ -99,4 +105,7 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 		return Long.parseLong(((String) expr.execute()));
 	}
 
+	public Expression<String> getParam() {
+		return this.expr;
+	}
 }

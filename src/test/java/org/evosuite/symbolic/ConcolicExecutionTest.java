@@ -35,7 +35,7 @@ public class ConcolicExecutionTest {
 						System.getProperty("java.class.path"));
 		assertEquals(1, branch_conditions.size());
 		BranchCondition bc = branch_conditions.get(0);
-		assertEquals(3, bc.localConstraints.size());
+		assertEquals(1, bc.localConstraints.size());
 		assertTrue(bc.reachingConstraints.isEmpty());
 	}
 
@@ -73,7 +73,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase5",
 						System.getProperty("java.class.path"));
 		assertTrue(!branch_conditions.isEmpty());
-		assertEquals(2, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
@@ -83,7 +83,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase6",
 						System.getProperty("java.class.path"));
 		assertTrue(!branch_conditions.isEmpty());
-		assertEquals(2, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
@@ -119,7 +119,7 @@ public class ConcolicExecutionTest {
 		List<BranchCondition> branch_conditions = concolicExecutor
 				.executeConcolic("org.evosuite.symbolic.TestCase10",
 						System.getProperty("java.class.path"));
-		assertEquals(2, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
@@ -157,9 +157,9 @@ public class ConcolicExecutionTest {
 
 		BranchCondition bc0 = branch_conditions.get(0);
 		assertTrue(bc0.reachingConstraints.isEmpty());
-		assertEquals(2, bc0.localConstraints.size());
+		assertEquals(1, bc0.localConstraints.size());
 
-		int reachingConstraints = 2;
+		int reachingConstraints = 1;
 		for (int i = 1; i < branch_conditions.size(); i++) {
 			BranchCondition bc = branch_conditions.get(i);
 			assertEquals(reachingConstraints, bc.reachingConstraints.size());
@@ -184,15 +184,15 @@ public class ConcolicExecutionTest {
 		BranchCondition bc3 = branch_conditions.get(3);
 
 		assertEquals(0, bc0.reachingConstraints.size());
-		assertEquals(2, bc0.localConstraints.size());
+		assertEquals(1, bc0.localConstraints.size());
 
-		assertEquals(2, bc1.reachingConstraints.size());
+		assertEquals(1, bc1.reachingConstraints.size());
 		assertEquals(1, bc1.localConstraints.size());
 
-		assertEquals(3, bc2.reachingConstraints.size());
+		assertEquals(2, bc2.reachingConstraints.size());
 		assertEquals(1, bc2.localConstraints.size());
 
-		assertEquals(4, bc3.reachingConstraints.size());
+		assertEquals(3, bc3.reachingConstraints.size());
 		assertEquals(1, bc3.localConstraints.size());
 
 	}
@@ -210,7 +210,7 @@ public class ConcolicExecutionTest {
 			List<Constraint<?>> local_constraints_b0 = b0
 					.listOfLocalConstraints();
 			IntegerConstraint int_comparison = (IntegerConstraint) local_constraints_b0
-					.get(2);
+					.get(0);
 			IntegerUnaryExpression abs_expr = (IntegerUnaryExpression) int_comparison
 					.getRightOperand();
 			assertEquals(Operator.ABS, abs_expr.getOperator());
@@ -220,7 +220,7 @@ public class ConcolicExecutionTest {
 			List<Constraint<?>> local_constraints_b1 = b1
 					.listOfLocalConstraints();
 			IntegerConstraint int_comparison = (IntegerConstraint) local_constraints_b1
-					.get(2);
+					.get(0);
 			IntegerUnaryExpression abs_expr = (IntegerUnaryExpression) int_comparison
 					.getRightOperand();
 			assertEquals(Operator.ABS, abs_expr.getOperator());
@@ -230,7 +230,7 @@ public class ConcolicExecutionTest {
 			List<Constraint<?>> local_constraints_b2 = b2
 					.listOfLocalConstraints();
 			IntegerConstraint int_constraint = (IntegerConstraint) local_constraints_b2
-					.get(2);
+					.get(0);
 
 			RealComparison realComparison = (RealComparison) int_constraint
 					.getRightOperand();
@@ -246,7 +246,7 @@ public class ConcolicExecutionTest {
 			List<Constraint<?>> local_constraints_b3 = b3
 					.listOfLocalConstraints();
 			IntegerConstraint int_constraint = (IntegerConstraint) local_constraints_b3
-					.get(2);
+					.get(0);
 
 			RealComparison realComparison = (RealComparison) int_constraint
 					.getRightOperand();
@@ -408,7 +408,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase30",
 						System.getProperty("java.class.path"));
 
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 
 	}
 	
@@ -430,7 +430,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase32",
 						System.getProperty("java.class.path"));
 
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 
 	}
 	
@@ -474,7 +474,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase36",
 						System.getProperty("java.class.path"));
 
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 
 	}
 	
@@ -524,6 +524,7 @@ public class ConcolicExecutionTest {
 	
 	@Test
 	public void test_TestCase41() {
+
 		ConcolicExecution concolicExecutor = new ConcolicExecution();
 		List<BranchCondition> branch_conditions = concolicExecutor
 				.executeConcolic("org.evosuite.symbolic.TestCase41",
@@ -551,8 +552,20 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase43",
 						System.getProperty("java.class.path"));
 
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 
 	}
+	
+	@Test
+	public void test_TestCase44() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase44",
+						System.getProperty("java.class.path"));
+
+		assertEquals(10, branch_conditions.size());
+
+	}
+	
 	
 }

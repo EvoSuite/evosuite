@@ -110,16 +110,17 @@ import edu.uta.cse.dsc.ast.functions.string.StringSubstring;
 import edu.uta.cse.dsc.ast.functions.string.StringToLowerCase;
 import edu.uta.cse.dsc.ast.functions.string.StringToUpperCase;
 import edu.uta.cse.dsc.ast.functions.string.StringTrim;
-import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
-import edu.uta.cse.dsc.ast.reference.LiteralNullReference;
-import edu.uta.cse.dsc.ast.reference.LiteralReference;
-import edu.uta.cse.dsc.ast.reference.ReferenceVariable;
-import edu.uta.cse.dsc.ast.reference.ReferenceVisitor;
 import edu.uta.cse.dsc.ast.reference.LiteralArray.LABv32;
 import edu.uta.cse.dsc.ast.reference.LiteralArray.LABv64;
 import edu.uta.cse.dsc.ast.reference.LiteralArray.LAFp32;
 import edu.uta.cse.dsc.ast.reference.LiteralArray.LAFp64;
 import edu.uta.cse.dsc.ast.reference.LiteralArray.LARef;
+import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
+import edu.uta.cse.dsc.ast.reference.LiteralNullReference;
+import edu.uta.cse.dsc.ast.reference.LiteralReference;
+import edu.uta.cse.dsc.ast.reference.ReferenceVariable;
+import edu.uta.cse.dsc.ast.reference.ReferenceVisitor;
+
 import edu.uta.cse.dsc.ast.ufunction.Bv32ValuedInstanceMethod;
 import edu.uta.cse.dsc.ast.ufunction.Bv64InstanceMethod;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectBv32;
@@ -148,31 +149,6 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 	}
 
 	
-
-	@Override
-	public Object visit(LABv32 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LABv64 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LAFp32 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LAFp64 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LARef r) {
-		throw new UnsupportedOperationException();
-	}
 
 
 	@Override
@@ -1531,6 +1507,51 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 	public Object visit(ArraySelectFp32 f) {
 		throw new IllegalStateException(
 				"ArraySelectFp32 is not a valid AST instance");
+	}
+
+
+
+
+	@Override
+	public Object visit(LABv32 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+
+	@Override
+	public Object visit(LABv64 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+
+	@Override
+	public Object visit(LAFp32 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+
+	@Override
+	public Object visit(LAFp64 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+
+
+
+	@Override
+	public Object visit(LARef r) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

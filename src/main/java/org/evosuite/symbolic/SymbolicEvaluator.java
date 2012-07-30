@@ -1262,30 +1262,7 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 		}
 	}
 
-	@Override
-	public Object visit(LABv32 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LABv64 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LAFp32 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LAFp64 r) {
-		throw new UnsupportedOperationException();
-	}
-
-	@Override
-	public Object visit(LARef r) {
-		throw new UnsupportedOperationException();
-	}
+	
 
 	
 	/*
@@ -1362,6 +1339,36 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 	public Object visit(ArraySelectFp32 f) {
 		throw new IllegalStateException(
 				"ArraySelectFp32 is not a valid AST instance");
+	}
+
+	@Override
+	public Object visit(LABv32 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(LABv64 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(LAFp32 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(LAFp64 r) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object visit(LARef r) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 
