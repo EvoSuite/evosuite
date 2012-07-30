@@ -178,7 +178,7 @@ public final class Instrumenter
 		while(methodIter.hasNext())
 		{
 			methodNode = methodIter.next();
-		
+			
 			if(methodNode.name.equals("<init>"))
 			{
 				this.addFieldRegistryRegisterCall(methodNode);

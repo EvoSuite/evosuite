@@ -26,8 +26,7 @@ public final class CaptureLog implements Cloneable
 	public final ArrayList<String>   methodNames;
 	public final ArrayList<Object[]> params;
 	public final ArrayList<Object>   returnValues;
-	public final ArrayList<Boolean> isStaticCallList;
-
+	public final ArrayList<Boolean>  isStaticCallList;
 	public final ArrayList<String>   descList;
 	
 	
@@ -35,9 +34,10 @@ public final class CaptureLog implements Cloneable
 	// OID | INIT_REC_NO | CLASS
 	
 	public final TIntIntHashMap    oidRecMapping; // oid -> index ==> oidInitReco.get(index) + oidClassNames.get(index)
-	public final TIntArrayList 	  oidInitRecNo;
+	public final TIntArrayList 	   oidInitRecNo;
 	public final ArrayList<String> oidClassNames;
-	public final TIntArrayList 	  oids;
+	public final TIntArrayList 	   oids;
+	public final TIntArrayList     firstInits;
 
 	public final TIntObjectHashMap<String> namesOfAccessedFields; // captureId -> field name
 
@@ -88,6 +88,7 @@ public final class CaptureLog implements Cloneable
 		this.oidInitRecNo  = new TIntArrayList();
 		this.oidClassNames = new ArrayList<String>();
 		this.oids          = new TIntArrayList();
+		this.firstInits = new TIntArrayList();
 		
         this.isStaticCallList = new ArrayList<Boolean>();
 		
@@ -116,6 +117,7 @@ public final class CaptureLog implements Cloneable
 		log.namesOfAccessedFields.putAll(this.namesOfAccessedFields);
 		log.isStaticCallList.addAll(this.isStaticCallList);
 
+		log.firstInits.addAll(this.firstInits);
 		return log;
 	}
 	
@@ -133,6 +135,7 @@ public final class CaptureLog implements Cloneable
 		this.oidInitRecNo.resetQuick();
 		this.oidClassNames.clear();
 		this.oids.resetQuick();
+		this.firstInits.resetQuick();
 		
 		this.namesOfAccessedFields.clear();
 	}
@@ -164,6 +167,8 @@ public final class CaptureLog implements Cloneable
 			this.oidRecMapping.put(oid, infoRecNo);
 			// negative log rec no indicates obj construction
 			this.oidInitRecNo.add(-logRecNo);
+			
+			firstInits.add(logRecNo);
 
 			if(receiver instanceof Class) //this can only happen, if there is a static method call 
 			{
@@ -207,16 +212,36 @@ public final class CaptureLog implements Cloneable
 		// if there is an return value and the return value creation has not been logged before 
 		// (may happen, if, for example, the constructor is private), save the information that 
 		// the value comes from a finished method call
+		
+//		 System.out.println("xxxx " + System.identityHashCode(returnValue));
+			
 		if(returnValue != null && returnValue != RETURN_TYPE_VOID)
-		{
+		{ 
 			 
 			 final int returnValueOID = System.identityHashCode(returnValue);
 			 
+			 System.out.println("2xxxx " + returnValueOID);
 			 
-			 if(! this.oidRecMapping.containsKey(returnValueOID)) // was an accessible constructor call belonging to this object logged before?
+			 final int firstInitRecNo = this.firstInits.get(this.oidRecMapping.get(returnValueOID));
+			 
+//			 System.out.println(returnValueOID +  " REC: " +  this.oidInitRecNo.get(this.oidRecMapping.get(returnValueOID)));
+			 
+			 if( (! this.oidRecMapping.containsKey(returnValueOID) )// was an accessible constructor call belonging to this object logged before?
+				 ||
+					 
+					 
+				   ( 
+				    (! methodNames.get(firstInitRecNo).equals(OBSERVED_INIT) )&&
+				    (! methodNames.get(firstInitRecNo).equals(NOT_OBSERVED_INIT) ) &&
+					
+				    RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo))
+					  )
+			  )
 			 {
 				 if(! isPlain(returnValue) && ! (returnValue instanceof Class))
 				 {
+					 System.out.println("4xxxx " + returnValueOID);
+						
 					 final int oid = System.identityHashCode(receiver);
 					 
 					 int currentRecord = captureIds.size() - 1;
@@ -249,13 +274,24 @@ public final class CaptureLog implements Cloneable
 
 					 this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
 					 
-					 final int infoRecNo = this.oidInitRecNo.size();
-					 this.oidRecMapping.put(returnValueOID, infoRecNo);
-					 // negative log rec no indicates obj construction
-					 this.oidInitRecNo.add(-currentRecord);
-	
-					 this.oidClassNames.add(returnValue.getClass().getName());
-					 this.oids.add(returnValueOID);
+					 if(this.oidRecMapping.containsKey(returnValueOID))
+					 {
+						 final int infoRecNo = this.oidRecMapping.get(returnValueOID);
+						 
+						 this.oidInitRecNo.set(infoRecNo, -currentRecord);
+						 this.firstInits.set(infoRecNo, currentRecord);
+					 }
+					 else
+					 {
+						 final int infoRecNo = this.oidInitRecNo.size();
+						 this.oidRecMapping.put(returnValueOID, infoRecNo);
+						 // negative log rec no indicates obj construction
+						 this.oidInitRecNo.add(-currentRecord);
+						 this.firstInits.add(currentRecord);
+		
+						 this.oidClassNames.add(returnValue.getClass().getName());
+						 this.oids.add(returnValueOID);
+					 }
 				 }
 			 }
 		}

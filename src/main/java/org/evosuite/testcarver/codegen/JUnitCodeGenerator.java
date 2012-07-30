@@ -7,6 +7,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
@@ -30,6 +31,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
@@ -259,22 +261,22 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			throw new IllegalStateException("There is already an oid to var mapping for oid " + oid);
 		}
 		
-		try
-		{
+//		try
+//		{
 			if(asObject)
 			{
 				this.oidToTypeMapping.put(oid, Object.class);
 			}
 			else
 			{
-				this.oidToTypeMapping.put(oid, Class.forName(typeName));
+				this.oidToTypeMapping.put(oid, getClassForName(typeName));
 			}
-		}
-		catch(final ClassNotFoundException e)
-		{
-			throw new IllegalArgumentException(e);
-		}
-		
+//		}
+//		catch(final ClassNotFoundException e)
+//		{
+//			throw new IllegalArgumentException(e);
+//		}
+//		
 		
 		final String varName = "var" + this.varCounter++;
 		this.oidToVarMapping.put(oid, varName);
@@ -380,13 +382,30 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				final String[] newPkgType = new String[pkgArray.length + clazzSplit.length - 1];
 				System.arraycopy(pkgArray,   0, newPkgType, 0,               pkgArray.length);
 				System.arraycopy(clazzSplit, 0, newPkgType, pkgArray.length, clazzSplit.length - 1);
+
+				System.err.println("PKGTYPE: " + Arrays.toString(newPkgType) + " clz: " + clazzSplit[clazzSplit.length - 1]);
 				
-				
-				return  ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1]));
+				if(clazzName.endsWith("[]"))
+				{
+					final QualifiedType t = ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1].replace("[]", "")));
+					return ast.newArrayType(t);
+				}
+				else
+				{
+					return  ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1]));
+				}
 			}
 			else
 			{
-				return  ast.newQualifiedType( pkgType, ast.newSimpleName(clazzName));
+		    	final String[] clazzSplit = clazzName.split("\\$");
+				
+				final String[] newPkgType = new String[pkgArray.length + clazzSplit.length - 1];
+				System.arraycopy(pkgArray,   0, newPkgType, 0,               pkgArray.length);
+				System.arraycopy(clazzSplit, 0, newPkgType, pkgArray.length, clazzSplit.length - 1);
+
+				System.err.println("PKGTYPE: " + Arrays.toString(newPkgType) + " clz: " + clazzSplit[clazzSplit.length - 1]);
+				
+				return  ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1]));
 			}
 		}
 	}
@@ -776,7 +795,17 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				}
 				else
 				{
-					mi.setExpression(ast.newSimpleName(varName));
+					try
+					{
+						mi.setExpression(ast.newSimpleName(varName));	
+					}
+					catch(final IllegalArgumentException ex)
+					{
+						System.err.println("--recno-- " + logRecNo);
+						System.err.println("--oid-- " + oid);
+						System.err.println("--method-- " + methodName);
+						System.out.println(log);
+					}
 				}
 				
 				mi.setName(ast.newSimpleName(methodName));
@@ -842,6 +871,13 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					methodParamType = CaptureUtil.getClassFromDesc(methodParamTypes[i].getDescriptor());
 					argType			= this.oidToTypeMapping.get(arg);
 							
+					System.out.println("LOGRECNO: " + logRecNo);
+					System.out.println("DESCRIPTOR: " + methodParamTypes[i].getDescriptor());
+					System.out.println("ARG: " + arg);
+					System.out.println("ARGTYPE: " + argType);
+					System.out.println("METHODARGS: " + Arrays.toString(methodArgs));
+					System.out.println("METHODNAME: " + methodName);
+					
 					if(methodParamType.isAssignableFrom(argType))
 					{
 						arguments.add(ast.newSimpleName(this.oidToVarMapping.get(arg)));
@@ -1168,7 +1204,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				if(CaptureLog.GETSTATIC.equals(methodName))
 				{
 					final String classType = log.oidClassNames.get(log.oidRecMapping.get(oid));
-					fa.setExpression(ast.newName(classType.split("\\.")));
+					fa.setExpression(ast.newName(classType.replace('$', '.').split("\\.")));
 				}
 				else
 				{
@@ -1739,10 +1775,12 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			if(type.endsWith("[]"))
 			{
 				type = type.replace("[]", "");
+				System.err.println("2---------------> " + "[L" + type + ";");
 				return Class.forName("[L" + type + ";");
 			}
 			else
 			{
+				System.err.println("1---------------> " +type.replace('/', '.'));
 				return Class.forName(type.replace('/', '.'));
 			}
 		} 
