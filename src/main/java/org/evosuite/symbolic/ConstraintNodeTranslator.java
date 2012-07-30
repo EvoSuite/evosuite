@@ -13,9 +13,11 @@ import org.evosuite.symbolic.expr.RealConstant;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealVariable;
+import org.evosuite.symbolic.expr.StringComparison;
 import org.evosuite.symbolic.expr.StringConstant;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.StringToIntCast;
 import org.evosuite.symbolic.expr.StringVariable;
 
 import edu.uta.cse.dsc.ast.BitVector32;
@@ -26,14 +28,10 @@ import edu.uta.cse.dsc.ast.FloatExpression;
 import edu.uta.cse.dsc.ast.JvmExpression;
 import edu.uta.cse.dsc.ast.JvmVariable;
 import edu.uta.cse.dsc.ast.Reference;
-import edu.uta.cse.dsc.ast.bitvector.BitVector32Variable;
-import edu.uta.cse.dsc.ast.bitvector.BitVector64Variable;
 import edu.uta.cse.dsc.ast.bitvector.LiteralBitVector32;
 import edu.uta.cse.dsc.ast.bitvector.LiteralBitVector64;
 import edu.uta.cse.dsc.ast.fp.DoubleLiteral;
-import edu.uta.cse.dsc.ast.fp.DoubleVariable;
 import edu.uta.cse.dsc.ast.fp.FloatLiteral;
-import edu.uta.cse.dsc.ast.fp.FloatVariable;
 import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
 import edu.uta.cse.dsc.ast.z3array.JavaFieldVariable;
 import edu.uta.cse.dsc.ast.z3array.Z3ArrayLiteral;
@@ -56,8 +54,7 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 	public ConstraintNodeTranslator(Map<JvmVariable, String> symbolicVariables) {
 		this.concolicState = new ConcolicState(symbolicVariables);
-		this.expressionTranslator = new JvmExpressionTranslator(
-				concolicState);
+		this.expressionTranslator = new JvmExpressionTranslator(concolicState);
 	}
 
 	private IntegerExpression translateToIntegerExpr(
@@ -110,11 +107,13 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		JvmExpression concreteValue = this.concolicState.getConcreteValue(
 				map_var, evalIndex);
 
-		this.concolicState.declareNewSymbolicVariable(fresh_var,
-				symbolicValue, concreteValue);
+		this.concolicState.declareNewSymbolicVariable(fresh_var, symbolicValue,
+				concreteValue);
 
 		if (this.concolicState.isMarked(fresh_var)) {
-			return buildNewSymbolicVariableDefinition(fresh_var, symbolicValue);
+			return null;
+			// return buildNewSymbolicVariableDefinition(fresh_var,
+			// symbolicValue);
 		} else {
 			return null;
 		}
@@ -318,10 +317,10 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 					concrete_eval_right = evaluateConcrete(right_jvm_expr);
 				}
 
-				this.concolicState
-						.declareNewSymbolicVariable(left_variable,
-								symbolic_eval_right, concrete_eval_right);
+				this.concolicState.declareNewSymbolicVariable(left_variable,
+						symbolic_eval_right, concrete_eval_right);
 
+				return null;
 			}
 		}
 
@@ -355,8 +354,43 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		IntegerExpression left_integer_expression = translateToIntegerExpr(left_expr);
 		IntegerExpression right_integer_expression = translateToIntegerExpr(right_expr);
 
-		return new IntegerConstraint(left_integer_expression, comp,
-				right_integer_expression);
+		if (isStringConstraint(left_integer_expression, comp,
+				right_integer_expression)) {
+
+			return createNormalizedIntegerConstraint(left_integer_expression,
+					comp, right_integer_expression);
+		} else
+
+		if (isStringConstraint(right_integer_expression, comp,
+				left_integer_expression)) {
+			return createNormalizedIntegerConstraint(right_integer_expression,
+					comp, left_integer_expression);
+
+		} else {
+
+			return new IntegerConstraint(left_integer_expression, comp,
+					right_integer_expression);
+		}
+	}
+
+	private boolean isStringConstraint(IntegerExpression left, Comparator comp,
+			IntegerExpression right) {
+
+		return ((comp.equals(Comparator.NE) || comp.equals(Comparator.EQ))
+				&& (right instanceof IntegerConstant)
+				&& (left instanceof StringToIntCast) && ((StringToIntCast) left)
+					.getParam() instanceof StringComparison);
+
+	}
+
+	private IntegerConstraint createNormalizedIntegerConstraint(
+			IntegerExpression left, Comparator comp, IntegerExpression right) {
+		IntegerConstant integerConstant = (IntegerConstant) right;
+		StringComparison stringComparison = (StringComparison) ((StringToIntCast) left)
+				.getParam();
+
+		return new IntegerConstraint(stringComparison, comp, integerConstant);
+
 	}
 
 	private RealExpression translateToRealExpr(edu.uta.cse.dsc.ast.Expression e) {

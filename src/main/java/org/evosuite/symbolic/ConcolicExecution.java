@@ -130,7 +130,7 @@ public class ConcolicExecution {
 
 			Map<JvmVariable, String> symbolicVariables = symbolicExecResult.getSymbolicVariables();
 
-			logger.debug("symbolicVariables=" + symbolicVariables.values().toString());
+			logger.debug("symbolicVariables=" + symbolicVariables);
 			PathConstraintAdapter adapter = new PathConstraintAdapter(symbolicVariables);
 			List<BranchCondition> branches = adapter.transform(path_constraint);
 
