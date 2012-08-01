@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 
+import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -210,12 +211,15 @@ public class FieldReference extends VariableReferenceImpl {
 				// FIXXME: isAssignableFrom does not work with autoboxing
 				// assert (value==null || field.getType().isAssignableFrom(value.getClass()));
 				if (!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
-					logger.error("Field " + field + " defined in class "
-					        + field.getDeclaringClass());
-					logger.error("Source object " + sourceObject + " has class "
-					        + sourceObject.getClass());
-					logger.error("Value object " + value + " has class "
-					        + value.getClass());
+					
+					String msg = "Field " + field + " defined in class "
+					        + field.getDeclaringClass()
+					        +". Source object " + sourceObject + " has class "
+					        + sourceObject.getClass()
+					        + ". Value object " + value + " has class "
+					        + value.getClass();
+					logger.error("Class "+Properties.TARGET_CLASS+". "+msg);
+					//FIXME: is it correct to throw an exception here? if yes, which kind?						
 				}
 				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
 				field.set(sourceObject, value);
@@ -223,7 +227,6 @@ public class FieldReference extends VariableReferenceImpl {
 		} catch (IllegalArgumentException e) {
 			logger.error("Error while assigning field: " + getName() + " with value "
 			        + value + " on object " + sourceObject + ": " + e, e);
-			//e.printStackTrace();
 			throw e;
 		} catch (IllegalAccessException e) {
 			logger.error("Error while assigning field: " + e, e);

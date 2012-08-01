@@ -154,6 +154,7 @@ public class ExternalProcessHandler {
 				return false;
 			}
 
+			//FIXME: shouldn't it be deprecated???
 			startExternalProcessPrinter();
 		} else {
 			/*
@@ -192,7 +193,7 @@ public class ExternalProcessHandler {
 				out.flush();
 			}
 		} catch (Exception e) {
-			logger.error("Error while waiting for connection from external process ");
+			logger.error("Class "+Properties.TARGET_CLASS+". Error while waiting for connection from external process ");
 			return false;
 		}
 
@@ -317,8 +318,7 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process",
-						             e);
+						logger.error("Exception while reading output of client process. "+e.getMessage());
 					}
 				}
 			};
@@ -343,8 +343,7 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process",
-						             e);
+						logger.error("Exception while reading output of client process. "+e.getMessage());
 					}
 				}
 			};
@@ -393,7 +392,7 @@ public class ExternalProcessHandler {
 						 * we should try to re-start based on the partial info received so far, eg
 						 * the best solutions found so far which was sent to master
 						 */
-						logger.error("Error in reading message. Likely the client has crashed. Error message: "+e.getMessage());
+						logger.error("Class "+Properties.TARGET_CLASS+". Error in reading message. Likely the client has crashed. Error message: "+e.getMessage());
 						message = Messages.FINISHED_COMPUTATION;
 						data = null;
 					}
@@ -415,7 +414,7 @@ public class ExternalProcessHandler {
 						startProcess(last_command, data);
 					} else {
 						killProcess();
-						logger.error("Error, received invalid message: ", message);
+						logger.error("Class "+Properties.TARGET_CLASS+". Error, received invalid message: ", message);
 						return;
 					}
 				}
@@ -464,7 +463,7 @@ public class ExternalProcessHandler {
 		try {
 			latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.warn("Thread interrupted while waiting for results from client process",
+			logger.warn("Class "+Properties.TARGET_CLASS+". Thread interrupted while waiting for results from client process",
 			            e);
 		}
 
