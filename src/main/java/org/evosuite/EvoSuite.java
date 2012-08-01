@@ -208,13 +208,21 @@ public class EvoSuite {
 
 	private static void listClasses() {
 		LoggingUtils.getEvoLogger().info("* The following classes are known: ");
-		File directory = new File(base_dir_path + separator + Properties.OUTPUT_DIR);
-		logger.debug("Going to scan output directory {}", base_dir_path + separator
-		        + Properties.OUTPUT_DIR);
-
+		String directoryName = base_dir_path + separator + Properties.OUTPUT_DIR;
+		File directory = new File(directoryName);
+		logger.debug("Going to scan output directory {}", directoryName);
+		if(! directory.exists()){
+			logger.error("Non-existing directory {}",directoryName);
+			return;
+		}
+		if(! directory.isDirectory()){
+			logger.error("Specified file is not a directory :{}",directoryName);
+			return;
+		}
+		
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
-			System.out.println("   " + file.getName().replace(".task", ""));
+			LoggingUtils.getEvoLogger().info("   " + file.getName().replace(".task", ""));
 		}
 
 	}
@@ -232,7 +240,7 @@ public class EvoSuite {
 		if (!taskFile.exists()) {
 			LoggingUtils.getEvoLogger().info("* Unknown class: " + target);
 			listClasses();
-			System.out.println("* If the class is missing but should be there, consider rerunning -setup, or adapting evosuite-files/evosuite.properties");
+			LoggingUtils.getEvoLogger().info("* If the class is missing but should be there, consider rerunning -setup, or adapting evosuite-files/evosuite.properties");
 			return null;
 		}
 		String classPath = System.getProperty("java.class.path");

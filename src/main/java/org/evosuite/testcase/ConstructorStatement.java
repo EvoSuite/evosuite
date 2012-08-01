@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.evosuite.Properties;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -172,7 +173,8 @@ public class ConstructorStatement extends AbstractStatement {
 							//throw new CodeUnderTestException(e.getCause());
 							// throw CodeUnderTestException.throwException(e.getCause());
 						} catch (Throwable e) {
-							logger.error("Error encountered: " + e);
+							//FIXME: this does not seem to propagate to client root. Is this normal behavior?
+							logger.error("Class "+Properties.TARGET_CLASS+". Error encountered: " + e);
 							assert (false);
 							throw new EvosuiteError(e);
 						}
