@@ -45,6 +45,7 @@ public class Sandbox {
 	/** Constant <code>lastAccessedFile</code> */
 	public static EvosuiteFile lastAccessedFile = null;;
 
+	
 	private static PermissionStatistics statistics = PermissionStatistics.getInstance();
 
 	/**
