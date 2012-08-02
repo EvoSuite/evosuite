@@ -187,6 +187,25 @@ public final class ConcolicState {
 			}
 		}
 
+		public boolean isInitialized(Z3ArrayVariable<?, ?> map_var,
+				ArrayReference<?> array_ref, JvmExpression index) {
+			BitVector32 array_index = (BitVector32) index;
+
+			// the map_var could be a initial array value
+			if (!arrayValues.containsKey(map_var)) {
+				return false;
+			}
+
+			// if the map_var is defined, then the array_ref should be defined
+			assert arrayValues.get(map_var).containsKey(array_ref);
+
+			if (!arrayValues.get(map_var).get(array_ref)
+					.containsKey(array_index))
+				return false;
+			else
+				return true;
+		}
+
 		public JvmExpression getValue(Z3ArrayVariable<?, ?> map_var,
 				ArrayReference<?> array_ref, JvmExpression index) {
 
@@ -235,6 +254,20 @@ public final class ConcolicState {
 
 		concreteState.putNewValue(fresh_map_var, map_var, literal_index,
 				concrete_value);
+
+	}
+
+	public boolean isInitialized(Z3ArrayVariable<?, ?> map_var,
+			ArrayReference<?> array_ref, JvmExpression index) {
+
+		boolean isInitialized_symbolic = this.symbolicState.isInitialized(
+				map_var, array_ref, index);
+		boolean isInitialized_concrete = this.concreteState.isInitialized(
+				map_var, array_ref, index);
+
+		assert isInitialized_symbolic == isInitialized_concrete;
+
+		return isInitialized_concrete;
 
 	}
 

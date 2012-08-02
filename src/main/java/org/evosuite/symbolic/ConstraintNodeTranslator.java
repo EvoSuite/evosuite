@@ -27,8 +27,12 @@ import edu.uta.cse.dsc.ast.FloatExpression;
 import edu.uta.cse.dsc.ast.JvmExpression;
 import edu.uta.cse.dsc.ast.JvmVariable;
 import edu.uta.cse.dsc.ast.Reference;
+import edu.uta.cse.dsc.ast.Z3Sort;
+import edu.uta.cse.dsc.ast.bitvector.LiteralBitVector32;
+import edu.uta.cse.dsc.ast.bitvector.LiteralBitVector64;
 import edu.uta.cse.dsc.ast.fp.DoubleLiteral;
 import edu.uta.cse.dsc.ast.fp.FloatLiteral;
+import edu.uta.cse.dsc.ast.reference.LiteralNullReference;
 import edu.uta.cse.dsc.ast.z3array.DumpingZ3ArrayFactory;
 import edu.uta.cse.dsc.ast.z3array.JavaArrayVariable;
 import edu.uta.cse.dsc.ast.z3array.JavaFieldVariable;
@@ -53,6 +57,7 @@ import edu.uta.cse.dsc.pcdump.ast.SelectArrayConstraint;
 import edu.uta.cse.dsc.pcdump.ast.SelectFieldConstraint;
 import edu.uta.cse.dsc.pcdump.ast.UpdateArrayConstraint;
 import edu.uta.cse.dsc.pcdump.ast.UpdateFieldConstraint;
+import edu.uta.cse.dsc.sort.ArraySort;
 
 public final class ConstraintNodeTranslator implements ConstraintNodeVisitor {
 
@@ -642,11 +647,36 @@ public final class ConstraintNodeTranslator implements ConstraintNodeVisitor {
 		JvmExpression index = evaluateConcrete(c.getIndex());
 		Z3ArrayVariable<?, ?> map_var = (Z3ArrayVariable<?, ?>) c.getMap();
 
-		// array access
-		JvmExpression symbolicValue = this.concolicState.getSymbolicValue(
-				map_var, arrayRef, index);
-		JvmExpression concreteValue = this.concolicState.getConcreteValue(
-				map_var, arrayRef, index);
+		JvmExpression symbolicValue;
+		JvmExpression concreteValue;
+
+		if (this.concolicState.isInitialized(map_var, arrayRef, index)) {
+			// array access
+			symbolicValue = this.concolicState.getSymbolicValue(map_var,
+					arrayRef, index);
+			concreteValue = this.concolicState.getConcreteValue(map_var,
+					arrayRef, index);
+		} else {
+
+			JvmExpression defaultValue;
+			ArraySort sort = (ArraySort) map_var.getSort();
+			if (sort.equals(ArraySort.getSort(int[].class))) {
+				defaultValue = new LiteralBitVector32(0);
+			} else if (sort.equals(ArraySort.getSort(long[].class))) {
+				defaultValue = new LiteralBitVector64(0);
+			} else if (sort.equals(ArraySort.getSort(float[].class))) {
+				defaultValue = new FloatLiteral(0);
+			} else if (sort.equals(ArraySort.getSort(double[].class))) {
+				defaultValue = new DoubleLiteral(0);
+			} else if (sort.equals(ArraySort.getSort(Object[].class))) {
+				defaultValue = LiteralNullReference.getInstance();
+			} else {
+				throw new UnsupportedOperationException(
+						"I can not find defualt value for type " + sort);
+			}
+			symbolicValue = defaultValue;
+			concreteValue = defaultValue;
+		}
 
 		this.concolicState.updateJvmVariable(c.getVar(), symbolicValue,
 				concreteValue);
