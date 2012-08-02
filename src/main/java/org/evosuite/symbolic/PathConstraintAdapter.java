@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 
 import edu.uta.cse.dsc.ast.JvmVariable;
 import edu.uta.cse.dsc.pcdump.ast.ConstraintNode;
@@ -14,25 +15,24 @@ import edu.uta.cse.dsc.pcdump.ast.DscBranchCondition;
 import org.evosuite.symbolic.expr.Constraint;
 
 /**
- * Transforms a list of Dsc constraints into a list of EvoSuite constraints
+ * Transforms a list of Dsc constraints into a list of EvoSuite constraints. The
+ * <code>ConstraintNodeTranslator</code> performs the actual translation from an
+ * DSC constraint list into a EvoSuite constraint list.
  * 
  * @author galeotti
  * 
  */
 public class PathConstraintAdapter {
 
-	private final ConstraintNodeTranslator visitor ;
+	private final ConstraintNodeTranslator visitor;
 
-	private final Map<JvmVariable, String> symbolicVariables;
-	
 	public PathConstraintAdapter(Map<JvmVariable, String> symbolicVariables) {
-		this.symbolicVariables = symbolicVariables;
 		this.visitor = new ConstraintNodeTranslator(symbolicVariables);
 	}
 
 	public List<BranchCondition> transform(
 			List<DscBranchCondition> dsc_path_constraint) {
-
+		
 		List<BranchCondition> branches = new ArrayList<BranchCondition>();
 		for (DscBranchCondition constraint : dsc_path_constraint) {
 			BranchCondition branch_condition = transform(constraint);
@@ -53,17 +53,18 @@ public class PathConstraintAdapter {
 				.getReachingConstraints();
 		Set<Constraint<?>> reaching_constraints = new HashSet<Constraint<?>>();
 		for (ConstraintNode dsc_constraint : dsc_reaching_constraints) {
-			Constraint<?> reaching_constraint = transform(dsc_constraint);
-			if (reaching_constraint != null)
-				reaching_constraints.add(reaching_constraint);
+			Vector<Constraint<?>> reaching_constraint = transform(dsc_constraint);
+			reaching_constraints.addAll(reaching_constraint);
 		}
 
 		List<ConstraintNode> dsc_local_constraints = bc.getLocalConstraints();
-		List<Constraint<?>> local_constraints = new LinkedList<Constraint<?>>(); // order should be mantained
+		List<Constraint<?>> local_constraints = new LinkedList<Constraint<?>>(); // order
+																					// should
+																					// be
+																					// mantained
 		for (ConstraintNode dsc_constraint : dsc_local_constraints) {
-			Constraint<?> local_constraint = transform(dsc_constraint);
-			if (local_constraint != null)
-				local_constraints.add(local_constraint);
+			Vector<Constraint<?>> local_constraint = transform(dsc_constraint);
+			local_constraints.addAll(local_constraint);
 		}
 
 		if (!local_constraints.isEmpty()) {
@@ -75,8 +76,9 @@ public class PathConstraintAdapter {
 			return null;
 	}
 
-	private Constraint<?> transform(ConstraintNode dsc_constraint) {
-		Constraint<?> ret_val = (Constraint<?>) dsc_constraint.accept(visitor);
+	private Vector<Constraint<?>> transform(ConstraintNode dsc_constraint) {
+		Vector<Constraint<?>> ret_val = (Vector<Constraint<?>>) dsc_constraint
+				.accept(visitor);
 		return ret_val;
 	}
 
