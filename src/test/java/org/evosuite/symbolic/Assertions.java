@@ -43,5 +43,11 @@ public class Assertions {
 			throw new RuntimeException("check failed!");
 		}
 	}
+	
+	public static void checkObjectEquals(Object l, Object r) {
+		if (l != r) {
+			throw new RuntimeException("check failed!");
+		}
+	}
 
 }

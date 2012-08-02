@@ -541,7 +541,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase42",
 						System.getProperty("java.class.path"));
 
-		assertEquals(9, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 
 	}
 	

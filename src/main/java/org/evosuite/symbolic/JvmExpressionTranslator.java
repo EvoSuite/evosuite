@@ -158,10 +158,6 @@ import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectBv32;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectBv64;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectFp32;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectFp64;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectBv32;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectBv64;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectFp32;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectFp64;
 
 /**
  * Translates a <code>edu.uta.cse.dsc.ast.JvmExpression</code> expression into a
@@ -2244,6 +2240,10 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 
 	}
 
+	/**
+	 * If a reference variable is marked, it is supposed to be a String
+	 * variable.
+	 */
 	@Override
 	public Object visit(ReferenceVariable r) {
 		Reference symbolic_value = (Reference) concolicState
@@ -2883,7 +2883,7 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 
 		StringComparison strComp = new StringComparison(str_param_1,
 				Operator.EQUALSIGNORECASE, str_param_2, (long) concrete_value);
-		
+
 		return new StringToIntCast(strComp, (long) concrete_value);
 	}
 
@@ -3064,82 +3064,6 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 
 	}
 
-	/*
-	 * <code>
-	 * ===================================================================
-	 * Unsupported operations
-	 * ===================================================================
-	 * </code>
-	 */
-
-	@Override
-	public Object visit(Bv64InstanceMethod b) {
-		throw new IllegalStateException(
-				"Bv64InstanceMethod is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(ArraySelectBv64 b) {
-		throw new IllegalStateException(
-				"ArraySelectBv64 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(FieldSelectBv64 b) {
-		throw new IllegalStateException(
-				"FieldSelectBv64 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(ArraySelectFp64 f) {
-		throw new IllegalStateException(
-				"ArraySelectFp64 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(FieldSelectFp64 f) {
-		throw new IllegalStateException(
-				"FieldSelectFp64 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(Bv32ValuedInstanceMethod b) {
-		throw new IllegalStateException(
-				"Bv32ValuedInstanceMethod is not a valid AST instance");
-
-	}
-
-	@Override
-	public Object visit(FieldSelectBv32 b) {
-		throw new IllegalStateException(
-				"FieldSelectBv32 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(ArraySelectBv32 b) {
-		throw new IllegalStateException(
-				"FieldSelectBv32 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(ITE.Bv32 b) {
-		throw new UnsupportedOperationException(
-				"Constraint ? Bv32 : Bv32 still not supported!");
-
-	}
-
-	@Override
-	public Object visit(FieldSelectFp32 f) {
-		throw new IllegalStateException(
-				"FieldSelectFp32 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(ArraySelectFp32 f) {
-		throw new IllegalStateException(
-				"ArraySelectFp32 is not a valid AST instance");
-	}
-
 	@Override
 	public Object visit(LABv32 r) {
 		// TODO Auto-generated method stub
@@ -3168,6 +3092,58 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 	public Object visit(LARef r) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	/*
+	 * <code>
+	 * ===================================================================
+	 * Unsupported operations
+	 * ===================================================================
+	 * </code>
+	 */
+
+	@Override
+	public Object visit(Bv64InstanceMethod b) {
+		throw new IllegalStateException(
+				"Bv64InstanceMethod is not a valid AST instance");
+	}
+
+	@Override
+	public Object visit(ArraySelectBv64 b) {
+		throw new IllegalStateException(
+				"ArraySelectBv64 is not a valid AST instance");
+	}
+
+	@Override
+	public Object visit(ArraySelectFp64 f) {
+		throw new IllegalStateException(
+				"ArraySelectFp64 is not a valid AST instance");
+	}
+
+	@Override
+	public Object visit(Bv32ValuedInstanceMethod b) {
+		throw new IllegalStateException(
+				"Bv32ValuedInstanceMethod is not a valid AST instance");
+
+	}
+
+	@Override
+	public Object visit(ArraySelectBv32 b) {
+		throw new IllegalStateException(
+				"FieldSelectBv32 is not a valid AST instance");
+	}
+
+	@Override
+	public Object visit(ITE.Bv32 b) {
+		throw new UnsupportedOperationException(
+				"Constraint ? Bv32 : Bv32 still not supported!");
+
+	}
+
+	@Override
+	public Object visit(ArraySelectFp32 f) {
+		throw new IllegalStateException(
+				"ArraySelectFp32 is not a valid AST instance");
 	}
 
 }

@@ -3,13 +3,14 @@ package org.evosuite.symbolic;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.uta.cse.dsc.MainConfig;
+import edu.uta.cse.dsc.ast.ArrayReference;
 import edu.uta.cse.dsc.ast.BitVector32;
 import edu.uta.cse.dsc.ast.JvmExpression;
 import edu.uta.cse.dsc.ast.JvmVariable;
 import edu.uta.cse.dsc.ast.Reference;
 import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
 import edu.uta.cse.dsc.ast.z3array.JavaFieldVariable;
-import edu.uta.cse.dsc.ast.z3array.Z3ArrayLiteral;
 import edu.uta.cse.dsc.ast.z3array.Z3ArrayVariable;
 
 /**
@@ -20,6 +21,186 @@ import edu.uta.cse.dsc.ast.z3array.Z3ArrayVariable;
  */
 public final class ConcolicState {
 
+	private static class State {
+
+		private final HashMap<Z3ArrayVariable<?, ?>, HashMap<LiteralNonNullReference, JvmExpression>> fieldValues = new HashMap<Z3ArrayVariable<?, ?>, HashMap<LiteralNonNullReference, JvmExpression>>();
+		private final HashMap<Z3ArrayVariable<?, ?>, HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>>> arrayValues = new HashMap<Z3ArrayVariable<?, ?>, HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>>>();
+
+		private final HashMap<JvmVariable, JvmExpression> variableValues = new HashMap<JvmVariable, JvmExpression>();
+
+		public void clear() {
+			this.fieldValues.clear();
+			this.variableValues.clear();
+			this.arrayValues.clear();
+		}
+
+		public void putNewValue(JvmVariable variable, JvmExpression value) {
+			this.variableValues.put(variable, value);
+		}
+
+		public JvmExpression getValue(JvmVariable variable) {
+
+			if (!this.variableValues.containsKey(variable)) {
+
+				throw new IllegalArgumentException("Variable "
+						+ variable.getName() + " is undefined!");
+			}
+
+			return this.variableValues.get(variable);
+		}
+
+		public JvmExpression getValue(Z3ArrayVariable<?, ?> map_var,
+				JvmExpression index_expr) {
+			if (this.fieldValues.containsKey(map_var)) {
+
+				Reference index_reference = (Reference) index_expr;
+				LiteralNonNullReference literal_index = (LiteralNonNullReference) index_reference;
+				HashMap<LiteralNonNullReference, JvmExpression> fieldContents = this.fieldValues
+						.get(map_var);
+				JvmExpression valueOf = fieldContents.get(literal_index);
+				return valueOf;
+
+			} else {
+				throw new IllegalArgumentException("Mapping variable "
+						+ map_var.getName() + " is not defined!");
+
+			}
+
+		}
+
+		public boolean containsVariable(JvmVariable v) {
+			return this.variableValues.containsKey(v);
+		}
+
+		private boolean containsVariable(Z3ArrayVariable<?, ?> v) {
+			return this.fieldValues.containsKey(v);
+		}
+
+		public void putNewValue(Z3ArrayVariable<?, ?> fresh_map_var,
+				JvmExpression reference_index, JvmExpression value) {
+
+			checkFieldNotExists(fresh_map_var);
+
+			HashMap<LiteralNonNullReference, JvmExpression> symbolicFieldMapping = new HashMap<LiteralNonNullReference, JvmExpression>();
+			LiteralNonNullReference index = (LiteralNonNullReference) reference_index;
+			symbolicFieldMapping.put(index, value);
+			fieldValues.put(fresh_map_var, symbolicFieldMapping);
+		}
+
+		private void checkFieldNotExists(Z3ArrayVariable<?, ?> fresh_map_var) {
+			if (this.fieldValues.containsKey(fresh_map_var)) {
+				throw new IllegalArgumentException(fresh_map_var.getName()
+						+ " was already defined in mapping!");
+			}
+		}
+
+		public void putNewValue(Z3ArrayVariable<?, ?> fresh_map_var,
+				Z3ArrayVariable<?, ?> map_var, LiteralNonNullReference index,
+				JvmExpression value) {
+
+			checkFieldNotExists(fresh_map_var);
+			checkFieldExists(map_var);
+
+			HashMap<LiteralNonNullReference, JvmExpression> fieldMapping = fieldValues
+					.get(map_var);
+			HashMap<LiteralNonNullReference, JvmExpression> newFieldMapping = new HashMap<LiteralNonNullReference, JvmExpression>(
+					fieldMapping);
+			newFieldMapping.put(index, value);
+			fieldValues.put(fresh_map_var, newFieldMapping);
+		}
+
+		private void checkFieldExists(Z3ArrayVariable<?, ?> map_var) {
+			if (!fieldValues.containsKey(map_var)) {
+				fieldValues.keySet();
+				throw new IllegalArgumentException(
+						"I can not update map variable " + map_var
+								+ " because it is not defined!");
+			}
+		}
+
+		public void putNewValue(Z3ArrayVariable<?, ?> fresh_map_var,
+				Z3ArrayVariable<?, ?> map_var, ArrayReference<?> arrayRef,
+				JvmExpression index, JvmExpression value) {
+
+			checkArrayNotExists(fresh_map_var);
+			if (map_var != null) {
+				checkArrayExists(map_var);
+			}
+
+			HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>> oldArrayToArrayContents;
+			if (map_var != null) {
+				oldArrayToArrayContents = arrayValues.get(map_var);
+			} else {
+				oldArrayToArrayContents = new HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>>();
+			}
+
+			HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>> newArrayToArrayContents = new HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>>();
+
+			for (ArrayReference<?> arrayReference : oldArrayToArrayContents
+					.keySet()) {
+				HashMap<BitVector32, JvmExpression> oldArrayContents = oldArrayToArrayContents
+						.get(arrayReference);
+				HashMap<BitVector32, JvmExpression> newArrayContents = new HashMap<BitVector32, JvmExpression>(
+						oldArrayContents);
+				newArrayToArrayContents.put(arrayReference, newArrayContents);
+			}
+
+			if (!oldArrayToArrayContents.containsKey(arrayRef)) {
+				newArrayToArrayContents.put(arrayRef,
+						new HashMap<BitVector32, JvmExpression>());
+			}
+			BitVector32 int_index = (BitVector32) index;
+			newArrayToArrayContents.get(arrayRef).put(int_index, value);
+
+			this.arrayValues.put(fresh_map_var, newArrayToArrayContents);
+
+		}
+
+		public void putNewValue(Z3ArrayVariable<?, ?> fresh_map_variable,
+				ArrayReference<?> arrayRef, JvmExpression index,
+				JvmExpression value) {
+
+			checkArrayNotExists(fresh_map_variable);
+
+			BitVector32 int_index = (BitVector32) index;
+			HashMap<BitVector32, JvmExpression> arrayContents = new HashMap<BitVector32, JvmExpression>();
+			arrayContents.put(int_index, value);
+
+			HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>> arrayToContentsMap = new HashMap<ArrayReference<?>, HashMap<BitVector32, JvmExpression>>();
+			arrayToContentsMap.put(arrayRef, arrayContents);
+
+			arrayValues.put(fresh_map_variable, arrayToContentsMap);
+
+		}
+
+		private void checkArrayNotExists(Z3ArrayVariable<?, ?> v) {
+			if (this.arrayValues.containsKey(v)) {
+				throw new IllegalArgumentException(v.getName()
+						+ " was already defined in mapping!");
+			}
+		}
+
+		private void checkArrayExists(Z3ArrayVariable<?, ?> v) {
+			if (!this.arrayValues.containsKey(v)) {
+				throw new IllegalArgumentException(v.getName()
+						+ " was not defined in mapping!");
+			}
+		}
+
+		public JvmExpression getValue(Z3ArrayVariable<?, ?> map_var,
+				ArrayReference<?> array_ref, JvmExpression index) {
+
+			BitVector32 array_index = (BitVector32) index;
+			JvmExpression valueOf = arrayValues.get(map_var).get(array_ref)
+					.get(array_index);
+			if (valueOf == null) {
+				// return array default value
+				throw new UnsupportedOperationException();
+			}
+			return valueOf;
+		}
+	}
+
 	/**
 	 * symbolic variables
 	 */
@@ -28,108 +209,66 @@ public final class ConcolicState {
 	/**
 	 * Symbolic state
 	 */
-	private final HashMap<Z3ArrayVariable<?, ?>, HashMap<LiteralNonNullReference, JvmExpression>> symbolicFieldMappings = new HashMap<Z3ArrayVariable<?, ?>, HashMap<LiteralNonNullReference, JvmExpression>>();
-	private final HashMap<Z3ArrayVariable<?, ?>, HashMap<BitVector32, JvmExpression>> symbolicArrayMappings = new HashMap<Z3ArrayVariable<?, ?>, HashMap<BitVector32, JvmExpression>>();
-	private final HashMap<JvmVariable, JvmExpression> symbolicValues = new HashMap<JvmVariable, JvmExpression>();
+	private final State symbolicState = new State();
 
 	/**
 	 * Concrete state
 	 */
-	private final HashMap<Z3ArrayVariable<?, ?>, HashMap<LiteralNonNullReference, JvmExpression>> concreteFieldMappings = new HashMap<Z3ArrayVariable<?, ?>, HashMap<LiteralNonNullReference, JvmExpression>>();
-	private final HashMap<Z3ArrayVariable<?, ?>, HashMap<BitVector32, JvmExpression>> concreteArrayMappings = new HashMap<Z3ArrayVariable<?, ?>, HashMap<BitVector32, JvmExpression>>();
-	private final HashMap<JvmVariable, JvmExpression> concreteValues = new HashMap<JvmVariable, JvmExpression>();
+	private final State concreteState = new State();
 
 	public ConcolicState(Map<JvmVariable, String> symbolicVariables) {
 		this.symbolicVariables = new HashMap<JvmVariable, String>(
 				symbolicVariables);
 	}
 
-	public void updateExistingMapping(Z3ArrayVariable<?, ?> fresh_map_var,
+	public void updateZ3ArrayVariable(Z3ArrayVariable<?, ?> fresh_map_var,
 			Z3ArrayVariable<?, ?> map_var, JvmExpression index,
 			JvmExpression symbolic_value, JvmExpression concrete_value) {
 
 		checkNotContainsMapVar(fresh_map_var);
 
-		if (symbolicFieldMappings.containsKey(map_var)) {
-			Reference index_reference = (Reference) index;
-			LiteralNonNullReference literal_index = (LiteralNonNullReference) index_reference;
+		Reference index_reference = (Reference) index;
+		LiteralNonNullReference literal_index = (LiteralNonNullReference) index_reference;
 
-			{
-				HashMap<LiteralNonNullReference, JvmExpression> symbolicFieldMapping = symbolicFieldMappings
-						.get(map_var);
-				HashMap<LiteralNonNullReference, JvmExpression> newSymbolicFiedlMapping = new HashMap<LiteralNonNullReference, JvmExpression>(
-						symbolicFieldMapping);
-				newSymbolicFiedlMapping.put(literal_index, symbolic_value);
-				symbolicFieldMappings.put(fresh_map_var,
-						newSymbolicFiedlMapping);
-			}
-			{
-				HashMap<LiteralNonNullReference, JvmExpression> concreteFieldMapping = concreteFieldMappings
-						.get(map_var);
-				HashMap<LiteralNonNullReference, JvmExpression> newConcreteFiedlMapping = new HashMap<LiteralNonNullReference, JvmExpression>(
-						concreteFieldMapping);
-				newConcreteFiedlMapping.put(literal_index, concrete_value);
-				concreteFieldMappings.put(fresh_map_var,
-						newConcreteFiedlMapping);
+		symbolicState.putNewValue(fresh_map_var, map_var, literal_index,
+				symbolic_value);
 
-			}
+		concreteState.putNewValue(fresh_map_var, map_var, literal_index,
+				concrete_value);
 
-		} else if (symbolicArrayMappings.containsKey(map_var)) {
-			BitVector32 int_index = (BitVector32) index;
-			{
-				HashMap<BitVector32, JvmExpression> symbolicArrayMapping = symbolicArrayMappings
-						.get(map_var);
-				HashMap<BitVector32, JvmExpression> newSymbolicArrayMapping = new HashMap<BitVector32, JvmExpression>(
-						symbolicArrayMapping);
-				newSymbolicArrayMapping.put(int_index, symbolic_value);
-				symbolicArrayMappings.put(fresh_map_var,
-						newSymbolicArrayMapping);
-			}
-			{
-				HashMap<BitVector32, JvmExpression> concreteArrayMapping = concreteArrayMappings
-						.get(map_var);
-				HashMap<BitVector32, JvmExpression> newConcreteArrayMapping = new HashMap<BitVector32, JvmExpression>(
-						concreteArrayMapping);
-				newConcreteArrayMapping.put(int_index, concrete_value);
-				concreteArrayMappings.put(fresh_map_var,
-						newConcreteArrayMapping);
-
-			}
-		} else {
-			throw new IllegalArgumentException("I can not update map variable "
-					+ map_var + " because it is not defined!");
-		}
 	}
 
-	public void createNewFieldMapping(Z3ArrayVariable<?, ?> fresh_map_var,
+	public void updateZ3ArrayVariable(Z3ArrayVariable<?, ?> fresh_map_var,
+			Z3ArrayVariable<?, ?> map_var, ArrayReference<?> arrayRef,
+			JvmExpression index, JvmExpression symbolic_value,
+			JvmExpression concrete_value) {
+
+		symbolicState.putNewValue(fresh_map_var, map_var, arrayRef, index,
+				symbolic_value);
+
+		concreteState.putNewValue(fresh_map_var, map_var, arrayRef, index,
+				concrete_value);
+
+	}
+
+	public void updateJavaFieldVariable(Z3ArrayVariable<?, ?> fresh_map_var,
 			JavaFieldVariable java_field_variable, Reference reference_index,
 			JvmExpression symbolic_value, JvmExpression concrete_value) {
 
+		LiteralNonNullReference index = (LiteralNonNullReference) reference_index;
 		checkNotContainsMapVar(fresh_map_var);
-		{
-			HashMap<LiteralNonNullReference, JvmExpression> symbolicFieldMapping = new HashMap<LiteralNonNullReference, JvmExpression>();
-			LiteralNonNullReference index = (LiteralNonNullReference) reference_index;
-			symbolicFieldMapping.put(index, symbolic_value);
-			symbolicFieldMappings.put(fresh_map_var, symbolicFieldMapping);
-		}
-		{
-			HashMap<LiteralNonNullReference, JvmExpression> concreteFieldMapping = new HashMap<LiteralNonNullReference, JvmExpression>();
-			LiteralNonNullReference index = (LiteralNonNullReference) reference_index;
-			concreteFieldMapping.put(index, concrete_value);
-			concreteFieldMappings.put(fresh_map_var, concreteFieldMapping);
-
-		}
+		symbolicState.putNewValue(fresh_map_var, index, symbolic_value);
+		concreteState.putNewValue(fresh_map_var, index, concrete_value);
 	}
 
 	private void checkNotContainsMapVar(Z3ArrayVariable<?, ?> fresh_map_var) {
-		if (this.symbolicFieldMappings.containsKey(fresh_map_var)
-				|| this.symbolicArrayMappings.containsKey(fresh_map_var)) {
+		if (this.symbolicState.containsVariable(fresh_map_var)) {
 			throw new IllegalArgumentException(fresh_map_var.getName()
 					+ " was already defined in mapping!");
 		}
 	}
 
-	public void declareNewSymbolicVariable(JvmVariable fresh_var,
+	public void updateJvmVariable(JvmVariable fresh_var,
 			JvmExpression symbolic_value, JvmExpression concrete_value) {
 
 		if (symbolic_value == null) {
@@ -137,25 +276,18 @@ public final class ConcolicState {
 					"Cannot store null for variable " + fresh_var.getName());
 		}
 
-		symbolicValues.put(fresh_var, symbolic_value);
-		concreteValues.put(fresh_var, concrete_value);
+		symbolicState.putNewValue(fresh_var, symbolic_value);
+		concreteState.putNewValue(fresh_var, concrete_value);
+
 	}
 
 	public void clear() {
-		// mappings
-		this.symbolicArrayMappings.clear();
-		this.symbolicFieldMappings.clear();
-		this.concreteArrayMappings.clear();
-		this.concreteFieldMappings.clear();
-		// variables
-		this.symbolicValues.clear();
-		this.concreteValues.clear();
+		this.symbolicState.clear();
+		this.concreteState.clear();
 	}
 
-	public boolean isAlreadyDefined(JvmVariable v) {
-		return this.symbolicFieldMappings.containsKey(v)
-				|| this.symbolicArrayMappings.containsKey(v)
-				|| this.symbolicValues.containsKey(v);
+	public boolean containsVariable(JvmVariable v) {
+		return this.symbolicState.containsVariable(v);
 	}
 
 	public boolean isMarked(JvmVariable v) {
@@ -173,84 +305,61 @@ public final class ConcolicState {
 	public JvmExpression getSymbolicValue(Z3ArrayVariable<?, ?> map_var,
 			JvmExpression index_expr) {
 
-		if (this.symbolicFieldMappings.containsKey(map_var)) {
-
-			Reference index_reference = (Reference) index_expr;
-			LiteralNonNullReference literal_index = (LiteralNonNullReference) index_reference;
-			HashMap<LiteralNonNullReference, JvmExpression> symbolicFieldMap = this.symbolicFieldMappings
-					.get(map_var);
-			return symbolicFieldMap.get(literal_index);
-
-		} else if (this.symbolicArrayMappings.containsKey(map_var)) {
-
-			BitVector32 bitVector32 = (BitVector32) index_expr;
-			HashMap<BitVector32, JvmExpression> symbolicArrayMap = this.symbolicArrayMappings
-					.get(map_var);
-			return symbolicArrayMap.get(bitVector32);
-
-		} else {
-			throw new IllegalArgumentException("Mapping variable "
-					+ map_var.getName() + " is not defined!");
-
-		}
+		JvmExpression symbolicValue = this.symbolicState.getValue(map_var,
+				index_expr);
+		return symbolicValue;
 
 	}
 
+	/**
+	 * This method looks the concrete values table for a definition of variable
+	 * v. If the variable name ends with <code>#arrayLength</code> the length of
+	 * the literal array is returned.
+	 * 
+	 * @param v
+	 * @return
+	 */
 	public JvmExpression getSymbolicValue(JvmVariable v) {
-		if (!this.symbolicValues.containsKey(v)) {
-			throw new IllegalArgumentException("Variable " + v.getName()
-					+ " is undefined!");
-		}
-
-		return this.symbolicValues.get(v);
+		return this.symbolicState.getValue(v);
 	}
 
+	/**
+	 * This method looks the concrete values table for a definition of variable
+	 * v. If the variable name ends with <code>#arrayLength</code> the length of
+	 * the literal array is returned.
+	 * 
+	 * @param v
+	 * @return
+	 */
 	public JvmExpression getConcreteValue(JvmVariable v) {
-		if (!this.concreteValues.containsKey(v)) {
-			throw new IllegalArgumentException("Variable " + v.getName()
-					+ " is undefined!");
-		}
 
-		return this.concreteValues.get(v);
-	}
-
-	public void createNewArrayMapping(Z3ArrayVariable<?, ?> fresh_map_var,
-			Z3ArrayLiteral<?, ?> arrayLiteral, BitVector32 int_index,
-			JvmExpression symbolic_value, JvmExpression concrete_value) {
-
-		{
-			HashMap<BitVector32, JvmExpression> symbolicArrayMapping = new HashMap<BitVector32, JvmExpression>();
-			symbolicArrayMapping.put(int_index, symbolic_value);
-			this.symbolicArrayMappings.put(fresh_map_var, symbolicArrayMapping);
-		}
-		{
-			HashMap<BitVector32, JvmExpression> concreteArrayMapping = new HashMap<BitVector32, JvmExpression>();
-			concreteArrayMapping.put(int_index, concrete_value);
-			this.concreteArrayMappings.put(fresh_map_var, concreteArrayMapping);
-		}
+		return this.concreteState.getValue(v);
 	}
 
 	public JvmExpression getConcreteValue(Z3ArrayVariable<?, ?> map_var,
 			JvmExpression index_expr) {
-		if (this.concreteFieldMappings.containsKey(map_var)) {
 
-			Reference index_reference = (Reference) index_expr;
-			LiteralNonNullReference literal_index = (LiteralNonNullReference) index_reference;
-			HashMap<LiteralNonNullReference, JvmExpression> symbolicFieldMap = this.concreteFieldMappings
-					.get(map_var);
-			return symbolicFieldMap.get(literal_index);
+		return concreteState.getValue(map_var, index_expr);
+	}
 
-		} else if (this.concreteArrayMappings.containsKey(map_var)) {
+	public void updateArrayContents(Z3ArrayVariable<?, ?> fresh_map_variable,
+			ArrayReference<?> arrayRef, JvmExpression arrayIndex,
+			JvmExpression symbolic_value, JvmExpression concrete_value) {
 
-			BitVector32 bitVector32 = (BitVector32) index_expr;
-			HashMap<BitVector32, JvmExpression> symbolicArrayMap = this.concreteArrayMappings
-					.get(map_var);
-			return symbolicArrayMap.get(bitVector32);
+		this.symbolicState.putNewValue(fresh_map_variable, arrayRef,
+				arrayIndex, symbolic_value);
+		this.concreteState.putNewValue(fresh_map_variable, arrayRef,
+				arrayIndex, concrete_value);
+	}
 
-		} else {
-			throw new IllegalArgumentException("Mapping variable "
-					+ map_var.getName() + " is not defined!");
+	public JvmExpression getSymbolicValue(Z3ArrayVariable<?, ?> map_var,
+			ArrayReference<?> array_ref, JvmExpression index) {
 
-		}
+		return this.symbolicState.getValue(map_var, array_ref, index);
+	}
+
+	public JvmExpression getConcreteValue(Z3ArrayVariable<?, ?> map_var,
+			ArrayReference<?> array_ref, JvmExpression index) {
+		return this.concreteState.getValue(map_var, array_ref, index);
 	}
 }

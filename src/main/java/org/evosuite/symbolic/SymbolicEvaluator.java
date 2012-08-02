@@ -130,10 +130,6 @@ import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectBv32;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectBv64;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectFp32;
 import edu.uta.cse.dsc.ast.z3array.JavaArraySelect.ArraySelectFp64;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectBv32;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectBv64;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectFp32;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldSelect.FieldSelectFp64;
 
 /**
  * Translates a <code>edu.uta.cse.dsc.ast.BitVector32</code> expression into a
@@ -1262,9 +1258,56 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 		}
 	}
 
-	
+	/**
+	 * LiteralArray.LABv32 represents the expression new int[length].
+	 * 
+	 * Since this is a mutable reference, we have to return the same reference.
+	 */
+	@Override
+	public Object visit(LABv32 r) {
+		return r;
+	}
 
-	
+	/**
+	 * LiteralArray.LABv64 represents the expression new long[length].
+	 * 
+	 * Since this is a mutable reference, we have to return the same reference.
+	 */
+	@Override
+	public Object visit(LABv64 r) {
+		return r;
+	}
+
+	/**
+	 * LiteralArray.LAFp32 represents the expression new float[length].
+	 * 
+	 * Since this is a mutable reference, we have to return the same reference.
+	 */
+	@Override
+	public Object visit(LAFp32 r) {
+		return r;
+	}
+
+	/**
+	 * LiteralArray.LAFp64 represents the expression new double[length].
+	 * 
+	 * Since this is a mutable reference, we have to return the same reference.
+	 */
+	@Override
+	public Object visit(LAFp64 r) {
+		return r;
+	}
+
+	/**
+	 * LiteralArray.LARef represents the expression new Object[length].
+	 * 
+	 * Since this is a mutable reference, we have to return the same reference.
+	 */
+	@Override
+	public Object visit(LARef r) {
+		return r;
+	}
+
 	/*
 	 * <code>
 	 * ===================================================================
@@ -1286,21 +1329,9 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 	}
 
 	@Override
-	public Object visit(FieldSelectBv64 b) {
-		throw new IllegalStateException(
-				"FieldSelectBv64 is not a valid AST instance");
-	}
-
-	@Override
 	public Object visit(ArraySelectFp64 f) {
 		throw new IllegalStateException(
 				"ArraySelectFp64 is not a valid AST instance");
-	}
-
-	@Override
-	public Object visit(FieldSelectFp64 f) {
-		throw new IllegalStateException(
-				"FieldSelectFp64 is not a valid AST instance");
 	}
 
 	@Override
@@ -1308,12 +1339,6 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 		throw new IllegalStateException(
 				"Bv32ValuedInstanceMethod is not a valid AST instance");
 
-	}
-
-	@Override
-	public Object visit(FieldSelectBv32 b) {
-		throw new IllegalStateException(
-				"FieldSelectBv32 is not a valid AST instance");
 	}
 
 	@Override
@@ -1330,46 +1355,9 @@ public final class SymbolicEvaluator implements BitVector32Visitor,
 	}
 
 	@Override
-	public Object visit(FieldSelectFp32 f) {
-		throw new IllegalStateException(
-				"FieldSelectFp32 is not a valid AST instance");
-	}
-
-	@Override
 	public Object visit(ArraySelectFp32 f) {
 		throw new IllegalStateException(
 				"ArraySelectFp32 is not a valid AST instance");
 	}
-
-	@Override
-	public Object visit(LABv32 r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(LABv64 r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(LAFp32 r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(LAFp64 r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public Object visit(LARef r) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 }

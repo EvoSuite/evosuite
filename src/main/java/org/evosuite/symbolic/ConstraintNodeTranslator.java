@@ -1,6 +1,7 @@
 package org.evosuite.symbolic;
 
 import java.util.Map;
+import java.util.Vector;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
@@ -8,18 +9,16 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.IntegerVariable;
-import org.evosuite.symbolic.expr.RealConstant;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealVariable;
 import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringConstant;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
-import org.evosuite.symbolic.expr.StringVariable;
+import org.objectweb.asm.Type;
 
+import edu.uta.cse.dsc.MainConfig;
+import edu.uta.cse.dsc.ast.ArrayReference;
 import edu.uta.cse.dsc.ast.BitVector32;
 import edu.uta.cse.dsc.ast.BitVector64;
 import edu.uta.cse.dsc.ast.BoundVariable;
@@ -28,25 +27,38 @@ import edu.uta.cse.dsc.ast.FloatExpression;
 import edu.uta.cse.dsc.ast.JvmExpression;
 import edu.uta.cse.dsc.ast.JvmVariable;
 import edu.uta.cse.dsc.ast.Reference;
-import edu.uta.cse.dsc.ast.bitvector.LiteralBitVector32;
-import edu.uta.cse.dsc.ast.bitvector.LiteralBitVector64;
 import edu.uta.cse.dsc.ast.fp.DoubleLiteral;
 import edu.uta.cse.dsc.ast.fp.FloatLiteral;
-import edu.uta.cse.dsc.ast.reference.LiteralNonNullReference;
+import edu.uta.cse.dsc.ast.z3array.DumpingZ3ArrayFactory;
+import edu.uta.cse.dsc.ast.z3array.JavaArrayVariable;
 import edu.uta.cse.dsc.ast.z3array.JavaFieldVariable;
 import edu.uta.cse.dsc.ast.z3array.Z3ArrayLiteral;
 import edu.uta.cse.dsc.ast.z3array.Z3ArrayVariable;
 import edu.uta.cse.dsc.pcdump.ast.AndConstraint;
 import edu.uta.cse.dsc.pcdump.ast.ConstraintNodeVisitor;
 import edu.uta.cse.dsc.pcdump.ast.EqConstraint;
+import edu.uta.cse.dsc.pcdump.ast.ForEachConstraint;
+import edu.uta.cse.dsc.pcdump.ast.IsAbstractConstraint;
+import edu.uta.cse.dsc.pcdump.ast.IsArrayConstraint;
+import edu.uta.cse.dsc.pcdump.ast.IsFinalConstraint;
+import edu.uta.cse.dsc.pcdump.ast.IsInterfaceConstraint;
+import edu.uta.cse.dsc.pcdump.ast.IsPublicConstraint;
+import edu.uta.cse.dsc.pcdump.ast.IsSubTypeOfConstraint;
+import edu.uta.cse.dsc.pcdump.ast.IsSuperTypeConstraint;
 import edu.uta.cse.dsc.pcdump.ast.LeqConstraint;
 import edu.uta.cse.dsc.pcdump.ast.LessThanConstraint;
 import edu.uta.cse.dsc.pcdump.ast.NotConstraint;
 import edu.uta.cse.dsc.pcdump.ast.OrConstraint;
-import edu.uta.cse.dsc.pcdump.ast.SelectConstraint;
-import edu.uta.cse.dsc.pcdump.ast.UpdateConstraint;
+import edu.uta.cse.dsc.pcdump.ast.SelectArrayConstraint;
+import edu.uta.cse.dsc.pcdump.ast.SelectFieldConstraint;
+import edu.uta.cse.dsc.pcdump.ast.UpdateArrayConstraint;
+import edu.uta.cse.dsc.pcdump.ast.UpdateFieldConstraint;
 
-public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
+public final class ConstraintNodeTranslator implements ConstraintNodeVisitor {
+
+	private static Vector<Constraint<?>> buildEmptyVector() {
+		return new Vector<Constraint<?>>();
+	}
 
 	private final ConcolicState concolicState;
 
@@ -81,20 +93,30 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 	}
 
 	/**
-	 * Given a fresh_var=s(map_var,index_expr) constraint stores
-	 * fresh_var->eval(map_var)[eval(index_expr)]
+	 * This constraint is only meant to update the concolic state. The
+	 * translation is the empty vector.
+	 * 
+	 * Axiomatic constraints are ignored and have no effect on the concolic
+	 * state.
 	 * 
 	 */
 	@Override
-	public Object visit(SelectConstraint c) {
+	public Object visit(SelectFieldConstraint c) {
+
 		// get constraint components
 		edu.uta.cse.dsc.ast.Expression fresh_var_expr = c.getVar();
 		edu.uta.cse.dsc.ast.Expression map_expr = c.getMap();
 		edu.uta.cse.dsc.ast.Expression index_expr = c.getIndex();
 
+		if (index_expr.toString().startsWith("#var")) {
+			// ignore input parameters
+			return buildEmptyVector();
+
+		}
+
 		if (index_expr instanceof BoundVariable.Ref) {
 			// ignore axiomatic constraints
-			return null;
+			return buildEmptyVector();
 		}
 
 		JvmVariable fresh_var = (JvmVariable) fresh_var_expr;
@@ -102,142 +124,27 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		JvmExpression index_jvm_expr = (JvmExpression) index_expr;
 
 		JvmExpression evalIndex = evaluateConcrete(index_jvm_expr);
-		JvmExpression symbolicValue = this.concolicState.getSymbolicValue(
-				map_var, evalIndex);
-		JvmExpression concreteValue = this.concolicState.getConcreteValue(
-				map_var, evalIndex);
+		JvmExpression symbolicValue;
+		JvmExpression concreteValue;
 
-		this.concolicState.declareNewSymbolicVariable(fresh_var, symbolicValue,
+		// field access
+
+		symbolicValue = this.concolicState.getSymbolicValue(map_var, evalIndex);
+		concreteValue = this.concolicState.getConcreteValue(map_var, evalIndex);
+
+		this.concolicState.updateJvmVariable(fresh_var, symbolicValue,
 				concreteValue);
 
-		if (this.concolicState.isMarked(fresh_var)) {
-			return null;
-			// return buildNewSymbolicVariableDefinition(fresh_var,
-			// symbolicValue);
-		} else {
-			return null;
-		}
-
-	}
-
-	private Object buildNewSymbolicVariableDefinition(JvmVariable fresh_var,
-			JvmExpression symbolicValue) {
-
-		if (symbolicValue instanceof LiteralBitVector32) {
-			// int
-			LiteralBitVector32 arg = (LiteralBitVector32) symbolicValue;
-			return buildNewSymbolicVariableDefinition(fresh_var, arg);
-
-		} else if (symbolicValue instanceof LiteralBitVector64) {
-			// long
-			LiteralBitVector64 arg = (LiteralBitVector64) symbolicValue;
-			return buildNewSymbolicVariableDefinition(fresh_var, arg);
-		}
-		if (symbolicValue instanceof FloatExpression) {
-			// float
-			FloatLiteral arg = (FloatLiteral) symbolicValue;
-			return buildNewSymbolicVariableDefinition(fresh_var, arg);
-
-		} else if (symbolicValue instanceof DoubleExpression) {
-			// double
-			DoubleLiteral arg = (DoubleLiteral) symbolicValue;
-			return buildNewSymbolicVariableDefinition(fresh_var, arg);
-
-		} else if (symbolicValue instanceof LiteralNonNullReference) {
-			// Object
-			LiteralNonNullReference arg = (LiteralNonNullReference) symbolicValue;
-			return buildNewSymbolicVariableDefinition(fresh_var, arg);
-
-		} else {
-			throw new IllegalArgumentException(
-					"Cannot handle symbolic value definition of class "
-							+ symbolicValue.getClass().getName());
-		}
-	}
-
-	private StringConstraint buildNewSymbolicVariableDefinition(
-			JvmVariable fresh_var, LiteralNonNullReference string_reference) {
-		String var_name_str;
-		if (this.concolicState.isMarked(fresh_var)) {
-			var_name_str = this.concolicState.getSymbolicName(fresh_var);
-		} else {
-			var_name_str = fresh_var.getName();
-		}
-		String str = string_reference.getStringConstant();
-		StringVariable v = new StringVariable(var_name_str, str, str, str);
-		StringConstant c = new StringConstant(str);
-
-		return new StringConstraint(v, Comparator.EQ, c);
-	}
-
-	private RealConstraint buildNewSymbolicVariableDefinition(
-			JvmVariable fresh_var, FloatLiteral valueOf) {
-		String var_name_str;
-		if (this.concolicState.isMarked(fresh_var)) {
-			var_name_str = this.concolicState.getSymbolicName(fresh_var);
-		} else {
-			var_name_str = fresh_var.getName();
-		}
-		RealVariable v = new RealVariable(var_name_str, valueOf.getValue(),
-				Float.MIN_VALUE, Float.MAX_VALUE);
-		RealConstant c = new RealConstant(valueOf.getValue());
-
-		return new RealConstraint(v, Comparator.EQ, c);
-	}
-
-	private RealConstraint buildNewSymbolicVariableDefinition(
-			JvmVariable fresh_var, DoubleLiteral valueOf) {
-		String var_name_str;
-		if (this.concolicState.isMarked(fresh_var)) {
-			var_name_str = this.concolicState.getSymbolicName(fresh_var);
-		} else {
-			var_name_str = fresh_var.getName();
-		}
-		RealVariable v = new RealVariable(var_name_str, valueOf.getValue(),
-				Double.MIN_VALUE, Double.MAX_VALUE);
-		RealConstant c = new RealConstant(valueOf.getValue());
-
-		return new RealConstraint(v, Comparator.EQ, c);
-	}
-
-	private IntegerConstraint buildNewSymbolicVariableDefinition(
-			JvmVariable fresh_var, LiteralBitVector32 valueOf) {
-		String var_name_str;
-		if (this.concolicState.isMarked(fresh_var)) {
-			var_name_str = this.concolicState.getSymbolicName(fresh_var);
-		} else {
-			var_name_str = fresh_var.getName();
-		}
-		IntegerVariable v = new IntegerVariable(var_name_str,
-				valueOf.getValue(), Integer.MIN_VALUE, Integer.MAX_VALUE);
-		IntegerConstant c = new IntegerConstant(valueOf.getValue());
-
-		return new IntegerConstraint(v, Comparator.EQ, c);
-	}
-
-	private IntegerConstraint buildNewSymbolicVariableDefinition(
-			JvmVariable fresh_var, LiteralBitVector64 valueOf) {
-
-		String var_name_str;
-		if (this.concolicState.isMarked(fresh_var)) {
-			var_name_str = this.concolicState.getSymbolicName(fresh_var);
-		} else {
-			var_name_str = fresh_var.getName();
-		}
-		long concreteValue = valueOf.getValue();
-		IntegerVariable v = new IntegerVariable(var_name_str, concreteValue,
-				Long.MIN_VALUE, Long.MAX_VALUE);
-		IntegerConstant c = new IntegerConstant(concreteValue);
-
-		return new IntegerConstraint(v, Comparator.EQ, c);
+		return buildEmptyVector();
 	}
 
 	/**
-	 * Given a fresh_map_var=update(map_var,index_expr,value_expr) stores
-	 * fresh_map_var=>eval(map_var)++(eval(index_expr)->eval(value_expr))
+	 * This constraint is only meant to update the concolic state. The
+	 * translation is the empty vector.
+	 * 
 	 */
 	@Override
-	public Object visit(UpdateConstraint c) {
+	public Object visit(UpdateFieldConstraint c) {
 
 		edu.uta.cse.dsc.ast.Expression fresh_var_expr = c.getVar();
 		edu.uta.cse.dsc.ast.Expression map_expr = c.getMap();
@@ -250,44 +157,36 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		JvmExpression index_jvm_expr = (JvmExpression) index_expr;
 
 		JvmExpression symbolic_value = evaluateSymbolic(value_jvm_expr);
-		JvmExpression concrete_value;
-		if (!symbolic_value.containsJvmVariable()) {
-			concrete_value = symbolic_value;
-		} else {
-			concrete_value = evaluateConcrete(value_jvm_expr);
-		}
-
+		JvmExpression concrete_value = evaluateConcrete(value_jvm_expr);
 		JvmExpression eval_index = evaluateConcrete(index_jvm_expr);
 
-		if (eval_index.containsJvmVariable()) {
-			System.out.println("index contains var!");
-		}
-
-		if (map_expr.getClass().equals(Z3ArrayVariable.class)) {
-
-			// existing mapping
-			Z3ArrayVariable<?, ?> map_variable = (Z3ArrayVariable<?, ?>) map_expr;
-
-			concolicState.updateExistingMapping(fresh_map_variable,
-					map_variable, eval_index, symbolic_value, concrete_value);
-
-		} else if (map_expr.getClass().equals(JavaFieldVariable.class)) {
+		if (map_expr.getClass().equals(JavaFieldVariable.class)) {
 
 			// new field
 			Reference reference_index = (Reference) eval_index;
 			JavaFieldVariable javaFieldVariable = (JavaFieldVariable) map_expr;
-			concolicState.createNewFieldMapping(fresh_map_variable,
+			concolicState.updateJavaFieldVariable(fresh_map_variable,
 					javaFieldVariable, reference_index, symbolic_value,
 					concrete_value);
 
-		} else if (map_expr.getClass().equals(Z3ArrayLiteral.class)) {
+		} else if (map_expr.getClass().equals(Z3ArrayVariable.class)) {
 
-			// new array
-			BitVector32 int_index = (BitVector32) eval_index;
-			Z3ArrayLiteral<?, ?> arrayLiteral = (Z3ArrayLiteral<?, ?>) map_expr;
-			concolicState.createNewArrayMapping(fresh_map_variable,
-					arrayLiteral, int_index, symbolic_value, concrete_value);
+			if (map_expr.equals(DumpingZ3ArrayFactory.EMPTY_ARRAY_LENGTHS)) {
 
+				// array lengths
+				Reference arrayRef = (Reference) eval_index;
+				concolicState.updateJavaFieldVariable(fresh_map_variable, null,
+						arrayRef, symbolic_value, concrete_value);
+
+			} else {
+
+				// existing mapping
+				Z3ArrayVariable<?, ?> map_variable = (Z3ArrayVariable<?, ?>) map_expr;
+				// field access
+				concolicState.updateZ3ArrayVariable(fresh_map_variable,
+						map_variable, eval_index, symbolic_value,
+						concrete_value);
+			}
 		} else {
 
 			throw new IllegalStateException(
@@ -296,46 +195,64 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		}
 
 		// no recursive visit
-		return null;
+		return buildEmptyVector();
 	}
 
+	/**
+	 * Only translates those equality constraints where:
+	 * <ul>
+	 * <li>left,right are integers(BitVector32,BitVector64)</li>
+	 * <li>left,right are real(FloatExpression,DoubleExpression)</li>
+	 * </ul>
+	 * Object comparisons are explicitly ignored.
+	 * 
+	 */
 	@Override
 	public Object visit(EqConstraint c) {
 		edu.uta.cse.dsc.ast.Expression left_expr = c.getLeft();
 		edu.uta.cse.dsc.ast.Expression right_expr = c.getRight();
 		Comparator comp = Comparator.EQ;
 
-		if (left_expr instanceof JvmVariable) {
-			JvmVariable left_variable = (JvmVariable) left_expr;
-			if (!this.concolicState.isAlreadyDefined(left_variable)) {
-				JvmExpression right_jvm_expr = (JvmExpression) right_expr;
-				JvmExpression symbolic_eval_right = evaluateSymbolic(right_jvm_expr);
-				JvmExpression concrete_eval_right;
-				if (!symbolic_eval_right.containsJvmVariable()) {
-					concrete_eval_right = symbolic_eval_right;
-				} else {
-					concrete_eval_right = evaluateConcrete(right_jvm_expr);
-				}
+		if ((left_expr instanceof JvmVariable)
+				&& (!this.concolicState
+						.containsVariable((JvmVariable) left_expr))) {
+			declareNewVariable((JvmVariable) left_expr, right_expr);
 
-				this.concolicState.declareNewSymbolicVariable(left_variable,
-						symbolic_eval_right, concrete_eval_right);
-
-				return null;
-			}
+			// this constraint is only meant for declaring a new concrete value
+			// (it is not an actual constraint)
+			return buildEmptyVector();
 		}
 
 		if (isIntegerOrLong(left_expr) && isIntegerOrLong(right_expr)) {
+
 			return buildNewIntegerConstraint(left_expr, comp, right_expr);
+
 		} else if (isFloatOrDouble(left_expr) && isFloatOrDouble(right_expr)) {
+
 			return buildNewRealConstraint(left_expr, comp, right_expr);
+
 		} else if (isObject(left_expr) && isObject(right_expr)) {
-			return null;
+
+			// ignore this constraint
+			return buildEmptyVector();
+
 		} else {
 			throw new IllegalArgumentException(
 					"Cannot handle comparison between "
 							+ left_expr.getClass().getName() + " and "
 							+ right_expr.getClass().getName());
 		}
+	}
+
+	private void declareNewVariable(JvmVariable left_variable,
+			edu.uta.cse.dsc.ast.Expression right_expr) {
+		JvmExpression right_jvm_expr = (JvmExpression) right_expr;
+		JvmExpression symbolic_eval_right = evaluateSymbolic(right_jvm_expr);
+		JvmExpression concrete_eval_right = evaluateConcrete(right_jvm_expr);
+
+		this.concolicState.updateJvmVariable(left_variable,
+				symbolic_eval_right, concrete_eval_right);
+
 	}
 
 	private Object buildNewRealConstraint(
@@ -348,7 +265,13 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 				right_integer_expression);
 	}
 
-	private Object buildNewIntegerConstraint(
+	private static Vector<Constraint<?>> buildSingletonVector(Constraint<?> c) {
+		Vector<Constraint<?>> v = buildEmptyVector();
+		v.add(c);
+		return v;
+	}
+
+	private Vector<Constraint<?>> buildNewIntegerConstraint(
 			edu.uta.cse.dsc.ast.Expression left_expr, Comparator comp,
 			edu.uta.cse.dsc.ast.Expression right_expr) {
 		IntegerExpression left_integer_expression = translateToIntegerExpr(left_expr);
@@ -368,13 +291,14 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 		} else {
 
-			return new IntegerConstraint(left_integer_expression, comp,
-					right_integer_expression);
+			IntegerConstraint c = new IntegerConstraint(
+					left_integer_expression, comp, right_integer_expression);
+			return buildSingletonVector(c);
 		}
 	}
 
-	private boolean isStringConstraint(IntegerExpression left, Comparator comp,
-			IntegerExpression right) {
+	private static boolean isStringConstraint(IntegerExpression left,
+			Comparator comp, IntegerExpression right) {
 
 		return ((comp.equals(Comparator.NE) || comp.equals(Comparator.EQ))
 				&& (right instanceof IntegerConstant)
@@ -383,13 +307,15 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 
 	}
 
-	private IntegerConstraint createNormalizedIntegerConstraint(
+	private Vector<Constraint<?>> createNormalizedIntegerConstraint(
 			IntegerExpression left, Comparator comp, IntegerExpression right) {
 		IntegerConstant integerConstant = (IntegerConstant) right;
 		StringComparison stringComparison = (StringComparison) ((StringToIntCast) left)
 				.getParam();
 
-		return new IntegerConstraint(stringComparison, comp, integerConstant);
+		IntegerConstraint c = new IntegerConstraint(stringComparison, comp,
+				integerConstant);
+		return buildSingletonVector(c);
 
 	}
 
@@ -414,13 +340,8 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		}
 	}
 
-	private boolean isObject(edu.uta.cse.dsc.ast.Expression e) {
+	private static boolean isObject(edu.uta.cse.dsc.ast.Expression e) {
 		return e instanceof Reference;
-	}
-
-	@Override
-	public Object visit(AndConstraint andConstraint) {
-		throw new UnsupportedOperationException();
 	}
 
 	@Override
@@ -428,17 +349,21 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		edu.uta.cse.dsc.ast.Expression left = c.getLeft();
 		edu.uta.cse.dsc.ast.Expression right = c.getRight();
 		Comparator comp = Comparator.LE;
-		return visitNumericComparison(left, comp, right);
+		return translateNumericComparison(left, comp, right);
 	}
 
-	private Object visitNumericComparison(
+	private Object translateNumericComparison(
 			edu.uta.cse.dsc.ast.Expression left_expr, Comparator comp,
 			edu.uta.cse.dsc.ast.Expression right_expr) {
 
 		if (isIntegerOrLong(left_expr) && isIntegerOrLong(right_expr)) {
+
 			return buildNewIntegerConstraint(left_expr, comp, right_expr);
+
 		} else if (isFloatOrDouble(left_expr) && isFloatOrDouble(right_expr)) {
+
 			return buildNewRealConstraint(left_expr, comp, right_expr);
+
 		} else {
 			throw new IllegalArgumentException(
 					"Cannot handle comparison between "
@@ -447,15 +372,15 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		}
 	}
 
-	private boolean isIntegerOrLong(edu.uta.cse.dsc.ast.Expression e) {
+	private static boolean isIntegerOrLong(edu.uta.cse.dsc.ast.Expression e) {
 		return (isInteger(e) || isLong(e));
 	}
 
-	private boolean isLong(edu.uta.cse.dsc.ast.Expression e) {
+	private static boolean isLong(edu.uta.cse.dsc.ast.Expression e) {
 		return e instanceof BitVector64;
 	}
 
-	private boolean isInteger(edu.uta.cse.dsc.ast.Expression e) {
+	private static boolean isInteger(edu.uta.cse.dsc.ast.Expression e) {
 		return e instanceof BitVector32;
 	}
 
@@ -464,27 +389,35 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		edu.uta.cse.dsc.ast.Expression left = c.getLeft();
 		edu.uta.cse.dsc.ast.Expression right = c.getRight();
 		Comparator comp = Comparator.LT;
-		return visitNumericComparison(left, comp, right);
+		return translateNumericComparison(left, comp, right);
 	}
 
-	private boolean isFloatOrDouble(edu.uta.cse.dsc.ast.Expression e) {
+	private static boolean isFloatOrDouble(edu.uta.cse.dsc.ast.Expression e) {
 		return (isFloat(e) || isDouble(e));
 
 	}
 
-	private boolean isFloat(edu.uta.cse.dsc.ast.Expression e) {
+	private static boolean isFloat(edu.uta.cse.dsc.ast.Expression e) {
 		return e instanceof FloatLiteral;
 	}
 
-	private boolean isDouble(edu.uta.cse.dsc.ast.Expression e) {
+	private static boolean isDouble(edu.uta.cse.dsc.ast.Expression e) {
 		return e instanceof DoubleLiteral;
 	}
 
+	/**
+	 * Translates a NotConstraint. If the negated constraint is a conjunction,
+	 * the result is ignored by returning the empty vector.
+	 */
 	@Override
 	public Object visit(NotConstraint c) {
-		Object ret_val = c.getParam().accept(this);
-		if (ret_val != null) {
-			Constraint<?> constraint = (Constraint<?>) ret_val;
+
+		Vector<Constraint<?>> ret_val = (Vector<Constraint<?>>) c.getParam()
+				.accept(this);
+
+		if (ret_val.size() == 1) {
+
+			Constraint<?> constraint = (Constraint<?>) ret_val.get(0);
 			Comparator comp = constraint.getComparator();
 			Comparator not_comp = comp.not();
 
@@ -495,34 +428,41 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 				Expression<String> right = str_constraint.getRightOperand();
 				StringExpression left_str_expr = (StringExpression) left;
 				StringExpression right_str_expr = (StringExpression) right;
-				return new StringConstraint(left_str_expr, not_comp,
-						right_str_expr);
+				StringConstraint ret_constraint = new StringConstraint(
+						left_str_expr, not_comp, right_str_expr);
+
+				return buildSingletonVector(ret_constraint);
+
 			} else if (constraint instanceof IntegerConstraint) {
 
 				IntegerConstraint int_constraint = (IntegerConstraint) constraint;
 				Expression<?> left = int_constraint.getLeftOperand();
 				Expression<?> right = int_constraint.getRightOperand();
-				return new IntegerConstraint(left, not_comp, right);
+				IntegerConstraint ret_constraint = new IntegerConstraint(left,
+						not_comp, right);
+
+				return buildSingletonVector(ret_constraint);
 
 			} else if (constraint instanceof RealConstraint) {
 
 				RealConstraint int_constraint = (RealConstraint) constraint;
 				Expression<Double> left = int_constraint.getLeftOperand();
 				Expression<Double> right = int_constraint.getRightOperand();
-				return new RealConstraint(left, not_comp, right);
+				RealConstraint ret_constraint = new RealConstraint(left,
+						not_comp, right);
+
+				return buildSingletonVector(ret_constraint);
 
 			} else {
 				throw new RuntimeException("Unknown constraint class "
 						+ constraint.getClass().getName());
 			}
 
-		} else
-			return null;
-	}
+		} else {
 
-	@Override
-	public Object visit(OrConstraint orConstraint) {
-		return super.visit(orConstraint);
+			return buildEmptyVector();
+		}
+
 	}
 
 	public void clear() {
@@ -536,6 +476,7 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 			BitVector32 bv32 = (BitVector32) e;
 			BitVector32 eval_bv32 = (BitVector32) bv32
 					.accept(concreteEvaluator);
+			// arithmetic simplify
 			return eval_bv32;
 		} else if (e instanceof BitVector64) {
 			BitVector64 bv64 = (BitVector64) e;
@@ -592,6 +533,172 @@ public final class ConstraintNodeTranslator extends ConstraintNodeVisitor {
 		} else {
 			throw new IllegalArgumentException();
 		}
+	}
+
+	/**
+	 * Translates an AndConstraint into a the vector of left and right.
+	 */
+	@Override
+	public Object visit(AndConstraint c) {
+		Vector<Constraint<?>> left = (Vector<Constraint<?>>) c.getLeft()
+				.accept(this);
+		Vector<Constraint<?>> right = (Vector<Constraint<?>>) c.getRight()
+				.accept(this);
+
+		Vector<Constraint<?>> result = buildEmptyVector();
+		result.addAll(left);
+		result.addAll(right);
+
+		return result;
+
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object accept(ForEachConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(IsAbstractConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(IsArrayConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(IsFinalConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(IsInterfaceConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(IsPublicConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(IsSubTypeOfConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(IsSuperTypeConstraint c) {
+		return buildEmptyVector();
+	}
+
+	/**
+	 * This DSC constraint is ignored. The result of the translation is an empty
+	 * Vector object.
+	 */
+	@Override
+	public Object visit(OrConstraint c) {
+		return buildEmptyVector();
+	}
+
+	@Override
+	public Object visit(SelectArrayConstraint c) {
+
+		ArrayReference<?> arrayRef = (ArrayReference<?>) evaluateConcrete(c
+				.getArrayRef());
+		JvmExpression index = evaluateConcrete(c.getIndex());
+		Z3ArrayVariable<?, ?> map_var = (Z3ArrayVariable<?, ?>) c.getMap();
+
+		// array access
+		JvmExpression symbolicValue = this.concolicState.getSymbolicValue(
+				map_var, arrayRef, index);
+		JvmExpression concreteValue = this.concolicState.getConcreteValue(
+				map_var, arrayRef, index);
+
+		this.concolicState.updateJvmVariable(c.getVar(), symbolicValue,
+				concreteValue);
+
+		return buildEmptyVector();
+	}
+
+	@Override
+	public Object visit(UpdateArrayConstraint c) {
+
+		JvmExpression symbolic_value = evaluateSymbolic(c.getValue());
+		JvmExpression concrete_value;
+		if (!symbolic_value.containsJvmVariable()) {
+			concrete_value = symbolic_value;
+		} else {
+			concrete_value = evaluateConcrete(c.getValue());
+		}
+
+		JvmExpression index = evaluateConcrete(c.getIndex());
+
+		ArrayReference<?> arrayRef = (ArrayReference<?>) evaluateConcrete(c
+				.getArrayRef());
+
+		Z3ArrayVariable<?, ?> map = (Z3ArrayVariable<?, ?>) c.getMap();
+
+		if (map.equals(DumpingZ3ArrayFactory.EMPTY_BV32_ARRAY_CONTENTS)) {
+			// new int[], then update
+			concolicState.updateArrayContents(c.getVar(), arrayRef, index,
+					symbolic_value, concrete_value);
+		} else if (map.equals(DumpingZ3ArrayFactory.EMPTY_BV64_ARRAY_CONTENTS)) {
+			// new long[], then update
+			concolicState.updateArrayContents(c.getVar(), arrayRef, index,
+					symbolic_value, concrete_value);
+		} else if (map.equals(DumpingZ3ArrayFactory.EMPTY_FP32_ARRAY_CONTENTS)) {
+			// new float[], then update
+			concolicState.updateArrayContents(c.getVar(), arrayRef, index,
+					symbolic_value, concrete_value);
+		} else if (map.equals(DumpingZ3ArrayFactory.EMPTY_FP64_ARRAY_CONTENTS)) {
+			// new double[], then update
+			concolicState.updateArrayContents(c.getVar(), arrayRef, index,
+					symbolic_value, concrete_value);
+		} else if (map.equals(DumpingZ3ArrayFactory.EMPTY_REF_ARRAY_CONTENTS)) {
+			// new Object[], then update
+			concolicState.updateArrayContents(c.getVar(), arrayRef, index,
+					symbolic_value, concrete_value);
+		} else {
+			// array update
+			concolicState.updateZ3ArrayVariable(c.getVar(), map, arrayRef,
+					index, symbolic_value, concrete_value);
+		}
+
+		return buildEmptyVector();
 	}
 
 }
