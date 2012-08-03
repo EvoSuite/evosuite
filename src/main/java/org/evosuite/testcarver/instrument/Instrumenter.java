@@ -164,7 +164,9 @@ public final class Instrumenter
 		}
 		
 		// consider only public and protected classes which are not interfaces
-		if(((cn.access & Opcodes.ACC_PUBLIC) == 0 && (cn.access & Opcodes.ACC_PROTECTED) == 0)|| 
+		if(( 
+				(cn.access & Opcodes.ACC_PUBLIC) == 0 && (cn.access & Opcodes.ACC_PROTECTED) == 0)
+				|| 
 		   (cn.access & Opcodes.ACC_INTERFACE) != 0)
 		{
 			return;
