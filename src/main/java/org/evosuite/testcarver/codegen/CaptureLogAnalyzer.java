@@ -100,10 +100,11 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	@SuppressWarnings({ "rawtypes" })
 	private void restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end)
 	{
-		final int oidInfoRecNo = log.oidRecMapping.get(oid);
+		final int oidInfoRecNo  = log.oidRecMapping.get(oid);
+		final int dependencyOID = log.dependencies.getQuick(oidInfoRecNo);
 		
 		// start from last OID modification point
-		int currentRecord = log.oidInitRecNo.get(oidInfoRecNo);
+		int currentRecord = log.oidInitRecNo.getQuick(oidInfoRecNo);
 		if(currentRecord > 0)
 		{
 			// last modification of object happened here
@@ -143,12 +144,29 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 				}
 				else if(CaptureLog.NOT_OBSERVED_INIT.equals(methodName)) // e.g. Person var = (Person) XSTREAM.fromXML("<xml/>");
 				{
+					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
+					{
+						this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord);
+					}
+					
 					generator.createUnobservedInitStmt(log, currentRecord);
 					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
 				}
+//				else if(CaptureLog.DEPENDENCY.equals(methodName))
+//				{
+//					methodArgs = log.params.get(currentRecord);
+//					this.restorceCodeFromLastPosTo(log, generator, (Integer) methodArgs[0], currentRecord);
+//					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+//				}
 				else if(CaptureLog.PUTFIELD.equals(methodName) || CaptureLog.PUTSTATIC.equals(methodName) || // field write access such as p.id = id or Person.staticVar = "something"
 						CaptureLog.GETFIELD.equals(methodName) || CaptureLog.GETSTATIC.equals(methodName))   // field READ access such as "int a =  p.id" or "String var = Person.staticVar"
 				{
+					
+					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
+					{
+						this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord);
+					}
+					
 					
 					if(CaptureLog.PUTFIELD.equals(methodName) || CaptureLog.PUTSTATIC.equals(methodName))
 					{
@@ -185,6 +203,11 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 				}
 				else // var0.call(someArg) or Person var0 = new Person()
 				{
+					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
+					{
+						this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord);
+					}
+					
 					methodArgs = log.params.get(currentRecord);
 					
 					for(int i = 0; i < methodArgs.length; i++)

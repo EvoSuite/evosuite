@@ -1,5 +1,11 @@
 package org.evosuite.testcarver.capture;
 
+import gnu.trove.list.array.TIntArrayList;
+import gnu.trove.map.hash.TIntIntHashMap;
+import gnu.trove.map.hash.TIntObjectHashMap;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -9,10 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.ConversionException;
-
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.map.hash.TIntIntHashMap;
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 
 public final class CaptureLog implements Cloneable
@@ -38,6 +40,7 @@ public final class CaptureLog implements Cloneable
 	public final ArrayList<String> oidClassNames;
 	public final TIntArrayList 	   oids;
 	public final TIntArrayList     firstInits;
+	public final TIntArrayList  dependencies;
 
 	public final TIntObjectHashMap<String> namesOfAccessedFields; // captureId -> field name
 
@@ -61,13 +64,13 @@ public final class CaptureLog implements Cloneable
 	
 	
 	private static final String EMPTY_DESC = Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{});
+	public static final int  NO_DEPENDENCY = -1;
 	
 	
 	public static final String PUTFIELD  = "PUTFIELD";
 	public static final String PUTSTATIC = "PUTSTATIC";
 	public static final String GETFIELD  = "GETFIELD";
 	public static final String GETSTATIC = "GETSTATIC";
-	
 	
 	public static final Object RETURN_TYPE_VOID = CaptureLog.class.getName() + ".RETURN_VOID";
 	
@@ -89,6 +92,7 @@ public final class CaptureLog implements Cloneable
 		this.oidClassNames = new ArrayList<String>();
 		this.oids          = new TIntArrayList();
 		this.firstInits = new TIntArrayList();
+		this.dependencies = new TIntArrayList();
 		
         this.isStaticCallList = new ArrayList<Boolean>();
 		
@@ -116,8 +120,9 @@ public final class CaptureLog implements Cloneable
 		log.oids.addAll(this.oids);
 		log.namesOfAccessedFields.putAll(this.namesOfAccessedFields);
 		log.isStaticCallList.addAll(this.isStaticCallList);
-
+		log.dependencies.addAll(this.dependencies);
 		log.firstInits.addAll(this.firstInits);
+
 		return log;
 	}
 	
@@ -136,6 +141,7 @@ public final class CaptureLog implements Cloneable
 		this.oidClassNames.clear();
 		this.oids.resetQuick();
 		this.firstInits.resetQuick();
+		this.dependencies.resetQuick();
 		
 		this.namesOfAccessedFields.clear();
 	}
@@ -170,6 +176,8 @@ public final class CaptureLog implements Cloneable
 			
 			firstInits.add(logRecNo);
 
+			dependencies.add(NO_DEPENDENCY);
+			
 			if(receiver instanceof Class) //this can only happen, if there is a static method call 
 			{
 				final Class<?> c = (Class<?>) receiver;
@@ -213,18 +221,10 @@ public final class CaptureLog implements Cloneable
 		// (may happen, if, for example, the constructor is private), save the information that 
 		// the value comes from a finished method call
 		
-//		 System.out.println("xxxx " + System.identityHashCode(returnValue));
-			
 		if(returnValue != null && returnValue != RETURN_TYPE_VOID)
 		{ 
-			 
 			 final int returnValueOID = System.identityHashCode(returnValue);
-			 
-			 System.out.println("2xxxx " + returnValueOID);
-			 
 			 final int firstInitRecNo = this.firstInits.get(this.oidRecMapping.get(returnValueOID));
-			 
-//			 System.out.println(returnValueOID +  " REC: " +  this.oidInitRecNo.get(this.oidRecMapping.get(returnValueOID)));
 			 
 			 if( (! this.oidRecMapping.containsKey(returnValueOID) )// was an accessible constructor call belonging to this object logged before?
 				 ||
@@ -240,8 +240,6 @@ public final class CaptureLog implements Cloneable
 			 {
 				 if(! isPlain(returnValue) && ! (returnValue instanceof Class))
 				 {
-					 System.out.println("4xxxx " + returnValueOID);
-						
 					 final int oid = System.identityHashCode(receiver);
 					 
 					 int currentRecord = captureIds.size() - 1;
@@ -291,6 +289,7 @@ public final class CaptureLog implements Cloneable
 		
 						 this.oidClassNames.add(returnValue.getClass().getName());
 						 this.oids.add(returnValueOID);
+						 this.dependencies.add(NO_DEPENDENCY);
 					 }
 				 }
 			 }
@@ -305,6 +304,64 @@ public final class CaptureLog implements Cloneable
 		this.isStaticCallList.add(Boolean.FALSE);
 	}
 	
+	
+	/**
+	 * For example:
+	 * 
+	 * 		public class Foo
+	 *      {
+	 *      	public class Bar(){}
+	 *      }
+	 *      
+	 * 
+	 * 
+	 * @param receiver
+	 */
+	private void checkIfInstanceFromInnerInstanceClass(final Object receiver)
+	{
+		if(! (receiver instanceof Class))
+		{
+			final Class<?> receiverClass  = receiver.getClass();
+			final Class<?> enclosingClass = receiverClass.getEnclosingClass();
+			if(enclosingClass == null)
+			{
+				// do nothing
+				return;
+			}
+			else
+			{
+				if(! Modifier.isStatic(receiverClass.getModifiers()))
+				{
+			        try 
+			        {
+			            /*
+			             * The bytecode of the Outer$Inner class will contain a package-scoped field named this$0 of type Outer. 
+			             * That's how non-static inner classes are implemented in Java, because at bytecode level there is no concept of an inner class.
+						 *
+			             * see http://stackoverflow.com/questions/763543/in-java-how-do-i-access-the-outer-class-when-im-not-in-the-inner-class
+			             * for further details
+			             */
+			        	final Field  this$0        = receiverClass.getDeclaredField("this$0");
+			        	this$0.setAccessible(true);
+			            final Object outerInstance = this$0.get(receiver);
+
+			            // the enclosing object has to b
+			            
+			            final int receiverOID    = System.identityHashCode(receiver);
+			            final int initRecNo = this.oidRecMapping.get(receiverOID);
+			            this.dependencies.set(initRecNo, System.identityHashCode(outerInstance));
+			        } 
+			        catch (final Exception e) 
+			        {
+			        	System.err.println("ARGH!!");
+			        	e.printStackTrace();
+			            LOG.warn("An error occurred while obtaining the enclosing object of an inner non-static class instance", e);
+			        } 
+				}
+			}
+		}
+		
+	}
 	
 	public void log(final int captureId, final Object receiver, final String methodName, final String methodDesc, Object...methodParams)
 	{
@@ -328,6 +385,7 @@ public final class CaptureLog implements Cloneable
 			this.namesOfAccessedFields.put(captureId, (String) methodParams[0]);
 			methodParams = new Object[0];
 		}
+		
 		
 		
 		
@@ -385,6 +443,8 @@ public final class CaptureLog implements Cloneable
 					{
 						// create new serialization record for first emersion
 						// exemplary output in test code: Person newJoe = (Person) xstream.fromXML(xml); 
+						
+						this.checkIfInstanceFromInnerInstanceClass(param);
 						this.methodNames.add(NOT_OBSERVED_INIT);
 
 						try
@@ -426,6 +486,8 @@ public final class CaptureLog implements Cloneable
 		this.returnValues.add(RETURN_TYPE_VOID);
 		this.captureIds.add(captureId);
 		this.isStaticCallList.add(receiver instanceof Class);
+		
+		this.checkIfInstanceFromInnerInstanceClass(receiver);
 	}
 	
 	@Override
@@ -480,7 +542,9 @@ public final class CaptureLog implements Cloneable
 		       .append("OID").append(delimiter)
 		       .append("INIT RECNO").append(delimiter)
 		       .append("OID CLASS").append(delimiter)
-		       .append("ACCESSED FIELDS")
+		       .append("ACCESSED FIELDS").append(delimiter)
+		       .append("FIRST INIT").append(delimiter)
+		       .append("DEPENCENCY")
 		       .append('\n')
 		       .append("-------------------------------------------------------------------")
 		       .append('\n');
@@ -492,6 +556,8 @@ public final class CaptureLog implements Cloneable
 			             .append(this.oidInitRecNo.getQuick(i)).append(delimiter) // INIT RECNO
 			       		 .append(this.oidClassNames.get(i)).append(delimiter)     // OID CLASS 
 			       		 .append(this.namesOfAccessedFields.get(i))               // ACCESSED FIELDS
+			       		 .append(this.firstInits.getQuick(i))                    // FIRST INIT FIELDS
+			       		 .append(this.dependencies.getQuick(i))                  // DEPENCENCY FIELDS
 			       		 .append('\n');
 		}
 		
