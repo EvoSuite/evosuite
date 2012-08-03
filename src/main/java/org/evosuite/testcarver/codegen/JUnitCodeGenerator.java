@@ -7,6 +7,7 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -628,14 +629,14 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		
 		// assumption: all necessary statements are created and there is one variable for reach referenced object
 		final int      oid        = log.objectIds.get(logRecNo);
-		final Object[] methodArgs = log.params.get(logRecNo);
+	    Object[] methodArgs = log.params.get(logRecNo);
 		final String   methodName = log.methodNames.get(logRecNo);
 		
 		
 		final  String                   methodDesc       = log.descList.get(logRecNo);
-		final  org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
+		org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
 		
-		final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
+		Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
 		for(int i = 0; i < methodParamTypes.length; i++)
 		{
 			methodParamTypeClasses[i] = getClassForName(methodParamTypes[i].getClassName());
@@ -718,8 +719,66 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			{
 				// e.g. var0 = new Person();
 				final ClassInstanceCreation ci = ast.newClassInstanceCreation();
-				ci.setType(this.createAstType(typeName, ast));
-
+				
+				
+				final int recNo         = log.oidRecMapping.get(oid);
+				final int dependencyOID = log.dependencies.getQuick(recNo);
+				
+				if(dependencyOID == CaptureLog.NO_DEPENDENCY)
+				{
+					System.out.println(varName + "xxxx2");
+					
+					ci.setType(this.createAstType(typeName, ast));
+				}
+				else
+				{
+//					final String varTypeName = oidToVarMapping.get(dependencyOID) + "." + typeName.substring(typeName.indexOf('$') + 1);
+//					ci.setType(this.createAstType(varTypeName, ast));
+					/*
+					 * e.g.
+					 * OuterClass.InnerClass innerObject = outerObject.new InnerClass();
+					 */
+					ci.setType(this.createAstType(typeName.substring(typeName.indexOf('$') + 1), ast));
+					ci.setExpression(ast.newSimpleName(oidToVarMapping.get(dependencyOID)));
+					
+					System.out.println(varName + "xxxx1");
+					
+					final int index = Arrays.binarySearch(methodArgs, dependencyOID);
+					
+					System.out.println(varName + " x1args " + Arrays.toString(methodArgs));
+					System.out.println(varName + " x1index " + index);
+					System.out.println(varName + " x1dep " + dependencyOID);
+					
+					
+					
+					if(index > -1)
+					{
+						System.out.println(varName + " xxxx3 " + index);
+						
+						final Object[] newArgs = new Object[methodArgs.length - 1];
+						System.arraycopy(methodArgs, 0,         newArgs, 0,     index);
+						System.arraycopy(methodArgs, index + 1, newArgs, index, methodArgs.length - index - 1);
+						methodArgs = newArgs;
+						
+						
+						final Class<?>[] newParamTypeClasses = new Class<?>[methodParamTypeClasses.length - 1]; 
+						System.arraycopy(methodParamTypeClasses, 0,         newParamTypeClasses, 0,     index);
+						System.arraycopy(methodParamTypeClasses, index + 1, newParamTypeClasses, index, methodParamTypeClasses.length - index - 1);
+						methodParamTypeClasses = newParamTypeClasses;
+						
+						
+						final org.objectweb.asm.Type[] newParamTypes = new org.objectweb.asm.Type[methodParamTypes.length - 1]; 
+						System.arraycopy(methodParamTypes, 0,         newParamTypes, 0,     index);
+						System.arraycopy(methodParamTypes, index + 1, newParamTypes, index, methodParamTypes.length - index - 1);
+						methodParamTypes = newParamTypes;
+						
+						
+						System.out.println(varName + " x3args " + Arrays.toString(methodArgs));
+						System.out.println(varName + " x3index " + index);
+						System.out.println(varName + " x3dep " + Integer.valueOf(dependencyOID));
+					}
+				}
+				
 				final Assignment assignment = ast.newAssignment();
 				assignment.setLeftHandSide(ast.newSimpleName(varName));
 				assignment.setOperator(Operator.ASSIGN);
@@ -1798,6 +1857,21 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		}
 	}
 	
+	
+	
+	public static void main(String[] args)
+	{
+		Object[] methodArgs = new Object[]{1, 2, 3};
+
+		final int index = Arrays.binarySearch(methodArgs, Integer.valueOf(1));
+		
+		final Object[] newArgs = new Object[methodArgs.length - 1];
+		System.arraycopy(methodArgs, 0,         newArgs, 0,     index);
+		System.arraycopy(methodArgs, index + 1, newArgs, index, methodArgs.length - index - 1);
+		methodArgs = newArgs;
+		
+		System.out.println(Arrays.toString(methodArgs));
+	}
 
 	
 }

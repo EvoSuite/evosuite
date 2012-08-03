@@ -270,14 +270,22 @@ public final class CaptureLog implements Cloneable
 						 currentRecord--;
 					 }
 
-					 this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
+//					 this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
 					 
 					 if(this.oidRecMapping.containsKey(returnValueOID))
 					 {
 						 final int infoRecNo = this.oidRecMapping.get(returnValueOID);
+						 final int initRecNo = this.oidInitRecNo.getQuick(infoRecNo);
+						 final String method = this.methodNames.get(Math.abs(initRecNo));
 						 
-						 this.oidInitRecNo.set(infoRecNo, -currentRecord);
-						 this.firstInits.set(infoRecNo, currentRecord);
+						 if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT.equals(method))
+						 {
+							 this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
+
+							 System.err.println(returnValueOID + " ======TEST=========> " + (-currentRecord) + "   old:  " + this.oidInitRecNo.getQuick(infoRecNo));
+							 this.oidInitRecNo.set(infoRecNo, -currentRecord);
+							 this.firstInits.set(infoRecNo, currentRecord);
+						 }
 					 }
 					 else
 					 {
@@ -286,6 +294,9 @@ public final class CaptureLog implements Cloneable
 						 // negative log rec no indicates obj construction
 						 this.oidInitRecNo.add(-currentRecord);
 						 this.firstInits.add(currentRecord);
+						 
+						 this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
+
 		
 						 this.oidClassNames.add(returnValue.getClass().getName());
 						 this.oids.add(returnValueOID);
@@ -552,12 +563,12 @@ public final class CaptureLog implements Cloneable
 		final int numMetaInfRecords = this.oids.size();
 		for(int i = 0; i < numMetaInfRecords; i++)
 		{
-			      builder.append(this.oids.getQuick(i)).append(delimiter)         // OID
-			             .append(this.oidInitRecNo.getQuick(i)).append(delimiter) // INIT RECNO
-			       		 .append(this.oidClassNames.get(i)).append(delimiter)     // OID CLASS 
-			       		 .append(this.namesOfAccessedFields.get(i))               // ACCESSED FIELDS
-			       		 .append(this.firstInits.getQuick(i))                    // FIRST INIT FIELDS
-			       		 .append(this.dependencies.getQuick(i))                  // DEPENCENCY FIELDS
+			      builder.append(this.oids.getQuick(i)).append(delimiter)             // OID
+			             .append(this.oidInitRecNo.getQuick(i)).append(delimiter)     // INIT RECNO
+			       		 .append(this.oidClassNames.get(i)).append(delimiter)         // OID CLASS 
+			       		 .append(this.namesOfAccessedFields.get(i)).append(delimiter) // ACCESSED FIELDS
+			       		 .append(this.firstInits.getQuick(i)).append(delimiter)       // FIRST INIT FIELDS
+			       		 .append(this.dependencies.getQuick(i))                       // DEPENCENCY FIELDS
 			       		 .append('\n');
 		}
 		
