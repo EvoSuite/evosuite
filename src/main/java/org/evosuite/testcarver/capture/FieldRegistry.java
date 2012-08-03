@@ -273,6 +273,7 @@ public final class FieldRegistry
 							catch(final Exception e)
 							{
 								LOG.error("an error occurred while comparing field values for class {}", internalClassName, e);
+							e.printStackTrace();
 								throw new RuntimeException(e); // TODO better exception type
 							}
 
