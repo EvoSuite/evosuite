@@ -82,6 +82,12 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 		super.visitLabel(dummyTag);
 	}
 
+	private void tagBranchExit() {
+		Label dummyTag = new AnnotatedLabel();
+		dummyTag.info = Boolean.FALSE;
+		super.visitLabel(dummyTag);
+	}
+
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.MethodVisitor#visitMethodInsn(int, java.lang.String, java.lang.String, java.lang.String)
 	 */
@@ -111,6 +117,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "java/lang/NullPointerException", "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
 
 			for (int i = 0; i < args.length; i++) {
 				loadLocal(to.get(i));
@@ -139,6 +146,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "java/lang/NullPointerException", "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
+
 		} else if (opcode == Opcodes.PUTFIELD && !methodName.equals("<init>")) {
 			Label origTarget = new Label();
 			// Label origTarget = new AnnotatedLabel();
@@ -169,6 +178,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "java/lang/NullPointerException", "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
+
 		}
 		super.visitFieldInsn(opcode, owner, name, desc);
 	}
@@ -197,6 +208,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
 
 		}
 		super.visitTypeInsn(opcode, type);
@@ -222,6 +234,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
+
 		} else if (opcode == Opcodes.FDIV) {
 			Label origTarget = new Label();
 			// Label origTarget = new AnnotatedLabel();
@@ -237,6 +251,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
+
 		} else if (opcode == Opcodes.LDIV || opcode == Opcodes.DDIV) {
 			Label origTarget = new Label();
 			// Label origTarget = new AnnotatedLabel();
@@ -257,6 +273,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
 
 		}
 
@@ -293,6 +310,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget);
+			tagBranchExit();
+
 		} else if (opcode == Opcodes.IASTORE || opcode == Opcodes.BASTORE
 		        || opcode == Opcodes.CASTORE || opcode == Opcodes.SASTORE
 		        || opcode == Opcodes.AASTORE || opcode == Opcodes.LASTORE
@@ -354,6 +373,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			//instrumentationOff.info = Boolean.FALSE;
 			//super.visitLabel(instrumentationOff);
 			super.visitLabel(origTarget);
+			tagBranchExit();
+
 			loadLocal(loc);
 		}
 
@@ -379,6 +400,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget2);
+			tagBranchExit();
 
 		case Opcodes.IDIV:
 			Label origTarget1 = new Label();
@@ -398,6 +420,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget1);
+			tagBranchExit();
 
 			break;
 
@@ -422,6 +445,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget4);
+			tagBranchExit();
+
 		case Opcodes.FDIV:
 			Label origTarget3 = new Label();
 			// Label origTarget = new AnnotatedLabel();
@@ -440,6 +465,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget3);
+			tagBranchExit();
 
 			break;
 		case Opcodes.DADD:
@@ -467,6 +493,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget6);
+			tagBranchExit();
 
 		case Opcodes.DDIV:
 			loc = newLocal(Type.DOUBLE_TYPE);
@@ -491,6 +518,7 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget5);
+			tagBranchExit();
 
 			break;
 
@@ -516,6 +544,8 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget8);
+			tagBranchExit();
+
 		case Opcodes.LDIV:
 
 			Label origTarget7 = new Label();
@@ -539,10 +569,10 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 			                      "<init>", "()V");
 			super.visitInsn(Opcodes.ATHROW);
 			super.visitLabel(origTarget7);
+			tagBranchExit();
 
 			break;
 		}
-		// Check I*, D*, F*, L* for overflows
 
 		super.visitInsn(opcode);
 	}

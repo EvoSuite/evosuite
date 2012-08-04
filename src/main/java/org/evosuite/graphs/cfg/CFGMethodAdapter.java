@@ -251,7 +251,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 	private void handleBranchlessMethods() {
 		String id = className + "." + methodName;
-		if (BranchPool.getBranchCountForMethod(className, methodName) == 0) {
+		if (BranchPool.getNonArtificialBranchCountForMethod(className, methodName) == 0) {
 			if (isUsable()) {
 				logger.debug("Method has no branches: " + id);
 				BranchPool.addBranchlessMethod(className, id, lineNumber);

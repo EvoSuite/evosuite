@@ -456,6 +456,22 @@ public class BranchPool {
 		return branchMap.get(className).get(methodName).size();
 	}
 
+	public static int getNonArtificialBranchCountForMethod(String className,
+	        String methodName) {
+		if (branchMap.get(className) == null)
+			return 0;
+		if (branchMap.get(className).get(methodName) == null)
+			return 0;
+
+		int num = 0;
+		for (Branch b : branchMap.get(className).get(methodName)) {
+			if (!b.isInstrumented())
+				num++;
+		}
+
+		return num;
+	}
+
 	/**
 	 * Returns the number of known Branches for a given class
 	 * 
@@ -522,6 +538,16 @@ public class BranchPool {
 	 */
 	public static int getBranchCounter() {
 		return branchCounter;
+	}
+
+	public static int getNumArtificialBranches() {
+		int num = 0;
+		for (Branch b : branchIdMap.values()) {
+			if (b.isInstrumented())
+				num++;
+		}
+
+		return num;
 	}
 
 	/**
