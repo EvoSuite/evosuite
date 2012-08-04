@@ -86,10 +86,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
-	//FIXME: need re-factor, as dependent on Properties
-	/** Constant <code>REPORT_DIR</code> */
-	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
-
+	
+	protected static File getReportDir(){
+		return new File(Properties.REPORT_DIR);
+	}
+	
+	
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
 	protected static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
 
@@ -388,7 +390,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		public String getCSVFilepath() {
-			return REPORT_DIR.getAbsolutePath() + File.separator + getCSVFileName();
+			return getReportDir().getAbsolutePath() + File.separator + getCSVFileName();
 		}
 
 		public String getCSVFileName() {
@@ -397,7 +399,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		public String getExceptionFilepath() {
-			return REPORT_DIR.getAbsolutePath() + "/data/exceptions_" + className + "-"
+			return getReportDir().getAbsolutePath() + "/data/exceptions_" + className + "-"
 			        + id + ".csv";
 		}
 
@@ -439,10 +441,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 */
 	protected String writeIntegerChart(List<Integer> values, String className,
 	        String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
+		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_" + title
 		        + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
-		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
+		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
@@ -480,10 +482,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeDoubleChart(List<Double> values, String className, String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
+		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_" + title
 		        + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
-		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
+		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
@@ -639,7 +641,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		};
 		List<String> filenames = new ArrayList<String>();
 
-		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data")).listFiles(filter);
+		File[] files = (new File(getReportDir().getAbsolutePath() + "/data")).listFiles(filter);
 		if (files != null) {
 			for (File f : files)
 				filenames.add(f.getName());
@@ -834,7 +836,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		writeHTMLFooter(sb);
 
 		String filename = "report-" + run.className + "-" + run.id + ".html";
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/html/" + filename);
+		File file = new File(getReportDir().getAbsolutePath() + "/html/" + filename);
 		Utils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
@@ -972,7 +974,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		logger.info("Writing CSV!");
 		try {
-			File f = new File(REPORT_DIR + "/statistics.csv");
+			File f = new File(getReportDir() + "/statistics.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
 				out.write(entry.getCSVHeader() + "\n");
@@ -1032,8 +1034,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	public static void copyFile(String name) {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
-		copyFile(systemResource, new File(REPORT_DIR, "files/" + name));
-		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/files/"
+		copyFile(systemResource, new File(getReportDir(), "files/" + name));
+		copyFile(systemResource, new File(getReportDir().getAbsolutePath() + "/html/files/"
 		        + name));
 	}
 
@@ -1047,9 +1049,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		if (statistics.isEmpty())
 			return;
 
-		new File(REPORT_DIR.getAbsolutePath() + "/html/files/").mkdirs();
-		new File(REPORT_DIR.getAbsolutePath() + "/data/").mkdirs();
-		new File(REPORT_DIR.getAbsolutePath() + "/files/").mkdirs();
+		new File(getReportDir().getAbsolutePath() + "/html/files/").mkdirs();
+		new File(getReportDir().getAbsolutePath() + "/data/").mkdirs();
+		new File(getReportDir().getAbsolutePath() + "/files/").mkdirs();
 
 		copyFile("prettify.js");
 		copyFile("prettify.css");
@@ -1063,7 +1065,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		copyFile("img02.jpg");
 		copyFile("img03.jpg");
 		copyFile("img04.png");
-		File file = new File(REPORT_DIR, "report-generation.html");
+		File file = new File(getReportDir(), "report-generation.html");
 		StringBuffer report = new StringBuffer();
 
 		if (file.exists()) {
@@ -1160,7 +1162,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		// Map<Integer, Throwable> result = executor.run(test);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		// entry.results.put(test, result);
-		entry.results.put(testChromosome.getTestCase(), result.exposeExceptionMapping());
+		entry.results.put(testChromosome.getTestCase(), result.getCopyOfExceptionMapping());
 
 		return result;
 	}
@@ -1181,12 +1183,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * </p>
 	 */
 	protected void makeDirs() {
-		REPORT_DIR.mkdirs();
-		(new File(REPORT_DIR.getAbsolutePath() + "/data")).mkdir();
+		getReportDir().mkdirs();
+		(new File(getReportDir().getAbsolutePath() + "/data")).mkdir();
 		if (Properties.PLOT)
-			(new File(REPORT_DIR.getAbsolutePath() + "/img")).mkdir();
+			(new File(getReportDir().getAbsolutePath() + "/img")).mkdir();
 		if (Properties.HTML)
-			(new File(REPORT_DIR.getAbsolutePath() + "/html")).mkdir();
+			(new File(getReportDir().getAbsolutePath() + "/html")).mkdir();
 	}
 
 	/** {@inheritDoc} */

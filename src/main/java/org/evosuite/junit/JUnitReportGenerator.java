@@ -147,7 +147,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 		writeHTMLFooter(sb);
 
 		String filename = "report-" + run.className + "-" + run.id + ".html";
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/html/" + filename);
+		File file = new File(getReportDir().getAbsolutePath() + "/html/" + filename);
 		Utils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
