@@ -167,6 +167,17 @@ public class ExecutionResult implements Cloneable {
 	public Map<Integer, Throwable> exposeExceptionMapping() {
 		return exceptions;
 	}
+	
+	
+	/**
+	 * 
+	 * @return Mapping of statement indexes and thrown exceptions. 
+	 */
+	public  Map<Integer, Throwable> getCopyOfExceptionMapping(){
+		Map<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
+		copy.putAll(exceptions);
+		return copy;
+	}
 
 	/**
 	 * Constructor when executing with mutation
