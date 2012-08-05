@@ -185,7 +185,7 @@ public class EvoSuite {
 	private static void generateTests(boolean wholeSuite, List<String> args) {
 		File directory = new File(base_dir_path + separator + Properties.OUTPUT_DIR);
 		if (!directory.exists()) {
-			System.out.println("* Found no EvoSuite data in directory \"" + base_dir_path
+			LoggingUtils.getEvoLogger().info("* Found no EvoSuite data in directory \"" + base_dir_path
 			        + "\" . Run -setup first!");
 			return;
 		} else if (!directory.isDirectory()) {
@@ -200,7 +200,7 @@ public class EvoSuite {
 			num++;
 		}
 		if (num == 0) {
-			System.out.println("* Found no class information in " + directory
+			LoggingUtils.getEvoLogger().info("* Found no class information in " + directory
 			        + ". Check that the classpath is correct when calling -setup.");
 			return;
 		}
