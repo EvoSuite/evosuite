@@ -97,6 +97,10 @@ class MSecurityManager extends SecurityManager {
 		// false if "executeTestCase" method wasn't in a stack trace, true otherwise
 		boolean testExec = false;
 
+		// Always forbid deleting - EvoSuite doesn't do it
+		if (perm instanceof FilePermission && perm.getActions().equals("delete"))
+			return false;
+
 		// iterate through all elements and check if name of the calling class contains 
 		// the name of the class under test or "executeTestCase" method call.
 		// Also check for few special cases, when permission should be granted
