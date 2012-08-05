@@ -1142,26 +1142,26 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		if (result == null || testChromosome.isChanged()) {
 			try {
-				// logger.trace(test.toCode());
+				if(logger.isTraceEnabled()){
+					logger.trace(testChromosome.getTestCase().toCode());
+				}
 				TestCaseExecutor executor = TestCaseExecutor.getInstance();
 				result = executor.execute(testChromosome.getTestCase());
 
 			} catch (Exception e) {
-				System.out.println("TG: Exception caught: " + e);
-				e.printStackTrace();
+				logger.error("TG: Exception caught: "+e.getMessage(),e);
 				try {
 					Thread.sleep(1000);
 					result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 				} catch (Exception e1) {
-					e.printStackTrace();
-					// TODO: Do some error recovery?
+					logger.error("Cannot set trace in test case with exception. Going to kill client",e1);
+					//TODO: some error recovery?
 					System.exit(1);
 				}
 			}
 		}
-		// Map<Integer, Throwable> result = executor.run(test);
+
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		// entry.results.put(test, result);
 		entry.results.put(testChromosome.getTestCase(), result.getCopyOfExceptionMapping());
 
 		return result;
