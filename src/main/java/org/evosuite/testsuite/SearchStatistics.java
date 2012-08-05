@@ -419,6 +419,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		}
 
 		int num_covered = 0;
+		entry.error_branches = BranchPool.getNumArtificialBranches();
 
 		for (Integer key : predicate_count.keySet()) {
 			// logger.info("Key: "+key);
@@ -432,7 +433,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				num_covered++;
 			//}
 			if (b.isInstrumented()) {
-				entry.error_branches++;
+				// entry.error_branches++;
 				if (df == 0.0)
 					entry.error_branches_covered++;
 				if (dt == 0.0)
