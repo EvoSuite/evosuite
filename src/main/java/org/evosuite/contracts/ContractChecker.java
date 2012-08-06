@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,10 +31,11 @@ import org.evosuite.testcase.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>ContractChecker class.</p>
- *
+ * <p>
+ * ContractChecker class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class ContractChecker extends ExecutionObserver {
@@ -54,7 +55,9 @@ public class ContractChecker extends ExecutionObserver {
 	private static boolean active = true;
 
 	/**
-	 * <p>Constructor for ContractChecker.</p>
+	 * <p>
+	 * Constructor for ContractChecker.
+	 * </p>
 	 */
 	public ContractChecker() {
 		// Default from EvoSuite
@@ -75,9 +78,12 @@ public class ContractChecker extends ExecutionObserver {
 	}
 
 	/**
-	 * <p>Setter for the field <code>active</code>.</p>
-	 *
-	 * @param isActive a boolean.
+	 * <p>
+	 * Setter for the field <code>active</code>.
+	 * </p>
+	 * 
+	 * @param isActive
+	 *            a boolean.
 	 */
 	public static void setActive(boolean isActive) {
 		active = isActive;
@@ -95,8 +101,9 @@ public class ContractChecker extends ExecutionObserver {
 
 	/**
 	 * Set the current test case, on which we check oracles while it is executed
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public static void currentTest(TestCase test) {
 		currentTest = test;
@@ -135,8 +142,7 @@ public class ContractChecker extends ExecutionObserver {
 			try {
 
 				if (!contract.check(statement, scope, exception)) {
-					logger.debug("Contract failed: " + contract + " on statement "
-					        + statement.getCode());
+					logger.debug("Contract failed: {} {}", contract, statement.getCode());
 					FailingTestSet.addFailingTest(currentTest, contract, statement,
 					                              exception);
 					valid = false;
