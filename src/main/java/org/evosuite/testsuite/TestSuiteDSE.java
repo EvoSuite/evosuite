@@ -125,7 +125,7 @@ public class TestSuiteDSE {
 		Map<BranchCondition, TestCase> expandedTests = new HashMap<BranchCondition, TestCase>();
 
 		List<TestChromosome> tests = new ArrayList<TestChromosome>(
-		        individual.getTestChromosomes());
+				individual.getTestChromosomes());
 		Randomness.shuffle(tests);
 		for (TestChromosome test : tests) {
 			if (DSEBudget.isHalfRemaining()) {
@@ -141,7 +141,7 @@ public class TestSuiteDSE {
 				test.setChanged(false);
 			}
 			if (test.getLastExecutionResult().hasTimeout()
-			        || test.getLastExecutionResult().hasTestException()) {
+					|| test.getLastExecutionResult().hasTestException()) {
 				logger.info("Skipping test with timeout or exception");
 				continue;
 			}
@@ -149,21 +149,32 @@ public class TestSuiteDSE {
 			TestCase expandedTest = expandTestCase(test.getTestCase());
 			TestChromosome expandedChromosome = new TestChromosome();
 			expandedChromosome.setTestCase(expandedTest);
-			List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
+			List<BranchCondition> branches;
+			branches = concolicExecution.getSymbolicPath(expandedChromosome);
 			for (BranchCondition branch : branches) {
-				String index = branch.getFullName() + branch.getInstructionIndex();
+				String index = branch.getFullName()
+						+ branch.getInstructionIndex();
 				if (!solvedConstraints.containsKey(index))
-					solvedConstraints.put(index,
-					                      new HashMap<Integer, Map<Comparator, Set<BranchCondition>>>());
+					solvedConstraints
+							.put(index,
+									new HashMap<Integer, Map<Comparator, Set<BranchCondition>>>());
 				int localConstraint = 0;
 				for (Constraint c : branch.localConstraints) {
-					if (!solvedConstraints.get(index).containsKey(localConstraint))
-						solvedConstraints.get(index).put(localConstraint,
-						                                 new HashMap<Comparator, Set<BranchCondition>>());
-					if (!solvedConstraints.get(index).get(localConstraint).containsKey(c.getComparator()))
-						solvedConstraints.get(index).get(localConstraint).put(c.getComparator(),
-						                                                      new HashSet<BranchCondition>());
-					solvedConstraints.get(index).get(localConstraint).get(c.getComparator()).add(branch);
+					if (!solvedConstraints.get(index).containsKey(
+							localConstraint))
+						solvedConstraints
+								.get(index)
+								.put(localConstraint,
+										new HashMap<Comparator, Set<BranchCondition>>());
+					if (!solvedConstraints.get(index).get(localConstraint)
+							.containsKey(c.getComparator()))
+						solvedConstraints
+								.get(index)
+								.get(localConstraint)
+								.put(c.getComparator(),
+										new HashSet<BranchCondition>());
+					solvedConstraints.get(index).get(localConstraint)
+							.get(c.getComparator()).add(branch);
 					expandedTests.put(branch, expandedTest);
 					localConstraint++;
 				}
@@ -184,25 +195,28 @@ public class TestSuiteDSE {
 				break;
 			}
 			for (Integer localConstraint : branchConstraints.keySet()) {
-				//			for (Map<Comparator, Set<BranchCondition>> comparatorConstraints : branchConstraints.values()) {
-				Map<Comparator, Set<BranchCondition>> comparatorConstraints = branchConstraints.get(localConstraint);
+				// for (Map<Comparator, Set<BranchCondition>>
+				// comparatorConstraints : branchConstraints.values()) {
+				Map<Comparator, Set<BranchCondition>> comparatorConstraints = branchConstraints
+						.get(localConstraint);
 				for (Comparator c : comparatorConstraints.keySet()) {
 					Comparator cInverse = c.not();
 					if (!comparatorConstraints.containsKey(cInverse)) {
 						logger.info("Found branch only covered one way - "
-						        + comparatorConstraints.get(c).size()
-						        + " candidate constraints");
-						BranchCondition branch = Randomness.choice(comparatorConstraints.get(c));
-						TestCase newTest = negateCondition(branch.reachingConstraints,
-						                                   branch.localConstraints,
-						                                   expandedTests.get(branch),
-						                                   localConstraint);
+								+ comparatorConstraints.get(c).size()
+								+ " candidate constraints");
+						BranchCondition branch = Randomness
+								.choice(comparatorConstraints.get(c));
+						TestCase newTest = negateCondition(
+								branch.reachingConstraints,
+								branch.localConstraints,
+								expandedTests.get(branch), localConstraint);
 						if (newTest != null) {
 							logger.info("Found new test!");
 							clone.addTest(newTest);
 							if (fitness.getFitness(clone) < originalFitness) {
 								logger.info("New test improves fitness to "
-								        + clone.getFitness());
+										+ clone.getFitness());
 								individual.addTest(newTest);
 								originalFitness = clone.getFitness();
 							} else {
@@ -238,15 +252,17 @@ public class TestSuiteDSE {
 		ConcolicExecution concolicExecution = new ConcolicExecution();
 
 		logger.info("Applying DSE to suite of size " + individual.size());
-		logger.info("Starting with " + uncoveredBranches.size() + " candidate branches");
+		logger.info("Starting with " + uncoveredBranches.size()
+				+ " candidate branches");
 
 		List<TestChromosome> testsToHandle = new LinkedList<TestChromosome>();
 
 		testsToHandle.addAll(individual.getTestChromosomes());
 		Collections.shuffle(testsToHandle);
 
-		while (!testsToHandle.isEmpty() && System.currentTimeMillis() < dseEndTime) {
-			//pop the first element
+		while (!testsToHandle.isEmpty()
+				&& System.currentTimeMillis() < dseEndTime) {
+			// pop the first element
 			TestChromosome test = testsToHandle.get(0);
 			testsToHandle.remove(0);
 
@@ -268,9 +284,11 @@ public class TestSuiteDSE {
 
 				logger.info("DSE start");
 				// Apply DSE to gather constraints
-				List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
+				List<BranchCondition> branches = concolicExecution
+						.getSymbolicPath(expandedChromosome);
 
-				logger.info("DSE finished - found " + branches.size() + " branches");
+				logger.info("DSE finished - found " + branches.size()
+						+ " branches");
 
 				// For each uncovered branch
 				for (BranchCondition branch : branches) {
@@ -278,20 +296,22 @@ public class TestSuiteDSE {
 
 					// TODO: Need to match prefixes?
 					if (!className.equals(Properties.TARGET_CLASS)
-					        && !className.startsWith(Properties.TARGET_CLASS + "$")) {
-						logger.debug("Branch is not in target class: " + className);
+							&& !className.startsWith(Properties.TARGET_CLASS
+									+ "$")) {
+						logger.debug("Branch is not in target class: "
+								+ className);
 						continue;
 					}
 
-					//logger.debug("Current branch: " + branch);
+					// logger.debug("Current branch: " + branch);
 					if (isUncovered(branch) && coverable(branch)) {
 						logger.info("Trying to cover branch "
-						        + branch.getInstructionIndex() + ": " + branch);
+								+ branch.getInstructionIndex() + ": " + branch);
 
 						// Try to solve negated constraint
-						TestCase newTest = negateCondition(branch.reachingConstraints,
-						                                   branch.localConstraints,
-						                                   expandedTest);
+						TestCase newTest = negateCondition(
+								branch.reachingConstraints,
+								branch.localConstraints, expandedTest);
 
 						// If successful, add resulting test to test suite
 						if (newTest != null) {
@@ -299,12 +319,12 @@ public class TestSuiteDSE {
 							newChromosome.setTestCase(newTest);
 							updateTestSuite(individual, newChromosome);
 
-							//testsToHandle.add(newChromosome);
-							//Collections.shuffle(testsToHandle);
+							// testsToHandle.add(newChromosome);
+							// Collections.shuffle(testsToHandle);
 
-							//newTests.add(newTest);
-							//setCovered(branch);
-							//assert (uncoveredBranches.size() < oldCovered);
+							// newTests.add(newTest);
+							// setCovered(branch);
+							// assert (uncoveredBranches.size() < oldCovered);
 							if (uncoveredBranches.isEmpty()) {
 								nrSolvedConstraints += nrCurrConstraints;
 								nrCurrConstraints = 0;
@@ -312,13 +332,15 @@ public class TestSuiteDSE {
 							}
 							if (isUncovered(branch)) {
 								logger.info("Branch is not covered!");
-								if (!newChromosome.getLastExecutionResult().noThrownExceptions()) {
+								if (!newChromosome.getLastExecutionResult()
+										.noThrownExceptions()) {
 									logger.info("Test has exception");
 								} else {
-									logger.info("Old test: " + expandedTest.toCode());
+									logger.info("Old test: "
+											+ expandedTest.toCode());
 									logger.info("New test: " + newTest.toCode());
 									setUncoverable(branch);
-									//assert (false);
+									// assert (false);
 								}
 								nrCurrConstraints = 0;
 							} else {
@@ -328,20 +350,23 @@ public class TestSuiteDSE {
 								nrCurrConstraints = 0;
 							}
 
-							logger.info("-> Remaining " + uncoveredBranches.size()
-							        + " candidate branches");
-							logger.info("Resulting suite has size " + individual.size());
+							logger.info("-> Remaining "
+									+ uncoveredBranches.size()
+									+ " candidate branches");
+							logger.info("Resulting suite has size "
+									+ individual.size());
 						} else {
 							nrCurrConstraints = 0;
 						}
 					} else {
 						logger.debug("Already covered or uncoverable branch "
-						        + branch.getInstructionIndex());// + ": " + branch);
+								+ branch.getInstructionIndex());// + ": " +
+																// branch);
 
 					}
 				}
 				logger.info("Remaining " + uncoveredBranches.size()
-				        + " candidate branches");
+						+ " candidate branches");
 			} else {
 				logger.info("Test no uncovered branches");
 			}
@@ -382,29 +407,35 @@ public class TestSuiteDSE {
 				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
 				/*
-				for (Integer branchId : test.getLastExecutionResult().getTrace().covered_predicates.keySet()) {
-					logger.debug("Distances "
-					        + branchId
-					        + ": "
-					        + test.getLastExecutionResult().getTrace().true_distances.get(branchId)
-					        + "/"
-					        + test.getLastExecutionResult().getTrace().false_distances.get(branchId));
-
-				}
-				*/
+				 * for (Integer branchId :
+				 * test.getLastExecutionResult().getTrace
+				 * ().covered_predicates.keySet()) { logger.debug("Distances " +
+				 * branchId + ": " +
+				 * test.getLastExecutionResult().getTrace().true_distances
+				 * .get(branchId) + "/" +
+				 * test.getLastExecutionResult().getTrace(
+				 * ).false_distances.get(branchId));
+				 * 
+				 * }
+				 */
 			}
 
-			for (Integer branchId : test.getLastExecutionResult().getTrace().getCoveredPredicates()) {
-				if (test.getLastExecutionResult().getTrace().getTrueDistance(branchId) == 0.0)
+			for (Integer branchId : test.getLastExecutionResult().getTrace()
+					.getCoveredPredicates()) {
+				if (test.getLastExecutionResult().getTrace()
+						.getTrueDistance(branchId) == 0.0)
 					coveredTrue.add(branchId);
-				if (test.getLastExecutionResult().getTrace().getFalseDistance(branchId) == 0.0)
+				if (test.getLastExecutionResult().getTrace()
+						.getFalseDistance(branchId) == 0.0)
 					coveredFalse.add(branchId);
 				logger.debug("Distances "
-				        + branchId
-				        + ": "
-				        + test.getLastExecutionResult().getTrace().getTrueDistance(branchId)
-				        + "/"
-				        + test.getLastExecutionResult().getTrace().getFalseDistance(branchId));
+						+ branchId
+						+ ": "
+						+ test.getLastExecutionResult().getTrace()
+								.getTrueDistance(branchId)
+						+ "/"
+						+ test.getLastExecutionResult().getTrace()
+								.getFalseDistance(branchId));
 
 			}
 		}
@@ -473,10 +504,11 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	private boolean hasUncoveredBranches(ExecutableChromosome test) {
-		for (Integer branchId : test.getLastExecutionResult().getTrace().getCoveredPredicates()) {
+		for (Integer branchId : test.getLastExecutionResult().getTrace()
+				.getCoveredPredicates()) {
 			if (uncoveredBranches.contains(branchId)) {
 				logger.info("Uncovered branch found: " + branchId + ": "
-				        + BranchPool.getBranch(branchId));
+						+ BranchPool.getBranch(branchId));
 				return true;
 			}
 		}
@@ -484,7 +516,7 @@ public class TestSuiteDSE {
 	}
 
 	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints,
-	        Set<Constraint<?>> localConstraints, TestCase test) {
+			Set<Constraint<?>> localConstraints, TestCase test) {
 		return negateCondition(reachingConstraints, localConstraints, test, 0);
 	}
 
@@ -495,14 +527,15 @@ public class TestSuiteDSE {
 	 * @param test
 	 * @return
 	 */
-	//@SuppressWarnings("rawtypes")
-	//@SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints,
-	        Set<Constraint<?>> localConstraints, TestCase test, int localConstraint) {
+			Set<Constraint<?>> localConstraints, TestCase test,
+			int localConstraint) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(reachingConstraints);
-		//constraints.addAll(condition.localConstraints);
+		// constraints.addAll(condition.localConstraints);
 		Iterator<Constraint<?>> iterator = localConstraints.iterator();
 		int num = 0;
 		Constraint<Long> c = null;
@@ -516,47 +549,48 @@ public class TestSuiteDSE {
 			logger.warn("Local constraint not found!");
 			return null;
 		}
-		//Constraint<Long> c = (Constraint<Long>) condition.localConstraints.iterator().next();
-		Constraint<Long> targetConstraint = new IntegerConstraint(c.getLeftOperand(),
-		        c.getComparator().not(), c.getRightOperand());
+		// Constraint<Long> c = (Constraint<Long>)
+		// condition.localConstraints.iterator().next();
+		Constraint<Long> targetConstraint = new IntegerConstraint(
+				c.getLeftOperand(), c.getComparator().not(),
+				c.getRightOperand());
 		constraints.add(targetConstraint);
 		if (!targetConstraint.isSolveable()) {
 			logger.info("Found unsolvable constraint: " + targetConstraint);
-			// TODO: This is usually the case when the same variable is used for several parameters of a method
+			// TODO: This is usually the case when the same variable is used for
+			// several parameters of a method
 			// Could we treat this as a special case?
 			return null;
 		}
 
 		int size = constraints.size();
 		/*
-				int counter = 0;
-				for (Constraint cnstr : constraints) {
-					logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-					        + DistanceEstimator.getDistance(constraints));
-				}
-		*/
+		 * int counter = 0; for (Constraint cnstr : constraints) {
+		 * logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: " +
+		 * DistanceEstimator.getDistance(constraints)); }
+		 */
 		if (size > 0) {
-			logger.debug("Calculating cone of influence for " + size + " constraints");
+			logger.debug("Calculating cone of influence for " + size
+					+ " constraints");
 			constraints = reduce(constraints);
-			logger.info("Reduced constraints from " + size + " to " + constraints.size());
+			logger.info("Reduced constraints from " + size + " to "
+					+ constraints.size());
 		}
 
 		nrCurrConstraints = constraints.size();
 		nrConstraints += nrCurrConstraints;
 		/*
-				counter = 0;
-				for (Constraint cnstr : constraints) {
-					logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: "
-					        + DistanceEstimator.getDistance(constraints));
-				}
-		*/
+		 * counter = 0; for (Constraint cnstr : constraints) {
+		 * logger.debug("Cnstr " + (counter++) + " : " + cnstr + " dist: " +
+		 * DistanceEstimator.getDistance(constraints)); }
+		 */
 		logger.info("Applying local search");
 		Seeker skr = new Seeker();
 		Map<String, Object> values = skr.getModel(constraints);
 
-		//TODO Let's hope you get to delete this at some point ;P
-		//		CVC3Solver solver = new CVC3Solver();
-		//		Map<String, Object> values = solver.getModel(constraints);
+		// TODO Let's hope you get to delete this at some point ;P
+		// CVC3Solver solver = new CVC3Solver();
+		// Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null && !values.isEmpty()) {
 			TestCase newTest = test.clone();
@@ -568,7 +602,8 @@ public class TestSuiteDSE {
 					if (val instanceof Long) {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
-						//logger.warn("New long value for " + name + " is " + value);
+						// logger.warn("New long value for " + name + " is " +
+						// value);
 						PrimitiveStatement p = getStatement(newTest, name);
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) value.intValue());
@@ -584,14 +619,16 @@ public class TestSuiteDSE {
 							p.setValue(value.byteValue() > 0);
 						else
 							logger.warn("New value is of an unsupported type: "
-							        + p.getValue().getClass() + val);
+									+ p.getValue().getClass() + val);
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-						//logger.warn("New string value for " + name + " is " + val);
+						// logger.warn("New string value for " + name + " is " +
+						// val);
 						assert (p != null) : "Could not find variable " + name
-						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode() + ", seed: " + Randomness.getSeed();
+								+ " in test: " + newTest.toCode()
+								+ " / Orig test: " + test.toCode() + ", seed: "
+								+ Randomness.getSeed();
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
 						else
@@ -600,19 +637,23 @@ public class TestSuiteDSE {
 						Double value = (Double) val;
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
-						//logger.warn("New double value for " + name + " is " + value);
+						// logger.warn("New double value for " + name + " is " +
+						// value);
 						assert (p != null) : "Could not find variable " + name
-						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode() + ", seed: " + Randomness.getSeed();
+								+ " in test: " + newTest.toCode()
+								+ " / Orig test: " + test.toCode() + ", seed: "
+								+ Randomness.getSeed();
 
 						if (p.getValue().getClass().equals(Double.class))
 							p.setValue(value);
 						else if (p.getValue().getClass().equals(Float.class))
 							p.setValue(value.floatValue());
 						else
-							logger.warn("New value is of an unsupported type: " + val);
+							logger.warn("New value is of an unsupported type: "
+									+ val);
 					} else {
-						logger.debug("New value is of an unsupported type: " + val);
+						logger.debug("New value is of an unsupported type: "
+								+ val);
 					}
 				} else {
 					logger.debug("New value is null");
@@ -728,7 +769,8 @@ public class TestSuiteDSE {
 	 * @param variables
 	 *            a {@link java.util.Set} object.
 	 */
-	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
+	public static void getVariables(Expression<?> expr,
+			Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
 		} else if (expr instanceof StringMultipleComparison) {
@@ -777,12 +819,14 @@ public class TestSuiteDSE {
 		public TestCase expandTestCase(TestCase test) {
 			TestCase expandedTest = test.clone();
 			while (currentPosition < expandedTest.size()) {
-				StatementInterface statement = expandedTest.getStatement(currentPosition);
+				StatementInterface statement = expandedTest
+						.getStatement(currentPosition);
 				if (statement instanceof MethodStatement) {
-					visitMethodStatement(expandedTest, (MethodStatement) statement);
+					visitMethodStatement(expandedTest,
+							(MethodStatement) statement);
 				} else if (statement instanceof ConstructorStatement) {
 					visitConstructorStatement(expandedTest,
-					                          (ConstructorStatement) statement);
+							(ConstructorStatement) statement);
 				}
 				currentPosition++;
 			}
@@ -790,25 +834,34 @@ public class TestSuiteDSE {
 		}
 
 		private VariableReference duplicateStatement(TestCase test,
-		        VariableReference owner) {
-			StatementInterface statement = test.getStatement(owner.getStPosition());
+				VariableReference owner) {
+			StatementInterface statement = test.getStatement(owner
+					.getStPosition());
 			currentPosition++;
-			return test.addStatement(statement.clone(test), owner.getStPosition() + 1);
+			return test.addStatement(statement.clone(test),
+					owner.getStPosition() + 1);
 		}
 
-		/* (non-Javadoc)
-		 * @see org.evosuite.testcase.TestVisitor#visitMethodStatement(org.evosuite.testcase.MethodStatement)
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.evosuite.testcase.TestVisitor#visitMethodStatement(org.evosuite
+		 * .testcase.MethodStatement)
 		 */
-		public void visitMethodStatement(TestCase test, MethodStatement statement) {
-			// The problem is that at this point in the test case the parameters might have already changed
+		public void visitMethodStatement(TestCase test,
+				MethodStatement statement) {
+			// The problem is that at this point in the test case the parameters
+			// might have already changed
 
 			int i = 0;
 			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
+							&& test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
 						// Duplicate and replace
-						VariableReference varCopy = duplicateStatement(test, var);
+						VariableReference varCopy = duplicateStatement(test,
+								var);
 						statement.replaceParameterReference(varCopy, i);
 						usedVariables.add(varCopy);
 					}
@@ -818,18 +871,23 @@ public class TestSuiteDSE {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see org.evosuite.testcase.TestVisitor#visitConstructorStatement(org.evosuite.testcase.ConstructorStatement)
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see
+		 * org.evosuite.testcase.TestVisitor#visitConstructorStatement(org.evosuite
+		 * .testcase.ConstructorStatement)
 		 */
 		public void visitConstructorStatement(TestCase test,
-		        ConstructorStatement statement) {
+				ConstructorStatement statement) {
 			int i = 0;
 			for (VariableReference var : statement.getParameterReferences()) {
 				if (var.isPrimitive() || var.isString()) {
 					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
+							&& test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
 						// Duplicate and replace
-						VariableReference varCopy = duplicateStatement(test, var);
+						VariableReference varCopy = duplicateStatement(test,
+								var);
 						statement.replaceParameterReference(varCopy, i);
 						usedVariables.add(varCopy);
 					}
