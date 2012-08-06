@@ -33,10 +33,11 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-
 /**
- * <p>StrongMutationSuiteFitness class.</p>
- *
+ * <p>
+ * StrongMutationSuiteFitness class.
+ * </p>
+ * 
  * @author fraser
  */
 public class StrongMutationSuiteFitness extends MutationSuiteFitness {
@@ -67,6 +68,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		Set<MutationTestFitness> uncoveredMutants = MutationTestPool.getUncoveredFitnessFunctions();
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 
+		Map<Integer, Double> infectionDistance = new HashMap<Integer, Double>();
+
 		for (TestChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
 
@@ -79,6 +82,16 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 				logger.info("Test case has timed out, setting fitness to max value "
 				        + fitness);
 				return fitness;
+			}
+			for (Integer mutationId : result.getTrace().getTouchedMutants()) {
+				if (infectionDistance.containsKey(mutationId)) {
+					infectionDistance.put(mutationId,
+					                      Math.min(infectionDistance.get(mutationId),
+					                               result.getTrace().getMutationDistance(mutationId)));
+				} else {
+					infectionDistance.put(mutationId,
+					                      result.getTrace().getMutationDistance(mutationId));
+				}
 			}
 		}
 
@@ -115,6 +128,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 			ExecutionResult result = test.getLastExecutionResult();
 			ExecutionTrace trace = result.getTrace();
 			touchedMutants.addAll(trace.getTouchedMutants());
+			logger.debug("Tests touched " + touchedMutants.size() + " mutants");
 
 			boolean coversNewMutants = false;
 			for (TestFitnessFunction mutant : uncoveredMutants) {
