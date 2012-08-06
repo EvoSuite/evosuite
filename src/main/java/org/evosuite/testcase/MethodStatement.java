@@ -501,7 +501,7 @@ public class MethodStatement extends AbstractStatement {
 		mg.pop(); // Pop exception from stack
 		if (!retval.isVoid()) {
 			Class<?> clazz = retval.getVariableClass();
-			if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
+			if (clazz.equals(boolean.class))
 				mg.push(false);
 			else if (clazz.equals(char.class))
 				mg.push(0);
