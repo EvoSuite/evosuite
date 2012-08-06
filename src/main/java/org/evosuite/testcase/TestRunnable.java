@@ -56,8 +56,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private Scope scope = null;
 
-	private final boolean log = true;
-
 	public boolean runFinished;
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
@@ -154,6 +152,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 			//System.setErr(out);
 			LoggingUtils.muteCurrentOutAndErrStream();
 		}
+
+		long startTime = System.currentTimeMillis();
 
 		int num = 0;
 		try {
@@ -308,6 +308,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 			test.setAccessedFiles(new ArrayList<String>(IOWrapper.getAccessedFiles()));
 			FileSystem.restoreOriginalFS();
 		}
+
+		result.setExecutionTime(System.currentTimeMillis() - startTime);
 
 		// FIXXME: Why don't we write into the result directly?
 		result.setThrownExceptions(getExceptionsThrown());

@@ -48,6 +48,9 @@ public class ExecutionResult implements Cloneable {
 	/** Trace recorded during execution */
 	protected ExecutionTrace trace;
 
+	/** Duration of execution */
+	protected long executionTime = 0L;
+
 	/** Output traces produced by observers */
 	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
@@ -322,6 +325,21 @@ public class ExecutionResult implements Cloneable {
 		return false;
 	}
 
+	/**
+	 * @return the executionTime
+	 */
+	public long getExecutionTime() {
+		return executionTime;
+	}
+
+	/**
+	 * @param executionTime
+	 *            the executionTime to set
+	 */
+	public void setExecutionTime(long executionTime) {
+		this.executionTime = executionTime;
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult clone() {
@@ -329,6 +347,7 @@ public class ExecutionResult implements Cloneable {
 		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.lazyClone();
 		copy.explicitExceptions.putAll(explicitExceptions);
+		copy.executionTime = executionTime;
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
