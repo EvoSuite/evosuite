@@ -32,54 +32,39 @@ public class PathConstraintAdapter {
 
 	public List<BranchCondition> transform(
 			List<DscBranchCondition> dsc_path_constraint) {
-		
-		List<BranchCondition> branches = new ArrayList<BranchCondition>();
-		for (DscBranchCondition constraint : dsc_path_constraint) {
-			BranchCondition branch_condition = transform(constraint);
-			if (branch_condition != null)
-				branches.add(branch_condition);
-		}
-		return branches;
-	}
-
-	private BranchCondition transform(DscBranchCondition bc) {
-		String class_name = bc.getClassName();
-		String method_name = bc.getMethodName();
-		int lineNumber = bc.getLineNumber();
 
 		visitor.clear();
 
-		List<ConstraintNode> dsc_reaching_constraints = bc
-				.getReachingConstraints();
 		Set<Constraint<?>> reaching_constraints = new HashSet<Constraint<?>>();
-		for (ConstraintNode dsc_constraint : dsc_reaching_constraints) {
-			Vector<Constraint<?>> reaching_constraint = transform(dsc_constraint);
-			reaching_constraints.addAll(reaching_constraint);
+		List<BranchCondition> branches = new ArrayList<BranchCondition>();
+
+		for (DscBranchCondition bc : dsc_path_constraint) {
+
+			List<Constraint<?>> branch_local_constraints = new LinkedList<Constraint<?>>();
+			for (ConstraintNode dsc_constraint : bc.getLocalConstraints()) {
+				Vector<Constraint<?>> local_constraint_vec = (Vector<Constraint<?>>) dsc_constraint
+						.accept(visitor);
+				branch_local_constraints.addAll(local_constraint_vec);
+			}
+
+			if (!branch_local_constraints.isEmpty()) {
+
+				String branch_class_name = bc.getClassName();
+				String branch_method_name = bc.getMethodName();
+				int branch_lineNumber = bc.getLineNumber();
+
+				HashSet<Constraint<?>> branch_reaching_constraints = new HashSet<Constraint<?>>(
+						reaching_constraints);
+				BranchCondition new_branch_condition = new BranchCondition(
+						branch_class_name, branch_method_name,
+						branch_lineNumber, branch_reaching_constraints,
+						branch_local_constraints);
+				branches.add(new_branch_condition);
+				reaching_constraints.addAll(branch_local_constraints);
+
+			}
 		}
-
-		List<ConstraintNode> dsc_local_constraints = bc.getLocalConstraints();
-		List<Constraint<?>> local_constraints = new LinkedList<Constraint<?>>(); // order
-																					// should
-																					// be
-																					// mantained
-		for (ConstraintNode dsc_constraint : dsc_local_constraints) {
-			Vector<Constraint<?>> local_constraint = transform(dsc_constraint);
-			local_constraints.addAll(local_constraint);
-		}
-
-		if (!local_constraints.isEmpty()) {
-			BranchCondition branchCondition = new BranchCondition(class_name,
-					method_name, lineNumber, reaching_constraints,
-					local_constraints);
-			return branchCondition;
-		} else
-			return null;
-	}
-
-	private Vector<Constraint<?>> transform(ConstraintNode dsc_constraint) {
-		Vector<Constraint<?>> ret_val = (Vector<Constraint<?>>) dsc_constraint
-				.accept(visitor);
-		return ret_val;
+		return branches;
 	}
 
 }

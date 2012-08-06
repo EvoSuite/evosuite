@@ -10,6 +10,7 @@ import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.IntegerToRealCast;
 import org.evosuite.symbolic.expr.IntegerUnaryExpression;
 import org.evosuite.symbolic.expr.IntegerVariable;
+import org.evosuite.symbolic.expr.IntegerVariableFactory;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealBinaryExpression;
 import org.evosuite.symbolic.expr.RealComparison;
@@ -18,6 +19,7 @@ import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealToIntegerCast;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 import org.evosuite.symbolic.expr.RealVariable;
+import org.evosuite.symbolic.expr.RealVariableFactory;
 import org.evosuite.symbolic.expr.StringBinaryExpression;
 import org.evosuite.symbolic.expr.StringComparison;
 import org.evosuite.symbolic.expr.StringConstant;
@@ -27,6 +29,7 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 import org.evosuite.symbolic.expr.StringUnaryExpression;
 import org.evosuite.symbolic.expr.StringVariable;
+import org.evosuite.symbolic.expr.StringVariableFactory;
 
 import edu.uta.cse.dsc.ast.BitVector32;
 import edu.uta.cse.dsc.ast.BitVector32Visitor;
@@ -195,8 +198,10 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 		if (concolicState.isMarked(b)) {
 			long concreteValue = (Long) integer_expr.getConcreteValue();
 			String symbolic_name = concolicState.getSymbolicName(b);
-			return new IntegerVariable(symbolic_name, concreteValue,
-					Integer.MIN_VALUE, Integer.MAX_VALUE);
+			IntegerVariable integerVariable = IntegerVariableFactory
+					.buildIntegerVariable(symbolic_name, concreteValue,
+							(long) Integer.MIN_VALUE, (long) Integer.MAX_VALUE);
+			return integerVariable;
 		} else {
 
 			return integer_expr;
@@ -541,8 +546,10 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 
 			double concreteValue = (Double) float_expr.getConcreteValue();
 			String symbolic_name = concolicState.getSymbolicName(f);
-			return new RealVariable(symbolic_name, concreteValue,
-					Float.MIN_VALUE, Float.MAX_VALUE);
+			RealVariable realVariable = RealVariableFactory.buildRealVariable(
+					symbolic_name, concreteValue, Float.MIN_VALUE,
+					Float.MAX_VALUE);
+			return realVariable;
 		} else {
 
 			return float_expr;
@@ -742,8 +749,10 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 		if (concolicState.isMarked(b)) {
 			long concreteValue = (Long) integer_expr.getConcreteValue();
 			String symbolic_name = concolicState.getSymbolicName(b);
-			return new IntegerVariable(symbolic_name, concreteValue,
-					Long.MIN_VALUE, Long.MAX_VALUE);
+			IntegerVariable integerVariable = IntegerVariableFactory
+					.buildIntegerVariable(symbolic_name, concreteValue,
+							Long.MIN_VALUE, Long.MAX_VALUE);
+			return integerVariable;
 		} else {
 
 			return integer_expr;
@@ -1215,8 +1224,10 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 
 			double concreteValue = (Double) float_expr.getConcreteValue();
 			String symbolic_name = concolicState.getSymbolicName(f);
-			return new RealVariable(symbolic_name, concreteValue,
-					Double.MIN_VALUE, Double.MAX_VALUE);
+			RealVariable realVariable = RealVariableFactory.buildRealVariable(
+					symbolic_name, concreteValue, Double.MIN_VALUE,
+					Double.MAX_VALUE);
+			return realVariable;
 		} else {
 
 			return float_expr;
@@ -2254,8 +2265,10 @@ public final class JvmExpressionTranslator implements BitVector32Visitor,
 
 			String concreteValue = (String) string_expr.getConcreteValue();
 			String symbolic_name = concolicState.getSymbolicName(r);
-			return new StringVariable(symbolic_name, concreteValue,
-					concreteValue, concreteValue);
+			StringVariable stringVariable = StringVariableFactory
+					.buildStringVariable(symbolic_name, concreteValue,
+							concreteValue, concreteValue);
+			return stringVariable;
 		} else {
 
 			return string_expr;

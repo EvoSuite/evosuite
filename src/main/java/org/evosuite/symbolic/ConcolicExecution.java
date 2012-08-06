@@ -62,22 +62,24 @@ public class ConcolicExecution {
 	@SuppressWarnings("unused")
 	private List<gov.nasa.jpf.Error> errors;
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ConcolicExecution.class);
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
 	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-	        : new PrintStream(byteStream));
+			: new PrintStream(byteStream));
 
 	private PathConstraintCollector pcg;
 
 	private static File tempDir;
 	static {
 		tempDir = new File(System.getProperty("java.io.tmpdir") + "/"
-		        + ManagementFactory.getRuntimeMXBean().getName() + "_"
-		        + Long.toString(System.nanoTime()));
+				+ ManagementFactory.getRuntimeMXBean().getName() + "_"
+				+ Long.toString(System.nanoTime()));
 		tempDir.mkdir();
-		logger.info("Created temporary dir for DSE: " + tempDir.getAbsolutePath());
+		logger.info("Created temporary dir for DSE: "
+				+ tempDir.getAbsolutePath());
 	}
 
 	/** Constant <code>dirName="tempDir.getAbsolutePath()"</code> */
@@ -85,15 +87,15 @@ public class ConcolicExecution {
 
 	/** Constant <code>className="TestCase"</code> */
 	protected static String className = "TestCase";
-	//	        + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
-	//	                                            Properties.TARGET_CLASS.lastIndexOf("."));
+	// + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
+	// Properties.TARGET_CLASS.lastIndexOf("."));
 
 	/**
 	 * Constant
 	 * <code>classPath="System.getProperty(java.class.path) + :"{trunked}</code>
 	 */
-	protected static String classPath = System.getProperty("java.class.path") + ":"
-	        + dirName;
+	protected static String classPath = System.getProperty("java.class.path")
+			+ ":" + dirName;
 
 	/**
 	 * <p>
@@ -106,7 +108,8 @@ public class ConcolicExecution {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	protected List<BranchCondition> executeConcolic(String targetName, String classPath) {
+	protected List<BranchCondition> executeConcolic(String targetName,
+			String classPath) {
 
 		logger.debug("Setting up Dsc");
 		logger.debug("Dsc target=" + targetName);
@@ -118,20 +121,26 @@ public class ConcolicExecution {
 		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
 		MainConfig.get().LOG_SUMMARY = false;
 
-		int dsc_ret_val = dsc_handler.mainEntry(new String[] {/*
-		                                                      * "conf_evo_dumper.txt"
-		                                                      * ,
-		                                                      */targetName, "main" });
+		int dsc_ret_val;
+		dsc_ret_val = dsc_handler
+				.mainEntry(new String[] {/*
+										 * "conf_evo_dumper.txt" ,
+										 */targetName, "main" });
+
 		logger.debug("Dsc ended!");
 		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {
 			logger.info("Dsc success");
-			SymbolicExecutionResult symbolicExecResult = dsc_handler.getSymbolicExecutionResult();
-			List<DscBranchCondition> path_constraint = symbolicExecResult.getBranchConditions();
+			SymbolicExecutionResult symbolicExecResult = dsc_handler
+					.getSymbolicExecutionResult();
+			List<DscBranchCondition> path_constraint = symbolicExecResult
+					.getBranchConditions();
 
-			Map<JvmVariable, String> symbolicVariables = symbolicExecResult.getSymbolicVariables();
+			Map<JvmVariable, String> symbolicVariables = symbolicExecResult
+					.getSymbolicVariables();
 
 			logger.debug("symbolicVariables=" + symbolicVariables);
-			PathConstraintAdapter adapter = new PathConstraintAdapter(symbolicVariables);
+			PathConstraintAdapter adapter = new PathConstraintAdapter(
+					symbolicVariables);
 			List<BranchCondition> branches = adapter.transform(path_constraint);
 
 			logger.info("NrOfBranches=" + branches.size());
@@ -174,24 +183,33 @@ public class ConcolicExecution {
 		logger.debug("Statement: " + statement.getCode());
 		Class<?> clazz = statement.getReturnValue().getVariableClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
-			return org.objectweb.asm.commons.Method.getMethod("boolean mark(boolean,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("boolean mark(boolean,String)");
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
-			return org.objectweb.asm.commons.Method.getMethod("char mark(char,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("char mark(char,String)");
 		else if (clazz.equals(Integer.class) || clazz.equals(int.class))
-			return org.objectweb.asm.commons.Method.getMethod("int mark(int,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("int mark(int,String)");
 		else if (clazz.equals(Short.class) || clazz.equals(short.class))
-			return org.objectweb.asm.commons.Method.getMethod("short mark(short,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("short mark(short,String)");
 		else if (clazz.equals(Long.class) || clazz.equals(long.class))
-			return org.objectweb.asm.commons.Method.getMethod("long mark(long,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("long mark(long,String)");
 		else if (clazz.equals(Float.class) || clazz.equals(float.class))
-			return org.objectweb.asm.commons.Method.getMethod("float mark(float,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("float mark(float,String)");
 		else if (clazz.equals(Double.class) || clazz.equals(double.class))
-			return org.objectweb.asm.commons.Method.getMethod("double mark(double,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("double mark(double,String)");
 		else if (clazz.equals(Byte.class) || clazz.equals(byte.class))
-			return org.objectweb.asm.commons.Method.getMethod("byte mark(byte,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("byte mark(byte,String)");
 		else if (clazz.equals(String.class))
 			// FIXME: Probably not for Strings?
-			return org.objectweb.asm.commons.Method.getMethod("String mark(String,String)");
+			return org.objectweb.asm.commons.Method
+					.getMethod("String mark(String,String)");
 		else {
 			logger.error("Found primitive of unknown type: " + clazz.getName());
 			return null; // FIXME
@@ -220,7 +238,7 @@ public class ConcolicExecution {
 		return result;
 	}
 
-	//	@SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
 	/**
 	 * <p>
 	 * getPrimitives
@@ -253,16 +271,17 @@ public class ConcolicExecution {
 					p.add(ps);
 				} else if (t.equals(Character.class) || t.equals(char.class)) {
 					p.add(ps);
-					//==========-------- XXX added for real search
+					// ==========-------- XXX added for real search
 				} else if (t.equals(Float.class) || t.equals(float.class)) {
 					p.add(ps);
 				} else if (t.equals(Double.class) || t.equals(double.class)) {
 					p.add(ps);
-					//==========--------
+					// ==========--------
 				} else if (t.equals(String.class)) {
 					p.add(ps);
 				} else {
-					logger.warn("WHAT NON-PRIMITIVE PRIMITIVES ARE THERE?? " + t);
+					logger.warn("WHAT NON-PRIMITIVE PRIMITIVES ARE THERE?? "
+							+ t);
 				}
 			}
 		}
@@ -276,11 +295,11 @@ public class ConcolicExecution {
 	 * @param locals
 	 * @param statement
 	 */
-	private void getPrimitiveValue(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        PrimitiveStatement<?> statement) {
-		//Class<?> clazz = statement.getReturnValue().getVariableClass();
-		Class<?> clazz = statement.getValue() != null ? statement.getValue().getClass()
-		        : statement.getReturnClass();
+	private void getPrimitiveValue(GeneratorAdapter mg,
+			Map<Integer, Integer> locals, PrimitiveStatement<?> statement) {
+		// Class<?> clazz = statement.getReturnValue().getVariableClass();
+		Class<?> clazz = statement.getValue() != null ? statement.getValue()
+				.getClass() : statement.getReturnClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) statement.getValue()).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
@@ -302,11 +321,11 @@ public class ConcolicExecution {
 		} else
 			logger.error("Found primitive of unknown type: " + clazz.getName());
 		/*
-		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
-			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
-		}
-		*/
+		 * if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
+		 * mg.cast(org.objectweb.asm.Type.getType(clazz),
+		 * org.objectweb.asm.Type.
+		 * getType(statement.getReturnValue().getVariableClass())); }
+		 */
 
 	}
 
@@ -318,16 +337,18 @@ public class ConcolicExecution {
 	 * @param test
 	 * @return
 	 */
-	//	@SuppressWarnings("rawtypes") 
-	//	@SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
+	private byte[] getBytecode(List<PrimitiveStatement> target,
+			TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
-		         "java/lang/Object", null);
+		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
+				className, null, "java/lang/Object", null);
 
 		Method m = Method.getMethod("void <init> ()");
-		GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, null, null, cw);
+		GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, null,
+				null, cw);
 		mg.loadThis();
 		mg.invokeConstructor(Type.getType(Object.class), m);
 		mg.returnValue();
@@ -340,30 +361,33 @@ public class ConcolicExecution {
 
 		// main method
 		m = Method.getMethod("void main (String[])");
-		mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, m, null, null,
-		        cw);
+		mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC + Opcodes.ACC_STATIC, m,
+				null, null, cw);
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		for (StatementInterface statement : test.getTestCase()) {
 			logger.debug("Current statement: {}", statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
-				logger.debug("Marking variable: {} - {}", p, p.getReturnValue().getName());
+				logger.debug("Marking variable: {} - {}", p, p.getReturnValue()
+						.getName());
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
 				String var_name = p.getReturnValue().getName();
 				mg.push(var_name);
-				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
-				//                getMarkMethod(p));
+				// mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
+				// getMarkMethod(p));
 
-				mg.invokeStatic(Type.getType("Lorg/evosuite/symbolic/dsc/ConcolicMarker;"),
-				                getMarkMethod(p));
+				mg.invokeStatic(Type
+						.getType("Lorg/evosuite/symbolic/dsc/ConcolicMarker;"),
+						getMarkMethod(p));
 				p.getReturnValue().storeBytecode(mg, locals);
 
 			} else {
 				statement.getBytecode(mg, locals,
-				                      result.getExceptionThrownAtPosition(num));
+						result.getExceptionThrownAtPosition(num));
 			}
 
-			// Only write bytecode up to the point of exception, anything beyond that doesn't count towards coverage
+			// Only write bytecode up to the point of exception, anything beyond
+			// that doesn't count towards coverage
 			if (result.isThereAnExceptionAtPosition(num))
 				break;
 			num++;
@@ -383,19 +407,20 @@ public class ConcolicExecution {
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
-	//	@SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
-		//File dir = new File(dirName);
-		//dir.mkdir();
+	public void writeTestCase(List<PrimitiveStatement> statements,
+			TestChromosome test) {
+		// File dir = new File(dirName);
+		// dir.mkdir();
 		File file = new File(dirName + "/", className + ".class");
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
 			byte[] bytecode = getBytecode(statements, test);
 			stream.write(bytecode);
 			// logger.info(dirName);
-			//			logger.warn(test.getTestCase().toCode());
-			//			System.exit(0);
+			// logger.warn(test.getTestCase().toCode());
+			// System.exit(0);
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}

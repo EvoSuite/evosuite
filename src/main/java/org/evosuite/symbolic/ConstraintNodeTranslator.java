@@ -9,12 +9,15 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.IntegerVariableFactory;
 import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.RealVariableFactory;
 import org.evosuite.symbolic.expr.StringComparison;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.StringVariableFactory;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.MainConfig;
@@ -472,6 +475,9 @@ public final class ConstraintNodeTranslator implements ConstraintNodeVisitor {
 
 	public void clear() {
 		concolicState.clear();
+		StringVariableFactory.clearFactory();
+		IntegerVariableFactory.clearFactory();
+		RealVariableFactory.clearFactory();
 	}
 
 	private JvmExpression evaluateConcrete(JvmExpression e) {
