@@ -30,11 +30,10 @@ import java.util.Set;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
  * An assignment statement assigns a variable to another variable. This is only
  * used to assign to array indices
- *
+ * 
  * @author Gordon Fraser
  */
 public class AssignmentStatement extends AbstractStatement {
@@ -44,11 +43,16 @@ public class AssignmentStatement extends AbstractStatement {
 	protected VariableReference parameter;
 
 	/**
-	 * <p>Constructor for AssignmentStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param value a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * Constructor for AssignmentStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param var
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param value
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public AssignmentStatement(TestCase tc, VariableReference var, VariableReference value) {
 		super(tc, var);
@@ -61,17 +65,17 @@ public class AssignmentStatement extends AbstractStatement {
 		//
 	}
 
-	
 	/**
-	 * <p>getValue</p>
-	 *
+	 * <p>
+	 * getValue
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	public VariableReference getValue()
-	{
+	public VariableReference getValue() {
 		return this.parameter;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
@@ -221,7 +225,7 @@ public class AssignmentStatement extends AbstractStatement {
 			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
 		}
 
-		parameter.storeBytecode(mg, locals);
+		retval.storeBytecode(mg, locals);
 	}
 
 	/*
