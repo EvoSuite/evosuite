@@ -196,8 +196,8 @@ public final class ConcolicState {
 				return false;
 			}
 
-			// if the map_var is defined, then the array_ref should be defined
-			assert arrayValues.get(map_var).containsKey(array_ref);
+			if (!arrayValues.get(map_var).containsKey(array_ref))
+				return false;
 
 			if (!arrayValues.get(map_var).get(array_ref)
 					.containsKey(array_index))
