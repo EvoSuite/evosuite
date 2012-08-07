@@ -179,22 +179,12 @@ public final class ConstraintNodeTranslator implements ConstraintNodeVisitor {
 
 		} else if (map_expr.getClass().equals(Z3ArrayVariable.class)) {
 
-			if (map_expr.equals(DumpingZ3ArrayFactory.EMPTY_ARRAY_LENGTHS)) {
+			// existing mapping
+			Z3ArrayVariable<?, ?> map_variable = (Z3ArrayVariable<?, ?>) map_expr;
+			// field access
+			concolicState.updateZ3ArrayVariable(fresh_map_variable,
+					map_variable, eval_index, symbolic_value, concrete_value);
 
-				// array lengths
-				Reference arrayRef = (Reference) eval_index;
-				concolicState.updateJavaFieldVariable(fresh_map_variable, null,
-						arrayRef, symbolic_value, concrete_value);
-
-			} else {
-
-				// existing mapping
-				Z3ArrayVariable<?, ?> map_variable = (Z3ArrayVariable<?, ?>) map_expr;
-				// field access
-				concolicState.updateZ3ArrayVariable(fresh_map_variable,
-						map_variable, eval_index, symbolic_value,
-						concrete_value);
-			}
 		} else {
 
 			throw new IllegalStateException(
