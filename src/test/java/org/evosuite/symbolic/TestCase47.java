@@ -572,7 +572,7 @@ public class TestCase47 {
 		int int1 = -4;
 		stemmer0.add(charArray0, int1);
 		stemmer0.add(charArray2, (int) charArray0[0]);
-		stemmer0.stem();
+
 	}
 
 }
