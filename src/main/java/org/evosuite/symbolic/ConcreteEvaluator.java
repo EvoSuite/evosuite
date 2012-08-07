@@ -1,8 +1,12 @@
 package org.evosuite.symbolic;
 
+import edu.uta.cse.dsc.ast.BitVector32;
 import edu.uta.cse.dsc.ast.BitVector32Visitor;
+import edu.uta.cse.dsc.ast.BitVector64;
 import edu.uta.cse.dsc.ast.BitVector64Visitor;
+import edu.uta.cse.dsc.ast.DoubleExpression;
 import edu.uta.cse.dsc.ast.DoubleExpressionVisitor;
+import edu.uta.cse.dsc.ast.FloatExpression;
 import edu.uta.cse.dsc.ast.FloatExpressionVisitor;
 import edu.uta.cse.dsc.ast.bitvector.BitVector32Variable;
 import edu.uta.cse.dsc.ast.bitvector.BitVector64Variable;
@@ -144,9 +148,6 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 		this.concolicState = concolicState;
 	}
 
-	
-
-
 	@Override
 	public Object visit(BitVector32Variable b) {
 		LiteralBitVector32 concrete_value = (LiteralBitVector32) concolicState
@@ -277,7 +278,7 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 	@Override
 	public Object visit(BvNeg.Bv32 b) {
 
-		LiteralBitVector32 param = (LiteralBitVector32) ((LiteralBitVector32) b
+		LiteralBitVector32 param = (LiteralBitVector32) ((BitVector32) b
 				.getParam()).accept(this);
 
 		return new LiteralBitVector32(-param.getValue());
@@ -374,7 +375,7 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(FpNeg.Fp32 f) {
-		FloatLiteral param = (FloatLiteral) ((FloatLiteral) f.getParam())
+		FloatLiteral param = (FloatLiteral) ((FloatExpression) f.getParam())
 				.accept(this);
 
 		return new FloatLiteral(-param.getValue());
@@ -494,7 +495,7 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(BvNeg.Bv64 b) {
-		LiteralBitVector64 param = (LiteralBitVector64) ((LiteralBitVector64) b
+		LiteralBitVector64 param = (LiteralBitVector64) ((BitVector64) b
 				.getParam()).accept(this);
 		return new LiteralBitVector64(-param.getValue());
 
@@ -564,7 +565,7 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(FpNeg.Fp64 f) {
-		DoubleLiteral p = (DoubleLiteral) ((DoubleLiteral) f.getParam())
+		DoubleLiteral p = (DoubleLiteral) ((DoubleExpression) f.getParam())
 				.accept(this);
 
 		return new DoubleLiteral(-p.getValue());
@@ -1499,8 +1500,6 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 				"ArraySelectBv64 is not a valid AST instance");
 	}
 
-
-
 	@Override
 	public Object visit(ArraySelectFp64 f) {
 		throw new IllegalStateException(
@@ -1513,7 +1512,6 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 				"Bv32ValuedInstanceMethod is not a valid AST instance");
 
 	}
-
 
 	@Override
 	public Object visit(ArraySelectBv32 b) {
@@ -1533,10 +1531,5 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 		throw new IllegalStateException(
 				"ArraySelectFp32 is not a valid AST instance");
 	}
-
-
-
-
-
 
 }
