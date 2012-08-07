@@ -577,6 +577,33 @@ public class ConcolicExecutionTest {
 		assertEquals(3, branch_conditions.size());
 
 	}
+
+	@Test
+	public void test_TestCase46() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase46",
+						System.getProperty("java.class.path"));
+
+		assertEquals(3, branch_conditions.size());
+
+	}
 	
+	@Test
+	public void test_TestCase47() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase47",
+						System.getProperty("java.class.path"));
+
+	}
 	
+	@Test
+	public void test_TestCase48() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase48",
+						System.getProperty("java.class.path"));
+
+	}
 }
