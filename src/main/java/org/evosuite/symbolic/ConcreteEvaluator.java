@@ -310,9 +310,10 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(BvSub.Bv32 b) {
-		LiteralBitVector32 left = (LiteralBitVector32) b.getLeft().accept(this);
-		LiteralBitVector32 right = (LiteralBitVector32) b.getRight().accept(
-				this);
+		Object left_result = b.getLeft().accept(this);
+		Object right_result = b.getRight().accept(this);
+		LiteralBitVector32 left = (LiteralBitVector32) left_result;
+		LiteralBitVector32 right = (LiteralBitVector32) right_result;
 		return new LiteralBitVector32(left.getValue() - right.getValue());
 	}
 
@@ -1031,8 +1032,12 @@ public final class ConcreteEvaluator implements BitVector32Visitor,
 
 	@Override
 	public Object visit(StringLength str) {
-		StringReference p = (StringReference) str.getStringParam().accept(this);
-		return new StringLength(p);
+		StringReferenceNonNullLiteral p = (StringReferenceNonNullLiteral) str
+				.getStringParam().accept(this);
+
+		LiteralBitVector32 stringLength = new LiteralBitVector32(p
+				.getReferenceNonNullLiteral().getStringConstant().length());
+		return stringLength;
 
 	}
 
