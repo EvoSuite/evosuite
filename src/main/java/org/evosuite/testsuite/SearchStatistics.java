@@ -518,8 +518,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.implicitMethodExceptions = getNumExceptions(implicitTypesOfExceptions);
 		entry.implicitTypeExceptions = getNumClassExceptions(implicitTypesOfExceptions);
 
-		// TODO: Only counting implicit exceptions as long as we don't distinguish
-		entry.exceptions = implicitTypesOfExceptions;
+		entry.implicitExceptions = implicitTypesOfExceptions;
+		entry.explicitExceptions = explicitTypesOfExceptions;
 
 	}
 

@@ -29,7 +29,6 @@ import java.io.Serializable;
 import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -87,94 +86,32 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
-
-	protected static File getReportDir(){
+	protected static File getReportDir() {
 		return new File(Properties.REPORT_DIR);
 	}
 
-
 	/**
-	 * <p>This enumeration defines all the variables we want to store in the CSV files. Note, it is perfectly fine to add new ones, in any position.
-	 * Just be sure to define a proper mapper in {@code getCSVvalue}. 
+	 * <p>
+	 * This enumeration defines all the variables we want to store in the CSV
+	 * files. Note, it is perfectly fine to add new ones, in any position. Just
+	 * be sure to define a proper mapper in {@code getCSVvalue}.
 	 * </p>
 	 * 
 	 * <p>
-	 * WARNING: do not change the name of any variable! If you do, current R scripts will break. If you really need to change a name, please
-	 * first contact Andrea Arcuri. 
+	 * WARNING: do not change the name of any variable! If you do, current R
+	 * scripts will break. If you really need to change a name, please first
+	 * contact Andrea Arcuri.
 	 * </p>
 	 * 
 	 * @author arcuri
-	 *
+	 * 
 	 */
-	private  enum Variable{
-		/** The class under test*/ Class,
-		/** Number of predicates*/ Predicates,
-		Total_Branches,
-		Covered_Branches,
-		Total_Methods,
-		Branchless_Methods,
-		Covered_Methods,
-		Covered_Branchless_Methods,
-		Total_Goals,
-		Covered_Goals,
-		Coverage,
-		Creation_Time,
-		Minimization_Time,
-		Total_Time,
-		Test_Execution_Time,
-		Goal_Computation_Time,
-		Result_Size,
-		Result_Length,
-		Minimized_Size,
-		Minimized_Length,
-		Chromosome_Length,
-		Population_Size,
-		Random_Seed,
-		Budget,
-		AllPermission,
-		SecurityPermission,
-		UnresolvedPermission,
-		AWTPermission,
-		FilePermission,
-		SerializablePermission,
-		ReflectPermission,
-		RuntimePermission,
-		NetPermission,
-		SocketPermission,
-		SQLPermission,
-		PropertyPermission,
-		LoggingPermission,
-		SSLPermission,
-		AuthPermission,
-		AudioPermission,
-		OtherPermission,
-		Threads,
-		JUnitTests,
-		Branches,
-		MutationScore,
-		Explicit_MethodExceptions,
-		Explicit_TypeExceptions,
-		Implicit_MethodExceptions,
-		Implicit_TypeExceptions,
-		Error_Predicates,
-		Error_Branches_Covered,
-		Error_Branchless_Methods,
-		Error_Branchless_Methods_Covered,
-		AssertionContract,
-		EqualsContract,
-		EqualsHashcodeContract,
-		EqualsNullContract,
-		EqualsSymmetricContract,
-		HashCodeReturnsNormallyContract,
-		JCrasherExceptionContract,
-		NullPointerExceptionContract,
-		ToStringReturnsNormallyContract,
-		UndeclaredExceptionContract,
-		Contract_Violations,
-		Unique_Violations,
-		Data_File
+	private enum Variable {
+		/** The class under test */
+		Class,
+		/** Number of predicates */
+		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals, Coverage, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File
 	};
-
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
 	protected static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
@@ -319,14 +256,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public int implicitTypeExceptions;
 
-		public Map<String, Set<Class<?>>> exceptions;
+		public Map<String, Set<Class<?>>> implicitExceptions;
 
+		public Map<String, Set<Class<?>>> explicitExceptions;
 
 		/**
-		 * For now we keep track of all defined variables. But in future we might want to choose only some subsets based on the kind of experiment
+		 * For now we keep track of all defined variables. But in future we
+		 * might want to choose only some subsets based on the kind of
+		 * experiment
+		 * 
 		 * @return
 		 */
-		public Variable[] getUsedVariables(){
+		public Variable[] getUsedVariables() {
 			Variable[] variables = Variable.values();
 			return variables;
 		}
@@ -335,11 +276,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			StringBuilder r = new StringBuilder();
 
 			Variable[] variables = Variable.values();
-			if(variables.length > 0){
+			if (variables.length > 0) {
 				r.append(variables[0].toString());
 			}
 
-			for(int i=1; i<variables.length; i++){
+			for (int i = 1; i < variables.length; i++) {
 				r.append(",");
 				r.append(variables[i].toString());
 			}
@@ -347,22 +288,21 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			return r.toString();
 		}
 
-
-		private String getCSVvalue(Variable var){
+		private String getCSVvalue(Variable var) {
 
 			PermissionStatistics pstats = PermissionStatistics.getInstance();
 
-			switch(var){
+			switch (var) {
 			case Class:
 				return className;
 			case Predicates:
-				return ""+total_branches;
+				return "" + total_branches;
 			case Total_Branches:
-				return ""+(total_branches * 2);
+				return "" + (total_branches * 2);
 			case Covered_Branches:
-				return ""+covered_branches;
+				return "" + covered_branches;
 			case Total_Methods:
-				return ""+ total_methods;
+				return "" + total_methods;
 			case Branchless_Methods:
 				return "" + branchless_methods;
 			case Covered_Methods:
@@ -430,7 +370,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case SSLPermission:
 				return "" + pstats.getNumSSLPermission();
 			case AuthPermission:
-				return "" + pstats.getNumAuthPermission() ;
+				return "" + pstats.getNumAuthPermission();
 			case AudioPermission:
 				return "" + pstats.getNumAudioPermission();
 			case OtherPermission:
@@ -461,25 +401,34 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case Error_Branchless_Methods_Covered:
 				return "" + error_branchless_methods_covered;
 			case AssertionContract:
-				return "" + FailingTestSet.getNumberOfViolations(AssertionErrorContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(AssertionErrorContract.class);
 			case EqualsContract:
 				return "" + FailingTestSet.getNumberOfViolations(EqualsContract.class);
 			case EqualsHashcodeContract:
-				return "" + FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class);
 			case EqualsNullContract:
-				return "" + FailingTestSet.getNumberOfViolations(EqualsNullContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(EqualsNullContract.class);
 			case EqualsSymmetricContract:
-				return "" + FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class);
 			case HashCodeReturnsNormallyContract:
-				return "" + FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class);
 			case JCrasherExceptionContract:
-				return "" + FailingTestSet.getNumberOfViolations(JCrasherExceptionContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(JCrasherExceptionContract.class);
 			case NullPointerExceptionContract:
-				return "" + FailingTestSet.getNumberOfViolations(NullPointerExceptionContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(NullPointerExceptionContract.class);
 			case ToStringReturnsNormallyContract:
-				return "" + FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class);
 			case UndeclaredExceptionContract:
-				return "" + FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class);
+				return ""
+				        + FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class);
 			case Contract_Violations:
 				return "" + FailingTestSet.getNumberOfViolations();
 			case Unique_Violations:
@@ -492,7 +441,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			 * note, this should never happen. If it does, then it is a bug in EvoSuite. But instead of throwing an exception,
 			 * we just log it. In this way, we still get the CSV file for debugging 
 			 */
-			logger.error("No mapping defined for variable "+var.toString());
+			logger.error("No mapping defined for variable " + var.toString());
 
 			return "-1";
 		}
@@ -500,13 +449,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public String getCSVData() {
 			StringBuilder r = new StringBuilder();
 
-
 			Variable[] variables = Variable.values();
-			if(variables.length > 0){
+			if (variables.length > 0) {
 				r.append(getCSVvalue(variables[0]));
 			}
 
-			for(int i=1; i<variables.length; i++){
+			for (int i = 1; i < variables.length; i++) {
 				r.append(",");
 				r.append(getCSVvalue(variables[i]));
 			}
@@ -520,12 +468,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public String getCSVFileName() {
 			return "data" + File.separator + "statistics_" + className + "-" + id
-					+ ".csv.gz";
+			        + ".csv.gz";
 		}
 
 		public String getExceptionFilepath() {
-			return getReportDir().getAbsolutePath() + "/data/exceptions_" + className + "-"
-					+ id + ".csv";
+			return getReportDir().getAbsolutePath() + "/data/exceptions_" + className
+			        + "-" + id + ".csv";
 		}
 
 		public String getCoverage() {
@@ -533,9 +481,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "100.00%";
 			else
 				return String.format("%.2f",
-						(100.0 * covered_goals / (1.0 * total_goals))).replaceAll(",",
-								".")
-								+ "%";
+				                     (100.0 * covered_goals / (1.0 * total_goals))).replaceAll(",",
+				                                                                               ".")
+				        + "%";
 		}
 
 		public double getCoverageDouble() {
@@ -565,12 +513,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeIntegerChart(List<Integer> values, String className,
-			String title) {
-		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_" + title
-				+ "_" + className + ".png");
+	        String title) {
+		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_"
+		        + title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
-				+ "/img/statistics_" + title + "_" + className + ".png");
+		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -607,11 +555,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeDoubleChart(List<Double> values, String className, String title) {
-		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_" + title
-				+ "_" + className + ".png");
+		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_"
+		        + title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
-				+ "/img/statistics_" + title + "_" + className + ".png");
+		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
 		plot.set("xlabel", "\"Generation\"");
@@ -697,7 +645,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected void writeCSVData(String filename, List<?>... data) {
 		try {
 			ZipOutputStream out = new ZipOutputStream(new FileOutputStream(filename,
-					false));
+			        false));
 			out.putNextEntry(new ZipEntry(filename.replace(".gz", "")));
 
 			//BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
@@ -731,13 +679,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 *            a {@link java.util.Map} object.
 	 */
 	protected void writeExceptionData(String filename,
-			Map<String, Set<Class<?>>> exceptions) {
+	        Map<String, Set<Class<?>>> implicitExceptions,
+	        Map<String, Set<Class<?>>> explicitExceptions) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-			out.write("Method,Exception\n");
-			for (String key : exceptions.keySet()) {
-				for (Class<?> exception : exceptions.get(key)) {
-					out.write(key + "," + exception.getCanonicalName() + "\n");
+			out.write("Method,Exception,Explicit\n");
+			for (String key : explicitExceptions.keySet()) {
+				for (Class<?> exception : explicitExceptions.get(key)) {
+					out.write(key + "," + exception.getCanonicalName() + ",1\n");
+				}
+			}
+			for (String key : implicitExceptions.keySet()) {
+				for (Class<?> exception : implicitExceptions.get(key)) {
+					out.write(key + "," + exception.getCanonicalName() + ",0\n");
 				}
 			}
 			out.close();
@@ -761,7 +715,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.startsWith("statistics_" + className)
-						&& (name.endsWith(".csv.gz") || name.endsWith(".csv")); // && !dir.isDirectory();
+				        && (name.endsWith(".csv.gz") || name.endsWith(".csv")); // && !dir.isDirectory();
 			}
 		};
 		List<String> filenames = new ArrayList<String>();
@@ -771,8 +725,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			for (File f : files)
 				filenames.add(f.getName());
 			while (filenames.contains("statistics_" + className + "-" + num + ".csv")
-					|| filenames.contains("statistics_" + className + "-" + num
-							+ ".csv.gz"))
+			        || filenames.contains("statistics_" + className + "-" + num
+			                + ".csv.gz"))
 				num++;
 		}
 
@@ -828,7 +782,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 				for (String line : code.split("\n")) {
 					sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-							linecount, linecount));
+					                        linecount, linecount));
 					/*
 					 * if(test.exceptionsThrown != null &&
 					 * test.exception_statement == test_line)
@@ -871,7 +825,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				sb.append("<h2>No fitness history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.fitness_history, run.className
-						+ "-" + run.id, "Fitness");
+				        + "-" + run.id, "Fitness");
 				sb.append("<h2>Fitness</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -885,7 +839,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				sb.append("<h2>No size history</h2>\n");
 			} else {
 				String filename = writeIntegerChart(run.size_history, run.className + "-"
-						+ run.id, "Size");
+				        + run.id, "Size");
 				sb.append("<h2>Size</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -899,7 +853,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				sb.append("<h2>No length history</h2>\n");
 			} else {
 				String filename = writeIntegerChart(run.length_history, run.className
-						+ "-" + run.id, "Length");
+				        + "-" + run.id, "Length");
 				sb.append("<h2>Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -913,7 +867,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				sb.append("<h2>No average length history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.average_length_history,
-						run.className + "-" + run.id, "Length");
+				                                   run.className + "-" + run.id, "Length");
 				sb.append("<h2>Average Length</h2>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
@@ -934,7 +888,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			int linecount = 1;
 			for (String line : source) {
 				sb.append(String.format("<span class=\"nocode\"><a name=\"%d\">%3d: </a></span>",
-						linecount, linecount));
+				                        linecount, linecount));
 				if (run.coverage.contains(linecount)) {
 					sb.append("<span style=\"background-color: #ffffcc\">");
 					sb.append(StringEscapeUtils.escapeHtml4(line));
@@ -1026,18 +980,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 
 		buffer.append("<li>Time: "
-				+ String.format("%d:%02d:%02d", duration_TO / 3600,
-						(duration_TO % 3600) / 60, (duration_TO % 60)));
+		        + String.format("%d:%02d:%02d", duration_TO / 3600,
+		                        (duration_TO % 3600) / 60, (duration_TO % 60)));
 
 		buffer.append("(Search: "
-				+ String.format("%d:%02d:%02d", duration_GA / 3600,
-						(duration_GA % 3600) / 60, (duration_GA % 60)) + ", ");
+		        + String.format("%d:%02d:%02d", duration_GA / 3600,
+		                        (duration_GA % 3600) / 60, (duration_GA % 60)) + ", ");
 		buffer.append("minimization: "
-				+ String.format("%d:%02d:%02d", duration_MI / 3600,
-						(duration_MI % 3600) / 60, (duration_MI % 60)) + ")\n");
+		        + String.format("%d:%02d:%02d", duration_MI / 3600,
+		                        (duration_MI % 3600) / 60, (duration_MI % 60)) + ")\n");
 
 		buffer.append("<li>Coverage: " + entry.covered_branches + "/"
-				+ (2 * entry.total_branches) + " branches, ");
+		        + (2 * entry.total_branches) + " branches, ");
 		buffer.append(entry.covered_methods + "/" + entry.total_methods + " methods, ");
 		buffer.append(entry.covered_goals + "/" + entry.total_goals + " total goals\n");
 
@@ -1067,7 +1021,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			long duration_TO = (entry.minimized_time - entry.start_time) / 1000;
 			buffer.append("<td>");
 			buffer.append(String.format("%d:%02d:%02d", duration_TO / 3600,
-					(duration_TO % 3600) / 60, (duration_TO % 60)));
+			                            (duration_TO % 3600) / 60, (duration_TO % 60)));
 			buffer.append("</td>");
 			buffer.append("<td>");
 			buffer.append(entry.getCoverage());
@@ -1112,12 +1066,13 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
-			writeExceptionData(entry.getExceptionFilepath(), entry.exceptions);
+			writeExceptionData(entry.getExceptionFilepath(), entry.implicitExceptions,
+			                   entry.explicitExceptions);
 		}
 		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
-				entry.coverage_history, entry.size_history, entry.length_history,
-				entry.average_length_history, entry.fitness_evaluations,
-				entry.tests_executed, entry.statements_executed, entry.timeStamps);
+		             entry.coverage_history, entry.size_history, entry.length_history,
+		             entry.average_length_history, entry.fitness_evaluations,
+		             entry.tests_executed, entry.statements_executed, entry.timeStamps);
 
 	}
 
@@ -1160,8 +1115,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
 		copyFile(systemResource, new File(getReportDir(), "files/" + name));
-		copyFile(systemResource, new File(getReportDir().getAbsolutePath() + "/html/files/"
-				+ name));
+		copyFile(systemResource, new File(getReportDir().getAbsolutePath()
+		        + "/html/files/" + name));
 	}
 
 	/**
@@ -1206,11 +1161,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			writeHTMLHeader(report, Properties.PROJECT_PREFIX);
 			report.append("<div id=\"header\"><div id=\"logo\">");
 			report.append("<h1 class=title>EvoSuite: " + Properties.PROJECT_PREFIX
-					+ "</h1>\n");
+			        + "</h1>\n");
 			report.append("</div></div>");
 			try {
 				report.append("Run on "
-						+ java.net.InetAddress.getLocalHost().getHostName() + "\n");
+				        + java.net.InetAddress.getLocalHost().getHostName() + "\n");
 			} catch (Exception e) {
 			}
 
@@ -1267,19 +1222,20 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		if (result == null || testChromosome.isChanged()) {
 			try {
-				if(logger.isTraceEnabled()){
+				if (logger.isTraceEnabled()) {
 					logger.trace(testChromosome.getTestCase().toCode());
 				}
 				TestCaseExecutor executor = TestCaseExecutor.getInstance();
 				result = executor.execute(testChromosome.getTestCase());
 
 			} catch (Exception e) {
-				logger.error("TG: Exception caught: "+e.getMessage(),e);
+				logger.error("TG: Exception caught: " + e.getMessage(), e);
 				try {
 					Thread.sleep(1000);
 					result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 				} catch (Exception e1) {
-					logger.error("Cannot set trace in test case with exception. Going to kill client",e1);
+					logger.error("Cannot set trace in test case with exception. Going to kill client",
+					             e1);
 					//TODO: some error recovery?
 					System.exit(1);
 				}
@@ -1287,7 +1243,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		entry.results.put(testChromosome.getTestCase(), result.getCopyOfExceptionMapping());
+		entry.results.put(testChromosome.getTestCase(),
+		                  result.getCopyOfExceptionMapping());
 
 		return result;
 	}
