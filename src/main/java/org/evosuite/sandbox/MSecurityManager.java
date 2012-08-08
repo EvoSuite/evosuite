@@ -158,6 +158,8 @@ class MSecurityManager extends SecurityManager {
 						return true;
 					else if (perm.getName().startsWith("apple.awt"))
 						return true;
+					else if (perm.getName().startsWith("javax.accessibility"))
+						return true;
 				}
 			}
 
