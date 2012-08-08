@@ -49,6 +49,15 @@ import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.SymbolicExecutionResult;
 import edu.uta.cse.dsc.ast.JvmVariable;
 import edu.uta.cse.dsc.pcdump.ast.DscBranchCondition;
+import edu.uta.cse.dsc.vm2.ArithmeticVM;
+import edu.uta.cse.dsc.vm2.CallVM;
+import edu.uta.cse.dsc.vm2.ConcolicMarkerVM;
+import edu.uta.cse.dsc.vm2.HeapVM;
+import edu.uta.cse.dsc.vm2.JumpVM;
+import edu.uta.cse.dsc.vm2.LocalsVM;
+import edu.uta.cse.dsc.vm2.OtherVM;
+import edu.uta.cse.dsc.vm2.PathConstraint;
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 /**
  * <p>
@@ -122,6 +131,17 @@ public class ConcolicExecution {
 		MainConfig.get().LOG_SUMMARY = false;
 
 		int dsc_ret_val;
+		PathConstraint pc = new PathConstraint();
+
+		SymbolicEnvironment env = new SymbolicEnvironment();
+		dsc_handler.addCustomVM(new CallVM(env));
+		dsc_handler.addCustomVM(new JumpVM(env, pc));
+		dsc_handler.addCustomVM(new HeapVM(env, pc));
+		dsc_handler.addCustomVM(new LocalsVM(env));
+		dsc_handler.addCustomVM(new ArithmeticVM(env, pc));
+		dsc_handler.addCustomVM(new OtherVM());
+		dsc_handler.addCustomVM(new ConcolicMarkerVM(env));
+
 		dsc_ret_val = dsc_handler
 				.mainEntry(new String[] {/*
 										 * "conf_evo_dumper.txt" ,
@@ -130,18 +150,8 @@ public class ConcolicExecution {
 		logger.debug("Dsc ended!");
 		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {
 			logger.info("Dsc success");
-			SymbolicExecutionResult symbolicExecResult = dsc_handler
-					.getSymbolicExecutionResult();
-			List<DscBranchCondition> path_constraint = symbolicExecResult
-					.getBranchConditions();
 
-			Map<JvmVariable, String> symbolicVariables = symbolicExecResult
-					.getSymbolicVariables();
-
-			logger.debug("symbolicVariables=" + symbolicVariables);
-			PathConstraintAdapter adapter = new PathConstraintAdapter(
-					symbolicVariables);
-			List<BranchCondition> branches = adapter.transform(path_constraint);
+			List<BranchCondition> branches = pc.getBranchConditions();
 
 			logger.info("NrOfBranches=" + branches.size());
 			File file = new File(dirName + "/", className + ".class");

@@ -28,32 +28,43 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.search.DistanceEstimator;
 
-
 /**
- * <p>StringComparison class.</p>
- *
+ * <p>
+ * StringComparison class.
+ * </p>
+ * 
  * @author krusev
  */
 public class StringComparison extends StringExpression {
 
 	private static final long serialVersionUID = -2959676064390810341L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringComparison");
-	
+	static Logger log = JPF
+			.getLogger("org.evosuite.symbolic.expr.StringComparison");
+
 	/**
-	 * <p>Constructor for StringComparison.</p>
-	 *
-	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param con a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for StringComparison.
+	 * </p>
+	 * 
+	 * @param left
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con
+	 *            a {@link java.lang.Long} object.
 	 */
-	public StringComparison(Expression<String> left, Operator op, Expression<?> right2, Long con) {
+	public StringComparison(Expression<String> left, Operator op,
+			Expression<?> right2, Long con) {
 		super();
 		this.left = left;
 		this.op = op;
 		this.right = right2;
 		this.conVal = con;
+		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
+				|| this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -77,9 +88,9 @@ public class StringComparison extends StringExpression {
 		}
 		if (obj instanceof StringComparison) {
 			StringComparison other = (StringComparison) obj;
-			return this.op.equals(other.op) && this.conVal.equals(other.conVal) 
-					&& this.getSize() == other.getSize() 
-					&& this.left.equals(other.left) 
+			return this.op.equals(other.op) && this.conVal.equals(other.conVal)
+					&& this.getSize() == other.getSize()
+					&& this.left.equals(other.left)
 					&& this.right.equals(other.right);
 		}
 
@@ -87,8 +98,10 @@ public class StringComparison extends StringExpression {
 	}
 
 	/**
-	 * <p>getRightOperand</p>
-	 *
+	 * <p>
+	 * getRightOperand
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<?> getRightOperand() {
@@ -96,8 +109,10 @@ public class StringComparison extends StringExpression {
 	}
 
 	/**
-	 * <p>getLeftOperand</p>
-	 *
+	 * <p>
+	 * getLeftOperand
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<String> getLeftOperand() {
@@ -122,8 +137,10 @@ public class StringComparison extends StringExpression {
 	}
 
 	/**
-	 * <p>getOperator</p>
-	 *
+	 * <p>
+	 * getOperator
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
 	 */
 	public Operator getOperator() {
@@ -134,25 +151,26 @@ public class StringComparison extends StringExpression {
 	@Override
 	public Long execute() {
 		try {
-			String first = (String)left.execute();
-			String second = (String)right.execute();
-			
+			String first = (String) left.execute();
+			String second = (String) right.execute();
+
 			switch (op) {
 			case EQUALSIGNORECASE:
-				return (long)DistanceEstimator.StrEqualsIgnoreCase(first, second);
+				return (long) DistanceEstimator.StrEqualsIgnoreCase(first,
+						second);
 			case EQUALS:
-				return (long)DistanceEstimator.StrEquals(first, second);
+				return (long) DistanceEstimator.StrEquals(first, second);
 			case ENDSWITH:
-				return (long)DistanceEstimator.StrEndsWith(first, second);
+				return (long) DistanceEstimator.StrEndsWith(first, second);
 			case CONTAINS:
-				return (long)DistanceEstimator.StrContains(first, second);
+				return (long) DistanceEstimator.StrContains(first, second);
 			default:
 				log.warning("StringComparison: unimplemented operator!" + op);
 				return null;
 			}
 		} catch (Exception e) {
 			return Long.MAX_VALUE;
-		}		
+		}
 	}
 
 }

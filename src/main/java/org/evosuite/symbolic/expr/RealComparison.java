@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -22,15 +21,21 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+
 public class RealComparison extends IntegerExpression {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * <p>Constructor for RealComparison.</p>
-	 *
-	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param con a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for RealComparison.
+	 * </p>
+	 * 
+	 * @param left
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param right
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con
+	 *            a {@link java.lang.Long} object.
 	 */
 	public RealComparison(Expression<Double> left, Expression<Double> right,
 			Long con) {
@@ -38,41 +43,44 @@ public class RealComparison extends IntegerExpression {
 		this.left = left;
 		this.right = right;
 		this.con = con;
+		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
+				|| this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
 
 	private Long con;
-	private Expression<Double> left;
-	private Expression<Double> right;
-	
+	private final Expression<Double> left;
+	private final Expression<Double> right;
+
 	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
 		return con;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
-		if(obj==this)
-		{
+		if (obj == this) {
 			return true;
 		}
-		if(obj instanceof RealComparison)
-		{
-			RealComparison other=(RealComparison) obj;
-			return  this.con.equals(other.con) 
-					&& this.getSize()==other.getSize() 
-					&& this.left.equals(other.left) && this.right.equals(other.right);
+		if (obj instanceof RealComparison) {
+			RealComparison other = (RealComparison) obj;
+			return this.con.equals(other.con)
+					&& this.getSize() == other.getSize()
+					&& this.left.equals(other.left)
+					&& this.right.equals(other.right);
 		}
 
 		return false;
 	}
 
 	/**
-	 * <p>getRightOperant</p>
-	 *
+	 * <p>
+	 * getRightOperant
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<Double> getRightOperant() {
@@ -80,27 +88,29 @@ public class RealComparison extends IntegerExpression {
 	}
 
 	/**
-	 * <p>getLeftOperant</p>
-	 *
+	 * <p>
+	 * getLeftOperant
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<Double> getLeftOperant() {
 		return left;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return "("+left+" cmp "+right+")";
+		return "(" + left + " cmp " + right + ")";
 	}
-	
-	protected int size=0;
+
+	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
-		if(size==0)
-		{
-			size=1+left.getSize()+right.getSize();
+		if (size == 0) {
+			size = 1 + left.getSize() + right.getSize();
 		}
 		return size;
 	}

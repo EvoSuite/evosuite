@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -19,46 +18,57 @@
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-public class RealVariable extends RealExpression implements Variable<Double>{
+
+public class RealVariable extends RealExpression implements Variable<Double> {
 	private static final long serialVersionUID = 1L;
-	
-	protected String name;
+
+	protected final String name;
 	protected double concreteValue;
-	protected double minValue;
-	protected double maxValue;
-	
+	protected final double minValue;
+	protected final double maxValue;
+
 	/**
-	 * <p>Constructor for RealVariable.</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
-	 * @param conV a double.
-	 * @param minValue a double.
-	 * @param maxValue a double.
+	 * <p>
+	 * Constructor for RealVariable.
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @param conV
+	 *            a double.
+	 * @param minValue
+	 *            a double.
+	 * @param maxValue
+	 *            a double.
 	 */
-	public RealVariable(String name, double conV, double minValue, double maxValue) {
+	public RealVariable(String name, double conV, double minValue,
+			double maxValue) {
 		super();
 		this.name = name;
 		this.concreteValue = conV;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
+		this.containsSymbolicVariable = true;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public Double getConcreteValue() {
 		return concreteValue;
 	}
 
-
 	/**
-	 * <p>Setter for the field <code>concreteValue</code>.</p>
-	 *
-	 * @param conV a double.
+	 * <p>
+	 * Setter for the field <code>concreteValue</code>.
+	 * </p>
+	 * 
+	 * @param conV
+	 *            a double.
 	 */
 	public void setConcreteValue(double conV) {
 		this.concreteValue = conV;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String getName() {
@@ -86,9 +96,8 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof RealVariable)
-		{
-			RealVariable v=(RealVariable) obj;
+		if (obj instanceof RealVariable) {
+			RealVariable v = (RealVariable) obj;
 			return this.getName().equals(v.getName());
 		}
 		return false;
@@ -97,9 +106,8 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
-		if(hash==0)
-		{
-			hash=this.name.hashCode();
+		if (hash == 0) {
+			hash = this.name.hashCode();
 		}
 		return hash;
 	}
@@ -115,7 +123,5 @@ public class RealVariable extends RealExpression implements Variable<Double>{
 	public Double execute() {
 		return concreteValue;
 	}
-	
-	
-	
+
 }

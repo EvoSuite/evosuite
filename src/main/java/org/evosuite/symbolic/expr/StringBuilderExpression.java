@@ -23,14 +23,14 @@ package org.evosuite.symbolic.expr;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 
-
 /**
- * <p>StringBuilderExpression class.</p>
- *
+ * <p>
+ * StringBuilderExpression class.
+ * </p>
+ * 
  * @author krusev
  */
 public class StringBuilderExpression extends StringExpression {
-
 
 	private static final long serialVersionUID = 5944852577642617563L;
 
@@ -38,20 +38,26 @@ public class StringBuilderExpression extends StringExpression {
 	protected Expression<String> expr;
 
 	/**
-	 * <p>Constructor for StringBuilderExpression.</p>
-	 *
-	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * <p>
+	 * Constructor for StringBuilderExpression.
+	 * </p>
+	 * 
+	 * @param _expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public StringBuilderExpression(Expression<String> _expr) {
 		this.expr = _expr;
 		this.undef_func = false;
+		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
 
 	/**
-	 * <p>Getter for the field <code>expr</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>expr</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<String> getExpr() {
@@ -59,18 +65,24 @@ public class StringBuilderExpression extends StringExpression {
 	}
 
 	/**
-	 * <p>Setter for the field <code>expr</code>.</p>
-	 *
-	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * <p>
+	 * Setter for the field <code>expr</code>.
+	 * </p>
+	 * 
+	 * @param _expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public void setExpr(Expression<String> _expr) {
 		expr = _expr;
 	}
-	
+
 	/**
-	 * <p>append</p>
-	 *
-	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * <p>
+	 * append
+	 * </p>
+	 * 
+	 * @param _expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public void append(Expression<String> _expr) {
 		if (expr == null)
@@ -79,35 +91,37 @@ public class StringBuilderExpression extends StringExpression {
 			if (_expr instanceof StringConstant) {
 				if (expr instanceof StringConstant) {
 					expr = new StringConstant(
-							((String)expr.getConcreteValue()) 
-						+	((String)_expr.getConcreteValue()));
+							((String) expr.getConcreteValue())
+									+ ((String) _expr.getConcreteValue()));
 					return;
 				} else if (expr instanceof StringBinaryExpression) {
-					StringBinaryExpression sBin = (StringBinaryExpression)expr;
+					StringBinaryExpression sBin = (StringBinaryExpression) expr;
 					if (sBin.getRightOperand() instanceof StringConstant) {
-						StringConstant strConst = new StringConstant(
-										sBin.getRightOperand().getConcreteValue()
-									+	((String)_expr.getConcreteValue()));
-						expr = new StringBinaryExpression(sBin.getLeftOperand(),
-											Operator.APPEND, strConst, 
-											sBin.getConcreteValue()
-												+((String)_expr.getConcreteValue()));
+						StringConstant strConst = new StringConstant(sBin
+								.getRightOperand().getConcreteValue()
+								+ ((String) _expr.getConcreteValue()));
+						expr = new StringBinaryExpression(
+								sBin.getLeftOperand(), Operator.APPEND,
+								strConst, sBin.getConcreteValue()
+										+ ((String) _expr.getConcreteValue()));
 						return;
 					}
 				}
-					
+
 			}
-			
-			expr = new StringBinaryExpression(expr,
-    			Operator.APPEND, 
-    			_expr, 
-    			((String)expr.getConcreteValue()) + ((String)_expr.getConcreteValue()));
+
+			expr = new StringBinaryExpression(expr, Operator.APPEND, _expr,
+					((String) expr.getConcreteValue())
+							+ ((String) _expr.getConcreteValue()));
 		}
+		this.containsSymbolicVariable = expr.containsSymbolicVariable();
 	}
-	
+
 	/**
-	 * <p>has_undef_func</p>
-	 *
+	 * <p>
+	 * has_undef_func
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean has_undef_func() {
@@ -115,7 +129,9 @@ public class StringBuilderExpression extends StringExpression {
 	}
 
 	/**
-	 * <p>set_undef_func</p>
+	 * <p>
+	 * set_undef_func
+	 * </p>
 	 */
 	public void set_undef_func() {
 		undef_func = true;
@@ -136,7 +152,7 @@ public class StringBuilderExpression extends StringExpression {
 		if (obj instanceof StringBuilderExpression) {
 			StringBuilderExpression other = (StringBuilderExpression) obj;
 			return this.expr.equals(other.expr)
-						&& this.getSize() == other.getSize(); 
+					&& this.getSize() == other.getSize();
 		}
 
 		return false;
@@ -148,18 +164,18 @@ public class StringBuilderExpression extends StringExpression {
 	@Override
 	public int getSize() {
 		int expr_size = 0;
-		if (expr!=null)
+		if (expr != null)
 			expr_size = expr.getSize();
 		if (size == 0) {
 			size = 1 + expr_size;
 		}
 		return size;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
-		
+
 		return (String) expr.getConcreteValue();
 	}
 

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -22,22 +21,31 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+
 public class IntegerComparison extends IntegerExpression {
 
 	private static final long serialVersionUID = 8551234172104612736L;
 
 	/**
-	 * <p>Constructor for IntegerComparison.</p>
-	 *
-	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param con a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for IntegerComparison.
+	 * </p>
+	 * 
+	 * @param left
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param right
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con
+	 *            a {@link java.lang.Long} object.
 	 */
-	public IntegerComparison(Expression<Long> left, Expression<Long> right, Long con) {
+	public IntegerComparison(Expression<Long> left, Expression<Long> right,
+			Long con) {
 		super();
 		this.left = left;
 		this.right = right;
 		this.con = con;
+		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
+				|| this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -45,7 +53,6 @@ public class IntegerComparison extends IntegerExpression {
 	private final Long con;
 	private final Expression<Long> left;
 	private final Expression<Long> right;
-
 	/** {@inheritDoc} */
 	@Override
 	public Long getConcreteValue() {
@@ -60,17 +67,20 @@ public class IntegerComparison extends IntegerExpression {
 		}
 		if (obj instanceof IntegerComparison) {
 			IntegerComparison other = (IntegerComparison) obj;
-			return this.con.equals(other.con) 
+			return this.con.equals(other.con)
 					&& this.getSize() == other.getSize()
-			        && this.left.equals(other.left) && this.right.equals(other.right);
+					&& this.left.equals(other.left)
+					&& this.right.equals(other.right);
 		}
 
 		return false;
 	}
 
 	/**
-	 * <p>getRightOperant</p>
-	 *
+	 * <p>
+	 * getRightOperant
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<Long> getRightOperant() {
@@ -78,8 +88,10 @@ public class IntegerComparison extends IntegerExpression {
 	}
 
 	/**
-	 * <p>getLeftOperant</p>
-	 *
+	 * <p>
+	 * getLeftOperant
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<Long> getLeftOperant() {
@@ -106,7 +118,7 @@ public class IntegerComparison extends IntegerExpression {
 	/** {@inheritDoc} */
 	@Override
 	public Object execute() {
-		// this is never used 
+		// this is never used
 		return null;
 	}
 

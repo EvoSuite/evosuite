@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -26,30 +25,38 @@ import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+
 public class RealUnaryExpression extends RealExpression implements
 		UnaryExpression<Double> {
 
 	private static final long serialVersionUID = 9086637495150131445L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.RealUnaryExpression");
-	
+	static Logger log = JPF
+			.getLogger("org.evosuite.symbolic.expr.RealUnaryExpression");
+
 	protected Double concretValue;
-	
-	protected Operator op;
-	
-	protected Expression<Double> expr;
+
+	protected final Operator op;
+
+	protected final Expression<Double> expr;
 
 	/**
-	 * <p>Constructor for RealUnaryExpression.</p>
-	 *
-	 * @param e a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param con a {@link java.lang.Double} object.
+	 * <p>
+	 * Constructor for RealUnaryExpression.
+	 * </p>
+	 * 
+	 * @param e
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param con
+	 *            a {@link java.lang.Double} object.
 	 */
 	public RealUnaryExpression(Expression<Double> e, Operator op2, Double con) {
-		this.expr=e;
-		this.op=op2;
-		this.concretValue=con;
+		this.expr = e;
+		this.op = op2;
+		this.concretValue = con;
+		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -71,33 +78,31 @@ public class RealUnaryExpression extends RealExpression implements
 	public Operator getOperator() {
 		return op;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return op.toString()+"("+expr+")";
+		return op.toString() + "(" + expr + ")";
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
-		if(obj instanceof RealUnaryExpression)
-		{
-			RealUnaryExpression v=(RealUnaryExpression) obj;
-			return this.op.equals(v.op) 
-						&& this.getSize()==v.getSize() 
-						&& this.expr.equals(v.expr);
+		if (obj instanceof RealUnaryExpression) {
+			RealUnaryExpression v = (RealUnaryExpression) obj;
+			return this.op.equals(v.op) && this.getSize() == v.getSize()
+					&& this.expr.equals(v.expr);
 		}
 		return false;
 	}
-	
-	protected int size=0;
+
+	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
-		if(size == 0)
-		{
-			size=1 + expr.getSize();
+		if (size == 0) {
+			size = 1 + expr.getSize();
 		}
 		return size;
 	}
@@ -105,8 +110,8 @@ public class RealUnaryExpression extends RealExpression implements
 	/** {@inheritDoc} */
 	@Override
 	public Double execute() {
-		double leftVal = (Double)expr.execute();
-		
+		double leftVal = (Double) expr.execute();
+
 		switch (op) {
 
 		case ABS:
@@ -132,7 +137,7 @@ public class RealUnaryExpression extends RealExpression implements
 		case FLOOR:
 			return Math.floor(leftVal);
 		case GETEXPONENT:
-			return (double)Math.getExponent(leftVal);
+			return (double) Math.getExponent(leftVal);
 		case LOG:
 			return Math.log(leftVal);
 		case LOG10:
@@ -163,7 +168,7 @@ public class RealUnaryExpression extends RealExpression implements
 			return Math.toRadians(leftVal);
 		case ULP:
 			return Math.ulp(leftVal);
-					
+
 		default:
 			log.warning("IntegerUnaryExpression: unimplemented operator!");
 			return null;

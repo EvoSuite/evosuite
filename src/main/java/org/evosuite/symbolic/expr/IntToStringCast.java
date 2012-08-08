@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -25,39 +24,43 @@ import java.util.logging.Logger;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 
-
 import gov.nasa.jpf.JPF;
-public class IntToStringCast extends StringExpression implements Cast<Long>{
-	
+
+public class IntToStringCast extends StringExpression implements Cast<Long> {
+
 	private static final long serialVersionUID = 2414222998301630838L;
 
 	static Logger log = JPF.getLogger((IntToStringCast.class).toString());
-	
-	protected Expression<Long> intVar;
+
+	protected final Expression<Long> intVar;
 
 	/**
-	 * <p>Constructor for IntToStringCast.</p>
-	 *
-	 * @param expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * <p>
+	 * Constructor for IntToStringCast.
+	 * </p>
+	 * 
+	 * @param expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public IntToStringCast(Expression<Long> expr) {
 		this.intVar = expr;
+		this.containsSymbolicVariable = this.intVar.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		return Long.toString((Long)intVar.execute());
+		return Long.toString((Long) intVar.execute());
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
-		return Long.toString((Long)intVar.getConcreteValue());
+		return Long.toString((Long) intVar.getConcreteValue());
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
@@ -77,14 +80,14 @@ public class IntToStringCast extends StringExpression implements Cast<Long>{
 
 		return false;
 	}
-	
-	protected int size=0;
+
+	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
-		if(size == 0)
-		{
-			size=1 + intVar.getSize();
+		if (size == 0) {
+			size = 1 + intVar.getSize();
 		}
 		return size;
 	}
