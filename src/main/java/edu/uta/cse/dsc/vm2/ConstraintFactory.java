@@ -18,13 +18,13 @@ public abstract class ConstraintFactory {
 
 	public static IntegerConstraint lt(IntegerExpression left,
 			IntegerExpression right) {
-		// TODO Auto-generated method stub
-		return null;
+		return new IntegerConstraint(left, Comparator.LT, right);
+
 	}
 
-	public static IntegerConstraint gte(IntegerExpression leftBv,
-			IntegerExpression rightBv) {
-		// TODO Auto-generated method stub
-		return null;
+	public static IntegerConstraint gte(IntegerExpression left,
+			IntegerExpression right) {
+		return new IntegerConstraint(left, Comparator.GE, right);
+
 	}
 }

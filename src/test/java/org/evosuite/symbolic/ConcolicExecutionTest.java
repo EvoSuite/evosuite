@@ -205,57 +205,6 @@ public class ConcolicExecutionTest {
 						System.getProperty("java.class.path"));
 
 		assertEquals(4, branch_conditions.size());
-		{
-			BranchCondition b0 = branch_conditions.get(0);
-			List<Constraint<?>> local_constraints_b0 = b0
-					.listOfLocalConstraints();
-			IntegerConstraint int_comparison = (IntegerConstraint) local_constraints_b0
-					.get(0);
-			IntegerUnaryExpression abs_expr = (IntegerUnaryExpression) int_comparison
-					.getRightOperand();
-			assertEquals(Operator.ABS, abs_expr.getOperator());
-		}
-		{
-			BranchCondition b1 = branch_conditions.get(1);
-			List<Constraint<?>> local_constraints_b1 = b1
-					.listOfLocalConstraints();
-			IntegerConstraint int_comparison = (IntegerConstraint) local_constraints_b1
-					.get(0);
-			IntegerUnaryExpression abs_expr = (IntegerUnaryExpression) int_comparison
-					.getRightOperand();
-			assertEquals(Operator.ABS, abs_expr.getOperator());
-		}
-		{
-			BranchCondition b2 = branch_conditions.get(2);
-			List<Constraint<?>> local_constraints_b2 = b2
-					.listOfLocalConstraints();
-			IntegerConstraint int_constraint = (IntegerConstraint) local_constraints_b2
-					.get(0);
-
-			RealComparison realComparison = (RealComparison) int_constraint
-					.getRightOperand();
-
-			RealUnaryExpression unaryFunction = (RealUnaryExpression) realComparison
-					.getRightOperant();
-
-			assertEquals(Operator.ABS, unaryFunction.getOperator());
-
-		}
-		{
-			BranchCondition b3 = branch_conditions.get(3);
-			List<Constraint<?>> local_constraints_b3 = b3
-					.listOfLocalConstraints();
-			IntegerConstraint int_constraint = (IntegerConstraint) local_constraints_b3
-					.get(0);
-
-			RealComparison realComparison = (RealComparison) int_constraint
-					.getRightOperand();
-
-			RealUnaryExpression unaryFunction = (RealUnaryExpression) realComparison
-					.getRightOperant();
-
-			assertEquals(Operator.ABS, unaryFunction.getOperator());
-		}
 	}
 
 	@Test

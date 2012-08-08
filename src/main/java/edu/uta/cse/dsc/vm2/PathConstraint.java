@@ -17,7 +17,6 @@ public final class PathConstraint {
 	private LinkedList<Constraint<?>> reachingConstraints = new LinkedList<Constraint<?>>();
 
 	public void pushLocalConstraint(IntegerConstraint c) {
-		reachingConstraints.add(c);
 		currentLocalConstraints.add(c);
 	}
 
@@ -36,6 +35,7 @@ public final class PathConstraint {
 
 		branchConditions.push(new_branch);
 
+		reachingConstraints.addAll(currentLocalConstraints);
 		currentLocalConstraints.clear();
 	}
 
