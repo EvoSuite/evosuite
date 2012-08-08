@@ -39,8 +39,10 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	private boolean zeroViolation(IntegerExpression value, int valueConcrete) {
 		IntegerConstant bv32zero = ExpressionFactory.buildNewIntegerConstant(0);
-		IntegerConstraint zeroCheck = ConstraintFactory.eq(value, bv32zero);
-		if (valueConcrete != 0)
+		IntegerConstraint zeroCheck;
+		if (valueConcrete == 0)
+			zeroCheck = ConstraintFactory.eq(value, bv32zero);
+		else
 			zeroCheck = ConstraintFactory.neq(value, bv32zero);
 
 		pathConstraint.pushLocalConstraint(zeroCheck);
@@ -57,8 +59,10 @@ public final class ArithmeticVM extends AbstractVM {
 
 	private boolean zeroViolation(IntegerExpression value, long valueConcrete) {
 		IntegerConstant bv64zero = ExpressionFactory.buildNewIntegerConstant(0);
-		IntegerConstraint zeroCheck = ConstraintFactory.eq(value, bv64zero);
-		if (valueConcrete != 0)
+		IntegerConstraint zeroCheck;
+		if (valueConcrete == 0)
+			zeroCheck = ConstraintFactory.eq(value, bv64zero);
+		else
 			zeroCheck = ConstraintFactory.neq(value, bv64zero);
 
 		pathConstraint.pushLocalConstraint(zeroCheck);
@@ -573,10 +577,10 @@ public final class ArithmeticVM extends AbstractVM {
 					.buildNewIntegerConstant(right_concrete_value);
 		}
 
-		long con = left_concrete_value + right_concrete_value;
+		long con = left_concrete_value / right_concrete_value;
 
 		IntegerExpression intExpr = new IntegerBinaryExpression(left,
-				Operator.PLUS, right, (long) con);
+				Operator.DIV, right, (long) con);
 
 		env.topFrame().operandStack.pushBv64(intExpr);
 	}
@@ -642,6 +646,9 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void IREM(int rhsValue) {
 		IntegerExpression right = env.topFrame().operandStack.popBv32();
+		if (zeroViolation(right, rhsValue))
+			return; // TODO: throw exception
+
 		IntegerExpression left = env.topFrame().operandStack.popBv32();
 
 		int left_concrete_value = ((Long) left.getConcreteValue()).intValue();
@@ -897,14 +904,14 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void LUSHR() {
 		IntegerExpression right_expr = (IntegerExpression) env.topFrame().operandStack
-				.popBv64();
+				.popBv32();
 		IntegerExpression left_expr = (IntegerExpression) env.topFrame().operandStack
 				.popBv64();
 
 		long left_concrete_value = ((Long) left_expr.getConcreteValue())
 				.longValue();
-		long right_concrete_value = ((Long) right_expr.getConcreteValue())
-				.longValue();
+		int right_concrete_value = ((Long) right_expr.getConcreteValue())
+				.intValue();
 
 		long concrete_value = left_concrete_value >>> (right_concrete_value & 0x001F);
 
@@ -925,14 +932,14 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void LSHR() {
 		IntegerExpression right_expr = (IntegerExpression) env.topFrame().operandStack
-				.popBv64();
+				.popBv32();
 		IntegerExpression left_expr = (IntegerExpression) env.topFrame().operandStack
 				.popBv64();
 
 		long left_concrete_value = ((Long) left_expr.getConcreteValue())
 				.longValue();
-		long right_concrete_value = ((Long) right_expr.getConcreteValue())
-				.longValue();
+		int right_concrete_value = ((Long) right_expr.getConcreteValue())
+				.intValue();
 
 		long concrete_value = left_concrete_value >> (right_concrete_value & 0x001F);
 
@@ -952,14 +959,14 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void LSHL() {
 		IntegerExpression right_expr = (IntegerExpression) env.topFrame().operandStack
-				.popBv64();
+				.popBv32();
 		IntegerExpression left_expr = (IntegerExpression) env.topFrame().operandStack
 				.popBv64();
 
 		long left_concrete_value = ((Long) left_expr.getConcreteValue())
 				.longValue();
-		long right_concrete_value = ((Long) right_expr.getConcreteValue())
-				.longValue();
+		int right_concrete_value = ((Long) right_expr.getConcreteValue())
+				.intValue();
 
 		long concrete_value = left_concrete_value << (right_concrete_value & 0x001F);
 
@@ -1482,5 +1489,34 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void I2S() {
 		return; /* ignore I2C */
+	}
+
+	@Override
+	public void LREM(long rhs) {
+		IntegerExpression right = env.topFrame().operandStack.popBv64();
+		if (zeroViolation(right, rhs))
+			return; // TODO: throw exception
+
+		IntegerExpression left = env.topFrame().operandStack.popBv64();
+
+		long left_concrete_value = ((Long) left.getConcreteValue()).longValue();
+		long right_concrete_value = ((Long) right.getConcreteValue())
+				.longValue();
+
+		if (!left.containsSymbolicVariable()) {
+			left = ExpressionFactory
+					.buildNewIntegerConstant(left_concrete_value);
+		}
+		if (!right.containsSymbolicVariable()) {
+			right = ExpressionFactory
+					.buildNewIntegerConstant(right_concrete_value);
+		}
+
+		long con = left_concrete_value % right_concrete_value;
+
+		IntegerExpression intExpr = new IntegerBinaryExpression(left,
+				Operator.REM, right, (long) con);
+
+		env.topFrame().operandStack.pushBv64(intExpr);
 	}
 }

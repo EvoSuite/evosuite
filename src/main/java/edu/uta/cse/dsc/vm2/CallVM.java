@@ -29,7 +29,7 @@ import gnu.trove.map.hash.THashMap;
  */
 public final class CallVM extends AbstractVM {
 
-	private SymbolicEnvironment env;
+	private final SymbolicEnvironment env;
 
 	/**
 	 * Constructor
@@ -171,13 +171,14 @@ public final class CallVM extends AbstractVM {
 	public void METHOD_BEGIN(int access, String className, String methName,
 			String methDesc) {
 
-		prepareStackIfNeeded(className, methName, methDesc);
 
 		/* TODO: Use access param to determine needsThis */
 
 		if (conf.CLINIT.equals(methName)) {
 			CLINIT_BEGIN(className);
 			return;
+		} else {
+			prepareStackIfNeeded(className, methName, methDesc);
 		}
 
 		/* Begin of a method or constructor */
@@ -275,6 +276,10 @@ public final class CallVM extends AbstractVM {
 			if (method != null) {
 				env.prepareStack(method);
 			}
+		}
+		
+		if (env.isEmpty()) {
+			throw new IllegalStateException();
 		}
 
 	}
@@ -651,7 +656,7 @@ public final class CallVM extends AbstractVM {
 	private Frame popFrameAndDisposeCallerParams() {
 		Frame frame = env.popFrame();
 
-		if (env.topFrame().weInvokedInstrumentedCode())
+		if (!env.isEmpty() && env.topFrame().weInvokedInstrumentedCode())
 			env.topFrame().disposeMethInvokeArgs(frame);
 
 		return frame;

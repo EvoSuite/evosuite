@@ -90,7 +90,7 @@ public final class ConcolicMarkerVM extends AbstractVM {
 	private void addSymbolicDouble() {
 		final double MIN_VALUE = Double.MIN_VALUE;
 		final double MAX_VALUE = Double.MAX_VALUE;
-		RealExpression realExpr = env.topFrame().operandStack.popFp32();
+		RealExpression realExpr = env.topFrame().operandStack.popFp64();
 
 		StringExpression strExpr = getStringExpressionFromPreviousFrame();
 		String java_variable_name = (String) strExpr.getConcreteValue();
@@ -172,15 +172,13 @@ public final class ConcolicMarkerVM extends AbstractVM {
 
 		final long MIN_VALUE = 0;
 		final long MAX_VALUE = 1;
-		IntegerExpression intExpr = env.topFrame().operandStack.popBv32();
-
+		IntegerExpression booleanExpr = env.topFrame().operandStack.popBv32();
+		
 		StringExpression strNameExpr = getStringExpressionFromPreviousFrame();
 		String java_variable_name = (String) strNameExpr.getConcreteValue();
 
-		int conV = ((Long) intExpr.getConcreteValue()).intValue();
-
 		IntegerVariable v = IntegerVariableFactory.buildIntegerVariable(
-				java_variable_name, conV, MIN_VALUE, MAX_VALUE);
+				java_variable_name, (Long) booleanExpr.getConcreteValue(), MIN_VALUE, MAX_VALUE);
 
 		env.topFrame().operandStack.pushBv32(v);
 	}

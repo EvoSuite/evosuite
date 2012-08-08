@@ -129,7 +129,14 @@ public final class HeapVM extends AbstractVM {
 			logln("Do we have to prepare the static fields of an interface?");
 			env.ensurePrepared(declaringClass);
 		}
+
+		boolean isAccessible = field.isAccessible();
+		if (!isAccessible) {
+			field.setAccessible(true);
+		}
+
 		try { // cook up corresponding value
+
 			Object jvmValue = field.get(null); // from user's JVM state
 
 			Class<?> fieldType = field.getType();
@@ -196,6 +203,10 @@ public final class HeapVM extends AbstractVM {
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 			check(false);
+		}
+
+		if (!isAccessible) {
+			field.setAccessible(false);
 		}
 	}
 
@@ -359,7 +370,7 @@ public final class HeapVM extends AbstractVM {
 		Field field = resolveField(DscHandler.getClassForName(className),
 				fieldName);
 		env.ensurePrepared(field.getDeclaringClass());
-		
+
 		boolean isAccessible = field.isAccessible();
 		if (!isAccessible) {
 			field.setAccessible(true);
@@ -400,17 +411,22 @@ public final class HeapVM extends AbstractVM {
 				RealConstant fp64 = ExpressionFactory
 						.buildNewRealConstant(value);
 				env.topFrame().operandStack.pushFp64(fp64);
-			} else if (type.equals(Type.CHAR)) {
+			} else if (type.equals(Type.CHAR_TYPE)) {
 				char value = field.getChar(receiverConcrete);
 				IntegerConstant intExpr = ExpressionFactory
 						.buildNewIntegerConstant(value);
 				env.topFrame().operandStack.pushBv32(intExpr);
-			} else if (type.equals(Type.SHORT)) {
+			} else if (type.equals(Type.SHORT_TYPE)) {
 				short value = field.getShort(receiverConcrete);
 				IntegerConstant intExpr = ExpressionFactory
 						.buildNewIntegerConstant(value);
 				env.topFrame().operandStack.pushBv32(intExpr);
-			} else if (type.equals(Type.BYTE)) {
+			} else if (type.equals(Type.BOOLEAN_TYPE)) {
+				boolean value = field.getBoolean(receiverConcrete);
+				IntegerConstant intExpr = ExpressionFactory
+						.buildNewIntegerConstant(value ? 1 : 0);
+				env.topFrame().operandStack.pushBv32(intExpr);
+			} else if (type.equals(Type.BYTE_TYPE)) {
 				byte value = field.getByte(receiverConcrete);
 				IntegerConstant intExpr = ExpressionFactory
 						.buildNewIntegerConstant(value);
@@ -418,15 +434,15 @@ public final class HeapVM extends AbstractVM {
 			} else {
 				Object value = field.get(receiverConcrete);
 				if (value instanceof String) {
-					String string = (String)value;
+					String string = (String) value;
 					StringConstant strConstant = new StringConstant(string);
 					env.topFrame().operandStack.pushStringRef(strConstant);
-					
+
 				} else {
 					env.topFrame().operandStack.pushRef(value);
 				}
 			}
-			
+
 			if (!isAccessible) {
 				field.setAccessible(false);
 			}
@@ -719,10 +735,20 @@ public final class HeapVM extends AbstractVM {
 			return; // FIXME
 		else {
 			Object ref = Array.get(referenceConcrete, indexConcrete);
-			env.topFrame().operandStack.pushRef(ref);
+			if (ref instanceof String) {
+				String string = (String) ref;
+				StringConstant strConstant = ExpressionFactory
+						.buildNewStringConstant(string);
+				env.topFrame().operandStack.pushStringRef(strConstant);
+			} else {
+				env.topFrame().operandStack.pushRef(ref);
+			}
 		}
 	}
 
+	/**
+	 * retrieve byte/boolean from array
+	 */
 	@Override
 	public void BALOAD(Object referenceConcrete, int indexConcrete) {
 		IntegerExpression indexExpression = env.topFrame().operandStack
@@ -743,8 +769,17 @@ public final class HeapVM extends AbstractVM {
 			/**
 			 * Retrieve information from the Heap.
 			 */
-			int bv32 = Array.getByte(referenceConcrete, indexConcrete);
-			IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
+			Object object = Array.get(referenceConcrete, indexConcrete);
+			int intValue;
+			if (object instanceof Boolean) {
+				boolean booleanValue = ((Boolean) object).booleanValue();
+				intValue = booleanValue ? 1 : 0;
+			} else {
+				assert object instanceof Byte;
+				intValue = ((Byte) object).shortValue();
+			}
+			IntegerConstant c = ExpressionFactory
+					.buildNewIntegerConstant(intValue);
 			env.topFrame().operandStack.pushBv32(c);
 		}
 	}
