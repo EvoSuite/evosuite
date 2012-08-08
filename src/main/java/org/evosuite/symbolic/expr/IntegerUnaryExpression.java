@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -26,30 +25,38 @@ import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+
 public class IntegerUnaryExpression extends IntegerExpression implements
-        UnaryExpression<Long> {
+		UnaryExpression<Long> {
 
 	private static final long serialVersionUID = 1966395070897274841L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.IntegerUnaryExpression");
-	
+	static Logger log = JPF
+			.getLogger("org.evosuite.symbolic.expr.IntegerUnaryExpression");
+
 	protected Long concretValue;
 
 	protected Operator op;
 
-	protected Expression<Long> expr;
+	protected final Expression<Long> expr;
 
 	/**
-	 * <p>Constructor for IntegerUnaryExpression.</p>
-	 *
-	 * @param e a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param con a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for IntegerUnaryExpression.
+	 * </p>
+	 * 
+	 * @param e
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param con
+	 *            a {@link java.lang.Long} object.
 	 */
 	public IntegerUnaryExpression(Expression<Long> e, Operator op2, Long con) {
 		this.expr = e;
 		this.op = op2;
 		this.concretValue = con;
+		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -83,9 +90,8 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 	public boolean equals(Object obj) {
 		if (obj instanceof IntegerUnaryExpression) {
 			IntegerUnaryExpression v = (IntegerUnaryExpression) obj;
-			return this.op.equals(v.op) 
-					&& this.getSize() == v.getSize()
-			        && this.expr.equals(v.expr);
+			return this.op.equals(v.op) && this.getSize() == v.getSize()
+					&& this.expr.equals(v.expr);
 		}
 		return false;
 	}
@@ -105,9 +111,9 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 	@Override
 	public Long execute() {
 		long leftVal = ExpressionHelper.getLongResult(expr);
-		
+
 		switch (op) {
-		
+
 		case NEG:
 			return -leftVal;
 		case ABS:

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -25,39 +24,43 @@ import java.util.logging.Logger;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 
-
 import gov.nasa.jpf.JPF;
-public class RealToStringCast extends StringExpression implements Cast<Double>{
+
+public class RealToStringCast extends StringExpression implements Cast<Double> {
 
 	private static final long serialVersionUID = -5322228289539145088L;
 
 	static Logger log = JPF.getLogger((RealToStringCast.class).toString());
-	
-	protected Expression<Double> expr;
+
+	protected final Expression<Double> expr;
 
 	/**
-	 * <p>Constructor for RealToStringCast.</p>
-	 *
-	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * <p>
+	 * Constructor for RealToStringCast.
+	 * </p>
+	 * 
+	 * @param _expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public RealToStringCast(Expression<Double> _expr) {
 		this.expr = _expr;
+		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		return Double.toString((Double)expr.execute());
+		return Double.toString((Double) expr.execute());
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
-		return Double.toString((Double)expr.getConcreteValue());
+		return Double.toString((Double) expr.getConcreteValue());
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
@@ -73,19 +76,19 @@ public class RealToStringCast extends StringExpression implements Cast<Double>{
 		if (obj instanceof RealToStringCast) {
 			RealToStringCast other = (RealToStringCast) obj;
 			return this.expr.equals(other.expr)
-				&& this.getSize() == other.getSize();
+					&& this.getSize() == other.getSize();
 		}
 
 		return false;
 	}
-	
-	protected int size=0;
+
+	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
-		if(size == 0)
-		{
-			size=1 + expr.getSize();
+		if (size == 0) {
+			size = 1 + expr.getSize();
 		}
 		return size;
 	}

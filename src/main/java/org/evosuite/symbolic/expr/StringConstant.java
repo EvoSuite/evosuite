@@ -29,7 +29,7 @@ public class StringConstant extends StringExpression {
 
 	private static final long serialVersionUID = 6785078290753992374L;
 
-	protected String value;
+	protected final String value;
 
 	/**
 	 * <p>Constructor for StringConstant.</p>
@@ -38,6 +38,7 @@ public class StringConstant extends StringExpression {
 	 */
 	public StringConstant(String StringValue) {
 		this.value = StringValue;
+		this.containsSymbolicVariable = false;
 	}
 
 	/** {@inheritDoc} */

@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -26,36 +25,47 @@ import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+
 public class RealBinaryExpression extends RealExpression implements
-        BinaryExpression<Double> {
+		BinaryExpression<Double> {
 
 	private static final long serialVersionUID = 3095108718393239244L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.IntegerBinaryExpression");
+	static Logger log = JPF
+			.getLogger("org.evosuite.symbolic.expr.IntegerBinaryExpression");
 
 	protected Double concretValue;
 
-	protected Operator op;
+	protected final Operator op;
 
-	protected Expression<Double> left;
-	protected Expression<?> right;
+	protected final Expression<Double> left;
+	protected final Expression<?> right;
 
 	/**
-	 * <p>Constructor for RealBinaryExpression.</p>
-	 *
-	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param con a {@link java.lang.Double} object.
+	 * <p>
+	 * Constructor for RealBinaryExpression.
+	 * </p>
+	 * 
+	 * @param left2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con
+	 *            a {@link java.lang.Double} object.
 	 */
 	public RealBinaryExpression(Expression<Double> left2, Operator op2,
-	        Expression<?> right2, Double con) {
+			Expression<?> right2, Double con) {
 		this.concretValue = con;
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
+		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
+				|| this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException("Constraint size: "+getSize());
+			throw new ConstraintTooLongException("Constraint size: "
+					+ getSize());
 	}
 
 	/** {@inheritDoc} */
@@ -96,8 +106,10 @@ public class RealBinaryExpression extends RealExpression implements
 		}
 		if (obj instanceof RealBinaryExpression) {
 			RealBinaryExpression other = (RealBinaryExpression) obj;
-			return this.op.equals(other.op) && this.getSize() == other.getSize()
-			        && this.left.equals(other.left) && this.right.equals(other.right);
+			return this.op.equals(other.op)
+					&& this.getSize() == other.getSize()
+					&& this.left.equals(other.left)
+					&& this.right.equals(other.right);
 		}
 
 		return false;

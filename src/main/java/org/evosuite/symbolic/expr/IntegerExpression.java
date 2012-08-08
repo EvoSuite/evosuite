@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -19,30 +18,31 @@
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
+
 public abstract class IntegerExpression implements Expression<Long> {
 
 	private static final long serialVersionUID = 2896502683190522448L;
 
 	protected int hash = 0;
 
-	
 	private Expression<?> parent = null;
-	
+
 	/**
-	 * <p>Getter for the field <code>parent</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>parent</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<?> getParent() {
 		return this.parent;
 	}
-	
+
 	/** {@inheritDoc} */
 	public void setParent(Expression<?> expr) {
 		this.parent = expr;
 	}
 
-	
 	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
@@ -55,6 +55,12 @@ public abstract class IntegerExpression implements Expression<Long> {
 		}
 		return hash;
 
+	}
+
+	protected boolean containsSymbolicVariable;
+
+	public final boolean containsSymbolicVariable() {
+		return containsSymbolicVariable;
 	}
 
 }

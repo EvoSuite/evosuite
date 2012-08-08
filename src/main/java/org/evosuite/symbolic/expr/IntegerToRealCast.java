@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -22,22 +21,28 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+
 public class IntegerToRealCast extends RealExpression implements Cast<Long> {
 	private static final long serialVersionUID = -3070453617714122236L;
 
 	protected Double concreteValue;
 
-	protected Expression<Long> expr;
+	protected final Expression<Long> expr;
 
 	/**
-	 * <p>Constructor for IntegerToRealCast.</p>
-	 *
-	 * @param _expr a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param _concValue a {@link java.lang.Double} object.
+	 * <p>
+	 * Constructor for IntegerToRealCast.
+	 * </p>
+	 * 
+	 * @param _expr
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param _concValue
+	 *            a {@link java.lang.Double} object.
 	 */
 	public IntegerToRealCast(Expression<Long> _expr, Double _concValue) {
 		this.expr = _expr;
 		this.concreteValue = _concValue;
+		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -69,13 +74,14 @@ public class IntegerToRealCast extends RealExpression implements Cast<Long> {
 		if (obj instanceof IntegerToRealCast) {
 			IntegerToRealCast other = (IntegerToRealCast) obj;
 			return this.expr.equals(other.expr);
-			//					 && this.getSize() == other.getSize();
+			// && this.getSize() == other.getSize();
 		}
 
 		return false;
 	}
 
 	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {

@@ -21,55 +21,67 @@
 package org.evosuite.symbolic.expr;
 
 /**
- * <p>StringVariable class.</p>
- *
+ * <p>
+ * StringVariable class.
+ * </p>
+ * 
  * @author krusev
  */
-public class StringVariable extends StringExpression implements Variable<String> {
+public class StringVariable extends StringExpression implements
+		Variable<String> {
 
 	private static final long serialVersionUID = 5925030390824261492L;
 
-	protected String name;
+	protected final String name;
 
 	protected String minValue;
-	
+
 	protected String concValue;
 
 	protected String maxValue;
 
 	/**
-	 * <p>Constructor for StringVariable.</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
-	 * @param concVal a {@link java.lang.String} object.
-	 * @param minValue a {@link java.lang.String} object.
-	 * @param maxValue a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for StringVariable.
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @param concVal
+	 *            a {@link java.lang.String} object.
+	 * @param minValue
+	 *            a {@link java.lang.String} object.
+	 * @param maxValue
+	 *            a {@link java.lang.String} object.
 	 */
-	public StringVariable(String name, String concVal, String minValue, String maxValue) {
+	public StringVariable(String name, String concVal, String minValue,
+			String maxValue) {
 		super();
 		this.name = name;
 		this.concValue = concVal;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
-	}	
+		this.containsSymbolicVariable = true;
+	}
 
-	
 	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
 		return concValue;
 	}
-	
 
 	/**
-	 * <p>setConcreteValue</p>
-	 *
-	 * @param concValue the concValue to set
+	 * <p>
+	 * setConcreteValue
+	 * </p>
+	 * 
+	 * @param concValue
+	 *            the concValue to set
 	 */
 	public void setConcreteValue(String concValue) {
 		this.concValue = concValue;
 	}
-	
+
 	/*
 	 * store the better value here
 	 */
@@ -80,14 +92,17 @@ public class StringVariable extends StringExpression implements Variable<String>
 	}
 
 	/**
-	 * <p>Setter for the field <code>maxValue</code>.</p>
-	 *
-	 * @param maxValue the maxValue to set
+	 * <p>
+	 * Setter for the field <code>maxValue</code>.
+	 * </p>
+	 * 
+	 * @param maxValue
+	 *            the maxValue to set
 	 */
 	public void setMaxValue(String maxValue) {
 		this.maxValue = maxValue;
 	}
-	
+
 	/*
 	 * store the working value here
 	 */
@@ -98,26 +113,29 @@ public class StringVariable extends StringExpression implements Variable<String>
 	}
 
 	/**
-	 * <p>Setter for the field <code>minValue</code>.</p>
-	 *
-	 * @param minValue the minValue to set
+	 * <p>
+	 * Setter for the field <code>minValue</code>.
+	 * </p>
+	 * 
+	 * @param minValue
+	 *            the minValue to set
 	 */
 	public void setMinValue(String minValue) {
 		this.minValue = minValue;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String getName() {
 		return name;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
 		return name + "(" + minValue + ")";
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
@@ -136,7 +154,7 @@ public class StringVariable extends StringExpression implements Variable<String>
 		}
 		return hash;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
@@ -147,7 +165,7 @@ public class StringVariable extends StringExpression implements Variable<String>
 	@Override
 	public String execute() {
 		return minValue;
-		
+
 	}
 
 }

@@ -27,40 +27,50 @@ import java.util.logging.Logger;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 
-
 /**
- * <p>StringBinaryExpression class.</p>
- *
+ * <p>
+ * StringBinaryExpression class.
+ * </p>
+ * 
  * @author krusev
  */
 public class StringBinaryExpression extends StringExpression implements
-BinaryExpression<String>{
+		BinaryExpression<String> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringBinaryExpression");
-	
+	static Logger log = JPF
+			.getLogger("org.evosuite.symbolic.expr.StringBinaryExpression");
+
 	protected String concretValue;
 
-	protected Operator op;
+	protected final Operator op;
 
-	protected Expression<String> left;
-	protected Expression<?> right;
+	protected final Expression<String> left;
+	protected final Expression<?> right;
 
 	/**
-	 * <p>Constructor for StringBinaryExpression.</p>
-	 *
-	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param con a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for StringBinaryExpression.
+	 * </p>
+	 * 
+	 * @param left2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con
+	 *            a {@link java.lang.String} object.
 	 */
 	public StringBinaryExpression(Expression<String> left2, Operator op2,
-	        Expression<?> right2, String con) {
+			Expression<?> right2, String con) {
 		this.concretValue = con;
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
+		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
+				|| this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -103,15 +113,17 @@ BinaryExpression<String>{
 		}
 		if (obj instanceof StringBinaryExpression) {
 			StringBinaryExpression other = (StringBinaryExpression) obj;
-			return this.op.equals(other.op) 
+			return this.op.equals(other.op)
 					&& this.getSize() == other.getSize()
-			        && this.left.equals(other.left) && this.right.equals(other.right);
+					&& this.left.equals(other.left)
+					&& this.right.equals(other.right);
 		}
 
 		return false;
 	}
-	
+
 	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
@@ -124,29 +136,29 @@ BinaryExpression<String>{
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		String first = (String)left.execute();
+		String first = (String) left.execute();
 		Object second = right.execute();
 		long ch;
-		
+
 		switch (op) {
-		
+
 		case COMPARETO:
-			return Integer.toString(first.compareTo((String)second));
+			return Integer.toString(first.compareTo((String) second));
 		case COMPARETOIGNORECASE:
-			return Integer.toString(first.compareToIgnoreCase((String)second));
+			return Integer.toString(first.compareToIgnoreCase((String) second));
 		case CONCAT:
-			return first.concat((String)second);
+			return first.concat((String) second);
 		case INDEXOFC:
 			ch = ExpressionHelper.getLongResult(right);
-			return Integer.toString(first.indexOf((char)ch));
+			return Integer.toString(first.indexOf((char) ch));
 		case INDEXOFS:
-			return Integer.toString(first.indexOf((String)second));
+			return Integer.toString(first.indexOf((String) second));
 		case LASTINDEXOFC:
 			ch = ExpressionHelper.getLongResult(right);
-			return Integer.toString(first.lastIndexOf((char)ch));
+			return Integer.toString(first.lastIndexOf((char) ch));
 		case LASTINDEXOFS:
-			return Integer.toString(first.lastIndexOf((String)second));
-		case APPEND: 
+			return Integer.toString(first.lastIndexOf((String) second));
+		case APPEND:
 			return first + ((String) second);
 		case CHARAT:
 			int indx = (int) ExpressionHelper.getLongResult(right);
@@ -155,9 +167,7 @@ BinaryExpression<String>{
 			log.warning("StringBinaryExpression: unimplemented operator!");
 			return null;
 		}
-		
-		
-		
+
 	}
 
 }

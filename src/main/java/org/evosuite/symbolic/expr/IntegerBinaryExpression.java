@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -26,34 +25,44 @@ import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+
 public class IntegerBinaryExpression extends IntegerExpression implements
-        BinaryExpression<Long> {
+		BinaryExpression<Long> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.IntegerBinaryExpression");
-	
+	static Logger log = JPF
+			.getLogger("org.evosuite.symbolic.expr.IntegerBinaryExpression");
+
 	protected Long concretValue;
 
-	protected Operator op;
+	protected final Operator op;
 
-	protected Expression<Long> left;
-	protected Expression<Long> right;
+	protected final Expression<Long> left;
+	protected final Expression<Long> right;
 
 	/**
-	 * <p>Constructor for IntegerBinaryExpression.</p>
-	 *
-	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param con a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for IntegerBinaryExpression.
+	 * </p>
+	 * 
+	 * @param left2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con
+	 *            a {@link java.lang.Long} object.
 	 */
 	public IntegerBinaryExpression(Expression<Long> left2, Operator op2,
-	        Expression<Long> right2, Long con) {
+			Expression<Long> right2, Long con) {
 		this.concretValue = con;
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
+		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
+				|| this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -63,6 +72,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	public Long getConcreteValue() {
 		return concretValue;
 	}
+	
+
 
 	/** {@inheritDoc} */
 	@Override
@@ -96,15 +107,17 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		}
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
-			return this.op.equals(other.op) 
+			return this.op.equals(other.op)
 					&& this.getSize() == other.getSize()
-			        && this.left.equals(other.left) && this.right.equals(other.right);
+					&& this.left.equals(other.left)
+					&& this.right.equals(other.right);
 		}
 
 		return false;
 	}
 
 	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
@@ -119,9 +132,9 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	public Long execute() {
 		long leftVal = ExpressionHelper.getLongResult(left);
 		long rightVal = ExpressionHelper.getLongResult(right);
-		
+
 		switch (op) {
-		
+
 		case SHL:
 			return leftVal << rightVal;
 		case SHR:
@@ -141,15 +154,15 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 			return leftVal * rightVal;
 		case MINUS:
 			return leftVal - rightVal;
-		case PLUS: 
+		case PLUS:
 			return leftVal + rightVal;
-		case REM: 
-			return leftVal % rightVal;	
+		case REM:
+			return leftVal % rightVal;
 		case MAX:
 			return Math.max(leftVal, rightVal);
 		case MIN:
 			return Math.min(leftVal, rightVal);
-		
+
 		default:
 			log.warning("IntegerBinaryExpression: unimplemented operator!");
 			return null;

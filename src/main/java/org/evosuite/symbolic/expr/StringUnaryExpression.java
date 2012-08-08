@@ -25,40 +25,49 @@ import java.util.logging.Logger;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 
-
 import gov.nasa.jpf.JPF;
 
 /**
- * <p>StringUnaryExpression class.</p>
- *
+ * <p>
+ * StringUnaryExpression class.
+ * </p>
+ * 
  * @author krusev
  */
 public class StringUnaryExpression extends StringExpression implements
-UnaryExpression<String>{
+		UnaryExpression<String> {
 
 	private static final long serialVersionUID = -384874147850376188L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.StringUnaryExpression");
-	
+	static Logger log = JPF
+			.getLogger("org.evosuite.symbolic.expr.StringUnaryExpression");
+
 	protected String concretValue;
 
-	//protected int conretIntValue;
-	
-	protected Operator op;
+	// protected int conretIntValue;
 
-	protected Expression<String> left;
+	protected final Operator op;
+
+	protected final Expression<String> expr;
 
 	/**
-	 * <p>Constructor for StringUnaryExpression.</p>
-	 *
-	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param con a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for StringUnaryExpression.
+	 * </p>
+	 * 
+	 * @param param
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param con
+	 *            a {@link java.lang.String} object.
 	 */
-	public StringUnaryExpression(Expression<String> left2, Operator op2, String con) {
+	public StringUnaryExpression(Expression<String> param, Operator op2,
+			String con) {
 		this.concretValue = con;
-		this.left = left2;
+		this.expr = param;
 		this.op = op2;
+		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -78,13 +87,13 @@ UnaryExpression<String>{
 	/** {@inheritDoc} */
 	@Override
 	public Expression<String> getOperand() {
-		return left;
+		return expr;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return left + "." + op.toString().trim() + "(" + ")";
+		return expr + "." + op.toString().trim() + "(" + ")";
 	}
 
 	/** {@inheritDoc} */
@@ -95,31 +104,30 @@ UnaryExpression<String>{
 		}
 		if (obj instanceof StringUnaryExpression) {
 			StringUnaryExpression other = (StringUnaryExpression) obj;
-			return this.op.equals(other.op) 
-			        && this.left.equals(other.left);
+			return this.op.equals(other.op) && this.expr.equals(other.expr);
 		}
 
 		return false;
 	}
 
-	protected int size=0;
+	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
-		if(size == 0)
-		{
-			size=1 + left.getSize();
+		if (size == 0) {
+			size = 1 + expr.getSize();
 		}
 		return size;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		String exOn = (String)left.execute();
-		
+		String exOn = (String) expr.execute();
+
 		switch (op) {
-		
+
 		case TOLOWERCASE:
 			return exOn.toLowerCase();
 		case TOUPPERCASE:
@@ -131,7 +139,7 @@ UnaryExpression<String>{
 		default:
 			log.warning("StringUnaryExpression: unimplemented operator!");
 			return null;
-		}		
+		}
 	}
 
 }
