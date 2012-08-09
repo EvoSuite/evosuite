@@ -64,6 +64,7 @@ public final class StringFunctionCallVM extends AbstractVM {
 		addStringFunctionToTable(new CompareTo(env));
 		addStringFunctionToTable(new CompareToIgnoreCase(env));
 		addStringFunctionToTable(new Concat(env));
+		addStringFunctionToTable(new Contains(env));
 		addStringFunctionToTable(new EndsWith(env));
 		addStringFunctionToTable(new Equals(env));
 		addStringFunctionToTable(new EqualsIgnoreCase(env));
@@ -76,6 +77,7 @@ public final class StringFunctionCallVM extends AbstractVM {
 		addStringFunctionToTable(new LastIndexOf.LastIndexOf_CI(env));
 		addStringFunctionToTable(new LastIndexOf.LastIndexOf_SI(env));
 		addStringFunctionToTable(new Length(env));
+		addStringFunctionToTable(new RegionMatches(env));
 		addStringFunctionToTable(new Replace.Replace_C(env));
 		addStringFunctionToTable(new Replace.Replace_CS(env));
 		addStringFunctionToTable(new ReplaceAll(env));
@@ -120,6 +122,17 @@ public final class StringFunctionCallVM extends AbstractVM {
 			return; // do nothing
 		}
 		f.INVOKEVIRTUAL(receiver);
+	}
+	
+	@Override
+	public void INVOKEVIRTUAL(String owner, String name,
+			String desc) {
+		StringFunction f = this.getStringFunction(owner, name, desc);
+		if (f == null) {
+			// Unsupported string function
+			return; // do nothing
+		}
+		f.INVOKEVIRTUAL();
 	}
 
 	@Override
