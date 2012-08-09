@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringBinaryExpression;
+import org.evosuite.symbolic.expr.StringComparison;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
@@ -45,9 +46,8 @@ public final class Equals extends StringFunction {
 				&& (stringReceiverExpr.containsSymbolicVariable() || strExpr
 						.containsSymbolicVariable())) {
 			int conV = res ? 1 : 0;
-			StringBinaryExpression strBExpr = new StringBinaryExpression(
-					stringReceiverExpr, Operator.EQUALS, strExpr,
-					Integer.toString(conV));
+			StringComparison strBExpr = new StringComparison(
+					stringReceiverExpr, Operator.EQUALS, strExpr, (long) conV);
 			StringToIntCast castExpr = new StringToIntCast(strBExpr,
 					(long) conV);
 			this.replaceBv32Top(castExpr);
