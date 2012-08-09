@@ -16,7 +16,7 @@ public abstract class Round extends MathFunction {
 	public static class Round_D extends Round {
 
 		public Round_D() {
-			super("java.lang.Math", "round", MathFunctionCallVM.D2D_DESCRIPTOR);
+			super("java.lang.Math", "round", MathFunction.D2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -34,7 +34,7 @@ public abstract class Round extends MathFunction {
 	public static class Round_F extends Round {
 
 		public Round_F() {
-			super("java.lang.Math", "round", MathFunctionCallVM.F2F_DESCRIPTOR);
+			super("java.lang.Math", "round", MathFunction.F2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {

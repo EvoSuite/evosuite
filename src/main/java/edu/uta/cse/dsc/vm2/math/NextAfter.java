@@ -17,7 +17,7 @@ public abstract class NextAfter extends MathFunction {
 
 		public NextAfter_D() {
 			super("java.lang.Math", "nextAfter",
-					MathFunctionCallVM.DD2D_DESCRIPTOR);
+					MathFunction.DD2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -39,7 +39,7 @@ public abstract class NextAfter extends MathFunction {
 
 		public NextAfter_F() {
 			super("java.lang.Math", "nextAfter",
-					MathFunctionCallVM.FD2F_DESCRIPTOR);
+					MathFunction.FD2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {

@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class CBRT extends MathFunction {
 
 	public CBRT() {
-		super("cbrt", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("cbrt", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

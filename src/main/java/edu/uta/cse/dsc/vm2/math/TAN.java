@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class TAN extends MathFunction {
 
 	public TAN() {
-		super("tan", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("tan", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

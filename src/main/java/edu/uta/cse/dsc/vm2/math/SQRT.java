@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class SQRT extends MathFunction {
 
 	public SQRT() {
-		super("sqrt", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("sqrt", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

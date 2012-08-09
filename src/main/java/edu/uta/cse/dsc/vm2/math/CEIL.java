@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class CEIL extends MathFunction {
 
 	public CEIL() {
-		super("ceil", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("ceil", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

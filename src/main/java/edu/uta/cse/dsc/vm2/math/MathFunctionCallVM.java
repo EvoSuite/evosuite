@@ -9,7 +9,6 @@ import java.util.Stack;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealExpression;
-import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
 import edu.uta.cse.dsc.vm2.Bv32Operand;
@@ -43,7 +42,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 	}
 
 	private void fillMathFunctionTable() {
-		mathFunctions.clear();
+		mathFunctionTable.clear();
 
 		addMathFunction(new ABS.ABS_I());
 		addMathFunction(new ABS.ABS_L());
@@ -98,7 +97,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 
 	private void addMathFunction(MathFunction v) {
 		FunctionKey k = new FunctionKey(v.getOwner(), v.getName(), v.getDesc());
-		mathFunctions.put(k, v);
+		mathFunctionTable.put(k, v);
 	}
 
 	/**
@@ -113,30 +112,30 @@ public final class MathFunctionCallVM extends AbstractVM {
 			return; // do nothing
 		}
 
-		if (desc.equals(MathFunctionCallVM.D2D_DESCRIPTOR)
-				|| desc.equals(MathFunctionCallVM.D2L_DESCRIPTOR)
-				|| desc.equals(MathFunctionCallVM.D2I_DESCRIPTOR)) {
+		if (desc.equals(MathFunction.D2D_DESCRIPTOR)
+				|| desc.equals(MathFunction.D2L_DESCRIPTOR)
+				|| desc.equals(MathFunction.D2I_DESCRIPTOR)) {
 
 			RealExpression param = env.topFrame().operandStack.peekFp64();
 			math_params.push(param);
 
-		} else if (desc.equals(MathFunctionCallVM.I2I_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.I2I_DESCRIPTOR)) {
 
 			IntegerExpression param = env.topFrame().operandStack.peekBv32();
 			math_params.push(param);
 
-		} else if (desc.equals(MathFunctionCallVM.L2L_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.L2L_DESCRIPTOR)) {
 
 			IntegerExpression param = env.topFrame().operandStack.peekBv64();
 			math_params.push(param);
 
-		} else if (desc.equals(MathFunctionCallVM.F2F_DESCRIPTOR)
-				|| desc.equals(MathFunctionCallVM.F2I_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.F2F_DESCRIPTOR)
+				|| desc.equals(MathFunction.F2I_DESCRIPTOR)) {
 
 			RealExpression param = env.topFrame().operandStack.peekFp32();
 			math_params.push(param);
 
-		} else if (desc.equals(MathFunctionCallVM.DD2D_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.DD2D_DESCRIPTOR)) {
 
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			RealExpression left = fp64(it.next());
@@ -145,7 +144,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 			math_params.push(left);
 			math_params.push(right);
 
-		} else if (desc.equals(MathFunctionCallVM.II2I_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.II2I_DESCRIPTOR)) {
 
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			IntegerExpression left = bv32(it.next());
@@ -154,7 +153,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 			math_params.push(left);
 			math_params.push(right);
 
-		} else if (desc.equals(MathFunctionCallVM.LL2L_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.LL2L_DESCRIPTOR)) {
 
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			IntegerExpression left = bv64(it.next());
@@ -163,7 +162,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 			math_params.push(left);
 			math_params.push(right);
 
-		} else if (desc.equals(MathFunctionCallVM.FF2F_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.FF2F_DESCRIPTOR)) {
 
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			RealExpression left = fp32(it.next());
@@ -172,7 +171,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 			math_params.push(left);
 			math_params.push(right);
 
-		} else if (desc.equals(MathFunctionCallVM.FI2F_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.FI2F_DESCRIPTOR)) {
 
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			RealExpression left = fp32(it.next());
@@ -181,7 +180,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 			math_params.push(left);
 			math_params.push(right);
 
-		} else if (desc.equals(MathFunctionCallVM.FD2F_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.FD2F_DESCRIPTOR)) {
 
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			RealExpression left = fp32(it.next());
@@ -190,7 +189,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 			math_params.push(left);
 			math_params.push(right);
 
-		} else if (desc.equals(MathFunctionCallVM.DI2D_DESCRIPTOR)) {
+		} else if (desc.equals(MathFunction.DI2D_DESCRIPTOR)) {
 
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			RealExpression left = fp64(it.next());
@@ -255,53 +254,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 		}
 	}
 
-	private HashMap<FunctionKey, MathFunction> mathFunctions = new HashMap<FunctionKey, MathFunction>();
-
-	// homogeneuos unary descriptors
-	public static final String I2I_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.INT_TYPE, Type.INT_TYPE); // "(I)I";
-
-	public static final String L2L_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.LONG_TYPE, Type.LONG_TYPE);// "(J)J";
-
-	public static final String F2F_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.FLOAT_TYPE, Type.FLOAT_TYPE);// "(F)F";
-
-	// heterogeneous unary descriptors
-	public static final String F2I_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.INT_TYPE, Type.FLOAT_TYPE);// "(F)I";
-
-	// homogeneuos binary descriptors
-	public static final String II2I_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.INT_TYPE, Type.INT_TYPE, Type.INT_TYPE);// "(II)I";
-
-	public static final String LL2L_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.LONG_TYPE, Type.LONG_TYPE, Type.LONG_TYPE);// "(JJ)J";
-
-	public static final String FF2F_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.FLOAT_TYPE);// "(FF)F";
-
-	// heterogeneous binary descriptors
-	public static final String FI2F_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.INT_TYPE);// "(FI)F";
-
-	public static final String FD2F_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.FLOAT_TYPE, Type.FLOAT_TYPE, Type.DOUBLE_TYPE);// "(FD)F";
-
-	public static final String DI2D_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.DOUBLE_TYPE, Type.DOUBLE_TYPE, Type.INT_TYPE);// "(DI)D";
-
-	public static final String D2I_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.INT_TYPE, Type.DOUBLE_TYPE);// "(D)I";
-
-	public static final String D2L_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.LONG_TYPE, Type.DOUBLE_TYPE);// "(D)J";
-
-	public static final String DD2D_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.DOUBLE_TYPE, Type.DOUBLE_TYPE, Type.DOUBLE_TYPE);// "(DD)D";
-
-	public static final String D2D_DESCRIPTOR = Type.getMethodDescriptor(
-			Type.DOUBLE_TYPE, Type.DOUBLE_TYPE);// "(D)D";
+	private HashMap<FunctionKey, MathFunction> mathFunctionTable = new HashMap<FunctionKey, MathFunction>();
 
 	@Override
 	public void CALL_RESULT(double res, String owner, String name, String desc) {
@@ -320,7 +273,7 @@ public final class MathFunctionCallVM extends AbstractVM {
 	private MathFunction getMathFunction(String owner, String name, String desc) {
 		MathFunction f;
 		FunctionKey k = new FunctionKey(owner, name, desc);
-		f = mathFunctions.get(k);
+		f = mathFunctionTable.get(k);
 		return f;
 	}
 

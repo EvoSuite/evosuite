@@ -59,6 +59,7 @@ import edu.uta.cse.dsc.vm2.OtherVM;
 import edu.uta.cse.dsc.vm2.PathConstraint;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 import edu.uta.cse.dsc.vm2.math.MathFunctionCallVM;
+import edu.uta.cse.dsc.vm2.string.StringFunctionCallVM;
 
 /**
  * <p>
@@ -143,6 +144,7 @@ public class ConcolicExecution {
 		dsc_handler.addCustomVM(new OtherVM());
 		dsc_handler.addCustomVM(new ConcolicMarkerVM(env));
 		dsc_handler.addCustomVM(new MathFunctionCallVM(env));
+		dsc_handler.addCustomVM(new StringFunctionCallVM(env));
 
 		dsc_ret_val = dsc_handler
 				.mainEntry(new String[] {/*

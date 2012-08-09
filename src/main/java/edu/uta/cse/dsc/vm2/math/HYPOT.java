@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealExpression;
 public class HYPOT extends MathFunction {
 
 	public HYPOT() {
-		super("hypot", MathFunctionCallVM.DD2D_DESCRIPTOR);
+		super("hypot", MathFunction.DD2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

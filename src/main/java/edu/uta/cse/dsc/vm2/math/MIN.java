@@ -18,7 +18,7 @@ public abstract class MIN extends MathFunction {
 	public static class MIN_D extends MIN {
 
 		public MIN_D() {
-			super("java.lang.Math", "min", MathFunctionCallVM.DD2D_DESCRIPTOR);
+			super("java.lang.Math", "min", MathFunction.DD2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -38,7 +38,7 @@ public abstract class MIN extends MathFunction {
 	public static class MIN_F extends MIN {
 
 		public MIN_F() {
-			super("java.lang.Math", "min", MathFunctionCallVM.FF2F_DESCRIPTOR);
+			super("java.lang.Math", "min", MathFunction.FF2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {
@@ -58,7 +58,7 @@ public abstract class MIN extends MathFunction {
 	public static class MIN_I extends MIN {
 
 		public MIN_I() {
-			super("java.lang.Math", "min", MathFunctionCallVM.II2I_DESCRIPTOR);
+			super("java.lang.Math", "min", MathFunction.II2I_DESCRIPTOR);
 		}
 
 		public IntegerExpression execute(Stack<Expression<?>> params, int res) {
@@ -78,7 +78,7 @@ public abstract class MIN extends MathFunction {
 	public static class MIN_L extends MIN {
 
 		public MIN_L() {
-			super("java.lang.Math", "abs", MathFunctionCallVM.LL2L_DESCRIPTOR);
+			super("java.lang.Math", "abs", MathFunction.LL2L_DESCRIPTOR);
 		}
 
 		public IntegerExpression execute(Stack<Expression<?>> params, long res) {

@@ -13,7 +13,7 @@ public abstract class CopySign extends MathFunction {
 
 		public CopySign_F() {
 			super("java.lang.Math", "copySign",
-					MathFunctionCallVM.FF2F_DESCRIPTOR);
+					MathFunction.FF2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {
@@ -34,8 +34,8 @@ public abstract class CopySign extends MathFunction {
 	public static class CopySign_D extends CopySign {
 
 		public CopySign_D() {
-			super("java.lang.Math", "nextAfter",
-					MathFunctionCallVM.DD2D_DESCRIPTOR);
+			super("java.lang.Math", "copySign",
+					MathFunction.DD2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -43,7 +43,7 @@ public abstract class CopySign extends MathFunction {
 			RealExpression left = (RealExpression) params.pop();
 			if (left.containsSymbolicVariable()
 					|| right.containsSymbolicVariable()) {
-				Operator op = Operator.NEXTAFTER;
+				Operator op = Operator.COPYSIGN;
 				return new RealBinaryExpression(left, op, right, res);
 			} else {
 				return null;
