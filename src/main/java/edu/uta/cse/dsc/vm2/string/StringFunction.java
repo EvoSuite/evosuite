@@ -125,7 +125,6 @@ public abstract class StringFunction {
 	}
 
 	protected void throwException(Exception ex) {
-		this.env.topFrame().operandStack.clearOperands();
 		this.env.topFrame().operandStack.pushRef(ex);
 	}
 
