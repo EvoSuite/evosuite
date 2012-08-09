@@ -58,6 +58,7 @@ import edu.uta.cse.dsc.vm2.LocalsVM;
 import edu.uta.cse.dsc.vm2.OtherVM;
 import edu.uta.cse.dsc.vm2.PathConstraint;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
+import edu.uta.cse.dsc.vm2.math.MathFunctionCallVM;
 
 /**
  * <p>
@@ -141,13 +142,13 @@ public class ConcolicExecution {
 		dsc_handler.addCustomVM(new ArithmeticVM(env, pc));
 		dsc_handler.addCustomVM(new OtherVM());
 		dsc_handler.addCustomVM(new ConcolicMarkerVM(env));
+		dsc_handler.addCustomVM(new MathFunctionCallVM(env));
 
 		dsc_ret_val = dsc_handler
 				.mainEntry(new String[] {/*
 										 * "conf_evo_dumper.txt" ,
 										 */targetName, "main" });
 
-		
 		logger.debug("Dsc ended!");
 		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {
 			logger.info("Dsc success");
