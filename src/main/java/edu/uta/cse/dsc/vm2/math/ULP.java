@@ -16,7 +16,7 @@ public abstract class ULP extends MathFunction {
 	public static class ULP_D extends ULP {
 
 		public ULP_D() {
-			super("java.lang.Math", "ulp", MathFunctionCallVM.D2D_DESCRIPTOR);
+			super("java.lang.Math", "ulp", MathFunction.D2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -34,7 +34,7 @@ public abstract class ULP extends MathFunction {
 	public static class ULP_F extends ULP {
 
 		public ULP_F() {
-			super("java.lang.Math", "ulp", MathFunctionCallVM.F2F_DESCRIPTOR);
+			super("java.lang.Math", "ulp", MathFunction.F2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {

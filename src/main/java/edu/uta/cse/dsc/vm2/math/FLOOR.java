@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class FLOOR extends MathFunction {
 
 	public FLOOR() {
-		super("floor", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("floor", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

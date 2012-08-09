@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class ToRadians extends MathFunction {
 
 	public ToRadians() {
-		super("toRadians", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("toRadians", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

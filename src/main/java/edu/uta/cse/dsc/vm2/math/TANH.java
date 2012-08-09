@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class TANH extends MathFunction {
 
 	public TANH() {
-		super("tanh", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("tanh", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

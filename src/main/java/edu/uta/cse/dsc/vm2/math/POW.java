@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealExpression;
 public class POW extends MathFunction {
 
 	public POW() {
-		super("pow", MathFunctionCallVM.DD2D_DESCRIPTOR);
+		super("pow", MathFunction.DD2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

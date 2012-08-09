@@ -485,9 +485,11 @@ public final class CallVM extends AbstractVM {
 	private boolean nullViolation(String methDesc, Object receiverValue) {
 
 		if (receiverValue == null) { // JVM will throw an exception
-			env.topFrame().operandStack.clearOperands(); // clear the operand
-															// stack
-			// push(); // TODO: Push new NullPointerException instance
+			
+			// clear operand stack
+			env.topFrame().operandStack.clearOperands(); 
+			// push thrown exception
+			env.topFrame().operandStack.pushRef(new NullPointerException());
 			return true;
 		}
 

@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class ATAN extends MathFunction {
 
 	public ATAN() {
-		super("atan", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("atan", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

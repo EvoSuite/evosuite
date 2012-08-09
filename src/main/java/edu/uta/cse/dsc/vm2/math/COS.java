@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class COS extends MathFunction {
 
 	public COS() {
-		super("cos", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("cos", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

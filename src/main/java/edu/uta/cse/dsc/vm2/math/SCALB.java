@@ -18,7 +18,7 @@ public abstract class SCALB extends MathFunction {
 
 		public SCALB_D() {
 			super("java.lang.Math", "scalb",
-					MathFunctionCallVM.DI2D_DESCRIPTOR);
+					MathFunction.DI2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -39,7 +39,7 @@ public abstract class SCALB extends MathFunction {
 
 		public SCALB_F() {
 			super("java.lang.Math", "scalb",
-					MathFunctionCallVM.FI2F_DESCRIPTOR);
+					MathFunction.FI2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {

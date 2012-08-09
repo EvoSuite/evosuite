@@ -17,7 +17,7 @@ public abstract class SIGNUM extends MathFunction {
 
 		public SIGNUM_D() {
 			super("java.lang.Math", "signum",
-					MathFunctionCallVM.D2D_DESCRIPTOR);
+					MathFunction.D2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -36,7 +36,7 @@ public abstract class SIGNUM extends MathFunction {
 
 		public SIGNUM_F() {
 			super("java.lang.Math", "signum",
-					MathFunctionCallVM.F2F_DESCRIPTOR);
+					MathFunction.F2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {

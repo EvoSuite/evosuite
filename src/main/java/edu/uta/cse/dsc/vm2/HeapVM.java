@@ -268,9 +268,11 @@ public final class HeapVM extends AbstractVM {
 		 */
 
 		if (instance == null) { // JVM will throw an exception
-			env.topFrame().operandStack.clearOperands(); // clear the operand
-															// stack
-			// push(); // TODO: Push new NullPointerException instance
+
+			// clear operand stack
+			env.topFrame().operandStack.clearOperands();
+			// push exception
+			env.topFrame().operandStack.pushRef(new NullPointerException());
 			return true;
 		}
 
@@ -299,9 +301,11 @@ public final class HeapVM extends AbstractVM {
 		pc.pushLocalConstraint(c);
 
 		if (valueConcrete < 0) { // JVM will throw an exception
-			env.topFrame().operandStack.clearOperands(); // clear the operand
-															// stack
-			// push(); // TODO: Push new NullPointerException instance
+			// clear operand stack
+			env.topFrame().operandStack.clearOperands();
+			// push exception
+			env.topFrame().operandStack
+					.pushRef(new NegativeArraySizeException());
 			return true;
 		}
 
@@ -345,8 +349,13 @@ public final class HeapVM extends AbstractVM {
 		pc.pushLocalConstraint(c);
 
 		if (indexConcrete >= lengthConcrete) { // JVM will throw an exception
-			env.topFrame().operandStack.clearOperands(); // clear the operand
-															// stack
+			// clear the operand
+			// stack
+			env.topFrame().operandStack.clearOperands();
+			// push exception
+			env.topFrame().operandStack
+					.pushRef(new IndexOutOfBoundsException());
+
 			return true;
 		}
 		return false;

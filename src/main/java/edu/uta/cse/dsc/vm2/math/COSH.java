@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class COSH extends MathFunction {
 
 	public COSH() {
-		super("cosh", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("cosh", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

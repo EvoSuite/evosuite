@@ -156,7 +156,8 @@ public final class LocalsVM extends AbstractVM {
 
 	@Override
 	public void LDC(String x) {
-		StringConstant strConstant = ExpressionFactory.buildNewStringConstant(x);
+		StringConstant strConstant = ExpressionFactory
+				.buildNewStringConstant(x);
 		env.topFrame().operandStack.pushStringRef(strConstant);
 
 	}
@@ -233,15 +234,8 @@ public final class LocalsVM extends AbstractVM {
 
 	@Override
 	public void ALOAD(int i) {
-		Object local = env.topFrame().localsTable.getRefLocal(i);
-
-		if (local instanceof String) {
-			String string = (String)local;
-			StringConstant strConstant = ExpressionFactory.buildNewStringConstant(string);
-			env.topFrame().operandStack.pushStringRef(strConstant);
-		} else {
-			env.topFrame().operandStack.pushRef(local);
-		}
+		Operand local = env.topFrame().localsTable.getOperand(i);
+		env.topFrame().operandStack.pushOperand(local);
 	}
 
 	/**
@@ -276,7 +270,7 @@ public final class LocalsVM extends AbstractVM {
 
 	@Override
 	public void ASTORE(int i) {
-		Object o = env.topFrame().operandStack.popRef();
-		env.topFrame().localsTable.setRefLocal(i, o);
+		Operand operand = env.topFrame().operandStack.popOperand();
+		env.topFrame().localsTable.setOperand(i, operand);
 	}
 }

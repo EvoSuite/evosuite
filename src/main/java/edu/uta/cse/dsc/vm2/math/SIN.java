@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class SIN extends MathFunction {
 
 	public SIN() {
-		super("sin", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("sin", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

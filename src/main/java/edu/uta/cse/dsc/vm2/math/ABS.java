@@ -18,7 +18,7 @@ public abstract class ABS extends MathFunction {
 	public static class ABS_D extends ABS {
 
 		public ABS_D() {
-			super("java.lang.Math", "abs", MathFunctionCallVM.D2D_DESCRIPTOR);
+			super("java.lang.Math", "abs", MathFunction.D2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {
@@ -36,7 +36,7 @@ public abstract class ABS extends MathFunction {
 	public static class ABS_F extends ABS {
 
 		public ABS_F() {
-			super("java.lang.Math", "abs", MathFunctionCallVM.F2F_DESCRIPTOR);
+			super("java.lang.Math", "abs", MathFunction.F2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {
@@ -54,7 +54,7 @@ public abstract class ABS extends MathFunction {
 	public static class ABS_I extends ABS {
 
 		public ABS_I() {
-			super("java.lang.Math", "abs", MathFunctionCallVM.I2I_DESCRIPTOR);
+			super("java.lang.Math", "abs", MathFunction.I2I_DESCRIPTOR);
 		}
 
 		public IntegerExpression execute(Stack<Expression<?>> params, int res) {
@@ -72,7 +72,7 @@ public abstract class ABS extends MathFunction {
 	public static class ABS_L extends ABS {
 
 		public ABS_L() {
-			super("java.lang.Math", "abs", MathFunctionCallVM.L2L_DESCRIPTOR);
+			super("java.lang.Math", "abs", MathFunction.L2L_DESCRIPTOR);
 		}
 
 		public IntegerExpression execute(Stack<Expression<?>> params, long res) {

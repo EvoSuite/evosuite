@@ -24,6 +24,11 @@ public final class LocalsTable {
 		return refOp.getReference();
 	}
 
+	public Operand getOperand(int i) {
+		Operand x = locals.get(i);
+		return x;
+	}
+	
 	public void setRefLocal(int i, Object o) {
 		locals.set(i, new ReferenceOperand(o));
 	}

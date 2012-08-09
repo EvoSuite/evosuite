@@ -13,7 +13,7 @@ public abstract class GetExponent extends MathFunction {
 
 		public GetExponent_F() {
 			super("java.lang.Math", "getExponent",
-					MathFunctionCallVM.F2F_DESCRIPTOR);
+					MathFunction.F2F_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, float res) {
@@ -36,7 +36,7 @@ public abstract class GetExponent extends MathFunction {
 
 		public GetExponent_D() {
 			super("java.lang.Math", "getExponent",
-					MathFunctionCallVM.D2D_DESCRIPTOR);
+					MathFunction.D2D_DESCRIPTOR);
 		}
 
 		public RealExpression execute(Stack<Expression<?>> params, double res) {

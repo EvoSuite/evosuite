@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class ASIN extends MathFunction {
 
 	public ASIN() {
-		super("asin", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("asin", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

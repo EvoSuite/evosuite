@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class ToDegrees extends MathFunction {
 
 	public ToDegrees() {
-		super("toDegrees", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("toDegrees", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

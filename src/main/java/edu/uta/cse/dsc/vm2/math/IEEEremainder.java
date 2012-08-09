@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealExpression;
 public class IEEEremainder extends MathFunction {
 
 	public IEEEremainder() {
-		super("IEEEremainder", MathFunctionCallVM.DD2D_DESCRIPTOR);
+		super("IEEEremainder", MathFunction.DD2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

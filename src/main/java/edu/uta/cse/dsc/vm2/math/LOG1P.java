@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class LOG1P extends MathFunction {
 
 	public LOG1P() {
-		super("log1p", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("log1p", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class ACOS extends MathFunction {
 
 	public ACOS() {
-		super("acos", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("acos", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {

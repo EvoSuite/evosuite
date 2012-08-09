@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.RealUnaryExpression;
 public class RINT extends MathFunction {
 
 	public RINT() {
-		super("rint", MathFunctionCallVM.D2D_DESCRIPTOR);
+		super("rint", MathFunction.D2D_DESCRIPTOR);
 	}
 
 	public RealExpression execute(Stack<Expression<?>> params, double res) {
