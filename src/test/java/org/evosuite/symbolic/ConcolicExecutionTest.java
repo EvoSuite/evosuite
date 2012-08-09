@@ -357,7 +357,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase30",
 						System.getProperty("java.class.path"));
 
-		assertEquals(0, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 
 	}
 	
@@ -379,7 +379,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase32",
 						System.getProperty("java.class.path"));
 
-		assertEquals(0, branch_conditions.size());
+		assertEquals(2, branch_conditions.size());
 
 	}
 	
@@ -423,7 +423,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase36",
 						System.getProperty("java.class.path"));
 
-		assertEquals(0, branch_conditions.size());
+		assertEquals(3, branch_conditions.size());
 
 	}
 	
@@ -501,7 +501,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase43",
 						System.getProperty("java.class.path"));
 
-		assertEquals(0, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 
 	}
 	
@@ -534,7 +534,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase46",
 						System.getProperty("java.class.path"));
 
-		assertEquals(3, branch_conditions.size());
+		assertEquals(22, branch_conditions.size());
 
 	}
 	
@@ -771,7 +771,7 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase69",
 						System.getProperty("java.class.path"));
 		
-		assertEquals(4, branch_conditions.size());
+		assertEquals(264, branch_conditions.size());
 
 	}
 }
