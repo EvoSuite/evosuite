@@ -30,6 +30,10 @@ public abstract class StringFunction {
 		this.desc = desc;
 	}
 
+	public void INVOKEVIRTUAL() {
+		/* STUB */
+	}
+
 	public final void INVOKEVIRTUAL(Object receiver) {
 		/**
 		 * We do nothing if receiver is null since we assume HeapVM deals with
@@ -158,4 +162,5 @@ public abstract class StringFunction {
 	protected static boolean isNullRef(ReferenceOperand ref) {
 		return ref.getReference() == null;
 	}
+
 }
