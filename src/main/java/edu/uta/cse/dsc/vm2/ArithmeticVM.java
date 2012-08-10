@@ -83,7 +83,12 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void POP() {
-		env.topFrame().operandStack.POP();
+		OperandStack stack = env.topFrame().operandStack;
+		Operand a = stack.popOperand();
+		if (!(a instanceof SingleWordOperand)) {
+			throw new IllegalStateException(
+					"pop should be applied iif top is SingleWordOperand");
+		}
 	}
 
 	/**
@@ -97,7 +102,15 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void POP2() {
-		env.topFrame().operandStack.POP2();
+		OperandStack stack = env.topFrame().operandStack;
+		Operand top = stack.popOperand();
+
+		if (top instanceof DoubleWordOperand)
+			/* Form 2 */
+			return;
+
+		/* Form 1 */
+		Operand b = stack.popOperand();
 	}
 
 	/**
@@ -106,7 +119,8 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP() {
-		env.topFrame().operandStack.DUP();
+		Operand x = env.topFrame().operandStack.peekOperand();
+		env.topFrame().operandStack.pushOperand(x);
 	}
 
 	/**
@@ -115,7 +129,14 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP_X1() {
-		env.topFrame().operandStack.DUP_X1();
+		OperandStack stack = env.topFrame().operandStack;
+
+		Operand a = stack.popOperand();
+		Operand b = stack.popOperand();
+
+		stack.pushOperand(a);
+		stack.pushOperand(b);
+		stack.pushOperand(a);
 	}
 
 	/**
@@ -124,7 +145,22 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP_X2() {
-		env.topFrame().operandStack.DUP_X2();
+		OperandStack stack = env.topFrame().operandStack;
+
+		Operand a = stack.popOperand();
+		Operand b = stack.popOperand();
+
+		if (b instanceof SingleWordOperand) {
+			Operand c = stack.popOperand();
+			stack.pushOperand(a);
+			stack.pushOperand(c);
+			stack.pushOperand(b);
+			stack.pushOperand(a);
+		} else {
+			stack.pushOperand(a);
+			stack.pushOperand(b);
+			stack.pushOperand(a);
+		}
 	}
 
 	/**
@@ -133,7 +169,22 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP2() {
-		env.topFrame().operandStack.DUP2();
+		OperandStack stack = env.topFrame().operandStack;
+		Operand a = stack.popOperand();
+
+		if (a instanceof SingleWordOperand) {
+			/* Form 1 */
+			Operand b = stack.popOperand();
+			stack.pushOperand(b);
+			stack.pushOperand(a);
+			stack.pushOperand(b);
+			stack.pushOperand(a);
+		} else {
+			/* Form 2 */
+			stack.pushOperand(a);
+			stack.pushOperand(a);
+		}
+
 	}
 
 	/**
@@ -142,7 +193,29 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP2_X1() {
-		env.topFrame().operandStack.DUP2_X1();
+		OperandStack stack = env.topFrame().operandStack;
+
+		Operand expression = stack.popOperand();
+
+		if (expression instanceof SingleWordOperand) {
+			/* Form 1 */
+			Operand a = expression;
+			Operand b = stack.popOperand();
+			Operand c = stack.popOperand();
+			stack.pushOperand(b);
+			stack.pushOperand(a);
+			stack.pushOperand(c);
+			stack.pushOperand(b);
+			stack.pushOperand(a);
+		} else {
+			/* Form 2 */
+			Operand a = expression;
+			Operand b = stack.popOperand();
+			stack.pushOperand(a);
+			stack.pushOperand(b);
+			stack.pushOperand(a);
+		}
+
 	}
 
 	/**
@@ -151,7 +224,55 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP2_X2() {
-		env.topFrame().operandStack.DUP2_X2();
+		OperandStack stack = env.topFrame().operandStack;
+
+		Operand first = stack.popOperand();
+		Operand second = stack.popOperand();
+
+		if (first instanceof DoubleWordOperand) {
+			Operand a = first;
+
+			if (second instanceof DoubleWordOperand) {
+				/* Form 4 */
+				Operand b = second;
+				stack.pushOperand(a);
+				stack.pushOperand(b);
+				stack.pushOperand(a);
+			} else {
+				/* Form 2 */
+				Operand b = second;
+				Operand c = stack.popOperand();
+				stack.pushOperand(a);
+				stack.pushOperand(c);
+				stack.pushOperand(b);
+				stack.pushOperand(a);
+			}
+		} else {
+			Operand a = first;
+			Operand b = second;
+			Operand third = stack.popOperand();
+
+			if (third instanceof DoubleWordOperand) {
+				/* Form 3 */
+				Operand c = third;
+				stack.pushOperand(b);
+				stack.pushOperand(a);
+				stack.pushOperand(c);
+				stack.pushOperand(b);
+				stack.pushOperand(a);
+			} else {
+				/* Form 1 */
+				Operand c = third;
+				Operand d = stack.popOperand();
+				stack.pushOperand(b);
+				stack.pushOperand(a);
+				stack.pushOperand(d);
+				stack.pushOperand(c);
+				stack.pushOperand(b);
+				stack.pushOperand(a);
+			}
+		}
+
 	}
 
 	/**
@@ -160,7 +281,11 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void SWAP() {
-		env.topFrame().operandStack.SWAP();
+		OperandStack stack = env.topFrame().operandStack;
+		Operand a = stack.popOperand();
+		Operand b = stack.popOperand();
+		stack.pushOperand(a);
+		stack.pushOperand(b);
 	}
 
 	/**
@@ -785,8 +910,8 @@ public final class ArithmeticVM extends AbstractVM {
 		}
 		float con = -param_concrete_value;
 
-		RealExpression realExpr = new RealUnaryExpression(param,
-				Operator.NEG, (double) con);
+		RealExpression realExpr = new RealUnaryExpression(param, Operator.NEG,
+				(double) con);
 
 		env.topFrame().operandStack.pushFp32(realExpr);
 	}
@@ -804,8 +929,8 @@ public final class ArithmeticVM extends AbstractVM {
 		}
 		double con = -param_concrete_value;
 
-		RealExpression realExpr = new RealUnaryExpression(param,
-				Operator.NEG, con);
+		RealExpression realExpr = new RealUnaryExpression(param, Operator.NEG,
+				con);
 
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}
