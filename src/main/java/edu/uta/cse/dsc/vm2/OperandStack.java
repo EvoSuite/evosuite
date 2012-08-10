@@ -78,9 +78,6 @@ public final class OperandStack {
 		return ret_val;
 	}
 
-	private boolean isCategory2(Object b) {
-		return b instanceof DoubleWordOperand;
-	}
 
 	public void clearOperands() {
 		stack.clear();
