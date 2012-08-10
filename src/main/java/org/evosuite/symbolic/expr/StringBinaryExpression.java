@@ -164,7 +164,7 @@ public class StringBinaryExpression extends StringExpression implements
 			int indx = (int) ExpressionHelper.getLongResult(right);
 			return Character.toString(first.charAt(indx));
 		default:
-			log.warning("StringBinaryExpression: unimplemented operator!");
+			log.warning("StringBinaryExpression: unimplemented operator! Operator" + op.toString());
 			return null;
 		}
 
