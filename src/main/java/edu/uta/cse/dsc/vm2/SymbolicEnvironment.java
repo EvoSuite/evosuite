@@ -1,7 +1,7 @@
 package edu.uta.cse.dsc.vm2;
 
-import edu.uta.cse.dsc.DscHandler;
 import edu.uta.cse.dsc.MainConfig;
+import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import gnu.trove.set.hash.THashSet;
 
 import java.lang.reflect.Field;
@@ -13,12 +13,6 @@ import java.util.Set;
 
 public final class SymbolicEnvironment {
 
-	private boolean isStopped = false;
-
-	public boolean isStopped() {
-		return isStopped;
-	}
-
 	/**
 	 * Stack of function/method/constructor invocation frames
 	 */
@@ -29,6 +23,12 @@ public final class SymbolicEnvironment {
 	 * dummy value.
 	 */
 	private final Set<Class<?>> preparedClasses = new THashSet<Class<?>>();
+
+	private final DscInstrumentingClassLoader classLoader;
+
+	public SymbolicEnvironment(DscInstrumentingClassLoader classLoader) {
+		this.classLoader = classLoader;
+	}
 
 	public Frame topFrame() {
 		return frames.peek();
@@ -51,7 +51,7 @@ public final class SymbolicEnvironment {
 
 	public Class<?> ensurePrepared(String className) {
 		Class<?> claz = null;
-		claz = DscHandler.getClassForName(className);
+		claz = classLoader.getClassForName(className);
 		ensurePrepared(claz);
 		return claz;
 	}

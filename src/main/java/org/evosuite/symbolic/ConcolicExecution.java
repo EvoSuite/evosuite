@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -45,10 +46,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import edu.uta.cse.dsc.DscHandler;
+import edu.uta.cse.dsc.IVM;
 import edu.uta.cse.dsc.MainConfig;
-import edu.uta.cse.dsc.SymbolicExecutionResult;
-import edu.uta.cse.dsc.ast.JvmVariable;
-import edu.uta.cse.dsc.pcdump.ast.DscBranchCondition;
+import edu.uta.cse.dsc.VM;
+import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import edu.uta.cse.dsc.vm2.ArithmeticVM;
 import edu.uta.cse.dsc.vm2.CallVM;
 import edu.uta.cse.dsc.vm2.ConcolicMarkerVM;
@@ -80,8 +81,6 @@ public class ConcolicExecution {
 
 	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
 			: new PrintStream(byteStream));
-
-	private PathConstraintCollector pcg;
 
 	private static File tempDir;
 	static {
@@ -119,8 +118,7 @@ public class ConcolicExecution {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	protected List<BranchCondition> executeConcolic(String targetName,
-			String classPath) {
+	List<BranchCondition> executeConcolic(String targetName, String classPath) {
 
 		logger.debug("Setting up Dsc");
 		logger.debug("Dsc target=" + targetName);
@@ -136,22 +134,27 @@ public class ConcolicExecution {
 		int dsc_ret_val;
 		PathConstraint pc = new PathConstraint();
 
-		SymbolicEnvironment env = new SymbolicEnvironment();
-		dsc_handler.addCustomVM(new CallVM(env));
-		dsc_handler.addCustomVM(new JumpVM(env, pc));
-		dsc_handler.addCustomVM(new HeapVM(env, pc));
-		dsc_handler.addCustomVM(new LocalsVM(env));
-		dsc_handler.addCustomVM(new ArithmeticVM(env, pc));
-		dsc_handler.addCustomVM(new OtherVM());
-		dsc_handler.addCustomVM(new ConcolicMarkerVM(env));
-		dsc_handler.addCustomVM(new MathFunctionCallVM(env));
-		dsc_handler.addCustomVM(new StringFunctionCallVM(env));
+		DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
+		DscHandler.classLoader = classLoader;
+
+		SymbolicEnvironment env = new SymbolicEnvironment(classLoader);
+		List<IVM> listeners = new ArrayList<IVM>();
+		listeners.add(new CallVM(env, classLoader));
+		listeners.add(new JumpVM(env, pc));
+		listeners.add(new HeapVM(env, pc, classLoader));
+		listeners.add(new LocalsVM(env));
+		listeners.add(new ArithmeticVM(env, pc));
+		listeners.add(new OtherVM());
+		listeners.add(new ConcolicMarkerVM(env));
+		listeners.add(new MathFunctionCallVM(env));
+		listeners.add(new StringFunctionCallVM(env));
+
+		VM.vm.setListeners(listeners);
 
 		dsc_ret_val = dsc_handler
 				.mainEntry(new String[] {/*
 										 * "conf_evo_dumper.txt" ,
 										 */targetName, "main" });
-
 
 		logger.debug("Dsc ended!");
 		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {
@@ -179,6 +182,59 @@ public class ConcolicExecution {
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a {@link java.util.List} object.
 	 */
+	public List<BranchCondition> getSymbolicPath_2(TestChromosome test) {
+
+		MainConfig.setInstance();
+		MainConfig.get().LOG_AST_COUNTS = false;
+		MainConfig.get().LOG_MODEL_COUNTS = false;
+		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
+		MainConfig.get().LOG_SUMMARY = false;
+		MainConfig.get().USE_MAX = true;
+
+		/**
+		 * Instrumenting class loader
+		 */
+		DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
+
+		/**
+		 * Path constraint and symbolic environment
+		 */
+		SymbolicEnvironment env = new SymbolicEnvironment(classLoader);
+		PathConstraint pc = new PathConstraint();
+
+		/**
+		 * VM listeners
+		 */
+		List<IVM> listeners = new ArrayList<IVM>();
+		listeners.add(new CallVM(env, classLoader));
+		listeners.add(new JumpVM(env, pc));
+		listeners.add(new HeapVM(env, pc, classLoader));
+		listeners.add(new LocalsVM(env));
+		listeners.add(new ArithmeticVM(env, pc));
+		listeners.add(new OtherVM());
+		listeners.add(new ConcolicMarkerVM(env));
+		listeners.add(new MathFunctionCallVM(env));
+		listeners.add(new StringFunctionCallVM(env));
+		VM.vm.setListeners(listeners);
+
+		TestChromosome dscCopy = (TestChromosome) test.clone();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
+				.getTestCase();
+		defaultTestCase.changeClassLoader(classLoader);
+		TestCaseExecutor.runTest(dscCopy.getTestCase());
+
+		List<BranchCondition> branches = pc.getBranchConditions();
+
+		return branches;
+	}
+
+	/**
+	 * Retrieve the path condition for a given test case
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @return a {@link java.util.List} object.
+	 */
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 
 		writeTestCase(getPrimitives(test.getTestCase()), test);
@@ -186,6 +242,7 @@ public class ConcolicExecution {
 		List<BranchCondition> conditions = executeConcolic(className, classPath);
 
 		return conditions;
+
 	}
 
 	/**
@@ -265,7 +322,7 @@ public class ConcolicExecution {
 	 * @return a {@link java.util.List} object.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PrimitiveStatement> getPrimitives(TestCase test) {
+	private List<PrimitiveStatement> getPrimitives(TestCase test) {
 
 		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
 		for (StatementInterface s : test) {
@@ -425,7 +482,7 @@ public class ConcolicExecution {
 	 */
 	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	public void writeTestCase(List<PrimitiveStatement> statements,
+	private void writeTestCase(List<PrimitiveStatement> statements,
 			TestChromosome test) {
 		// File dir = new File(dirName);
 		// dir.mkdir();

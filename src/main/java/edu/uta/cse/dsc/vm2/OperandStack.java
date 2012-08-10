@@ -78,7 +78,7 @@ public final class OperandStack {
 		return ret_val;
 	}
 
-	public void dup() {
+	public void DUP() {
 		Operand x = this.stack.peek();
 		this.stack.push(x);
 	}
@@ -86,7 +86,7 @@ public final class OperandStack {
 	/**
 	 * duplicate top stack word and insert beneath second word
 	 */
-	public void dup_x1() {
+	public void DUP_X1() {
 		Operand a = this.stack.pop();
 		Operand b = this.stack.pop();
 
@@ -98,7 +98,7 @@ public final class OperandStack {
 	/**
 	 * duplicate top stack word and insert beneath third word
 	 */
-	public void dup_x2() {
+	public void DUP_X2() {
 		Operand a = stack.pop();
 		Operand b = stack.pop();
 
@@ -119,7 +119,7 @@ public final class OperandStack {
 		return b instanceof DoubleWordOperand;
 	}
 
-	public void dup2() {
+	public void DUP2() {
 		Operand a = stack.pop();
 
 		if (!isCategory2(a)) {
@@ -136,7 +136,7 @@ public final class OperandStack {
 		}
 	}
 
-	public void dup2_x1() {
+	public void DUP2_X1() {
 		Operand expression = this.stack.pop();
 
 		if (!isCategory2(expression)) {
@@ -160,7 +160,7 @@ public final class OperandStack {
 
 	}
 
-	public void dup2_x2() {
+	public void DUP2_X2() {
 		Operand first = stack.pop();
 		Operand second = stack.pop();
 
@@ -209,19 +209,25 @@ public final class OperandStack {
 		}
 	}
 
-	public void swap() {
+	public void SWAP() {
 		Operand a = stack.pop();
 		Operand b = stack.pop();
 		stack.push(a);
 		stack.push(b);
 	}
 
-	public void pop() {
+	/**
+	 * Bytecode POP instruction
+	 */
+	public void POP() {
 		Operand a = stack.pop();
-		assert a instanceof SingleWordOperand;
+		if (!(a instanceof SingleWordOperand)) {
+			throw new IllegalStateException(
+					"pop should be applied iif top is SingleWordOperand");
+		}
 	}
 
-	public void pop2() {
+	public void POP2() {
 		Operand top = stack.pop();
 
 		if (top instanceof DoubleWordOperand)
