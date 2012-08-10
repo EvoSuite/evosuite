@@ -269,7 +269,6 @@ public class EvoSuite {
 			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
 			        + Properties.PORT);
 		}
-		cmdLine.add("-XX:+HeapDumpOnOutOfMemoryError");
 
 		for (String arg : args) {
 			if (!arg.startsWith("-DCP=")) {
