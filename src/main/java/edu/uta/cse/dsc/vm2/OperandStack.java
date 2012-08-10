@@ -44,200 +44,42 @@ public final class OperandStack {
 	}
 
 	public Object popRef() {
-		Operand ret_val = stack.pop();
+		Operand ret_val = this.popOperand();
 		ReferenceOperand ref = (ReferenceOperand) ret_val;
 		return ref.getReference();
 	}
 
 	public IntegerExpression popBv32() {
-		Operand x = stack.pop();
+		Operand x = this.popOperand();
 		Bv32Operand e = (Bv32Operand) x;
 		return e.getIntegerExpression();
 	}
 
 	public IntegerExpression popBv64() {
-		Operand x = stack.pop();
+		Operand x = this.popOperand();
 		Bv64Operand e = (Bv64Operand) x;
 		return e.getIntegerExpression();
 	}
 
 	public RealExpression popFp32() {
-		Operand x = stack.pop();
+		Operand x = this.popOperand();
 		Fp32Operand e = (Fp32Operand) x;
 		return e.getRealExpression();
 	}
 
 	public RealExpression popFp64() {
-		Operand x = stack.pop();
+		Operand x = this.popOperand();
 		Fp64Operand e = (Fp64Operand) x;
 		return e.getRealExpression();
 	}
 
 	public Operand popOperand() {
-		Operand ret_val = stack.pop();
+		Operand ret_val = this.stack.pop();
 		return ret_val;
-	}
-
-	public void DUP() {
-		Operand x = this.stack.peek();
-		this.stack.push(x);
-	}
-
-	/**
-	 * duplicate top stack word and insert beneath second word
-	 */
-	public void DUP_X1() {
-		Operand a = this.stack.pop();
-		Operand b = this.stack.pop();
-
-		stack.push(a);
-		stack.push(b);
-		stack.push(a);
-	}
-
-	/**
-	 * duplicate top stack word and insert beneath third word
-	 */
-	public void DUP_X2() {
-		Operand a = stack.pop();
-		Operand b = stack.pop();
-
-		if (!isCategory2(b)) {
-			Operand c = stack.pop();
-			stack.push(a);
-			stack.push(c);
-			stack.push(b);
-			stack.push(a);
-		} else {
-			stack.push(a);
-			stack.push(b);
-			stack.push(a);
-		}
 	}
 
 	private boolean isCategory2(Object b) {
 		return b instanceof DoubleWordOperand;
-	}
-
-	public void DUP2() {
-		Operand a = stack.pop();
-
-		if (!isCategory2(a)) {
-			/* Form 1 */
-			Operand b = stack.pop();
-			stack.push(b);
-			stack.push(a);
-			stack.push(b);
-			stack.push(a);
-		} else {
-			/* Form 2 */
-			stack.push(a);
-			stack.push(a);
-		}
-	}
-
-	public void DUP2_X1() {
-		Operand expression = this.stack.pop();
-
-		if (!isCategory2(expression)) {
-			/* Form 1 */
-			Operand a = expression;
-			Operand b = this.stack.pop();
-			Operand c = this.stack.pop();
-			stack.push(b);
-			stack.push(a);
-			stack.push(c);
-			stack.push(b);
-			stack.push(a);
-		} else {
-			/* Form 2 */
-			Operand a = expression;
-			Operand b = this.stack.pop();
-			stack.push(a);
-			stack.push(b);
-			stack.push(a);
-		}
-
-	}
-
-	public void DUP2_X2() {
-		Operand first = stack.pop();
-		Operand second = stack.pop();
-
-		if (isCategory2(first)) {
-			Operand a = first;
-
-			if (isCategory2(second)) {
-				/* Form 4 */
-				Operand b = second;
-				stack.push(a);
-				stack.push(b);
-				stack.push(a);
-			} else {
-				/* Form 2 */
-				Operand b = second;
-				Operand c = stack.pop();
-				stack.push(a);
-				stack.push(c);
-				stack.push(b);
-				stack.push(a);
-			}
-		} else {
-			Operand a = first;
-			Operand b = second;
-			Operand third = this.stack.pop();
-
-			if (isCategory2(third)) {
-				/* Form 3 */
-				Operand c = third;
-				stack.push(b);
-				stack.push(a);
-				stack.push(c);
-				stack.push(b);
-				stack.push(a);
-			} else {
-				/* Form 1 */
-				Operand c = third;
-				Operand d = this.stack.pop();
-				stack.push(b);
-				stack.push(a);
-				stack.push(d);
-				stack.push(c);
-				stack.push(b);
-				stack.push(a);
-			}
-		}
-	}
-
-	public void SWAP() {
-		Operand a = stack.pop();
-		Operand b = stack.pop();
-		stack.push(a);
-		stack.push(b);
-	}
-
-	/**
-	 * Bytecode POP instruction
-	 */
-	public void POP() {
-		Operand a = stack.pop();
-		if (!(a instanceof SingleWordOperand)) {
-			throw new IllegalStateException(
-					"pop should be applied iif top is SingleWordOperand");
-		}
-	}
-
-	public void POP2() {
-		Operand top = stack.pop();
-
-		if (top instanceof DoubleWordOperand)
-			/* Form 2 */
-			return;
-
-		/* Form 1 */
-		Operand b = stack.pop();
-		assert b instanceof SingleWordOperand;
-
 	}
 
 	public void clearOperands() {
@@ -277,6 +119,10 @@ public final class OperandStack {
 		Bv32Operand bv32 = (Bv32Operand) operand;
 		return bv32.getIntegerExpression();
 	}
+	
+	public Operand peekOperand() {
+		return stack.peek();
+	}
 
 	public Iterator<Operand> iterator() {
 		return stack.iterator();
@@ -289,7 +135,7 @@ public final class OperandStack {
 	}
 
 	public StringExpression popStringRef() {
-		Operand operand = stack.pop();
+		Operand operand = this.popOperand();
 		StringReferenceOperand strRef = (StringReferenceOperand) operand;
 		return strRef.getStringExpression();
 	}
