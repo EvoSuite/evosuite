@@ -1,18 +1,11 @@
 package edu.uta.cse.dsc.vm2;
 
-import static edu.uta.cse.dsc.ast.util.SymbolicAssertions.bv32;
-import static edu.uta.cse.dsc.ast.util.SymbolicAssertions.bv64;
-import static edu.uta.cse.dsc.ast.util.SymbolicAssertions.fp32;
-import static edu.uta.cse.dsc.ast.util.SymbolicAssertions.fp64;
-import static edu.uta.cse.dsc.ast.util.SymbolicAssertions.ref;
 import static edu.uta.cse.dsc.util.Assertions.check;
 import static edu.uta.cse.dsc.util.Assertions.notNull;
 import static edu.uta.cse.dsc.util.Log.logln;
-import static edu.uta.cse.dsc.util.Log.loglnIf;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 
 import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
@@ -23,22 +16,6 @@ import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
 import edu.uta.cse.dsc.DscHandler;
-import edu.uta.cse.dsc.ast.ArrayReference;
-import edu.uta.cse.dsc.ast.BitVector32;
-import edu.uta.cse.dsc.ast.BitVector64;
-import edu.uta.cse.dsc.ast.Constraint;
-import edu.uta.cse.dsc.ast.DoubleExpression;
-import edu.uta.cse.dsc.ast.FloatExpression;
-import edu.uta.cse.dsc.ast.JvmExpression;
-import edu.uta.cse.dsc.ast.Reference;
-import edu.uta.cse.dsc.ast.Z3Array;
-import edu.uta.cse.dsc.ast.bitvector.LiteralBitVector32;
-import edu.uta.cse.dsc.ast.reference.LiteralArray;
-import edu.uta.cse.dsc.ast.reftype.LiteralNonNullReferenceType;
-import edu.uta.cse.dsc.ast.reftype.LiteralReferenceType;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldVariable;
-import edu.uta.cse.dsc.axioms.AllActiveAxioms;
-import edu.uta.cse.dsc.util.UnreachableException;
 
 /**
  * Static area (static fields) and heap (instance fields)
@@ -385,9 +362,9 @@ public final class HeapVM extends AbstractVM {
 			field.setAccessible(true);
 		}
 
-		Object receiver = env.topFrame().operandStack.popRef(); // discard
-																// symbolic
-																// receiver
+		env.topFrame().operandStack.popRef(); // discard
+												// symbolic
+												// receiver
 
 		/*
 		 * Schedule reference field type to be asserted -- before null check, as
@@ -541,36 +518,7 @@ public final class HeapVM extends AbstractVM {
 		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
 	}
 
-	/**
-	 * @return class representing the given internal component type name
-	 */
-	private Class<?> getPrimitiveComponentClass(String compTypeDesc) {
-		check(compTypeDesc.length() == 1);
 
-		char typeName = compTypeDesc.charAt(0);
-		switch (typeName) {
-		case 'I':
-			return int.class;
-		case 'Z':
-			return boolean.class;
-		case 'B':
-			return byte.class;
-		case 'C':
-			return char.class;
-		case 'S':
-			return short.class;
-		case 'J':
-			return long.class;
-		case 'F':
-			return float.class;
-		case 'D':
-			return double.class;
-		default:
-			check(false);
-		}
-
-		throw new UnreachableException();
-	}
 
 	/**
 	 * MULTIANEWARRAY

@@ -742,7 +742,7 @@ public final class ArithmeticVM extends AbstractVM {
 		int con = -param_concrete_value;
 
 		IntegerExpression intExpr = new IntegerUnaryExpression(param,
-				Operator.MINUS, (long) con);
+				Operator.NEG, (long) con);
 
 		env.topFrame().operandStack.pushBv32(intExpr);
 
@@ -767,7 +767,7 @@ public final class ArithmeticVM extends AbstractVM {
 		long con = -param_concrete_value;
 
 		IntegerExpression intExpr = new IntegerUnaryExpression(param,
-				Operator.MINUS, (long) con);
+				Operator.NEG, (long) con);
 
 		env.topFrame().operandStack.pushBv64(intExpr);
 	}
@@ -786,7 +786,7 @@ public final class ArithmeticVM extends AbstractVM {
 		float con = -param_concrete_value;
 
 		RealExpression realExpr = new RealUnaryExpression(param,
-				Operator.MINUS, (double) con);
+				Operator.NEG, (double) con);
 
 		env.topFrame().operandStack.pushFp32(realExpr);
 	}
@@ -805,7 +805,7 @@ public final class ArithmeticVM extends AbstractVM {
 		double con = -param_concrete_value;
 
 		RealExpression realExpr = new RealUnaryExpression(param,
-				Operator.MINUS, con);
+				Operator.NEG, con);
 
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}

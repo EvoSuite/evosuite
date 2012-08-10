@@ -131,6 +131,7 @@ public class ConcolicExecution {
 		MainConfig.get().LOG_MODEL_COUNTS = false;
 		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
 		MainConfig.get().LOG_SUMMARY = false;
+		MainConfig.get().USE_MAX = true;
 
 		int dsc_ret_val;
 		PathConstraint pc = new PathConstraint();
@@ -150,6 +151,7 @@ public class ConcolicExecution {
 				.mainEntry(new String[] {/*
 										 * "conf_evo_dumper.txt" ,
 										 */targetName, "main" });
+
 
 		logger.debug("Dsc ended!");
 		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {

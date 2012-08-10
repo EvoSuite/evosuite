@@ -1,7 +1,8 @@
 package edu.uta.cse.dsc.vm2;
 
-import static edu.uta.cse.dsc.util.Assertions.check;
-import static edu.uta.cse.dsc.util.Log.logIf;
+import edu.uta.cse.dsc.DscHandler;
+import edu.uta.cse.dsc.MainConfig;
+import gnu.trove.set.hash.THashSet;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -10,18 +11,13 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Set;
 
-import edu.uta.cse.dsc.DscHandler;
-import edu.uta.cse.dsc.MainConfig;
-import edu.uta.cse.dsc.ast.JvmExpression;
-import edu.uta.cse.dsc.ast.Z3Array;
-import edu.uta.cse.dsc.ast.z3array.JavaFieldVariable;
-import edu.uta.cse.dsc.vm2.CallVM;
-import edu.uta.cse.dsc.vm2.FakeCallerFrame;
-import edu.uta.cse.dsc.vm2.Frame;
-import edu.uta.cse.dsc.vm2.MethodFrame;
-import gnu.trove.set.hash.THashSet;
-
 public final class SymbolicEnvironment {
+
+	private boolean isStopped = false;
+
+	public boolean isStopped() {
+		return isStopped;
+	}
 
 	/**
 	 * Stack of function/method/constructor invocation frames

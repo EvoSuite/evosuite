@@ -1,10 +1,6 @@
 package edu.uta.cse.dsc.vm2;
 
 import java.lang.reflect.Member;
-import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
 
 import org.objectweb.asm.Type;
 
