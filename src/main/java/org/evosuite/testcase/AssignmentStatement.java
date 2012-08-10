@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.utils.Randomness;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -223,6 +224,12 @@ public class AssignmentStatement extends AbstractStatement {
 		if (!clazz.equals(retval.getVariableClass())) {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
 			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
+		}
+
+		if (parameter.isPrimitive()) {
+			if (retval.isWrapperType()) {
+				mg.box(Type.getType(parameter.getVariableClass()));
+			}
 		}
 
 		retval.storeBytecode(mg, locals);
