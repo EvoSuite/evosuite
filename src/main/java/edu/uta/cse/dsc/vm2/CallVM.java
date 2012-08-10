@@ -13,7 +13,7 @@ import org.evosuite.symbolic.expr.StringConstant;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
-import edu.uta.cse.dsc.DscHandler;
+import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import edu.uta.cse.dsc.instrument.DscMethodAdapter;
 import gnu.trove.map.hash.THashMap;
 
@@ -34,8 +34,10 @@ public final class CallVM extends AbstractVM {
 	/**
 	 * Constructor
 	 */
-	public CallVM(SymbolicEnvironment env) {
+	public CallVM(SymbolicEnvironment env,
+			DscInstrumentingClassLoader classLoader) {
 		this.env = env;
+		this.classLoader = classLoader;
 	}
 
 	/**
@@ -119,6 +121,7 @@ public final class CallVM extends AbstractVM {
 	}
 
 	private final THashMap<Member, MemberInfo> memberInfos = new THashMap<Member, MemberInfo>();
+	private final DscInstrumentingClassLoader classLoader;
 
 	/**
 	 * Cache max values for this method, except for static initializers.
@@ -170,7 +173,6 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN(int access, String className, String methName,
 			String methDesc) {
-
 
 		/* TODO: Use access param to determine needsThis */
 
@@ -260,10 +262,10 @@ public final class CallVM extends AbstractVM {
 
 	private void prepareStackIfNeeded(String className, String methName,
 			String methDesc) {
-
+ 
 		Method method = null;
 		if (env.isEmpty()) {
-			Class<?> claz = DscHandler.getClassForName(className);
+			Class<?> claz = classLoader.getClassForName(className);
 
 			Method[] declMeths = claz.getDeclaredMethods();
 			for (Method declMeth : declMeths) {
@@ -277,7 +279,7 @@ public final class CallVM extends AbstractVM {
 				env.prepareStack(method);
 			}
 		}
-		
+
 		if (env.isEmpty()) {
 			throw new IllegalStateException();
 		}
@@ -372,7 +374,7 @@ public final class CallVM extends AbstractVM {
 		Type[] asmTypes = Type.getArgumentTypes(methDesc);
 		classes = new Class<?>[asmTypes.length];
 		for (int i = 0; i < classes.length; i++)
-			classes[i] = DscHandler.getClass(asmTypes[i]);
+			classes[i] = classLoader.getClassForType(asmTypes[i]);
 
 		return classes;
 	}
@@ -485,9 +487,9 @@ public final class CallVM extends AbstractVM {
 	private boolean nullViolation(String methDesc, Object receiverValue) {
 
 		if (receiverValue == null) { // JVM will throw an exception
-			
+
 			// clear operand stack
-			env.topFrame().operandStack.clearOperands(); 
+			env.topFrame().operandStack.clearOperands();
 			// push thrown exception
 			env.topFrame().operandStack.pushRef(new NullPointerException());
 			return true;

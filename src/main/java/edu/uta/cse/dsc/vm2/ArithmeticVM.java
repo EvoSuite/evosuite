@@ -83,7 +83,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void POP() {
-		env.topFrame().operandStack.pop();
+		env.topFrame().operandStack.POP();
 	}
 
 	/**
@@ -97,7 +97,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void POP2() {
-		env.topFrame().operandStack.pop2();
+		env.topFrame().operandStack.POP2();
 	}
 
 	/**
@@ -106,7 +106,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP() {
-		env.topFrame().operandStack.dup();
+		env.topFrame().operandStack.DUP();
 	}
 
 	/**
@@ -115,7 +115,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP_X1() {
-		env.topFrame().operandStack.dup_x1();
+		env.topFrame().operandStack.DUP_X1();
 	}
 
 	/**
@@ -124,7 +124,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP_X2() {
-		env.topFrame().operandStack.dup_x2();
+		env.topFrame().operandStack.DUP_X2();
 	}
 
 	/**
@@ -133,7 +133,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP2() {
-		env.topFrame().operandStack.dup2();
+		env.topFrame().operandStack.DUP2();
 	}
 
 	/**
@@ -142,7 +142,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP2_X1() {
-		env.topFrame().operandStack.dup2_x1();
+		env.topFrame().operandStack.DUP2_X1();
 	}
 
 	/**
@@ -151,7 +151,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void DUP2_X2() {
-		env.topFrame().operandStack.dup2_x2();
+		env.topFrame().operandStack.DUP2_X2();
 	}
 
 	/**
@@ -160,7 +160,7 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void SWAP() {
-		env.topFrame().operandStack.swap();
+		env.topFrame().operandStack.SWAP();
 	}
 
 	/**

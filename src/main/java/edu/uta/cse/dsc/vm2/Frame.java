@@ -79,7 +79,7 @@ public abstract class Frame {
 	 */
 	private void disposeOperands(int nrFormalParameters) {
 		for (int i = 0; i < nrFormalParameters; i++)
-			operandStack.pop();
+			operandStack.popOperand();
 	}
 
 	/**
@@ -89,7 +89,7 @@ public abstract class Frame {
 	void disposeMethInvokeArgs(String methDesc) {
 		disposeOperands(Type.getArgumentTypes(methDesc).length);
 		if (invokeNeedsThis)
-			operandStack.pop();
+			operandStack.popOperand();
 	}
 
 	/**

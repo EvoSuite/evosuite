@@ -15,7 +15,7 @@ import org.evosuite.symbolic.expr.StringConstant;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
-import edu.uta.cse.dsc.DscHandler;
+import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 
 /**
  * Static area (static fields) and heap (instance fields)
@@ -31,9 +31,13 @@ public final class HeapVM extends AbstractVM {
 	private final PathConstraint pc;
 	private final SymbolicEnvironment env;
 
-	public HeapVM(SymbolicEnvironment env, PathConstraint pc) {
+	private final DscInstrumentingClassLoader classLoader;
+
+	public HeapVM(SymbolicEnvironment env, PathConstraint pc,
+			DscInstrumentingClassLoader classLoader) {
 		this.env = env;
 		this.pc = pc;
+		this.classLoader = classLoader;
 	}
 
 	/* Fields */
@@ -353,7 +357,7 @@ public final class HeapVM extends AbstractVM {
 	@Override
 	public void GETFIELD(Object receiverConcrete, String className,
 			String fieldName, String desc) {
-		Field field = resolveField(DscHandler.getClassForName(className),
+		Field field = resolveField(classLoader.getClassForName(className),
 				fieldName);
 		env.ensurePrepared(field.getDeclaringClass());
 
@@ -451,7 +455,7 @@ public final class HeapVM extends AbstractVM {
 	@Override
 	public void PUTFIELD(Object instance, String className, String fieldName,
 			String desc) {
-		Field field = resolveField(DscHandler.getClassForName(className),
+		Field field = resolveField(classLoader.getClassForName(className),
 				fieldName);
 		env.ensurePrepared(field.getDeclaringClass());
 
@@ -517,8 +521,6 @@ public final class HeapVM extends AbstractVM {
 		// push delayed object
 		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
 	}
-
-
 
 	/**
 	 * MULTIANEWARRAY
@@ -929,7 +931,7 @@ public final class HeapVM extends AbstractVM {
 	@Override
 	public void INSTANCEOF(Object referenceConcrete, String typeName) {
 		env.topFrame().operandStack.popRef(); // discard symbolic reference
-		Class<?> myClazz = DscHandler.getClassForName(typeName);
+		Class<?> myClazz = classLoader.getClassForName(typeName);
 		boolean instanceOf = myClazz.isInstance(referenceConcrete);
 
 		IntegerConstant ret;
