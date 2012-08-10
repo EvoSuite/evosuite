@@ -26,7 +26,7 @@ fi
 #java_opts="-ea -Xmx2048M -Dlogback.configurationFile=$BASEPATH/target/classes/logback.xml"
 
 ### NOTE: these settings are based on usage on cluster
-java_opts="-ea -Xmx800M -Dlogback.configurationFile=$BASEPATH/target/classes/logback.xml -XX:+HeapDumpOnOutOfMemoryError"
+java_opts="-ea -Xmx800M -Dlogback.configurationFile=$BASEPATH/target/classes/logback.xml"
 
 #java_opts=""
 
