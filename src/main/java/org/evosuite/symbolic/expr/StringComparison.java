@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,13 +20,11 @@
  */
 package org.evosuite.symbolic.expr;
 
-import gov.nasa.jpf.JPF;
-
-import java.util.logging.Logger;
-
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.search.DistanceEstimator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -39,8 +37,7 @@ public class StringComparison extends StringExpression {
 
 	private static final long serialVersionUID = -2959676064390810341L;
 
-	static Logger log = JPF
-			.getLogger("org.evosuite.symbolic.expr.StringComparison");
+	protected static Logger log = LoggerFactory.getLogger(StringComparison.class);
 
 	/**
 	 * <p>
@@ -56,8 +53,8 @@ public class StringComparison extends StringExpression {
 	 * @param con
 	 *            a {@link java.lang.Long} object.
 	 */
-	public StringComparison(Expression<String> left, Operator op,
-			Expression<?> right2, Long con) {
+	public StringComparison(Expression<String> left, Operator op, Expression<?> right2,
+	        Long con) {
 		super();
 		this.left = left;
 		this.op = op;
@@ -89,9 +86,8 @@ public class StringComparison extends StringExpression {
 		if (obj instanceof StringComparison) {
 			StringComparison other = (StringComparison) obj;
 			return this.op.equals(other.op) && this.conVal.equals(other.conVal)
-					&& this.getSize() == other.getSize()
-					&& this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			        && this.getSize() == other.getSize() && this.left.equals(other.left)
+			        && this.right.equals(other.right);
 		}
 
 		return false;
@@ -156,8 +152,7 @@ public class StringComparison extends StringExpression {
 
 			switch (op) {
 			case EQUALSIGNORECASE:
-				return (long) DistanceEstimator.StrEqualsIgnoreCase(first,
-						second);
+				return (long) DistanceEstimator.StrEqualsIgnoreCase(first, second);
 			case EQUALS:
 				return (long) DistanceEstimator.StrEquals(first, second);
 			case ENDSWITH:
@@ -165,7 +160,7 @@ public class StringComparison extends StringExpression {
 			case CONTAINS:
 				return (long) DistanceEstimator.StrContains(first, second);
 			default:
-				log.warning("StringComparison: unimplemented operator!" + op);
+				log.warn("StringComparison: unimplemented operator!" + op);
 				return null;
 			}
 		} catch (Exception e) {
