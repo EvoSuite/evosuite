@@ -74,13 +74,12 @@ public class ConcolicExecution {
 	@SuppressWarnings("unused")
 	private List<gov.nasa.jpf.Error> errors;
 
+	private File bytecodeFile;
+
 	private static Logger logger = LoggerFactory
 			.getLogger(ConcolicExecution.class);
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-
-	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-			: new PrintStream(byteStream));
 
 	private static File tempDir;
 	static {
@@ -145,7 +144,7 @@ public class ConcolicExecution {
 		listeners.add(new HeapVM(env, pc, classLoader));
 		listeners.add(new LocalsVM(env));
 		listeners.add(new ArithmeticVM(env, pc));
-		listeners.add(new OtherVM());
+		listeners.add(new OtherVM(env));
 		listeners.add(new ConcolicMarkerVM(env));
 		listeners.add(new MathFunctionCallVM(env));
 		listeners.add(new StringFunctionCallVM(env));
@@ -164,8 +163,7 @@ public class ConcolicExecution {
 			List<BranchCondition> branches = pc.getBranchConditions();
 
 			logger.info("NrOfBranches=" + branches.size());
-			File file = new File(dirName + "/", className + ".class");
-			// file.deleteOnExit();
+			// bytecodeFile.deleteOnExit();
 
 			return branches;
 
@@ -212,7 +210,7 @@ public class ConcolicExecution {
 		listeners.add(new HeapVM(env, pc, classLoader));
 		listeners.add(new LocalsVM(env));
 		listeners.add(new ArithmeticVM(env, pc));
-		listeners.add(new OtherVM());
+		listeners.add(new OtherVM(env));
 		listeners.add(new ConcolicMarkerVM(env));
 		listeners.add(new MathFunctionCallVM(env));
 		listeners.add(new StringFunctionCallVM(env));
@@ -492,7 +490,6 @@ public class ConcolicExecution {
 
 		String[] packageRoute = className.split("\\.");
 
-		
 		String className;
 		String dirName;
 		if (packageRoute.length == 1) {
@@ -514,9 +511,9 @@ public class ConcolicExecution {
 			dir.mkdirs();
 		}
 
-		File file = new File(dirName + File.separator, className + ".class");
+		bytecodeFile = new File(dirName + File.separator, className + ".class");
 		try {
-			FileOutputStream stream = new FileOutputStream(file);
+			FileOutputStream stream = new FileOutputStream(bytecodeFile);
 			byte[] bytecode = getBytecode(statements, test);
 			stream.write(bytecode);
 			// logger.info(dirName);

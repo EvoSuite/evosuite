@@ -197,6 +197,9 @@ public final class HeapVM extends AbstractVM {
 	 */
 	@Override
 	public void PUTSTATIC(String owner, String name, String desc) {
+		// discard information flowing through heap
+		env.topFrame().operandStack.popOperand();
+
 		Class<?> claz = env.ensurePrepared(owner); // type name given in
 													// bytecode
 		Field field = resolveField(claz, name);
@@ -207,9 +210,6 @@ public final class HeapVM extends AbstractVM {
 			logln("Do we have to prepare the static fields of an interface?");
 			env.ensurePrepared(declaringClass);
 		}
-
-		// discard information flowing through heap
-		env.topFrame().operandStack.popOperand();
 
 	}
 
@@ -239,110 +239,6 @@ public final class HeapVM extends AbstractVM {
 	}
 
 	/**
-	 * Add receiver null-ness to path condition
-	 */
-	private boolean nullViolation(Object instance) {
-
-		/**
-		 * Since we do not model the object equality constraints, null
-		 * violations constraints are ignored.
-		 */
-
-		if (instance == null) { // JVM will throw an exception
-
-			// clear operand stack
-			env.topFrame().operandStack.clearOperands();
-			// push exception
-			env.topFrame().operandStack.pushRef(new NullPointerException());
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Add (value >= 0) to the path condition, i.e., for:
-	 * <ul>
-	 * <li>
-	 * index for array access</li>
-	 * <li>
-	 * size for array creation</li>
-	 * </ul>
-	 */
-	private boolean negativeValueViolation(IntegerExpression sym_value,
-			int valueConcrete) {
-		IntegerConstraint c;
-		IntegerConstant sym_concrete = ExpressionFactory
-				.buildNewIntegerConstant(valueConcrete);
-		if (valueConcrete < 0)
-			c = ConstraintFactory.lt(sym_value, sym_concrete);
-		else
-			c = ConstraintFactory.gte(sym_value, sym_concrete);
-
-		pc.pushLocalConstraint(c);
-
-		if (valueConcrete < 0) { // JVM will throw an exception
-			// clear operand stack
-			env.topFrame().operandStack.clearOperands();
-			// push exception
-			env.topFrame().operandStack
-					.pushRef(new NegativeArraySizeException());
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * @return value exceeds limit, out of memory likely
-	 */
-	// protected boolean heapExhaustionViolation(BitVector32 value, int
-	// valueConcrete) {
-	// int heapLimit = conf.MAX_ARRAY_SIZE_CREATION;
-	// Constraint valueInHeapBounds = state.bv32.getSLt(
-	// value, state.bv32.getLiteral(heapLimit));
-	//
-	// if (valueConcrete >= heapLimit) {
-	// valueInHeapBounds = not(valueInHeapBounds);
-	// state.outOfMemory();
-	// }
-	//
-	// // state.addToPc(valueInHeapBounds);
-	//
-	// return (valueConcrete >= heapLimit);
-	// }
-
-	/**
-	 * Add (index < array.length) for array accesses to path condition
-	 */
-	private boolean upperBoundsViolation(IntegerExpression sym_index,
-			int indexConcrete, Object referenceConcrete) {
-		int lengthConcrete = Array.getLength(referenceConcrete);
-		IntegerConstant length = ExpressionFactory
-				.buildNewIntegerConstant(lengthConcrete);
-
-		IntegerConstraint c;
-		if (indexConcrete < lengthConcrete)
-			c = ConstraintFactory.lt(sym_index, length);
-		else
-			c = ConstraintFactory.gte(sym_index, length);
-
-		pc.pushLocalConstraint(c);
-
-		if (indexConcrete >= lengthConcrete) { // JVM will throw an exception
-			// clear the operand
-			// stack
-			env.topFrame().operandStack.clearOperands();
-			// push exception
-			env.topFrame().operandStack
-					.pushRef(new IndexOutOfBoundsException());
-
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Retrieve the value of an instance field
 	 * 
 	 * <p>
@@ -357,6 +253,9 @@ public final class HeapVM extends AbstractVM {
 	@Override
 	public void GETFIELD(Object receiverConcrete, String className,
 			String fieldName, String desc) {
+		// consume symbolic operand
+		env.topFrame().operandStack.popRef();
+
 		Field field = resolveField(classLoader.getClassForName(className),
 				fieldName);
 		env.ensurePrepared(field.getDeclaringClass());
@@ -366,16 +265,16 @@ public final class HeapVM extends AbstractVM {
 			field.setAccessible(true);
 		}
 
-		env.topFrame().operandStack.popRef(); // discard
-												// symbolic
-												// receiver
-
 		/*
 		 * Schedule reference field type to be asserted -- before null check, as
 		 * null check will create a new node in path constraint
 		 */
-		if (nullViolation(receiverConcrete))
+		if (receiverConcrete == null) {
+			/**
+			 * Execution will lead to a NullPointerException
+			 */
 			return;
+		}
 
 		Type type = Type.getType(desc);
 
@@ -455,17 +354,13 @@ public final class HeapVM extends AbstractVM {
 	@Override
 	public void PUTFIELD(Object instance, String className, String fieldName,
 			String desc) {
-		Field field = resolveField(classLoader.getClassForName(className),
-				fieldName);
-		env.ensurePrepared(field.getDeclaringClass());
-
 		// discard information flowing through heap
 		env.topFrame().operandStack.popOperand();
 		env.topFrame().operandStack.popRef();
 
-		if (nullViolation(instance))
-			return;
-
+		Field field = resolveField(classLoader.getClassForName(className),
+				fieldName);
+		env.ensurePrepared(field.getDeclaringClass());
 	}
 
 	/* Arrays */
@@ -489,14 +384,15 @@ public final class HeapVM extends AbstractVM {
 		 * 
 		 * POST: arrayref (delayed)
 		 */
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
 
-		// discard operand stack
-		IntegerExpression length = env.topFrame().operandStack.popBv32();
-		negativeValueViolation(length, lengthConcrete);
+		/* negative index */
+		if (lengthConcrete < 0)
+			return;
 
-		// push delayed object creation
+		// push delayed object
 		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
-
 	}
 
 	/**
@@ -514,9 +410,12 @@ public final class HeapVM extends AbstractVM {
 		 * POST: arrayref (delayed)
 		 */
 
-		// discard operand stack
-		IntegerExpression length = env.topFrame().operandStack.popBv32();
-		negativeValueViolation(length, lengthConcrete);
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+
+		/* negative index */
+		if (lengthConcrete < 0)
+			return;
 
 		// push delayed object
 		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
@@ -576,72 +475,73 @@ public final class HeapVM extends AbstractVM {
 	 */
 	@Override
 	public void IALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			int bv32 = Array.getInt(referenceConcrete, indexConcrete);
-			IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
-			env.topFrame().operandStack.pushBv32(c);
-		}
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		int bv32 = Array.getInt(referenceConcrete, indexConcrete);
+		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
+		env.topFrame().operandStack.pushBv32(c);
 
 	}
 
 	@Override
 	public void LALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			long bv64 = Array.getLong(referenceConcrete, indexConcrete);
-			IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv64);
-			env.topFrame().operandStack.pushBv64(c);
-		}
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		long bv64 = Array.getLong(referenceConcrete, indexConcrete);
+		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv64);
+		env.topFrame().operandStack.pushBv64(c);
+
 	}
 
 	@Override
 	public void FALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			float fp32 = Array.getFloat(referenceConcrete, indexConcrete);
-			RealConstant c = ExpressionFactory.buildNewRealConstant(fp32);
-			env.topFrame().operandStack.pushFp32(c);
-		}
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		float fp32 = Array.getFloat(referenceConcrete, indexConcrete);
+		RealConstant c = ExpressionFactory.buildNewRealConstant(fp32);
+		env.topFrame().operandStack.pushFp32(c);
 
 	}
 
@@ -655,53 +555,54 @@ public final class HeapVM extends AbstractVM {
 	 */
 	@Override
 	public void DALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			double fp64 = Array.getDouble(referenceConcrete, indexConcrete);
-			RealConstant c = ExpressionFactory.buildNewRealConstant(fp64);
-			env.topFrame().operandStack.pushFp64(c);
-		}
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		double fp64 = Array.getDouble(referenceConcrete, indexConcrete);
+		RealConstant c = ExpressionFactory.buildNewRealConstant(fp64);
+		env.topFrame().operandStack.pushFp64(c);
+
 	}
 
 	@Override
 	public void AALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			Object ref = Array.get(referenceConcrete, indexConcrete);
-			if (ref instanceof String) {
-				String string = (String) ref;
-				StringConstant strConstant = ExpressionFactory
-						.buildNewStringConstant(string);
-				env.topFrame().operandStack.pushStringRef(strConstant);
-			} else {
-				env.topFrame().operandStack.pushRef(ref);
-			}
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		Object ref = Array.get(referenceConcrete, indexConcrete);
+		if (ref instanceof String) {
+			String string = (String) ref;
+			StringConstant strConstant = ExpressionFactory
+					.buildNewStringConstant(string);
+			env.topFrame().operandStack.pushStringRef(strConstant);
+		} else {
+			env.topFrame().operandStack.pushRef(ref);
 		}
 	}
 
@@ -710,83 +611,82 @@ public final class HeapVM extends AbstractVM {
 	 */
 	@Override
 	public void BALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			/**
-			 * Retrieve information from the Heap.
-			 */
-			Object object = Array.get(referenceConcrete, indexConcrete);
-			int intValue;
-			if (object instanceof Boolean) {
-				boolean booleanValue = ((Boolean) object).booleanValue();
-				intValue = booleanValue ? 1 : 0;
-			} else {
-				assert object instanceof Byte;
-				intValue = ((Byte) object).shortValue();
-			}
-			IntegerConstant c = ExpressionFactory
-					.buildNewIntegerConstant(intValue);
-			env.topFrame().operandStack.pushBv32(c);
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		Object object = Array.get(referenceConcrete, indexConcrete);
+		int intValue;
+		if (object instanceof Boolean) {
+			boolean booleanValue = ((Boolean) object).booleanValue();
+			intValue = booleanValue ? 1 : 0;
+		} else {
+			assert object instanceof Byte;
+			intValue = ((Byte) object).shortValue();
 		}
+		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(intValue);
+		env.topFrame().operandStack.pushBv32(c);
+
 	}
 
 	@Override
 	public void CALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			char bv32 = Array.getChar(referenceConcrete, indexConcrete);
-			IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
-			env.topFrame().operandStack.pushBv32(c);
-		}
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		char bv32 = Array.getChar(referenceConcrete, indexConcrete);
+		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
+		env.topFrame().operandStack.pushBv32(c);
+
 	}
 
 	@Override
 	public void SALOAD(Object referenceConcrete, int indexConcrete) {
-		IntegerExpression indexExpression = env.topFrame().operandStack
-				.popBv32();
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+		// discard symbolic arguments
+		env.topFrame().operandStack.popBv32();
+		env.topFrame().operandStack.popRef();
 
-		/* Add null-check to path condition. */
-		if (nullViolation(referenceConcrete))
-			return; // FIXME
+		/* null-check */
+		if (referenceConcrete == null)
+			return;
 
-		/* Add index-within-bounds check to path condition. */
-		if (negativeValueViolation(indexExpression, indexConcrete))
-			return; // FIXME
-		else if (upperBoundsViolation(indexExpression, indexConcrete,
-				referenceConcrete))
-			return; // FIXME
-		else {
-			short bv32 = Array.getShort(referenceConcrete, indexConcrete);
-			IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
-			env.topFrame().operandStack.pushBv32(c);
-		}
+		/* negative index */
+		if (indexConcrete < 0)
+			return;
+
+		/* out of bound index */
+		if (indexConcrete >= Array.getLength(referenceConcrete))
+			return;
+
+		short bv32 = Array.getShort(referenceConcrete, indexConcrete);
+		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
+		env.topFrame().operandStack.pushBv32(c);
+
 	}
 
 	/**

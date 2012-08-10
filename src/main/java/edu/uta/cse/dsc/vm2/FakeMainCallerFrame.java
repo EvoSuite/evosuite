@@ -5,18 +5,19 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 
 /**
- * Frame for a method invocation
+ * Fake Stack Frame for simulating the invokation from the command line to 
+ * the main(String[] a) method with no arguments.
  * 
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public final class MethodFrame extends Frame {
+public final class FakeMainCallerFrame extends Frame {
 
 	private final Method method;
 
 	/**
 	 * Constructor
 	 */
-	MethodFrame(Method method, int maxLocals) {
+	FakeMainCallerFrame(Method method, int maxLocals) {
 		super(maxLocals);
 		this.method = method;
 	}

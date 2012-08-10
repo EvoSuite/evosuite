@@ -8,8 +8,6 @@ import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
 import edu.uta.cse.dsc.vm2.Operand;
-import edu.uta.cse.dsc.vm2.ReferenceOperand;
-import edu.uta.cse.dsc.vm2.StringReferenceOperand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public final class Contains extends StringFunction {
@@ -24,21 +22,8 @@ public final class Contains extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-
-		ReferenceOperand strRefOperand = (ReferenceOperand) it.next();
-		if (strRefOperand.getReference() == null) {
-			throwException(new NullPointerException());
-			return;
-		}
-
-		if (strRefOperand instanceof StringReferenceOperand) {
-			this.strExpr = ((StringReferenceOperand) strRefOperand)
-					.getStringExpression();
-		} else {
-			this.strExpr = null;
-		}
-
-		this.stringReceiverExpr = stringRef(it.next());
+		this.strExpr = operandToStringRef(it.next());
+		this.stringReceiverExpr = operandToStringRef(it.next());
 	}
 
 	@Override

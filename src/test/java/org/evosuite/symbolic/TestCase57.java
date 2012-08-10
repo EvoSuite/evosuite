@@ -23,7 +23,7 @@ public class TestCase57 {
 			String string2 = null;
 			int int2 = string2.length();
 		} catch (NullPointerException ex) {
-
+			System.out.println("Hello world!");
 		}
 
 		String string3 = ConcolicMarker.mark("Togliere", "string3");

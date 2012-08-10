@@ -24,19 +24,7 @@ public final class CharAt extends StringFunction {
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.indexExpr = bv32(it.next());
-		this.stringReceiverExpr = stringRef(it.next());
-
-		int indexConcrete = ((Long) this.indexExpr.getConcreteValue())
-				.intValue();
-		if (indexConcrete < 0) {
-			throwException(new StringIndexOutOfBoundsException());
-			return;
-		}
-		if (indexConcrete > receiver.length()) {
-			throwException(new StringIndexOutOfBoundsException());
-			return;
-		}
-
+		this.stringReceiverExpr = operandToStringRef(it.next());
 	}
 
 	@Override

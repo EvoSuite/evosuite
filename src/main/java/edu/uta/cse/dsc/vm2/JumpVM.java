@@ -41,8 +41,12 @@ public final class JumpVM extends AbstractVM {
 	 */
 	@Override
 	public void IFEQ(String className, String methName, int branchIndex, int p) {
-		env.topFrame().operandStack.pushBv32(ExpressionFactory.ICONST_0); // right hand side argument of
-													// EQ comparison
+		env.topFrame().operandStack.pushBv32(ExpressionFactory.ICONST_0); // right
+																			// hand
+																			// side
+																			// argument
+																			// of
+		// EQ comparison
 		IF_ICMPEQ(className, methName, branchIndex, p, 0); // use general
 															// implementation
 	}
@@ -62,8 +66,12 @@ public final class JumpVM extends AbstractVM {
 
 	@Override
 	public void IFLT(String className, String methName, int branchIndex, int p) {
-		env.topFrame().operandStack.pushBv32(ExpressionFactory.ICONST_0); // right hand side argument of
-													// LT comparison
+		env.topFrame().operandStack.pushBv32(ExpressionFactory.ICONST_0); // right
+																			// hand
+																			// side
+																			// argument
+																			// of
+		// LT comparison
 		IF_ICMPLT(className, methName, branchIndex, p, 0); // use general
 															// implementation
 	}
@@ -85,10 +93,19 @@ public final class JumpVM extends AbstractVM {
 	 */
 	@Override
 	public void IFGT(String className, String methName, int branchIndex, int p) {
-		IntegerExpression rightBv = env.topFrame().operandStack.popBv32(); // symbolic version of p
-		env.topFrame().operandStack.pushBv32(ExpressionFactory.ICONST_0); // left hand side argument of
-													// LT comparison
-		env.topFrame().operandStack.pushBv32(rightBv); // right hand side argument of LT comparison
+		IntegerExpression rightBv = env.topFrame().operandStack.popBv32(); // symbolic
+																			// version
+																			// of
+																			// p
+		env.topFrame().operandStack.pushBv32(ExpressionFactory.ICONST_0); // left
+																			// hand
+																			// side
+																			// argument
+																			// of
+		// LT comparison
+		env.topFrame().operandStack.pushBv32(rightBv); // right hand side
+														// argument of LT
+														// comparison
 		IF_ICMPLT(className, methName, branchIndex, 0, p);
 	}
 
@@ -207,8 +224,10 @@ public final class JumpVM extends AbstractVM {
 	@Override
 	public void IFNULL(String className, String methName, int branchIndex,
 			Object p) {
-		env.topFrame().operandStack.pushRef(NULL_REFERENCE); // right hand side argument of EQ
-										// comparison
+		env.topFrame().operandStack.pushRef(NULL_REFERENCE); // right hand side
+																// argument of
+																// EQ
+		// comparison
 		IF_ACMPEQ(className, methName, branchIndex, p, null); // use general
 																// implementation
 	}
@@ -343,14 +362,14 @@ public final class JumpVM extends AbstractVM {
 	 * .html#athrow
 	 */
 	@Override
-	public void ATHROW(Throwable throwableConcrete) {
-		Object throwable = env.topFrame().operandStack.popRef();
-		env.topFrame().operandStack.clearOperands();
-
-		/* TODO: Push NPE if reference is null */
-		// if (throwableConcrete==null)
-
-		env.topFrame().operandStack.pushRef(throwable); // in case this frame handles the exception
+	public void ATHROW(Throwable throwable) {
+		/**
+		 * This instructions pops the operand stack and throws an exception. We
+		 * only update the operand stack since exceptions are not explicitly
+		 * modelled in the VM.
+		 */
+		this.env.topFrame().operandStack.popRef();
+		/* Concrete execution will take us to the next bytecode. */
 	}
 
 	/* Subroutine jump */
