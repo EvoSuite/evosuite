@@ -50,6 +50,7 @@ import edu.uta.cse.dsc.IVM;
 import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.VM;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
+
 import edu.uta.cse.dsc.vm2.ArithmeticVM;
 import edu.uta.cse.dsc.vm2.CallVM;
 import edu.uta.cse.dsc.vm2.ConcolicMarkerVM;
@@ -118,7 +119,8 @@ public class ConcolicExecution {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	List<BranchCondition> executeConcolic(String targetName, String classPath) {
+	protected List<BranchCondition> executeConcolic(String targetName,
+			String classPath) {
 
 		logger.debug("Setting up Dsc");
 		logger.debug("Dsc target=" + targetName);
@@ -484,6 +486,7 @@ public class ConcolicExecution {
 	@SuppressWarnings("unchecked")
 	private void writeTestCase(List<PrimitiveStatement> statements,
 			TestChromosome test) {
+
 		// File dir = new File(dirName);
 		// dir.mkdir();
 		File file = new File(dirName + "/", className + ".class");

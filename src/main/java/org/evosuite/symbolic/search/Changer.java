@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,10 +30,11 @@ import org.evosuite.symbolic.expr.StringVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>Changer class.</p>
- *
+ * <p>
+ * Changer class.
+ * </p>
+ * 
  * @author krusev
  */
 public class Changer {
@@ -47,7 +48,9 @@ public class Changer {
 	private double oldDist = Double.MAX_VALUE;
 
 	/**
-	 * <p>Constructor for Changer.</p>
+	 * <p>
+	 * Constructor for Changer.
+	 * </p>
 	 */
 	public Changer() {
 
@@ -144,17 +147,23 @@ public class Changer {
 	}
 
 	/**
-	 * <p>strLocalSearch</p>
-	 *
-	 * @param strVar a {@link org.evosuite.symbolic.expr.StringVariable} object.
-	 * @param cnstr a {@link java.util.Collection} object.
-	 * @param varsToChange a {@link java.util.HashMap} object.
+	 * <p>
+	 * strLocalSearch
+	 * </p>
+	 * 
+	 * @param strVar
+	 *            a {@link org.evosuite.symbolic.expr.StringVariable} object.
+	 * @param cnstr
+	 *            a {@link java.util.Collection} object.
+	 * @param varsToChange
+	 *            a {@link java.util.HashMap} object.
 	 * @return a boolean.
 	 */
 	public boolean strLocalSearch(StringVariable strVar, Collection<Constraint<?>> cnstr,
 	        HashMap<String, Object> varsToChange) {
 
 		// try to remove each
+		log.debug("Trying to remove characters");
 		boolean improvement = false;
 
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
@@ -179,6 +188,7 @@ public class Changer {
 		}
 
 		// try to replace each 
+		log.debug("Trying to replace characters");
 
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
 
@@ -214,6 +224,7 @@ public class Changer {
 		}
 
 		// try to add everywhere
+		log.debug("Trying to add characters");
 
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
 
@@ -247,11 +258,16 @@ public class Changer {
 	}
 
 	/**
-	 * <p>intLocalSearch</p>
-	 *
-	 * @param intVar a {@link org.evosuite.symbolic.expr.IntegerVariable} object.
-	 * @param cnstr a {@link java.util.Collection} object.
-	 * @param varsToChange a {@link java.util.HashMap} object.
+	 * <p>
+	 * intLocalSearch
+	 * </p>
+	 * 
+	 * @param intVar
+	 *            a {@link org.evosuite.symbolic.expr.IntegerVariable} object.
+	 * @param cnstr
+	 *            a {@link java.util.Collection} object.
+	 * @param varsToChange
+	 *            a {@link java.util.HashMap} object.
 	 * @return a boolean.
 	 */
 	public boolean intLocalSearch(IntegerVariable intVar,
@@ -305,11 +321,16 @@ public class Changer {
 	}
 
 	/**
-	 * <p>realLocalSearch</p>
-	 *
-	 * @param realVar a {@link org.evosuite.symbolic.expr.RealVariable} object.
-	 * @param cnstr a {@link java.util.Collection} object.
-	 * @param varsToChange a {@link java.util.HashMap} object.
+	 * <p>
+	 * realLocalSearch
+	 * </p>
+	 * 
+	 * @param realVar
+	 *            a {@link org.evosuite.symbolic.expr.RealVariable} object.
+	 * @param cnstr
+	 *            a {@link java.util.Collection} object.
+	 * @param varsToChange
+	 *            a {@link java.util.HashMap} object.
 	 * @return a boolean.
 	 */
 	public boolean realLocalSearch(RealVariable realVar, Collection<Constraint<?>> cnstr,
