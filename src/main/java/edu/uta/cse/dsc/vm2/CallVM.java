@@ -52,12 +52,7 @@ public final class CallVM extends AbstractVM {
 		env.pushFrame(frame); // <clinit>() has no parameters
 	}
 
-	private void checkAsmAccessFlags(int access, Member member) {
-		int jvmModifiers = member.getModifiers();
-		if (access != jvmModifiers)
-			throw new IllegalStateException("Asm modifiers != Java modifiers: "
-					+ access + " " + jvmModifiers);
-	}
+
 
 	/**
 	 * @param function
@@ -113,7 +108,6 @@ public final class CallVM extends AbstractVM {
 		else
 			function = resolveMethodOverloading(className, methName, methDesc);
 
-		checkAsmAccessFlags(access, function); // sanity check
 		discardFrames(function);
 
 		env.topFrame().operandStack.clearOperands();
@@ -189,7 +183,6 @@ public final class CallVM extends AbstractVM {
 		if (conf.INIT.equals(methName)) {
 			Constructor<?> constructor = resolveConstructorOverloading(
 					className, methDesc);
-			checkAsmAccessFlags(access, constructor);
 			int maxLocals = conf.MAX_LOCALS_DEFAULT;
 			MemberInfo memberInfo = memberInfos.get(constructor);
 			if (memberInfo != null)
@@ -199,7 +192,6 @@ public final class CallVM extends AbstractVM {
 		} else {
 			Method method = resolveMethodOverloading(className, methName,
 					methDesc);
-			checkAsmAccessFlags(access, method);
 			int maxLocals = conf.MAX_LOCALS_DEFAULT;
 			MemberInfo memberInfo = memberInfos.get(method);
 			if (memberInfo != null)
