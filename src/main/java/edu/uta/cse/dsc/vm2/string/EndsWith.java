@@ -3,7 +3,7 @@ package edu.uta.cse.dsc.vm2.string;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringBinaryExpression;
+import org.evosuite.symbolic.expr.StringComparison;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
@@ -31,9 +31,8 @@ public final class EndsWith extends StringFunction {
 		if (stringReceiverExpr.containsSymbolicVariable()
 				|| strExpr.containsSymbolicVariable()) {
 			int conV = res ? 1 : 0;
-			StringBinaryExpression strBExpr = new StringBinaryExpression(
-					stringReceiverExpr, Operator.ENDSWITH, strExpr,
-					Integer.toString(conV));
+			StringComparison strBExpr = new StringComparison(
+					stringReceiverExpr, Operator.ENDSWITH, strExpr, (long) conV);
 			StringToIntCast castExpr = new StringToIntCast(strBExpr,
 					(long) conV);
 			this.replaceBv32Top(castExpr);

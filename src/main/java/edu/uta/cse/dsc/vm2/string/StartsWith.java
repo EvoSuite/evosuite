@@ -8,6 +8,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.StringMultipleComparison;
 import org.evosuite.symbolic.expr.StringMultipleExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
@@ -40,11 +41,10 @@ public final class StartsWith extends StringFunction {
 				|| offsetExpr.containsSymbolicVariable()) {
 			int conV = res ? 1 : 0;
 
-			StringMultipleExpression strTExpr = new StringMultipleExpression(
+			StringMultipleComparison strTExpr = new StringMultipleComparison(
 					stringReceiverExpr, Operator.STARTSWITH, prefixExpr,
-					new ArrayList<Expression<?>>(Collections
-							.singletonList(offsetExpr)),
-					Integer.toString(conV));
+					new ArrayList<Expression<?>>(
+							Collections.singletonList(offsetExpr)), (long) conV);
 
 			StringToIntCast castExpr = new StringToIntCast(strTExpr,
 					(long) conV);
