@@ -93,6 +93,8 @@ public final class CallVM extends AbstractVM {
 	public void HANDLER_BEGIN(int access, String className, String methName,
 			String methDesc) {
 
+		Operand op = env.topFrame().operandStack.peekOperand();
+		
 		// throw exception
 		final Object throwable = env.topFrame().operandStack.popRef();
 
