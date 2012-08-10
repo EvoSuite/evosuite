@@ -13,8 +13,6 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
 import edu.uta.cse.dsc.vm2.Operand;
-import edu.uta.cse.dsc.vm2.ReferenceOperand;
-import edu.uta.cse.dsc.vm2.StringReferenceOperand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public abstract class LastIndexOf extends StringFunction {
@@ -37,7 +35,7 @@ public abstract class LastIndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = stringRef(it.next());
+			this.stringReceiverExpr = operandToStringRef(it.next());
 		}
 
 		@Override
@@ -71,7 +69,7 @@ public abstract class LastIndexOf extends StringFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = stringRef(it.next());
+			this.stringReceiverExpr = operandToStringRef(it.next());
 		}
 
 		@Override
@@ -107,14 +105,9 @@ public abstract class LastIndexOf extends StringFunction {
 		@Override
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			ReferenceOperand strRef = ref(it.next());
-			if (isNullRef(strRef)) {
-				throwException(new NullPointerException());
-				return;
-			}
-			this.strExpr = ((StringReferenceOperand) strRef)
-					.getStringExpression();
-			this.stringReceiverExpr = stringRef(it.next());
+
+			this.strExpr = operandToStringRef(it.next());
+			this.stringReceiverExpr = operandToStringRef(it.next());
 
 		}
 
@@ -148,15 +141,8 @@ public abstract class LastIndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
-			ReferenceOperand strRef = ref(it.next());
-			if (isNullRef(strRef)) {
-				throwException(new NullPointerException());
-				return;
-			}
-			this.strExpr = ((StringReferenceOperand) strRef)
-					.getStringExpression();
-
-			this.stringReceiverExpr = stringRef(it.next());
+			this.strExpr = operandToStringRef(it.next());
+			this.stringReceiverExpr = operandToStringRef(it.next());
 
 		}
 

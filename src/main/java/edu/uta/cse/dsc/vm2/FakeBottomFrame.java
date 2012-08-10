@@ -12,13 +12,13 @@ import java.lang.reflect.Member;
  * 
  * @author csallner@uta.edu (Christoph Csallner)
  */
-public final class FakeCallerFrame extends Frame {
+public final class FakeBottomFrame extends Frame {
 
 
 	/**
 	 * Constructor
 	 */
-	public FakeCallerFrame() {
+	public FakeBottomFrame() {
 		super(0);
 		super.invokeInstrumentedCode(false);
 	}

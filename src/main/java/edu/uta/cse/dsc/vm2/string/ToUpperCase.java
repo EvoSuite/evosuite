@@ -8,13 +8,15 @@ import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 public final class ToUpperCase extends StringFunction {
 
 	private static final String FUNCTION_NAME = "toUpperCase";
+
 	public ToUpperCase(SymbolicEnvironment env) {
 		super(env, FUNCTION_NAME, StringFunction.TO_STR_DESCRIPTOR);
 	}
 
 	@Override
 	protected void INVOKEVIRTUAL(String receiver) {
-		this.stringReceiverExpr = env.topFrame().operandStack.peekStringRef();
+		this.stringReceiverExpr = operandToStringRef(env.topFrame().operandStack
+				.peekOperand());
 	}
 
 	@Override

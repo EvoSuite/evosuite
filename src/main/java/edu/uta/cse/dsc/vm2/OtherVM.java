@@ -9,8 +9,10 @@ import edu.uta.cse.dsc.AbstractVM;
  */
 public final class OtherVM extends AbstractVM {
 
-	public OtherVM() {
+	private final SymbolicEnvironment env;
 
+	public OtherVM(SymbolicEnvironment env) {
+		this.env = env;
 	}
 
 	@Override
@@ -18,14 +20,23 @@ public final class OtherVM extends AbstractVM {
 		throw new UnsupportedOperationException();
 	}
 
+	/**
+	 * Enter synchronized region of code
+	 */
 	@Override
 	public void MONITORENTER() {
-		throw new UnsupportedOperationException();
+		// discard symbolic argument
+		this.env.topFrame().operandStack.popRef();
+		// ignore this instruction
+		return;
 	}
 
 	@Override
 	public void MONITOREXIT() {
-		throw new UnsupportedOperationException();
+		// discard symbolic argument
+		this.env.topFrame().operandStack.popRef();
+		// ignore this instruction
+		return;
 	}
 
 	@Override

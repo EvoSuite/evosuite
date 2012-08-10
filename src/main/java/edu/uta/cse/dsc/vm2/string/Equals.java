@@ -3,7 +3,6 @@ package edu.uta.cse.dsc.vm2.string;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringBinaryExpression;
 import org.evosuite.symbolic.expr.StringComparison;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;

@@ -12,8 +12,6 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
 import edu.uta.cse.dsc.vm2.Operand;
-import edu.uta.cse.dsc.vm2.ReferenceOperand;
-import edu.uta.cse.dsc.vm2.StringReferenceOperand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public final class StartsWith extends StringFunction {
@@ -31,17 +29,8 @@ public final class StartsWith extends StringFunction {
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.offsetExpr = bv32(it.next());
-
-		ReferenceOperand strRef = ref(it.next());
-		if (isNullRef(strRef)) {
-			throwException(new NullPointerException());
-			return;
-		}
-		this.prefixExpr = ((StringReferenceOperand) strRef)
-				.getStringExpression();
-
+		this.prefixExpr = operandToStringRef(it.next());
 		this.stringReceiverExpr = stringRef(it.next());
-
 	}
 
 	@Override

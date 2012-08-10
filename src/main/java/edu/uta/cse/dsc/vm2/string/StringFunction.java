@@ -12,6 +12,7 @@ import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.vm2.Bv32Operand;
 import edu.uta.cse.dsc.vm2.Bv64Operand;
+import edu.uta.cse.dsc.vm2.ExpressionFactory;
 import edu.uta.cse.dsc.vm2.Fp32Operand;
 import edu.uta.cse.dsc.vm2.Fp64Operand;
 import edu.uta.cse.dsc.vm2.Operand;
@@ -48,6 +49,14 @@ public abstract class StringFunction {
 
 	protected StringExpression stringReceiverExpr;
 
+	/**
+	 * This method should not consume the symbolic arguments in the stack
+	 * operand. The disposal of these arguments will be done by RETURN,
+	 * CALL_RESULT or HANDLER_BEGIN
+	 * 
+	 * @param receiver
+	 * 
+	 */
 	protected abstract void INVOKEVIRTUAL(String receiver);
 
 	private final String owner;
@@ -124,8 +133,18 @@ public abstract class StringFunction {
 		this.env.topFrame().operandStack.pushStringRef(expr);
 	}
 
-	protected void throwException(Exception ex) {
-		this.env.topFrame().operandStack.pushRef(ex);
+	protected static StringExpression operandToStringRef(Operand operand) {
+		if (operand instanceof StringReferenceOperand) {
+			StringReferenceOperand strRef = (StringReferenceOperand) operand;
+			return strRef.getStringExpression();
+		} else {
+			ReferenceOperand ref = (ReferenceOperand)operand;
+			if (ref.getReference()==null) {
+				return null;
+			} else {
+				return ExpressionFactory.buildNewStringConstant(ref.toString());
+			}
+		}
 	}
 
 	protected static RealExpression fp64(Operand operand) {

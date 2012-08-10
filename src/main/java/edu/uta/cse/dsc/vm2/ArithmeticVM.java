@@ -47,10 +47,8 @@ public final class ArithmeticVM extends AbstractVM {
 
 		pathConstraint.pushLocalConstraint(zeroCheck);
 
-		if (valueConcrete == 0) { // JVM will throw an exception
-			env.topFrame().operandStack.clearOperands(); // clear the operand
-															// stack
-			// push(); // TODO: Push new NullPointerException instance
+		if (valueConcrete == 0) {
+			// JVM will throw an exception
 			return true;
 		}
 
@@ -67,10 +65,8 @@ public final class ArithmeticVM extends AbstractVM {
 
 		pathConstraint.pushLocalConstraint(zeroCheck);
 
-		if (valueConcrete == 0) { // JVM will throw an exception
-			env.topFrame().operandStack.clearOperands(); // clear the operand
-															// stack
-			// push(); // TODO: Push new NullPointerException instance
+		if (valueConcrete == 0) {
+			// JVM will throw an exception
 			return true;
 		}
 
@@ -110,7 +106,7 @@ public final class ArithmeticVM extends AbstractVM {
 			return;
 
 		/* Form 1 */
-		Operand b = stack.popOperand();
+		stack.popOperand();
 	}
 
 	/**
@@ -649,11 +645,12 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void IDIV(int rhsValue) {
+		// consume all operands in stack
 		IntegerExpression right = env.topFrame().operandStack.popBv32();
-		if (zeroViolation(right, rhsValue))
-			return; // TODO: throw exception
-
 		IntegerExpression left = env.topFrame().operandStack.popBv32();
+
+		if (zeroViolation(right, rhsValue))
+			return;
 
 		int left_concrete_value = ((Long) left.getConcreteValue()).intValue();
 		int right_concrete_value = ((Long) right.getConcreteValue()).intValue();
@@ -684,10 +681,10 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void LDIV(long rhsValue) {
 		IntegerExpression right = env.topFrame().operandStack.popBv64();
-		if (zeroViolation(right, rhsValue))
-			return; // TODO: throw exception
-
 		IntegerExpression left = env.topFrame().operandStack.popBv64();
+
+		if (zeroViolation(right, rhsValue))
+			return;
 
 		long left_concrete_value = ((Long) left.getConcreteValue()).longValue();
 		long right_concrete_value = ((Long) right.getConcreteValue())
@@ -771,10 +768,10 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void IREM(int rhsValue) {
 		IntegerExpression right = env.topFrame().operandStack.popBv32();
-		if (zeroViolation(right, rhsValue))
-			return; // TODO: throw exception
-
 		IntegerExpression left = env.topFrame().operandStack.popBv32();
+
+		if (zeroViolation(right, rhsValue))
+			return;
 
 		int left_concrete_value = ((Long) left.getConcreteValue()).intValue();
 		int right_concrete_value = ((Long) right.getConcreteValue()).intValue();
@@ -1619,10 +1616,10 @@ public final class ArithmeticVM extends AbstractVM {
 	@Override
 	public void LREM(long rhs) {
 		IntegerExpression right = env.topFrame().operandStack.popBv64();
-		if (zeroViolation(right, rhs))
-			return; // TODO: throw exception
-
 		IntegerExpression left = env.topFrame().operandStack.popBv64();
+
+		if (zeroViolation(right, rhs))
+			return;
 
 		long left_concrete_value = ((Long) left.getConcreteValue()).longValue();
 		long right_concrete_value = ((Long) right.getConcreteValue())

@@ -11,8 +11,6 @@ import org.evosuite.symbolic.expr.StringMultipleComparison;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
 import edu.uta.cse.dsc.vm2.Operand;
-import edu.uta.cse.dsc.vm2.ReferenceOperand;
-import edu.uta.cse.dsc.vm2.StringReferenceOperand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public final class RegionMatches extends StringFunction {
@@ -40,16 +38,10 @@ public final class RegionMatches extends StringFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		lenExpr = bv32(it.next());
 		ooffsetExpr = bv32(it.next());
-		ReferenceOperand strRef = ref(it.next());
-		if (isNullRef(strRef)) {
-			throwException(new NullPointerException());
-			return;
-		}
-		this.otherExpr = ((StringReferenceOperand) strRef)
-				.getStringExpression();
+		otherExpr = operandToStringRef(it.next());
 		toffsetExpr = bv32(it.next());
 		ignoreCaseExpr = bv32(it.next());
-		stringReceiverExpr = stringRef(it.next());
+		stringReceiverExpr = operandToStringRef(it.next());
 
 	}
 

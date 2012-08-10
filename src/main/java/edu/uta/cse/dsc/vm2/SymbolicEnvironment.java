@@ -89,19 +89,21 @@ public final class SymbolicEnvironment {
 	 */
 	public void prepareStack(Method mainMethod) {
 		frames.clear();
-		frames.push(new FakeCallerFrame());
+		// bottom of the stack trace
+		this.pushFrame(new FakeBottomFrame());
 
-		final Frame frame = new MethodFrame(mainMethod,
+		// frame for argument purposes
+		final FakeMainCallerFrame fakeMainCallerFrame = new FakeMainCallerFrame(mainMethod,
 				MainConfig.get().MAX_LOCALS_DEFAULT); // fake caller of method
 														// under test
 
 		if (mainMethod != null) {
 			boolean isInstrumented = isInstrumented(mainMethod);
-			frame.invokeInstrumentedCode(isInstrumented);
+			fakeMainCallerFrame.invokeInstrumentedCode(isInstrumented);
 			String[] emptyStringArray = new String[] {};
-			frame.operandStack.pushRef(emptyStringArray);
+			fakeMainCallerFrame.operandStack.pushRef(emptyStringArray);
 		}
-		frames.push(frame);
+		this.pushFrame(fakeMainCallerFrame);
 	}
 
 	/**

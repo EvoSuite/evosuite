@@ -11,8 +11,6 @@ import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringMultipleExpression;
 
 import edu.uta.cse.dsc.vm2.Operand;
-import edu.uta.cse.dsc.vm2.ReferenceOperand;
-import edu.uta.cse.dsc.vm2.StringReferenceOperand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public abstract class Replace extends StringFunction {
@@ -37,7 +35,7 @@ public abstract class Replace extends StringFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.newCharExpr = bv32(it.next());
 			this.oldCharExpr = bv32(it.next());
-			this.stringReceiverExpr = stringRef(it.next());
+			this.stringReceiverExpr = operandToStringRef(it.next());
 		}
 
 		@Override
@@ -70,34 +68,9 @@ public abstract class Replace extends StringFunction {
 		@Override
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-
-			ReferenceOperand newCharSeqOperand = (ReferenceOperand) it.next();
-			if (newCharSeqOperand.getReference() == null) {
-				throwException(new NullPointerException());
-				return;
-			}
-
-			ReferenceOperand oldCharSeqOperand = (ReferenceOperand) it.next();
-			if (oldCharSeqOperand.getReference() == null) {
-				throwException(new NullPointerException());
-				return;
-			}
-
-			if (newCharSeqOperand instanceof StringReferenceOperand) {
-				this.newStringExpr = ((StringReferenceOperand) newCharSeqOperand)
-						.getStringExpression();
-			} else {
-				this.newStringExpr = null;
-			}
-
-			if (oldCharSeqOperand instanceof StringReferenceOperand) {
-				this.oldStringExpr = ((StringReferenceOperand) oldCharSeqOperand)
-						.getStringExpression();
-			} else {
-				this.oldStringExpr = null;
-			}
-
-			this.stringReceiverExpr = stringRef(it.next());
+			this.newStringExpr = operandToStringRef(it.next());
+			this.oldStringExpr = operandToStringRef(it.next());
+			this.stringReceiverExpr = operandToStringRef(it.next());
 		}
 
 		@Override

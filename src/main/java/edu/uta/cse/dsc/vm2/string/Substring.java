@@ -28,25 +28,7 @@ public final class Substring extends StringFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.endIndexExpr = bv32(it.next());
 		this.beginIndexExpr = bv32(it.next());
-		this.stringReceiverExpr = stringRef(it.next());
-
-		int begin = ((Long) beginIndexExpr.getConcreteValue()).intValue();
-		int end = ((Long) endIndexExpr.getConcreteValue()).intValue();
-
-		if (begin < 0 || begin > receiver.length()) {
-			throwException(new StringIndexOutOfBoundsException());
-			return;
-		}
-
-		if (end < 0 || end > receiver.length()) {
-			throwException(new StringIndexOutOfBoundsException());
-			return;
-		}
-
-		if (end < begin) {
-			throwException(new StringIndexOutOfBoundsException());
-			return;
-		}
+		this.stringReceiverExpr = operandToStringRef(it.next());
 	}
 
 	@Override
