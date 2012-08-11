@@ -49,7 +49,7 @@ public final class CallVM extends AbstractVM {
 		 * <clinit>() method can read textually earlier fields
 		 */
 		env.ensurePrepared(className);
-		Frame frame = new StaticInitializerFrame();
+		Frame frame = new StaticInitializerFrame(className);
 		env.pushFrame(frame); // <clinit>() has no parameters
 	}
 
@@ -59,7 +59,8 @@ public final class CallVM extends AbstractVM {
 	 * @return constructor matches with the current frame, after discarding some
 	 *         frames when necessary to match
 	 */
-	private boolean discardFrames(Member function) {
+	private boolean discardFrames(String className, String methName,
+			Member function) {
 		if (function == null)
 			throw new IllegalArgumentException("function should be non null");
 
@@ -67,15 +68,19 @@ public final class CallVM extends AbstractVM {
 			return false;
 
 		Frame topFrame = env.topFrame();
-		if (topFrame instanceof StaticInitializerFrame)
-			throw new UnsupportedOperationException(
-					"TODO: topFrame isntanceof StaticInitializerFrame");
+		if (topFrame instanceof StaticInitializerFrame) {
+			StaticInitializerFrame clinitFrame = (StaticInitializerFrame) topFrame;
+			if (methName.equals(conf.INIT)
+					&& clinitFrame.getClassName().equals(className)) {
+				return true;
+			}
+		}
 
-		if (function.equals(topFrame.getMember()))
+		if (function != null && function.equals(topFrame.getMember()))
 			return true;
 
 		env.popFrame();
-		return discardFrames(function);
+		return discardFrames(className, methName, function);
 	}
 
 	/**
@@ -92,10 +97,6 @@ public final class CallVM extends AbstractVM {
 	public void HANDLER_BEGIN(int access, String className, String methName,
 			String methDesc) {
 
-		if (conf.CLINIT.equals(methName))
-			throw new UnsupportedOperationException(
-					"DSC marked this as TODO code!"); // TODO
-
 		// the method or constructor containing this handler
 		Member function = null;
 		if (conf.INIT.equals(methName))
@@ -103,7 +104,10 @@ public final class CallVM extends AbstractVM {
 		else
 			function = resolveMethodOverloading(className, methName, methDesc);
 
-		discardFrames(function);
+		/**
+		 * function could be equal to null if handler is in class initializer
+		 */
+		discardFrames(className, methName, function);
 
 		env.topFrame().operandStack.clearOperands();
 		/**
@@ -382,7 +386,6 @@ public final class CallVM extends AbstractVM {
 		final Deque<Class<?>> interfaces = new LinkedList<Class<?>>();
 
 		Class<?> claz = env.ensurePrepared(owner);
-
 		/* Resolve method overloading -- need method parameter types */
 		Class<?>[] argTypes = getArgumentClasses(methDesc);
 
