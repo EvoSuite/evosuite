@@ -387,7 +387,9 @@ public class ConstructorStatement extends AbstractStatement {
 					Type parameterType = Type.getType(parameterClass);
 					mg.checkCast(parameterType);
 					mg.unbox(Type.getType(constructor.getParameterTypes()[num]));
-				} else if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+				}
+
+				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting "
 					        + parameter.getVariableClass().getName() + " to "
 					        + constructor.getParameterTypes()[num].getName());

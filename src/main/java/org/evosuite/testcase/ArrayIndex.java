@@ -201,6 +201,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		mg.storeLocal(localVar);
 
 		array.loadBytecode(mg, locals);
+
 		mg.push(indices.get(0));
 		mg.loadLocal(localVar);
 
