@@ -86,9 +86,32 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
-	//FIXME: need re-factor, as dependent on Properties
-	/** Constant <code>REPORT_DIR</code> */
-	protected static final File REPORT_DIR = new File(Properties.REPORT_DIR);
+	protected static File getReportDir() {
+		return new File(Properties.REPORT_DIR);
+	}
+
+	/**
+	 * <p>
+	 * This enumeration defines all the variables we want to store in the CSV
+	 * files. Note, it is perfectly fine to add new ones, in any position. Just
+	 * be sure to define a proper mapper in {@code getCSVvalue}.
+	 * </p>
+	 * 
+	 * <p>
+	 * WARNING: do not change the name of any variable! If you do, current R
+	 * scripts will break. If you really need to change a name, please first
+	 * contact Andrea Arcuri.
+	 * </p>
+	 * 
+	 * @author arcuri
+	 * 
+	 */
+	private enum Variable {
+		/** The class under test */
+		Class,
+		/** Number of predicates */
+		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals, Coverage, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File
+	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
 	protected static final String DATE_FORMAT_NOW = "yyyy-MM-dd HH:mm:ss";
@@ -233,162 +256,214 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public int implicitTypeExceptions;
 
-		public Map<String, Set<Class<?>>> exceptions;
+		public Map<String, Set<Class<?>>> implicitExceptions;
+
+		public Map<String, Set<Class<?>>> explicitExceptions;
+
+		/**
+		 * For now we keep track of all defined variables. But in future we
+		 * might want to choose only some subsets based on the kind of
+		 * experiment
+		 * 
+		 * @return
+		 */
+		public Variable[] getUsedVariables() {
+			Variable[] variables = Variable.values();
+			return variables;
+		}
 
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
-			r.append("Class,Predicates,Total Branches,Covered Branches,Total Methods,Branchless Methods,Covered Methods,Covered Branchless Methods,");
-			r.append("Total Goals,Covered Goals,Coverage,Creation Time,Minimization Time,Total Time,Test Execution Time,Goal Computation Time,Result Size,Result Length,"); //17
-			r.append("Minimized Size,Minimized Length,");
-			// "Bloat Rejections,Fitness Rejections,Fitness Accepts,"
-			r.append("Chromosome Length,Population Size,Random Seed,Budget,"); //23
 
-			// TODO since we currently don't want to change the layout of
-			// statistics.csv i will leave this commented out for future use and
-			// sort of copy this into CoverageStatistics
-			// r.append("parameter DU-goals, intra DU-goals, inter DU-goals,");
-			// r.append("Stopping Condition,Global Time,Timed Out,");
+			Variable[] variables = Variable.values();
+			if (variables.length > 0) {
+				r.append(variables[0].toString());
+			}
 
-			r.append("AllPermission,SecurityPermission,UnresolvedPermission,AWTPermission,FilePermission,SerializablePermission,ReflectPermission,RuntimePermission,NetPermission,SocketPermission,SQLPermission,PropertyPermission,LoggingPermission,SSLPermission,AuthPermission,AudioPermission,OtherPermission,Threads,");//41
+			for (int i = 1; i < variables.length; i++) {
+				r.append(",");
+				r.append(variables[i].toString());
+			}
 
-			r.append("JUnitTests,");
-			r.append("Branches,");
-			r.append("MutationScore,");
-			r.append("Explicit MethodExceptions,");
-			r.append("Explicit TypeExceptions,");
-			r.append("Implicit MethodExceptions,");
-			r.append("Implicit TypeExceptions,");
-			r.append("Error Predicates,");
-			r.append("Error Branches Covered,");
-			r.append("Error Branchless Methods,");
-			r.append("Error Branchless Methods Covered,");
-			r.append("AssertionContract,");
-			r.append("EqualsContract,");
-			r.append("EqualsHashcodeContract,");
-			r.append("EqualsNullContract,");
-			r.append("EqualsSymmetricContract,");
-			r.append("HashCodeReturnsNormallyContract,");
-			r.append("JCrasherExceptionContract,");
-			r.append("NullPointerExceptionContract,");
-			r.append("ToStringReturnsNormallyContract,");
-			r.append("UndeclaredExceptionContract,");
-			r.append("Contract Violations,");
-			r.append("Unique Violations,");
-			r.append("Data File");
 			return r.toString();
+		}
+
+		private String getCSVvalue(Variable var) {
+
+			PermissionStatistics pstats = PermissionStatistics.getInstance();
+
+			switch (var) {
+			case Class:
+				return className;
+			case Predicates:
+				return "" + total_branches;
+			case Total_Branches:
+				return "" + (total_branches * 2);
+			case Covered_Branches:
+				return "" + covered_branches;
+			case Total_Methods:
+				return "" + total_methods;
+			case Branchless_Methods:
+				return "" + branchless_methods;
+			case Covered_Methods:
+				return "" + covered_methods;
+			case Covered_Branchless_Methods:
+				return "" + covered_branchless_methods;
+			case Total_Goals:
+				return "" + total_goals;
+			case Covered_Goals:
+				return "" + covered_goals;
+			case Coverage:
+				return "" + getCoverageDouble();
+			case Creation_Time:
+				return "" + (minimized_time - start_time);
+			case Minimization_Time:
+				return "" + (minimized_time - end_time);
+			case Total_Time:
+				return "" + (end_time - start_time);
+			case Test_Execution_Time:
+				return "" + testExecutionTime;
+			case Goal_Computation_Time:
+				return "" + goalComputationTime;
+			case Result_Size:
+				return "" + size_final;
+			case Result_Length:
+				return "" + length_final;
+			case Minimized_Size:
+				return "" + size_minimized;
+			case Minimized_Length:
+				return "" + length_minimized;
+			case Chromosome_Length:
+				return "" + chromosome_length;
+			case Population_Size:
+				return "" + population_size;
+			case Random_Seed:
+				return "" + seed;
+			case Budget:
+				return "" + Properties.SEARCH_BUDGET;
+			case AllPermission:
+				return "" + pstats.getNumAllPermission();
+			case SecurityPermission:
+				return "" + pstats.getNumSecurityPermission();
+			case UnresolvedPermission:
+				return "" + pstats.getNumUnresolvedPermission();
+			case AWTPermission:
+				return "" + pstats.getNumAWTPermission();
+			case FilePermission:
+				return "" + pstats.getNumFilePermission();
+			case SerializablePermission:
+				return "" + pstats.getNumSerializablePermission();
+			case ReflectPermission:
+				return "" + pstats.getNumReflectPermission();
+			case RuntimePermission:
+				return "" + pstats.getNumRuntimePermission();
+			case NetPermission:
+				return "" + pstats.getNumNetPermission();
+			case SocketPermission:
+				return "" + pstats.getNumSocketPermission();
+			case SQLPermission:
+				return "" + pstats.getNumSQLPermission();
+			case PropertyPermission:
+				return "" + pstats.getNumPropertyPermission();
+			case LoggingPermission:
+				return "" + pstats.getNumLoggingPermission();
+			case SSLPermission:
+				return "" + pstats.getNumSSLPermission();
+			case AuthPermission:
+				return "" + pstats.getNumAuthPermission();
+			case AudioPermission:
+				return "" + pstats.getNumAudioPermission();
+			case OtherPermission:
+				return "" + pstats.getNumOtherPermission();
+			case Threads:
+				return "" + pstats.getMaxThreads();
+			case JUnitTests:
+				return "" + JUnitTestChromosomeFactory.getNumTests();
+			case Branches:
+				//FIXME: this name seem kind of confusing
+				return "" + goalCoverage;
+			case MutationScore:
+				return "" + mutationScore;
+			case Explicit_MethodExceptions:
+				return "" + explicitMethodExceptions;
+			case Explicit_TypeExceptions:
+				return "" + explicitTypeExceptions;
+			case Implicit_MethodExceptions:
+				return "" + implicitMethodExceptions;
+			case Implicit_TypeExceptions:
+				return "" + implicitTypeExceptions;
+			case Error_Predicates:
+				return "" + error_branches;
+			case Error_Branches_Covered:
+				return "" + error_branches_covered;
+			case Error_Branchless_Methods:
+				return "" + error_branchless_methods;
+			case Error_Branchless_Methods_Covered:
+				return "" + error_branchless_methods_covered;
+			case AssertionContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(AssertionErrorContract.class);
+			case EqualsContract:
+				return "" + FailingTestSet.getNumberOfViolations(EqualsContract.class);
+			case EqualsHashcodeContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class);
+			case EqualsNullContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(EqualsNullContract.class);
+			case EqualsSymmetricContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class);
+			case HashCodeReturnsNormallyContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class);
+			case JCrasherExceptionContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(JCrasherExceptionContract.class);
+			case NullPointerExceptionContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(NullPointerExceptionContract.class);
+			case ToStringReturnsNormallyContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class);
+			case UndeclaredExceptionContract:
+				return ""
+				        + FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class);
+			case Contract_Violations:
+				return "" + FailingTestSet.getNumberOfViolations();
+			case Unique_Violations:
+				return "" + FailingTestSet.getNumberOfUniqueViolations();
+			case Data_File:
+				return getCSVFilepath();
+			}
+
+			/*
+			 * note, this should never happen. If it does, then it is a bug in EvoSuite. But instead of throwing an exception,
+			 * we just log it. In this way, we still get the CSV file for debugging 
+			 */
+			logger.error("No mapping defined for variable " + var.toString());
+
+			return "-1";
 		}
 
 		public String getCSVData() {
 			StringBuilder r = new StringBuilder();
 
-			r.append(className + ",");
+			Variable[] variables = Variable.values();
+			if (variables.length > 0) {
+				r.append(getCSVvalue(variables[0]));
+			}
 
-			r.append(total_branches + ",");
-			r.append((2 * total_branches) + ",");
-			r.append(covered_branches + ",");
-
-			r.append(total_methods + ",");
-			r.append(branchless_methods + ",");
-			r.append(covered_methods + ",");
-			r.append(covered_branchless_methods + ",");
-
-			r.append(total_goals + ",");
-			r.append(covered_goals + ",");
-			r.append(getCoverageDouble() + ","); // 9
-
-			// r.append(start_time+",");
-			// r.append(end_time+",");
-			// r.append(minimized_time+",");
-
-			r.append((minimized_time - start_time) + ",");
-			r.append((minimized_time - end_time) + ",");
-			r.append((end_time - start_time) + ",");
-
-			r.append(testExecutionTime + ",");
-			r.append(goalComputationTime + ",");
-
-			r.append(size_final + ",");
-			r.append(length_final + ",");
-			r.append(size_minimized + ",");
-			r.append(length_minimized + ",");
-
-			r.append(chromosome_length + ",");
-			r.append(population_size + ",");
-			r.append(seed + ","); //21
-			r.append(Properties.SEARCH_BUDGET + ","); //22
-
-			// TODO since we currently don't want to change the layout of
-			// statistics.csv i will leave this commented out for future use and
-			// sort of copy this into CoverageStatistics
-			//			r.append(paramDUGoalCount + ",");
-			//			r.append(intraDUGoalCount + ",");
-			//			r.append(interDUGoalCount + ",");
-			// r.append(stoppingCondition + ",");
-			// r.append(globalTimeStoppingCondition + ",");
-			// r.append(timedOut + ",");
-
-			PermissionStatistics pstats = PermissionStatistics.getInstance();
-
-			// TODO: This is a bug, AllPermission should only be here once, but we need to keep it for the ICSE12 experiments
-			r.append(pstats.getNumAllPermission() + ",");
-			// TODO remove the line above in the future (awesome comment)
-			r.append(pstats.getNumAllPermission() + ",");
-			r.append(pstats.getNumSecurityPermission() + ",");
-			r.append(pstats.getNumUnresolvedPermission() + ",");
-			r.append(pstats.getNumAWTPermission() + ",");
-			r.append(pstats.getNumFilePermission() + ",");
-			r.append(pstats.getNumSerializablePermission() + ",");
-			r.append(pstats.getNumReflectPermission() + ",");
-			r.append(pstats.getNumRuntimePermission() + ",");
-			r.append(pstats.getNumNetPermission() + ",");
-			r.append(pstats.getNumSocketPermission() + ",");
-			r.append(pstats.getNumSQLPermission() + ",");
-			r.append(pstats.getNumPropertyPermission() + ",");
-			r.append(pstats.getNumLoggingPermission() + ",");
-			r.append(pstats.getNumSSLPermission() + ",");
-			r.append(pstats.getNumAuthPermission() + ",");
-			r.append(pstats.getNumAudioPermission() + ",");
-			r.append(pstats.getNumOtherPermission() + ",");
-			r.append(pstats.getMaxThreads() + ",");
-			r.append(JUnitTestChromosomeFactory.getNumTests() + ",");
-
-			r.append(goalCoverage + ",");
-			r.append(mutationScore + ",");
-			r.append(explicitMethodExceptions + ",");
-			r.append(explicitTypeExceptions + ",");
-			r.append(implicitMethodExceptions + ",");
-			r.append(implicitTypeExceptions + ",");
-			r.append(error_branches + ",");
-			r.append(error_branches_covered + ",");
-			r.append(error_branchless_methods + ",");
-			r.append(error_branchless_methods_covered + ",");
-			r.append(FailingTestSet.getNumberOfViolations(AssertionErrorContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations(EqualsContract.class) + ",");
-			r.append(FailingTestSet.getNumberOfViolations(EqualsHashcodeContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations(EqualsNullContract.class) + ",");
-			r.append(FailingTestSet.getNumberOfViolations(EqualsSymmetricContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations(HashCodeReturnsNormallyContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations(JCrasherExceptionContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations(NullPointerExceptionContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations(ToStringReturnsNormallyContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class)
-			        + ",");
-			r.append(FailingTestSet.getNumberOfViolations() + ",");
-			r.append(FailingTestSet.getNumberOfUniqueViolations() + ",");
-			r.append(getCSVFilepath());
+			for (int i = 1; i < variables.length; i++) {
+				r.append(",");
+				r.append(getCSVvalue(variables[i]));
+			}
 
 			return r.toString();
 		}
 
 		public String getCSVFilepath() {
-			return REPORT_DIR.getAbsolutePath() + File.separator + getCSVFileName();
+			return getReportDir().getAbsolutePath() + File.separator + getCSVFileName();
 		}
 
 		public String getCSVFileName() {
@@ -397,8 +472,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		public String getExceptionFilepath() {
-			return REPORT_DIR.getAbsolutePath() + "/data/exceptions_" + className + "-"
-			        + id + ".csv";
+			return getReportDir().getAbsolutePath() + "/data/exceptions_" + className
+			        + "-" + id + ".csv";
 		}
 
 		public String getCoverage() {
@@ -439,10 +514,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 */
 	protected String writeIntegerChart(List<Integer> values, String className,
 	        String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
-		        + "_" + className + ".png");
+		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_"
+		        + title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
-		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
+		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
@@ -480,10 +555,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeDoubleChart(List<Double> values, String className, String title) {
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/img/statistics_" + title
-		        + "_" + className + ".png");
+		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_"
+		        + title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
-		GNUPlotTerminal terminal = new FileTerminal("png", REPORT_DIR
+		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
@@ -604,13 +679,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 *            a {@link java.util.Map} object.
 	 */
 	protected void writeExceptionData(String filename,
-	        Map<String, Set<Class<?>>> exceptions) {
+	        Map<String, Set<Class<?>>> implicitExceptions,
+	        Map<String, Set<Class<?>>> explicitExceptions) {
 		try {
 			BufferedWriter out = new BufferedWriter(new FileWriter(filename, true));
-			out.write("Method,Exception\n");
-			for (String key : exceptions.keySet()) {
-				for (Class<?> exception : exceptions.get(key)) {
-					out.write(key + "," + exception.getCanonicalName() + "\n");
+			out.write("Method,Exception,Explicit\n");
+			for (String key : explicitExceptions.keySet()) {
+				for (Class<?> exception : explicitExceptions.get(key)) {
+					out.write(key + "," + exception.getCanonicalName() + ",1\n");
+				}
+			}
+			for (String key : implicitExceptions.keySet()) {
+				for (Class<?> exception : implicitExceptions.get(key)) {
+					out.write(key + "," + exception.getCanonicalName() + ",0\n");
 				}
 			}
 			out.close();
@@ -639,7 +720,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		};
 		List<String> filenames = new ArrayList<String>();
 
-		File[] files = (new File(REPORT_DIR.getAbsolutePath() + "/data")).listFiles(filter);
+		File[] files = (new File(getReportDir().getAbsolutePath() + "/data")).listFiles(filter);
 		if (files != null) {
 			for (File f : files)
 				filenames.add(f.getName());
@@ -834,7 +915,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		writeHTMLFooter(sb);
 
 		String filename = "report-" + run.className + "-" + run.id + ".html";
-		File file = new File(REPORT_DIR.getAbsolutePath() + "/html/" + filename);
+		File file = new File(getReportDir().getAbsolutePath() + "/html/" + filename);
 		Utils.writeFile(sb.toString(), file);
 		// return file.getAbsolutePath();
 		return filename;
@@ -972,7 +1053,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		logger.info("Writing CSV!");
 		try {
-			File f = new File(REPORT_DIR + "/statistics.csv");
+			File f = new File(getReportDir() + "/statistics.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
 				out.write(entry.getCSVHeader() + "\n");
@@ -985,7 +1066,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
-			writeExceptionData(entry.getExceptionFilepath(), entry.exceptions);
+			writeExceptionData(entry.getExceptionFilepath(), entry.implicitExceptions,
+			                   entry.explicitExceptions);
 		}
 		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
 		             entry.coverage_history, entry.size_history, entry.length_history,
@@ -1032,9 +1114,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	public static void copyFile(String name) {
 		URL systemResource = ClassLoader.getSystemResource("report/" + name);
 		logger.debug("Copying from resource: " + systemResource);
-		copyFile(systemResource, new File(REPORT_DIR, "files/" + name));
-		copyFile(systemResource, new File(REPORT_DIR.getAbsolutePath() + "/html/files/"
-		        + name));
+		copyFile(systemResource, new File(getReportDir(), "files/" + name));
+		copyFile(systemResource, new File(getReportDir().getAbsolutePath()
+		        + "/html/files/" + name));
 	}
 
 	/**
@@ -1047,9 +1129,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		if (statistics.isEmpty())
 			return;
 
-		new File(REPORT_DIR.getAbsolutePath() + "/html/files/").mkdirs();
-		new File(REPORT_DIR.getAbsolutePath() + "/data/").mkdirs();
-		new File(REPORT_DIR.getAbsolutePath() + "/files/").mkdirs();
+		new File(getReportDir().getAbsolutePath() + "/html/files/").mkdirs();
+		new File(getReportDir().getAbsolutePath() + "/data/").mkdirs();
+		new File(getReportDir().getAbsolutePath() + "/files/").mkdirs();
 
 		copyFile("prettify.js");
 		copyFile("prettify.css");
@@ -1063,7 +1145,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		copyFile("img02.jpg");
 		copyFile("img03.jpg");
 		copyFile("img04.png");
-		File file = new File(REPORT_DIR, "report-generation.html");
+		File file = new File(getReportDir(), "report-generation.html");
 		StringBuffer report = new StringBuffer();
 
 		if (file.exists()) {
@@ -1140,27 +1222,29 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		if (result == null || testChromosome.isChanged()) {
 			try {
-				// logger.trace(test.toCode());
+				if (logger.isTraceEnabled()) {
+					logger.trace(testChromosome.getTestCase().toCode());
+				}
 				TestCaseExecutor executor = TestCaseExecutor.getInstance();
 				result = executor.execute(testChromosome.getTestCase());
 
 			} catch (Exception e) {
-				System.out.println("TG: Exception caught: " + e);
-				e.printStackTrace();
+				logger.error("TG: Exception caught: " + e.getMessage(), e);
 				try {
 					Thread.sleep(1000);
 					result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 				} catch (Exception e1) {
-					e.printStackTrace();
-					// TODO: Do some error recovery?
+					logger.error("Cannot set trace in test case with exception. Going to kill client",
+					             e1);
+					//TODO: some error recovery?
 					System.exit(1);
 				}
 			}
 		}
-		// Map<Integer, Throwable> result = executor.run(test);
+
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		// entry.results.put(test, result);
-		entry.results.put(testChromosome.getTestCase(), result.exposeExceptionMapping());
+		entry.results.put(testChromosome.getTestCase(),
+		                  result.getCopyOfExceptionMapping());
 
 		return result;
 	}
@@ -1181,12 +1265,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * </p>
 	 */
 	protected void makeDirs() {
-		REPORT_DIR.mkdirs();
-		(new File(REPORT_DIR.getAbsolutePath() + "/data")).mkdir();
+		getReportDir().mkdirs();
+		(new File(getReportDir().getAbsolutePath() + "/data")).mkdir();
 		if (Properties.PLOT)
-			(new File(REPORT_DIR.getAbsolutePath() + "/img")).mkdir();
+			(new File(getReportDir().getAbsolutePath() + "/img")).mkdir();
 		if (Properties.HTML)
-			(new File(REPORT_DIR.getAbsolutePath() + "/html")).mkdir();
+			(new File(getReportDir().getAbsolutePath() + "/html")).mkdir();
 	}
 
 	/** {@inheritDoc} */

@@ -271,7 +271,6 @@ public class GenericClass implements Serializable {
 	 */
 	public static boolean isAssignable(Type lhsType, Type rhsType) {
 		if (lhsType.equals(rhsType)) {
-			//logger.info("Classes are identical: "+lhsType+" / "+rhsType);
 			return true;
 		}
 
@@ -283,7 +282,6 @@ public class GenericClass implements Serializable {
 			if (((Class<?>) rhsType).equals(void.class)
 			        || ((Class<?>) lhsType).equals(void.class))
 				return false;
-
 			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
 		}
 
@@ -291,10 +289,14 @@ public class GenericClass implements Serializable {
 		//		return isAssignable((ParameterizedType) lhsType, (ParameterizedType) rhsType);
 		//	}
 		if (lhsType instanceof TypeVariable<?>) {
-			return isAssignable(Integer.TYPE, rhsType);
+			if (((TypeVariable<?>) lhsType).getBounds().length == 0)
+				return isAssignable(Object.class, rhsType);
+			return isAssignable(((TypeVariable<?>) lhsType).getBounds()[0], rhsType);
 		}
 		if (rhsType instanceof TypeVariable<?>) {
-			return isAssignable(lhsType, Integer.TYPE);
+			if (((TypeVariable<?>) rhsType).getBounds().length == 0)
+				return isAssignable(lhsType, Object.class);
+			return isAssignable(lhsType, ((TypeVariable<?>) rhsType).getBounds()[0]);
 		}
 		if (rhsType instanceof ParameterizedType) {
 			return isAssignable(lhsType, ((ParameterizedType) rhsType).getRawType());
@@ -362,6 +364,8 @@ public class GenericClass implements Serializable {
 	}
 
 	private static boolean isAssignable(WildcardType lhsType, Type rhsType) {
+		// TODO - what should go here?
+
 		/*
 		Type[] upperBounds = lhsType.getUpperBounds();
 		Type[] lowerBounds = lhsType.getLowerBounds();

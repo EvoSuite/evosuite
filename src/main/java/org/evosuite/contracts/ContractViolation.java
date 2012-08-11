@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,18 +22,22 @@ package org.evosuite.contracts;
 
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.AbstractTestFactory;
+import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestFactory;
+import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>ContractViolation class.</p>
- *
+ * <p>
+ * ContractViolation class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class ContractViolation {
@@ -50,12 +54,18 @@ public class ContractViolation {
 	private final Throwable exception;
 
 	/**
-	 * <p>Constructor for ContractViolation.</p>
-	 *
-	 * @param contract a {@link org.evosuite.contracts.Contract} object.
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param exception a {@link java.lang.Throwable} object.
+	 * <p>
+	 * Constructor for ContractViolation.
+	 * </p>
+	 * 
+	 * @param contract
+	 *            a {@link org.evosuite.contracts.Contract} object.
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param exception
+	 *            a {@link java.lang.Throwable} object.
 	 */
 	public ContractViolation(Contract contract, TestCase test,
 	        StatementInterface statement, Throwable exception) {
@@ -67,7 +77,7 @@ public class ContractViolation {
 
 	/**
 	 * Getter for test case
-	 *
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getTestCase() {
@@ -76,7 +86,7 @@ public class ContractViolation {
 
 	/**
 	 * Getter for contract that was violated
-	 *
+	 * 
 	 * @return a {@link org.evosuite.contracts.Contract} object.
 	 */
 	public Contract getContract() {
@@ -113,8 +123,9 @@ public class ContractViolation {
 
 	/**
 	 * Determine if we have already seen an instance of this violation
-	 *
-	 * @param other a {@link org.evosuite.contracts.ContractViolation} object.
+	 * 
+	 * @param other
+	 *            a {@link org.evosuite.contracts.ContractViolation} object.
 	 * @return a boolean.
 	 */
 	public boolean same(ContractViolation other) {
@@ -146,8 +157,24 @@ public class ContractViolation {
 			if (ms1.getConstructor().equals(ms2.getConstructor())) {
 				return true;
 			}
+		} else if (statement instanceof AssignmentStatement) {
+			VariableReference var1 = statement.getReturnValue();
+			VariableReference var2 = other.statement.getReturnValue();
+			if (var1 instanceof FieldReference && var2 instanceof FieldReference) {
+				if (((FieldReference) var1).getField().equals(((FieldReference) var2).getField()))
+					return true;
+			}
 		}
 		return false;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return "Violated contract: " + contract + " in statement " + statement
+		        + " with exception " + exception;
 	}
 
 }

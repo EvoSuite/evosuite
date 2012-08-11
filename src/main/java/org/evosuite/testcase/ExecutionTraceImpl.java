@@ -1174,6 +1174,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	        double true_distance, double false_distance) {
 
 		if (traceCalls) {
+			if (stack.isEmpty()) {
+				return;
+			}
 			stack.peek().branchTrace.add(branch); // was: bytecode_id
 			stack.peek().trueDistanceTrace.add(true_distance);
 			stack.peek().falseDistanceTrace.add(false_distance);

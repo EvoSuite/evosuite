@@ -100,6 +100,15 @@ public class DelegatingTestCase implements TestCase {
 
 	/** {@inheritDoc} */
 	@Override
+	public boolean equals(Object other) {
+		if (delegate != null) {
+			return delegate.equals(other);
+		}
+		return super.equals(other);
+	}
+	
+	/** {@inheritDoc} */
+	@Override
 	public Set<Class<?>> getAccessedClasses() {
 		return delegate.getAccessedClasses();
 	}
@@ -229,6 +238,15 @@ public class DelegatingTestCase implements TestCase {
 
 	/** {@inheritDoc} */
 	@Override
+	public int hashCode() {
+		if (delegate != null) {
+			return delegate.hashCode();
+		}
+		return super.hashCode();
+	}
+	
+	/** {@inheritDoc} */
+	@Override
 	public boolean hasObject(Type type, int position) {
 		return delegate.hasObject(type, position);
 	}
@@ -344,5 +362,6 @@ public class DelegatingTestCase implements TestCase {
 		}
 		return super.toString();
 	}
+	
 
 }

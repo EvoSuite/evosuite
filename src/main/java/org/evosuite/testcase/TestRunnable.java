@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,8 +42,10 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 
 /**
- * <p>TestRunnable class.</p>
- *
+ * <p>
+ * TestRunnable class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class TestRunnable implements InterfaceTestRunnable {
@@ -53,8 +55,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 	private final TestCase test;
 
 	private Scope scope = null;
-
-	private final boolean log = true;
 
 	public boolean runFinished;
 
@@ -68,11 +68,16 @@ public class TestRunnable implements InterfaceTestRunnable {
 	public Set<ExecutionObserver> observers;
 
 	/**
-	 * <p>Constructor for TestRunnable.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param scope a {@link org.evosuite.testcase.Scope} object.
-	 * @param observers a {@link java.util.Set} object.
+	 * <p>
+	 * Constructor for TestRunnable.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param scope
+	 *            a {@link org.evosuite.testcase.Scope} object.
+	 * @param observers
+	 *            a {@link java.util.Set} object.
 	 */
 	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		test = tc;
@@ -148,6 +153,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 			LoggingUtils.muteCurrentOutAndErrStream();
 		}
 
+		long startTime = System.currentTimeMillis();
+
 		int num = 0;
 		try {
 			// exceptionsThrown = test.execute(scope, observers, !log);
@@ -206,6 +213,19 @@ public class TestRunnable implements InterfaceTestRunnable {
 						logger.debug("Exception thrown in statement: " + s.getCode()
 						        + " - " + exceptionThrown.getClass().getName() + " - "
 						        + exceptionThrown.getMessage());
+						for (StackTraceElement elem : exceptionThrown.getStackTrace()) {
+							logger.debug(elem.toString());
+						}
+						if (exceptionThrown.getCause() != null) {
+							logger.debug("Cause: "
+							        + exceptionThrown.getCause().getClass().getName()
+							        + " - " + exceptionThrown.getCause().getMessage());
+							for (StackTraceElement elem : exceptionThrown.getCause().getStackTrace()) {
+								logger.debug(elem.toString());
+							}
+						} else {
+							logger.debug("Cause is null");
+						}
 					}
 
 					/*
@@ -288,6 +308,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 			test.setAccessedFiles(new ArrayList<String>(IOWrapper.getAccessedFiles()));
 			FileSystem.restoreOriginalFS();
 		}
+
+		result.setExecutionTime(System.currentTimeMillis() - startTime);
 
 		// FIXXME: Why don't we write into the result directly?
 		result.setThrownExceptions(getExceptionsThrown());
