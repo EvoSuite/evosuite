@@ -32,11 +32,10 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.util.CheckClassAdapter;
 
-
 /**
- * This class executes an existing test case in binary form to determine its runtime values.
- * To do that, the test case (NOT the SUT) is instrumented.
- *
+ * This class executes an existing test case in binary form to determine its
+ * runtime values. To do that, the test case (NOT the SUT) is instrumented.
+ * 
  * @author roessler
  */
 public class TestRuntimeValuesDeterminer extends RunListener {
@@ -435,21 +434,30 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	}
 
 	/**
-	 * <p>execLine</p>
-	 *
-	 * @param lineNumber a int.
+	 * <p>
+	 * execLine
+	 * </p>
+	 * 
+	 * @param lineNumber
+	 *            a int.
 	 */
 	public static void execLine(int lineNumber) {
 		instance.lineExecuted(lineNumber);
 	}
 
 	/**
-	 * <p>fieldValueChanged</p>
-	 *
-	 * @param newValue a {@link java.lang.Object} object.
-	 * @param owner a {@link java.lang.String} object.
-	 * @param fieldName a {@link java.lang.String} object.
-	 * @param lineNumber a int.
+	 * <p>
+	 * fieldValueChanged
+	 * </p>
+	 * 
+	 * @param newValue
+	 *            a {@link java.lang.Object} object.
+	 * @param owner
+	 *            a {@link java.lang.String} object.
+	 * @param fieldName
+	 *            a {@link java.lang.String} object.
+	 * @param lineNumber
+	 *            a int.
 	 */
 	public static void fieldValueChanged(Object newValue, String owner, String fieldName, int lineNumber) {
 		System.out.println("FieldValue " + owner + "#" + fieldName + " changed in line " + lineNumber + " to value: "
@@ -457,55 +465,80 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	}
 
 	/**
-	 * <p>localVarValueChanged</p>
-	 *
-	 * @param newValue a double.
-	 * @param localVar a {@link java.lang.String} object.
-	 * @param lineNumber a int.
+	 * <p>
+	 * localVarValueChanged
+	 * </p>
+	 * 
+	 * @param newValue
+	 *            a double.
+	 * @param localVar
+	 *            a {@link java.lang.String} object.
+	 * @param lineNumber
+	 *            a int.
 	 */
 	public static void localVarValueChanged(double newValue, String localVar, int lineNumber) {
 		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	/**
-	 * <p>localVarValueChanged</p>
-	 *
-	 * @param newValue a float.
-	 * @param localVar a {@link java.lang.String} object.
-	 * @param lineNumber a int.
+	 * <p>
+	 * localVarValueChanged
+	 * </p>
+	 * 
+	 * @param newValue
+	 *            a float.
+	 * @param localVar
+	 *            a {@link java.lang.String} object.
+	 * @param lineNumber
+	 *            a int.
 	 */
 	public static void localVarValueChanged(float newValue, String localVar, int lineNumber) {
 		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	/**
-	 * <p>localVarValueChanged</p>
-	 *
-	 * @param newValue a int.
-	 * @param localVar a {@link java.lang.String} object.
-	 * @param lineNumber a int.
+	 * <p>
+	 * localVarValueChanged
+	 * </p>
+	 * 
+	 * @param newValue
+	 *            a int.
+	 * @param localVar
+	 *            a {@link java.lang.String} object.
+	 * @param lineNumber
+	 *            a int.
 	 */
 	public static void localVarValueChanged(int newValue, String localVar, int lineNumber) {
 		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	/**
-	 * <p>localVarValueChanged</p>
-	 *
-	 * @param newValue a long.
-	 * @param localVar a {@link java.lang.String} object.
-	 * @param lineNumber a int.
+	 * <p>
+	 * localVarValueChanged
+	 * </p>
+	 * 
+	 * @param newValue
+	 *            a long.
+	 * @param localVar
+	 *            a {@link java.lang.String} object.
+	 * @param lineNumber
+	 *            a int.
 	 */
 	public static void localVarValueChanged(long newValue, String localVar, int lineNumber) {
 		instance.localVarValueChanged(localVar, lineNumber, newValue);
 	}
 
 	/**
-	 * <p>localVarValueChanged</p>
-	 *
-	 * @param newValue a {@link java.lang.Object} object.
-	 * @param localVar a {@link java.lang.String} object.
-	 * @param lineNumber a int.
+	 * <p>
+	 * localVarValueChanged
+	 * </p>
+	 * 
+	 * @param newValue
+	 *            a {@link java.lang.Object} object.
+	 * @param localVar
+	 *            a {@link java.lang.String} object.
+	 * @param lineNumber
+	 *            a int.
 	 */
 	public static void localVarValueChanged(Object newValue, String localVar, int lineNumber) {
 		instance.localVarValueChanged(localVar, lineNumber, newValue);
@@ -517,9 +550,12 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	private static Object lock = new Object();
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
-	 * @param testClass a {@link java.lang.String} object.
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
+	 * @param testClass
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.junit.TestRuntimeValuesDeterminer} object.
 	 */
 	public static TestRuntimeValuesDeterminer getInstance(String testClass) {
@@ -545,35 +581,46 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	}
 
 	/**
-	 * <p>determineRuntimeValues</p>
+	 * <p>
+	 * determineRuntimeValues
+	 * </p>
 	 */
 	public void determineRuntimeValues() {
-		synchronized (lock) {
-			Class<?> testClass = instrumentTest();
-			// testClass.getConstructors().length
-			boolean enabled = ExecutionTracer.isEnabled();
-			ExecutionTracer.disable();
-			JUnitCore jUnitCore = new JUnitCore();
-			jUnitCore.addListener(this);
-			Result result = jUnitCore.run(testClass);
-			currentTest = null;
-			logger.info("Ran {} tests to determine runtime values.", result.getRunCount());
-			for (Failure failure : result.getFailures()) {
-				if (failure.getDescription().getDisplayName().startsWith("initializationError")) {
-					failure.getException().printStackTrace();
-					throw new RuntimeException(failure.getException());
+		try {
+			synchronized (lock) {
+				Class<?> testClass = instrumentTest();
+				// testClass.getConstructors().length
+				boolean enabled = ExecutionTracer.isEnabled();
+				ExecutionTracer.disable();
+				JUnitCore jUnitCore = new JUnitCore();
+				jUnitCore.addListener(this);
+				Result result = jUnitCore.run(testClass);
+				currentTest = null;
+				logger.info("Ran {} tests to determine runtime values.", result.getRunCount());
+				for (Failure failure : result.getFailures()) {
+					if (failure.getDescription().getDisplayName().startsWith("initializationError")) {
+						failure.getException().printStackTrace();
+						throw new RuntimeException(failure.getException());
+					}
+				}
+				if (enabled) {
+					ExecutionTracer.enable();
 				}
 			}
-			if (enabled) {
-				ExecutionTracer.enable();
+		} catch (RuntimeException exc) {
+			if (exc.getCause() instanceof ClassNotFoundException) {
+				logger.error("Unable to load class. Will continue without execution.");
 			}
 		}
 	}
 
 	/**
-	 * <p>getExecutionCount</p>
-	 *
-	 * @param lineNumber a int.
+	 * <p>
+	 * getExecutionCount
+	 * </p>
+	 * 
+	 * @param lineNumber
+	 *            a int.
 	 * @return a int.
 	 */
 	public int getExecutionCount(int lineNumber) {
@@ -585,10 +632,15 @@ public class TestRuntimeValuesDeterminer extends RunListener {
 	}
 
 	/**
-	 * <p>getMethodTrace</p>
-	 *
-	 * @param method a {@link java.lang.String} object.
-	 * @return a {@link org.evosuite.junit.TestRuntimeValuesDeterminer.CursorableTrace} object.
+	 * <p>
+	 * getMethodTrace
+	 * </p>
+	 * 
+	 * @param method
+	 *            a {@link java.lang.String} object.
+	 * @return a
+	 *         {@link org.evosuite.junit.TestRuntimeValuesDeterminer.CursorableTrace}
+	 *         object.
 	 */
 	public CursorableTrace getMethodTrace(String method) {
 		return methodTraces.get(method);

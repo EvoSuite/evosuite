@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.utils;
@@ -75,25 +74,33 @@ public class ExternalProcessHandler {
 	protected String base_dir = System.getProperty("user.dir");
 
 	/**
-	 * <p>Constructor for ExternalProcessHandler.</p>
+	 * <p>
+	 * Constructor for ExternalProcessHandler.
+	 * </p>
 	 */
 	public ExternalProcessHandler() {
 
 	}
 
 	/**
-	 * <p>setBaseDir</p>
-	 *
-	 * @param base_dir a {@link java.lang.String} object.
+	 * <p>
+	 * setBaseDir
+	 * </p>
+	 * 
+	 * @param base_dir
+	 *            a {@link java.lang.String} object.
 	 */
 	public void setBaseDir(String base_dir) {
 		this.base_dir = base_dir;
 	}
 
 	/**
-	 * <p>startProcess</p>
-	 *
-	 * @param command an array of {@link java.lang.String} objects.
+	 * <p>
+	 * startProcess
+	 * </p>
+	 * 
+	 * @param command
+	 *            an array of {@link java.lang.String} objects.
 	 * @return a boolean.
 	 */
 	public boolean startProcess(String[] command) {
@@ -101,10 +108,14 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>startProcess</p>
-	 *
-	 * @param command an array of {@link java.lang.String} objects.
-	 * @param population_data a {@link java.lang.Object} object.
+	 * <p>
+	 * startProcess
+	 * </p>
+	 * 
+	 * @param command
+	 *            an array of {@link java.lang.String} objects.
+	 * @param population_data
+	 *            a {@link java.lang.Object} object.
 	 * @return a boolean.
 	 */
 	protected boolean startProcess(String[] command, Object population_data) {
@@ -143,6 +154,7 @@ public class ExternalProcessHandler {
 				return false;
 			}
 
+			//FIXME: shouldn't it be deprecated???
 			startExternalProcessPrinter();
 		} else {
 			/*
@@ -181,7 +193,7 @@ public class ExternalProcessHandler {
 				out.flush();
 			}
 		} catch (Exception e) {
-			logger.error("Error while waiting for connection from external process ");
+			logger.error("Class "+Properties.TARGET_CLASS+". Error while waiting for connection from external process ");
 			return false;
 		}
 
@@ -193,7 +205,9 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>killProcess</p>
+	 * <p>
+	 * killProcess
+	 * </p>
 	 */
 	public void killProcess() {
 		try {
@@ -229,8 +243,10 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>getServerPort</p>
-	 *
+	 * <p>
+	 * getServerPort
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getServerPort() {
@@ -241,8 +257,10 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>openServer</p>
-	 *
+	 * <p>
+	 * openServer
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int openServer() {
@@ -260,7 +278,9 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>closeServer</p>
+	 * <p>
+	 * closeServer
+	 * </p>
 	 */
 	public void closeServer() {
 		if (server != null) {
@@ -275,7 +295,9 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>startExternalProcessPrinter</p>
+	 * <p>
+	 * startExternalProcessPrinter
+	 * </p>
 	 */
 	protected void startExternalProcessPrinter() {
 
@@ -296,8 +318,7 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process",
-						             e);
+						logger.error("Exception while reading output of client process. "+e.getMessage());
 					}
 				}
 			};
@@ -322,8 +343,7 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process",
-						             e);
+						logger.error("Exception while reading output of client process. "+e.getMessage());
 					}
 				}
 			};
@@ -332,14 +352,19 @@ public class ExternalProcessHandler {
 		}
 
 		if (Properties.SHOW_PROGRESS
-		        && (progress_printer == null || !progress_printer.isAlive())) {
+		        && (progress_printer == null || !progress_printer.isAlive())
+		        && !Properties.LOG_LEVEL.equals("info")
+		        && !Properties.LOG_LEVEL.equals("debug")
+		        && !Properties.LOG_LEVEL.equals("trace")) {
 			progress_printer = ConsoleProgressBar.startProgressBar();
 		}
 
 	}
 
 	/**
-	 * <p>startExternalProcessMessageHandler</p>
+	 * <p>
+	 * startExternalProcessMessageHandler
+	 * </p>
 	 */
 	protected void startExternalProcessMessageHandler() {
 		if (message_handler != null && message_handler.isAlive())
@@ -367,7 +392,7 @@ public class ExternalProcessHandler {
 						 * we should try to re-start based on the partial info received so far, eg
 						 * the best solutions found so far which was sent to master
 						 */
-						logger.error("Error in reading message ", e);
+						logger.error("Class "+Properties.TARGET_CLASS+". Error in reading message. Likely the client has crashed. Error message: "+e.getMessage());
 						message = Messages.FINISHED_COMPUTATION;
 						data = null;
 					}
@@ -389,7 +414,7 @@ public class ExternalProcessHandler {
 						startProcess(last_command, data);
 					} else {
 						killProcess();
-						logger.error("Error, received invalid message: ", message);
+						logger.error("Class "+Properties.TARGET_CLASS+". Error, received invalid message: ", message);
 						return;
 					}
 				}
@@ -399,7 +424,9 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>startSignalHandler</p>
+	 * <p>
+	 * startSignalHandler
+	 * </p>
 	 */
 	protected void startSignalHandler() {
 		Signal.handle(new Signal("INT"), new SignalHandler() {
@@ -424,16 +451,19 @@ public class ExternalProcessHandler {
 	}
 
 	/**
-	 * <p>waitForResult</p>
-	 *
-	 * @param timeout a int.
+	 * <p>
+	 * waitForResult
+	 * </p>
+	 * 
+	 * @param timeout
+	 *            a int.
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public Object waitForResult(int timeout) {
 		try {
 			latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.warn("Thread interrupted while waiting for results from client process",
+			logger.warn("Class "+Properties.TARGET_CLASS+". Thread interrupted while waiting for results from client process",
 			            e);
 		}
 

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -43,10 +43,11 @@ import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>BranchInstrumentation class.</p>
- *
+ * <p>
+ * BranchInstrumentation class.
+ * </p>
+ * 
  * @author Copied from CFGMethodAdapter
  */
 public class BranchInstrumentation implements MethodInstrumentation {
@@ -88,6 +89,8 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 								}
 							}
+						} else {
+							logger.info("Found regular branch");
 						}
 						mn.instructions.insertBefore(v.getASMNode(),
 						                             getInstrumentation(v));
@@ -107,9 +110,12 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	}
 
 	/**
-	 * <p>getInstrumentation</p>
-	 *
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * <p>
+	 * getInstrumentation
+	 * </p>
+	 * 
+	 * @param instruction
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	protected InsnList getInstrumentation(BytecodeInstruction instruction) {
@@ -143,8 +149,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
-			        "(IIII)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V"));
 			logger.debug("Adding passedBranch val=?, opcode=" + opcode + ", branch="
 			        + branchId + ", bytecode_id=" + instructionId);
 
@@ -161,8 +166,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(branchId));
 			instrumentation.add(new LdcInsnNode(instructionId));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
-			        "(IIIII)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIIII)V"));
 			break;
 		case Opcodes.IF_ACMPEQ:
 		case Opcodes.IF_ACMPNE:
@@ -192,25 +196,29 @@ public class BranchInstrumentation implements MethodInstrumentation {
 
 	/**
 	 * Creates the instrumentation for switch statements as follows:
-	 *
+	 * 
 	 * For each case <key>: in the switch, two calls to the ExecutionTracer are
 	 * added to the instrumentation, indicating whether the case is hit directly
 	 * or not. This is done by addInstrumentationForSwitchCases().
-	 *
+	 * 
 	 * Additionally in order to trace the execution of the default: case of the
 	 * switch, the following instrumentation is added using
 	 * addDefaultCaseInstrumentation():
-	 *
+	 * 
 	 * A new switch, holding the same <key>s as the original switch we want to
 	 * cover. All cases point to a label after which a call to the
 	 * ExecutionTracer is added, indicating that the default case was not hit
 	 * directly. Symmetrically the new switch has a default case: holding a call
 	 * to the ExecutionTracer to indicate that the default will be hit directly.
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param mn
+	 *            a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	protected InsnList getSwitchInstrumentation(BytecodeInstruction v, MethodNode mn,
@@ -230,11 +238,15 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	/**
 	 * For each actual case <key>: of a switch this method adds instrumentation
 	 * for the Branch corresponding to that case to the given instruction list.
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
 	 */
 	protected void addInstrumentationForSwitchCases(BytecodeInstruction v,
 	        InsnList instrumentation, String className, String methodName) {
@@ -261,16 +273,19 @@ public class BranchInstrumentation implements MethodInstrumentation {
 			instrumentation.add(new LdcInsnNode(targetCaseBranchId));
 			instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
-			        "(IIIII)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIIII)V"));
 		}
 	}
 
 	/**
-	 * <p>addInstrumentationForDefaultSwitchCase</p>
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * addInstrumentationForDefaultSwitchCase
+	 * </p>
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	protected void addInstrumentationForDefaultSwitchCase(BytecodeInstruction v,
 	        InsnList instrumentation) {
@@ -284,10 +299,14 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	}
 
 	/**
-	 * <p>addInstrumentationForDefaultTableswitchCase</p>
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * addInstrumentationForDefaultTableswitchCase
+	 * </p>
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	protected void addInstrumentationForDefaultTableswitchCase(BytecodeInstruction v,
 	        InsnList instrumentation) {
@@ -318,10 +337,14 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	}
 
 	/**
-	 * <p>addInstrumentationForDefaultLookupswitchCase</p>
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * addInstrumentationForDefaultLookupswitchCase
+	 * </p>
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	protected void addInstrumentationForDefaultLookupswitchCase(BytecodeInstruction v,
 	        InsnList instrumentation) {
@@ -354,14 +377,22 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	}
 
 	/**
-	 * <p>addDefaultCaseInstrumentation</p>
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param mySwitch a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
-	 * @param defaultLabel a {@link org.objectweb.asm.tree.LabelNode} object.
-	 * @param caseLabel a {@link org.objectweb.asm.tree.LabelNode} object.
-	 * @param endLabel a {@link org.objectweb.asm.tree.LabelNode} object.
+	 * <p>
+	 * addDefaultCaseInstrumentation
+	 * </p>
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param mySwitch
+	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
+	 * @param defaultLabel
+	 *            a {@link org.objectweb.asm.tree.LabelNode} object.
+	 * @param caseLabel
+	 *            a {@link org.objectweb.asm.tree.LabelNode} object.
+	 * @param endLabel
+	 *            a {@link org.objectweb.asm.tree.LabelNode} object.
 	 */
 	protected void addDefaultCaseInstrumentation(BytecodeInstruction v,
 	        InsnList instrumentation, AbstractInsnNode mySwitch, LabelNode defaultLabel,
@@ -389,11 +420,16 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	}
 
 	/**
-	 * <p>addDefaultCaseCoveredCall</p>
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param defaultCaseBranchId a int.
+	 * <p>
+	 * addDefaultCaseCoveredCall
+	 * </p>
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param defaultCaseBranchId
+	 *            a int.
 	 */
 	protected void addDefaultCaseCoveredCall(BytecodeInstruction v,
 	        InsnList instrumentation, int defaultCaseBranchId) {
@@ -403,17 +439,21 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
-		        "(IIII)V"));
+		        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V"));
 
 	}
 
 	/**
-	 * <p>addDefaultCaseNotCoveredCall</p>
-	 *
-	 * @param v a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param instrumentation a {@link org.objectweb.asm.tree.InsnList} object.
-	 * @param defaultCaseBranchId a int.
+	 * <p>
+	 * addDefaultCaseNotCoveredCall
+	 * </p>
+	 * 
+	 * @param v
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param instrumentation
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
+	 * @param defaultCaseBranchId
+	 *            a int.
 	 */
 	protected void addDefaultCaseNotCoveredCall(BytecodeInstruction v,
 	        InsnList instrumentation, int defaultCaseBranchId) {
@@ -423,8 +463,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 		instrumentation.add(new LdcInsnNode(defaultCaseBranchId));
 		instrumentation.add(new LdcInsnNode(v.getInstructionId()));
 		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/testcase/ExecutionTracer", "passedBranch",
-		        "(IIII)V"));
+		        "org/evosuite/testcase/ExecutionTracer", "passedBranch", "(IIII)V"));
 	}
 
 	/*

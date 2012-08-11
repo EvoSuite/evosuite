@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,6 @@ import org.evosuite.Properties;
 import org.evosuite.testcase.TestRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 
 /**
  * Mocked Security Manager, which forbids any access to I/O, network, etc.
@@ -47,7 +46,7 @@ class MSecurityManager extends SecurityManager {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Overridden method for checking permissions for any operation.
 	 */
 	@Override
@@ -68,6 +67,21 @@ class MSecurityManager extends SecurityManager {
 		return;
 	}
 
+	private boolean isAWTThread() {
+		for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
+			if (e.getClassName().startsWith("java.awt"))
+				return true;
+
+			if (e.getClassName().startsWith("javax.swing"))
+				return true;
+
+			// Also treat the logmanager like AWT stuff, it is just as weird
+			if (e.getClassName().startsWith("java.util.logging.LogManager"))
+				return true;
+		}
+		return false;
+	}
+
 	/**
 	 * Method for checking if requested access, specified by the given
 	 * permission, is permitted.
@@ -82,6 +96,10 @@ class MSecurityManager extends SecurityManager {
 
 		// false if "executeTestCase" method wasn't in a stack trace, true otherwise
 		boolean testExec = false;
+
+		// Always forbid deleting - EvoSuite doesn't do it
+		if (perm instanceof FilePermission && perm.getActions().equals("delete"))
+			return false;
 
 		// iterate through all elements and check if name of the calling class contains 
 		// the name of the class under test or "executeTestCase" method call.
@@ -140,6 +158,8 @@ class MSecurityManager extends SecurityManager {
 						return true;
 					else if (perm.getName().startsWith("apple.awt"))
 						return true;
+					else if (perm.getName().startsWith("javax.accessibility"))
+						return true;
 				}
 			}
 
@@ -155,6 +175,17 @@ class MSecurityManager extends SecurityManager {
 					return true;
 				if (perm.getName().equals("getProtectionDomain"))
 					return true;
+				if (perm.getName().startsWith("getenv."))
+					return true;
+				if ("true".equals(System.getProperty("java.awt.headless"))
+				        && isAWTThread()) {
+					if (perm.getName().equals("shutdownHooks"))
+						return true;
+					if (perm.getName().equals("modifyThreadGroup"))
+						return true;
+					if (perm.getName().equals("modifyThread"))
+						return true;
+				}
 			}
 
 			if (perm instanceof AWTPermission) {
@@ -200,6 +231,9 @@ class MSecurityManager extends SecurityManager {
 						if (e.getClassName().startsWith("java.lang.ClassLoader"))
 							return true;
 						if (e.getClassName().startsWith("org.evosuite.javaagent.InstrumentingClassLoader"))
+							return true;
+						// Allow Logback configuration, because the logback.xml is in evosuite.jar
+						if (e.getClassName().startsWith("ch.qos.logback.core.joran.GenericConfigurator"))
 							return true;
 					}
 

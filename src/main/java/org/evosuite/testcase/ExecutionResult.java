@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.testcase;
@@ -29,6 +28,7 @@ import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 public class ExecutionResult implements Cloneable {
 
 	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
@@ -48,6 +48,9 @@ public class ExecutionResult implements Cloneable {
 	/** Trace recorded during execution */
 	protected ExecutionTrace trace;
 
+	/** Duration of execution */
+	protected long executionTime = 0L;
+
 	/** Output traces produced by observers */
 	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
@@ -56,8 +59,9 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Default constructor when executing without mutation
-	 *
-	 * @param t a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param t
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public ExecutionResult(TestCase t) {
 		trace = null;
@@ -66,9 +70,12 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>setThrownExceptions</p>
-	 *
-	 * @param data a {@link java.util.Map} object.
+	 * <p>
+	 * setThrownExceptions
+	 * </p>
+	 * 
+	 * @param data
+	 *            a {@link java.util.Map} object.
 	 */
 	public void setThrownExceptions(Map<Integer, Throwable> data) {
 		exceptions.clear();
@@ -78,8 +85,10 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>getFirstPositionOfThrownException</p>
-	 *
+	 * <p>
+	 * getFirstPositionOfThrownException
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.Integer} object.
 	 */
 	public Integer getFirstPositionOfThrownException() {
@@ -93,18 +102,24 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>reportNewThrownException</p>
-	 *
-	 * @param position a {@link java.lang.Integer} object.
-	 * @param t a {@link java.lang.Throwable} object.
+	 * <p>
+	 * reportNewThrownException
+	 * </p>
+	 * 
+	 * @param position
+	 *            a {@link java.lang.Integer} object.
+	 * @param t
+	 *            a {@link java.lang.Throwable} object.
 	 */
 	public void reportNewThrownException(Integer position, Throwable t) {
 		exceptions.put(position, t);
 	}
 
 	/**
-	 * <p>getPositionsWhereExceptionsWereThrown</p>
-	 *
+	 * <p>
+	 * getPositionsWhereExceptionsWereThrown
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getPositionsWhereExceptionsWereThrown() {
@@ -112,8 +127,10 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>getAllThrownExceptions</p>
-	 *
+	 * <p>
+	 * getAllThrownExceptions
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Collection} object.
 	 */
 	public Collection<Throwable> getAllThrownExceptions() {
@@ -121,9 +138,12 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>isThereAnExceptionAtPosition</p>
-	 *
-	 * @param position a {@link java.lang.Integer} object.
+	 * <p>
+	 * isThereAnExceptionAtPosition
+	 * </p>
+	 * 
+	 * @param position
+	 *            a {@link java.lang.Integer} object.
 	 * @return a boolean.
 	 */
 	public boolean isThereAnExceptionAtPosition(Integer position) {
@@ -131,8 +151,10 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>noThrownExceptions</p>
-	 *
+	 * <p>
+	 * noThrownExceptions
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean noThrownExceptions() {
@@ -140,9 +162,12 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>getExceptionThrownAtPosition</p>
-	 *
-	 * @param position a {@link java.lang.Integer} object.
+	 * <p>
+	 * getExceptionThrownAtPosition
+	 * </p>
+	 * 
+	 * @param position
+	 *            a {@link java.lang.Integer} object.
 	 * @return a {@link java.lang.Throwable} object.
 	 */
 	public Throwable getExceptionThrownAtPosition(Integer position) {
@@ -150,8 +175,10 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
-	 * <p>getNumberOfThrownExceptions</p>
-	 *
+	 * <p>
+	 * getNumberOfThrownExceptions
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumberOfThrownExceptions() {
@@ -160,7 +187,7 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * shouldn't be used
-	 *
+	 * 
 	 * @return a {@link java.util.Map} object.
 	 */
 	@Deprecated
@@ -169,10 +196,22 @@ public class ExecutionResult implements Cloneable {
 	}
 
 	/**
+	 * 
+	 * @return Mapping of statement indexes and thrown exceptions.
+	 */
+	public Map<Integer, Throwable> getCopyOfExceptionMapping() {
+		Map<Integer, Throwable> copy = new HashMap<Integer, Throwable>();
+		copy.putAll(exceptions);
+		return copy;
+	}
+
+	/**
 	 * Constructor when executing with mutation
-	 *
-	 * @param t a {@link org.evosuite.testcase.TestCase} object.
-	 * @param m a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * 
+	 * @param t
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param m
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public ExecutionResult(TestCase t, Mutation m) {
 		trace = null;
@@ -182,7 +221,7 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Accessor to the execution trace
-	 *
+	 * 
 	 * @return a {@link org.evosuite.testcase.ExecutionTrace} object.
 	 */
 	public ExecutionTrace getTrace() {
@@ -191,8 +230,9 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Set execution trace to different value
-	 *
-	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * 
+	 * @param trace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
 	 */
 	public void setTrace(ExecutionTrace trace) {
 		assert (trace != null);
@@ -201,9 +241,11 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Store a new output trace
-	 *
-	 * @param trace a {@link org.evosuite.assertion.OutputTrace} object.
-	 * @param clazz a {@link java.lang.Class} object.
+	 * 
+	 * @param trace
+	 *            a {@link org.evosuite.assertion.OutputTrace} object.
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
 	 */
 	public void setTrace(OutputTrace<?> trace, Class<?> clazz) {
 		traces.put(clazz, trace);
@@ -211,8 +253,9 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Accessor for output trace produced by an observer of a particular class
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
 	 * @return a {@link org.evosuite.assertion.OutputTrace} object.
 	 */
 	public OutputTrace<?> getTrace(Class<?> clazz) {
@@ -221,7 +264,7 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Accessor for the output traces produced by observers
-	 *
+	 * 
 	 * @return a {@link java.util.Collection} object.
 	 */
 	public Collection<OutputTrace<?>> getTraces() {
@@ -230,7 +273,7 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Was the reason for termination a timeout?
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean hasTimeout() {
@@ -249,7 +292,7 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Does the test contain an exception caused in the test itself?
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean hasTestException() {
@@ -266,7 +309,7 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * Is there an undeclared exception in the trace?
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean hasUndeclaredException() {
@@ -282,12 +325,29 @@ public class ExecutionResult implements Cloneable {
 		return false;
 	}
 
+	/**
+	 * @return the executionTime
+	 */
+	public long getExecutionTime() {
+		return executionTime;
+	}
+
+	/**
+	 * @param executionTime
+	 *            the executionTime to set
+	 */
+	public void setExecutionTime(long executionTime) {
+		this.executionTime = executionTime;
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult clone() {
 		ExecutionResult copy = new ExecutionResult(test, mutation);
 		copy.exceptions.putAll(exceptions);
 		copy.trace = trace.lazyClone();
+		copy.explicitExceptions.putAll(explicitExceptions);
+		copy.executionTime = executionTime;
 		for (Class<?> clazz : traces.keySet()) {
 			copy.traces.put(clazz, traces.get(clazz).clone());
 		}
