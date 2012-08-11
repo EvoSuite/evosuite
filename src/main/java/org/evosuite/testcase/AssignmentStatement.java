@@ -221,15 +221,14 @@ public class AssignmentStatement extends AbstractStatement {
 		parameter.loadBytecode(mg, locals);
 
 		Class<?> clazz = parameter.getVariableClass();
+		if (parameter.isPrimitive() && !retval.isPrimitive()) {
+			mg.box(Type.getType(parameter.getVariableClass()));
+			clazz = parameter.getGenericClass().getBoxedType();
+		}
+
 		if (!clazz.equals(retval.getVariableClass())) {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
 			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
-		}
-
-		if (parameter.isPrimitive()) {
-			if (retval.isWrapperType()) {
-				mg.box(Type.getType(parameter.getVariableClass()));
-			}
 		}
 
 		retval.storeBytecode(mg, locals);
