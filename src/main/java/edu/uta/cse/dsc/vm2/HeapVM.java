@@ -28,7 +28,6 @@ public final class HeapVM extends AbstractVM {
 
 	private static final Object DELAYED_OBJECT_REF = new Object();
 
-	private final PathConstraint pc;
 	private final SymbolicEnvironment env;
 
 	private final DscInstrumentingClassLoader classLoader;
@@ -36,7 +35,6 @@ public final class HeapVM extends AbstractVM {
 	public HeapVM(SymbolicEnvironment env, PathConstraint pc,
 			DscInstrumentingClassLoader classLoader) {
 		this.env = env;
-		this.pc = pc;
 		this.classLoader = classLoader;
 	}
 

@@ -51,6 +51,7 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 	public StringToIntCast(Expression<String> _expr, Long _concValue) {
 		this.expr = _expr;
 		this.concValue = _concValue;
+		this.containsSymbolicVariable = _expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
