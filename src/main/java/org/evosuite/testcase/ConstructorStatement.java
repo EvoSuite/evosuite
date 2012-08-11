@@ -381,9 +381,13 @@ public class ConstructorStatement extends AbstractStatement {
 			if (constructor.getParameterTypes()[num].isPrimitive()) {
 				if (parameter.getGenericClass().isWrapperType()) {
 					mg.unbox(Type.getType(parameter.getGenericClass().getUnboxedType()));
-				}
-
-				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+				} else if (!parameter.getGenericClass().isPrimitive()) {
+					Class<?> parameterClass = new GenericClass(
+					        constructor.getParameterTypes()[num]).getBoxedType();
+					Type parameterType = Type.getType(parameterClass);
+					mg.checkCast(parameterType);
+					mg.unbox(Type.getType(constructor.getParameterTypes()[num]));
+				} else if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting "
 					        + parameter.getVariableClass().getName() + " to "
 					        + constructor.getParameterTypes()[num].getName());

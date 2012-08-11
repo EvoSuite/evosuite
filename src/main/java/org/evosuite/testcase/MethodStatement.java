@@ -449,8 +449,13 @@ public class MethodStatement extends AbstractStatement {
 			if (method.getParameterTypes()[num].isPrimitive()) {
 				if (parameter.getGenericClass().isWrapperType()) {
 					mg.unbox(Type.getType(parameter.getGenericClass().getUnboxedType()));
-				}
-				if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+				} else if (!parameter.getGenericClass().isPrimitive()) {
+					Class<?> parameterClass = new GenericClass(
+					        method.getParameterTypes()[num]).getBoxedType();
+					Type parameterType = Type.getType(parameterClass);
+					mg.checkCast(parameterType);
+					mg.unbox(Type.getType(method.getParameterTypes()[num]));
+				} else if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting!");
 					mg.cast(Type.getType(parameter.getVariableClass()),
 					        Type.getType(method.getParameterTypes()[num]));

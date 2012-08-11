@@ -343,6 +343,9 @@ public class FieldStatement extends AbstractStatement {
 
 		if (!retval.getVariableClass().equals(field.getType())) {
 			if (!retval.getVariableClass().isPrimitive()) {
+				if (field.getType().isPrimitive()) {
+					mg.box(Type.getType(field.getType()));
+				}
 				mg.checkCast(Type.getType(retval.getVariableClass()));
 			} else {
 				mg.cast(Type.getType(field.getType()),
