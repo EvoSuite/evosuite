@@ -800,7 +800,13 @@ public class ConcolicExecutionTest {
 				.executeConcolic("org.evosuite.symbolic.TestCase72",
 						System.getProperty("java.class.path"));
 
-		assertEquals(1, branch_conditions.size());
+		for (BranchCondition branchCondition : branch_conditions) {
+			for (Constraint<?> constr : branchCondition
+					.listOfLocalConstraints()) {
+				System.out.println(constr.toString());
+			}
+		}
+		 assertEquals(1, branch_conditions.size());
 	}
 
 }
