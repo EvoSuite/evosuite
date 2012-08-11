@@ -338,6 +338,7 @@ public class CompoundTestCase {
 		delegate.addStatements(methodDefs.get(testMethod).getCode());
 		delegate.addStatements(getAfterMethods(overridenMethods));
 		delegate.addStatements(getAfterClassMethods(overridenMethods));
+		assert delegate.clone().toCode().equals(delegate.toCode());
 		return delegate;
 	}
 

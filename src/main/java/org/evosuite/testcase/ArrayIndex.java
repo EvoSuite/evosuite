@@ -19,6 +19,7 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -74,7 +75,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 	public ArrayIndex(TestCase testCase, ArrayReference array, List<Integer> indices) {
 		super(testCase, new GenericClass(getReturnType(array, indices.size())));
 		this.array = array;
-		this.indices = indices;
+		setArrayIndices(indices);
 	}
 
 	private static Type getReturnType(ArrayReference array, int indicesCnt) {
@@ -375,7 +376,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 	 *            a {@link java.util.List} object.
 	 */
 	public void setArrayIndices(List<Integer> indices) {
-		this.indices = indices;
+		this.indices = new ArrayList<Integer>();
+		for (Integer i : indices)
+			this.indices.add(i);
 	}
 
 	/**

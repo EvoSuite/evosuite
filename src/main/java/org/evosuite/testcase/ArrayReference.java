@@ -21,6 +21,15 @@ package org.evosuite.testcase;
 
 import java.util.List;
 
+/**
+ * @author Gordon Fraser
+ * 
+ */
+
+/*
+ *  TODO: The length is currently stored in ArrayReference and the ArrayStatement.
+ *  This is bound to lead to inconsistencies. 
+ */
 public class ArrayReference extends VariableReferenceImpl {
 
 	private static final long serialVersionUID = 3309591356542131910L;
@@ -57,7 +66,8 @@ public class ArrayReference extends VariableReferenceImpl {
 	public ArrayReference(TestCase tc, GenericClass clazz, int[] lengths) {
 		super(tc, clazz);
 		assert (lengths.length > 0);
-		this.lengths = lengths;
+		// this.lengths = lengths;
+		setLengths(lengths);
 	}
 
 	/**
@@ -122,7 +132,9 @@ public class ArrayReference extends VariableReferenceImpl {
 	 *            an array of int.
 	 */
 	public void setLengths(int[] lengths) {
-		this.lengths = lengths;
+		this.lengths = new int[lengths.length];
+		for (int i = 0; i < lengths.length; i++)
+			this.lengths[i] = lengths[i];
 	}
 
 	/**
@@ -184,5 +196,17 @@ public class ArrayReference extends VariableReferenceImpl {
 			this.lengths[idx] = length;
 			idx++;
 		}
+	}
+
+	public int getMaximumIndex() {
+		int max = 0;
+		int pos = 0;
+		for (StatementInterface s : testCase) {
+			if (s.references(this)) {
+				max = pos;
+			}
+			pos++;
+		}
+		return max;
 	}
 }

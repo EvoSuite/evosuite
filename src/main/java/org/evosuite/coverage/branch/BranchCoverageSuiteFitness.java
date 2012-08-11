@@ -42,10 +42,9 @@ import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Fitness function for a whole test suite for all branches
- *
+ * 
  * @author Gordon Fraser
  */
 public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
@@ -76,7 +75,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<String> publicTargetMethods = new HashSet<String>();
 
 	/**
-	 * <p>Constructor for BranchCoverageSuiteFitness.</p>
+	 * <p>
+	 * Constructor for BranchCoverageSuiteFitness.
+	 * </p>
 	 */
 	public BranchCoverageSuiteFitness() {
 
@@ -175,7 +176,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Execute all tests and count covered branches
 	 */
 	@SuppressWarnings("unchecked")
@@ -342,7 +343,9 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
 		        + totalGoals;
-		suite.setCoverage((double) coverage / (double) totalGoals);
+		if (totalGoals > 0)
+			suite.setCoverage((double) coverage / (double) totalGoals);
+
 		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coverage + "/" + totalGoals;
 		if (hasTimeoutOrTestException) {
@@ -402,9 +405,12 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/**
 	 * This method can be used for debugging purposes to ensure that the fitness
 	 * calculation is deterministic
-	 *
-	 * @param suite a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome} object.
-	 * @param fitness a double.
+	 * 
+	 * @param suite
+	 *            a {@link org.evosuite.testsuite.AbstractTestSuiteChromosome}
+	 *            object.
+	 * @param fitness
+	 *            a double.
 	 */
 	protected void checkFitness(AbstractTestSuiteChromosome<ExecutableChromosome> suite,
 	        double fitness) {

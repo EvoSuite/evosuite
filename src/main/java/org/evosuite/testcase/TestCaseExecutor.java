@@ -292,7 +292,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			} else if (e1.getCause() instanceof RuntimeException) {
 				throw (RuntimeException) e1.getCause();
 			}
-			return result;
+			return result; //FIXME: is this reachable?
 		} catch (TimeoutException e1) {
 			Sandbox.tearDownEverything();
 			//System.setOut(systemOut);
