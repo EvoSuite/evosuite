@@ -11,6 +11,8 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.Set;
 
+import org.objectweb.asm.Type;
+
 public final class SymbolicEnvironment {
 
 	/**
@@ -50,6 +52,11 @@ public final class SymbolicEnvironment {
 	}
 
 	public Class<?> ensurePrepared(String className) {
+		Type ownerType = Type.getType(className);
+		if (ownerType.getSort() == Type.ARRAY) {
+			Type elemType = ownerType.getElementType();
+			className = elemType.getClassName();
+		}
 		Class<?> claz = null;
 		claz = classLoader.getClassForName(className);
 		ensurePrepared(claz);
@@ -65,6 +72,10 @@ public final class SymbolicEnvironment {
 			ensurePrepared(superClass); // prepare super class first
 
 		String className = claz.getCanonicalName();
+		if (className==null ) {
+			// no canonical name
+		}
+		/*
 		Field[] fields = claz.getDeclaredFields();
 
 		final boolean isIgnored = MainConfig.get().isIgnored(className);
@@ -76,6 +87,7 @@ public final class SymbolicEnvironment {
 				continue; // skip private field of ignored class.
 
 		}
+		*/
 		preparedClasses.add(claz);
 
 	}
@@ -93,9 +105,11 @@ public final class SymbolicEnvironment {
 		this.pushFrame(new FakeBottomFrame());
 
 		// frame for argument purposes
-		final FakeMainCallerFrame fakeMainCallerFrame = new FakeMainCallerFrame(mainMethod,
-				MainConfig.get().MAX_LOCALS_DEFAULT); // fake caller of method
-														// under test
+		final FakeMainCallerFrame fakeMainCallerFrame = new FakeMainCallerFrame(
+				mainMethod, MainConfig.get().MAX_LOCALS_DEFAULT); // fake caller
+																	// of method
+																	// under
+																	// test
 
 		if (mainMethod != null) {
 			boolean isInstrumented = isInstrumented(mainMethod);

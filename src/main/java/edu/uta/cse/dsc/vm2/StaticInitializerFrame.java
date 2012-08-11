@@ -1,9 +1,8 @@
- package edu.uta.cse.dsc.vm2;
+package edu.uta.cse.dsc.vm2;
 
 import java.lang.reflect.Member;
 
 import edu.uta.cse.dsc.MainConfig;
-
 
 /**
  * Frame for a <clinit>() invocation
@@ -12,25 +11,32 @@ import edu.uta.cse.dsc.MainConfig;
  */
 final class StaticInitializerFrame extends Frame {
 
+	private String className;
+
 	/**
 	 * Constructor
 	 */
-	StaticInitializerFrame() {
+	StaticInitializerFrame(String className) {
 		super(MainConfig.get().MAX_LOCALS_DEFAULT);
+		this.className = className;
 	}
-	
+
 	@Override
 	public int getNrFormalParameters() {
-	  return 0;
+		return 0;
 	}
-	
-  @Override
-  public int getNrFormalParametersTotal() {
-    return 0;
-  }	
-	
+
+	@Override
+	public int getNrFormalParametersTotal() {
+		return 0;
+	}
+
 	@Override
 	public Member getMember() {
 		return null;
+	}
+
+	public Object getClassName() {
+		return className;
 	}
 }

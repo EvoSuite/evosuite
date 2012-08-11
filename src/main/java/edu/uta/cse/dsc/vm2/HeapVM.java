@@ -457,12 +457,14 @@ public final class HeapVM extends AbstractVM {
 		// discard symbolic array reference
 		env.topFrame().operandStack.popRef();
 
-		int lengthConcrete = Array.getLength(referenceConcrete);
+		if (referenceConcrete != null) {
+			int lengthConcrete = Array.getLength(referenceConcrete);
 
-		// replace symbolic array reference with length
-		IntegerConstant literalLength = ExpressionFactory
-				.buildNewIntegerConstant(lengthConcrete);
-		env.topFrame().operandStack.pushBv32(literalLength);
+			// replace symbolic array reference with length
+			IntegerConstant literalLength = ExpressionFactory
+					.buildNewIntegerConstant(lengthConcrete);
+			env.topFrame().operandStack.pushBv32(literalLength);
+		}
 	}
 
 	/**
