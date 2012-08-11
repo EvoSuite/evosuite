@@ -205,7 +205,9 @@ public class TestChromosome extends ExecutableChromosome {
 		// Only apply local search up to the point where an exception was thrown
 		int lastPosition = test.size() - 1;
 		if (lastExecutionResult != null && !isChanged()) {
-			lastPosition = lastExecutionResult.getFirstPositionOfThrownException();
+			Integer pos = lastExecutionResult.getFirstPositionOfThrownException();
+			if (pos != null)
+				lastPosition = pos;
 		}
 
 		//We count down to make the code work when lines are

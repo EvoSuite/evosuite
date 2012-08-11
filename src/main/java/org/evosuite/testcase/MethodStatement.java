@@ -455,7 +455,9 @@ public class MethodStatement extends AbstractStatement {
 					Type parameterType = Type.getType(parameterClass);
 					mg.checkCast(parameterType);
 					mg.unbox(Type.getType(method.getParameterTypes()[num]));
-				} else if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+				}
+
+				if (!method.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting!");
 					mg.cast(Type.getType(parameter.getVariableClass()),
 					        Type.getType(method.getParameterTypes()[num]));

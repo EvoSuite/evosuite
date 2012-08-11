@@ -22,16 +22,24 @@ package org.evosuite.sandbox;
 
 import java.io.FilePermission;
 import java.security.Permission;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import org.evosuite.utils.LoggingUtils;
 
 
 /**
  * <p>PermissionStatistics class.</p>
+ *
+ *
+ * 
+ * <p> FIXME: This class seem directly used by the SUT, when its method check the security manager. This can lead to concurrency issues when the
+ * SUT is multi-threaded. Some re-factoring might be needed, but that would need some discussions first regarding its use/goals<p> 
+ *
  *
  * @author Gordon Fraser
  */
@@ -40,19 +48,16 @@ public class PermissionStatistics {
 	private static PermissionStatistics instance;
 
 	private final Map<String, Map<String, Integer>> allowedCount;
-
 	private final Map<String, Map<String, Integer>> deniedCount;
-
 	private final Map<Class<?>, Integer> deniedClassCount;
-
 	private final Set<String> recentAccess;
 
 	// Private constructor
 	private PermissionStatistics() {
-		allowedCount = new HashMap<String, Map<String, Integer>>();
-		deniedCount = new HashMap<String, Map<String, Integer>>();
-		deniedClassCount = new HashMap<Class<?>, Integer>();
-		recentAccess = new HashSet<String>();
+		allowedCount = new ConcurrentHashMap<String, Map<String, Integer>>();
+		deniedCount = new ConcurrentHashMap<String, Map<String, Integer>>();
+		deniedClassCount = new ConcurrentHashMap<Class<?>, Integer>();
+		recentAccess = Collections.synchronizedSet(new HashSet<String>());
 	}
 
 	/**

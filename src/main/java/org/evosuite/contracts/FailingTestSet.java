@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,10 +31,11 @@ import org.evosuite.testcase.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>FailingTestSet class.</p>
- *
+ * <p>
+ * FailingTestSet class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class FailingTestSet {
@@ -52,11 +53,15 @@ public class FailingTestSet {
 
 	/**
 	 * Keep track of a new observed contract violation
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
-	 * @param contract a {@link org.evosuite.contracts.Contract} object.
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param exception a {@link java.lang.Throwable} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param contract
+	 *            a {@link org.evosuite.contracts.Contract} object.
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param exception
+	 *            a {@link java.lang.Throwable} object.
 	 */
 	public static void addFailingTest(TestCase test, Contract contract,
 	        StatementInterface statement, Throwable exception) {
@@ -71,7 +76,7 @@ public class FailingTestSet {
 
 	/**
 	 * How many violations have we observed in total?
-	 *
+	 * 
 	 * @return a int.
 	 */
 	public static int getNumberOfViolations() {
@@ -80,8 +85,9 @@ public class FailingTestSet {
 
 	/**
 	 * How many violations of this contract have we observed in total?
-	 *
-	 * @param contract a {@link org.evosuite.contracts.Contract} object.
+	 * 
+	 * @param contract
+	 *            a {@link org.evosuite.contracts.Contract} object.
 	 * @return a int.
 	 */
 	public static int getNumberOfViolations(Contract contract) {
@@ -95,8 +101,9 @@ public class FailingTestSet {
 
 	/**
 	 * How many violations of this contract have we observed in total?
-	 *
-	 * @param contractClass a {@link java.lang.Class} object.
+	 * 
+	 * @param contractClass
+	 *            a {@link java.lang.Class} object.
 	 * @return a int.
 	 */
 	public static int getNumberOfViolations(Class<?> contractClass) {
@@ -110,7 +117,7 @@ public class FailingTestSet {
 
 	/**
 	 * How many unique violations have we observed?
-	 *
+	 * 
 	 * @return a int.
 	 */
 	public static int getNumberOfUniqueViolations() {
@@ -140,8 +147,9 @@ public class FailingTestSet {
 
 	/**
 	 * Determine if we already have an instance of this violation
-	 *
-	 * @param violation a {@link org.evosuite.contracts.ContractViolation} object.
+	 * 
+	 * @param violation
+	 *            a {@link org.evosuite.contracts.ContractViolation} object.
 	 * @return a boolean.
 	 */
 	public static boolean hasViolation(ContractViolation violation) {

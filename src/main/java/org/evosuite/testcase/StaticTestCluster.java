@@ -711,6 +711,16 @@ public class StaticTestCluster extends TestCluster {
 			return false;
 		}
 
+		if (f.isSynthetic()) {
+			logger.debug("Skipping synthetic field " + f.getName());
+			return false;
+		}
+
+		if (f.getName().startsWith("ajc$")) {
+			logger.debug("Skipping AspectJ field " + f.getName());
+			return false;
+		}
+
 		if (Modifier.isPublic(f.getModifiers())) {
 			return true;
 		}

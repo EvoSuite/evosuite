@@ -33,6 +33,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.evosuite.Properties;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -197,7 +198,8 @@ public class ConstructorStatement extends AbstractStatement {
 							//throw new CodeUnderTestException(e.getCause());
 							// throw CodeUnderTestException.throwException(e.getCause());
 						} catch (Throwable e) {
-							logger.error("Error encountered: " + e);
+							//FIXME: this does not seem to propagate to client root. Is this normal behavior?
+							logger.error("Class "+Properties.TARGET_CLASS+". Error encountered: " + e);
 							assert (false);
 							throw new EvosuiteError(e);
 						}
@@ -387,7 +389,9 @@ public class ConstructorStatement extends AbstractStatement {
 					Type parameterType = Type.getType(parameterClass);
 					mg.checkCast(parameterType);
 					mg.unbox(Type.getType(constructor.getParameterTypes()[num]));
-				} else if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
+				}
+
+				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting "
 					        + parameter.getVariableClass().getName() + " to "
 					        + constructor.getParameterTypes()[num].getName());
