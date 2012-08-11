@@ -1295,8 +1295,25 @@ public final class ArithmeticVM extends AbstractVM {
 	 */
 	@Override
 	public void IINC(int i, int value) {
-		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(value);
-		env.topFrame().localsTable.setBv32Local(i, c);
+		IntegerConstant right = ExpressionFactory
+				.buildNewIntegerConstant(value);
+		IntegerExpression left = env.topFrame().localsTable.getBv32Local(i);
+
+		int left_concrete_value = ((Long) left.getConcreteValue()).intValue();
+		int right_concrete_value = value;
+
+		if (!left.containsSymbolicVariable()) {
+			left = ExpressionFactory
+					.buildNewIntegerConstant(left_concrete_value);
+		}
+
+
+		int con = left_concrete_value + right_concrete_value;
+
+		IntegerExpression intExpr = new IntegerBinaryExpression(left,
+				Operator.PLUS, right, (long) con);
+
+		env.topFrame().localsTable.setBv32Local(i, intExpr);
 	}
 
 	/**
