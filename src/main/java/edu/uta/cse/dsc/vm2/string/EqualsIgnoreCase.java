@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class EqualsIgnoreCase extends StringFunction {
+public final class EqualsIgnoreCase extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "equalsIgnoreCase";
 	private StringExpression strExpr;

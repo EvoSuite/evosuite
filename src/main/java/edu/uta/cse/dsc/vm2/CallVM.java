@@ -115,7 +115,8 @@ public final class CallVM extends AbstractVM {
 		 * instruction adds the corresponding exception. The handler will store
 		 * the exception to the locals table
 		 */
-		env.topFrame().operandStack.pushRef(new Exception("FakeException"));
+		NonNullReference fakeExceptionObject = new NonNullReference(null, 0);
+		env.topFrame().operandStack.pushRef(fakeExceptionObject);
 	}
 
 	private final THashMap<Member, MemberInfo> memberInfos = new THashMap<Member, MemberInfo>();
@@ -244,8 +245,9 @@ public final class CallVM extends AbstractVM {
 		}
 
 		if (calleeNeedsThis) { // "this" instance
-			Object param = it.next();
-			frame.localsTable.setRefLocal(0, param);
+			Operand param = it.next();
+			ReferenceOperand refOperand = (ReferenceOperand) param;
+			frame.localsTable.setRefLocal(0, refOperand.getReference());
 		}
 
 		env.pushFrame(frame);
@@ -279,8 +281,10 @@ public final class CallVM extends AbstractVM {
 
 	@Override
 	public void METHOD_BEGIN_RECEIVER(Object value) {
-		if (!env.callerFrame().weInvokedInstrumentedCode())
-			env.topFrame().localsTable.setRefLocal(0, value);
+		if (!env.callerFrame().weInvokedInstrumentedCode()) {
+			Reference ref = env.buildReference(value);
+			env.topFrame().localsTable.setRefLocal(0, ref);
+		}
 	}
 
 	@Override
@@ -350,7 +354,8 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_PARAM(int nr, int index, Object value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			env.topFrame().localsTable.setRefLocal(index, value);
+			Reference ref = env.buildReference(value);
+			env.topFrame().localsTable.setRefLocal(index, ref);
 		}
 	}
 
@@ -766,7 +771,9 @@ public final class CallVM extends AbstractVM {
 						.buildNewStringConstant(string);
 				env.topFrame().operandStack.pushStringRef(strConstant);
 			} else {
-				env.topFrame().operandStack.pushRef(res);
+				NonNullReference fakeObject = new NonNullReference(res
+						.getClass().getName(), 0);
+				env.topFrame().operandStack.pushRef(fakeObject);
 			}
 		}
 	}

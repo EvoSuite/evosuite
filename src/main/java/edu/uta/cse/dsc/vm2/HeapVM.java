@@ -8,10 +8,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
 import org.evosuite.symbolic.expr.IntegerConstant;
-import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealConstant;
-import org.evosuite.symbolic.expr.StringConstant;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
@@ -25,8 +22,6 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class HeapVM extends AbstractVM {
-
-	private static final Object DELAYED_OBJECT_REF = new Object();
 
 	private final SymbolicEnvironment env;
 
@@ -126,14 +121,10 @@ public final class HeapVM extends AbstractVM {
 			 */
 
 			if (!fieldType.isPrimitive()) {
-				if (jvmValue instanceof String) {
-					String string = (String) jvmValue;
-					StringConstant strConstant = ExpressionFactory
-							.buildNewStringConstant(string);
-					env.topFrame().operandStack.pushStringRef(strConstant);
-				} else {
-					env.topFrame().operandStack.pushRef(jvmValue);
-				}
+
+				Reference ref = env.buildReference(jvmValue);
+				env.topFrame().operandStack.pushRef(ref);
+
 			} else if (fieldType == float.class) {
 				float f = ((Float) jvmValue).floatValue();
 				RealConstant c = ExpressionFactory.buildNewRealConstant(f);
@@ -233,7 +224,8 @@ public final class HeapVM extends AbstractVM {
 		 * 
 		 * POST-Stack: objectref (delayed)
 		 */
-		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
+		NonNullReference newObject = this.env.buildNonNullReference(className);
+		env.topFrame().operandStack.pushRef(newObject);
 	}
 
 	/**
@@ -320,14 +312,8 @@ public final class HeapVM extends AbstractVM {
 				env.topFrame().operandStack.pushBv32(intExpr);
 			} else {
 				Object value = field.get(receiverConcrete);
-				if (value instanceof String) {
-					String string = (String) value;
-					StringConstant strConstant = new StringConstant(string);
-					env.topFrame().operandStack.pushStringRef(strConstant);
-
-				} else {
-					env.topFrame().operandStack.pushRef(value);
-				}
+				Reference ref = env.buildReference(value);
+				env.topFrame().operandStack.pushRef(ref);
 			}
 
 			if (!isAccessible) {
@@ -389,8 +375,10 @@ public final class HeapVM extends AbstractVM {
 		if (lengthConcrete < 0)
 			return;
 
-		// push delayed object
-		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
+		String className = "[" + componentType.getName();
+		NonNullReference newObjectArray = this.env
+				.buildNonNullReference(className);
+		env.topFrame().operandStack.pushRef(newObjectArray);
 	}
 
 	/**
@@ -415,8 +403,10 @@ public final class HeapVM extends AbstractVM {
 		if (lengthConcrete < 0)
 			return;
 
-		// push delayed object
-		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
+		String className = "[" + componentTypeName;
+		NonNullReference newObjectArray = this.env
+				.buildNonNullReference(className);
+		env.topFrame().operandStack.pushRef(newObjectArray);
 	}
 
 	/**
@@ -447,7 +437,9 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		// push delayed object
-		env.topFrame().operandStack.pushRef(DELAYED_OBJECT_REF);
+		NonNullReference newMultiArray = this.env
+				.buildNonNullReference(arrayTypeDesc); // @FIXME
+		env.topFrame().operandStack.pushRef(newMultiArray);
 	}
 
 	@Override
@@ -595,15 +587,9 @@ public final class HeapVM extends AbstractVM {
 		if (indexConcrete >= Array.getLength(referenceConcrete))
 			return;
 
-		Object ref = Array.get(referenceConcrete, indexConcrete);
-		if (ref instanceof String) {
-			String string = (String) ref;
-			StringConstant strConstant = ExpressionFactory
-					.buildNewStringConstant(string);
-			env.topFrame().operandStack.pushStringRef(strConstant);
-		} else {
-			env.topFrame().operandStack.pushRef(ref);
-		}
+		Object value = Array.get(referenceConcrete, indexConcrete);
+		Reference ref = env.buildReference(value);
+		env.topFrame().operandStack.pushRef(ref);
 	}
 
 	/**

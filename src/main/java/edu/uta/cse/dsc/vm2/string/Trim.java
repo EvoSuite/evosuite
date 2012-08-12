@@ -5,7 +5,7 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Trim extends StringFunction {
+public final class Trim extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "trim";
 

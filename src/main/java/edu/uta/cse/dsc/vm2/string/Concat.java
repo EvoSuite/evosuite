@@ -9,7 +9,7 @@ import org.evosuite.symbolic.expr.StringExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Concat extends StringFunction {
+public final class Concat extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "concat";
 

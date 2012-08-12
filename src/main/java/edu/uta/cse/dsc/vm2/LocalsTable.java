@@ -18,7 +18,7 @@ public final class LocalsTable {
 			locals.add(null);
 	}
 
-	public Object getRefLocal(int i) {
+	public Reference getRefLocal(int i) {
 		Operand x = locals.get(i);
 		ReferenceOperand refOp = (ReferenceOperand) x;
 		return refOp.getReference();
@@ -28,8 +28,8 @@ public final class LocalsTable {
 		Operand x = locals.get(i);
 		return x;
 	}
-	
-	public void setRefLocal(int i, Object o) {
+
+	public void setRefLocal(int i, Reference o) {
 		locals.set(i, new ReferenceOperand(o));
 	}
 

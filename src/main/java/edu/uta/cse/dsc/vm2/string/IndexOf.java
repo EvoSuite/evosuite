@@ -15,7 +15,7 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public abstract class IndexOf extends StringFunction {
+public abstract class IndexOf extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "indexOf";
 

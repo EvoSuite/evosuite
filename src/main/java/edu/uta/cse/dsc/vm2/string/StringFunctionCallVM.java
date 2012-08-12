@@ -49,50 +49,51 @@ public final class StringFunctionCallVM extends AbstractVM {
 	public static final String JAVA_LANG_STRING = String.class.getName()
 			.replace(".", "/");
 
-	private HashMap<StringFunctionKey, StringFunction> stringFunctionTable = new HashMap<StringFunctionKey, StringFunction>();
+	private HashMap<StringFunctionKey, StringVirtualFunction> stringVirtualTable = new HashMap<StringFunctionKey, StringVirtualFunction>();
 
 	private final SymbolicEnvironment env;
 
 	public StringFunctionCallVM(SymbolicEnvironment env) {
 		this.env = env;
-		fillStringFunctionTable();
+		fillFunctionTables();
 	}
 
-	private void fillStringFunctionTable() {
-		stringFunctionTable.clear();
-		addStringFunctionToTable(new CharAt(env));
-		addStringFunctionToTable(new CompareTo(env));
-		addStringFunctionToTable(new CompareToIgnoreCase(env));
-		addStringFunctionToTable(new Concat(env));
-		addStringFunctionToTable(new Contains(env));
-		addStringFunctionToTable(new EndsWith(env));
-		addStringFunctionToTable(new Equals(env));
-		addStringFunctionToTable(new EqualsIgnoreCase(env));
-		addStringFunctionToTable(new IndexOf.IndexOf_C(env));
-		addStringFunctionToTable(new IndexOf.IndexOf_S(env));
-		addStringFunctionToTable(new IndexOf.IndexOf_CI(env));
-		addStringFunctionToTable(new IndexOf.IndexOf_SI(env));
-		addStringFunctionToTable(new LastIndexOf.LastIndexOf_C(env));
-		addStringFunctionToTable(new LastIndexOf.LastIndexOf_S(env));
-		addStringFunctionToTable(new LastIndexOf.LastIndexOf_CI(env));
-		addStringFunctionToTable(new LastIndexOf.LastIndexOf_SI(env));
-		addStringFunctionToTable(new Length(env));
-		addStringFunctionToTable(new RegionMatches(env));
-		addStringFunctionToTable(new Replace.Replace_C(env));
-		addStringFunctionToTable(new Replace.Replace_CS(env));
-		addStringFunctionToTable(new ReplaceAll(env));
-		addStringFunctionToTable(new ReplaceFirst(env));
-		addStringFunctionToTable(new StartsWith(env));
-		addStringFunctionToTable(new Substring(env));
-		addStringFunctionToTable(new ToLowerCase(env));
-		addStringFunctionToTable(new ToUpperCase(env));
-		addStringFunctionToTable(new Trim(env));
+	private void fillFunctionTables() {
+		stringVirtualTable.clear();
+		addNewVirtualFunction(new CharAt(env));
+		addNewVirtualFunction(new CompareTo(env));
+		addNewVirtualFunction(new CompareToIgnoreCase(env));
+		addNewVirtualFunction(new Concat(env));
+		addNewVirtualFunction(new Contains(env));
+		addNewVirtualFunction(new EndsWith(env));
+		addNewVirtualFunction(new Equals(env));
+		addNewVirtualFunction(new EqualsIgnoreCase(env));
+		addNewVirtualFunction(new IndexOf.IndexOf_C(env));
+		addNewVirtualFunction(new IndexOf.IndexOf_S(env));
+		addNewVirtualFunction(new IndexOf.IndexOf_CI(env));
+		addNewVirtualFunction(new IndexOf.IndexOf_SI(env));
+		addNewVirtualFunction(new LastIndexOf.LastIndexOf_C(env));
+		addNewVirtualFunction(new LastIndexOf.LastIndexOf_S(env));
+		addNewVirtualFunction(new LastIndexOf.LastIndexOf_CI(env));
+		addNewVirtualFunction(new LastIndexOf.LastIndexOf_SI(env));
+		addNewVirtualFunction(new Length(env));
+		addNewVirtualFunction(new RegionMatches(env));
+		addNewVirtualFunction(new Replace.Replace_C(env));
+		addNewVirtualFunction(new Replace.Replace_CS(env));
+		addNewVirtualFunction(new ReplaceAll(env));
+		addNewVirtualFunction(new ReplaceFirst(env));
+		addNewVirtualFunction(new StartsWith(env));
+		addNewVirtualFunction(new Substring(env));
+		addNewVirtualFunction(new ToLowerCase(env));
+		addNewVirtualFunction(new ToString(env));
+		addNewVirtualFunction(new ToUpperCase(env));
+		addNewVirtualFunction(new Trim(env));
 	}
 
-	private void addStringFunctionToTable(StringFunction f) {
+	private void addNewVirtualFunction(StringVirtualFunction f) {
 		StringFunctionKey k = new StringFunctionKey(f.getOwner(), f.getName(),
 				f.getDesc());
-		StringFunction prev = this.stringFunctionTable.put(k, f);
+		StringFunction prev = this.stringVirtualTable.put(k, f);
 		if (prev != null) {
 			throw new IllegalArgumentException(
 					"Adding two functions with the same key!");
@@ -101,7 +102,7 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(int res, String owner, String name, String desc) {
-		StringFunction f = getStringFunction(owner, name, desc);
+		StringFunction f = getVirtualFunction(owner, name, desc);
 		if (f == null) {
 			return; // do nothing
 		}
@@ -116,18 +117,17 @@ public final class StringFunctionCallVM extends AbstractVM {
 			return; // do nothing;
 		}
 
-		StringFunction f = this.getStringFunction(owner, name, desc);
+		StringVirtualFunction f = this.getVirtualFunction(owner, name, desc);
 		if (f == null) {
 			// Unsupported string function
 			return; // do nothing
 		}
 		f.INVOKEVIRTUAL(receiver);
 	}
-	
+
 	@Override
-	public void INVOKEVIRTUAL(String owner, String name,
-			String desc) {
-		StringFunction f = this.getStringFunction(owner, name, desc);
+	public void INVOKEVIRTUAL(String owner, String name, String desc) {
+		StringVirtualFunction f = this.getVirtualFunction(owner, name, desc);
 		if (f == null) {
 			// Unsupported string function
 			return; // do nothing
@@ -137,27 +137,37 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(Object res, String owner, String name, String desc) {
-		StringFunction f = getStringFunction(owner, name, desc);
+		StringFunction f = getVirtualFunction(owner, name, desc);
 		if (f == null) {
 			return; // do nothing
 		}
 		f.CALL_RESULT(res);
 	}
 
-	private StringFunction getStringFunction(String owner, String name,
+	private StringVirtualFunction getVirtualFunction(String owner, String name,
 			String desc) {
-		StringFunction f;
+		StringVirtualFunction f;
 		StringFunctionKey k = new StringFunctionKey(owner, name, desc);
-		f = stringFunctionTable.get(k);
+		f = stringVirtualTable.get(k);
 		return f;
 	}
 
 	@Override
 	public void CALL_RESULT(boolean res, String owner, String name, String desc) {
-		StringFunction f = getStringFunction(owner, name, desc);
+		StringFunction f = getVirtualFunction(owner, name, desc);
 		if (f == null) {
 			return; // do nothing
 		}
 		f.CALL_RESULT(res);
+	}
+
+	@Override
+	public void INVOKESTATIC(String owner, String name, String desc) {
+		StringVirtualFunction f = this.getVirtualFunction(owner, name, desc);
+		if (f == null) {
+			// Unsupported string function
+			return; // do nothing
+		}
+		f.INVOKEVIRTUAL();
 	}
 }

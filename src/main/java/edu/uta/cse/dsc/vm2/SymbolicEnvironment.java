@@ -2,15 +2,17 @@ package edu.uta.cse.dsc.vm2;
 
 import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
+import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.symbolic.expr.StringExpression;
 import org.objectweb.asm.Type;
 
 public final class SymbolicEnvironment {
@@ -18,7 +20,7 @@ public final class SymbolicEnvironment {
 	/**
 	 * Stack of function/method/constructor invocation frames
 	 */
-	private final Deque<Frame> frames = new LinkedList<Frame>();
+	private final Deque<Frame> stackFrame = new LinkedList<Frame>();
 
 	/**
 	 * Classes whose static fields have been set to the default zero value or a
@@ -33,22 +35,22 @@ public final class SymbolicEnvironment {
 	}
 
 	public Frame topFrame() {
-		return frames.peek();
+		return stackFrame.peek();
 	}
 
 	public void pushFrame(Frame frame) {
-		frames.push(frame);
+		stackFrame.push(frame);
 	}
 
 	public Frame callerFrame() {
-		Frame top = frames.pop();
-		Frame res = frames.peek();
-		frames.push(top);
+		Frame top = stackFrame.pop();
+		Frame res = stackFrame.peek();
+		stackFrame.push(top);
 		return res;
 	}
 
 	public Frame popFrame() {
-		return frames.pop();
+		return stackFrame.pop();
 	}
 
 	public Class<?> ensurePrepared(String className) {
@@ -72,22 +74,22 @@ public final class SymbolicEnvironment {
 			ensurePrepared(superClass); // prepare super class first
 
 		String className = claz.getCanonicalName();
-		if (className==null ) {
+		if (className == null) {
 			// no canonical name
 		}
 		/*
-		Field[] fields = claz.getDeclaredFields();
-
-		final boolean isIgnored = MainConfig.get().isIgnored(className);
-
-		for (Field field : fields) {
-
-			final int fieldModifiers = field.getModifiers();
-			if (isIgnored && Modifier.isPrivate(fieldModifiers))
-				continue; // skip private field of ignored class.
-
-		}
-		*/
+		 * Field[] fields = claz.getDeclaredFields();
+		 * 
+		 * final boolean isIgnored = MainConfig.get().isIgnored(className);
+		 * 
+		 * for (Field field : fields) {
+		 * 
+		 * final int fieldModifiers = field.getModifiers(); if (isIgnored &&
+		 * Modifier.isPrivate(fieldModifiers)) continue; // skip private field
+		 * of ignored class.
+		 * 
+		 * }
+		 */
 		preparedClasses.add(claz);
 
 	}
@@ -100,7 +102,7 @@ public final class SymbolicEnvironment {
 	 * pseudo-callers stack, so our method can pop them from there.
 	 */
 	public void prepareStack(Method mainMethod) {
-		frames.clear();
+		stackFrame.clear();
 		// bottom of the stack trace
 		this.pushFrame(new FakeBottomFrame());
 
@@ -115,7 +117,8 @@ public final class SymbolicEnvironment {
 			boolean isInstrumented = isInstrumented(mainMethod);
 			fakeMainCallerFrame.invokeInstrumentedCode(isInstrumented);
 			String[] emptyStringArray = new String[] {};
-			fakeMainCallerFrame.operandStack.pushRef(emptyStringArray);
+			Reference emptyStringRef = this.buildReference(emptyStringArray);
+			fakeMainCallerFrame.operandStack.pushRef(emptyStringRef);
 		}
 		this.pushFrame(fakeMainCallerFrame);
 	}
@@ -133,7 +136,47 @@ public final class SymbolicEnvironment {
 	}
 
 	public boolean isEmpty() {
-		return frames.isEmpty();
+		return stackFrame.isEmpty();
 	}
 
+	public Reference buildReference(Object o) {
+		if (o == null) {
+			return NullReference.getInstance();
+		} else {
+			if (o instanceof String) {
+				String string = (String) o;
+				StringExpression strExpr = ExpressionFactory
+						.buildNewStringConstant(string);
+				StringReference strRef = new StringReference(strExpr);
+				return strRef;
+			} else {
+				NonNullReference nonNullRef = buildNonNullReference(o
+						.getClass().getName());
+				object_to_ref.put(o, nonNullRef);
+				ref_to_object.put(nonNullRef, o);
+				return nonNullRef;
+			}
+		}
+	}
+
+	private int instanceId = 0;
+
+	/**
+	 * This constructor is for references created in instrumented code (NEW,
+	 * ANEW, NEWARRAY, etc)
+	 * 
+	 * @param className
+	 * @return
+	 */
+	public NonNullReference buildNonNullReference(String className) {
+		return new NonNullReference(className, instanceId++);
+	}
+
+	private final Map<Object, NonNullReference> object_to_ref = new THashMap<Object, NonNullReference>();
+	private final Map<NonNullReference, Object> ref_to_object = new THashMap<NonNullReference, Object>();
+
+	public Object getObject(NonNullReference nonNullRef) {
+		Object object = ref_to_object.get(nonNullRef);
+		return object;
+	}
 }

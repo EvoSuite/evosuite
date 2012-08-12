@@ -17,9 +17,6 @@ import edu.uta.cse.dsc.AbstractVM;
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class JumpVM extends AbstractVM {
-	/* short-cut */
-	private final Object NULL_REFERENCE = null;
-
 	private SymbolicEnvironment env;
 
 	private PathConstraint pc;
@@ -224,9 +221,9 @@ public final class JumpVM extends AbstractVM {
 	@Override
 	public void IFNULL(String className, String methName, int branchIndex,
 			Object p) {
-		env.topFrame().operandStack.pushRef(NULL_REFERENCE); // right hand side
-																// argument of
-																// EQ
+		// right hand side argument of EQ
+		env.topFrame().operandStack.pushRef(NullReference.getInstance());
+
 		// comparison
 		IF_ACMPEQ(className, methName, branchIndex, p, null); // use general
 																// implementation

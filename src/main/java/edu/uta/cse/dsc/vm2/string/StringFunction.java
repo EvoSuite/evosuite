@@ -15,53 +15,16 @@ import edu.uta.cse.dsc.vm2.Bv64Operand;
 import edu.uta.cse.dsc.vm2.ExpressionFactory;
 import edu.uta.cse.dsc.vm2.Fp32Operand;
 import edu.uta.cse.dsc.vm2.Fp64Operand;
+import edu.uta.cse.dsc.vm2.NonNullReference;
+import edu.uta.cse.dsc.vm2.NullReference;
 import edu.uta.cse.dsc.vm2.Operand;
+import edu.uta.cse.dsc.vm2.Reference;
 import edu.uta.cse.dsc.vm2.ReferenceOperand;
-import edu.uta.cse.dsc.vm2.StringReferenceOperand;
+import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public abstract class StringFunction {
 
-	protected SymbolicEnvironment env;
-
-	public StringFunction(SymbolicEnvironment env, String name, String desc) {
-		this.env = env;
-		this.owner = StringFunctionCallVM.JAVA_LANG_STRING;
-		this.name = name;
-		this.desc = desc;
-	}
-
-	public void INVOKEVIRTUAL() {
-		/* STUB */
-	}
-
-	public final void INVOKEVIRTUAL(Object receiver) {
-		/**
-		 * We do nothing if receiver is null since we assume HeapVM deals with
-		 * the null pointer exception effect in the symbolic state.
-		 */
-		if (receiver == null) {
-			return;
-		}
-
-		INVOKEVIRTUAL((String) receiver);
-	}
-
-	protected StringExpression stringReceiverExpr;
-
-	/**
-	 * This method should not consume the symbolic arguments in the stack
-	 * operand. The disposal of these arguments will be done by RETURN,
-	 * CALL_RESULT or HANDLER_BEGIN
-	 * 
-	 * @param receiver
-	 * 
-	 */
-	protected abstract void INVOKEVIRTUAL(String receiver);
-
-	private final String owner;
-	private final String name;
-	private final String desc;
 	private static final Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
 	private static final Type OBJECT_TYPE = Type.getType(Object.class);
 	private static final Type STRING_TYPE = Type.getType(String.class);
@@ -87,6 +50,10 @@ public abstract class StringFunction {
 			INT_TYPE, STRING_TYPE, INT_TYPE);
 	public static final String OBJECT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
 			BOOLEAN_TYPE, OBJECT_TYPE);
+
+	public static final String OBJECT_TO_STR_DESCRIPTOR = getMethodDescriptor(
+			STRING_TYPE, OBJECT_TYPE);
+
 	public static final String STR_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
 			BOOLEAN_TYPE, STRING_TYPE);
 	public static final String STR_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
@@ -98,6 +65,72 @@ public abstract class StringFunction {
 			BOOLEAN_TYPE, CHARSEQ_TYPE);
 	public static final String CHARSEQ_CHARSEQ_TO_STR_DESCRIPTOR = getMethodDescriptor(
 			STRING_TYPE, CHARSEQ_TYPE, CHARSEQ_TYPE);
+
+	protected StringExpression operandToStringRef(Operand operand) {
+		ReferenceOperand refOp = (ReferenceOperand) operand;
+		Reference ref = (Reference) refOp.getReference();
+		if (ref instanceof NullReference) {
+			return null;
+		} else if (ref instanceof StringReference) {
+			StringReference strRef = (StringReference) ref;
+			return strRef.getStringExpression();
+		} else {
+			NonNullReference nonNullRef = (NonNullReference) ref;
+			Object object = this.env.getObject(nonNullRef);
+			return ExpressionFactory.buildNewStringConstant(object.toString());
+		}
+	}
+
+	protected static RealExpression fp64(Operand operand) {
+		Fp64Operand fp64 = (Fp64Operand) operand;
+		return fp64.getRealExpression();
+	}
+
+	protected static RealExpression fp32(Operand operand) {
+		Fp32Operand fp32 = (Fp32Operand) operand;
+		return fp32.getRealExpression();
+	}
+
+	protected static IntegerExpression bv32(Operand operand) {
+		Bv32Operand fp32 = (Bv32Operand) operand;
+		return fp32.getIntegerExpression();
+	}
+
+	protected static IntegerExpression bv64(Operand operand) {
+		Bv64Operand bv64 = (Bv64Operand) operand;
+		return bv64.getIntegerExpression();
+	}
+
+	protected static StringExpression stringRef(Operand operand) {
+		ReferenceOperand refOp = (ReferenceOperand) operand;
+		Reference ref = (Reference) refOp.getReference();
+		StringReference stringRef = (StringReference) ref;
+		return stringRef.getStringExpression();
+	}
+
+	protected static ReferenceOperand ref(Operand operand) {
+		ReferenceOperand ref = (ReferenceOperand) operand;
+		return ref;
+	}
+
+	protected static boolean isNullRef(ReferenceOperand ref) {
+		return ref.getReference() == null;
+	}
+
+	protected SymbolicEnvironment env;
+	protected final String owner;
+	protected final String name;
+	protected final String desc;
+
+	protected void replaceBv32Top(IntegerExpression expr) {
+		this.env.topFrame().operandStack.popBv32(); // discard old top
+		this.env.topFrame().operandStack.pushBv32(expr);
+	}
+
+	protected void replaceStrRefTop(StringExpression expr) {
+		this.env.topFrame().operandStack.popStringRef(); // discard old top
+		this.env.topFrame().operandStack.pushStringRef(expr);
+	}
 
 	public String getOwner() {
 		return owner;
@@ -123,62 +156,12 @@ public abstract class StringFunction {
 		/* STUB */
 	}
 
-	protected void replaceBv32Top(IntegerExpression expr) {
-		this.env.topFrame().operandStack.popBv32(); // discard old top
-		this.env.topFrame().operandStack.pushBv32(expr);
-	}
-
-	protected void replaceStrRefTop(StringExpression expr) {
-		this.env.topFrame().operandStack.popStringRef(); // discard old top
-		this.env.topFrame().operandStack.pushStringRef(expr);
-	}
-
-	protected static StringExpression operandToStringRef(Operand operand) {
-		if (operand instanceof StringReferenceOperand) {
-			StringReferenceOperand strRef = (StringReferenceOperand) operand;
-			return strRef.getStringExpression();
-		} else {
-			ReferenceOperand ref = (ReferenceOperand)operand;
-			if (ref.getReference()==null) {
-				return null;
-			} else {
-				return ExpressionFactory.buildNewStringConstant(ref.toString());
-			}
-		}
-	}
-
-	protected static RealExpression fp64(Operand operand) {
-		Fp64Operand fp64 = (Fp64Operand) operand;
-		return fp64.getRealExpression();
-	}
-
-	protected static RealExpression fp32(Operand operand) {
-		Fp32Operand fp32 = (Fp32Operand) operand;
-		return fp32.getRealExpression();
-	}
-
-	protected static IntegerExpression bv32(Operand operand) {
-		Bv32Operand fp32 = (Bv32Operand) operand;
-		return fp32.getIntegerExpression();
-	}
-
-	protected static IntegerExpression bv64(Operand operand) {
-		Bv64Operand bv64 = (Bv64Operand) operand;
-		return bv64.getIntegerExpression();
-	}
-
-	protected static StringExpression stringRef(Operand operand) {
-		StringReferenceOperand stringRef = (StringReferenceOperand) operand;
-		return stringRef.getStringExpression();
-	}
-
-	protected static ReferenceOperand ref(Operand operand) {
-		ReferenceOperand ref = (ReferenceOperand) operand;
-		return ref;
-	}
-
-	protected static boolean isNullRef(ReferenceOperand ref) {
-		return ref.getReference() == null;
+	public StringFunction(SymbolicEnvironment env, String owner, String name,
+			String desc) {
+		this.env = env;
+		this.owner = owner;
+		this.name = name;
+		this.desc = desc;
 	}
 
 }

@@ -26,7 +26,7 @@ public final class LocalsVM extends AbstractVM {
 	 */
 	@Override
 	public void ACONST_NULL() {
-		env.topFrame().operandStack.pushRef(null);
+		env.topFrame().operandStack.pushRef(NullReference.getInstance());
 	}
 
 	/**
@@ -178,7 +178,8 @@ public final class LocalsVM extends AbstractVM {
 	 */
 	@Override
 	public void LDC(Class<?> x) {
-		env.topFrame().operandStack.pushRef(x);
+		Reference ref = env.buildReference(x);
+		env.topFrame().operandStack.pushRef(ref);
 	}
 
 	@Override

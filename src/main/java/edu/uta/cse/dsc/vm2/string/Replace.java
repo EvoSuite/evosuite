@@ -13,7 +13,7 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public abstract class Replace extends StringFunction {
+public abstract class Replace extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "replace";
 

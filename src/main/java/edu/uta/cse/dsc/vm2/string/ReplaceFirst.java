@@ -12,7 +12,7 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class ReplaceFirst extends StringFunction {
+public final class ReplaceFirst extends StringVirtualFunction {
 
 	private StringExpression regexExpr;
 	private StringExpression replacementExpr;

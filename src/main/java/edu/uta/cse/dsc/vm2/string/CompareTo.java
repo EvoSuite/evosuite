@@ -10,7 +10,7 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class CompareTo extends StringFunction {
+public final class CompareTo extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "compareTo";
 	private StringExpression strExpr;

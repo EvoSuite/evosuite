@@ -5,7 +5,7 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class ToLowerCase extends StringFunction {
+public final class ToLowerCase extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "toLowerCase";
 

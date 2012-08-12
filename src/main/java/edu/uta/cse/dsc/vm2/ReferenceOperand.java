@@ -2,13 +2,14 @@ package edu.uta.cse.dsc.vm2;
 
 public class ReferenceOperand implements SingleWordOperand {
 
-	private final Object reference;
-	
-	public ReferenceOperand(Object ref) {
-		this.reference=ref;
+	private final Reference ref;
+
+	public ReferenceOperand(Reference o) {
+		this.ref = o;
 	}
 
-	public Object getReference() {
-		return reference;
+	public Reference getReference() {
+		return this.ref;
 	}
+
 }
