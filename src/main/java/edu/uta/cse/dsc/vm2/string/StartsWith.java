@@ -9,13 +9,12 @@ import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringMultipleComparison;
-import org.evosuite.symbolic.expr.StringMultipleExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class StartsWith extends StringFunction {
+public final class StartsWith extends StringVirtualFunction {
 
 	private StringExpression prefixExpr;
 	private IntegerExpression offsetExpr;

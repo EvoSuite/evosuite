@@ -12,7 +12,7 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Substring extends StringFunction {
+public final class Substring extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "substring";
 

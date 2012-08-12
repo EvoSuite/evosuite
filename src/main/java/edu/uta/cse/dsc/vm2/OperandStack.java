@@ -15,12 +15,8 @@ public final class OperandStack {
 	public OperandStack() {
 	}
 
-	public void pushRef(Object o) {
-		if (o instanceof String)
-			throw new IllegalArgumentException(
-					"String references must be pushed using methdo pushStringRef()");
-
-		stack.push(new ReferenceOperand(o));
+	public void pushRef(Reference r) {
+		stack.push(new ReferenceOperand(r));
 	}
 
 	public void pushBv32(IntegerExpression e) {
@@ -40,10 +36,10 @@ public final class OperandStack {
 	}
 
 	public void pushStringRef(StringExpression e) {
-		stack.push(new StringReferenceOperand(e));
+		stack.push(new ReferenceOperand(new StringReference(e)));
 	}
 
-	public Object popRef() {
+	public Reference popRef() {
 		Operand ret_val = this.popOperand();
 		ReferenceOperand ref = (ReferenceOperand) ret_val;
 		return ref.getReference();
@@ -78,19 +74,12 @@ public final class OperandStack {
 		return ret_val;
 	}
 
-
 	public void clearOperands() {
 		stack.clear();
 	}
 
 	public void pushOperand(Operand operand) {
 		stack.push(operand);
-	}
-
-	public Object peekRef() {
-		Operand operand = stack.peek();
-		ReferenceOperand refOp = (ReferenceOperand) operand;
-		return refOp.getReference();
 	}
 
 	public RealExpression peekFp64() {
@@ -116,7 +105,7 @@ public final class OperandStack {
 		Bv32Operand bv32 = (Bv32Operand) operand;
 		return bv32.getIntegerExpression();
 	}
-	
+
 	public Operand peekOperand() {
 		return stack.peek();
 	}
@@ -127,13 +116,17 @@ public final class OperandStack {
 
 	public StringExpression peekStringRef() {
 		Operand operand = stack.peek();
-		StringReferenceOperand strRef = (StringReferenceOperand) operand;
+		ReferenceOperand refOp = (ReferenceOperand) operand;
+		Reference ref = refOp.getReference();
+		StringReference strRef = (StringReference) ref;
 		return strRef.getStringExpression();
 	}
 
 	public StringExpression popStringRef() {
 		Operand operand = this.popOperand();
-		StringReferenceOperand strRef = (StringReferenceOperand) operand;
+		ReferenceOperand refOp = (ReferenceOperand) operand;
+		Reference ref = refOp.getReference();
+		StringReference strRef = (StringReference) ref;
 		return strRef.getStringExpression();
 	}
 

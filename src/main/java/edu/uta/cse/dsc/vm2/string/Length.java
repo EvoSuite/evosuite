@@ -7,7 +7,7 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Length extends StringFunction {
+public final class Length extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "length";
 

@@ -5,7 +5,7 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class ToUpperCase extends StringFunction {
+public final class ToUpperCase extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "toUpperCase";
 

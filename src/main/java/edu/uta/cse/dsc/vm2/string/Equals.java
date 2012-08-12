@@ -7,12 +7,14 @@ import org.evosuite.symbolic.expr.StringComparison;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
+import edu.uta.cse.dsc.vm2.NullReference;
 import edu.uta.cse.dsc.vm2.Operand;
+import edu.uta.cse.dsc.vm2.Reference;
 import edu.uta.cse.dsc.vm2.ReferenceOperand;
-import edu.uta.cse.dsc.vm2.StringReferenceOperand;
+import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Equals extends StringFunction {
+public final class Equals extends StringVirtualFunction {
 
 	private static final String FUNCTION_NAME = "equals";
 	private StringExpression strExpr;
@@ -25,14 +27,14 @@ public final class Equals extends StringFunction {
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		ReferenceOperand refOperand = ref(it.next());
-		if (isNullRef(refOperand)) {
+		Reference ref = (Reference) refOperand.getReference();
+		if (ref instanceof NullReference) {
 			this.strExpr = null;
 		} else {
-			if (refOperand instanceof StringReferenceOperand) {
-				this.strExpr = ((StringReferenceOperand) refOperand)
-						.getStringExpression();
+			if (ref instanceof StringReference) {
+				this.strExpr = ((StringReference) ref).getStringExpression();
 			} else {
-				this.strExpr = null;
+				this.strExpr = null; // equals(!String) returns false anyway
 			}
 		}
 		this.stringReceiverExpr = stringRef(it.next());
