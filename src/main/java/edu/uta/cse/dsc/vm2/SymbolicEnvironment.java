@@ -150,11 +150,16 @@ public final class SymbolicEnvironment {
 				StringReference strRef = new StringReference(strExpr);
 				return strRef;
 			} else {
-				NonNullReference nonNullRef = buildNonNullReference(o
-						.getClass().getName());
-				object_to_ref.put(o, nonNullRef);
-				ref_to_object.put(nonNullRef, o);
-				return nonNullRef;
+				if (!object_to_ref.containsKey(o)) {
+					NonNullReference nonNullRef = buildNonNullReference(o
+							.getClass().getName());
+					object_to_ref.put(o, nonNullRef);
+					ref_to_object.put(nonNullRef, o);
+					return nonNullRef;
+				} else {
+					return object_to_ref.get(o);
+				}
+
 			}
 		}
 	}
@@ -172,6 +177,8 @@ public final class SymbolicEnvironment {
 		return new NonNullReference(className, instanceId++);
 	}
 
+	// @TODO Replace Object with System.identityHashCode and WeakReference to save space
+	// Try to avoid this from growing too much
 	private final Map<Object, NonNullReference> object_to_ref = new THashMap<Object, NonNullReference>();
 	private final Map<NonNullReference, Object> ref_to_object = new THashMap<NonNullReference, Object>();
 

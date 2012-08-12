@@ -2,12 +2,12 @@ package edu.uta.cse.dsc.vm2;
 
 import org.evosuite.symbolic.expr.StringExpression;
 
-public final class StringReferenceOperand extends ReferenceOperand {
+public final class StringReference extends NonNullReference {
 
 	private StringExpression strExpr;
 
-	public StringReferenceOperand(StringExpression strExpr) {
-		super(strExpr.getConcreteValue());
+	public StringReference(StringExpression strExpr) {
+		super("java.lang.String", -1);
 		this.strExpr = strExpr;
 	}
 
