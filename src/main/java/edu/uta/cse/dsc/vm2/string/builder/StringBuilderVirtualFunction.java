@@ -27,7 +27,7 @@ public abstract class StringBuilderVirtualFunction extends VirtualFunction {
 		INVOKEVIRTUAL((StringBuilder) receiver);
 	}
 
-	protected StringBuilderExpression stringBuilderReceiverExpr;
+	protected StringBuilderExpression stringBuilderExpr;
 
 	/**
 	 * This method should not consume the symbolic arguments in the stack

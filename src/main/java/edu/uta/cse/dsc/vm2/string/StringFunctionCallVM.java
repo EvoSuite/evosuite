@@ -104,10 +104,17 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 		// java.lang.StringBuilder
 		addNewSpecialFunction(new SB_Init.StringBuilderInit_S(env));
+		addNewSpecialFunction(new SB_Init.StringBuilderInit_CS(env));
 		addNewVirtualFunction(new SB_Append.Append_C(env));
+		addNewVirtualFunction(new SB_Append.Append_I(env));
+		addNewVirtualFunction(new SB_Append.Append_L(env));
+		addNewVirtualFunction(new SB_Append.Append_B(env));
 		addNewVirtualFunction(new SB_Append.Append_S(env));
+		addNewVirtualFunction(new SB_Append.Append_F(env));
+		addNewVirtualFunction(new SB_Append.Append_D(env));
+		addNewVirtualFunction(new SB_Append.Append_O(env));
 		addNewVirtualFunction(new SB_ToString(env));
-		
+
 	}
 
 	private void addNewVirtualFunction(VirtualFunction f) {
@@ -142,11 +149,9 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(int res, String owner, String name, String desc) {
-		StringFunction f = getStringFunction(owner, name, desc);
-		if (f == null) {
-			return; // do nothing
+		if (currentStringFunction != null) {
+			currentStringFunction.CALL_RESULT(res);
 		}
-		f.CALL_RESULT(res);
 	}
 
 	@Override
@@ -156,34 +161,27 @@ public final class StringFunctionCallVM extends AbstractVM {
 			// CallVM takes care of all NullPointerException details
 			return; // do nothing;
 		}
-
-		VirtualFunction f = (VirtualFunction) this
-				.getStringFunction(owner, name, desc);
-		if (f == null) {
-			// Unsupported string function
-			return; // do nothing
+		currentStringFunction = this.getStringFunction(owner, name, desc);
+		if (currentStringFunction != null) {
+			VirtualFunction virtualFunction = (VirtualFunction) currentStringFunction;
+			virtualFunction.INVOKEVIRTUAL(receiver);
 		}
-		f.INVOKEVIRTUAL(receiver);
 	}
 
 	@Override
 	public void INVOKEVIRTUAL(String owner, String name, String desc) {
-		VirtualFunction f = (VirtualFunction) this
-				.getStringFunction(owner, name, desc);
-		if (f == null) {
-			// Unsupported string function
-			return; // do nothing
+		currentStringFunction = this.getStringFunction(owner, name, desc);
+		if (currentStringFunction != null) {
+			VirtualFunction virtualFunction = (VirtualFunction) currentStringFunction;
+			virtualFunction.INVOKEVIRTUAL();
 		}
-		f.INVOKEVIRTUAL();
 	}
 
 	@Override
 	public void CALL_RESULT(Object res, String owner, String name, String desc) {
-		StringFunction f = getStringFunction(owner, name, desc);
-		if (f == null) {
-			return; // do nothing
+		if (currentStringFunction != null) {
+			currentStringFunction.CALL_RESULT(res);
 		}
-		f.CALL_RESULT(res);
 	}
 
 	private StringFunction getStringFunction(String owner, String name,
@@ -202,41 +200,44 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(boolean res, String owner, String name, String desc) {
-		StringFunction f = getStringFunction(owner, name, desc);
-		if (f == null) {
-			return; // do nothing
+		if (currentStringFunction != null) {
+			currentStringFunction.CALL_RESULT(res);
 		}
-		f.CALL_RESULT(res);
 	}
 
 	@Override
 	public void CALL_RESULT(String owner, String name, String desc) {
-		StringFunction f = getStringFunction(owner, name, desc);
-		if (f == null) {
-			return; // do nothing
+		if (currentStringFunction != null) {
+			currentStringFunction.CALL_RESULT();
 		}
-		f.CALL_RESULT();
 	}
 
 	@Override
 	public void INVOKESTATIC(String owner, String name, String desc) {
-		StaticFunction f = (StaticFunction) this.getStringFunction(
-				owner, name, desc);
-		if (f == null) {
-			// Unsupported string function
-			return; // do nothing
+		currentStringFunction = this.getStringFunction(owner, name, desc);
+		if (currentStringFunction != null) {
+			StaticFunction staticFunction = (StaticFunction) currentStringFunction;
+			staticFunction.INVOKESTATIC();
 		}
-		f.INVOKESTATIC();
+
 	}
+
+	private StringFunction currentStringFunction;
 
 	@Override
 	public void INVOKESPECIAL(String owner, String name, String desc) {
-		SpecialFunction f = (SpecialFunction) this
-				.getStringFunction(owner, name, desc);
-		if (f == null) {
-			// Unsupported string function
-			return; // do nothing
+		currentStringFunction = this.getStringFunction(owner, name, desc);
+		if (currentStringFunction != null) {
+			SpecialFunction specialFunction = (SpecialFunction) currentStringFunction;
+			specialFunction.INVOKESPECIAL();
 		}
-		f.INVOKESPECIAL();
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
 	}
 }

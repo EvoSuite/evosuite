@@ -3,6 +3,11 @@ package edu.uta.cse.dsc.vm2.string;
 import static org.objectweb.asm.Type.BOOLEAN_TYPE;
 import static org.objectweb.asm.Type.CHAR_TYPE;
 import static org.objectweb.asm.Type.INT_TYPE;
+import static org.objectweb.asm.Type.LONG_TYPE;
+import static org.objectweb.asm.Type.VOID_TYPE;
+import static org.objectweb.asm.Type.FLOAT_TYPE;
+import static org.objectweb.asm.Type.DOUBLE_TYPE;
+
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
 import org.evosuite.symbolic.expr.IntegerExpression;
@@ -25,7 +30,6 @@ import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public abstract class StringFunction {
 
-	private static final Type VOID_TYPE = Type.VOID_TYPE;
 	private static final Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
 	private static final Type OBJECT_TYPE = Type.getType(Object.class);
 	private static final Type STRING_TYPE = Type.getType(String.class);
@@ -71,10 +75,28 @@ public abstract class StringFunction {
 			STRING_TYPE, CHARSEQ_TYPE, CHARSEQ_TYPE);
 	public static final String STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
 			VOID_TYPE, STRING_TYPE);
+
 	public static final String STR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
 			STRING_BUILDER_TYPE, STRING_TYPE);
+
 	public static final String CHAR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
 			STRING_BUILDER_TYPE, CHAR_TYPE);
+
+	public static final String CHARSEQ_TO_VOID_DESCRIPTOR = getMethodDescriptor(
+			VOID_TYPE, CHARSEQ_TYPE);
+
+	public static final String INT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, INT_TYPE);
+	public static final String LONG_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, LONG_TYPE);
+	public static final String BOOLEAN_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, BOOLEAN_TYPE);
+	public static final String FLOAT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, FLOAT_TYPE);
+	public static final String DOUBLE_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, DOUBLE_TYPE);
+	public static final String OBJECT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, OBJECT_TYPE);
 
 	protected StringExpression operandToStringExpression(Operand operand) {
 		ReferenceOperand refOp = (ReferenceOperand) operand;
@@ -175,6 +197,10 @@ public abstract class StringFunction {
 	}
 
 	public void CALL_RESULT() {
+		/* STUB */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
 		/* STUB */
 	}
 
