@@ -10,7 +10,6 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.NullReference;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.Reference;
-import edu.uta.cse.dsc.vm2.ReferenceOperand;
 import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
@@ -26,8 +25,8 @@ public final class Equals extends StringVirtualFunction {
 	@Override
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		ReferenceOperand refOperand = ref(it.next());
-		Reference ref = (Reference) refOperand.getReference();
+	
+		Reference ref = ref(it.next());
 		if (ref instanceof NullReference) {
 			this.strExpr = null;
 		} else {

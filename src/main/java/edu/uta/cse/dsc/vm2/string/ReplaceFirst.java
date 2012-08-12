@@ -27,8 +27,8 @@ public final class ReplaceFirst extends StringVirtualFunction {
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-		this.replacementExpr = operandToStringRef(it.next());
-		this.regexExpr = operandToStringRef(it.next());
+		this.replacementExpr = operandToStringExpression(it.next());
+		this.regexExpr = operandToStringExpression(it.next());
 		this.stringReceiverExpr = stringRef(it.next());
 
 	}

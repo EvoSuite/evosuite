@@ -28,7 +28,7 @@ public final class Substring extends StringVirtualFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.endIndexExpr = bv32(it.next());
 		this.beginIndexExpr = bv32(it.next());
-		this.stringReceiverExpr = operandToStringRef(it.next());
+		this.stringReceiverExpr = operandToStringExpression(it.next());
 	}
 
 	@Override

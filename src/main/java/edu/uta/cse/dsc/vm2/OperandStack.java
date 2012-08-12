@@ -130,4 +130,11 @@ public final class OperandStack {
 		return strRef.getStringExpression();
 	}
 
+	public Reference peekRef() {
+		Operand operand = this.peekOperand();
+		ReferenceOperand refOp = (ReferenceOperand) operand;
+		Reference ref = refOp.getReference();
+		return ref;
+	}
+
 }

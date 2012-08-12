@@ -29,7 +29,7 @@ public final class StartsWith extends StringVirtualFunction {
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.offsetExpr = bv32(it.next());
-		this.prefixExpr = operandToStringRef(it.next());
+		this.prefixExpr = operandToStringExpression(it.next());
 		this.stringReceiverExpr = stringRef(it.next());
 	}
 

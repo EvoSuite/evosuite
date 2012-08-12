@@ -4,17 +4,14 @@ import org.evosuite.symbolic.expr.StringExpression;
 
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public abstract class StringVirtualFunction extends StringFunction {
+public abstract class StringVirtualFunction extends VirtualFunction {
 
 	public StringVirtualFunction(SymbolicEnvironment env, String name,
 			String desc) {
 		super(env, StringFunctionCallVM.JAVA_LANG_STRING, name, desc);
 	}
 
-	public void INVOKEVIRTUAL() {
-		/* STUB */
-	}
-
+	@Override
 	public final void INVOKEVIRTUAL(Object receiver) {
 		/**
 		 * We do nothing if receiver is null since we assume HeapVM deals with

@@ -18,7 +18,7 @@ public final class Length extends StringVirtualFunction {
 	@Override
 	protected void INVOKEVIRTUAL(String receiver) {
 		Operand operand = env.topFrame().operandStack.peekOperand();
-		this.stringReceiverExpr = operandToStringRef(operand);
+		this.stringReceiverExpr = operandToStringExpression(operand);
 	}
 
 	@Override

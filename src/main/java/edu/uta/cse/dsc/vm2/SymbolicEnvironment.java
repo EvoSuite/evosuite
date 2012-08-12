@@ -8,6 +8,7 @@ import gnu.trove.set.hash.THashSet;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -177,7 +178,8 @@ public final class SymbolicEnvironment {
 		return new NonNullReference(className, instanceId++);
 	}
 
-	// @TODO Replace Object with System.identityHashCode and WeakReference to save space
+	// @TODO Replace Object with System.identityHashCode and WeakReference to
+	// save space
 	// Try to avoid this from growing too much
 	private final Map<Object, NonNullReference> object_to_ref = new THashMap<Object, NonNullReference>();
 	private final Map<NonNullReference, Object> ref_to_object = new THashMap<NonNullReference, Object>();
@@ -185,5 +187,31 @@ public final class SymbolicEnvironment {
 	public Object getObject(NonNullReference nonNullRef) {
 		Object object = ref_to_object.get(nonNullRef);
 		return object;
+	}
+
+	private HashMap<String, HashMap<NonNullReference, StringExpression>> str_fields = new HashMap<String, HashMap<NonNullReference, StringExpression>>();
+
+	public void updateHeap(String fieldName, NonNullReference ref,
+			StringExpression valueExpr) {
+
+		if (!str_fields.containsKey(fieldName)) {
+			str_fields.put(fieldName,
+					new HashMap<NonNullReference, StringExpression>());
+		}
+		HashMap<NonNullReference, StringExpression> str_fied_values = str_fields
+				.get(fieldName);
+
+		str_fied_values.put(ref, valueExpr);
+	}
+
+	public StringExpression getHeap(String fieldDesc,
+			NonNullReference nonNullRef) {
+		if (!str_fields.containsKey(fieldDesc)) {
+			return null;
+		}
+		HashMap<NonNullReference, StringExpression> str_fied_values = str_fields
+				.get(fieldDesc);
+
+		return str_fied_values.get(nonNullRef);
 	}
 }

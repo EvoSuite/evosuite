@@ -38,10 +38,10 @@ public final class RegionMatches extends StringVirtualFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		lenExpr = bv32(it.next());
 		ooffsetExpr = bv32(it.next());
-		otherExpr = operandToStringRef(it.next());
+		otherExpr = operandToStringExpression(it.next());
 		toffsetExpr = bv32(it.next());
 		ignoreCaseExpr = bv32(it.next());
-		stringReceiverExpr = operandToStringRef(it.next());
+		stringReceiverExpr = operandToStringExpression(it.next());
 
 	}
 
