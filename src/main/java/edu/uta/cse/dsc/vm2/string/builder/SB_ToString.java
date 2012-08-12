@@ -24,7 +24,7 @@ public final class SB_ToString extends StringBuilderVirtualFunction {
 
 		// get from symbolic heap (it could be null if no symbolic expression
 		// was saved)
-		this.stringBuilderReceiverExpr = (StringBuilderExpression) this.env
+		this.stringBuilderExpr = (StringBuilderExpression) this.env
 				.getHeap(SB_Init.STRING_BUILDER_CONTENTS,
 						strBuilderRef);
 
@@ -32,8 +32,8 @@ public final class SB_ToString extends StringBuilderVirtualFunction {
 
 	@Override
 	public void CALL_RESULT(Object res) {
-		if (this.stringBuilderReceiverExpr != null) {
-			StringExpression stringExpr = (StringExpression) this.stringBuilderReceiverExpr
+		if (this.stringBuilderExpr != null) {
+			StringExpression stringExpr = (StringExpression) this.stringBuilderExpr
 					.getExpr();
 			this.replaceStrRefTop(stringExpr);
 		}
