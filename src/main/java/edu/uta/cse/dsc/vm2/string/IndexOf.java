@@ -35,7 +35,7 @@ public abstract class IndexOf extends StringVirtualFunction {
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = operandToStringRef(it.next());
+			this.stringReceiverExpr = operandToStringExpression(it.next());
 		}
 
 		@Override
@@ -69,7 +69,7 @@ public abstract class IndexOf extends StringVirtualFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = operandToStringRef(it.next());
+			this.stringReceiverExpr = operandToStringExpression(it.next());
 		}
 
 		@Override
@@ -106,8 +106,8 @@ public abstract class IndexOf extends StringVirtualFunction {
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-			this.strExpr = operandToStringRef(it.next());
-			this.stringReceiverExpr = operandToStringRef(it.next());
+			this.strExpr = operandToStringExpression(it.next());
+			this.stringReceiverExpr = operandToStringExpression(it.next());
 
 		}
 
@@ -141,8 +141,8 @@ public abstract class IndexOf extends StringVirtualFunction {
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
-			this.strExpr = operandToStringRef(it.next());
-			this.stringReceiverExpr = operandToStringRef(it.next());
+			this.strExpr = operandToStringExpression(it.next());
+			this.stringReceiverExpr = operandToStringExpression(it.next());
 
 		}
 

@@ -22,8 +22,8 @@ public final class Concat extends StringVirtualFunction {
 	@Override
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = operandToStringRef(it.next());
-		this.stringReceiverExpr = operandToStringRef(it.next());
+		this.strExpr = operandToStringExpression(it.next());
+		this.stringReceiverExpr = operandToStringExpression(it.next());
 	}
 
 	@Override

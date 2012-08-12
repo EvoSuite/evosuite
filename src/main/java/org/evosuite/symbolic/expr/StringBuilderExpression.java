@@ -51,6 +51,7 @@ public class StringBuilderExpression extends StringExpression {
 		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
+
 	}
 
 	/**

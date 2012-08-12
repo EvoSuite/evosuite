@@ -4,6 +4,9 @@ import java.util.HashMap;
 
 import edu.uta.cse.dsc.AbstractVM;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
+import edu.uta.cse.dsc.vm2.string.builder.SB_Append;
+import edu.uta.cse.dsc.vm2.string.builder.SB_Init;
+import edu.uta.cse.dsc.vm2.string.builder.SB_ToString;
 
 /**
  * This listeners deals with trapping function calls to symbolic functions from
@@ -49,7 +52,12 @@ public final class StringFunctionCallVM extends AbstractVM {
 	public static final String JAVA_LANG_STRING = String.class.getName()
 			.replace(".", "/");
 
-	private HashMap<StringFunctionKey, StringVirtualFunction> stringVirtualTable = new HashMap<StringFunctionKey, StringVirtualFunction>();
+	public static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
+			.getName().replace(".", "/");
+
+	private HashMap<StringFunctionKey, VirtualFunction> invokeVirtual = new HashMap<StringFunctionKey, VirtualFunction>();
+	private HashMap<StringFunctionKey, StaticFunction> invokeStatic = new HashMap<StringFunctionKey, StaticFunction>();
+	private HashMap<StringFunctionKey, SpecialFunction> invokeSpecial = new HashMap<StringFunctionKey, SpecialFunction>();
 
 	private final SymbolicEnvironment env;
 
@@ -59,7 +67,11 @@ public final class StringFunctionCallVM extends AbstractVM {
 	}
 
 	private void fillFunctionTables() {
-		stringVirtualTable.clear();
+		invokeVirtual.clear();
+		invokeStatic.clear();
+		invokeSpecial.clear();
+
+		// java.lang.String
 		addNewVirtualFunction(new CharAt(env));
 		addNewVirtualFunction(new CompareTo(env));
 		addNewVirtualFunction(new CompareToIgnoreCase(env));
@@ -88,12 +100,40 @@ public final class StringFunctionCallVM extends AbstractVM {
 		addNewVirtualFunction(new ToString(env));
 		addNewVirtualFunction(new ToUpperCase(env));
 		addNewVirtualFunction(new Trim(env));
+		addNewStaticFunction(new ValueOf.ValueOf_O(env));
+
+		// java.lang.StringBuilder
+		addNewSpecialFunction(new SB_Init.StringBuilderInit_S(env));
+		addNewVirtualFunction(new SB_Append.Append_C(env));
+		addNewVirtualFunction(new SB_Append.Append_S(env));
+		addNewVirtualFunction(new SB_ToString(env));
+		
 	}
 
-	private void addNewVirtualFunction(StringVirtualFunction f) {
+	private void addNewVirtualFunction(VirtualFunction f) {
 		StringFunctionKey k = new StringFunctionKey(f.getOwner(), f.getName(),
 				f.getDesc());
-		StringFunction prev = this.stringVirtualTable.put(k, f);
+		StringFunction prev = this.invokeVirtual.put(k, f);
+		if (prev != null) {
+			throw new IllegalArgumentException(
+					"Adding two functions with the same key!");
+		}
+	}
+
+	private void addNewSpecialFunction(SpecialFunction f) {
+		StringFunctionKey k = new StringFunctionKey(f.getOwner(), f.getName(),
+				f.getDesc());
+		StringFunction prev = this.invokeSpecial.put(k, f);
+		if (prev != null) {
+			throw new IllegalArgumentException(
+					"Adding two functions with the same key!");
+		}
+	}
+
+	private void addNewStaticFunction(StaticFunction f) {
+		StringFunctionKey k = new StringFunctionKey(f.getOwner(), f.getName(),
+				f.getDesc());
+		StringFunction prev = this.invokeStatic.put(k, f);
 		if (prev != null) {
 			throw new IllegalArgumentException(
 					"Adding two functions with the same key!");
@@ -102,7 +142,7 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(int res, String owner, String name, String desc) {
-		StringFunction f = getVirtualFunction(owner, name, desc);
+		StringFunction f = getStringFunction(owner, name, desc);
 		if (f == null) {
 			return; // do nothing
 		}
@@ -117,7 +157,8 @@ public final class StringFunctionCallVM extends AbstractVM {
 			return; // do nothing;
 		}
 
-		StringVirtualFunction f = this.getVirtualFunction(owner, name, desc);
+		VirtualFunction f = (VirtualFunction) this
+				.getStringFunction(owner, name, desc);
 		if (f == null) {
 			// Unsupported string function
 			return; // do nothing
@@ -127,7 +168,8 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void INVOKEVIRTUAL(String owner, String name, String desc) {
-		StringVirtualFunction f = this.getVirtualFunction(owner, name, desc);
+		VirtualFunction f = (VirtualFunction) this
+				.getStringFunction(owner, name, desc);
 		if (f == null) {
 			// Unsupported string function
 			return; // do nothing
@@ -137,24 +179,30 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(Object res, String owner, String name, String desc) {
-		StringFunction f = getVirtualFunction(owner, name, desc);
+		StringFunction f = getStringFunction(owner, name, desc);
 		if (f == null) {
 			return; // do nothing
 		}
 		f.CALL_RESULT(res);
 	}
 
-	private StringVirtualFunction getVirtualFunction(String owner, String name,
+	private StringFunction getStringFunction(String owner, String name,
 			String desc) {
-		StringVirtualFunction f;
+		StringFunction f;
 		StringFunctionKey k = new StringFunctionKey(owner, name, desc);
-		f = stringVirtualTable.get(k);
+		f = invokeVirtual.get(k);
+		if (f == null) {
+			f = invokeStatic.get(k);
+		}
+		if (f == null) {
+			f = invokeSpecial.get(k);
+		}
 		return f;
 	}
 
 	@Override
 	public void CALL_RESULT(boolean res, String owner, String name, String desc) {
-		StringFunction f = getVirtualFunction(owner, name, desc);
+		StringFunction f = getStringFunction(owner, name, desc);
 		if (f == null) {
 			return; // do nothing
 		}
@@ -162,12 +210,33 @@ public final class StringFunctionCallVM extends AbstractVM {
 	}
 
 	@Override
+	public void CALL_RESULT(String owner, String name, String desc) {
+		StringFunction f = getStringFunction(owner, name, desc);
+		if (f == null) {
+			return; // do nothing
+		}
+		f.CALL_RESULT();
+	}
+
+	@Override
 	public void INVOKESTATIC(String owner, String name, String desc) {
-		StringVirtualFunction f = this.getVirtualFunction(owner, name, desc);
+		StaticFunction f = (StaticFunction) this.getStringFunction(
+				owner, name, desc);
 		if (f == null) {
 			// Unsupported string function
 			return; // do nothing
 		}
-		f.INVOKEVIRTUAL();
+		f.INVOKESTATIC();
+	}
+
+	@Override
+	public void INVOKESPECIAL(String owner, String name, String desc) {
+		SpecialFunction f = (SpecialFunction) this
+				.getStringFunction(owner, name, desc);
+		if (f == null) {
+			// Unsupported string function
+			return; // do nothing
+		}
+		f.INVOKESPECIAL();
 	}
 }

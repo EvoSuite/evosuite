@@ -15,7 +15,7 @@ public final class Trim extends StringVirtualFunction {
 
 	@Override
 	protected void INVOKEVIRTUAL(String receiver) {
-		this.stringReceiverExpr = operandToStringRef(env.topFrame().operandStack
+		this.stringReceiverExpr = operandToStringExpression(env.topFrame().operandStack
 				.peekOperand());
 	}
 

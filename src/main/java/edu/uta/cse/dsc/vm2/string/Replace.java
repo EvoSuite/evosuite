@@ -35,7 +35,7 @@ public abstract class Replace extends StringVirtualFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.newCharExpr = bv32(it.next());
 			this.oldCharExpr = bv32(it.next());
-			this.stringReceiverExpr = operandToStringRef(it.next());
+			this.stringReceiverExpr = operandToStringExpression(it.next());
 		}
 
 		@Override
@@ -68,9 +68,9 @@ public abstract class Replace extends StringVirtualFunction {
 		@Override
 		protected void INVOKEVIRTUAL(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.newStringExpr = operandToStringRef(it.next());
-			this.oldStringExpr = operandToStringRef(it.next());
-			this.stringReceiverExpr = operandToStringRef(it.next());
+			this.newStringExpr = operandToStringExpression(it.next());
+			this.oldStringExpr = operandToStringExpression(it.next());
+			this.stringReceiverExpr = operandToStringExpression(it.next());
 		}
 
 		@Override

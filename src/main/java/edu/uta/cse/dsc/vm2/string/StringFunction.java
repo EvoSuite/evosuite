@@ -25,9 +25,13 @@ import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public abstract class StringFunction {
 
+	private static final Type VOID_TYPE = Type.VOID_TYPE;
 	private static final Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
 	private static final Type OBJECT_TYPE = Type.getType(Object.class);
 	private static final Type STRING_TYPE = Type.getType(String.class);
+	private static final Type STRING_BUILDER_TYPE = Type
+			.getType(StringBuilder.class);
+
 	public static final String TO_INT_DESCRIPTOR = getMethodDescriptor(INT_TYPE);
 	public static final String TO_STR_DESCRIPTOR = getMethodDescriptor(STRING_TYPE);
 	public static final String STR_TO_INT_DESCRIPTOR = getMethodDescriptor(
@@ -65,8 +69,14 @@ public abstract class StringFunction {
 			BOOLEAN_TYPE, CHARSEQ_TYPE);
 	public static final String CHARSEQ_CHARSEQ_TO_STR_DESCRIPTOR = getMethodDescriptor(
 			STRING_TYPE, CHARSEQ_TYPE, CHARSEQ_TYPE);
+	public static final String STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
+			VOID_TYPE, STRING_TYPE);
+	public static final String STR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, STRING_TYPE);
+	public static final String CHAR_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
+			STRING_BUILDER_TYPE, CHAR_TYPE);
 
-	protected StringExpression operandToStringRef(Operand operand) {
+	protected StringExpression operandToStringExpression(Operand operand) {
 		ReferenceOperand refOp = (ReferenceOperand) operand;
 		Reference ref = (Reference) refOp.getReference();
 		if (ref instanceof NullReference) {
@@ -108,9 +118,9 @@ public abstract class StringFunction {
 		return stringRef.getStringExpression();
 	}
 
-	protected static ReferenceOperand ref(Operand operand) {
+	protected static Reference ref(Operand operand) {
 		ReferenceOperand ref = (ReferenceOperand) operand;
-		return ref;
+		return ref.getReference();
 	}
 
 	protected static boolean isNullRef(ReferenceOperand ref) {
@@ -162,6 +172,10 @@ public abstract class StringFunction {
 		this.owner = owner;
 		this.name = name;
 		this.desc = desc;
+	}
+
+	public void CALL_RESULT() {
+		/* STUB */
 	}
 
 }

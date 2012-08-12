@@ -27,9 +27,9 @@ public final class ReplaceAll extends StringVirtualFunction {
 	protected void INVOKEVIRTUAL(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-		this.replacementExpr = operandToStringRef(it.next());
-		this.regexExpr = operandToStringRef(it.next());
-		this.stringReceiverExpr = operandToStringRef(it.next());
+		this.replacementExpr = operandToStringExpression(it.next());
+		this.regexExpr = operandToStringExpression(it.next());
+		this.stringReceiverExpr = operandToStringExpression(it.next());
 
 	}
 
