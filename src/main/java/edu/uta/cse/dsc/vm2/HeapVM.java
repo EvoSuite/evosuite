@@ -1,14 +1,17 @@
 package edu.uta.cse.dsc.vm2;
 
-import static edu.uta.cse.dsc.util.Assertions.check;
 import static edu.uta.cse.dsc.util.Assertions.notNull;
 import static edu.uta.cse.dsc.util.Log.logln;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 
+import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstant;
+import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealConstant;
+import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.StringExpression;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
@@ -84,12 +87,17 @@ public final class HeapVM extends AbstractVM {
 	 */
 	@Override
 	public void GETSTATIC(String owner, String fieldName, String desc) {
+
+		/**
+		 * Prepare Class
+		 */
 		Class<?> claz = env.ensurePrepared(owner); // type name given in
 													// bytecode
 
-		Field field = resolveField(claz, fieldName); // field may be declared by
-														// interface
-		Class<?> declaringClass = field.getDeclaringClass();
+		Field concrete_field = resolveField(claz, fieldName); // field may be
+																// declared by
+		// interface
+		Class<?> declaringClass = concrete_field.getDeclaringClass();
 
 		if (declaringClass.isInterface()) {
 			/*
@@ -104,80 +112,107 @@ public final class HeapVM extends AbstractVM {
 			env.ensurePrepared(declaringClass);
 		}
 
-		boolean isAccessible = field.isAccessible();
+		boolean isAccessible = concrete_field.isAccessible();
 		if (!isAccessible) {
-			field.setAccessible(true);
+			concrete_field.setAccessible(true);
 		}
 
-		try { // cook up corresponding value
+		/**
+		 * First, Get symbolic expression. If no symbolic expression exists, use
+		 * concrete value. Then, update operand stack according to type
+		 */
+		Type type = Type.getType(desc);
 
-			Object jvmValue = field.get(null); // from user's JVM state
+		try {
 
-			Class<?> fieldType = field.getType();
+			if (type.equals(Type.INT_TYPE)) {
 
-			/*
-			 * FIXME: Following looks like a code clone from somewhere else in
-			 * Dsc..
-			 */
+				int value = concrete_field.getInt(null);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getStaticField(owner, fieldName, (long) value);
+				env.topFrame().operandStack.pushBv32(intExpr);
 
-			if (!fieldType.isPrimitive()) {
+			} else if (type.equals(Type.CHAR_TYPE)) {
 
-				Reference ref = env.buildReference(jvmValue);
+				char value = concrete_field.getChar(null);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getStaticField(owner, fieldName, (long) value);
+				env.topFrame().operandStack.pushBv32(intExpr);
+
+			} else if (type.equals(Type.SHORT_TYPE)) {
+
+				short value = concrete_field.getShort(null);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getStaticField(owner, fieldName, (long) value);
+				env.topFrame().operandStack.pushBv32(intExpr);
+
+			} else if (type.equals(Type.BOOLEAN_TYPE)) {
+
+				boolean booleanValue = concrete_field.getBoolean(null);
+				int value = booleanValue ? 1 : 0;
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getStaticField(owner, fieldName, (long) value);
+				env.topFrame().operandStack.pushBv32(intExpr);
+
+			} else if (type.equals(Type.BYTE_TYPE)) {
+
+				byte value = concrete_field.getByte(null);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getStaticField(owner, fieldName, (long) value);
+				env.topFrame().operandStack.pushBv32(intExpr);
+
+			} else if (type.equals(Type.LONG_TYPE)) {
+
+				long value = concrete_field.getLong(null);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getStaticField(owner, fieldName, value);
+				env.topFrame().operandStack.pushBv64(intExpr);
+
+			} else if (type.equals(Type.FLOAT_TYPE)) {
+
+				float value = concrete_field.getFloat(null);
+				RealExpression fp32 = (RealExpression) env.heap.getStaticField(
+						owner, fieldName, (double) value);
+				env.topFrame().operandStack.pushFp32(fp32);
+
+			} else if (type.equals(Type.DOUBLE_TYPE)) {
+
+				double value = concrete_field.getDouble(null);
+				RealExpression fp64 = (RealExpression) env.heap.getStaticField(
+						owner, fieldName, value);
+				env.topFrame().operandStack.pushFp64(fp64);
+
+			} else if (type.equals(Type.getType(String.class))) {
+
+				String value = (String) concrete_field.get(null);
+				StringExpression strExpr = env.heap.getStaticField(owner,
+						fieldName, value);
+				if (strExpr == null) {
+					env.topFrame().operandStack.pushRef(NullReference
+							.getInstance());
+				} else {
+					env.topFrame().operandStack.pushStringRef(strExpr);
+				}
+
+			} else {
+
+				Object value = concrete_field.get(null);
+				Reference ref = env.heap
+						.getStaticField(owner, fieldName, value);
 				env.topFrame().operandStack.pushRef(ref);
 
-			} else if (fieldType == float.class) {
-				float f = ((Float) jvmValue).floatValue();
-				RealConstant c = ExpressionFactory.buildNewRealConstant(f);
-				env.topFrame().operandStack.pushFp32(c);
-			} else if (fieldType == double.class) {
-				double d = ((Double) jvmValue).doubleValue();
-				RealConstant c = ExpressionFactory.buildNewRealConstant(d);
-				env.topFrame().operandStack.pushFp64(c);
-			} else if (fieldType == long.class) {
-				long l = ((Long) jvmValue).longValue();
-				IntegerConstant c = ExpressionFactory
-						.buildNewIntegerConstant(l);
-				env.topFrame().operandStack.pushBv64(c);
-			} else if (fieldType == boolean.class) {
-				int i = Boolean.TRUE.equals(jvmValue) ? 1 : 0;
-				IntegerConstant ct = ExpressionFactory
-						.buildNewIntegerConstant(i);
-				env.topFrame().operandStack.pushBv32(ct);
-			} else if (fieldType == short.class) {
-				short s = ((Short) jvmValue).shortValue();
-				IntegerConstant c = ExpressionFactory
-						.buildNewIntegerConstant(s);
-				env.topFrame().operandStack.pushBv32(c);
-			} else if (fieldType == char.class) {
-				char c = ((Character) jvmValue).charValue();
-				IntegerConstant ct = ExpressionFactory
-						.buildNewIntegerConstant(c);
-				env.topFrame().operandStack.pushBv32(ct);
-			} else if (fieldType == byte.class) {
-				byte b = ((Byte) jvmValue).byteValue();
-				IntegerConstant ct = ExpressionFactory
-						.buildNewIntegerConstant(b);
-				env.topFrame().operandStack.pushBv32(ct);
-			} else if (fieldType == int.class) {
-				int i = ((Integer) jvmValue).intValue();
-				IntegerConstant ct = ExpressionFactory
-						.buildNewIntegerConstant(i);
-				env.topFrame().operandStack.pushBv32(ct);
-			} else
-				check(false);
-		}
+			}
 
-		catch (IllegalArgumentException e) {
-			e.printStackTrace();
-			check(false);
+			if (!isAccessible) {
+				concrete_field.setAccessible(false);
+			}
+
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-			check(false);
+			throw new RuntimeException(e);
 		}
 
-		if (!isAccessible) {
-			field.setAccessible(false);
-		}
 	}
 
 	/**
@@ -186,19 +221,45 @@ public final class HeapVM extends AbstractVM {
 	 */
 	@Override
 	public void PUTSTATIC(String owner, String name, String desc) {
-		// discard information flowing through heap
-		env.topFrame().operandStack.popOperand();
 
+		/**
+		 * Prepare classes
+		 */
 		Class<?> claz = env.ensurePrepared(owner); // type name given in
 													// bytecode
 		Field field = resolveField(claz, name);
-
 		/* See GetStatic */
 		Class<?> declaringClass = field.getDeclaringClass();
 		if (declaringClass.isInterface()) {
 			logln("Do we have to prepare the static fields of an interface?");
 			env.ensurePrepared(declaringClass);
 		}
+
+		/**
+		 * Update symbolic state (if needed)
+		 */
+		Operand value_operand = env.topFrame().operandStack.popOperand();
+		Expression<?> symb_value = null;
+		if (value_operand instanceof IntegerOperand) {
+			IntegerOperand intOp = (IntegerOperand) value_operand;
+			symb_value = intOp.getIntegerExpression();
+		} else if (value_operand instanceof RealOperand) {
+			RealOperand realOp = (RealOperand) value_operand;
+			symb_value = realOp.getRealExpression();
+		} else if (value_operand instanceof Reference) {
+			Reference ref = (Reference) value_operand;
+			if (ref instanceof NullReference) {
+				symb_value = null;
+			} else if (ref instanceof StringReference) {
+				StringReference strRef = (StringReference) ref;
+				symb_value = strRef.getStringExpression();
+			} else {
+				// NonNullReference are not stored in the symbolic heap fields
+				return;
+			}
+
+		}
+		env.heap.putStaticField(owner, name, symb_value);
 
 	}
 
@@ -224,7 +285,7 @@ public final class HeapVM extends AbstractVM {
 		 * 
 		 * POST-Stack: objectref (delayed)
 		 */
-		NonNullReference newObject = this.env.buildNonNullReference(className);
+		NonNullReference newObject = this.env.heap.newReference(className);
 		env.topFrame().operandStack.pushRef(newObject);
 	}
 
@@ -244,7 +305,7 @@ public final class HeapVM extends AbstractVM {
 	public void GETFIELD(Object receiverConcrete, String className,
 			String fieldName, String desc) {
 		// consume symbolic operand
-		env.topFrame().operandStack.popRef();
+		Reference receiver_ref = env.topFrame().operandStack.popRef();
 
 		Field field = resolveField(classLoader.getClassForName(className),
 				fieldName);
@@ -266,54 +327,96 @@ public final class HeapVM extends AbstractVM {
 			return;
 		}
 
+		NonNullReference symb_receiver = (NonNullReference) receiver_ref;
+
 		Type type = Type.getType(desc);
 
 		try {
 
 			if (type.equals(Type.INT_TYPE)) {
+
 				int value = field.getInt(receiverConcrete);
-				IntegerConstant intExpr = ExpressionFactory
-						.buildNewIntegerConstant(value);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getField(className, fieldName, receiverConcrete,
+								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
+
 			} else if (type.equals(Type.LONG_TYPE)) {
+
 				long value = field.getLong(receiverConcrete);
-				IntegerConstant intExpr = ExpressionFactory
-						.buildNewIntegerConstant(value);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getField(className, fieldName, receiverConcrete,
+								symb_receiver, value);
 				env.topFrame().operandStack.pushBv64(intExpr);
+
 			} else if (type.equals(Type.FLOAT_TYPE)) {
+
 				float value = field.getFloat(receiverConcrete);
-				RealConstant fp32 = ExpressionFactory
-						.buildNewRealConstant(value);
+				RealExpression fp32 = (RealExpression) env.heap.getField(
+						className, fieldName, receiverConcrete, symb_receiver,
+						(double) value);
 				env.topFrame().operandStack.pushFp32(fp32);
+
 			} else if (type.equals(Type.DOUBLE_TYPE)) {
+
 				double value = field.getDouble(receiverConcrete);
-				RealConstant fp64 = ExpressionFactory
-						.buildNewRealConstant(value);
+				RealExpression fp64 = (RealExpression) env.heap.getField(
+						className, fieldName, receiverConcrete, symb_receiver,
+						value);
 				env.topFrame().operandStack.pushFp64(fp64);
+
 			} else if (type.equals(Type.CHAR_TYPE)) {
+
 				char value = field.getChar(receiverConcrete);
-				IntegerConstant intExpr = ExpressionFactory
-						.buildNewIntegerConstant(value);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getField(className, fieldName, receiverConcrete,
+								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
+
 			} else if (type.equals(Type.SHORT_TYPE)) {
+
 				short value = field.getShort(receiverConcrete);
-				IntegerConstant intExpr = ExpressionFactory
-						.buildNewIntegerConstant(value);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getField(className, fieldName, receiverConcrete,
+								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
+
 			} else if (type.equals(Type.BOOLEAN_TYPE)) {
-				boolean value = field.getBoolean(receiverConcrete);
-				IntegerConstant intExpr = ExpressionFactory
-						.buildNewIntegerConstant(value ? 1 : 0);
+
+				boolean booleanValue = field.getBoolean(receiverConcrete);
+				int value = booleanValue ? 1 : 0;
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getField(className, fieldName, receiverConcrete,
+								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
+
 			} else if (type.equals(Type.BYTE_TYPE)) {
+
 				byte value = field.getByte(receiverConcrete);
-				IntegerConstant intExpr = ExpressionFactory
-						.buildNewIntegerConstant(value);
+				IntegerExpression intExpr = (IntegerExpression) env.heap
+						.getField(className, fieldName, receiverConcrete,
+								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
+
+			} else if (type.equals(Type.getType(String.class))) {
+
+				String value = (String) field.get(receiverConcrete);
+				StringExpression strExpr = env.heap.getField(className,
+						fieldName, receiverConcrete, symb_receiver, value);
+				if (strExpr == null) {
+					env.topFrame().operandStack.pushRef(NullReference
+							.getInstance());
+				} else {
+					env.topFrame().operandStack.pushStringRef(strExpr);
+				}
+
 			} else {
+
 				Object value = field.get(receiverConcrete);
-				Reference ref = env.buildReference(value);
+				Reference ref = env.heap.getField(className, fieldName,
+						receiverConcrete, symb_receiver, value);
 				env.topFrame().operandStack.pushRef(ref);
+
 			}
 
 			if (!isAccessible) {
@@ -336,15 +439,49 @@ public final class HeapVM extends AbstractVM {
 	 * pointer exception.
 	 */
 	@Override
-	public void PUTFIELD(Object instance, String className, String fieldName,
-			String desc) {
-		// discard information flowing through heap
-		env.topFrame().operandStack.popOperand();
-		env.topFrame().operandStack.popRef();
+	public void PUTFIELD(Object concrete_receiver, String className,
+			String fieldName, String desc) {
 
+		/**
+		 * Prepare classes
+		 */
 		Field field = resolveField(classLoader.getClassForName(className),
 				fieldName);
 		env.ensurePrepared(field.getDeclaringClass());
+
+		if (concrete_receiver == null) {
+			return;
+		}
+
+		/**
+		 * Update symbolic heap (if needed)
+		 */
+		Operand value_operand = env.topFrame().operandStack.popOperand();
+		Reference receiver = env.topFrame().operandStack.popRef();
+
+		NonNullReference symb_receiver = (NonNullReference) receiver;
+		Expression<?> symb_value = null;
+		if (value_operand instanceof IntegerOperand) {
+			IntegerOperand intOp = (IntegerOperand) value_operand;
+			symb_value = intOp.getIntegerExpression();
+		} else if (value_operand instanceof RealOperand) {
+			RealOperand realOp = (RealOperand) value_operand;
+			symb_value = realOp.getRealExpression();
+		} else if (value_operand instanceof Reference) {
+			Reference ref = (Reference) value_operand;
+			if (ref instanceof NullReference) {
+				symb_value = null;
+			} else if (ref instanceof StringReference) {
+				StringReference strRef = (StringReference) ref;
+				symb_value = strRef.getStringExpression();
+			} else {
+				// NonNullReference are not stored in the symbolic heap fields
+				return;
+			}
+
+		}
+		env.heap.putField(className, fieldName, concrete_receiver,
+				symb_receiver, symb_value);
 	}
 
 	/* Arrays */
@@ -376,8 +513,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 
 		String className = "[" + componentType.getName();
-		NonNullReference newObjectArray = this.env
-				.buildNonNullReference(className);
+		NonNullReference newObjectArray = this.env.heap.newReference(className);
 		env.topFrame().operandStack.pushRef(newObjectArray);
 	}
 
@@ -404,8 +540,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 
 		String className = "[" + componentTypeName;
-		NonNullReference newObjectArray = this.env
-				.buildNonNullReference(className);
+		NonNullReference newObjectArray = this.env.heap.newReference(className);
 		env.topFrame().operandStack.pushRef(newObjectArray);
 	}
 
@@ -437,8 +572,8 @@ public final class HeapVM extends AbstractVM {
 		}
 
 		// push delayed object
-		NonNullReference newMultiArray = this.env
-				.buildNonNullReference(arrayTypeDesc); // @FIXME
+		NonNullReference newMultiArray = this.env.heap
+				.newReference(arrayTypeDesc); // @FIXME
 		env.topFrame().operandStack.pushRef(newMultiArray);
 	}
 
@@ -588,7 +723,7 @@ public final class HeapVM extends AbstractVM {
 			return;
 
 		Object value = Array.get(referenceConcrete, indexConcrete);
-		Reference ref = env.buildReference(value);
+		Reference ref = env.heap.getReference(value);
 		env.topFrame().operandStack.pushRef(ref);
 	}
 

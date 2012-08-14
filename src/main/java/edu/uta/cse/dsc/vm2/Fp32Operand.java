@@ -2,7 +2,7 @@ package edu.uta.cse.dsc.vm2;
 
 import org.evosuite.symbolic.expr.RealExpression;
 
-public final class Fp32Operand implements SingleWordOperand {
+public final class Fp32Operand implements SingleWordOperand, RealOperand {
 	
 	private final RealExpression realExpr;
 	
@@ -10,6 +10,7 @@ public final class Fp32Operand implements SingleWordOperand {
 		this.realExpr=realExpr;
 	}
 
+	@Override
 	public RealExpression getRealExpression() {
 		return realExpr;
 	}

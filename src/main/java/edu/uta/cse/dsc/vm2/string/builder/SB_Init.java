@@ -34,6 +34,7 @@ public abstract class SB_Init extends SpecialFunction {
 
 		private StringExpression strExpr;
 		private NonNullReference stringBuilderRef;
+		private StringBuilder stringBuilder;
 
 		@Override
 		public void INVOKESPECIAL() {
@@ -64,9 +65,20 @@ public abstract class SB_Init extends SpecialFunction {
 				StringBuilderExpression strBuilderExpr = new StringBuilderExpression(
 						strExpr);
 				// update symbolic heap
-				this.env.updateHeap(fieldName, stringBuilderRef, strBuilderExpr);
+				this.env.heap.putField("java.lang.StringBuffer", fieldName,
+						stringBuilderRef, stringBuilderRef, strBuilderExpr);
 			} else {
 				// no update to symbolic heap since all values all concrete
+			}
+		}
+
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+				Object value) {
+			if (nr == 0) {
+
+			} else if (nr == 1) {
+
 			}
 		}
 	}
@@ -111,7 +123,8 @@ public abstract class SB_Init extends SpecialFunction {
 				StringBuilderExpression strBuilderExpr = new StringBuilderExpression(
 						charSeqExpr);
 				// update symbolic heap
-				this.env.updateHeap(fieldName, stringBuilderRef, strBuilderExpr);
+				this.env.heap.putField("java.lang.StringBuffer", fieldName,
+						stringBuilderRef, stringBuilderRef, strBuilderExpr);
 			} else {
 				// no update to symbolic heap since all values all concrete
 			}

@@ -108,7 +108,7 @@ public abstract class StringFunction {
 			return strRef.getStringExpression();
 		} else {
 			NonNullReference nonNullRef = (NonNullReference) ref;
-			Object object = this.env.getObject(nonNullRef);
+			Object object = nonNullRef.getWeakConcreteObject();
 			return ExpressionFactory.buildNewStringConstant(object.toString());
 		}
 	}
@@ -204,4 +204,7 @@ public abstract class StringFunction {
 		/* STUB */
 	}
 
+	public void METHOD_BEGIN_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		/* STUB */
+	}
 }

@@ -282,7 +282,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_RECEIVER(Object value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			Reference ref = env.buildReference(value);
+			Reference ref = env.heap.getReference(value);
 			env.topFrame().localsTable.setRefLocal(0, ref);
 		}
 	}
@@ -354,7 +354,7 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN_PARAM(int nr, int index, Object value) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			Reference ref = env.buildReference(value);
+			Reference ref = env.heap.getReference(value);
 			env.topFrame().localsTable.setRefLocal(index, ref);
 		}
 	}
