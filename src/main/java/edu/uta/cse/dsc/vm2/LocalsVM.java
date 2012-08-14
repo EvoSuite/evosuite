@@ -178,7 +178,7 @@ public final class LocalsVM extends AbstractVM {
 	 */
 	@Override
 	public void LDC(Class<?> x) {
-		Reference ref = env.buildReference(x);
+		Reference ref = env.heap.getReference(x);
 		env.topFrame().operandStack.pushRef(ref);
 	}
 

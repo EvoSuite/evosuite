@@ -48,8 +48,9 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 			strBuilderRef = (NonNullReference) ref;
 
 			// get from symbolic heap (it could be null)
-			this.stringBuilderExpr = (StringBuilderExpression) this.env
-					.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+			this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+					.getField(SB_Init.STRING_BUILDER_CONTENTS, desc,
+							strBuilderRef, strBuilderRef, integerExpr);
 
 		}
 
@@ -68,12 +69,12 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 					String str = ((StringBuilder) res).toString();
 					stringBuilderExpr = new StringBuilderExpression(
 							ExpressionFactory.buildNewStringConstant(str));
-					this.env.updateHeap(SB_Init.STRING_BUILDER_CONTENTS,
+					this.env.heap.putField("java.lang.StringBuffer",
+							SB_Init.STRING_BUILDER_CONTENTS, res,
 							strBuilderRef, stringBuilderExpr);
 				}
 
-				stringBuilderExpr.append(new IntToStringCast(
-						integerExpr));
+				stringBuilderExpr.append(new IntToStringCast(integerExpr));
 
 			}
 
@@ -112,8 +113,10 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 
 			if (strExpr.containsSymbolicVariable()) {
 				// get from symbolic heap (it could be null)
-				this.stringBuilderExpr = (StringBuilderExpression) this.env
-						.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+				this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+						.getField("java.lang.StringBuilder",
+								SB_Init.STRING_BUILDER_CONTENTS, null,
+								strBuilderRef, null);
 			}
 
 		}
@@ -133,7 +136,8 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 					String str = ((StringBuilder) res).toString();
 					stringBuilderExpr = new StringBuilderExpression(
 							ExpressionFactory.buildNewStringConstant(str));
-					this.env.updateHeap(SB_Init.STRING_BUILDER_CONTENTS,
+					this.env.heap.putField("java.lang.StringBuffer",
+							SB_Init.STRING_BUILDER_CONTENTS, res,
 							strBuilderRef, stringBuilderExpr);
 				}
 
@@ -171,8 +175,10 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 			strBuilderRef = (NonNullReference) ref;
 
 			// get from symbolic heap (it could be null)
-			this.stringBuilderExpr = (StringBuilderExpression) this.env
-					.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+			this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+					.getField("java.lang.StringBuilder",
+							SB_Init.STRING_BUILDER_CONTENTS, null,
+							strBuilderRef, null);
 
 		}
 
@@ -191,12 +197,12 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 					String str = ((StringBuilder) res).toString();
 					stringBuilderExpr = new StringBuilderExpression(
 							ExpressionFactory.buildNewStringConstant(str));
-					this.env.updateHeap(SB_Init.STRING_BUILDER_CONTENTS,
+					this.env.heap.putField("java.lang.StringBuffer",
+							SB_Init.STRING_BUILDER_CONTENTS, res,
 							strBuilderRef, stringBuilderExpr);
 				}
 
-				stringBuilderExpr.append(new IntToStringCast(
-						integerExpr));
+				stringBuilderExpr.append(new IntToStringCast(integerExpr));
 
 			}
 
@@ -230,8 +236,10 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 			strBuilderRef = (NonNullReference) ref;
 
 			// get from symbolic heap (it could be null)
-			this.stringBuilderExpr = (StringBuilderExpression) this.env
-					.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+			this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+					.getField("java.lang.StringBuilder",
+							SB_Init.STRING_BUILDER_CONTENTS, receiver,
+							strBuilderRef, receiver.toString());
 
 		}
 
@@ -250,12 +258,12 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 					String str = ((StringBuilder) res).toString();
 					stringBuilderExpr = new StringBuilderExpression(
 							ExpressionFactory.buildNewStringConstant(str));
-					this.env.updateHeap(SB_Init.STRING_BUILDER_CONTENTS,
+					this.env.heap.putField("java.lang.StringBuffer",
+							SB_Init.STRING_BUILDER_CONTENTS, res,
 							strBuilderRef, stringBuilderExpr);
 				}
 
-				stringBuilderExpr.append(new IntToStringCast(
-						integerExpr));
+				stringBuilderExpr.append(new IntToStringCast(integerExpr));
 
 			}
 
@@ -289,8 +297,10 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 			strBuilderRef = (NonNullReference) ref;
 
 			// get from symbolic heap (it could be null)
-			this.stringBuilderExpr = (StringBuilderExpression) this.env
-					.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+			this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+					.getField("java.lang.Builder",
+							SB_Init.STRING_BUILDER_CONTENTS, receiver,
+							strBuilderRef, null);
 
 		}
 
@@ -309,12 +319,12 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 					String str = ((StringBuilder) res).toString();
 					stringBuilderExpr = new StringBuilderExpression(
 							ExpressionFactory.buildNewStringConstant(str));
-					this.env.updateHeap(SB_Init.STRING_BUILDER_CONTENTS,
+					this.env.heap.putField("java.lang.StringBuffer",
+							SB_Init.STRING_BUILDER_CONTENTS, res,
 							strBuilderRef, stringBuilderExpr);
 				}
 
-				stringBuilderExpr.append(new IntToStringCast(
-						integerExpr));
+				stringBuilderExpr.append(new IntToStringCast(integerExpr));
 
 			}
 
@@ -348,8 +358,10 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 			strBuilderRef = (NonNullReference) ref;
 
 			// get from symbolic heap (it could be null)
-			this.stringBuilderExpr = (StringBuilderExpression) this.env
-					.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+			this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+					.getField("java.lang.StringBuilder",
+							SB_Init.STRING_BUILDER_CONTENTS, receiver,
+							strBuilderRef, receiver.toString());
 
 		}
 
@@ -368,12 +380,12 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 					String str = ((StringBuilder) res).toString();
 					stringBuilderExpr = new StringBuilderExpression(
 							ExpressionFactory.buildNewStringConstant(str));
-					this.env.updateHeap(SB_Init.STRING_BUILDER_CONTENTS,
+					this.env.heap.putField("java.lang.StringBuffer",
+							SB_Init.STRING_BUILDER_CONTENTS, res,
 							strBuilderRef, stringBuilderExpr);
 				}
 
-				stringBuilderExpr
-						.append(new RealToStringCast(realExpr));
+				stringBuilderExpr.append(new RealToStringCast(realExpr));
 
 			}
 
@@ -407,8 +419,10 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 			strBuilderRef = (NonNullReference) ref;
 
 			// get from symbolic heap (it could be null)
-			this.stringBuilderExpr = (StringBuilderExpression) this.env
-					.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+			this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+					.getField("java.lang.StringBuilder",
+							SB_Init.STRING_BUILDER_CONTENTS, receiver,
+							strBuilderRef, receiver.toString());
 
 		}
 
@@ -427,12 +441,12 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 					String str = ((StringBuilder) res).toString();
 					stringBuilderExpr = new StringBuilderExpression(
 							ExpressionFactory.buildNewStringConstant(str));
-					this.env.updateHeap(SB_Init.STRING_BUILDER_CONTENTS,
+					this.env.heap.putField("java.lang.StringBuffer",
+							SB_Init.STRING_BUILDER_CONTENTS, res,
 							strBuilderRef, stringBuilderExpr);
 				}
 
-				stringBuilderExpr
-						.append(new RealToStringCast(realExpr));
+				stringBuilderExpr.append(new RealToStringCast(realExpr));
 
 			}
 
@@ -464,8 +478,10 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 			strBuilderRef = (NonNullReference) ref(it.next());
 
 			// get from symbolic heap (it could be null)
-			this.stringBuilderExpr = (StringBuilderExpression) this.env
-					.getHeap(SB_Init.STRING_BUILDER_CONTENTS, strBuilderRef);
+			this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+					.getField("java.lang.StringBuilder",
+							SB_Init.STRING_BUILDER_CONTENTS, receiver,
+							strBuilderRef, receiver.toString());
 		}
 
 		@Override

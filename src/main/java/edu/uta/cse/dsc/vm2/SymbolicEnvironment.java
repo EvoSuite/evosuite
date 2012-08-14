@@ -2,21 +2,22 @@ package edu.uta.cse.dsc.vm2;
 
 import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
-import gnu.trove.map.hash.THashMap;
 import gnu.trove.set.hash.THashSet;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Deque;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.symbolic.expr.StringExpression;
 import org.objectweb.asm.Type;
 
 public final class SymbolicEnvironment {
+
+	/**
+	 * Storage for symbolic information in the memory heap
+	 */
+	public final SymbolicHeap heap = new SymbolicHeap();
 
 	/**
 	 * Stack of function/method/constructor invocation frames
@@ -118,7 +119,7 @@ public final class SymbolicEnvironment {
 			boolean isInstrumented = isInstrumented(mainMethod);
 			fakeMainCallerFrame.invokeInstrumentedCode(isInstrumented);
 			String[] emptyStringArray = new String[] {};
-			Reference emptyStringRef = this.buildReference(emptyStringArray);
+			Reference emptyStringRef = heap.getReference(emptyStringArray);
 			fakeMainCallerFrame.operandStack.pushRef(emptyStringRef);
 		}
 		this.pushFrame(fakeMainCallerFrame);
@@ -140,78 +141,4 @@ public final class SymbolicEnvironment {
 		return stackFrame.isEmpty();
 	}
 
-	public Reference buildReference(Object o) {
-		if (o == null) {
-			return NullReference.getInstance();
-		} else {
-			if (o instanceof String) {
-				String string = (String) o;
-				StringExpression strExpr = ExpressionFactory
-						.buildNewStringConstant(string);
-				StringReference strRef = new StringReference(strExpr);
-				return strRef;
-			} else {
-				if (!object_to_ref.containsKey(o)) {
-					NonNullReference nonNullRef = buildNonNullReference(o
-							.getClass().getName());
-					object_to_ref.put(o, nonNullRef);
-					ref_to_object.put(nonNullRef, o);
-					return nonNullRef;
-				} else {
-					return object_to_ref.get(o);
-				}
-
-			}
-		}
-	}
-
-	private int instanceId = 0;
-
-	/**
-	 * This constructor is for references created in instrumented code (NEW,
-	 * ANEW, NEWARRAY, etc)
-	 * 
-	 * @param className
-	 * @return
-	 */
-	public NonNullReference buildNonNullReference(String className) {
-		return new NonNullReference(className, instanceId++);
-	}
-
-	// @TODO Replace Object with System.identityHashCode and WeakReference to
-	// save space
-	// Try to avoid this from growing too much
-	private final Map<Object, NonNullReference> object_to_ref = new THashMap<Object, NonNullReference>();
-	private final Map<NonNullReference, Object> ref_to_object = new THashMap<NonNullReference, Object>();
-
-	public Object getObject(NonNullReference nonNullRef) {
-		Object object = ref_to_object.get(nonNullRef);
-		return object;
-	}
-
-	private HashMap<String, HashMap<NonNullReference, StringExpression>> str_fields = new HashMap<String, HashMap<NonNullReference, StringExpression>>();
-
-	public void updateHeap(String fieldName, NonNullReference ref,
-			StringExpression valueExpr) {
-
-		if (!str_fields.containsKey(fieldName)) {
-			str_fields.put(fieldName,
-					new HashMap<NonNullReference, StringExpression>());
-		}
-		HashMap<NonNullReference, StringExpression> str_fied_values = str_fields
-				.get(fieldName);
-
-		str_fied_values.put(ref, valueExpr);
-	}
-
-	public StringExpression getHeap(String fieldDesc,
-			NonNullReference nonNullRef) {
-		if (!str_fields.containsKey(fieldDesc)) {
-			return null;
-		}
-		HashMap<NonNullReference, StringExpression> str_fied_values = str_fields
-				.get(fieldDesc);
-
-		return str_fied_values.get(nonNullRef);
-	}
 }

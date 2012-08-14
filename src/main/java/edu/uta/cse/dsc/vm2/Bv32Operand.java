@@ -2,7 +2,7 @@ package edu.uta.cse.dsc.vm2;
 
 import org.evosuite.symbolic.expr.IntegerExpression;
 
-public final class Bv32Operand implements SingleWordOperand {
+public final class Bv32Operand implements SingleWordOperand, IntegerOperand {
 
 	private final IntegerExpression integerExpr;
 
@@ -10,6 +10,7 @@ public final class Bv32Operand implements SingleWordOperand {
 		this.integerExpr = integerExpr;
 	}
 
+	@Override
 	public IntegerExpression getIntegerExpression() {
 		return integerExpr;
 	}

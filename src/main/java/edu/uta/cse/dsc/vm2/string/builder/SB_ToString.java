@@ -24,9 +24,10 @@ public final class SB_ToString extends StringBuilderVirtualFunction {
 
 		// get from symbolic heap (it could be null if no symbolic expression
 		// was saved)
-		this.stringBuilderExpr = (StringBuilderExpression) this.env
-				.getHeap(SB_Init.STRING_BUILDER_CONTENTS,
-						strBuilderRef);
+		this.stringBuilderExpr = (StringBuilderExpression) this.env.heap
+				.getField("java.lang.StringBuilder",
+						SB_Init.STRING_BUILDER_CONTENTS, receiver,
+						strBuilderRef, receiver.toString());
 
 	}
 
