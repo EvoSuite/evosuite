@@ -11,4 +11,8 @@ public final class NullReference implements Reference {
 		return singleton;
 	}
 
+	@Override
+	public String toString() {
+		return "NULL";
+	}
 }

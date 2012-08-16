@@ -52,8 +52,7 @@ public final class StringFunctionCallVM extends AbstractVM {
 	public static final String JAVA_LANG_STRING = String.class.getName()
 			.replace(".", "/");
 
-	public static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
-			.getName().replace(".", "/");
+
 
 	private HashMap<StringFunctionKey, VirtualFunction> invokeVirtual = new HashMap<StringFunctionKey, VirtualFunction>();
 	private HashMap<StringFunctionKey, StaticFunction> invokeStatic = new HashMap<StringFunctionKey, StaticFunction>();
@@ -235,6 +234,70 @@ public final class StringFunctionCallVM extends AbstractVM {
 
 	@Override
 	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, boolean value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, short value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, byte value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, char value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, float value) {
+		if (currentStringFunction != null) {
+			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value) {
 		if (currentStringFunction != null) {
 			currentStringFunction.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
 					value);

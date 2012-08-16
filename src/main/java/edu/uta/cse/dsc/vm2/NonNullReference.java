@@ -18,6 +18,7 @@ public class NonNullReference implements Reference {
 		concIdentityHashCode = -1;
 	}
 
+	@Override
 	public String toString() {
 		return this.className + "$" + this.instanceId;
 	}
@@ -27,6 +28,10 @@ public class NonNullReference implements Reference {
 			throw new IllegalArgumentException(
 					"Cannot initialize a NonNullReference with the null value");
 		}
+		if (weakReference != null) {
+			throw new IllegalStateException("Reference already initialized!");
+		}
+
 		this.weakReference = new WeakReference<Object>(obj);
 		this.concIdentityHashCode = System.identityHashCode(obj);
 	}

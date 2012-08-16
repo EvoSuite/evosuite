@@ -12,7 +12,7 @@ public class TestCase75 {
 
 		String string0 = ConcolicMarker.mark("Togliere ", "string0");
 		String string1 = ConcolicMarker.mark("sta ", "string1");
-		String string2 = ConcolicMarker.mark("roba", "string1");
+		String string2 = ConcolicMarker.mark("roba", "string2");
 		String string3 = "Togliere sta roba";
 
 		StringBuffer charSequence = new StringBuffer(string0);

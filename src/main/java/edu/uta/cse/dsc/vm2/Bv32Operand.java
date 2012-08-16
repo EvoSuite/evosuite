@@ -14,4 +14,9 @@ public final class Bv32Operand implements SingleWordOperand, IntegerOperand {
 	public IntegerExpression getIntegerExpression() {
 		return integerExpr;
 	}
+
+	@Override
+	public String toString() {
+		return integerExpr.toString();
+	}
 }

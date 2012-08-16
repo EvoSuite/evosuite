@@ -13,4 +13,9 @@ public final class Bv64Operand implements DoubleWordOperand, IntegerOperand {
 	public IntegerExpression getIntegerExpression() {
 		return integerExpr;
 	}
+	
+	@Override
+	public String toString() {
+		return integerExpr.toString();
+	}
 }

@@ -1,19 +1,22 @@
 package edu.uta.cse.dsc.vm2.string.builder;
 
-import org.evosuite.symbolic.expr.StringBuilderExpression;
+import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.JAVA_LANG_STRING_BUILDER;
+import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
 
+import org.evosuite.symbolic.expr.StringBuilderExpression;
+import org.evosuite.symbolic.expr.StringExpression;
+
+import edu.uta.cse.dsc.vm2.NonNullReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
-import edu.uta.cse.dsc.vm2.string.StringFunctionCallVM;
 import edu.uta.cse.dsc.vm2.string.VirtualFunction;
 
 public abstract class StringBuilderVirtualFunction extends VirtualFunction {
 
 	public StringBuilderVirtualFunction(SymbolicEnvironment env, String name,
 			String desc) {
-		super(env, StringFunctionCallVM.JAVA_LANG_STRING_BUILDER, name, desc);
+		super(env, StringBuilderConstants.JAVA_LANG_STRING_BUILDER, name, desc);
 	}
 
-	
 	@Override
 	public final void INVOKEVIRTUAL(Object receiver) {
 		/**
@@ -28,6 +31,7 @@ public abstract class StringBuilderVirtualFunction extends VirtualFunction {
 	}
 
 	protected StringBuilderExpression stringBuilderExpr;
+	protected NonNullReference symb_receiver;
 
 	/**
 	 * This method should not consume the symbolic arguments in the stack
@@ -38,5 +42,24 @@ public abstract class StringBuilderVirtualFunction extends VirtualFunction {
 	 * 
 	 */
 	protected abstract void INVOKEVIRTUAL(StringBuilder receiver);
+
+	protected StringBuilderExpression getStringBuilderExpression(
+			StringBuilder conc_receiver, NonNullReference symb_receiver) {
+
+		StringExpression strExpr = this.env.heap.getField(
+				JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
+				conc_receiver, symb_receiver, conc_receiver.toString());
+
+		if (!(strExpr instanceof StringBuilderExpression)) {
+			return new StringBuilderExpression(strExpr);
+		} else {
+			return (StringBuilderExpression) strExpr;
+		}
+	}
+
+	protected void replaceRefTop(NonNullReference ref) {
+		this.env.topFrame().operandStack.popRef();
+		this.env.topFrame().operandStack.pushRef(ref);
+	}
 
 }

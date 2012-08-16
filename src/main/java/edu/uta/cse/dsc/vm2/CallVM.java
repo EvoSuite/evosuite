@@ -7,6 +7,7 @@ import java.lang.reflect.Modifier;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Stack;
 
 import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.RealConstant;
@@ -115,8 +116,7 @@ public final class CallVM extends AbstractVM {
 		 * instruction adds the corresponding exception. The handler will store
 		 * the exception to the locals table
 		 */
-		NonNullReference fakeExceptionObject = new NonNullReference(null, 0);
-		env.topFrame().operandStack.pushRef(fakeExceptionObject);
+		env.topFrame().operandStack.pushRef(ExceptionReference.getInstance());
 	}
 
 	private final THashMap<Member, MemberInfo> memberInfos = new THashMap<Member, MemberInfo>();
@@ -352,10 +352,10 @@ public final class CallVM extends AbstractVM {
 	}
 
 	@Override
-	public void METHOD_BEGIN_PARAM(int nr, int index, Object value) {
+	public void METHOD_BEGIN_PARAM(int nr, int index, Object conc_ref) {
 		if (!env.callerFrame().weInvokedInstrumentedCode()) {
-			Reference ref = env.heap.getReference(value);
-			env.topFrame().localsTable.setRefLocal(index, ref);
+			Reference symb_ref = env.heap.getReference(conc_ref);
+			env.topFrame().localsTable.setRefLocal(index, symb_ref);
 		}
 	}
 
@@ -472,6 +472,7 @@ public final class CallVM extends AbstractVM {
 	 */
 	@Override
 	public void INVOKESTATIC(String className, String methName, String methDesc) {
+		stackParamCount = 0;
 		env.topFrame().invokeNeedsThis = false;
 		methodCall(className, methName, methDesc);
 	}
@@ -498,6 +499,7 @@ public final class CallVM extends AbstractVM {
 	 */
 	@Override
 	public void INVOKESPECIAL(String className, String methName, String methDesc) {
+		stackParamCount = 0;
 		env.topFrame().invokeNeedsThis = true;
 
 		if (conf.INIT.equals(methName)) {
@@ -505,6 +507,7 @@ public final class CallVM extends AbstractVM {
 			env.topFrame().invokeInstrumentedCode(instrumented);
 		} else
 			methodCall(className, methName, methDesc);
+
 	}
 
 	@Override
@@ -531,6 +534,8 @@ public final class CallVM extends AbstractVM {
 	@Deprecated
 	@Override
 	public void INVOKEVIRTUAL(String className, String methName, String methDesc) {
+		stackParamCount = 0;
+
 		env.topFrame().invokeNeedsThis = true;
 		methodCall(className, methName, methDesc);
 	}
@@ -548,14 +553,26 @@ public final class CallVM extends AbstractVM {
 	 * doc6.html#invokevirtual
 	 */
 	@Override
-	public void INVOKEVIRTUAL(Object receiver, String className,
+	public void INVOKEVIRTUAL(Object conc_receiver, String className,
 			String methName, String methDesc) {
+		stackParamCount = 0;
+
 		env.topFrame().invokeNeedsThis = true;
-		if (receiver == null)
+		if (conc_receiver == null)
 			return;
 
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+
+		Type[] argTypes = Type.getArgumentTypes(methDesc);
+		for (int i = 0; i < argTypes.length ; i++) {
+			it.next();
+		}
+		ReferenceOperand ref_operand = (ReferenceOperand) it.next();
+		Reference symb_receiver = ref_operand.getReference();
+		env.heap.initializeReference(conc_receiver, symb_receiver);
+
 		Method staticMethod = methodCall(className, methName, methDesc);
-		chooseReceiverType(className, receiver, methDesc, staticMethod);
+		chooseReceiverType(className, conc_receiver, methDesc, staticMethod);
 	}
 
 	/**
@@ -576,8 +593,11 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void INVOKEINTERFACE(String className, String methName,
 			String methDesc) {
+		stackParamCount = 0;
+
 		env.topFrame().invokeNeedsThis = true;
 		methodCall(className, methName, methDesc);
+
 	}
 
 	/**
@@ -593,14 +613,16 @@ public final class CallVM extends AbstractVM {
 	 * doc6.html#invokeinterface
 	 */
 	@Override
-	public void INVOKEINTERFACE(Object receiver, String className,
+	public void INVOKEINTERFACE(Object conc_receiver, String className,
 			String methName, String methDesc) {
+		stackParamCount = 0;
 		env.topFrame().invokeNeedsThis = true;
-		if (receiver == null)
+		if (conc_receiver == null)
 			return;
 
 		Method staticMethod = methodCall(className, methName, methDesc);
-		chooseReceiverType(className, receiver, methDesc, staticMethod);
+		chooseReceiverType(className, conc_receiver, methDesc, staticMethod);
+
 	}
 
 	/**
@@ -765,16 +787,8 @@ public final class CallVM extends AbstractVM {
 			 * We are returning from uninstrumented code. This is the only way
 			 * of storing the method return value to the symbolic state.
 			 */
-			if (res instanceof String) {
-				String string = (String) res;
-				StringConstant strConstant = ExpressionFactory
-						.buildNewStringConstant(string);
-				env.topFrame().operandStack.pushStringRef(strConstant);
-			} else {
-				NonNullReference fakeObject = new NonNullReference(res
-						.getClass().getName(), 0);
-				env.topFrame().operandStack.pushRef(fakeObject);
-			}
+			Reference symb_ref = env.heap.getReference(res);
+			env.topFrame().operandStack.pushRef(symb_ref);
 		}
 	}
 
@@ -842,6 +856,73 @@ public final class CallVM extends AbstractVM {
 			this.maxStack = maxStack;
 			this.maxLocals = maxLocals;
 		}
+	}
+
+	int stackParamCount = 0;
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, boolean value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, short value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, byte value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, char value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, float value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value) {
+		stackParamCount++;
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+			Object conc_ref) {
+		stackParamCount++;
+
+		int operand_index = stackParamCount - 1;
+		Operand op = getOperand(operand_index);
+		ReferenceOperand ref_op = (ReferenceOperand) op;
+		Reference symb_ref = ref_op.getReference();
+
+		env.heap.initializeReference(conc_ref, symb_ref);
+	}
+
+	private Operand getOperand(int index) {
+		Operand op;
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		for (int i = 0; i < index + 1; i++) {
+			op = it.next();
+			if (i == index) {
+				return op;
+			}
+		}
+		return null;
 	}
 
 }

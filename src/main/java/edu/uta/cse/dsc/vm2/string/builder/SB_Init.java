@@ -3,6 +3,7 @@ package edu.uta.cse.dsc.vm2.string.builder;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.StringBuilderExpression;
+import org.evosuite.symbolic.expr.StringConstant;
 import org.evosuite.symbolic.expr.StringExpression;
 
 import edu.uta.cse.dsc.vm2.ExpressionFactory;
@@ -12,17 +13,18 @@ import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.Reference;
 import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
-import edu.uta.cse.dsc.vm2.string.StringFunction;
-import edu.uta.cse.dsc.vm2.string.StringFunctionCallVM;
 import edu.uta.cse.dsc.vm2.string.SpecialFunction;
+import edu.uta.cse.dsc.vm2.string.StringFunction;
+
+import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.JAVA_LANG_STRING_BUILDER;
+import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
 
 public abstract class SB_Init extends SpecialFunction {
 
-	public static final String STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
+	private static final String FUNCTION_NAME = "<init>";
 
 	public SB_Init(SymbolicEnvironment env, String desc) {
-		super(env, StringFunctionCallVM.JAVA_LANG_STRING_BUILDER, "<init>",
-				desc);
+		super(env, JAVA_LANG_STRING_BUILDER, FUNCTION_NAME, desc);
 	}
 
 	public static final class StringBuilderInit_S extends SB_Init {
@@ -33,8 +35,7 @@ public abstract class SB_Init extends SpecialFunction {
 		}
 
 		private StringExpression strExpr;
-		private NonNullReference stringBuilderRef;
-		private StringBuilder stringBuilder;
+		private NonNullReference symb_str_builder;
 
 		@Override
 		public void INVOKESPECIAL() {
@@ -42,16 +43,17 @@ public abstract class SB_Init extends SpecialFunction {
 			 * Gather operands for symbolic execution
 			 */
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
-			Operand operand = it.next();
-			Reference ref = ref(it.next());
-			if (ref instanceof NullReference) {
+			Reference str_ref = ref(it.next());
+			Reference str_builder_ref = ref(it.next());
+			if (isNullRef(str_ref) || isNullRef(str_builder_ref)) {
 				// An exception will be thrown
-				this.stringBuilderRef = null;
+				this.symb_str_builder = null;
 				this.strExpr = null;
 			} else {
 				// normal behaviour
-				this.stringBuilderRef = (NonNullReference) ref;
-				this.strExpr = this.operandToStringExpression(operand);
+				this.symb_str_builder = (NonNullReference) str_builder_ref;
+				this.strExpr = ((StringReference) str_ref)
+						.getStringExpression();
 			}
 		}
 
@@ -60,27 +62,15 @@ public abstract class SB_Init extends SpecialFunction {
 			/**
 			 * Symbolic execution
 			 */
-			if (strExpr.containsSymbolicVariable()) {
-				String fieldName = STRING_BUILDER_CONTENTS;
-				StringBuilderExpression strBuilderExpr = new StringBuilderExpression(
-						strExpr);
-				// update symbolic heap
-				this.env.heap.putField("java.lang.StringBuffer", fieldName,
-						stringBuilderRef, stringBuilderRef, strBuilderExpr);
-			} else {
-				// no update to symbolic heap since all values all concrete
-			}
+			StringBuilderExpression strBuilderExpr = new StringBuilderExpression(
+					strExpr);
+
+			// update symbolic heap
+			this.env.heap.putField(JAVA_LANG_STRING_BUILDER,
+					STRING_BUILDER_CONTENTS, null, symb_str_builder,
+					strBuilderExpr);
 		}
 
-		@Override
-		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
-				Object value) {
-			if (nr == 0) {
-
-			} else if (nr == 1) {
-
-			}
-		}
 	}
 
 	public static final class StringBuilderInit_CS extends SB_Init {
@@ -90,58 +80,23 @@ public abstract class SB_Init extends SpecialFunction {
 
 		}
 
-		private StringExpression charSeqExpr;
-		private NonNullReference stringBuilderRef;
-
 		@Override
 		public void INVOKESPECIAL() {
-			/**
-			 * Gather operands for symbolic execution
-			 */
-			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
-			Reference charSeqRef = ref(it.next()); // argument (CharSequence)
-			Reference ref = ref(it.next()); // receiver
-			if (ref instanceof NullReference) {
-				// An exception will be thrown
-				this.stringBuilderRef = null;
-				this.charSeqExpr = null;
-			} else {
-				// normal behaviour
-				this.stringBuilderRef = (NonNullReference) ref;
-				this.charSeqExpr = null;
-			}
-		}
-
-		@Override
-		public void CALL_RESULT() {
-			/**
-			 * Symbolic execution
-			 */
-
-			if (charSeqExpr.containsSymbolicVariable()) {
-				String fieldName = STRING_BUILDER_CONTENTS;
-				StringBuilderExpression strBuilderExpr = new StringBuilderExpression(
-						charSeqExpr);
-				// update symbolic heap
-				this.env.heap.putField("java.lang.StringBuffer", fieldName,
-						stringBuilderRef, stringBuilderRef, strBuilderExpr);
-			} else {
-				// no update to symbolic heap since all values all concrete
-			}
+			/* do nothing */
 		}
 
 		@Override
 		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
-				Object value) {
-			if (charSeqExpr == null) {
-				// if no symbolic expression, use concrete value
-				CharSequence concreteCharSeq = (CharSequence) value;
-				if (concreteCharSeq != null) {
-					charSeqExpr = ExpressionFactory
-							.buildNewStringConstant(concreteCharSeq.toString());
-				}
-			}
+				Object conc_value) {
+			/* do nothing */
+
 		}
+
+		@Override
+		public void CALL_RESULT() {
+			/* do nothing */
+		}
+
 	}
 
 }
