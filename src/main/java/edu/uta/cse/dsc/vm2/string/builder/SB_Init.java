@@ -1,23 +1,20 @@
 package edu.uta.cse.dsc.vm2.string.builder;
 
+import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.JAVA_LANG_STRING_BUILDER;
+import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
+
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.StringBuilderExpression;
-import org.evosuite.symbolic.expr.StringConstant;
 import org.evosuite.symbolic.expr.StringExpression;
 
-import edu.uta.cse.dsc.vm2.ExpressionFactory;
 import edu.uta.cse.dsc.vm2.NonNullReference;
-import edu.uta.cse.dsc.vm2.NullReference;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.Reference;
 import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 import edu.uta.cse.dsc.vm2.string.SpecialFunction;
 import edu.uta.cse.dsc.vm2.string.StringFunction;
-
-import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.JAVA_LANG_STRING_BUILDER;
-import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
 
 public abstract class SB_Init extends SpecialFunction {
 

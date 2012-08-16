@@ -7,11 +7,9 @@ import java.lang.reflect.Modifier;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.Stack;
 
 import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.RealConstant;
-import org.evosuite.symbolic.expr.StringConstant;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
@@ -558,21 +556,26 @@ public final class CallVM extends AbstractVM {
 		stackParamCount = 0;
 
 		env.topFrame().invokeNeedsThis = true;
-		if (conc_receiver == null)
-			return;
 
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-
 		Type[] argTypes = Type.getArgumentTypes(methDesc);
-		for (int i = 0; i < argTypes.length ; i++) {
+		for (int i = 0; i < argTypes.length; i++) {
 			it.next();
 		}
 		ReferenceOperand ref_operand = (ReferenceOperand) it.next();
 		Reference symb_receiver = ref_operand.getReference();
 		env.heap.initializeReference(conc_receiver, symb_receiver);
 
+		if (nullReferenceViolation(conc_receiver, symb_receiver))
+			return;
+
 		Method staticMethod = methodCall(className, methName, methDesc);
 		chooseReceiverType(className, conc_receiver, methDesc, staticMethod);
+	}
+
+	private boolean nullReferenceViolation(Object conc_receiver,
+			Reference symb_receiver) {
+		return conc_receiver == null;
 	}
 
 	/**
@@ -617,7 +620,7 @@ public final class CallVM extends AbstractVM {
 			String methName, String methDesc) {
 		stackParamCount = 0;
 		env.topFrame().invokeNeedsThis = true;
-		if (conc_receiver == null)
+		if (nullReferenceViolation(conc_receiver, null))
 			return;
 
 		Method staticMethod = methodCall(className, methName, methDesc);
@@ -631,7 +634,7 @@ public final class CallVM extends AbstractVM {
 	private void chooseReceiverType(String className, Object receiver,
 			String methDesc, Method staticMethod) {
 
-		if (receiver == null) {
+		if (nullReferenceViolation(receiver, null)) {
 			throw new IllegalArgumentException("we are post null-deref check");
 		}
 
