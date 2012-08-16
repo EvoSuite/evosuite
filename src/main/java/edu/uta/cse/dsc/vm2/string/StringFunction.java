@@ -145,8 +145,8 @@ public abstract class StringFunction {
 		return ref.getReference();
 	}
 
-	protected static boolean isNullRef(ReferenceOperand ref) {
-		return ref.getReference() == null;
+	protected static boolean isNullRef(Reference ref) {
+		return ref instanceof NullReference;
 	}
 
 	protected SymbolicEnvironment env;
@@ -201,6 +201,14 @@ public abstract class StringFunction {
 	}
 
 	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		/* STUB */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value) {
+		/* STUB */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value) {
 		/* STUB */
 	}
 

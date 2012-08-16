@@ -8,7 +8,7 @@ import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.StringExpression;
 
-public final class OperandStack {
+public final class OperandStack implements Iterable<Operand> {
 
 	private final Deque<Operand> stack = new LinkedList<Operand>();
 
@@ -135,6 +135,15 @@ public final class OperandStack {
 		ReferenceOperand refOp = (ReferenceOperand) operand;
 		Reference ref = refOp.getReference();
 		return ref;
+	}
+
+	@Override
+	public String toString() {
+		StringBuffer buff = new StringBuffer();
+		for (Operand operand : this) {
+			buff.append(operand.toString() + "\n");
+		}
+		return buff.toString();
 	}
 
 }

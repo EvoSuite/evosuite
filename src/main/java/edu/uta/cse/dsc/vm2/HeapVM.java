@@ -182,25 +182,20 @@ public final class HeapVM extends AbstractVM {
 						owner, fieldName, value);
 				env.topFrame().operandStack.pushFp64(fp64);
 
-			} else if (type.equals(Type.getType(String.class))) {
-
-				String value = (String) concrete_field.get(null);
-				StringExpression strExpr = env.heap.getStaticField(owner,
-						fieldName, value);
-				if (strExpr == null) {
-					env.topFrame().operandStack.pushRef(NullReference
-							.getInstance());
-				} else {
-					env.topFrame().operandStack.pushStringRef(strExpr);
-				}
-
 			} else {
 
 				Object value = concrete_field.get(null);
-				Reference ref = env.heap
-						.getStaticField(owner, fieldName, value);
-				env.topFrame().operandStack.pushRef(ref);
-
+				if (value == null) {
+					env.topFrame().operandStack.pushRef(NullReference
+							.getInstance());
+				} else if (value instanceof String) {
+					StringExpression strExpr = env.heap.getStaticField(owner,
+							fieldName, (String) value);
+					env.topFrame().operandStack.pushStringRef(strExpr);
+				} else {
+					Reference ref = env.heap.getReference(value);
+					env.topFrame().operandStack.pushRef(ref);
+				}
 			}
 
 			if (!isAccessible) {
@@ -246,8 +241,8 @@ public final class HeapVM extends AbstractVM {
 		} else if (value_operand instanceof RealOperand) {
 			RealOperand realOp = (RealOperand) value_operand;
 			symb_value = realOp.getRealExpression();
-		} else if (value_operand instanceof Reference) {
-			Reference ref = (Reference) value_operand;
+		} else if (value_operand instanceof ReferenceOperand) {
+			Reference ref = ((ReferenceOperand) value_operand).getReference();
 			if (ref instanceof NullReference) {
 				symb_value = null;
 			} else if (ref instanceof StringReference) {
@@ -302,10 +297,13 @@ public final class HeapVM extends AbstractVM {
 	 *      .doc5.html#getfield
 	 */
 	@Override
-	public void GETFIELD(Object receiverConcrete, String className,
+	public void GETFIELD(Object conc_receiver, String className,
 			String fieldName, String desc) {
 		// consume symbolic operand
 		Reference receiver_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_receiver, receiver_ref);
 
 		Field field = resolveField(classLoader.getClassForName(className),
 				fieldName);
@@ -320,7 +318,7 @@ public final class HeapVM extends AbstractVM {
 		 * Schedule reference field type to be asserted -- before null check, as
 		 * null check will create a new node in path constraint
 		 */
-		if (receiverConcrete == null) {
+		if (conc_receiver == null) {
 			/**
 			 * Execution will lead to a NullPointerException
 			 */
@@ -335,88 +333,84 @@ public final class HeapVM extends AbstractVM {
 
 			if (type.equals(Type.INT_TYPE)) {
 
-				int value = field.getInt(receiverConcrete);
+				int value = field.getInt(conc_receiver);
 				IntegerExpression intExpr = (IntegerExpression) env.heap
-						.getField(className, fieldName, receiverConcrete,
+						.getField(className, fieldName, conc_receiver,
 								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.LONG_TYPE)) {
 
-				long value = field.getLong(receiverConcrete);
+				long value = field.getLong(conc_receiver);
 				IntegerExpression intExpr = (IntegerExpression) env.heap
-						.getField(className, fieldName, receiverConcrete,
+						.getField(className, fieldName, conc_receiver,
 								symb_receiver, value);
 				env.topFrame().operandStack.pushBv64(intExpr);
 
 			} else if (type.equals(Type.FLOAT_TYPE)) {
 
-				float value = field.getFloat(receiverConcrete);
+				float value = field.getFloat(conc_receiver);
 				RealExpression fp32 = (RealExpression) env.heap.getField(
-						className, fieldName, receiverConcrete, symb_receiver,
+						className, fieldName, conc_receiver, symb_receiver,
 						(double) value);
 				env.topFrame().operandStack.pushFp32(fp32);
 
 			} else if (type.equals(Type.DOUBLE_TYPE)) {
 
-				double value = field.getDouble(receiverConcrete);
+				double value = field.getDouble(conc_receiver);
 				RealExpression fp64 = (RealExpression) env.heap.getField(
-						className, fieldName, receiverConcrete, symb_receiver,
+						className, fieldName, conc_receiver, symb_receiver,
 						value);
 				env.topFrame().operandStack.pushFp64(fp64);
 
 			} else if (type.equals(Type.CHAR_TYPE)) {
 
-				char value = field.getChar(receiverConcrete);
+				char value = field.getChar(conc_receiver);
 				IntegerExpression intExpr = (IntegerExpression) env.heap
-						.getField(className, fieldName, receiverConcrete,
+						.getField(className, fieldName, conc_receiver,
 								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.SHORT_TYPE)) {
 
-				short value = field.getShort(receiverConcrete);
+				short value = field.getShort(conc_receiver);
 				IntegerExpression intExpr = (IntegerExpression) env.heap
-						.getField(className, fieldName, receiverConcrete,
+						.getField(className, fieldName, conc_receiver,
 								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.BOOLEAN_TYPE)) {
 
-				boolean booleanValue = field.getBoolean(receiverConcrete);
+				boolean booleanValue = field.getBoolean(conc_receiver);
 				int value = booleanValue ? 1 : 0;
 				IntegerExpression intExpr = (IntegerExpression) env.heap
-						.getField(className, fieldName, receiverConcrete,
+						.getField(className, fieldName, conc_receiver,
 								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
 			} else if (type.equals(Type.BYTE_TYPE)) {
 
-				byte value = field.getByte(receiverConcrete);
+				byte value = field.getByte(conc_receiver);
 				IntegerExpression intExpr = (IntegerExpression) env.heap
-						.getField(className, fieldName, receiverConcrete,
+						.getField(className, fieldName, conc_receiver,
 								symb_receiver, (long) value);
 				env.topFrame().operandStack.pushBv32(intExpr);
 
-			} else if (type.equals(Type.getType(String.class))) {
-
-				String value = (String) field.get(receiverConcrete);
-				StringExpression strExpr = env.heap.getField(className,
-						fieldName, receiverConcrete, symb_receiver, value);
-				if (strExpr == null) {
-					env.topFrame().operandStack.pushRef(NullReference
-							.getInstance());
-				} else {
-					env.topFrame().operandStack.pushStringRef(strExpr);
-				}
-
 			} else {
 
-				Object value = field.get(receiverConcrete);
-				Reference ref = env.heap.getField(className, fieldName,
-						receiverConcrete, symb_receiver, value);
-				env.topFrame().operandStack.pushRef(ref);
-
+				Object value = field.get(conc_receiver);
+				if (value == null) {
+					env.topFrame().operandStack.pushRef(NullReference
+							.getInstance());
+				} else if (value instanceof String) {
+					StringExpression strExpr = (StringExpression) env.heap
+							.getField(className, fieldName, conc_receiver,
+									symb_receiver, (String) value);
+					env.topFrame().operandStack.pushStringRef(strExpr);
+				} else {
+					Reference ref = env.heap.getReference(value);
+					env.topFrame().operandStack.pushRef(ref);
+				}
 			}
 
 			if (!isAccessible) {
@@ -439,8 +433,16 @@ public final class HeapVM extends AbstractVM {
 	 * pointer exception.
 	 */
 	@Override
-	public void PUTFIELD(Object concrete_receiver, String className,
+	public void PUTFIELD(Object conc_receiver, String className,
 			String fieldName, String desc) {
+		/**
+		 * Pop symbolic heap
+		 */
+		Operand value_operand = env.topFrame().operandStack.popOperand();
+		Reference receiver_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_receiver, receiver_ref);
 
 		/**
 		 * Prepare classes
@@ -449,17 +451,15 @@ public final class HeapVM extends AbstractVM {
 				fieldName);
 		env.ensurePrepared(field.getDeclaringClass());
 
-		if (concrete_receiver == null) {
+		if (conc_receiver == null) {
 			return;
 		}
 
-		/**
-		 * Update symbolic heap (if needed)
-		 */
-		Operand value_operand = env.topFrame().operandStack.popOperand();
-		Reference receiver = env.topFrame().operandStack.popRef();
+		NonNullReference symb_receiver = (NonNullReference) receiver_ref;
 
-		NonNullReference symb_receiver = (NonNullReference) receiver;
+		/**
+		 * Compute new symbolic state
+		 */
 		Expression<?> symb_value = null;
 		if (value_operand instanceof IntegerOperand) {
 			IntegerOperand intOp = (IntegerOperand) value_operand;
@@ -467,8 +467,8 @@ public final class HeapVM extends AbstractVM {
 		} else if (value_operand instanceof RealOperand) {
 			RealOperand realOp = (RealOperand) value_operand;
 			symb_value = realOp.getRealExpression();
-		} else if (value_operand instanceof Reference) {
-			Reference ref = (Reference) value_operand;
+		} else if (value_operand instanceof ReferenceOperand) {
+			Reference ref = ((ReferenceOperand) value_operand).getReference();
 			if (ref instanceof NullReference) {
 				symb_value = null;
 			} else if (ref instanceof StringReference) {
@@ -480,8 +480,8 @@ public final class HeapVM extends AbstractVM {
 			}
 
 		}
-		env.heap.putField(className, fieldName, concrete_receiver,
-				symb_receiver, symb_value);
+		env.heap.putField(className, fieldName, conc_receiver, symb_receiver,
+				symb_value);
 	}
 
 	/* Arrays */
@@ -513,8 +513,8 @@ public final class HeapVM extends AbstractVM {
 			return;
 
 		String className = "[" + componentType.getName();
-		NonNullReference newObjectArray = this.env.heap.newReference(className);
-		env.topFrame().operandStack.pushRef(newObjectArray);
+		NonNullReference new_symb_array = this.env.heap.newReference(className);
+		env.topFrame().operandStack.pushRef(new_symb_array);
 	}
 
 	/**
@@ -578,18 +578,24 @@ public final class HeapVM extends AbstractVM {
 	}
 
 	@Override
-	public void ARRAYLENGTH(Object referenceConcrete) {
-		// discard symbolic array reference
-		env.topFrame().operandStack.popRef();
+	public void ARRAYLENGTH(Object conc_array) {
+		/* get symbolic arguments */
+		Reference array_ref = env.topFrame().operandStack.popRef();
 
-		if (referenceConcrete != null) {
-			int lengthConcrete = Array.getLength(referenceConcrete);
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
-			// replace symbolic array reference with length
-			IntegerConstant literalLength = ExpressionFactory
-					.buildNewIntegerConstant(lengthConcrete);
-			env.topFrame().operandStack.pushBv32(literalLength);
+		/* check array nullness */
+		if (conc_array == null) {
+			return;
 		}
+
+		int lengthConcrete = Array.getLength(conc_array);
+
+		// replace symbolic array reference with length
+		IntegerConstant literalLength = ExpressionFactory
+				.buildNewIntegerConstant(lengthConcrete);
+		env.topFrame().operandStack.pushBv32(literalLength);
 	}
 
 	/**
@@ -601,73 +607,87 @@ public final class HeapVM extends AbstractVM {
 	 * doc6.html#iaload
 	 */
 	@Override
-	public void IALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void IALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (conc_array == null)
 			return;
 
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		int bv32 = Array.getInt(referenceConcrete, indexConcrete);
-		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		int bv32 = Array.getInt(conc_array, conc_index);
+		IntegerExpression c = env.heap.array_load(symb_array, conc_index,
+				(long) bv32);
 		env.topFrame().operandStack.pushBv32(c);
-
 	}
 
 	@Override
-	public void LALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void LALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (conc_array == null)
 			return;
 
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		long bv64 = Array.getLong(referenceConcrete, indexConcrete);
-		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv64);
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		long bv64 = Array.getLong(conc_array, conc_index);
+		IntegerExpression c = env.heap.array_load(symb_array, conc_index,
+				(long) bv64);
 		env.topFrame().operandStack.pushBv64(c);
 
 	}
 
 	@Override
-	public void FALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void FALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (conc_array == null)
 			return;
 
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		float fp32 = Array.getFloat(referenceConcrete, indexConcrete);
-		RealConstant c = ExpressionFactory.buildNewRealConstant(fp32);
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		float fp32 = Array.getFloat(conc_array, conc_index);
+		RealExpression c = env.heap.array_load(symb_array, conc_index,
+				(double) fp32);
 		env.topFrame().operandStack.pushFp32(c);
 
 	}
@@ -681,74 +701,95 @@ public final class HeapVM extends AbstractVM {
 	 * doc3.html#daload
 	 */
 	@Override
-	public void DALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void DALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (conc_array == null)
 			return;
 
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		double fp64 = Array.getDouble(referenceConcrete, indexConcrete);
-		RealConstant c = ExpressionFactory.buildNewRealConstant(fp64);
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		double fp64 = Array.getDouble(conc_array, conc_index);
+		RealExpression c = env.heap.array_load(symb_array, conc_index,
+				(double) fp64);
 		env.topFrame().operandStack.pushFp64(c);
 
 	}
 
 	@Override
-	public void AALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void AALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (array_ref == null)
 			return;
 
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		Object value = Array.get(referenceConcrete, indexConcrete);
-		Reference ref = env.heap.getReference(value);
-		env.topFrame().operandStack.pushRef(ref);
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		Object conc_value = Array.get(conc_array, conc_index);
+
+		Reference symb_value;
+		if (conc_value == null) {
+			symb_value = NullReference.getInstance();
+		} else if (conc_value instanceof String) {
+			symb_value = new StringReference(env.heap.array_load(symb_array,
+					conc_index, (String) conc_value));
+		} else {
+			symb_value = env.heap.getReference(conc_value);
+		}
+		env.topFrame().operandStack.pushRef(symb_value);
 	}
 
 	/**
 	 * retrieve byte/boolean from array
 	 */
 	@Override
-	public void BALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void BALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (conc_array == null)
 			return;
 
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		Object object = Array.get(referenceConcrete, indexConcrete);
+		Object object = Array.get(conc_array, conc_index);
 		int intValue;
 		if (object instanceof Boolean) {
 			boolean booleanValue = ((Boolean) object).booleanValue();
@@ -757,56 +798,70 @@ public final class HeapVM extends AbstractVM {
 			assert object instanceof Byte;
 			intValue = ((Byte) object).shortValue();
 		}
-		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(intValue);
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		IntegerExpression c = env.heap.array_load(symb_array, conc_index,
+				(long) intValue);
 		env.topFrame().operandStack.pushBv32(c);
 
 	}
 
 	@Override
-	public void CALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void CALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (conc_array == null)
 			return;
 
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		char bv32 = Array.getChar(referenceConcrete, indexConcrete);
-		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		char bv32 = Array.getChar(conc_array, conc_index);
+		IntegerExpression c = env.heap.array_load(symb_array, conc_index,
+				(long) bv32);
 		env.topFrame().operandStack.pushBv32(c);
 
 	}
 
 	@Override
-	public void SALOAD(Object referenceConcrete, int indexConcrete) {
-		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void SALOAD(Object conc_array, int conc_index) {
+		// pop symbolic arguments
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (referenceConcrete == null)
+		if (conc_array == null)
 			return;
 
+		NonNullReference symb_array = (NonNullReference) array_ref;
+
 		/* negative index */
-		if (indexConcrete < 0)
+		if (conc_index < 0)
 			return;
 
 		/* out of bound index */
-		if (indexConcrete >= Array.getLength(referenceConcrete))
+		if (conc_index >= Array.getLength(conc_array))
 			return;
 
-		short bv32 = Array.getShort(referenceConcrete, indexConcrete);
-		IntegerConstant c = ExpressionFactory.buildNewIntegerConstant(bv32);
-		env.topFrame().operandStack.pushBv32(c);
+		short conc_value = Array.getShort(conc_array, conc_index);
+		IntegerExpression e = env.heap.array_load(symb_array, conc_index,
+				(long) conc_value);
+		env.topFrame().operandStack.pushBv32(e);
 
 	}
 
@@ -817,49 +872,110 @@ public final class HeapVM extends AbstractVM {
 	 * doc6.html#iastore
 	 */
 	@Override
-	public void IASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
-	}
+	public void IASTORE(Object conc_array, int conc_index) {
+		// pop arguments
+		IntegerExpression symb_value = env.topFrame().operandStack.popBv32();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
 
-	@Override
-	public void LASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popBv64();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
 
-	}
+		/* null pointer violation */
+		if (array_ref == null)
+			return;
 
-	@Override
-	public void FASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popFp32();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
 
 	}
 
 	@Override
-	public void DASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popFp64();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void LASTORE(Object conc_array, int conc_index) {
+		// get symbolic arguments
+		IntegerExpression symb_value = env.topFrame().operandStack.popBv64();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
+
+		/* null pointer violation */
+		if (array_ref == null)
+			return;
+
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
+	}
+
+	@Override
+	public void FASTORE(Object conc_array, int conc_index) {
+		// get symbolic arguments
+		RealExpression symb_value = env.topFrame().operandStack.popFp32();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
+
+		/* null pointer violation */
+		if (array_ref == null)
+			return;
+
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
+
+	}
+
+	@Override
+	public void DASTORE(Object conc_array, int conc_index) {
+		// get symbolic arguments
+		RealExpression symb_value = env.topFrame().operandStack.popFp64();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
+
+		/* null pointer violation */
+		if (array_ref == null)
+			return;
+
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
+
 	}
 
 	/**
@@ -867,47 +983,120 @@ public final class HeapVM extends AbstractVM {
 	 * .html#aastore
 	 */
 	@Override
-	public void AASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popRef();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void AASTORE(Object conc_array, int conc_index) {
+		// pop arguments
+		Reference value_ref = env.topFrame().operandStack.popRef();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
+
+		/* null pointer violation */
+		if (array_ref == null)
+			return;
+
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+
+		Expression<?> symb_value;
+		if (value_ref instanceof NullReference) {
+			symb_value = null;
+		} else if (value_ref instanceof StringReference) {
+			StringReference strRef = (StringReference) value_ref;
+			symb_value = strRef.getStringExpression();
+		} else {
+			// NonNullReference are not stored in the symbolic heap fields
+			return;
+		}
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
+
 	}
 
 	@Override
-	public void BASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void BASTORE(Object conc_array, int conc_index) {
+		// pop arguments
+		IntegerExpression symb_value = env.topFrame().operandStack.popBv32();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
+
+		/* null pointer violation */
+		if (array_ref == null)
+			return;
+
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
+
 	}
 
 	@Override
-	public void CASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void CASTORE(Object conc_array, int conc_index) {
+		// pop arguments
+		IntegerExpression symb_value = env.topFrame().operandStack.popBv32();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
+
+		/* null pointer violation */
+		if (array_ref == null)
+			return;
+
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
+
 	}
 
 	@Override
-	public void SASTORE(Object referenceConcrete, int indexConcrete) {
-		/**
-		 * Discard all information flowing through arrays. We will catch this
-		 * later from the JVM execution.
-		 */
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popBv32();
-		env.topFrame().operandStack.popRef();
+	public void SASTORE(Object conc_array, int conc_index) {
+		// get symbolic arguments
+		IntegerExpression symb_value = env.topFrame().operandStack.popBv32();
+		IntegerExpression symb_index = env.topFrame().operandStack.popBv32();
+		Reference array_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_array, array_ref);
+
+		if (array_ref == null)
+			return;
+
+		/* negative index */
+		if (conc_index < 0)
+			return;
+
+		/* out of bound index */
+		if (conc_index >= Array.getLength(conc_array))
+			return;
+
+		NonNullReference symb_array = (NonNullReference) array_ref;
+		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
 	}
 
 	/**
@@ -925,10 +1114,9 @@ public final class HeapVM extends AbstractVM {
 	 * doc2.html#checkcast
 	 */
 	@Override
-	public void CHECKCAST(Object referenceConcrete, String typeName) {
-		/**
-		 * Ignore check cast constraints
-		 */
+	public void CHECKCAST(Object conc_ref, String typeName) {
+		Reference symb_ref = env.topFrame().operandStack.peekRef();
+		env.heap.initializeReference(conc_ref, symb_ref);
 	}
 
 	/**
@@ -950,10 +1138,15 @@ public final class HeapVM extends AbstractVM {
 	 * doc6.html#instanceof
 	 */
 	@Override
-	public void INSTANCEOF(Object referenceConcrete, String typeName) {
-		env.topFrame().operandStack.popRef(); // discard symbolic reference
+	public void INSTANCEOF(Object conc_ref, String typeName) {
+		/* pop symbolic arguments */
+		Reference symb_ref = env.topFrame().operandStack.popRef();
+
+		/* check reference initialization */
+		env.heap.initializeReference(conc_ref, symb_ref);
+
 		Class<?> myClazz = classLoader.getClassForName(typeName);
-		boolean instanceOf = myClazz.isInstance(referenceConcrete);
+		boolean instanceOf = myClazz.isInstance(conc_ref);
 
 		IntegerConstant ret;
 		if (instanceOf) {
@@ -962,6 +1155,7 @@ public final class HeapVM extends AbstractVM {
 			ret = ExpressionFactory.ICONST_0;
 		}
 
+		/* push symbolic arguments */
 		env.topFrame().operandStack.pushBv32(ret);
 	}
 }

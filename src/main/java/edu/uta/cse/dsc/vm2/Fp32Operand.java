@@ -14,4 +14,9 @@ public final class Fp32Operand implements SingleWordOperand, RealOperand {
 	public RealExpression getRealExpression() {
 		return realExpr;
 	}
+	
+	@Override
+	public String toString() {
+		return realExpr.toString();
+	}
 }

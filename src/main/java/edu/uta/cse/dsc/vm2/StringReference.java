@@ -15,4 +15,8 @@ public final class StringReference extends NonNullReference {
 		return strExpr;
 	}
 
+	@Override
+	public String toString() {
+		return strExpr.toString();
+	}
 }

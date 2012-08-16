@@ -43,10 +43,17 @@ public class IntToStringCast extends StringExpression implements Cast<Long> {
 	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public IntToStringCast(Expression<Long> expr) {
+		this(expr, Long.toString((Long) expr.getConcreteValue()));
+	}
+
+	private final String concreteValue;
+
+	public IntToStringCast(Expression<Long> expr, String concV) {
 		this.intVar = expr;
 		this.containsSymbolicVariable = this.intVar.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
+		this.concreteValue = concV;
 	}
 
 	/** {@inheritDoc} */
@@ -58,7 +65,7 @@ public class IntToStringCast extends StringExpression implements Cast<Long> {
 	/** {@inheritDoc} */
 	@Override
 	public String getConcreteValue() {
-		return Long.toString((Long) intVar.getConcreteValue());
+		return concreteValue;
 	}
 
 	/** {@inheritDoc} */

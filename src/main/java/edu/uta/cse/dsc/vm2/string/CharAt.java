@@ -31,9 +31,9 @@ public final class CharAt extends StringVirtualFunction {
 	public void CALL_RESULT(int res) {
 		if (stringReceiverExpr.containsSymbolicVariable()
 				|| indexExpr.containsSymbolicVariable()) {
+			String intToString = Long.toString(res);
 			StringBinaryExpression strBExpr = new StringBinaryExpression(
-					stringReceiverExpr, Operator.CHARAT, indexExpr,
-					Character.toString((char) res));
+					stringReceiverExpr, Operator.CHARAT, indexExpr, intToString);
 			StringToIntCast castExpr = new StringToIntCast(strBExpr, (long) res);
 			replaceBv32Top(castExpr);
 		} else {

@@ -130,9 +130,8 @@ public final class SymbolicHeap {
 
 	private Map<NonNullReference, Expression<?>> getOrCreateSymbolicField(
 			String owner, String name) {
-		Map<NonNullReference, Expression<?>> symb_field;
 		FieldKey k = new FieldKey(owner, name);
-		symb_field = symb_fields.get(k);
+		Map<NonNullReference, Expression<?>> symb_field = symb_fields.get(k);
 		if (symb_field == null) {
 			symb_field = new THashMap<NonNullReference, Expression<?>>();
 			symb_fields.put(k, symb_field);
@@ -208,13 +207,13 @@ public final class SymbolicHeap {
 	 * 
 	 * @param className
 	 * @param fieldName
-	 * @param receiverConcrete
+	 * @param conc_receiver
 	 * @param symb_receiver
 	 * @param conc_value
 	 * @return
 	 */
 	public StringExpression getField(String className, String fieldName,
-			Object receiverConcrete, NonNullReference symb_receiver,
+			Object conc_receiver, NonNullReference symb_receiver,
 			String conc_value) {
 
 		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
@@ -229,24 +228,6 @@ public final class SymbolicHeap {
 
 		monitor_gc();
 		return symb_value;
-	}
-
-	/**
-	 * 
-	 * @param className
-	 * @param fieldName
-	 * @param receiverConcrete
-	 * @param symb_receiver
-	 * @param conc_value
-	 * @return
-	 */
-	public Reference getField(String className, String fieldName,
-			Object receiverConcrete, NonNullReference symb_receiver,
-			Object conc_value) {
-
-		Reference symb_ref = getReference(conc_value);
-		monitor_gc();
-		return symb_ref;
 	}
 
 	public void putStaticField(String owner, String name,
@@ -311,37 +292,118 @@ public final class SymbolicHeap {
 		return symb_value;
 	}
 
-	public Reference getStaticField(String owner, String fieldName,
-			Object conc_value) {
-
-		Reference symb_ref = getReference(conc_value);
-		monitor_gc();
-		return symb_ref;
-
-	}
-
-	public Reference getReference(Object conc_value) {
-		if (conc_value == null) {
+	public Reference getReference(Object conc_ref) {
+		if (conc_ref == null) {
 
 			return NullReference.getInstance();
-		} else if (conc_value instanceof String) {
+		} else if (conc_ref instanceof String) {
 
-			String string = (String) conc_value;
-			return new StringReference(
-					ExpressionFactory.buildNewStringConstant(string));
+			String conc_string = (String) conc_ref;
+			StringReference symb_string = new StringReference(
+					ExpressionFactory.buildNewStringConstant(conc_string));
+			symb_string.initializeReference(conc_string);
+			return symb_string;
 		} else {
 
-			int identityHashCode = System.identityHashCode(conc_value);
+			int identityHashCode = System.identityHashCode(conc_ref);
 			NonNullReference symb_ref = nonNullRefs.get(identityHashCode);
 			if (symb_ref == null
-					|| symb_ref.getWeakConcreteObject() != conc_value) {
+					|| symb_ref.getWeakConcreteObject() != conc_ref) {
 				// unknown object or out of synch object
-				symb_ref = new NonNullReference(
-						conc_value.getClass().getName(), newInstanceCount++);
-				symb_ref.initializeReference(conc_value);
+				symb_ref = new NonNullReference(conc_ref.getClass().getName(),
+						newInstanceCount++);
+				symb_ref.initializeReference(conc_ref);
 				nonNullRefs.put(identityHashCode, symb_ref);
 			}
 			return symb_ref;
+		}
+	}
+
+	public void array_store(Object conc_array, NonNullReference symb_array,
+			int conc_index, Expression<?> symb_value) {
+
+		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
+
+		if (symb_value == null || !symb_value.containsSymbolicVariable()) {
+			symb_array_contents.remove(conc_index);
+		} else {
+			symb_array_contents.put(conc_index, symb_value);
+		}
+
+		monitor_gc();
+	}
+
+	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new THashMap<NonNullReference, Map<Integer, Expression<?>>>();
+
+	private Map<Integer, Expression<?>> getOrCreateSymbolicArray(
+			NonNullReference symb_array_ref) {
+
+		Map<Integer, Expression<?>> symb_array_contents = symb_arrays
+				.get(symb_array_ref);
+		if (symb_array_contents == null) {
+			symb_array_contents = new THashMap<Integer, Expression<?>>();
+			symb_arrays.put(symb_array_ref, symb_array_contents);
+		}
+
+		return symb_array_contents;
+	}
+
+	public StringExpression array_load(NonNullReference symb_array,
+			int conc_index, String conc_value) {
+
+		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
+		StringExpression symb_value = (StringExpression) symb_array_contents
+				.get(conc_index);
+		if (symb_value == null
+				|| !((String) symb_value.getConcreteValue()).equals(conc_value)) {
+			symb_value = ExpressionFactory.buildNewStringConstant(conc_value);
+			symb_array_contents.remove(conc_index);
+		}
+
+		monitor_gc();
+		return symb_value;
+	}
+
+	public IntegerExpression array_load(NonNullReference symb_array,
+			int conc_index, long conc_value) {
+
+		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
+		IntegerExpression symb_value = (IntegerExpression) symb_array_contents
+				.get(conc_index);
+		if (symb_value == null
+				|| ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
+			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
+			symb_array_contents.remove(conc_index);
+		}
+
+		monitor_gc();
+		return symb_value;
+	}
+
+	public RealExpression array_load(NonNullReference symb_array,
+			int conc_index, double conc_value) {
+
+		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
+		RealExpression symb_value = (RealExpression) symb_array_contents
+				.get(conc_index);
+		if (symb_value == null
+				|| ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
+			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
+			symb_array_contents.remove(conc_index);
+		}
+
+		monitor_gc();
+		return symb_value;
+	}
+
+	public void initializeReference(Object conc_ref, Reference symb_ref) {
+		if (conc_ref != null) {
+			NonNullReference symb_non_null_ref = (NonNullReference) symb_ref;
+			if (!symb_non_null_ref.isInitialized()) {
+				symb_non_null_ref.initializeReference(conc_ref);
+				int identityHashCode = System.identityHashCode(conc_ref);
+				nonNullRefs.put(identityHashCode, symb_non_null_ref);
+			}
 		}
 	}
 

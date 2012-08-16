@@ -202,10 +202,12 @@ public final class JumpVM extends AbstractVM {
 	 */
 	@Override
 	public void IF_ACMPEQ(String className, String methName, int branchIndex,
-			Object left, Object right) {
-		env.topFrame().operandStack.popRef(); // discard argument
-		env.topFrame().operandStack.popRef(); // discard argument
+			Object conc_left, Object conc_right) {
+		Reference right_ref = env.topFrame().operandStack.popRef();
+		Reference left_ref = env.topFrame().operandStack.popRef();
 
+		env.heap.initializeReference(conc_left, left_ref);
+		env.heap.initializeReference(conc_right, right_ref);
 	}
 
 	@Override

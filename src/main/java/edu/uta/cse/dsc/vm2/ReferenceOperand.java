@@ -12,4 +12,9 @@ public class ReferenceOperand implements SingleWordOperand {
 		return this.ref;
 	}
 
+	@Override
+	public String toString() {
+		return this.ref.toString();
+	}
+
 }
