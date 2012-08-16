@@ -1,15 +1,23 @@
 package edu.uta.cse.dsc.vm2;
 
 import gnu.trove.map.hash.THashMap;
+import gnu.trove.set.hash.THashSet;
 
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.StringExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class SymbolicHeap {
+
+	protected static Logger logger = LoggerFactory
+			.getLogger(SymbolicHeap.class);
 
 	private static final class FieldKey {
 		private String owner;
@@ -172,7 +180,51 @@ public final class SymbolicHeap {
 	 * Symbolic Garbage collector
 	 */
 	private void symbolic_gc() {
-		// TODO Auto-generated method stub
+
+		logger.debug("DSE: starting symbolic heap garbage collection");
+
+		Set<NonNullReference> collected_refs = new THashSet<NonNullReference>();
+		// field reys
+		for (Entry<FieldKey, Map<NonNullReference, Expression<?>>> symb_field_entry : symb_fields
+				.entrySet()) {
+
+			Map<NonNullReference, Expression<?>> symb_field = symb_field_entry
+					.getValue();
+			Set<NonNullReference> keySet = new THashSet<NonNullReference>(
+					symb_field.keySet());
+			for (NonNullReference non_null_ref : keySet) {
+				if (non_null_ref.isCollectable()) {
+					symb_field.remove(non_null_ref);
+					collected_refs.add(non_null_ref);
+				}
+			}
+		}
+
+		// array refs
+		Set<NonNullReference> keySet = new THashSet<NonNullReference>(
+				this.symb_arrays.keySet());
+		for (NonNullReference array_ref : keySet) {
+			if (array_ref.isCollectable()) {
+				symb_arrays.remove(array_ref);
+				collected_refs.add(array_ref);
+			}
+		}
+
+		// stored null refs
+		Set<Entry<Integer, NonNullReference>> entry_set = new THashSet<Entry<Integer, NonNullReference>>(
+				this.nonNullRefs.entrySet());
+		for (Entry<Integer, NonNullReference> entry : entry_set) {
+			if (entry.getValue().isCollectable()) {
+				nonNullRefs.remove(entry.getKey());
+				collected_refs.add(entry.getValue());
+
+			}
+		}
+
+		
+		logger.debug("Nr of collected non-null references = "
+				+ collected_refs.size());
+		logger.debug("DSE: symbolic heap garbage collection ended");
 
 	}
 
