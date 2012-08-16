@@ -806,9 +806,9 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		 assertEquals(1, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
-	
+
 	@Test
 	public void test_TestCase73() {
 		ConcolicExecution concolicExecutor = new ConcolicExecution();
@@ -822,9 +822,9 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		 assertEquals(1, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
-	
+
 	@Test
 	public void test_TestCase74() {
 		ConcolicExecution concolicExecutor = new ConcolicExecution();
@@ -838,7 +838,7 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		 assertEquals(1, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
@@ -854,6 +854,22 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		 assertEquals(1, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
+	}
+
+	@Test
+	public void test_TestCase76() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase76",
+						System.getProperty("java.class.path"));
+
+		for (BranchCondition branchCondition : branch_conditions) {
+			for (Constraint<?> constr : branchCondition
+					.listOfLocalConstraints()) {
+				System.out.println(constr.toString());
+			}
+		}
+		assertEquals(1, branch_conditions.size());
 	}
 }
