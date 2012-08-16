@@ -8,8 +8,8 @@ import java.lang.reflect.Field;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstant;
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealConstant;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.objectweb.asm.Type;
@@ -30,9 +30,12 @@ public final class HeapVM extends AbstractVM {
 
 	private final DscInstrumentingClassLoader classLoader;
 
+	private PathConstraint pc;
+
 	public HeapVM(SymbolicEnvironment env, PathConstraint pc,
 			DscInstrumentingClassLoader classLoader) {
 		this.env = env;
+		this.pc = pc;
 		this.classLoader = classLoader;
 	}
 
@@ -318,10 +321,8 @@ public final class HeapVM extends AbstractVM {
 		 * Schedule reference field type to be asserted -- before null check, as
 		 * null check will create a new node in path constraint
 		 */
-		if (conc_receiver == null) {
-			/**
-			 * Execution will lead to a NullPointerException
-			 */
+		/* null-check */
+		if (nullReferenceViolation(receiver_ref, conc_receiver)) {
 			return;
 		}
 
@@ -451,7 +452,8 @@ public final class HeapVM extends AbstractVM {
 				fieldName);
 		env.ensurePrepared(field.getDeclaringClass());
 
-		if (conc_receiver == null) {
+		/* null-check */
+		if (nullReferenceViolation(receiver_ref, conc_receiver)) {
 			return;
 		}
 
@@ -496,7 +498,7 @@ public final class HeapVM extends AbstractVM {
 	 * doc10.html#newarray
 	 */
 	@Override
-	public void NEWARRAY(int lengthConcrete, Class<?> componentType) {
+	public void NEWARRAY(int conc_array_length, Class<?> componentType) {
 		/**
 		 * Since this callback is invoked before the actual array creation, we
 		 * can only add negative index constraints.
@@ -506,10 +508,11 @@ public final class HeapVM extends AbstractVM {
 		 * POST: arrayref (delayed)
 		 */
 		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
+		IntegerExpression symb_array_length = env.topFrame().operandStack
+				.popBv32();
 
 		/* negative index */
-		if (lengthConcrete < 0)
+		if (negativeArrayLengthViolation(conc_array_length, symb_array_length))
 			return;
 
 		String className = "[" + componentType.getName();
@@ -522,7 +525,7 @@ public final class HeapVM extends AbstractVM {
 	 * .html#anewarray
 	 */
 	@Override
-	public void ANEWARRAY(int lengthConcrete, String componentTypeName) {
+	public void ANEWARRAY(int conc_array_length, String componentTypeName) {
 		/**
 		 * Since this callback is invoked before the actual array creation, we
 		 * can only add negative index constraints.
@@ -533,14 +536,15 @@ public final class HeapVM extends AbstractVM {
 		 */
 
 		// discard symbolic arguments
-		env.topFrame().operandStack.popBv32();
+		IntegerExpression symb_array_length = env.topFrame().operandStack
+				.popBv32();
 
 		/* negative index */
-		if (lengthConcrete < 0)
+		if (negativeArrayLengthViolation(conc_array_length, symb_array_length))
 			return;
 
 		String className = "[" + componentTypeName;
-		NonNullReference newObjectArray = this.env.heap.newReference(className);
+		NonNullReference newObjectArray = env.heap.newReference(className);
 		env.topFrame().operandStack.pushRef(newObjectArray);
 	}
 
@@ -585,8 +589,8 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* check array nullness */
-		if (conc_array == null) {
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
 		}
 
@@ -616,15 +620,18 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (conc_array == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -644,15 +651,18 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (conc_array == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -673,15 +683,18 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (conc_array == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -710,15 +723,18 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (conc_array == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -739,15 +755,18 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (array_ref == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -765,6 +784,64 @@ public final class HeapVM extends AbstractVM {
 		env.topFrame().operandStack.pushRef(symb_value);
 	}
 
+	private boolean indexTooBigViolation(int conc_index,
+			IntegerExpression symb_index, int conc_array_length) {
+		IntegerConstant array_length_literal = ExpressionFactory
+				.buildNewIntegerConstant(conc_array_length);
+		IntegerConstraint indexTooBigConstraint;
+		if (conc_index >= conc_array_length) {
+			indexTooBigConstraint = ConstraintFactory.gte(symb_index,
+					array_length_literal);
+			this.pc.pushLocalConstraint(indexTooBigConstraint);
+			return true;
+		} else {
+			indexTooBigConstraint = ConstraintFactory.lt(symb_index,
+					array_length_literal);
+			this.pc.pushLocalConstraint(indexTooBigConstraint);
+			return false;
+		}
+	}
+
+	private boolean nullReferenceViolation(Reference symb_ref, Object conc_ref) {
+		// TODO: Add constraint to path condition
+		if (conc_ref == null)
+			return true;
+		else
+			return false;
+	}
+
+	private boolean negativeIndexViolation(int conc_index,
+			IntegerExpression symb_index) {
+		IntegerConstraint negative_index_constraint;
+		if (conc_index < 0) {
+			negative_index_constraint = ConstraintFactory.lt(symb_index,
+					ExpressionFactory.ICONST_0);
+			pc.pushLocalConstraint(negative_index_constraint);
+			return true;
+		} else {
+			negative_index_constraint = ConstraintFactory.gte(symb_index,
+					ExpressionFactory.ICONST_0);
+			pc.pushLocalConstraint(negative_index_constraint);
+			return false;
+		}
+	}
+
+	private boolean negativeArrayLengthViolation(int conc_array_length,
+			IntegerExpression array_length_index) {
+		IntegerConstraint negative_array_length_constraint;
+		if (conc_array_length < 0) {
+			negative_array_length_constraint = ConstraintFactory.lt(
+					array_length_index, ExpressionFactory.ICONST_0);
+			pc.pushLocalConstraint(negative_array_length_constraint);
+			return true;
+		} else {
+			negative_array_length_constraint = ConstraintFactory.gte(
+					array_length_index, ExpressionFactory.ICONST_0);
+			pc.pushLocalConstraint(negative_array_length_constraint);
+			return false;
+		}
+	}
+
 	/**
 	 * retrieve byte/boolean from array
 	 */
@@ -778,15 +855,18 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (conc_array == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		Object object = Array.get(conc_array, conc_index);
@@ -816,15 +896,18 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (conc_array == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -845,17 +928,20 @@ public final class HeapVM extends AbstractVM {
 		env.heap.initializeReference(conc_array, array_ref);
 
 		/* null-check */
-		if (conc_array == null)
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		short conc_value = Array.getShort(conc_array, conc_index);
@@ -881,16 +967,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* null pointer violation */
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -908,16 +997,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* null pointer violation */
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -934,16 +1026,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* null pointer violation */
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -961,16 +1056,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* null pointer violation */
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -992,16 +1090,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* null pointer violation */
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -1030,16 +1131,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* null pointer violation */
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -1057,16 +1161,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		/* null pointer violation */
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;
@@ -1084,15 +1191,19 @@ public final class HeapVM extends AbstractVM {
 		/* check reference initialization */
 		env.heap.initializeReference(conc_array, array_ref);
 
-		if (array_ref == null)
+		/* null-check */
+		if (nullReferenceViolation(array_ref, conc_array)) {
 			return;
+		}
 
 		/* negative index */
-		if (conc_index < 0)
+		if (negativeIndexViolation(conc_index, symb_index)) {
 			return;
+		}
 
 		/* out of bound index */
-		if (conc_index >= Array.getLength(conc_array))
+		int conc_array_length = Array.getLength(conc_array);
+		if (indexTooBigViolation(conc_index, symb_index, conc_array_length))
 			return;
 
 		NonNullReference symb_array = (NonNullReference) array_ref;

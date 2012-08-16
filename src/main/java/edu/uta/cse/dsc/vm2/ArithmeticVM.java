@@ -34,34 +34,13 @@ public final class ArithmeticVM extends AbstractVM {
 		this.pathConstraint = pathConstraint;
 	}
 
-	/**
-	 * Add (value == 0) to the path condition, i.e., for division by zero.
-	 */
-	private boolean zeroViolation(IntegerExpression value, int valueConcrete) {
-		IntegerConstant bv32zero = ExpressionFactory.buildNewIntegerConstant(0);
-		IntegerConstraint zeroCheck;
-		if (valueConcrete == 0)
-			zeroCheck = ConstraintFactory.eq(value, bv32zero);
-		else
-			zeroCheck = ConstraintFactory.neq(value, bv32zero);
-
-		pathConstraint.pushLocalConstraint(zeroCheck);
-
-		if (valueConcrete == 0) {
-			// JVM will throw an exception
-			return true;
-		}
-
-		return false;
-	}
-
 	private boolean zeroViolation(IntegerExpression value, long valueConcrete) {
-		IntegerConstant bv64zero = ExpressionFactory.buildNewIntegerConstant(0);
+		IntegerConstant zero = ExpressionFactory.ICONST_0;
 		IntegerConstraint zeroCheck;
 		if (valueConcrete == 0)
-			zeroCheck = ConstraintFactory.eq(value, bv64zero);
+			zeroCheck = ConstraintFactory.eq(value, zero);
 		else
-			zeroCheck = ConstraintFactory.neq(value, bv64zero);
+			zeroCheck = ConstraintFactory.neq(value, zero);
 
 		pathConstraint.pushLocalConstraint(zeroCheck);
 
@@ -1306,7 +1285,6 @@ public final class ArithmeticVM extends AbstractVM {
 			left = ExpressionFactory
 					.buildNewIntegerConstant(left_concrete_value);
 		}
-
 
 		int con = left_concrete_value + right_concrete_value;
 

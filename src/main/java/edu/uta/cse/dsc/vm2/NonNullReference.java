@@ -54,4 +54,7 @@ public class NonNullReference implements Reference {
 		return this.concIdentityHashCode;
 	}
 
+	public boolean isCollectable() {
+		return this.isInitialized() && this.getWeakConcreteObject() == null;
+	}
 }
