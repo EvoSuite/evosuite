@@ -12,19 +12,19 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Substring extends StringVirtualFunction {
+public final class Substring extends StringFunction {
 
-	private static final String FUNCTION_NAME = "substring";
+	private static final String SUBSTRING = "substring";
 
 	private IntegerExpression beginIndexExpr;
 	private IntegerExpression endIndexExpr;
 
 	public Substring(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.INT_INT_TO_STR_DESCRIPTOR);
+		super(env, SUBSTRING, Types.INT_INT_TO_STR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.endIndexExpr = bv32(it.next());
 		this.beginIndexExpr = bv32(it.next());

@@ -1,52 +1,39 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 
-public abstract class NextUp extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	private NextUp(String owner, String name, String desc) {
-		super(name, desc);
-	}
+public abstract class NextUp  {
 
-	public static class NextUp_D extends NextUp {
+	private static final String NEXT_UP = "nextUp";
 
-		public NextUp_D() {
-			super("java.lang.Math", "nextUp",
-					MathFunction.D2D_DESCRIPTOR);
+	public final static class NextUp_D extends MathFunction_D2D {
+
+		public NextUp_D(SymbolicEnvironment env) {
+			super(env, NEXT_UP);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, double res) {
-			RealExpression realExpression = (RealExpression) params.pop();
-			if (realExpression.containsSymbolicVariable()) {
-				Operator op = Operator.NEXTUP;
-				return new RealUnaryExpression(realExpression, op, res);
-			} else
-				return null;
-
+		@Override
+		protected RealExpression executeFunction(double res) {
+			Operator op = Operator.NEXTUP;
+			return new RealUnaryExpression(realExpression, op, res);
 		}
 
 	}
 
-	public static class NextUp_F extends NextUp {
+	public final static class NextUp_F extends MathFunction_F2F {
 
-		public NextUp_F() {
-			super("java.lang.Math", "nextUp",
-					MathFunction.F2F_DESCRIPTOR);
+		public NextUp_F(SymbolicEnvironment env) {
+			super(env, NEXT_UP);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, float res) {
-			RealExpression realExpression = (RealExpression) params.pop();
-			if (realExpression.containsSymbolicVariable()) {
-				Operator op = Operator.NEXTUP;
-				return new RealUnaryExpression(realExpression, op, (double) res);
-			} else
-				return null;
-
+		@Override
+		protected RealExpression executeFunction(float res) {
+			Operator op = Operator.NEXTUP;
+			return new RealUnaryExpression(realExpression, op, (double) res);
 		}
 
 	}

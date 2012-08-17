@@ -1,27 +1,23 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealBinaryExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 
-public class IEEEremainder extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	public IEEEremainder() {
-		super("IEEEremainder", MathFunction.DD2D_DESCRIPTOR);
+public final class IEEEremainder extends MathFunction_DD2D {
+
+	private static final String IEEE_REMAINDER = "IEEEremainder";
+
+	public IEEEremainder(SymbolicEnvironment env) {
+		super(env, IEEE_REMAINDER);
 	}
 
-	public RealExpression execute(Stack<Expression<?>> params, double res) {
-		RealExpression right = (RealExpression) params.pop();
-		RealExpression left = (RealExpression) params.pop();
-		if (left.containsSymbolicVariable() || right.containsSymbolicVariable()) {
-			Operator op = Operator.IEEEREMAINDER;
-			return new RealBinaryExpression(left, op, right, res);
-		} else {
-			return null;
-		}
+	@Override
+	protected RealExpression executeFunction(double res) {
+		Operator op = Operator.IEEEREMAINDER;
+		return new RealBinaryExpression(left, op, right, res);
 
 	}
 

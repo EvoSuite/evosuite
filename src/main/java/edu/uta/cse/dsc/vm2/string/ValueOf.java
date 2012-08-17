@@ -5,25 +5,20 @@ import org.evosuite.symbolic.expr.StringExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public abstract class ValueOf extends StaticFunction {
-	private static final String FUNCTION_NAME = "valueOf";
+public abstract class ValueOf {
+	private static final String VALUE_OF = "valueOf";
 
-	public ValueOf(SymbolicEnvironment env, String desc) {
-		super(env, StringFunctionCallVM.JAVA_LANG_STRING, FUNCTION_NAME,
-				OBJECT_TO_STR_DESCRIPTOR);
-	}
-
-	public static final class ValueOf_O extends ValueOf {
+	public static final class ValueOf_O extends StringFunction {
 		private StringExpression strExpr;
 
 		public ValueOf_O(SymbolicEnvironment env) {
-			super(env, OBJECT_TO_STR_DESCRIPTOR);
+			super(env, VALUE_OF, Types.OBJECT_TO_STR_DESCRIPTOR);
 		}
 
 		@Override
 		public void INVOKESTATIC() {
 			Operand op = env.topFrame().operandStack.peekOperand();
-			strExpr = this.operandToStringExpression(op);
+			strExpr = operandToStringExpression(op);
 		}
 
 		@Override

@@ -10,17 +10,17 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class EndsWith extends StringVirtualFunction {
+public final class EndsWith extends StringFunction {
 
-	private static final String FUNCTION_NAME = "endsWith";
+	private static final String ENDS_WITH = "endsWith";
 	private StringExpression strExpr;
 
 	public EndsWith(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.STR_TO_BOOL_DESCRIPTOR);
+		super(env, ENDS_WITH, Types.STR_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.strExpr = operandToStringExpression(it.next());
 		this.stringReceiverExpr = operandToStringExpression(it.next());
@@ -35,7 +35,7 @@ public final class EndsWith extends StringVirtualFunction {
 					stringReceiverExpr, Operator.ENDSWITH, strExpr, (long) conV);
 			StringToIntCast castExpr = new StringToIntCast(strBExpr,
 					(long) conV);
-			this.replaceBv32Top(castExpr);
+			this.replaceTopBv32(castExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

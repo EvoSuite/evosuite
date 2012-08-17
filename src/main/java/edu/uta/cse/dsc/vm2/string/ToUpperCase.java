@@ -5,16 +5,16 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class ToUpperCase extends StringVirtualFunction {
+public final class ToUpperCase extends StringFunction {
 
-	private static final String FUNCTION_NAME = "toUpperCase";
+	private static final String TO_UPPER_CASE = "toUpperCase";
 
 	public ToUpperCase(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.TO_STR_DESCRIPTOR);
+		super(env, TO_UPPER_CASE, Types.TO_STR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		this.stringReceiverExpr = operandToStringExpression(env.topFrame().operandStack
 				.peekOperand());
 	}

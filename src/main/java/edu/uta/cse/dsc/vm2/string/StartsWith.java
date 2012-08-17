@@ -14,19 +14,19 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class StartsWith extends StringVirtualFunction {
+public final class StartsWith extends StringFunction {
 
 	private StringExpression prefixExpr;
 	private IntegerExpression offsetExpr;
 
-	private static final String FUNCTION_NAME = "startsWith";
+	private static final String STARTS_WITH = "startsWith";
 
 	public StartsWith(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.STR_INT_TO_BOOL_DESCRIPTOR);
+		super(env, STARTS_WITH, Types.STR_INT_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.offsetExpr = bv32(it.next());
 		this.prefixExpr = operandToStringExpression(it.next());
@@ -47,7 +47,7 @@ public final class StartsWith extends StringVirtualFunction {
 
 			StringToIntCast castExpr = new StringToIntCast(strTExpr,
 					(long) conV);
-			this.replaceBv32Top(castExpr);
+			this.replaceTopBv32(castExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

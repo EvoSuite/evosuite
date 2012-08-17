@@ -1,6 +1,5 @@
 package edu.uta.cse.dsc.vm2.string.builder;
 
-import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.JAVA_LANG_STRING_BUILDER;
 import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
 
 import java.util.Iterator;
@@ -13,21 +12,20 @@ import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.Reference;
 import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
-import edu.uta.cse.dsc.vm2.string.SpecialFunction;
-import edu.uta.cse.dsc.vm2.string.StringFunction;
+import edu.uta.cse.dsc.vm2.string.Types;
 
-public abstract class SB_Init extends SpecialFunction {
+public abstract class SB_Init extends StringBuilderFunction {
 
 	private static final String FUNCTION_NAME = "<init>";
 
 	public SB_Init(SymbolicEnvironment env, String desc) {
-		super(env, JAVA_LANG_STRING_BUILDER, FUNCTION_NAME, desc);
+		super(env, FUNCTION_NAME, desc);
 	}
 
 	public static final class StringBuilderInit_S extends SB_Init {
 
 		public StringBuilderInit_S(SymbolicEnvironment env) {
-			super(env, StringFunction.STR_TO_VOID_DESCRIPTOR);
+			super(env, Types.STR_TO_VOID_DESCRIPTOR);
 
 		}
 
@@ -63,7 +61,7 @@ public abstract class SB_Init extends SpecialFunction {
 					strExpr);
 
 			// update symbolic heap
-			this.env.heap.putField(JAVA_LANG_STRING_BUILDER,
+			this.env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
 					STRING_BUILDER_CONTENTS, null, symb_str_builder,
 					strBuilderExpr);
 		}
@@ -73,7 +71,7 @@ public abstract class SB_Init extends SpecialFunction {
 	public static final class StringBuilderInit_CS extends SB_Init {
 
 		public StringBuilderInit_CS(SymbolicEnvironment env) {
-			super(env, StringFunction.CHARSEQ_TO_VOID_DESCRIPTOR);
+			super(env, Types.CHARSEQ_TO_VOID_DESCRIPTOR);
 
 		}
 

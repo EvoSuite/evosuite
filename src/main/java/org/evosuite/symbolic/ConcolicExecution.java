@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -53,14 +52,13 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import edu.uta.cse.dsc.vm2.ArithmeticVM;
 import edu.uta.cse.dsc.vm2.CallVM;
 import edu.uta.cse.dsc.vm2.ConcolicMarkerVM;
+import edu.uta.cse.dsc.vm2.FunctionVM;
 import edu.uta.cse.dsc.vm2.HeapVM;
 import edu.uta.cse.dsc.vm2.JumpVM;
 import edu.uta.cse.dsc.vm2.LocalsVM;
 import edu.uta.cse.dsc.vm2.OtherVM;
 import edu.uta.cse.dsc.vm2.PathConstraint;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
-import edu.uta.cse.dsc.vm2.math.MathFunctionCallVM;
-import edu.uta.cse.dsc.vm2.string.StringFunctionCallVM;
 
 /**
  * <p>
@@ -146,8 +144,7 @@ public class ConcolicExecution {
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
 		listeners.add(new ConcolicMarkerVM(env));
-		listeners.add(new MathFunctionCallVM(env));
-		listeners.add(new StringFunctionCallVM(env));
+		listeners.add(new FunctionVM(env));
 
 		VM.vm.setListeners(listeners);
 
@@ -212,8 +209,7 @@ public class ConcolicExecution {
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
 		listeners.add(new ConcolicMarkerVM(env));
-		listeners.add(new MathFunctionCallVM(env));
-		listeners.add(new StringFunctionCallVM(env));
+		listeners.add(new FunctionVM(env));
 		VM.vm.setListeners(listeners);
 
 		TestChromosome dscCopy = (TestChromosome) test.clone();

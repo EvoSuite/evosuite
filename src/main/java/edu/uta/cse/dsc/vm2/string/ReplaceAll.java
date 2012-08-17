@@ -12,19 +12,19 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class ReplaceAll extends StringVirtualFunction {
+public final class ReplaceAll extends StringFunction {
 
 	private StringExpression regexExpr;
 	private StringExpression replacementExpr;
 
-	private static final String FUNCTION_NAME = "replaceAll";
+	private static final String REPLACE_ALL = "replaceAll";
 
 	public ReplaceAll(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.STR_STR_TO_STR_DESCRIPTOR);
+		super(env, REPLACE_ALL, Types.STR_STR_TO_STR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
 		this.replacementExpr = operandToStringExpression(it.next());

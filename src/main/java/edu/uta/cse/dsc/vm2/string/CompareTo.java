@@ -10,17 +10,17 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class CompareTo extends StringVirtualFunction {
+public final class CompareTo extends StringFunction {
 
-	private static final String FUNCTION_NAME = "compareTo";
+	private static final String COMPARE_TO = "compareTo";
 	private StringExpression strExpr;
 
 	public CompareTo(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.STR_TO_INT_DESCRIPTOR);
+		super(env, COMPARE_TO, Types.STR_TO_INT_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.strExpr = operandToStringExpression(it.next());
 		this.stringReceiverExpr = operandToStringExpression(it.next());
@@ -35,7 +35,7 @@ public final class CompareTo extends StringVirtualFunction {
 					stringReceiverExpr, Operator.COMPARETO, strExpr,
 					Integer.toString(res));
 			StringToIntCast castExpr = new StringToIntCast(strBExpr, (long) res);
-			this.replaceBv32Top(castExpr);
+			this.replaceTopBv32(castExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

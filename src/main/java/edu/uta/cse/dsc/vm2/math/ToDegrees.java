@@ -1,26 +1,23 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 
-public class ToDegrees extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	public ToDegrees() {
-		super("toDegrees", MathFunction.D2D_DESCRIPTOR);
+public final class ToDegrees extends MathFunction_D2D {
+
+	private static final String TO_DEGREES = "toDegrees";
+
+	public ToDegrees(SymbolicEnvironment env) {
+		super(env, TO_DEGREES);
 	}
 
-	public RealExpression execute(Stack<Expression<?>> params, double res) {
-		RealExpression realExpression = (RealExpression) params.pop();
-		if (realExpression.containsSymbolicVariable()) {
-			Operator op = Operator.TODEGREES;
-			return new RealUnaryExpression(realExpression, op, res);
-		} else
-			return null;
-
+	@Override
+	protected RealExpression executeFunction(double res) {
+		Operator op = Operator.TODEGREES;
+		return new RealUnaryExpression(realExpression, op, res);
 	}
 
 }
