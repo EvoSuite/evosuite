@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,6 +22,7 @@ package org.evosuite.javaagent;
 
 import java.util.List;
 import java.util.ListIterator;
+import java.util.regex.Matcher;
 
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -37,8 +38,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>StringTransformation class.</p>
- *
+ * <p>
+ * StringTransformation class.
+ * </p>
+ * 
  * @author fraser
  */
 public class StringTransformation {
@@ -48,17 +51,22 @@ public class StringTransformation {
 	ClassNode cn;
 
 	/**
-	 * <p>Constructor for StringTransformation.</p>
-	 *
-	 * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
+	 * <p>
+	 * Constructor for StringTransformation.
+	 * </p>
+	 * 
+	 * @param cn
+	 *            a {@link org.objectweb.asm.tree.ClassNode} object.
 	 */
 	public StringTransformation(ClassNode cn) {
 		this.cn = cn;
 	}
 
 	/**
-	 * <p>transform</p>
-	 *
+	 * <p>
+	 * transform
+	 * </p>
+	 * 
 	 * @return a {@link org.objectweb.asm.tree.ClassNode} object.
 	 */
 	@SuppressWarnings("unchecked")
@@ -165,6 +173,32 @@ public class StringTransformation {
 						// TODO
 					}
 
+				} else if (min.owner.equals("java/util/regex/Pattern")) {
+					if (min.name.equals("matches")) {
+						changed = true;
+						MethodInsnNode equalCheck = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(BooleanHelper.class),
+						        "StringMatchRegex",
+						        Type.getMethodDescriptor(Type.INT_TYPE,
+						                                 new Type[] {
+						                                         Type.getType(String.class),
+						                                         Type.getType(CharSequence.class) }));
+						mn.instructions.insertBefore(node, equalCheck);
+						mn.instructions.remove(node);
+					}
+				} else if (min.owner.equals("java/util/regex/Matcher")) {
+					if (min.name.equals("matches")) {
+						changed = true;
+						MethodInsnNode equalCheck = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(BooleanHelper.class),
+						        "StringMatchRegex",
+						        Type.getMethodDescriptor(Type.INT_TYPE,
+						                                 new Type[] { Type.getType(Matcher.class) }));
+						mn.instructions.insertBefore(node, equalCheck);
+						mn.instructions.remove(node);
+					}
 				}
 			}
 		}
@@ -181,9 +215,12 @@ public class StringTransformation {
 	}
 
 	/**
-	 * <p>transformMethod</p>
-	 *
-	 * @param mn a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * <p>
+	 * transformMethod
+	 * </p>
+	 * 
+	 * @param mn
+	 *            a {@link org.objectweb.asm.tree.MethodNode} object.
 	 * @return a boolean.
 	 */
 	public boolean transformMethod(MethodNode mn) {
