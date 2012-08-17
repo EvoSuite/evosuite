@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Unique random number accessor
- *
+ * 
  * @author Gordon Fraser
  */
 public class Randomness implements Serializable {
@@ -62,8 +62,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.utils.Randomness} object.
 	 */
 	public static Randomness getInstance() {
@@ -74,8 +76,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextBoolean</p>
-	 *
+	 * <p>
+	 * nextBoolean
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public static boolean nextBoolean() {
@@ -83,9 +87,12 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextInt</p>
-	 *
-	 * @param max a int.
+	 * <p>
+	 * nextInt
+	 * </p>
+	 * 
+	 * @param max
+	 *            a int.
 	 * @return a int.
 	 */
 	public static int nextInt(int max) {
@@ -93,10 +100,14 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextInt</p>
-	 *
-	 * @param min a int.
-	 * @param max a int.
+	 * <p>
+	 * nextInt
+	 * </p>
+	 * 
+	 * @param min
+	 *            a int.
+	 * @param max
+	 *            a int.
 	 * @return a int.
 	 */
 	public static int nextInt(int min, int max) {
@@ -104,8 +115,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextInt</p>
-	 *
+	 * <p>
+	 * nextInt
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int nextInt() {
@@ -113,18 +126,22 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextChar</p>
-	 *
+	 * <p>
+	 * nextChar
+	 * </p>
+	 * 
 	 * @return a char.
 	 */
 	public static char nextChar() {
-		return (char) (random.nextInt(127));
+		return (char) (nextInt(9, 128));
 		//return random.nextChar();
 	}
 
 	/**
-	 * <p>nextShort</p>
-	 *
+	 * <p>
+	 * nextShort
+	 * </p>
+	 * 
 	 * @return a short.
 	 */
 	public static short nextShort() {
@@ -132,8 +149,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextLong</p>
-	 *
+	 * <p>
+	 * nextLong
+	 * </p>
+	 * 
 	 * @return a long.
 	 */
 	public static long nextLong() {
@@ -141,8 +160,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextByte</p>
-	 *
+	 * <p>
+	 * nextByte
+	 * </p>
+	 * 
 	 * @return a byte.
 	 */
 	public static byte nextByte() {
@@ -150,8 +171,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextDouble</p>
-	 *
+	 * <p>
+	 * nextDouble
+	 * </p>
+	 * 
 	 * @return a double.
 	 */
 	public static double nextDouble() {
@@ -159,8 +182,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>nextFloat</p>
-	 *
+	 * <p>
+	 * nextFloat
+	 * </p>
+	 * 
 	 * @return a float.
 	 */
 	public static float nextFloat() {
@@ -168,9 +193,12 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>Setter for the field <code>seed</code>.</p>
-	 *
-	 * @param seed a long.
+	 * <p>
+	 * Setter for the field <code>seed</code>.
+	 * </p>
+	 * 
+	 * @param seed
+	 *            a long.
 	 */
 	public static void setSeed(long seed) {
 		Randomness.seed = seed;
@@ -178,8 +206,10 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>seed</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>seed</code>.
+	 * </p>
+	 * 
 	 * @return a long.
 	 */
 	public static long getSeed() {
@@ -187,10 +217,14 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>choice</p>
-	 *
-	 * @param list a {@link java.util.List} object.
-	 * @param <T> a T object.
+	 * <p>
+	 * choice
+	 * </p>
+	 * 
+	 * @param list
+	 *            a {@link java.util.List} object.
+	 * @param <T>
+	 *            a T object.
 	 * @return a T object.
 	 */
 	public static <T> T choice(List<T> list) {
@@ -202,10 +236,14 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>choice</p>
-	 *
-	 * @param set a {@link java.util.Collection} object.
-	 * @param <T> a T object.
+	 * <p>
+	 * choice
+	 * </p>
+	 * 
+	 * @param set
+	 *            a {@link java.util.Collection} object.
+	 * @param <T>
+	 *            a T object.
 	 * @return a T object.
 	 */
 	@SuppressWarnings("unchecked")
@@ -218,10 +256,14 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>choice</p>
-	 *
-	 * @param elements a T object.
-	 * @param <T> a T object.
+	 * <p>
+	 * choice
+	 * </p>
+	 * 
+	 * @param elements
+	 *            a T object.
+	 * @param <T>
+	 *            a T object.
 	 * @return a T object.
 	 */
 	public static <T> T choice(T... elements) {
@@ -233,18 +275,24 @@ public class Randomness implements Serializable {
 	}
 
 	/**
-	 * <p>shuffle</p>
-	 *
-	 * @param list a {@link java.util.List} object.
+	 * <p>
+	 * shuffle
+	 * </p>
+	 * 
+	 * @param list
+	 *            a {@link java.util.List} object.
 	 */
 	public static void shuffle(List<?> list) {
 		Collections.shuffle(list, random);
 	}
 
 	/**
-	 * <p>nextString</p>
-	 *
-	 * @param length a int.
+	 * <p>
+	 * nextString
+	 * </p>
+	 * 
+	 * @param length
+	 *            a int.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String nextString(int length) {
