@@ -129,6 +129,12 @@
 	<dependencyManagement />
 
 	<dependencies>
+                   <dependency>
+                      <groupId>dk.brics.automaton</groupId>
+                      <artifactId>automaton</artifactId>
+                      <version>1.11-8</version>
+                    </dependency>
+	
 					<dependency>
 					<groupId>emma</groupId>
 					<artifactId>emma</artifactId>
