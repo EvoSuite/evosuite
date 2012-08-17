@@ -8,12 +8,12 @@ import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public final class I_IntValue extends Function {
 
-	private static final String FUNCTION_NAME = "intValue";
+	private static final String INT_VALUE = "intValue";
 	private NonNullReference symb_integer;
-	private Object conc_integer;
+	private Integer conc_integer;
 
 	public I_IntValue(SymbolicEnvironment env) {
-		super(env, Integer.class.getName().replace(".", "/"), FUNCTION_NAME, Types.TO_INT);
+		super(env, Types.JAVA_LANG_INTEGER, INT_VALUE, Types.TO_INT);
 	}
 
 	@Override
@@ -23,13 +23,13 @@ public final class I_IntValue extends Function {
 
 		symb_integer = (NonNullReference) this.env.topFrame().operandStack
 				.peekRef();
-		this.conc_integer = conc_integer;
+		this.conc_integer = (Integer) conc_integer;
 	}
 
 	@Override
 	public void CALL_RESULT(int conc_int_value) {
 		IntegerExpression symb_int_value = env.heap.getField(
-				"java.lang.Integer", "$intValue", conc_integer, symb_integer,
+				Types.JAVA_LANG_INTEGER, "$intValue", conc_integer, symb_integer,
 				conc_int_value);
 
 		replaceTopBv32(symb_int_value);

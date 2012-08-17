@@ -872,7 +872,7 @@ public class ConcolicExecutionTest {
 		}
 		assertEquals(1, branch_conditions.size());
 	}
-	
+
 	@Test
 	public void test_TestCase77() {
 		ConcolicExecution concolicExecutor = new ConcolicExecution();
@@ -888,12 +888,60 @@ public class ConcolicExecutionTest {
 		}
 		assertEquals(3, branch_conditions.size());
 	}
-	
+
 	@Test
 	public void test_TestCase78() {
 		ConcolicExecution concolicExecutor = new ConcolicExecution();
 		List<BranchCondition> branch_conditions = concolicExecutor
 				.executeConcolic("org.evosuite.symbolic.TestCase78",
+						System.getProperty("java.class.path"));
+
+		for (BranchCondition branchCondition : branch_conditions) {
+			for (Constraint<?> constr : branchCondition
+					.listOfLocalConstraints()) {
+				System.out.println(constr.toString());
+			}
+		}
+		assertEquals(3, branch_conditions.size());
+	}
+
+	@Test
+	public void test_TestCase79() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase79",
+						System.getProperty("java.class.path"));
+
+		for (BranchCondition branchCondition : branch_conditions) {
+			for (Constraint<?> constr : branchCondition
+					.listOfLocalConstraints()) {
+				System.out.println(constr.toString());
+			}
+		}
+		assertEquals(3, branch_conditions.size());
+	}
+
+	@Test
+	public void test_TestCase80() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase80",
+						System.getProperty("java.class.path"));
+
+		for (BranchCondition branchCondition : branch_conditions) {
+			for (Constraint<?> constr : branchCondition
+					.listOfLocalConstraints()) {
+				System.out.println(constr.toString());
+			}
+		}
+		assertEquals(3, branch_conditions.size());
+	}
+
+	@Test
+	public void test_TestCase81() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase81",
 						System.getProperty("java.class.path"));
 
 		for (BranchCondition branchCondition : branch_conditions) {

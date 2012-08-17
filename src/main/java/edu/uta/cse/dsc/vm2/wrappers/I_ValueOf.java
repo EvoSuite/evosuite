@@ -8,10 +8,10 @@ import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 public final class I_ValueOf extends Function {
 
-	private static final String FUNCTION_NAME = "valueOf";
+	private static final String VALUE_OF = "valueOf";
 
 	public I_ValueOf(SymbolicEnvironment env) {
-		super(env, Integer.class.getName().replace(".", "/"), FUNCTION_NAME, Types.INT_TO_INTEGER);
+		super(env, Types.JAVA_LANG_INTEGER, VALUE_OF, Types.INT_TO_INTEGER);
 	}
 
 	private IntegerExpression bv32;
@@ -25,7 +25,7 @@ public final class I_ValueOf extends Function {
 	public void CALL_RESULT(Object conc_integer) {
 		NonNullReference symb_integer = (NonNullReference) env.topFrame().operandStack
 				.peekRef();
-		env.heap.putField("java.lang.Integer", "$intValue", conc_integer,
+		env.heap.putField(Types.JAVA_LANG_INTEGER, "$intValue", conc_integer,
 				symb_integer, bv32);
 	}
 
