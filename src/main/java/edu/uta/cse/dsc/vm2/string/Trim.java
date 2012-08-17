@@ -5,16 +5,16 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Trim extends StringVirtualFunction {
+public final class Trim extends StringFunction {
 
-	private static final String FUNCTION_NAME = "trim";
+	private static final String TRIM = "trim";
 
 	public Trim(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.TO_STR_DESCRIPTOR);
+		super(env, TRIM, Types.TO_STR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		this.stringReceiverExpr = operandToStringExpression(env.topFrame().operandStack
 				.peekOperand());
 	}

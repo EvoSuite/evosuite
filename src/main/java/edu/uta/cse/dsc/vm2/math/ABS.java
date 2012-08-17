@@ -1,88 +1,73 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.IntegerUnaryExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 
-public abstract class ABS extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	private ABS(String owner, String name, String desc) {
-		super(name, desc);
-	}
+public abstract class ABS {
 
-	public static class ABS_D extends ABS {
+	private static final String ABS_FUNCTION_NAME = "abs";
 
-		public ABS_D() {
-			super("java.lang.Math", "abs", MathFunction.D2D_DESCRIPTOR);
+	public final static class ABS_D extends MathFunction_D2D {
+
+		public ABS_D(SymbolicEnvironment env) {
+			super(env, ABS_FUNCTION_NAME);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, double res) {
-			RealExpression param = (RealExpression) params.pop();
-			if (param.containsSymbolicVariable()) {
-				RealUnaryExpression sym_val = new RealUnaryExpression(param,
-						Operator.ABS, res);
-				return sym_val;
-			} else
-				return null;
+		@Override
+		protected RealExpression executeFunction(double res) {
+			RealUnaryExpression sym_val = new RealUnaryExpression(
+					realExpression, Operator.ABS, res);
+			return sym_val;
 		}
 
 	}
 
-	public static class ABS_F extends ABS {
+	public final static class ABS_F extends MathFunction_F2F {
 
-		public ABS_F() {
-			super("java.lang.Math", "abs", MathFunction.F2F_DESCRIPTOR);
+		public ABS_F(SymbolicEnvironment env) {
+			super(env, ABS_FUNCTION_NAME);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, float res) {
-			RealExpression param = (RealExpression) params.pop();
-			if (param.containsSymbolicVariable()) {
-				RealUnaryExpression sym_val = new RealUnaryExpression(param,
-						Operator.ABS, (double) res);
-				return sym_val;
-			} else
-				return null;
+		@Override
+		protected RealExpression executeFunction(float res) {
+			RealUnaryExpression sym_val = new RealUnaryExpression(
+					realExpression, Operator.ABS, (double) res);
+			return sym_val;
 		}
 
 	}
 
-	public static class ABS_I extends ABS {
+	public final static class ABS_I extends MathFunction_I2I {
 
-		public ABS_I() {
-			super("java.lang.Math", "abs", MathFunction.I2I_DESCRIPTOR);
+		public ABS_I(SymbolicEnvironment env) {
+			super(env, ABS_FUNCTION_NAME);
 		}
 
-		public IntegerExpression execute(Stack<Expression<?>> params, int res) {
-			IntegerExpression param = (IntegerExpression) params.pop();
-			if (param.containsSymbolicVariable()) {
-				IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
-						param, Operator.ABS, (long) res);
-				return sym_val;
-			} else
-				return null;
+		@Override
+		protected IntegerExpression executeFunction(int res) {
+			IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
+					integerExpression, Operator.ABS, (long) res);
+			return sym_val;
 		}
 
 	}
 
-	public static class ABS_L extends ABS {
+	public final static class ABS_L extends MathFunction_L2L {
 
-		public ABS_L() {
-			super("java.lang.Math", "abs", MathFunction.L2L_DESCRIPTOR);
+		public ABS_L(SymbolicEnvironment env) {
+			super(env, ABS_FUNCTION_NAME);
 		}
 
-		public IntegerExpression execute(Stack<Expression<?>> params, long res) {
-			IntegerExpression param = (IntegerExpression) params.pop();
-			if (param.containsSymbolicVariable()) {
-				IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
-						param, Operator.ABS, res);
-				return sym_val;
-			} else
-				return null;
+		@Override
+		protected IntegerExpression executeFunction(long res) {
+			IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
+					integerExpression, Operator.ABS, res);
+			return sym_val;
 		}
 
 	}

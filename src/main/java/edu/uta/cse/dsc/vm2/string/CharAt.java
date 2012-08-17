@@ -10,18 +10,18 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class CharAt extends StringVirtualFunction {
+public final class CharAt extends StringFunction {
 
-	private static final String FUNCTION_NAME = "charAt";
+	private static final String CHAR_AT = "charAt";
 
 	private IntegerExpression indexExpr;
 
 	public CharAt(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.INT_TO_CHAR_DESCRIPTOR);
+		super(env, CHAR_AT, Types.INT_TO_CHAR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.indexExpr = bv32(it.next());
 		this.stringReceiverExpr = operandToStringExpression(it.next());
@@ -29,13 +29,16 @@ public final class CharAt extends StringVirtualFunction {
 
 	@Override
 	public void CALL_RESULT(int res) {
+
 		if (stringReceiverExpr.containsSymbolicVariable()
 				|| indexExpr.containsSymbolicVariable()) {
+
 			String intToString = Long.toString(res);
 			StringBinaryExpression strBExpr = new StringBinaryExpression(
 					stringReceiverExpr, Operator.CHARAT, indexExpr, intToString);
 			StringToIntCast castExpr = new StringToIntCast(strBExpr, (long) res);
-			replaceBv32Top(castExpr);
+			replaceTopBv32(castExpr);
+
 		} else {
 			// do nothing
 		}

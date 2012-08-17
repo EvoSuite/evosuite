@@ -9,18 +9,18 @@ import org.evosuite.symbolic.expr.StringExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Concat extends StringVirtualFunction {
+public final class Concat extends StringFunction {
 
-	private static final String FUNCTION_NAME = "concat";
+	private static final String CONCAT = "concat";
 
 	private StringExpression strExpr;
 
 	public Concat(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.STR_TO_STR_DESCRIPTOR);
+		super(env, CONCAT, Types.STR_TO_STR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.strExpr = operandToStringExpression(it.next());
 		this.stringReceiverExpr = operandToStringExpression(it.next());

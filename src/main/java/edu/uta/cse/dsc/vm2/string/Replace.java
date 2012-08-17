@@ -13,12 +13,12 @@ import org.evosuite.symbolic.expr.StringMultipleExpression;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public abstract class Replace extends StringVirtualFunction {
+public abstract class Replace extends StringFunction {
 
-	private static final String FUNCTION_NAME = "replace";
+	private static final String REPLACE = "replace";
 
 	public Replace(SymbolicEnvironment env, String desc) {
-		super(env, FUNCTION_NAME, desc);
+		super(env, REPLACE, desc);
 	}
 
 	public static final class Replace_C extends Replace {
@@ -27,11 +27,11 @@ public abstract class Replace extends StringVirtualFunction {
 		private IntegerExpression newCharExpr;
 
 		public Replace_C(SymbolicEnvironment env) {
-			super(env, StringFunction.CHAR_CHAR_TO_STR_DESCRIPTOR);
+			super(env, Types.CHAR_CHAR_TO_STR_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(String receiver) {
+		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.newCharExpr = bv32(it.next());
 			this.oldCharExpr = bv32(it.next());
@@ -62,11 +62,11 @@ public abstract class Replace extends StringVirtualFunction {
 		private StringExpression newStringExpr;
 
 		public Replace_CS(SymbolicEnvironment env) {
-			super(env, StringFunction.CHARSEQ_CHARSEQ_TO_STR_DESCRIPTOR);
+			super(env, Types.CHARSEQ_CHARSEQ_TO_STR_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(String receiver) {
+		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.newStringExpr = operandToStringExpression(it.next());
 			this.oldStringExpr = operandToStringExpression(it.next());

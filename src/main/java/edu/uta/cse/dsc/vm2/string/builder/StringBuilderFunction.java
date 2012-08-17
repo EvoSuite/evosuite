@@ -1,20 +1,19 @@
 package edu.uta.cse.dsc.vm2.string.builder;
 
-import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.JAVA_LANG_STRING_BUILDER;
 import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
 
 import org.evosuite.symbolic.expr.StringBuilderExpression;
 import org.evosuite.symbolic.expr.StringExpression;
 
+import edu.uta.cse.dsc.vm2.Function;
 import edu.uta.cse.dsc.vm2.NonNullReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
-import edu.uta.cse.dsc.vm2.string.VirtualFunction;
 
-public abstract class StringBuilderVirtualFunction extends VirtualFunction {
+public abstract class StringBuilderFunction extends Function {
 
-	public StringBuilderVirtualFunction(SymbolicEnvironment env, String name,
+	public StringBuilderFunction(SymbolicEnvironment env, String name,
 			String desc) {
-		super(env, StringBuilderConstants.JAVA_LANG_STRING_BUILDER, name, desc);
+		super(env, JAVA_LANG_STRING_BUILDER, name, desc);
 	}
 
 	@Override
@@ -27,11 +26,15 @@ public abstract class StringBuilderVirtualFunction extends VirtualFunction {
 			return;
 		}
 
-		INVOKEVIRTUAL((StringBuilder) receiver);
+		INVOKEVIRTUAL_StringBuilder((StringBuilder) receiver);
 	}
 
 	protected StringBuilderExpression stringBuilderExpr;
+
 	protected NonNullReference symb_receiver;
+
+	public static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
+			.getName().replace(".", "/");
 
 	/**
 	 * This method should not consume the symbolic arguments in the stack
@@ -41,14 +44,17 @@ public abstract class StringBuilderVirtualFunction extends VirtualFunction {
 	 * @param receiver
 	 * 
 	 */
-	protected abstract void INVOKEVIRTUAL(StringBuilder receiver);
+	protected void INVOKEVIRTUAL_StringBuilder(StringBuilder receiver) {
+		/* STUB */
+	}
 
 	protected StringBuilderExpression getStringBuilderExpression(
 			StringBuilder conc_receiver, NonNullReference symb_receiver) {
 
 		StringExpression strExpr = this.env.heap.getField(
-				JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
-				conc_receiver, symb_receiver, conc_receiver.toString());
+				StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+				STRING_BUILDER_CONTENTS, conc_receiver, symb_receiver,
+				conc_receiver.toString());
 
 		if (!(strExpr instanceof StringBuilderExpression)) {
 			return new StringBuilderExpression(strExpr);

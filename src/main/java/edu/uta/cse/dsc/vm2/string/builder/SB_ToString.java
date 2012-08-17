@@ -4,20 +4,20 @@ import org.evosuite.symbolic.expr.StringExpression;
 
 import edu.uta.cse.dsc.vm2.NonNullReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
-import edu.uta.cse.dsc.vm2.string.StringFunction;
+import edu.uta.cse.dsc.vm2.string.Types;
 
-public final class SB_ToString extends StringBuilderVirtualFunction {
+public final class SB_ToString extends StringBuilderFunction {
 
 	private static final String FUNCTION_NAME = "toString";
 
 	public SB_ToString(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.TO_STR_DESCRIPTOR);
+		super(env, FUNCTION_NAME, Types.TO_STR_DESCRIPTOR);
 	}
 
 	private StringBuilder conc_str_builder;
 
 	@Override
-	protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+	protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 		if (conc_receiver == null)
 			return;
 		// the reference can not be null at this point

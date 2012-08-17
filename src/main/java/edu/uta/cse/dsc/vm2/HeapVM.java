@@ -579,10 +579,13 @@ public final class HeapVM extends AbstractVM {
 		 * POST: arrayref (delayed)
 		 */
 
-		// discard operand stack
-		env.topFrame().operandStack.popBv32();
-		for (int i = 1; i < nrDimensions; i++) {
-			env.topFrame().operandStack.popBv32();
+		// push negartive length constraints
+		for (int i = 0; i < nrDimensions; i++) {
+			IntegerExpression symb_length = env.topFrame().operandStack.popBv32();
+			int conc_length = ((Long)symb_length.getConcreteValue()).intValue();
+			if (negativeArrayLengthViolation(conc_length, symb_length)) {
+				return;
+			}
 		}
 
 		// push delayed object

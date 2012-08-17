@@ -1,28 +1,23 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealBinaryExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 
-public class ATAN2 extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	public ATAN2() {
-		super("atan2", MathFunction.DD2D_DESCRIPTOR);
+public final class ATAN2 extends MathFunction_DD2D {
+
+	private static final String ATAN2 = "atan2";
+
+	public ATAN2(SymbolicEnvironment env) {
+		super(env, ATAN2);
 	}
 
-	public RealExpression execute(Stack<Expression<?>> params, double res) {
-		RealExpression right = (RealExpression) params.pop();
-		RealExpression left = (RealExpression) params.pop();
-		if (left.containsSymbolicVariable() || right.containsSymbolicVariable()) {
-			Operator op = Operator.ATAN2;
-			return new RealBinaryExpression(left, op, right, res);
-		} else {
-			return null;
-		}
-
+	@Override
+	protected RealExpression executeFunction(double res) {
+		Operator op = Operator.ATAN2;
+		return new RealBinaryExpression(left, op, right, res);
 	}
 
 }

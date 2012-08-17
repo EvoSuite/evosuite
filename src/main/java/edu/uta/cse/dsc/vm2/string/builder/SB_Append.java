@@ -1,6 +1,5 @@
 package edu.uta.cse.dsc.vm2.string.builder;
 
-import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.JAVA_LANG_STRING_BUILDER;
 import static edu.uta.cse.dsc.vm2.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
 
 import java.util.Iterator;
@@ -18,9 +17,9 @@ import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.Reference;
 import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
-import edu.uta.cse.dsc.vm2.string.StringFunction;
+import edu.uta.cse.dsc.vm2.string.Types;
 
-public abstract class SB_Append extends StringBuilderVirtualFunction {
+public abstract class SB_Append extends StringBuilderFunction {
 
 	private static final String FUNCTION_NAME = "append";
 	protected static final String NULL_STRING = "null";
@@ -35,11 +34,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_C extends SB_Append {
 
 		public Append_C(SymbolicEnvironment env) {
-			super(env, StringFunction.CHAR_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.CHAR_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -67,11 +66,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_S extends SB_Append {
 
 		public Append_S(SymbolicEnvironment env) {
-			super(env, StringFunction.STR_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.STR_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -95,11 +94,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_I extends SB_Append {
 
 		public Append_I(SymbolicEnvironment env) {
-			super(env, StringFunction.INT_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.INT_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -122,11 +121,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_L extends SB_Append {
 
 		public Append_L(SymbolicEnvironment env) {
-			super(env, StringFunction.LONG_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.LONG_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -149,11 +148,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_B extends SB_Append {
 
 		public Append_B(SymbolicEnvironment env) {
-			super(env, StringFunction.BOOLEAN_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.BOOLEAN_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -176,11 +175,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_F extends SB_Append {
 
 		public Append_F(SymbolicEnvironment env) {
-			super(env, StringFunction.FLOAT_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.FLOAT_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -203,11 +202,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_D extends SB_Append {
 
 		public Append_D(SymbolicEnvironment env) {
-			super(env, StringFunction.DOUBLE_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.DOUBLE_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -230,11 +229,11 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public static final class Append_O extends SB_Append {
 
 		public Append_O(SymbolicEnvironment env) {
-			super(env, StringFunction.OBJECT_TO_STRBUILDER_DESCRIPTOR);
+			super(env, Types.OBJECT_TO_STRBUILDER_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(StringBuilder conc_receiver) {
+		protected void INVOKEVIRTUAL_StringBuilder(StringBuilder conc_receiver) {
 			/**
 			 * Gather symbolic arguments
 			 */
@@ -264,7 +263,7 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 	public void CALL_RESULT(Object res) {
 		// get from symbolic heap (or create if null)
 		StringExpression strExpr = this.env.heap
-				.getField(JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
+				.getField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
 						conc_str_builder, symb_receiver,
 						conc_str_builder_to_string_pre);
 
@@ -279,7 +278,7 @@ public abstract class SB_Append extends StringBuilderVirtualFunction {
 		stringBuilderExpr.append(strExprToAppend);
 
 		// store to symbolic heap
-		env.heap.putField(JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
+		env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
 				conc_str_builder, symb_receiver, stringBuilderExpr);
 
 		this.symb_receiver = null;

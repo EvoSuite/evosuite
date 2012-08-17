@@ -1,60 +1,40 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealBinaryExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 
-public abstract class NextAfter extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	private NextAfter(String owner, String name, String desc) {
-		super(name, desc);
-	}
+public abstract class NextAfter  {
 
-	public static class NextAfter_D extends NextAfter {
+	private static final String NEXT_AFTER = "nextAfter";
 
-		public NextAfter_D() {
-			super("java.lang.Math", "nextAfter",
-					MathFunction.DD2D_DESCRIPTOR);
+	public final static class NextAfter_D extends MathFunction_DD2D {
+
+		public NextAfter_D(SymbolicEnvironment env) {
+			super(env, NEXT_AFTER);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, double res) {
-			RealExpression right = (RealExpression) params.pop();
-			RealExpression left = (RealExpression) params.pop();
-			if (left.containsSymbolicVariable()
-					|| right.containsSymbolicVariable()) {
-				Operator op = Operator.NEXTAFTER;
-				return new RealBinaryExpression(left, op, right, res);
-			} else {
-				return null;
-			}
-
+		@Override
+		protected RealExpression executeFunction(double res) {
+			Operator op = Operator.NEXTAFTER;
+			return new RealBinaryExpression(left, op, right, res);
 		}
 
 	}
 
-	public static class NextAfter_F extends NextAfter {
+	public static class NextAfter_F extends MathFunction_FD2F {
 
-		public NextAfter_F() {
-			super("java.lang.Math", "nextAfter",
-					MathFunction.FD2F_DESCRIPTOR);
+		public NextAfter_F(SymbolicEnvironment env) {
+			super(env, NEXT_AFTER);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, float res) {
-			RealExpression right = (RealExpression) params.pop();
-			RealExpression left = (RealExpression) params.pop();
-			if (left.containsSymbolicVariable()
-					|| right.containsSymbolicVariable()) {
-				Operator op = Operator.NEXTAFTER;
-				return new RealBinaryExpression(left, op, right, (double) res);
-			} else {
-				return null;
-			}
-
+		@Override
+		protected RealExpression executeFunction(float res) {
+			Operator op = Operator.NEXTAFTER;
+			return new RealBinaryExpression(left, op, right, (double) res);
 		}
-
 	}
 
 }

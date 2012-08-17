@@ -1,26 +1,23 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 
-public class LOG10 extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	public LOG10() {
-		super("log10", MathFunction.D2D_DESCRIPTOR);
+public final class LOG10 extends MathFunction_D2D {
+
+	private static final String LOG10 = "log10";
+
+	public LOG10(SymbolicEnvironment env) {
+		super(env, LOG10);
 	}
 
-	public RealExpression execute(Stack<Expression<?>> params, double res) {
-		RealExpression realExpression = (RealExpression) params.pop();
-		if (realExpression.containsSymbolicVariable()) {
-			Operator op = Operator.LOG10;
-			return new RealUnaryExpression(realExpression, op, res);
-		} else
-			return null;
-
+	@Override
+	protected RealExpression executeFunction(double res) {
+		Operator op = Operator.LOG10;
+		return new RealUnaryExpression(realExpression, op, res);
 	}
 
 }

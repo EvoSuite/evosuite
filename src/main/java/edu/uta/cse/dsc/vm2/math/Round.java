@@ -1,56 +1,44 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealToIntegerCast;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 
-public abstract class Round extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	private Round(String owner, String name, String desc) {
-		super(name, desc);
-	}
+public abstract class Round  {
 
-	public static class Round_D extends Round {
+	private static final String ROUND = "round";
 
-		public Round_D() {
-			super("java.lang.Math", "round", MathFunction.D2L_DESCRIPTOR);
+	public static class Round_D extends MathFunction_D2L {
+
+		public Round_D(SymbolicEnvironment env) {
+			super(env, ROUND);
 		}
 
-		public IntegerExpression execute(Stack<Expression<?>> params, long res) {
-			RealExpression realExpression = (RealExpression) params.pop();
-			if (realExpression.containsSymbolicVariable()) {
-				Operator op = Operator.ROUND;
-				RealUnaryExpression realUnaryExpression = new RealUnaryExpression(
-						realExpression, op, (double) res);
-				return new RealToIntegerCast(realUnaryExpression, res);
-			} else
-				return null;
-
+		@Override
+		protected IntegerExpression executeFunction(long res) {
+			Operator op = Operator.ROUND;
+			RealUnaryExpression realUnaryExpression = new RealUnaryExpression(
+					realExpression, op, (double) res);
+			return new RealToIntegerCast(realUnaryExpression, res);
 		}
 
 	}
 
-	public static class Round_F extends Round {
+	public static class Round_F extends MathFunction_F2I {
 
-		public Round_F() {
-			super("java.lang.Math", "round", MathFunction.F2I_DESCRIPTOR);
+		public Round_F(SymbolicEnvironment env) {
+			super(env, ROUND);
 		}
 
-		public IntegerExpression execute(Stack<Expression<?>> params, int res) {
-			RealExpression realExpression = (RealExpression) params.pop();
-			if (realExpression.containsSymbolicVariable()) {
-				Operator op = Operator.ROUND;
-				RealUnaryExpression realUnaryExpression = new RealUnaryExpression(
-						realExpression, op, (double) res);
-				return new RealToIntegerCast(realUnaryExpression, (long) res);
-			} else
-				return null;
-
+		@Override
+		protected IntegerExpression executeFunction(int res) {
+			Operator op = Operator.ROUND;
+			RealUnaryExpression realUnaryExpression = new RealUnaryExpression(
+					realExpression, op, (double) res);
+			return new RealToIntegerCast(realUnaryExpression, (long) res);
 		}
 
 	}

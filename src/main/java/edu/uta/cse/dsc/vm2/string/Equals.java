@@ -13,17 +13,17 @@ import edu.uta.cse.dsc.vm2.Reference;
 import edu.uta.cse.dsc.vm2.StringReference;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Equals extends StringVirtualFunction {
+public final class Equals extends StringFunction {
 
-	private static final String FUNCTION_NAME = "equals";
+	private static final String EQUALS = "equals";
 	private StringExpression strExpr;
 
 	public Equals(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.OBJECT_TO_BOOL_DESCRIPTOR);
+		super(env, EQUALS, Types.OBJECT_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 	
 		Reference ref = ref(it.next());
@@ -50,7 +50,7 @@ public final class Equals extends StringVirtualFunction {
 					stringReceiverExpr, Operator.EQUALS, strExpr, (long) conV);
 			StringToIntCast castExpr = new StringToIntCast(strBExpr,
 					(long) conV);
-			this.replaceBv32Top(castExpr);
+			this.replaceTopBv32(castExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

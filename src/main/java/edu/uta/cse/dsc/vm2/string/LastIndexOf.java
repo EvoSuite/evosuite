@@ -15,24 +15,24 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public abstract class LastIndexOf extends StringVirtualFunction {
+public abstract class LastIndexOf extends StringFunction {
 
-	private static final String FUNCTION_NAME = "lastIndexOf";
+	private static final String LAST_INDEX_OF = "lastIndexOf";
 
 	public LastIndexOf(SymbolicEnvironment env, String desc) {
-		super(env, FUNCTION_NAME, desc);
+		super(env, LAST_INDEX_OF, desc);
 	}
 
-	public static class LastIndexOf_C extends LastIndexOf {
+	public final static class LastIndexOf_C extends LastIndexOf {
 
 		private IntegerExpression charExpr;
 
 		public LastIndexOf_C(SymbolicEnvironment env) {
-			super(env, StringFunction.INT_TO_INT_DESCRIPTOR);
+			super(env, Types.INT_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(String receiver) {
+		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.charExpr = bv32(it.next());
 			this.stringReceiverExpr = operandToStringExpression(it.next());
@@ -47,7 +47,7 @@ public abstract class LastIndexOf extends StringVirtualFunction {
 						Integer.toString(res));
 				StringToIntCast castExpr = new StringToIntCast(strBExpr,
 						(long) res);
-				this.replaceBv32Top(castExpr);
+				this.replaceTopBv32(castExpr);
 			} else {
 				// do nothing (concrete value only)
 			}
@@ -55,17 +55,17 @@ public abstract class LastIndexOf extends StringVirtualFunction {
 		}
 	}
 
-	public static class LastIndexOf_CI extends LastIndexOf {
+	public final static class LastIndexOf_CI extends LastIndexOf {
 
 		private IntegerExpression charExpr;
 		private IntegerExpression fromIndexExpr;
 
 		public LastIndexOf_CI(SymbolicEnvironment env) {
-			super(env, StringFunction.INT_INT_TO_INT_DESCRIPTOR);
+			super(env, Types.INT_INT_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(String receiver) {
+		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
 			this.charExpr = bv32(it.next());
@@ -86,7 +86,7 @@ public abstract class LastIndexOf extends StringVirtualFunction {
 
 				StringToIntCast castExpr = new StringToIntCast(strTExpr,
 						(long) res);
-				this.replaceBv32Top(castExpr);
+				this.replaceTopBv32(castExpr);
 			} else {
 				// do nothing (concrete value only)
 			}
@@ -94,16 +94,16 @@ public abstract class LastIndexOf extends StringVirtualFunction {
 		}
 	}
 
-	public static class LastIndexOf_S extends LastIndexOf {
+	public final static class LastIndexOf_S extends LastIndexOf {
 
 		private StringExpression strExpr;
 
 		public LastIndexOf_S(SymbolicEnvironment env) {
-			super(env, StringFunction.STR_TO_INT_DESCRIPTOR);
+			super(env, Types.STR_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(String receiver) {
+		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
 			this.strExpr = operandToStringExpression(it.next());
@@ -120,7 +120,7 @@ public abstract class LastIndexOf extends StringVirtualFunction {
 						Integer.toString(res));
 				StringToIntCast castExpr = new StringToIntCast(strBExpr,
 						(long) res);
-				this.replaceBv32Top(castExpr);
+				this.replaceTopBv32(castExpr);
 			} else {
 				// do nothing (concrete value only)
 			}
@@ -128,17 +128,17 @@ public abstract class LastIndexOf extends StringVirtualFunction {
 		}
 	}
 
-	public static class LastIndexOf_SI extends LastIndexOf {
+	public final static class LastIndexOf_SI extends LastIndexOf {
 
 		private StringExpression strExpr;
 		private IntegerExpression fromIndexExpr;
 
 		public LastIndexOf_SI(SymbolicEnvironment env) {
-			super(env, StringFunction.STR_INT_TO_INT_DESCRIPTOR);
+			super(env, Types.STR_INT_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL(String receiver) {
+		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
 			this.strExpr = operandToStringExpression(it.next());
@@ -158,7 +158,7 @@ public abstract class LastIndexOf extends StringVirtualFunction {
 						Integer.toString(res));
 				StringToIntCast castExpr = new StringToIntCast(strTExpr,
 						(long) res);
-				this.replaceBv32Top(castExpr);
+				this.replaceTopBv32(castExpr);
 			} else {
 				// do nothing (concrete value only)
 			}

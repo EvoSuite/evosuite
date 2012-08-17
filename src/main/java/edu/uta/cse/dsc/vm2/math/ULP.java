@@ -1,50 +1,39 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealUnaryExpression;
 
-public abstract class ULP extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	private ULP(String owner, String name, String desc) {
-		super(name, desc);
-	}
+public abstract class ULP {
 
-	public static class ULP_D extends ULP {
+	private static final String FUNCTION_ULP = "ulp";
 
-		public ULP_D() {
-			super("java.lang.Math", "ulp", MathFunction.D2D_DESCRIPTOR);
+	public final static class ULP_D extends MathFunction_D2D {
+
+		public ULP_D(SymbolicEnvironment env) {
+			super(env, FUNCTION_ULP);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, double res) {
-			RealExpression realExpression = (RealExpression) params.pop();
-			if (realExpression.containsSymbolicVariable()) {
-				Operator op = Operator.ULP;
-				return new RealUnaryExpression(realExpression, op, res);
-			} else
-				return null;
-
+		@Override
+		protected RealExpression executeFunction(double res) {
+			Operator op = Operator.ULP;
+			return new RealUnaryExpression(realExpression, op, res);
 		}
 
 	}
 
-	public static class ULP_F extends ULP {
+	public final static class ULP_F extends MathFunction_F2F {
 
-		public ULP_F() {
-			super("java.lang.Math", "ulp", MathFunction.F2F_DESCRIPTOR);
+		public ULP_F(SymbolicEnvironment env) {
+			super(env, FUNCTION_ULP);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, float res) {
-			RealExpression realExpression = (RealExpression) params.pop();
-			if (realExpression.containsSymbolicVariable()) {
-				Operator op = Operator.ULP;
-				return new RealUnaryExpression(realExpression, op, (double) res);
-			} else
-				return null;
-
+		@Override
+		protected RealExpression executeFunction(float res) {
+			Operator op = Operator.ULP;
+			return new RealUnaryExpression(realExpression, op, (double) res);
 		}
 
 	}

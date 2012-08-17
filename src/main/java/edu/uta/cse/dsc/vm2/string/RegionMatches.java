@@ -10,12 +10,15 @@ import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringMultipleComparison;
 import org.evosuite.symbolic.expr.StringToIntCast;
 
+import edu.uta.cse.dsc.vm2.NullReference;
 import edu.uta.cse.dsc.vm2.Operand;
+import edu.uta.cse.dsc.vm2.Reference;
+import edu.uta.cse.dsc.vm2.ReferenceOperand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class RegionMatches extends StringVirtualFunction {
+public final class RegionMatches extends StringFunction {
 
-	private static final String FUNCTION_NAME = "regionMatches";
+	private static final String REGION_MATCHES = "regionMatches";
 
 	private IntegerExpression lenExpr;
 	private IntegerExpression ooffsetExpr;
@@ -24,13 +27,8 @@ public final class RegionMatches extends StringVirtualFunction {
 	private IntegerExpression ignoreCaseExpr;
 
 	public RegionMatches(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME,
-				StringFunction.BOOL_INT_STR_INT_INT_TO_BOOL_DESCRIPTOR);
-	}
-
-	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
-		/* STUB */
+		super(env, REGION_MATCHES,
+				Types.BOOL_INT_STR_INT_INT_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
@@ -41,7 +39,13 @@ public final class RegionMatches extends StringVirtualFunction {
 		otherExpr = operandToStringExpression(it.next());
 		toffsetExpr = bv32(it.next());
 		ignoreCaseExpr = bv32(it.next());
-		stringReceiverExpr = operandToStringExpression(it.next());
+		Operand receiver_operand = it.next();
+		Reference receiver_ref = ((ReferenceOperand) receiver_operand)
+				.getReference();
+		if (receiver_ref instanceof NullReference) {
+			return;
+		}
+		stringReceiverExpr = operandToStringExpression(receiver_operand);
 
 	}
 
@@ -66,7 +70,7 @@ public final class RegionMatches extends StringVirtualFunction {
 					stringReceiverExpr, Operator.REGIONMATCHES, otherExpr,
 					other, (long) conV);
 			StringToIntCast castExpr = new StringToIntCast(strComp, (long) conV);
-			this.replaceBv32Top(castExpr);
+			this.replaceTopBv32(castExpr);
 		}
 	}
 

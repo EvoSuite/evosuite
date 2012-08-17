@@ -10,17 +10,17 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import edu.uta.cse.dsc.vm2.Operand;
 import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-public final class Contains extends StringVirtualFunction {
+public final class Contains extends StringFunction {
 
 	private StringExpression strExpr;
-	private static final String FUNCTION_NAME = "contains";
+	private static final String CONTAINS = "contains";
 
 	public Contains(SymbolicEnvironment env) {
-		super(env, FUNCTION_NAME, StringFunction.CHARSEQ_TO_BOOL_DESCRIPTOR);
+		super(env, CONTAINS, Types.CHARSEQ_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL(String receiver) {
+	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.strExpr = operandToStringExpression(it.next());
 		this.stringReceiverExpr = operandToStringExpression(it.next());
@@ -40,7 +40,7 @@ public final class Contains extends StringVirtualFunction {
 				StringToIntCast castExpr = new StringToIntCast(strComp,
 						(long) concrete_value);
 
-				replaceBv32Top(castExpr);
+				replaceTopBv32(castExpr);
 			}
 		}
 	}

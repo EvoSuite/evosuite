@@ -1,57 +1,41 @@
 package edu.uta.cse.dsc.vm2.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.RealBinaryExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 
-public abstract class SCALB extends MathFunction {
+import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
-	private SCALB(String owner, String name, String desc) {
-		super(name, desc);
-	}
+public abstract class SCALB {
 
-	public static class SCALB_D extends SCALB {
+	public static class SCALB_D extends MathFunction_DI2D {
 
-		public SCALB_D() {
-			super("java.lang.Math", "scalb",
-					MathFunction.DI2D_DESCRIPTOR);
+		public SCALB_D(SymbolicEnvironment env) {
+			super(env, SCALB);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, double res) {
-			IntegerExpression right = (IntegerExpression) params.pop();
-			RealExpression left = (RealExpression) params.pop();
-			if (left.containsSymbolicVariable()
-					|| right.containsSymbolicVariable()) {
-				RealBinaryExpression sym_val = new RealBinaryExpression(left,
-						Operator.SCALB, right, res);
-				return sym_val;
-			} else
-				return null;
+		@Override
+		protected RealExpression executeFunction(double res) {
+			RealBinaryExpression sym_val = new RealBinaryExpression(left,
+					Operator.SCALB, right, res);
+			return sym_val;
 		}
 
 	}
 
-	public static class SCALB_F extends SCALB {
+	private static final String SCALB = "scalb";
 
-		public SCALB_F() {
-			super("java.lang.Math", "scalb",
-					MathFunction.FI2F_DESCRIPTOR);
+	public static class SCALB_F extends MathFunction_FI2F {
+
+		public SCALB_F(SymbolicEnvironment env) {
+			super(env, SCALB);
 		}
 
-		public RealExpression execute(Stack<Expression<?>> params, float res) {
-			IntegerExpression right = (IntegerExpression) params.pop();
-			RealExpression left = (RealExpression) params.pop();
-			if (left.containsSymbolicVariable()
-					|| right.containsSymbolicVariable()) {
-				RealBinaryExpression sym_val = new RealBinaryExpression(left,
-						Operator.SCALB, right, (double) res);
-				return sym_val;
-			} else
-				return null;
+		@Override
+		protected RealExpression executeFunction(float res) {
+			RealBinaryExpression sym_val = new RealBinaryExpression(left,
+					Operator.SCALB, right, (double) res);
+			return sym_val;
 		}
 
 	}
