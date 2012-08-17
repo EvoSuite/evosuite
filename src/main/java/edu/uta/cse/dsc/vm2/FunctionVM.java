@@ -64,8 +64,14 @@ import edu.uta.cse.dsc.vm2.string.ValueOf;
 import edu.uta.cse.dsc.vm2.string.builder.SB_Append;
 import edu.uta.cse.dsc.vm2.string.builder.SB_Init;
 import edu.uta.cse.dsc.vm2.string.builder.SB_ToString;
+import edu.uta.cse.dsc.vm2.wrappers.D_DoubleValue;
+import edu.uta.cse.dsc.vm2.wrappers.D_ValueOf;
+import edu.uta.cse.dsc.vm2.wrappers.F_FloatValue;
+import edu.uta.cse.dsc.vm2.wrappers.F_ValueOf;
 import edu.uta.cse.dsc.vm2.wrappers.I_IntValue;
 import edu.uta.cse.dsc.vm2.wrappers.I_ValueOf;
+import edu.uta.cse.dsc.vm2.wrappers.L_LongValue;
+import edu.uta.cse.dsc.vm2.wrappers.L_ValueOf;
 import gnu.trove.map.hash.THashMap;
 
 public final class FunctionVM extends AbstractVM {
@@ -111,7 +117,19 @@ public final class FunctionVM extends AbstractVM {
 		// java.lang.Integer
 		addFunctionToTable(new I_ValueOf(env));
 		addFunctionToTable(new I_IntValue(env));
+		
+		// java.lang.Long
+		addFunctionToTable(new L_ValueOf(env));
+		addFunctionToTable(new L_LongValue(env));
+		
+		// java.lang.Float
+		addFunctionToTable(new F_ValueOf(env));
+		addFunctionToTable(new F_FloatValue(env));
 
+		// java.lang.Double
+		addFunctionToTable(new D_ValueOf(env));
+		addFunctionToTable(new D_DoubleValue(env));
+		
 		// java.lang.Math
 		addFunctionToTable(new ABS.ABS_I(env));
 		addFunctionToTable(new ABS.ABS_L(env));

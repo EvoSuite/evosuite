@@ -3,26 +3,27 @@ package org.evosuite.symbolic;
 import org.evosuite.symbolic.dsc.ConcolicMarker;
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
-public class TestCase78 {
+public class TestCase79 {
 
 	/**
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		int int0 = ConcolicMarker.mark(10, "int0");
+		long long0 = ConcolicMarker.mark(10L, "long0");
 		// box integer
-		Integer integer0 = box(int0);
+		Long long_instance0 = box(long0);
 		// unbox integer
-		int int1 = unbox(integer0);
-		int int2 = 10;
-		checkEquals(int1, int2);
+		long long1 = unbox(long_instance0);
+		long long2 = 10L;
+		checkEquals(long1, long2);
 	}
 
-	public static Integer box(Integer i) {
+	public static Long box(Long i) {
 		return i;
 	}
 
-	public static int unbox(int i) {
+	public static long unbox(long i) {
 		return i;
 	}
+	
 }
