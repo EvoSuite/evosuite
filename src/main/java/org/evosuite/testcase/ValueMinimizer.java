@@ -159,6 +159,7 @@ public class ValueMinimizer implements TestVisitor {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> void binarySearch(NumericalPrimitiveStatement<T> statement) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> zero = (PrimitiveStatement<T>) PrimitiveStatement.getPrimitiveStatement(statement.tc,
@@ -178,6 +179,29 @@ public class ValueMinimizer implements TestVisitor {
 			if (lastValue != null && lastValue.equals(newValue)) {
 				break;
 			}
+			if (lastValue instanceof Double) {
+				double oldVal = Math.abs((Double) lastValue);
+				if (oldVal < 1.0) {
+					newValue = (T) new Double(0.0);
+					statement.setValue(newValue);
+					if (!objective.isNotWorse()) {
+						statement.setValue(lastValue);
+					}
+					break;
+				}
+			}
+			if (lastValue instanceof Float) {
+				double oldVal = Math.abs((Float) lastValue);
+				if (oldVal < 1.0F) {
+					newValue = (T) new Float(0.0F);
+					statement.setValue(newValue);
+					if (!objective.isNotWorse()) {
+						statement.setValue(lastValue);
+					}
+					break;
+				}
+			}
+
 			lastValue = newValue;
 			logger.info("Trying " + statement.getValue() + " " + min + "/" + max + " - "
 			        + statement.getClass());
