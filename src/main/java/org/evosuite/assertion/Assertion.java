@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,10 +28,9 @@ import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Abstract class of an executable code assertion
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class Assertion implements Serializable {
@@ -48,7 +47,7 @@ public abstract class Assertion implements Serializable {
 	protected StatementInterface statement;
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(Assertion.class);
+	protected static final Logger logger = LoggerFactory.getLogger(Assertion.class);
 
 	/** {@inheritDoc} */
 	@Override
@@ -85,8 +84,9 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Setter for statement to which assertion is added
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
 	public void setStatement(StatementInterface statement) {
 		this.statement = statement;
@@ -94,7 +94,7 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Getter for statement to which assertion is added
-	 *
+	 * 
 	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
 	public StatementInterface getStatement() {
@@ -103,7 +103,7 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Getter for source variable
-	 *
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getSource() {
@@ -112,7 +112,7 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Getter for value object
-	 *
+	 * 
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public Object getValue() {
@@ -121,14 +121,14 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * This method returns the Java Code
-	 *
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public abstract String getCode();
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return a copy of the assertion
 	 */
 	@Override
@@ -138,8 +138,9 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
-	 *
-	 * @param newTestCase a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param newTestCase
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.assertion.Assertion} object.
 	 */
 	public Assertion clone(TestCase newTestCase) {
@@ -148,16 +149,18 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Return a copy of the assertion, which is valid in newTestCase
-	 *
-	 * @param newTestCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param offset a int.
+	 * 
+	 * @param newTestCase
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param offset
+	 *            a int.
 	 * @return a {@link org.evosuite.assertion.Assertion} object.
 	 */
 	public abstract Assertion copy(TestCase newTestCase, int offset);
 
 	/**
 	 * Determine if assertion holds in current scope
-	 *
+	 * 
 	 * @param scope
 	 *            The scope of the test case execution
 	 * @return a boolean.
@@ -166,7 +169,7 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Return all the variables that are part of this assertion
-	 *
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<VariableReference> getReferencedVariables() {
@@ -177,7 +180,7 @@ public abstract class Assertion implements Serializable {
 
 	/**
 	 * Self-check
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isValid() {
