@@ -51,8 +51,6 @@ import org.slf4j.LoggerFactory;
  */
 public class Properties {
 
-	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
-
 	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
@@ -522,6 +520,12 @@ public class Properties {
 	/** Constant <code>LOG_GOALS=false</code> */
 	@Parameter(key = "log_goals", group = "Output", description = "Create a CSV file for each individual evolution")
 	public static boolean LOG_GOALS = false;
+
+	@Parameter(key = "log.level", group = "Output", description = "Verbosity level of logger")
+	public static String LOG_LEVEL = "warn";
+
+	@Parameter(key = "log.target", group = "Output", description = "Target logger - all logging if not set")
+	public static String LOG_TARGET = null;
 
 	/** Constant <code>MINIMIZE=true</code> */
 	@Parameter(key = "minimize", group = "Output", description = "Minimize test suite after generation")
@@ -1697,4 +1701,9 @@ public class Properties {
 			}
 		}
 	}
+
+	static {
+		LoggingUtils.checkAndSetLogLevel();
+	}
+
 }
