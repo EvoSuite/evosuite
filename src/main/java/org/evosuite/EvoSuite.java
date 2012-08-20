@@ -218,9 +218,6 @@ public class EvoSuite {
 			LoggingUtils.getEvoLogger().info("* Setting up virtual FS for testing");
 			cmdLine.add("-Dvirtual_fs=true");
 		}
-		if (Properties.REPLACE_CALLS) { // TODO perhaps just hand over all properties to client vm? ask Gordon
-			cmdLine.add("-Dreplace_calls=true");
-		}
 
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
@@ -269,11 +266,6 @@ public class EvoSuite {
 		Properties.getInstance();// should force the load, just to be sure
 		Properties.TARGET_CLASS = target;
 		Properties.PROCESS_COMMUNICATION_PORT = port;
-		if (cmdLine.contains("-Dprint_to_system=true")) {
-			Properties.PRINT_TO_SYSTEM = true;
-		} else {
-			Properties.PRINT_TO_SYSTEM = false;
-		}
 
 		/*
 		 * The use of "assertions" in the client is pretty tricky, as those properties need to be transformed into JVM options before starting the
@@ -450,11 +442,6 @@ public class EvoSuite {
 		Properties.getInstance();// should force the load, just to be sure
 		Properties.TARGET_CLASS = targetClass;
 		Properties.PROCESS_COMMUNICATION_PORT = port;
-		if (cmdLine.contains("-Dprint_to_system=true")) {
-			Properties.PRINT_TO_SYSTEM = true;
-		} else {
-			Properties.PRINT_TO_SYSTEM = false;
-		}
 
 		LoggingUtils logUtils = new LoggingUtils();
 
