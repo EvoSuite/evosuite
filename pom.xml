@@ -348,7 +348,7 @@
 		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
 			</repository> -->
 	</repositories>
-
+ 
 	<build>
 		<plugins>
 			<!-- Generate startings scripts for different platforms -->
@@ -496,9 +496,9 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.7.2</version>
+				<version>2.12.2</version>
 				<configuration>
-					<skipTests>true</skipTests>
+					<skipTests>${skipTests}</skipTests>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -561,6 +561,14 @@
 					      <artifactId>maven-project-info-reports-plugin</artifactId>
 					      <version>2.1.1</version>
 					    </plugin>
+					    <plugin>
+					      <groupId>org.apache.maven.plugins</groupId>
+					      <artifactId>maven-surefire-report-plugin</artifactId>
+					    </plugin>
+					    <plugin>
+					      <groupId>org.apache.maven.plugins</groupId>
+					      <artifactId>maven-jxr-plugin</artifactId>
+					    </plugin>
 					  </reportPlugins>
 					</configuration>
 				</plugin>
@@ -603,6 +611,7 @@
 	<!-- See: http://wiki.st.cs.uni-sb.de/wiki/Maven_Archiva -->
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<skipTests>true</skipTests>
 	</properties>
 	
 </project>
