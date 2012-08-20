@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,14 +20,13 @@
  */
 package org.evosuite.symbolic.expr;
 
-import gov.nasa.jpf.JPF;
-
 import java.util.ArrayList;
-import java.util.logging.Logger;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.search.DistanceEstimator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -37,12 +36,11 @@ import org.evosuite.symbolic.search.DistanceEstimator;
  * @author krusev
  */
 public class StringMultipleComparison extends StringComparison implements
-		BinaryExpression<String> {
+        BinaryExpression<String> {
 
 	private static final long serialVersionUID = -3844726361666119758L;
 
-	static Logger log = JPF
-			.getLogger("org.evosuite.symbolic.expr.StringMultipleComparison");
+	protected static Logger log = LoggerFactory.getLogger(StringMultipleComparison.class);
 
 	protected ArrayList<Expression<?>> other_v;
 
@@ -63,7 +61,7 @@ public class StringMultipleComparison extends StringComparison implements
 	 *            a {@link java.lang.Long} object.
 	 */
 	public StringMultipleComparison(Expression<String> _left, Operator _op,
-			Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
+	        Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
 		super(_left, _op, _right, con);
 		this.other_v = _other;
 
@@ -127,8 +125,8 @@ public class StringMultipleComparison extends StringComparison implements
 			str_other_v += " " + this.other_v.get(i).toString();
 		}
 
-		return "(" + left + op.toString() + (right == null ? "" : right)
-				+ str_other_v + ")";
+		return "(" + left + op.toString() + (right == null ? "" : right) + str_other_v
+		        + ")";
 	}
 
 	/** {@inheritDoc} */
@@ -152,10 +150,9 @@ public class StringMultipleComparison extends StringComparison implements
 				other_v_eq = false;
 			}
 
-			return this.op.equals(other.op)
-					&& this.getSize() == other.getSize()
-					&& this.left.equals(other.left)
-					&& this.right.equals(other.right) && other_v_eq;
+			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			        && this.left.equals(other.left) && this.right.equals(other.right)
+			        && other_v_eq;
 		}
 
 		return false;
@@ -195,19 +192,19 @@ public class StringMultipleComparison extends StringComparison implements
 			case STARTSWITH:
 				long start = (Long) other_v.get(0).execute();
 
-				return (long) DistanceEstimator.StrStartsWith(first, second,
-						(int) start);
+				return (long) DistanceEstimator.StrStartsWith(first, second, (int) start);
 			case REGIONMATCHES:
 				long frstStart = (Long) other_v.get(0).execute();
 				long secStart = (Long) other_v.get(1).execute();
 				long length = (Long) other_v.get(2).execute();
 				long ignoreCase = (Long) other_v.get(3).execute();
 
-				return (long) DistanceEstimator.StrRegionMatches(first,
-						(int) frstStart, second, (int) secStart, (int) length,
-						ignoreCase != 0);
+				return (long) DistanceEstimator.StrRegionMatches(first, (int) frstStart,
+				                                                 second, (int) secStart,
+				                                                 (int) length,
+				                                                 ignoreCase != 0);
 			default:
-				log.warning("StringMultipleComparison: unimplemented operator!");
+				log.warn("StringMultipleComparison: unimplemented operator!");
 				return null;
 			}
 		} catch (Exception e) {

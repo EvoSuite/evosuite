@@ -62,8 +62,6 @@
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <excludes>
-        <exclude>jpf:jpf-annotations</exclude>
-        <exclude>jpf:jpf-classes</exclude>
         <exclude>org.eclipse.jdt:*</exclude>
         <exclude>org.eclipse.core:*</exclude>
         <exclude>org.eclipse.team:*</exclude>

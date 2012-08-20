@@ -20,8 +20,12 @@
  */
 package org.evosuite.coverage.mutation;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -55,6 +59,38 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 	public ExecutionResult runTest(TestCase test, Mutation mutant) {
 
 		return StrongMutationTestFitness.runTest(test, mutant);
+	}
+
+	/**
+	 * Create a list of test cases ordered by their execution time. The
+	 * precondition is that all TestChromomes have been executed such that they
+	 * have an ExecutionResult.
+	 * 
+	 * @param individual
+	 * @return
+	 */
+	private List<TestChromosome> prioritizeTests(TestSuiteChromosome individual) {
+		List<TestChromosome> executionOrder = new ArrayList<TestChromosome>(
+		        individual.getTestChromosomes());
+
+		Collections.sort(executionOrder, new Comparator<TestChromosome>() {
+
+			@Override
+			public int compare(TestChromosome tc1, TestChromosome tc2) {
+				ExecutionResult result1 = tc1.getLastExecutionResult();
+				ExecutionResult result2 = tc2.getLastExecutionResult();
+				long diff = result1.getExecutionTime() - result2.getExecutionTime();
+				if (diff == 0)
+					return 0;
+				else if (diff < 0)
+					return -1;
+				else
+					return 1;
+			}
+
+		});
+
+		return executionOrder;
 	}
 
 	/* (non-Javadoc)
@@ -124,7 +160,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 		}
 		//Set<TestChromosome> safeCopies = new HashSet<TestChromosome>();
 		int mutantsChecked = 0;
-		for (TestChromosome test : suite.getTestChromosomes()) {
+		List<TestChromosome> executionOrder = prioritizeTests(suite);
+		for (TestChromosome test : executionOrder) {
 			ExecutionResult result = test.getLastExecutionResult();
 			ExecutionTrace trace = result.getTrace();
 			touchedMutants.addAll(trace.getTouchedMutants());

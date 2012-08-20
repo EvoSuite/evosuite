@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,12 +20,10 @@
  */
 package org.evosuite.symbolic.expr;
 
-import gov.nasa.jpf.JPF;
-
-import java.util.logging.Logger;
-
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -35,12 +33,11 @@ import org.evosuite.symbolic.ConstraintTooLongException;
  * @author krusev
  */
 public class StringBinaryExpression extends StringExpression implements
-		BinaryExpression<String> {
+        BinaryExpression<String> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	static Logger log = JPF
-			.getLogger("org.evosuite.symbolic.expr.StringBinaryExpression");
+	protected static Logger log = LoggerFactory.getLogger(StringBinaryExpression.class);
 
 	protected String concretValue;
 
@@ -64,13 +61,13 @@ public class StringBinaryExpression extends StringExpression implements
 	 *            a {@link java.lang.String} object.
 	 */
 	public StringBinaryExpression(Expression<String> left2, Operator op2,
-			Expression<?> right2, String con) {
+	        Expression<?> right2, String con) {
 		this.concretValue = con;
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
 		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
-				|| this.right.containsSymbolicVariable();
+		        || this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -113,10 +110,8 @@ public class StringBinaryExpression extends StringExpression implements
 		}
 		if (obj instanceof StringBinaryExpression) {
 			StringBinaryExpression other = (StringBinaryExpression) obj;
-			return this.op.equals(other.op)
-					&& this.getSize() == other.getSize()
-					&& this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
 		return false;
@@ -164,7 +159,8 @@ public class StringBinaryExpression extends StringExpression implements
 			int indx = (int) ExpressionHelper.getLongResult(right);
 			return Character.toString(first.charAt(indx));
 		default:
-			log.warning("StringBinaryExpression: unimplemented operator! Operator" + op.toString());
+			log.warn("StringBinaryExpression: unimplemented operator! Operator"
+			        + op.toString());
 			return null;
 		}
 

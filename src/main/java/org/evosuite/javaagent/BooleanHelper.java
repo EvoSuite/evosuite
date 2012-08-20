@@ -20,10 +20,13 @@
  */
 package org.evosuite.javaagent;
 
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
 import org.objectweb.asm.Opcodes;
@@ -668,9 +671,38 @@ public class BooleanHelper {
 			//System.out.println("Edit distance between " + first + " and " + second
 			//       + " is " + -editDistance(first, second.toString()) + " / "
 			//      + getLevenshteinDistance(first, (String) second));
-			return -editDistance(first, second.toString());
+			//return -editDistance(first, second.toString());
 			//return -getLevenshteinDistance(first, (String) second);
-			//return -getDistanceBasedOnLeftAlignment(first, second.toString());
+			return -getDistanceBasedOnLeftAlignment(first, second.toString());
+		}
+	}
+
+	public static int StringMatchRegex(String regex, CharSequence input) {
+		int distance = RegexDistance.getDistance(input.toString(), regex);
+
+		if (distance > 0)
+			return -distance;
+		else
+			return K;
+	}
+
+	public static int StringMatchRegex(Matcher matcher) {
+		Pattern pattern = matcher.pattern();
+		String regex = pattern.pattern();
+		CharSequence input;
+		try {
+			Field textField = Matcher.class.getDeclaredField("text");
+			textField.setAccessible(true);
+			input = (CharSequence) textField.get(matcher);
+			int distance = RegexDistance.getDistance(input.toString(), regex);
+			if (distance > 0)
+				return -distance;
+			else
+				return K;
+		} catch (Throwable t) {
+			// TODO Auto-generated catch block
+			t.printStackTrace();
+			return matcher.matches() ? 1 : -1;
 		}
 	}
 
