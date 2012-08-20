@@ -99,6 +99,35 @@
 							</execution>
 						</executions>
 					</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>org.evosuite.EvoSuite</mainClass>
+						</manifest>
+					</archive>
+					<descriptors>
+						<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
+						<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
+						<descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
+						<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
+						<!-- <descriptor>src/main/assembly/bin.xml</descriptor>
+						-->
+						<descriptor>src/main/assembly/source.xml</descriptor>
+					</descriptors>
+				</configuration>
+				<executions>
+					<execution>
+						<id>make-assembly</id> <!-- this is used for inheritance merges -->
+						<phase>package</phase> <!-- append to the packaging phase. -->
+						<goals>
+							<goal>single</goal> <!-- goals == mojos -->
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 				</plugins>
 			</build>
 			<dependencies>
@@ -112,15 +141,17 @@
 					<groupId>com.yworks</groupId>
 					<artifactId>yfiles</artifactId>
 					<version>2.8.0.3</version>
-					<scope>system</scope>
+<!--					<scope>system</scope>
 					<systemPath>${project.basedir}/lib/y.jar</systemPath>
+					-->
 				</dependency>
 				<dependency>
 					<groupId>fork.uispec4j</groupId>
 					<artifactId>uispec4j</artifactId>
 					<version>2.4.x</version>
-					<scope>system</scope>
+<!--					<scope>system</scope>
 					<systemPath>${project.basedir}/lib/uispec4j-fork.jar</systemPath>
+					-->
 				</dependency>
 			</dependencies>
 		</profile>
@@ -139,21 +170,10 @@
                       <artifactId>automaton</artifactId>
                       <version>1.11-8</version>
                     </dependency>
-	
-					<dependency>
-					<groupId>emma</groupId>
-					<artifactId>emma</artifactId>
-					<version>2.1.5320</version>
-				</dependency>
 		<dependency>
-			<groupId>cvc3</groupId>
-			<artifactId>cvc3</artifactId>
-			<version>2.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>mockit</groupId>
+			<groupId>com.googlecode.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
-			<version>0.999.10</version>
+			<version>0.999.16</version>
 		</dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -176,11 +196,6 @@
 			<version>4.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>1.3.9</version>
-		</dependency>
-		<dependency>
 			<groupId>com.googlecode.gentyref</groupId>
 			<artifactId>gentyref</artifactId>
 			<version>1.1.0</version>
@@ -199,7 +214,7 @@
 		<dependency>
 			<groupId>com.thoughtworks.xstream</groupId>
 			<artifactId>xstream</artifactId>
-			<version>1.4.2</version>
+			<version>1.4.3</version>
 		</dependency>
 
 		<dependency>
@@ -226,35 +241,76 @@
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-vfs2</artifactId>
 			<version>2.0</version>
+			<exclusions>
+			  <exclusion>
+			    <groupId>org.apache.maven.scm</groupId>
+			    <artifactId>maven-scm-api</artifactId>
+			  </exclusion>
+			  <exclusion>
+			    <groupId>org.apache.maven.scm</groupId>
+			    <artifactId>maven-scm-provider-svnexe</artifactId>
+			  </exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
-			<groupId>org.easymock</groupId>
-			<artifactId>easymock</artifactId>
-			<version>2.3</version>
-			<!--scope>test</scope -->
+		  <groupId>org.eclipse.equinox</groupId>
+		  <artifactId>common</artifactId>
+		  <version>3.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>core</artifactId>
 			<version>3.6.0</version>
+			<exclusions>
+<!--  		         <exclusion>
+		          <groupId>org.eclipse</groupId>
+		          <artifactId>osgi</artifactId>
+		         </exclusion>
+  		         <exclusion>
+		          <groupId>org.eclipse.core</groupId>
+		          <artifactId>jobs</artifactId>
+		         </exclusion>
+		         -->
+		         
+		         <!-- ***
+  		         <exclusion>
+		          <groupId>org.eclipse.equinox</groupId>
+		          <artifactId>registry</artifactId>
+		         </exclusion>
+		         -->
+		         
+<!--  		         <exclusion>
+		          <groupId>org.eclipse.equinox</groupId>
+		          <artifactId>preferences</artifactId>
+		         </exclusion> -->
+
+		         <!-- ***
+  		         <exclusion>
+		          <groupId>org.eclipse.equinox</groupId>
+		          <artifactId>app</artifactId>
+		         </exclusion> -->
+		         
+<!--  		         <exclusion>
+		          <groupId>org.eclipse.core</groupId>
+		          <artifactId>contenttype</artifactId>
+		         </exclusion> -->
+		         
+		<!-- ***		         
+  		         <exclusion>
+		          <groupId>org.eclipse.core</groupId>
+		          <artifactId>filesystem</artifactId>
+		         </exclusion>
+  		         <exclusion>
+		          <groupId>org.eclipse</groupId>
+		          <artifactId>text</artifactId>
+		         </exclusion>
+		         -->
+		        </exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.kohsuke</groupId>
 			<artifactId>graphviz-api</artifactId>
 			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.javaparser</groupId>
-			<artifactId>javaparser</artifactId>
-			<version>1.0.1</version>
-			<type>jar</type>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>jsyntaxpane</groupId>
-			<artifactId>jsyntaxpane</artifactId>
-			<version>0.9.5-b29</version>
-			<classifier>jar</classifier>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jdt.compiler</groupId>
@@ -266,21 +322,7 @@
 			<artifactId>trove4j</artifactId>
 			<version>3.0.2</version>
 		</dependency>
-		<dependency>
-			<groupId>com.yworks</groupId>
-			<artifactId>yfiles</artifactId>
-			<version>2.8.0.3</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/y.jar</systemPath>
-		</dependency>
-		<dependency>
-			<groupId>fork.uispec4j</groupId>
-			<artifactId>uispec4j</artifactId>
-			<version>2.4.x</version>
-			<scope>system</scope>
-			<systemPath>${project.basedir}/lib/uispec4j-fork.jar</systemPath>
-		</dependency>
-		 <dependency>
+ 	        <dependency>
                  <groupId>fr.inria.gforge.spoon</groupId>
                  <artifactId>spoon-core</artifactId>
                  <version>1.4.2</version>
@@ -288,21 +330,6 @@
 	</dependencies>
 	<repositories>
 
-		<repository>
-			<id>javaparser</id>
-			<name>JavaParser Repository</name>
-			<url>http://javaparser.googlecode.com/svn/maven2</url>
-			<snapshots>
-				<enabled>false</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>jmockit-svn</id>
-			<url>http://jmockit.googlecode.com/svn/maven-repo</url>
-			<releases>
-				<checksumPolicy>ignore</checksumPolicy>
-			</releases>
-		</repository>
 		<repository>
 			<releases>
 				<enabled>true</enabled>
@@ -324,26 +351,6 @@
 
 	<build>
 		<plugins>
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<version>1.5</version>
-				<executions>
-					<execution>
-						<id>add-sources</id>
-						<phase>generate-sources</phase>
-						<goals>
-							<goal>add-source</goal>
-						</goals>
-						<configuration>
-							<sources>
-								<source>${basedir}/src/exsyst/java</source>
-							</sources>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- Generate startings scripts for different platforms -->
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
@@ -422,9 +429,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-release-plugin</artifactId>
-				<configuration>
-					<tagBase>https://svn.st.cs.uni-sb.de/svn/st/projects/adabu2/tags</tagBase>
-				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -446,9 +450,11 @@
 					<descriptors>
 						<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
 						<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
-						<descriptor>src/main/assembly/jar.xml</descriptor>
+						<!-- <descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
+						-->
 						<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
-						<descriptor>src/main/assembly/bin.xml</descriptor>
+						<!-- <descriptor>src/main/assembly/bin.xml</descriptor>
+						-->
 						<descriptor>src/main/assembly/source.xml</descriptor>
 					</descriptors>
 				</configuration>
@@ -475,9 +481,9 @@
 						<configuration>
 							<artifactItems>
 								<artifactItem>
-									<groupId>mockit</groupId>
+									<groupId>com.googlecode.jmockit</groupId>
 									<artifactId>jmockit</artifactId>
-									<version>0.999.10</version>
+									<version>0.999.16</version>
 									<overWrite>true</overWrite>
 									<outputDirectory>target/</outputDirectory>
 									<destFileName>jmockit.jar</destFileName>
@@ -502,7 +508,7 @@
 				<configuration>
 					<includePom>true</includePom>
 					<excludes>
-						<exclude>src/main/java/de/unisb/cs/st/evosuite/ui/**</exclude>
+						<exclude>src/exsyst/java/**</exclude>
 					</excludes>
 				</configuration>
 			</plugin>

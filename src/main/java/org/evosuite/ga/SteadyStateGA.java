@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,13 +21,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.ma.Connector;
 import org.evosuite.utils.Randomness;
-
 
 /**
  * Implementation of steady state GA
- *
+ * 
  * @author Gordon Fraser
  */
 public class SteadyStateGA extends GeneticAlgorithm {
@@ -40,8 +38,9 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 	/**
 	 * Constructor
-	 *
-	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * 
+	 * @param factory
+	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
 		super(factory);
@@ -50,17 +49,24 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	}
 
 	/**
-	 * <p>keepOffspring</p>
-	 *
-	 * @param parent1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param parent2 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring2 a {@link org.evosuite.ga.Chromosome} object.
+	 * <p>
+	 * keepOffspring
+	 * </p>
+	 * 
+	 * @param parent1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param parent2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-		return replacement_function.keepOffspring(parent1, parent2, offspring1, offspring2);
+		return replacement_function.keepOffspring(parent1, parent2, offspring1,
+		                                          offspring2);
 	}
 
 	/** {@inheritDoc} */
@@ -197,28 +203,28 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			logger.info("Best individual has fitness: " + population.get(0).getFitness());
 			logger.info("Worst individual has fitness: "
 			        + population.get(population.size() - 1).getFitness());
-
-			if (Properties.MA_ACTIVE) {
-				// call manual algorithm
-				Connector.externalCall(this);
-			}
 		}
 
 		notifySearchFinished();
 	}
 
 	/**
-	 * <p>setReplacementFunction</p>
-	 *
-	 * @param replacement_function a {@link org.evosuite.ga.ReplacementFunction} object.
+	 * <p>
+	 * setReplacementFunction
+	 * </p>
+	 * 
+	 * @param replacement_function
+	 *            a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
 	public void setReplacementFunction(ReplacementFunction replacement_function) {
 		this.replacement_function = replacement_function;
 	}
 
 	/**
-	 * <p>getReplacementFunction</p>
-	 *
+	 * <p>
+	 * getReplacementFunction
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
 	public ReplacementFunction getReplacementFunction() {

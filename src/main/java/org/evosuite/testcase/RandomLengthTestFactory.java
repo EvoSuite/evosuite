@@ -23,10 +23,11 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>RandomLengthTestFactory class.</p>
- *
+ * <p>
+ * RandomLengthTestFactory class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome> {
@@ -54,11 +55,11 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 		while (length == 0)
 			length = Randomness.nextInt(size);
 
-		AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
+		TestFactory testFactory = TestFactory.getInstance();
 
 		// Then add random stuff
 		while (test.size() < length && num < Properties.MAX_ATTEMPTS) {
-			test_factory.insertRandomStatement(test);
+			testFactory.insertRandomStatement(test);
 			num++;
 		}
 		if (logger.isDebugEnabled())
@@ -72,7 +73,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Generate a random chromosome
 	 */
 	@Override
@@ -85,7 +86,7 @@ public class RandomLengthTestFactory implements ChromosomeFactory<TestChromosome
 	/**
 	 * Provided so that subtypes of this factory type can modify the returned
 	 * TestCase
-	 *
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	protected TestCase getNewTestCase() {

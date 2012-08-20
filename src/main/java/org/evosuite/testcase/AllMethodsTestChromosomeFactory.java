@@ -31,14 +31,16 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>AllMethodsTestChromosomeFactory class.</p>
- *
+ * <p>
+ * AllMethodsTestChromosomeFactory class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
@@ -96,13 +98,13 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 			remainingMethods.remove(call);
 
 			try {
-				AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
+				TestFactory testFactory = TestFactory.getInstance();
 
 				if (call instanceof Method) {
-					test_factory.addMethod(test, (Method) call, test.size(), 0);
+					testFactory.addMethod(test, (Method) call, test.size(), 0);
 				} else if (call instanceof Constructor<?>) {
-					test_factory.addConstructor(test, (Constructor<?>) call, test.size(),
-					                            0);
+					testFactory.addConstructor(test, (Constructor<?>) call, test.size(),
+					                           0);
 				} else {
 					assert (false) : "Found test call that is neither method nor constructor";
 				}
@@ -121,7 +123,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Generate a random chromosome
 	 */
 	@Override
@@ -134,7 +136,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	/**
 	 * Provided so that subtypes of this factory type can modify the returned
 	 * TestCase
-	 *
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	protected TestCase getNewTestCase() {
@@ -143,7 +145,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 
 	/**
 	 * How many methods do we still need to cover?
-	 *
+	 * 
 	 * @return a int.
 	 */
 	public int getNumUncoveredMethods() {

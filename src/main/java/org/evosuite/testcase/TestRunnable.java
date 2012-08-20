@@ -278,6 +278,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
 			//logger.info(test.toCode());
+			for (StackTraceElement elem : e.getStackTrace()) {
+				logger.info(elem.toString());
+			}
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
 				logger.info(e.getCause().toString(), e);

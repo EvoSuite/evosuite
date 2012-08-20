@@ -352,7 +352,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+	public boolean mutate(TestCase test, TestFactory factory) {
 		T oldVal = value;
 
 		while (value == oldVal && value != null) {

@@ -30,14 +30,13 @@ import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.TestSuiteWriter;
-import org.evosuite.testcase.AbstractTestFactory;
-import org.evosuite.testcase.DefaultTestFactory;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -334,9 +333,9 @@ public class TestSuiteMinimizer {
 					TestChromosome orgiginalTestChromosome = (TestChromosome) testChromosome.clone();
 
 					try {
-						AbstractTestFactory test_factory = DefaultTestFactory.getInstance();
-						test_factory.deleteStatementGracefully(testChromosome.getTestCase(),
-						                                       i);
+						TestFactory testFactory = TestFactory.getInstance();
+						testFactory.deleteStatementGracefully(testChromosome.getTestCase(),
+						                                      i);
 						testChromosome.setChanged(true);
 					} catch (ConstructionFailedException e) {
 						testChromosome.setChanged(false);
