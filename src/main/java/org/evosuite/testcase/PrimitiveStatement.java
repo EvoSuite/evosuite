@@ -47,7 +47,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	private static final long serialVersionUID = -7721106626421922833L;
 
 	/** Constant <code>primitive_pool</code> */
-	protected static PrimitivePool primitive_pool = PrimitivePool.getInstance();
+	protected static final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
 	 * The value

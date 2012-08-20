@@ -35,7 +35,7 @@ public class Randomness implements Serializable {
 
 	private static final long serialVersionUID = -5934455398558935937L;
 
-	private static Logger logger = LoggerFactory.getLogger(Randomness.class);
+	private static final Logger logger = LoggerFactory.getLogger(Randomness.class);
 
 	private static long seed = 0;
 

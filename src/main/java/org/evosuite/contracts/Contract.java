@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,10 +36,9 @@ import org.evosuite.testcase.TestCaseExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Based on ObjectContract / Randoop
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class Contract {
@@ -47,7 +46,7 @@ public abstract class Contract {
 	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(Contract.class);
 
-	protected class Pair {
+	protected static class Pair {
 		Object object1;
 		Object object2;
 
@@ -58,9 +57,12 @@ public abstract class Contract {
 	}
 
 	/**
-	 * <p>getAllObjects</p>
-	 *
-	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * <p>
+	 * getAllObjects
+	 * </p>
+	 * 
+	 * @param scope
+	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Object> getAllObjects(Scope scope) {
@@ -69,9 +71,12 @@ public abstract class Contract {
 	}
 
 	/**
-	 * <p>getAllObjectPairs</p>
-	 *
-	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * <p>
+	 * getAllObjectPairs
+	 * </p>
+	 * 
+	 * @param scope
+	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Pair> getAllObjectPairs(Scope scope) {
@@ -85,10 +90,14 @@ public abstract class Contract {
 	}
 
 	/**
-	 * <p>getAffectedObjects</p>
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * <p>
+	 * getAffectedObjects
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope
+	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Object> getAffectedObjects(StatementInterface statement,
@@ -114,10 +123,14 @@ public abstract class Contract {
 	}
 
 	/**
-	 * <p>getAffectedObjectPairs</p>
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param scope a {@link org.evosuite.testcase.Scope} object.
+	 * <p>
+	 * getAffectedObjectPairs
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope
+	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
 	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement,
@@ -164,8 +177,9 @@ public abstract class Contract {
 
 	/**
 	 * Check if this statement is related to the unit under test
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
 	 * @return a boolean.
 	 */
 	protected boolean isTargetStatement(StatementInterface statement) {
@@ -192,8 +206,9 @@ public abstract class Contract {
 	/**
 	 * Run the test against this contract and determine whether it reports a
 	 * failure
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a boolean.
 	 */
 	public boolean fails(TestCase test) {
@@ -208,11 +223,16 @@ public abstract class Contract {
 	}
 
 	/**
-	 * <p>check</p>
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param scope a {@link org.evosuite.testcase.Scope} object.
-	 * @param exception a {@link java.lang.Throwable} object.
+	 * <p>
+	 * check
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @param scope
+	 *            a {@link org.evosuite.testcase.Scope} object.
+	 * @param exception
+	 *            a {@link java.lang.Throwable} object.
 	 * @return a boolean.
 	 */
 	public abstract boolean check(StatementInterface statement, Scope scope,

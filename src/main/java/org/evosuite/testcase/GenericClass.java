@@ -45,7 +45,7 @@ public class GenericClass implements Serializable {
 
 	private static final long serialVersionUID = -3307107227790458308L;
 
-	private static Logger logger = LoggerFactory.getLogger(GenericClass.class);
+	private static final Logger logger = LoggerFactory.getLogger(GenericClass.class);
 
 	/**
 	 * <p>
