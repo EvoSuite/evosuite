@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,10 +25,11 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>ValueMinimizer class.</p>
- *
+ * <p>
+ * ValueMinimizer class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class ValueMinimizer implements TestVisitor {
@@ -83,7 +84,7 @@ public class ValueMinimizer implements TestVisitor {
 
 		private double lastFitness;
 
-		private final double lastCoverage;
+		private double lastCoverage;
 
 		public SuiteMinimization(TestSuiteFitnessFunction fitness,
 		        TestSuiteChromosome suite, int index) {
@@ -100,7 +101,7 @@ public class ValueMinimizer implements TestVisitor {
 		 */
 		@Override
 		public boolean isNotWorse() {
-			ExecutionResult lastResult = individual.getLastExecutionResult();
+			ExecutionResult lastResult = individual.getLastExecutionResult().clone();
 			individual.setChanged(true);
 			suite.setTestChromosome(testIndex, individual);
 			double newFitness = fitness.getFitness(suite);
@@ -108,6 +109,7 @@ public class ValueMinimizer implements TestVisitor {
 			if (newFitness <= lastFitness) { // TODO: Maximize
 				logger.debug("Fitness changed from " + lastFitness + " to " + newFitness);
 				lastFitness = newFitness;
+				lastCoverage = suite.getCoverage();
 				suite.setFitness(lastFitness);
 				return true;
 			} else {
@@ -122,10 +124,14 @@ public class ValueMinimizer implements TestVisitor {
 	private Minimization objective;
 
 	/**
-	 * <p>minimize</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
-	 * @param objective a {@link org.evosuite.testcase.TestFitnessFunction} object.
+	 * <p>
+	 * minimize
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @param objective
+	 *            a {@link org.evosuite.testcase.TestFitnessFunction} object.
 	 */
 	public void minimize(TestChromosome test, TestFitnessFunction objective) {
 		this.objective = new TestMinimization(objective, test);
@@ -133,10 +139,15 @@ public class ValueMinimizer implements TestVisitor {
 	}
 
 	/**
-	 * <p>minimize</p>
-	 *
-	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 * @param objective a {@link org.evosuite.testsuite.TestSuiteFitnessFunction} object.
+	 * <p>
+	 * minimize
+	 * </p>
+	 * 
+	 * @param suite
+	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * @param objective
+	 *            a {@link org.evosuite.testsuite.TestSuiteFitnessFunction}
+	 *            object.
 	 */
 	public void minimize(TestSuiteChromosome suite, TestSuiteFitnessFunction objective) {
 		int i = 0;
@@ -148,6 +159,7 @@ public class ValueMinimizer implements TestVisitor {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T> void binarySearch(NumericalPrimitiveStatement<T> statement) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> zero = (PrimitiveStatement<T>) PrimitiveStatement.getPrimitiveStatement(statement.tc,
@@ -167,6 +179,29 @@ public class ValueMinimizer implements TestVisitor {
 			if (lastValue != null && lastValue.equals(newValue)) {
 				break;
 			}
+			if (lastValue instanceof Double) {
+				double oldVal = Math.abs((Double) lastValue);
+				if (oldVal < 1.0) {
+					newValue = (T) new Double(0.0);
+					statement.setValue(newValue);
+					if (!objective.isNotWorse()) {
+						statement.setValue(lastValue);
+					}
+					break;
+				}
+			}
+			if (lastValue instanceof Float) {
+				double oldVal = Math.abs((Float) lastValue);
+				if (oldVal < 1.0F) {
+					newValue = (T) new Float(0.0F);
+					statement.setValue(newValue);
+					if (!objective.isNotWorse()) {
+						statement.setValue(lastValue);
+					}
+					break;
+				}
+			}
+
 			lastValue = newValue;
 			logger.info("Trying " + statement.getValue() + " " + min + "/" + max + " - "
 			        + statement.getClass());
@@ -174,11 +209,15 @@ public class ValueMinimizer implements TestVisitor {
 			if (min.equals(max) || statement.getValue().equals(min)
 			        || statement.getValue().equals(max)) {
 				done = true;
+				logger.info("Fixpoint.");
 				//assert (objective.isNotWorse());
-			} else if (objective.isNotWorse()) {
+			}
+			if (objective.isNotWorse()) {
+				logger.info("Fitness hasn't decreased");
 				// If fitness has not decreased, new max is new value
 				max = statement.getValue();
 			} else {
+				logger.info("Fitness has decreased!");
 				// Else has to be larger
 				if (positive)
 					statement.increment();
@@ -219,6 +258,7 @@ public class ValueMinimizer implements TestVisitor {
 		statement.setValue(newString);
 		if (!objective.isNotWorse()) {
 			statement.setValue(oldString);
+			newString = oldString;
 		}
 
 		oldString = newString;
@@ -252,7 +292,9 @@ public class ValueMinimizer implements TestVisitor {
 			binarySearch((NumericalPrimitiveStatement<?>) statement);
 			logger.info("Statement after minimization: " + statement.getCode());
 		} else if (statement instanceof StringPrimitiveStatement) {
+			logger.info("Statement before minimization: " + statement.getCode());
 			cleanString((StringPrimitiveStatement) statement);
+			logger.info("Statement after minimization: " + statement.getCode());
 			// TODO: Try to delete characters, or at least replace non-ascii characters with ascii characters
 		}
 	}
@@ -358,7 +400,7 @@ public class ValueMinimizer implements TestVisitor {
 	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression) {
 		// TODO-JRO Implement method visitPrimitiveExpression
 		logger.warn("Method visitPrimitiveExpression not implemented!");
-		
+
 	}
 
 }

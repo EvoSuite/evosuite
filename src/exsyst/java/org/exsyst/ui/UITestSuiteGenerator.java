@@ -1,6 +1,12 @@
 package org.exsyst.ui;
 
-import java.io.*;
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.security.Permission;
 import java.util.ArrayList;
@@ -18,45 +24,48 @@ import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SelectionFunction;
 import org.evosuite.ga.stoppingconditions.MaxTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.PostProcessor;
 import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.testcase.TestCluster;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.SimpleCondition;
+import org.exsyst.ui.genetics.UITestChromosome;
+import org.exsyst.ui.genetics.UITestChromosomeFactory;
+import org.exsyst.ui.genetics.UITestSuiteChromosome;
+import org.exsyst.ui.genetics.UITestSuiteChromosomeFactory;
+import org.exsyst.ui.model.states.UIStateGraph;
+import org.exsyst.ui.run.RandomWalkUIController;
+import org.exsyst.ui.run.UIRunner;
+import org.exsyst.ui.util.ReplayUITestHelper;
 import org.slf4j.Logger;
 import org.uispec4j.Trigger;
 import org.uispec4j.UISpec4J;
 
 import sun.awt.AWTAutoShutdown;
-import org.exsyst.ui.genetics.*;
-import org.exsyst.ui.model.states.UIStateGraph;
-import org.exsyst.ui.run.RandomWalkUIController;
-import org.exsyst.ui.run.UIRunner;
-import org.exsyst.ui.util.ReplayUITestHelper;
-
 
 public class UITestSuiteGenerator {
-	private static final int TIME_LIMIT_SECONDS = Integer.valueOf(System.getProperty("timelimit", "" + Properties.GLOBAL_TIMEOUT));
-	
+	private static final int TIME_LIMIT_SECONDS = Integer.valueOf(System.getProperty("timelimit",
+	                                                                                 ""
+	                                                                                         + Properties.GLOBAL_TIMEOUT));
+
 	public static final class MainTrigger implements Trigger, Serializable {
 		private static final long serialVersionUID = 1L;
-		private String mainClass;
+		private final String mainClass;
 		private Class<?> mainClassClass;
 
 		public MainTrigger(String mainClass) {
 			this.mainClass = mainClass;
 		}
 
-		public Class<?> getMainClass()
-		{
+		public Class<?> getMainClass() {
 			return this.mainClassClass;
 		}
-		
+
 		@Override
 		public void run() throws Exception {
 			ClassLoader oldClassLoader = Thread.currentThread().getContextClassLoader();
@@ -67,7 +76,7 @@ public class UITestSuiteGenerator {
 				Thread.currentThread().setContextClassLoader(classLoader);
 
 				mainClassClass = classLoader.loadClass(this.mainClass);
-				
+
 				SwingUtilities.invokeAndWait(new Runnable() {
 					@Override
 					public void run() {
@@ -76,7 +85,8 @@ public class UITestSuiteGenerator {
 					}
 				});
 
-				mainClassClass.getMethod("main", new Class<?>[] { String[].class }).invoke(null, new Object[] { new String[] {} });
+				mainClassClass.getMethod("main", new Class<?>[] { String[].class }).invoke(null,
+				                                                                           new Object[] { new String[] {} });
 			} catch (Exception e) {
 				System.out.println("Got exception on invoking main method:");
 				e.printStackTrace();
@@ -115,9 +125,8 @@ public class UITestSuiteGenerator {
 
 			writeCoverage();
 
-			
 			Properties.INSTRUMENTATION_SKIP_DEBUG = true;
-			
+
 			Properties.MAX_SIZE = 1000;
 			Properties.SEARCH_BUDGET = Integer.MAX_VALUE;
 
@@ -129,7 +138,7 @@ public class UITestSuiteGenerator {
 			// is severely broken, randomly replacing if conditions with garbage
 			// and potentially even causing bytecode verification errors. --
 			// fgross
-			
+
 			// String replacement still has (another) bug
 			// with jEdit...
 			Properties.STRING_REPLACEMENT = false;
@@ -142,11 +151,12 @@ public class UITestSuiteGenerator {
 					boolean isOK = false;
 
 					for (StackTraceElement elem : trace) {
-						String methodName = elem.getClassName() + "." + elem.getMethodName();
+						String methodName = elem.getClassName() + "."
+						        + elem.getMethodName();
 						String mainMethod = "org.exsyst.ui.UITestSuiteGenerator.main";
 
-						if ((methodName.equals(mainMethod) && afterExit) ||
-							(methodName.equals("javax.swing.JFrame.setDefaultCloseOperation"))) {
+						if ((methodName.equals(mainMethod) && afterExit)
+						        || (methodName.equals("javax.swing.JFrame.setDefaultCloseOperation"))) {
 							isOK = true;
 							break;
 						}
@@ -167,7 +177,7 @@ public class UITestSuiteGenerator {
 
 			Properties.SANDBOX = false;
 			Properties.MOCKS = false;
-			
+
 			// We don't actually care about the result...
 			// Call this here so later calls to it won't call TestCluster.reset()
 			// (which would otherwise create a new InstrumentingClassLoader and cause severe trouble)
@@ -175,7 +185,8 @@ public class UITestSuiteGenerator {
 
 			long startTime = System.currentTimeMillis();
 
-			UITestSuiteGenerator generator = new UITestSuiteGenerator(new MainTrigger(args[0]));
+			UITestSuiteGenerator generator = new UITestSuiteGenerator(new MainTrigger(
+			        args[0]));
 
 			AbstractTestSuiteChromosome<ExecutableChromosome> solution = generator.generateTestSuite();
 
@@ -185,22 +196,25 @@ public class UITestSuiteGenerator {
 
 			System.out.println("Found a solution:");
 			System.out.println(solution);
-			System.out.println("* Resulting TestSuite's coverage: " + solution.getCoverage());
+			System.out.println("* Resulting TestSuite's coverage: "
+			        + solution.getCoverage());
 
 			serializeObjectToFile(solution, "solution.obj");
-			
+
 			writeAllExecutedTests();
-			
+
 			// Logger logger = Logger.getLogger(UITestSuiteGenerator.class);
 
 			PrintWriter log;
 			try {
 				log = new PrintWriter(System.out); // new PrintWriter(new
-													// FileOutputStream("log.txt"));
+				                                   // FileOutputStream("log.txt"));
 				log.println("");
-				log.println(String.format("Generating test suite took %.2f seconds", (endTime - startTime) / 1000.0f));
-				log.println(String.format("Generated %d tests, of which %d are failing tests", UITestChromosome.getExecutedChromosomes().size(), UITestChromosome
-						.getFailingChromosomes().size()));
+				log.println(String.format("Generating test suite took %.2f seconds",
+				                          (endTime - startTime) / 1000.0f));
+				log.println(String.format("Generated %d tests, of which %d are failing tests",
+				                          UITestChromosome.getExecutedChromosomes().size(),
+				                          UITestChromosome.getFailingChromosomes().size()));
 
 				log.flush();
 				log.close();
@@ -215,19 +229,20 @@ public class UITestSuiteGenerator {
 			System.exit(0);
 		}
 	}
-	
+
 	public static synchronized void writeCoverage() {
 		try {
 			Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
-			Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
+			Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class,
+			        boolean.class, boolean.class });
 			m.invoke(null, new File("coverage.ec"), false, false);
 		} catch (Throwable t) {
 			/* No worries */
 		}
 	}
 
-	private Trigger mainMethodTrigger;
-	private UIStateGraph stateGraph;
+	private final Trigger mainMethodTrigger;
+	private final UIStateGraph stateGraph;
 
 	public UITestSuiteGenerator(Trigger mainMethodTrigger) {
 		new TestSuiteGenerator();
@@ -284,14 +299,15 @@ public class UITestSuiteGenerator {
 		try {
 			FitnessFunction fitnessFunction = TestSuiteGenerator.getFitnessFunction();
 
-			ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(stateGraph, this.mainMethodTrigger);
-			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(testFactory, fitnessFunction);
+			ChromosomeFactory<UITestChromosome> testFactory = new UITestChromosomeFactory(
+			        stateGraph, this.mainMethodTrigger);
+			ChromosomeFactory<UITestSuiteChromosome> testSuiteFactory = new UITestSuiteChromosomeFactory(
+			        testFactory, fitnessFunction);
 
 			GeneticAlgorithm ga = TestSuiteGenerator.getGeneticAlgorithm(testSuiteFactory);
 			TestSuiteGenerator.getSecondaryObjectives(ga);
 
 			ga.setStoppingCondition(getStoppingCondition());
-
 
 			ga.setFitnessFunction(fitnessFunction);
 
@@ -299,31 +315,35 @@ public class UITestSuiteGenerator {
 			selectionFunction.setMaximize(false);
 			ga.setSelectionFunction(selectionFunction);
 
-			Thread thread = new Thread(new Runnable() {	
+			Thread thread = new Thread(new Runnable() {
 				private int coverageIdx = 1;
 				private long delay = Properties.UI_BACKGROUND_COVERAGE_DELAY;
-				
+
 				@Override
-				public void run() {				
+				public void run() {
 					if (delay < 0)
 						return;
 
 					long currentTime = System.currentTimeMillis();
 					long nextTime = currentTime;
-					
+
 					while (true) {
 						currentTime = System.currentTimeMillis();
 
 						if (currentTime >= nextTime) {
 							try {
 								Class<?> emmaRT = Class.forName("com.vladium.emma.rt.RT");
-								Method m = emmaRT.getMethod("dumpCoverageData", new Class<?>[] { File.class, boolean.class, boolean.class });
-								String filename = String.format("coverage-%d.ec", coverageIdx);
+								Method m = emmaRT.getMethod("dumpCoverageData",
+								                            new Class<?>[] { File.class,
+								                                    boolean.class,
+								                                    boolean.class });
+								String filename = String.format("coverage-%d.ec",
+								                                coverageIdx);
 								m.invoke(null, new File(filename), false, false);
 								nextTime = System.currentTimeMillis() + delay;
-								
+
 								delay *= 1.1;
-								
+
 								coverageIdx++;
 							} catch (Throwable t) {
 								t.printStackTrace();
@@ -341,141 +361,118 @@ public class UITestSuiteGenerator {
 
 			thread.setDaemon(true);
 			thread.start();
-			
+
 			ga.generateSolution();
 
 			AbstractTestSuiteChromosome<ExecutableChromosome> best = (AbstractTestSuiteChromosome<ExecutableChromosome>) ga.getBestIndividual();
-		 
-			if(Properties.TEST_CARVING)
-			{
-				final List<ExecutableChromosome> chromosomes    = best.getTestChromosomes();
-				final int                        numChromosomes = chromosomes.size();
-				final ArrayList<UITestChromosome>        testCases      = new ArrayList<UITestChromosome>(numChromosomes);
-				
-				for(int i = 0; i < numChromosomes; i++)
-				{
+
+			if (Properties.TEST_CARVING) {
+				final List<ExecutableChromosome> chromosomes = best.getTestChromosomes();
+				final int numChromosomes = chromosomes.size();
+				final ArrayList<UITestChromosome> testCases = new ArrayList<UITestChromosome>(
+				        numChromosomes);
+
+				for (int i = 0; i < numChromosomes; i++) {
 					testCases.add((UITestChromosome) chromosomes.get(i));
 				}
-				
+
 				this.carveTests(testCases);
 			}
-			
+
 			return best;
-		} 
-		catch(Exception e)
-		{
+		} catch (Exception e) {
 			e.printStackTrace();
 			return null;
-		}
-		finally {
+		} finally {
 			this.writeStateGraph();
 		}
 	}
 
-	
-	
-	
-	private List<CaptureLog> executeAndCapture(List<UITestChromosome> testsToBeCarved)
-	{
-		final TestCaseExecutor             executor     = TestCaseExecutor.getInstance();
+	private List<CaptureLog> executeAndCapture(List<UITestChromosome> testsToBeCarved) {
+		final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 		final TestCarvingExecutionObserver execObserver = new TestCarvingExecutionObserver();
 		executor.addObserver(execObserver);
-		
+
 		// variables needed in loop
-		for(UITestChromosome t : testsToBeCarved)
-		{
+		for (UITestChromosome t : testsToBeCarved) {
 			// start capture before genetic algorithm is applied so that all interactions can be captured
 			Capturer.startCapture();
-			
+
 			// execute test case
 			ReplayUITestHelper.run(t);
-		
+
 			// stop capture after best individual has been determined and obtain corresponding capture log
 			Capturer.stopCapture();
 		}
 
 		final List<CaptureLog> logs = Capturer.getCaptureLogs();
-		
+
 		// clear Capturer content to save memory
 		Capturer.clear();
-		
+
 		executor.removeObserver(execObserver);
-		
+
 		return logs;
 	}
-	
-	
-	private void carveTests(List<UITestChromosome> testsToBeCarved)
-	{
-		final List<CaptureLog> logs   = this.executeAndCapture(testsToBeCarved);
-		final Logger           logger = LoggingUtils.getEvoLogger();
-		
-		final HashSet<Class<?>>     allAccessedClasses = new HashSet<Class<?>>();
-		final ArrayList<String>     packages           = new ArrayList<String>();
-		final ArrayList<Class<?>[]> observedClasses    = new ArrayList<Class<?>[]>();
-		final ArrayList<CaptureLog> logsToBeDeleted    = new ArrayList<CaptureLog>();
-		
+
+	private void carveTests(List<UITestChromosome> testsToBeCarved) {
+		final List<CaptureLog> logs = this.executeAndCapture(testsToBeCarved);
+		final Logger logger = LoggingUtils.getEvoLogger();
+
+		final HashSet<Class<?>> allAccessedClasses = new HashSet<Class<?>>();
+		final ArrayList<String> packages = new ArrayList<String>();
+		final ArrayList<Class<?>[]> observedClasses = new ArrayList<Class<?>[]>();
+		final ArrayList<CaptureLog> logsToBeDeleted = new ArrayList<CaptureLog>();
+
 		CaptureLog log;
-		
+
 		final int numLogs = logs.size();
-		for(int i = 0; i < numLogs; i++)
-		{
+		for (int i = 0; i < numLogs; i++) {
 			log = logs.get(i);
-			
-			for(String className : log.oidClassNames)
-			{
-				if(className.startsWith(Properties.TARGET_CLASS_PREFIX) && ! className.contains("$"))
-				{
-					try 
-					{
+
+			for (String className : log.oidClassNames) {
+				if (className.startsWith(Properties.TARGET_CLASS_PREFIX)
+				        && !className.contains("$")) {
+					try {
 						allAccessedClasses.add(Class.forName(className));
-					} 
-					catch (final ClassNotFoundException e) 
-					{
-						logger.warn("an error occurred while resolving target class {} -> ignored", className, e);
+					} catch (final ClassNotFoundException e) {
+						logger.warn("an error occurred while resolving target class {} -> ignored",
+						            className, e);
 					}
 				}
 			}
-			
-			try 
-			{
-				allAccessedClasses.remove(Class.forName(((MainTrigger)this.mainMethodTrigger).getMainClass().getName()));
-			} 
-			catch (final ClassNotFoundException e) 
-			{
+
+			try {
+				allAccessedClasses.remove(Class.forName(((MainTrigger) this.mainMethodTrigger).getMainClass().getName()));
+			} catch (final ClassNotFoundException e) {
 				logger.warn("an error occurred while resolving main class", e);
 				logsToBeDeleted.add(log);
 				continue;
 			}
-				
-			if(allAccessedClasses.isEmpty())
-			{
-				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed", testsToBeCarved.get(i));
+
+			if (allAccessedClasses.isEmpty()) {
+				logger.warn("There are no classes which can be observed in test\n{}\n --> no test carving performed",
+				            testsToBeCarved.get(i));
 				logsToBeDeleted.add(log);
 				continue;
 			}
-			
+
 			packages.add(allAccessedClasses.iterator().next().getPackage().getName());
 			observedClasses.add(allAccessedClasses.toArray(new Class[allAccessedClasses.size()]));
 		}
-		
-		
+
 		logs.removeAll(logsToBeDeleted);
-		
-		try 
-		{
+
+		try {
 			PostProcessor.init();
 			PostProcessor.process(logs, packages, observedClasses);
-		} 
-		catch (final Exception e) 
-		{
+		} catch (final Exception e) {
 			e.printStackTrace();
 			logger.error("an error occurred while postprocessing captured data", e);
 		}
-		
+
 	}
-	
-	
+
 	private static StoppingCondition getStoppingCondition() {
 		StoppingCondition stoppingCondition = new MaxTimeStoppingCondition();
 		stoppingCondition.setLimit(TIME_LIMIT_SECONDS);
@@ -484,7 +481,8 @@ public class UITestSuiteGenerator {
 
 	public static void serializeObjectToFile(Object object, String filename) {
 		try {
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename));
+			ObjectOutputStream oos = new ObjectOutputStream(
+			        new FileOutputStream(filename));
 			oos.writeObject(object);
 			oos.close();
 		} catch (Throwable t) {
@@ -495,7 +493,8 @@ public class UITestSuiteGenerator {
 
 	private void writeStateGraph() {
 		try {
-			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream("state.dot")), "UTF-8"));
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+			        new BufferedOutputStream(new FileOutputStream("state.dot")), "UTF-8"));
 			pw.println(this.stateGraph.toGraphViz());
 			pw.close();
 
@@ -507,19 +506,20 @@ public class UITestSuiteGenerator {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public static void writeAllExecutedTests() {
 		writeTests("tests.txt", UITestChromosome.getExecutedChromosomes());
 	}
-	
+
 	public static void writeTests(String targetPath, Iterable<UITestChromosome> tests) {
 		try {
-			PrintWriter pw = new PrintWriter(new OutputStreamWriter(new BufferedOutputStream(new FileOutputStream(targetPath)), "UTF-8"));
-			
+			PrintWriter pw = new PrintWriter(new OutputStreamWriter(
+			        new BufferedOutputStream(new FileOutputStream(targetPath)), "UTF-8"));
+
 			for (UITestChromosome testChromosome : tests) {
 				pw.println(testChromosome);
 			}
-			
+
 			pw.close();
 		} catch (Exception e) {
 			System.out.println("Exception on writing executed tests:");

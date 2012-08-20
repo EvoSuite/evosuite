@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Remove all statements from a test case that do not contribute to the fitness
- *
+ * 
  * @author Gordon Fraser
  */
 public class TestCaseMinimizer {
@@ -46,8 +46,9 @@ public class TestCaseMinimizer {
 
 	/**
 	 * Constructor
-	 *
-	 * @param fitnessFunctions a {@link java.util.Collection} object.
+	 * 
+	 * @param fitnessFunctions
+	 *            a {@link java.util.Collection} object.
 	 */
 	public TestCaseMinimizer(Collection<TestFitnessFunction> fitnessFunctions) {
 		this.fitnessFunctions.addAll(fitnessFunctions);
@@ -55,7 +56,7 @@ public class TestCaseMinimizer {
 
 	/**
 	 * Constructor
-	 *
+	 * 
 	 * @param fitnessFunction
 	 *            Fitness function with which to measure whether a statement is
 	 *            necessary
@@ -66,7 +67,7 @@ public class TestCaseMinimizer {
 
 	/**
 	 * Remove all unreferenced variables
-	 *
+	 * 
 	 * @param t
 	 *            The test case
 	 * @return True if something was deleted
@@ -112,8 +113,9 @@ public class TestCaseMinimizer {
 
 	/**
 	 * Calculate the fitness values for all fitness functions in a map
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a {@link java.util.Map} object.
 	 */
 	public Map<TestFitnessFunction, Double> getFitnessValues(TestChromosome test) {
@@ -127,8 +129,9 @@ public class TestCaseMinimizer {
 	/**
 	 * Central minimization function. Loop and try to remove until all
 	 * statements have been checked.
-	 *
-	 * @param c a {@link org.evosuite.testcase.TestChromosome} object.
+	 * 
+	 * @param c
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
 	public void minimize(TestChromosome c) {
 		if (!Properties.MINIMIZE) {
@@ -138,7 +141,7 @@ public class TestCaseMinimizer {
 		//logger.info(c.test.toCode());
 
 		/** Factory method that handles statement deletion */
-		AbstractTestFactory testFactory = DefaultTestFactory.getInstance();
+		TestFactory testFactory = TestFactory.getInstance();
 
 		Map<TestFitnessFunction, Double> fitness = getFitnessValues(c);
 

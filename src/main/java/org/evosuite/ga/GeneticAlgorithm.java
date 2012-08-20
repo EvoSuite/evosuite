@@ -799,7 +799,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	public void printBudget() {
 		LoggingUtils.getEvoLogger().info("* GA-Budget:");
 		for (StoppingCondition sc : stoppingConditions)
-			System.out.println("\t- " + sc.toString());
+			LoggingUtils.getEvoLogger().info("\t- " + sc.toString());
 	}
 
 	/**

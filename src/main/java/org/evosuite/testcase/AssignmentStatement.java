@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -117,7 +118,7 @@ public class AssignmentStatement extends AbstractStatement {
 			@Override
 			public void execute() throws InvocationTargetException,
 			        IllegalArgumentException, IllegalAccessException,
-			        InstantiationException {
+			        InstantiationException, CodeUnderTestException {
 				try {
 					final Object value = parameter.getObject(scope);
 					retval.setObject(scope, value);
@@ -126,6 +127,8 @@ public class AssignmentStatement extends AbstractStatement {
 				} catch (IllegalArgumentException e) {
 					// FIXXME: IllegalArgumentException may happen when we only have generators
 					// for an abstract supertype and not the concrete type that we need!
+					throw e;
+				} catch (CodeUnderTestException e) {
 					throw e;
 				} catch (Throwable e) {
 					throw new EvosuiteError(e);
@@ -315,7 +318,7 @@ public class AssignmentStatement extends AbstractStatement {
 			} else {
 				if (!value.isPrimitive() && !(value instanceof NullReference)) {
 					// add fields of this object to list
-					for (Field field : StaticTestCluster.getAccessibleFields(value.getVariableClass())) {
+					for (Field field : TestClusterGenerator.getAccessibleFields(value.getVariableClass())) {
 						FieldReference f = new FieldReference(tc, field, value);
 						if (f.getDepth() <= 2) {
 							if (f.isAssignableFrom(parameter.getType())) {
@@ -334,7 +337,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+	public boolean mutate(TestCase test, TestFactory factory) {
 		assert (isValid());
 
 		// Either mutate parameter, or source
