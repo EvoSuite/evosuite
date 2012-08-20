@@ -30,8 +30,6 @@
       <outputDirectory>/</outputDirectory>
       <useProjectArtifact>false</useProjectArtifact>
       <excludes>
-        <exclude>jpf:jpf-annotations</exclude>
-        <exclude>jpf:jpf-classes</exclude>
         <exclude>org.eclipse.*:*</exclude>
         <exclude>org.eclipse:*</exclude>
         <exclude>org.eclipse.tycho:*</exclude>

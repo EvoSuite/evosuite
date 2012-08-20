@@ -52,7 +52,7 @@ public class ClientProcess {
 	 * </p>
 	 */
 	public void run() {
-
+		Properties.getInstance();
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		                                         + Properties.PROCESS_COMMUNICATION_PORT);
 		if (!util.connectToMainProcess()) {

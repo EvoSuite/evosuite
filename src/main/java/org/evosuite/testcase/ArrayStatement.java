@@ -338,7 +338,7 @@ public class ArrayStatement extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+	public boolean mutate(TestCase test, TestFactory factory) {
 		int maxAssignment = 0;
 		for (StatementInterface statement : test) {
 			for (VariableReference var : statement.getVariableReferences()) {

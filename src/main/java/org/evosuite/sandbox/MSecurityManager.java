@@ -160,6 +160,8 @@ class MSecurityManager extends SecurityManager {
 						return true;
 					else if (perm.getName().startsWith("javax.accessibility"))
 						return true;
+					else if (perm.getName().startsWith("sun.font.fontmanager"))
+						return true;
 				}
 			}
 

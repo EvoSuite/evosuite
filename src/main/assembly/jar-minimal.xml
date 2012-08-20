@@ -39,10 +39,6 @@
       <excludes>
 	<exclude>*.jar</exclude>
         <exclude>org/evosuite/ui/**/*.class</exclude>
-        <exclude>org/evosuite/ma/*.class</exclude>
-        <exclude>org/evosuite/ma/parser/*.class</exclude>
-        <exclude>org/evosuite/ma/gui/*.class</exclude>
-        <exclude>org/evosuite/symbolic/**/*.class</exclude>
       </excludes>
     </fileSet>
   </fileSets>
@@ -52,34 +48,17 @@
       <useProjectArtifact>false</useProjectArtifact>
       <excludes>
         <exclude>jmockit:*</exclude>
-        <exclude>jpf:jpf-annotations</exclude>
-        <exclude>jpf:jpf-classes</exclude>
-        <exclude>jpf:jpf-core</exclude>
-        <exclude>org.eclipse.jdt:*</exclude>
-        <exclude>org.eclipse.core:*</exclude>
-        <exclude>org.eclipse.team:*</exclude>
-        <exclude>org.eclipse.jface:*</exclude>
-        <exclude>org.eclipse.ltk:*</exclude>
-        <exclude>org.eclipse.tycho:*</exclude>
-        <exclude>org.eclipse.*:*</exclude>
-        <exclude>org.eclipse.equinox:*</exclude>
         <exclude>org.uispec4j:*</exclude>
         <exclude>com.ibm:icu</exclude>
-        <exclude>cvc3:*</exclude>
-        <exclude>bcel:*</exclude>
-	<exclude>org.smtlib:*</exclude>
-	<exclude>javaparser:*</exclude>
       </excludes>
       <unpack>true</unpack>
       <unpackOptions>
         <excludes>
           <exclude>logback.xml</exclude>
-          <exclude>META-INF/*.SF</exclude>
-          <exclude>META-INF/*.sf</exclude>
-          <exclude>META-INF/*.RSA</exclude>
-          <exclude>META-INF/*.rsa</exclude>
-          <exclude>META-INF/*.INF</exclude>
-          <exclude>META-INF/*.inf</exclude>
+          <exclude>META-INF/**</exclude>
+          <exclude>*.html</exclude>
+          <exclude>COPYING*</exclude>
+          <exclude>LICENSE*</exclude>
         </excludes>
       </unpackOptions>
       <scope>runtime</scope>

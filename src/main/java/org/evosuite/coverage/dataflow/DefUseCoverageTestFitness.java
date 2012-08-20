@@ -745,6 +745,9 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	public int compareTo(TestFitnessFunction other) {
 		if (other instanceof DefUseCoverageTestFitness) {
 			DefUseCoverageTestFitness otherFitness = (DefUseCoverageTestFitness) other;
+			// goalDefinition can be null for parameter goals
+			if(goalDefinition == null || otherFitness.getGoalDefinition() == null)
+				return goalUse.compareTo(otherFitness.getGoalUse());
 			if (goalDefinition.compareTo(otherFitness.getGoalDefinition()) == 0) {
 				return goalUse.compareTo(otherFitness.getGoalUse());
 			} else {

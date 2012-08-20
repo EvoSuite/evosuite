@@ -29,8 +29,10 @@ import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +96,17 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 */
 	public static void computeGoals() {
 
+		categorizeFieldMethodCalls(); 
+		
+		// TODO remove the following lines once purity analysis is implemented
+		// they are just for testing purposes
+		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
+			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
+				LoggingUtils.getEvoLogger().info("PURE method:\t"+methodInCCFG);
+			else
+				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+methodInCCFG);
+		}
+		
 		long start = System.currentTimeMillis();
 		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
@@ -119,9 +132,43 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 				+ "ms");
 	}
 
+	/**
+	 * Determines for all method calls on fields of the CUT whether the call
+	 * is to a pure or impure method. For these calls Uses and Definitions are
+	 * created respectively.
+	 * 
+	 *  Since purity analysis is used here and requires all classes along the
+	 *  call tree to be completely analyzed this part of the CUT analysis
+	 *  can not be done in the CFGMethodAdapter like the rest of it.
+	 *  
+	 *  WORK IN PROGRESS
+	 */
+	private static void categorizeFieldMethodCalls() {
+		Set<BytecodeInstruction> fieldMethodCalls = DefUsePool.retrieveFieldMethodCalls();
+		
+		LoggingUtils.getEvoLogger().info(
+				"Categorizing field method calls: " + fieldMethodCalls.size());
+		
+		for(BytecodeInstruction fieldMethodCall : fieldMethodCalls) {
+			if(!GraphPool.canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
+				// classes in java.* can not be analyzed for purity yet. for now just ignore them
+				continue;
+			}
+			
+			ClassControlFlowGraph ccfg = GraphPool.getCCFG(fieldMethodCall.getCalledMethodsClass());
+			if(ccfg.isPure(fieldMethodCall.getCalledMethod())) {
+				if(!DefUsePool.addAsUse(fieldMethodCall))
+					throw new IllegalStateException("unable to register field method call as a use "+fieldMethodCall.toString());
+			} else {
+				if(!DefUsePool.addAsDefinition(fieldMethodCall))
+					throw new IllegalStateException("unable to register field method call as a definition "+fieldMethodCall.toString());
+			}
+		}
+	}
+
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
 		ClassControlFlowGraph ccfg = GraphPool
-				.computeCCFG(Properties.TARGET_CLASS);
+				.getCCFG(Properties.TARGET_CLASS);
 		Set<DefUseCoverageTestFitness> r = ccfg.determineDefUsePairs();
 
 		return r;
@@ -192,7 +239,6 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 			return false;
 
 		goalMap.get(goal.getGoalDefinition()).put(goal.getGoalUse(), goal);
-
 		countGoal(goal);
 		return true;
 	}
@@ -202,8 +248,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 			goalCounts.put(goal.getType(), 0);
 		goalCounts.put(goal.getType(), goalCounts.get(goal.getType()) + 1);
 		
-//		if(goal.getType().equals(DefUsePairType.INTER_METHOD))
-//			System.out.println(goal.toString());
+		LoggingUtils.getEvoLogger().info(goal.toString());
 	}
 
 	/**

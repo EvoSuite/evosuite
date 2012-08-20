@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,7 +29,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.smt.cvc3.CVC3Solver;
+import org.evosuite.symbolic.search.Seeker;
 import org.evosuite.testcase.BooleanPrimitiveStatement;
 import org.evosuite.testcase.BytePrimitiveStatement;
 import org.evosuite.testcase.CharPrimitiveStatement;
@@ -41,10 +41,11 @@ import org.evosuite.testcase.TestCase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>ConcolicMutation class.</p>
- *
+ * <p>
+ * ConcolicMutation class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class ConcolicMutation {
@@ -54,12 +55,14 @@ public class ConcolicMutation {
 
 	/**
 	 * Generate new constraint and ask solver for solution
-	 *
-	 * @param condition a {@link org.evosuite.symbolic.BranchCondition} object.
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param condition
+	 *            a {@link org.evosuite.symbolic.BranchCondition} object.
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
-//	@SuppressWarnings({ "rawtypes", "unchecked" })
+	//	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@SuppressWarnings("unchecked")
 	public static TestCase negateCondition(BranchCondition condition, TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
@@ -84,7 +87,7 @@ public class ConcolicMutation {
 			//logger.info("Now solving: " + constraints);
 		}
 
-		CVC3Solver solver = new CVC3Solver();
+		Solver solver = new Seeker();
 		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
