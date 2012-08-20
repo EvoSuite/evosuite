@@ -27,9 +27,9 @@ public class NullReferenceSearch implements LocalSearch {
 		double oldFitness = test.getFitness();
 
 		try {
-			DefaultTestFactory.getInstance().attemptGeneration(newTest,
-			                                                   nullStatement.getReturnType(),
-			                                                   statement);
+			TestFactory.getInstance().attemptGeneration(newTest,
+			                                            nullStatement.getReturnType(),
+			                                            statement);
 			if (!objective.hasImproved(test)) {
 				test.setTestCase(oldTest);
 				test.setLastExecutionResult(oldResult);

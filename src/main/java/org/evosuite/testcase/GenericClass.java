@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.evosuite.setup.TestCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -143,6 +144,10 @@ public class GenericClass implements Serializable {
 	 */
 	public boolean isArray() {
 		return raw_class.isArray();
+	}
+
+	public boolean isObject() {
+		return raw_class.equals(Object.class);
 	}
 
 	/**
@@ -487,22 +492,26 @@ public class GenericClass implements Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		//result = prime * result
-		//		+ ((raw_class == null) ? 0 : raw_class.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
-
-	/** {@inheritDoc} */
-	@Override
 	public String toString() {
 		return type.toString();
 	}
 
-	/** {@inheritDoc} */
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + getTypeName().hashCode();
+		// result = prime * result + ((raw_class == null) ? 0 : raw_class.hashCode());
+		// result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -512,12 +521,22 @@ public class GenericClass implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		GenericClass other = (GenericClass) obj;
-		if (type == null) {
-			if (other.type != null)
+		return getTypeName().equals(other.getTypeName());
+		/*
+		if (raw_class == null) {
+			if (other.raw_class != null)
 				return false;
-		} else if (!type.equals(other.type))
+		} else if (!raw_class.equals(other.raw_class))
 			return false;
-		return true;
+			*/
+		/*
+		if (type == null) {
+		    if (other.type != null)
+			    return false;
+		} else if (!type.equals(other.type))
+		    return false;
+		    */
+		// return true;
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

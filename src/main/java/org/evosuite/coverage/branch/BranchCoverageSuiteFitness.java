@@ -85,10 +85,16 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		if (prefix.isEmpty()) {
 			prefix = Properties.TARGET_CLASS;
+			totalMethods = CFGMethodAdapter.getNumMethods();
+			totalBranches = BranchPool.getBranchCounter();
+			numBranchlessMethods = BranchPool.getNumBranchlessMethods();
+			branchlessMethods = BranchPool.getBranchlessMethods();
+			/*
 			totalMethods = CFGMethodAdapter.getNumMethodsMemberClasses(prefix);
 			totalBranches = BranchPool.getBranchCountForMemberClasses(prefix);
 			numBranchlessMethods = BranchPool.getNumBranchlessMethodsMemberClasses(prefix);
 			branchlessMethods = BranchPool.getBranchlessMethodsMemberClasses(prefix);
+			*/
 		} else {
 			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
@@ -290,8 +296,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		int missingMethods = 0;
 
-		Set<String> methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getMethods(Properties.TARGET_CLASS)
+		Set<String> methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getMethods()
 		        : CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
+
+		//Set<String> methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getMethods(Properties.TARGET_CLASS)
+		//        : CFGMethodAdapter.getMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
 
 		for (String e : methods) {
 			if (!callCount.containsKey(e)) {

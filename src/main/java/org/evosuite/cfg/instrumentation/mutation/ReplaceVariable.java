@@ -32,7 +32,7 @@ import java.util.Map.Entry;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -480,7 +480,7 @@ public class ReplaceVariable implements MutationOperator {
 			logger.info("Checking class " + className);
 			Class<?> clazz = Class.forName(className);
 
-			for (Field field : TestCluster.getFields(clazz)) {
+			for (Field field : TestClusterGenerator.getFields(clazz)) {
 				Type type = Type.getType(field.getType());
 				logger.info("Checking replacement field variable " + field.getName());
 

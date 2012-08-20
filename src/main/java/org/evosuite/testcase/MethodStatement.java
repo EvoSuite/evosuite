@@ -33,6 +33,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -213,6 +215,7 @@ public class MethodStatement extends AbstractStatement {
 						throw e;
 						// throw CodeUnderTestException.throwException(e.getCause());
 					} catch (Throwable e) {
+						e.printStackTrace();
 						throw new EvosuiteError(e);
 					}
 
@@ -224,6 +227,7 @@ public class MethodStatement extends AbstractStatement {
 						throw e;
 						// throw CodeUnderTestException.throwException(e);
 					} catch (Throwable e) {
+						e.printStackTrace();
 						throw new EvosuiteError(e);
 					}
 				}
@@ -675,7 +679,7 @@ public class MethodStatement extends AbstractStatement {
 		try {
 			Class<?> oldClass = method.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Method newMethod : TestCluster.getMethods(newClass)) {
+			for (Method newMethod : TestClusterGenerator.getMethods(newClass)) {
 				if (newMethod.getName().equals(this.method.getName())) {
 					boolean equals = true;
 					Class<?>[] oldParameters = this.method.getParameterTypes();

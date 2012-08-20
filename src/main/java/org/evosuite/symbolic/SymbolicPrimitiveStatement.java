@@ -12,11 +12,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
-import org.evosuite.testcase.AbstractTestFactory;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -259,7 +259,7 @@ public class SymbolicPrimitiveStatement implements StatementInterface {
 	 * @see org.evosuite.testcase.StatementInterface#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.AbstractTestFactory)
 	 */
 	@Override
-	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+	public boolean mutate(TestCase test, TestFactory factory) {
 		return concreteStatement.mutate(test, factory);
 	}
 

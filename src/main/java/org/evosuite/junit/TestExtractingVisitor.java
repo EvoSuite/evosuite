@@ -90,6 +90,7 @@ import org.evosuite.junit.CompoundTestCase.MethodDef;
 import org.evosuite.junit.CompoundTestCase.ReturnStatementPlaceholder;
 import org.evosuite.junit.CompoundTestCase.TestScope;
 import org.evosuite.junit.TestRuntimeValuesDeterminer.CursorableTrace;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.ArrayStatement;
@@ -114,7 +115,6 @@ import org.evosuite.testcase.ShortPrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.StringPrimitiveStatement;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCluster;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
 

@@ -19,6 +19,9 @@ package org.evosuite.testcase;
 
 import java.util.Map;
 
+import org.evosuite.coverage.dataflow.DefUsePool;
+import org.evosuite.coverage.dataflow.Definition;
+import org.evosuite.coverage.dataflow.Use;
 import org.evosuite.javaagent.BooleanHelper;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
@@ -664,6 +667,27 @@ public class ExecutionTracer {
 			return;
 
 		tracer.trace.usePassed(caller, useID);
+	}
+	
+	/**
+	 * Called by instrumented code each time a field method call is passed
+	 * 
+	 * Since it was not clear whether the field method call constitutes a
+	 * definition or a use when the instrumentation was initially added
+	 * this method will redirect the call accordingly
+	 * 
+	 * @param caller
+	 * @param defuseId
+	 */
+	public static void passedFieldMethodCall(Object caller, int defuseId) {
+		if(DefUsePool.isKnownAsDefinition(defuseId)) {
+			Definition passedDef = DefUsePool.getDefinitionByDefUseId(defuseId);
+			passedDefinition(caller, passedDef.getDefId());
+		} else if(DefUsePool.isKnownAsUse(defuseId)) {
+			Use passedUse = DefUsePool.getUseByDefUseId(defuseId);
+			passedUse(caller, passedUse.getUseId());
+		} else
+			throw new IllegalStateException("instrumentation called passedFieldMethodCall with invalid defuseId");
 	}
 
 	/**

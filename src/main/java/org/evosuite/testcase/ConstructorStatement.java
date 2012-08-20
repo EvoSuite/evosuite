@@ -34,6 +34,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -561,7 +563,7 @@ public class ConstructorStatement extends AbstractStatement {
 		try {
 			Class<?> oldClass = constructor.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Constructor<?> newConstructor : TestCluster.getConstructors(newClass)) {
+			for (Constructor<?> newConstructor : TestClusterGenerator.getConstructors(newClass)) {
 				boolean equals = true;
 				Class<?>[] oldParameters = this.constructor.getParameterTypes();
 				Class<?>[] newParameters = newConstructor.getParameterTypes();
