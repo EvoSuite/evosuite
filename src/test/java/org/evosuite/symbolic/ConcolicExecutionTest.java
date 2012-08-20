@@ -902,7 +902,7 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		assertEquals(3, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
@@ -918,7 +918,7 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		assertEquals(3, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
@@ -934,7 +934,7 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		assertEquals(3, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
@@ -950,6 +950,6 @@ public class ConcolicExecutionTest {
 				System.out.println(constr.toString());
 			}
 		}
-		assertEquals(3, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 }
