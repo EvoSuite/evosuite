@@ -59,6 +59,7 @@ import edu.uta.cse.dsc.IVM;
 import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.VM;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
+import edu.uta.cse.dsc.instrument.InstrumentConfig;
 
 /**
  * <p>
