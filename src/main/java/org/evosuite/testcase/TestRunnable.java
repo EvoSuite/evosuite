@@ -168,6 +168,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 					logger.debug("Executing statement " + s.getCode());
 				}
 				ExecutionTracer.statementExecuted();
+				ExecutionTracer.disable();
+				for (ExecutionObserver observer : observers) {
+					observer.beforeStatement(s, scope);
+				}
+				ExecutionTracer.enable();
 
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
@@ -199,7 +204,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 					ExecutionTracer.disable();
 					for (ExecutionObserver observer : observers) {
-						observer.statement(s, scope, exceptionThrown);
+						observer.afterStatement(s, scope, exceptionThrown);
 					}
 					ExecutionTracer.enable();
 
@@ -244,7 +249,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 				ExecutionTracer.disable();
 				for (ExecutionObserver observer : observers) {
-					observer.statement(s, scope, exceptionThrown);
+					observer.afterStatement(s, scope, exceptionThrown);
 				}
 				ExecutionTracer.enable();
 

@@ -31,7 +31,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 
 	/** {@inheritDoc} */
 	@Override
-	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
+	public void afterStatement(StatementInterface statement, Scope scope, Throwable exception) {
 		visitReturnValue(statement, scope);
 	}
 
