@@ -29,6 +29,16 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.symbolic.vm.ArithmeticVM;
+import org.evosuite.symbolic.vm.CallVM;
+import org.evosuite.symbolic.vm.ConcolicMarkerVM;
+import org.evosuite.symbolic.vm.FunctionVM;
+import org.evosuite.symbolic.vm.HeapVM;
+import org.evosuite.symbolic.vm.JumpVM;
+import org.evosuite.symbolic.vm.LocalsVM;
+import org.evosuite.symbolic.vm.OtherVM;
+import org.evosuite.symbolic.vm.PathConstraint;
+import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
@@ -49,16 +59,6 @@ import edu.uta.cse.dsc.IVM;
 import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.VM;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
-import edu.uta.cse.dsc.vm2.ArithmeticVM;
-import edu.uta.cse.dsc.vm2.CallVM;
-import edu.uta.cse.dsc.vm2.ConcolicMarkerVM;
-import edu.uta.cse.dsc.vm2.FunctionVM;
-import edu.uta.cse.dsc.vm2.HeapVM;
-import edu.uta.cse.dsc.vm2.JumpVM;
-import edu.uta.cse.dsc.vm2.LocalsVM;
-import edu.uta.cse.dsc.vm2.OtherVM;
-import edu.uta.cse.dsc.vm2.PathConstraint;
-import edu.uta.cse.dsc.vm2.SymbolicEnvironment;
 
 /**
  * <p>
@@ -128,6 +128,8 @@ public class ConcolicExecution {
 		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
 		MainConfig.get().LOG_SUMMARY = false;
 		MainConfig.get().USE_MAX = true;
+		MainConfig.get().DO_NOT_INSTRUMENT_PREFIXES
+				.add("org.evosuite.symbolic.vm.");
 
 		int dsc_ret_val;
 		PathConstraint pc = new PathConstraint();
