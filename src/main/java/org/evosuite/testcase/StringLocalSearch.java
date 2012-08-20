@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -24,13 +24,15 @@ import java.util.Arrays;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>StringLocalSearch class.</p>
- *
+ * <p>
+ * StringLocalSearch class.
+ * </p>
+ * 
  * @author fraser
  */
 public class StringLocalSearch implements LocalSearch {
@@ -67,9 +69,14 @@ public class StringLocalSearch implements LocalSearch {
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
 
 		boolean affected = false;
-		logger.info("Probing string " + p.getCode());
+		String oldValue = p.getValue();
 		for (int i = 0; i < Properties.LOCAL_SEARCH_PROBES; i++) {
-			p.increment();
+			if (Randomness.nextDouble() > 0.5)
+				p.increment();
+			else
+				p.randomize();
+
+			logger.info("Probing string " + oldValue + " ->" + p.getCode());
 			int result = objective.hasChanged(test);
 			if (result < 0) {
 				backup(test, p);
@@ -133,17 +140,21 @@ public class StringLocalSearch implements LocalSearch {
 	private boolean replaceCharacters(LocalSearchObjective objective,
 	        ExecutableChromosome test, StringPrimitiveStatement p, int statement) {
 
+		logger.info(" -> In replacement");
 		boolean improvement = false;
 		backup(test, p);
 
 		for (int i = 0; i < oldValue.length(); i++) {
 			char oldChar = oldValue.charAt(i);
+			logger.info(" -> Character " + i + ": " + oldChar);
 			char[] characters = oldValue.toCharArray();
-			for (char replacement = 0; replacement < 128; replacement++) {
+			for (char replacement = 9; replacement < 128; replacement++) {
 				if (replacement != oldChar) {
 					characters[i] = replacement;
 					String newString = new String(characters);
 					p.setValue(newString);
+					logger.info(" " + i + " " + oldValue + "/" + oldValue.length()
+					        + " -> " + newString + "/" + newString.length());
 					//logger.debug(" " + i + " " + oldValue + "/" + oldValue.length()
 					//        + " -> " + newString + "/" + newString.length());
 
@@ -151,6 +162,9 @@ public class StringLocalSearch implements LocalSearch {
 						backup(test, p);
 						//oldChar = replacement;
 						improvement = true;
+
+						// If this change has improved fitness we can move on to the next character
+						break;
 					} else {
 						characters[i] = oldChar;
 						restore(test, p);
@@ -174,7 +188,7 @@ public class StringLocalSearch implements LocalSearch {
 			add = false;
 			int position = oldValue.length();
 			char[] characters = Arrays.copyOf(oldValue.toCharArray(), position + 1);
-			for (char replacement = 0; replacement < 128; replacement++) {
+			for (char replacement = 9; replacement < 128; replacement++) {
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);
@@ -197,7 +211,7 @@ public class StringLocalSearch implements LocalSearch {
 			add = false;
 			int position = 0;
 			char[] characters = (" " + oldValue).toCharArray();
-			for (char replacement = 0; replacement < 128; replacement++) {
+			for (char replacement = 9; replacement < 128; replacement++) {
 				characters[position] = replacement;
 				String newString = new String(characters);
 				p.setValue(newString);

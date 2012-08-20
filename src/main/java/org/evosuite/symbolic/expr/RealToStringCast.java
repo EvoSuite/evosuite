@@ -1,36 +1,34 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
-import java.util.logging.Logger;
-
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-
-import gov.nasa.jpf.JPF;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class RealToStringCast extends StringExpression implements Cast<Double> {
 
 	private static final long serialVersionUID = -5322228289539145088L;
 
-	static Logger log = JPF.getLogger((RealToStringCast.class).toString());
+	protected static Logger log = LoggerFactory.getLogger(RealToStringCast.class);
 
 	protected final Expression<Double> expr;
 
@@ -75,8 +73,7 @@ public class RealToStringCast extends StringExpression implements Cast<Double> {
 		}
 		if (obj instanceof RealToStringCast) {
 			RealToStringCast other = (RealToStringCast) obj;
-			return this.expr.equals(other.expr)
-					&& this.getSize() == other.getSize();
+			return this.expr.equals(other.expr) && this.getSize() == other.getSize();
 		}
 
 		return false;
