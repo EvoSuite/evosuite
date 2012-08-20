@@ -30,7 +30,7 @@ public class FixedLengthTestChromosomeFactory implements
 	private static final long serialVersionUID = -3860201346772188495L;
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
+	protected static final Logger logger = LoggerFactory.getLogger(FixedLengthTestChromosomeFactory.class);
 
 	/**
 	 * Constructor

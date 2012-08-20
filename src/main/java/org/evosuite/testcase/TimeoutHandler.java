@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.testcase;
@@ -31,49 +30,64 @@ import java.util.concurrent.TimeoutException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 public class TimeoutHandler<T> {
-	
+
 	/**
-	 * <p>Constructor for TimeoutHandler.</p>
-	 *
-	 * @param <T> a T object.
+	 * <p>
+	 * Constructor for TimeoutHandler.
+	 * </p>
+	 * 
+	 * @param <T>
+	 *            a T object.
 	 */
 	public TimeoutHandler() {
 		super();
-		this.bean =  ManagementFactory.getThreadMXBean( );
+		this.bean = ManagementFactory.getThreadMXBean();
 	}
 
 	protected FutureTask<T> task = null;
-	private ThreadMXBean bean;
+	private final ThreadMXBean bean;
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(TimeoutHandler.class);
+	protected static final Logger logger = LoggerFactory.getLogger(TimeoutHandler.class);
 
 	/**
-	 * <p>getLastTask</p>
-	 *
+	 * <p>
+	 * getLastTask
+	 * </p>
+	 * 
 	 * @return a {@link java.util.concurrent.FutureTask} object.
 	 */
 	public FutureTask<T> getLastTask() {
 		return task;
 	}
-	
+
 	/**
-	 * <p>execute</p>
-	 *
-	 * @param testcase a {@link java.util.concurrent.Callable} object.
-	 * @param executor a {@link java.util.concurrent.ExecutorService} object.
-	 * @param timeout a long.
-	 * @param timeout_based_on_cpu a boolean.
+	 * <p>
+	 * execute
+	 * </p>
+	 * 
+	 * @param testcase
+	 *            a {@link java.util.concurrent.Callable} object.
+	 * @param executor
+	 *            a {@link java.util.concurrent.ExecutorService} object.
+	 * @param timeout
+	 *            a long.
+	 * @param timeout_based_on_cpu
+	 *            a boolean.
 	 * @return a T object.
-	 * @throws java.util.concurrent.TimeoutException if any.
-	 * @throws java.lang.InterruptedException if any.
-	 * @throws java.util.concurrent.ExecutionException if any.
+	 * @throws java.util.concurrent.TimeoutException
+	 *             if any.
+	 * @throws java.lang.InterruptedException
+	 *             if any.
+	 * @throws java.util.concurrent.ExecutionException
+	 *             if any.
 	 */
-	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout, boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException, ExecutionException
-	{
-		if(!bean.isCurrentThreadCpuTimeSupported()  && timeout_based_on_cpu)
-		{
+	public T execute(final Callable<T> testcase, ExecutorService executor, long timeout,
+	        boolean timeout_based_on_cpu) throws TimeoutException, InterruptedException,
+	        ExecutionException {
+		if (!bean.isCurrentThreadCpuTimeSupported() && timeout_based_on_cpu) {
 			timeout_based_on_cpu = false;
 			logger.warn("Requested to use timeout_based_on_cpu, but it is not supported by the JVM/OS");
 		}
@@ -84,17 +98,19 @@ public class TimeoutHandler<T> {
 			return executeWithCpuBasedTimeout(testcase, executor, timeout);
 		}
 	}
-	
-	private T executeWithTimeout(final Callable<T> testcase, ExecutorService executor, long timeout)
-			throws InterruptedException, ExecutionException, TimeoutException {
+
+	private T executeWithTimeout(final Callable<T> testcase, ExecutorService executor,
+	        long timeout) throws InterruptedException, ExecutionException,
+	        TimeoutException {
 		task = new FutureTask<T>(testcase);
 		executor.execute(task);
 		T result = task.get(timeout, TimeUnit.MILLISECONDS);
 		return result;
 	}
 
-	private T executeWithCpuBasedTimeout(final Callable<T> testcase, ExecutorService executor, long timeout)
-			throws InterruptedException, ExecutionException, TimeoutException {
+	private T executeWithCpuBasedTimeout(final Callable<T> testcase,
+	        ExecutorService executor, long timeout) throws InterruptedException,
+	        ExecutionException, TimeoutException {
 		long[] other_thread_ids = bean.getAllThreadIds();
 
 		task = new FutureTask<T>(testcase);

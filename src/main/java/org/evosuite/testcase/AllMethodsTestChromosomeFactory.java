@@ -48,7 +48,7 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	private static final long serialVersionUID = -420224349882780856L;
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
+	protected static final Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
 	private static Set<AccessibleObject> attemptedMethods = new LinkedHashSet<AccessibleObject>();

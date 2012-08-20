@@ -50,7 +50,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 
 	private static final long serialVersionUID = 2760642997019090252L;
 
-	private static Logger logger = LoggerFactory.getLogger(JUnitTestChromosomeFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(JUnitTestChromosomeFactory.class);
 
 	private final static Set<TestCase> userTests = new LinkedHashSet<TestCase>();
 
