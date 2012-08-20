@@ -116,7 +116,8 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
+	public void afterStatement(StatementInterface statement, Scope scope,
+	        Throwable exception) {
 
 		if (!valid) {
 			/*
@@ -152,6 +153,14 @@ public class ContractChecker extends ExecutionObserver {
 				//logger.info("Caught exception during contract checking");
 			}
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
+	 */
+	@Override
+	public void beforeStatement(StatementInterface statement, Scope scope) {
+		// Do nothing
 	}
 
 	/* (non-Javadoc)

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,10 +27,9 @@ import java.util.List;
 
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-
 /**
  * Inline all primitive values and null references in the test case
- *
+ * 
  * @author Gordon Fraser
  */
 public class ConstantInliner extends ExecutionObserver {
@@ -38,9 +37,12 @@ public class ConstantInliner extends ExecutionObserver {
 	private TestCase test = null;
 
 	/**
-	 * <p>inline</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * <p>
+	 * inline
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public void inline(TestCase test) {
 		this.test = test;
@@ -54,18 +56,24 @@ public class ConstantInliner extends ExecutionObserver {
 	}
 
 	/**
-	 * <p>inline</p>
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 * <p>
+	 * inline
+	 * </p>
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
 	public void inline(TestChromosome test) {
 		inline(test.test);
 	}
 
 	/**
-	 * <p>inline</p>
-	 *
-	 * @param suite a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * <p>
+	 * inline
+	 * </p>
+	 * 
+	 * @param suite
+	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void inline(TestSuiteChromosome suite) {
 		for (TestCase test : suite.getTests())
@@ -74,7 +82,7 @@ public class ConstantInliner extends ExecutionObserver {
 
 	/**
 	 * Remove all unreferenced variables
-	 *
+	 * 
 	 * @param t
 	 *            The test case
 	 * @return True if something was deleted
@@ -118,7 +126,8 @@ public class ConstantInliner extends ExecutionObserver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void statement(StatementInterface statement, Scope scope, Throwable exception) {
+	public void afterStatement(StatementInterface statement, Scope scope,
+	        Throwable exception) {
 		try {
 			for (VariableReference var : statement.getVariableReferences()) {
 				if (var.equals(statement.getReturnValue())
@@ -153,6 +162,14 @@ public class ConstantInliner extends ExecutionObserver {
 			        + ", " + Arrays.asList(e.getStackTrace()));
 		}
 
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
+	 */
+	@Override
+	public void beforeStatement(StatementInterface statement, Scope scope) {
+		// Do nothing
 	}
 
 	/* (non-Javadoc)
