@@ -28,8 +28,8 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Map;
 
-import org.objectweb.asm.commons.GeneratorAdapter;
 import org.evosuite.Properties;
+import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +64,6 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	public FieldReference(TestCase testCase, Field field, VariableReference source) {
 		super(testCase, field.getGenericType());
-		assert (field != null);
 		assert (source != null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
 		this.field = field;
 		this.source = source;
@@ -231,14 +230,13 @@ public class FieldReference extends VariableReferenceImpl {
 				// FIXXME: isAssignableFrom does not work with autoboxing
 				// assert (value==null || field.getType().isAssignableFrom(value.getClass()));
 				if (!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
-					
+
 					String msg = "Field " + field + " defined in class "
-					        + field.getDeclaringClass()
-					        +". Source object " + sourceObject + " has class "
-					        + sourceObject.getClass()
+					        + field.getDeclaringClass() + ". Source object "
+					        + sourceObject + " has class " + sourceObject.getClass()
 					        + ". Value object " + value + " has class "
 					        + value.getClass();
-					logger.error("Class "+Properties.TARGET_CLASS+". "+msg);
+					logger.error("Class " + Properties.TARGET_CLASS + ". " + msg);
 					//FIXME: is it correct to throw an exception here? if yes, which kind?						
 				}
 				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));

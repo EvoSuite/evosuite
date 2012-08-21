@@ -69,7 +69,6 @@ public class WeakMutationTestFitness extends MutationTestFitness {
 			// Add infection distance
 			assert (result.getTrace() != null);
 			// assert (result.getTrace().mutantDistances != null);
-			assert (mutation != null);
 			assert (result.getTrace().wasMutationTouched(mutation.getId()));
 			infectionDistance = normalize(result.getTrace().getMutationDistance(mutation.getId()));
 			logger.debug("Infection distance for mutation = " + infectionDistance);

@@ -1682,7 +1682,7 @@ public class Properties {
 	 * </p>
 	 */
 	public void resetToDefaults() {
-		instance = new Properties(false, true);
+		Properties.instance = new Properties(false, true);
 		for (Field f : Properties.class.getFields()) {
 			if (f.isAnnotationPresent(Parameter.class)) {
 				if (defaultMap.containsKey(f)) {

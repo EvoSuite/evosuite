@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,6 +27,8 @@ import org.slf4j.LoggerFactory;
  * @author Andre Mis
  */
 public class DefUse extends BytecodeInstruction {
+
+	private static final long serialVersionUID = -2643584238269671760L;
 
 	private static Logger logger = LoggerFactory.getLogger(DefUse.class);
 
@@ -60,38 +62,38 @@ public class DefUse extends BytecodeInstruction {
 		super(wrap);
 		if (!DefUsePool.isKnown(wrap))
 			throw new IllegalArgumentException(
-					"only instructions known by the DefUsePool are accepted");
+			        "only instructions known by the DefUsePool are accepted");
 		if (defuseId < 0)
 			throw new IllegalArgumentException("expect defUseId to be positive");
 		if (defId < 0 && useId < 0)
-			throw new IllegalArgumentException(
-					"expect either defId or useId to be set");
-		
+			throw new IllegalArgumentException("expect either defId or useId to be set");
+
 		this.defuseId = DefUsePool.getRegisteredDefUseId(wrap);
 		this.defId = DefUsePool.getRegisteredDefId(wrap);
 		this.useId = DefUsePool.getRegisteredUseId(wrap);
 		this.isParameterUse = DefUsePool.isKnownAsParameterUse(wrap);
 		this.isFieldMethodCall = DefUsePool.isKnownAsFieldMethodCall(wrap);
-		if(this.isFieldMethodCall) {
-			if(DefUsePool.isKnownAsDefinition(wrap))
+		if (this.isFieldMethodCall) {
+			if (DefUsePool.isKnownAsDefinition(wrap))
 				isFieldMethodCallDefinition = true;
-			if(DefUsePool.isKnownAsUse(wrap))
+			if (DefUsePool.isKnownAsUse(wrap))
 				isFieldMethodCallUse = true;
-			if(!(isFieldMethodCallDefinition || isFieldMethodCallUse))
-				throw new IllegalStateException("field method calls only accepted once they got categorized");
+			if (!(isFieldMethodCallDefinition || isFieldMethodCallUse))
+				throw new IllegalStateException(
+				        "field method calls only accepted once they got categorized");
 		}
-		
+
 		this.varName = super.getDUVariableName();
 		if (this.varName == null)
 			throw new IllegalStateException(
-					"expect defUses to have non-null varaible names");
+			        "expect defUses to have non-null varaible names");
 	}
-	
+
 	@Override
 	public boolean isFieldMethodCallDefinition() {
 		return isFieldMethodCallDefinition;
 	}
-	
+
 	@Override
 	public boolean isFieldMethodCallUse() {
 		return isFieldMethodCallUse;
@@ -242,7 +244,7 @@ public class DefUse extends BytecodeInstruction {
 			r.append(" root-Branch");
 		else
 			r.append(" Branch " + getControlDependentBranchId()
-					+ (getControlDependentBranchExpressionValue() ? "t" : "f"));
+			        + (getControlDependentBranchExpressionValue() ? "t" : "f"));
 		r.append(" Line " + getLineNumber());
 		return r.toString();
 	}

@@ -45,10 +45,11 @@ import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 
-
 /**
- * <p>StrongMutationTestFitness class.</p>
- *
+ * <p>
+ * StrongMutationTestFitness class.
+ * </p>
+ * 
  * @author fraser
  */
 public class StrongMutationTestFitness extends MutationTestFitness {
@@ -67,9 +68,12 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	        new NullTraceObserver() };
 
 	/**
-	 * <p>Constructor for StrongMutationTestFitness.</p>
-	 *
-	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * <p>
+	 * Constructor for StrongMutationTestFitness.
+	 * </p>
+	 * 
+	 * @param mutation
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 */
 	public StrongMutationTestFitness(Mutation mutation) {
 		super(mutation);
@@ -312,7 +316,6 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			// Add infection distance
 			assert (result.getTrace() != null);
 			// assert (result.getTrace().mutantDistances != null);
-			assert (mutation != null);
 			assert (result.getTrace().getTouchedMutants().contains(mutation.getId()));
 			infectionDistance = normalize(result.getTrace().getMutationDistance(mutation.getId()));
 			logger.debug("Infection distance for mutation = " + infectionDistance);
