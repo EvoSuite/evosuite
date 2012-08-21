@@ -32,9 +32,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Vector;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -92,7 +94,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * <p>
-	 * This enumeration defines all the variables we want to store in the CSV
+	 * This enumeration defines all the runtime variables we want to store in the CSV
 	 * files. Note, it is perfectly fine to add new ones, in any position. Just
 	 * be sure to define a proper mapper in {@code getCSVvalue}.
 	 * </p>
@@ -106,7 +108,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @author arcuri
 	 * 
 	 */
-	private enum Variable {
+	private enum RuntimeVariable {
 		/** The class under test */
 		Class,
 		/** Number of predicates */
@@ -261,21 +263,88 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public Map<String, Set<Class<?>>> explicitExceptions;
 
 		/**
-		 * For now we keep track of all defined variables. But in future we
-		 * might want to choose only some subsets based on the kind of
-		 * experiment
+		 * Return array of variables to dump in CSV files, based on
+		 * what defined in {@code Properties.OUTPUT_VARIABLES}
 		 * 
 		 * @return
 		 */
-		public Variable[] getUsedVariables() {
-			Variable[] variables = Variable.values();
-			return variables;
+		public	String[] getUsedVariables() throws IllegalStateException{
+			String property = Properties.OUTPUT_VARIABLES;
+			
+			String[] runtime = new String[RuntimeVariable.values().length];
+			for(int i=0; i<runtime.length; i++){
+				runtime[i] = RuntimeVariable.values()[i].toString();
+			}
+			
+			if(property==null){
+				return runtime;
+			}
+
+			//extract parameters
+			String[] splitArray = property.split(",");
+			List<String> usedList = new LinkedList<String>(); 
+			for(int i=0;i<splitArray.length; i++){
+				splitArray[i] = splitArray[i].trim();
+				if(!splitArray[i].isEmpty()){
+					usedList.add(splitArray[i]);
+				}
+			}
+			String[] usedArray = usedList.toArray(new String[usedList.size()]);
+			
+			Vector<String> runtimeVector = new Vector<String>();
+			for(String s : runtime){
+				runtimeVector.add(s);
+			}
+			
+			//check if parameters exist
+			for(String param : usedArray){
+				if(runtimeVector.contains(param)){ continue;}
+				if(Properties.hasParameter(param)){ continue;}
+				
+				throw new IllegalStateException("Parameter \""+param+"\" defined inside \"output_variables\" does not exist");
+			}
+			
+			return usedArray;
 		}
 
+
+		/**
+		 * Return value of a parameter, based on whether it is a EvoSuite property (e.g., population size),
+		 * or something calculated at runtime (e.g. coverage)
+		 * 
+		 * @return
+		 */
+		private String getValueOfOutputVariable(String name){
+			//first check if it is an EvoSuite parameter (e.g. population size)
+			if(Properties.hasParameter(name)){
+				try {
+					return Properties.getStringValue(name);
+				} catch (Exception e) {
+					/*
+					 * when we call this method, the parameters should had been already validated, and program aborted if necessary.
+					 * An exception here is likely a bug
+					 */
+					logger.error("Error in getting value of parameter "+name, e);
+					throw new Error("If this method inside EvoSuite is called, then it should never happen that the following exception is raised: "+e.getMessage());
+				}
+			}
+			//check if it is a runtime property of the search, e.g. coverage
+			RuntimeVariable var = null;
+			try{
+				var = RuntimeVariable.valueOf(name);
+			} catch(Exception e){
+				//note: we throw an Error as this protected method should never be called with wrong input / or on wrong internal state
+				throw new Error("Parameter "+name+" does not exist");
+			}
+			
+			//if it is not an EvoSuite property, it has to be a runtime one
+			return getCSVvalue(var);
+		}
+		
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 
-			Variable[] variables = Variable.values();
+			String[] variables = getUsedVariables();
 			if (variables.length > 0) {
 				r.append(variables[0].toString());
 			}
@@ -288,7 +357,24 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			return r.toString();
 		}
 
-		private String getCSVvalue(Variable var) {
+		public String getCSVData() {
+			StringBuilder r = new StringBuilder();
+
+			String[] variables = getUsedVariables();
+			if (variables.length > 0) {
+				r.append(getValueOfOutputVariable(variables[0]));
+			}
+
+			for (int i = 1; i < variables.length; i++) {
+				r.append(",");
+				r.append(getValueOfOutputVariable(variables[i]));
+			}
+
+			return r.toString();
+		}
+
+		
+		private String getCSVvalue(RuntimeVariable var) {
 
 			PermissionStatistics pstats = PermissionStatistics.getInstance();
 
@@ -446,21 +532,6 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			return "-1";
 		}
 
-		public String getCSVData() {
-			StringBuilder r = new StringBuilder();
-
-			Variable[] variables = Variable.values();
-			if (variables.length > 0) {
-				r.append(getCSVvalue(variables[0]));
-			}
-
-			for (int i = 1; i < variables.length; i++) {
-				r.append(",");
-				r.append(getCSVvalue(variables[i]));
-			}
-
-			return r.toString();
-		}
 
 		public String getCSVFilepath() {
 			return getReportDir().getAbsolutePath() + File.separator + getCSVFileName();
