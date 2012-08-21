@@ -56,10 +56,10 @@ public class TestSuiteMinimizer {
 	private final TestFitnessFactory testFitnessFactory;
 
 	/** Maximum number of seconds. 0 = infinite time */
-	protected static int max_seconds = Properties.MINIMIZATION_TIMEOUT;
+	protected static int maxSeconds = Properties.MINIMIZATION_TIMEOUT;
 
-	/** Assume the search has not started until start_time != 0 */
-	protected static long start_time = 0L;
+	/** Assume the search has not started until startTime != 0 */
+	protected static long startTime = 0L;
 
 	/**
 	 * <p>
@@ -82,7 +82,7 @@ public class TestSuiteMinimizer {
 	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	public void minimize(TestSuiteChromosome suite) {
-		start_time = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
 
 		String strategy = Properties.SECONDARY_OBJECTIVE;
 		if (strategy.contains(":"))
@@ -173,13 +173,13 @@ public class TestSuiteMinimizer {
 	}
 
 	private boolean isTimeoutReached() {
-		long current_time = System.currentTimeMillis();
-		if (max_seconds != 0 && start_time != 0
-		        && (current_time - start_time) / 1000 > max_seconds)
+		long currentTime = System.currentTimeMillis();
+		if (maxSeconds != 0 && startTime != 0
+		        && (currentTime - startTime) / 1000 > maxSeconds)
 			logger.info("Timeout reached");
 
-		return max_seconds != 0 && start_time != 0
-		        && (current_time - start_time) / 1000 > max_seconds;
+		return maxSeconds != 0 && startTime != 0
+		        && (currentTime - startTime) / 1000 > maxSeconds;
 	}
 
 	/**

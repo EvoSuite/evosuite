@@ -460,6 +460,10 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int MINIMIZATION_TIMEOUT = 600;
 
+	@Parameter(key = "assertion_timeout", group = "Search Algorithm", description = "Seconds allowed for assertion generation at the end")
+	@IntValue(min = 0)
+	public static int ASSERTION_TIMEOUT = 600;
+
 	/** Constant <code>EXTRA_TIMEOUT=120</code> */
 	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
 	@IntValue(min = 0)
