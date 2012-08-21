@@ -11,7 +11,7 @@ public final class I_ValueOf extends Function {
 	private static final String VALUE_OF = "valueOf";
 
 	public I_ValueOf(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_INTEGER, VALUE_OF, Types.INT_TO_INTEGER);
+		super(env, Types.JAVA_LANG_INTEGER, VALUE_OF, Types.I_TO_INTEGER);
 	}
 
 	private IntegerExpression bv32;
