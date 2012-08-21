@@ -286,6 +286,25 @@ public final class SymbolicHeap {
 		return symb_value;
 	}
 
+	/**
+	 * No default concrete value means the return value could be false!
+	 * 
+	 * @param className
+	 * @param fieldName
+	 * @param conc_receiver
+	 * @param symb_receiver
+	 * @return
+	 */
+	public Expression<?> getField(String className, String fieldName,
+			Object conc_receiver, NonNullReference symb_receiver) {
+
+		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
+				className, fieldName);
+		Expression<?> symb_value = symb_field.get(symb_receiver);
+		monitor_gc();
+		return symb_value;
+	}
+
 	public void putStaticField(String owner, String name,
 			Expression<?> symb_value) {
 
@@ -390,6 +409,8 @@ public final class SymbolicHeap {
 	}
 
 	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new THashMap<NonNullReference, Map<Integer, Expression<?>>>();
+
+	public static final String $MATCHER_INPUT = "$matcherInput";
 
 	public static final String $BOOLEAN_VALUE = "$booleanValue";
 
