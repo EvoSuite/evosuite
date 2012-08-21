@@ -105,50 +105,6 @@ public enum Comparator {
 		public Comparator swap() {
 			return LE;
 		}
-	},
-	PATTERN_MATCHES_STRING(" pattern_matches_string ") {
-		@Override
-		public Comparator not() {
-			return NOT_PATTERN_MATCHES_STRING;
-		}
-
-		@Override
-		public Comparator swap() {
-			return STRING_MATCHES_PATTERN;
-		}
-	},
-	NOT_PATTERN_MATCHES_STRING(" NOT pattern_matches_string ") {
-		@Override
-		public Comparator not() {
-			return PATTERN_MATCHES_STRING;
-		}
-
-		@Override
-		public Comparator swap() {
-			return NOT_STRING_MATCHES_PATTERN;
-		}
-	},
-	STRING_MATCHES_PATTERN(" string_matches_pattern ") {
-		@Override
-		public Comparator not() {
-			return NOT_STRING_MATCHES_PATTERN;
-		}
-
-		@Override
-		public Comparator swap() {
-			return PATTERN_MATCHES_STRING;
-		}
-	},
-	NOT_STRING_MATCHES_PATTERN(" NOT string_matches_pattern ") {
-		@Override
-		public Comparator not() {
-			return STRING_MATCHES_PATTERN;
-		}
-
-		@Override
-		public Comparator swap() {
-			return NOT_PATTERN_MATCHES_STRING;
-		}
 	};
 
 	private final String str;
