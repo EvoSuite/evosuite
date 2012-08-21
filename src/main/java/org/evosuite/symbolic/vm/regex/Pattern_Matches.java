@@ -1,9 +1,7 @@
 package org.evosuite.symbolic.vm.regex;
 
-import static org.objectweb.asm.Type.BOOLEAN_TYPE;
 
 import java.util.Iterator;
-import java.util.regex.Pattern;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringComparison;
@@ -14,7 +12,6 @@ import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.StringReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-import org.objectweb.asm.Type;
 
 /**
  * 
@@ -23,20 +20,10 @@ import org.objectweb.asm.Type;
  */
 public final class Pattern_Matches extends Function {
 
-	private static final String JAVA_UTIL_PATTERN = Pattern.class.getName()
-			.replace(".", "/");
-
 	private static final String MATCHES = "matches";
 
-	private static final Type STR_TYPE = Type.getType(String.class);
-
-	private static final Type CHARSEQ_TYPE = Type.getType(CharSequence.class);
-
-	private static final String STR_CHARSEQ_TO_BOOLEAN = Type
-			.getMethodDescriptor(BOOLEAN_TYPE, STR_TYPE, CHARSEQ_TYPE);
-
 	public Pattern_Matches(SymbolicEnvironment env) {
-		super(env, JAVA_UTIL_PATTERN, MATCHES, STR_CHARSEQ_TO_BOOLEAN);
+		super(env, Types.JAVA_UTIL_REGEX_PATTERN, MATCHES, Types.STR_CHARSEQ_TO_BOOLEAN);
 	}
 
 	@Override
