@@ -13,6 +13,7 @@ import org.objectweb.asm.Type;
 
 public interface Types {
 
+	// primitive types
 	public static Type INTEGER = Type.getType(Integer.class);
 	public static Type LONG = Type.getType(Long.class);
 	public static Type FLOAT = Type.getType(Float.class);
@@ -22,62 +23,55 @@ public interface Types {
 	public static Type BYTE = Type.getType(Byte.class);
 	public static Type BOOLEAN = Type.getType(Boolean.class);
 
-	public static String INT_TO_INTEGER = Type.getMethodDescriptor(INTEGER,
-			INT_TYPE);
-
-	public static String TO_INT = Type.getMethodDescriptor(INT_TYPE);
-
+	// wrapper types
 	public static String JAVA_LANG_LONG = Long.class.getName()
 			.replace(".", "/");
-
-	public static String J_TO_LONG = Type.getMethodDescriptor(LONG, LONG_TYPE);
-
-	public static String TO_LONG = Type.getMethodDescriptor(LONG_TYPE);
-
 	public static String JAVA_LANG_FLOAT = Float.class.getName().replace(".",
 			"/");
-
-	public static String F_TO_FLOAT = Type.getMethodDescriptor(FLOAT,
-			FLOAT_TYPE);
-
-	public static String TO_FLOAT = Type.getMethodDescriptor(FLOAT_TYPE);
-
 	public static String JAVA_LANG_DOUBLE = Double.class.getName().replace(".",
 			"/");
-
-	public static String D_TO_DOUBLE = Type.getMethodDescriptor(DOUBLE,
-			DOUBLE_TYPE);
-
-	public static String TO_DOUBLE = Type.getMethodDescriptor(DOUBLE_TYPE);
-
-	public static String S_TO_SHORT = Type.getMethodDescriptor(SHORT,
-			SHORT_TYPE);
-
 	public static String JAVA_LANG_SHORT = Short.class.getName().replace(".",
 			"/");
-
-	public static String TO_SHORT = Type.getMethodDescriptor(SHORT_TYPE);
-
 	public static String JAVA_LANG_BYTE = Byte.class.getName()
 			.replace(".", "/");
-
-	public static String B_TO_BYTE = Type.getMethodDescriptor(BYTE, BYTE_TYPE);
-
-	public static String TO_BYTE = Type.getMethodDescriptor(BYTE_TYPE);
-
 	public static String JAVA_LANG_CHARACTER = Character.class.getName()
 			.replace(".", "/");
-
-	public static String C_TO_CHARACTER = Type.getMethodDescriptor(CHARACTER,
-			CHAR_TYPE);
-
 	public static String JAVA_LANG_BOOLEAN = Boolean.class.getName().replace(
 			".", "/");
+	static final String JAVA_LANG_INTEGER = Integer.class.getName().replace(
+			".", "/");
 
+	// valueOf Descriptos
+	public static String I_TO_INTEGER = Type.getMethodDescriptor(INTEGER,
+			INT_TYPE);
+	public static String J_TO_LONG = Type.getMethodDescriptor(LONG, LONG_TYPE);
+	public static String F_TO_FLOAT = Type.getMethodDescriptor(FLOAT,
+			FLOAT_TYPE);
+	public static String D_TO_DOUBLE = Type.getMethodDescriptor(DOUBLE,
+			DOUBLE_TYPE);
+	public static String S_TO_SHORT = Type.getMethodDescriptor(SHORT,
+			SHORT_TYPE);
+	public static String B_TO_BYTE = Type.getMethodDescriptor(BYTE, BYTE_TYPE);
+	public static String C_TO_CHARACTER = Type.getMethodDescriptor(CHARACTER,
+			CHAR_TYPE);
 	public static String Z_TO_BOOLEAN = Type.getMethodDescriptor(BOOLEAN,
 			BOOLEAN_TYPE);
 
-	static final String JAVA_LANG_INTEGER = Integer.class.getName().replace(
-			".", "/");
+	// intValue/shortValue,etc. descriptors
+	public static String TO_INT = Type.getMethodDescriptor(INT_TYPE);
+
+	public static String TO_LONG = Type.getMethodDescriptor(LONG_TYPE);
+
+	public static String TO_FLOAT = Type.getMethodDescriptor(FLOAT_TYPE);
+
+	public static String TO_DOUBLE = Type.getMethodDescriptor(DOUBLE_TYPE);
+
+	public static String TO_SHORT = Type.getMethodDescriptor(SHORT_TYPE);
+
+	public static String TO_BYTE = Type.getMethodDescriptor(BYTE_TYPE);
+
+	public static String TO_CHAR = Type.getMethodDescriptor(CHAR_TYPE);
+
+	public static String TO_BOOLEAN = Type.getMethodDescriptor(BOOLEAN_TYPE);
 
 }

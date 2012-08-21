@@ -14,7 +14,7 @@ public final class Z_BooleanValue extends Function {
 	private static final String BOOLEAN_VALUE = "booleanValue";
 
 	public Z_BooleanValue(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_BYTE, BOOLEAN_VALUE, Types.TO_BYTE);
+		super(env, Types.JAVA_LANG_BOOLEAN, BOOLEAN_VALUE, Types.TO_BOOLEAN);
 	}
 
 	@Override
