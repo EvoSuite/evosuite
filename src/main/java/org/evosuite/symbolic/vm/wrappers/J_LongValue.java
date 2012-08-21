@@ -4,15 +4,16 @@ import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
 
-public final class L_LongValue extends Function {
+public final class J_LongValue extends Function {
 
 	private static final String LONG_VALUE = "longValue";
 	private NonNullReference symb_long;
 	private Long conc_long;
 
-	public L_LongValue(SymbolicEnvironment env) {
+	public J_LongValue(SymbolicEnvironment env) {
 		super(env, Types.JAVA_LANG_LONG, LONG_VALUE, Types.TO_LONG);
 	}
 
@@ -29,7 +30,7 @@ public final class L_LongValue extends Function {
 	@Override
 	public void CALL_RESULT(long conc_long_value) {
 		IntegerExpression symb_long_value = env.heap.getField(
-				Types.JAVA_LANG_LONG, "$longValue", conc_long, symb_long,
+				Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE, conc_long, symb_long,
 				conc_long_value);
 
 		replaceTopBv64(symb_long_value);
