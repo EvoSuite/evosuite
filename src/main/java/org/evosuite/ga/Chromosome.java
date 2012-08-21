@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,10 +23,9 @@ import org.evosuite.utils.PublicCloneable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Abstract base class of chromosomes
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class Chromosome implements Comparable<Chromosome>, Serializable,
@@ -35,15 +34,15 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	private static final long serialVersionUID = -6921897301005213358L;
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(Chromosome.class);
+	protected static final Logger logger = LoggerFactory.getLogger(Chromosome.class);
 
 	/**
 	 * only used for testing/debugging
 	 */
-	protected Chromosome(){
-		
+	protected Chromosome() {
+
 	}
-	
+
 	/** Last recorded fitness value */
 	private double fitness = 0.0;
 
@@ -55,7 +54,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Return current fitness value
-	 *
+	 * 
 	 * @return a double.
 	 */
 	public double getFitness() {
@@ -64,8 +63,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Set new fitness value
-	 *
-	 * @param value a double.
+	 * 
+	 * @param value
+	 *            a double.
 	 */
 	public void setFitness(double value) {
 		fitness = value;
@@ -74,7 +74,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Is this a valid solution?
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isSolution() {
@@ -82,9 +82,12 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	}
 
 	/**
-	 * <p>Setter for the field <code>solution</code>.</p>
-	 *
-	 * @param value a boolean.
+	 * <p>
+	 * Setter for the field <code>solution</code>.
+	 * </p>
+	 * 
+	 * @param value
+	 *            a boolean.
 	 */
 	public void setSolution(boolean value) {
 		solution = value;
@@ -92,7 +95,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a deep copy of the chromosome
 	 */
 	@Override
@@ -108,7 +111,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Determine relative ordering of this chromosome to another chromosome. If
 	 * the fitness values are equal, go through all secondary objectives and try
 	 * to find one where the two are not equal.
@@ -125,8 +128,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Secondary Objectives are specific to chromosome types
-	 *
-	 * @param o a {@link org.evosuite.ga.Chromosome} object.
+	 * 
+	 * @param o
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
 	public abstract int compareSecondaryObjective(Chromosome o);
@@ -138,10 +142,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Fixed single point cross over
-	 *
-	 * @param other a {@link org.evosuite.ga.Chromosome} object.
-	 * @param position a int.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * 
+	 * @param other
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param position
+	 *            a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public void crossOver(Chromosome other, int position)
 	        throws ConstructionFailedException {
@@ -150,32 +157,38 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Single point cross over
-	 *
-	 * @param other a {@link org.evosuite.ga.Chromosome} object.
-	 * @param position1 a int.
-	 * @param position2 a int.
-	 * @throws org.evosuite.ga.ConstructionFailedException if any.
+	 * 
+	 * @param other
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param position1
+	 *            a int.
+	 * @param position2
+	 *            a int.
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if any.
 	 */
 	public abstract void crossOver(Chromosome other, int position1, int position2)
 	        throws ConstructionFailedException;
 
 	/**
 	 * Apply the local search
-	 *
-	 * @param objective a {@link org.evosuite.ga.LocalSearchObjective} object.
+	 * 
+	 * @param objective
+	 *            a {@link org.evosuite.ga.LocalSearchObjective} object.
 	 */
 	public abstract void localSearch(LocalSearchObjective objective);
 
 	/**
 	 * Apply DSE
-	 *
-	 * @param algorithm a {@link org.evosuite.ga.GeneticAlgorithm} object.
+	 * 
+	 * @param algorithm
+	 *            a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
 	public abstract void applyDSE(GeneticAlgorithm algorithm);
 
 	/**
 	 * Return length of individual
-	 *
+	 * 
 	 * @return a int.
 	 */
 	public abstract int size();
@@ -183,7 +196,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/**
 	 * Return whether the chromosome has changed since the fitness value was
 	 * computed last
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isChanged() {
@@ -192,8 +205,9 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	/**
 	 * Set changed status to @param changed
-	 *
-	 * @param changed a boolean.
+	 * 
+	 * @param changed
+	 *            a boolean.
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;

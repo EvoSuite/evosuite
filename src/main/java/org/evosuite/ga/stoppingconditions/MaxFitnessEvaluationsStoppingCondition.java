@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,64 +19,64 @@ package org.evosuite.ga.stoppingconditions;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stop search after a predefined maximum search depth
- *
+ * 
  * @author Gordon Fraser
  */
 public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImpl {
-	
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory
-			.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(MaxFitnessEvaluationsStoppingCondition.class);
 
 	private static final long serialVersionUID = 208241490252275613L;
 
 	/** Maximum number of evaluations */
-	protected long max_evaluations = Properties.SEARCH_BUDGET;
+	protected long maxEvaluations = Properties.SEARCH_BUDGET;
 
 	/** Maximum number of iterations */
-	protected static long current_evaluation = 0;
+	protected static long currentEvaluation = 0;
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Stop when maximum number of fitness evaluations has been reached
 	 */
 	@Override
 	public boolean isFinished() {
-		logger.info("Current number of fitness_evaluations: " + current_evaluation);
-		return current_evaluation >= max_evaluations;
+		logger.info("Current number of fitness_evaluations: " + currentEvaluation);
+		return currentEvaluation >= maxEvaluations;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Keep track of the number of fitness evaluations
 	 */
 	@Override
 	public void fitnessEvaluation(Chromosome individual) {
-		current_evaluation++;
+		currentEvaluation++;
 	}
 
 	/**
 	 * Static getter method
-	 *
+	 * 
 	 * @return a long.
 	 */
 	public static long getNumFitnessEvaluations() {
-		return current_evaluation;
+		return currentEvaluation;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * At the end, reset
 	 */
 	@Override
 	public void reset() {
-		current_evaluation = 0;
+		currentEvaluation = 0;
 	}
 
 	/* (non-Javadoc)
@@ -85,13 +85,13 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
-		max_evaluations = limit;
+		maxEvaluations = limit;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
-		return max_evaluations;
+		return maxEvaluations;
 	}
 
 	/* (non-Javadoc)
@@ -100,13 +100,13 @@ public class MaxFitnessEvaluationsStoppingCondition extends StoppingConditionImp
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		return current_evaluation;
+		return currentEvaluation;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
-		current_evaluation = value;
+		currentEvaluation = value;
 	}
 
 }
