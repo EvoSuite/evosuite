@@ -50,7 +50,7 @@ import de.unisb.cs.st.evosuite.io.IOWrapper;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static Logger logger = LoggerFactory.getLogger(TestRunnable.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestRunnable.class);
 
 	private final TestCase test;
 

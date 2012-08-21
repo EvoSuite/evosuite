@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,27 +29,25 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-
 /**
  * Evaluate fitness of a test suite with respect to all of its def-use pairs
- *
+ * 
  * First simple and naive idea: Just take each DUGoal, calculate the minimal
  * fitness over all results in the suite once a goal is covered don't check for
  * it again in the end sum up all those fitness and that is s the resulting
  * suite-fitness
- *
+ * 
  * @author Andre Mis
  */
 public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
-	static List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory
-			.getDUGoals();
+	static List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory.getDUGoals();
 
 	/** Constant <code>totalGoals</code> */
-	public static Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
+	public final static Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
 	/** Constant <code>mostCoveredGoals</code> */
-	public static Map<DefUsePairType, Integer> mostCoveredGoals = new HashMap<DefUsePairType, Integer>();
+	public final static Map<DefUsePairType, Integer> mostCoveredGoals = new HashMap<DefUsePairType, Integer>();
 
 	public Map<DefUsePairType, Integer> coveredGoals = new HashMap<DefUsePairType, Integer>();
 
@@ -69,8 +67,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
 
-		Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer
-				.getCoveredGoals(results);
+		Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
 
 		initCoverageMaps();
 
@@ -102,8 +99,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		int totalGoalCount = countTotalGoals();
 		if (fitness == 0.0 && coveredGoalCount < totalGoalCount)
 			throw new IllegalStateException("Fitness 0 implies 100% coverage "
-					+ coveredGoalCount + " / " + totalGoals
-					+ " (covered / total)");
+			        + coveredGoalCount + " / " + totalGoals + " (covered / total)");
 
 		return fitness;
 	}
@@ -112,8 +108,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<DefUsePairType, Integer> r = new HashMap<DefUsePairType, Integer>();
 
 		// init map
-		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
-				.values())
+		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values())
 			r.put(type, 0);
 
 		// count total goals according to type
@@ -124,8 +119,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	private void initCoverageMaps() {
-		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
-				.values()) {
+		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
 			coveredGoals.put(type, 0);
 			if (mostCoveredGoals.get(type) == null)
 				mostCoveredGoals.put(type, 0);
@@ -137,8 +131,10 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	/**
-	 * <p>countMostCoveredGoals</p>
-	 *
+	 * <p>
+	 * countMostCoveredGoals
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int countMostCoveredGoals() {
@@ -151,9 +147,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static int countGoalsIn(Map<DefUsePairType, Integer> goalMap) {
 		int r = 0;
-		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
-				.values()) {
-			if(goalMap.get(type) != null)
+		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
+			if (goalMap.get(type) != null)
 				r += goalMap.get(type);
 		}
 		return r;
@@ -165,11 +160,9 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		setSuiteCoverage(suite);
 	}
 
-	private void countCoveredGoals(
-			Set<DefUseCoverageTestFitness> coveredGoalsSet) {
+	private void countCoveredGoals(Set<DefUseCoverageTestFitness> coveredGoalsSet) {
 		for (DefUseCoverageTestFitness goal : coveredGoalsSet) {
-			coveredGoals.put(goal.getType(),
-					coveredGoals.get(goal.getType()) + 1);
+			coveredGoals.put(goal.getType(), coveredGoals.get(goal.getType()) + 1);
 
 		}
 	}
@@ -184,37 +177,34 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private void setMostCovered() {
 
-		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
-				.values()) {
+		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
 			if (mostCoveredGoals.get(type) < coveredGoals.get(type)) {
 				mostCoveredGoals.put(type, coveredGoals.get(type));
 				if (mostCoveredGoals.get(type) > totalGoals.get(type))
 					throw new IllegalStateException(
-							"Can't cover more goals than there exist of type "
-									+ type + " " + mostCoveredGoals.get(type)
-									+ " / " + totalGoals.get(type)
-									+ " (mostCovered / total)");
+					        "Can't cover more goals than there exist of type " + type
+					                + " " + mostCoveredGoals.get(type) + " / "
+					                + totalGoals.get(type) + " (mostCovered / total)");
 			}
 		}
 	}
 
 	/**
-	 * <p>printCoverage</p>
+	 * <p>
+	 * printCoverage
+	 * </p>
 	 */
 	public static void printCoverage() {
 
 		System.out.println("* Time spent optimizing covered goals analysis: "
-				+ DefUseExecutionTraceAnalyzer.timeGetCoveredGoals + "ms");
+		        + DefUseExecutionTraceAnalyzer.timeGetCoveredGoals + "ms");
 
-		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType
-				.values()) {
-			System.out
-					.println("* Covered goals of type " + type + ": "
-							+ mostCoveredGoals.get(type) + " / "
-							+ totalGoals.get(type));
+		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
+			System.out.println("* Covered goals of type " + type + ": "
+			        + mostCoveredGoals.get(type) + " / " + totalGoals.get(type));
 		}
 
 		System.out.println("* Covered " + countMostCoveredGoals() + "/"
-				+ countTotalGoals() + " goals");
+		        + countTotalGoals() + " goals");
 	}
 }
