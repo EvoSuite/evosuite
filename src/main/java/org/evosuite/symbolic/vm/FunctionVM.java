@@ -38,6 +38,7 @@ import org.evosuite.symbolic.vm.math.TANH;
 import org.evosuite.symbolic.vm.math.ToDegrees;
 import org.evosuite.symbolic.vm.math.ToRadians;
 import org.evosuite.symbolic.vm.math.ULP;
+import org.evosuite.symbolic.vm.regex.Pattern_Matches;
 import org.evosuite.symbolic.vm.string.CharAt;
 import org.evosuite.symbolic.vm.string.CompareTo;
 import org.evosuite.symbolic.vm.string.CompareToIgnoreCase;
@@ -258,6 +259,10 @@ public final class FunctionVM extends AbstractVM {
 		addFunctionToTable(new SB_Append.Append_O(env));
 		addFunctionToTable(new SB_Append.Append_S(env));
 		addFunctionToTable(new SB_ToString(env));
+
+		// java.util.regex.Pattern
+		addFunctionToTable(new Pattern_Matches(env));
+
 	}
 
 	private void addFunctionToTable(Function f) {
