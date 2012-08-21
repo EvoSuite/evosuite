@@ -116,6 +116,7 @@ public enum Operator {
 	CONTAINS("contains", 2),
 	STARTSWITH("startsWith", 3),
 	REGIONMATCHES("regionMatches", 6), 
+	PATTERNMATCHES("patternMatches", 2), 
 
 
 	// String operators
