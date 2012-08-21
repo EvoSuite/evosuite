@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,22 +20,23 @@ package org.evosuite.ga.stoppingconditions;
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Stop search when a maximum (average) length has been reached. Used for
  * experiments on length bloat.
- *
+ * 
  * @author Gordon Fraser
  */
 public class MaxLengthStoppingCondition extends StoppingConditionImpl {
-	
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(MaxLengthStoppingCondition.class);
+
+	private static final Logger logger = LoggerFactory.getLogger(MaxLengthStoppingCondition.class);
 
 	private static final long serialVersionUID = 8537667219135128366L;
 
-	private double average_length = 0.0;
-	private int max_length = Properties.MAX_LENGTH;
+	private double averageLength = 0.0;
+	private int maxLength = Properties.MAX_LENGTH;
 
 	/* (non-Javadoc)
 	 * @see org.ga.StoppingCondition#isFinished()
@@ -43,9 +44,9 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
-		if (average_length >= max_length)
+		if (averageLength >= maxLength)
 			logger.info("Maximum average length reached, stopping");
-		return average_length >= max_length;
+		return averageLength >= maxLength;
 	}
 
 	/* (non-Javadoc)
@@ -54,8 +55,8 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void reset() {
-		average_length = 0.0;
-		max_length = Properties.MAX_LENGTH;
+		averageLength = 0.0;
+		maxLength = Properties.MAX_LENGTH;
 	}
 
 	/** {@inheritDoc} */
@@ -65,7 +66,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 		for (Chromosome c : algorithm.getPopulation()) {
 			avg += c.size();
 		}
-		average_length = avg / algorithm.getPopulation().size();
+		averageLength = avg / algorithm.getPopulation().size();
 	}
 
 	/* (non-Javadoc)
@@ -74,7 +75,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		return (long) average_length;
+		return (long) averageLength;
 	}
 
 	/* (non-Javadoc)
@@ -83,13 +84,13 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
-		max_length = (int) limit;
+		maxLength = (int) limit;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
-		return (long) (max_length + 0.5);
+		return (long) (maxLength + 0.5);
 	}
 
 	/** {@inheritDoc} */

@@ -21,14 +21,13 @@
 package org.evosuite.contracts;
 
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.testcase.AbstractTestFactory;
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ConstructorStatement;
-import org.evosuite.testcase.DefaultTestFactory;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
 import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -98,7 +97,7 @@ public class ContractViolation {
 	 */
 	public void minimizeTest() {
 		/** Factory method that handles statement deletion */
-		AbstractTestFactory testFactory = DefaultTestFactory.getInstance();
+		TestFactory testFactory = TestFactory.getInstance();
 
 		TestCase origTest = test.clone();
 

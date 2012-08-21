@@ -36,8 +36,7 @@ import java.util.Set;
 
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.testcase.DefaultTestFactory;
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -689,6 +688,9 @@ public class Properties {
 	@Parameter(key = "instrument_parent", description = "Also count coverage goals in superclasses")
 	public static boolean INSTRUMENT_PARENT = false;
 
+	@Parameter(key = "instrument_context", description = "Also instrument methods called from the SUT")
+	public static boolean INSTRUMENT_CONTEXT = false;
+
 	/** Constant <code>BREAK_ON_EXCEPTION=true</code> */
 	@Parameter(key = "break_on_exception", description = "Stop test execution if exception occurrs")
 	public static boolean BREAK_ON_EXCEPTION = true;
@@ -854,32 +856,6 @@ public class Properties {
 	@Parameter(key = "randomize_difficulty", description = "")
 	public static boolean RANDOMIZE_DIFFICULTY = true;
 
-	//---------------------------------------------------------------
-	// Manual algorithm
-	/** Constant <code>MA_MIN_DELTA_COVERAGE=0.01</code> */
-	@Parameter(key = "ma_min_delta_coverage", group = "Manual algorithm", description = "Minimum coverage delta")
-	public static double MA_MIN_DELTA_COVERAGE = 0.01;
-
-	/** Constant <code>MA_MAX_ITERATIONS=50</code> */
-	@Parameter(key = "ma_max_iterations", group = "Manual algorithm", description = "how much itteration with MIN_DELTA_COVERAGE possible with out MA")
-	public static int MA_MAX_ITERATIONS = 50;
-
-	/** Constant <code>MA_ACTIVE=false</code> */
-	@Parameter(key = "ma_active", group = "Manual algorithm", description = "MA active")
-	public static boolean MA_ACTIVE = false;
-
-	/** Constant <code>MA_WIDE_GUI=false</code> */
-	@Parameter(key = "ma_wide_gui", group = "Manual algorithm", description = "Activate wide GUI")
-	public static boolean MA_WIDE_GUI = false;
-
-	/** Constant <code>MA_TARGET_COVERAGE=101</code> */
-	@Parameter(key = "ma_target_coverage", group = "Manual algorithm", description = "run Editor at spec. coverage's level")
-	public static int MA_TARGET_COVERAGE = 101;
-
-	/** Constant <code>MA_BRANCHES_CALC=false</code> */
-	@Parameter(key = "ma_branches_calc", group = "Manual algorithm", description = "run expensive branchcalculations")
-	public static boolean MA_BRANCHES_CALC = false;
-
 	// ---------------------------------------------------------------
 	// UI Test generation parameters
 	/** Constant <code>UI_BACKGROUND_COVERAGE_DELAY=-1</code> */
@@ -890,7 +866,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		EXCEPTION, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA, BEHAVIORAL, IBRANCH
+		EXCEPTION, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA, BEHAVIORAL, IBRANCH, LOOP_INV_CANDIDATE_FALSE_BRANCH
 	}
 
 	/** Cache target class */
@@ -1040,9 +1016,10 @@ public class Properties {
 	/**
 	 * Load and initialize a properties file from the default path
 	 */
-	public void loadProperties() {
+	public void loadProperties(boolean silent) {
 		loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
-		                                      "evosuite-files/evosuite.properties"));
+		                                      "evosuite-files/evosuite.properties"),
+		                   silent);
 		initializeProperties();
 	}
 
@@ -1052,8 +1029,8 @@ public class Properties {
 	 * @param propertiesPath
 	 *            a {@link java.lang.String} object.
 	 */
-	public void loadProperties(String propertiesPath) {
-		loadPropertiesFile(propertiesPath);
+	public void loadProperties(String propertiesPath, boolean silent) {
+		loadPropertiesFile(propertiesPath, silent);
 		initializeProperties();
 	}
 
@@ -1063,21 +1040,29 @@ public class Properties {
 	 * @param propertiesPath
 	 *            a {@link java.lang.String} object.
 	 */
-	public void loadPropertiesFile(String propertiesPath) {
+	public void loadPropertiesFile(String propertiesPath, boolean silent) {
 		properties = new java.util.Properties();
 		try {
 			InputStream in = null;
 			File propertiesFile = new File(propertiesPath);
 			if (propertiesFile.exists()) {
 				in = new FileInputStream(propertiesPath);
-				logger.info("* Properties loaded from configuration file "
-				        + propertiesFile.getAbsolutePath());
+				properties.load(in);
+
+				if (!silent)
+					LoggingUtils.getEvoLogger().info("* Properties loaded from "
+					                                         + propertiesFile.getAbsolutePath());
 			} else {
 				propertiesPath = "evosuite.properties";
 				in = this.getClass().getClassLoader().getResourceAsStream(propertiesPath);
-				logger.info("* Properties loaded from default configuration file.");
+				if (in != null) {
+					properties.load(in);
+					if (!silent)
+						LoggingUtils.getEvoLogger().info("* Properties loaded from "
+						                                         + this.getClass().getClassLoader().getResource(propertiesPath).getPath());
+				}
+				//logger.info("* Properties loaded from default configuration file.");
 			}
-			properties.load(in);
 		} catch (FileNotFoundException e) {
 			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		} catch (IOException e) {
@@ -1512,7 +1497,7 @@ public class Properties {
 	}
 
 	/** Singleton instance */
-	private static Properties instance = new Properties(true);
+	private static Properties instance = null; //new Properties(true, true);
 
 	/** Internal properties hashmap */
 	private java.util.Properties properties;
@@ -1524,7 +1509,18 @@ public class Properties {
 	 */
 	public static Properties getInstance() {
 		if (instance == null)
-			instance = new Properties(true);
+			instance = new Properties(true, false);
+		return instance;
+	}
+
+	/**
+	 * Singleton accessor
+	 * 
+	 * @return a {@link org.evosuite.Properties} object.
+	 */
+	public static Properties getInstanceSilent() {
+		if (instance == null)
+			instance = new Properties(true, true);
 		return instance;
 	}
 
@@ -1543,10 +1539,10 @@ public class Properties {
 	}
 
 	/** Constructor */
-	private Properties(boolean loadProperties) {
+	private Properties(boolean loadProperties, boolean silent) {
 		reflectMap();
 		if (loadProperties)
-			loadProperties();
+			loadProperties(silent);
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			if (TARGET_CLASS.contains(".")) {
 				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
@@ -1557,8 +1553,8 @@ public class Properties {
 					PROJECT_PREFIX = CLASS_PREFIX.substring(0, CLASS_PREFIX.indexOf("."));
 				else
 					PROJECT_PREFIX = CLASS_PREFIX;
-				LoggingUtils.getEvoLogger().info("* Using project prefix: "
-				                                         + PROJECT_PREFIX);
+				//LoggingUtils.getEvoLogger().info("* Using project prefix: "
+				//                                         + PROJECT_PREFIX);
 			}
 		}
 	}
@@ -1575,7 +1571,27 @@ public class Properties {
 
 		BranchPool.reset();
 		TestCluster.reset();
-		DefaultTestFactory.getInstance().reset();
+		org.evosuite.testcase.TestFactory.getInstance().reset();
+		BytecodeInstructionPool.clear();
+
+		try {
+			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
+			return TARGET_CLASS_INSTANCE;
+		} catch (ClassNotFoundException e) {
+			System.err.println("* Could not find class under test: " + TARGET_CLASS);
+		}
+		return null;
+	}
+
+	/**
+	 * Get class object of class under test
+	 * 
+	 * @return a {@link java.lang.Class} object.
+	 */
+	public static Class<?> resetTargetClass() {
+		BranchPool.reset();
+		TestCluster.reset();
+		org.evosuite.testcase.TestFactory.getInstance().reset();
 		BytecodeInstructionPool.clear();
 
 		try {
@@ -1680,7 +1696,7 @@ public class Properties {
 	 * </p>
 	 */
 	public void resetToDefaults() {
-		instance = new Properties(false);
+		Properties.instance = new Properties(false, true);
 		for (Field f : Properties.class.getFields()) {
 			if (f.isAnnotationPresent(Parameter.class)) {
 				if (defaultMap.containsKey(f)) {

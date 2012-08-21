@@ -31,14 +31,14 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = -4524853279562896768L;
 
 	/** Maximum number of seconds */
-	protected long max_seconds = Properties.SEARCH_BUDGET;
+	protected long maxSeconds = Properties.SEARCH_BUDGET;
 
-	protected long start_time;
+	protected long startTime;
 
 	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
-		start_time = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
 	}
 
 	/**
@@ -48,8 +48,8 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public boolean isFinished() {
-		long current_time = System.currentTimeMillis();
-		return (current_time - start_time) / 1000 > max_seconds;
+		long currentTime = System.currentTimeMillis();
+		return (currentTime - startTime) / 1000 > maxSeconds;
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public void reset() {
-		start_time = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
 	}
 
 	/* (non-Javadoc)
@@ -68,13 +68,13 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
-		max_seconds = limit;
+		maxSeconds = limit;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
-		return max_seconds;
+		return maxSeconds;
 	}
 
 	/* (non-Javadoc)
@@ -83,14 +83,14 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		long current_time = System.currentTimeMillis();
-		return (current_time - start_time) / 1000;
+		long currentTime = System.currentTimeMillis();
+		return (currentTime - startTime) / 1000;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
-		start_time = value;
+		startTime = value;
 	}
 
 }

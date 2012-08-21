@@ -22,7 +22,7 @@ package org.evosuite.symbolic.expr;
 public class RealConstant extends RealExpression{
 	private static final long serialVersionUID = 1L;
 	
-	protected double value;
+	protected final double value;
 
 	/**
 	 * <p>Constructor for RealConstant.</p>
@@ -31,6 +31,7 @@ public class RealConstant extends RealExpression{
 	 */
 	public RealConstant(double doubleValue) {
 		this.value=doubleValue;
+		this.containsSymbolicVariable = false;
 	}
 
 	/** {@inheritDoc} */

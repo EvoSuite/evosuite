@@ -23,7 +23,7 @@ package org.evosuite.graphs.ccfg;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 public class CCFGCodeNode extends CCFGNode {
 
-	private BytecodeInstruction codeInstruction;
+	protected BytecodeInstruction codeInstruction;
 	
 	/**
 	 * <p>Constructor for CCFGCodeNode.</p>

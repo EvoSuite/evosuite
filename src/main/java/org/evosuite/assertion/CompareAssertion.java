@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,10 +25,9 @@ import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 
-
 /**
  * Assertion on comparison value of two objects
- *
+ * 
  * @author Gordon Fraser
  */
 public class CompareAssertion extends Assertion {
@@ -38,8 +37,10 @@ public class CompareAssertion extends Assertion {
 	protected VariableReference dest;
 
 	/**
-	 * <p>Getter for the field <code>dest</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>dest</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getDest() {
@@ -47,9 +48,12 @@ public class CompareAssertion extends Assertion {
 	}
 
 	/**
-	 * <p>Setter for the field <code>dest</code>.</p>
-	 *
-	 * @param dest a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * Setter for the field <code>dest</code>.
+	 * </p>
+	 * 
+	 * @param dest
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public void setDest(VariableReference dest) {
 		this.dest = dest;
@@ -57,7 +61,7 @@ public class CompareAssertion extends Assertion {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a copy of the compare assertion
 	 */
 	@Override
@@ -71,7 +75,7 @@ public class CompareAssertion extends Assertion {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * This method returns the Java Code
 	 */
 	@Override
@@ -92,7 +96,7 @@ public class CompareAssertion extends Assertion {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Determine if assertion holds in current scope
 	 */
 	@SuppressWarnings("unchecked")
@@ -131,6 +135,8 @@ public class CompareAssertion extends Assertion {
 	public boolean equals(Object obj) {
 		if (this == obj)
 			return true;
+		if (obj == null)
+			return false;
 		if (getClass() != obj.getClass())
 			return false;
 		CompareAssertion other = (CompareAssertion) obj;

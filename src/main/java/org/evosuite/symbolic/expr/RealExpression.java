@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -19,30 +18,38 @@
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
+
 public abstract class RealExpression implements Expression<Double> {
 
 	private static final long serialVersionUID = 6773549380102315977L;
 
 	protected int hash = 0;
 
-	
+	protected boolean containsSymbolicVariable;
+
+	@Override
+	public final boolean containsSymbolicVariable() {
+		return containsSymbolicVariable;
+	}
+
 	private Expression<?> parent = null;
-	
+
 	/**
-	 * <p>Getter for the field <code>parent</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>parent</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<?> getParent() {
 		return this.parent;
 	}
-	
+
 	/** {@inheritDoc} */
 	public void setParent(Expression<?> expr) {
 		this.parent = expr;
 	}
 
-	
 	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {

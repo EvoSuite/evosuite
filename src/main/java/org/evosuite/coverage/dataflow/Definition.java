@@ -29,12 +29,10 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
  */
 public class Definition extends DefUse {
 
-	Definition(BytecodeInstruction wrap, int defuseId, int defId, int useId,
-	        boolean isParameterUse) {
-
-		super(wrap, defuseId, defId, useId, isParameterUse);
-		if (!isDefinition())
-			throw new IllegalArgumentException("Vertex of a definition expected");
+	Definition(BytecodeInstruction wrap) {
+		super(wrap);
+		if (!DefUsePool.isKnownAsDefinition(wrap))
+			throw new IllegalArgumentException("Instruction must be known as a Definition by the DefUsePool");
 	}
 
 	/**
@@ -60,18 +58,4 @@ public class Definition extends DefUse {
 		//		Use use = DefUseFactory.makeUse(instruction);
 		return sharesVariableWith(instruction);
 	}
-
-	//	@Override
-	//	public boolean equals(Object o) {
-	//		if(o==null)
-	//			return false;
-	//		if(o==this)
-	//			return true;
-	//		if(!(o instanceof Definition))
-	//			return super.equals(o);
-	//		
-	//		Definition other = (Definition)o;
-	//		
-	//		return defId == other.defId;
-	//	}
 }

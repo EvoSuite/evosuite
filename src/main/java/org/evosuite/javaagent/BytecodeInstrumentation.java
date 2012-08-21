@@ -25,9 +25,10 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
 import org.evosuite.primitives.PrimitiveClassAdapter;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.TransformerUtil;
-import org.evosuite.testcase.StaticTestCluster;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -36,11 +37,10 @@ import org.objectweb.asm.util.TraceClassVisitor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * The bytecode transformer - transforms bytecode depending on package and
  * whether it is the class under test
- *
+ * 
  * @author Gordon Fraser
  */
 public class BytecodeInstrumentation {
@@ -51,39 +51,48 @@ public class BytecodeInstrumentation {
 
 	private static List<ClassAdapterFactory> externalPostVisitors = new ArrayList<ClassAdapterFactory>();
 
-	
 	private final Instrumenter testCarvingInstrumenter;
-	
+
 	/**
-	 * <p>Constructor for BytecodeInstrumentation.</p>
+	 * <p>
+	 * Constructor for BytecodeInstrumentation.
+	 * </p>
 	 */
-	public BytecodeInstrumentation()
-	{
+	public BytecodeInstrumentation() {
 		this.testCarvingInstrumenter = new Instrumenter();
 	}
-	
+
 	/**
-	 * <p>addClassAdapter</p>
-	 *
-	 * @param factory a {@link org.evosuite.javaagent.ClassAdapterFactory} object.
+	 * <p>
+	 * addClassAdapter
+	 * </p>
+	 * 
+	 * @param factory
+	 *            a {@link org.evosuite.javaagent.ClassAdapterFactory} object.
 	 */
 	public static void addClassAdapter(ClassAdapterFactory factory) {
 		externalPostVisitors.add(factory);
 	}
 
 	/**
-	 * <p>addPreClassAdapter</p>
-	 *
-	 * @param factory a {@link org.evosuite.javaagent.ClassAdapterFactory} object.
+	 * <p>
+	 * addPreClassAdapter
+	 * </p>
+	 * 
+	 * @param factory
+	 *            a {@link org.evosuite.javaagent.ClassAdapterFactory} object.
 	 */
 	public static void addPreClassAdapter(ClassAdapterFactory factory) {
 		externalPreVisitors.add(factory);
 	}
 
 	/**
-	 * <p>isJavaClass</p>
-	 *
-	 * @param classNameWithDots a {@link java.lang.String} object.
+	 * <p>
+	 * isJavaClass
+	 * </p>
+	 * 
+	 * @param classNameWithDots
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public static boolean isJavaClass(String classNameWithDots) {
@@ -95,9 +104,12 @@ public class BytecodeInstrumentation {
 	}
 
 	/**
-	 * <p>isSharedClass</p>
-	 *
-	 * @param classNameWithDots a {@link java.lang.String} object.
+	 * <p>
+	 * isSharedClass
+	 * </p>
+	 * 
+	 * @param classNameWithDots
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public static boolean isSharedClass(String classNameWithDots) {
@@ -115,9 +127,12 @@ public class BytecodeInstrumentation {
 	}
 
 	/**
-	 * <p>isTargetProject</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * isTargetProject
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public static boolean isTargetProject(String className) {
@@ -136,9 +151,12 @@ public class BytecodeInstrumentation {
 	}
 
 	/**
-	 * <p>shouldTransform</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * shouldTransform
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public boolean shouldTransform(String className) {
@@ -164,7 +182,7 @@ public class BytecodeInstrumentation {
 
 	private boolean isTargetClassName(String className) {
 		// TODO: Need to replace this in the long term
-		return StaticTestCluster.isTargetClassName(className);
+		return TestCluster.isTargetClassName(className);
 	}
 
 	static {
@@ -172,10 +190,14 @@ public class BytecodeInstrumentation {
 	}
 
 	/**
-	 * <p>transformBytes</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param reader a {@link org.objectweb.asm.ClassReader} object.
+	 * <p>
+	 * transformBytes
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param reader
+	 *            a {@link org.objectweb.asm.ClassReader} object.
 	 * @return an array of byte.
 	 */
 	public byte[] transformBytes(String className, ClassReader reader) {
@@ -187,7 +209,8 @@ public class BytecodeInstrumentation {
 		String classNameWithDots = className.replace('/', '.');
 
 		if (isSharedClass(classNameWithDots)) {
-			throw new RuntimeException("Should not transform a shared class (" + classNameWithDots + ")! Load by parent (JVM) classloader.");
+			throw new RuntimeException("Should not transform a shared class ("
+			        + classNameWithDots + ")! Load by parent (JVM) classloader.");
 		}
 
 		TransformationStatistics.reset();
@@ -196,13 +219,13 @@ public class BytecodeInstrumentation {
 
 		ClassVisitor cv = writer;
 		if (logger.isDebugEnabled()) {
-			cv = new TraceClassVisitor(cv, new PrintWriter(System.out));
+			cv = new TraceClassVisitor(cv, new PrintWriter(System.err));
 		}
 
 		// Apply transformations to class under test and its owned
 		// classes
-		if (isTargetClassName(classNameWithDots)) {
-			logger.debug("Applying target transformation");
+		if (DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
+			logger.debug("Applying target transformation to class " + classNameWithDots);
 			// Print out bytecode if debug is enabled
 			cv = new AccessibleClassAdapter(cv, className);
 			for (ClassAdapterFactory factory : externalPostVisitors) {
@@ -295,26 +318,22 @@ public class BytecodeInstrumentation {
 
 				logger.info("Testability Transformation done: " + className);
 			}
-			
-			
+
 			//----- 
-			
+
 			cn.accept(cv);
-			
-			if (Properties.TEST_CARVING) 
-			{
-				if(TransformerUtil.isClassConsideredForInstrumenetation(className))
-				{
+
+			if (Properties.TEST_CARVING) {
+				if (TransformerUtil.isClassConsideredForInstrumenetation(className)) {
 					final ClassReader cr = new ClassReader(writer.toByteArray());
 					final ClassNode cn2 = new ClassNode();
 					cr.accept(cn2, ClassReader.EXPAND_FRAMES);
-					
+
 					this.testCarvingInstrumenter.transformClassNode(cn2, className);
 					final ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 					cn2.accept(cw);
-					
-					if(logger.isDebugEnabled())
-					{
+
+					if (logger.isDebugEnabled()) {
 						final StringWriter sw = new StringWriter();
 						cn2.accept(new TraceClassVisitor(new PrintWriter(sw)));
 						logger.debug("test carving instrumentation result:\n{}", sw);
@@ -326,7 +345,7 @@ public class BytecodeInstrumentation {
 		} else {
 			reader.accept(cv, readFlags);
 		}
-		
+
 		// Print out bytecode if debug is enabled
 		// if(logger.isDebugEnabled())
 		// cv = new TraceClassVisitor(cv, new PrintWriter(System.out));

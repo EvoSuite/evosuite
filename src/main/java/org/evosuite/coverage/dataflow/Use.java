@@ -28,26 +28,10 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
  */
 public class Use extends DefUse {
 
-	Use(BytecodeInstruction wrap, int defuseId, int defId, int useId,
-	        boolean isParameterUse) {
-
-		super(wrap, defuseId, defId, useId, isParameterUse);
-		if (!isUse())
-			throw new IllegalArgumentException("Vertex of a use expected");
+	Use(BytecodeInstruction wrap) {
+		super(wrap);
+		if (!DefUsePool.isKnownAsUse(wrap))
+			throw new IllegalArgumentException("Instruction must be known as a Use by the DefUsePool");
 	}
-
-	//	@Override
-	//	public boolean equals(Object o) {
-	//		if(o==null)
-	//			return false;
-	//		if(o==this)
-	//			return true;
-	//		if(!(o instanceof Use))
-	//			return super.equals(o);
-	//		
-	//		Use other = (Use)o;
-	//		
-	//		return useId == other.useId;
-	//	}
 
 }

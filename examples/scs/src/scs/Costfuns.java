@@ -30,46 +30,38 @@
 //! triallast = 1         //NUMBER OF TRIALS = triallast - trialfirst + 1
 //! name = costfuns       //NAME OF EXPT, NOT COMPUTATIONALLY SIGNIFICANT
 
-
-
 package scs;
 
-public class Costfuns
-{
-	public int  Subject(int i, String s)
-	{
-		//TEST COST FUNCTIONS
+public class Costfuns {
+	public int Subject(int i, String s) {
+		// TEST COST FUNCTIONS
 		String s1 = "ba";
 		String s2 = "ab";
-		if (i == 5) {     //i0
+		if (i == 5) { // i0
 		}
-		if (i  < -444) {   //i1
+		if (i < -444) { // i1
 		}
-		if (i  <= -333) {  //i2
+		if (i <= -333) { // i2
 		}
-		if (i  > 666) {    //i3
+		if (i > 666) { // i3
 		}
-		if (i  >= 555) {   //i4
+		if (i >= 555) { // i4
 		}
-		if (i  != -4) {    //i5
+		if (i != -4) { // i5
 		}
-		if (s.equals( s1 + s2)) {   //i6
+		if (s.equals(s1 + s2)) { // i6
 		}
-		//THOSE operations are not defined in Java...
+		// THOSE operations are not defined in Java...
 		/*
-  if (s  <= s1..Remove(0, 1)) { //i7
-  }
-  if (s  < s1.Remove(1, 1)) {  //i8
-  }
-  */
-  if (s.compareTo(s2 + s2 + s1)>0) {     //i9
-  }
-  if (s.compareTo(s2 + s2 + s1)  >= 0) {    //i10
-  }
-  if (s  != s2 + s2) {         //i11
-  }
-		 
+		 * if (s <= s1..Remove(0, 1)) { //i7 } if (s < s1.Remove(1, 1)) { //i8 }
+		 */
+		if (s.compareTo(s2 + s2 + s1) > 0) { // i9
+		}
+		if (s.compareTo(s2 + s2 + s1) >= 0) { // i10
+		}
+		if (s != s2 + s2) { // i11
+		}
+
 		return 0;
 	}
 }
-

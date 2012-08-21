@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
@@ -84,21 +85,6 @@ public class BranchPool {
 	// fill the pool
 
 	/**
-	 * Reset all the data structures used to keep track of the branch
-	 * information
-	 */
-	public static void reset() {
-		branchCounter = 0;
-		branchMap.clear();
-		branchlessMethods.clear();
-		branchIdMap.clear();
-		registeredNormalBranches.clear();
-		registeredSwitches.clear();
-		registeredDefaultCases.clear();
-		switchLabels.clear();
-	}
-
-	/**
 	 * Gets called by the CFGMethodAdapter whenever it detects a method without
 	 * any branches.
 	 * 
@@ -128,6 +114,10 @@ public class BranchPool {
 			throw new IllegalArgumentException("CFGVertex of a branch expected");
 		if (isKnownAsBranch(instruction))
 			return;
+		if (!DependencyAnalysis.shouldInstrument(instruction.getClassName(),
+		                                         instruction.getMethodName())) {
+			return;
+		}
 		// throw new
 		// IllegalArgumentException("branches can only be added to the pool once");
 
@@ -292,7 +282,7 @@ public class BranchPool {
 
 		List<Branch> oldList = registeredSwitches.get(v);
 
-		if (oldList.contains(v))
+		if (oldList.contains(switchBranch))
 			throw new IllegalArgumentException("switch branch already registered  "
 			        + switchBranch.toString());
 
@@ -615,7 +605,31 @@ public class BranchPool {
 	}
 
 	public static int getBranchlessMethodLineNumber(String className, String methodName) {
+		// check if the given method is branchless
+		if (branchlessMethods.get(className) != null
+		        && branchlessMethods.get(className).get(className + "." + methodName) != null) {
+			return branchlessMethods.get(className).get(className + "." + methodName);
+		}
+		// otherwise consult the branchMap and return the lineNumber of the earliest Branch
+
 		return branchlessMethods.get(className).get(className + "." + methodName);
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods without Branches.
+	 * 
+	 * @return A set with all unique methodNames of methods without Branches.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 */
+	public static Set<String> getBranchlessMethods() {
+		Set<String> methods = new HashSet<String>();
+
+		for (String name : branchlessMethods.keySet()) {
+			methods.addAll(branchlessMethods.get(name).keySet());
+		}
+
+		return methods;
 	}
 
 	/**
@@ -659,6 +673,20 @@ public class BranchPool {
 		for (String name : branchlessMethods.keySet()) {
 			if (name.equals(className) || name.startsWith(className + "$"))
 				num += branchlessMethods.get(name).size();
+		}
+		return num;
+	}
+
+	/**
+	 * Returns the total number of methods without branches in the instrumented
+	 * classes
+	 * 
+	 * @return
+	 */
+	public static int getNumBranchlessMethods() {
+		int num = 0;
+		for (String name : branchlessMethods.keySet()) {
+			num += branchlessMethods.get(name).size();
 		}
 		return num;
 	}
@@ -763,9 +791,26 @@ public class BranchPool {
 	}
 
 	/**
+	 * Reset all the data structures used to keep track of the branch
+	 * information
+	 */
+	public static void reset() {
+		branchCounter = 0;
+		branchMap.clear();
+		branchlessMethods.clear();
+		branchIdMap.clear();
+		registeredNormalBranches.clear();
+		registeredSwitches.clear();
+		registeredDefaultCases.clear();
+		switchLabels.clear();
+	}
+
+	/**
 	 * <p>
 	 * clear
 	 * </p>
+	 * 
+	 * TODO: One of these two methods should go
 	 */
 	public static void clear() {
 		branchCounter = 0;

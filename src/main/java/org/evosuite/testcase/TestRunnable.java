@@ -50,7 +50,7 @@ import de.unisb.cs.st.evosuite.io.IOWrapper;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static Logger logger = LoggerFactory.getLogger(TestRunnable.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestRunnable.class);
 
 	private final TestCase test;
 
@@ -168,6 +168,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 					logger.debug("Executing statement " + s.getCode());
 				}
 				ExecutionTracer.statementExecuted();
+				ExecutionTracer.disable();
+				for (ExecutionObserver observer : observers) {
+					observer.beforeStatement(s, scope);
+				}
+				ExecutionTracer.enable();
 
 				Sandbox.setUpMockedSecurityManager();
 				Throwable exceptionThrown = s.execute(scope, out);
@@ -199,7 +204,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 					ExecutionTracer.disable();
 					for (ExecutionObserver observer : observers) {
-						observer.statement(s, scope, exceptionThrown);
+						observer.afterStatement(s, scope, exceptionThrown);
 					}
 					ExecutionTracer.enable();
 
@@ -244,7 +249,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 				ExecutionTracer.disable();
 				for (ExecutionObserver observer : observers) {
-					observer.statement(s, scope, exceptionThrown);
+					observer.afterStatement(s, scope, exceptionThrown);
 				}
 				ExecutionTracer.enable();
 
@@ -273,6 +278,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
 			//logger.info(test.toCode());
+			for (StackTraceElement elem : e.getStackTrace()) {
+				logger.info(elem.toString());
+			}
 			if (e instanceof java.lang.reflect.InvocationTargetException) {
 				logger.info("Cause: ");
 				logger.info(e.getCause().toString(), e);

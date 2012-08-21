@@ -21,27 +21,33 @@
 package org.evosuite.symbolic.expr;
 
 /**
- * <p>Abstract StringExpression class.</p>
- *
+ * <p>
+ * Abstract StringExpression class.
+ * </p>
+ * 
  * @author krusev
  */
 public abstract class StringExpression implements Expression<String> {
 
 	private static final long serialVersionUID = -1510660880687868188L;
-	
+
 	protected int hash = 0;
-	
+
+	protected boolean containsSymbolicVariable;
+
 	private Expression<?> parent = null;
-	
+
 	/**
-	 * <p>Getter for the field <code>parent</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>parent</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<?> getParent() {
 		return this.parent;
 	}
-	
+
 	/** {@inheritDoc} */
 	public void setParent(Expression<?> expr) {
 		this.parent = expr;
@@ -59,5 +65,10 @@ public abstract class StringExpression implements Expression<String> {
 		}
 		return hash;
 
+	}
+
+	@Override
+	public final boolean containsSymbolicVariable() {
+		return containsSymbolicVariable;
 	}
 }

@@ -52,11 +52,18 @@ public abstract interface Expression<T extends Object> extends Serializable{
 	 */
 	public Object getConcreteValue();
 	
+	
+	
 	/**
 	 * <p>getSize</p>
 	 *
 	 * @return a int.
 	 */
 	public int getSize();
+	
+	/**
+	 * Returns true iif 
+	 */
+	public boolean containsSymbolicVariable();
 
 }

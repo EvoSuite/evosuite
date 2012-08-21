@@ -1,52 +1,56 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
-import gov.nasa.jpf.JPF;
-
-import java.util.logging.Logger;
-
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class IntegerBinaryExpression extends IntegerExpression implements
         BinaryExpression<Long> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	static Logger log = JPF.getLogger("org.evosuite.symbolic.expr.IntegerBinaryExpression");
-	
+	protected static Logger log = LoggerFactory.getLogger(IntegerBinaryExpression.class);
+
 	protected Long concretValue;
 
-	protected Operator op;
+	protected final Operator op;
 
-	protected Expression<Long> left;
-	protected Expression<Long> right;
+	protected final Expression<Long> left;
+	protected final Expression<Long> right;
 
 	/**
-	 * <p>Constructor for IntegerBinaryExpression.</p>
-	 *
-	 * @param left2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param op2 a {@link org.evosuite.symbolic.expr.Operator} object.
-	 * @param right2 a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param con a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for IntegerBinaryExpression.
+	 * </p>
+	 * 
+	 * @param left2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param op2
+	 *            a {@link org.evosuite.symbolic.expr.Operator} object.
+	 * @param right2
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param con
+	 *            a {@link java.lang.Long} object.
 	 */
 	public IntegerBinaryExpression(Expression<Long> left2, Operator op2,
 	        Expression<Long> right2, Long con) {
@@ -54,6 +58,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
+		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
+		        || this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -96,8 +102,7 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		}
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
-			return this.op.equals(other.op) 
-					&& this.getSize() == other.getSize()
+			return this.op.equals(other.op) && this.getSize() == other.getSize()
 			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
@@ -105,6 +110,7 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	}
 
 	protected int size = 0;
+
 	/** {@inheritDoc} */
 	@Override
 	public int getSize() {
@@ -119,9 +125,9 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	public Long execute() {
 		long leftVal = ExpressionHelper.getLongResult(left);
 		long rightVal = ExpressionHelper.getLongResult(right);
-		
+
 		switch (op) {
-		
+
 		case SHL:
 			return leftVal << rightVal;
 		case SHR:
@@ -141,17 +147,17 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 			return leftVal * rightVal;
 		case MINUS:
 			return leftVal - rightVal;
-		case PLUS: 
+		case PLUS:
 			return leftVal + rightVal;
-		case REM: 
-			return leftVal % rightVal;	
+		case REM:
+			return leftVal % rightVal;
 		case MAX:
 			return Math.max(leftVal, rightVal);
 		case MIN:
 			return Math.min(leftVal, rightVal);
-		
+
 		default:
-			log.warning("IntegerBinaryExpression: unimplemented operator!");
+			log.warn("IntegerBinaryExpression: unimplemented operator!");
 			return null;
 		}
 	}

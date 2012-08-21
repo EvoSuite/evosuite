@@ -1,0 +1,87 @@
+<!--
+
+    Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+    contributors
+
+    This file is part of EvoSuite.
+
+    EvoSuite is free software: you can redistribute it and/or modify it under the
+    terms of the GNU Public License as published by the Free Software Foundation,
+    either version 3 of the License, or (at your option) any later version.
+
+    EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+    A PARTICULAR PURPOSE. See the GNU Public License for more details.
+
+    You should have received a copy of the GNU Public License along with
+    EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+
+-->
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" 
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+  <id>jar-exsyst</id>
+  <formats>
+    <format>jar</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+  <!--
+    <fileSet>
+      <directory>src/main/assembly/etc</directory>
+      <outputDirectory>/</outputDirectory>
+      <fileMode>0644</fileMode>
+    </fileSet>    
+    -->
+    <!--
+    <fileSet>
+      <directory>src/main/assembly</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+	<include>evosuite.properties</include>
+      </includes>
+    </fileSet>
+    -->
+    <fileSet>
+      <directory>lib</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+	<include>**</include>
+      </includes>
+    </fileSet>
+    <fileSet>
+      <directory>${project.build.directory}/classes</directory>
+      <outputDirectory>/</outputDirectory>
+      <excludes>
+	<exclude>*.jar</exclude>
+      </excludes>
+    </fileSet>
+  </fileSets>
+ <dependencySets>
+    <dependencySet>
+      <outputDirectory>/</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <excludes>
+        <exclude>org.eclipse.jdt:*</exclude>
+        <exclude>org.eclipse.core:*</exclude>
+        <exclude>org.eclipse.team:*</exclude>
+        <exclude>org.eclipse.jface:*</exclude>
+        <exclude>org.eclipse.ltk:*</exclude>
+        <exclude>com.ibm:icu</exclude>
+      </excludes>
+      <unpack>true</unpack>
+      <unpackOptions>
+        <excludes>
+          <exclude>logback.xml</exclude>
+          <exclude>META-INF/*.SF</exclude>
+          <exclude>META-INF/*.sf</exclude>
+          <exclude>META-INF/*.RSA</exclude>
+          <exclude>META-INF/*.rsa</exclude>
+          <exclude>META-INF/*.INF</exclude>
+          <exclude>META-INF/*.inf</exclude>
+        </excludes>
+      </unpackOptions>
+      <scope>runtime</scope>
+    </dependencySet>
+  </dependencySets>
+</assembly>

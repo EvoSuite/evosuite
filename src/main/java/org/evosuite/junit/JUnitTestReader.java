@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -44,6 +45,7 @@ import org.evosuite.Properties;
 import org.evosuite.junit.TestExtractingVisitor.TestReader;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.utils.LoggingUtils;
 
 public class JUnitTestReader implements TestReader {
 
@@ -146,6 +148,8 @@ public class JUnitTestReader implements TestReader {
 	public JUnitTestReader() {
 		super();
 		this.classpath = Properties.CP.split(File.pathSeparator);
+		LoggingUtils.getEvoLogger().info("Using classpath: "
+		                                         + Arrays.asList(this.classpath));
 		this.sources = new String[0];
 	}
 

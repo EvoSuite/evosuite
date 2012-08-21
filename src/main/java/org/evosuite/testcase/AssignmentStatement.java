@@ -27,14 +27,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.Randomness;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
-
 
 /**
  * An assignment statement assigns a variable to another variable. This is only
  * used to assign to array indices
- *
+ * 
  * @author Gordon Fraser
  */
 public class AssignmentStatement extends AbstractStatement {
@@ -44,11 +45,16 @@ public class AssignmentStatement extends AbstractStatement {
 	protected VariableReference parameter;
 
 	/**
-	 * <p>Constructor for AssignmentStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param var a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param value a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * Constructor for AssignmentStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param var
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param value
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public AssignmentStatement(TestCase tc, VariableReference var, VariableReference value) {
 		super(tc, var);
@@ -61,17 +67,17 @@ public class AssignmentStatement extends AbstractStatement {
 		//
 	}
 
-	
 	/**
-	 * <p>getValue</p>
-	 *
+	 * <p>
+	 * getValue
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	public VariableReference getValue()
-	{
+	public VariableReference getValue() {
 		return this.parameter;
 	}
-	
+
 	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
@@ -112,7 +118,7 @@ public class AssignmentStatement extends AbstractStatement {
 			@Override
 			public void execute() throws InvocationTargetException,
 			        IllegalArgumentException, IllegalAccessException,
-			        InstantiationException {
+			        InstantiationException, CodeUnderTestException {
 				try {
 					final Object value = parameter.getObject(scope);
 					retval.setObject(scope, value);
@@ -121,6 +127,8 @@ public class AssignmentStatement extends AbstractStatement {
 				} catch (IllegalArgumentException e) {
 					// FIXXME: IllegalArgumentException may happen when we only have generators
 					// for an abstract supertype and not the concrete type that we need!
+					throw e;
+				} catch (CodeUnderTestException e) {
 					throw e;
 				} catch (Throwable e) {
 					throw new EvosuiteError(e);
@@ -216,12 +224,17 @@ public class AssignmentStatement extends AbstractStatement {
 		parameter.loadBytecode(mg, locals);
 
 		Class<?> clazz = parameter.getVariableClass();
+		if (parameter.isPrimitive() && !retval.isPrimitive()) {
+			mg.box(Type.getType(parameter.getVariableClass()));
+			clazz = parameter.getGenericClass().getBoxedType();
+		}
+
 		if (!clazz.equals(retval.getVariableClass())) {
 			mg.cast(org.objectweb.asm.Type.getType(clazz),
 			        org.objectweb.asm.Type.getType(retval.getVariableClass()));
 		}
 
-		parameter.storeBytecode(mg, locals);
+		retval.storeBytecode(mg, locals);
 	}
 
 	/*
@@ -305,7 +318,7 @@ public class AssignmentStatement extends AbstractStatement {
 			} else {
 				if (!value.isPrimitive() && !(value instanceof NullReference)) {
 					// add fields of this object to list
-					for (Field field : StaticTestCluster.getAccessibleFields(value.getVariableClass())) {
+					for (Field field : TestClusterGenerator.getAccessibleFields(value.getVariableClass())) {
 						FieldReference f = new FieldReference(tc, field, value);
 						if (f.getDepth() <= 2) {
 							if (f.isAssignableFrom(parameter.getType())) {
@@ -324,7 +337,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean mutate(TestCase test, AbstractTestFactory factory) {
+	public boolean mutate(TestCase test, TestFactory factory) {
 		assert (isValid());
 
 		// Either mutate parameter, or source

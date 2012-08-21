@@ -17,15 +17,11 @@
  */
 package org.evosuite.symbolic;
 
-import gov.nasa.jpf.Config;
-import gov.nasa.jpf.JPF;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,6 +29,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.symbolic.vm.ArithmeticVM;
+import org.evosuite.symbolic.vm.CallVM;
+import org.evosuite.symbolic.vm.ConcolicMarkerVM;
+import org.evosuite.symbolic.vm.FunctionVM;
+import org.evosuite.symbolic.vm.HeapVM;
+import org.evosuite.symbolic.vm.JumpVM;
+import org.evosuite.symbolic.vm.LocalsVM;
+import org.evosuite.symbolic.vm.OtherVM;
+import org.evosuite.symbolic.vm.PathConstraint;
+import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -47,6 +54,13 @@ import org.objectweb.asm.commons.Method;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import edu.uta.cse.dsc.DscHandler;
+import edu.uta.cse.dsc.IVM;
+import edu.uta.cse.dsc.MainConfig;
+import edu.uta.cse.dsc.VM;
+import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
+import edu.uta.cse.dsc.instrument.InstrumentConfig;
+
 /**
  * <p>
  * ConcolicExecution class.
@@ -56,17 +70,11 @@ import org.slf4j.LoggerFactory;
  */
 public class ConcolicExecution {
 
-	@SuppressWarnings("unused")
-	private List<gov.nasa.jpf.Error> errors;
+	private File bytecodeFile;
 
 	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-
-	private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-	        : new PrintStream(byteStream));
-
-	private PathConstraintCollector pcg;
 
 	private static File tempDir;
 	static {
@@ -81,9 +89,9 @@ public class ConcolicExecution {
 	protected static String dirName = tempDir.getAbsolutePath();
 
 	/** Constant <code>className="TestCase"</code> */
-	protected static String className = "TestCase";
-	//	        + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
-	//	                                            Properties.TARGET_CLASS.lastIndexOf("."));
+	protected static String className = Properties.CLASS_PREFIX + ".TestCase";
+	// + Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.indexOf("."),
+	// Properties.TARGET_CLASS.lastIndexOf("."));
 
 	/**
 	 * Constant
@@ -103,64 +111,110 @@ public class ConcolicExecution {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<BranchCondition> executeConcolic(String targetName, String classPath) {
-		logger.debug("Setting up JPF");
+	protected List<BranchCondition> executeConcolic(String targetName, String classPath) {
 
-		String[] strs = new String[0];
-		Config config = JPF.createConfig(strs);
-		config.setProperty("classpath", config.getProperty("classpath") + "," + classPath);
-		config.setTarget(targetName);
+		logger.debug("Setting up Dsc");
+		logger.debug("Dsc target=" + targetName);
+		logger.debug("Dsc classPath=" + classPath);
 
-		//		config.setProperty("vm.insn_factory.class",
-		//		                   "org.evosuite.symbolic.bytecode.IntegerConcolicInstructionFactory");
-		config.setProperty("vm.insn_factory.class",
-		                   "org.evosuite.symbolic.bytecode.ConcolicInstructionFactory");
-		config.setProperty("peer_packages",
-		                   "org.evosuite.symbolic.nativepeer,gov.nasa.jpf.jvm");
-		//		                           + config.getProperty("peer_packages"));
-		//logger.warn(config.getProperty("peer_packages"));
+		DscHandler dsc_handler = new DscHandler(classPath);
+		MainConfig.get().LOG_AST_COUNTS = false;
+		MainConfig.get().LOG_MODEL_COUNTS = false;
+		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
+		MainConfig.get().LOG_SUMMARY = false;
+		MainConfig.get().USE_MAX = true;
+		MainConfig.get().DO_NOT_INSTRUMENT_PREFIXES.add("org.evosuite.symbolic.vm.");
 
-		// We don't want JPF output
-		config.setProperty("report.class", "org.evosuite.symbolic.SilentReporter");
+		int dsc_ret_val;
+		PathConstraint pc = new PathConstraint();
 
-		config.setProperty("log.level", "warning");
-		//config.setProperty("log.level", "info");
+		DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
+		DscHandler.classLoader = classLoader;
 
-		//Configure the search class;
-		config.setProperty("search.class", "org.evosuite.symbolic.PathSearch");
-		config.setProperty("jm.numberOfIterations", "1");
+		SymbolicEnvironment env = new SymbolicEnvironment(classLoader);
+		List<IVM> listeners = new ArrayList<IVM>();
+		listeners.add(new CallVM(env, classLoader));
+		listeners.add(new JumpVM(env, pc));
+		listeners.add(new HeapVM(env, pc, classLoader));
+		listeners.add(new LocalsVM(env));
+		listeners.add(new ArithmeticVM(env, pc));
+		listeners.add(new OtherVM(env));
+		listeners.add(new ConcolicMarkerVM(env));
+		listeners.add(new FunctionVM(env));
 
-		//Generate the JPF Instance
-		JPF jpf = new JPF(config);
-		this.pcg = new PathConstraintCollector();
-		jpf.getVM().addListener(pcg);
-		jpf.getSearch().addListener(pcg);
+		VM.vm.setListeners(listeners);
 
-		//Run the SUT
-		logger.debug("Running concolic execution");
-		PrintStream old_out = System.out;
-		PrintStream old_err = System.err;
-		System.setOut(out);
-		System.setErr(out);
-		try {
-			jpf.run();
-		} catch (Throwable t) {
-			logger.warn("Exception while executing test: " + classPath + " " + targetName
-			        + ": " + t);
-			t.printStackTrace();
-		} finally {
-			System.setOut(old_out);
-			System.setErr(old_err);
+		dsc_ret_val = dsc_handler.mainEntry(new String[] {/*
+		                                                  * "conf_evo_dumper.txt" ,
+		                                                  */targetName, "main" });
+
+		logger.debug("Dsc ended!");
+		if (dsc_ret_val == MainConfig.get().EXIT_SUCCESS) {
+			logger.info("Dsc success");
+
+			List<BranchCondition> branches = pc.getBranchConditions();
+
+			logger.info("NrOfBranches=" + branches.size());
+			// bytecodeFile.deleteOnExit();
+
+			return branches;
+
+		} else {
+			logger.info("Dsc failed!");
+			throw new RuntimeException("Dsc failed!");
 		}
-		logger.debug("Finished concolic execution");
-		logger.debug("Conditions collected: " + pcg.conditions.size());
 
-		this.errors = jpf.getSearch().getErrors();
+	}
 
-		File file = new File(dirName + "/", className + ".class");
-		file.deleteOnExit();
+	/**
+	 * Retrieve the path condition for a given test case
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
+	 * @return a {@link java.util.List} object.
+	 */
+	public List<BranchCondition> getSymbolicPath_2(TestChromosome test) {
 
-		return pcg.conditions;
+		MainConfig.setInstance();
+		MainConfig.get().LOG_AST_COUNTS = false;
+		MainConfig.get().LOG_MODEL_COUNTS = false;
+		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
+		MainConfig.get().LOG_SUMMARY = false;
+		MainConfig.get().USE_MAX = true;
+
+		/**
+		 * Instrumenting class loader
+		 */
+		DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
+
+		/**
+		 * Path constraint and symbolic environment
+		 */
+		SymbolicEnvironment env = new SymbolicEnvironment(classLoader);
+		PathConstraint pc = new PathConstraint();
+
+		/**
+		 * VM listeners
+		 */
+		List<IVM> listeners = new ArrayList<IVM>();
+		listeners.add(new CallVM(env, classLoader));
+		listeners.add(new JumpVM(env, pc));
+		listeners.add(new HeapVM(env, pc, classLoader));
+		listeners.add(new LocalsVM(env));
+		listeners.add(new ArithmeticVM(env, pc));
+		listeners.add(new OtherVM(env));
+		listeners.add(new ConcolicMarkerVM(env));
+		listeners.add(new FunctionVM(env));
+		VM.vm.setListeners(listeners);
+
+		TestChromosome dscCopy = (TestChromosome) test.clone();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
+		defaultTestCase.changeClassLoader(classLoader);
+		TestCaseExecutor.runTest(dscCopy.getTestCase());
+
+		List<BranchCondition> branches = pc.getBranchConditions();
+
+		return branches;
 	}
 
 	/**
@@ -173,9 +227,11 @@ public class ConcolicExecution {
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 
 		writeTestCase(getPrimitives(test.getTestCase()), test);
+		logger.info("Executing concolic: " + test.getTestCase().toCode());
 		List<BranchCondition> conditions = executeConcolic(className, classPath);
 
 		return conditions;
+
 	}
 
 	/**
@@ -235,7 +291,7 @@ public class ConcolicExecution {
 		return result;
 	}
 
-	//	@SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
 	/**
 	 * <p>
 	 * getPrimitives
@@ -246,13 +302,15 @@ public class ConcolicExecution {
 	 * @return a {@link java.util.List} object.
 	 */
 	@SuppressWarnings("unchecked")
-	public List<PrimitiveStatement> getPrimitives(TestCase test) {
+	private List<PrimitiveStatement> getPrimitives(TestCase test) {
 
 		List<PrimitiveStatement> p = new ArrayList<PrimitiveStatement>();
 		for (StatementInterface s : test) {
 
 			if (s instanceof PrimitiveStatement) {
 				PrimitiveStatement ps = (PrimitiveStatement) s;
+				if (ps.getValue() == null)
+					continue;
 				Class<?> t = ps.getReturnClass();
 				if (t.equals(Integer.class) || t.equals(int.class)) {
 					p.add(ps);
@@ -266,14 +324,16 @@ public class ConcolicExecution {
 					p.add(ps);
 				} else if (t.equals(Character.class) || t.equals(char.class)) {
 					p.add(ps);
-					//==========-------- XXX added for real search
+					// ==========-------- XXX added for real search
 				} else if (t.equals(Float.class) || t.equals(float.class)) {
 					p.add(ps);
 				} else if (t.equals(Double.class) || t.equals(double.class)) {
 					p.add(ps);
-					//==========--------
+					// ==========--------
 				} else if (t.equals(String.class)) {
 					p.add(ps);
+				} else {
+					logger.warn("WHAT NON-PRIMITIVE PRIMITIVES ARE THERE?? " + t);
 				}
 			}
 		}
@@ -289,8 +349,9 @@ public class ConcolicExecution {
 	 */
 	private void getPrimitiveValue(GeneratorAdapter mg, Map<Integer, Integer> locals,
 	        PrimitiveStatement<?> statement) {
-		//Class<?> clazz = statement.getReturnValue().getVariableClass();
-		Class<?> clazz = statement.getValue().getClass();
+		// Class<?> clazz = statement.getReturnValue().getVariableClass();
+		Class<?> clazz = statement.getValue() != null ? statement.getValue().getClass()
+		        : statement.getReturnClass();
 		if (clazz.equals(Boolean.class) || clazz.equals(boolean.class))
 			mg.push(((Boolean) statement.getValue()).booleanValue());
 		else if (clazz.equals(Character.class) || clazz.equals(char.class))
@@ -311,10 +372,12 @@ public class ConcolicExecution {
 			mg.push(((String) statement.getValue()));
 		} else
 			logger.error("Found primitive of unknown type: " + clazz.getName());
-		if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
-			mg.cast(org.objectweb.asm.Type.getType(clazz),
-			        org.objectweb.asm.Type.getType(statement.getReturnValue().getVariableClass()));
-		}
+		/*
+		 * if (!clazz.equals(statement.getReturnValue().getVariableClass())) {
+		 * mg.cast(org.objectweb.asm.Type.getType(clazz),
+		 * org.objectweb.asm.Type.
+		 * getType(statement.getReturnValue().getVariableClass())); }
+		 */
 
 	}
 
@@ -326,13 +389,13 @@ public class ConcolicExecution {
 	 * @param test
 	 * @return
 	 */
-	//	@SuppressWarnings("rawtypes") 
-	//	@SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	private byte[] getBytecode(List<PrimitiveStatement> target, TestChromosome test) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
-		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER, className, null,
-		         "java/lang/Object", null);
+		cw.visit(Opcodes.V1_6, Opcodes.ACC_PUBLIC + Opcodes.ACC_SUPER,
+		         className.replaceAll("\\.", "/"), null, "java/lang/Object", null);
 
 		Method m = Method.getMethod("void <init> ()");
 		GeneratorAdapter mg = new GeneratorAdapter(Opcodes.ACC_PUBLIC, m, null, null, cw);
@@ -355,13 +418,14 @@ public class ConcolicExecution {
 			logger.debug("Current statement: {}", statement.getCode());
 			if (target.contains(statement)) {
 				PrimitiveStatement<?> p = (PrimitiveStatement<?>) statement;
-				logger.debug("Marking variable: {}", p);
+				logger.debug("Marking variable: {} - {}", p, p.getReturnValue().getName());
 				getPrimitiveValue(mg, locals, p); // TODO: Possibly cast?
-				mg.push(p.getReturnValue().getName());
-				//mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
-				//                getMarkMethod(p));
+				String var_name = p.getReturnValue().getName();
+				mg.push(var_name);
+				// mg.invokeStatic(Type.getType("Ljpf/mytest/primitive/ConcolicMarker;"),
+				// getMarkMethod(p));
 
-				mg.invokeStatic(Type.getType("Lorg/evosuite/symbolic/nativepeer/ConcolicMarker;"),
+				mg.invokeStatic(Type.getType("Lorg/evosuite/symbolic/dsc/ConcolicMarker;"),
 				                getMarkMethod(p));
 				p.getReturnValue().storeBytecode(mg, locals);
 
@@ -370,7 +434,8 @@ public class ConcolicExecution {
 				                      result.getExceptionThrownAtPosition(num));
 			}
 
-			// Only write bytecode up to the point of exception, anything beyond that doesn't count towards coverage
+			// Only write bytecode up to the point of exception, anything beyond
+			// that doesn't count towards coverage
 			if (result.isThereAnExceptionAtPosition(num))
 				break;
 			num++;
@@ -390,22 +455,48 @@ public class ConcolicExecution {
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
-	//	@SuppressWarnings("rawtypes")
+	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
-	public void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
-		//File dir = new File(dirName);
-		//dir.mkdir();
-		File file = new File(dirName + "/", className + ".class");
+	private void writeTestCase(List<PrimitiveStatement> statements, TestChromosome test) {
+
+		// File dir = new File(dirName);
+		// dir.mkdir();
+
+		String[] packageRoute = className.split("\\.");
+
+		String className;
+		String dirName;
+		if (packageRoute.length == 1) {
+			dirName = this.dirName;
+			className = packageRoute[0];
+		} else {
+			dirName = this.dirName;
+			for (int i = 0; i < packageRoute.length - 1; i++) {
+				if (!dirName.equals("")) {
+					dirName += File.separator;
+				}
+				dirName += packageRoute[i];
+			}
+			className = packageRoute[packageRoute.length - 1];
+		}
+
+		File dir = new File(dirName);
+		if (!dir.exists()) {
+			dir.mkdirs();
+		}
+
+		bytecodeFile = new File(dirName + File.separator, className + ".class");
 		try {
-			FileOutputStream stream = new FileOutputStream(file);
+			FileOutputStream stream = new FileOutputStream(bytecodeFile);
 			byte[] bytecode = getBytecode(statements, test);
 			stream.write(bytecode);
 			// logger.info(dirName);
-			//			logger.warn(test.getTestCase().toCode());
-			//			System.exit(0);
+			// logger.warn(test.getTestCase().toCode());
+			// System.exit(0);
 		} catch (FileNotFoundException e) {
+			logger.warn("FileNotFound during writting bytecode! File");
 		} catch (IOException e) {
+			logger.warn("IOException writting bytecode!");
 		}
 	}
-
 }

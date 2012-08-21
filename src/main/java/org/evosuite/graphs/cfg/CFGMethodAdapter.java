@@ -36,7 +36,7 @@ import org.evosuite.cfg.instrumentation.MutationInstrumentation;
 import org.evosuite.cfg.instrumentation.PrimePathInstrumentation;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.javaagent.AnnotatedMethodNode;
-import org.evosuite.testcase.StaticTestCluster;
+import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CFGMethodAdapter extends MethodVisitor {
 
-	private static Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
 
 	/**
 	 * A list of Strings representing method signatures. Methods matching those
@@ -141,7 +141,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		boolean isMainMethod = plain_name.equals("main") && Modifier.isStatic(access);
 
 		List<MethodInstrumentation> instrumentations = new ArrayList<MethodInstrumentation>();
-		if (StaticTestCluster.isTargetClassName(className)) {
+		if (DependencyAnalysis.shouldInstrument(className, methodName)) {
 			if (Properties.CRITERION == Criterion.LCSAJ) {
 				instrumentations.add(new LCSAJsInstrumentation());
 				instrumentations.add(new BranchInstrumentation());
@@ -190,8 +190,6 @@ public class CFGMethodAdapter extends MethodVisitor {
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 
 			logger.info("Analyzing method " + methodName + " in class " + className);
-			if (!methods.containsKey(className))
-				methods.put(className, new HashSet<String>());
 
 			// MethodNode mn = new CFGMethodNode((MethodNode)mv);
 			// System.out.println("Generating CFG for "+ className+"."+mn.name +
@@ -221,18 +219,24 @@ public class CFGMethodAdapter extends MethodVisitor {
 			bytecodeAnalyzer.retrieveCFGGenerator().registerCFGs();
 			logger.info("Created CFG for method " + methodName);
 
-			// add the actual instrumentation
-			logger.info("Instrumenting method " + methodName + " in class " + className);
-			for (MethodInstrumentation instrumentation : instrumentations)
-				instrumentation.analyze(mn, className, methodName, access);
+			if (DependencyAnalysis.shouldInstrument(className, methodName)) {
+				if (!methods.containsKey(className))
+					methods.put(className, new HashSet<String>());
 
-			handleBranchlessMethods();
+				// add the actual instrumentation
+				logger.info("Instrumenting method " + methodName + " in class "
+				        + className);
+				for (MethodInstrumentation instrumentation : instrumentations)
+					instrumentation.analyze(mn, className, methodName, access);
 
-			String id = className + "." + methodName;
-			if (isUsable()) {
-				methods.get(className).add(id);
-				logger.debug("Counting: " + id);
+				handleBranchlessMethods();
+				String id = className + "." + methodName;
+				if (isUsable()) {
+					methods.get(className).add(id);
+					logger.debug("Counting: " + id);
+				}
 			}
+
 		}
 		mn.accept(next);
 	}
@@ -265,8 +269,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * @return
 	 */
 	private boolean isUsable() {
-		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0
-		        || (this.access & Opcodes.ACC_BRIDGE) > 0 || (this.access & Opcodes.ACC_NATIVE) > 0)
+		return !((this.access & Opcodes.ACC_SYNTHETIC) != 0
+		        || (this.access & Opcodes.ACC_BRIDGE) != 0 || (this.access & Opcodes.ACC_NATIVE) != 0)
 		        && !methodName.contains("<clinit>")
 		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
 		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);
@@ -285,6 +289,20 @@ public class CFGMethodAdapter extends MethodVisitor {
 			if (currentClass.equals(className)
 			        || currentClass.startsWith(className + "$"))
 				targetMethods.addAll(methods.get(currentClass));
+		}
+
+		return targetMethods;
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static Set<String> getMethods() {
+		Set<String> targetMethods = new HashSet<String>();
+		for (String currentClass : methods.keySet()) {
+			targetMethods.addAll(methods.get(currentClass));
 		}
 
 		return targetMethods;
@@ -323,6 +341,21 @@ public class CFGMethodAdapter extends MethodVisitor {
 			if (name.startsWith(className)) {
 				num += methods.get(name).size();
 			}
+		}
+
+		return num;
+	}
+
+	/**
+	 * Returns a set with all unique methodNames of methods.
+	 * 
+	 * @return A set with all unique methodNames of methods.
+	 */
+	public static int getNumMethods() {
+		int num = 0;
+
+		for (String name : methods.keySet()) {
+			num += methods.get(name).size();
 		}
 
 		return num;

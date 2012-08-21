@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -19,25 +18,33 @@
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-public class IntegerVariable extends IntegerExpression implements Variable<Long> {
+
+public class IntegerVariable extends IntegerExpression implements
+		Variable<Long> {
 
 	private static final long serialVersionUID = 6302073364874210525L;
 
 	protected String name;
 
 	protected long concreteValue;
-	
+
 	protected long minValue;
 
 	protected long maxValue;
 
 	/**
-	 * <p>Constructor for IntegerVariable.</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
-	 * @param conV a long.
-	 * @param minValue a long.
-	 * @param maxValue a long.
+	 * <p>
+	 * Constructor for IntegerVariable.
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
+	 * @param conV
+	 *            a long.
+	 * @param minValue
+	 *            a long.
+	 * @param maxValue
+	 *            a long.
 	 */
 	public IntegerVariable(String name, long conV, long minValue, long maxValue) {
 		super();
@@ -45,6 +52,7 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 		this.concreteValue = conV;
 		this.minValue = minValue;
 		this.maxValue = maxValue;
+		this.containsSymbolicVariable = true;
 	}
 
 	/** {@inheritDoc} */
@@ -52,11 +60,14 @@ public class IntegerVariable extends IntegerExpression implements Variable<Long>
 	public Long getConcreteValue() {
 		return concreteValue;
 	}
-	
+
 	/**
-	 * <p>Setter for the field <code>concreteValue</code>.</p>
-	 *
-	 * @param con a {@link java.lang.Long} object.
+	 * <p>
+	 * Setter for the field <code>concreteValue</code>.
+	 * </p>
+	 * 
+	 * @param con
+	 *            a {@link java.lang.Long} object.
 	 */
 	public void setConcreteValue(Long con) {
 		concreteValue = con;

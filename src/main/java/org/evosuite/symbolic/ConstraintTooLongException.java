@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -19,24 +18,43 @@
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic;
-public class ConstraintTooLongException extends RuntimeException {
 
-	private static final long serialVersionUID = -7625075607830941781L;
-	
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import edu.uta.cse.dsc.StopVMException;
+
+public class ConstraintTooLongException extends StopVMException {
+
 	/**
-	 * <p>Constructor for ConstraintTooLongException.</p>
+	 * 
 	 */
-	public ConstraintTooLongException(){
+	private static final long serialVersionUID = 4788691891779076515L;
+
+	private static Logger logger = LoggerFactory
+			.getLogger(ConstraintTooLongException.class);
+
+	/**
+	 * <p>
+	 * Constructor for ConstraintTooLongException.
+	 * </p>
+	 */
+	public ConstraintTooLongException() {
 		super();
+		logger.debug("ConstraintTooLongException! Current DSE will be stopped");
 	}
 
 	/**
-	 * <p>Constructor for ConstraintTooLongException.</p>
-	 *
-	 * @param msg a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for ConstraintTooLongException.
+	 * </p>
+	 * 
+	 * @param msg
+	 *            a {@link java.lang.String} object.
 	 */
-	public ConstraintTooLongException(String msg){
+	public ConstraintTooLongException(String msg) {
 		super(msg);
+		logger.debug("ConstraintTooLongException! Current DSE will be stopped");
 	}
 
 }
