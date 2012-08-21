@@ -6,12 +6,12 @@ import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class I_ValueOf extends Function {
+public final class Z_ValueOf extends Function {
 
 	private static final String VALUE_OF = "valueOf";
 
-	public I_ValueOf(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_INTEGER, VALUE_OF, Types.I_TO_INTEGER);
+	public Z_ValueOf(SymbolicEnvironment env) {
+		super(env, Types.JAVA_LANG_BOOLEAN, VALUE_OF, Types.Z_TO_BOOLEAN);
 	}
 
 	private IntegerExpression bv32;
@@ -22,11 +22,11 @@ public final class I_ValueOf extends Function {
 	}
 
 	@Override
-	public void CALL_RESULT(Object conc_integer) {
-		NonNullReference symb_integer = (NonNullReference) env.topFrame().operandStack
+	public void CALL_RESULT(Object conc_boolean) {
+		NonNullReference symb_boolean = (NonNullReference) env.topFrame().operandStack
 				.peekRef();
-		env.heap.putField(Types.JAVA_LANG_INTEGER, SymbolicHeap.$INT_VALUE,
-				conc_integer, symb_integer, bv32);
+		env.heap.putField(Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
+				conc_boolean, symb_boolean, bv32);
 	}
 
 }

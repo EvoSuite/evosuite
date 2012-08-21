@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -38,6 +37,7 @@
 //
 
 package org.evosuite.symbolic.expr;
+
 public enum Comparator {
 
 	EQ(" == ") {
@@ -105,6 +105,50 @@ public enum Comparator {
 		public Comparator swap() {
 			return LE;
 		}
+	},
+	PATTERN_MATCHES_STRING(" pattern_matches_string ") {
+		@Override
+		public Comparator not() {
+			return NOT_PATTERN_MATCHES_STRING;
+		}
+
+		@Override
+		public Comparator swap() {
+			return STRING_MATCHES_PATTERN;
+		}
+	},
+	NOT_PATTERN_MATCHES_STRING(" NOT pattern_matches_string ") {
+		@Override
+		public Comparator not() {
+			return PATTERN_MATCHES_STRING;
+		}
+
+		@Override
+		public Comparator swap() {
+			return NOT_STRING_MATCHES_PATTERN;
+		}
+	},
+	STRING_MATCHES_PATTERN(" string_matches_pattern ") {
+		@Override
+		public Comparator not() {
+			return NOT_STRING_MATCHES_PATTERN;
+		}
+
+		@Override
+		public Comparator swap() {
+			return PATTERN_MATCHES_STRING;
+		}
+	},
+	NOT_STRING_MATCHES_PATTERN(" NOT string_matches_pattern ") {
+		@Override
+		public Comparator not() {
+			return STRING_MATCHES_PATTERN;
+		}
+
+		@Override
+		public Comparator swap() {
+			return NOT_PATTERN_MATCHES_STRING;
+		}
 	};
 
 	private final String str;
@@ -114,15 +158,19 @@ public enum Comparator {
 	}
 
 	/**
-	 * <p>not</p>
-	 *
+	 * <p>
+	 * not
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
 	 */
 	public abstract Comparator not();
 
 	/**
-	 * <p>swap</p>
-	 *
+	 * <p>
+	 * swap
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
 	 */
 	public abstract Comparator swap();
