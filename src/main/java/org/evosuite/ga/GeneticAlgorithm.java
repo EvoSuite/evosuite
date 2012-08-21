@@ -48,7 +48,7 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 	private static final long serialVersionUID = 5155609385855093435L;
 
-	private static Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
+	private static final Logger logger = LoggerFactory.getLogger(GeneticAlgorithm.class);
 
 	/** Fitness function to rank individuals */
 	protected FitnessFunction fitnessFunction;
@@ -204,10 +204,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * For more information look at ChromosomeRecycler and
 	 * TestFitnessFunction.isSimilarTo()
 	 * 
-	 * @param population_size
+	 * @param populationSize
 	 *            a int.
 	 */
-	protected void recycleChromosomes(int population_size) {
+	protected void recycleChromosomes(int populationSize) {
 		if (fitnessFunction == null)
 			return;
 		ChromosomeRecycler recycler = ChromosomeRecycler.getInstance();
@@ -215,15 +215,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		for (Chromosome recycable : recycables) {
 			population.add(recycable);
 		}
-		double enforced_Randomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
-		if (enforced_Randomness < 0.0 || enforced_Randomness > 1.0) {
+		double enforcedRandomness = Properties.INITIALLY_ENFORCED_RANDOMNESS;
+		if (enforcedRandomness < 0.0 || enforcedRandomness > 1.0) {
 			logger.warn("property \"initially_enforced_Randomness\" is supposed to be a percentage in [0.0,1.0]");
 			logger.warn("retaining to default");
-			enforced_Randomness = 0.4;
+			enforcedRandomness = 0.4;
 		}
-		enforced_Randomness = 1 - enforced_Randomness;
-		population_size *= enforced_Randomness;
-		starveToLimit(population_size);
+		enforcedRandomness = 1 - enforcedRandomness;
+		starveToLimit((int) (populationSize * enforcedRandomness));
 	}
 
 	/**

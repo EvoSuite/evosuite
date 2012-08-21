@@ -22,6 +22,8 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Implementation of steady state GA
@@ -32,9 +34,9 @@ public class SteadyStateGA extends GeneticAlgorithm {
 
 	private static final long serialVersionUID = 7846967347821123201L;
 
-	protected ReplacementFunction replacement_function;
+	protected ReplacementFunction replacementFunction;
 
-	private final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(SteadyStateGA.class);
+	private final Logger logger = LoggerFactory.getLogger(SteadyStateGA.class);
 
 	/**
 	 * Constructor
@@ -65,8 +67,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	 */
 	protected boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-		return replacement_function.keepOffspring(parent1, parent2, offspring1,
-		                                          offspring2);
+		return replacementFunction.keepOffspring(parent1, parent2, offspring1, offspring2);
 	}
 
 	/** {@inheritDoc} */
@@ -217,7 +218,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	 *            a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
 	public void setReplacementFunction(ReplacementFunction replacement_function) {
-		this.replacement_function = replacement_function;
+		this.replacementFunction = replacement_function;
 	}
 
 	/**
@@ -228,7 +229,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	 * @return a {@link org.evosuite.ga.ReplacementFunction} object.
 	 */
 	public ReplacementFunction getReplacementFunction() {
-		return replacement_function;
+		return replacementFunction;
 	}
 
 }
