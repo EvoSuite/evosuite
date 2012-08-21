@@ -31,39 +31,38 @@ import org.evosuite.testcase.MethodCall;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- *
+ * 
  * This class holds static methods used to calculate ControlFlowDistances or in
  * other words methods to determine, how far a given ExecutionResult was away
  * from reaching a given instruction or evaluating a certain Branch in a certain
  * way - depending on your point of view.
- *
+ * 
  * The distance to a certain Branch evaluating in a certain way is calculated as
  * follows:
- *
+ * 
  * If the given result had a Timeout, the worst possible ControlFlowDistance for
  * the method at hand is returned
- *
+ * 
  * Otherwise, if the given branch was null, meaning the distance to the root
  * branch of a method should be calculated, either the 0-distance is returned,
  * should the method at hand be called in the given ExecutionResult, or
  * otherwise the 1-distance is returned
- *
+ * 
  * Otherwise, the distance from the given ExecutionResult to evaluating the
  * given Branch to either jump (given value being true) or not jump (given value
  * being false) is calculated as follows:
- *
+ * 
  * If the given Branch was passed in the given ExecutionResult, the respective
  * true- or false-distance - depending on the given value- is taken as the
  * returned distance's branch distance with an approach level of 0. Otherwise
  * the minimum over all distances for evaluating one of the Branches that the
  * given Branch is control dependent on is returned, after adding one to that
  * distance's approach level.
- *
+ * 
  * TODO make method that just takes a BytecodeInstruction and returns the
  * minimum over all distances to it's control dependent branches
- *
+ * 
  * @author Andre Mis
  */
 public class ControlFlowDistanceCalculator {
@@ -79,14 +78,19 @@ public class ControlFlowDistanceCalculator {
 	 * Calculates the ControlFlowDistance indicating how far away the given
 	 * ExecutionResult was from executing the given Branch in a certain way,
 	 * depending on the given value.
-	 *
+	 * 
 	 * For more information look at this class's class comment
-	 *
-	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
-	 * @param branch a {@link org.evosuite.coverage.branch.Branch} object.
-	 * @param value a boolean.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
+	 * 
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * @param branch
+	 *            a {@link org.evosuite.coverage.branch.Branch} object.
+	 * @param value
+	 *            a boolean.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.coverage.ControlFlowDistance} object.
 	 */
 	public static ControlFlowDistance getDistance(ExecutionResult result, Branch branch,
@@ -296,7 +300,7 @@ public class ControlFlowDistanceCalculator {
 		}
 
 		for (ControlDependency next : nextToLookAt) {
-			if (instruction.equals(next.getBranch()))
+			if (instruction.equals(next.getBranch().getInstruction()))
 				continue; // avoid loops
 
 			boolean nextValue = next.getBranchExpressionValue();

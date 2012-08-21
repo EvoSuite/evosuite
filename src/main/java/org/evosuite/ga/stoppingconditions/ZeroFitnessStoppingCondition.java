@@ -29,7 +29,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = -6925872054053635256L;
 
 	/** Keep track of lowest fitness seen so far */
-	private double last_fitness = Double.MAX_VALUE;
+	private double lastFitness = Double.MAX_VALUE;
 
 	/**
 	 * {@inheritDoc}
@@ -38,7 +38,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		last_fitness = Math.min(last_fitness, algorithm.getBestIndividual().getFitness());
+		lastFitness = Math.min(lastFitness, algorithm.getBestIndividual().getFitness());
 	}
 
 	/**
@@ -48,7 +48,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public boolean isFinished() {
-		return last_fitness <= 0.0;
+		return lastFitness <= 0.0;
 	}
 
 	/**
@@ -58,7 +58,7 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	 */
 	@Override
 	public void reset() {
-		last_fitness = Double.MAX_VALUE;
+		lastFitness = Double.MAX_VALUE;
 	}
 
 	/* (non-Javadoc)
@@ -82,14 +82,14 @@ public class ZeroFitnessStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		return (long) (last_fitness + 0.5); // TODO: Why +0.5??
+		return (long) (lastFitness + 0.5); // TODO: Why +0.5??
 	}
 
 	/**
 	 * <p>setFinished</p>
 	 */
 	public void setFinished() {
-		last_fitness = 0.0;
+		lastFitness = 0.0;
 	}
 
 	/** {@inheritDoc} */

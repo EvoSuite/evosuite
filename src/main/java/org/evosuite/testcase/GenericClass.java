@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.evosuite.setup.TestCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +45,7 @@ public class GenericClass implements Serializable {
 
 	private static final long serialVersionUID = -3307107227790458308L;
 
-	private static Logger logger = LoggerFactory.getLogger(GenericClass.class);
+	private static final Logger logger = LoggerFactory.getLogger(GenericClass.class);
 
 	/**
 	 * <p>
@@ -145,6 +146,10 @@ public class GenericClass implements Serializable {
 		return raw_class.isArray();
 	}
 
+	public boolean isObject() {
+		return raw_class.equals(Object.class);
+	}
+
 	/**
 	 * <p>
 	 * getComponentType
@@ -183,6 +188,58 @@ public class GenericClass implements Serializable {
 	 */
 	public boolean isWrapperType() {
 		return WRAPPER_TYPES.contains(raw_class);
+	}
+
+	public Class<?> getUnboxedType() {
+		if (isWrapperType()) {
+			if (raw_class.equals(Integer.class))
+				return int.class;
+			else if (raw_class.equals(Byte.class))
+				return byte.class;
+			else if (raw_class.equals(Short.class))
+				return short.class;
+			else if (raw_class.equals(Long.class))
+				return long.class;
+			else if (raw_class.equals(Float.class))
+				return float.class;
+			else if (raw_class.equals(Double.class))
+				return double.class;
+			else if (raw_class.equals(Character.class))
+				return char.class;
+			else if (raw_class.equals(Boolean.class))
+				return boolean.class;
+			else if (raw_class.equals(Void.class))
+				return void.class;
+			else
+				throw new RuntimeException("Unknown boxed type: " + raw_class);
+		}
+		return raw_class;
+	}
+
+	public Class<?> getBoxedType() {
+		if (isPrimitive()) {
+			if (raw_class.equals(int.class))
+				return Integer.class;
+			else if (raw_class.equals(byte.class))
+				return Byte.class;
+			else if (raw_class.equals(short.class))
+				return Short.class;
+			else if (raw_class.equals(long.class))
+				return Long.class;
+			else if (raw_class.equals(float.class))
+				return Float.class;
+			else if (raw_class.equals(double.class))
+				return Double.class;
+			else if (raw_class.equals(char.class))
+				return Character.class;
+			else if (raw_class.equals(boolean.class))
+				return Boolean.class;
+			else if (raw_class.equals(void.class))
+				return Void.class;
+			else
+				throw new RuntimeException("Unknown unboxed type: " + raw_class);
+		}
+		return raw_class;
 	}
 
 	/**
@@ -435,22 +492,26 @@ public class GenericClass implements Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		//result = prime * result
-		//		+ ((raw_class == null) ? 0 : raw_class.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
-		return result;
-	}
-
-	/** {@inheritDoc} */
-	@Override
 	public String toString() {
 		return type.toString();
 	}
 
-	/** {@inheritDoc} */
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + getTypeName().hashCode();
+		// result = prime * result + ((raw_class == null) ? 0 : raw_class.hashCode());
+		// result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -460,12 +521,22 @@ public class GenericClass implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		GenericClass other = (GenericClass) obj;
-		if (type == null) {
-			if (other.type != null)
+		return getTypeName().equals(other.getTypeName());
+		/*
+		if (raw_class == null) {
+			if (other.raw_class != null)
 				return false;
-		} else if (!type.equals(other.type))
+		} else if (!raw_class.equals(other.raw_class))
 			return false;
-		return true;
+			*/
+		/*
+		if (type == null) {
+		    if (other.type != null)
+			    return false;
+		} else if (!type.equals(other.type))
+		    return false;
+		    */
+		// return true;
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {

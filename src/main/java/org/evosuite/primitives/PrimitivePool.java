@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,10 +26,11 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>PrimitivePool class.</p>
- *
+ * <p>
+ * PrimitivePool class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class PrimitivePool {
@@ -77,8 +78,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.primitives.PrimitivePool} object.
 	 */
 	public static PrimitivePool getInstance() {
@@ -89,15 +92,19 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>add</p>
-	 *
-	 * @param object a {@link java.lang.Object} object.
+	 * <p>
+	 * add
+	 * </p>
+	 * 
+	 * @param object
+	 *            a {@link java.lang.Object} object.
 	 */
 	public void add(Object object) {
 		// Integer, a Float, a Long, a Double a
-		logger.debug("Adding to pool: " + object + " of class ");
 		if (object == null)
 			return;
+
+		logger.debug("Adding to pool: " + object + " of class " + object.getClass());
 		if (object instanceof String) {
 			if (!((String) object).startsWith("mutationId"))
 				stringPool.add((String) object);
@@ -147,8 +154,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getStrings</p>
-	 *
+	 * <p>
+	 * getStrings
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<String> getStrings() {
@@ -156,8 +165,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getIntegers</p>
-	 *
+	 * <p>
+	 * getIntegers
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getIntegers() {
@@ -165,8 +176,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getFloats</p>
-	 *
+	 * <p>
+	 * getFloats
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Float> getFloats() {
@@ -174,8 +187,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getDoubles</p>
-	 *
+	 * <p>
+	 * getDoubles
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Double> getDoubles() {
@@ -183,8 +198,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getLongs</p>
-	 *
+	 * <p>
+	 * getLongs
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Long> getLongs() {
@@ -192,8 +209,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getRandomString</p>
-	 *
+	 * <p>
+	 * getRandomString
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getRandomString() {
@@ -201,8 +220,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getRandomInt</p>
-	 *
+	 * <p>
+	 * getRandomInt
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getRandomInt() {
@@ -211,8 +232,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getRandomFloat</p>
-	 *
+	 * <p>
+	 * getRandomFloat
+	 * </p>
+	 * 
 	 * @return a float.
 	 */
 	public float getRandomFloat() {
@@ -220,8 +243,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getRandomDouble</p>
-	 *
+	 * <p>
+	 * getRandomDouble
+	 * </p>
+	 * 
 	 * @return a double.
 	 */
 	public double getRandomDouble() {
@@ -229,8 +254,10 @@ public class PrimitivePool {
 	}
 
 	/**
-	 * <p>getRandomLong</p>
-	 *
+	 * <p>
+	 * getRandomLong
+	 * </p>
+	 * 
 	 * @return a long.
 	 */
 	public long getRandomLong() {

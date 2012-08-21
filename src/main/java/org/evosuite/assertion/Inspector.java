@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.assertion;
@@ -27,8 +26,9 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.evosuite.testcase.TestCluster;
+import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.Type;
+
 public class Inspector implements Serializable {
 
 	private static final long serialVersionUID = -6865880297202184953L;
@@ -38,10 +38,14 @@ public class Inspector implements Serializable {
 	private transient Method method;
 
 	/**
-	 * <p>Constructor for Inspector.</p>
-	 *
-	 * @param clazz a {@link java.lang.Class} object.
-	 * @param m a {@link java.lang.reflect.Method} object.
+	 * <p>
+	 * Constructor for Inspector.
+	 * </p>
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
+	 * @param m
+	 *            a {@link java.lang.reflect.Method} object.
 	 */
 	public Inspector(Class<?> clazz, Method m) {
 		this.clazz = clazz;
@@ -49,13 +53,19 @@ public class Inspector implements Serializable {
 	}
 
 	/**
-	 * <p>getValue</p>
-	 *
-	 * @param object a {@link java.lang.Object} object.
+	 * <p>
+	 * getValue
+	 * </p>
+	 * 
+	 * @param object
+	 *            a {@link java.lang.Object} object.
 	 * @return a {@link java.lang.Object} object.
-	 * @throws java.lang.IllegalArgumentException if any.
-	 * @throws java.lang.IllegalAccessException if any.
-	 * @throws java.lang.reflect.InvocationTargetException if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
+	 * @throws java.lang.reflect.InvocationTargetException
+	 *             if any.
 	 */
 	public Object getValue(Object object) throws IllegalArgumentException,
 	        IllegalAccessException, InvocationTargetException {
@@ -68,8 +78,10 @@ public class Inspector implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>method</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>method</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.reflect.Method} object.
 	 */
 	public Method getMethod() {
@@ -77,8 +89,10 @@ public class Inspector implements Serializable {
 	}
 
 	/**
-	 * <p>getMethodCall</p>
-	 *
+	 * <p>
+	 * getMethodCall
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMethodCall() {
@@ -86,8 +100,10 @@ public class Inspector implements Serializable {
 	}
 
 	/**
-	 * <p>getClassName</p>
-	 *
+	 * <p>
+	 * getClassName
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
@@ -95,8 +111,10 @@ public class Inspector implements Serializable {
 	}
 
 	/**
-	 * <p>getReturnType</p>
-	 *
+	 * <p>
+	 * getReturnType
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public Class<?> getReturnType() {

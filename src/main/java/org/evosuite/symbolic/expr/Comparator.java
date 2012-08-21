@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -38,6 +37,7 @@
 //
 
 package org.evosuite.symbolic.expr;
+
 public enum Comparator {
 
 	EQ(" == ") {
@@ -114,15 +114,19 @@ public enum Comparator {
 	}
 
 	/**
-	 * <p>not</p>
-	 *
+	 * <p>
+	 * not
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
 	 */
 	public abstract Comparator not();
 
 	/**
-	 * <p>swap</p>
-	 *
+	 * <p>
+	 * swap
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
 	 */
 	public abstract Comparator swap();

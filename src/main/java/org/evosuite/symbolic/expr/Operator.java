@@ -63,6 +63,7 @@ public enum Operator {
 	IOR("ior", 2), //
 	SHR("ishr", 2), //
 	SHL("ishl", 2), //
+	USHR("iushr", 2), //
 	IXOR("ixor", 2), //
 
 	// More complex Math operators
@@ -115,6 +116,7 @@ public enum Operator {
 	CONTAINS("contains", 2),
 	STARTSWITH("startsWith", 3),
 	REGIONMATCHES("regionMatches", 6), 
+	PATTERNMATCHES("patternMatches", 2), 
 
 
 	// String operators

@@ -197,8 +197,15 @@ public class ArrayIndex extends VariableReferenceImpl {
 		if (indices.size() > 1) {
 			throw new RuntimeException("Not yet implemented for multidimensional arrays!");
 		}
+
+		int localVar = mg.newLocal(org.objectweb.asm.Type.getType(getVariableClass()));
+		mg.storeLocal(localVar);
+
 		array.loadBytecode(mg, locals);
+
 		mg.push(indices.get(0));
+		mg.loadLocal(localVar);
+
 		mg.arrayStore(org.objectweb.asm.Type.getType(type.getRawClass()));
 	}
 

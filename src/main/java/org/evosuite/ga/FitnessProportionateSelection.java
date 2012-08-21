@@ -35,19 +35,19 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	 * Sum of fitness values, depending on minimization/maximization of the
 	 * fitness function
 	 */
-	private double sum_value = 0.0;
+	private double sumValue = 0.0;
 
 	/** {@inheritDoc} */
 	@Override
 	public int getIndex(List<Chromosome> population) {
 		//special case
-		if (sum_value == 0d) {
+		if (sumValue == 0d) {
 			//here does not matter whether maximize or not.
 			//we need to take at random, otherwise it d be always the first that d be chosen
 			return Randomness.nextInt(population.size());
 		}
 
-		double rnd = Randomness.nextDouble() * sum_value;
+		double rnd = Randomness.nextDouble() * sumValue;
 
 		for (int i = 0; i < population.size(); i++) {
 			double fit = population.get(i).getFitness();
@@ -74,13 +74,13 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	 * @param population
 	 */
 	private void setSum(List<Chromosome> population) {
-		sum_value = 0;
+		sumValue = 0;
 		for (Chromosome c : population) {
 			double v = c.getFitness();
 			if (!maximize)
 				v = invert(v);
 
-			sum_value += v;
+			sumValue += v;
 		}
 	}
 

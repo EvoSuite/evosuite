@@ -46,12 +46,7 @@ public class DefUseFactory {
 			throw new IllegalArgumentException(
 					"expect DefUsePool to know the given BytecodeInstruction: "+instruction.toString());
 
-		int defuseId = DefUsePool.getRegisteredDefUseId(instruction);
-		int defId = DefUsePool.getRegisteredDefId(instruction);
-		int useId = DefUsePool.getRegisteredUseId(instruction);
-		boolean isParameterUse = DefUsePool.isRegisteredParameterUse(instruction);
-
-		return new Use(instruction, defuseId, defId, useId, isParameterUse);
+		return new Use(instruction);
 	}
 
 	/**
@@ -69,12 +64,7 @@ public class DefUseFactory {
 			throw new IllegalArgumentException(
 					"expect DefUsePool to know the given BytecodeInstruction");
 
-		int defuseId = DefUsePool.getRegisteredDefUseId(instruction);
-		int defId = DefUsePool.getRegisteredDefId(instruction);
-		int useId = DefUsePool.getRegisteredUseId(instruction);
-		boolean isParameterUse = DefUsePool.isRegisteredParameterUse(instruction);
-
-		return new Definition(instruction, defuseId, defId, useId, isParameterUse);
+		return new Definition(instruction);
 	}
 
 	/**

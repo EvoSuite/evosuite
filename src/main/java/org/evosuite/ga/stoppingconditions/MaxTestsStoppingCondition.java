@@ -29,10 +29,10 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = -3375236459377313641L;
 
 	/** Current number of tests */
-	protected static long num_tests = 0;
+	protected static long numTests = 0;
 
 	/** Maximum number of evaluations */
-	protected long max_tests = Properties.SEARCH_BUDGET;
+	protected long maxTests = Properties.SEARCH_BUDGET;
 
 	/**
 	 * <p>getNumExecutedTests</p>
@@ -40,26 +40,26 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	 * @return a long.
 	 */
 	public static long getNumExecutedTests() {
-		return num_tests;
+		return numTests;
 	}
 
 	/**
 	 * <p>testExecuted</p>
 	 */
 	public static void testExecuted() {
-		num_tests++;
+		numTests++;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void reset() {
-		num_tests = 0;
+		numTests = 0;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public boolean isFinished() {
-		return num_tests >= max_tests;
+		return numTests >= maxTests;
 	}
 
 	/* (non-Javadoc)
@@ -68,7 +68,7 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		return num_tests;
+		return numTests;
 	}
 
 	/* (non-Javadoc)
@@ -77,20 +77,20 @@ public class MaxTestsStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
-		max_tests = limit;
+		maxTests = limit;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
-		return max_tests;
+		return maxTests;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		// TODO Auto-generated method stub
-		num_tests = value;
+		numTests = value;
 	}
 
 }

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Abstract base class of selection functions
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class SelectionFunction implements Serializable {
@@ -34,7 +34,7 @@ public abstract class SelectionFunction implements Serializable {
 	private static final long serialVersionUID = -2514933149542277609L;
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(SelectionFunction.class);
+	protected static final Logger logger = LoggerFactory.getLogger(SelectionFunction.class);
 
 	/**
 	 * Do we want to minimize or maximize fitness?
@@ -43,16 +43,18 @@ public abstract class SelectionFunction implements Serializable {
 
 	/**
 	 * Return index of next offspring
-	 *
-	 * @param population a {@link java.util.List} object.
+	 * 
+	 * @param population
+	 *            a {@link java.util.List} object.
 	 * @return a int.
 	 */
 	public abstract int getIndex(List<Chromosome> population);
 
 	/**
 	 * Return two parents
-	 *
-	 * @param population a {@link java.util.List} object.
+	 * 
+	 * @param population
+	 *            a {@link java.util.List} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	public Chromosome select(List<Chromosome> population) {
@@ -61,8 +63,9 @@ public abstract class SelectionFunction implements Serializable {
 
 	/**
 	 * Return n parents
-	 *
-	 * @param population a {@link java.util.List} object.
+	 * 
+	 * @param population
+	 *            a {@link java.util.List} object.
 	 * @param number
 	 *            n
 	 * @return a {@link java.util.List} object.
@@ -77,16 +80,19 @@ public abstract class SelectionFunction implements Serializable {
 
 	/**
 	 * Are we maximizing or minimizing fitness?
-	 *
-	 * @param max a boolean.
+	 * 
+	 * @param max
+	 *            a boolean.
 	 */
 	public void setMaximize(boolean max) {
 		maximize = max;
 	}
 
 	/**
-	 * <p>isMaximize</p>
-	 *
+	 * <p>
+	 * isMaximize
+	 * </p>
+	 * 
 	 * @return true is we have to maximize
 	 */
 	public boolean isMaximize() {

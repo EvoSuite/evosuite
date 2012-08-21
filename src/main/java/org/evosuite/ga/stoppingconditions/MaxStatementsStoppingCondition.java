@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -42,10 +42,11 @@ import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>MaxStatementsStoppingCondition class.</p>
- *
+ * <p>
+ * MaxStatementsStoppingCondition class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
@@ -53,61 +54,65 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	private static final long serialVersionUID = 8521297417505862683L;
 
 	@SuppressWarnings({ "unused" })
-	private static Logger logger = LoggerFactory.getLogger(MaxStatementsStoppingCondition.class);
+	private static final Logger logger = LoggerFactory.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */
-	protected static long max_statements = Properties.SEARCH_BUDGET;
+	protected static long maxStatements = Properties.SEARCH_BUDGET;
 
 	/** Maximum number of iterations */
-	protected static long current_statement = 0;
+	protected static long currentStatement = 0;
 
 	/**
 	 * Add a given number of executed statements
-	 *
-	 * @param num a int.
+	 * 
+	 * @param num
+	 *            a int.
 	 */
 	public static void statementsExecuted(int num) {
-		current_statement += num;
+		currentStatement += num;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Finished, if the maximum number of statements has been reached
 	 */
 	@Override
 	public boolean isFinished() {
 		// logger.info("Current number of statements executed: " + current_statement + "/"
 		//        + max_statements);
-		return current_statement >= max_statements;
+		return currentStatement >= maxStatements;
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Reset counter
 	 */
 	@Override
 	public void reset() {
-		current_statement = 0;
+		currentStatement = 0;
 	}
 
 	/**
-	 * <p>getNumExecutedStatements</p>
-	 *
+	 * <p>
+	 * getNumExecutedStatements
+	 * </p>
+	 * 
 	 * @return a long.
 	 */
 	public static long getNumExecutedStatements() {
-		return current_statement;
+		return currentStatement;
 	}
 
 	/**
 	 * Set new upper limit
-	 *
-	 * @param max a int.
+	 * 
+	 * @param max
+	 *            a int.
 	 */
 	public static void setMaxExecutedStatements(int max) {
-		max_statements = max;
+		maxStatements = max;
 	}
 
 	/* (non-Javadoc)
@@ -116,7 +121,7 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public long getCurrentValue() {
-		return current_statement;
+		return currentStatement;
 	}
 
 	/* (non-Javadoc)
@@ -125,19 +130,19 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void setLimit(long limit) {
-		max_statements = limit;
+		maxStatements = limit;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
-		return max_statements;
+		return maxStatements;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
-		current_statement = value;
+		currentStatement = value;
 	}
 
 }

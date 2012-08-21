@@ -32,6 +32,7 @@ public class IntegerConstant extends IntegerExpression {
 	 */
 	public IntegerConstant(long longValue) {
 		this.value = longValue;
+		this.containsSymbolicVariable = false;
 	}
 
 	/** {@inheritDoc} */

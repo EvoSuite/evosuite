@@ -31,6 +31,7 @@ import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
@@ -47,7 +48,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static final long serialVersionUID = -689512549778944250L;
 
-	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
 	private List<String> accessedFiles = new ArrayList<String>();
 
@@ -142,7 +143,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		if (!var.isPrimitive() && !(var instanceof NullReference)) {
 			// add fields of this object to list
-			for (Field field : StaticTestCluster.getAccessibleFields(var.getVariableClass())) {
+			for (Field field : TestClusterGenerator.getAccessibleFields(var.getVariableClass())) {
 				Type fieldType = field.getType();
 				try {
 					fieldType = field.getGenericType();

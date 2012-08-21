@@ -21,6 +21,7 @@
 package org.evosuite;
 
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.Socket;
@@ -42,8 +43,8 @@ public class ProgressMonitor implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = -8518559681906649686L;
 
-	protected Socket connection;
-	protected ObjectOutputStream out;
+	protected transient Socket connection;
+	protected transient ObjectOutputStream out;
 	protected boolean connected = false;
 	protected int lastCoverage = 0;
 	protected int lastProgress = 0;
@@ -195,4 +196,9 @@ public class ProgressMonitor implements SearchListener, Serializable {
 		this.phases = phases;
 	}
 
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		ois.defaultReadObject();
+		connectToMainProcess(Properties.PROGRESS_STATUS_PORT);
+	}
 }

@@ -24,6 +24,7 @@ import java.io.Serializable;
 
 import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.coverage.TestCoverageGoal;
+import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
@@ -87,7 +88,8 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 				throw new IllegalArgumentException(
 				        "expect explicitly given information about a branch to coincide with the information given by that branch");
 		} else {
-			lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
+//			lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
+			lineNumber = BytecodeInstructionPool.getFirstLineNumberOfMethod(className, methodName);
 		}
 	}
 
@@ -122,7 +124,8 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 
 		this.className = className;
 		this.methodName = methodName;
-		lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
+//		lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
+		lineNumber = BytecodeInstructionPool.getFirstLineNumberOfMethod(className, methodName);
 	}
 
 	/**
