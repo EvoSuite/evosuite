@@ -14,7 +14,7 @@ public final class C_CharValue extends Function {
 	private static final String CHAR_VALUE = "charValue";
 
 	public C_CharValue(SymbolicEnvironment env) {
-		super(env, Types.JAVA_LANG_CHARACTER, CHAR_VALUE, Types.TO_BYTE);
+		super(env, Types.JAVA_LANG_CHARACTER, CHAR_VALUE, Types.TO_CHAR);
 	}
 
 	@Override
