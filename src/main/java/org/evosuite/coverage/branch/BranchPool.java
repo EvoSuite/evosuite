@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.LabelNode;
 import org.objectweb.asm.tree.LookupSwitchInsnNode;
@@ -84,21 +83,6 @@ public class BranchPool {
 	private static int branchCounter = 0;
 
 	// fill the pool
-
-	/**
-	 * Reset all the data structures used to keep track of the branch
-	 * information
-	 */
-	public static void reset() {
-		branchCounter = 0;
-		branchMap.clear();
-		branchlessMethods.clear();
-		branchIdMap.clear();
-		registeredNormalBranches.clear();
-		registeredSwitches.clear();
-		registeredDefaultCases.clear();
-		switchLabels.clear();
-	}
 
 	/**
 	 * Gets called by the CFGMethodAdapter whenever it detects a method without
@@ -622,11 +606,12 @@ public class BranchPool {
 
 	public static int getBranchlessMethodLineNumber(String className, String methodName) {
 		// check if the given method is branchless
-		if(branchlessMethods.get(className) != null && branchlessMethods.get(className).get(className+"."+methodName) != null) {
+		if (branchlessMethods.get(className) != null
+		        && branchlessMethods.get(className).get(className + "." + methodName) != null) {
 			return branchlessMethods.get(className).get(className + "." + methodName);
 		}
 		// otherwise consult the branchMap and return the lineNumber of the earliest Branch
-		
+
 		return branchlessMethods.get(className).get(className + "." + methodName);
 	}
 
@@ -806,9 +791,26 @@ public class BranchPool {
 	}
 
 	/**
+	 * Reset all the data structures used to keep track of the branch
+	 * information
+	 */
+	public static void reset() {
+		branchCounter = 0;
+		branchMap.clear();
+		branchlessMethods.clear();
+		branchIdMap.clear();
+		registeredNormalBranches.clear();
+		registeredSwitches.clear();
+		registeredDefaultCases.clear();
+		switchLabels.clear();
+	}
+
+	/**
 	 * <p>
 	 * clear
 	 * </p>
+	 * 
+	 * TODO: One of these two methods should go
 	 */
 	public static void clear() {
 		branchCounter = 0;
