@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 
 public abstract class ExpressionHelper {
 
-	protected static Logger log = LoggerFactory.getLogger(ExpressionHelper.class);
+	protected static final Logger log = LoggerFactory.getLogger(ExpressionHelper.class);
 
 	/**
 	 * <p>

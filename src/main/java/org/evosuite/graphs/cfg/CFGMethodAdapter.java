@@ -57,7 +57,7 @@ import org.slf4j.LoggerFactory;
  */
 public class CFGMethodAdapter extends MethodVisitor {
 
-	private static Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
+	private static final Logger logger = LoggerFactory.getLogger(CFGMethodAdapter.class);
 
 	/**
 	 * A list of Strings representing method signatures. Methods matching those
@@ -269,8 +269,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * @return
 	 */
 	private boolean isUsable() {
-		return !((this.access & Opcodes.ACC_SYNTHETIC) > 0
-		        || (this.access & Opcodes.ACC_BRIDGE) > 0 || (this.access & Opcodes.ACC_NATIVE) > 0)
+		return !((this.access & Opcodes.ACC_SYNTHETIC) != 0
+		        || (this.access & Opcodes.ACC_BRIDGE) != 0 || (this.access & Opcodes.ACC_NATIVE) != 0)
 		        && !methodName.contains("<clinit>")
 		        && !(methodName.contains("<init>") && (access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE)
 		        && (Properties.USE_DEPRECATED || (access & Opcodes.ACC_DEPRECATED) != Opcodes.ACC_DEPRECATED);

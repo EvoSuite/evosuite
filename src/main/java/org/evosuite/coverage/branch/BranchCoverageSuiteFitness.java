@@ -51,7 +51,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 2991632394620406243L;
 
-	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
+	private final static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int totalMethods;
 	public final int totalBranches;

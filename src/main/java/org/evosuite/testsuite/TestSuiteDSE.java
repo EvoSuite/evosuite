@@ -73,7 +73,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestSuiteDSE {
 
-	private static Logger logger = LoggerFactory.getLogger(TestSuiteDSE.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestSuiteDSE.class);
 
 	private final Set<Integer> uncoveredBranches = new HashSet<Integer>();
 

@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestFactory {
 
-	private static Logger logger = LoggerFactory.getLogger(TestFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestFactory.class);
 
 	/**
 	 * Keep track of objects we are already trying to generate to avoid cycles

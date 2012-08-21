@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestCaseMinimizer {
 
-	private static Logger logger = LoggerFactory.getLogger(TestCaseMinimizer.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestCaseMinimizer.class);
 
 	private final Set<TestFitnessFunction> fitnessFunctions = new HashSet<TestFitnessFunction>();
 

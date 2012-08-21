@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StringLocalSearch implements LocalSearch {
 
-	private static Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
+	private static final Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
 
 	private String oldValue;
 

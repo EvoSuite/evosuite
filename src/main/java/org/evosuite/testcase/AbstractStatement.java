@@ -71,7 +71,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	private static final long serialVersionUID = 8993506743384548704L;
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(AbstractStatement.class);
+	protected static final Logger logger = LoggerFactory.getLogger(AbstractStatement.class);
 
 	protected VariableReference retval;
 	protected final TestCase tc;

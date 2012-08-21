@@ -107,7 +107,7 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	public static void currentTest(TestCase test) {
 		currentTest = test;
-		valid = true;
+		ContractChecker.valid = true;
 		// TODO: Keep track of objects that raised an exception, and exclude them from contract checking
 	}
 
@@ -119,7 +119,7 @@ public class ContractChecker extends ExecutionObserver {
 	public void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
 
-		if (!valid) {
+		if (!ContractChecker.valid) {
 			/*
 			 * once we get a contract that is violated, no point in checking the following statements,
 			 * because the internal state of the SUT is corrupted.
@@ -131,7 +131,7 @@ public class ContractChecker extends ExecutionObserver {
 			return;
 		}
 
-		if (!active) {
+		if (!ContractChecker.active) {
 			return;
 		}
 
@@ -146,7 +146,7 @@ public class ContractChecker extends ExecutionObserver {
 					logger.debug("Contract failed: {} {}", contract, statement.getCode());
 					FailingTestSet.addFailingTest(currentTest, contract, statement,
 					                              exception);
-					valid = false;
+					ContractChecker.valid = false;
 					//break;
 				}
 			} catch (Throwable t) {
@@ -169,7 +169,7 @@ public class ContractChecker extends ExecutionObserver {
 	/** {@inheritDoc} */
 	@Override
 	public void clear() {
-		valid = true;
+		ContractChecker.valid = true;
 	}
 
 }

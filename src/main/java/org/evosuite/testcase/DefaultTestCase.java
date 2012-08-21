@@ -48,7 +48,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 	private static final long serialVersionUID = -689512549778944250L;
 
-	private static Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
+	private static final Logger logger = LoggerFactory.getLogger(DefaultTestCase.class);
 
 	private List<String> accessedFiles = new ArrayList<String>();
 

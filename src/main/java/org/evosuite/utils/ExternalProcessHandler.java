@@ -46,7 +46,7 @@ import sun.misc.SignalHandler;
 @SuppressWarnings("restriction")
 public class ExternalProcessHandler {
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
 
 	protected ServerSocket server;
 	protected Process process;
@@ -193,7 +193,8 @@ public class ExternalProcessHandler {
 				out.flush();
 			}
 		} catch (Exception e) {
-			logger.error("Class "+Properties.TARGET_CLASS+". Error while waiting for connection from external process ");
+			logger.error("Class " + Properties.TARGET_CLASS
+			        + ". Error while waiting for connection from external process ");
 			return false;
 		}
 
@@ -318,7 +319,8 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process. "+e.getMessage());
+						logger.error("Exception while reading output of client process. "
+						        + e.getMessage());
 					}
 				}
 			};
@@ -343,7 +345,8 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process. "+e.getMessage());
+						logger.error("Exception while reading output of client process. "
+						        + e.getMessage());
 					}
 				}
 			};
@@ -392,7 +395,10 @@ public class ExternalProcessHandler {
 						 * we should try to re-start based on the partial info received so far, eg
 						 * the best solutions found so far which was sent to master
 						 */
-						logger.error("Class "+Properties.TARGET_CLASS+". Error in reading message. Likely the client has crashed. Error message: "+e.getMessage());
+						logger.error("Class "
+						        + Properties.TARGET_CLASS
+						        + ". Error in reading message. Likely the client has crashed. Error message: "
+						        + e.getMessage());
 						message = Messages.FINISHED_COMPUTATION;
 						data = null;
 					}
@@ -414,7 +420,8 @@ public class ExternalProcessHandler {
 						startProcess(last_command, data);
 					} else {
 						killProcess();
-						logger.error("Class "+Properties.TARGET_CLASS+". Error, received invalid message: ", message);
+						logger.error("Class " + Properties.TARGET_CLASS
+						        + ". Error, received invalid message: ", message);
 						return;
 					}
 				}
@@ -463,7 +470,9 @@ public class ExternalProcessHandler {
 		try {
 			latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
-			logger.warn("Class "+Properties.TARGET_CLASS+". Thread interrupted while waiting for results from client process",
+			logger.warn("Class "
+			                    + Properties.TARGET_CLASS
+			                    + ". Thread interrupted while waiting for results from client process",
 			            e);
 		}
 

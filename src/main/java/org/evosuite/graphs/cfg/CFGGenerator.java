@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,40 +19,36 @@ package org.evosuite.graphs.cfg;
 
 import java.util.List;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.evosuite.graphs.GraphPool;
-import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
-import org.objectweb.asm.tree.analysis.SourceValue;
-import org.objectweb.asm.tree.analysis.Value;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This classed is used to create the RawControlFlowGraph which can then be used
  * to create the ActualControlFlowGraph
- *
+ * 
  * When analyzing a CUT the BytecodeAnalyzer creates an instance of this class
  * for each method contained in it
- *
+ * 
  * This class's methods get called in the following order:
- *
+ * 
  * - upon constructing, the method at hand is registered via
  * registerMethodNode() which fills the BytecodeInstructionPool with all
  * instructions inside that method
- *
+ * 
  * - then registerControlFlowEdge() is called by the BytecodeAnalyzer for each
  * possible transition from one byteCode instruction to another within the
  * current method. In this step the CFGGenerator asks the
  * BytecodeInstructionPool for the previously created instructions and fills up
  * it's RawControlFlowGraph
- *
+ * 
  * After those calls the RawControlFlowGraph of the method at hand is complete
  * It should contain a Vertex for each BytecodeInstruction inside the specified
  * method and an edge for every possible transition between these instructions
- *
+ * 
  * @author Andre Mis
  */
 public class CFGGenerator {
@@ -69,17 +65,20 @@ public class CFGGenerator {
 	/**
 	 * Initializes this generator to generate the CFG for the method identified
 	 * by the given parameters
-	 *
+	 * 
 	 * Calls registerMethodNode() which in turn calls
 	 * BytecodeInstructionPool.registerMethodNode() leading to the creation of
 	 * all BytecodeInstruction instances for the method at hand
-	 *
+	 * 
 	 * TODO might not want to give asm.MethodNode to the outside, but rather a
 	 * MyMethodNode extended from BytecodeInstruction or something
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param node a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param node
+	 *            a {@link org.objectweb.asm.tree.MethodNode} object.
 	 */
 	public CFGGenerator(String className, String methodName, MethodNode node) {
 		registerMethodNode(node, className, methodName);
@@ -93,8 +92,7 @@ public class CFGGenerator {
 
 		int removed = getRawGraph().removeIsolatedNodes();
 		if (removed > 0)
-			logger.info("removed isolated nodes: " + removed + " in "
-					+ methodName);
+			logger.info("removed isolated nodes: " + removed + " in " + methodName);
 
 		// non-minimized cfg needed for defuse-coverage and control
 		// dependence calculation
@@ -105,10 +103,10 @@ public class CFGGenerator {
 	// build up the graph
 
 	private void registerMethodNode(MethodNode currentMethod, String className,
-			String methodName) {
+	        String methodName) {
 		if (nodeRegistered)
 			throw new IllegalStateException(
-					"registerMethodNode must not be called more than once for each instance of CFGGenerator");
+			        "registerMethodNode must not be called more than once for each instance of CFGGenerator");
 		if (currentMethod == null || methodName == null || className == null)
 			throw new IllegalArgumentException("null given");
 
@@ -117,10 +115,11 @@ public class CFGGenerator {
 		this.methodName = methodName;
 
 		this.rawGraph = new RawControlFlowGraph(className, methodName,
-				currentMethod.access);
+		        currentMethod.access);
 
-		List<BytecodeInstruction> instructionsInMethod = BytecodeInstructionPool
-				.registerMethodNode(currentMethod, className, methodName);
+		List<BytecodeInstruction> instructionsInMethod = BytecodeInstructionPool.registerMethodNode(currentMethod,
+		                                                                                            className,
+		                                                                                            methodName);
 
 		// sometimes there is a Label at the very end of a method without a
 		// controlFlowEdge to it. In order to keep the graph as connected as
@@ -137,20 +136,25 @@ public class CFGGenerator {
 
 	/**
 	 * Internal management of fields and actual building up of the rawGraph
-	 *
+	 * 
 	 * Is called by the corresponding BytecodeAnalyzer whenever it detects a
 	 * control flow edge
-	 *
-	 * @param src a int.
-	 * @param dst a int.
-	 * @param frames an array of {@link org.objectweb.asm.tree.analysis.Frame} objects.
-	 * @param isExceptionEdge a boolean.
+	 * 
+	 * @param src
+	 *            a int.
+	 * @param dst
+	 *            a int.
+	 * @param frames
+	 *            an array of {@link org.objectweb.asm.tree.analysis.Frame}
+	 *            objects.
+	 * @param isExceptionEdge
+	 *            a boolean.
 	 */
 	public void registerControlFlowEdge(int src, int dst, Frame[] frames,
-			boolean isExceptionEdge) {
+	        boolean isExceptionEdge) {
 		if (!nodeRegistered)
 			throw new IllegalStateException(
-					"CFGGenrator.registerControlFlowEdge() cannot be called unless registerMethodNode() was called first");
+			        "CFGGenrator.registerControlFlowEdge() cannot be called unless registerMethodNode() was called first");
 		if (frames == null)
 			throw new IllegalArgumentException("null given");
 		CFGFrame srcFrame = (CFGFrame) frames[src];
@@ -158,7 +162,7 @@ public class CFGGenerator {
 
 		if (srcFrame == null)
 			throw new IllegalArgumentException(
-					"expect given frames to know srcFrame for " + src);
+			        "expect given frames to know srcFrame for " + src);
 
 		if (dstFrame == null) {
 			// documentation of getFrames() tells us the following:
@@ -182,28 +186,31 @@ public class CFGGenerator {
 		AbstractInsnNode dstNode = currentMethod.instructions.get(dst);
 
 		// those nodes should have gotten registered by registerMethodNode()
-		BytecodeInstruction srcInstruction = BytecodeInstructionPool
-				.getInstruction(className, methodName, src, srcNode);
-		BytecodeInstruction dstInstruction = BytecodeInstructionPool
-				.getInstruction(className, methodName, dst, dstNode);
-		
+		BytecodeInstruction srcInstruction = BytecodeInstructionPool.getInstruction(className,
+		                                                                            methodName,
+		                                                                            src,
+		                                                                            srcNode);
+		BytecodeInstruction dstInstruction = BytecodeInstructionPool.getInstruction(className,
+		                                                                            methodName,
+		                                                                            dst,
+		                                                                            dstNode);
+
 		srcInstruction.setCFGFrame(srcFrame);
 
-		if (srcInstruction == null || dstInstruction == null)
+		if (dstInstruction == null)
 			throw new IllegalStateException(
-					"expect BytecodeInstructionPool to know the instructions in the method of this edge");
+			        "expect BytecodeInstructionPool to know the instructions in the method of this edge");
 
-		if (null == rawGraph.addEdge(srcInstruction, dstInstruction,
-				isExceptionEdge))
+		if (null == rawGraph.addEdge(srcInstruction, dstInstruction, isExceptionEdge))
 			logger.error("internal error while adding edge");
 	}
 
 	/**
 	 * Computes the ActualCFG with BasicBlocks rather then BytecodeInstructions
 	 * for this RawCFG.
-	 *
+	 * 
 	 * See ActualControlFlowGraph and GraphPool for further details.
-	 *
+	 * 
 	 * @return a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph} object.
 	 */
 	public ActualControlFlowGraph computeActualCFG() {
@@ -217,8 +224,10 @@ public class CFGGenerator {
 	// getter
 
 	/**
-	 * <p>Getter for the field <code>rawGraph</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>rawGraph</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
 	 */
 	protected RawControlFlowGraph getRawGraph() {
@@ -226,8 +235,10 @@ public class CFGGenerator {
 	}
 
 	/**
-	 * <p>Getter for the field <code>className</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>className</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
@@ -235,8 +246,10 @@ public class CFGGenerator {
 	}
 
 	/**
-	 * <p>Getter for the field <code>methodName</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>methodName</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getMethodName() {
