@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,6 +19,7 @@ package org.evosuite.symbolic.search;
 
 import java.util.Collection;
 
+import org.evosuite.javaagent.RegexDistance;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
@@ -35,10 +36,11 @@ import org.evosuite.symbolic.expr.StringUnaryExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>Abstract DistanceEstimator class.</p>
- *
+ * <p>
+ * Abstract DistanceEstimator class.
+ * </p>
+ * 
  * @author krusev
  */
 public abstract class DistanceEstimator {
@@ -48,9 +50,12 @@ public abstract class DistanceEstimator {
 	//	static Logger log = JPF.getLogger("org.evosuite.symbolic.search.DistanceEstimator");
 
 	/**
-	 * <p>getDistance</p>
-	 *
-	 * @param constraints a {@link java.util.Collection} object.
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param constraints
+	 *            a {@link java.util.Collection} object.
 	 * @return normalized distance in [0,1]
 	 */
 	public static double getDistance(Collection<Constraint<?>> constraints) {
@@ -168,9 +173,12 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>getIntegerDist</p>
-	 *
-	 * @param target a {@link org.evosuite.symbolic.expr.Constraint} object.
+	 * <p>
+	 * getIntegerDist
+	 * </p>
+	 * 
+	 * @param target
+	 *            a {@link org.evosuite.symbolic.expr.Constraint} object.
 	 * @return a long.
 	 */
 	public static long getIntegerDist(Constraint<?> target) {
@@ -209,9 +217,12 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>getStrDist</p>
-	 *
-	 * @param target a {@link org.evosuite.symbolic.expr.Constraint} object.
+	 * <p>
+	 * getStrDist
+	 * </p>
+	 * 
+	 * @param target
+	 *            a {@link org.evosuite.symbolic.expr.Constraint} object.
 	 * @return a long.
 	 */
 	public static long getStrDist(Constraint<?> target) {
@@ -229,11 +240,16 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>min</p>
-	 *
-	 * @param a a int.
-	 * @param b a int.
-	 * @param c a int.
+	 * <p>
+	 * min
+	 * </p>
+	 * 
+	 * @param a
+	 *            a int.
+	 * @param b
+	 *            a int.
+	 * @param c
+	 *            a int.
 	 * @return a int.
 	 */
 	public static int min(int a, int b, int c) {
@@ -244,10 +260,14 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>editDistance</p>
-	 *
-	 * @param s a {@link java.lang.String} object.
-	 * @param t a {@link java.lang.String} object.
+	 * <p>
+	 * editDistance
+	 * </p>
+	 * 
+	 * @param s
+	 *            a {@link java.lang.String} object.
+	 * @param t
+	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
 	public static int editDistance(String s, String t) {
@@ -298,10 +318,14 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>StrEquals</p>
-	 *
-	 * @param first a {@link java.lang.String} object.
-	 * @param second a {@link java.lang.Object} object.
+	 * <p>
+	 * StrEquals
+	 * </p>
+	 * 
+	 * @param first
+	 *            a {@link java.lang.String} object.
+	 * @param second
+	 *            a {@link java.lang.Object} object.
 	 * @return a int.
 	 */
 	public static int StrEquals(String first, Object second) {
@@ -313,10 +337,14 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>StrEqualsIgnoreCase</p>
-	 *
-	 * @param first a {@link java.lang.String} object.
-	 * @param second a {@link java.lang.String} object.
+	 * <p>
+	 * StrEqualsIgnoreCase
+	 * </p>
+	 * 
+	 * @param first
+	 *            a {@link java.lang.String} object.
+	 * @param second
+	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
 	public static int StrEqualsIgnoreCase(String first, String second) {
@@ -324,11 +352,16 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>StrStartsWith</p>
-	 *
-	 * @param value a {@link java.lang.String} object.
-	 * @param prefix a {@link java.lang.String} object.
-	 * @param start a int.
+	 * <p>
+	 * StrStartsWith
+	 * </p>
+	 * 
+	 * @param value
+	 *            a {@link java.lang.String} object.
+	 * @param prefix
+	 *            a {@link java.lang.String} object.
+	 * @param start
+	 *            a int.
 	 * @return a int.
 	 */
 	public static int StrStartsWith(String value, String prefix, int start) {
@@ -338,10 +371,14 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>StrEndsWith</p>
-	 *
-	 * @param value a {@link java.lang.String} object.
-	 * @param suffix a {@link java.lang.String} object.
+	 * <p>
+	 * StrEndsWith
+	 * </p>
+	 * 
+	 * @param value
+	 *            a {@link java.lang.String} object.
+	 * @param suffix
+	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
 	public static int StrEndsWith(String value, String suffix) {
@@ -351,9 +388,12 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>StrIsEmpty</p>
-	 *
-	 * @param value a {@link java.lang.String} object.
+	 * <p>
+	 * StrIsEmpty
+	 * </p>
+	 * 
+	 * @param value
+	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
 	public static int StrIsEmpty(String value) {
@@ -366,14 +406,22 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>StrRegionMatches</p>
-	 *
-	 * @param value a {@link java.lang.String} object.
-	 * @param thisStart a int.
-	 * @param string a {@link java.lang.String} object.
-	 * @param start a int.
-	 * @param length a int.
-	 * @param ignoreCase a boolean.
+	 * <p>
+	 * StrRegionMatches
+	 * </p>
+	 * 
+	 * @param value
+	 *            a {@link java.lang.String} object.
+	 * @param thisStart
+	 *            a int.
+	 * @param string
+	 *            a {@link java.lang.String} object.
+	 * @param start
+	 *            a int.
+	 * @param length
+	 *            a int.
+	 * @param ignoreCase
+	 *            a boolean.
 	 * @return a int.
 	 */
 	public static int StrRegionMatches(String value, int thisStart, String string,
@@ -404,10 +452,14 @@ public abstract class DistanceEstimator {
 	}
 
 	/**
-	 * <p>StrContains</p>
-	 *
-	 * @param val a {@link java.lang.String} object.
-	 * @param subStr a {@link java.lang.CharSequence} object.
+	 * <p>
+	 * StrContains
+	 * </p>
+	 * 
+	 * @param val
+	 *            a {@link java.lang.String} object.
+	 * @param subStr
+	 *            a {@link java.lang.CharSequence} object.
 	 * @return a int.
 	 */
 	public static int StrContains(String val, CharSequence subStr) {
@@ -428,6 +480,10 @@ public abstract class DistanceEstimator {
 			}
 		}
 		return min_dist;
+	}
+
+	public static long RegexMatches(String val, String regex) {
+		return RegexDistance.getDistance(val, regex);
 	}
 
 }

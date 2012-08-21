@@ -61,7 +61,7 @@ public class StringComparison extends StringExpression {
 		this.right = right2;
 		this.conVal = con;
 		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
-				|| this.right.containsSymbolicVariable();
+		        || this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -159,6 +159,8 @@ public class StringComparison extends StringExpression {
 				return (long) DistanceEstimator.StrEndsWith(first, second);
 			case CONTAINS:
 				return (long) DistanceEstimator.StrContains(first, second);
+			case PATTERNMATCHES:
+				return (long) DistanceEstimator.RegexMatches(second, first);
 			default:
 				log.warn("StringComparison: unimplemented operator!" + op);
 				return null;
