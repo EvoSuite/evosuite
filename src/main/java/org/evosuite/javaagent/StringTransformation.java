@@ -168,9 +168,53 @@ public class StringTransformation {
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
 						TransformationStatistics.transformedStringComparison();
-
+					} else if (min.name.equals("matches")) {
+						changed = true;
+						MethodInsnNode equalCheck = new MethodInsnNode(
+						        Opcodes.INVOKESTATIC,
+						        Type.getInternalName(BooleanHelper.class),
+						        "StringMatches",
+						        Type.getMethodDescriptor(Type.INT_TYPE,
+						                                 new Type[] {
+						                                         Type.getType(String.class),
+						                                         Type.getType(String.class) }));
+						mn.instructions.insertBefore(node, equalCheck);
+						mn.instructions.remove(node);
+						TransformationStatistics.transformedStringComparison();
 					} else if (min.name.equals("regionMatches")) {
-						// TODO
+						Type[] argumentTypes = Type.getArgumentTypes(min.desc);
+						if (argumentTypes.length == 4) {
+							changed = true;
+							MethodInsnNode equalCheck = new MethodInsnNode(
+							        Opcodes.INVOKESTATIC,
+							        Type.getInternalName(BooleanHelper.class),
+							        "StringRegionMatches",
+							        Type.getMethodDescriptor(Type.INT_TYPE, new Type[] {
+							                Type.getType(String.class), Type.INT_TYPE,
+							                Type.getType(String.class), Type.INT_TYPE,
+							                Type.INT_TYPE }));
+							mn.instructions.insertBefore(node, equalCheck);
+							mn.instructions.remove(node);
+							TransformationStatistics.transformedStringComparison();
+
+						} else if (argumentTypes.length == 5) {
+							changed = true;
+							MethodInsnNode equalCheck = new MethodInsnNode(
+							        Opcodes.INVOKESTATIC,
+							        Type.getInternalName(BooleanHelper.class),
+							        "StringRegionMatches",
+							        Type.getMethodDescriptor(Type.INT_TYPE,
+							                                 new Type[] {
+							                                         Type.getType(String.class),
+							                                         Type.BOOLEAN_TYPE,
+							                                         Type.INT_TYPE,
+							                                         Type.getType(String.class),
+							                                         Type.INT_TYPE,
+							                                         Type.INT_TYPE }));
+							mn.instructions.insertBefore(node, equalCheck);
+							mn.instructions.remove(node);
+							TransformationStatistics.transformedStringComparison();
+						}
 					}
 
 				} else if (min.owner.equals("java/util/regex/Pattern")) {
