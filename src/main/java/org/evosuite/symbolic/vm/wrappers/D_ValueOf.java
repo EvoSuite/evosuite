@@ -4,7 +4,7 @@ import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
 public final class D_ValueOf extends Function {
 
@@ -25,8 +25,8 @@ public final class D_ValueOf extends Function {
 	public void CALL_RESULT(Object conc_double) {
 		NonNullReference symb_double = (NonNullReference) env.topFrame().operandStack
 				.peekRef();
-		env.heap.putField(Types.JAVA_LANG_DOUBLE, "$doubleValue", conc_double,
-				symb_double, fp64);
+		env.heap.putField(Types.JAVA_LANG_DOUBLE, SymbolicHeap.$DOUBLE_VALUE,
+				conc_double, symb_double, fp64);
 	}
 
 }
