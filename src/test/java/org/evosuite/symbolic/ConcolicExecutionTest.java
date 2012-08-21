@@ -984,4 +984,20 @@ public class ConcolicExecutionTest {
 		}
 		assertEquals(1, branch_conditions.size());
 	}
+	
+	@Test
+	public void test_TestCase84() {
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic("org.evosuite.symbolic.TestCase84",
+						System.getProperty("java.class.path"));
+
+		for (BranchCondition branchCondition : branch_conditions) {
+			for (Constraint<?> constr : branchCondition
+					.listOfLocalConstraints()) {
+				System.out.println(constr.toString());
+			}
+		}
+		assertEquals(1, branch_conditions.size());
+	}
 }
