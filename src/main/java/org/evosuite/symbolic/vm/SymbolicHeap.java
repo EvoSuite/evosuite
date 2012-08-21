@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public final class SymbolicHeap {
 
@@ -226,7 +226,6 @@ public final class SymbolicHeap {
 			}
 		}
 
-		
 		logger.debug("Nr of collected non-null references = "
 				+ collected_refs.size());
 		logger.debug("DSE: symbolic heap garbage collection ended");
@@ -391,6 +390,22 @@ public final class SymbolicHeap {
 	}
 
 	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new THashMap<NonNullReference, Map<Integer, Expression<?>>>();
+
+	public static final String $BOOLEAN_VALUE = "$booleanValue";
+
+	public static final String $BYTE_VALUE = "$byteValue";
+
+	public static final String $CHAR_VALUE = "$charValue";
+
+	public static final String $SHORT_VALUE = "$shortValue";
+
+	public static final String $LONG_VALUE = "$longValue";
+
+	public static final String $INT_VALUE = "$intValue";
+
+	public static final String $FLOAT_VALUE = "$floatValue";
+
+	public static final String $DOUBLE_VALUE = "$doubleValue";
 
 	private Map<Integer, Expression<?>> getOrCreateSymbolicArray(
 			NonNullReference symb_array_ref) {
