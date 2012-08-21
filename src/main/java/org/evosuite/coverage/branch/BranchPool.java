@@ -282,7 +282,7 @@ public class BranchPool {
 
 		List<Branch> oldList = registeredSwitches.get(v);
 
-		if (oldList.contains(v))
+		if (oldList.contains(switchBranch))
 			throw new IllegalArgumentException("switch branch already registered  "
 			        + switchBranch.toString());
 

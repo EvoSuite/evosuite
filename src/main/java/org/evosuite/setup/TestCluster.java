@@ -195,10 +195,6 @@ public class TestCluster {
 		return castClassNames;
 	}
 
-	public static boolean isCastClass(String className) {
-		return castClasses.contains(className);
-	}
-
 	public static void reset() {
 		classLoader = new InstrumentingClassLoader();
 		finalClasses.clear();

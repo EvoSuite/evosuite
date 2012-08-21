@@ -412,12 +412,12 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 
 		Definition def = DefUsePool.getDefinitionByDefId(defID);
-		String varName = def.getDUVariableName();
-
 		if (def == null) {
 			throw new IllegalStateException(
 			        "expect DefUsePool to known defIDs that are passed by instrumented code");
 		}
+
+		String varName = def.getDUVariableName();
 
 		int objectID = registerObject(caller);
 
@@ -1218,7 +1218,6 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			return;
 
 		Use use = DefUsePool.getUseByUseId(useID);
-		String varName = use.getDUVariableName();
 
 		int objectID = registerObject(caller);
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
@@ -1229,6 +1228,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			if (use.isStaticDefUse())
 				objectID = 0;
 		}
+		String varName = use.getDUVariableName();
 		if (passedUses.get(varName) == null)
 			passedUses.put(varName, new HashMap<Integer, HashMap<Integer, Integer>>());
 
