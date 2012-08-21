@@ -55,7 +55,7 @@
       <unpackOptions>
         <excludes>
           <exclude>logback.xml</exclude>
-          <exclude>META-INF/**</exclude>
+          <exclude>META-INF/MANIFEST.MF</exclude>
           <exclude>*.html</exclude>
           <exclude>COPYING*</exclude>
           <exclude>LICENSE*</exclude>
