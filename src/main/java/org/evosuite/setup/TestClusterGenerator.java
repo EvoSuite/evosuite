@@ -440,8 +440,14 @@ public class TestClusterGenerator {
 		// for(Constructor c : clazz.getConstructors()) {
 		// constructors.add(c);
 		// }
-		for (Method m : clazz.getDeclaredMethods()) {
-			helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+		try {
+			for (Method m : clazz.getDeclaredMethods()) {
+				helper.put(m.getName() + org.objectweb.asm.Type.getMethodDescriptor(m), m);
+			}
+		} catch (NoClassDefFoundError e) {
+			// TODO: What shall we do?
+			logger.info("Error while trying to load methods of class " + clazz.getName()
+			        + ": " + e);
 		}
 
 		Set<Method> methods = new HashSet<Method>();
@@ -480,9 +486,15 @@ public class TestClusterGenerator {
 			}
 		}
 
-		for (Field f : clazz.getDeclaredFields()) {
-			// fields.add(m);
-			helper.put(f.toGenericString(), f);
+		try {
+			for (Field f : clazz.getDeclaredFields()) {
+				// fields.add(m);
+				helper.put(f.toGenericString(), f);
+			}
+		} catch (NoClassDefFoundError e) {
+			// TODO: What shall we do?
+			logger.info("Error while trying to load fields of class " + clazz.getName()
+			        + ": " + e);
 		}
 		// for(Field m : clazz.getDeclaredFields()) {
 		// fields.add(m);
@@ -619,7 +631,8 @@ public class TestClusterGenerator {
 		}
 
 		if (m.getDeclaringClass().isEnum()) {
-			if (m.getName().equals("valueOf") || m.getName().equals("values")) {
+			if (m.getName().equals("valueOf") || m.getName().equals("values")
+			        || m.getName().equals("ordinal")) {
 				logger.debug("Excluding valueOf for Enum " + m.toString());
 				return false;
 			}
