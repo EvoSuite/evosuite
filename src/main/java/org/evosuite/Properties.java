@@ -555,10 +555,10 @@ public class Properties {
 	@Parameter(key = "report_dir", group = "Output", description = "Directory in which to put HTML and CSV reports")
 	public static String REPORT_DIR = "evosuite-report";
 
-	/** Constant <code>OUTPUT_VARIABLES=null</code>*/
-	@Parameter(key = "output_variables", group = "Output", description ="List of variables to output to CSV file. Variables are separated by commas. Null represents default values")
-	public static String OUTPUT_VARIABLES= null; 
-	
+	/** Constant <code>OUTPUT_VARIABLES=null</code> */
+	@Parameter(key = "output_variables", group = "Output", description = "List of variables to output to CSV file. Variables are separated by commas. Null represents default values")
+	public static String OUTPUT_VARIABLES = null;
+
 	/** Constant <code>PRINT_CURRENT_GOALS=false</code> */
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
 	public static boolean PRINT_CURRENT_GOALS = false;
@@ -806,7 +806,7 @@ public class Properties {
 
 	/** Constant <code>DEBUG=false</code> */
 	@Parameter(key = "debug", group = "Debugging", description = "Enables debugging support in the client VM")
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	/** Constant <code>PORT=1044</code> */
 	@Parameter(key = "port", group = "Debugging", description = "Port on localhost, to which the client VM will listen for a remote debugger; defaults to 1044")
@@ -882,7 +882,7 @@ public class Properties {
 
 	/** Constant <code>PROJECT_PREFIX="null"</code> */
 	@Parameter(key = "PROJECT_PREFIX", group = "Runtime", description = "Package name of target package")
-	public static String PROJECT_PREFIX = null;
+	public static String PROJECT_PREFIX = "";
 
 	/** Constant <code>PROJECT_DIR="null"</code> */
 	@Parameter(key = "PROJECT_DIR", group = "Runtime", description = "Directory name of target package")
@@ -1310,16 +1310,16 @@ public class Properties {
 		return sb.toString();
 	}
 
-	
 	/**
 	 * Check if there exist any parameter with given name
+	 * 
 	 * @param parameterName
 	 * @return
 	 */
-	public static boolean hasParameter(String parameterName){
+	public static boolean hasParameter(String parameterName) {
 		return parameterMap.containsKey(parameterName);
 	}
-	
+
 	/**
 	 * Set parameter to new integer value
 	 * 
@@ -1714,7 +1714,6 @@ public class Properties {
 		}
 	}
 
-		
 	static {
 		LoggingUtils.checkAndSetLogLevel();
 	}
