@@ -42,6 +42,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.javaagent.InstrumentingClassLoader;
 import org.evosuite.utils.ClassPathHacker;
@@ -362,8 +363,19 @@ public class EvoSuite {
 		handler.setBaseDir(base_dir_path);
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
-			result = handler.waitForResult((Properties.GLOBAL_TIMEOUT
-			        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?
+			int time = Properties.EXTRA_TIMEOUT;
+			if (Properties.STOPPING_CONDITION == StoppingCondition.MAXTIME) {
+				time += Math.max(Properties.GLOBAL_TIMEOUT, Properties.SEARCH_BUDGET);
+			} else {
+				time += Properties.GLOBAL_TIMEOUT;
+			}
+			if (Properties.MINIMIZE) {
+				time += Properties.MINIMIZATION_TIMEOUT;
+			}
+			if (Properties.ASSERTIONS) {
+				time += Properties.ASSERTION_TIMEOUT;
+			}
+			result = handler.waitForResult(time * 1000); // FIXXME: search timeout plus 100 seconds?
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {

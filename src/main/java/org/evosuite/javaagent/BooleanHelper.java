@@ -677,6 +677,15 @@ public class BooleanHelper {
 		}
 	}
 
+	public static int StringMatches(String str, String regex) {
+		int distance = RegexDistance.getDistance(str, regex);
+
+		if (distance > 0)
+			return -distance;
+		else
+			return K;
+	}
+
 	public static int StringMatchRegex(String regex, CharSequence input) {
 		int distance = RegexDistance.getDistance(input.toString(), regex);
 
@@ -834,8 +843,8 @@ public class BooleanHelper {
 	 *            a boolean.
 	 * @return a int.
 	 */
-	public static int StringRegionMatches(String value, int thisStart, String string,
-	        int start, int length, boolean ignoreCase) {
+	public static int StringRegionMatches(String value, boolean ignoreCase,
+	        int thisStart, String string, int start, int length) {
 		if (value == null || string == null)
 			throw new NullPointerException();
 
@@ -859,6 +868,11 @@ public class BooleanHelper {
 
 		return StringEquals(s1.substring(thisStart, length + thisStart),
 		                    s2.substring(start, length + start));
+	}
+
+	public static int StringRegionMatches(String value, int thisStart, String string,
+	        int start, int length) {
+		return StringRegionMatches(value, false, thisStart, string, start, length);
 	}
 
 	/**

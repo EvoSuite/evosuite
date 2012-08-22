@@ -460,6 +460,10 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int MINIMIZATION_TIMEOUT = 600;
 
+	@Parameter(key = "assertion_timeout", group = "Search Algorithm", description = "Seconds allowed for assertion generation at the end")
+	@IntValue(min = 0)
+	public static int ASSERTION_TIMEOUT = 600;
+
 	/** Constant <code>EXTRA_TIMEOUT=120</code> */
 	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
 	@IntValue(min = 0)
@@ -551,6 +555,10 @@ public class Properties {
 	@Parameter(key = "report_dir", group = "Output", description = "Directory in which to put HTML and CSV reports")
 	public static String REPORT_DIR = "evosuite-report";
 
+	/** Constant <code>OUTPUT_VARIABLES=null</code>*/
+	@Parameter(key = "output_variables", group = "Output", description ="List of variables to output to CSV file. Variables are separated by commas. Null represents default values")
+	public static String OUTPUT_VARIABLES= null; 
+	
 	/** Constant <code>PRINT_CURRENT_GOALS=false</code> */
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
 	public static boolean PRINT_CURRENT_GOALS = false;
@@ -1302,6 +1310,16 @@ public class Properties {
 		return sb.toString();
 	}
 
+	
+	/**
+	 * Check if there exist any parameter with given name
+	 * @param parameterName
+	 * @return
+	 */
+	public static boolean hasParameter(String parameterName){
+		return parameterMap.containsKey(parameterName);
+	}
+	
 	/**
 	 * Set parameter to new integer value
 	 * 
@@ -1696,6 +1714,7 @@ public class Properties {
 		}
 	}
 
+		
 	static {
 		LoggingUtils.checkAndSetLogLevel();
 	}
