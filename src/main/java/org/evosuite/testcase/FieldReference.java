@@ -229,7 +229,8 @@ public class FieldReference extends VariableReferenceImpl {
 				}
 				// FIXXME: isAssignableFrom does not work with autoboxing
 				// assert (value==null || field.getType().isAssignableFrom(value.getClass()));
-				if (!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
+				if (sourceObject != null
+				        && !field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
 
 					String msg = "Field " + field + " defined in class "
 					        + field.getDeclaringClass() + ". Source object "
