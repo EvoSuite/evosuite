@@ -27,7 +27,7 @@ package org.evosuite.symbolic.expr;
  * 
  * @author krusev
  */
-public class StringVariable extends StringExpression implements
+public final class StringVariable extends StringExpression implements
 		Variable<String> {
 
 	private static final long serialVersionUID = 5925030390824261492L;
@@ -139,7 +139,7 @@ public class StringVariable extends StringExpression implements
 	/** {@inheritDoc} */
 	@Override
 	public boolean equals(Object obj) {
-		if (obj instanceof StringVariable) {
+		if (obj != null && obj instanceof StringVariable) {
 			StringVariable v = (StringVariable) obj;
 			return this.getName().equals(v.getName());
 		}
