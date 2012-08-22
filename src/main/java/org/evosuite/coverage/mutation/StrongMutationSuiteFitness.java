@@ -181,16 +181,25 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness {
 
 				if (trace.getTouchedMutants().contains(mutantFitness.getMutation().getId())) {
 					mutantsChecked++;
-					logger.debug("Executing test against mutant "
-					        + mutantFitness.getMutation());
-					double mutantFitnessValue = mutant.getFitness(test, result);
-					minMutantFitness.put(mutantFitness.getMutation(),
-					                     Math.min(normalize(mutantFitnessValue),
-					                              minMutantFitness.get(mutantFitness.getMutation())));
-					if (mutantFitnessValue == 0.0) {
-						MutationTestPool.addTest(mutantFitness.getMutation(), test);
-						coversNewMutants = true;
-						break;
+					double mutantInfectionDistance = trace.getMutationDistance(mutantFitness.getMutation().getId());
+					if (mutantInfectionDistance == 0.0) {
+						logger.debug("Executing test against mutant "
+						        + mutantFitness.getMutation());
+						double mutantFitnessValue = mutant.getFitness(test, result);
+						minMutantFitness.put(mutantFitness.getMutation(),
+						                     Math.min(normalize(mutantFitnessValue),
+						                              minMutantFitness.get(mutantFitness.getMutation())));
+						if (mutantFitnessValue == 0.0) {
+							MutationTestPool.addTest(mutantFitness.getMutation(), test);
+							coversNewMutants = true;
+							break;
+						}
+					} else {
+						double mutantFitnessValue = 1.0 + mutantInfectionDistance;
+						minMutantFitness.put(mutantFitness.getMutation(),
+						                     Math.min(normalize(mutantFitnessValue),
+						                              minMutantFitness.get(mutantFitness.getMutation())));
+
 					}
 					//fitness += FitnessFunction.normalize(mutantFitnessValue);
 				}// else

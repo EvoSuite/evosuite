@@ -402,10 +402,16 @@ public class TestSuiteGenerator {
 					dtest.changeClassLoader(TestCluster.classLoader);
 				}
 			}
+
+			long startTime = System.currentTimeMillis();
+
 			MutationAssertionGenerator masserter = new MutationAssertionGenerator();
 			Set<Integer> tkilled = new HashSet<Integer>();
 			int numTest = 0;
 			for (TestCase test : tests) {
+				long currentTime = System.currentTimeMillis();
+				if (currentTime - startTime > Properties.ASSERTION_TIMEOUT)
+					break;
 				//Set<Integer> killed = new HashSet<Integer>();
 				masserter.addAssertions(test, tkilled);
 				progressMonitor.updateStatus((100 * numTest++) / tests.size());
@@ -745,7 +751,7 @@ public class TestSuiteGenerator {
 		case EXCEPTION:
 			return new ExceptionCoverageSuiteFitness();
 		case LOOP_INV_CANDIDATE_FALSE_BRANCH:
-			return new BranchCoverageSuiteFitness();			
+			return new BranchCoverageSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
