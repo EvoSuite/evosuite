@@ -52,6 +52,7 @@ import org.evosuite.symbolic.vm.string.EqualsIgnoreCase;
 import org.evosuite.symbolic.vm.string.IndexOf;
 import org.evosuite.symbolic.vm.string.LastIndexOf;
 import org.evosuite.symbolic.vm.string.Length;
+import org.evosuite.symbolic.vm.string.Matches;
 import org.evosuite.symbolic.vm.string.RegionMatches;
 import org.evosuite.symbolic.vm.string.Replace;
 import org.evosuite.symbolic.vm.string.ReplaceAll;
@@ -225,6 +226,7 @@ public final class FunctionVM extends AbstractVM {
 		addFunctionToTable(new Concat(env));
 		addFunctionToTable(new Contains(env));
 		addFunctionToTable(new EndsWith(env));
+		addFunctionToTable(new Matches(env));
 		addFunctionToTable(new Equals(env));
 		addFunctionToTable(new EqualsIgnoreCase(env));
 		addFunctionToTable(new IndexOf.IndexOf_C(env));
