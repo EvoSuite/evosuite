@@ -50,16 +50,13 @@ import org.evosuite.symbolic.expr.StringMultipleComparison;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.search.Seeker;
-import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -808,88 +805,6 @@ public class TestSuiteDSE {
 	private TestCase expandTestCase(TestCase test) {
 		TestCaseExpander expander = new TestCaseExpander();
 		return expander.expandTestCase(test);
-	}
-
-	private class TestCaseExpander {
-
-		private final Set<VariableReference> usedVariables = new HashSet<VariableReference>();
-
-		private int currentPosition = 0;
-
-		public TestCase expandTestCase(TestCase test) {
-			TestCase expandedTest = test.clone();
-			while (currentPosition < expandedTest.size()) {
-				StatementInterface statement = expandedTest.getStatement(currentPosition);
-				if (statement instanceof MethodStatement) {
-					visitMethodStatement(expandedTest, (MethodStatement) statement);
-				} else if (statement instanceof ConstructorStatement) {
-					visitConstructorStatement(expandedTest,
-					                          (ConstructorStatement) statement);
-				}
-				currentPosition++;
-			}
-			return expandedTest;
-		}
-
-		private VariableReference duplicateStatement(TestCase test,
-		        VariableReference owner) {
-			StatementInterface statement = test.getStatement(owner.getStPosition());
-			currentPosition++;
-			return test.addStatement(statement.clone(test), owner.getStPosition() + 1);
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.evosuite.testcase.TestVisitor#visitMethodStatement(org.evosuite
-		 * .testcase.MethodStatement)
-		 */
-		public void visitMethodStatement(TestCase test, MethodStatement statement) {
-			// The problem is that at this point in the test case the parameters
-			// might have already changed
-
-			int i = 0;
-			for (VariableReference var : statement.getParameterReferences()) {
-				if (var.isPrimitive() || var.isString()) {
-					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
-						// Duplicate and replace
-						VariableReference varCopy = duplicateStatement(test, var);
-						statement.replaceParameterReference(varCopy, i);
-						usedVariables.add(varCopy);
-					}
-					usedVariables.add(var);
-				}
-				i++;
-			}
-		}
-
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see
-		 * org.evosuite.testcase.TestVisitor#visitConstructorStatement(org.evosuite
-		 * .testcase.ConstructorStatement)
-		 */
-		public void visitConstructorStatement(TestCase test,
-		        ConstructorStatement statement) {
-			int i = 0;
-			for (VariableReference var : statement.getParameterReferences()) {
-				if (var.isPrimitive() || var.isString()) {
-					if (usedVariables.contains(var)
-					        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
-						// Duplicate and replace
-						VariableReference varCopy = duplicateStatement(test, var);
-						statement.replaceParameterReference(varCopy, i);
-						usedVariables.add(varCopy);
-					}
-					usedVariables.add(var);
-				}
-				i++;
-			}
-		}
-
 	}
 
 }
