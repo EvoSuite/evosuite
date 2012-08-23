@@ -575,6 +575,10 @@ public class TestSuiteGenerator {
 		// What's the search target
 		FitnessFunction fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
+		if (Properties.CRITERION == Criterion.STRONGMUTATION) {
+			ga.addListener((StrongMutationSuiteFitness) fitness_function);
+		}
+
 		ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
 		//if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
 		ga.addListener(progressMonitor);

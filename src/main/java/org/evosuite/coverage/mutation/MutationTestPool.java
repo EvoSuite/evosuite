@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -38,20 +38,24 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>MutationTestPool class.</p>
- *
- * @author fraser
+ * <p>
+ * MutationTestPool class.
+ * </p>
+ * 
+ * @author Gordon Fraser
  */
 public class MutationTestPool implements SearchListener {
 
-	private final Logger logger = LoggerFactory.getLogger(MutationTestPool.class);
+	private final static Logger logger = LoggerFactory.getLogger(MutationTestPool.class);
 
+	/** Test cases for mutants we have already covered */
 	private static Map<Mutation, TestChromosome> testMap = new HashMap<Mutation, TestChromosome>();
 
+	/** All known mutants */
 	private final static List<Mutation> allMutants = MutationPool.getMutants();
 
+	/** Complete set of fitness functions */
 	private final static List<MutationTestFitness> allMutantFitnessFunctions = new ArrayList<MutationTestFitness>();
 
 	static {
@@ -66,8 +70,10 @@ public class MutationTestPool implements SearchListener {
 	}
 
 	/**
-	 * <p>getUncoveredMutants</p>
-	 *
+	 * <p>
+	 * getUncoveredMutants
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Mutation> getUncoveredMutants() {
@@ -83,9 +89,12 @@ public class MutationTestPool implements SearchListener {
 	}
 
 	/**
-	 * <p>isCovered</p>
-	 *
-	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * <p>
+	 * isCovered
+	 * </p>
+	 * 
+	 * @param mutation
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
 	 * @return a boolean.
 	 */
 	public static boolean isCovered(Mutation mutation) {
@@ -93,8 +102,10 @@ public class MutationTestPool implements SearchListener {
 	}
 
 	/**
-	 * <p>getUncoveredFitnessFunctions</p>
-	 *
+	 * <p>
+	 * getUncoveredFitnessFunctions
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<MutationTestFitness> getUncoveredFitnessFunctions() {
@@ -112,8 +123,10 @@ public class MutationTestPool implements SearchListener {
 	}
 
 	/**
-	 * <p>getCoveredMutants</p>
-	 *
+	 * <p>
+	 * getCoveredMutants
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int getCoveredMutants() {
@@ -122,9 +135,11 @@ public class MutationTestPool implements SearchListener {
 
 	/**
 	 * Keep a copy of a test that covers a mutant
-	 *
-	 * @param mutation a {@link org.evosuite.coverage.mutation.Mutation} object.
-	 * @param test a {@link org.evosuite.testcase.TestChromosome} object.
+	 * 
+	 * @param mutation
+	 *            a {@link org.evosuite.coverage.mutation.Mutation} object.
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
 	public static void addTest(Mutation mutation, TestChromosome test) {
 		testMap.put(mutation, test);
@@ -137,7 +152,6 @@ public class MutationTestPool implements SearchListener {
 	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
 
 	}
 
@@ -147,7 +161,6 @@ public class MutationTestPool implements SearchListener {
 	/** {@inheritDoc} */
 	@Override
 	public void iteration(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
 
 	}
 
