@@ -821,6 +821,10 @@ public class SymbolicObserver extends ExecutionObserver {
 	public void afterStatement(StatementInterface s, Scope scope,
 			Throwable exception) {
 
+		if (exception != null) {
+			return;
+		}
+
 		if (s instanceof NullStatement) {
 			after((NullStatement) s, scope);
 
