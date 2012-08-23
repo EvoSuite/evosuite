@@ -42,6 +42,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
+import org.apache.commons.io.FileUtils;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.javaagent.InstrumentingClassLoader;
@@ -146,6 +147,24 @@ public class EvoSuite {
 			generateTests(Strategy.EVOSUITE,
 			              resource.replace(".class", "").replace('/', '.'), args, cp);
 		}
+	}
+
+	private static void generateTestsLegacy(Properties.Strategy strategy,
+	        List<String> args, String cp) {
+		LoggingUtils.getEvoLogger().info("* Using .task files in "
+		                                         + Properties.OUTPUT_DIR
+		                                         + " [deprecated]");
+		File directory = new File(Properties.OUTPUT_DIR);
+		String[] extensions = { "task" };
+		for (File file : FileUtils.listFiles(directory, extensions, false)) {
+			generateTests(strategy, file.getName().replace(".task", ""), args, cp);
+		}
+	}
+
+	private static boolean hasLegacyTargets() {
+		File directory = new File(Properties.OUTPUT_DIR);
+		String[] extensions = { "task" };
+		return !FileUtils.listFiles(directory, extensions, false).isEmpty();
 	}
 
 	private static boolean findTargetClass(String target, String cp) {
@@ -763,6 +782,8 @@ public class EvoSuite {
 					else if (line.hasOption("target"))
 						generateTestsTarget(strategy, line.getOptionValue("target"),
 						                    javaOpts, cp);
+					else if (hasLegacyTargets())
+						generateTestsLegacy(strategy, javaOpts, cp);
 					else {
 						System.err.println("Please specify target class, prefix, or classpath entry");
 						HelpFormatter formatter = new HelpFormatter();
