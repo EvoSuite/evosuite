@@ -2,7 +2,7 @@ package org.evosuite.symbolic;
 
 public class TestCase0 {
 
-	public static void main(String[] args) {
+	public static void test() {
 		LinkedList linkedList0 = new LinkedList();
 		linkedList0.unreacheable();
 		int int0 = linkedList0.size();

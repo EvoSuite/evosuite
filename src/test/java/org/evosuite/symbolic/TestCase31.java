@@ -1,20 +1,17 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase31 {
 
-	private static final String STRING_VALUE = "Togliere sta roba";
+	static final String STRING_VALUE = "Togliere sta roba";
 
 	private static final CharSequence CHAR_SEQUENCE = "ere";
 
 	private static final CharSequence NEW_CHAR_SEQUENCE = "q";
 
-	public static void main(String[] args) {
+	public static void test(String string0) {
 
-		String string0 = ConcolicMarker.mark(STRING_VALUE, "string0");
 		String string1 = STRING_VALUE;
 		{
 			boolean boolean0 = string0.contains(CHAR_SEQUENCE);

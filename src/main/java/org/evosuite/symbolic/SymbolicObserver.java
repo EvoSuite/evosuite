@@ -38,6 +38,7 @@ import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DoublePrimitiveStatement;
 import org.evosuite.testcase.EnumPrimitiveStatement;
+import org.evosuite.testcase.EvosuiteError;
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.FieldStatement;
@@ -102,62 +103,65 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	@Override
 	public void beforeStatement(StatementInterface s, Scope scope) {
+		try {
+			if (env.isEmpty()) {
+				env.prepareStack(null);
+			}
 
-		if (env.isEmpty()) {
-			env.prepareStack(null);
-		}
+			if (s instanceof NullStatement) {
+				before((NullStatement) s, scope);
+			} else if (s instanceof AssignmentStatement) {
+				before((AssignmentStatement) s, scope);
 
-		if (s instanceof NullStatement) {
-			before((NullStatement) s, scope);
-		} else if (s instanceof AssignmentStatement) {
-			before((AssignmentStatement) s, scope);
+			} else if (s instanceof EnumPrimitiveStatement<?>) {
+				before((EnumPrimitiveStatement<?>) s, scope);
 
-		} else if (s instanceof EnumPrimitiveStatement<?>) {
-			before((EnumPrimitiveStatement<?>) s, scope);
+			} else if (s instanceof ArrayStatement) {
+				before((ArrayStatement) s, scope);
 
-		} else if (s instanceof ArrayStatement) {
-			before((ArrayStatement) s, scope);
+			} else if (s instanceof FieldStatement) {
+				before((FieldStatement) s, scope);
 
-		} else if (s instanceof FieldStatement) {
-			before((FieldStatement) s, scope);
+			} else if (s instanceof ConstructorStatement) {
+				before((ConstructorStatement) s, scope);
 
-		} else if (s instanceof ConstructorStatement) {
-			before((ConstructorStatement) s, scope);
+			}
 
-		}
+			/* primitive statements */
+			else if (s instanceof BooleanPrimitiveStatement) {
+				before((BooleanPrimitiveStatement) s, scope);
 
-		/* primitive statements */
-		else if (s instanceof BooleanPrimitiveStatement) {
-			before((BooleanPrimitiveStatement) s, scope);
+			} else if (s instanceof MethodStatement) {
+				before((MethodStatement) s, scope);
 
-		} else if (s instanceof MethodStatement) {
-			before((MethodStatement) s, scope);
+			} else if (s instanceof BytePrimitiveStatement) {
+				before((BytePrimitiveStatement) s, scope);
 
-		} else if (s instanceof BytePrimitiveStatement) {
-			before((BytePrimitiveStatement) s, scope);
+			} else if (s instanceof CharPrimitiveStatement) {
+				before((CharPrimitiveStatement) s, scope);
 
-		} else if (s instanceof CharPrimitiveStatement) {
-			before((CharPrimitiveStatement) s, scope);
+			} else if (s instanceof DoublePrimitiveStatement) {
+				before((DoublePrimitiveStatement) s, scope);
 
-		} else if (s instanceof DoublePrimitiveStatement) {
-			before((DoublePrimitiveStatement) s, scope);
+			} else if (s instanceof FloatPrimitiveStatement) {
+				before((FloatPrimitiveStatement) s, scope);
 
-		} else if (s instanceof FloatPrimitiveStatement) {
-			before((FloatPrimitiveStatement) s, scope);
+			} else if (s instanceof IntPrimitiveStatement) {
+				before((IntPrimitiveStatement) s, scope);
 
-		} else if (s instanceof IntPrimitiveStatement) {
-			before((IntPrimitiveStatement) s, scope);
+			} else if (s instanceof LongPrimitiveStatement) {
+				before((LongPrimitiveStatement) s, scope);
 
-		} else if (s instanceof LongPrimitiveStatement) {
-			before((LongPrimitiveStatement) s, scope);
+			} else if (s instanceof ShortPrimitiveStatement) {
+				before((ShortPrimitiveStatement) s, scope);
 
-		} else if (s instanceof ShortPrimitiveStatement) {
-			before((ShortPrimitiveStatement) s, scope);
-
-		} else if (s instanceof StringPrimitiveStatement) {
-			before((StringPrimitiveStatement) s, scope);
-		} else {
-			throw new UnsupportedOperationException();
+			} else if (s instanceof StringPrimitiveStatement) {
+				before((StringPrimitiveStatement) s, scope);
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		} catch (Throwable t) {
+			throw new EvosuiteError(t);
 		}
 
 	}
@@ -825,56 +829,60 @@ public class SymbolicObserver extends ExecutionObserver {
 			return;
 		}
 
-		if (s instanceof NullStatement) {
-			after((NullStatement) s, scope);
+		try {
+			if (s instanceof NullStatement) {
+				after((NullStatement) s, scope);
 
-		} else if (s instanceof EnumPrimitiveStatement<?>) {
-			after((EnumPrimitiveStatement<?>) s, scope);
+			} else if (s instanceof EnumPrimitiveStatement<?>) {
+				after((EnumPrimitiveStatement<?>) s, scope);
 
-		} else if (s instanceof ArrayStatement) {
-			after((ArrayStatement) s, scope);
+			} else if (s instanceof ArrayStatement) {
+				after((ArrayStatement) s, scope);
 
-		} else if (s instanceof AssignmentStatement) {
-			after((AssignmentStatement) s, scope);
+			} else if (s instanceof AssignmentStatement) {
+				after((AssignmentStatement) s, scope);
 
-		} else if (s instanceof FieldStatement) {
-			after((FieldStatement) s, scope);
+			} else if (s instanceof FieldStatement) {
+				after((FieldStatement) s, scope);
 
-		} else if (s instanceof ConstructorStatement) {
-			after((ConstructorStatement) s, scope);
-		}
-		/* primitive statements */
-		else if (s instanceof BooleanPrimitiveStatement) {
-			after((BooleanPrimitiveStatement) s, scope);
+			} else if (s instanceof ConstructorStatement) {
+				after((ConstructorStatement) s, scope);
+			}
+			/* primitive statements */
+			else if (s instanceof BooleanPrimitiveStatement) {
+				after((BooleanPrimitiveStatement) s, scope);
 
-		} else if (s instanceof MethodStatement) {
-			after((MethodStatement) s, scope);
+			} else if (s instanceof MethodStatement) {
+				after((MethodStatement) s, scope);
 
-		} else if (s instanceof BytePrimitiveStatement) {
-			after((BytePrimitiveStatement) s, scope);
+			} else if (s instanceof BytePrimitiveStatement) {
+				after((BytePrimitiveStatement) s, scope);
 
-		} else if (s instanceof CharPrimitiveStatement) {
-			after((CharPrimitiveStatement) s, scope);
+			} else if (s instanceof CharPrimitiveStatement) {
+				after((CharPrimitiveStatement) s, scope);
 
-		} else if (s instanceof DoublePrimitiveStatement) {
-			after((DoublePrimitiveStatement) s, scope);
+			} else if (s instanceof DoublePrimitiveStatement) {
+				after((DoublePrimitiveStatement) s, scope);
 
-		} else if (s instanceof FloatPrimitiveStatement) {
-			after((FloatPrimitiveStatement) s, scope);
+			} else if (s instanceof FloatPrimitiveStatement) {
+				after((FloatPrimitiveStatement) s, scope);
 
-		} else if (s instanceof IntPrimitiveStatement) {
-			after((IntPrimitiveStatement) s, scope);
+			} else if (s instanceof IntPrimitiveStatement) {
+				after((IntPrimitiveStatement) s, scope);
 
-		} else if (s instanceof LongPrimitiveStatement) {
-			after((LongPrimitiveStatement) s, scope);
+			} else if (s instanceof LongPrimitiveStatement) {
+				after((LongPrimitiveStatement) s, scope);
 
-		} else if (s instanceof ShortPrimitiveStatement) {
-			after((ShortPrimitiveStatement) s, scope);
+			} else if (s instanceof ShortPrimitiveStatement) {
+				after((ShortPrimitiveStatement) s, scope);
 
-		} else if (s instanceof StringPrimitiveStatement) {
-			after((StringPrimitiveStatement) s, scope);
-		} else {
-			throw new UnsupportedOperationException();
+			} else if (s instanceof StringPrimitiveStatement) {
+				after((StringPrimitiveStatement) s, scope);
+			} else {
+				throw new UnsupportedOperationException();
+			}
+		} catch (Throwable t) {
+			throw new EvosuiteError(t);
 		}
 	}
 

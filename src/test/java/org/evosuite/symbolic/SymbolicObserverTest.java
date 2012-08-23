@@ -18,7 +18,7 @@ import org.junit.Test;
 
 public class SymbolicObserverTest {
 
-	private static void printConstraints(List<BranchCondition> branch_conditions) {
+	static void printConstraints(List<BranchCondition> branch_conditions) {
 		System.out.println("Constraints=");
 		for (BranchCondition branchCondition : branch_conditions) {
 			for (Constraint<?> constr : branchCondition

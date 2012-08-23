@@ -40,6 +40,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.unisb.cs.st.evosuite.io.IOWrapper;
+import edu.uta.cse.dsc.VMError;
 
 /**
  * <p>
@@ -50,7 +51,8 @@ import de.unisb.cs.st.evosuite.io.IOWrapper;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestRunnable.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(TestRunnable.class);
 
 	private final TestCase test;
 
@@ -60,8 +62,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
-	//private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-	//      : new PrintStream(byteStream));
+	// private static PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+	// : new PrintStream(byteStream));
 
 	public Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -79,7 +81,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param observers
 	 *            a {@link java.util.Set} object.
 	 */
-	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
+	public TestRunnable(TestCase tc, Scope scope,
+			Set<ExecutionObserver> observers) {
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
@@ -91,7 +94,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		for (Thread t : threadMap.keySet()) {
 			if (t.isAlive())
-				if (TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP.equals(t.getThreadGroup().getName())) {
+				if (TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP.equals(t
+						.getThreadGroup().getName())) {
 					boolean hasEvoSuite = false;
 					for (StackTraceElement elem : threadMap.get(t)) {
 						if (elem.getClassName().contains("evosuite"))
@@ -124,7 +128,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Runnable#run()
 	 */
 	/** {@inheritDoc} */
@@ -140,16 +146,16 @@ public class TestRunnable implements InterfaceTestRunnable {
 		ExecutionTracer.enable();
 
 		int numThreads = Thread.activeCount();
-		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
-		        byteStream));
-		//out.flush();
+		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+				: new PrintStream(byteStream));
+		// out.flush();
 		byteStream.reset();
 
-		//PrintStream old_out = System.out;
-		//PrintStream old_err = System.err;
+		// PrintStream old_out = System.out;
+		// PrintStream old_err = System.err;
 		if (!Properties.PRINT_TO_SYSTEM) {
-			//System.setOut(out);
-			//System.setErr(out);
+			// System.setOut(out);
+			// System.setErr(out);
 			LoggingUtils.muteCurrentOutAndErrStream();
 		}
 
@@ -159,9 +165,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 		try {
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (StatementInterface s : test) {
-				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
+				if (Thread.currentThread().isInterrupted()
+						|| Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
-					        + s.getCode());
+							+ s.getCode());
 					throw new TimeoutException();
 				}
 				if (logger.isDebugEnabled()) {
@@ -180,7 +187,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 				if (exceptionThrown != null) {
 					if (exceptionThrown instanceof SystemExitException) {
-						// This exception is raised when the test tried to call System.exit
+						// This exception is raised when the test tried to call
+						// System.exit
 						// We simply stop execution at this point
 						break;
 					}
@@ -188,17 +196,21 @@ public class TestRunnable implements InterfaceTestRunnable {
 						logger.debug("Test timed out!");
 						exceptionsThrown.put(test.size(), exceptionThrown);
 						result.setThrownExceptions(exceptionsThrown);
-						result.reportNewThrownException(test.size(), exceptionThrown);
-						result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+						result.reportNewThrownException(test.size(),
+								exceptionThrown);
+						result.setTrace(ExecutionTracer.getExecutionTracer()
+								.getTrace());
 						break;
 					}
 
 					exceptionsThrown.put(num, exceptionThrown);
 					if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
-						//logger.info("Exception " + exceptionThrown + " is explicit");
+						// logger.info("Exception " + exceptionThrown +
+						// " is explicit");
 						result.explicitExceptions.put(num, true);
 					} else {
-						//logger.info("Exception " + exceptionThrown + " is implicit");
+						// logger.info("Exception " + exceptionThrown +
+						// " is implicit");
 						result.explicitExceptions.put(num, false);
 					}
 
@@ -208,24 +220,29 @@ public class TestRunnable implements InterfaceTestRunnable {
 					}
 					ExecutionTracer.enable();
 
-					//FIXME: this might be removed
+					// FIXME: this might be removed
 					if (exceptionThrown instanceof SecurityException) {
-						logger.debug("Security exception found: " + exceptionThrown);
+						logger.debug("Security exception found: "
+								+ exceptionThrown);
 						break;
 					}
 
 					if (logger.isDebugEnabled()) {
-						logger.debug("Exception thrown in statement: " + s.getCode()
-						        + " - " + exceptionThrown.getClass().getName() + " - "
-						        + exceptionThrown.getMessage());
-						for (StackTraceElement elem : exceptionThrown.getStackTrace()) {
+						logger.debug("Exception thrown in statement: "
+								+ s.getCode() + " - "
+								+ exceptionThrown.getClass().getName() + " - "
+								+ exceptionThrown.getMessage());
+						for (StackTraceElement elem : exceptionThrown
+								.getStackTrace()) {
 							logger.debug(elem.toString());
 						}
 						if (exceptionThrown.getCause() != null) {
 							logger.debug("Cause: "
-							        + exceptionThrown.getCause().getClass().getName()
-							        + " - " + exceptionThrown.getCause().getMessage());
-							for (StackTraceElement elem : exceptionThrown.getCause().getStackTrace()) {
+									+ exceptionThrown.getCause().getClass()
+											.getName() + " - "
+									+ exceptionThrown.getCause().getMessage());
+							for (StackTraceElement elem : exceptionThrown
+									.getCause().getStackTrace()) {
 								logger.debug(elem.toString());
 							}
 						} else {
@@ -234,9 +251,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 					}
 
 					/*
-					 * If an exception is thrown, we stop the execution of the test case, because the
-					 * internal state could be corrupted, and not possible to verifyt the behaivor of
-					 * any following function call
+					 * If an exception is thrown, we stop the execution of the
+					 * test case, because the internal state could be corrupted,
+					 * and not possible to verifyt the behaivor of any following
+					 * function call
 					 */
 					if (Properties.BREAK_ON_EXCEPTION) {
 						break;
@@ -254,15 +272,15 @@ public class TestRunnable implements InterfaceTestRunnable {
 				ExecutionTracer.enable();
 
 				num++;
-			} //end of loop
+			} // end of loop
 
 			checkClientThreads(numThreads);
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 
 		} catch (ThreadDeath e) {// can't stop these guys
 			Sandbox.tearDownEverything();
-			//logger.info("Found error:");
-			//logger.info(test.toCode());
+			// logger.info("Found error:");
+			// logger.info(test.toCode());
 			logger.info("Found error in " + test.toCode(), e);
 			runFinished = true;
 			throw e;
@@ -275,9 +293,21 @@ public class TestRunnable implements InterfaceTestRunnable {
 			logger.info("Test timed out!");
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		} catch (Throwable e) {
+			if (e instanceof EvosuiteError) {
+				logger.info("Evosuite Error!");
+				logger.info(e.getMessage());
+				throw (EvosuiteError) e;
+
+			}
+			if (e instanceof VMError) {
+				logger.info("VM Error!");
+				logger.info(e.getMessage());
+				throw (VMError) e;
+			}
+
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
-			//logger.info(test.toCode());
+			// logger.info(test.toCode());
 			for (StackTraceElement elem : e.getStackTrace()) {
 				logger.info(elem.toString());
 			}
@@ -287,24 +317,28 @@ public class TestRunnable implements InterfaceTestRunnable {
 				e = e.getCause();
 			}
 			if (e instanceof AssertionError
-			        && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
-				//e1.printStackTrace();
-				logger.error("Assertion Error in evosuitecode, for statement \n"
-				        + test.getStatement(num).getCode() + " \n which is number: "
-				        + num + " testcase \n" + test.toCode(), e);
+					&& e.getStackTrace()[0].getClassName().contains(
+							"org.evosuite")) {
+				// e1.printStackTrace();
+				logger.error(
+						"Assertion Error in evosuitecode, for statement \n"
+								+ test.getStatement(num).getCode()
+								+ " \n which is number: " + num
+								+ " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			ExecutionTracer.getExecutionTracer().clear();
 			// exceptionThrown = e;
-			//logger.info("Error while executing statement " + test.toCode(), e);
+			// logger.info("Error while executing statement " + test.toCode(),
+			// e);
 			// System.exit(1);
 
 		} // finally {
 		finally {
 			if (!Properties.PRINT_TO_SYSTEM) {
-				//System.setOut(old_out);
-				//System.setErr(old_err);
+				// System.setOut(old_out);
+				// System.setErr(old_err);
 				LoggingUtils.restorePreviousOutAndErrStream();
 			}
 		}
@@ -313,7 +347,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
 		if (Properties.VIRTUAL_FS) {
-			test.setAccessedFiles(new ArrayList<String>(IOWrapper.getAccessedFiles()));
+			test.setAccessedFiles(new ArrayList<String>(IOWrapper
+					.getAccessedFiles()));
 			FileSystem.restoreOriginalFS();
 		}
 
@@ -325,20 +360,22 @@ public class TestRunnable implements InterfaceTestRunnable {
 			try {
 				logger.debug("Enabling file handling");
 				Method m = Sandbox.class.getMethod("generateFileContent",
-				                                   EvosuiteFile.class, String.class);
+						EvosuiteFile.class, String.class);
 				// TODO: Re-insert!
 				// if (!TestCluster.getInstance().test_methods.contains(m))
-				//	TestCluster.getInstance().test_methods.add(m);
+				// TestCluster.getInstance().test_methods.add(m);
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {
 				e.printStackTrace();
 			}
 		return result;
-		//}
+		// }
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.evosuite.testcase.InterfaceTestRunnable#getExceptionsThrown()
 	 */
 	/** {@inheritDoc} */
@@ -349,7 +386,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 		return copy;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.evosuite.testcase.InterfaceTestRunnable#isRunFinished()
 	 */
 	/** {@inheritDoc} */
