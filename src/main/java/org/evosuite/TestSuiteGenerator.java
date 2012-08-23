@@ -190,8 +190,14 @@ public class TestSuiteGenerator {
 	public String generateTestSuite() {
 
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath");
-		DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-		                           Arrays.asList(Properties.CP.split(":")));
+		try {
+			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+			                           Arrays.asList(Properties.CP.split(":")));
+		} catch (Exception e) {
+			LoggingUtils.getEvoLogger().info("* Error while initializing target class: "
+			                                         + e.getMessage());
+			return "";
+		}
 		TestCaseExecutor.initExecutor();
 		setupProgressMonitor();
 
