@@ -1,17 +1,13 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase14 {
 
-	private static final double DOUBLE_VALUE=0.222D;
-	
+	static final double DOUBLE_VALUE = 0.222D;
+
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-
-		double double1 = ConcolicMarker.mark(DOUBLE_VALUE, "double1");
+	public static void test(double double1) {
 		double double2 = Math.acos(double1);
 		double double3 = Math.asin(double2);
 		double double4 = Math.atan(double2);
@@ -34,11 +30,11 @@ public class TestCase14 {
 		double double21 = Math.toDegrees(double2);
 		double double22 = Math.toRadians(double2);
 
-		if (double1 !=0.222)
+		if (double1 != 0.222)
 			return;
 		if (double2 != 1.3469311497286958)
 			return;
-		if (double3 ==Double.NaN) // NaN always !=NaN
+		if (double3 == Double.NaN) // NaN always !=NaN
 			return;
 		if (double4 != 0.932158649922364)
 			return;
@@ -52,11 +48,11 @@ public class TestCase14 {
 			return;
 		if (double9 != 3.845605815055685)
 			return;
-		if (double10 !=2.845605815055685)
+		if (double10 != 2.845605815055685)
 			return;
-		if (double11 !=1.0)
+		if (double11 != 1.0)
 			return;
-		if (double12 != 0.297828782334713D) 
+		if (double12 != 0.297828782334713D)
 			return;
 		if (double13 != 0.12934539671993053) // -INF
 			return;
@@ -78,7 +74,6 @@ public class TestCase14 {
 			return;
 		if (double22 != 0.023508383360438468)
 			return;
-
 
 		return;
 	}

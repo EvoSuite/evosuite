@@ -806,7 +806,7 @@ public class Properties {
 
 	/** Constant <code>DEBUG=false</code> */
 	@Parameter(key = "debug", group = "Debugging", description = "Enables debugging support in the client VM")
-	public static boolean DEBUG = true;
+	public static boolean DEBUG = false;
 
 	/** Constant <code>PORT=1044</code> */
 	@Parameter(key = "port", group = "Debugging", description = "Port on localhost, to which the client VM will listen for a remote debugger; defaults to 1044")

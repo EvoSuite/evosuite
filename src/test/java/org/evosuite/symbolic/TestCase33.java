@@ -1,11 +1,8 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase33 {
 
-	public static void main(String[] args) {
-		String string0 = ConcolicMarker.mark("foo", "string0");
+	public static void test(String string0) {
 		bar(string0);
 	}
 

@@ -2,18 +2,14 @@ package org.evosuite.symbolic;
 
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase15 {
 
-	private static final double DOUBLE_CONSTANT = 1.0;
+	static final double DOUBLE_CONSTANT = 1.0;
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-
-		double double0 = ConcolicMarker.mark(DOUBLE_CONSTANT, "double0");
+	public static void test(double double0) {
 		double double1 = 2.0;
 		double double2 = Math.atan2(double0, double1);
 		double double3 = Math.atan2(DOUBLE_CONSTANT, double1);

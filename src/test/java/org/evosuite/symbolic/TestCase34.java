@@ -1,6 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
@@ -11,8 +10,7 @@ public class TestCase34 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		String string0 = ConcolicMarker.mark("Togliere sta roba", "string0");
+	public static void test(String string0) {
 		String string1 = string0.toUpperCase();
 		TestCase34 testCase34 = new TestCase34();
 		testCase34.stored_value = string1;

@@ -1,1021 +1,577 @@
 package org.evosuite.symbolic;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
+import java.lang.reflect.Method;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.IntegerUnaryExpression;
-import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealComparison;
-import org.evosuite.symbolic.expr.RealUnaryExpression;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.VariableReference;
 import org.junit.Test;
+
+import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 
 public class ConcolicExecutionTest {
 
 	@Test
-	public void test_TestCase0() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase0",
-						System.getProperty("java.class.path"));
-		assertEquals(1, branch_conditions.size());
-		BranchCondition bc = branch_conditions.get(0);
-		assertEquals(1, bc.localConstraints.size());
-		assertTrue(bc.reachingConstraints.isEmpty());
-	}
-
-	@Test
-	public void test_TestCase1() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase1",
-						System.getProperty("java.class.path"));
-		assertEquals(1, branch_conditions.size());
-		BranchCondition bc = branch_conditions.get(0);
-		assertEquals(1, bc.localConstraints.size());
-		assertTrue(bc.reachingConstraints.isEmpty());
-	}
-
-	@Test
-	public void test_TestCase2() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase2",
-						System.getProperty("java.class.path"));
-	}
-
-	@Test
-	public void test_TestCase3() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase3",
-						System.getProperty("java.class.path"));
-		assertTrue(!branch_conditions.isEmpty());
-	}
-
-	@Test
-	public void test_TestCase4() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase4",
-						System.getProperty("java.class.path"));
-		assertTrue(!branch_conditions.isEmpty());
-		assertEquals(2, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase5() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase5",
-						System.getProperty("java.class.path"));
-		assertTrue(!branch_conditions.isEmpty());
+	public void testCase0() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase0();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
-	public void test_TestCase6() {
+	public void testCase1() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase1();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	private List<BranchCondition> executeTest(DefaultTestCase tc) {
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000000;
+
+		System.out.println("TestCase=");
+		System.out.println(tc.toCode());
+
 		ConcolicExecution concolicExecutor = new ConcolicExecution();
 		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase6",
-						System.getProperty("java.class.path"));
-		assertTrue(!branch_conditions.isEmpty());
+				.executeConcolic(tc);
+
+		printConstraints(branch_conditions);
+		return branch_conditions;
+	}
+
+	private DefaultTestCase buildTestCase0() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		Method method = TestCase0.class.getMethod("test");
+		tc.appendMethod(null, method);
+		return tc.getDefaultTestCase();
+	}
+
+	/*
+	 * int int0 = ConcolicMarker.mark(179,"int0");
+	 * 
+	 * int int1 = ConcolicMarker.mark(-374,"int1");
+	 */
+	private DefaultTestCase buildTestCase1() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(179);
+		VariableReference int1 = tc.appendIntPrimitive(179);
+		Method method = TestCase1.class.getMethod("test", int.class, int.class);
+		tc.appendMethod(null, method, int0, int1);
+		return tc.getDefaultTestCase();
+	}
+
+	//
+	// double double0 = ConcolicMarker.mark(-2020.5367255717083,"var1");
+	// double double1 = ConcolicMarker.mark(698.931685369782,"var2");
+	// double double3 = ConcolicMarker.mark(1.8078644807328579,"var3");
+	// double double4 = ConcolicMarker.mark(1756.567093813958,"var4");
+	//
+	private DefaultTestCase buildTestCase10() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference double0 = tc
+				.appendDoublePrimitive(-2020.5367255717083);
+		VariableReference double1 = tc.appendDoublePrimitive(698.931685369782);
+		VariableReference double3 = tc
+				.appendDoublePrimitive(1.8078644807328579);
+		VariableReference double4 = tc.appendDoublePrimitive(1756.567093813958);
+		Method method = TestCase10.class.getMethod("test", double.class,
+				double.class, double.class, double.class);
+		tc.appendMethod(null, method, double0, double1, double3, double4);
+		return tc.getDefaultTestCase();
+	}
+
+	// int int0 = ConcolicMarker.mark(1, "var1");
+	// int int1 = ConcolicMarker.mark(4, "var2");
+	// int int3 = ConcolicMarker.mark(16, "var3");
+	// int int5 = ConcolicMarker.mark(0, "var4");
+	private DefaultTestCase buildTestCase11() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(1);
+		VariableReference int1 = tc.appendIntPrimitive(4);
+		VariableReference int3 = tc.appendIntPrimitive(16);
+		VariableReference int5 = tc.appendIntPrimitive(0);
+		Method method = TestCase11.class.getMethod("test", int.class,
+				int.class, int.class, int.class);
+		tc.appendMethod(null, method, int0, int1, int3, int5);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase10() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase10();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 
 	@Test
-	public void test_TestCase7() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase7",
-						System.getProperty("java.class.path"));
-		assertTrue(branch_conditions.isEmpty());
+	public void testCase11() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase11();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(3, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase12() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference long0 = tc.appendLongPrimitive(1);
+		VariableReference long1 = tc.appendLongPrimitive(4);
+		VariableReference long3 = tc.appendLongPrimitive(16);
+		VariableReference long5 = tc.appendLongPrimitive(0);
+		Method method = TestCase12.class.getMethod("test", long.class,
+				long.class, long.class, long.class);
+		tc.appendMethod(null, method, long0, long1, long3, long5);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase8() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase8",
-						System.getProperty("java.class.path"));
-		assertEquals(0, branch_conditions.size());
+	public void testCase12() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase12();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(3, branch_conditions.size());
+	}
+
+	// double double0 = ConcolicMarker.mark(DOUBLE_VALUE, "double0");
+	private DefaultTestCase buildTestCase13() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference double0 = tc
+				.appendDoublePrimitive(TestCase13.DOUBLE_VALUE);
+		Method method = TestCase13.class.getMethod("test", double.class);
+		tc.appendMethod(null, method, double0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase9() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase9",
-						System.getProperty("java.class.path"));
-		assertEquals(0, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase10() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase10",
-						System.getProperty("java.class.path"));
+	public void testCase13() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase13();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 
-	@Test
-	public void test_TestCase11() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase11",
-						System.getProperty("java.class.path"));
+	// double double1 = ConcolicMarker.mark(DOUBLE_VALUE, "double1");
+	private DefaultTestCase buildTestCase14() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference double1 = tc
+				.appendDoublePrimitive(TestCase14.DOUBLE_VALUE);
+		Method method = TestCase14.class.getMethod("test", double.class);
+		tc.appendMethod(null, method, double1);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase12() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase12",
-						System.getProperty("java.class.path"));
-	}
-
-	@Test
-	public void test_TestCase13() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase13",
-						System.getProperty("java.class.path"));
-		assertEquals(1, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase14() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase14",
-						System.getProperty("java.class.path"));
+	public void testCase14() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase14();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(22, branch_conditions.size());
+	}
 
-		BranchCondition bc0 = branch_conditions.get(0);
-		assertTrue(bc0.reachingConstraints.isEmpty());
-		assertEquals(1, bc0.localConstraints.size());
-
-		int reachingConstraints = 1;
-		for (int i = 1; i < branch_conditions.size(); i++) {
-			BranchCondition bc = branch_conditions.get(i);
-			assertEquals(reachingConstraints, bc.reachingConstraints.size());
-			assertEquals(1, bc.localConstraints.size());
-			reachingConstraints++;
-		}
-
+	// double double0 = ConcolicMarker.mark(DOUBLE_CONSTANT, "double0");
+	private DefaultTestCase buildTestCase15() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference double1 = tc
+				.appendDoublePrimitive(TestCase15.DOUBLE_CONSTANT);
+		Method method = TestCase15.class.getMethod("test", double.class);
+		tc.appendMethod(null, method, double1);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase15() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase15",
-						System.getProperty("java.class.path"));
-
-		assertEquals(4, branch_conditions.size());
-
-		BranchCondition bc0 = branch_conditions.get(0);
-		BranchCondition bc1 = branch_conditions.get(1);
-		BranchCondition bc2 = branch_conditions.get(2);
-		BranchCondition bc3 = branch_conditions.get(3);
-
-		assertEquals(0, bc0.reachingConstraints.size());
-		assertEquals(1, bc0.localConstraints.size());
-
-		assertEquals(1, bc1.reachingConstraints.size());
-		assertEquals(1, bc1.localConstraints.size());
-
-		assertEquals(2, bc2.reachingConstraints.size());
-		assertEquals(1, bc2.localConstraints.size());
-
-		assertEquals(3, bc3.reachingConstraints.size());
-		assertEquals(1, bc3.localConstraints.size());
-
-	}
-
-	@Test
-	public void test_TestCase16() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase16",
-						System.getProperty("java.class.path"));
-
+	public void testCase15() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase15();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(4, branch_conditions.size());
 	}
 
-	@Test
-	public void test_TestCase17() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase17",
-						System.getProperty("java.class.path"));
+	// int int0 = ConcolicMarker.mark(-99100191, "int0");
+	// int int1 = ConcolicMarker.mark(99100191, "int1");
+	// long long0 = ConcolicMarker.mark(-991001911414177541L, "long0");
+	// long long1 = ConcolicMarker.mark(991001911414177541L, "long1");
+	// float float0 = ConcolicMarker.mark(-0.0099100191F, "float0");
+	// float float1 = ConcolicMarker.mark(+0.0099100191F, "float1");
+	// double double0 = ConcolicMarker.mark(-0.0099100191F, "double0");
+	// double double1 = ConcolicMarker.mark(+0.0099100191F, "double1");
+	private DefaultTestCase buildTestCase16() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(-99100191);
+		VariableReference int1 = tc.appendIntPrimitive(99100191);
 
-		assertEquals(2, branch_conditions.size());
+		VariableReference long0 = tc.appendLongPrimitive(-991001911414177541L);
+		VariableReference long1 = tc.appendLongPrimitive(991001911414177541L);
 
+		VariableReference float0 = tc.appendFloatPrimitive(-0.0099100191F);
+		VariableReference float1 = tc.appendFloatPrimitive(+0.0099100191F);
+
+		VariableReference double0 = tc.appendDoublePrimitive(-0.0099100191F);
+		VariableReference double1 = tc.appendDoublePrimitive(+0.0099100191F);
+
+		Method method = TestCase16.class.getMethod("test", int.class,
+				int.class, long.class, long.class, float.class, float.class,
+				double.class, double.class);
+		tc.appendMethod(null, method, int0, int1, long0, long1, float0, float1,
+				double0, double1);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase18() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase18",
-						System.getProperty("java.class.path"));
+	public void testCase16() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase16();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(4, branch_conditions.size());
+	}
 
-		assertEquals(2, branch_conditions.size());
+	// float float0 = ConcolicMarker.mark(FLOAT_VALUE, "float0");
+	// double double0 = ConcolicMarker.mark(DOUBLE_VALUE, "double0");
+	private DefaultTestCase buildTestCase17() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference float0 = tc
+				.appendFloatPrimitive(TestCase17.FLOAT_VALUE);
+		VariableReference double0 = tc
+				.appendDoublePrimitive(TestCase17.DOUBLE_VALUE);
 
+		Method method = TestCase17.class.getMethod("test", float.class,
+				double.class);
+		tc.appendMethod(null, method, float0, double0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase19() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase19",
-						System.getProperty("java.class.path"));
-
+	public void testCase17() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase17();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(2, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase18() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference float0 = tc
+				.appendFloatPrimitive(TestCase18.FLOAT_VALUE);
+		VariableReference double0 = tc
+				.appendDoublePrimitive(TestCase18.DOUBLE_VALUE);
+
+		Method method = TestCase18.class.getMethod("test", float.class,
+				double.class);
+		tc.appendMethod(null, method, float0, double0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase20() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase20",
-						System.getProperty("java.class.path"));
-
+	public void testCase18() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase18();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(2, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase19() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference float0 = tc
+				.appendFloatPrimitive(TestCase19.FLOAT_VALUE);
+		VariableReference double0 = tc
+				.appendDoublePrimitive(TestCase19.DOUBLE_VALUE);
+
+		Method method = TestCase19.class.getMethod("test", float.class,
+				double.class);
+		tc.appendMethod(null, method, float0, double0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase21() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase21",
-						System.getProperty("java.class.path"));
-
+	public void testCase19() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase19();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(2, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase20() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference float0 = tc
+				.appendFloatPrimitive(TestCase20.FLOAT_VALUE);
+		VariableReference double0 = tc
+				.appendDoublePrimitive(TestCase20.DOUBLE_VALUE);
+
+		Method method = TestCase20.class.getMethod("test", float.class,
+				double.class);
+		tc.appendMethod(null, method, float0, double0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase22() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase22",
-						System.getProperty("java.class.path"));
-
+	public void testCase20() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase20();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(2, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase21() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference float0 = tc
+				.appendFloatPrimitive(TestCase21.FLOAT_VALUE);
+		VariableReference double0 = tc
+				.appendDoublePrimitive(TestCase21.DOUBLE_VALUE);
+
+		Method method = TestCase21.class.getMethod("test", float.class,
+				double.class);
+		tc.appendMethod(null, method, float0, double0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase23() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase23",
-						System.getProperty("java.class.path"));
+	public void testCase21() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase21();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase22() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference float0 = tc
+				.appendFloatPrimitive(TestCase22.FLOAT_VALUE_1);
+		VariableReference double0 = tc
+				.appendDoublePrimitive(TestCase22.DOUBLE_VALUE_1);
+
+		Method method = TestCase22.class.getMethod("test", float.class,
+				double.class);
+		tc.appendMethod(null, method, float0, double0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase22() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase22();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase23() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase23.STRING_VALUE);
+
+		Method method = TestCase23.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase23() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase23();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase24() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase24.STRING_VALUE);
+
+		Method method = TestCase24.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase24() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase24",
-						System.getProperty("java.class.path"));
-
+	public void testCase24() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase24();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(3, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase25() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase25.STRING_VALUE);
+
+		Method method = TestCase25.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase25() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase25",
-						System.getProperty("java.class.path"));
-
+	public void testCase25() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase25();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(8, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase26() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase26.STRING_VALUE_PART_1);
+
+		Method method = TestCase26.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase26() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase26",
-						System.getProperty("java.class.path"));
-
+	public void testCase26() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase26();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase27() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase27.STRING_VALUE);
+
+		Method method = TestCase27.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase27() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase27",
-						System.getProperty("java.class.path"));
-
+	public void testCase27() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase27();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(8, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase28() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase28.STRING_VALUE);
+
+		Method method = TestCase28.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase28() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase28",
-						System.getProperty("java.class.path"));
-
+	public void testCase28() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase28();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(5, branch_conditions.size());
+	}
 
+	private DefaultTestCase buildTestCase29() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference boolean0 = tc.appendBooleanPrimitive(true);
+		VariableReference boolean1 = tc.appendBooleanPrimitive(false);
+		Method method = TestCase29.class.getMethod("test", boolean.class,
+				boolean.class);
+		tc.appendMethod(null, method, boolean0, boolean1);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase29() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase29",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase30() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase30",
-						System.getProperty("java.class.path"));
-
-		assertEquals(1, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase31() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase31",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase32() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase32",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase33() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase33",
-						System.getProperty("java.class.path"));
-
-		assertEquals(1, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase34() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase34",
-						System.getProperty("java.class.path"));
-
-		assertEquals(1, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase35() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase35",
-						System.getProperty("java.class.path"));
-
-		assertEquals(3, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase36() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase36",
-						System.getProperty("java.class.path"));
-
-		assertEquals(3, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase37() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase37",
-						System.getProperty("java.class.path"));
-
-		assertEquals(1, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase38() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase38",
-						System.getProperty("java.class.path"));
-
-		assertEquals(7, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase39() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase39",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase40() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase40",
-						System.getProperty("java.class.path"));
-
-		assertEquals(1, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase41() {
-
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase41",
-						System.getProperty("java.class.path"));
-
-		assertEquals(9, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase42() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase42",
-						System.getProperty("java.class.path"));
-
-		assertEquals(1, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase43() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase43",
-						System.getProperty("java.class.path"));
-
-		assertEquals(1, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase44() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase44",
-						System.getProperty("java.class.path"));
-
-		assertEquals(10, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase45() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase45",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase46() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase46",
-						System.getProperty("java.class.path"));
-
-		assertEquals(22, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase47() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase47",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase48() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase48",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase49() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase49",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase50() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase50",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase51() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase51",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase52() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase52",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase53() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase53",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase54() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase54",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase55() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase55",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase56() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase56",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase57() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase57",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase58() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase58",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase59() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase59",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase60() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase60",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase61() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase61",
-						System.getProperty("java.class.path"));
-
-		assertEquals(5, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase62() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase62",
-						System.getProperty("java.class.path"));
-
-		assertEquals(5, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase63() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase63",
-						System.getProperty("java.class.path"));
-
-		assertEquals(8, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase64() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase64",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase65() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase65",
-						System.getProperty("java.class.path"));
-
-		assertEquals(5, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase66() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase66",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase67() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase67",
-						System.getProperty("java.class.path"));
-
-		assertEquals(2, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase68() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase68",
-						System.getProperty("java.class.path"));
-
-		assertEquals(4, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase69() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase69",
-						System.getProperty("java.class.path"));
-
-		assertEquals(264, branch_conditions.size());
-
-	}
-
-	@Test
-	public void test_TestCase70() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase70",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase71() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase71",
-						System.getProperty("java.class.path"));
-
-	}
-
-	@Test
-	public void test_TestCase72() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase72",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(163, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase73() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase73",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(1, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase74() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase74",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(4, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase75() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase75",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(3, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase76() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase76",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(1, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase77() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase77",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(3, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase78() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase78",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(1, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase79() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase79",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(1, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase80() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase80",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(1, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase81() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase81",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(1, branch_conditions.size());
-	}
-
-	@Test
-	public void test_TestCase82() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase82",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
+	public void testCase29() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase29();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(2, branch_conditions.size());
 	}
 
-	@Test
-	public void test_TestCase83() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase83",
-						System.getProperty("java.class.path"));
+	private DefaultTestCase buildTestCase30() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase30.STRING_VALUE);
 
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
-		assertEquals(1, branch_conditions.size());
+		Method method = TestCase30.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
 	}
 
 	@Test
-	public void test_TestCase84() {
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase84",
-						System.getProperty("java.class.path"));
-
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
+	public void testCase30() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase30();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 
+	private DefaultTestCase buildTestCase31() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase31.STRING_VALUE);
+
+		Method method = TestCase31.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
 	@Test
-	public void test_TestCase85() {
+	public void testCase31() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase31();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
-				.executeConcolic("org.evosuite.symbolic.TestCase85",
-						System.getProperty("java.class.path"));
+	private DefaultTestCase buildTestCase32() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase32.STRING_VALUE);
 
-		for (BranchCondition branchCondition : branch_conditions) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				System.out.println(constr.toString());
-			}
-		}
+		Method method = TestCase32.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase32() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase32();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase33() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc.appendStringPrimitive("foo");
+
+		Method method = TestCase33.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase33() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase33();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	// String string0 = ConcolicMarker.mark("Togliere sta roba", "string0");
+	private DefaultTestCase buildTestCase34() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive("Togliere sta roba");
+
+		Method method = TestCase34.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase34() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase34();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
 }

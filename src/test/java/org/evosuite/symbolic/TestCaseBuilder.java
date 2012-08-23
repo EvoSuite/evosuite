@@ -18,7 +18,9 @@ import org.evosuite.testcase.DoublePrimitiveStatement;
 import org.evosuite.testcase.EnumPrimitiveStatement;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.FieldStatement;
+import org.evosuite.testcase.FloatPrimitiveStatement;
 import org.evosuite.testcase.IntPrimitiveStatement;
+import org.evosuite.testcase.LongPrimitiveStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.StringPrimitiveStatement;
@@ -160,5 +162,18 @@ public class TestCaseBuilder {
 		ArrayIndex arrayIndex = new ArrayIndex(tc, array, index);
 		AssignmentStatement stmt = new AssignmentStatement(tc, var, arrayIndex);
 		tc.addStatement(stmt);
+	}
+
+	public VariableReference appendLongPrimitive(long l) {
+		LongPrimitiveStatement primitiveStmt = new LongPrimitiveStatement(tc, l);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	public VariableReference appendFloatPrimitive(float f) {
+		FloatPrimitiveStatement primitiveStmt = new FloatPrimitiveStatement(tc,
+				f);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
 	}
 }
