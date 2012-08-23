@@ -37,6 +37,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
@@ -62,7 +63,14 @@ public class InheritanceTreeGenerator {
 		InheritanceTree inheritanceTree = readJDKData();
 
 		for (String classPathEntry : classPath) {
+			if (classPathEntry.isEmpty())
+				continue;
+
+			if (classPathEntry.matches(".*evosuite-.*\\.jar"))
+				continue;
+
 			logger.debug("Analyzing classpath entry " + classPathEntry);
+			LoggingUtils.getEvoLogger().info("  - " + classPathEntry);
 			analyze(inheritanceTree, classPathEntry);
 		}
 		return inheritanceTree;
