@@ -12,6 +12,7 @@ import org.evosuite.testcase.ArrayStatement;
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -126,9 +127,15 @@ public class TestCaseExpander {
 				continue;
 
 			ArrayIndex index = new ArrayIndex(test, arrRef, i);
-			PrimitiveStatement<?> primitive = PrimitiveStatement.getPrimitiveStatement(test,
-			                                                                           index.getVariableClass());
-			VariableReference retVal = test.addStatement(primitive, position++);
+			VariableReference retVal = null;
+			if (index.isPrimitive()) {
+				PrimitiveStatement<?> primitive = PrimitiveStatement.getPrimitiveStatement(test,
+				                                                                           index.getVariableClass());
+				retVal = test.addStatement(primitive, position++);
+			} else {
+				NullStatement nullStatement = new NullStatement(test, index.getType());
+				retVal = test.addStatement(nullStatement, position++);
+			}
 			AssignmentStatement assignment = new AssignmentStatement(test, index, retVal);
 			test.addStatement(assignment, position++);
 

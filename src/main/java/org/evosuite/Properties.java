@@ -797,6 +797,10 @@ public class Properties {
 	@Parameter(key = "max_mutants", group = "Test Execution", description = "Maximum number of mutants to target at the same time")
 	public static int MAX_MUTANTS = 100;
 
+	/** Constant <code>MUTATION_GENERATIONS=10</code> */
+	@Parameter(key = "mutation_generations", group = "Test Execution", description = "Number of generations before changing the currently targeted mutants")
+	public static int MUTATION_GENERATIONS = 10;
+
 	/** Constant <code>REPLACE_CALLS=false</code> */
 	@Parameter(key = "replace_calls", group = "Test Execution", description = "Replace nondeterministic calls and System.exit")
 	public static boolean REPLACE_CALLS = false;
