@@ -35,6 +35,9 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.BooleanTestabilityTransformation;
 import org.evosuite.testcase.GenericClass;
 import org.junit.Test;
@@ -56,6 +59,15 @@ import org.slf4j.LoggerFactory;
 public class TestClusterGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
+
+	public static void resetCluster() throws RuntimeException, ClassNotFoundException {
+		BytecodeInstructionPool.clear();
+		BranchPool.clear();
+		CFGMethodAdapter.methods.clear();
+		TestCluster.reset();
+		generateCluster(Properties.TARGET_CLASS, TestCluster.getInheritanceTree(),
+		                DependencyAnalysis.getCallTree());
+	}
 
 	@SuppressWarnings("unchecked")
 	public static void generateCluster(String targetClass,

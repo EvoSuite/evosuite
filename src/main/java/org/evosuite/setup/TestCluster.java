@@ -266,7 +266,13 @@ public class TestCluster {
 	 * Unload all classes; perform cleanup
 	 */
 	public void resetCluster() {
-
+		analyzedClasses.clear();
+		testMethods.clear();
+		generators.clear();
+		generatorCache.clear();
+		modifiers.clear();
+		castClassNames.clear();
+		castClasses.clear();
 	}
 
 	/**
