@@ -189,7 +189,7 @@ public class TestSuiteGenerator {
 	 */
 	public String generateTestSuite() {
 
-		LoggingUtils.getEvoLogger().info("* Analyzing classpath");
+		LoggingUtils.getEvoLogger().info("* Analyzing classpath: ");
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(Properties.CP.split(":")));

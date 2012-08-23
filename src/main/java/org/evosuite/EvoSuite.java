@@ -192,7 +192,9 @@ public class EvoSuite {
 			return null;
 		}
 
-		classPath += File.pathSeparator + Properties.CP;
+		if (!classPath.isEmpty())
+			classPath += File.pathSeparator;
+		classPath += Properties.CP;
 
 		if (!InstrumentingClassLoader.checkIfCanInstrument(target)) {
 			throw new IllegalArgumentException(
@@ -207,10 +209,11 @@ public class EvoSuite {
 		cmdLine.add(JAVA_CMD);
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
-		if (cp.isEmpty())
+		if (cp.isEmpty()) {
 			cmdLine.add("-DCP=" + classPath);
-		else
+		} else {
 			cmdLine.add("-DCP=" + cp);
+		}
 
 		// TODO: Do this properly, and also need to support running outside of jar
 		if (Properties.VIRTUAL_FS) {
@@ -717,6 +720,8 @@ public class EvoSuite {
 						cp += entry;
 					}
 				}
+			} else {
+				cp = Properties.CP;
 			}
 
 			if (line.hasOption("help")) {
