@@ -317,7 +317,8 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					continue;
 				}
 			}
-			if (numExecutedMutants > Properties.MAX_MUTANTS_PER_TEST)
+			if (Properties.MAX_MUTANTS_PER_TEST > 0
+			        && numExecutedMutants > Properties.MAX_MUTANTS_PER_TEST)
 				break;
 
 			/*

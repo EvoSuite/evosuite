@@ -359,6 +359,7 @@ public class ExternalProcessHandler {
 		        && !Properties.LOG_LEVEL.equals("info")
 		        && !Properties.LOG_LEVEL.equals("debug")
 		        && !Properties.LOG_LEVEL.equals("trace")) {
+			logger.warn("STARTING PROGRESS BAR " + Properties.SHOW_PROGRESS);
 			progress_printer = ConsoleProgressBar.startProgressBar();
 		}
 
