@@ -180,7 +180,18 @@ public class ConcolicExecution {
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<BranchCondition> getSymbolicPath_2(TestChromosome test) {
+		TestChromosome dscCopy = (TestChromosome) test.clone();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
+				.getTestCase();
 
+		return executeConcolic(defaultTestCase);
+	}
+
+	protected List<BranchCondition> executeConcolic(
+			DefaultTestCase defaultTestCase) {
+		/**
+		 * Prepare DSC configuration
+		 */
 		MainConfig.setInstance();
 		MainConfig.get().LOG_AST_COUNTS = false;
 		MainConfig.get().LOG_MODEL_COUNTS = false;
@@ -209,18 +220,15 @@ public class ConcolicExecution {
 		listeners.add(new LocalsVM(env));
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
-		listeners.add(new ConcolicMarkerVM(env));
 		listeners.add(new FunctionVM(env));
 		VM.vm.setListeners(listeners);
 
-		TestChromosome dscCopy = (TestChromosome) test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
-				.getTestCase();
 		defaultTestCase.changeClassLoader(classLoader);
-		SymbolicExecutionObserver symbolicExecObserver = new SymbolicExecutionObserver(
-				env);
+		SymbolicObserver symbolicExecObserver = new SymbolicObserver(env);
+
 		TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
-		TestCaseExecutor.runTest(dscCopy.getTestCase());
+		TestCaseExecutor.runTest(defaultTestCase);
+		TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
 
 		List<BranchCondition> branches = pc.getBranchConditions();
 

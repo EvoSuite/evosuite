@@ -15,7 +15,7 @@ import edu.uta.cse.dsc.AbstractVM;
  */
 public final class LocalsVM extends AbstractVM {
 
-	private SymbolicEnvironment env;
+	private final SymbolicEnvironment env;
 
 	public LocalsVM(SymbolicEnvironment env) {
 		this.env = env;

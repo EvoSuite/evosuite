@@ -25,9 +25,9 @@ import edu.uta.cse.dsc.AbstractVM;
  */
 public final class ArithmeticVM extends AbstractVM {
 
-	private SymbolicEnvironment env;
+	private final SymbolicEnvironment env;
 
-	private PathConstraint pathConstraint;
+	private final PathConstraint pathConstraint;
 
 	public ArithmeticVM(SymbolicEnvironment env, PathConstraint pathConstraint) {
 		this.env = env;

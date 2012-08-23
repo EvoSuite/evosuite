@@ -7,7 +7,7 @@ import org.evosuite.symbolic.expr.RealExpression;
  * @author galeotti
  *
  */
-public final class Fp64Operand implements DoubleWordOperand {
+public final class Fp64Operand implements DoubleWordOperand, RealOperand {
 	private final RealExpression realExpr;
 
 	public Fp64Operand(RealExpression realExpr) {

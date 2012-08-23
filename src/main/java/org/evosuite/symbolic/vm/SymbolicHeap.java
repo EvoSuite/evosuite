@@ -500,4 +500,9 @@ public final class SymbolicHeap {
 		}
 	}
 
+	/**
+	 * Constructor
+	 */
+	public SymbolicHeap() {
+	}
 }

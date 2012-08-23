@@ -11,7 +11,7 @@ import org.evosuite.symbolic.expr.StringExpression;
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public final class OperandStack implements Iterable<Operand> {
 
@@ -144,6 +144,10 @@ public final class OperandStack implements Iterable<Operand> {
 
 	@Override
 	public String toString() {
+		if (this.stack.isEmpty()) {
+			return "<<EMPTY_OPERAND_STACK>>";
+		}
+
 		StringBuffer buff = new StringBuffer();
 		for (Operand operand : this) {
 			buff.append(operand.toString() + "\n");

@@ -13,9 +13,7 @@ public class TestCase85 {
 
 		String regex = "a*b";
 		String string0 = ConcolicMarker.mark("aaaaaaaaaaab", "string0");
-
 		boolean boolean0 = string0.matches(regex);
-
 		checkEquals(boolean0, true);
 	}
 

@@ -21,10 +21,10 @@ import org.evosuite.symbolic.expr.StringToIntCast;
  */
 public final class PathConstraint {
 
-	private Stack<BranchCondition> branchConditions = new Stack<BranchCondition>();
+	private final Stack<BranchCondition> branchConditions = new Stack<BranchCondition>();
 
-	private LinkedList<Constraint<?>> currentLocalConstraints = new LinkedList<Constraint<?>>();
-	private LinkedList<Constraint<?>> reachingConstraints = new LinkedList<Constraint<?>>();
+	private final LinkedList<Constraint<?>> currentLocalConstraints = new LinkedList<Constraint<?>>();
+	private final LinkedList<Constraint<?>> reachingConstraints = new LinkedList<Constraint<?>>();
 
 	public void pushLocalConstraint(IntegerConstraint c) {
 

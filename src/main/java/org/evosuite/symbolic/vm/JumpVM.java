@@ -17,9 +17,9 @@ import edu.uta.cse.dsc.AbstractVM;
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class JumpVM extends AbstractVM {
-	private SymbolicEnvironment env;
+	private final SymbolicEnvironment env;
 
-	private PathConstraint pc;
+	private final PathConstraint pc;
 
 	/**
 	 * Constructor
