@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -39,10 +39,11 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>DeleteField class.</p>
- *
+ * <p>
+ * DeleteField class.
+ * </p>
+ * 
  * @author fraser
  */
 public class DeleteField implements MutationOperator {
@@ -110,10 +111,14 @@ public class DeleteField implements MutationOperator {
 	}
 
 	/**
-	 * <p>getInfectionDistance</p>
-	 *
-	 * @param original a {@link org.objectweb.asm.tree.FieldInsnNode} object.
-	 * @param mutant a {@link org.objectweb.asm.tree.InsnList} object.
+	 * <p>
+	 * getInfectionDistance
+	 * </p>
+	 * 
+	 * @param original
+	 *            a {@link org.objectweb.asm.tree.FieldInsnNode} object.
+	 * @param mutant
+	 *            a {@link org.objectweb.asm.tree.InsnList} object.
 	 * @return a {@link org.objectweb.asm.tree.InsnList} object.
 	 */
 	public InsnList getInfectionDistance(FieldInsnNode original, InsnList mutant) {
@@ -136,10 +141,14 @@ public class DeleteField implements MutationOperator {
 	}
 
 	/**
-	 * <p>getDistance</p>
-	 *
-	 * @param val1 a double.
-	 * @param val2 a double.
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param val1
+	 *            a double.
+	 * @param val2
+	 *            a double.
 	 * @return a double.
 	 */
 	public static double getDistance(double val1, double val2) {
@@ -147,10 +156,14 @@ public class DeleteField implements MutationOperator {
 	}
 
 	/**
-	 * <p>getDistance</p>
-	 *
-	 * @param obj1 a {@link java.lang.Object} object.
-	 * @param obj2 a {@link java.lang.Object} object.
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param obj1
+	 *            a {@link java.lang.Object} object.
+	 * @param obj2
+	 *            a {@link java.lang.Object} object.
 	 * @return a double.
 	 */
 	public static double getDistance(Object obj1, Object obj2) {
@@ -167,7 +180,9 @@ public class DeleteField implements MutationOperator {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
-		return instruction.isFieldUse();
+		return instruction.isFieldUse()
+		        && (instruction.getASMNode() instanceof FieldInsnNode);
+		// TODO: isFieldUse() may also be a method call using the field
 	}
 
 }
