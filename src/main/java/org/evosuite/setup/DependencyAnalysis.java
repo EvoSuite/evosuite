@@ -52,7 +52,8 @@ public class DependencyAnalysis {
 	 * 
 	 * @param className
 	 */
-	public static void analyze(String className, List<String> classPath) {
+	public static void analyze(String className, List<String> classPath)
+	        throws RuntimeException, ClassNotFoundException {
 
 		// Calculate inheritance hierarchy
 		inheritanceTree = InheritanceTreeGenerator.analyze(classPath);

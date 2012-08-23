@@ -59,7 +59,8 @@ public class TestClusterGenerator {
 
 	@SuppressWarnings("unchecked")
 	public static void generateCluster(String targetClass,
-	        InheritanceTree inheritanceTree, CallTree callTree) {
+	        InheritanceTree inheritanceTree, CallTree callTree) throws RuntimeException,
+	        ClassNotFoundException {
 
 		TestClusterGenerator.inheritanceTree = inheritanceTree;
 		TestCluster.setInheritanceTree(inheritanceTree);
@@ -276,7 +277,8 @@ public class TestClusterGenerator {
 	 * 
 	 * @param targetClass
 	 */
-	private static void initializeTargetMethods() {
+	private static void initializeTargetMethods() throws RuntimeException,
+	        ClassNotFoundException {
 		logger.info("Analyzing target class");
 		Class<?> targetClass = Properties.getTargetClass();
 		TestCluster cluster = TestCluster.getInstance();
