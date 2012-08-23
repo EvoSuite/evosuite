@@ -473,7 +473,6 @@ public class EvoSuite {
 		}
 
 		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
-
 		for (String entry : Properties.CP.split(File.pathSeparator)) {
 			try {
 				ClassPathHacker.addFile(entry);
@@ -659,6 +658,11 @@ public class EvoSuite {
 				String propertyValue = properties.getProperty(propertyName);
 				javaOpts.add("-D" + propertyName + "=" + propertyValue);
 				System.setProperty(propertyName, propertyValue);
+				try {
+					Properties.getInstance().setValue(propertyName, propertyValue);
+				} catch (Exception e) {
+					// Ignore?
+				}
 			}
 
 			if (line.hasOption("mem"))
