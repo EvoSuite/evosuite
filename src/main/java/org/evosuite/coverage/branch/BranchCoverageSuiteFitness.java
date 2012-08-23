@@ -113,7 +113,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.info("Total methods: " + totalMethods + ": "
 		        + CFGMethodAdapter.methods.get(Properties.TARGET_CLASS));
 
-		getPublicMethods();
+		// getPublicMethods();
 		determineCoverageGoals();
 	}
 
