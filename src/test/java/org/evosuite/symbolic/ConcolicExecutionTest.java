@@ -5,6 +5,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.IntegerUnaryExpression;
@@ -1003,6 +1004,7 @@ public class ConcolicExecutionTest {
 
 	@Test
 	public void test_TestCase85() {
+
 		ConcolicExecution concolicExecutor = new ConcolicExecution();
 		List<BranchCondition> branch_conditions = concolicExecutor
 				.executeConcolic("org.evosuite.symbolic.TestCase85",

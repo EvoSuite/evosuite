@@ -9,7 +9,7 @@ import org.evosuite.symbolic.expr.StringExpression;
  */
 public final class StringReference extends NonNullReference {
 
-	private StringExpression strExpr;
+	private final StringExpression strExpr;
 
 	public StringReference(StringExpression strExpr) {
 		super("java.lang.String", -1);

@@ -32,7 +32,7 @@ public final class HeapVM extends AbstractVM {
 
 	private final DscInstrumentingClassLoader classLoader;
 
-	private PathConstraint pc;
+	private final PathConstraint pc;
 
 	public HeapVM(SymbolicEnvironment env, PathConstraint pc,
 			DscInstrumentingClassLoader classLoader) {
