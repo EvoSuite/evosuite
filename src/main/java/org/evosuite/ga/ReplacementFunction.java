@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,7 +21,7 @@ import java.io.Serializable;
 
 /**
  * Decides when offspring replaces its parents for the next generation
- *
+ * 
  * @author Gordon Fraser
  */
 public abstract class ReplacementFunction implements Serializable {
@@ -31,19 +31,26 @@ public abstract class ReplacementFunction implements Serializable {
 	protected boolean maximize = false;
 
 	/**
-	 * <p>Constructor for ReplacementFunction.</p>
-	 *
-	 * @param maximize a boolean.
+	 * <p>
+	 * Constructor for ReplacementFunction.
+	 * </p>
+	 * 
+	 * @param maximize
+	 *            a boolean.
 	 */
 	public ReplacementFunction(boolean maximize) {
 		this.maximize = maximize;
 	}
 
 	/**
-	 * <p>isBetter</p>
-	 *
-	 * @param chromosome1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param chromosome2 a {@link org.evosuite.ga.Chromosome} object.
+	 * <p>
+	 * isBetter
+	 * </p>
+	 * 
+	 * @param chromosome1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param chromosome2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
 	protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
@@ -52,14 +59,17 @@ public abstract class ReplacementFunction implements Serializable {
 		} else {
 			return chromosome1.compareTo(chromosome2) < 0;
 		}
-
 	}
 
 	/**
-	 * <p>isBetterOrEqual</p>
-	 *
-	 * @param chromosome1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param chromosome2 a {@link org.evosuite.ga.Chromosome} object.
+	 * <p>
+	 * isBetterOrEqual
+	 * </p>
+	 * 
+	 * @param chromosome1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param chromosome2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
 	protected boolean isBetterOrEqual(Chromosome chromosome1, Chromosome chromosome2) {
@@ -68,14 +78,17 @@ public abstract class ReplacementFunction implements Serializable {
 		} else {
 			return chromosome1.compareTo(chromosome2) <= 0;
 		}
-
 	}
 
 	/**
-	 * <p>getBest</p>
-	 *
-	 * @param chromosome1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param chromosome2 a {@link org.evosuite.ga.Chromosome} object.
+	 * <p>
+	 * getBest
+	 * </p>
+	 * 
+	 * @param chromosome1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param chromosome2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
 	protected Chromosome getBest(Chromosome chromosome1, Chromosome chromosome2) {
@@ -87,55 +100,57 @@ public abstract class ReplacementFunction implements Serializable {
 
 	/**
 	 * Decide whether to keep the offspring or the parents
-	 *
-	 * @param parent1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param parent2 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring2 a {@link org.evosuite.ga.Chromosome} object.
+	 * 
+	 * @param parent1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param parent2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
 	public boolean keepOffspring(Chromosome parent1, Chromosome parent2,
 	        Chromosome offspring1, Chromosome offspring2) {
-		return compareBestOffspringToBestParent(parent1, parent2, offspring1, offspring2) >= 0;
+		if (maximize) {
+			return compareBestOffspringToBestParent(parent1, parent2, offspring1,
+			                                        offspring2) >= 0;
+		} else {
+			return compareBestOffspringToBestParent(parent1, parent2, offspring1,
+			                                        offspring2) <= 0;
+		}
 	}
 
 	/**
 	 * Check how the best offspring compares with best parent
-	 *
-	 * @param parent1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param parent2 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring1 a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring2 a {@link org.evosuite.ga.Chromosome} object.
+	 * 
+	 * @param parent1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param parent2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring1
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring2
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
 	protected int compareBestOffspringToBestParent(Chromosome parent1,
 	        Chromosome parent2, Chromosome offspring1, Chromosome offspring2) {
 
-		int o1o2 = offspring1.compareTo(offspring2);
-		int p1p2 = parent1.compareTo(parent2);
-
-		Chromosome bestOffspring = null;
-		if (o1o2 > 0) {
-			bestOffspring = offspring1;
-		} else {
-			bestOffspring = offspring2;
-		}
-
-		Chromosome bestParent = null;
-		if (p1p2 > 0) {
-			bestParent = parent1;
-		} else {
-			bestParent = parent2;
-		}
+		Chromosome bestOffspring = getBest(offspring1, offspring2);
+		Chromosome bestParent = getBest(parent1, parent2);
 
 		return bestOffspring.compareTo(bestParent);
 	}
 
 	/**
 	 * Decide which of two offspring to keep
-	 *
-	 * @param parent a {@link org.evosuite.ga.Chromosome} object.
-	 * @param offspring a {@link org.evosuite.ga.Chromosome} object.
+	 * 
+	 * @param parent
+	 *            a {@link org.evosuite.ga.Chromosome} object.
+	 * @param offspring
+	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @deprecated should not be used, as it does not handle
 	 *             Properties.CHECK_PARENTS_LENGTH
 	 * @return a boolean.
