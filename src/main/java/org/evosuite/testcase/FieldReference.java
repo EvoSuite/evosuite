@@ -206,21 +206,32 @@ public class FieldReference extends VariableReferenceImpl {
 				}
 			}
 			if (field.getType().equals(int.class))
-				field.setInt(sourceObject, (Integer) value);
+				field.setInt(sourceObject, ((Number) value).intValue());
 			else if (field.getType().equals(boolean.class))
 				field.setBoolean(sourceObject, (Boolean) value);
 			else if (field.getType().equals(byte.class))
-				field.setByte(sourceObject, (Byte) value);
-			else if (field.getType().equals(char.class))
-				field.setChar(sourceObject, (Character) value);
-			else if (field.getType().equals(double.class))
-				field.setDouble(sourceObject, (Double) value);
+				field.setByte(sourceObject, ((Number) value).byteValue());
+			else if (field.getType().equals(char.class)) {
+				if (value instanceof Character)
+					field.setChar(sourceObject, (Character) value);
+				else if (value instanceof Number) {
+					Number num = (Number) value;
+					char c = (char) num.intValue();
+					field.setChar(sourceObject, c);
+				} else {
+					throw new RuntimeException(
+					        "Assigning incompatible class to char field: " + value
+					                + " of class "
+					                + (value != null ? value.getClass() : "null"));
+				}
+			} else if (field.getType().equals(double.class))
+				field.setDouble(sourceObject, ((Number) value).doubleValue());
 			else if (field.getType().equals(float.class))
-				field.setFloat(sourceObject, (Float) value);
+				field.setFloat(sourceObject, ((Number) value).floatValue());
 			else if (field.getType().equals(long.class))
-				field.setLong(sourceObject, (Long) value);
+				field.setLong(sourceObject, ((Number) value).longValue());
 			else if (field.getType().equals(short.class))
-				field.setShort(sourceObject, (Short) value);
+				field.setShort(sourceObject, ((Number) value).shortValue());
 			else {
 				if (value != null && !field.getType().isAssignableFrom(value.getClass())) {
 					logger.error("Not assignable: " + value + " of class "
