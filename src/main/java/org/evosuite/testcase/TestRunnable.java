@@ -51,8 +51,7 @@ import edu.uta.cse.dsc.VMError;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static final Logger logger = LoggerFactory
-			.getLogger(TestRunnable.class);
+	private static final Logger logger = LoggerFactory.getLogger(TestRunnable.class);
 
 	private final TestCase test;
 
@@ -81,8 +80,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param observers
 	 *            a {@link java.util.Set} object.
 	 */
-	public TestRunnable(TestCase tc, Scope scope,
-			Set<ExecutionObserver> observers) {
+	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
@@ -94,8 +92,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		for (Thread t : threadMap.keySet()) {
 			if (t.isAlive())
-				if (TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP.equals(t
-						.getThreadGroup().getName())) {
+				if (TestCaseExecutor.TEST_EXECUTION_THREAD_GROUP.equals(t.getThreadGroup().getName())) {
 					boolean hasEvoSuite = false;
 					for (StackTraceElement elem : threadMap.get(t)) {
 						if (elem.getClassName().contains("evosuite"))
@@ -146,8 +143,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		ExecutionTracer.enable();
 
 		int numThreads = Thread.activeCount();
-		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
-				: new PrintStream(byteStream));
+		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
+		        byteStream));
 		// out.flush();
 		byteStream.reset();
 
@@ -165,10 +162,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 		try {
 			// exceptionsThrown = test.execute(scope, observers, !log);
 			for (StatementInterface s : test) {
-				if (Thread.currentThread().isInterrupted()
-						|| Thread.interrupted()) {
+				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
-							+ s.getCode());
+					        + s.getCode());
 					throw new TimeoutException();
 				}
 				if (logger.isDebugEnabled()) {
@@ -196,10 +192,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 						logger.debug("Test timed out!");
 						exceptionsThrown.put(test.size(), exceptionThrown);
 						result.setThrownExceptions(exceptionsThrown);
-						result.reportNewThrownException(test.size(),
-								exceptionThrown);
-						result.setTrace(ExecutionTracer.getExecutionTracer()
-								.getTrace());
+						result.reportNewThrownException(test.size(), exceptionThrown);
+						result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 						break;
 					}
 
@@ -222,27 +216,22 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 					// FIXME: this might be removed
 					if (exceptionThrown instanceof SecurityException) {
-						logger.debug("Security exception found: "
-								+ exceptionThrown);
+						logger.debug("Security exception found: " + exceptionThrown);
 						break;
 					}
 
 					if (logger.isDebugEnabled()) {
-						logger.debug("Exception thrown in statement: "
-								+ s.getCode() + " - "
-								+ exceptionThrown.getClass().getName() + " - "
-								+ exceptionThrown.getMessage());
-						for (StackTraceElement elem : exceptionThrown
-								.getStackTrace()) {
+						logger.debug("Exception thrown in statement: " + s.getCode()
+						        + " - " + exceptionThrown.getClass().getName() + " - "
+						        + exceptionThrown.getMessage());
+						for (StackTraceElement elem : exceptionThrown.getStackTrace()) {
 							logger.debug(elem.toString());
 						}
 						if (exceptionThrown.getCause() != null) {
 							logger.debug("Cause: "
-									+ exceptionThrown.getCause().getClass()
-											.getName() + " - "
-									+ exceptionThrown.getCause().getMessage());
-							for (StackTraceElement elem : exceptionThrown
-									.getCause().getStackTrace()) {
+							        + exceptionThrown.getCause().getClass().getName()
+							        + " - " + exceptionThrown.getCause().getMessage());
+							for (StackTraceElement elem : exceptionThrown.getCause().getStackTrace()) {
 								logger.debug(elem.toString());
 							}
 						} else {
@@ -316,14 +305,11 @@ public class TestRunnable implements InterfaceTestRunnable {
 				e = e.getCause();
 			}
 			if (e instanceof AssertionError
-					&& e.getStackTrace()[0].getClassName().contains(
-							"org.evosuite")) {
+			        && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
 				// e1.printStackTrace();
-				logger.error(
-						"Assertion Error in evosuitecode, for statement \n"
-								+ test.getStatement(num).getCode()
-								+ " \n which is number: " + num
-								+ " testcase \n" + test.toCode(), e);
+				logger.error("Assertion Error in evosuitecode, for statement \n"
+				        + test.getStatement(num).getCode() + " \n which is number: "
+				        + num + " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
@@ -338,6 +324,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			if (!Properties.PRINT_TO_SYSTEM) {
 				// System.setOut(old_out);
 				// System.setErr(old_err);
+				Sandbox.tearDownEverything();
 				LoggingUtils.restorePreviousOutAndErrStream();
 			}
 		}
@@ -346,8 +333,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
 		if (Properties.VIRTUAL_FS) {
-			test.setAccessedFiles(new ArrayList<String>(IOWrapper
-					.getAccessedFiles()));
+			test.setAccessedFiles(new ArrayList<String>(IOWrapper.getAccessedFiles()));
 			FileSystem.restoreOriginalFS();
 		}
 
@@ -359,7 +345,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			try {
 				logger.debug("Enabling file handling");
 				Method m = Sandbox.class.getMethod("generateFileContent",
-						EvosuiteFile.class, String.class);
+				                                   EvosuiteFile.class, String.class);
 				// TODO: Re-insert!
 				// if (!TestCluster.getInstance().test_methods.contains(m))
 				// TestCluster.getInstance().test_methods.add(m);
