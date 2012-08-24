@@ -809,7 +809,7 @@ public class Properties {
 
 	/** Constant <code>REPLACE_CALLS=false</code> */
 	@Parameter(key = "replace_calls", group = "Test Execution", description = "Replace nondeterministic calls and System.exit")
-	public static boolean REPLACE_CALLS = false;
+	public static boolean REPLACE_CALLS = true;
 
 	// ---------------------------------------------------------------
 	// Debugging
