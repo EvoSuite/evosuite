@@ -8,7 +8,7 @@ public class TestCase45 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void test() {
 		boolean[] boolArray = new boolean[12];
 		boolean defaultValue = boolArray[0];
 		checkEquals(false, defaultValue);

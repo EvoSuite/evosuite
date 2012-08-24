@@ -5,7 +5,7 @@ public class TestCase49 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void test() {
 
 		String[] stringArray = null;
 		stringArray = new String[10];

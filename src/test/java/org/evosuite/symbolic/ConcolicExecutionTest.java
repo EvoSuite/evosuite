@@ -574,4 +574,638 @@ public class ConcolicExecutionTest {
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(1, branch_conditions.size());
 	}
+
+	private DefaultTestCase buildTestCase35() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase35.STRING_VALUE);
+
+		Method method = TestCase35.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase35() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase35();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(3, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase36() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive(TestCase36.STRING_VALUE);
+
+		Method method = TestCase36.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase36() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase36();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(3, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase37() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(Integer.MAX_VALUE);
+
+		Method method = TestCase37.class.getMethod("test", int.class);
+		tc.appendMethod(null, method, int0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase37() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase37();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase3() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(-1);
+
+		Method method = TestCase3.class.getMethod("test", int.class);
+		tc.appendMethod(null, method, int0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase3() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase3();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	// int int0 = ConcolicMarker.mark(15, "int0");
+	// boolean boolean0 = ConcolicMarker.mark(true, "boolean0");
+	// short short0 = ConcolicMarker.mark(Short.MAX_VALUE, "short0");
+	// byte byte0 = ConcolicMarker.mark(Byte.MAX_VALUE, "byte0");
+	// char char0 = ConcolicMarker.mark(Character.MAX_VALUE, "char0");
+	// long long0 = ConcolicMarker.mark(Long.MAX_VALUE, "long0");
+	// float float0 = ConcolicMarker.mark(Float.MAX_VALUE, "float0");
+	// double double0 = ConcolicMarker.mark(Double.MAX_VALUE, "double0");
+	private DefaultTestCase buildTestCase38() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(15);
+		VariableReference boolean0 = tc.appendBooleanPrimitive(true);
+		VariableReference short0 = tc.appendShortPrimitive(Short.MAX_VALUE);
+		VariableReference byte0 = tc.appendBytePrimitive(Byte.MAX_VALUE);
+		VariableReference char0 = tc.appendCharPrimitive(Character.MAX_VALUE);
+		VariableReference long0 = tc.appendLongPrimitive(Long.MAX_VALUE);
+		VariableReference float0 = tc.appendFloatPrimitive(Float.MAX_VALUE);
+		VariableReference double0 = tc.appendDoublePrimitive(Float.MAX_VALUE);
+
+		Method method = TestCase38.class.getMethod("test", int.class,
+				boolean.class, short.class, byte.class, char.class, long.class,
+				float.class, double.class);
+		tc.appendMethod(null, method, int0, boolean0, short0, byte0, char0,
+				long0, float0, double0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase38() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase38();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(7, branch_conditions.size());
+	}
+
+	// final int ARRAY_SIZE = 20;
+	// int int0 = ConcolicMarker.mark(ARRAY_SIZE, "int0");
+	// String string2 = ConcolicMarker.mark(ROBA, "string2");
+	private DefaultTestCase buildTestCase39() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(20);
+		VariableReference string2 = tc.appendStringPrimitive(TestCase39.ROBA);
+
+		Method method = TestCase39.class.getMethod("test", int.class,
+				String.class);
+		tc.appendMethod(null, method, int0, string2);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase39() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase39();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	// int int0 = ConcolicMarker.mark(10, "int0");
+	// int int1 = ConcolicMarker.mark(1, "int1");
+	// float float0 = ConcolicMarker.mark(Float.POSITIVE_INFINITY, "float0");
+	private DefaultTestCase buildTestCase40() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(10);
+		VariableReference int1 = tc.appendIntPrimitive(1);
+		VariableReference float0 = tc
+				.appendFloatPrimitive(Float.POSITIVE_INFINITY);
+
+		Method method = TestCase40.class.getMethod("test", int.class,
+				int.class, float.class);
+		tc.appendMethod(null, method, int0, int1, float0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase40() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase40();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	// int int0 = ConcolicMarker.mark(0,"var0");
+	// int int1 = ConcolicMarker.mark(0,"var1");
+	// int int3 = ConcolicMarker.mark(1,"var2");
+	// int int4 = ConcolicMarker.mark(1,"var3");
+	private DefaultTestCase buildTestCase41() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(0);
+		VariableReference int1 = tc.appendIntPrimitive(0);
+		VariableReference int3 = tc.appendIntPrimitive(1);
+		VariableReference int4 = tc.appendIntPrimitive(1);
+
+		Method method = TestCase41.class.getMethod("test", int.class,
+				int.class, int.class, int.class);
+		tc.appendMethod(null, method, int0, int1, int3, int4);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase41() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase41();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(9, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase42() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase42.class.getMethod("test");
+		tc.appendMethod(null, method);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase42() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase42();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase43() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(Integer.MAX_VALUE);
+
+		Method method = TestCase43.class.getMethod("test", int.class);
+		tc.appendMethod(null, method, int0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase43() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase43();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(9, branch_conditions.size());
+	}
+
+	// int int0 = ConcolicMarker.mark(1111, "var0");
+	// int int1 = ConcolicMarker.mark(1111, "var1");
+	// int int2 = ConcolicMarker.mark(1111, "var2");
+	// int int3 = ConcolicMarker.mark(1111, "var3");
+	// int int4 = ConcolicMarker.mark(-285, "var4");
+	// int int5 = ConcolicMarker.mark(-285, "var5");
+	// int int6 = ConcolicMarker.mark(6, "var6");
+	// int int7 = ConcolicMarker.mark(302, "var7");
+	// int int8 = ConcolicMarker.mark(1565, "var8");
+	// int int9 = ConcolicMarker.mark(1893, "var9");
+	// int int10 = ConcolicMarker.mark(-1956, "var10");
+	private DefaultTestCase buildTestCase44() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(1111);
+		VariableReference int1 = tc.appendIntPrimitive(1111);
+		VariableReference int2 = tc.appendIntPrimitive(1111);
+		VariableReference int3 = tc.appendIntPrimitive(1111);
+		VariableReference int4 = tc.appendIntPrimitive(-285);
+		VariableReference int5 = tc.appendIntPrimitive(-285);
+		VariableReference int6 = tc.appendIntPrimitive(6);
+		VariableReference int7 = tc.appendIntPrimitive(302);
+		VariableReference int8 = tc.appendIntPrimitive(1565);
+		VariableReference int9 = tc.appendIntPrimitive(1893);
+		VariableReference int10 = tc.appendIntPrimitive(-1956);
+
+		Method method = TestCase44.class.getMethod("test", int.class,
+				int.class, int.class, int.class, int.class, int.class,
+				int.class, int.class, int.class, int.class, int.class);
+		tc.appendMethod(null, method, int0, int1, int2, int3, int4, int5, int6,
+				int7, int8, int9, int10);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase44() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase44();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(10, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase45() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase45.class.getMethod("test");
+		tc.appendMethod(null, method);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase45() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase45();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase46() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string1 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string2 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string3 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string4 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string5 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string6 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string7 = tc
+				.appendStringPrimitive("\\5b;\u001C,?\u0011\u0010\u001E]\"");
+		VariableReference string8 = tc.appendStringPrimitive("ness");
+		VariableReference string9 = tc.appendStringPrimitive("iciti");
+		VariableReference string10 = tc.appendStringPrimitive("iciti");
+		VariableReference string11 = tc.appendStringPrimitive("doc");
+		VariableReference string12 = tc.appendStringPrimitive("text");
+		VariableReference string13 = tc.appendStringPrimitive("text");
+		VariableReference string14 = tc.appendStringPrimitive("text");
+		VariableReference string15 = tc.appendStringPrimitive("text");
+		VariableReference string16 = tc.appendStringPrimitive("text");
+		VariableReference string17 = tc.appendStringPrimitive("text");
+		VariableReference string18 = tc.appendStringPrimitive("");
+		VariableReference string19 = tc.appendStringPrimitive("");
+		VariableReference string20 = tc
+				.appendStringPrimitive("urVf3T\r\t\u0019\u000B0 eiM I");
+		VariableReference string21 = tc
+				.appendStringPrimitive("urVf3T\r\t\u0019\u000B0 eiM I");
+		VariableReference string22 = tc
+				.appendStringPrimitive("urVf3T\r\t\u0019\u000B0 eiM I");
+		VariableReference string23 = tc.appendStringPrimitive("ical");
+		Method method = TestCase46.class.getMethod("test", String.class,
+				String.class, String.class, String.class, String.class,
+				String.class, String.class, String.class, String.class,
+				String.class, String.class, String.class, String.class,
+				String.class, String.class, String.class, String.class,
+				String.class, String.class, String.class, String.class,
+				String.class, String.class, String.class);
+
+		tc.appendMethod(null, method, string0, string1, string2, string3,
+				string4, string5, string6, string7, string8, string9, string10,
+				string11, string12, string13, string14, string15, string16,
+				string17, string18, string19, string20, string21, string22,
+				string23);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase46() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase46();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(22, branch_conditions.size());
+	}
+
+	// char char0 = ConcolicMarker.mark('\u0007', "char0");
+	// char char1 = ConcolicMarker.mark('\t', "char1");
+	// char char2 = ConcolicMarker.mark('\u0015', "char2");
+	// char char3 = ConcolicMarker.mark('\u0015', "char3");
+	private DefaultTestCase buildTestCase47() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference char0 = tc.appendCharPrimitive('\u0007');
+		VariableReference char1 = tc.appendCharPrimitive('\t');
+		VariableReference char2 = tc.appendCharPrimitive('\u0015');
+		VariableReference char3 = tc.appendCharPrimitive('\u0015');
+
+		Method method = TestCase47.class.getMethod("test", char.class,
+				char.class, char.class, char.class);
+		tc.appendMethod(null, method, char0, char1, char2, char3);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase47() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase47();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(14, branch_conditions.size());
+	}
+
+	// char char0 = ConcolicMarker.mark('y',"char0");
+	// char char1 = ConcolicMarker.mark('y',"char1");
+	// char char2 = ConcolicMarker.mark('y',"char2");
+	// char char3 = ConcolicMarker.mark('y',"char3");
+	// char char4 = ConcolicMarker.mark('y',"char4");
+	// char char5 = ConcolicMarker.mark('I',"char5");
+	// char char6 = ConcolicMarker.mark('I',"char6");
+	// char char7 = ConcolicMarker.mark('V',"char7");
+	// char char8 = ConcolicMarker.mark('R',"char8");
+	private DefaultTestCase buildTestCase48() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference char0 = tc.appendCharPrimitive('y');
+		VariableReference char1 = tc.appendCharPrimitive('y');
+		VariableReference char2 = tc.appendCharPrimitive('y');
+		VariableReference char3 = tc.appendCharPrimitive('y');
+		VariableReference char4 = tc.appendCharPrimitive('y');
+		VariableReference char5 = tc.appendCharPrimitive('I');
+		VariableReference char6 = tc.appendCharPrimitive('I');
+		VariableReference char7 = tc.appendCharPrimitive('V');
+		VariableReference char8 = tc.appendCharPrimitive('R');
+
+		Method method = TestCase48.class.getMethod("test", char.class,
+				char.class, char.class, char.class, char.class, char.class,
+				char.class, char.class, char.class);
+		tc.appendMethod(null, method, char0, char1, char2, char3, char4, char5,
+				char6, char7, char8);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase48() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase48();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(54, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase49() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase49.class.getMethod("test");
+		tc.appendMethod(null, method);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase49() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase49();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(0, branch_conditions.size());
+	}
+
+	// char char0 = ConcolicMarker.mark('U', "char0");
+	// char char1 = ConcolicMarker.mark('U', "char1");
+	// char char2 = ConcolicMarker.mark(')', "char2");
+	// char char3 = ConcolicMarker.mark('j', "char3");
+	// char char4 = ConcolicMarker.mark('s', "char4");
+	// char char5 = ConcolicMarker.mark('\u001A', "char5");
+	private DefaultTestCase buildTestCase50() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference char0 = tc.appendCharPrimitive('U');
+		VariableReference char1 = tc.appendCharPrimitive('U');
+		VariableReference char2 = tc.appendCharPrimitive(')');
+		VariableReference char3 = tc.appendCharPrimitive('j');
+		VariableReference char4 = tc.appendCharPrimitive('s');
+		VariableReference char5 = tc.appendCharPrimitive('\u001A');
+
+		Method method = TestCase50.class.getMethod("test", char.class,
+				char.class, char.class, char.class, char.class, char.class);
+		tc.appendMethod(null, method, char0, char1, char2, char3, char4, char5);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase50() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase50();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(63, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase51() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		Method method = TestCase51.class.getMethod("test");
+		tc.appendMethod(null, method);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase51() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase51();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(67, branch_conditions.size());
+	}
+
+	// String string0 = ConcolicMarker.mark("Togliere sta roba", "string0");
+	// String string1 = ConcolicMarker.mark(" ", "string1");
+	private DefaultTestCase buildTestCase52() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string0 = tc
+				.appendStringPrimitive("Togliere sta roba");
+		VariableReference string1 = tc.appendStringPrimitive(" ");
+
+		Method method = TestCase52.class.getMethod("test", String.class,
+				String.class);
+		tc.appendMethod(null, method, string0, string1);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase52() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase52();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	// int int0 = ConcolicMarker.mark(-756,"var1");
+	// int int1 = ConcolicMarker.mark(-542,"var2");
+	// int int3 = ConcolicMarker.mark(1,"var3");
+	// int int8 = ConcolicMarker.mark(-1480,"var4");
+	// int int11 = ConcolicMarker.mark(-1637,"var5");
+	private DefaultTestCase buildTestCase2() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(-756);
+		VariableReference int1 = tc.appendIntPrimitive(-542);
+		VariableReference int3 = tc.appendIntPrimitive(1);
+		VariableReference int8 = tc.appendIntPrimitive(-1480);
+		VariableReference int11 = tc.appendIntPrimitive(-1637);
+
+		Method method = TestCase2.class.getMethod("test", int.class, int.class,
+				int.class, int.class, int.class);
+		tc.appendMethod(null, method, int0, int1, int3, int8, int11);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase2() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase2();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(8, branch_conditions.size());
+	}
+
+	// long long0 = ConcolicMarker.mark(1554151784714561687L,"var1");
+	// int int0 = ConcolicMarker.mark(0, "var2");
+	private DefaultTestCase buildTestCase4() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference long0 = tc.appendLongPrimitive(1554151784714561687L);
+		VariableReference int0 = tc.appendIntPrimitive(0);
+
+		Method method = TestCase4.class
+				.getMethod("test", long.class, int.class);
+		tc.appendMethod(null, method, long0, int0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase4() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase4();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	// float float0 = ConcolicMarker.mark(882.70544F,"var1");
+	// float float1 = ConcolicMarker.mark(882.70544F,"var2");
+	// float float2 = ConcolicMarker.mark(882.70544F, "var3");
+	// float float3 = ConcolicMarker.mark(1.0F,"var4");
+	// float float4 = ConcolicMarker.mark(63.534046F,"var5");
+	private DefaultTestCase buildTestCase5() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference float0 = tc.appendFloatPrimitive(882.70544F);
+		VariableReference float1 = tc.appendFloatPrimitive(882.70544F);
+		VariableReference float2 = tc.appendFloatPrimitive(882.70544F);
+		VariableReference float3 = tc.appendFloatPrimitive(1.0F);
+		VariableReference float4 = tc.appendFloatPrimitive(63.534046F);
+
+		Method method = TestCase5.class.getMethod("test", float.class,
+				float.class, float.class, float.class, float.class);
+		tc.appendMethod(null, method, float0, float1, float2, float3, float4);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase5() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase5();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(1, branch_conditions.size());
+	}
+
+	// int int0 = ConcolicMarker.mark(1515, "int0");
+	// int int2 = ConcolicMarker.mark(1541, "int2");
+	private DefaultTestCase buildTestCase56() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(1515);
+		VariableReference int2 = tc.appendIntPrimitive(1541);
+
+		Method method = TestCase56.class
+				.getMethod("test", int.class, int.class);
+		tc.appendMethod(null, method, int0, int2);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase56() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase56();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	// String string1 = ConcolicMarker.mark("Togliere sta roba".toUpperCase(),
+	// "string1");
+	// String string3 = ConcolicMarker.mark("Togliere", "string3");
+	private DefaultTestCase buildTestCase57() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string1 = tc
+				.appendStringPrimitive("Togliere sta roba".toUpperCase());
+		VariableReference string3 = tc.appendStringPrimitive("Togliere");
+
+		Method method = TestCase57.class.getMethod("test", String.class,
+				String.class);
+		tc.appendMethod(null, method, string1, string3);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase57() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase57();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	// String string1 = ConcolicMarker.mark("Togliere sta roba".toUpperCase(),
+	// "string1");
+	private DefaultTestCase buildTestCase58() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string1 = tc
+				.appendStringPrimitive("Togliere sta roba".toUpperCase());
+
+		Method method = TestCase58.class.getMethod("test", String.class);
+		tc.appendMethod(null, method, string1);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase58() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase58();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
+	// String string1 = ConcolicMarker.mark(string0, "string1");
+	// int int1 = ConcolicMarker.mark(5, "int1");
+	private DefaultTestCase buildTestCase59() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference string1 = tc
+				.appendStringPrimitive("Togliere sta roba");
+		VariableReference int1 = tc.appendIntPrimitive(5);
+
+		Method method = TestCase59.class.getMethod("test", String.class,
+				int.class);
+		tc.appendMethod(null, method, string1, int1);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase59() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase59();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(2, branch_conditions.size());
+	}
+
 }
