@@ -2,17 +2,15 @@ package org.evosuite.symbolic;
 
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase85 {
 
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	// String string0 = ConcolicMarker.mark("aaaaaaaaaaab", "string0");
+	public static void test(String string0) {
 
 		String regex = "a*b";
-		String string0 = ConcolicMarker.mark("aaaaaaaaaaab", "string0");
 		boolean boolean0 = string0.matches(regex);
 		checkEquals(boolean0, true);
 	}

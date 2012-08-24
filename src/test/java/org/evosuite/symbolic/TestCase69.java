@@ -85,7 +85,7 @@ public class TestCase69 {
 
 	}
 
-	public static void main(String[] args) {
+	public static void test() {
 		Pat pat0 = new Pat();
 		String string0 = "r1{";
 		String string1 = "r1{";
