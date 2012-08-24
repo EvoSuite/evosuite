@@ -547,7 +547,7 @@ public class TestCase51 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void test() {
 
 		Stemmer stemmer0 = new Stemmer();
 		char[] charArray0 = stemmer0.getResultBuffer();

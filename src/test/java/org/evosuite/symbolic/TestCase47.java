@@ -1,7 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase47 {
 
 	/**
@@ -384,7 +382,7 @@ public class TestCase47 {
 		/* step4() deals with -ic-, -full, -ness etc. similar strategy to step3. */
 
 		private final void step4() {
-			
+
 			switch (b[k]) {
 			case 'e':
 				if (ends("icate")) {
@@ -423,7 +421,7 @@ public class TestCase47 {
 				}
 				break;
 			}
-			
+
 		}
 
 		/* step5() takes off -ant, -ence etc., in context <c>vcvc<v>. */
@@ -546,13 +544,15 @@ public class TestCase47 {
 		 */
 	}
 
-	public static void main(String[] args) {
+	// char char0 = ConcolicMarker.mark('\u0007', "char0");
+	// char char1 = ConcolicMarker.mark('\t', "char1");
+	// char char2 = ConcolicMarker.mark('\u0015', "char2");
+	// char char3 = ConcolicMarker.mark('\u0015', "char3");
+	public static void test(char char0, char char1, char char2, char char3) {
 		Stemmer stemmer0 = new Stemmer();
 		char[] charArray0 = new char[6];
-		char char0 = ConcolicMarker.mark('\u0007', "char0");
 		String string0 = stemmer0.toString();
 		charArray0[0] = char0;
-		char char1 = ConcolicMarker.mark('\t', "char1");
 		Stemmer stemmer1 = new Stemmer();
 		Stemmer stemmer2 = new Stemmer();
 		String string1 = stemmer0.toString();
@@ -562,11 +562,9 @@ public class TestCase47 {
 		stemmer3.add(char1);
 		charArray0[1] = char1;
 		char[] charArray2 = stemmer0.getResultBuffer();
-		char char2 = ConcolicMarker.mark('\u0015', "char2");
 		charArray0[2] = char2;
 		int int0 = stemmer0.getResultLength();
 		char[] charArray3 = stemmer0.getResultBuffer();
-		char char3 = ConcolicMarker.mark('\u0015', "char3");
 		stemmer2.add(char2);
 		charArray0[4] = charArray2[33];
 		int int1 = -4;

@@ -1,6 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase59 {
@@ -8,13 +7,13 @@ public class TestCase59 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+//	String string1 = ConcolicMarker.mark(string0, "string1");
+//	int int1 = ConcolicMarker.mark(5, "int1");
+	public static void test(String string1, int int1) {
 
 		String string0 = "Togliere sta roba";
-		String string1 = ConcolicMarker.mark(string0, "string1");
 
 		int int0 = 5;
-		int int1 = ConcolicMarker.mark(5, "int1");
 		char char0 = string0.charAt(int0);
 		char char1 = string1.charAt(int1);
 

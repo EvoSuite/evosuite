@@ -9,7 +9,7 @@ public class TestCase42 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	public static void test() {
 
 		TestCase42 instance = new TestCase42();
 
@@ -27,8 +27,7 @@ public class TestCase42 {
 		otherArray[3] = Integer.MAX_VALUE / 2;
 
 		checkEquals(myArray[0], instance.intArray[0]);
-		
-		
+
 	}
 
 }

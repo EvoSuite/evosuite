@@ -1,7 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase50 {
 
 	/**
@@ -549,10 +547,15 @@ public class TestCase50 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	// char char0 = ConcolicMarker.mark('U', "char0");
+	// char char1 = ConcolicMarker.mark('U', "char1");
+	// char char2 = ConcolicMarker.mark(')', "char2");
+	// char char3 = ConcolicMarker.mark('j', "char3");
+	// char char4 = ConcolicMarker.mark('s', "char4");
+	// char char5 = ConcolicMarker.mark('\u001A', "char5");
+	public static void test(char char0, char char1, char char2, char char3,
+			char char4, char char5) {
 		Stemmer stemmer0 = new Stemmer();
-		char char0 = ConcolicMarker.mark('U', "char0");
-		char char1 = ConcolicMarker.mark('U', "char1");
 		char[] charArray0 = stemmer0.getResultBuffer();
 		stemmer0.add(char0);
 		stemmer0.add(char1);
@@ -565,13 +568,11 @@ public class TestCase50 {
 		int int0 = -1696;
 		stemmer0.add(charArray1, int0);
 		charArray1[1] = char0;
-		char char2 = ConcolicMarker.mark(')', "char2");
 		charArray1[2] = char2;
 		char[] charArray3 = stemmer0.getResultBuffer();
 		charArray1[3] = char0;
 		charArray1[1] = char0;
 		String string1 = stemmer0.toString();
-		char char3 = ConcolicMarker.mark('j', "char3");
 		stemmer0.stem();
 		stemmer0.add(char2);
 		stemmer0.add(charArray1[1]);
@@ -581,10 +582,8 @@ public class TestCase50 {
 		charArray1[3] = char0;
 		stemmer0.stem();
 		int int2 = -1518;
-		char char4 = ConcolicMarker.mark('s', "char4");
 		stemmer0.add(char4);
 		char[] charArray4 = stemmer0.getResultBuffer();
-		char char5 = ConcolicMarker.mark('\u001A', "char5");
 		int int3 = stemmer0.getResultLength();
 		stemmer0.add(char5);
 		stemmer0.add(charArray1, int2);

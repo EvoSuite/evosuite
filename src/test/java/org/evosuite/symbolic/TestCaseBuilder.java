@@ -12,6 +12,8 @@ import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.ArrayStatement;
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.BooleanPrimitiveStatement;
+import org.evosuite.testcase.BytePrimitiveStatement;
+import org.evosuite.testcase.CharPrimitiveStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.DoublePrimitiveStatement;
@@ -23,6 +25,7 @@ import org.evosuite.testcase.IntPrimitiveStatement;
 import org.evosuite.testcase.LongPrimitiveStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullStatement;
+import org.evosuite.testcase.ShortPrimitiveStatement;
 import org.evosuite.testcase.StringPrimitiveStatement;
 import org.evosuite.testcase.VariableReference;
 
@@ -173,6 +176,25 @@ public class TestCaseBuilder {
 	public VariableReference appendFloatPrimitive(float f) {
 		FloatPrimitiveStatement primitiveStmt = new FloatPrimitiveStatement(tc,
 				f);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	public VariableReference appendShortPrimitive(short s) {
+		ShortPrimitiveStatement primitiveStmt = new ShortPrimitiveStatement(tc,
+				s);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	public VariableReference appendBytePrimitive(byte b) {
+		BytePrimitiveStatement primitiveStmt = new BytePrimitiveStatement(tc, b);
+		tc.addStatement(primitiveStmt);
+		return primitiveStmt.getReturnValue();
+	}
+
+	public VariableReference appendCharPrimitive(char c) {
+		CharPrimitiveStatement primitiveStmt = new CharPrimitiveStatement(tc, c);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}

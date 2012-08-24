@@ -1,7 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase38 {
@@ -9,15 +7,8 @@ public class TestCase38 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		int int0 = ConcolicMarker.mark(15, "int0");
-		boolean boolean0 = ConcolicMarker.mark(true, "boolean0");
-		short short0 = ConcolicMarker.mark(Short.MAX_VALUE, "short0");
-		byte byte0 = ConcolicMarker.mark(Byte.MAX_VALUE, "byte0");
-		char char0 = ConcolicMarker.mark(Character.MAX_VALUE, "char0");
-		long long0 = ConcolicMarker.mark(Long.MAX_VALUE, "long0");
-		float float0 = ConcolicMarker.mark(Float.MAX_VALUE, "float0");
-		double double0 = ConcolicMarker.mark(Double.MAX_VALUE, "double0");
+	public static void test(int int0, boolean boolean0, short short0,
+			byte byte0, char char0, long long0, float float0, double double0) {
 
 		boolean[] booleanArray0 = new boolean[int0];
 		short[] shortArray0 = new short[int0];
