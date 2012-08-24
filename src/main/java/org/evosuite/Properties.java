@@ -1594,7 +1594,7 @@ public class Properties {
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
 			                                         + (e.getMessage() != null ? e.getMessage()
-			                                                 + e
+
 			                                                 : e));
 		}
 		return null;
