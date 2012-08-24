@@ -9,9 +9,11 @@ import java.util.Map;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.IntegerToRealCast;
 import org.evosuite.symbolic.expr.IntegerVariable;
 import org.evosuite.symbolic.expr.IntegerVariableFactory;
 import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.RealToIntegerCast;
 import org.evosuite.symbolic.expr.RealVariable;
 import org.evosuite.symbolic.expr.RealVariableFactory;
 import org.evosuite.symbolic.expr.StringExpression;
@@ -76,9 +78,9 @@ public class SymbolicObserver extends ExecutionObserver {
 		String className = stmt.getConstructor().getDeclaringClass().getName();
 		VM.NEW(className);
 		VM.DUP();
-		pushParameterList(stmt.parameters, scope);
-		String owner = className.replace(".", "/");
 		String desc = Type.getConstructorDescriptor(stmt.getConstructor());
+		pushParameterList(stmt.parameters, scope, desc);
+		String owner = className.replace(".", "/");
 		/* indicates if the following code is instrumented or not */
 		VM.INVOKESPECIAL(owner, INIT, desc);
 		boolean needThis = true;
@@ -103,6 +105,10 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	@Override
 	public void beforeStatement(StatementInterface s, Scope scope) {
+		if (VM.vm.isStopped()) {
+			return;
+		}
+
 		try {
 			if (env.isEmpty()) {
 				env.prepareStack(null);
@@ -699,7 +705,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		}
 
 		List<VariableReference> parameters = statement.getParameterReferences();
-		pushParameterList(parameters, scope);
+		pushParameterList(parameters, scope, desc);
 
 		if (needThis) {
 			VariableReference callee = statement.getCallee();
@@ -782,8 +788,14 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private void pushParameterList(List<VariableReference> parameters,
-			Scope scope) {
-		for (VariableReference varRef : parameters) {
+			Scope scope, String desc) {
+
+		Type[] argTypes = Type.getArgumentTypes(desc);
+
+		for (int i = 0; i < parameters.size(); i++) {
+
+			VariableReference varRef = parameters.get(i);
+			Type argType = argTypes[i];
 			ExpressionOrReferenceResult readResult = this.read(varRef, scope);
 
 			if (readResult.isExpression()) {
@@ -795,19 +807,48 @@ public class SymbolicObserver extends ExecutionObserver {
 					env.topFrame().operandStack.pushStringRef(strExpr);
 				} else if (symb_expr instanceof RealExpression) {
 					RealExpression realExpr = (RealExpression) symb_expr;
-					if (isFp32(varRef.getVariableClass())) {
+					if (isFp32(argType)) {
 						env.topFrame().operandStack.pushFp32(realExpr);
-					} else {
+					} else if (isFp64(argType)) {
 						env.topFrame().operandStack.pushFp64(realExpr);
+					} else if (isBv32(argType)) {
+						int concV = ((Double) realExpr.getConcreteValue())
+								.intValue();
+						RealToIntegerCast castExpr = new RealToIntegerCast(
+								realExpr, (long) concV);
+						env.topFrame().operandStack.pushBv32(castExpr);
+					} else if (isBv64(argType)) {
+						long concV = ((Double) realExpr.getConcreteValue())
+								.longValue();
+						RealToIntegerCast castExpr = new RealToIntegerCast(
+								realExpr, concV);
+						env.topFrame().operandStack.pushBv64(castExpr);
+					} else {
+						throw new EvosuiteError(
+								"Cannot cast real expression to reference!");
 					}
 				} else if (symb_expr instanceof IntegerExpression) {
 					IntegerExpression integerExpr = (IntegerExpression) symb_expr;
-					if (isBv32(varRef.getVariableClass())) {
+					if (isBv32(argType)) {
 						env.topFrame().operandStack.pushBv32(integerExpr);
-					} else {
+					} else if (isBv64(argType)) {
 						env.topFrame().operandStack.pushBv64(integerExpr);
+					} else if (isFp32(argType)) {
+						float concV = ((Long) integerExpr.getConcreteValue())
+								.floatValue();
+						IntegerToRealCast castExpr = new IntegerToRealCast(
+								integerExpr, (double) concV);
+						env.topFrame().operandStack.pushFp32(castExpr);
+					} else if (isFp64(argType)) {
+						double concV = ((Long) integerExpr.getConcreteValue())
+								.doubleValue();
+						IntegerToRealCast castExpr = new IntegerToRealCast(
+								integerExpr, concV);
+						env.topFrame().operandStack.pushFp64(castExpr);
+					} else {
+						throw new EvosuiteError(
+								"Cannot cast integer expression to reference!");
 					}
-
 				}
 			} else {
 				Reference ref = readResult.getReference();
@@ -815,6 +856,24 @@ public class SymbolicObserver extends ExecutionObserver {
 			}
 
 		}
+	}
+
+	private boolean isFp64(Type t) {
+		return t.equals(Type.DOUBLE_TYPE);
+	}
+
+	private static boolean isFp32(Type t) {
+		return t.equals(Type.FLOAT_TYPE);
+	}
+
+	private static boolean isBv64(Type t) {
+		return t.equals(Type.LONG_TYPE);
+	}
+
+	private static boolean isBv32(Type t) {
+		return t.equals(Type.CHAR_TYPE) || t.equals(Type.BOOLEAN_TYPE)
+				|| t.equals(Type.SHORT_TYPE) || t.equals(Type.BYTE_TYPE)
+				|| t.equals(Type.INT_TYPE);
 	}
 
 	private static boolean isFp32(Class<?> clazz) {
@@ -834,6 +893,10 @@ public class SymbolicObserver extends ExecutionObserver {
 			Throwable exception) {
 
 		if (exception != null) {
+			return;
+		}
+
+		if (VM.vm.isStopped()) {
 			return;
 		}
 
@@ -1079,12 +1142,6 @@ public class SymbolicObserver extends ExecutionObserver {
 		// dispose all other arguments
 		env.topFrame().operandStack.clearOperands();
 
-	}
-
-	private static boolean isBv32(Class<?> clazz) {
-		return clazz.equals(int.class) || clazz.equals(char.class)
-				|| clazz.equals(byte.class) || clazz.equals(short.class)
-				|| clazz.equals(boolean.class);
 	}
 
 	private void after(StringPrimitiveStatement statement, Scope scope) {
