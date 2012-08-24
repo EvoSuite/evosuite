@@ -293,18 +293,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 			logger.info("Test timed out!");
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 		} catch (Throwable e) {
-			if (e instanceof EvosuiteError) {
-				logger.info("Evosuite Error!");
-				logger.info(e.getMessage());
-				throw (EvosuiteError) e;
-
-			}
-			if (e instanceof VMError) {
-				logger.info("VM Error!");
-				logger.info(e.getMessage());
-				throw (VMError) e;
-			}
-
 			Sandbox.tearDownEverything();
 			logger.info("Exception at statement " + num + "! " + e);
 			// logger.info(test.toCode());
