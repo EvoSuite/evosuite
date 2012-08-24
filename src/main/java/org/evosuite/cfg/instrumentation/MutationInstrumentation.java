@@ -25,6 +25,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.cfg.instrumentation.mutation.DeleteField;
 import org.evosuite.cfg.instrumentation.mutation.DeleteStatement;
 import org.evosuite.cfg.instrumentation.mutation.InsertUnaryOperator;
@@ -133,6 +134,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 
 		logger.info("Applying mutation operators ");
 		int frameIndex = 0;
+		int numMutants = 0;
 		assert (frames.length == mn.instructions.size()) : "Length " + frames.length
 		        + " vs " + mn.instructions.size();
 		while (j.hasNext()) {
@@ -155,6 +157,11 @@ public class MutationInstrumentation implements MethodInstrumentation {
 
 					// TODO: More than one mutation operator might apply to the same instruction
 					for (MutationOperator mutationOperator : mutationOperators) {
+
+						if (numMutants++ > Properties.MAX_MUTANTS_PER_METHOD) {
+							logger.info("Reached maximum number of mutants per method");
+							break;
+						}
 						//logger.info("Checking mutation operator on instruction " + v);
 						if (mutationOperator.isApplicable(v)) {
 							logger.info("Applying mutation operator "
@@ -170,6 +177,10 @@ public class MutationInstrumentation implements MethodInstrumentation {
 						addInstrumentation(mn, in, mutations);
 					}
 				}
+				if (numMutants > Properties.MAX_MUTANTS_PER_METHOD) {
+					break;
+				}
+
 			}
 		}
 		j = mn.instructions.iterator();

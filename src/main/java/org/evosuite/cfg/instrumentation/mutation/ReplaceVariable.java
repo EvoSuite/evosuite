@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -83,11 +84,18 @@ public class ReplaceVariable implements MutationOperator {
 
 		try {
 			String origName = getName(mn, instruction.getASMNode());
+			int numReplacements = 0;
 
 			for (Entry<String, InsnList> mutation : getReplacements(
 			                                                        mn,
 			                                                        className,
 			                                                        instruction.getASMNode()).entrySet()) {
+
+				if (numReplacements++ > Properties.MAX_REPLACE_MUTANTS) {
+					logger.info("Reached maximum number of variable replacements");
+					break;
+				}
+
 				// insert mutation into pool			
 				Mutation mutationObject = MutationPool.addMutation(className,
 				                                                   methodName,
