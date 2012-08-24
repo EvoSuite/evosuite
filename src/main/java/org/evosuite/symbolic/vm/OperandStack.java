@@ -22,6 +22,7 @@ public final class OperandStack implements Iterable<Operand> {
 
 	public void pushRef(Reference r) {
 		stack.push(new ReferenceOperand(r));
+	 int i=0;
 	}
 
 	public void pushBv32(IntegerExpression e) {
@@ -155,4 +156,11 @@ public final class OperandStack implements Iterable<Operand> {
 		return buff.toString();
 	}
 
+	public int size() {
+		return stack.size();
+	}
+	
+	public boolean isEmpty() {
+		return stack.isEmpty();
+	}
 }

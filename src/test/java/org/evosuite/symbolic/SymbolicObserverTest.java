@@ -858,4 +858,40 @@ public class SymbolicObserverTest {
 		printConstraints(branch_conditions);
 		assertEquals(1, branch_conditions.size());
 	}
+
+	private static DefaultTestCase build_test_input_13()
+			throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+
+		Method checkDoubleEquals = Assertions.class.getMethod("checkEquals",
+				double.class, double.class);
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference int0 = tc.appendIntPrimitive(10);
+		VariableReference int1 = tc.appendIntPrimitive(20);
+		tc.appendMethod(null, checkDoubleEquals, int0, int1);
+
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void test13() throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000000;
+
+		DefaultTestCase tc = build_test_input_13();
+
+		System.out.println("TestCase=");
+		System.out.println(tc.toCode());
+
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic(tc);
+
+		printConstraints(branch_conditions);
+		assertEquals(1, branch_conditions.size());
+	}
+
 }

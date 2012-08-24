@@ -182,6 +182,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 				Sandbox.tearDownMockedSecurityManager();
 
 				if (exceptionThrown != null) {
+					if (exceptionThrown instanceof VMError) {
+						throw (VMError) exceptionThrown;
+					}
+					if (exceptionThrown instanceof EvosuiteError) {
+						throw (EvosuiteError) exceptionThrown;
+					}
+
 					if (exceptionThrown instanceof SystemExitException) {
 						// This exception is raised when the test tried to call
 						// System.exit
