@@ -1,7 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase71 {
 
 	public static class Stemmer {
@@ -539,27 +537,28 @@ public class TestCase71 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	// char char0 = ConcolicMarker.mark('Q', "char0");
+	// char char1 = ConcolicMarker.mark('\u0007', "char1");
+	// char char2 = ConcolicMarker.mark('%', "char2");
+	// char char3 = ConcolicMarker.mark('\n', "char3");
+	// char char4 = ConcolicMarker.mark('>', "char4");
+	// char char5 = ConcolicMarker.mark('7', "char5");
+	// char char6 = ConcolicMarker.mark('\u000B', "char6");
+	// char char7 = ConcolicMarker.mark('\u001B', "char7");
+	// char char8 = ConcolicMarker.mark('l', "char8");
+	public static void test(char char0, char char1, char char2, char char3,
+			char char4, char char5, char char6, char char7, char char8) {
 		Stemmer stemmer0 = new Stemmer();
 		char[] charArray0 = new char[8];
-		char char0 = ConcolicMarker.mark('Q', "char0");
 		charArray0[0] = char0;
-		char char1 = ConcolicMarker.mark('\u0007', "char1");
 		charArray0[1] = char1;
-		char char2 = ConcolicMarker.mark('%', "char2");
 		charArray0[2] = char2;
-		char char3 = ConcolicMarker.mark('\n', "char3");
 		charArray0[3] = char3;
-		char char4 = ConcolicMarker.mark('>', "char4");
 		charArray0[4] = char4;
-		char char5 = ConcolicMarker.mark('7', "char5");
 		charArray0[5] = char5;
-		char char6 = ConcolicMarker.mark('\u000B', "char6");
 		charArray0[6] = char6;
-		char char7 = ConcolicMarker.mark('\u001B', "char7");
 		charArray0[7] = char7;
 		stemmer0.add(charArray0, (int) char1);
-		char char8 = ConcolicMarker.mark('l', "char8");
 		stemmer0.add(char8);
 		stemmer0.add(char8);
 		stemmer0.stem();

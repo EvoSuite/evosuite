@@ -17,6 +17,7 @@
  */
 package org.evosuite.symbolic;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -102,6 +103,7 @@ public class ConcolicExecution {
 		listeners.add(new OtherVM(env));
 		listeners.add(new FunctionVM(env));
 		VM.vm.setListeners(listeners);
+		VM.vm.startupMethodExploration((Method) null);
 
 		defaultTestCase.changeClassLoader(classLoader);
 		SymbolicObserver symbolicExecObserver = new SymbolicObserver(env);

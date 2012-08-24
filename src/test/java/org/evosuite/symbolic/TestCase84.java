@@ -3,7 +3,6 @@ package org.evosuite.symbolic;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase84 {
@@ -11,10 +10,10 @@ public class TestCase84 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	// String string0 = ConcolicMarker.mark("aaaaaaaaaaab", "string0");
+	public static void test(String string0) {
 
 		String regex = "a*b";
-		String string0 = ConcolicMarker.mark("aaaaaaaaaaab", "string0");
 
 		Pattern pattern0 = Pattern.compile(regex);
 		Matcher matcher0 = pattern0.matcher(string0);

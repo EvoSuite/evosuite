@@ -2,14 +2,12 @@ package org.evosuite.symbolic;
 
 import java.util.regex.PatternSyntaxException;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase66 {
 
-	public static void main(String[] args) {
+	public static void test(String string1) {
 		String string0 = "Togliere sta roba";
-		String string1 = ConcolicMarker.mark(string0, "string0");
 
 		int catchCount = 0;
 

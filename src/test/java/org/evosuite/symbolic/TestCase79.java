@@ -1,6 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase79 {
@@ -8,8 +7,7 @@ public class TestCase79 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		long long0 = ConcolicMarker.mark(10L, "long0");
+	public static void test(long long0) {
 		// box integer
 		Long long_instance0 = box(long0);
 		// unbox integer
@@ -25,5 +23,5 @@ public class TestCase79 {
 	public static long unbox(long i) {
 		return i;
 	}
-	
+
 }

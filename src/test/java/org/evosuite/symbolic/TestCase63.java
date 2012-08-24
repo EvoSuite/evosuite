@@ -1,13 +1,12 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase63 {
 
-	public static void main(String[] args) {
+//	String string0 = ConcolicMarker.mark(string1, "string0");
+	public static void test(String string0) {
 		String string1 = "Togliere sta roba";
-		String string0 = ConcolicMarker.mark(string1, "string0");
 
 		int catchCount = 0;
 

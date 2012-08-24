@@ -1,6 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 
 public class TestCase72 {
 	public static class Pat {
@@ -90,8 +89,9 @@ public class TestCase72 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		String string0 = ConcolicMarker.mark("enci", "string0");
+//	String string0 = ConcolicMarker.mark("enci", "string0");
+//	String string9 = ConcolicMarker.mark("nov", "string9");
+	public static void test(String string0, String string9) {
 		String string1 = Pat.Reverse(string0);
 		Pat pat0 = new Pat();
 		int int0 = pat0.Subject(string0, string0);
@@ -112,7 +112,6 @@ public class TestCase72 {
 		int int4 = pat1.Subject(string3, string1);
 		int int5 = pat0.Subject(string3, string4);
 		Pat pat5 = new Pat();
-		String string9 = ConcolicMarker.mark("nov", "string9");
 		int int6 = pat2.Subject(string4, string6);
 		int int7 = pat1.Subject(string9, string1);
 		int int8 = pat2.Subject(string7, string9);

@@ -1,6 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
 import static org.evosuite.symbolic.Assertions.checkEquals;
 
 public class TestCase80 {
@@ -8,8 +7,8 @@ public class TestCase80 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
-		float float0 = ConcolicMarker.mark(1.5f, "float0");
+	// float float0 = ConcolicMarker.mark(1.5f, "float0");
+	public static void test(float float0) {
 		// box integer
 		Float float_instance0 = box(float0);
 		// unbox integer
@@ -25,5 +24,5 @@ public class TestCase80 {
 	public static float unbox(float i) {
 		return i;
 	}
-	
+
 }
