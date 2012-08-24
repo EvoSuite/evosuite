@@ -8,6 +8,7 @@ import static org.objectweb.asm.Type.SHORT_TYPE;
 import static org.objectweb.asm.Type.BYTE_TYPE;
 import static org.objectweb.asm.Type.CHAR_TYPE;
 import static org.objectweb.asm.Type.BOOLEAN_TYPE;
+import static org.objectweb.asm.Type.VOID_TYPE;
 
 import org.objectweb.asm.Type;
 
@@ -74,4 +75,23 @@ public interface Types {
 
 	public static String TO_BOOLEAN = Type.getMethodDescriptor(BOOLEAN_TYPE);
 
+	public static String I_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			INT_TYPE);
+
+	public static String INIT = "<init>";
+
+	public static String B_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			BYTE_TYPE);
+	public static String C_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			CHAR_TYPE);
+	public static String S_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			SHORT_TYPE);
+	public static String Z_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			BOOLEAN_TYPE);
+	public static String J_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			LONG_TYPE);
+	public static String F_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			FLOAT_TYPE);
+	public static String D_TO_VOID = Type.getMethodDescriptor(VOID_TYPE,
+			DOUBLE_TYPE);
 }

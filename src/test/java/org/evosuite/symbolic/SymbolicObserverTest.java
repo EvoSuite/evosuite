@@ -708,4 +708,114 @@ public class SymbolicObserverTest {
 		assertEquals(1, branch_conditions.size());
 	}
 
+	private static DefaultTestCase build_test_input_11()
+			throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+
+		Constructor<?> newBoolean = Boolean.class.getConstructor(boolean.class);
+		Constructor<?> newInteger = Integer.class.getConstructor(int.class);
+		Constructor<?> newByte = Byte.class.getConstructor(byte.class);
+		Constructor<?> newShort = Short.class.getConstructor(short.class);
+		Constructor<?> newChar = Character.class.getConstructor(char.class);
+		Constructor<?> newLong = Long.class.getConstructor(long.class);
+		Constructor<?> newFloat = Float.class.getConstructor(float.class);
+		Constructor<?> newDouble = Double.class.getConstructor(double.class);
+
+		Method booleanValue = Boolean.class.getMethod("booleanValue");
+		Method intValue = Integer.class.getMethod("intValue");
+		Method byteValue = Byte.class.getMethod("byteValue");
+		Method shortValue = Short.class.getMethod("shortValue");
+		Method charValue = Character.class.getMethod("charValue");
+		Method longValue = Long.class.getMethod("longValue");
+		Method floatValue = Float.class.getMethod("floatValue");
+		Method doubleValue = Double.class.getMethod("doubleValue");
+
+		Method checkBooleanEquals = Assertions.class.getMethod("checkEquals",
+				boolean.class, boolean.class);
+		Method checkIntEquals = Assertions.class.getMethod("checkEquals",
+				int.class, int.class);
+		Method checkByteEquals = Assertions.class.getMethod("checkEquals",
+				byte.class, byte.class);
+		Method checkShortEquals = Assertions.class.getMethod("checkEquals",
+				short.class, short.class);
+		Method checkCharEquals = Assertions.class.getMethod("checkEquals",
+				char.class, char.class);
+		Method checkLongEquals = Assertions.class.getMethod("checkEquals",
+				long.class, long.class);
+		Method checkFloatEquals = Assertions.class.getMethod("checkEquals",
+				float.class, float.class);
+		Method checkDoubleEquals = Assertions.class.getMethod("checkEquals",
+				double.class, double.class);
+
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference int0 = tc.appendIntPrimitive(Integer.MAX_VALUE);
+		VariableReference integer0 = tc.appendConstructor(newInteger, int0);
+		VariableReference int1 = tc.appendMethod(integer0, intValue);
+
+		VariableReference byte0 = tc.appendBytePrimitive(Byte.MAX_VALUE);
+		VariableReference byte_instance0 = tc.appendConstructor(newByte, byte0);
+		VariableReference byte1 = tc.appendMethod(byte_instance0, byteValue);
+
+		VariableReference short0 = tc.appendShortPrimitive(Short.MAX_VALUE);
+		VariableReference short_instance0 = tc.appendConstructor(newShort,
+				short0);
+		VariableReference short1 = tc.appendMethod(short_instance0, shortValue);
+
+		VariableReference char0 = tc.appendCharPrimitive(Character.MAX_VALUE);
+		VariableReference character0 = tc.appendConstructor(newChar, char0);
+		VariableReference char1 = tc.appendMethod(character0, charValue);
+
+		VariableReference long0 = tc.appendLongPrimitive(Long.MAX_VALUE);
+		VariableReference long_instance0 = tc.appendConstructor(newLong, long0);
+		VariableReference long1 = tc.appendMethod(long_instance0, longValue);
+
+		VariableReference float1 = tc.appendFloatPrimitive(Float.MAX_VALUE);
+		VariableReference float_instance1 = tc.appendConstructor(newFloat,
+				float1);
+		VariableReference float2 = tc.appendMethod(float_instance1, floatValue);
+
+		VariableReference double0 = tc.appendDoublePrimitive(Double.MAX_VALUE);
+		VariableReference double_instance1 = tc.appendConstructor(newDouble,
+				double0);
+		VariableReference double1 = tc.appendMethod(double_instance1,
+				doubleValue);
+
+		VariableReference boolean0 = tc.appendBooleanPrimitive(Boolean.TRUE);
+		VariableReference boolean_instance0 = tc.appendConstructor(newBoolean,
+				boolean0);
+		VariableReference boolean1 = tc.appendMethod(boolean_instance0,
+				booleanValue);
+
+		tc.appendMethod(null, checkIntEquals, int0, int1);
+		tc.appendMethod(null, checkByteEquals, byte0, byte1);
+		tc.appendMethod(null, checkShortEquals, short0, short1);
+		tc.appendMethod(null, checkCharEquals, char0, char1);
+		tc.appendMethod(null, checkFloatEquals, float1, float2);
+		tc.appendMethod(null, checkLongEquals, long0, long1);
+		tc.appendMethod(null, checkDoubleEquals, double0, double1);
+		tc.appendMethod(null, checkBooleanEquals, boolean0, boolean1);
+
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void test11() throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000000;
+
+		DefaultTestCase tc = build_test_input_11();
+
+		System.out.println("TestCase=");
+		System.out.println(tc.toCode());
+
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic(tc);
+
+		printConstraints(branch_conditions);
+		assertEquals(1, branch_conditions.size());
+	}
 }

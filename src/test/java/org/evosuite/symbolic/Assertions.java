@@ -20,6 +20,12 @@ public class Assertions {
 		}
 	}
 
+	public static void checkEquals(byte l, byte r) {
+		if (l != r) {
+			throw new RuntimeException("check failed!");
+		}
+	}
+	
 	public static void checkEquals(double l, double r) {
 		if (l != r) {
 			throw new RuntimeException("check failed!");
@@ -50,4 +56,9 @@ public class Assertions {
 		}
 	}
 
+	public static void checkEquals(short l, short r) {
+		if (l != r) {
+			throw new RuntimeException("check failed!");
+		}
+	}
 }
