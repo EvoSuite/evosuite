@@ -74,12 +74,6 @@ public class ConcolicExecution {
 		 * Prepare DSC configuration
 		 */
 		MainConfig.setInstance();
-		MainConfig.get().LOG_AST_COUNTS = false;
-		MainConfig.get().LOG_MODEL_COUNTS = false;
-		MainConfig.get().LOG_PATH_COND_DSC_NOT_NULL = false;
-		MainConfig.get().LOG_SUMMARY = false;
-		MainConfig.get().USE_MAX = true;
-
 		/**
 		 * Instrumenting class loader
 		 */
