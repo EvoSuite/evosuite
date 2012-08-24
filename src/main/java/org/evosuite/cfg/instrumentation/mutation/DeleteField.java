@@ -180,9 +180,9 @@ public class DeleteField implements MutationOperator {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
-		return instruction.isFieldUse()
-		        && (instruction.getASMNode() instanceof FieldInsnNode);
-		// TODO: isFieldUse() may also be a method call using the field
+		return instruction.getASMNode().getOpcode() == Opcodes.GETFIELD
+		        || instruction.getASMNode().getOpcode() == Opcodes.GETSTATIC;
+
 	}
 
 }

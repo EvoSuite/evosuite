@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,6 +20,7 @@
  */
 package org.evosuite.cfg.instrumentation.mutation;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -38,14 +39,19 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
 import org.objectweb.asm.tree.analysis.Frame;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * <p>InsertUnaryOperator class.</p>
- *
+ * <p>
+ * InsertUnaryOperator class.
+ * </p>
+ * 
  * @author fraser
  */
 public class InsertUnaryOperator implements MutationOperator {
+
+	private static final Logger logger = LoggerFactory.getLogger(InsertUnaryOperator.class);
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
@@ -62,39 +68,44 @@ public class InsertUnaryOperator implements MutationOperator {
 		List<String> descriptions = new LinkedList<String>();
 
 		if (instruction.getASMNode() instanceof VarInsnNode) {
-			InsnList mutation = new InsnList();
-			VarInsnNode node = (VarInsnNode) instruction.getASMNode();
+			try {
+				InsnList mutation = new InsnList();
+				VarInsnNode node = (VarInsnNode) instruction.getASMNode();
 
-			// insert mutation into bytecode with conditional
-			mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-			mutation.add(new InsnNode(getNegation(node.getOpcode())));
-			mutationCode.add(mutation);
+				// insert mutation into bytecode with conditional
+				mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+				mutation.add(new InsnNode(getNegation(node.getOpcode())));
+				mutationCode.add(mutation);
 
-			if (!mn.localVariables.isEmpty())
-				descriptions.add("Negation of " + getName(mn, node));
-			else
-				descriptions.add("Negation");
+				if (!mn.localVariables.isEmpty())
+					descriptions.add("Negation of " + getName(mn, node));
+				else
+					descriptions.add("Negation");
 
-			if (node.getOpcode() == Opcodes.ILOAD) {
-				if (frame.getStack(frame.getStackSize() - 1) != BooleanValueInterpreter.BOOLEAN_VALUE) {
-					mutation = new InsnList();
-					mutation.add(new IincInsnNode(node.var, 1));
-					mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-					if (!mn.localVariables.isEmpty())
-						descriptions.add("IINC 1 " + getName(mn, node));
-					else
-						descriptions.add("IINC 1");
-					mutationCode.add(mutation);
+				if (node.getOpcode() == Opcodes.ILOAD) {
+					if (frame.getStack(frame.getStackSize() - 1) != BooleanValueInterpreter.BOOLEAN_VALUE) {
+						mutation = new InsnList();
+						mutation.add(new IincInsnNode(node.var, 1));
+						mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+						if (!mn.localVariables.isEmpty())
+							descriptions.add("IINC 1 " + getName(mn, node));
+						else
+							descriptions.add("IINC 1");
+						mutationCode.add(mutation);
 
-					mutation = new InsnList();
-					mutation.add(new IincInsnNode(node.var, -1));
-					mutation.add(new VarInsnNode(node.getOpcode(), node.var));
-					if (!mn.localVariables.isEmpty())
-						descriptions.add("IINC -1 " + getName(mn, node));
-					else
-						descriptions.add("IINC -1");
-					mutationCode.add(mutation);
+						mutation = new InsnList();
+						mutation.add(new IincInsnNode(node.var, -1));
+						mutation.add(new VarInsnNode(node.getOpcode(), node.var));
+						if (!mn.localVariables.isEmpty())
+							descriptions.add("IINC -1 " + getName(mn, node));
+						else
+							descriptions.add("IINC -1");
+						mutationCode.add(mutation);
+					}
 				}
+			} catch (VariableNotFoundException e) {
+				logger.info("Could not find variable: " + e);
+				return new ArrayList<Mutation>();
 			}
 		} else {
 			InsnList mutation = new InsnList();
@@ -204,7 +215,8 @@ public class InsertUnaryOperator implements MutationOperator {
 		}
 	}
 
-	private String getName(MethodNode mn, AbstractInsnNode node) {
+	private String getName(MethodNode mn, AbstractInsnNode node)
+	        throws VariableNotFoundException {
 		if (node instanceof VarInsnNode) {
 			LocalVariableNode var = getLocal(mn, node, ((VarInsnNode) node).var);
 			return var.name;
@@ -220,7 +232,8 @@ public class InsertUnaryOperator implements MutationOperator {
 		}
 	}
 
-	private LocalVariableNode getLocal(MethodNode mn, AbstractInsnNode node, int index) {
+	private LocalVariableNode getLocal(MethodNode mn, AbstractInsnNode node, int index)
+	        throws VariableNotFoundException {
 		int currentId = mn.instructions.indexOf(node);
 		for (Object v : mn.localVariables) {
 			LocalVariableNode localVar = (LocalVariableNode) v;
@@ -230,7 +243,7 @@ public class InsertUnaryOperator implements MutationOperator {
 				return localVar;
 		}
 
-		throw new RuntimeException("Could not find local variable " + index
+		throw new VariableNotFoundException("Could not find local variable " + index
 		        + " at position " + currentId + ", have variables: "
 		        + mn.localVariables.size());
 	}

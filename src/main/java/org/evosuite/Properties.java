@@ -1592,10 +1592,24 @@ public class Properties {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
-			                                         + (e.getMessage() != null ? e.getMessage()
-
-			                                                 : e));
+			LoggingUtils.getEvoLogger().info("* Could not find class under test: " + e);
+			for (StackTraceElement s : e.getStackTrace()) {
+				LoggingUtils.getEvoLogger().info("   " + s.toString());
+			}
+			Throwable cause = e.getCause();
+			while (cause != null) {
+				LoggingUtils.getEvoLogger().info("Caused by: " + cause);
+				for (StackTraceElement s : cause.getStackTrace()) {
+					LoggingUtils.getEvoLogger().info("   " + s.toString());
+				}
+				cause = cause.getCause();
+			}
+			try {
+				Thread.currentThread().sleep(100);
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
 		}
 		return null;
 	}

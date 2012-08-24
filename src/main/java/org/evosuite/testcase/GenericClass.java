@@ -287,6 +287,11 @@ public class GenericClass implements Serializable {
 			if (((Class<?>) rhsType).equals(void.class)
 			        || ((Class<?>) lhsType).equals(void.class))
 				return false;
+
+			// Workaround for bug in org.apache.commons.lang3.ClassUtils
+			if (((Class<?>) rhsType).equals(char.class)
+			        && ((Class<?>) lhsType).equals(int.class))
+				return false;
 			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
 		}
 
