@@ -1791,4 +1791,55 @@ public class ConcolicExecutionTest {
 		assertEquals(105, branch_conditions.size());
 	}
 
+	// int int0 = ConcolicMarker.mark(-950,"int0");
+	// int int1 = ConcolicMarker.mark(-950,"int1");
+	// int int2 = ConcolicMarker.mark(-950,"int2");
+	// char char0 = ConcolicMarker.mark('(',"char0");
+	// char char1 = ConcolicMarker.mark('(',"char1");
+	// char char2 = ConcolicMarker.mark('l',"char2");
+	// char char3 = ConcolicMarker.mark('Q',"char3");
+	// char char4 = ConcolicMarker.mark('\u001F',"char4");
+	// char char5 = ConcolicMarker.mark('\u001D',"char5");
+	// char char6 = ConcolicMarker.mark('X',"char6");
+	// char char7 = ConcolicMarker.mark('r',"char7");
+	// char char8 = ConcolicMarker.mark('\u0016',"char8");
+	// char char9 = ConcolicMarker.mark('g',"char9");
+	// char char10 = ConcolicMarker.mark('M',"char10");
+	// char char11 = ConcolicMarker.mark('\b',"char11");
+	private DefaultTestCase buildTestCase54() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(-950);
+		VariableReference int1 = tc.appendIntPrimitive(-950);
+		VariableReference int2 = tc.appendIntPrimitive(-950);
+
+		VariableReference char0 = tc.appendCharPrimitive('(');
+		VariableReference char1 = tc.appendCharPrimitive('(');
+		VariableReference char2 = tc.appendCharPrimitive('l');
+		VariableReference char3 = tc.appendCharPrimitive('Q');
+		VariableReference char4 = tc.appendCharPrimitive('\u001F');
+		VariableReference char5 = tc.appendCharPrimitive('\u001D');
+		VariableReference char6 = tc.appendCharPrimitive('X');
+		VariableReference char7 = tc.appendCharPrimitive('r');
+		VariableReference char8 = tc.appendCharPrimitive('\u0016');
+		VariableReference char9 = tc.appendCharPrimitive('g');
+		VariableReference char10 = tc.appendCharPrimitive('M');
+		VariableReference char11 = tc.appendCharPrimitive('\b');
+
+		Method method = TestCase54.class.getMethod("test", int.class,
+				int.class, int.class, char.class, char.class, char.class,
+				char.class, char.class, char.class, char.class, char.class,
+				char.class, char.class, char.class, char.class);
+		tc.appendMethod(null, method, int0, int1, int2, char0, char1, char2,
+				char3, char4, char5, char6, char7, char8, char9, char10, char11);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase54() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase54();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(61, branch_conditions.size());
+	}
+
 }

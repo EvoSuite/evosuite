@@ -1,7 +1,5 @@
 package org.evosuite.symbolic;
 
-import org.evosuite.symbolic.dsc.ConcolicMarker;
-
 public class TestCase54 {
 
 	/**
@@ -11,26 +9,26 @@ public class TestCase54 {
 	 * can be provided a character at time (by calling add()), or at once by
 	 * calling one of the various stem(something) methods.
 	 */
-	
+
 	public static class Stemmer {
 		private char[] b;
 		private int i, /* offset into b */
 		i_end, /* offset to end of stemmed word */
 		j, k;
 		private static final int INC = 50;
-	
+
 		/* unit of size whereby b is increased */
 		public Stemmer() {
 			b = new char[INC];
 			i = 0;
 			i_end = 0;
 		}
-	
+
 		/**
 		 * Add a character to the word being stemmed. When you are finished
 		 * adding characters, you can call stem(void) to stem the word.
 		 */
-	
+
 		public void add(char ch) {
 			if (i == b.length) {
 				char[] new_b = new char[i + INC];
@@ -40,13 +38,13 @@ public class TestCase54 {
 			}
 			b[i++] = ch;
 		}
-	
+
 		/**
 		 * Adds wLen characters to the word being stemmed contained in a portion
 		 * of a char[] array. This is like repeated calls of add(char ch), but
 		 * faster.
 		 */
-	
+
 		public void add(char[] w, int wLen) {
 			if (i + wLen >= b.length) {
 				char[] new_b = new char[i + wLen + INC];
@@ -57,7 +55,7 @@ public class TestCase54 {
 			for (int c = 0; c < wLen; c++)
 				b[i++] = w[c];
 		}
-	
+
 		/**
 		 * After a word has been stemmed, it can be retrieved by toString(), or
 		 * a reference to the internal buffer can be retrieved by
@@ -67,14 +65,14 @@ public class TestCase54 {
 		public String toString() {
 			return new String(b, 0, i_end);
 		}
-	
+
 		/**
 		 * Returns the length of the word resulting from the stemming process.
 		 */
 		public int getResultLength() {
 			return i_end;
 		}
-	
+
 		/**
 		 * Returns a reference to a character buffer containing the results of
 		 * the stemming process. You also need to consult getResultLength() to
@@ -83,9 +81,9 @@ public class TestCase54 {
 		public char[] getResultBuffer() {
 			return b;
 		}
-	
+
 		/* cons(i) is true <=> b[i] is a consonant. */
-	
+
 		private final boolean cons(int i) {
 			switch (b[i]) {
 			case 'a':
@@ -100,7 +98,7 @@ public class TestCase54 {
 				return true;
 			}
 		}
-	
+
 		/*
 		 * m() measures the number of consonant sequences between 0 and j. if c
 		 * is a consonant sequence and v a vowel sequence, and <..> indicates
@@ -109,7 +107,7 @@ public class TestCase54 {
 		 * <c><v> gives 0 <c>vc<v> gives 1 <c>vcvc<v> gives 2 <c>vcvcvc<v> gives
 		 * 3 ....
 		 */
-	
+
 		private final int m() {
 			int n = 0;
 			int i = 0;
@@ -141,9 +139,9 @@ public class TestCase54 {
 				i++;
 			}
 		}
-	
+
 		/* vowelinstem() is true <=> 0,...j contains a vowel */
-	
+
 		private final boolean vowelinstem() {
 			int i;
 			for (i = 0; i <= j; i++)
@@ -151,9 +149,9 @@ public class TestCase54 {
 					return true;
 			return false;
 		}
-	
+
 		/* doublec(j) is true <=> j,(j-1) contain a double consonant. */
-	
+
 		private final boolean doublec(int j) {
 			if (j < 1)
 				return false;
@@ -161,7 +159,7 @@ public class TestCase54 {
 				return false;
 			return cons(j);
 		}
-	
+
 		/*
 		 * cvc(i) is true <=> i-2,i-1,i has the form consonant - vowel -
 		 * consonant and also if the second c is not w,x or y. this is used when
@@ -169,7 +167,7 @@ public class TestCase54 {
 		 * 
 		 * cav(e), lov(e), hop(e), crim(e), but snow, box, tray.
 		 */
-	
+
 		private final boolean cvc(int i) {
 			if (i < 2 || !cons(i) || cons(i - 1) || !cons(i - 2))
 				return false;
@@ -180,7 +178,7 @@ public class TestCase54 {
 			}
 			return true;
 		}
-	
+
 		private final boolean ends(String s) {
 			int l = s.length();
 			int o = k - l + 1;
@@ -192,12 +190,12 @@ public class TestCase54 {
 			j = k - l;
 			return true;
 		}
-	
+
 		/*
 		 * setto(s) sets (j+1),...k to the characters in the string s,
 		 * readjusting k.
 		 */
-	
+
 		private final void setto(String s) {
 			int l = s.length();
 			int o = j + 1;
@@ -205,14 +203,14 @@ public class TestCase54 {
 				b[o + i] = s.charAt(i);
 			k = j + l;
 		}
-	
+
 		/* r(s) is used further down. */
-	
+
 		private final void r(String s) {
 			if (m() > 0)
 				setto(s);
 		}
-	
+
 		/*
 		 * step1() gets rid of plurals and -ed or -ing. e.g.
 		 * 
@@ -226,7 +224,7 @@ public class TestCase54 {
 		 * 
 		 * meetings -> meet
 		 */
-	
+
 		private final void step1() {
 			if (b[k] == 's') {
 				if (ends("sses"))
@@ -258,23 +256,23 @@ public class TestCase54 {
 					setto("e");
 			}
 		}
-	
+
 		/*
 		 * step2() turns terminal y to i when there is another vowel in the
 		 * stem.
 		 */
-	
+
 		private final void step2() {
 			if (ends("y") && vowelinstem())
 				b[k] = 'i';
 		}
-	
+
 		/*
 		 * step3() maps double suffices to single ones. so -ization ( = -ize
 		 * plus -ation) maps to -ize etc. note that the string before the suffix
 		 * must give m() > 0.
 		 */
-	
+
 		private final void step3() {
 			if (k == 0)
 				return; /* For Bug 1 */
@@ -380,11 +378,11 @@ public class TestCase54 {
 				}
 			}
 		}
-	
+
 		/* step4() deals with -ic-, -full, -ness etc. similar strategy to step3. */
-	
+
 		private final void step4() {
-	
+
 			switch (b[k]) {
 			case 'e':
 				if (ends("icate")) {
@@ -423,11 +421,11 @@ public class TestCase54 {
 				}
 				break;
 			}
-	
+
 		}
-	
+
 		/* step5() takes off -ant, -ence etc., in context <c>vcvc<v>. */
-	
+
 		private final void step5() {
 			if (k == 0)
 				return; /* for Bug 1 */
@@ -503,9 +501,9 @@ public class TestCase54 {
 			if (m() > 1)
 				k = j;
 		}
-	
+
 		/* step6() removes a final -e if m() > 1. */
-	
+
 		private final void step6() {
 			j = k;
 			if (b[k] == 'e') {
@@ -516,7 +514,7 @@ public class TestCase54 {
 			if (b[k] == 'l' && doublec(k) && m() > 1)
 				k--;
 		}
-	
+
 		/**
 		 * Stem the word placed into the Stemmer buffer through calls to add().
 		 * Returns true if the stemming process resulted in a word different
@@ -536,7 +534,7 @@ public class TestCase54 {
 			i_end = k + 1;
 			i = 0;
 		}
-	
+
 		/**
 		 * Test program for demonstrating the Stemmer. It reads text from a a
 		 * list of files, stems each word, and writes the result to standard
@@ -549,38 +547,41 @@ public class TestCase54 {
 	/**
 	 * @param args
 	 */
-	public static void main(String[] args) {
+	// int int0 = ConcolicMarker.mark(-950,"int0");
+	// int int1 = ConcolicMarker.mark(-950,"int1");
+	// int int2 = ConcolicMarker.mark(-950,"int2");
+	// char char0 = ConcolicMarker.mark('(',"char0");
+	// char char1 = ConcolicMarker.mark('(',"char1");
+	// char char2 = ConcolicMarker.mark('l',"char2");
+	// char char3 = ConcolicMarker.mark('Q',"char3");
+	// char char4 = ConcolicMarker.mark('\u001F',"char4");
+	// char char5 = ConcolicMarker.mark('\u001D',"char5");
+	// char char6 = ConcolicMarker.mark('X',"char6");
+	// char char7 = ConcolicMarker.mark('r',"char7");
+	// char char8 = ConcolicMarker.mark('\u0016',"char8");
+	// char char9 = ConcolicMarker.mark('g',"char9");
+	// char char10 = ConcolicMarker.mark('M',"char10");
+	// char char11 = ConcolicMarker.mark('\b',"char11");
+	public static void test(int int0, int int1, int int2, char char0,
+			char char1, char char2, char char3, char char4, char char5,
+			char char6, char char7, char char8, char char9, char char10,
+			char char11) {
 		Stemmer stemmer0 = new Stemmer();
 		char[] charArray0 = new char[7];
-		char char0 = ConcolicMarker.mark('(',"char0");
-		char char1 = ConcolicMarker.mark('(',"char1");
 		charArray0[0] = char0;
-		char char2 = ConcolicMarker.mark('l',"char2");
-		char char3 = ConcolicMarker.mark('Q',"char3");
 		stemmer0.add(char0);
 		charArray0[1] = char2;
 		char[] charArray1 = stemmer0.getResultBuffer();
-		char char4 = ConcolicMarker.mark('\u001F',"char4");
 		stemmer0.add(char1);
 		charArray0[2] = char4;
 		Stemmer stemmer1 = new Stemmer();
-		char char5 = ConcolicMarker.mark('\u001D',"char5");
 		charArray0[3] = char5;
-		char char6 = ConcolicMarker.mark('X',"char6");
 		charArray0[4] = char6;
-		char char7 = ConcolicMarker.mark('r',"char7");
 		charArray0[5] = char7;
-		char char8 = ConcolicMarker.mark('\u0016',"char8");
-		char char9 = ConcolicMarker.mark('g',"char9");
 		stemmer0.add(char2);
-		char char10 = ConcolicMarker.mark('M',"char10");
 		stemmer1.add(char8);
 		charArray0[6] = char8;
-		int int0 = ConcolicMarker.mark(-950,"int0");
-		int int1 = ConcolicMarker.mark(-950,"int1");
-		int int2 = ConcolicMarker.mark(-950,"int2");
 		stemmer0.add(charArray0, int0);
-		char char11 = ConcolicMarker.mark('\b',"char11");
 		int int3 = stemmer0.getResultLength();
 		stemmer0.add(charArray0, int2);
 		stemmer0.add(charArray1, int1);
