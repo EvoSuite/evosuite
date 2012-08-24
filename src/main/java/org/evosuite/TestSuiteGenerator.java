@@ -194,11 +194,11 @@ public class TestSuiteGenerator {
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(Properties.CP.split(":")));
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().info("* Error while initializing target class: "
-			                                         + e.getMessage() != null ? e.getMessage()
-			                                         : e.toString());
-			e.printStackTrace();
+			                                         + (e.getMessage() != null ? e.getMessage()
+			                                                 : e.toString()));
+			// e.printStackTrace();
 			return "";
 		}
 		TestCaseExecutor.initExecutor();
