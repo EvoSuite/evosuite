@@ -61,12 +61,6 @@ public class ReplaceVariable implements MutationOperator {
 
 	private static Logger logger = LoggerFactory.getLogger(ReplaceVariable.class);
 
-	private class VariableNotFoundException extends Exception {
-		public VariableNotFoundException(String msg) {
-			super(msg);
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see org.evosuite.cfg.instrumentation.mutation.MutationOperator#apply(org.objectweb.asm.tree.MethodNode, java.lang.String, java.lang.String, org.evosuite.cfg.BytecodeInstruction)
 	 */
