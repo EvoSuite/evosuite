@@ -30,12 +30,14 @@ public class System {
 	private static boolean wasAccessed = false;
 
 	/**
-	 * This exception tells the test execution that it should stop at this point
+	 * <p >This exception tells the test execution that it should stop at this point </p>
+	 * 
+	 * <p>Note that it extends {@code Error}, as we need something that is unchecked </p>
 	 */
-	public static class SystemExitException extends RuntimeException {
+	public static class SystemExitException extends Error {
 
 		private static final long serialVersionUID = 1L;
-
+	
 	}
 
 	/**
@@ -45,6 +47,11 @@ public class System {
 	 */
 	public static void exit(int status) {
 		wasAccessed = true;
+		
+		/*
+		 * TODO: Here we could handle the calls to the JVM shutdown hooks, if any is present
+		 */
+		
 		throw new SystemExitException();
 	}
 
