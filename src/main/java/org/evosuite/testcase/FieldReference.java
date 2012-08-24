@@ -182,6 +182,51 @@ public class FieldReference extends VariableReferenceImpl {
 		}
 	}
 
+	private int getIntValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).intValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0;
+	}
+
+	private long getLongValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).longValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0L;
+	}
+
+	private float getFloatValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).floatValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0F;
+	}
+
+	private double getDoubleValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).doubleValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0.0;
+	}
+
+	private char getCharValue(Object object) {
+		if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else if (object instanceof Number) {
+			return (char) ((Number) object).intValue();
+		} else
+			return '0';
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -206,32 +251,21 @@ public class FieldReference extends VariableReferenceImpl {
 				}
 			}
 			if (field.getType().equals(int.class))
-				field.setInt(sourceObject, ((Number) value).intValue());
+				field.setInt(sourceObject, getIntValue(value));
 			else if (field.getType().equals(boolean.class))
 				field.setBoolean(sourceObject, (Boolean) value);
 			else if (field.getType().equals(byte.class))
-				field.setByte(sourceObject, ((Number) value).byteValue());
+				field.setByte(sourceObject, (byte) getIntValue(value));
 			else if (field.getType().equals(char.class)) {
-				if (value instanceof Character)
-					field.setChar(sourceObject, (Character) value);
-				else if (value instanceof Number) {
-					Number num = (Number) value;
-					char c = (char) num.intValue();
-					field.setChar(sourceObject, c);
-				} else {
-					throw new RuntimeException(
-					        "Assigning incompatible class to char field: " + value
-					                + " of class "
-					                + (value != null ? value.getClass() : "null"));
-				}
+				field.setChar(sourceObject, getCharValue(value));
 			} else if (field.getType().equals(double.class))
-				field.setDouble(sourceObject, ((Number) value).doubleValue());
+				field.setDouble(sourceObject, getDoubleValue(value));
 			else if (field.getType().equals(float.class))
-				field.setFloat(sourceObject, ((Number) value).floatValue());
+				field.setFloat(sourceObject, getFloatValue(value));
 			else if (field.getType().equals(long.class))
-				field.setLong(sourceObject, ((Number) value).longValue());
+				field.setLong(sourceObject, getLongValue(value));
 			else if (field.getType().equals(short.class))
-				field.setShort(sourceObject, ((Number) value).shortValue());
+				field.setShort(sourceObject, (short) getIntValue(value));
 			else {
 				if (value != null && !field.getType().isAssignableFrom(value.getClass())) {
 					logger.error("Not assignable: " + value + " of class "
