@@ -196,7 +196,8 @@ public class TestSuiteGenerator {
 			                           Arrays.asList(Properties.CP.split(":")));
 		} catch (Exception e) {
 			LoggingUtils.getEvoLogger().info("* Error while initializing target class: "
-			                                         + e.getMessage());
+			                                         + e.getMessage() + ", " + e);
+			e.printStackTrace();
 			return "";
 		}
 		TestCaseExecutor.initExecutor();
