@@ -18,9 +18,11 @@
 package org.evosuite.symbolic;
 
 import java.lang.reflect.Method;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.FunctionVM;
@@ -70,6 +72,9 @@ public class ConcolicExecution {
 
 	protected List<BranchCondition> executeConcolic(
 			DefaultTestCase defaultTestCase) {
+
+		logger.debug("Preparing concolic execution");
+
 		/**
 		 * Prepare DSC configuration
 		 */
@@ -97,17 +102,45 @@ public class ConcolicExecution {
 		listeners.add(new OtherVM(env));
 		listeners.add(new FunctionVM(env));
 		VM.vm.setListeners(listeners);
-		VM.vm.startupMethodExploration((Method) null);
+		VM.vm.startupConcolicExecution();
 
 		defaultTestCase.changeClassLoader(classLoader);
 		SymbolicObserver symbolicExecObserver = new SymbolicObserver(env);
 
 		TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
+
+		logger.info("Starting concolic execution");
 		TestCaseExecutor.runTest(defaultTestCase);
-		TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
-
 		List<BranchCondition> branches = pc.getBranchConditions();
+		logger.info("Concolic execution ended with " + branches.size()
+				+ " branches collected");
+		logNrOfConstraints(branches);
 
+		logger.debug("Cleaning concolic execution");
+		TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
+		VM.vm.cleanupConcolicExecution();
 		return branches;
+	}
+
+	private void logNrOfConstraints(List<BranchCondition> branches) {
+		int nrOfConstantConstraints = 0;
+		int nrOfConstraints = 0;
+		for (BranchCondition branchCondition : branches) {
+			for (Constraint<?> constraint : branchCondition.localConstraints) {
+				if (!constraint.getLeftOperand().containsSymbolicVariable()
+						&& !constraint.getRightOperand()
+								.containsSymbolicVariable()) {
+					nrOfConstantConstraints++;
+				}
+				nrOfConstraints++;
+			}
+		}
+		double percentage = (double) nrOfConstantConstraints
+				/ (double) nrOfConstraints;
+
+		logger.debug("nrOfConstantConstraints=" + nrOfConstantConstraints);
+		logger.debug("nrOfConstraints=" + nrOfConstraints);
+		logger.debug("Percentage of constant constraints="
+				+ MessageFormat.format("{0,number,percent}", percentage));
 	}
 }

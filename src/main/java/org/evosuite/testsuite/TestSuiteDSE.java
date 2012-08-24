@@ -150,24 +150,7 @@ public class TestSuiteDSE {
 			List<BranchCondition> branches;
 			branches = concolicExecution.getSymbolicPath(expandedChromosome);
 
-			int nrOfConstantConstraints = 0;
-			int nrOfConstraints = 0;
-			for (BranchCondition branchCondition : branches) {
-				for (Constraint<?> constraint : branchCondition.localConstraints) {
-					if (!constraint.getLeftOperand().containsSymbolicVariable()
-					        && !constraint.getRightOperand().containsSymbolicVariable()) {
-						nrOfConstantConstraints++;
-					}
-					nrOfConstraints++;
-				}
-			}
-			double percentage = (double) nrOfConstantConstraints
-			        / (double) nrOfConstraints;
 
-			logger.debug("nrOfConstantConstraints=" + nrOfConstantConstraints);
-			logger.debug("nrOfConstraints=" + nrOfConstraints);
-			logger.debug("Percentage of constant constraints="
-			        + MessageFormat.format("{0,number,percent}", percentage));
 
 			for (BranchCondition branch : branches) {
 				String index = branch.getFullName() + branch.getInstructionIndex();
