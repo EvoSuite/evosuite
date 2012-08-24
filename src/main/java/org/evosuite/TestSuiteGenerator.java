@@ -105,6 +105,7 @@ import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
@@ -400,7 +401,13 @@ public class TestSuiteGenerator {
 			        && Properties.CRITERION != Criterion.STRONGMUTATION) {
 				Properties.CRITERION = Criterion.MUTATION;
 
-				TestCluster.getInstance().resetCluster();
+				try {
+					TestClusterGenerator.resetCluster();
+				} catch (Exception e) {
+					LoggingUtils.getEvoLogger().info("Error while instrumenting for assertion generation: "
+					                                         + e.getMessage());
+					return;
+				}
 
 				// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
 				for (TestCase test : tests) {
