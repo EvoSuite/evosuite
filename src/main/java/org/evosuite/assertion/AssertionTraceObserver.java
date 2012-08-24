@@ -20,6 +20,7 @@
  */
 package org.evosuite.assertion;
 
+import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
@@ -65,7 +66,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	protected void visitDependencies(StatementInterface statement, Scope scope) {
 		for (VariableReference var : currentTest.getDependencies(statement.getReturnValue())) {
 			if (!var.isVoid()) {
-				visit(statement, scope, var);
+				try {
+					visit(statement, scope, var);
+				} catch (CodeUnderTestException e) {
+					// ignore
+				}
 			}
 		}
 	}
@@ -81,8 +86,13 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 */
 	protected void visitReturnValue(StatementInterface statement, Scope scope) {
-		if (!statement.getReturnClass().equals(void.class))
-			visit(statement, scope, statement.getReturnValue());
+		if (!statement.getReturnClass().equals(void.class)) {
+			try {
+				visit(statement, scope, statement.getReturnValue());
+			} catch (CodeUnderTestException e) {
+				// ignore
+			}
+		}
 	}
 
 	/**
@@ -98,7 +108,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	protected abstract void visit(StatementInterface statement, Scope scope,
-	        VariableReference var);
+	        VariableReference var) throws CodeUnderTestException;
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#statement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope, java.lang.Throwable)
