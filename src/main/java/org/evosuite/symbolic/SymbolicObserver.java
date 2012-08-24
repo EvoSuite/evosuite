@@ -686,7 +686,15 @@ public class SymbolicObserver extends ExecutionObserver {
 		if (needThis) {
 			VariableReference callee = statement.getCallee();
 			String calleeVarName = callee.getName();
-			Reference ref = symb_references.get(calleeVarName);
+
+			Reference ref;
+			if (symb_references.containsKey(calleeVarName)) {
+				ref = symb_references.get(calleeVarName);
+			} else {
+				StringExpression strExpr = (StringExpression) symb_expressions
+						.get(calleeVarName);
+				ref = new StringReference(strExpr);
+			}
 			this.env.topFrame().operandStack.pushRef(ref);
 		}
 
