@@ -106,7 +106,7 @@ public class BranchInstrumentation implements MethodInstrumentation {
 				}
 			}
 		}
-		mn.maxStack += 3;
+		mn.maxStack += 4;
 	}
 
 	/**
