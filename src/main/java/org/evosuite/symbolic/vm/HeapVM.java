@@ -1,7 +1,6 @@
 package org.evosuite.symbolic.vm;
 
 import static edu.uta.cse.dsc.util.Assertions.notNull;
-import static edu.uta.cse.dsc.util.Log.logln;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -13,6 +12,8 @@ import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import edu.uta.cse.dsc.AbstractVM;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
@@ -25,6 +26,8 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  * @author csallner@uta.edu (Christoph Csallner)
  */
 public final class HeapVM extends AbstractVM {
+
+	private static Logger logger = LoggerFactory.getLogger(HeapVM.class);
 
 	private static final String ARRAY_LENGTH = "length";
 
@@ -113,7 +116,7 @@ public final class HeapVM extends AbstractVM {
 			 * field, as there has to be an explicit initialization, hence a
 			 * <clinit>().
 			 */
-			logln("Do we have to prepare the static fields of an interface?");
+			logger.debug("Do we have to prepare the static fields of an interface?");
 			env.ensurePrepared(declaringClass);
 		}
 
@@ -231,7 +234,7 @@ public final class HeapVM extends AbstractVM {
 		/* See GetStatic */
 		Class<?> declaringClass = field.getDeclaringClass();
 		if (declaringClass.isInterface()) {
-			logln("Do we have to prepare the static fields of an interface?");
+			logger.debug("Do we have to prepare the static fields of an interface?");
 			env.ensurePrepared(declaringClass);
 		}
 
@@ -581,8 +584,10 @@ public final class HeapVM extends AbstractVM {
 
 		// push negartive length constraints
 		for (int i = 0; i < nrDimensions; i++) {
-			IntegerExpression symb_length = env.topFrame().operandStack.popBv32();
-			int conc_length = ((Long)symb_length.getConcreteValue()).intValue();
+			IntegerExpression symb_length = env.topFrame().operandStack
+					.popBv32();
+			int conc_length = ((Long) symb_length.getConcreteValue())
+					.intValue();
 			if (negativeArrayLengthViolation(conc_length, symb_length)) {
 				return;
 			}
