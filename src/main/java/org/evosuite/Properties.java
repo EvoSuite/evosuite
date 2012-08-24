@@ -582,6 +582,12 @@ public class Properties {
 	@Parameter(key = "max_mutants_per_test", group = "Output", description = "How many mutants to use when trying to find assertions for a test")
 	public static int MAX_MUTANTS_PER_TEST = 100;
 
+	@Parameter(key = "max_mutants_per_method", group = "Output", description = "How many mutants can be inserted into a single method")
+	public static int MAX_MUTANTS_PER_METHOD = 1000;
+
+	@Parameter(key = "max_replace_mutants", group = "Output", description = "How many replacement mutants can be inserted for any one variable")
+	public static int MAX_REPLACE_MUTANTS = 100;
+
 	/** Constant <code>TEST_DIR="evosuite-tests"</code> */
 	@Parameter(key = "test_dir", group = "Output", description = "Directory in which to place JUnit tests")
 	public static String TEST_DIR = "evosuite-tests";
