@@ -1586,7 +1586,9 @@ public class Properties {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
-			System.err.println("* Could not find class under test: " + TARGET_CLASS);
+			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
+			                                         + (e.getMessage() != null ? e.getMessage()
+			                                                 : e));
 		}
 		return null;
 	}
@@ -1606,7 +1608,9 @@ public class Properties {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
-			System.err.println("* Could not find class under test: " + TARGET_CLASS);
+			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
+			                                         + (e.getMessage() != null ? e.getMessage()
+			                                                 : e));
 		}
 		return null;
 	}

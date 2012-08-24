@@ -102,7 +102,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 		        "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
 		        "testing.generation.evosuite", "com.yourkit",
 		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-		        "apple.", "com.apple.", "org.junit", "junit.framework", "org.apache.xerces.dom3" , "de.unisl.cs.st.bugex" };
+		        "apple.", "com.apple.", "org.junit", "junit.framework",
+		        "org.apache.xerces.dom3", "de.unisl.cs.st.bugex" };
 	}
 
 	/** {@inheritDoc} */
@@ -185,8 +186,8 @@ public class InstrumentingClassLoader extends ClassLoader {
 			classes.put(fullyQualifiedTargetClass, result);
 			logger.info("Keeping class: " + fullyQualifiedTargetClass);
 			return result;
-		} catch (Exception e) {
-			throw new ClassNotFoundException(e.getMessage(), e);
+		} catch (Throwable t) {
+			throw new ClassNotFoundException(t.getMessage(), t);
 		}
 	}
 
