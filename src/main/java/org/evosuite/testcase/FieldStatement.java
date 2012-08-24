@@ -196,6 +196,8 @@ public class FieldStatement extends AbstractStatement {
 						}
 						//} catch (CodeUnderTestException e) {
 						//	throw CodeUnderTestException.throwException(e.getCause());
+					} catch (CodeUnderTestException e) {
+						throw e;
 					} catch (Throwable e) {
 						throw new EvosuiteError(e);
 					}
