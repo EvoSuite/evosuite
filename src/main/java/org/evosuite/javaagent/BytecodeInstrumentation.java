@@ -123,7 +123,8 @@ public class BytecodeInstrumentation {
 		        || classNameWithDots.startsWith("daikon.") //
 		        || classNameWithDots.startsWith("org.aspectj.org.eclipse") //
 		        || classNameWithDots.startsWith("junit.framework") //
-		        || classNameWithDots.startsWith("org.junit");
+		        || classNameWithDots.startsWith("org.junit")
+		        || classNameWithDots.startsWith("edu.uta.cse.dsc");
 	}
 
 	/**
