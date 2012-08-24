@@ -297,7 +297,7 @@ public class TestClusterGenerator {
 
 		Set<Class<?>> targetClasses = new HashSet<Class<?>>();
 		if (targetClass == null) {
-			throw new RuntimeException("Could not load target class");
+			throw new RuntimeException("Failed to load " + Properties.TARGET_CLASS);
 		}
 		targetClasses.add(targetClass);
 		for (Class<?> c : targetClass.getDeclaredClasses()) {
