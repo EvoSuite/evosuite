@@ -287,11 +287,6 @@ public class GenericClass implements Serializable {
 			if (((Class<?>) rhsType).equals(void.class)
 			        || ((Class<?>) lhsType).equals(void.class))
 				return false;
-
-			// Workaround for bug in org.apache.commons.lang3.ClassUtils
-			if (((Class<?>) rhsType).equals(char.class)
-			        && ((Class<?>) lhsType).equals(int.class))
-				return false;
 			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
 		}
 
@@ -573,14 +568,10 @@ public class GenericClass implements Serializable {
 			return array.getClass();
 		} else if (name.startsWith("L")) {
 			return getClass(name.substring(1));
+		} else if (name.endsWith(";")) {
+			return getClass(name.substring(0, name.length() - 1));
 		} else if (name.endsWith(".class")) {
 			return getClass(name.replace(".class", ""));
-		} else if (name.equals("java.lang.String;")) {
-			// TODO: This is a workaround and the bug should be fixed
-			return getClass("java.lang.String");
-		} else if (name.equals("java.lang.Object;")) {
-			// TODO: This is a workaround and the bug should be fixed
-			return getClass("java.lang.Object");
 		} else
 			return TestCluster.classLoader.loadClass(name);
 	}
