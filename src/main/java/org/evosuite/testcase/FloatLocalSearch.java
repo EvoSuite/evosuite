@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class FloatLocalSearch<T extends Number> implements LocalSearch {
+public class FloatLocalSearch<T extends Number> extends LocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
 
@@ -46,20 +46,25 @@ public class FloatLocalSearch<T extends Number> implements LocalSearch {
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void doSearch(TestChromosome test, int statement,
+	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 
+		boolean improved = false;
+
 		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
-		doSearch(test, statement, objective, 1.0, 2, p);
+		if (doSearch(test, statement, objective, 1.0, 2, p))
+			improved = true;
 
 		int maxPrecision = p.getValue().getClass().equals(Float.class) ? 7 : 15;
 		for (int precision = 1; precision <= maxPrecision; precision++) {
 			roundPrecision(test, objective, precision, p);
 			logger.debug("Current precision: " + precision);
-			doSearch(test, statement, objective, Math.pow(10.0, -precision), 2, p);
+			if (doSearch(test, statement, objective, Math.pow(10.0, -precision), 2, p))
+				improved = true;
 		}
 
 		logger.debug("Finished local search with result " + p.getCode());
+		return improved;
 	}
 
 	@SuppressWarnings("unchecked")

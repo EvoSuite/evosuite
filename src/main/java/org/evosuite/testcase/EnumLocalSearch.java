@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class EnumLocalSearch implements LocalSearch {
+public class EnumLocalSearch extends LocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
 
@@ -42,7 +42,7 @@ public class EnumLocalSearch implements LocalSearch {
 	/** {@inheritDoc} */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
-	public void doSearch(TestChromosome test, int statement,
+	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 		EnumPrimitiveStatement p = (EnumPrimitiveStatement) test.test.getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
@@ -57,12 +57,13 @@ public class EnumLocalSearch implements LocalSearch {
 				test.setLastExecutionResult(oldResult);
 				test.setChanged(false);
 			} else {
-				break;
+				logger.debug("Finished local search with result " + p.getCode());
+				return true;
 			}
 
 		}
 
-		logger.debug("Finished local search with result " + p.getCode());
+		return false;
 
 	}
 

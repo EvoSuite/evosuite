@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class IntegerLocalSearch<T> implements LocalSearch {
+public class IntegerLocalSearch<T> extends LocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
 
@@ -43,8 +43,10 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void doSearch(TestChromosome test, int statement,
+	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
+
+		boolean improved = false;
 
 		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
@@ -58,6 +60,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 			p.increment(1);
 			if (objective.hasImproved(test)) {
 				done = false;
+				improved = true;
 
 				iterate(2, objective, test, p, statement);
 				oldValue = p.getValue();
@@ -86,6 +89,7 @@ public class IntegerLocalSearch<T> implements LocalSearch {
 		}
 
 		logger.debug("Finished local search with result " + p.getCode());
+		return improved;
 	}
 
 	private boolean iterate(long delta, LocalSearchObjective objective,

@@ -104,6 +104,21 @@ public class Scope {
 		}
 	}
 
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder();
+		for (Entry<VariableReference, Object> entry : pool.entrySet()) {
+			sb.append(entry.getKey().getName());
+			sb.append(", ");
+			sb.append(entry.getKey().getType());
+			sb.append(" : ");
+			sb.append(entry.getValue());
+			sb.append("\n");
+		}
+
+		return sb.toString();
+	}
+
 	/**
 	 * Get current value of variable
 	 * 

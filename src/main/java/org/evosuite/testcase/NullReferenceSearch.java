@@ -12,13 +12,13 @@ import org.evosuite.ga.LocalSearchObjective;
  * @author Gordon Fraser
  * 
  */
-public class NullReferenceSearch implements LocalSearch {
+public class NullReferenceSearch extends LocalSearch {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.LocalSearch#doSearch(org.evosuite.testcase.TestChromosome, int, org.evosuite.ga.LocalSearchObjective)
 	 */
 	@Override
-	public void doSearch(TestChromosome test, int statement,
+	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 		NullStatement nullStatement = (NullStatement) test.getTestCase().getStatement(statement);
 		TestCase newTest = test.getTestCase();
@@ -34,11 +34,14 @@ public class NullReferenceSearch implements LocalSearch {
 				test.setTestCase(oldTest);
 				test.setLastExecutionResult(oldResult);
 				test.setFitness(oldFitness);
+			} else {
+				return true;
 			}
 		} catch (ConstructionFailedException e) {
 			// If we can't construct it, then ignore
 		}
 
+		return false;
 	}
 
 }

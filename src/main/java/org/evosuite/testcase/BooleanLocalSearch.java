@@ -21,8 +21,6 @@
 package org.evosuite.testcase;
 
 import org.evosuite.ga.LocalSearchObjective;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -31,9 +29,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class BooleanLocalSearch implements LocalSearch {
-
-	private static final Logger logger = LoggerFactory.getLogger(LocalSearch.class);
+public class BooleanLocalSearch extends LocalSearch {
 
 	private boolean oldValue;
 
@@ -43,8 +39,9 @@ public class BooleanLocalSearch implements LocalSearch {
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void doSearch(TestChromosome test, int statement,
+	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
+
 		PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.test.getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();
@@ -56,9 +53,10 @@ public class BooleanLocalSearch implements LocalSearch {
 			p.setValue(oldValue);
 			test.setLastExecutionResult(oldResult);
 			test.setChanged(false);
+			return false;
+		} else {
+			return true;
 		}
-
-		logger.debug("Finished local search with result " + p.getCode());
 	}
 
 }

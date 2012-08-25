@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ParameterLocalSearch implements LocalSearch {
+public class ParameterLocalSearch extends LocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(ParameterLocalSearch.class);
 
@@ -56,16 +56,18 @@ public class ParameterLocalSearch implements LocalSearch {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void doSearch(TestChromosome test, int statement,
+	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 		StatementInterface stmt = test.getTestCase().getStatement(statement);
 		backup(test, stmt);
 		if (stmt instanceof MethodStatement) {
-			doSearch(test, (MethodStatement) stmt, objective);
+			return doSearch(test, (MethodStatement) stmt, objective);
 		} else if (stmt instanceof ConstructorStatement) {
-			doSearch(test, (ConstructorStatement) stmt, objective);
+			return doSearch(test, (ConstructorStatement) stmt, objective);
 		} else if (stmt instanceof FieldStatement) {
-			doSearch(test, (FieldStatement) stmt, objective);
+			return doSearch(test, (FieldStatement) stmt, objective);
+		} else {
+			return false;
 		}
 	}
 
@@ -76,9 +78,11 @@ public class ParameterLocalSearch implements LocalSearch {
 	 * @param statement
 	 * @param objective
 	 */
-	private void doSearch(TestChromosome test, MethodStatement statement,
+	private boolean doSearch(TestChromosome test, MethodStatement statement,
 	        LocalSearchObjective objective) {
 		logger.info("Original test: " + test.getTestCase().toCode());
+
+		boolean hasImproved = false;
 
 		if (!statement.isStatic()) {
 			logger.info("Replacing callee");
@@ -92,6 +96,7 @@ public class ParameterLocalSearch implements LocalSearch {
 				statement.setCallee(replacement);
 				if (objective.hasImproved(test)) {
 					done = true;
+					hasImproved = true;
 					backup(test, statement);
 					break;
 				} else {
@@ -128,6 +133,7 @@ public class ParameterLocalSearch implements LocalSearch {
 					logger.info("Resulting test: " + test.getTestCase().toCode());
 					if (objective.hasImproved(test)) {
 						backup(test, statement);
+						hasImproved = true;
 						done = true;
 						break;
 					} else {
@@ -138,9 +144,13 @@ public class ParameterLocalSearch implements LocalSearch {
 				if (!done)
 					statement.replaceParameterReference(parameter, numParameter);
 
+			} else {
+				hasImproved = true;
 			}
 			numParameter++;
 		}
+
+		return hasImproved;
 
 	}
 
@@ -151,9 +161,11 @@ public class ParameterLocalSearch implements LocalSearch {
 	 * @param statement
 	 * @param objective
 	 */
-	private void doSearch(TestChromosome test, ConstructorStatement statement,
+	private boolean doSearch(TestChromosome test, ConstructorStatement statement,
 	        LocalSearchObjective objective) {
 		int numParameter = 0;
+		boolean hasImproved = false;
+
 		for (VariableReference parameter : statement.getParameterReferences()) {
 
 			// First try null
@@ -172,15 +184,20 @@ public class ParameterLocalSearch implements LocalSearch {
 					statement.replaceParameterReference(replacement, numParameter);
 					if (objective.hasImproved(test)) {
 						done = true;
+						hasImproved = true;
 						break;
 					}
 				}
 				if (!done)
 					statement.replaceParameterReference(parameter, numParameter);
 
+			} else {
+				hasImproved = true;
 			}
 			numParameter++;
 		}
+
+		return hasImproved;
 	}
 
 	/**
@@ -190,24 +207,23 @@ public class ParameterLocalSearch implements LocalSearch {
 	 * @param statement
 	 * @param objective
 	 */
-	private void doSearch(TestChromosome test, FieldStatement statement,
+	private boolean doSearch(TestChromosome test, FieldStatement statement,
 	        LocalSearchObjective objective) {
 		if (!statement.isStatic()) {
 			VariableReference source = statement.getSource();
 			List<VariableReference> objects = test.getTestCase().getObjects(source.getType(),
 			                                                                statement.getPosition());
 			objects.remove(source);
-			boolean done = false;
 
 			for (VariableReference replacement : objects) {
 				statement.setSource(replacement);
 				if (objective.hasImproved(test)) {
-					done = true;
-					break;
+					return true;
 				}
 			}
-			if (!done)
-				statement.setSource(source);
+			statement.setSource(source);
 		}
+
+		return false;
 	}
 }
