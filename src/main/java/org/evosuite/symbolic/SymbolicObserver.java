@@ -256,17 +256,11 @@ public class SymbolicObserver extends ExecutionObserver {
 		/* do nothing */
 	}
 
-	private enum RESULT_TYPE {
-		REFERENCE, EXPRESSION
-	}
-
 	private static class ReferenceExpressionPair {
-		private final RESULT_TYPE resultType;
 		private final Reference ref;
 		private final Expression<?> expr;
 
 		public ReferenceExpressionPair(Reference ref, Expression<?> expr) {
-			this.resultType = RESULT_TYPE.EXPRESSION;
 			this.ref = ref;
 			this.expr = expr;
 		}
@@ -277,10 +271,6 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		public Expression<?> getExpression() {
 			return expr;
-		}
-
-		public boolean isExpression() {
-			return resultType == RESULT_TYPE.EXPRESSION;
 		}
 
 	}
@@ -638,29 +628,35 @@ public class SymbolicObserver extends ExecutionObserver {
 	private void writeVariable(VariableReference lhs,
 			ReferenceExpressionPair readResult) {
 		String lhs_name = lhs.getName();
-		if (readResult.isExpression()) {
-			Expression<?> expr = readResult.getExpression();
+		Expression<?> expr = readResult.getExpression();
+		if (expr != null)
 			symb_expressions.put(lhs_name, expr);
-		} else {
-			Reference ref = readResult.getReference();
+
+		Reference ref = readResult.getReference();
+		if (ref != null)
 			symb_references.put(lhs_name, ref);
-		}
+
 	}
 
 	private void writeArray(ArrayIndex lhs, ReferenceExpressionPair readResult,
 			Scope scope) {
 
-		if (readResult.isExpression()) {
-			ArrayReference arrayReference = lhs.getArray();
-			int conc_index = lhs.getArrayIndex();
+		ArrayReference arrayReference = lhs.getArray();
+		int conc_index = lhs.getArrayIndex();
+
+		Object conc_array;
+		try {
+			conc_array = arrayReference.getObject(scope);
+		} catch (CodeUnderTestException e) {
+			throw new EvosuiteError(e);
+		}
+
+		Type arrayType = Type.getType(conc_array.getClass());
+		Type elementType = arrayType.getElementType();
+		if (isValue(elementType)
+				|| elementType.equals(Type.getType(String.class))) {
 			Expression<?> symb_value = readResult.getExpression();
 
-			Object conc_array;
-			try {
-				conc_array = arrayReference.getObject(scope);
-			} catch (CodeUnderTestException e) {
-				throw new RuntimeException(e);
-			}
 			String array_name = arrayReference.getName();
 			Reference symb_ref = symb_references.get(array_name);
 			NonNullReference symb_array = (NonNullReference) symb_ref;
@@ -679,7 +675,10 @@ public class SymbolicObserver extends ExecutionObserver {
 				.replace(".", "/");
 		String fieldName = field.getName();
 
-		if (readResult.isExpression()) {
+		Class<?> fieldClass = field.getType();
+
+		Type fieldType = Type.getType(fieldClass);
+		if (isValue(fieldType) || fieldType.equals(Type.getType(String.class))) {
 			Expression<?> symb_value = readResult.getExpression();
 
 			VariableReference source = lhs.getSource();
@@ -1231,13 +1230,14 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		String lhs_name = s.getReturnValue().getName();
 
-		if (readResult.isExpression()) {
-			Expression<?> expr = readResult.getExpression();
+		Expression<?> expr = readResult.getExpression();
+		Reference ref = readResult.getReference();
+
+		if (expr != null)
 			symb_expressions.put(lhs_name, expr);
-		} else {
-			Reference ref = readResult.getReference();
+
+		if (ref != null)
 			symb_references.put(lhs_name, ref);
-		}
 	}
 
 	private void after(ShortPrimitiveStatement statement, Scope scope) {

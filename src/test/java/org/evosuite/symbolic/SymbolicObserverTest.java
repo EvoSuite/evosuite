@@ -953,4 +953,43 @@ public class SymbolicObserverTest {
 		printConstraints(branch_conditions);
 		assertEquals(1, branch_conditions.size());
 	}
+
+	// Fraction fraction0 = Fraction.ONE_FIFTH;
+	// int int0 = 1;
+	// int int1 = 1;
+	// Fraction fraction1 = fraction0.multiply(int0);
+	// Fraction fraction2 = fraction1.divide(int1);
+	// org.apache.commons.math.fraction.Fraction fraction3 =
+	// (org.apache.commons.math.fraction.Fraction)fraction2.multiply(fraction0);
+	private static DefaultTestCase build_test_input_15()
+			throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+
+		Field one_fifth = Fraction.class.getField("ONE_FIFTH");
+
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference fraction0 = tc.appendFieldStmt(null, one_fifth);
+		return tc.getDefaultTestCase();
+	}
+	
+	@Test
+	public void test15() throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000000;
+
+		DefaultTestCase tc = build_test_input_15();
+
+		System.out.println("TestCase=");
+		System.out.println(tc.toCode());
+
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic(tc);
+
+		printConstraints(branch_conditions);
+		assertEquals(18, branch_conditions.size());
+	}
 }
