@@ -836,6 +836,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static double getDoubleValue(Object o) {
+		if (o == null) {
+			return 0;
+		}
 		if (o instanceof Boolean) {
 			return ((Boolean) o).booleanValue() ? 1 : 0;
 		} else if (o instanceof Short) {
@@ -858,6 +861,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static float getFloatValue(Object o) {
+		if (o == null) {
+			return 0;
+		}
 		if (o instanceof Boolean) {
 			return ((Boolean) o).booleanValue() ? 1 : 0;
 		} else if (o instanceof Short) {
@@ -880,6 +886,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static long getLongValue(Object o) {
+		if (o == null) {
+			return 0;
+		}
 		if (o instanceof Boolean) {
 			return ((Boolean) o).booleanValue() ? 1 : 0;
 		} else if (o instanceof Short) {
@@ -902,6 +911,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static int getIntValue(Object o) {
+		if (o == null) {
+			return 0;
+		}
 		if (o instanceof Boolean) {
 			return ((Boolean) o).booleanValue() ? 1 : 0;
 		} else if (o instanceof Short) {
@@ -924,6 +936,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static short getShortValue(Object o) {
+		if (o == null) {
+			return 0;
+		}
 		if (o instanceof Boolean) {
 			return (short) (((Boolean) o).booleanValue() ? 1 : 0);
 		} else if (o instanceof Short) {
@@ -946,6 +961,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static byte getByteValue(Object o) {
+		if (o == null) {
+			return 0;
+		}
 		if (o instanceof Boolean) {
 			return (byte) (((Boolean) o).booleanValue() ? 1 : 0);
 		} else if (o instanceof Short) {
@@ -968,6 +986,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static char getCharValue(Object o) {
+		if (o == null) {
+			return 0;
+		}
 		if (o instanceof Boolean) {
 			return (char) (((Boolean) o).booleanValue() ? 1 : 0);
 		} else if (o instanceof Short) {
@@ -990,6 +1011,9 @@ public class SymbolicObserver extends ExecutionObserver {
 	}
 
 	private static boolean getBooleanValue(Object o) {
+		if (o == null) {
+			return false;
+		}
 		if (o instanceof Boolean) {
 			return ((Boolean) o).booleanValue();
 		} else if (o instanceof Short) {
@@ -1031,6 +1055,7 @@ public class SymbolicObserver extends ExecutionObserver {
 			Type argType = argTypes[i];
 			ReferenceExpressionPair readResult = this.read(varRef, scope);
 			Expression<?> symb_expr = readResult.getExpression();
+			Reference symb_ref = readResult.getReference();
 
 			if (isValue(argType)) {
 
@@ -1078,7 +1103,16 @@ public class SymbolicObserver extends ExecutionObserver {
 					}
 
 				} else {
-					throw new EvosuiteError("no expression for value!");
+
+					if (symb_ref instanceof NullReference) {
+						// although this will lead in the JVM to a NPE, we push
+						// a dummy
+						// value to prevent the DSE VM from crashing
+						pushDummyValue(argType);
+						return;
+					} else {
+						throw new EvosuiteError("no expression for value!");
+					}
 				}
 			} else {
 
@@ -1091,6 +1125,27 @@ public class SymbolicObserver extends ExecutionObserver {
 				}
 			}
 
+		}
+	}
+
+	private void pushDummyValue(Type argType) {
+		if (isBv32(argType)) {
+			IntegerExpression integerExpr = ExpressionFactory
+					.buildNewIntegerConstant(0);
+			env.topFrame().operandStack.pushBv32(integerExpr);
+		} else if (isBv64(argType)) {
+			IntegerExpression integerExpr = ExpressionFactory
+					.buildNewIntegerConstant(0);
+			env.topFrame().operandStack.pushBv64(integerExpr);
+		} else if (isFp32(argType)) {
+			RealExpression realExpr = ExpressionFactory.buildNewRealConstant(0);
+			env.topFrame().operandStack.pushFp32(realExpr);
+		} else if (isFp64(argType)) {
+			RealExpression realExpr = ExpressionFactory.buildNewRealConstant(0);
+			env.topFrame().operandStack.pushFp64(realExpr);
+		} else {
+			throw new EvosuiteError(argType.toString()
+					+ " is not a value type!");
 		}
 	}
 
