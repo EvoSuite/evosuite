@@ -955,12 +955,6 @@ public class SymbolicObserverTest {
 	}
 
 	// Fraction fraction0 = Fraction.ONE_FIFTH;
-	// int int0 = 1;
-	// int int1 = 1;
-	// Fraction fraction1 = fraction0.multiply(int0);
-	// Fraction fraction2 = fraction1.divide(int1);
-	// org.apache.commons.math.fraction.Fraction fraction3 =
-	// (org.apache.commons.math.fraction.Fraction)fraction2.multiply(fraction0);
 	private static DefaultTestCase build_test_input_15()
 			throws SecurityException, NoSuchMethodException,
 			NoSuchFieldException {
@@ -972,7 +966,7 @@ public class SymbolicObserverTest {
 		VariableReference fraction0 = tc.appendFieldStmt(null, one_fifth);
 		return tc.getDefaultTestCase();
 	}
-	
+
 	@Test
 	public void test15() throws SecurityException, NoSuchMethodException,
 			NoSuchFieldException {
@@ -991,5 +985,40 @@ public class SymbolicObserverTest {
 
 		printConstraints(branch_conditions);
 		assertEquals(18, branch_conditions.size());
+	}
+
+	// Double double0 = null;
+	// Double double1 = Double.valueOf((double) double0);
+	private static DefaultTestCase build_test_input_16()
+			throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+
+		Method valueOf = Double.class.getMethod("valueOf", double.class);
+
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference double0 = tc.appendNull(Double.class);
+		VariableReference double1 = tc.appendMethod(null, valueOf, double0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void test16() throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000000;
+
+		DefaultTestCase tc = build_test_input_16();
+
+		System.out.println("TestCase=");
+		System.out.println(tc.toCode());
+
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic(tc);
+
+		printConstraints(branch_conditions);
+		assertEquals(0, branch_conditions.size());
 	}
 }
