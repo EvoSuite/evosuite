@@ -52,6 +52,12 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 		boolean improved = false;
 
 		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
+		double value = p.getValue().doubleValue();
+		if (value == Double.NaN || value == Double.POSITIVE_INFINITY
+		        || value == Double.NEGATIVE_INFINITY) {
+			return false;
+		}
+
 		if (doSearch(test, statement, objective, 1.0, 2, p))
 			improved = true;
 

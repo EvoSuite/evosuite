@@ -49,7 +49,8 @@ public abstract class LocalSearch {
 	public static LocalSearch getLocalSearchFor(StatementInterface statement) {
 		LocalSearch search = null;
 		if (statement instanceof NullStatement) {
-			search = new NullReferenceSearch();
+			search = new ReferenceLocalSearch();
+			//search = new NullReferenceSearch();
 		} else if (statement instanceof PrimitiveStatement<?>) {
 			Class<?> type = statement.getReturnValue().getVariableClass();
 			if (type.equals(Integer.class) || type.equals(int.class)) {
@@ -76,7 +77,11 @@ public abstract class LocalSearch {
 		} else if (statement instanceof ArrayStatement) {
 			search = new ArrayLocalSearch();
 		} else if (statement instanceof MethodStatement) {
-			//search = new ParameterLocalSearch();
+			search = new ReferenceLocalSearch();
+		} else if (statement instanceof ConstructorStatement) {
+			search = new ReferenceLocalSearch();
+		} else if (statement instanceof FieldStatement) {
+			search = new ReferenceLocalSearch();
 		}
 		return search;
 	}

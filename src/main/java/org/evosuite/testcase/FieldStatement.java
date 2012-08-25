@@ -153,6 +153,17 @@ public class FieldStatement extends AbstractStatement {
 		return Modifier.isStatic(field.getModifiers());
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.StatementInterface#getNumParameters()
+	 */
+	@Override
+	public int getNumParameters() {
+		if (isStatic())
+			return 0;
+		else
+			return 1;
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {

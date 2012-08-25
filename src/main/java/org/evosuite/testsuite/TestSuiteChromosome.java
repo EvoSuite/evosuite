@@ -40,10 +40,11 @@ import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
-
 /**
- * <p>TestSuiteChromosome class.</p>
- *
+ * <p>
+ * TestSuiteChromosome class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromosome> {
@@ -52,25 +53,33 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	private static final List<SecondaryObjective> secondaryObjectives = new ArrayList<SecondaryObjective>();
 
 	/**
-	 * <p>Constructor for TestSuiteChromosome.</p>
+	 * <p>
+	 * Constructor for TestSuiteChromosome.
+	 * </p>
 	 */
 	public TestSuiteChromosome() {
 		super();
 	}
 
 	/**
-	 * <p>Constructor for TestSuiteChromosome.</p>
-	 *
-	 * @param testChromosomeFactory a {@link org.evosuite.ga.ChromosomeFactory} object.
+	 * <p>
+	 * Constructor for TestSuiteChromosome.
+	 * </p>
+	 * 
+	 * @param testChromosomeFactory
+	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	public TestSuiteChromosome(ChromosomeFactory<TestChromosome> testChromosomeFactory) {
 		super(testChromosomeFactory);
 	}
 
 	/**
-	 * <p>Constructor for TestSuiteChromosome.</p>
-	 *
-	 * @param source a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
+	 * <p>
+	 * Constructor for TestSuiteChromosome.
+	 * </p>
+	 * 
+	 * @param source
+	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
 	 */
 	protected TestSuiteChromosome(TestSuiteChromosome source) {
 		super(source);
@@ -80,7 +89,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a deep copy of this test suite
 	 */
 	@Override
@@ -90,7 +99,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Apply mutation on test suite level
 	 */
 	@Override
@@ -102,7 +111,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	/**
-	 * <p>handleTestCallStatements</p>
+	 * <p>
+	 * handleTestCallStatements
+	 * </p>
 	 */
 	protected void handleTestCallStatements() {
 		Iterator<TestChromosome> it = tests.iterator();
@@ -138,7 +149,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
 
-		ensureDoubleExecution();
+		ensureDoubleExecution((TestSuiteFitnessFunction) objective.getFitnessFunction());
 
 		double fitnessBefore = getFitness();
 		for (int i = 0; i < tests.size(); i++) {
@@ -161,7 +172,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	/**
 	 * Ensure that all branches are executed twice
 	 */
-	private void ensureDoubleExecution() {
+	private void ensureDoubleExecution(TestSuiteFitnessFunction objective) {
 
 		Set<TestChromosome> duplicates = new HashSet<TestChromosome>();
 
@@ -197,12 +208,14 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			for (TestChromosome test : duplicates) {
 				addTest(test);
 			}
+			setChanged(true);
+			objective.getFitness(this);
 		}
 	}
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Determine relative ordering of this chromosome to another chromosome If
 	 * fitness is equal, the shorter chromosome comes first
 	 */
@@ -222,8 +235,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	/**
-	 * <p>getTests</p>
-	 *
+	 * <p>
+	 * getTests
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<TestCase> getTests() {
@@ -243,8 +258,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	/**
-	 * <p>getCoveredGoals</p>
-	 *
+	 * <p>
+	 * getCoveredGoals
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<TestFitnessFunction> getCoveredGoals() {
@@ -257,8 +274,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	/**
 	 * Add a test to a test suite
-	 *
-	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * 
+	 * @param test
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public void addTest(TestCase test) {
 		TestChromosome c = new TestChromosome();
@@ -268,7 +286,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	/**
 	 * For manual algorithm
-	 *
+	 * 
 	 * @param testCase
 	 *            to remove
 	 */
@@ -292,9 +310,12 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	/**
-	 * <p>restoreTests</p>
-	 *
-	 * @param backup a {@link java.util.ArrayList} object.
+	 * <p>
+	 * restoreTests
+	 * </p>
+	 * 
+	 * @param backup
+	 *            a {@link java.util.ArrayList} object.
 	 */
 	public void restoreTests(ArrayList<TestCase> backup) {
 		tests.clear();
@@ -329,8 +350,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	/**
 	 * Add an additional secondary objective to the end of the list of
 	 * objectives
-	 *
-	 * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
+	 * 
+	 * @param objective
+	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
 	public static void addSecondaryObjective(SecondaryObjective objective) {
 		secondaryObjectives.add(objective);
@@ -338,8 +360,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	/**
 	 * Remove secondary objective from list, if it is there
-	 *
-	 * @param objective a {@link org.evosuite.ga.SecondaryObjective} object.
+	 * 
+	 * @param objective
+	 *            a {@link org.evosuite.ga.SecondaryObjective} object.
 	 */
 	public static void removeSecondaryObjective(SecondaryObjective objective) {
 		secondaryObjectives.remove(objective);
