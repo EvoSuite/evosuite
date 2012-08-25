@@ -558,7 +558,11 @@ public class Properties {
 	/** Constant <code>OUTPUT_VARIABLES=null</code> */
 	@Parameter(key = "output_variables", group = "Output", description = "List of variables to output to CSV file. Variables are separated by commas. Null represents default values")
 	public static String OUTPUT_VARIABLES = null;
-
+	
+	/** Constant <code>CONFIGURATION_ID=null</code> */
+	@Parameter(key = "configuration_id", group = "Output", description = "Label used to identify the used configuration of EvoSuite. This is only done when running experiments.")
+	public static String CONFIGURATION_ID = null;
+	
 	/** Constant <code>PRINT_CURRENT_GOALS=false</code> */
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
 	public static boolean PRINT_CURRENT_GOALS = false;
