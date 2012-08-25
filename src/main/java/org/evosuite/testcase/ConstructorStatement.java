@@ -42,6 +42,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
+import edu.uta.cse.dsc.VM;
+
 /**
  * This statement represents a constructor call
  * 
@@ -236,6 +238,7 @@ public class ConstructorStatement extends AbstractStatement {
 			});
 
 		} catch (InvocationTargetException e) {
+			VM.setIgnoreCallBack(true);
 			//System.setOut(old_out);
 			//System.setErr(old_err);
 			exceptionThrown = e.getCause();
