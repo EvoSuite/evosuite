@@ -471,13 +471,15 @@ public class FieldStatement extends AbstractStatement {
 		try {
 			Class<?> oldClass = field.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
-			this.field = newClass.getField(field.getName());
+			this.field = newClass.getDeclaredField(field.getName());
+			this.field.setAccessible(true);
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (NoSuchFieldException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
+			logger.warn("Field " + field.getName() + " not found in class "
+			        + field.getDeclaringClass());
 		}
 		super.changeClassLoader(loader);
 	}
