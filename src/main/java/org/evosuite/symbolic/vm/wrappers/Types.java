@@ -41,6 +41,9 @@ public interface Types {
 			".", "/");
 	static final String JAVA_LANG_INTEGER = Integer.class.getName().replace(
 			".", "/");
+	public static String JAVA_LANG_STRING = String.class.getName().replace(
+			".", "/");
+
 
 	// valueOf Descriptos
 	public static String I_TO_INTEGER = Type.getMethodDescriptor(INTEGER,

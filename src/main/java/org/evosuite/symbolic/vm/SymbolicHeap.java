@@ -428,6 +428,8 @@ public final class SymbolicHeap {
 
 	public static final String $DOUBLE_VALUE = "$doubleValue";
 
+	public static final String $STRING_VALUE = "$stringValue";
+
 	private Map<Integer, Expression<?>> getOrCreateSymbolicArray(
 			NonNullReference symb_array_ref) {
 
