@@ -203,7 +203,8 @@ public class ConstructorStatement extends AbstractStatement {
 							// throw CodeUnderTestException.throwException(e.getCause());
 						} catch (Throwable e) {
 							//FIXME: this does not seem to propagate to client root. Is this normal behavior?
-							logger.error("Class "+Properties.TARGET_CLASS+". Error encountered: " + e);
+							logger.error("Class " + Properties.TARGET_CLASS
+							        + ". Error encountered: " + e);
 							assert (false);
 							throw new EvosuiteError(e);
 						}
@@ -309,6 +310,14 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	public List<VariableReference> getParameterReferences() {
 		return parameters;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.StatementInterface#getNumParameters()
+	 */
+	@Override
+	public int getNumParameters() {
+		return parameters.size();
 	}
 
 	/**
