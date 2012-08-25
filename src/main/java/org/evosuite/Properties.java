@@ -563,6 +563,11 @@ public class Properties {
 	@Parameter(key = "configuration_id", group = "Output", description = "Label used to identify the used configuration of EvoSuite. This is only done when running experiments.")
 	public static String CONFIGURATION_ID = null;
 	
+	/** Constant <code>SAVE_ALL_DATA=true</code> */
+	@Parameter(key = "save_all_data", group = "Output", description = "Generate and store all data reports")
+	public static boolean SAVE_ALL_DATA = true;
+	
+		
 	/** Constant <code>PRINT_CURRENT_GOALS=false</code> */
 	@Parameter(key = "print_current_goals", group = "Output", description = "Print out current goal during test generation")
 	public static boolean PRINT_CURRENT_GOALS = false;

@@ -1136,15 +1136,17 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
-		if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
-			writeExceptionData(entry.getExceptionFilepath(), entry.implicitExceptions,
-			                   entry.explicitExceptions);
+		
+		if(Properties.SAVE_ALL_DATA){
+			if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
+				writeExceptionData(entry.getExceptionFilepath(), entry.implicitExceptions,
+						entry.explicitExceptions);
+			}
+			writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
+					entry.coverage_history, entry.size_history, entry.length_history,
+					entry.average_length_history, entry.fitness_evaluations,
+					entry.tests_executed, entry.statements_executed, entry.timeStamps);
 		}
-		writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
-		             entry.coverage_history, entry.size_history, entry.length_history,
-		             entry.average_length_history, entry.fitness_evaluations,
-		             entry.tests_executed, entry.statements_executed, entry.timeStamps);
-
 	}
 
 	/**
