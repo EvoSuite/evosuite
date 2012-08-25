@@ -13,6 +13,7 @@ import org.evosuite.symbolic.expr.RealConstant;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
+import edu.uta.cse.dsc.VM;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import edu.uta.cse.dsc.instrument.DscMethodAdapter;
 import gnu.trove.map.hash.THashMap;
@@ -170,7 +171,6 @@ public final class CallVM extends AbstractVM {
 	@Override
 	public void METHOD_BEGIN(int access, String className, String methName,
 			String methDesc) {
-
 		/* TODO: Use access param to determine needsThis */
 
 		if (conf.CLINIT.equals(methName)) {
