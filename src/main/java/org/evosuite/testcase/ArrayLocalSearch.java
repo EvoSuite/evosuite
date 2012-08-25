@@ -20,6 +20,9 @@
  */
 package org.evosuite.testcase;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.evosuite.ga.LocalSearchObjective;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +46,48 @@ public class ArrayLocalSearch implements LocalSearch {
 	/** {@inheritDoc} */
 	@Override
 	public void doSearch(TestChromosome test, int statement,
+	        LocalSearchObjective objective) {
+		ArrayStatement p = (ArrayStatement) test.test.getStatement(statement);
+		searchLength(test, statement, objective);
+
+		Set<Integer> assignments = getAssignments(p, test.getTestCase());
+		for (int position = statement; position < test.size(); position++) {
+			if (assignments.contains(position))
+				continue;
+
+			// Insert a 0 assignment to this index
+			// Perform AVM on element
+		}
+
+		logger.debug("Finished local search with result " + p.getCode());
+	}
+
+	private Set<Integer> getAssignments(ArrayStatement statement, TestCase test) {
+		ArrayReference arrRef = (ArrayReference) statement.getReturnValue();
+		Set<Integer> assignments = new HashSet<Integer>();
+		int position = statement.getPosition() + 1;
+
+		while (position < test.size()) {
+			StatementInterface st = test.getStatement(position);
+			if (st instanceof AssignmentStatement) {
+				if (st.getReturnValue() instanceof ArrayIndex) {
+					ArrayIndex arrayIndex = (ArrayIndex) st.getReturnValue();
+					if (arrayIndex.getArray().equals(arrRef)) {
+						assignments.add(arrayIndex.getArrayIndex());
+					}
+				}
+			} else if (st instanceof PrimitiveStatement) {
+				// OK, ignore
+			} else {
+				break;
+			}
+			position++;
+		}
+
+		return assignments;
+	}
+
+	private void searchLength(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 		ArrayStatement p = (ArrayStatement) test.test.getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
@@ -97,7 +142,6 @@ public class ArrayLocalSearch implements LocalSearch {
 		}
 
 		logger.debug("Finished local search with result " + p.getCode());
-
 	}
 
 }
