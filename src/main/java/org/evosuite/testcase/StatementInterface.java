@@ -368,4 +368,5 @@ public interface StatementInterface {
 	 *            a {@link java.lang.ClassLoader} object.
 	 */
 	public void changeClassLoader(ClassLoader loader);
+
 }

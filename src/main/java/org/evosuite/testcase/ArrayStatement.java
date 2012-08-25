@@ -180,6 +180,7 @@ public class ArrayStatement extends AbstractStatement {
 	public void setSize(int size) {
 		/// assert lengths.length == 1;
 		this.lengths[0] = size;
+		((ArrayReference) retval).setArrayLength(size);
 	}
 
 	/** {@inheritDoc} */

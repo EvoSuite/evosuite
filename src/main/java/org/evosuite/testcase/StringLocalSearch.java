@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author fraser
  */
-public class StringLocalSearch implements LocalSearch {
+public class StringLocalSearch extends LocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(StringLocalSearch.class);
 
@@ -62,7 +62,7 @@ public class StringLocalSearch implements LocalSearch {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void doSearch(TestChromosome test, int statement,
+	public boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective) {
 		StringPrimitiveStatement p = (StringPrimitiveStatement) test.test.getStatement(statement);
 		backup(test, p);
@@ -91,26 +91,35 @@ public class StringLocalSearch implements LocalSearch {
 		}
 
 		if (affected) {
+
+			boolean hasImproved = false;
+
 			logger.info("Applying local search to string " + p.getCode());
 			// First try to remove each of the characters
 			logger.info("Removing characters");
-			removeCharacters(objective, test, p, statement);
+			if (removeCharacters(objective, test, p, statement))
+				hasImproved = true;
 			logger.info("Statement: " + p.getCode());
 
 			// Second, try to replace each of the characters with each of the 64 possible characters
 			logger.info("Replacing characters");
-			replaceCharacters(objective, test, p, statement);
+			if (replaceCharacters(objective, test, p, statement))
+				hasImproved = true;
 			logger.info("Statement: " + p.getCode());
 
 			// Third, try to add characters
 			logger.info("Adding characters");
-			addCharacters(objective, test, p, statement);
+			if (addCharacters(objective, test, p, statement))
+				hasImproved = true;
 			logger.info("Statement: " + p.getCode());
 
 			logger.info("Resulting string: " + p.getValue());
+			return hasImproved;
 			//} else {
 			//	logger.info("Not applying local search to string as it does not improve fitness");
 		}
+
+		return false;
 	}
 
 	private boolean removeCharacters(LocalSearchObjective objective,

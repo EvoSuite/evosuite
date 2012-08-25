@@ -219,37 +219,7 @@ public class TestChromosome extends ExecutableChromosome {
 			if (LocalSearchBudget.isFinished())
 				break;
 
-			LocalSearch search = null;
-			if (test.getStatement(i) instanceof NullStatement) {
-				search = new NullReferenceSearch();
-			} else if (test.getStatement(i) instanceof PrimitiveStatement<?>) {
-				Class<?> type = test.getReturnValue(i).getVariableClass();
-				if (type.equals(Integer.class) || type.equals(int.class)) {
-					search = new IntegerLocalSearch<Integer>();
-				} else if (type.equals(Byte.class) || type.equals(byte.class)) {
-					search = new IntegerLocalSearch<Byte>();
-				} else if (type.equals(Short.class) || type.equals(short.class)) {
-					search = new IntegerLocalSearch<Short>();
-				} else if (type.equals(Long.class) || type.equals(long.class)) {
-					search = new IntegerLocalSearch<Long>();
-				} else if (type.equals(Character.class) || type.equals(char.class)) {
-					search = new IntegerLocalSearch<Character>();
-				} else if (type.equals(Float.class) || type.equals(float.class)) {
-					search = new FloatLocalSearch<Float>();
-				} else if (type.equals(Double.class) || type.equals(double.class)) {
-					search = new FloatLocalSearch<Double>();
-				} else if (type.equals(String.class)) {
-					search = new StringLocalSearch();
-				} else if (type.equals(Boolean.class)) {
-					search = new BooleanLocalSearch();
-				} else if (test.getStatement(i) instanceof EnumPrimitiveStatement) {
-					search = new EnumLocalSearch();
-				}
-			} else if (test.getStatement(i) instanceof ArrayStatement) {
-				search = new ArrayLocalSearch();
-			} else if (test.getStatement(i) instanceof MethodStatement) {
-				//search = new ParameterLocalSearch();
-			}
+			LocalSearch search = LocalSearch.getLocalSearchFor(test.getStatement(i));
 			if (search != null)
 				search.doSearch(this, i, objective);
 		}
