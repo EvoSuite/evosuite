@@ -119,16 +119,6 @@ public class ConcolicExecution {
 		TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
 		VM.vm.cleanupConcolicExecution();
 
-		for (BranchCondition branchCondition : branches) {
-			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
-				if (!constr.getLeftOperand().containsSymbolicVariable()
-						&& !constr.getRightOperand().containsSymbolicVariable()) {
-					System.out.println(constr.toString());
-				}
-			}
-		}
-
 		return branches;
 	}
 
