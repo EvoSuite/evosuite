@@ -7,7 +7,7 @@ import org.evosuite.symbolic.expr.StringExpression;
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public abstract class Function {
 
@@ -150,16 +150,31 @@ public abstract class Function {
 		this.env.topFrame().operandStack.pushStringRef(expr);
 	}
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-		/* STUB */
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value) { /* stub */
 	}
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value) {
-		/* STUB */
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, boolean value) { /* stub */
 	}
 
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value) {
-		/* STUB */
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, short value) { /* stub */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, byte value) { /* stub */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, char value) { /* stub */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value) { /* stub */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, float value) { /* stub */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value) { /* stub */
+	}
+
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) { /* stub */
 	}
 
 	public void INVOKESPECIAL() {

@@ -295,9 +295,9 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void INVOKESTATIC(String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.INVOKESTATIC();
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.INVOKESTATIC();
 		}
 	}
 
@@ -308,9 +308,9 @@ public final class FunctionVM extends AbstractVM {
 			return;
 		}
 
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.INVOKEVIRTUAL(conc_receiver);
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.INVOKEVIRTUAL(conc_receiver);
 		}
 	}
 
@@ -324,73 +324,76 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(int res, String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.CALL_RESULT(res);
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALL_RESULT(res);
 		}
+		functionUnderExecution = null;
 	}
 
 	@Override
 	public void CALL_RESULT(Object res, String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.CALL_RESULT(res);
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALL_RESULT(res);
 		}
+		functionUnderExecution = null;
 	}
 
 	@Override
 	public void CALL_RESULT(String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.CALL_RESULT();
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALL_RESULT();
 		}
+		functionUnderExecution = null;
 	}
 
 	@Override
 	public void CALL_RESULT(boolean res, String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.CALL_RESULT(res);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALL_RESULT(res);
 		}
+		functionUnderExecution = null;
 	}
 
 	@Override
 	public void CALL_RESULT(long res, String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.CALL_RESULT(res);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALL_RESULT(res);
 		}
+		functionUnderExecution = null;
 	}
 
 	@Override
 	public void CALL_RESULT(double res, String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.CALL_RESULT(res);
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALL_RESULT(res);
 		}
 	}
 
 	@Override
 	public void CALL_RESULT(float res, String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.CALL_RESULT(res);
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALL_RESULT(res);
 		}
 	}
 
 	@Override
 	public void INVOKEVIRTUAL(String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.INVOKEVIRTUAL();
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.INVOKEVIRTUAL();
 		}
 	}
 
 	@Override
 	public void INVOKESPECIAL(String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.INVOKESPECIAL();
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.INVOKESPECIAL();
 		}
 	}
 
@@ -405,18 +408,92 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void INVOKEINTERFACE(String owner, String name, String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.INVOKEINTERFACE();
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.INVOKEINTERFACE();
 		}
 	}
+
+	private Function functionUnderExecution;
 
 	@Override
 	public void INVOKEINTERFACE(Object receiver, String owner, String name,
 			String desc) {
-		Function f = getStringFunction(owner, name, desc);
-		if (f != null) {
-			f.INVOKEINTERFACE(receiver);
+		functionUnderExecution = getStringFunction(owner, name, desc);
+		if (functionUnderExecution != null) {
+			functionUnderExecution.INVOKEINTERFACE(receiver);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, boolean value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, short value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, byte value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, char value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, long value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, float value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, double value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
+		}
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		if (functionUnderExecution != null) {
+			functionUnderExecution.CALLER_STACK_PARAM(nr, calleeLocalsIndex,
+					value);
 		}
 	}
 
