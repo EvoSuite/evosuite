@@ -96,10 +96,18 @@ public class ArrayLocalSearch extends LocalSearch {
 		for (int position = test.size() - 1; position >= 0; position--) {
 			if (test.getTestCase().getStatement(position) instanceof AssignmentStatement) {
 				AssignmentStatement assignment = (AssignmentStatement) test.getTestCase().getStatement(position);
+				StatementInterface valueStatement = test.getTestCase().getStatement(assignment.getValue().getStPosition());
 				if (assignment.getReturnValue().getAdditionalVariableReference() == arrRef) {
 					backup(test);
 					try {
 						factory.deleteStatement(test.getTestCase(), position);
+						if (valueStatement instanceof PrimitiveStatement
+						        || valueStatement instanceof NullStatement) {
+							if (!test.getTestCase().hasReferences(valueStatement.getReturnValue())) {
+								factory.deleteStatement(test.getTestCase(),
+								                        valueStatement.getPosition());
+							}
+						}
 						if (!objective.hasNotWorsened(test))
 							restore(test);
 					} catch (ConstructionFailedException e) {

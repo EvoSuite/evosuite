@@ -219,6 +219,13 @@ public class TestChromosome extends ExecutableChromosome {
 			if (LocalSearchBudget.isFinished())
 				break;
 
+			if (!test.hasReferences(test.getStatement(i).getReturnValue())
+			        && !test.getStatement(i).getReturnClass().equals(Properties.getTargetClass())) {
+				logger.info("Return value of statement " + i
+				        + " is not referenced and not SUT, not doing local search");
+				continue;
+			}
+
 			LocalSearch search = LocalSearch.getLocalSearchFor(test.getStatement(i));
 			if (search != null)
 				search.doSearch(this, i, objective);

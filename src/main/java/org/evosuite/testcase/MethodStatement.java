@@ -353,6 +353,14 @@ public class MethodStatement extends AbstractStatement {
 		return parameters;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.StatementInterface#getNumParameters()
+	 */
+	@Override
+	public int getNumParameters() {
+		return parameters.size() + (isStatic() ? 0 : 1);
+	}
+
 	/**
 	 * <p>
 	 * replaceParameterReference
