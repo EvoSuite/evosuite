@@ -234,6 +234,8 @@ class MSecurityManager extends SecurityManager {
 							return true;
 						if (e.getClassName().startsWith("org.evosuite.javaagent.InstrumentingClassLoader"))
 							return true;
+						if (e.getClassName().startsWith("edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader"))
+							return true;
 						// Allow Logback configuration, because the logback.xml is in evosuite.jar
 						if (e.getClassName().startsWith("ch.qos.logback.core.joran.GenericConfigurator"))
 							return true;
