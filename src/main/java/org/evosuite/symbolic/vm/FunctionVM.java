@@ -324,7 +324,6 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(int res, String owner, String name, String desc) {
-		functionUnderExecution = getStringFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
 			functionUnderExecution.CALL_RESULT(res);
 		}
@@ -333,7 +332,6 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(Object res, String owner, String name, String desc) {
-		functionUnderExecution = getStringFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
 			functionUnderExecution.CALL_RESULT(res);
 		}
@@ -342,7 +340,6 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(String owner, String name, String desc) {
-		functionUnderExecution = getStringFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
 			functionUnderExecution.CALL_RESULT();
 		}
@@ -367,7 +364,6 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(double res, String owner, String name, String desc) {
-		functionUnderExecution = getStringFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
 			functionUnderExecution.CALL_RESULT(res);
 		}
@@ -375,7 +371,6 @@ public final class FunctionVM extends AbstractVM {
 
 	@Override
 	public void CALL_RESULT(float res, String owner, String name, String desc) {
-		functionUnderExecution = getStringFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
 			functionUnderExecution.CALL_RESULT(res);
 		}
