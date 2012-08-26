@@ -55,6 +55,7 @@ public final class PathConstraint {
 	public void pushBranchCondition(String className, String methName,
 			int branchIndex, IntegerConstraint ending_constraint) {
 
+		// no need to add new branch condition
 		if (currentLocalConstraints.size() == 0
 				&& !ending_constraint.getLeftOperand()
 						.containsSymbolicVariable()
@@ -62,7 +63,11 @@ public final class PathConstraint {
 						.containsSymbolicVariable())
 			return;
 
-		this.pushLocalConstraint(ending_constraint);
+		// add branch condition but do not add concrete constraint
+		if (ending_constraint.getLeftOperand().containsSymbolicVariable()
+				|| ending_constraint.getRightOperand()
+						.containsSymbolicVariable())
+			this.pushLocalConstraint(ending_constraint);
 
 		HashSet<Constraint<?>> branch_reaching_constraints = new HashSet<Constraint<?>>(
 				reachingConstraints);
