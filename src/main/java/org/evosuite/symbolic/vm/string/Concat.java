@@ -5,9 +5,10 @@ import java.util.Iterator;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringBinaryExpression;
 import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
 public final class Concat extends StringFunction {
 
@@ -22,19 +23,22 @@ public final class Concat extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = operandToStringExpression(it.next());
-		this.stringReceiverExpr = operandToStringExpression(it.next());
+		this.strExpr = getStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next());
 	}
 
 	@Override
 	public void CALL_RESULT(Object res) {
-		if (stringReceiverExpr.containsSymbolicVariable()
-				|| strExpr.containsSymbolicVariable()) {
-			StringBinaryExpression strBExpr = new StringBinaryExpression(
+		if (res != null) {
+			StringBinaryExpression symb_value = new StringBinaryExpression(
 					stringReceiverExpr, Operator.CONCAT, strExpr, (String) res);
-			replaceStrRefTop(strBExpr);
-		} else {
-			// do nothing
+
+			NonNullReference symb_receiver = (NonNullReference) env.topFrame().operandStack
+					.peekRef();
+			String conc_receiver = (String) res;
+			env.heap.putField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
+					symb_value);
 		}
 	}
 }

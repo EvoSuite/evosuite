@@ -193,17 +193,8 @@ public final class HeapVM extends AbstractVM {
 			} else {
 
 				Object value = concrete_field.get(null);
-				if (value == null) {
-					env.topFrame().operandStack.pushRef(NullReference
-							.getInstance());
-				} else if (value instanceof String) {
-					StringExpression strExpr = env.heap.getStaticField(owner,
-							fieldName, (String) value);
-					env.topFrame().operandStack.pushStringRef(strExpr);
-				} else {
-					Reference ref = env.heap.getReference(value);
-					env.topFrame().operandStack.pushRef(ref);
-				}
+				Reference ref = env.heap.getReference(value);
+				env.topFrame().operandStack.pushRef(ref);
 			}
 
 			if (!isAccessible) {
@@ -250,16 +241,9 @@ public final class HeapVM extends AbstractVM {
 			RealOperand realOp = (RealOperand) value_operand;
 			symb_value = realOp.getRealExpression();
 		} else if (value_operand instanceof ReferenceOperand) {
-			Reference ref = ((ReferenceOperand) value_operand).getReference();
-			if (ref instanceof NullReference) {
-				symb_value = null;
-			} else if (ref instanceof StringReference) {
-				StringReference strRef = (StringReference) ref;
-				symb_value = strRef.getStringExpression();
-			} else {
-				// NonNullReference are not stored in the symbolic heap fields
-				return;
-			}
+
+			// NonNullReference are not stored in the symbolic heap fields
+			return;
 
 		}
 		env.heap.putStaticField(owner, name, symb_value);
@@ -405,18 +389,8 @@ public final class HeapVM extends AbstractVM {
 			} else {
 
 				Object value = field.get(conc_receiver);
-				if (value == null) {
-					env.topFrame().operandStack.pushRef(NullReference
-							.getInstance());
-				} else if (value instanceof String) {
-					StringExpression strExpr = (StringExpression) env.heap
-							.getField(className, fieldName, conc_receiver,
-									symb_receiver, (String) value);
-					env.topFrame().operandStack.pushStringRef(strExpr);
-				} else {
-					Reference ref = env.heap.getReference(value);
-					env.topFrame().operandStack.pushRef(ref);
-				}
+				Reference ref = env.heap.getReference(value);
+				env.topFrame().operandStack.pushRef(ref);
 			}
 
 			if (!isAccessible) {
@@ -475,16 +449,9 @@ public final class HeapVM extends AbstractVM {
 			RealOperand realOp = (RealOperand) value_operand;
 			symb_value = realOp.getRealExpression();
 		} else if (value_operand instanceof ReferenceOperand) {
-			Reference ref = ((ReferenceOperand) value_operand).getReference();
-			if (ref instanceof NullReference) {
-				symb_value = null;
-			} else if (ref instanceof StringReference) {
-				StringReference strRef = (StringReference) ref;
-				symb_value = strRef.getStringExpression();
-			} else {
-				// NonNullReference are not stored in the symbolic heap fields
-				return;
-			}
+
+			// NonNullReference are not stored in the symbolic heap fields
+			return;
 
 		}
 		env.heap.putField(className, fieldName, conc_receiver, symb_receiver,
@@ -813,9 +780,7 @@ public final class HeapVM extends AbstractVM {
 		Reference symb_value;
 		if (conc_value == null) {
 			symb_value = NullReference.getInstance();
-		} else if (conc_value instanceof String) {
-			symb_value = new StringReference(env.heap.array_load(symb_array,
-					conc_index, (String) conc_value));
+
 		} else {
 			symb_value = env.heap.getReference(conc_value);
 		}
@@ -1175,17 +1140,8 @@ public final class HeapVM extends AbstractVM {
 				symb_array_length))
 			return;
 
-		Expression<?> symb_value;
-		if (value_ref instanceof NullReference) {
-			symb_value = null;
-		} else if (value_ref instanceof StringReference) {
-			StringReference strRef = (StringReference) value_ref;
-			symb_value = strRef.getStringExpression();
-		} else {
-			// NonNullReference are not stored in the symbolic heap fields
-			return;
-		}
-		env.heap.array_store(conc_array, symb_array, conc_index, symb_value);
+		// NonNullReference are not stored in the symbolic heap fields
+		return;
 
 	}
 

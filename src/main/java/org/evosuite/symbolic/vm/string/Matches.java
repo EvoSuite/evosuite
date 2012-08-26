@@ -23,8 +23,8 @@ public final class Matches extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.regExStrExpr = operandToStringExpression(it.next());
-		this.stringReceiverExpr = operandToStringExpression(it.next());
+		this.regExStrExpr = getStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next());
 	}
 
 	@Override

@@ -224,7 +224,7 @@ public final class JumpVM extends AbstractVM {
 	public void IFNULL(String className, String methName, int branchIndex,
 			Object p) {
 		// right hand side argument of EQ
-		env.topFrame().operandStack.pushRef(NullReference.getInstance());
+		env.topFrame().operandStack.pushNullRef();
 
 		// comparison
 		IF_ACMPEQ(className, methName, branchIndex, p, null); // use general

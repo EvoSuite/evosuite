@@ -27,4 +27,9 @@ public interface Types {
 	public static final String STR_CHARSEQ_TO_BOOLEAN = Type
 			.getMethodDescriptor(BOOLEAN_TYPE, STR_TYPE, CHARSEQ_TYPE);
 
+	public static final String JAVA_LANG_STRING = String.class.getName()
+			.replace(".", "/");
+	public static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
+			.getName().replace(".", "/");
+
 }

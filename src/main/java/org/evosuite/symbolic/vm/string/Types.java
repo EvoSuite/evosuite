@@ -105,4 +105,7 @@ public interface Types {
 	public static final String OBJECT_TO_STRBUILDER_DESCRIPTOR = getMethodDescriptor(
 			STRING_BUILDER_TYPE, OBJECT_TYPE);
 
+	static final String JAVA_LANG_STRING = String.class.getName()
+	.replace(".", "/");
+
 }

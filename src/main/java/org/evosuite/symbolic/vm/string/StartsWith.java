@@ -29,8 +29,8 @@ public final class StartsWith extends StringFunction {
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.offsetExpr = bv32(it.next());
-		this.prefixExpr = operandToStringExpression(it.next());
-		this.stringReceiverExpr = stringRef(it.next());
+		this.prefixExpr = getStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next());
 	}
 
 	@Override
