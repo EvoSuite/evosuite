@@ -266,7 +266,7 @@ public class SymbolicObserverTest {
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
-		assertEquals(2, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	private static void test_input4() {
@@ -985,7 +985,7 @@ public class SymbolicObserverTest {
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
-		assertEquals(18, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 	}
 
 	// Double double0 = null;
@@ -1054,6 +1054,6 @@ public class SymbolicObserverTest {
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
-		assertEquals(3, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 }
