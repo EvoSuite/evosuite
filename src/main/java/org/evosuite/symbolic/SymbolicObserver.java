@@ -11,14 +11,11 @@ import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.IntegerToRealCast;
 import org.evosuite.symbolic.expr.IntegerVariable;
-import org.evosuite.symbolic.expr.IntegerVariableFactory;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.RealToIntegerCast;
 import org.evosuite.symbolic.expr.RealVariable;
-import org.evosuite.symbolic.expr.RealVariableFactory;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringVariable;
-import org.evosuite.symbolic.expr.StringVariableFactory;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.IntegerOperand;
 import org.evosuite.symbolic.vm.NonNullReference;
@@ -1156,10 +1153,6 @@ public class SymbolicObserver extends ExecutionObserver {
 		}
 	}
 
-	private boolean isStringType(Type t) {
-		return t.equals(Type.getType(String.class));
-	}
-
 	private static boolean isValue(Type t) {
 		return isBv32(t) || isBv64(t) || isFp32(t) || isFp64(t);
 	}
@@ -1306,9 +1299,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		short valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		IntegerVariable integerVariable = IntegerVariableFactory
-				.buildIntegerVariable(varRefName, valueOf, Short.MIN_VALUE,
-						Short.MAX_VALUE);
+		IntegerVariable integerVariable = buildIntegerVariable(varRefName,
+				valueOf, Short.MIN_VALUE, Short.MAX_VALUE);
 		symb_expressions.put(varRefName, integerVariable);
 
 		Short short_instance;
@@ -1335,9 +1327,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		long valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		IntegerVariable integerVariable = IntegerVariableFactory
-				.buildIntegerVariable(varRefName, valueOf, Long.MIN_VALUE,
-						Long.MAX_VALUE);
+		IntegerVariable integerVariable = buildIntegerVariable(varRefName,
+				valueOf, Long.MIN_VALUE, Long.MAX_VALUE);
 		symb_expressions.put(varRefName, integerVariable);
 
 		Long long_instance;
@@ -1364,8 +1355,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		float valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		RealVariable realVariable = RealVariableFactory.buildRealVariable(
-				varRefName, valueOf, Float.MIN_VALUE, Float.MAX_VALUE);
+		RealVariable realVariable = buildRealVariable(varRefName, valueOf,
+				Float.MIN_VALUE, Float.MAX_VALUE);
 		symb_expressions.put(varRefName, realVariable);
 
 		Float float_instance;
@@ -1392,9 +1383,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		char valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		IntegerVariable integerVariable = IntegerVariableFactory
-				.buildIntegerVariable(varRefName, valueOf, Character.MIN_VALUE,
-						Character.MAX_VALUE);
+		IntegerVariable integerVariable = buildIntegerVariable(varRefName,
+				valueOf, Character.MIN_VALUE, Character.MAX_VALUE);
 		symb_expressions.put(varRefName, integerVariable);
 
 		Character character0;
@@ -1421,9 +1411,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		byte valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		IntegerVariable integerVariable = IntegerVariableFactory
-				.buildIntegerVariable(varRefName, valueOf, Byte.MIN_VALUE,
-						Byte.MAX_VALUE);
+		IntegerVariable integerVariable = buildIntegerVariable(varRefName,
+				valueOf, Byte.MIN_VALUE, Byte.MAX_VALUE);
 		symb_expressions.put(varRefName, integerVariable);
 		Byte byte_instance;
 		try {
@@ -1451,8 +1440,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		boolean valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		IntegerVariable integerVariable = IntegerVariableFactory
-				.buildIntegerVariable(varRefName, valueOf ? 1 : 0, 0, 1);
+		IntegerVariable integerVariable = buildIntegerVariable(varRefName,
+				valueOf ? 1 : 0, 0, 1);
 		Boolean boolean_instance;
 		try {
 			boolean_instance = (Boolean) varRef.getObject(scope);
@@ -1479,8 +1468,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		double valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		RealVariable realVariable = RealVariableFactory.buildRealVariable(
-				varRefName, valueOf, Double.MIN_VALUE, Double.MAX_VALUE);
+		RealVariable realVariable = buildRealVariable(varRefName, valueOf,
+				Double.MIN_VALUE, Double.MAX_VALUE);
 		symb_expressions.put(varRefName, realVariable);
 
 		Double double_instance;
@@ -1510,7 +1499,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		String desc = Type.getMethodDescriptor(statement.getMethod());
 
 		Type returnType = Type.getReturnType(statement.getMethod());
-		
+
 		VariableReference varRef = statement.getReturnValue();
 		String varName = varRef.getName();
 		try {
@@ -1688,8 +1677,8 @@ public class SymbolicObserver extends ExecutionObserver {
 		String valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		StringVariable stringVariable = StringVariableFactory
-				.buildStringVariable(varRefName, valueOf, valueOf, valueOf);
+		StringVariable stringVariable = buildStringVariable(varRefName,
+				valueOf, valueOf, valueOf);
 		symb_expressions.put(varRefName, stringVariable);
 
 		String string_instance;
@@ -1715,14 +1704,16 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	private final Map<String, Expression<?>> symb_expressions = new THashMap<String, Expression<?>>();
 	private final Map<String, Reference> symb_references = new THashMap<String, Reference>();
+	private final Map<String, IntegerVariable> integerVariables = new THashMap<String, IntegerVariable>();
+	private final Map<String, RealVariable> realVariables = new THashMap<String, RealVariable>();
+	private final Map<String, StringVariable> stringVariables = new THashMap<String, StringVariable>();
 
 	private void after(IntPrimitiveStatement statement, Scope scope) {
 		int valueOf = statement.getValue();
 		VariableReference varRef = statement.getReturnValue();
 		String varRefName = varRef.getName();
-		IntegerVariable integerVariable = IntegerVariableFactory
-				.buildIntegerVariable(varRefName, valueOf, Integer.MIN_VALUE,
-						Integer.MAX_VALUE);
+		IntegerVariable integerVariable = buildIntegerVariable(varRefName,
+				valueOf, Integer.MIN_VALUE, Integer.MAX_VALUE);
 		symb_expressions.put(varRefName, integerVariable);
 
 		Integer integer_instance;
@@ -1749,6 +1740,56 @@ public class SymbolicObserver extends ExecutionObserver {
 	public void clear() {
 		symb_expressions.clear();
 		symb_references.clear();
+	}
+
+	private IntegerVariable buildIntegerVariable(String name, long conV,
+			long minValue, long maxValue) {
+
+		IntegerVariable integerVariable;
+		if (integerVariables.containsKey(name)) {
+			integerVariable = integerVariables.get(name);
+			integerVariable.setConcreteValue(conV);
+			assert minValue == integerVariable.getMinValue();
+			assert maxValue == integerVariable.getMaxValue();
+		} else {
+			integerVariable = new IntegerVariable(name, conV, minValue,
+					maxValue);
+			integerVariables.put(name, integerVariable);
+		}
+		return integerVariable;
+	}
+
+	private RealVariable buildRealVariable(String name, double conV,
+			double minValue, double maxValue) {
+
+		RealVariable realVariable;
+		if (realVariables.containsKey(name)) {
+			realVariable = realVariables.get(name);
+			realVariable.setConcreteValue(conV);
+			assert minValue == realVariable.getMinValue();
+			assert maxValue == realVariable.getMaxValue();
+		} else {
+			realVariable = new RealVariable(name, conV, minValue, maxValue);
+			realVariables.put(name, realVariable);
+		}
+		return realVariable;
+	}
+
+	private StringVariable buildStringVariable(String name, String concVal,
+			String minValue, String maxValue) {
+
+		StringVariable stringVariable;
+		if (stringVariables.containsKey(name)) {
+			stringVariable = stringVariables.get(name);
+			stringVariable.setConcreteValue(concVal);
+			stringVariable.setMinValue(minValue);
+			stringVariable.setMaxValue(maxValue);
+		} else {
+			stringVariable = new StringVariable(name, concVal, minValue,
+					maxValue);
+			stringVariables.put(name, stringVariable);
+		}
+		return stringVariable;
 	}
 
 }

@@ -1,6 +1,5 @@
 package org.evosuite.symbolic.vm;
 
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
@@ -45,7 +44,7 @@ public final class PathConstraint {
 		if (isStringConstraint(right_integer_expression, comp,
 				left_integer_expression)) {
 			c = createNormalizedIntegerConstraint(right_integer_expression,
-					comp, left_integer_expression);
+					comp.swap(), left_integer_expression);
 
 		}
 		currentLocalConstraints.add(c);
