@@ -795,12 +795,20 @@ public final class HeapVM extends AbstractVM {
 		if (conc_index >= conc_array_length) {
 			indexTooBigConstraint = ConstraintFactory.gte(symb_index,
 					symb_array_length);
-			this.pc.pushLocalConstraint(indexTooBigConstraint);
+			if (indexTooBigConstraint.getLeftOperand()
+					.containsSymbolicVariable()
+					|| indexTooBigConstraint.getRightOperand()
+							.containsSymbolicVariable())
+				this.pc.pushLocalConstraint(indexTooBigConstraint);
 			return true;
 		} else {
 			indexTooBigConstraint = ConstraintFactory.lt(symb_index,
 					symb_array_length);
-			this.pc.pushLocalConstraint(indexTooBigConstraint);
+			if (indexTooBigConstraint.getLeftOperand()
+					.containsSymbolicVariable()
+					|| indexTooBigConstraint.getRightOperand()
+							.containsSymbolicVariable())
+				this.pc.pushLocalConstraint(indexTooBigConstraint);
 			return false;
 		}
 	}
@@ -819,12 +827,20 @@ public final class HeapVM extends AbstractVM {
 		if (conc_index < 0) {
 			negative_index_constraint = ConstraintFactory.lt(symb_index,
 					ExpressionFactory.ICONST_0);
-			pc.pushLocalConstraint(negative_index_constraint);
+			if (negative_index_constraint.getLeftOperand()
+					.containsSymbolicVariable()
+					|| negative_index_constraint.getRightOperand()
+							.containsSymbolicVariable())
+				pc.pushLocalConstraint(negative_index_constraint);
 			return true;
 		} else {
 			negative_index_constraint = ConstraintFactory.gte(symb_index,
 					ExpressionFactory.ICONST_0);
-			pc.pushLocalConstraint(negative_index_constraint);
+			if (negative_index_constraint.getLeftOperand()
+					.containsSymbolicVariable()
+					|| negative_index_constraint.getRightOperand()
+							.containsSymbolicVariable())
+				pc.pushLocalConstraint(negative_index_constraint);
 			return false;
 		}
 	}
@@ -835,12 +851,20 @@ public final class HeapVM extends AbstractVM {
 		if (conc_array_length < 0) {
 			negative_array_length_constraint = ConstraintFactory.lt(
 					array_length_index, ExpressionFactory.ICONST_0);
-			pc.pushLocalConstraint(negative_array_length_constraint);
+			if (negative_array_length_constraint.getLeftOperand()
+					.containsSymbolicVariable()
+					|| negative_array_length_constraint.getRightOperand()
+							.containsSymbolicVariable())
+				pc.pushLocalConstraint(negative_array_length_constraint);
 			return true;
 		} else {
 			negative_array_length_constraint = ConstraintFactory.gte(
 					array_length_index, ExpressionFactory.ICONST_0);
-			pc.pushLocalConstraint(negative_array_length_constraint);
+			if (negative_array_length_constraint.getLeftOperand()
+					.containsSymbolicVariable()
+					|| negative_array_length_constraint.getRightOperand()
+							.containsSymbolicVariable())
+				pc.pushLocalConstraint(negative_array_length_constraint);
 			return false;
 		}
 	}
