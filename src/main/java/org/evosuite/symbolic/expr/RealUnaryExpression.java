@@ -167,7 +167,7 @@ public class RealUnaryExpression extends RealExpression implements
 			return Math.ulp(leftVal);
 
 		default:
-			log.warn("IntegerUnaryExpression: unimplemented operator!");
+			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);
 			return null;
 		}
 	}

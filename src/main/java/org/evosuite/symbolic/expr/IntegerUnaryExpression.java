@@ -116,7 +116,7 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 		case ABS:
 			return Math.abs(leftVal);
 		default:
-			log.warn("IntegerUnaryExpression: unimplemented operator!");
+			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);
 			return null;
 		}
 	}
