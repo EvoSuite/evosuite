@@ -35,7 +35,9 @@ public class BranchCondition {
 	private final String methodName;
 	private final int lineNumber;
 
+	@Deprecated
 	public final Set<Constraint<?>> reachingConstraints;
+
 	public final Set<Constraint<?>> localConstraints;
 	private final List<Constraint<?>> listOfLocalConstraints;
 	private final BranchCondition previousBranchCondition;
@@ -44,7 +46,9 @@ public class BranchCondition {
 	 * <p>
 	 * Constructor for BranchCondition.
 	 * </p>
-	 * @param previousBranchCondition TODO
+	 * 
+	 * @param previousBranchCondition
+	 *            TODO
 	 * @param reachingConstraints
 	 *            a {@link java.util.Set} object.
 	 * @param localConstraints
@@ -52,8 +56,10 @@ public class BranchCondition {
 	 * @param ins
 	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(BranchCondition previousBranchCondition, String className, String methodName,
-	        int lineNumber, Set<Constraint<?>> reachingConstraints, List<Constraint<?>> localConstraints) {
+	public BranchCondition(BranchCondition previousBranchCondition,
+			String className, String methodName, int lineNumber,
+			Set<Constraint<?>> reachingConstraints,
+			List<Constraint<?>> localConstraints) {
 		this.className = className;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
@@ -68,8 +74,8 @@ public class BranchCondition {
 	@Override
 	public String toString() {
 		String ret = "Branch condition with " + reachingConstraints.size()
-		        + " reaching constraints and " + localConstraints.size()
-		        + " local constraints: ";
+				+ " reaching constraints and " + localConstraints.size()
+				+ " local constraints: ";
 		for (Constraint<?> c : localConstraints) {
 			ret += " " + c;
 		}
