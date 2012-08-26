@@ -656,6 +656,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		if (isValue(elementType)
 				|| elementType.equals(Type.getType(String.class))) {
 			Expression<?> symb_value = readResult.getExpression();
+			symb_value = castIfNeeded(elementType, symb_value);
 
 			String array_name = arrayReference.getName();
 			Reference symb_ref = symb_references.get(array_name);
@@ -666,6 +667,24 @@ public class SymbolicObserver extends ExecutionObserver {
 			/* ignore storing references (we use objects to find them) */
 		}
 
+	}
+
+	private Expression<?> castIfNeeded(Type elementType,
+			Expression<?> symb_value) {
+		// cast integer to real if needed
+		if ((isFp32(elementType) || isFp64(elementType))
+				&& symb_value instanceof IntegerExpression) {
+			IntegerExpression intExpr = (IntegerExpression) symb_value;
+			double concValue = ((Long) intExpr.getConcreteValue())
+					.doubleValue();
+			symb_value = new IntegerToRealCast(intExpr, concValue);
+		} else if ((isBv32(elementType) || isBv64(elementType))
+				&& symb_value instanceof RealExpression) {
+			RealExpression realExpr = (RealExpression) symb_value;
+			long concValue = ((Double) realExpr.getConcreteValue()).longValue();
+			symb_value = new RealToIntegerCast(realExpr, concValue);
+		}
+		return symb_value;
 	}
 
 	private void writeField(FieldReference lhs,
@@ -680,6 +699,7 @@ public class SymbolicObserver extends ExecutionObserver {
 		Type fieldType = Type.getType(fieldClass);
 		if (isValue(fieldType) || fieldType.equals(Type.getType(String.class))) {
 			Expression<?> symb_value = readResult.getExpression();
+			symb_value = castIfNeeded(fieldType, symb_value);
 
 			VariableReference source = lhs.getSource();
 			if (source != null) {
