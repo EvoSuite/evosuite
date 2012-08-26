@@ -262,6 +262,10 @@ public abstract class SB_Append extends StringBuilderFunction {
 	@Override
 	public void CALL_RESULT(Object res) {
 		// get from symbolic heap (or create if null)
+		if (conc_str_builder_to_string_pre==null) {
+			conc_str_builder_to_string_pre = NULL_STRING;
+		}
+		
 		StringExpression strExpr = this.env.heap
 				.getField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
 						conc_str_builder, symb_receiver,
