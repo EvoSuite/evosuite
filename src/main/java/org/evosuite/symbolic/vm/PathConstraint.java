@@ -21,7 +21,7 @@ import org.evosuite.symbolic.expr.StringToIntCast;
  */
 public final class PathConstraint {
 
-	private BranchCondition previousBranchCondition = null;
+	private final BranchCondition previousBranchCondition = null;
 
 	private final Stack<BranchCondition> branchConditions = new Stack<BranchCondition>();
 
