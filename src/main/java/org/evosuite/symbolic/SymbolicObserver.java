@@ -1509,13 +1509,15 @@ public class SymbolicObserver extends ExecutionObserver {
 		String name = statement.getMethod().getName();
 		String desc = Type.getMethodDescriptor(statement.getMethod());
 
+		Type returnType = Type.getReturnType(statement.getMethod());
+		
 		VariableReference varRef = statement.getReturnValue();
 		String varName = varRef.getName();
 		try {
 			if (varRef.getType().equals(void.class)) {
 				VM.CALL_RESULT(owner, name, desc);
 
-			} else if (varRef.getType().equals(int.class)) {
+			} else if (returnType.equals(Type.INT_TYPE)) {
 				Integer res = (Integer) varRef.getObject(scope);
 				VM.CALL_RESULT(res.intValue(), owner, name, desc);
 				IntegerExpression intExpr = env.topFrame().operandStack
@@ -1525,7 +1527,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				symb_references.put(varName, newIntegerRef);
 				symb_expressions.put(varName, intExpr);
 
-			} else if (varRef.getType().equals(boolean.class)) {
+			} else if (returnType.equals(Type.BOOLEAN_TYPE)) {
 				Boolean res = (Boolean) varRef.getObject(scope);
 				VM.CALL_RESULT(res.booleanValue(), owner, name, desc);
 				IntegerExpression intExpr = env.topFrame().operandStack
@@ -1535,7 +1537,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				symb_references.put(varName, newBooleanRef);
 				symb_expressions.put(varName, intExpr);
 
-			} else if (varRef.getType().equals(double.class)) {
+			} else if (returnType.equals(Type.DOUBLE_TYPE)) {
 				Double res = (Double) varRef.getObject(scope);
 				VM.CALL_RESULT(res.doubleValue(), owner, name, desc);
 				RealExpression realExpr = env.topFrame().operandStack.popFp64();
@@ -1544,7 +1546,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				symb_references.put(varName, newDoubleRef);
 				symb_expressions.put(varName, realExpr);
 
-			} else if (varRef.getType().equals(float.class)) {
+			} else if (returnType.equals(Type.FLOAT_TYPE)) {
 				Float res = (Float) varRef.getObject(scope);
 				VM.CALL_RESULT(res.floatValue(), owner, name, desc);
 				RealExpression realExpr = env.topFrame().operandStack.popFp32();
@@ -1552,7 +1554,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				symb_references.put(varName, newFloatRef);
 				symb_expressions.put(varName, realExpr);
 
-			} else if (varRef.getType().equals(long.class)) {
+			} else if (returnType.equals(Type.LONG_TYPE)) {
 				Long res = (Long) varRef.getObject(scope);
 				VM.CALL_RESULT(res.longValue(), owner, name, desc);
 				IntegerExpression intExpr = env.topFrame().operandStack
@@ -1561,7 +1563,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				symb_references.put(varName, newBooleanRef);
 				symb_expressions.put(varName, intExpr);
 
-			} else if (varRef.getType().equals(short.class)) {
+			} else if (returnType.equals(Type.SHORT_TYPE)) {
 				Short res = (Short) varRef.getObject(scope);
 				VM.CALL_RESULT(res.shortValue(), owner, name, desc);
 				IntegerExpression intExpr = env.topFrame().operandStack
@@ -1570,7 +1572,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				symb_references.put(varName, newShortRef);
 				symb_expressions.put(varName, intExpr);
 
-			} else if (varRef.getType().equals(byte.class)) {
+			} else if (returnType.equals(Type.BYTE_TYPE)) {
 				Byte res = (Byte) varRef.getObject(scope);
 				VM.CALL_RESULT(res.byteValue(), owner, name, desc);
 				IntegerExpression intExpr = env.topFrame().operandStack
@@ -1579,7 +1581,7 @@ public class SymbolicObserver extends ExecutionObserver {
 				symb_references.put(varName, newByteRef);
 				symb_expressions.put(varName, intExpr);
 
-			} else if (varRef.getType().equals(char.class)) {
+			} else if (returnType.equals(Type.CHAR_TYPE)) {
 				Character res = (Character) varRef.getObject(scope);
 				VM.CALL_RESULT(res.charValue(), owner, name, desc);
 				IntegerExpression intExpr = env.topFrame().operandStack
