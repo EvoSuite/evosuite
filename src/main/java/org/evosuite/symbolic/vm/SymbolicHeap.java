@@ -369,15 +369,8 @@ public final class SymbolicHeap {
 
 	public Reference getReference(Object conc_ref) {
 		if (conc_ref == null) {
-
 			return NullReference.getInstance();
-		} else if (conc_ref instanceof String) {
 
-			String conc_string = (String) conc_ref;
-			StringReference symb_string = new StringReference(
-					ExpressionFactory.buildNewStringConstant(conc_string));
-			symb_string.initializeReference(conc_string);
-			return symb_string;
 		} else {
 
 			int identityHashCode = System.identityHashCode(conc_ref);
@@ -409,6 +402,8 @@ public final class SymbolicHeap {
 	}
 
 	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new THashMap<NonNullReference, Map<Integer, Expression<?>>>();
+
+	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
 	public static final String $MATCHER_INPUT = "$matcherInput";
 

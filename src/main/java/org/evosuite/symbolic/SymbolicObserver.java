@@ -27,7 +27,6 @@ import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.RealOperand;
 import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.ReferenceOperand;
-import org.evosuite.symbolic.vm.StringReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 import org.evosuite.symbolic.vm.wrappers.Types;
@@ -768,14 +767,7 @@ public class SymbolicObserver extends ExecutionObserver {
 			VariableReference callee = statement.getCallee();
 			String calleeVarName = callee.getName();
 
-			Reference ref;
-			if (symb_references.containsKey(calleeVarName)) {
-				ref = symb_references.get(calleeVarName);
-			} else {
-				StringExpression strExpr = (StringExpression) symb_expressions
-						.get(calleeVarName);
-				ref = new StringReference(strExpr);
-			}
+			Reference ref = symb_references.get(calleeVarName);
 			this.env.topFrame().operandStack.pushRef(ref);
 		}
 
@@ -1136,13 +1128,8 @@ public class SymbolicObserver extends ExecutionObserver {
 				}
 			} else {
 
-				if (isStringType(argType)) {
-					StringExpression strExpr = (StringExpression) symb_expr;
-					env.topFrame().operandStack.pushStringRef(strExpr);
-				} else {
-					Reference ref = readResult.getReference();
-					env.topFrame().operandStack.pushRef(ref);
-				}
+				Reference ref = readResult.getReference();
+				env.topFrame().operandStack.pushRef(ref);
 			}
 
 		}
@@ -1607,30 +1594,23 @@ public class SymbolicObserver extends ExecutionObserver {
 				VM.CALL_RESULT(res, owner, name, desc);
 
 				Reference ref = env.topFrame().operandStack.peekRef();
-				if (ref instanceof StringReference) {
-					StringReference str_ref = (StringReference) ref;
-					StringExpression str_expr = str_ref.getStringExpression();
 
-					NonNullReference newStringRef = newStringReference(
-							(String) res, str_expr);
+				if (res != null && res instanceof String) {
+
+					String string = (String) res;
+					NonNullReference newStringRef = (NonNullReference) env.heap
+							.getReference(string);
+					StringExpression str_expr = env.heap.getField(
+							Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
+							string, newStringRef, string);
 					symb_references.put(varName, newStringRef);
 					symb_expressions.put(varName, str_expr);
 				} else {
-					if (res instanceof String) {
-						String string = (String) res;
-						StringExpression str_expr = ExpressionFactory
-								.buildNewStringConstant(string);
-						NonNullReference newStringRef = newStringReference(
-								(String) res, str_expr);
-						symb_references.put(varName, newStringRef);
-						symb_expressions.put(varName, str_expr);
-					} else {
-						symb_references.put(varName, ref);
-						if (res != null && isWrapper(res)) {
-							NonNullReference nonNullRef = (NonNullReference) ref;
-							Expression<?> expr = findOrCreate(res, nonNullRef);
-							symb_expressions.put(varName, expr);
-						}
+					symb_references.put(varName, ref);
+					if (res != null && isWrapper(res)) {
+						NonNullReference nonNullRef = (NonNullReference) ref;
+						Expression<?> expr = findOrCreate(res, nonNullRef);
+						symb_expressions.put(varName, expr);
 					}
 				}
 

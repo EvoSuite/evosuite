@@ -124,34 +124,14 @@ public abstract class Function {
 		return ref instanceof NullReference;
 	}
 
-	protected static StringExpression operandToStringExpression(Operand operand) {
+	protected StringExpression getStringExpression(Operand operand) {
 		ReferenceOperand refOp = (ReferenceOperand) operand;
 		Reference ref = (Reference) refOp.getReference();
 		if (ref instanceof NullReference) {
 			return null;
-		} else if (ref instanceof StringReference) {
-			StringReference strRef = (StringReference) ref;
-			return strRef.getStringExpression();
 		} else {
 			NonNullReference nonNullRef = (NonNullReference) ref;
-			Object object = nonNullRef.getWeakConcreteObject();
-			return ExpressionFactory.buildNewStringConstant(object.toString());
-		}
-	}
-
-	protected StringExpression stringRef(Operand operand) {
-		ReferenceOperand refOp = (ReferenceOperand) operand;
-		Reference ref = (Reference) refOp.getReference();
-		if (ref instanceof NullReference) {
-			throw new ClassCastException(
-					"cannot cast a NullReference to a StringReference!");
-		} else if (ref instanceof StringReference) {
-			StringReference stringRef = (StringReference) ref;
-			return stringRef.getStringExpression();
-
-		} else {
-			NonNullReference nonNullRef = (NonNullReference) ref;
-			if (nonNullRef.getClassName().equals(String.class.getName())) {
+			if (nonNullRef.isString()) {
 				String conc_string = (String) nonNullRef
 						.getWeakConcreteObject();
 				StringExpression strExpr = env.heap.getField(
@@ -159,17 +139,9 @@ public abstract class Function {
 						conc_string, nonNullRef, conc_string);
 				return strExpr;
 			} else {
-				throw new ClassCastException(
-						"cannot cast a NullReference of class "
-								+ nonNullRef.getClassName()
-								+ " to a StringReference!");
+				return null;
 			}
 		}
-	}
-
-	protected void replaceStrRefTop(StringExpression expr) {
-		this.env.topFrame().operandStack.popStringRef(); // discard old top
-		this.env.topFrame().operandStack.pushStringRef(expr);
 	}
 
 	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, int value) { /* stub */

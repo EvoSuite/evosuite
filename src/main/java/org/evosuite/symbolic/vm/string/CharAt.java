@@ -24,7 +24,7 @@ public final class CharAt extends StringFunction {
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.indexExpr = bv32(it.next());
-		this.stringReceiverExpr = operandToStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next());
 	}
 
 	@Override

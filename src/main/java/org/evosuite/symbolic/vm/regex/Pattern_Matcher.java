@@ -9,7 +9,6 @@ import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.Reference;
-import org.evosuite.symbolic.vm.StringReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
@@ -31,15 +30,6 @@ public final class Pattern_Matcher extends Function {
 			return;
 
 		conc_pattern = (Pattern) receiver;
-
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		Reference charSeq_ref = ref(it.next());
-		if (charSeq_ref instanceof StringReference) {
-			StringReference charSeq_str_ref = (StringReference) charSeq_ref;
-			symb_input = charSeq_str_ref.getStringExpression();
-		} else {
-			symb_input = null;
-		}
 	}
 
 	@Override
@@ -57,6 +47,21 @@ public final class Pattern_Matcher extends Function {
 					symb_input);
 		}
 
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+
+		if (value != null && value instanceof String) {
+			Iterator<Operand> it = env.topFrame().operandStack.iterator();
+			NonNullReference symb_receiver = (NonNullReference) ref(it.next());
+			String string = (String) value;
+			symb_input = env.heap.getField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, string, symb_receiver, string);
+
+		} else {
+			symb_input=null;
+		}
 	}
 
 }

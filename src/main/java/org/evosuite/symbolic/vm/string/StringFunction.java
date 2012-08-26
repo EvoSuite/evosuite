@@ -7,11 +7,8 @@ import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class StringFunction extends Function {
 
-	private static final String JAVA_LANG_STRING = String.class.getName()
-			.replace(".", "/");
-
-	public StringFunction(SymbolicEnvironment env, String name, String desc) {
-		super(env, JAVA_LANG_STRING, name, desc);
+   public StringFunction(SymbolicEnvironment env, String name, String desc) {
+		super(env, Types.JAVA_LANG_STRING, name, desc);
 	}
 
 	
