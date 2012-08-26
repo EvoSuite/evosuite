@@ -17,9 +17,11 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public final class PathConstraint {
+
+	private BranchCondition previousBranchCondition = null;
 
 	private final Stack<BranchCondition> branchConditions = new Stack<BranchCondition>();
 
@@ -28,7 +30,8 @@ public final class PathConstraint {
 
 	public void pushLocalConstraint(IntegerConstraint c) {
 
-		IntegerExpression left_integer_expression = (IntegerExpression) c.getLeftOperand();
+		IntegerExpression left_integer_expression = (IntegerExpression) c
+				.getLeftOperand();
 		IntegerExpression right_integer_expression = (IntegerExpression) c
 				.getRightOperand();
 		Comparator comp = c.getComparator();
@@ -58,14 +61,19 @@ public final class PathConstraint {
 		LinkedList<Constraint<?>> branch_local_constraints = new LinkedList<Constraint<?>>(
 				currentLocalConstraints);
 
-		BranchCondition new_branch = new BranchCondition(methName, methName,
-				branchIndex, branch_reaching_constraints,
-				branch_local_constraints);
+		BranchCondition new_branch = new BranchCondition(
+				previousBranchCondition, methName, methName, branchIndex,
+				branch_reaching_constraints, branch_local_constraints);
+		previousBranchCondition = new_branch;
 
 		branchConditions.push(new_branch);
 
 		reachingConstraints.addAll(currentLocalConstraints);
 		currentLocalConstraints.clear();
+	}
+
+	public BranchCondition getPreviousBranchCondition() {
+		return this.previousBranchCondition;
 	}
 
 	public List<BranchCondition> getBranchConditions() {
