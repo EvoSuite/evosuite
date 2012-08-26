@@ -947,6 +947,15 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		return null;
 	}
 
+	private boolean stackHasMethod(String methodName) {
+		for (MethodCall call : stack) {
+			if (call.methodName.equals(methodName))
+				return true;
+		}
+
+		return false;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -966,9 +975,21 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 					if (stack.peek().methodName.equals(""))
 						return;
 
-					logger.warn("Popping method " + stack.peek().methodName
-					        + " because we were looking for " + methodName);
-					finishedCalls.add(stack.pop());
+					if (stackHasMethod(methodName)) {
+						do {
+							logger.debug("Popping method " + stack.peek().methodName
+							        + " because we were looking for " + methodName);
+							finishedCalls.add(stack.pop());
+						} while (!stack.isEmpty()
+						        && !stack.peek().methodName.equals(methodName)
+						        && !stack.peek().methodName.equals(""));
+					} else {
+
+						logger.warn("Popping method " + stack.peek().methodName
+						        + " because we were looking for " + methodName);
+						logger.warn("Current stack: " + stack);
+						finishedCalls.add(stack.pop());
+					}
 					if (stack.isEmpty()) {
 						logger.warn("Method stack is empty: " + className + "."
 						        + methodName + " - l" + line); // TODO switch back
