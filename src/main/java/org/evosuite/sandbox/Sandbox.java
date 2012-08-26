@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,10 +22,9 @@ import java.util.ArrayList;
 import org.evosuite.Properties;
 import org.evosuite.utils.Utils;
 
-
 /**
  * Class which controls enabling and disabling sandbox.
- *
+ * 
  * @author Andrey Tarasevich
  */
 public class Sandbox {
@@ -45,7 +44,6 @@ public class Sandbox {
 	/** Constant <code>lastAccessedFile</code> */
 	public static EvosuiteFile lastAccessedFile = null;;
 
-	
 	private static PermissionStatistics statistics = PermissionStatistics.getInstance();
 
 	/**
@@ -69,6 +67,9 @@ public class Sandbox {
 	public static void setUpMocks() {
 		if (Properties.MOCKS)
 			mocks.setUpMocks();
+		if (Properties.VIRTUAL_FS) {
+			accessedFiles.clear();
+		}
 	}
 
 	/**
@@ -76,10 +77,12 @@ public class Sandbox {
 	 */
 	public static void tearDownMocks() {
 		mocks.tearDownMocks();
-		for (String s : statistics.getRecentFileReadPermissions()) {
-			EvosuiteFile a = new EvosuiteFile(s, "default content");
-			accessedFiles.add(a);
-			lastAccessedFile = a;
+		if (Properties.VIRTUAL_FS) {
+			for (String s : statistics.getRecentFileReadPermissions()) {
+				EvosuiteFile a = new EvosuiteFile(s, "default content");
+				accessedFiles.add(a);
+				lastAccessedFile = a;
+			}
 		}
 
 		statistics.resetRecentStatistic();
@@ -96,7 +99,7 @@ public class Sandbox {
 
 	/**
 	 * Checks if class is currently replaced by its mock.
-	 *
+	 * 
 	 * @param clazz
 	 *            class to check
 	 * @return true if class is mocked, false otherwise
@@ -106,8 +109,10 @@ public class Sandbox {
 	}
 
 	/**
-	 * <p>canUseFileContentGeneration</p>
-	 *
+	 * <p>
+	 * canUseFileContentGeneration
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public static boolean canUseFileContentGeneration() {
@@ -117,10 +122,14 @@ public class Sandbox {
 	}
 
 	/**
-	 * <p>generateFileContent</p>
-	 *
-	 * @param file a {@link org.evosuite.sandbox.EvosuiteFile} object.
-	 * @param content a {@link java.lang.String} object.
+	 * <p>
+	 * generateFileContent
+	 * </p>
+	 * 
+	 * @param file
+	 *            a {@link org.evosuite.sandbox.EvosuiteFile} object.
+	 * @param content
+	 *            a {@link java.lang.String} object.
 	 */
 	public static void generateFileContent(EvosuiteFile file, String content) {
 		if (file == null)
