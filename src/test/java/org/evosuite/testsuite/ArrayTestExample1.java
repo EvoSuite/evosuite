@@ -50,4 +50,13 @@ public class ArrayTestExample1 {
 		test[7] = 3;
 		test[9] = 6;
 	}
+
+	@Ignore
+	@Test
+	public void test5() {
+		int[] test = new int[2];
+		int x = 7;
+		test[0] = x;
+		test[1] = x;
+	}
 }
