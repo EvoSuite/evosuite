@@ -62,4 +62,8 @@ public class NonNullReference implements Reference {
 	public boolean isCollectable() {
 		return this.isInitialized() && this.getWeakConcreteObject() == null;
 	}
+	
+	public String getClassName() {
+		return this.className;
+	}
 }
