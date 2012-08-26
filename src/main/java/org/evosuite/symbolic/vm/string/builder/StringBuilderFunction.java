@@ -1,12 +1,11 @@
 package org.evosuite.symbolic.vm.string.builder;
 
-import static org.evosuite.symbolic.vm.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
-
 import org.evosuite.symbolic.expr.StringBuilderExpression;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
 
 public abstract class StringBuilderFunction extends Function {
@@ -53,7 +52,7 @@ public abstract class StringBuilderFunction extends Function {
 
 		StringExpression strExpr = this.env.heap.getField(
 				StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
-				STRING_BUILDER_CONTENTS, conc_receiver, symb_receiver,
+				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_receiver, symb_receiver,
 				conc_receiver.toString());
 
 		if (!(strExpr instanceof StringBuilderExpression)) {

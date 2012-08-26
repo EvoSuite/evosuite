@@ -15,7 +15,6 @@ import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.ReferenceOperand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-
 public final class RegionMatches extends StringFunction {
 
 	private static final String REGION_MATCHES = "regionMatches";
@@ -36,7 +35,7 @@ public final class RegionMatches extends StringFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		lenExpr = bv32(it.next());
 		ooffsetExpr = bv32(it.next());
-		otherExpr = operandToStringExpression(it.next());
+		otherExpr = getStringExpression(it.next());
 		toffsetExpr = bv32(it.next());
 		ignoreCaseExpr = bv32(it.next());
 		Operand receiver_operand = it.next();
@@ -45,7 +44,7 @@ public final class RegionMatches extends StringFunction {
 		if (receiver_ref instanceof NullReference) {
 			return;
 		}
-		stringReceiverExpr = operandToStringExpression(receiver_operand);
+		stringReceiverExpr = getStringExpression(receiver_operand);
 
 	}
 

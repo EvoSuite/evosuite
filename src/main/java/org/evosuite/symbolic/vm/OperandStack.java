@@ -6,7 +6,6 @@ import java.util.LinkedList;
 
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.StringExpression;
 
 /**
  * 
@@ -22,7 +21,6 @@ public final class OperandStack implements Iterable<Operand> {
 
 	public void pushRef(Reference r) {
 		stack.push(new ReferenceOperand(r));
-	 int i=0;
 	}
 
 	public void pushBv32(IntegerExpression e) {
@@ -39,10 +37,6 @@ public final class OperandStack implements Iterable<Operand> {
 
 	public void pushFp64(RealExpression e) {
 		stack.push(new Fp64Operand(e));
-	}
-
-	public void pushStringRef(StringExpression e) {
-		stack.push(new ReferenceOperand(new StringReference(e)));
 	}
 
 	public Reference popRef() {
@@ -120,22 +114,6 @@ public final class OperandStack implements Iterable<Operand> {
 		return stack.iterator();
 	}
 
-	public StringExpression peekStringRef() {
-		Operand operand = stack.peek();
-		ReferenceOperand refOp = (ReferenceOperand) operand;
-		Reference ref = refOp.getReference();
-		StringReference strRef = (StringReference) ref;
-		return strRef.getStringExpression();
-	}
-
-	public StringExpression popStringRef() {
-		Operand operand = this.popOperand();
-		ReferenceOperand refOp = (ReferenceOperand) operand;
-		Reference ref = refOp.getReference();
-		StringReference strRef = (StringReference) ref;
-		return strRef.getStringExpression();
-	}
-
 	public Reference peekRef() {
 		Operand operand = this.peekOperand();
 		ReferenceOperand refOp = (ReferenceOperand) operand;
@@ -159,8 +137,12 @@ public final class OperandStack implements Iterable<Operand> {
 	public int size() {
 		return stack.size();
 	}
-	
+
 	public boolean isEmpty() {
 		return stack.isEmpty();
+	}
+
+	public void pushNullRef() {
+		this.stack.push(new ReferenceOperand(NullReference.getInstance()));
 	}
 }

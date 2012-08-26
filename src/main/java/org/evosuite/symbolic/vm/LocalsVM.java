@@ -11,7 +11,7 @@ import edu.uta.cse.dsc.AbstractVM;
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public final class LocalsVM extends AbstractVM {
 
@@ -31,7 +31,7 @@ public final class LocalsVM extends AbstractVM {
 	 */
 	@Override
 	public void ACONST_NULL() {
-		env.topFrame().operandStack.pushRef(NullReference.getInstance());
+		env.topFrame().operandStack.pushNullRef();
 	}
 
 	/**
@@ -161,10 +161,13 @@ public final class LocalsVM extends AbstractVM {
 
 	@Override
 	public void LDC(String x) {
-		StringConstant strConstant = ExpressionFactory
-				.buildNewStringConstant(x);
-		env.topFrame().operandStack.pushStringRef(strConstant);
-
+		if (x == null) {
+			env.topFrame().operandStack.pushNullRef();
+		} else {
+			NonNullReference stringRef = (NonNullReference) env.heap
+					.getReference(x);
+			env.topFrame().operandStack.pushRef(stringRef);
+		}
 	}
 
 	/**

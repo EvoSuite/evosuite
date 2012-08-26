@@ -9,9 +9,10 @@ import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringMultipleExpression;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
 public abstract class Replace extends StringFunction {
 
@@ -35,23 +36,26 @@ public abstract class Replace extends StringFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.newCharExpr = bv32(it.next());
 			this.oldCharExpr = bv32(it.next());
-			this.stringReceiverExpr = operandToStringExpression(it.next());
+			this.stringReceiverExpr = getStringExpression(it.next());
 		}
 
 		@Override
 		public void CALL_RESULT(Object res) {
-			if (stringReceiverExpr.containsSymbolicVariable()
-					|| oldCharExpr.containsSymbolicVariable()
-					|| newCharExpr.containsSymbolicVariable()) {
+			if (res != null) {
 
-				StringMultipleExpression strTExpr = new StringMultipleExpression(
+				StringMultipleExpression symb_value = new StringMultipleExpression(
 						stringReceiverExpr, Operator.REPLACEC, oldCharExpr,
 						new ArrayList<Expression<?>>(Collections
 								.singletonList(newCharExpr)),
 						(String) res);
-				replaceStrRefTop(strTExpr);
-			} else {
-				// do nothing
+
+				NonNullReference symb_receiver = (NonNullReference) env
+						.topFrame().operandStack.peekRef();
+				String conc_receiver = (String) res;
+				env.heap.putField(Types.JAVA_LANG_STRING,
+						SymbolicHeap.$STRING_VALUE, conc_receiver,
+						symb_receiver, symb_value);
+
 			}
 		}
 	}
@@ -68,24 +72,29 @@ public abstract class Replace extends StringFunction {
 		@Override
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.newStringExpr = operandToStringExpression(it.next());
-			this.oldStringExpr = operandToStringExpression(it.next());
-			this.stringReceiverExpr = operandToStringExpression(it.next());
+			this.newStringExpr = getStringExpression(it.next());
+			this.oldStringExpr = getStringExpression(it.next());
+			this.stringReceiverExpr = getStringExpression(it.next());
 		}
 
 		@Override
 		public void CALL_RESULT(Object res) {
 			if (oldStringExpr != null && newStringExpr != null) {
-				if (stringReceiverExpr.containsSymbolicVariable()
-						|| oldStringExpr.containsSymbolicVariable()
-						|| newStringExpr.containsSymbolicVariable()) {
+				if (res != null) {
 
-					StringMultipleExpression strTExpr = new StringMultipleExpression(
+					StringMultipleExpression symb_value = new StringMultipleExpression(
 							stringReceiverExpr, Operator.REPLACECS,
 							oldStringExpr, new ArrayList<Expression<?>>(
 									Collections.singletonList(newStringExpr)),
 							(String) res);
-					replaceStrRefTop(strTExpr);
+
+					NonNullReference symb_receiver = (NonNullReference) env
+							.topFrame().operandStack.peekRef();
+					String conc_receiver = (String) res;
+					env.heap.putField(Types.JAVA_LANG_STRING,
+							SymbolicHeap.$STRING_VALUE, conc_receiver,
+							symb_receiver, symb_value);
+
 				}
 			}
 		}
