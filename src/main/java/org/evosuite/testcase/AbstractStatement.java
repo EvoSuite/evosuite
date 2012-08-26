@@ -282,6 +282,14 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return retval;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.StatementInterface#getNumParameters()
+	 */
+	@Override
+	public int getNumParameters() {
+		return 0;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 

@@ -774,7 +774,7 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private VariableReference createObject(TestCase test, Type type, int position,
+	public VariableReference createObject(TestCase test, Type type, int position,
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 		AccessibleObject o = TestCluster.getInstance().getRandomGenerator(clazz,
@@ -1238,50 +1238,56 @@ public class TestFactory {
 	public void insertRandomCallOnObject(TestCase test, int position) {
 		// Select a random variable
 		VariableReference var = selectVariableForCall(test, position);
-		if (var != null)
+
+		// Add call for this variable at random position
+		if (var != null) {
 			logger.debug("Inserting call at position " + position + ", chosen var: "
 			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
 			        + var.getClassName());
-		// Add call for this variable at random position
-		if (var != null) {
-			logger.debug("Chosen object: " + var.getName());
-			if (var instanceof ArrayReference) {
-				logger.debug("Chosen object is array ");
-				ArrayReference array = (ArrayReference) var;
-				if (array.getArrayLength() > 0) {
-					for (int i = 0; i < array.getArrayLength(); i++) {
-						int old_len = test.size();
-						try {
-							assignArray(test, array, i, position);
-							position += test.size() - old_len;
-						} catch (ConstructionFailedException e) {
-
-						}
-					}
-					/*
-					int index = Randomness.nextInt(array.getArrayLength());
-					try {
-						logger.info("Assigning new value to array at position " + index);
-						assignArray(test, var, index, position);
-					} catch (ConstructionFailedException e) {
-						// logger.info("Failed!");
-					}
-					*/
-				}
-			} else {
-				logger.debug("Getting calls for object " + var.toString());
-				Set<AccessibleObject> calls = TestCluster.getInstance().getCallsFor(var.getVariableClass());
-				if (!calls.isEmpty()) {
-					AccessibleObject call = Randomness.choice(calls);
-					logger.debug("Chosen call " + call);
-					addCallFor(test, var, call, position);
-					logger.debug("Done adding call " + call);
-				}
-
-			}
+			insertRandomCallOnObjectAt(test, var, position);
 		} else {
 			logger.debug("Adding new call on UUT");
 			insertRandomCall(test, position);
+		}
+	}
+
+	public void insertRandomCallOnObjectAt(TestCase test, VariableReference var,
+	        int position) {
+		// Select a random variable
+		logger.debug("Chosen object: " + var.getName());
+		if (var instanceof ArrayReference) {
+			logger.debug("Chosen object is array ");
+			ArrayReference array = (ArrayReference) var;
+			if (array.getArrayLength() > 0) {
+				for (int i = 0; i < array.getArrayLength(); i++) {
+					int old_len = test.size();
+					try {
+						assignArray(test, array, i, position);
+						position += test.size() - old_len;
+					} catch (ConstructionFailedException e) {
+
+					}
+				}
+				/*
+				int index = Randomness.nextInt(array.getArrayLength());
+				try {
+					logger.info("Assigning new value to array at position " + index);
+					assignArray(test, var, index, position);
+				} catch (ConstructionFailedException e) {
+					// logger.info("Failed!");
+				}
+				*/
+			}
+		} else {
+			logger.debug("Getting calls for object " + var.toString());
+			Set<AccessibleObject> calls = TestCluster.getInstance().getCallsFor(var.getVariableClass());
+			if (!calls.isEmpty()) {
+				AccessibleObject call = Randomness.choice(calls);
+				logger.debug("Chosen call " + call);
+				addCallFor(test, var, call, position);
+				logger.debug("Done adding call " + call);
+			}
+
 		}
 	}
 
