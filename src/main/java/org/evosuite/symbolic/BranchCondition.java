@@ -38,6 +38,7 @@ public class BranchCondition {
 	public final Set<Constraint<?>> reachingConstraints;
 	public final Set<Constraint<?>> localConstraints;
 	private final List<Constraint<?>> listOfLocalConstraints;
+	private final BranchCondition previousBranchCondition;
 
 	/**
 	 * <p>
@@ -60,6 +61,7 @@ public class BranchCondition {
 		this.reachingConstraints = reachingConstraints;
 		this.localConstraints = new HashSet<Constraint<?>>(localConstraints);
 		this.listOfLocalConstraints = localConstraints;
+		this.previousBranchCondition = previousBranchCondition;
 	}
 
 	/** {@inheritDoc} */
@@ -93,5 +95,9 @@ public class BranchCondition {
 
 	public List<Constraint<?>> listOfLocalConstraints() {
 		return listOfLocalConstraints;
+	}
+
+	public BranchCondition getPreviousBranchCondition() {
+		return previousBranchCondition;
 	}
 }

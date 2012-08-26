@@ -21,7 +21,7 @@ import org.evosuite.symbolic.expr.StringToIntCast;
  */
 public final class PathConstraint {
 
-	private final BranchCondition previousBranchCondition = null;
+	private BranchCondition previousBranchCondition = null;
 
 	private final Stack<BranchCondition> branchConditions = new Stack<BranchCondition>();
 
@@ -70,10 +70,6 @@ public final class PathConstraint {
 
 		reachingConstraints.addAll(currentLocalConstraints);
 		currentLocalConstraints.clear();
-	}
-
-	public BranchCondition getPreviousBranchCondition() {
-		return this.previousBranchCondition;
 	}
 
 	public List<BranchCondition> getBranchConditions() {
