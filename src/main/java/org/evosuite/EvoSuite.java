@@ -622,6 +622,8 @@ public class EvoSuite {
 		Option assertions = new Option("assertions", "Add assertions");
 		Option signature = new Option("signature",
 		        "Allow manual tweaking of method signatures");
+		Option heapDump = new Option("heapdump",
+		        "Create heap dump on client VM out of memory error");
 
 		Option base_dir = OptionBuilder.withArgName("base_dir").hasArg().withDescription("Working directory").create("base_dir");
 
@@ -646,6 +648,7 @@ public class EvoSuite {
 		options.addOption(base_dir);
 		options.addOption(property);
 		options.addOption(classPath);
+		options.addOption(heapDump);
 
 		options.addOption(sandbox);
 		options.addOption(mocks);
@@ -689,6 +692,8 @@ public class EvoSuite {
 
 			if (line.hasOption("mem"))
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
+			if (line.hasOption("heapdump"))
+				javaOpts.add("-XX:+HeapDumpOnOutOfMemoryError");
 			if (line.hasOption("jar"))
 				evosuiteJar = line.getOptionValue("jar");
 			if (line.hasOption("criterion"))

@@ -275,8 +275,10 @@ public class Changer {
 		double newDist;
 		boolean improvement = false;
 		boolean done = false;
+		log.debug("Initial distance calculation " + intVar);
 
 		backup(intVar, DistanceEstimator.getDistance(cnstr));
+		log.debug("Initial distance calculation done");
 
 		while (!done) {
 			done = true;
