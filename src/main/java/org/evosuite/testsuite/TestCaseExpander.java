@@ -34,6 +34,8 @@ public class TestCaseExpander {
 				visitConstructorStatement(expandedTest, (ConstructorStatement) statement);
 			} else if (statement instanceof ArrayStatement) {
 				visitArrayStatement(expandedTest, ((ArrayStatement) statement));
+			} else if (statement instanceof AssignmentStatement) {
+				visitAssignmentStatement(expandedTest, ((AssignmentStatement) statement));
 			}
 			currentPosition++;
 		}
@@ -140,6 +142,22 @@ public class TestCaseExpander {
 			test.addStatement(assignment, position++);
 
 		}
+	}
+
+	public void visitAssignmentStatement(TestCase test, AssignmentStatement statement) {
+
+		VariableReference var = statement.getValue();
+		if (var.isPrimitive() || var.isString()) {
+			if (usedVariables.contains(var)
+			        && test.getStatement(var.getStPosition()) instanceof PrimitiveStatement<?>) {
+				// Duplicate and replace
+				VariableReference varCopy = duplicateStatement(test, var);
+				statement.replace(var, varCopy);
+				usedVariables.add(varCopy);
+			}
+			usedVariables.add(var);
+		}
+
 	}
 
 }

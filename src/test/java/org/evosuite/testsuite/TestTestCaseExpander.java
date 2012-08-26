@@ -88,4 +88,22 @@ public class TestTestCaseExpander {
 		        + code, testCase.size() + 2, expandedTest.size());
 		Assert.assertFalse(code.equals(expandedCode));
 	}
+
+	@Test
+	public void testArrayAssignment() {
+		Properties.PROJECT_PREFIX = "org.evosuite.testsuite";
+		JUnitTestReader reader = new JUnitTestReader(null, new String[] { SRCDIR });
+		TestCase testCase = reader.readJUnitTestCase(ArrayTestExample1.class.getName()
+		        + "#test5");
+		testCase.clone();
+		String code = testCase.toCode();
+
+		TestCaseExpander expander = new TestCaseExpander();
+		TestCase expandedTest = expander.expandTestCase(testCase);
+		String expandedCode = expandedTest.toCode();
+
+		Assert.assertEquals("Wrong length of test: " + expandedCode + ", original test: "
+		        + code, testCase.size() + 1, expandedTest.size());
+		Assert.assertFalse(code.equals(expandedCode));
+	}
 }
