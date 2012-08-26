@@ -2,6 +2,7 @@ package org.evosuite.symbolic;
 
 import static org.junit.Assert.assertEquals;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -1020,5 +1021,39 @@ public class SymbolicObserverTest {
 
 		printConstraints(branch_conditions);
 		assertEquals(0, branch_conditions.size());
+	}
+
+	private static DefaultTestCase build_test_input_17()
+			throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+
+		Method test = TestCase86.class.getMethod("test", int.class);
+
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference int0 = tc.appendIntPrimitive(Integer.MAX_VALUE);
+		tc.appendMethod(null, test, int0);
+
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void test17() throws SecurityException, NoSuchMethodException,
+			NoSuchFieldException {
+		Properties.CLIENT_ON_THREAD = true;
+		Properties.PRINT_TO_SYSTEM = true;
+		Properties.TIMEOUT = 5000000;
+
+		DefaultTestCase tc = build_test_input_17();
+
+		System.out.println("TestCase=");
+		System.out.println(tc.toCode());
+
+		ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = concolicExecutor
+				.executeConcolic(tc);
+
+		printConstraints(branch_conditions);
+		assertEquals(3, branch_conditions.size());
 	}
 }
