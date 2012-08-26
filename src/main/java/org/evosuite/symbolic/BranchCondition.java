@@ -43,16 +43,16 @@ public class BranchCondition {
 	 * <p>
 	 * Constructor for BranchCondition.
 	 * </p>
-	 * 
-	 * @param ins
-	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
+	 * @param previousBranchCondition TODO
 	 * @param reachingConstraints
 	 *            a {@link java.util.Set} object.
 	 * @param localConstraints
 	 *            a {@link java.util.Set} object.
+	 * @param ins
+	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(String className, String methodName, int lineNumber,
-	        Set<Constraint<?>> reachingConstraints, List<Constraint<?>> localConstraints) {
+	public BranchCondition(BranchCondition previousBranchCondition, String className, String methodName,
+	        int lineNumber, Set<Constraint<?>> reachingConstraints, List<Constraint<?>> localConstraints) {
 		this.className = className;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
