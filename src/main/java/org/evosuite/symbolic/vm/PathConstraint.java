@@ -26,7 +26,6 @@ public final class PathConstraint {
 	private final Stack<BranchCondition> branchConditions = new Stack<BranchCondition>();
 
 	private final LinkedList<Constraint<?>> currentLocalConstraints = new LinkedList<Constraint<?>>();
-	private final LinkedList<Constraint<?>> reachingConstraints = new LinkedList<Constraint<?>>();
 
 	public void pushLocalConstraint(IntegerConstraint c) {
 
@@ -69,19 +68,16 @@ public final class PathConstraint {
 						.containsSymbolicVariable())
 			this.pushLocalConstraint(ending_constraint);
 
-		HashSet<Constraint<?>> branch_reaching_constraints = new HashSet<Constraint<?>>(
-				reachingConstraints);
 		LinkedList<Constraint<?>> branch_local_constraints = new LinkedList<Constraint<?>>(
 				currentLocalConstraints);
 
 		BranchCondition new_branch = new BranchCondition(
 				previousBranchCondition, methName, methName, branchIndex,
-				branch_reaching_constraints, branch_local_constraints);
+				branch_local_constraints);
 		previousBranchCondition = new_branch;
 
 		branchConditions.push(new_branch);
 
-		reachingConstraints.addAll(currentLocalConstraints);
 		currentLocalConstraints.clear();
 	}
 
