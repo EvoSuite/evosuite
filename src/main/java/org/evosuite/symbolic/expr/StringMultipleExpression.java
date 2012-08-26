@@ -222,7 +222,7 @@ public class StringMultipleExpression extends StringBinaryExpression implements
 			thrdStr = (String) other_v.get(0).execute();
 			return first.replaceFirst(secStr, thrdStr);
 		default:
-			log.warn("StringMultipleExpression: unimplemented operator!");
+			log.warn("StringMultipleExpression: unimplemented operator: " + op);
 			return null;
 		}
 	}

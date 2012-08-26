@@ -25,12 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class IntegerBinaryExpression extends IntegerExpression implements
-		BinaryExpression<Long> {
+        BinaryExpression<Long> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(IntegerBinaryExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(IntegerBinaryExpression.class);
 
 	protected Long concretValue;
 
@@ -54,13 +53,13 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	 *            a {@link java.lang.Long} object.
 	 */
 	public IntegerBinaryExpression(Expression<Long> left2, Operator op2,
-			Expression<Long> right2, Long con) {
+	        Expression<Long> right2, Long con) {
 		this.concretValue = con;
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
 		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
-				|| this.right.containsSymbolicVariable();
+		        || this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -106,10 +105,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 		}
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
-			return this.op.equals(other.op)
-					&& this.getSize() == other.getSize()
-					&& this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
 		return false;
@@ -163,7 +160,7 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 			return Math.min(leftVal, rightVal);
 
 		default:
-			log.warn("IntegerBinaryExpression: unimplemented operator!");
+			log.warn("IntegerBinaryExpression: unimplemented operator: " + op);
 			return null;
 		}
 	}

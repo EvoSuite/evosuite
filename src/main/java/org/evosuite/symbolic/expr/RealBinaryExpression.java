@@ -159,7 +159,7 @@ public class RealBinaryExpression extends RealExpression implements
 			return Math.scalb(leftVal, (int) rightVal);
 
 		default:
-			log.warn("IntegerBinaryExpression: unimplemented operator!");
+			log.warn("IntegerBinaryExpression: unimplemented operator: " + op);
 			return null;
 		}
 
