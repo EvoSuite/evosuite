@@ -66,9 +66,9 @@ public class ConcolicMutation {
 	@SuppressWarnings("unchecked")
 	public static TestCase negateCondition(BranchCondition condition, TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
-		constraints.addAll(condition.reachingConstraints);
+		constraints.addAll(condition.getReachingConstraints());
 		//constraints.addAll(condition.localConstraints);
-		Constraint<Long> c = (Constraint<Long>) condition.localConstraints.iterator().next();
+		Constraint<Long> c = (Constraint<Long>) condition.getLocalConstraints().iterator().next();
 		Constraint<Long> targetConstraint = new IntegerConstraint(c.getLeftOperand(),
 		        c.getComparator().not(), c.getRightOperand());
 		constraints.add(targetConstraint);
