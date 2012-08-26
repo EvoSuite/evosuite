@@ -9,7 +9,6 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-
 public final class EqualsIgnoreCase extends StringFunction {
 
 	private static final String EQUALS_IGNORE_CASE = "equalsIgnoreCase";
@@ -22,8 +21,8 @@ public final class EqualsIgnoreCase extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = operandToStringExpression(it.next());
-		this.stringReceiverExpr = operandToStringExpression(it.next());
+		this.strExpr = getStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next());
 	}
 
 	@Override

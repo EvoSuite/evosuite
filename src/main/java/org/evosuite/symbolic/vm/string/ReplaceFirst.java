@@ -8,9 +8,10 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringMultipleExpression;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
 public final class ReplaceFirst extends StringFunction {
 
@@ -27,24 +28,27 @@ public final class ReplaceFirst extends StringFunction {
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-		this.replacementExpr = operandToStringExpression(it.next());
-		this.regexExpr = operandToStringExpression(it.next());
-		this.stringReceiverExpr = stringRef(it.next());
+		this.replacementExpr = getStringExpression(it.next());
+		this.regexExpr = getStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next());
 
 	}
 
 	@Override
 	public void CALL_RESULT(Object res) {
-		if (stringReceiverExpr.containsSymbolicVariable()
-				|| regexExpr.containsSymbolicVariable()
-				|| replacementExpr.containsSymbolicVariable()) {
+		if (res != null) {
 
-			StringMultipleExpression strTExpr = new StringMultipleExpression(
+			StringMultipleExpression symb_value = new StringMultipleExpression(
 					stringReceiverExpr, Operator.REPLACEFIRST, regexExpr,
 					new ArrayList<Expression<?>>(Collections
 							.singletonList(replacementExpr)),
 					(String) res);
-			replaceStrRefTop(strTExpr);
+			NonNullReference symb_receiver = (NonNullReference) env.topFrame().operandStack
+					.peekRef();
+			String conc_receiver = (String) res;
+			env.heap.putField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
+					symb_value);
 		}
 	}
 }

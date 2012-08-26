@@ -22,8 +22,8 @@ public final class CompareToIgnoreCase extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = operandToStringExpression(it.next());
-		this.stringReceiverExpr = operandToStringExpression(it.next());
+		this.strExpr = getStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next());
 	}
 
 	@Override

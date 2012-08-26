@@ -5,7 +5,7 @@ import java.lang.ref.WeakReference;
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public class NonNullReference implements Reference {
 
@@ -62,8 +62,12 @@ public class NonNullReference implements Reference {
 	public boolean isCollectable() {
 		return this.isInitialized() && this.getWeakConcreteObject() == null;
 	}
-	
+
 	public String getClassName() {
 		return this.className;
+	}
+
+	public boolean isString() {
+		return this.className.equals(String.class.getName());
 	}
 }

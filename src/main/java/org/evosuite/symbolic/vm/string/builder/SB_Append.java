@@ -1,6 +1,5 @@
 package org.evosuite.symbolic.vm.string.builder;
 
-import static org.evosuite.symbolic.vm.string.builder.StringBuilderConstants.STRING_BUILDER_CONTENTS;
 
 import java.util.Iterator;
 
@@ -14,10 +13,9 @@ import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.Reference;
-import org.evosuite.symbolic.vm.StringReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 import org.evosuite.symbolic.vm.string.Types;
-
 
 public abstract class SB_Append extends StringBuilderFunction {
 
@@ -75,18 +73,30 @@ public abstract class SB_Append extends StringBuilderFunction {
 			 * Gather symbolic arguments
 			 */
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
-			Reference refStrToAppend = ref(it.next());
+			ref(it.next());
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
+		}
+
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+				Object value) {
+			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
+			Reference refStrToAppend = ref(it.next());
 			if (isNullRef(refStrToAppend)) {
 				strExprToAppend = ExpressionFactory
 						.buildNewStringConstant(NULL_STRING);
 			} else {
-				StringReference strRef = (StringReference) refStrToAppend;
-				strExprToAppend = strRef.getStringExpression();
+				NonNullReference symb_string = (NonNullReference) refStrToAppend;
+				String string = (String) value;
+				strExprToAppend = env.heap
+						.getField(Types.JAVA_LANG_STRING,
+								SymbolicHeap.$STRING_VALUE, string,
+								symb_string, string);
+
 			}
 		}
 	}
@@ -262,14 +272,14 @@ public abstract class SB_Append extends StringBuilderFunction {
 	@Override
 	public void CALL_RESULT(Object res) {
 		// get from symbolic heap (or create if null)
-		if (conc_str_builder_to_string_pre==null) {
+		if (conc_str_builder_to_string_pre == null) {
 			conc_str_builder_to_string_pre = NULL_STRING;
 		}
-		
-		StringExpression strExpr = this.env.heap
-				.getField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
-						conc_str_builder, symb_receiver,
-						conc_str_builder_to_string_pre);
+
+		StringExpression strExpr = this.env.heap.getField(
+				StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder, symb_receiver,
+				conc_str_builder_to_string_pre);
 
 		StringBuilderExpression stringBuilderExpr;
 		if (!(strExpr instanceof StringBuilderExpression)) {
@@ -282,8 +292,9 @@ public abstract class SB_Append extends StringBuilderFunction {
 		stringBuilderExpr.append(strExprToAppend);
 
 		// store to symbolic heap
-		env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER, STRING_BUILDER_CONTENTS,
-				conc_str_builder, symb_receiver, stringBuilderExpr);
+		env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder, symb_receiver,
+				stringBuilderExpr);
 
 		this.symb_receiver = null;
 		this.conc_str_builder = null;

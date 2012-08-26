@@ -2,8 +2,9 @@ package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringUnaryExpression;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
 public final class Trim extends StringFunction {
 
@@ -15,18 +16,22 @@ public final class Trim extends StringFunction {
 
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
-		this.stringReceiverExpr = operandToStringExpression(env.topFrame().operandStack
+		this.stringReceiverExpr = getStringExpression(env.topFrame().operandStack
 				.peekOperand());
 	}
 
 	@Override
 	public void CALL_RESULT(Object res) {
-		if (stringReceiverExpr.containsSymbolicVariable()) {
-			StringUnaryExpression strUnExpr = new StringUnaryExpression(
+		if (res != null) {
+			StringUnaryExpression symb_value = new StringUnaryExpression(
 					stringReceiverExpr, Operator.TRIM, (String) res);
-			replaceStrRefTop(strUnExpr);
-		} else {
-			// do nothing
+
+			NonNullReference symb_receiver = (NonNullReference) env.topFrame().operandStack
+					.peekRef();
+			String conc_receiver = (String) res;
+			env.heap.putField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
+					symb_value);
 		}
 	}
 }

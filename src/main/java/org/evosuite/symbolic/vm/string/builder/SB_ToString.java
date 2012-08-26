@@ -3,8 +3,8 @@ package org.evosuite.symbolic.vm.string.builder;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 import org.evosuite.symbolic.vm.string.Types;
-
 
 public final class SB_ToString extends StringBuilderFunction {
 
@@ -33,13 +33,19 @@ public final class SB_ToString extends StringBuilderFunction {
 
 		// get from symbolic heap (it could be null if no symbolic expression
 		// was saved)
-		this.stringBuilderExpr = this.getStringBuilderExpression(conc_str_builder,
-				this.symb_receiver);
+		this.stringBuilderExpr = this.getStringBuilderExpression(
+				conc_str_builder, this.symb_receiver);
 
-		if (this.stringBuilderExpr.containsSymbolicVariable()) {
-			StringExpression stringExpr = (StringExpression) this.stringBuilderExpr
+		if (res != null) {
+			StringExpression symb_value = (StringExpression) this.stringBuilderExpr
 					.getExpr();
-			this.replaceStrRefTop(stringExpr);
+
+			NonNullReference symb_receiver = (NonNullReference) env.topFrame().operandStack
+					.peekRef();
+			String conc_receiver = (String) res;
+			env.heap.putField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
+					symb_value);
 		}
 
 	}

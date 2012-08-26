@@ -224,7 +224,7 @@ public final class JumpVM extends AbstractVM {
 	public void IFNULL(String className, String methName, int branchIndex,
 			Object p) {
 		// right hand side argument of EQ
-		env.topFrame().operandStack.pushRef(NullReference.getInstance());
+		env.topFrame().operandStack.pushNullRef();
 
 		// comparison
 		IF_ACMPEQ(className, methName, branchIndex, p, null); // use general
@@ -285,7 +285,10 @@ public final class JumpVM extends AbstractVM {
 		}
 
 		for (int i = 0; i < constraints.size() - 1; i++) {
-			pc.pushLocalConstraint(constraints.get(i));
+			IntegerConstraint cnstrt = constraints.get(i);
+			if (cnstrt.getLeftOperand().containsSymbolicVariable()
+					|| cnstrt.getRightOperand().containsSymbolicVariable())
+				pc.pushLocalConstraint(cnstrt);
 		}
 		pc.pushBranchCondition(className, methName, branchIndex,
 				constraints.get(constraints.size() - 1));
@@ -329,7 +332,10 @@ public final class JumpVM extends AbstractVM {
 		}
 
 		for (int i = 0; i < constraints.size() - 1; i++) {
-			pc.pushLocalConstraint(constraints.get(i));
+			IntegerConstraint cnstrnt = constraints.get(i);
+			if (cnstrnt.getLeftOperand().containsSymbolicVariable()
+					|| cnstrnt.getRightOperand().containsSymbolicVariable())
+				pc.pushLocalConstraint(cnstrnt);
 		}
 		pc.pushBranchCondition(className, methName, branchIndex,
 				constraints.get(constraints.size() - 1));

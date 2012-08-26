@@ -42,7 +42,9 @@ public final class ArithmeticVM extends AbstractVM {
 		else
 			zeroCheck = ConstraintFactory.neq(value, zero);
 
-		pathConstraint.pushLocalConstraint(zeroCheck);
+		if (zeroCheck.getLeftOperand().containsSymbolicVariable()
+				|| zeroCheck.getRightOperand().containsSymbolicVariable())
+			pathConstraint.pushLocalConstraint(zeroCheck);
 
 		if (valueConcrete == 0) {
 			// JVM will throw an exception
