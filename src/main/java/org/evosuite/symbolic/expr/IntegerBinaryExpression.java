@@ -135,6 +135,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 			return leftVal << rightVal;
 		case SHR:
 			return leftVal >> rightVal;
+		case USHR:
+			return leftVal >>> rightVal;
 		case AND:
 		case IAND:
 			return leftVal & rightVal;
