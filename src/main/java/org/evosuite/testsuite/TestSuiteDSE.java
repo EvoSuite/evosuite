@@ -20,7 +20,6 @@
  */
 package org.evosuite.testsuite;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -150,15 +149,13 @@ public class TestSuiteDSE {
 			List<BranchCondition> branches;
 			branches = concolicExecution.getSymbolicPath(expandedChromosome);
 
-
-
 			for (BranchCondition branch : branches) {
 				String index = branch.getFullName() + branch.getInstructionIndex();
 				if (!solvedConstraints.containsKey(index))
 					solvedConstraints.put(index,
 					                      new HashMap<Integer, Map<Comparator, Set<BranchCondition>>>());
 				int localConstraint = 0;
-				for (Constraint c : branch.localConstraints) {
+				for (Constraint<?> c : branch.getLocalConstraints()) {
 					if (!solvedConstraints.get(index).containsKey(localConstraint))
 						solvedConstraints.get(index).put(localConstraint,
 						                                 new HashMap<Comparator, Set<BranchCondition>>());
@@ -206,8 +203,8 @@ public class TestSuiteDSE {
 						        + comparatorConstraints.get(c).size()
 						        + " candidate constraints");
 						BranchCondition branch = Randomness.choice(comparatorConstraints.get(c));
-						TestCase newTest = negateCondition(branch.reachingConstraints,
-						                                   branch.localConstraints,
+						TestCase newTest = negateCondition(branch.getReachingConstraints(),
+						                                   branch.getLocalConstraints(),
 						                                   expandedTests.get(branch),
 						                                   localConstraint);
 						if (newTest != null) {
@@ -308,8 +305,8 @@ public class TestSuiteDSE {
 						        + branch.getInstructionIndex() + ": " + branch);
 
 						// Try to solve negated constraint
-						TestCase newTest = negateCondition(branch.reachingConstraints,
-						                                   branch.localConstraints,
+						TestCase newTest = negateCondition(branch.getReachingConstraints(),
+						                                   branch.getLocalConstraints(),
 						                                   expandedTest);
 
 						// If successful, add resulting test to test suite

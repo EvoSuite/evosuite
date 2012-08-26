@@ -17,7 +17,6 @@
  */
 package org.evosuite.symbolic;
 
-import java.lang.reflect.Method;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -52,8 +51,7 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  */
 public class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
 	/**
 	 * Retrieve the path condition for a given test case
@@ -64,14 +62,12 @@ public class ConcolicExecution {
 	 */
 	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
-				.getTestCase();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected List<BranchCondition> executeConcolic(
-			DefaultTestCase defaultTestCase) {
+	protected List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
 
@@ -113,7 +109,7 @@ public class ConcolicExecution {
 		TestCaseExecutor.runTest(defaultTestCase);
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
-				+ " branches collected");
+		        + " branches collected");
 		logNrOfConstraints(branches);
 
 		logger.debug("Cleaning concolic execution");
@@ -126,21 +122,19 @@ public class ConcolicExecution {
 		int nrOfConstantConstraints = 0;
 		int nrOfConstraints = 0;
 		for (BranchCondition branchCondition : branches) {
-			for (Constraint<?> constraint : branchCondition.localConstraints) {
+			for (Constraint<?> constraint : branchCondition.getLocalConstraints()) {
 				if (!constraint.getLeftOperand().containsSymbolicVariable()
-						&& !constraint.getRightOperand()
-								.containsSymbolicVariable()) {
+				        && !constraint.getRightOperand().containsSymbolicVariable()) {
 					nrOfConstantConstraints++;
 				}
 				nrOfConstraints++;
 			}
 		}
-		double percentage = (double) nrOfConstantConstraints
-				/ (double) nrOfConstraints;
+		double percentage = (double) nrOfConstantConstraints / (double) nrOfConstraints;
 
 		logger.debug("nrOfConstantConstraints=" + nrOfConstantConstraints);
 		logger.debug("nrOfConstraints=" + nrOfConstraints);
 		logger.debug("Percentage of constant constraints="
-				+ MessageFormat.format("{0,number,percent}", percentage));
+		        + MessageFormat.format("{0,number,percent}", percentage));
 	}
 }
