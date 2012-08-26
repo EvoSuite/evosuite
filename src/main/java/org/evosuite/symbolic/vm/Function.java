@@ -3,6 +3,7 @@ package org.evosuite.symbolic.vm;
 import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.RealExpression;
 import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.vm.wrappers.Types;
 
 /**
  * 
@@ -138,11 +139,32 @@ public abstract class Function {
 		}
 	}
 
-	protected static StringExpression stringRef(Operand operand) {
+	protected StringExpression stringRef(Operand operand) {
 		ReferenceOperand refOp = (ReferenceOperand) operand;
 		Reference ref = (Reference) refOp.getReference();
-		StringReference stringRef = (StringReference) ref;
-		return stringRef.getStringExpression();
+		if (ref instanceof NullReference) {
+			throw new ClassCastException(
+					"cannot cast a NullReference to a StringReference!");
+		} else if (ref instanceof StringReference) {
+			StringReference stringRef = (StringReference) ref;
+			return stringRef.getStringExpression();
+
+		} else {
+			NonNullReference nonNullRef = (NonNullReference) ref;
+			if (nonNullRef.getClassName().equals(String.class.getName())) {
+				String conc_string = (String) nonNullRef
+						.getWeakConcreteObject();
+				StringExpression strExpr = env.heap.getField(
+						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
+						conc_string, nonNullRef, conc_string);
+				return strExpr;
+			} else {
+				throw new ClassCastException(
+						"cannot cast a NullReference of class "
+								+ nonNullRef.getClassName()
+								+ " to a StringReference!");
+			}
+		}
 	}
 
 	protected void replaceStrRefTop(StringExpression expr) {
