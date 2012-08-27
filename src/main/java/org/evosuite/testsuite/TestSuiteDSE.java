@@ -21,7 +21,6 @@
 package org.evosuite.testsuite;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -30,11 +29,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.Properties;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.ga.DSEBudget;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.expr.BinaryExpression;
@@ -49,7 +46,6 @@ import org.evosuite.symbolic.expr.StringMultipleComparison;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.search.Seeker;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -155,17 +151,18 @@ public class TestSuiteDSE {
 					solvedConstraints.put(index,
 					                      new HashMap<Integer, Map<Comparator, Set<BranchCondition>>>());
 				int localConstraint = 0;
-				for (Constraint<?> c : branch.getLocalConstraints()) {
-					if (!solvedConstraints.get(index).containsKey(localConstraint))
-						solvedConstraints.get(index).put(localConstraint,
-						                                 new HashMap<Comparator, Set<BranchCondition>>());
-					if (!solvedConstraints.get(index).get(localConstraint).containsKey(c.getComparator()))
-						solvedConstraints.get(index).get(localConstraint).put(c.getComparator(),
-						                                                      new HashSet<BranchCondition>());
-					solvedConstraints.get(index).get(localConstraint).get(c.getComparator()).add(branch);
-					expandedTests.put(branch, expandedTest);
-					localConstraint++;
-				}
+				Constraint<?> c = branch.getLocalConstraint();
+				//				for (Constraint<?> c : branch.getLocalConstraints()) {
+				if (!solvedConstraints.get(index).containsKey(localConstraint))
+					solvedConstraints.get(index).put(localConstraint,
+					                                 new HashMap<Comparator, Set<BranchCondition>>());
+				if (!solvedConstraints.get(index).get(localConstraint).containsKey(c.getComparator()))
+					solvedConstraints.get(index).get(localConstraint).put(c.getComparator(),
+					                                                      new HashSet<BranchCondition>());
+				solvedConstraints.get(index).get(localConstraint).get(c.getComparator()).add(branch);
+				expandedTests.put(branch, expandedTest);
+				localConstraint++;
+				//				}
 			}
 		}
 
@@ -192,7 +189,7 @@ public class TestSuiteDSE {
 					logger.info("Comparator " + c);
 					for (BranchCondition bc : comparatorConstraints.get(c)) {
 						logger.info("Branch details: " + bc.getFullName() + ":"
-						        + bc.getLineNumber());
+						        + bc.getInstructionIndex());
 					}
 				}
 				for (Comparator c : comparatorConstraints.keySet()) {
@@ -204,9 +201,8 @@ public class TestSuiteDSE {
 						        + " candidate constraints");
 						BranchCondition branch = Randomness.choice(comparatorConstraints.get(c));
 						TestCase newTest = negateCondition(branch.getReachingConstraints(),
-						                                   branch.getLocalConstraints(),
-						                                   expandedTests.get(branch),
-						                                   localConstraint);
+						                                   branch.getLocalConstraint(),
+						                                   expandedTests.get(branch));
 						if (newTest != null) {
 							logger.info("Found new test!");
 							clone.addTest(newTest);
@@ -228,7 +224,7 @@ public class TestSuiteDSE {
 						logger.info("Branch is covered both ways: " + c);
 						BranchCondition branch = Randomness.choice(comparatorConstraints.get(c));
 						logger.info("Branch details: " + branch.getFullName() + ":"
-						        + branch.getLineNumber());
+						        + branch.getInstructionIndex());
 					}
 				}
 			}
@@ -238,142 +234,6 @@ public class TestSuiteDSE {
 		}
 
 		DSEBudget.evaluation();
-	}
-
-	/**
-	 * For each uncovered branch try to add a new test
-	 * 
-	 * @param individual
-	 *            a {@link org.evosuite.testsuite.TestSuiteChromosome} object.
-	 */
-	public void applyOldDSE(TestSuiteChromosome individual) {
-		long dseEndTime = System.currentTimeMillis() + Properties.DSE_BUDGET;
-		clearBranches();
-		determineCoveredBranches(individual);
-
-		ConcolicExecution concolicExecution = new ConcolicExecution();
-
-		logger.info("Applying DSE to suite of size " + individual.size());
-		logger.info("Starting with " + uncoveredBranches.size() + " candidate branches");
-
-		List<TestChromosome> testsToHandle = new LinkedList<TestChromosome>();
-
-		testsToHandle.addAll(individual.getTestChromosomes());
-		Collections.shuffle(testsToHandle);
-
-		while (!testsToHandle.isEmpty() && System.currentTimeMillis() < dseEndTime) {
-			// pop the first element
-			TestChromosome test = testsToHandle.get(0);
-			testsToHandle.remove(0);
-
-			if (test.getLastExecutionResult().hasTimeout()) {
-				logger.info("Skipping test with timeout");
-				continue;
-			}
-
-			// Only apply DSE if if makes any sense
-			if (hasUncoveredBranches(test)) {
-				logger.info("Found uncovered branches in test, applying DSE");
-
-				// TODO: Mapping back to original is missing
-				TestCase expandedTest = expandTestCase(test.getTestCase());
-				TestChromosome expandedChromosome = new TestChromosome();
-				expandedChromosome.setTestCase(expandedTest);
-				test.setTestCase(expandedTest);
-				test.clearCachedResults();
-
-				logger.info("DSE start");
-				// Apply DSE to gather constraints
-				List<BranchCondition> branches = concolicExecution.getSymbolicPath(expandedChromosome);
-
-				logger.info("DSE finished - found " + branches.size() + " branches");
-
-				// For each uncovered branch
-				for (BranchCondition branch : branches) {
-					String className = branch.getClassName();
-
-					// TODO: Need to match prefixes?
-					if (!className.equals(Properties.TARGET_CLASS)
-					        && !className.startsWith(Properties.TARGET_CLASS + "$")) {
-						logger.debug("Branch is not in target class: " + className);
-						continue;
-					}
-
-					// logger.debug("Current branch: " + branch);
-					if (isUncovered(branch) && coverable(branch)) {
-						logger.info("Trying to cover branch "
-						        + branch.getInstructionIndex() + ": " + branch);
-
-						// Try to solve negated constraint
-						TestCase newTest = negateCondition(branch.getReachingConstraints(),
-						                                   branch.getLocalConstraints(),
-						                                   expandedTest);
-
-						// If successful, add resulting test to test suite
-						if (newTest != null) {
-							TestChromosome newChromosome = new TestChromosome();
-							newChromosome.setTestCase(newTest);
-							updateTestSuite(individual, newChromosome);
-
-							// testsToHandle.add(newChromosome);
-							// Collections.shuffle(testsToHandle);
-
-							// newTests.add(newTest);
-							// setCovered(branch);
-							// assert (uncoveredBranches.size() < oldCovered);
-							if (uncoveredBranches.isEmpty()) {
-								nrSolvedConstraints += nrCurrConstraints;
-								nrCurrConstraints = 0;
-								break;
-							}
-							if (isUncovered(branch)) {
-								logger.info("Branch is not covered!");
-								if (!newChromosome.getLastExecutionResult().noThrownExceptions()) {
-									logger.info("Test has exception");
-								} else {
-									logger.info("Old test: " + expandedTest.toCode());
-									logger.info("New test: " + newTest.toCode());
-									setUncoverable(branch);
-									// assert (false);
-								}
-								nrCurrConstraints = 0;
-							} else {
-								testsToHandle.add(newChromosome);
-								Collections.shuffle(testsToHandle);
-								nrSolvedConstraints += nrCurrConstraints;
-								nrCurrConstraints = 0;
-							}
-
-							logger.info("-> Remaining " + uncoveredBranches.size()
-							        + " candidate branches");
-							logger.info("Resulting suite has size " + individual.size());
-						} else {
-							nrCurrConstraints = 0;
-						}
-					} else {
-						logger.debug("Already covered or uncoverable branch "
-						        + branch.getInstructionIndex());// + ": " +
-						                                        // branch);
-
-					}
-				}
-				logger.info("Remaining " + uncoveredBranches.size()
-				        + " candidate branches");
-			} else {
-				logger.info("Test no uncovered branches");
-			}
-		}
-
-		logger.info("Resulting suite has size " + individual.size());
-
-	}
-
-	private boolean coverable(BranchCondition branch) {
-		return !(uncoverableBranches.contains(branch.getInstructionIndex()));
-	}
-
-	private void setUncoverable(BranchCondition branch) {
-		uncoverableBranches.add(branch.getInstructionIndex());
 	}
 
 	private void addBranch(Branch b) {
@@ -449,64 +309,6 @@ public class TestSuiteDSE {
 	}
 
 	/**
-	 * Update the information about branches we need to cover
-	 * 
-	 * @param test
-	 */
-	private void updateTestSuite(TestSuiteChromosome suite, TestChromosome test) {
-		suite.addTest(test);
-		clearBranches();
-		determineCoveredBranches(suite);
-	}
-
-	/**
-	 * Determine whether this test suite has covered this branch in one of its
-	 * tests
-	 * 
-	 * @param branch
-	 * @return
-	 */
-	private boolean isUncovered(BranchCondition branch) {
-		if (!TestCluster.isTargetClassName(branch.getClassName())) {
-			return false;
-		}
-
-		String jpfName = branch.getFullName();
-		if (!jpfBranchMap.containsKey(jpfName)) {
-			return false;
-		}
-
-		if (jpfBranchMap.get(jpfName).contains(branch.getInstructionIndex())) {
-			return true;
-		}
-
-		return false;
-	}
-
-	/**
-	 * Determine whether this test case touches a branch that is not fully
-	 * covered
-	 * 
-	 * @param test
-	 * @return
-	 */
-	private boolean hasUncoveredBranches(ExecutableChromosome test) {
-		for (Integer branchId : test.getLastExecutionResult().getTrace().getCoveredPredicates()) {
-			if (uncoveredBranches.contains(branchId)) {
-				logger.info("Uncovered branch found: " + branchId + ": "
-				        + BranchPool.getBranch(branchId));
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints,
-	        Set<Constraint<?>> localConstraints, TestCase test) {
-		return negateCondition(reachingConstraints, localConstraints, test, 0);
-	}
-
-	/**
 	 * Generate new constraint and ask solver for solution
 	 * 
 	 * @param condition
@@ -517,27 +319,13 @@ public class TestSuiteDSE {
 	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings("unchecked")
 	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints,
-	        Set<Constraint<?>> localConstraints, TestCase test, int localConstraint) {
+	        Constraint<?> localConstraint, TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(reachingConstraints);
-		// constraints.addAll(condition.localConstraints);
-		Iterator<Constraint<?>> iterator = localConstraints.iterator();
-		int num = 0;
-		Constraint<Long> c = null;
-		while (iterator.hasNext()) {
-			c = (Constraint<Long>) iterator.next();
-			if (num == localConstraint)
-				break;
-			num++;
-		}
-		if (c == null) {
-			logger.warn("Local constraint not found!");
-			return null;
-		}
-		// Constraint<Long> c = (Constraint<Long>)
-		// condition.localConstraints.iterator().next();
-		Constraint<Long> targetConstraint = new IntegerConstraint(c.getLeftOperand(),
-		        c.getComparator().not(), c.getRightOperand());
+
+		Constraint<Long> targetConstraint = new IntegerConstraint(
+		        localConstraint.getLeftOperand(), localConstraint.getComparator().not(),
+		        localConstraint.getRightOperand());
 		constraints.add(targetConstraint);
 		if (!targetConstraint.isSolveable()) {
 			logger.info("Found unsolvable constraint: " + targetConstraint);
