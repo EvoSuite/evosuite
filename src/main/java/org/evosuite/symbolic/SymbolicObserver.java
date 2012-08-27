@@ -758,8 +758,8 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		if (needThis) {
 			VariableReference callee = statement.getCallee();
-			ReferenceExpressionPair refExprPair = read(callee,scope);
-			
+			ReferenceExpressionPair refExprPair = read(callee, scope);
+
 			Reference ref = refExprPair.getReference();
 			this.env.topFrame().operandStack.pushRef(ref);
 		}
@@ -771,14 +771,18 @@ public class SymbolicObserver extends ExecutionObserver {
 			VariableReference callee = statement.getCallee();
 			Object receiver;
 			try {
-				if (parameters.size() < 3) {
-					receiver = callee.getObject(scope);
-					VM.INVOKEVIRTUAL(receiver, owner, name, desc);
-				} else {
-					VM.INVOKEVIRTUAL(owner, name, desc);
-				}
+				receiver = callee.getObject(scope);
 			} catch (CodeUnderTestException e) {
 				throw new RuntimeException(e);
+			}
+
+			Class<?> ownerClass = env.ensurePrepared(owner);
+			if (ownerClass.isInterface()) {
+				VM.INVOKEINTERFACE(receiver, owner, name, desc);
+
+			} else {
+				VM.INVOKEVIRTUAL(receiver, owner, name, desc);
+
 			}
 		} else {
 			VM.INVOKESTATIC(owner, name, desc);
@@ -1169,10 +1173,6 @@ public class SymbolicObserver extends ExecutionObserver {
 		return t.equals(Type.CHAR_TYPE) || t.equals(Type.BOOLEAN_TYPE)
 				|| t.equals(Type.SHORT_TYPE) || t.equals(Type.BYTE_TYPE)
 				|| t.equals(Type.INT_TYPE);
-	}
-
-	private static boolean isFp32(Class<?> clazz) {
-		return clazz.equals(float.class);
 	}
 
 	private void before(StringPrimitiveStatement statement, Scope scope) {
