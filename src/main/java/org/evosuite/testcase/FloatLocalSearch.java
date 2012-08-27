@@ -78,6 +78,11 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 	        LocalSearchObjective objective, int precision,
 	        NumericalPrimitiveStatement<T> p) {
 		double value = p.getValue().doubleValue();
+		if (value == Double.NaN || value == Double.POSITIVE_INFINITY
+		        || value == Double.NEGATIVE_INFINITY) {
+			return false;
+		}
+
 		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
 		if (bd.doubleValue() == value) {
 			return false;
