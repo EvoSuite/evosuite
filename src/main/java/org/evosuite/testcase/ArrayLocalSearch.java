@@ -97,7 +97,7 @@ public class ArrayLocalSearch extends LocalSearch {
 		int difference = 0;
 		ArrayReference arrRef = (ArrayReference) statement.getReturnValue();
 		TestFactory factory = TestFactory.getInstance();
-		for (int position = test.size() - 1; position >= 0; position--) {
+		for (int position = test.size() - 1; position > statement.getPosition(); position--) {
 			if (test.getTestCase().getStatement(position) instanceof AssignmentStatement) {
 				AssignmentStatement assignment = (AssignmentStatement) test.getTestCase().getStatement(position);
 				StatementInterface valueStatement = test.getTestCase().getStatement(assignment.getValue().getStPosition());

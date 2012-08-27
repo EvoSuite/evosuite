@@ -46,6 +46,16 @@ public abstract class LocalSearch {
 	public abstract boolean doSearch(TestChromosome test, int statement,
 	        LocalSearchObjective objective);
 
+	/**
+	 * If the position of the statement on which the local search was performed
+	 * has changed, then we need to tell this to the outside world
+	 * 
+	 * @return
+	 */
+	public int getPositionDelta() {
+		return 0;
+	}
+
 	public static LocalSearch getLocalSearchFor(StatementInterface statement) {
 		LocalSearch search = null;
 		if (statement instanceof NullStatement) {
