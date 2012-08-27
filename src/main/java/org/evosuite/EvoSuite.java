@@ -50,6 +50,9 @@ import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -118,19 +121,47 @@ public class EvoSuite {
 		                                                    + "evosuite.properties");
 	}
 
+	private static boolean isInterface(String resource) throws IOException {
+
+		ClassReader reader = new ClassReader(
+		        EvoSuite.class.getClassLoader().getResourceAsStream(resource));
+		ClassNode cn = new ClassNode();
+		reader.accept(cn, ClassReader.SKIP_FRAMES);
+		return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
+	}
+
 	private static void generateTestsPrefix(Properties.Strategy strategy, String prefix,
 	        List<String> args, String cp) {
 
 		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/") + "[^\\$]*.class");
-		Collection<String> resources = ResourceList.getResources(pattern);
+		Set<String> resources = new HashSet<String>();
+		for (String classPathElement : cp.split(File.pathSeparator)) {
+			resources.addAll(ResourceList.getResources(pattern, classPathElement));
+			try {
+				ClassPathHacker.addFile(classPathElement);
+			} catch (IOException e) {
+				// Ignore?
+			}
+		}
 		System.out.println("* Found " + resources.size()
 		        + " matching classes for prefix " + prefix);
 		for (String resource : resources) {
+			try {
+				if (isInterface(resource)) {
+					System.out.println("* Skipping interface: "
+					        + resource.replace(".class", "").replace('/', '.'));
+					continue;
+				}
+			} catch (IOException e) {
+				System.out.println("Could not load class: " + resource);
+				continue;
+			}
 			System.out.println("* Current class: "
 			        + resource.replace(".class", "").replace('/', '.'));
 			generateTests(Strategy.EVOSUITE,
 			              resource.replace(".class", "").replace('/', '.'), args, cp);
 		}
+
 	}
 
 	private static void generateTestsTarget(Properties.Strategy strategy, String target,
@@ -140,8 +171,22 @@ public class EvoSuite {
 		Collection<String> resources = ResourceList.getResources(pattern, target);
 		System.out.println("* Found " + resources.size() + " matching classes in target "
 		        + target);
-
+		try {
+			ClassPathHacker.addFile(target);
+		} catch (IOException e) {
+			// Ignore?
+		}
 		for (String resource : resources) {
+			try {
+				if (isInterface(resource)) {
+					System.out.println("* Skipping interface: "
+					        + resource.replace(".class", "").replace('/', '.'));
+					continue;
+				}
+			} catch (IOException e) {
+				System.out.println("Could not load class: " + resource);
+				continue;
+			}
 			System.out.println("* Current class: "
 			        + resource.replace(".class", "").replace('/', '.'));
 			generateTests(Strategy.EVOSUITE,
