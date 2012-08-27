@@ -4,6 +4,7 @@ import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import gnu.trove.set.hash.THashSet;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Deque;
@@ -72,8 +73,10 @@ public final class SymbolicEnvironment {
 				className = elemType.getClassName();
 				Class<?> claz = classLoader.getClassForName(className);
 				ensurePrepared(claz);
-				// FIXME: instead of return claz we need to return claz[]
-				return claz;
+				
+				// returns claz[] instead of claz
+				Class<?> arrayClaz = Array.newInstance(claz, 0).getClass();
+				return arrayClaz;
 			}
 		} else {
 			Class<?> claz = classLoader.getClassForName(className);
