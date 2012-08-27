@@ -10,6 +10,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.LocalSearchBudget;
 import org.evosuite.ga.LocalSearchObjective;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +24,16 @@ public class ReferenceLocalSearch extends LocalSearch {
 	private static final Logger logger = LoggerFactory.getLogger(ReferenceLocalSearch.class);
 
 	private TestChromosome backup = null;
+
+	private int positionDelta = 0;
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.LocalSearch#getPositionDelta()
+	 */
+	@Override
+	public int getPositionDelta() {
+		return positionDelta;
+	}
 
 	private void backup(TestChromosome test) {
 		backup = (TestChromosome) test.clone();
@@ -103,6 +114,9 @@ public class ReferenceLocalSearch extends LocalSearch {
 					hasImproved = true;
 					backup(test);
 					statement += delta;
+					positionDelta += delta;
+					LoggingUtils.getEvoLogger().info("Position of current statement has changed by "
+					                                         + delta);
 					oldLength = test.size();
 				} else {
 					logger.info("Fitness has not improved, reverting");

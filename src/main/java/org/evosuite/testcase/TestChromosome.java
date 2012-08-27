@@ -219,6 +219,12 @@ public class TestChromosome extends ExecutableChromosome {
 			if (LocalSearchBudget.isFinished())
 				break;
 
+			if (lastPosition >= test.size()) {
+				logger.warn("Test size decreased unexpectedly during local search, aborting local search");
+				logger.warn(test.toCode());
+				break;
+			}
+
 			if (!test.hasReferences(test.getStatement(i).getReturnValue())
 			        && !test.getStatement(i).getReturnClass().equals(Properties.getTargetClass())) {
 				logger.info("Return value of statement " + i
@@ -227,8 +233,10 @@ public class TestChromosome extends ExecutableChromosome {
 			}
 
 			LocalSearch search = LocalSearch.getLocalSearchFor(test.getStatement(i));
-			if (search != null)
+			if (search != null) {
 				search.doSearch(this, i, objective);
+				i += search.getPositionDelta();
+			}
 		}
 		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
