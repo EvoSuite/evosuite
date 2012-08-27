@@ -57,9 +57,8 @@ public class BranchCondition {
 	 * @param ins
 	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(BranchCondition previousBranchCondition,
-			String className, String methodName, int lineNumber,
-			List<Constraint<?>> localConstraints) {
+	public BranchCondition(BranchCondition previousBranchCondition, String className,
+	        String methodName, int lineNumber, List<Constraint<?>> localConstraints) {
 		this.className = className;
 		this.methodName = methodName;
 		this.lineNumber = lineNumber;
@@ -74,8 +73,8 @@ public class BranchCondition {
 	@Override
 	public String toString() {
 		String ret = "Branch condition with " // + reachingConstraints.size()
-				// + " reaching constraints and "
-				+ localConstraints.size() + " local constraints: ";
+		        // + " reaching constraints and "
+		        + localConstraints.size() + " local constraints: ";
 		for (Constraint<?> c : localConstraints) {
 			ret += " " + c;
 		}
@@ -85,10 +84,10 @@ public class BranchCondition {
 
 	public Set<Constraint<?>> getReachingConstraints() {
 		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
-		if (previousBranchCondition != null) {
-			constraints.addAll(previousBranchCondition.getLocalConstraints());
-			constraints
-					.addAll(previousBranchCondition.getReachingConstraints());
+		BranchCondition current = previousBranchCondition;
+		while (current != null) {
+			constraints.addAll(current.getLocalConstraints());
+			current = current.getPreviousBranchCondition();
 		}
 		return constraints;
 	}
