@@ -17,6 +17,8 @@
  */
 package org.evosuite.utils;
 
+import java.io.Serializable;
+
 import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
@@ -37,7 +39,10 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ResourceController implements SearchListener, StoppingCondition {
+public class ResourceController implements SearchListener, StoppingCondition,
+        Serializable {
+
+	private static final long serialVersionUID = -4459807323163275506L;
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 

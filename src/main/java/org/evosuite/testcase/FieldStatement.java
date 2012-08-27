@@ -463,7 +463,7 @@ public class FieldStatement extends AbstractStatement {
 		String fieldName = (String) ois.readObject();
 
 		try {
-			field = methodClass.getField(fieldName);
+			field = methodClass.getDeclaredField(fieldName);
 		} catch (SecurityException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

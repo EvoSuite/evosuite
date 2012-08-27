@@ -29,6 +29,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -520,16 +521,8 @@ public class FieldReference extends VariableReferenceImpl {
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		oos.writeObject(field.getDeclaringClass());
-		Field[] fields = field.getDeclaringClass().getDeclaredFields();
-		boolean done = false;
-		for (int i = 0; i < fields.length; i++) {
-			if (fields[i].equals(field)) {
-				oos.writeObject(new Integer(i));
-				done = true;
-			}
-		}
-		assert (done);
+		oos.writeObject(field.getDeclaringClass().getName());
+		oos.writeObject(field.getName());
 	}
 
 	// assumes "static java.util.Date aDate;" declared
@@ -538,9 +531,17 @@ public class FieldReference extends VariableReferenceImpl {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> clazz = (Class<?>) ois.readObject();
-		int num = (Integer) ois.readObject();
+		Class<?> fieldClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		String fieldName = (String) ois.readObject();
 
-		field = clazz.getDeclaredFields()[num];
+		try {
+			field = fieldClass.getDeclaredField(fieldName);
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchFieldException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }
