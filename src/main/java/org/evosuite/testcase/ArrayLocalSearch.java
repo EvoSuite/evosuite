@@ -110,6 +110,7 @@ public class ArrayLocalSearch extends LocalSearch {
 							if (!test.getTestCase().hasReferences(valueStatement.getReturnValue())) {
 								if (valueStatement.getPosition() < statement.getPosition())
 									difference++;
+								position--;
 
 								factory.deleteStatement(test.getTestCase(),
 								                        valueStatement.getPosition());
