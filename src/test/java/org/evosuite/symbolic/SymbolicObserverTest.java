@@ -22,10 +22,13 @@ public class SymbolicObserverTest {
 	static void printConstraints(List<BranchCondition> branch_conditions) {
 		System.out.println("Constraints=");
 		for (BranchCondition branchCondition : branch_conditions) {
+
 			for (Constraint<?> constr : branchCondition
-					.listOfLocalConstraints()) {
+					.getSupportingConstraints()) {
 				System.out.println(constr.toString());
 			}
+			System.out.println(branchCondition.getLocalConstraint().toString());
+
 		}
 	}
 

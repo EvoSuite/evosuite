@@ -1,6 +1,6 @@
 package org.evosuite.symbolic;
 
-public class LinkedList {
+public class MyLinkedList {
 
 	private static class Node {
 		Node next;
@@ -12,7 +12,7 @@ public class LinkedList {
 
 	private int size;
 
-	public LinkedList() {
+	public MyLinkedList() {
 		Node new_header = new Node();
 		new_header.previous = new_header;
 		new_header.next = new_header;
