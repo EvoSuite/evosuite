@@ -699,7 +699,7 @@ public class ConcolicExecutionTest {
 	public void testCase39() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase39();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(2, branch_conditions.size());
+		assertEquals(1, branch_conditions.size());
 	}
 
 	// int int0 = ConcolicMarker.mark(10, "int0");
@@ -1560,7 +1560,7 @@ public class ConcolicExecutionTest {
 	public void testCase77() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase77();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 	}
 
 	// int int0 = ConcolicMarker.mark(10, "int0");

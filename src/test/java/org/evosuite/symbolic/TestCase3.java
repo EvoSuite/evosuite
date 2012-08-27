@@ -6,7 +6,7 @@ public class TestCase3 {
 	 * @param args
 	 */
 	public static void test(int int0) {
-		LinkedList linkedList0 = new LinkedList();
+		MyLinkedList linkedList0 = new MyLinkedList();
 		Object object0 = linkedList0.get(int0);
 	}
 

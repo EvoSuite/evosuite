@@ -44,7 +44,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		if (zeroCheck.getLeftOperand().containsSymbolicVariable()
 				|| zeroCheck.getRightOperand().containsSymbolicVariable())
-			pathConstraint.pushLocalConstraint(zeroCheck);
+			pathConstraint.pushSupportingConstraint(zeroCheck);
 
 		if (valueConcrete == 0) {
 			// JVM will throw an exception

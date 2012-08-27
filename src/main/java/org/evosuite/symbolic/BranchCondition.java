@@ -17,6 +17,8 @@
  */
 package org.evosuite.symbolic;
 
+import gnu.trove.set.hash.THashSet;
+
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,14 +35,11 @@ import org.evosuite.symbolic.expr.Constraint;
 public class BranchCondition {
 	private final String className;
 	private final String methodName;
-	private final int lineNumber;
+	private final int branchIndex;
 
 	// @Deprecated
 	// public final Set<Constraint<?>> reachingConstraints;
 
-	private final Set<Constraint<?>> localConstraints;
-
-	private final List<Constraint<?>> listOfLocalConstraints;
 	private final BranchCondition previousBranchCondition;
 
 	/**
@@ -50,46 +49,40 @@ public class BranchCondition {
 	 * 
 	 * @param previousBranchCondition
 	 *            TODO
-	 * @param reachingConstraints
+	 * @param localConstraint
+	 *            TODO
+	 * @param supportingConstraints
 	 *            a {@link java.util.Set} object.
-	 * @param localConstraints
+	 * @param reachingConstraints
 	 *            a {@link java.util.Set} object.
 	 * @param ins
 	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(BranchCondition previousBranchCondition, String className,
-	        String methodName, int lineNumber, List<Constraint<?>> localConstraints) {
+	public BranchCondition(BranchCondition previousBranchCondition,
+			String className, String methodName, int branchIndex,
+			Constraint<?> localConstraint,
+			List<Constraint<?>> supportingConstraints) {
+
 		this.className = className;
 		this.methodName = methodName;
-		this.lineNumber = lineNumber;
+		this.branchIndex = branchIndex;
 
-		// this.reachingConstraints = reachingConstraints;
-		this.localConstraints = new HashSet<Constraint<?>>(localConstraints);
-		this.listOfLocalConstraints = localConstraints;
 		this.previousBranchCondition = previousBranchCondition;
+
+		this.local_constraint = localConstraint;
+		this.supporting_constraints = supportingConstraints;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		String ret = "Branch condition with " // + reachingConstraints.size()
-		        // + " reaching constraints and "
-		        + localConstraints.size() + " local constraints: ";
-		for (Constraint<?> c : localConstraints) {
+		String ret = "Branch condition with local constraint "
+				+ this.local_constraint + " and supporting constraints: ";
+		for (Constraint<?> c : this.supporting_constraints) {
 			ret += " " + c;
 		}
 
 		return ret;
-	}
-
-	public Set<Constraint<?>> getReachingConstraints() {
-		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
-		BranchCondition current = previousBranchCondition;
-		while (current != null) {
-			constraints.addAll(current.getLocalConstraints());
-			current = current.getPreviousBranchCondition();
-		}
-		return constraints;
 	}
 
 	public String getClassName() {
@@ -97,29 +90,70 @@ public class BranchCondition {
 	}
 
 	public int getInstructionIndex() {
-		return lineNumber;
+		return branchIndex;
 	}
 
 	public String getFullName() {
 		return className + methodName;
 	}
 
+	@Deprecated
 	public int getLineNumber() {
-		return lineNumber;
-	}
-
-	public List<Constraint<?>> listOfLocalConstraints() {
-		return listOfLocalConstraints;
+		return branchIndex;
 	}
 
 	/**
 	 * @return the localConstraints
 	 */
+	@Deprecated
 	public Set<Constraint<?>> getLocalConstraints() {
-		return localConstraints;
+		Set<Constraint<?>> retVal = new THashSet<Constraint<?>>();
+		retVal.addAll(this.supporting_constraints);
+		retVal.add(this.local_constraint);
+		return retVal;
 	}
 
-	public BranchCondition getPreviousBranchCondition() {
+	private BranchCondition getPreviousBranchCondition() {
 		return previousBranchCondition;
+	}
+
+	/**
+	 * Returns a set of all the reaching constraints
+	 * 
+	 * @return
+	 */
+	public Set<Constraint<?>> getReachingConstraints() {
+		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
+		BranchCondition current = previousBranchCondition;
+		while (current != null) {
+			constraints.addAll(current.supporting_constraints);
+			constraints.add(local_constraint);
+			current = current.getPreviousBranchCondition();
+		}
+		return constraints;
+	}
+
+	private final Constraint<?> local_constraint;
+
+	private final List<Constraint<?>> supporting_constraints;
+
+	/**
+	 * Returns the constraint for actual branch
+	 * 
+	 * @return
+	 */
+	public Constraint<?> getLocalConstraint() {
+		return local_constraint;
+	}
+
+	/**
+	 * Returns a list of implicit constraints (nullity checks, zero division,
+	 * index within bounds, negative size array length, etc.) collected before
+	 * the current branch condtion and after the last symbolic branch condition
+	 * 
+	 * @return
+	 */
+	public List<Constraint<?>> getSupportingConstraints() {
+		return supporting_constraints;
 	}
 }

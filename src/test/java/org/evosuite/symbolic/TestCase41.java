@@ -8,7 +8,7 @@ public class TestCase41 {
 	 * @param args
 	 */
 	public static void test(int int0, int int1, int int3, int int4) {
-		LinkedList linkedList0 = new LinkedList();
+		MyLinkedList linkedList0 = new MyLinkedList();
 		ByteArrayOutputStream byteArrayOutputStream0 = new ByteArrayOutputStream();
 		linkedList0.add(byteArrayOutputStream0);
 		linkedList0.add(int0);

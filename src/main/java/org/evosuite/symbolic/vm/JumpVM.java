@@ -129,7 +129,10 @@ public final class JumpVM extends AbstractVM {
 		else
 			cnstr = ConstraintFactory.neq(leftOp, rightOp); // "False" branch
 
-		pc.pushBranchCondition(className, methName, branchIndex, cnstr);
+		// add branch condition iif local constraint is concrete
+		if (cnstr.getLeftOperand().containsSymbolicVariable()
+				|| cnstr.getRightOperand().containsSymbolicVariable())
+			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
 	}
 
 	@Override
@@ -156,7 +159,10 @@ public final class JumpVM extends AbstractVM {
 		else
 			cnstr = ConstraintFactory.gte(leftBv, rightBv); // False branch
 
-		pc.pushBranchCondition(className, methName, branchIndex, cnstr);
+		// add branch condition iif local constraint is concrete
+		if (cnstr.getLeftOperand().containsSymbolicVariable()
+				|| cnstr.getRightOperand().containsSymbolicVariable())
+			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
 	}
 
 	@Override
@@ -288,10 +294,13 @@ public final class JumpVM extends AbstractVM {
 			IntegerConstraint cnstrt = constraints.get(i);
 			if (cnstrt.getLeftOperand().containsSymbolicVariable()
 					|| cnstrt.getRightOperand().containsSymbolicVariable())
-				pc.pushLocalConstraint(cnstrt);
+				pc.pushSupportingConstraint(cnstrt);
 		}
-		pc.pushBranchCondition(className, methName, branchIndex,
-				constraints.get(constraints.size() - 1));
+		// add branch condition iif local constraint is concrete
+		IntegerConstraint cnstr = constraints.get(constraints.size() - 1);
+		if (cnstr.getLeftOperand().containsSymbolicVariable()
+				|| cnstr.getRightOperand().containsSymbolicVariable())
+			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
 	}
 
 	/**
@@ -335,10 +344,15 @@ public final class JumpVM extends AbstractVM {
 			IntegerConstraint cnstrnt = constraints.get(i);
 			if (cnstrnt.getLeftOperand().containsSymbolicVariable()
 					|| cnstrnt.getRightOperand().containsSymbolicVariable())
-				pc.pushLocalConstraint(cnstrnt);
+				pc.pushSupportingConstraint(cnstrnt);
 		}
-		pc.pushBranchCondition(className, methName, branchIndex,
-				constraints.get(constraints.size() - 1));
+
+		// add branch condition iif local constraint is concrete
+		IntegerConstraint cnstr = constraints.get(constraints.size() - 1);
+		if (cnstr.getLeftOperand().containsSymbolicVariable()
+				|| cnstr.getRightOperand().containsSymbolicVariable()) {
+			pc.pushBranchCondition(className, methName, branchIndex, cnstr);
+		}
 
 	}
 
