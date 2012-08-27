@@ -778,18 +778,11 @@ public class SymbolicObserver extends ExecutionObserver {
 
 			Class<?> ownerClass = env.ensurePrepared(owner);
 			if (ownerClass.isInterface()) {
-				if (parameters.size() < 3) {
-					VM.INVOKEINTERFACE(receiver, owner, name, desc);
-				} else {
-					VM.INVOKEINTERFACE(owner, name, desc);
-				}
+				VM.INVOKEINTERFACE(receiver, owner, name, desc);
 
 			} else {
-				if (parameters.size() < 3) {
-					VM.INVOKEVIRTUAL(receiver, owner, name, desc);
-				} else {
-					VM.INVOKEVIRTUAL(owner, name, desc);
-				}
+				VM.INVOKEVIRTUAL(receiver, owner, name, desc);
+
 			}
 		} else {
 			VM.INVOKESTATIC(owner, name, desc);
@@ -1180,10 +1173,6 @@ public class SymbolicObserver extends ExecutionObserver {
 		return t.equals(Type.CHAR_TYPE) || t.equals(Type.BOOLEAN_TYPE)
 				|| t.equals(Type.SHORT_TYPE) || t.equals(Type.BYTE_TYPE)
 				|| t.equals(Type.INT_TYPE);
-	}
-
-	private static boolean isFp32(Class<?> clazz) {
-		return clazz.equals(float.class);
 	}
 
 	private void before(StringPrimitiveStatement statement, Scope scope) {

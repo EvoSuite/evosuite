@@ -31,7 +31,7 @@ public final class RegionMatches extends StringFunction {
 	}
 
 	@Override
-	public void INVOKEVIRTUAL() {
+	public void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		lenExpr = bv32(it.next());
 		ooffsetExpr = bv32(it.next());

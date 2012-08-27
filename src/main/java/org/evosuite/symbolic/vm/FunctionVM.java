@@ -377,14 +377,6 @@ public final class FunctionVM extends AbstractVM {
 	}
 
 	@Override
-	public void INVOKEVIRTUAL(String owner, String name, String desc) {
-		functionUnderExecution = getStringFunction(owner, name, desc);
-		if (functionUnderExecution != null) {
-			functionUnderExecution.INVOKEVIRTUAL();
-		}
-	}
-
-	@Override
 	public void INVOKESPECIAL(String owner, String name, String desc) {
 		functionUnderExecution = getStringFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
@@ -398,14 +390,6 @@ public final class FunctionVM extends AbstractVM {
 		Function f = getStringFunction(owner, name, desc);
 		if (f != null) {
 			f.INVOKESPECIAL(receiver);
-		}
-	}
-
-	@Override
-	public void INVOKEINTERFACE(String owner, String name, String desc) {
-		functionUnderExecution = getStringFunction(owner, name, desc);
-		if (functionUnderExecution != null) {
-			functionUnderExecution.INVOKEINTERFACE();
 		}
 	}
 

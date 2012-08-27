@@ -13,7 +13,6 @@ import org.evosuite.symbolic.expr.RealConstant;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
-import edu.uta.cse.dsc.VM;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import edu.uta.cse.dsc.instrument.DscMethodAdapter;
 import gnu.trove.map.hash.THashMap;
@@ -438,21 +437,13 @@ public final class CallVM extends AbstractVM {
 	 * @return method is instrumented. It is neither native nor declared by an
 	 *         ignored JDK class, etc.
 	 */
-	private boolean isInstrumented(Method method) {
+	private boolean isIgnored(Method method) {
 		if (Modifier.isNative(method.getModifiers()))
 			return false;
 
-		Class<?> declaringClass = method.getDeclaringClass();
-		if (declaringClass.isInterface()) {
-			/* interface method */
-			// TODO : Find actual interface implementor method
-			String declClass = method.getDeclaringClass().getCanonicalName();
-			return !conf.isIgnored(declClass);
-		} else {
-			/* virtual method */
-			String declClass = method.getDeclaringClass().getCanonicalName();
-			return !conf.isIgnored(declClass);
-		}
+		/* virtual method */
+		String declClass = method.getDeclaringClass().getCanonicalName();
+		return !conf.isIgnored(declClass);
 	}
 
 	/**
@@ -468,7 +459,7 @@ public final class CallVM extends AbstractVM {
 		final Method method = resolveMethodOverloading(className, methName,
 				methDesc);
 		/* private method may be native */
-		boolean instrumented = isInstrumented(method);
+		boolean instrumented = isIgnored(method);
 		env.topFrame().invokeInstrumentedCode(instrumented);
 		return method;
 	}
@@ -529,30 +520,6 @@ public final class CallVM extends AbstractVM {
 	 * {@link DscMethodAdapter#visitMethodInsn}
 	 * 
 	 * <p>
-	 * This version does not pass the receiver instance :( Currently called for
-	 * methods with 2, 3, or more parameters.
-	 * 
-	 * <p>
-	 * Delete this version.
-	 * 
-	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
-	 * doc6.html#invokevirtual
-	 */
-	@Deprecated
-	@Override
-	public void INVOKEVIRTUAL(String className, String methName, String methDesc) {
-		stackParamCount = 0;
-
-		env.topFrame().invokeNeedsThis = true;
-		methodCall(className, methName, methDesc);
-	}
-
-	/**
-	 * We get this callback right before the user code makes the corresponding
-	 * virtual call to method className.methName(methDesc). See:
-	 * {@link DscMethodAdapter#visitMethodInsn}
-	 * 
-	 * <p>
 	 * The current instrumentation system only calls this version of
 	 * INVOKEVIRTUAL for methods that take two or fewer parameters.
 	 * 
@@ -593,34 +560,6 @@ public final class CallVM extends AbstractVM {
 	 * {@link DscMethodAdapter#visitMethodInsn}
 	 * 
 	 * <p>
-	 * This version does not pass the receiver instance :( Currently called for
-	 * methods with 2, 3, or more parameters.
-	 * 
-	 * TODO: Delete this version.
-	 * 
-	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
-	 * doc6.html#invokeinterface
-	 */
-	@Deprecated
-	@Override
-	public void INVOKEINTERFACE(String className, String methName,
-			String methDesc) {
-		stackParamCount = 0;
-
-		env.topFrame().invokeNeedsThis = true;
-		methodCall(className, methName, methDesc);
-
-	}
-
-	/**
-	 * We get this callback right before the user code makes the corresponding
-	 * call to interface method className.methName(methDesc). See:
-	 * {@link DscMethodAdapter#visitMethodInsn}
-	 * 
-	 * <p>
-	 * The current instrumentation system only calls this version of
-	 * INVOKEINTERFACE for methods that take two or fewer parameters.
-	 * 
 	 * http://java.sun.com/docs/books/jvms/second_edition/html/Instructions2.
 	 * doc6.html#invokeinterface
 	 */
@@ -632,7 +571,8 @@ public final class CallVM extends AbstractVM {
 		if (nullReferenceViolation(conc_receiver, null))
 			return;
 
-		Method staticMethod = methodCall(className, methName, methDesc);
+		String concreteClassName = conc_receiver.getClass().getName();
+		Method staticMethod = methodCall(concreteClassName, methName, methDesc);
 		chooseReceiverType(className, conc_receiver, methDesc, staticMethod);
 
 	}
