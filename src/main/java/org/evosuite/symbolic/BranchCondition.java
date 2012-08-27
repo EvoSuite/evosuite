@@ -106,10 +106,12 @@ public class BranchCondition {
 	 */
 	public Set<Constraint<?>> getReachingConstraints() {
 		HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
+		constraints.addAll(supportingConstraints);
+
 		BranchCondition current = previousBranchCondition;
 		while (current != null) {
 			constraints.addAll(current.supportingConstraints);
-			constraints.add(localConstraint);
+			constraints.add(current.localConstraint);
 			current = current.getPreviousBranchCondition();
 		}
 		return constraints;
