@@ -83,10 +83,6 @@ public abstract class Function {
 		/* STUB */
 	}
 
-	public void INVOKEVIRTUAL(/* receiver in operand stack */) {
-		/* STUB */
-	}
-
 	public void CALL_RESULT() {
 		/* STUB */
 	}
@@ -176,10 +172,6 @@ public abstract class Function {
 	}
 
 	public void INVOKESPECIAL(Object receiver) {
-		/* STUB */
-	}
-
-	public void INVOKEINTERFACE() {
 		/* STUB */
 	}
 
