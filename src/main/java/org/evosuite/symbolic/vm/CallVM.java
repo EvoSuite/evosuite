@@ -438,12 +438,21 @@ public final class CallVM extends AbstractVM {
 	 * @return method is instrumented. It is neither native nor declared by an
 	 *         ignored JDK class, etc.
 	 */
-	protected boolean isInstrumented(Method method) {
+	private boolean isInstrumented(Method method) {
 		if (Modifier.isNative(method.getModifiers()))
 			return false;
 
-		String declClass = method.getDeclaringClass().getCanonicalName();
-		return !conf.isIgnored(declClass);
+		Class<?> declaringClass = method.getDeclaringClass();
+		if (declaringClass.isInterface()) {
+			/* interface method */
+			// TODO : Find actual interface implementor method
+			String declClass = method.getDeclaringClass().getCanonicalName();
+			return !conf.isIgnored(declClass);
+		} else {
+			/* virtual method */
+			String declClass = method.getDeclaringClass().getCanonicalName();
+			return !conf.isIgnored(declClass);
+		}
 	}
 
 	/**

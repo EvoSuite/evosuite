@@ -758,8 +758,8 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		if (needThis) {
 			VariableReference callee = statement.getCallee();
-			ReferenceExpressionPair refExprPair = read(callee,scope);
-			
+			ReferenceExpressionPair refExprPair = read(callee, scope);
+
 			Reference ref = refExprPair.getReference();
 			this.env.topFrame().operandStack.pushRef(ref);
 		}
@@ -771,14 +771,25 @@ public class SymbolicObserver extends ExecutionObserver {
 			VariableReference callee = statement.getCallee();
 			Object receiver;
 			try {
+				receiver = callee.getObject(scope);
+			} catch (CodeUnderTestException e) {
+				throw new RuntimeException(e);
+			}
+
+			Class<?> ownerClass = env.ensurePrepared(owner);
+			if (ownerClass.isInterface()) {
 				if (parameters.size() < 3) {
-					receiver = callee.getObject(scope);
+					VM.INVOKEINTERFACE(receiver, owner, name, desc);
+				} else {
+					VM.INVOKEINTERFACE(owner, name, desc);
+				}
+
+			} else {
+				if (parameters.size() < 3) {
 					VM.INVOKEVIRTUAL(receiver, owner, name, desc);
 				} else {
 					VM.INVOKEVIRTUAL(owner, name, desc);
 				}
-			} catch (CodeUnderTestException e) {
-				throw new RuntimeException(e);
 			}
 		} else {
 			VM.INVOKESTATIC(owner, name, desc);
