@@ -69,7 +69,10 @@ public class ArrayLocalSearch extends LocalSearch {
 		boolean hasImproved = false;
 		ArrayStatement p = (ArrayStatement) test.test.getStatement(statement);
 
-		stripAssignments(p, test, objective);
+		int difference = stripAssignments(p, test, objective);
+		statement = statement - difference;
+		p = (ArrayStatement) test.test.getStatement(statement);
+
 		hasImproved = searchLength(test, statement, objective);
 		TestCaseExpander expander = new TestCaseExpander();
 		int lengthWithoutAssignments = test.size();
@@ -89,8 +92,9 @@ public class ArrayLocalSearch extends LocalSearch {
 		return hasImproved;
 	}
 
-	private void stripAssignments(ArrayStatement statement, TestChromosome test,
+	private int stripAssignments(ArrayStatement statement, TestChromosome test,
 	        LocalSearchObjective objective) {
+		int difference = 0;
 		ArrayReference arrRef = (ArrayReference) statement.getReturnValue();
 		TestFactory factory = TestFactory.getInstance();
 		for (int position = test.size() - 1; position >= 0; position--) {
@@ -104,6 +108,9 @@ public class ArrayLocalSearch extends LocalSearch {
 						if (valueStatement instanceof PrimitiveStatement
 						        || valueStatement instanceof NullStatement) {
 							if (!test.getTestCase().hasReferences(valueStatement.getReturnValue())) {
+								if (valueStatement.getPosition() < statement.getPosition())
+									difference++;
+
 								factory.deleteStatement(test.getTestCase(),
 								                        valueStatement.getPosition());
 							}
@@ -116,6 +123,8 @@ public class ArrayLocalSearch extends LocalSearch {
 				}
 			}
 		}
+
+		return difference;
 	}
 
 	private boolean searchLength(TestChromosome test, int statement,
