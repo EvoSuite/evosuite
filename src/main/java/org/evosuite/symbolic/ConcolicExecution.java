@@ -60,14 +60,14 @@ public class ConcolicExecution {
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<BranchCondition> getSymbolicPath(TestChromosome test) {
+	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
 		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
+	protected static List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
 
@@ -119,7 +119,7 @@ public class ConcolicExecution {
 		return branches;
 	}
 
-	private void logNrOfConstraints(List<BranchCondition> branches) {
+	private static void logNrOfConstraints(List<BranchCondition> branches) {
 		int nrOfConstantConstraints = 0;
 		int nrOfConstraints = 0;
 		for (BranchCondition branchCondition : branches) {

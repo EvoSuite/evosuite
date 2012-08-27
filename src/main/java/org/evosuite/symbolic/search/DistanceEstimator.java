@@ -84,6 +84,8 @@ public abstract class DistanceEstimator {
 			}
 			return Math.abs(result);
 		} catch (Exception e) {
+			log.warn(e.toString());
+			e.printStackTrace();
 			return Double.MAX_VALUE;
 		}
 	}

@@ -278,10 +278,12 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 * @param test
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public void addTest(TestCase test) {
+	public TestChromosome addTest(TestCase test) {
 		TestChromosome c = new TestChromosome();
 		c.setTestCase(test);
 		addTest(c);
+
+		return c;
 	}
 
 	/**
