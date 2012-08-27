@@ -10,7 +10,6 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.ga.LocalSearchBudget;
 import org.evosuite.ga.LocalSearchObjective;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -115,8 +114,6 @@ public class ReferenceLocalSearch extends LocalSearch {
 					backup(test);
 					statement += delta;
 					positionDelta += delta;
-					LoggingUtils.getEvoLogger().info("Position of current statement has changed by "
-					                                         + delta);
 					oldLength = test.size();
 				} else {
 					logger.info("Fitness has not improved, reverting");
