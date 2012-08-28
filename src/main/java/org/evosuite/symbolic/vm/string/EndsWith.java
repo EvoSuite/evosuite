@@ -9,7 +9,6 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-
 public final class EndsWith extends StringFunction {
 
 	private static final String ENDS_WITH = "endsWith";
@@ -33,9 +32,7 @@ public final class EndsWith extends StringFunction {
 			int conV = res ? 1 : 0;
 			StringComparison strBExpr = new StringComparison(
 					stringReceiverExpr, Operator.ENDSWITH, strExpr, (long) conV);
-			StringToIntCast castExpr = new StringToIntCast(strBExpr,
-					(long) conV);
-			this.replaceTopBv32(castExpr);
+			this.replaceTopBv32(strBExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

@@ -47,10 +47,9 @@ public final class Pattern_Matches extends Function {
 
 			StringComparison strComp = new StringComparison(symb_regex,
 					Operator.PATTERNMATCHES, symb_input, (long) concrete_value);
-			StringToIntCast castExpr = new StringToIntCast(strComp,
-					(long) concrete_value);
 
-			replaceTopBv32(castExpr);
+
+			replaceTopBv32(strComp);
 		}
 	}
 

@@ -9,7 +9,6 @@ import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.expr.StringMultipleComparison;
-import org.evosuite.symbolic.expr.StringToIntCast;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
@@ -45,9 +44,8 @@ public final class StartsWith extends StringFunction {
 					new ArrayList<Expression<?>>(
 							Collections.singletonList(offsetExpr)), (long) conV);
 
-			StringToIntCast castExpr = new StringToIntCast(strTExpr,
-					(long) conV);
-			this.replaceTopBv32(castExpr);
+
+			this.replaceTopBv32(strTExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

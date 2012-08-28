@@ -38,9 +38,8 @@ public final class Matches extends StringFunction {
 
 			StringComparison strBExpr = new StringComparison(strRegEx,
 					Operator.PATTERNMATCHES, stringReceiverExpr, (long) conV);
-			StringToIntCast castExpr = new StringToIntCast(strBExpr,
-					(long) conV);
-			this.replaceTopBv32(castExpr);
+
+			this.replaceTopBv32(strBExpr);
 		}
 
 	}

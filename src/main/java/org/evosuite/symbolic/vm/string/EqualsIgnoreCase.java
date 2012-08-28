@@ -34,9 +34,8 @@ public final class EqualsIgnoreCase extends StringFunction {
 			StringComparison strBExpr = new StringComparison(
 					stringReceiverExpr, Operator.EQUALSIGNORECASE, strExpr,
 					(long) conV);
-			StringToIntCast castExpr = new StringToIntCast(strBExpr,
-					(long) conV);
-			this.replaceTopBv32(castExpr);
+
+			this.replaceTopBv32(strBExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

@@ -148,8 +148,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -209,8 +208,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -264,8 +262,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -335,8 +332,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -426,8 +422,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -501,8 +496,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -552,8 +546,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -587,8 +580,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -652,8 +644,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -704,8 +695,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -815,8 +805,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -855,8 +844,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -890,8 +878,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -950,8 +937,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -983,8 +969,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -1018,8 +1003,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
@@ -1052,8 +1036,7 @@ public class SymbolicObserverTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);

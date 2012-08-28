@@ -103,7 +103,8 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
-		return Long.parseLong(((String) expr.execute()));
+		String str = (String) expr.execute();
+		return Long.parseLong(str);
 	}
 
 	public Expression<String> getParam() {

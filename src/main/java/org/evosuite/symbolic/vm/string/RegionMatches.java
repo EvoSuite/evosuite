@@ -68,8 +68,7 @@ public final class RegionMatches extends StringFunction {
 			StringMultipleComparison strComp = new StringMultipleComparison(
 					stringReceiverExpr, Operator.REGIONMATCHES, otherExpr,
 					other, (long) conV);
-			StringToIntCast castExpr = new StringToIntCast(strComp, (long) conV);
-			this.replaceTopBv32(castExpr);
+			this.replaceTopBv32(strComp);
 		}
 	}
 

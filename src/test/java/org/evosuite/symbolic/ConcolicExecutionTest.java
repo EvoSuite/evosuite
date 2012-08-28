@@ -36,8 +36,8 @@ public class ConcolicExecutionTest {
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
 
-		ConcolicExecution concolicExecutor = new ConcolicExecution();
-		List<BranchCondition> branch_conditions = concolicExecutor
+	//	ConcolicExecution concolicExecutor = new ConcolicExecution();
+		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
