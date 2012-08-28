@@ -122,9 +122,9 @@ public class RealBinaryExpression extends RealExpression implements
 
 	/** {@inheritDoc} */
 	@Override
-	public Object execute() {
+	public Double execute() {
 
-		double leftVal = (Double) left.execute();
+		double leftVal = left.execute();
 		double rightVal = (Double) right.execute();
 
 		switch (op) {

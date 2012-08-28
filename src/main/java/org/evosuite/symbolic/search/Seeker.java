@@ -82,7 +82,7 @@ public class Seeker implements Solver {
 
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
 
-		boolean searchSuccsess = false;
+		boolean searchSuccess = false;
 		//		log.warning("Variables: " + vars.size());
 
 		double distance = DistanceEstimator.getDistance(constraints);
@@ -106,7 +106,7 @@ public class Seeker implements Solver {
 						log.debug("searching for string " + var);
 						StringVariable strVar = (StringVariable) var;
 						if (changer.strLocalSearch(strVar, constraints, result)) {
-							searchSuccsess = true;
+							searchSuccess = true;
 							done = false;
 							//break;
 						}
@@ -115,7 +115,7 @@ public class Seeker implements Solver {
 						log.debug("searching for int " + var);
 						IntegerVariable intVar = (IntegerVariable) var;
 						if (changer.intLocalSearch(intVar, constraints, result)) {
-							searchSuccsess = true;
+							searchSuccess = true;
 							done = false;
 							//break;
 						}
@@ -124,14 +124,16 @@ public class Seeker implements Solver {
 						log.debug("searching for real ");
 						RealVariable realVar = (RealVariable) var;
 						if (changer.realLocalSearch(realVar, constraints, result)) {
-							searchSuccsess = true;
+							searchSuccess = true;
 							done = false;
 							//break;
 						}
 					}
 				}
 
-				if (DistanceEstimator.getDistance(constraints) <= 0) {
+				distance = DistanceEstimator.getDistance(constraints);
+				if (distance <= 0) {
+					log.debug("Distance is " + distance + ", found solution");
 					return result;
 				}
 
@@ -148,10 +150,13 @@ public class Seeker implements Solver {
 
 		}
 		// This will return any improvement, even if it does not cover a new branch
-		if (searchSuccsess)
+		if (searchSuccess) {
+			log.debug("Returning result, search seems to be successful");
 			return result;
-		else
+		} else {
+			log.debug("Returning null, search was not successful");
 			return null;
+		}
 	}
 
 	private void randomizeVars(Set<Variable<?>> vars) {
@@ -168,11 +173,11 @@ public class Seeker implements Solver {
 				RealVariable realV = (RealVariable) var;
 				int max = (int) Math.min(Integer.MAX_VALUE, realV.getMaxValue());
 				if (Randomness.nextBoolean())
-					realV.setConcreteValue(Randomness.nextInt(max)
-					        + Randomness.nextFloat());
+					realV.setConcreteValue(Randomness.nextInt(max));
+				//+ Randomness.nextFloat());
 				else
-					realV.setConcreteValue(-1 * Randomness.nextInt(max)
-					        + Randomness.nextFloat());
+					realV.setConcreteValue(-1 * Randomness.nextInt(max));
+				//+ Randomness.nextFloat());
 			} else if (var instanceof StringVariable) {
 				StringVariable stringV = (StringVariable) var;
 				stringV.setConcreteValue(Randomness.nextString(Randomness.nextInt(Properties.STRING_LENGTH)));

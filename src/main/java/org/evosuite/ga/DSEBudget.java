@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -25,10 +25,11 @@ import java.io.Serializable;
 import org.evosuite.Properties;
 import org.evosuite.Properties.DSEBudgetType;
 
-
 /**
- * <p>DSEBudget class.</p>
- *
+ * <p>
+ * DSEBudget class.
+ * </p>
+ * 
  * @author fraser
  */
 public class DSEBudget implements Serializable {
@@ -47,7 +48,9 @@ public class DSEBudget implements Serializable {
 	protected static long lastIndividualFinished = 0L;
 
 	/**
-	 * <p>DSEStarted</p>
+	 * <p>
+	 * DSEStarted
+	 * </p>
 	 */
 	public static void DSEStarted() {
 		startTime = System.currentTimeMillis();
@@ -57,8 +60,10 @@ public class DSEBudget implements Serializable {
 	}
 
 	/**
-	 * <p>isFinished</p>
-	 *
+	 * <p>
+	 * isFinished
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public static boolean isFinished() {
@@ -72,8 +77,10 @@ public class DSEBudget implements Serializable {
 	}
 
 	/**
-	 * <p>isHalfRemaining</p>
-	 *
+	 * <p>
+	 * isHalfRemaining
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public static boolean isHalfRemaining() {
@@ -88,8 +95,14 @@ public class DSEBudget implements Serializable {
 		return false;
 	}
 
+	public static long getTimeRemaining() {
+		return endTime - System.currentTimeMillis();
+	}
+
 	/**
-	 * <p>evaluation</p>
+	 * <p>
+	 * evaluation
+	 * </p>
 	 */
 	public static void evaluation() {
 		attempts++;

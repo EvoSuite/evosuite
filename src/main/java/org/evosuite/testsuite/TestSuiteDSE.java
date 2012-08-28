@@ -83,6 +83,8 @@ public class TestSuiteDSE {
 
 	private final List<TestBranchPair> unsolvedBranchConditions = new ArrayList<TestBranchPair>();
 
+	private final Set<BranchCondition> unsolvableBranchConditions = new HashSet<BranchCondition>();
+
 	private class TestBranchPair {
 		TestChromosome test;
 		BranchCondition branch;
@@ -91,6 +93,7 @@ public class TestSuiteDSE {
 			this.test = test;
 			this.branch = branch;
 		}
+
 	}
 
 	/**
@@ -146,6 +149,10 @@ public class TestSuiteDSE {
 
 		for (TestChromosome test : branchConditions.keySet()) {
 			for (BranchCondition branch : branchConditions.get(test)) {
+
+				if (unsolvableBranchConditions.contains(branch))
+					continue;
+
 				String index = getBranchIndex(branch);
 				if (!solvedConstraints.containsKey(index))
 					solvedConstraints.put(index,
@@ -179,16 +186,8 @@ public class TestSuiteDSE {
 	 * @param test
 	 */
 	private void updatePathConstraints(TestChromosome test) {
-		logger.info("Current test: " + test.getTestCase().toCode());
 		List<BranchCondition> branches = ConcolicExecution.getSymbolicPath(test);
 		branchConditions.put(test, branches);
-		logger.info("Path constraints: ");
-		for (BranchCondition branch : branches) {
-			logger.info(" -> " + branch);
-			for (Constraint<?> c : branch.getReachingConstraints()) {
-				logger.info(" -----> " + c);
-			}
-		}
 	}
 
 	/**
@@ -234,10 +233,13 @@ public class TestSuiteDSE {
 	public void applyDSE(TestSuiteChromosome individual) {
 		TestSuiteChromosome expandedTests = expandTestSuite(individual);
 		createPathConstraints(expandedTests);
+		fitness.getFitness(expandedTests);
 
 		double originalFitness = individual.getFitness();
 
 		while (hasNextBranchCondition() && !DSEBudget.isFinished()) {
+			logger.info("DSE time remaining: " + DSEBudget.getTimeRemaining());
+			logger.info("Branches remaining: " + unsolvedBranchConditions.size());
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
 			logger.info("Chosen branch condition: " + branch);
@@ -247,26 +249,33 @@ public class TestSuiteDSE {
 			                                   branch.getLocalConstraint(),
 			                                   next.test.getTestCase());
 			if (newTest != null) {
-				logger.info("Found new test!");
-				TestChromosome newTestChromosome = expandedTests.addTest(newTest);
-				updatePathConstraints(newTestChromosome);
-				calculateUncoveredBranches();
+				logger.info("Found new test: " + newTest.toCode());
+				//TestChromosome newTestChromosome = expandedTests.addTest(newTest);
+				TestChromosome newTestChromosome = new TestChromosome();
+				newTestChromosome.setTestCase(newTest);
+				expandedTests.addTest(newTestChromosome);
 
 				if (fitness.getFitness(expandedTests) < originalFitness) {
-					logger.info("New test improves fitness to ",
+					logger.info("New test improves fitness to {}",
 					            expandedTests.getFitness());
+					expandedTests.addTest(newTestChromosome); // no need to clone so we can keep executionresult
+					updatePathConstraints(newTestChromosome);
+					calculateUncoveredBranches();
 					individual.addTest(newTest);
 					originalFitness = expandedTests.getFitness();
+					// TODO: Cancel on fitness 0 - would need to know if ZeroFitness is a stopping condition
 				} else {
 					logger.info("New test does not improve fitness");
+					expandedTests.deleteTest(newTest);
 				}
 				success++;
 			} else {
+				unsolvableBranchConditions.add(branch);
 				failed++;
 				logger.info("Failed to find new test.");
 			}
-
 		}
+		fitness.getFitness(individual);
 		DSEBudget.evaluation();
 
 	}

@@ -107,7 +107,8 @@ public class IntegerUnaryExpression extends IntegerExpression implements
 	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
-		long leftVal = ExpressionHelper.getLongResult(expr);
+		long leftVal = expr.execute();
+		// long leftVal = ExpressionHelper.getLongResult(expr);
 
 		switch (op) {
 

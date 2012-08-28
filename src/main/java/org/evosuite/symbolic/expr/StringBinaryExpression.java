@@ -33,12 +33,11 @@ import org.slf4j.LoggerFactory;
  * @author krusev
  */
 public class StringBinaryExpression extends StringExpression implements
-		BinaryExpression<String> {
+        BinaryExpression<String> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringBinaryExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(StringBinaryExpression.class);
 
 	protected String concretValue;
 
@@ -62,13 +61,13 @@ public class StringBinaryExpression extends StringExpression implements
 	 *            a {@link java.lang.String} object.
 	 */
 	public StringBinaryExpression(Expression<String> left2, Operator op2,
-			Expression<?> right2, String con) {
+	        Expression<?> right2, String con) {
 		this.concretValue = con;
 		this.left = left2;
 		this.right = right2;
 		this.op = op2;
 		this.containsSymbolicVariable = this.left.containsSymbolicVariable()
-				|| this.right.containsSymbolicVariable();
+		        || this.right.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
@@ -109,12 +108,13 @@ public class StringBinaryExpression extends StringExpression implements
 		if (obj == this) {
 			return true;
 		}
+		if (obj == null) {
+			return false;
+		}
 		if (obj instanceof StringBinaryExpression) {
 			StringBinaryExpression other = (StringBinaryExpression) obj;
-			return this.op.equals(other.op)
-					&& this.getSize() == other.getSize()
-					&& this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			return this.op.equals(other.op) && this.getSize() == other.getSize()
+			        && this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
 		return false;
@@ -163,7 +163,7 @@ public class StringBinaryExpression extends StringExpression implements
 			return Integer.toString(first.charAt(indx));
 		default:
 			log.warn("StringBinaryExpression: unimplemented operator! Operator"
-					+ op.toString());
+			        + op.toString());
 			return null;
 		}
 
