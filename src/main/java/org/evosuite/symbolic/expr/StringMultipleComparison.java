@@ -35,8 +35,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public class StringMultipleComparison extends StringComparison implements
-        BinaryExpression<String> {
+public class StringMultipleComparison extends StringComparison  {
 
 	private static final long serialVersionUID = -3844726361666119758L;
 

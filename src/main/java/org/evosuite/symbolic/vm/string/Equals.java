@@ -39,9 +39,7 @@ public final class Equals extends StringFunction {
 			int conV = res ? 1 : 0;
 			StringComparison strBExpr = new StringComparison(
 					stringReceiverExpr, Operator.EQUALS, strExpr, (long) conV);
-			StringToIntCast castExpr = new StringToIntCast(strBExpr,
-					(long) conV);
-			this.replaceTopBv32(castExpr);
+			this.replaceTopBv32(strBExpr);
 		} else {
 			// do nothing (concrete value only)
 		}

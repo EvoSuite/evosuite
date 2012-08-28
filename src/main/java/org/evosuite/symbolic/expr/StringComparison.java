@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public class StringComparison extends StringExpression {
+public class StringComparison extends IntegerExpression {
 
 	private static final long serialVersionUID = -2959676064390810341L;
 

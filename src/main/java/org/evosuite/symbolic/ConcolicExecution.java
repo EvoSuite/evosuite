@@ -49,9 +49,10 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  * 
  * @author Gordon Fraser
  */
-public class ConcolicExecution {
+public abstract class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ConcolicExecution.class);
 
 	/**
 	 * Retrieve the path condition for a given test case
@@ -62,12 +63,14 @@ public class ConcolicExecution {
 	 */
 	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
+				.getTestCase();
 
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected static List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
+	protected static List<BranchCondition> executeConcolic(
+			DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
 
@@ -109,7 +112,7 @@ public class ConcolicExecution {
 		TestCaseExecutor.runTest(defaultTestCase);
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
-		        + " branches collected");
+				+ " branches collected");
 		logNrOfConstraints(branches);
 
 		logger.debug("Cleaning concolic execution");
@@ -120,21 +123,15 @@ public class ConcolicExecution {
 	}
 
 	private static void logNrOfConstraints(List<BranchCondition> branches) {
-		int nrOfConstantConstraints = 0;
 		int nrOfConstraints = 0;
 		for (BranchCondition branchCondition : branches) {
+
 			Constraint<?> constraint = branchCondition.getLocalConstraint();
-			if (!constraint.getLeftOperand().containsSymbolicVariable()
-			        && !constraint.getRightOperand().containsSymbolicVariable()) {
-				nrOfConstantConstraints++;
-			}
+			Object leftVal = constraint.getLeftOperand().execute();
+			Object rightVal = constraint.getRightOperand().execute();
 			nrOfConstraints++;
 		}
-		double percentage = (double) nrOfConstantConstraints / (double) nrOfConstraints;
 
-		logger.debug("nrOfConstantConstraints=" + nrOfConstantConstraints);
 		logger.debug("nrOfConstraints=" + nrOfConstraints);
-		logger.debug("Percentage of constant constraints="
-		        + MessageFormat.format("{0,number,percent}", percentage));
 	}
 }

@@ -25,11 +25,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class RealUnaryExpression extends RealExpression implements
-        UnaryExpression<Double> {
+		UnaryExpression<Double> {
 
 	private static final long serialVersionUID = 9086637495150131445L;
 
-	protected static Logger log = LoggerFactory.getLogger(RealUnaryExpression.class);
+	protected static Logger log = LoggerFactory
+			.getLogger(RealUnaryExpression.class);
 
 	protected Double concretValue;
 
@@ -88,7 +89,7 @@ public class RealUnaryExpression extends RealExpression implements
 		if (obj instanceof RealUnaryExpression) {
 			RealUnaryExpression v = (RealUnaryExpression) obj;
 			return this.op.equals(v.op) && this.getSize() == v.getSize()
-			        && this.expr.equals(v.expr);
+					&& this.expr.equals(v.expr);
 		}
 		return false;
 	}
@@ -165,6 +166,8 @@ public class RealUnaryExpression extends RealExpression implements
 			return Math.toRadians(leftVal);
 		case ULP:
 			return Math.ulp(leftVal);
+		case ROUND:
+			return new Long(Math.round(leftVal)).doubleValue();
 
 		default:
 			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);

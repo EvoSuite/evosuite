@@ -386,10 +386,10 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationConcolic() {
 		logger.info("Applying DSE mutation");
-		ConcolicExecution concolicExecution = new ConcolicExecution();
+	// concolicExecution = new ConcolicExecution();
 
 		// Apply DSE to gather constraints
-		List<BranchCondition> branches = concolicExecution.getSymbolicPath(this);
+		List<BranchCondition> branches = ConcolicExecution.getSymbolicPath(this);
 		logger.debug("Conditions: " + branches);
 		if (branches.isEmpty())
 			return false;

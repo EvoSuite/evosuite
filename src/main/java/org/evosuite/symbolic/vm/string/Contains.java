@@ -9,7 +9,6 @@ import org.evosuite.symbolic.expr.StringToIntCast;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-
 public final class Contains extends StringFunction {
 
 	private StringExpression strExpr;
@@ -37,10 +36,8 @@ public final class Contains extends StringFunction {
 				StringComparison strComp = new StringComparison(
 						stringReceiverExpr, Operator.CONTAINS, strExpr,
 						(long) concrete_value);
-				StringToIntCast castExpr = new StringToIntCast(strComp,
-						(long) concrete_value);
 
-				replaceTopBv32(castExpr);
+				replaceTopBv32(strComp);
 			}
 		}
 	}
