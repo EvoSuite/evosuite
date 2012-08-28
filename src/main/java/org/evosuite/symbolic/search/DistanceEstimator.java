@@ -84,8 +84,8 @@ public abstract class DistanceEstimator {
 			}
 			return Math.abs(result);
 		} catch (Exception e) {
-//			log.warn(e.toString());
-//			e.printStackTrace();
+			//			log.warn(e.toString());
+			e.printStackTrace();
 			return Double.MAX_VALUE;
 		}
 	}
@@ -187,6 +187,8 @@ public abstract class DistanceEstimator {
 
 		long left = ExpressionHelper.getLongResult(target.getLeftOperand());
 		long right = ExpressionHelper.getLongResult(target.getRightOperand());
+		//long left = (Long) target.getLeftOperand().execute();
+		//long right = (Long) target.getRightOperand().execute();
 
 		Comparator cmpr = target.getComparator();
 

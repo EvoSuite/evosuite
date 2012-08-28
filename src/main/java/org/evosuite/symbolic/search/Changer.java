@@ -349,7 +349,7 @@ public class Changer {
 
 		if (improvement) {
 			varsToChange.put(realVar.getName(), realVar.getConcreteValue());
-			log.debug("Finished long local search with new value " + realVar);
+			log.debug("Finished real local search with new value " + realVar);
 			//if (oldDist <= 0) {
 			//	return true;
 			//}
@@ -415,10 +415,10 @@ public class Changer {
 	private boolean afterCommaSearchV2(RealVariable realVar,
 	        Collection<Constraint<?>> cnstr) {
 		boolean improvement = false;
-		//		int maxPrecision = realVar.getMaxValue() > Float.MAX_VALUE ? 15 : 7;
-		int maxPrecision = 15;
+		int maxPrecision = realVar.getMaxValue() > Float.MAX_VALUE ? 15 : 7;
+		//int maxPrecision = 15;
 		for (int precision = 1; precision <= maxPrecision; precision++) {
-			//roundPrecision(realVar, cnstr, precision, maxPrecision == 7);
+			roundPrecision(realVar, cnstr, precision, maxPrecision == 7);
 			log.debug("Current precision: " + precision);
 			if (doRealSearch(realVar, cnstr, Math.pow(10.0, -precision), 2))
 				improvement = true;
@@ -515,8 +515,7 @@ public class Changer {
 		return improvement;
 	}
 
-	@SuppressWarnings("unused")
-	private void roundPrecision(RealVariable realVar, List<Constraint<?>> cnstr,
+	private void roundPrecision(RealVariable realVar, Collection<Constraint<?>> cnstr,
 	        int precision, boolean isFloat) {
 
 		double value = realVar.getConcreteValue();

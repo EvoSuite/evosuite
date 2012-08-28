@@ -17,7 +17,6 @@
  */
 package org.evosuite.symbolic;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +31,7 @@ import org.evosuite.symbolic.vm.OtherVM;
 import org.evosuite.symbolic.vm.PathConstraint;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.slf4j.Logger;
@@ -51,8 +51,7 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  */
 public abstract class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
 	/**
 	 * Retrieve the path condition for a given test case
@@ -63,14 +62,12 @@ public abstract class ConcolicExecution {
 	 */
 	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
-				.getTestCase();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected static List<BranchCondition> executeConcolic(
-			DefaultTestCase defaultTestCase) {
+	protected static List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
 
@@ -109,10 +106,14 @@ public abstract class ConcolicExecution {
 		TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
 
 		logger.info("Starting concolic execution");
-		TestCaseExecutor.runTest(defaultTestCase);
+		ExecutionResult result = TestCaseExecutor.runTest(defaultTestCase);
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
-				+ " branches collected");
+		        + " branches collected");
+		if (!result.noThrownExceptions()) {
+			int idx = result.getFirstPositionOfThrownException();
+			logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
+		}
 		logNrOfConstraints(branches);
 
 		logger.debug("Cleaning concolic execution");

@@ -128,6 +128,8 @@ public class IntegerBinaryExpression extends IntegerExpression implements
 	public Long execute() {
 		long leftVal = ExpressionHelper.getLongResult(left);
 		long rightVal = ExpressionHelper.getLongResult(right);
+		// long leftVal = left.execute();
+		// long rightVal = right.execute();
 
 		switch (op) {
 
