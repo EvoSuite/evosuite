@@ -22,7 +22,6 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-import org.evosuite.symbolic.search.DistanceEstimator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,20 +146,20 @@ public class StringComparison extends IntegerExpression {
 	@Override
 	public Long execute() {
 		try {
-			String first = (String) left.execute();
+			String first = left.execute();
 			String second = (String) right.execute();
 
 			switch (op) {
 			case EQUALSIGNORECASE:
-				return (long) DistanceEstimator.StrEqualsIgnoreCase(first, second);
+				return first.equalsIgnoreCase(second) ? 1L : 0L;
 			case EQUALS:
-				return (long) DistanceEstimator.StrEquals(first, second);
+				return first.equals(second) ? 1L : 0L;
 			case ENDSWITH:
-				return (long) DistanceEstimator.StrEndsWith(first, second);
+				return first.endsWith(second) ? 1L : 0L;
 			case CONTAINS:
-				return (long) DistanceEstimator.StrContains(first, second);
+				return first.contains(second) ? 1L : 0L;
 			case PATTERNMATCHES:
-				return (long) DistanceEstimator.RegexMatches(second, first);
+				return first.matches(second) ? 1L : 0L;
 			default:
 				log.warn("StringComparison: unimplemented operator!" + op);
 				return null;
