@@ -112,7 +112,7 @@ public class ResourceController implements SearchListener, StoppingCondition,
 			 */
 			stopComputation = true;
 			ga.addStoppingCondition(this);
-			logger.warn("Shutting down the search do to running out of computational resources");
+			logger.warn("Shutting down the search due to running out of computational resources");
 		}
 	}
 
