@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerVariable;
@@ -168,15 +167,16 @@ public class Changer {
 
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
 
-		for (int i = strVar.execute().length() - 1; i >= 0; i--) {
-			String newStr = strVar.execute().substring(0, i)
-			        + strVar.execute().substring(i + 1);
+		String oldString = strVar.execute();
+		for (int i = oldString.length() - 1; i >= 0; i--) {
+			String newStr = oldString.substring(0, i) + oldString.substring(i + 1);
 			strVar.setMinValue(newStr);
 
 			double newDist = DistanceEstimator.getDistance(cnstr);
 
 			if (distImpr(newDist)) {
 				improvement = true;
+				oldString = newStr;
 				varsToChange.put(strVar.getName(), newStr);
 				if (newDist == 0) {
 					return true;
@@ -189,71 +189,183 @@ public class Changer {
 
 		// try to replace each 
 		log.debug("Trying to replace characters");
-
-		backup(strVar, DistanceEstimator.getDistance(cnstr));
-
-		spatialLoop: for (int i = 0; i < strVar.execute().length(); i++) {
-			char oldChar = strVar.execute().charAt(i);
-			char[] characters = strVar.execute().toCharArray();
-			for (char replacement = 0; replacement < 128; replacement++) {
-				if (replacement != oldChar) {
-					characters[i] = replacement;
-					String newStr = new String(characters);
-					strVar.setMinValue(newStr);
-
-					double newDist = DistanceEstimator.getDistance(cnstr);
-
-					if (distImpr(newDist)) {
-						improvement = true;
-
-						varsToChange.put(strVar.getName(), newStr);
-						if (newDist == 0) {
-							return true;
-						}
-						backup(strVar, newDist);
-						break;
-					} else {
-						restore(strVar);
-					}
-					if (distWrsn(newDist)) {
-						//skip this place
-						continue spatialLoop;
-					}
-				}
-			}
+		// Backup is done internally
+		if (doStringAVM(strVar, cnstr, varsToChange, oldString)) {
+			improvement = true;
+			oldString = strVar.execute();
 		}
+
+		if (oldDist == 0.0)
+			return true;
 
 		// try to add everywhere
 		log.debug("Trying to add characters");
 
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
 
-		for (int i = 0; i < strVar.execute().length() + 1; i++) {
+		for (int i = 0; i < oldString.length() + 1; i++) {
 			boolean add = true;
 			while (add) {
 				add = false;
-				for (char replacement = 0; replacement < 128; replacement++) {
-					String newStr = strVar.execute().substring(0, i) + replacement
-					        + strVar.execute().substring(i);
-					strVar.setMinValue(newStr);
+				String newStr = oldString.substring(0, i) + '_' + oldString.substring(i);
+				strVar.setMinValue(newStr);
+				double newDist = DistanceEstimator.getDistance(cnstr);
+				log.debug("Adding " + i + ": " + newStr + ": " + newDist);
 
-					double newDist = DistanceEstimator.getDistance(cnstr);
+				if (distImpr(newDist)) {
+					improvement = true;
+					backup(strVar, newDist);
+					if (oldDist == 0.0)
+						return true;
 
-					if (distImpr(newDist)) {
-						improvement = true;
-						varsToChange.put(strVar.getName(), newStr);
-						if (newDist <= 0) {
-							return true;
-						}
-						backup(strVar, newDist);
-						add = true;
-						break;
-					} else {
-						restore(strVar);
-					}
+					doCharacterAVM(strVar, cnstr, varsToChange, i);
+					oldString = strVar.execute();
+				} else {
+					restore(strVar);
 				}
 			}
 		}
+		return improvement;
+	}
+
+	/**
+	 * Apply AVM to all characters in a string
+	 * 
+	 * @param strVar
+	 * @param cnstr
+	 * @param varsToChange
+	 * @param oldString
+	 * @return
+	 */
+	private boolean doStringAVM(StringVariable strVar, Collection<Constraint<?>> cnstr,
+	        HashMap<String, Object> varsToChange, String oldString) {
+
+		boolean improvement = false;
+
+		for (int i = 0; i < oldString.length(); i++) {
+			log.info("Current character: " + i);
+			if (doCharacterAVM(strVar, cnstr, varsToChange, i))
+				improvement = true;
+		}
+		return improvement;
+	}
+
+	/**
+	 * Apply AVM to an individual character within a string
+	 * 
+	 * @param strVar
+	 * @param cnstr
+	 * @param varsToChange
+	 * @param position
+	 * @return
+	 */
+	private boolean doCharacterAVM(StringVariable strVar,
+	        Collection<Constraint<?>> cnstr, HashMap<String, Object> varsToChange,
+	        int position) {
+		backup(strVar, DistanceEstimator.getDistance(cnstr));
+		boolean done = false;
+		boolean hasImproved = false;
+
+		while (!done) {
+			done = true;
+			String origString = strVar.execute();
+			char oldChar = origString.charAt(position);
+
+			char[] characters = origString.toCharArray();
+
+			char replacement = oldChar;
+			replacement++;
+			characters[position] = replacement;
+			String newString = new String(characters);
+			strVar.setMinValue(newString);
+			double newDist = DistanceEstimator.getDistance(cnstr);
+			log.debug("Probing increment " + position + ": " + newString + ": " + newDist
+			        + " replacement = " + (int) replacement);
+			if (distImpr(newDist)) {
+				backup(strVar, newDist);
+				varsToChange.put(strVar.getName(), newString);
+
+				if (newDist == 0.0)
+					return true;
+				done = false;
+				hasImproved = true;
+				iterateCharacterAVM(strVar, cnstr, varsToChange, position, 2);
+			} else {
+				replacement -= 2;
+				characters[position] = replacement;
+				newString = new String(characters);
+				strVar.setMinValue(newString);
+				newDist = DistanceEstimator.getDistance(cnstr);
+				log.debug("Probing decrement " + position + ": " + newString + ": "
+				        + newDist + " replacement = " + (int) replacement);
+				if (distImpr(newDist)) {
+					backup(strVar, newDist);
+					varsToChange.put(strVar.getName(), newString);
+
+					if (newDist == 0.0)
+						return true;
+
+					done = false;
+					hasImproved = true;
+					iterateCharacterAVM(strVar, cnstr, varsToChange, position, -2);
+				} else {
+					restore(strVar);
+					if (done)
+						log.debug("Search finished " + position + ": " + newString + ": "
+						        + newDist);
+					else
+						log.debug("Going for another iteration at position " + position);
+
+				}
+			}
+		}
+		return hasImproved;
+	}
+
+	private boolean iterateCharacterAVM(StringVariable strVar,
+	        Collection<Constraint<?>> cnstr, HashMap<String, Object> varsToChange,
+	        int position, int delta) {
+
+		boolean improvement = false;
+		String oldString = strVar.execute();
+
+		log.debug("Trying increment " + delta + " of " + oldString);
+		char oldChar = oldString.charAt(position);
+		log.info(" -> Character " + position + ": " + oldChar);
+		char[] characters = oldString.toCharArray();
+		char replacement = oldChar;
+
+		replacement += delta;
+		characters[position] = replacement;
+		String newString = new String(characters);
+		strVar.setMinValue(newString);
+		double newDist = DistanceEstimator.getDistance(cnstr);
+
+		while (distImpr(newDist)) {
+
+			backup(strVar, newDist);
+			varsToChange.put(strVar.getName(), newString);
+
+			if (newDist == 0.0)
+				return true;
+
+			oldString = newString;
+			improvement = true;
+			delta = 2 * delta;
+			replacement += delta;
+			log.info("Current delta: " + delta + " -> " + replacement);
+			characters[position] = replacement;
+			newString = new String(characters);
+			log.info(" " + position + " " + oldString + "/" + oldString.length() + " -> "
+			        + newString + "/" + newString.length());
+			strVar.setMinValue(newString);
+			newDist = DistanceEstimator.getDistance(cnstr);
+		}
+		log.debug("No improvement on " + oldString);
+		restore(strVar);
+		// strVar.setMinValue(oldString);
+		log.debug("Final value of this iteration: " + oldString);
+
 		return improvement;
 	}
 
@@ -343,7 +455,7 @@ public class Changer {
 
 		if (oldDist > 0) {
 			//improvement = doRealSearch(realVar, cnstr, Double.MIN_VALUE, 2.0);
-			if (afterCommaSearchV2(realVar, cnstr))
+			if (afterCommaSearch(realVar, cnstr))
 				improvement = true;
 		}
 
@@ -359,6 +471,15 @@ public class Changer {
 		return false;
 	}
 
+	/**
+	 * Regular AVM on real variables
+	 * 
+	 * @param realVar
+	 * @param cnstr
+	 * @param delta
+	 * @param factor
+	 * @return
+	 */
 	private boolean doRealSearch(RealVariable realVar, Collection<Constraint<?>> cnstr,
 	        double delta, double factor) {
 
@@ -412,11 +533,19 @@ public class Changer {
 		return improvement;
 	}
 
-	private boolean afterCommaSearchV2(RealVariable realVar,
-	        Collection<Constraint<?>> cnstr) {
+	/**
+	 * Try to optimize the digits after the comma
+	 * 
+	 * @param realVar
+	 * @param cnstr
+	 * @return
+	 */
+	private boolean afterCommaSearch(RealVariable realVar, Collection<Constraint<?>> cnstr) {
 		boolean improvement = false;
+
+		// Assume that floats have 7 digits after comma and double 15. This is based on Flopsy
 		int maxPrecision = realVar.getMaxValue() > Float.MAX_VALUE ? 15 : 7;
-		//int maxPrecision = 15;
+
 		for (int precision = 1; precision <= maxPrecision; precision++) {
 			roundPrecision(realVar, cnstr, precision, maxPrecision == 7);
 			log.debug("Current precision: " + precision);
@@ -430,91 +559,14 @@ public class Changer {
 		return improvement;
 	}
 
-	@SuppressWarnings("unused")
-	private boolean afterCommaSearchV1(RealVariable realVar, List<Constraint<?>> cnstr) {
-		boolean improvement = false;
-
-		//compute interval
-		log.debug("Searching after comma");
-
-		//		double left = Math.floor(realVar.getConcreteValue());
-		//		double work = Double.MAX_VALUE;//realVar.getConcreteValue();
-		//		double right = Math.ceil(realVar.getConcreteValue());
-		////		log.debuging("left: " + left +" conc " + realVar.getConcreteValue() + " right: "+ right);
-		//		
-		//
-		//		realVar.setConcreteValue(left);
-		//		double distL = DistanceEstimator.getDistance(cnstr);
-		//		realVar.setConcreteValue(right);
-		//		double distR = DistanceEstimator.getDistance(cnstr);
-		//
-		//		realVar.setConcreteValue((left+right)/2.0);
-		//		double distW = DistanceEstimator.getDistance(cnstr);
-
-		double left = realVar.getConcreteValue() - 1.0;
-		double work = Double.MAX_VALUE;//realVar.getConcreteValue();
-		double right = realVar.getConcreteValue() + 1.0;
-
-		double distW = DistanceEstimator.getDistance(cnstr);
-
-		increment(realVar, -1.0);
-		double distL = DistanceEstimator.getDistance(cnstr);
-		increment(realVar, 2.0);
-		double distR = DistanceEstimator.getDistance(cnstr);
-		increment(realVar, -1.0);
-
-		//TODO this whole story with oldWork != work works but should 
-		// be done a "little" bit better ...
-		double oldWork = -Double.MAX_VALUE;
-
-		//since we are going in the same direction with left and right
-		// we will eventually produce the right result
-		// if there is no right result we will arrive at some local min and 
-		// work will stay the same
-		while (distW > 0.0) {
-			if (oldWork == work) {
-				//unreachable
-				log.debug("Stopping search as old value is new value: " + work + ", "
-				        + left + " - " + right + ", but distance is " + distW);
-
-				return false;
-			}
-			//log.debuging("oldWork: " + oldWork + " work: " + work);
-			oldWork = work;
-
-			//			log.debuging("left: " + left +" conc " + (left + right) + " right: "+ right);
-
-			work = (left + right) / 2.0;
-			realVar.setConcreteValue(work);
-			distW = DistanceEstimator.getDistance(cnstr);
-
-			if (distW < distL || distW < distR) {
-				log.debug("improoved");
-				improvement = true;
-				backup(realVar, distW);
-			} else {
-				log.debug("restore");
-				restore(realVar);
-				break;
-			}
-
-			log.debug("left: " + left + " " + distL + " work: " + work + " " + distW
-			        + " right: " + right + " " + distR);
-			if (distL > distR) {
-				left = work;
-				distL = distW;
-			} else {
-				right = work;
-				distR = distW;
-			}
-		}
-
-		//log.debuging("newRealVar: " + realVar);
-
-		// TODO Auto-generated method stub
-		return improvement;
-	}
-
+	/**
+	 * Cut off digits after comma.
+	 * 
+	 * @param realVar
+	 * @param cnstr
+	 * @param precision
+	 * @param isFloat
+	 */
 	private void roundPrecision(RealVariable realVar, Collection<Constraint<?>> cnstr,
 	        int precision, boolean isFloat) {
 
@@ -542,6 +594,14 @@ public class Changer {
 		}
 	}
 
+	/**
+	 * Apply AVM on variable
+	 * 
+	 * @param realVar
+	 * @param cnstr
+	 * @param delta
+	 * @param factor
+	 */
 	private void iterate(RealVariable realVar, Collection<Constraint<?>> cnstr,
 	        double delta, double factor) {
 
@@ -565,6 +625,13 @@ public class Changer {
 		log.debug("Final value of this iteration: " + realVar);
 	}
 
+	/**
+	 * AVM inner loop
+	 * 
+	 * @param intVar
+	 * @param cnstr
+	 * @param delta
+	 */
 	private void iterate(IntegerVariable intVar, Collection<Constraint<?>> cnstr,
 	        long delta) {
 
