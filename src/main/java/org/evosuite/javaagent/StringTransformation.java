@@ -98,6 +98,7 @@ public class StringTransformation {
 				if (min.owner.equals("java/lang/String")) {
 					if (min.name.equals("equals")) {
 						changed = true;
+
 						MethodInsnNode equalCheck = new MethodInsnNode(
 						        Opcodes.INVOKESTATIC,
 						        Type.getInternalName(BooleanHelper.class),
@@ -108,6 +109,20 @@ public class StringTransformation {
 						                                         Type.getType(Object.class) }));
 						mn.instructions.insertBefore(node, equalCheck);
 						mn.instructions.remove(node);
+						/*
+												MethodInsnNode equalCheck = new MethodInsnNode(
+												        Opcodes.INVOKESTATIC,
+												        Type.getInternalName(BooleanHelper.class),
+												        "StringEqualsCharacterDistance",
+												        Type.getMethodDescriptor(Type.DOUBLE_TYPE,
+												                                 new Type[] {
+												                                         Type.getType(String.class),
+												                                         Type.getType(Object.class) }));
+												mn.instructions.insertBefore(node, equalCheck);
+												mn.instructions.insertBefore(node, new LdcInsnNode(0.0));
+												mn.instructions.insertBefore(node, new InsnNode(Opcodes.DCMPG));
+												mn.instructions.remove(node);
+												*/
 						TransformationStatistics.transformedStringComparison();
 
 					} else if (min.name.equals("equalsIgnoreCase")) {
@@ -294,6 +309,7 @@ public class StringTransformation {
 						        || isStringMethod(node.getPrevious())) {
 							logger.info("IFNE -> IFGT");
 							branch.setOpcode(Opcodes.IFGT);
+							// branch.setOpcode(Opcodes.IFGE);
 						}
 					} else if (node.getOpcode() == Opcodes.IFEQ) {
 						JumpInsnNode branch = (JumpInsnNode) node;
@@ -301,6 +317,7 @@ public class StringTransformation {
 						        || isStringMethod(node.getPrevious())) {
 							logger.info("IFEQ -> IFLE");
 							branch.setOpcode(Opcodes.IFLE);
+							// branch.setOpcode(Opcodes.IFNE);
 						}
 					} else if (node.getOpcode() == Opcodes.IF_ICMPEQ) {
 						JumpInsnNode branch = (JumpInsnNode) node;

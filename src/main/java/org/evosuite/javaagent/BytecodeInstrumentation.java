@@ -280,11 +280,6 @@ public class BytecodeInstrumentation {
 			ClassNode cn = new AnnotatedClassNode();
 			reader.accept(cn, readFlags);
 			logger.info("Starting transformation of " + className);
-			ComparisonTransformation cmp = new ComparisonTransformation(cn);
-			if (isTargetClassName(classNameWithDots)
-			        || shouldTransform(classNameWithDots)) {
-				cn = cmp.transform();
-			}
 
 			if (Properties.STRING_REPLACEMENT) {
 				StringTransformation st = new StringTransformation(cn);
@@ -292,6 +287,11 @@ public class BytecodeInstrumentation {
 				        || shouldTransform(classNameWithDots))
 					cn = st.transform();
 
+			}
+			ComparisonTransformation cmp = new ComparisonTransformation(cn);
+			if (isTargetClassName(classNameWithDots)
+			        || shouldTransform(classNameWithDots)) {
+				cn = cmp.transform();
 			}
 
 			if (shouldTransform(classNameWithDots)) {
