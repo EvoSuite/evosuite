@@ -300,10 +300,8 @@ public class ControlFlowDistanceCalculator {
 		}
 
 		for (ControlDependency next : nextToLookAt) {
-
-			// FIXXME: This doesn't seem to be working
-			//if (instruction.equals(next.getBranch().getInstruction()))
-			//	continue; // avoid loops
+			if (instruction.equals(next.getBranch().getInstruction()))
+				continue; // avoid loops
 
 			boolean nextValue = next.getBranchExpressionValue();
 			ControlFlowDistance nextDistance = getNonRootDistance(result, call,

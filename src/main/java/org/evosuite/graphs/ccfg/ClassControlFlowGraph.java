@@ -453,7 +453,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return r;
 	}
 
-	// inter-method pair search
+	// intra- and inter-method pair search
 
 	private Set<DefUseCoverageTestFitness> determineIntraInterMethodPairs(
 			CCFGMethodEntryNode methodEntry) {
