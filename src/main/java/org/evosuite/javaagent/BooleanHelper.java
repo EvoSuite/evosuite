@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 
 /**
@@ -677,6 +678,29 @@ public class BooleanHelper {
 		}
 	}
 
+	public static double StringEqualsCharacterDistance(String first, Object second) {
+		if (first == null) {
+			throw new IllegalArgumentException(
+			        "StringEquals is not supposed to work on a null caller");
+		}
+		// Comparison with null is always false
+		if (second == null) {
+			return -K;
+		}
+
+		if (first.equals(second)) {
+			return K; // Identical
+		} else {
+			//System.out.println("Edit distance between " + first + " and " + second
+			//       + " is " + -editDistance(first, second.toString()) + " / "
+			//      + getLevenshteinDistance(first, (String) second));
+			//return -editDistance(first, second.toString());
+			//return -getLevenshteinDistance(first, (String) second);
+			return -getDistanceBasedOnLeftAlignmentCharacterDistance(first,
+			                                                         second.toString());
+		}
+	}
+
 	public static int StringMatches(String str, String regex) {
 		int distance = RegexDistance.getDistance(str, regex);
 
@@ -749,6 +773,35 @@ public class BooleanHelper {
 					differences++;
 				}
 			}
+			return differences;
+		}
+	}
+
+	public static double getDistanceBasedOnLeftAlignmentCharacterDistance(String a,
+	        String b) {
+		if (a == b) {
+			return K;
+		} else if (a == null && b != null) {
+			return b.length() + 1; // +1 is important to handle the empty string "" 
+		} else if (a != null && b == null) {
+			return a.length() + 1;
+		} else {
+			double differences = 0.0;
+			int min = Math.min(a.length(), b.length());
+			int max = Math.max(a.length(), b.length());
+			differences += (max - min);
+			for (int i = 0; i < min; i++) {
+				/*
+				 * Note: instead of just checking for mismatches, we could use something more sophisticated.
+				 * Eg, "a" is closer to "e" than "!". But maybe, considering the type of local search
+				 * we do, we don't need to do it
+				 */
+				if (a.charAt(i) != b.charAt(i)) {
+					differences += normalize(Math.abs(a.charAt(i) - b.charAt(i)));
+				}
+			}
+			LoggingUtils.getEvoLogger().info("Distance between " + a + " and " + b
+			                                         + " is: " + differences);
 			return differences;
 		}
 	}
