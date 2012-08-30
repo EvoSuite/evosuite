@@ -90,7 +90,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	        ExecutionTrace objectTrace, Integer goalDefPos, Integer objectId) {
 
 		int lastPos = Integer.MAX_VALUE;
-		Map<Integer, HashMap<Integer, Integer>> objectMap = objectTrace.getPassedDefinitions(targetDefinition.getDUVariableName());
+		Map<Integer, HashMap<Integer, Integer>> objectMap = objectTrace.getPassedDefinitions(targetDefinition.getVariableName());
 		if (objectMap == null)
 			return lastPos;
 		Map<Integer, Integer> defMap = objectMap.get(objectId);
@@ -115,7 +115,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	public static List<Integer> getUsePositions(Use targetUse, ExecutionTrace trace,
 	        int objectId) {
 		ArrayList<Integer> r = new ArrayList<Integer>();
-		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedUses(targetUse.getDUVariableName());
+		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedUses(targetUse.getVariableName());
 		if (objectMap == null)
 			return r;
 		Map<Integer, Integer> useMap = objectMap.get(objectId);
@@ -140,7 +140,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	        ExecutionTrace trace, int objectId) {
 
 		ArrayList<Integer> r = new ArrayList<Integer>();
-		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedDefinitions(targetDefinition.getDUVariableName());
+		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedDefinitions(targetDefinition.getVariableName());
 		if (objectMap == null)
 			return r;
 		Map<Integer, Integer> defMap = objectMap.get(objectId);
@@ -176,7 +176,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		if (startingDUPos > endDUPos)
 			throw new IllegalArgumentException("start must be lower or equal end");
 		Map<Integer, Integer> r = new HashMap<Integer, Integer>();
-		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedDefinitions(targetDefinition.getDUVariableName());
+		Map<Integer, HashMap<Integer, Integer>> objectMap = trace.getPassedDefinitions(targetDefinition.getVariableName());
 		if (objectMap == null)
 			return r;
 		Map<Integer, Integer> defMap = objectMap.get(objectId);
@@ -211,7 +211,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 			if (!DefUsePool.isKnownAsDefinition(vertex))
 				continue;
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertex);
-			if (currentDefinition.getDUVariableName().equals(targetVariable))
+			if (currentDefinition.getVariableName().equals(targetVariable))
 				r.add(vertex);
 		}
 		return r;
@@ -254,7 +254,7 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		if (definition.getDefId() == -1)
 			throw new IllegalArgumentException(
 			        "expect given Definition to have it's defId set");
-		return targetDefinition.getDUVariableName().equals(definition.getDUVariableName())
+		return targetDefinition.getVariableName().equals(definition.getVariableName())
 		        && targetDefinition.getDefId() != definition.getDefId();
 	}
 

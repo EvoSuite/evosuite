@@ -57,7 +57,7 @@ import org.objectweb.asm.tree.analysis.SourceValue;
  * @author Gordon Fraser, Andre Mis
  */
 public class BytecodeInstruction extends ASMWrapper implements Serializable,
-        Comparable<BytecodeInstruction> {
+		Comparable<BytecodeInstruction> {
 
 	private static final long serialVersionUID = 3630449183355518857L;
 
@@ -91,14 +91,14 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * @param asmNode
 	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
 	 */
-	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        int jpfId, AbstractInsnNode asmNode) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, int jpfId, AbstractInsnNode asmNode) {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
 		if (instructionId < 0)
 			throw new IllegalArgumentException(
-			        "expect instructionId to be positive, not " + instructionId);
+					"expect instructionId to be positive, not " + instructionId);
 
 		this.instructionId = instructionId;
 		this.jpfId = jpfId;
@@ -117,7 +117,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.className, wrap.methodName, wrap.instructionId, wrap.jpfId,
-		        wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
+				wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
 		this.forcedBranch = wrap.forcedBranch;
 		this.frame = wrap.frame;
 	}
@@ -142,8 +142,9 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * @param basicBlock
 	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
 	 */
-	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        int jpfId, AbstractInsnNode asmNode, int lineNumber, BasicBlock basicBlock) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, int jpfId, AbstractInsnNode asmNode,
+			int lineNumber, BasicBlock basicBlock) {
 
 		this(className, methodName, instructionId, jpfId, asmNode, lineNumber);
 
@@ -168,8 +169,9 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * @param lineNumber
 	 *            a int.
 	 */
-	public BytecodeInstruction(String className, String methodName, int instructionId,
-	        int jpfId, AbstractInsnNode asmNode, int lineNumber) {
+	public BytecodeInstruction(String className, String methodName,
+			int instructionId, int jpfId, AbstractInsnNode asmNode,
+			int lineNumber) {
 
 		this(className, methodName, instructionId, jpfId, asmNode);
 
@@ -284,12 +286,12 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			throw new IllegalArgumentException("null given");
 
 		if (!block.getClassName().equals(getClassName())
-		        || !block.getMethodName().equals(getMethodName()))
+				|| !block.getMethodName().equals(getMethodName()))
 			throw new IllegalArgumentException(
-			        "expect block to be for the same method and class as this instruction");
+					"expect block to be for the same method and class as this instruction");
 		if (this.basicBlock != null)
 			throw new IllegalArgumentException(
-			        "basicBlock already set! not allowed to overwrite");
+					"basicBlock already set! not allowed to overwrite");
 
 		this.basicBlock = block;
 	}
@@ -324,7 +326,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	public void setLineNumber(int lineNumber) {
 		if (lineNumber <= 0)
-			throw new IllegalArgumentException("expect lineNumber value to be positive");
+			throw new IllegalArgumentException(
+					"expect lineNumber value to be positive");
 
 		if (isLabel())
 			return;
@@ -334,7 +337,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			// sanity check
 			if (lineNumber != -1 && asmLine != lineNumber)
 				throw new IllegalStateException(
-				        "linenumber instruction has lineNumber field set to a value different from instruction linenumber");
+						"linenumber instruction has lineNumber field set to a value different from instruction linenumber");
 			this.lineNumber = asmLine;
 		} else {
 			this.lineNumber = lineNumber;
@@ -373,7 +376,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			// sanity check
 			if (this.lineNumber != -1 && asmLine != this.lineNumber)
 				throw new IllegalStateException(
-				        "lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
+						"lineNumber field was manually set to a value different from the actual lineNumber contained in LineNumberNode");
 			this.lineNumber = asmLine;
 		}
 	}
@@ -389,10 +392,11 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	public ActualControlFlowGraph getActualCFG() {
 
-		ActualControlFlowGraph myCFG = GraphPool.getActualCFG(className, methodName);
+		ActualControlFlowGraph myCFG = GraphPool.getActualCFG(className,
+				methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-			        "expect GraphPool to know CFG for every method for which an instruction is known");
+					"expect GraphPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -409,7 +413,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		RawControlFlowGraph myCFG = GraphPool.getRawCFG(className, methodName);
 		if (myCFG == null)
 			throw new IllegalStateException(
-			        "expect GraphPool to know CFG for every method for which an instruction is known");
+					"expect GraphPool to know CFG for every method for which an instruction is known");
 
 		return myCFG;
 	}
@@ -426,7 +430,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		ControlDependenceGraph myCDG = GraphPool.getCDG(className, methodName);
 		if (myCDG == null)
 			throw new IllegalStateException(
-			        "expect GraphPool to know CDG for every method for which an instruction is known");
+					"expect GraphPool to know CDG for every method for which an instruction is known");
 
 		return myCDG;
 	}
@@ -565,7 +569,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	public boolean getBranchExpressionValue(Branch b) {
 		if (!isDirectlyControlDependentOn(b))
 			throw new IllegalArgumentException(
-			        "this method can only be called for branches that this instruction is directly control dependent on.");
+					"this method can only be called for branches that this instruction is directly control dependent on.");
 
 		if (b == null)
 			return true; // root branch special case
@@ -609,14 +613,14 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	public ControlDependency getControlDependency(Branch branch) {
 		if (!isDirectlyControlDependentOn(branch))
 			throw new IllegalArgumentException(
-			        "instruction not directly control dependent on given branch");
+					"instruction not directly control dependent on given branch");
 
 		for (ControlDependency cd : getControlDependencies())
 			if (cd.getBranch().equals(branch))
 				return cd;
 
 		throw new IllegalStateException(
-		        "expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
+				"expect getControlDependencies() to contain a CD for each branch that isDirectlyControlDependentOn() returns true on");
 	}
 
 	// /**
@@ -705,11 +709,13 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 				Branch b = BranchPool.getBranchForInstruction(this);
 				if (b == null)
 					throw new IllegalStateException(
-					        "expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
+							"expect BranchPool to be able to return Branches for instructions fullfilling BranchPool.isKnownAsBranch()");
 
-				return "Branch " + b.getActualBranchId() + " - " + getInstructionType();
+				return "Branch " + b.getActualBranchId() + " - "
+						+ getInstructionType();
 			}
-			return "UNKNOWN Branch I" + instructionId + " " + getInstructionType();
+			return "UNKNOWN Branch I" + instructionId + " "
+					+ getInstructionType();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
@@ -740,25 +746,25 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
 		} else if (asmNode instanceof FieldInsnNode)
 			return "Field" + " " + ((FieldInsnNode) asmNode).owner + "."
-			        + ((FieldInsnNode) asmNode).name + " Type=" + type + ", Opcode="
-			        + opcode;
+					+ ((FieldInsnNode) asmNode).name + " Type=" + type
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof FrameNode)
-			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type + ", Opcode="
-			        + opcode;
+			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof IincInsnNode)
-			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type + ", Opcode="
-			        + opcode;
+			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof InsnNode)
 			return "" + opcode;
 		else if (asmNode instanceof IntInsnNode)
 			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type
-			        + ", Opcode=" + opcode;
+					+ ", Opcode=" + opcode;
 		else if (asmNode instanceof MethodInsnNode)
 			return opcode + " " + ((MethodInsnNode) asmNode).name;
 		else if (asmNode instanceof JumpInsnNode)
-			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel() + " Type=" + type
-			        + ", Opcode=" + opcode + ", Stack: " + stack + " - Line: "
-			        + lineNumber;
+			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel()
+					+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
+					+ stack + " - Line: " + lineNumber;
 		else if (asmNode instanceof LdcInsnNode)
 			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type; // +
 		// ", Opcode=";
@@ -767,14 +773,14 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		else if (asmNode instanceof LineNumberNode)
 			return "LINE " + " " + ((LineNumberNode) asmNode).line;
 		else if (asmNode instanceof LookupSwitchInsnNode)
-			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
-			        + ", Opcode=" + opcode;
+			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode()
+					+ " Type=" + type + ", Opcode=" + opcode;
 		else if (asmNode instanceof MultiANewArrayInsnNode)
-			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type=" + type
-			        + ", Opcode=" + opcode;
+			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type="
+					+ type + ", Opcode=" + opcode;
 		else if (asmNode instanceof TableSwitchInsnNode)
-			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type=" + type
-			        + ", Opcode=" + opcode;
+			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type="
+					+ type + ", Opcode=" + opcode;
 		else if (asmNode instanceof TypeInsnNode)
 			return "NEW " + ((TypeInsnNode) asmNode).desc;
 		// return "TYPE " + " " + node.getOpcode() + " Type=" + type
@@ -797,9 +803,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			System.out.print(" " + i + "(" + v.insns.size() + "): ");
 			for (Object n : v.insns) {
 				AbstractInsnNode node = (AbstractInsnNode) n;
-				BytecodeInstruction ins = BytecodeInstructionPool.getInstruction(className,
-				                                                                 methodName,
-				                                                                 node);
+				BytecodeInstruction ins = BytecodeInstructionPool
+						.getInstruction(className, methodName, node);
 				System.out.print(ins.toString() + ", ");
 			}
 			System.out.println();
@@ -811,9 +816,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			System.out.print(" " + i + "(" + v.insns.size() + "): ");
 			for (Object n : v.insns) {
 				AbstractInsnNode node = (AbstractInsnNode) n;
-				BytecodeInstruction ins = BytecodeInstructionPool.getInstruction(className,
-				                                                                 methodName,
-				                                                                 node);
+				BytecodeInstruction ins = BytecodeInstructionPool
+						.getInstruction(className, methodName, node);
 				System.out.print(ins.toString() + ", ");
 			}
 			System.out.println();
@@ -867,7 +871,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 
 		RawControlFlowGraph cfg = getRawCFG();
 		for (BytecodeInstruction other : cfg.vertexSet())
-			if (other.isConstructorInvocation() && other.isMethodCallOnSameObject())
+			if (other.isConstructorInvocation()
+					&& other.isMethodCallOnSameObject())
 				if (getInstructionId() < other.getInstructionId())
 					return true;
 
@@ -930,7 +935,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	public boolean isMethodCallOnSameObject() {
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
-		if(srcInstruction == null)
+		if (srcInstruction == null)
 			return false;
 		return srcInstruction.isALOAD0();
 	}
@@ -943,14 +948,14 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * 
 	 * @return a boolean.
 	 */
-	//TODO comments and ISTATIC?
+	// TODO comments and ISTATIC?
 	public boolean isMethodCallOfField() {
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
-		if(srcInstruction == null)
+		if (srcInstruction == null)
 			return false;
 		return srcInstruction.isFieldUse();
 	}
-	
+
 	/**
 	 * Determines the name of the field variable this method call is invoked on
 	 * 
@@ -961,42 +966,73 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	public String getFieldMethodCallName() {
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
-		if(srcInstruction == null)
+		if (srcInstruction == null)
 			return null;
-		return srcInstruction.getDUVariableName();
+		return srcInstruction.getVariableName();
 	}
-	
+
 	/**
-	 * If this is a method call instruction this method will return the instruction
-	 * that loaded the reference of the Object the method is invoked onto the stack.   
+	 * If this is a method call instruction this method will return the
+	 * instruction that loaded the reference of the Object the method is invoked
+	 * onto the stack.
+	 * 
+	 * This is done using getSourceOfStackInstruction()
+	 * 
+	 * The reference is found on top of the stack minus the number of the called
+	 * methods argument
+	 */
+	public BytecodeInstruction getSourceOfMethodInvocationInstruction() {
+		if (!isMethodCall())
+			return null;
+
+		// the object on which this method is called is on top of the stack
+		// minus the number of arguments the called method has
+		return getSourceOfStackInstruction(getCalledMethodsArgumentCount());
+	}
+
+	/**
+	 * If this instruction is an array instruction this method will return the
+	 * BytecodeInstruction that loaded the reference of the array onto the
+	 * stack.
+	 * 
+	 * This is done using getSourceOfStackMethod()
+	 * 
+	 * The reference is found on top of the stack minus two
+	 */
+	public BytecodeInstruction getSourceOfArrayReference() {
+		if (!isArrayStoreInstruction())
+			return null;
+
+		// when reaching an array store instruction the stack should end in
+		// <arrayref>,<index>,<value>. so the array reference is on top of the
+		// stack minus two
+		return getSourceOfStackInstruction(2);
+	}
+
+	/**
+	 * This method returns the BytecodeInstruction that loaded the reference
+	 * which is located on top of the stack minus positionFromTop when this
+	 * instruction is executed.
 	 * 
 	 * This is done using the CFGFrame created by the SourceInterpreter() of the
 	 * BytecodeAnalyzer via the CFGGenerator
 	 * 
-	 * The reference is found on top of the stack minus the number of the called
-	 * methods argument
-	 * 
-	 * Note that the method call could be called on an instruction even though this
-	 * method returns null. This can happen when aliasing is involved. If you
-	 * first store the object in a local variable and then call a method on that
-	 * variable this method will return null.
+	 * Note that this method may return null. This can happen when aliasing is
+	 * involved. For example for method invocations on objects this can happen
+	 * when you first store the object in a local variable and then call a
+	 * method on that variable
 	 * 
 	 * see PairTestClass.sourceCallerTest() for an even worse example.
 	 * 
 	 * TODO: this could be done better by following the SourceValues even
 	 * further.
-	 * @return
 	 */
-	public BytecodeInstruction getSourceOfMethodInvocationInstruction() {
-		if (!isMethodCall())
-			return null;
-		if(frame == null)
-			throw new IllegalStateException("expect each BytecodeInstruction to have its CFGFrame set");
+	public BytecodeInstruction getSourceOfStackInstruction(int positionFromTop) {
+		if (frame == null)
+			throw new IllegalStateException(
+					"expect each BytecodeInstruction to have its CFGFrame set");
 
-		// the object on which this method is called is on top of the stack
-		// minus the number of arguments the called method has
-		int stackPos = frame.getStackSize()
-				- (1 + getCalledMethodsArgumentCount());
+		int stackPos = frame.getStackSize() - (1 + positionFromTop);
 		SourceValue source = (SourceValue) frame.getStack(stackPos);
 		if (source.insns.size() != 1) {
 			// we don't know for sure, let's be conservative
@@ -1010,35 +1046,41 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		}
 		throw new IllegalStateException("should be unreachable");
 	}
-	
+
 	public boolean isFieldMethodCallDefinition() {
 		if (!isMethodCallOfField())
 			return false;
-		// before this instruction is categorized in the DefUsePool we do not know if
+		// before this instruction is categorized in the DefUsePool we do not
+		// know if
 		// this instruction calls a pure or impure method, so we just label it
 		// as both a Use and Definition for now
-		if(!(DefUsePool.isKnownAsUse(this) || DefUsePool.isKnownAsDefinition(this))) {
+		if (!(DefUsePool.isKnownAsUse(this) || DefUsePool
+				.isKnownAsDefinition(this))) {
 			return true;
 		}
-		// once the DefUsePool knows about this instruction we only return true if it was
+		// once the DefUsePool knows about this instruction we only return true
+		// if it was
 		// categorized as a Use
 		return DefUsePool.isKnownAsDefinition(this);
 	}
-	
+
 	public boolean isFieldMethodCallUse() {
 		if (!isMethodCallOfField())
 			return false;
-		// before this instruction is categorized in the DefUsePool we do not know if
+		// before this instruction is categorized in the DefUsePool we do not
+		// know if
 		// this instruction calls a pure or impure method, so we just label it
 		// as both a Use and Definition for now
-		if(!(DefUsePool.isKnownAsUse(this) || DefUsePool.isKnownAsDefinition(this))) {
+		if (!(DefUsePool.isKnownAsUse(this) || DefUsePool
+				.isKnownAsDefinition(this))) {
 			return true;
 		}
-		// once the DefUsePool knows about this instruction we only return true if it was
+		// once the DefUsePool knows about this instruction we only return true
+		// if it was
 		// categorized as a Use
 		return DefUsePool.isKnownAsUse(this);
 	}
-	
+
 	/**
 	 * <p>
 	 * isCallToPublicMethod
@@ -1051,7 +1093,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			return false;
 
 		if (getCalledCFG() == null) {
-			// TODO not sure if I am supposed to throw an Exception at this point
+			// TODO not sure if I am supposed to throw an Exception at this
+			// point
 			return false;
 		}
 
@@ -1070,7 +1113,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			return false;
 
 		if (getCalledCFG() == null) {
-			// TODO not sure if I am supposed to throw an Exception at this point
+			// TODO not sure if I am supposed to throw an Exception at this
+			// point
 			return false;
 		}
 
@@ -1086,7 +1130,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	public boolean canBeInstrumented() {
 		if (isWithinConstructor() && proceedsOwnConstructorInvocation()) {
-			//			System.out.println("i cant be instrumented "+toString());
+			// System.out.println("i cant be instrumented "+toString());
 			return false;
 		}
 		return true;
@@ -1097,9 +1141,11 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((className == null) ? 0 : className.hashCode());
+		result = prime * result
+				+ ((className == null) ? 0 : className.hashCode());
 		result = prime * result + instructionId;
-		result = prime * result + ((methodName == null) ? 0 : methodName.hashCode());
+		result = prime * result
+				+ ((methodName == null) ? 0 : methodName.hashCode());
 		return result;
 	}
 
@@ -1130,7 +1176,9 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 
 	// inherited from Object
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	@Override

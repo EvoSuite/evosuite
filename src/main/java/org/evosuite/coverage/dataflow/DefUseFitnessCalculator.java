@@ -122,7 +122,7 @@ public class DefUseFitnessCalculator {
 		this.goalUse = goal.getGoalUse();
 		this.goalDefinitionFitness = goal.getGoalDefinitionFitness();
 		this.goalUseFitness = goal.getGoalUseFitness();
-		this.goalVariable = goalUse.getDUVariableName();
+		this.goalVariable = goalUse.getVariableName();
 	}
 
 	// main Definition-Use fitness calculation methods
@@ -613,7 +613,7 @@ public class DefUseFitnessCalculator {
 			return 0.0;
 		// check ExecutionTrace.passedDefinitions first, because calculating
 		// BranchTestFitness takes time
-		if (hasEntriesForId(result.getTrace().getPassedDefinitions(goalDefinition.getDUVariableName()),
+		if (hasEntriesForId(result.getTrace().getPassedDefinitions(goalDefinition.getVariableName()),
 		                    goalDefinition.getDefId()))
 			return 0.0;
 
@@ -640,7 +640,7 @@ public class DefUseFitnessCalculator {
 
 		// check ExecutionTrace.passedUses first, because calculating
 		// BranchTestFitness takes time
-		if (hasEntriesForId(result.getTrace().getPassedUses(goalUse.getDUVariableName()),
+		if (hasEntriesForId(result.getTrace().getPassedUses(goalUse.getVariableName()),
 		                    goalUse.getUseId()))
 			return 0.0;
 
@@ -678,7 +678,7 @@ public class DefUseFitnessCalculator {
 	private double calculateUseFitnessForDefinitionPos(ExecutionTrace targetTrace,
 	        Integer objectId, int goalDefinitionPos) throws UnexpectedFitnessException {
 
-		int previousDefId = DefUseExecutionTraceAnalyzer.getPreviousDefinitionId(goalDefinition.getDUVariableName(),
+		int previousDefId = DefUseExecutionTraceAnalyzer.getPreviousDefinitionId(goalDefinition.getVariableName(),
 		                                                                         targetTrace,
 		                                                                         goalDefinitionPos,
 		                                                                         objectId);

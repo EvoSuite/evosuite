@@ -415,9 +415,11 @@ public class ControlDependenceGraph extends EvoSuiteGraph<BasicBlock, ControlFlo
 		for (ControlFlowEdge in : incomingEdgesOf(insBlock)) {
 			if (in.hasControlDependency())
 				continue;
-
 			BasicBlock inBlock = getEdgeSource(in);
-			if (isRootDependent(inBlock) && !!inBlock.equals(insBlock))
+			if(inBlock.equals(insBlock))
+				continue;
+			
+			if (isRootDependent(inBlock))
 				return true;
 		}
 

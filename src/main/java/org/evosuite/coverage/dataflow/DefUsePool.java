@@ -113,6 +113,10 @@ public class DefUsePool {
 		if (!d.canBeInstrumented())
 			return false;
 
+		if(d.isLocalArrayDefinition())
+			LoggingUtils.getEvoLogger().info(
+				"registering LOCAL ARRAY VAR DEF " + d.toString());
+		
 		// register instruction
 
 		// IINCs and field method calls already have duID set so this can fail
@@ -128,7 +132,7 @@ public class DefUsePool {
 		if(d.isMethodCallOfField())
 			LoggingUtils.getEvoLogger().info(
 				"Registered field method call as Definition " + d.toString());
-
+		
 		return true;
 	}
 
@@ -250,6 +254,10 @@ public class DefUsePool {
 		// now the first Definition instance for this instruction can be created
 		Definition def = DefUseFactory.makeDefinition(d);
 
+		if(d.isLocalArrayDefinition())
+			LoggingUtils.getEvoLogger().info(
+				"succesfully registered LOCAL ARRAY VAR DEF " + def.toString());
+		
 		// finally add the Definition to all corresponding maps
 		fillDefinitionMaps(def);
 		return true;
@@ -267,7 +275,7 @@ public class DefUsePool {
 		registeredUses.put(d, useCounter);
 
 		// check if this particular use is a parameterUse
-		if (d.isLocalVarUse() && !knowsDefinitionForVariableOf(d))
+		if (d.isLocalVariableUse() && !knowsDefinitionForVariableOf(d))
 			registerParameterUse(d);
 
 		// now the first Use instance for this instruction can be created
@@ -309,7 +317,7 @@ public class DefUsePool {
 	private static boolean addToDefMap(Definition d) {
 		String className = d.getClassName();
 		String methodName = d.getMethodName();
-		String varName = d.getDUVariableName();
+		String varName = d.getVariableName();
 
 		initMap(defMap, className, methodName, varName);
 
@@ -319,7 +327,7 @@ public class DefUsePool {
 	private static boolean addToUseMap(Use u) {
 		String className = u.getClassName();
 		String methodName = u.getMethodName();
-		String varName = u.getDUVariableName();
+		String varName = u.getVariableName();
 
 		initMap(useMap, className, methodName, varName);
 
@@ -355,7 +363,7 @@ public class DefUsePool {
 
 		String className = du.getClassName();
 		String methodName = du.getMethodName();
-		String varName = du.getDUVariableName();
+		String varName = du.getVariableName();
 
 		try {
 			return defMap.get(className).get(methodName).get(varName).size() > 0;
