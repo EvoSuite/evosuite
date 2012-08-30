@@ -653,7 +653,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 
 		handle.add(methodName);
 
-		String targetVariable = targetDU.getDUVariableName();
+		String targetVariable = targetDU.getVariableName();
 
 		if (currentVertex.isDefinitionForVariable(targetVariable))
 			return false;

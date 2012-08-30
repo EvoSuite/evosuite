@@ -83,7 +83,7 @@ public class DefUse extends BytecodeInstruction {
 				        "field method calls only accepted once they got categorized");
 		}
 
-		this.varName = super.getDUVariableName();
+		this.varName = super.getVariableName();
 		if (this.varName == null)
 			throw new IllegalStateException(
 			        "expect defUses to have non-null varaible names");
@@ -147,7 +147,7 @@ public class DefUse extends BytecodeInstruction {
 		if (!instruction.isDefUse())
 			return false;
 
-		return varName.equals(instruction.getDUVariableName());
+		return varName.equals(instruction.getVariableName());
 	}
 
 	/**
@@ -174,7 +174,7 @@ public class DefUse extends BytecodeInstruction {
 
 	/** {@inheritDoc} */
 	@Override
-	public String getDUVariableName() {
+	public String getVariableName() {
 		return varName;
 	}
 
@@ -238,7 +238,7 @@ public class DefUse extends BytecodeInstruction {
 		if (isStaticDefUse())
 			r.append("static ");
 		r.append(getDUVariableType());
-		r.append("-Variable \"" + getDUVariableName() + "\"");
+		r.append("-Variable \"" + getVariableName() + "\"");
 		r.append(" in " + getMethodName() + "." + getInstructionId());
 		if (isRootBranchDependent())
 			r.append(" root-Branch");

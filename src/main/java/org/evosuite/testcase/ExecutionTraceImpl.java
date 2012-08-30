@@ -417,7 +417,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			        "expect DefUsePool to known defIDs that are passed by instrumented code");
 		}
 
-		String varName = def.getDUVariableName();
+		String varName = def.getVariableName();
 
 		int objectID = registerObject(caller);
 
@@ -1249,7 +1249,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			if (use.isStaticDefUse())
 				objectID = 0;
 		}
-		String varName = use.getDUVariableName();
+		String varName = use.getVariableName();
 		if (passedUses.get(varName) == null)
 			passedUses.put(varName, new HashMap<Integer, HashMap<Integer, Integer>>());
 
