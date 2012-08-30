@@ -1288,4 +1288,35 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getPassedUses() {
 		return passedUses;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getPassedDefIDs()
+	 */
+	// 	Map<String, HashMap<Integer, HashMap<Integer, Integer>>>
+
+	@Override
+	public Set<Integer> getPassedDefIDs() {
+		Set<Integer> defs = new HashSet<Integer>();
+		for (HashMap<Integer, HashMap<Integer, Integer>> classDefs : passedDefinitions.values()) {
+			for (HashMap<Integer, Integer> currentDefs : classDefs.values()) {
+				defs.addAll(currentDefs.values());
+			}
+		}
+		return defs;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getPassedUseIDs()
+	 */
+	@Override
+	public Set<Integer> getPassedUseIDs() {
+		Set<Integer> uses = new HashSet<Integer>();
+		for (HashMap<Integer, HashMap<Integer, Integer>> classUses : passedUses.values()) {
+			for (HashMap<Integer, Integer> currentUses : classUses.values()) {
+				uses.addAll(currentUses.values());
+			}
+		}
+		return uses;
+	}
+
 }
