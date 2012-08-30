@@ -177,6 +177,8 @@ class MSecurityManager extends SecurityManager {
 					return true;
 				if (perm.getName().equals("getProtectionDomain"))
 					return true;
+				if (perm.getName().equals("charsetProvider"))
+					return true;
 				if (perm.getName().startsWith("getenv."))
 					return true;
 				if ("true".equals(System.getProperty("java.awt.headless"))
@@ -225,6 +227,9 @@ class MSecurityManager extends SecurityManager {
 
 				if (perm.getActions().equals("read")) {
 					if (fp.getName().endsWith(".properties"))
+						return true;
+
+					if (fp.getName().endsWith("charsets.jar"))
 						return true;
 
 					for (StackTraceElement e : stackTraceElements) {
