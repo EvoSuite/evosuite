@@ -29,10 +29,13 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
  */
 public class Definition extends DefUse {
 
+	private static final long serialVersionUID = 1141846324999759006L;
+
 	Definition(BytecodeInstruction wrap) {
 		super(wrap);
 		if (!DefUsePool.isKnownAsDefinition(wrap))
-			throw new IllegalArgumentException("Instruction must be known as a Definition by the DefUsePool");
+			throw new IllegalArgumentException(
+			        "Instruction must be known as a Definition by the DefUsePool");
 	}
 
 	/**
