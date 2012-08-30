@@ -590,6 +590,7 @@ public class ConstructorStatement extends AbstractStatement {
 				}
 				if (equals) {
 					this.constructor = newConstructor;
+					this.constructor.setAccessible(true);
 					break;
 				}
 			}
