@@ -103,10 +103,14 @@ public class Seeker implements Solver {
 					if (var instanceof StringVariable) {
 						log.debug("searching for string " + var);
 						StringVariable strVar = (StringVariable) var;
-						if (changer.strLocalSearch(strVar, constraints, result)) {
-							searchSuccess = true;
-							done = false;
-							//break;
+						try {
+							if (changer.strLocalSearch(strVar, constraints, result)) {
+								searchSuccess = true;
+								done = false;
+								//break;
+							}
+						} catch (Throwable t) {
+							log.info("Exception during search: " + t);
 						}
 					}
 					if (var instanceof IntegerVariable) {
