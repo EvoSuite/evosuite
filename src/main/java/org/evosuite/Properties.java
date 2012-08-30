@@ -591,7 +591,7 @@ public class Properties {
 	public static int MAX_MUTANTS_PER_TEST = 100;
 
 	@Parameter(key = "max_mutants_per_method", group = "Output", description = "How many mutants can be inserted into a single method")
-	public static int MAX_MUTANTS_PER_METHOD = 1000;
+	public static int MAX_MUTANTS_PER_METHOD = 700;
 
 	@Parameter(key = "max_replace_mutants", group = "Output", description = "How many replacement mutants can be inserted for any one variable")
 	public static int MAX_REPLACE_MUTANTS = 100;
@@ -1597,7 +1597,9 @@ public class Properties {
 		BytecodeInstructionPool.clear();
 
 		try {
-			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
+			                                      TestCluster.classLoader);
+			//TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS, true);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("* Could not find class under test: " + e);
