@@ -130,6 +130,30 @@ public class EvoSuite {
 		return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
 	}
 
+	private static void listClassesPrefix(String prefix, String cp) {
+		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/") + "[^\\$]*.class");
+		Set<String> resources = new HashSet<String>();
+		for (String classPathElement : cp.split(File.pathSeparator)) {
+			resources.addAll(ResourceList.getResources(pattern, classPathElement));
+			try {
+				ClassPathHacker.addFile(classPathElement);
+			} catch (IOException e) {
+				// Ignore?
+			}
+		}
+		for (String resource : resources) {
+			try {
+				if (isInterface(resource)) {
+					continue;
+				}
+			} catch (IOException e) {
+				System.err.println("Could not load class: " + resource);
+				continue;
+			}
+			System.out.println(resource.replace(".class", "").replace('/', '.'));
+		}
+	}
+
 	private static void generateTestsPrefix(Properties.Strategy strategy, String prefix,
 	        List<String> args, String cp) {
 
@@ -164,6 +188,27 @@ public class EvoSuite {
 
 	}
 
+	private static void listClassesTarget(String target) {
+		Pattern pattern = Pattern.compile("[^\\$]*.class");
+		Collection<String> resources = ResourceList.getResources(pattern, target);
+		try {
+			ClassPathHacker.addFile(target);
+		} catch (IOException e) {
+			// Ignore?
+		}
+		for (String resource : resources) {
+			try {
+				if (isInterface(resource)) {
+					continue;
+				}
+			} catch (IOException e) {
+				System.err.println("Could not load class: " + resource);
+				continue;
+			}
+			System.out.println(resource.replace(".class", "").replace('/', '.'));
+		}
+	}
+
 	private static void generateTestsTarget(Properties.Strategy strategy, String target,
 	        List<String> args, String cp) {
 
@@ -191,6 +236,14 @@ public class EvoSuite {
 			        + resource.replace(".class", "").replace('/', '.'));
 			generateTests(Strategy.EVOSUITE,
 			              resource.replace(".class", "").replace('/', '.'), args, cp);
+		}
+	}
+
+	private static void listClassesLegacy() {
+		File directory = new File(Properties.OUTPUT_DIR);
+		String[] extensions = { "task" };
+		for (File file : FileUtils.listFiles(directory, extensions, false)) {
+			System.out.println(file.getName().replace(".task", ""));
 		}
 	}
 
@@ -649,6 +702,8 @@ public class EvoSuite {
 		        "use individual test generation");
 		Option measureCoverage = new Option("measureCoverage",
 		        "measure coverage on existing test cases");
+		Option listClasses = new Option("listClasses",
+		        "list the testable classes found in the specified classpath/prefix");
 		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("Create evosuite-files with property file").create("setup");
 		Option generateRandom = new Option("generateRandom", "use random test generation");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
@@ -679,6 +734,7 @@ public class EvoSuite {
 		options.addOption(generateTests);
 		options.addOption(generateRandom);
 		options.addOption(measureCoverage);
+		options.addOption(listClasses);
 		options.addOption(setup);
 		options.addOption(targetClass);
 		options.addOption(targetPrefix);
@@ -705,7 +761,6 @@ public class EvoSuite {
 		String version = EvoSuite.class.getPackage().getImplementationVersion();
 		if (version == null)
 			version = "";
-		System.out.println("* EvoSuite " + version);
 
 		// create the parser
 		CommandLineParser parser = new GnuParser();
@@ -722,6 +777,7 @@ public class EvoSuite {
 			Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
 			for (String propertyName : properties.stringPropertyNames()) {
 				if (!propertyNames.contains(propertyName)) {
+					System.out.println("* EvoSuite " + version);
 					System.err.println("* Unknown property: " + propertyName);
 					System.exit(1);
 				}
@@ -759,11 +815,13 @@ public class EvoSuite {
 				base_dir_path = line.getOptionValue("base_dir");
 				File baseDir = new File(base_dir_path);
 				if (!baseDir.exists()) {
+					System.out.println("* EvoSuite " + version);
 					LoggingUtils.getEvoLogger().error("Base directory does not exist: "
 					                                          + base_dir_path);
 					return null;
 				}
 				if (!baseDir.isDirectory()) {
+					System.out.println("* EvoSuite " + version);
 					LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: "
 					                                          + base_dir_path);
 					return null;
@@ -795,10 +853,13 @@ public class EvoSuite {
 
 			if (line.hasOption("help")) {
 				HelpFormatter formatter = new HelpFormatter();
+				System.out.println("* EvoSuite " + version);
 				formatter.printHelp("EvoSuite", options);
 			} else if (line.hasOption("setup")) {
+				System.out.println("* EvoSuite " + version);
 				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts);
 			} else if (line.hasOption("measureCoverage")) {
+				System.out.println("* EvoSuite " + version);
 				if (line.hasOption("class"))
 					measureCoverage(line.getOptionValue("class"),
 					                line.getOptionValue("junit"), javaOpts, cp);
@@ -807,8 +868,20 @@ public class EvoSuite {
 					HelpFormatter formatter = new HelpFormatter();
 					formatter.printHelp("EvoSuite", options);
 				}
-
+			} else if (line.hasOption("listClasses")) {
+				if (line.hasOption("prefix"))
+					listClassesPrefix(line.getOptionValue("prefix"), cp);
+				else if (line.hasOption("target"))
+					listClassesTarget(line.getOptionValue("target"));
+				else if (hasLegacyTargets())
+					listClassesLegacy();
+				else {
+					System.err.println("Please specify target prefix or classpath entry to list testable classes");
+					HelpFormatter formatter = new HelpFormatter();
+					formatter.printHelp("EvoSuite", options);
+				}
 			} else {
+				System.out.println("* EvoSuite " + version);
 
 				Strategy strategy = null;
 				if (line.hasOption("generateTests")) {
