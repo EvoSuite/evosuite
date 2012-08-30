@@ -92,7 +92,7 @@ public class BranchCondition {
 	}
 
 	public String getFullName() {
-		return className + methodName;
+		return className + "." + methodName;
 	}
 
 	private BranchCondition getPreviousBranchCondition() {
