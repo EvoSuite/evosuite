@@ -65,11 +65,10 @@ public class Sandbox {
 	 * Set up mocks, if mock property is true
 	 */
 	public static void setUpMocks() {
-		if (Properties.MOCKS)
+		if (Properties.MOCKS) {
 			mocks.setUpMocks();
-		if (Properties.VIRTUAL_FS) {
 			accessedFiles.clear();
-		}
+		}	
 	}
 
 	/**
@@ -77,7 +76,7 @@ public class Sandbox {
 	 */
 	public static void tearDownMocks() {
 		mocks.tearDownMocks();
-		if (Properties.VIRTUAL_FS) {
+		if (Properties.MOCKS) {
 			for (String s : statistics.getRecentFileReadPermissions()) {
 				EvosuiteFile a = new EvosuiteFile(s, "default content");
 				accessedFiles.add(a);
