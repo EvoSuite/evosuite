@@ -249,6 +249,11 @@ public class TestSuiteDSE {
 		while (hasNextBranchCondition() && !DSEBudget.isFinished()) {
 			logger.info("DSE time remaining: " + DSEBudget.getTimeRemaining());
 			logger.info("Branches remaining: " + unsolvedBranchConditions.size());
+			for (TestBranchPair b : unsolvedBranchConditions) {
+				logger.info(b.branch.getFullName() + " : "
+				        + b.branch.getInstructionIndex() + ", "
+				        + b.branch.getReachingConstraints().size());
+			}
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
 			logger.info("Chosen branch condition: " + branch);
@@ -262,7 +267,9 @@ public class TestSuiteDSE {
 				//TestChromosome newTestChromosome = expandedTests.addTest(newTest);
 				TestChromosome newTestChromosome = new TestChromosome();
 				newTestChromosome.setTestCase(newTest);
-				expandedTests.addTest(newTestChromosome);
+				// expandedTests.addTest(newTestChromosome);
+				// updatePathConstraints(newTestChromosome);
+				// calculateUncoveredBranches();
 
 				if (fitness.getFitness(expandedTests) < originalFitness) {
 					logger.info("New test improves fitness to {}",

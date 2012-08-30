@@ -703,6 +703,7 @@ public class MethodStatement extends AbstractStatement {
 					}
 					if (equals) {
 						this.method = newMethod;
+						this.method.setAccessible(true);
 						break;
 					}
 				}
