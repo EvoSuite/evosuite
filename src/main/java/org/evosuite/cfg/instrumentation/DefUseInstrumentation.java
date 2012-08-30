@@ -31,6 +31,7 @@ import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -77,6 +78,11 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 
 					boolean isValidDU = false;
 
+					if(v.isLocalArrayDefinition()) {
+						LoggingUtils.getEvoLogger().info(
+							"LOCAL ARRAY VAR DEF " + v.toString()+" loaded by "+v.getSourceOfStackInstruction(2).toString());
+					}
+					
 					if (v.isMethodCallOfField()) {
 						// keep track of field method calls, though we do not
 						// know

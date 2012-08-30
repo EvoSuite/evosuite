@@ -443,7 +443,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// continue;
 
 				BytecodeInstruction activeDef = activeDefs.get(freeUse
-						.getDUVariableName());
+						.getVariableName());
 				if (activeDef == null)
 					continue;
 				addNewGoalToFoundPairs(null, activeDef, freeUse,
@@ -783,7 +783,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		VariableDefinition def = new VariableDefinition(code, callStack.peek());
 		for (Map<String, VariableDefinition> activeDefMap : activeDefMaps) {
-			activeDefMap.put(code.getDUVariableName(), def);
+			activeDefMap.put(code.getVariableName(), def);
 			// System.out.println("  setting activeDef:" + def.toString());
 		}
 	}
@@ -794,7 +794,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			Set<BytecodeInstruction> freeUses,
 			Set<DefUseCoverageTestFitness> foundPairs) {
 
-		String varName = code.getDUVariableName();
+		String varName = code.getVariableName();
 //		LoggingUtils.getEvoLogger().info("Processing Use for "+varName);
 
 		for (Map<String, VariableDefinition> activeDefs : activeDefMaps) {
@@ -923,7 +923,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		for (BytecodeInstruction freeUseInCalledMethod : freeUsesInCalledMethod) {
 			for (Map<String, VariableDefinition> activeDefMap : activeDefMapsInCaller) {
 				VariableDefinition activeDef = activeDefMap
-						.get(freeUseInCalledMethod.getDUVariableName());
+						.get(freeUseInCalledMethod.getVariableName());
 
 				if (activeDef == null) {
 					// there was a path to the calledMethod that did not define
