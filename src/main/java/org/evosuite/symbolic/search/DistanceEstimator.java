@@ -69,9 +69,14 @@ public abstract class DistanceEstimator {
 				if (isStrConstraint(c)) {
 					//long strD = getStrDist(c);
 					// result += (double) strD / size;
-					double strD = getStringDist(c);
-					result += normalize(strD);
-					log.debug("C: " + c + " strDist " + strD);
+					try {
+						double strD = getStringDist(c);
+						result += normalize(strD);
+						log.debug("C: " + c + " strDist " + strD);
+					} catch (Throwable t) {
+						log.debug("C: " + c + " strDist " + t);
+						result += 1.0;
+					}
 				} else if (isLongConstraint(c)) {
 					long intD = getIntegerDist(c);
 					// result += (double) intD / size;
