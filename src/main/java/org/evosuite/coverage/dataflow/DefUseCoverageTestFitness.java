@@ -204,7 +204,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		if (use == null)
 			throw new IllegalArgumentException("null given for use. def was "
 			        + def.toString() + ". type: " + type.toString());
-		if (!def.getDUVariableName().equals(use.getDUVariableName()))
+		if (!def.getVariableName().equals(use.getVariableName()))
 			throw new IllegalArgumentException(
 			        "expect def and use to be for the same variable: \n" + def.toString()
 			                + "\n" + use.toString());
@@ -216,7 +216,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 
 		this.goalDefinition = def;
 		this.goalUse = use;
-		this.goalVariable = def.getDUVariableName();
+		this.goalVariable = def.getVariableName();
 		this.goalDefinitionFitness = new StatementCoverageTestFitness(goalDefinition);
 		this.goalUseFitness = new StatementCoverageTestFitness(goalUse);
 
@@ -236,7 +236,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			throw new IllegalArgumentException(
 			        "this constructor is only for Parameter-Uses");
 
-		goalVariable = use.getDUVariableName();
+		goalVariable = use.getVariableName();
 		goalDefinition = null;
 		goalDefinitionFitness = null;
 		goalUse = use;
@@ -686,7 +686,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			        + NumberFormat.getIntegerInstance().format(difficulty));
 		r.append("\n\t");
 		if (isParameterGoal())
-			r.append("Parameter-Definition " + goalUse.getLocalVar() + " for method "
+			r.append("Parameter-Definition " + goalUse.getLocalVariableSlot() + " for method "
 			        + goalUse.getMethodName());
 		else
 			r.append(goalDefinition.toString());

@@ -603,7 +603,7 @@ public class ReplaceVariable implements MutationOperator {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
-		return instruction.isLocalVarUse()
+		return instruction.isLocalVariableUse()
 		        || instruction.getASMNode().getOpcode() == Opcodes.GETSTATIC
 		        || instruction.getASMNode().getOpcode() == Opcodes.GETFIELD;
 	}

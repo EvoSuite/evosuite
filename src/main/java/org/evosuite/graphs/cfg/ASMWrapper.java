@@ -99,7 +99,7 @@ public abstract class ASMWrapper {
 
 		return getType();
 	}
-	
+
 	public String getMethodCallDescriptor() {
 		if (!isMethodCall())
 			return null;
@@ -374,8 +374,8 @@ public abstract class ASMWrapper {
 	}
 
 	/**
-	 * Returns the conjunction of the name  of the method
-	 * called by this instruction
+	 * Returns the conjunction of the name of the method called by this
+	 * instruction
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
@@ -385,7 +385,7 @@ public abstract class ASMWrapper {
 		MethodInsnNode meth = (MethodInsnNode) asmNode;
 		return meth.name;
 	}
-	
+
 	/**
 	 * Returns true if and only if the class of the method called by this
 	 * instruction is the same as the given className
@@ -510,7 +510,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isLocalDU() {
-		return isLocalVarDefinition() || isLocalVarUse();
+		return isLocalVariableDefinition() || isLocalVariableUse();
 	}
 
 	/**
@@ -521,7 +521,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isDefinition() {
-		return isFieldDefinition() || isLocalVarDefinition();
+		return isFieldDefinition() || isLocalVariableDefinition();
 	}
 
 	/**
@@ -532,11 +532,11 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isUse() {
-		return isFieldUse() || isLocalVarUse();
+		return isFieldUse() || isLocalVariableUse();
 	}
-	
+
 	public abstract boolean isFieldMethodCallDefinition();
-	
+
 	public abstract boolean isFieldMethodCallUse();
 
 	/**
@@ -549,7 +549,7 @@ public abstract class ASMWrapper {
 	public boolean isFieldDefinition() {
 		return asmNode.getOpcode() == Opcodes.PUTFIELD
 				|| asmNode.getOpcode() == Opcodes.PUTSTATIC
-				|| isFieldMethodCallDefinition();
+				|| isFieldArrayDefinition() || isFieldMethodCallDefinition();
 	}
 
 	/**
@@ -574,7 +574,8 @@ public abstract class ASMWrapper {
 	 */
 	public boolean isStaticDefUse() {
 		return asmNode.getOpcode() == Opcodes.PUTSTATIC
-				|| asmNode.getOpcode() == Opcodes.GETSTATIC;
+				|| asmNode.getOpcode() == Opcodes.GETSTATIC
+				|| isStaticArrayUsage();
 	}
 
 	// retrieving information about variable names from ASM
@@ -586,12 +587,14 @@ public abstract class ASMWrapper {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	public String getDUVariableName() {
-		if (this.isLocalDU())
-			return getLocalVarName();
-		else if (this.isMethodCallOfField())
+	public String getVariableName() {
+		if (isArrayStoreInstruction())
+			return getArrayVariableName();
+		else if (isLocalDU())
+			return getLocalVariableName();
+		else if (isMethodCallOfField())
 			return getFieldMethodCallName();
-		else if (this.isFieldDU())
+		else if (isFieldDU())
 			return getFieldName();
 		else
 			return null;
@@ -617,8 +620,8 @@ public abstract class ASMWrapper {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	protected String getLocalVarName() {
-		return getMethodName() + "_LV_" + getLocalVar();
+	protected String getLocalVariableName() {
+		return getMethodName() + "_LV_" + getLocalVariableSlot();
 	}
 
 	// TODO unsafe
@@ -629,7 +632,7 @@ public abstract class ASMWrapper {
 	 * 
 	 * @return a int.
 	 */
-	public int getLocalVar() {
+	public int getLocalVariableSlot() {
 		if (asmNode instanceof VarInsnNode)
 			return ((VarInsnNode) asmNode).var;
 		else if (asmNode instanceof IincInsnNode)
@@ -645,13 +648,14 @@ public abstract class ASMWrapper {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isLocalVarDefinition() {
+	public boolean isLocalVariableDefinition() {
 		return asmNode.getOpcode() == Opcodes.ISTORE
 				|| asmNode.getOpcode() == Opcodes.LSTORE
 				|| asmNode.getOpcode() == Opcodes.FSTORE
 				|| asmNode.getOpcode() == Opcodes.DSTORE
 				|| asmNode.getOpcode() == Opcodes.ASTORE
-				|| asmNode.getOpcode() == Opcodes.IINC;
+				|| asmNode.getOpcode() == Opcodes.IINC
+				|| isLocalArrayDefinition();
 	}
 
 	/**
@@ -661,13 +665,13 @@ public abstract class ASMWrapper {
 	 * 
 	 * @return a boolean.
 	 */
-	public boolean isLocalVarUse() {
+	public boolean isLocalVariableUse() {
 		return asmNode.getOpcode() == Opcodes.ILOAD
 				|| asmNode.getOpcode() == Opcodes.LLOAD
 				|| asmNode.getOpcode() == Opcodes.FLOAD
 				|| asmNode.getOpcode() == Opcodes.DLOAD
 				|| asmNode.getOpcode() == Opcodes.IINC
-				|| (asmNode.getOpcode() == Opcodes.ALOAD && getLocalVar() != 0); // exclude
+				|| (asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() != 0); // exclude
 		// ALOAD_0
 		// (this)
 	}
@@ -683,8 +687,61 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isALOAD0() {
-		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVar() == 0;
+		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
 	}
+
+	public boolean isLocalArrayDefinition() {
+		if (!isArrayStoreInstruction())
+			return false;
+		
+		// only local var if arrayref on stack is from local var use
+		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
+		if(arrayLoader == null)
+			return false;
+		
+		return arrayLoader.isLocalVariableUse();
+	}
+
+	public boolean isFieldArrayDefinition() {
+		if (!isArrayStoreInstruction())
+			return false;
+		
+		// only field var if arrayref on stack is from field var use
+		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
+		if(arrayLoader == null)
+			return false;
+		
+		return arrayLoader.isFieldUse();
+	}
+	
+	public boolean isStaticArrayUsage() {
+		if(!isArrayStoreInstruction())
+			return false;
+		
+		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
+		if(arrayLoader == null)
+			return false;
+		
+		return arrayLoader.isStaticDefUse();
+	}
+
+	public boolean isArrayStoreInstruction() {
+		return asmNode.getOpcode() == Opcodes.IASTORE
+				|| asmNode.getOpcode() == Opcodes.LASTORE
+				|| asmNode.getOpcode() == Opcodes.FASTORE
+				|| asmNode.getOpcode() == Opcodes.DASTORE
+				|| asmNode.getOpcode() == Opcodes.AASTORE;
+	}
+	
+	protected String getArrayVariableName() {
+		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
+		if(arrayLoader == null)
+			return null;
+		
+		return arrayLoader.getVariableName();
+	}
+
+	public abstract BytecodeInstruction getSourceOfArrayReference();
 
 	/**
 	 * <p>
@@ -696,7 +753,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isDefinitionForVariable(String var) {
-		return (isDefinition() && getDUVariableName().equals(var));
+		return (isDefinition() && getVariableName().equals(var));
 	}
 
 	/**

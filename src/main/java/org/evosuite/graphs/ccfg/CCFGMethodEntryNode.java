@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  *
- * @author Gordon Fraser
+ * @author Andre Mis, Gordon Fraser
  */
 package org.evosuite.graphs.ccfg;
 public class CCFGMethodEntryNode extends CCFGNode {
