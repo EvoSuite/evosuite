@@ -604,16 +604,23 @@ public class TestSuiteGenerator {
 		TestFitnessFactory goal_factory = getFitnessFactory();
 		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
+		TestSuiteChromosome best = new TestSuiteChromosome();
+		if (!goals.isEmpty()) {
+			// Perform search
+			LoggingUtils.getEvoLogger().info("* Starting evolution");
+			progressMonitor.setCurrentPhase("Generating test cases");
 
-		// Perform search
-		LoggingUtils.getEvoLogger().info("* Starting evolution");
-		progressMonitor.setCurrentPhase("Generating test cases");
-
-		ga.generateSolution();
-		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		if (best == null) {
-			LoggingUtils.getEvoLogger().warn("Could not find any suiteable chromosome");
-			return Collections.emptyList();
+			ga.generateSolution();
+			best = (TestSuiteChromosome) ga.getBestIndividual();
+			if (best == null) {
+				LoggingUtils.getEvoLogger().warn("Could not find any suiteable chromosome");
+				return Collections.emptyList();
+			}
+		} else {
+			statistics.searchStarted(ga);
+			statistics.searchFinished(ga);
+			zero_fitness.setFinished();
+			best.setCoverage(1.0);
 		}
 
 		long end_time = System.currentTimeMillis() / 1000;
@@ -1614,6 +1621,9 @@ public class TestSuiteGenerator {
 				ga.addStoppingCondition(new MutationTimeoutStoppingCondition());
 			else
 				ga.addListener(new MutationTestPool());
+			//} else if (Properties.CRITERION == Criterion.DEFUSE) {
+			//	if (Properties.STRATEGY == Strategy.EVOSUITE)
+			//		ga.addListener(new DefUseTestPool());
 		}
 		ga.resetStoppingConditions();
 		ga.setPopulationLimit(getPopulationLimit());
