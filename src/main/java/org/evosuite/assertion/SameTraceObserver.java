@@ -9,8 +9,10 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
 
 /**
- * <p>SameTraceObserver class.</p>
- *
+ * <p>
+ * SameTraceObserver class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
@@ -47,7 +49,7 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 
 			trace.addEntry(statement.getPosition(), var, entry);
 		} catch (CodeUnderTestException e) {
-			logger.error("", e);
+			logger.debug("", e);
 			//e.printStackTrace();
 			//System.exit(0);
 			//throw new UnsupportedOperationException();
