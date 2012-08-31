@@ -1,38 +1,47 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
- * @author Gordon Fraser
  */
-package org.evosuite.symbolic.expr;
+/**
+ * 
+ */
+package org.evosuite.symbolic.expr.bv;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.expr.Cast;
+import org.evosuite.symbolic.expr.Expression;
 
-public class RealToIntegerCast extends IntegerExpression implements
-		Cast<Double> {
-	private static final long serialVersionUID = 1L;
+/**
+ * <p>
+ * StringToIntCast class.
+ * </p>
+ * 
+ * @author krusev
+ */
+public final class StringToIntegerCast extends AbstractExpression<Long> implements
+		IntegerValue, Cast<String> {
 
-	protected Long concValue;
+	private static final long serialVersionUID = 2214987345674527740L;
 
-	protected final Expression<Double> expr;
+	private final Expression<String> expr;
 
 	/**
 	 * <p>
-	 * Constructor for RealToIntegerCast.
+	 * Constructor for StringToIntCast.
 	 * </p>
 	 * 
 	 * @param _expr
@@ -40,23 +49,16 @@ public class RealToIntegerCast extends IntegerExpression implements
 	 * @param _concValue
 	 *            a {@link java.lang.Long} object.
 	 */
-	public RealToIntegerCast(Expression<Double> _expr, Long _concValue) {
+	public StringToIntegerCast(Expression<String> _expr, Long _concValue) {
+		super(_concValue, 1 + _expr.getSize(), _expr.containsSymbolicVariable());
 		this.expr = _expr;
-		this.concValue = _concValue;
-		this.containsSymbolicVariable = this.expr.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Long getConcreteValue() {
-		return concValue;
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public Expression<Double> getArgument() {
+	public Expression<String> getArgument() {
 		return expr;
 	}
 
@@ -72,30 +74,26 @@ public class RealToIntegerCast extends IntegerExpression implements
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof RealToIntegerCast) {
-			RealToIntegerCast other = (RealToIntegerCast) obj;
-			return this.expr.equals(other.expr)
-					&& this.getSize() == other.getSize();
+		if (obj instanceof StringToIntegerCast) {
+			StringToIntegerCast other = (StringToIntegerCast) obj;
+			return this.expr.equals(other.expr);
 		}
 
 		return false;
 	}
 
-	protected int size = 0;
-
-	/** {@inheritDoc} */
-	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + expr.getSize();
-		}
-		return size;
+	public int hashCode() {
+		return this.expr.hashCode();
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
-		return ((Number) expr.execute()).longValue();
+		String str = expr.execute();
+		return Long.parseLong(str);
 	}
 
+	public Expression<String> getParam() {
+		return this.expr;
+	}
 }

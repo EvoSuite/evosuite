@@ -14,24 +14,34 @@
  *
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
-/**
- * 
- */
-package org.evosuite.symbolic.expr;
-
-/**
- * <p>Abstract Cast interface.</p>
  *
- * @author krusev
+ * @author Gordon Fraser
  */
-public abstract interface Cast<T> {
+package org.evosuite.symbolic.expr.bv;
+
+import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.Operator;
+
+public interface UnaryExpression<T extends Object> {
 
 	/**
-	 * <p>getConcreteObject</p>
-	 *
-	 * @param <T> a T object.
+	 * <p>
+	 * getOperand
+	 * </p>
+	 * 
+	 * @param <T>
+	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<T> getArgument();
+	public Expression<T> getOperand();
+
+	/**
+	 * <p>
+	 * getOperator
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
+	 */
+	public Operator getOperator();
+
 }

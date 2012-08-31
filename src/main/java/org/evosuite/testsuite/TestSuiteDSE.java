@@ -538,7 +538,7 @@ public class TestSuiteDSE {
 			getVariables(un.getOperand(), variables);
 		} else if (expr instanceof Cast<?>) {
 			Cast<?> cst = (Cast<?>) expr;
-			getVariables(cst.getConcreteObject(), variables);
+			getVariables(cst.getArgument(), variables);
 		} else if (expr instanceof Constraint<?>) {
 			// ignore
 		}

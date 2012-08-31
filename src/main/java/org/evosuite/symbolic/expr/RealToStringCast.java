@@ -92,7 +92,7 @@ public class RealToStringCast extends StringExpression implements Cast<Double> {
 
 	/** {@inheritDoc} */
 	@Override
-	public Expression<Double> getConcreteObject() {
+	public Expression<Double> getArgument() {
 		return expr;
 	}
 }
