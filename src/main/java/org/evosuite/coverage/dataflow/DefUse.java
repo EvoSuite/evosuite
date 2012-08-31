@@ -248,4 +248,57 @@ public class DefUse extends BytecodeInstruction {
 		r.append(" Line " + getLineNumber());
 		return r.toString();
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + defId;
+		result = prime * result + defuseId;
+		result = prime * result + (isFieldMethodCall ? 1231 : 1237);
+		result = prime * result + (isFieldMethodCallDefinition ? 1231 : 1237);
+		result = prime * result + (isFieldMethodCallUse ? 1231 : 1237);
+		result = prime * result + (isParameterUse ? 1231 : 1237);
+		result = prime * result + useId;
+		result = prime * result + ((varName == null) ? 0 : varName.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DefUse other = (DefUse) obj;
+		if (defId != other.defId)
+			return false;
+		if (defuseId != other.defuseId)
+			return false;
+		if (isFieldMethodCall != other.isFieldMethodCall)
+			return false;
+		if (isFieldMethodCallDefinition != other.isFieldMethodCallDefinition)
+			return false;
+		if (isFieldMethodCallUse != other.isFieldMethodCallUse)
+			return false;
+		if (isParameterUse != other.isParameterUse)
+			return false;
+		if (useId != other.useId)
+			return false;
+		if (varName == null) {
+			if (other.varName != null)
+				return false;
+		} else if (!varName.equals(other.varName))
+			return false;
+		return true;
+	}
+
 }

@@ -31,11 +31,11 @@ public final class IntegerVariable extends AbstractExpression<Long> implements
 
 	private static final long serialVersionUID = 6302073364874210525L;
 
-	private String name;
+	private final String name;
 
-	private long minValue;
+	private final long minValue;
 
-	private long maxValue;
+	private final long maxValue;
 
 	/**
 	 * <p>
