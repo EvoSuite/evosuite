@@ -1,9 +1,7 @@
 package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
-import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
