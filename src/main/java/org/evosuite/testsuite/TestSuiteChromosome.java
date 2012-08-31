@@ -155,6 +155,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		for (int i = 0; i < tests.size(); i++) {
 			if (unmodifiableTests.get(i))
 				continue;
+			logger.debug("Local search on test " + i);
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
 			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
 			if (LocalSearchBudget.isFinished()) {
@@ -166,6 +167,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			tests.get(i).localSearch(testObjective);
 		}
 
+		LocalSearchBudget.individualImproved(this);
 		assert (fitnessBefore >= getFitness());
 	}
 
