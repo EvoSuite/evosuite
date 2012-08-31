@@ -292,7 +292,7 @@ public class Properties {
 	public static long LOCAL_SEARCH_BUDGET = 100;
 
 	public enum LocalSearchBudgetType {
-		STATEMENTS, TIME
+		STATEMENTS, TIME, INDIVIDUALS
 	}
 
 	/** Constant <code>LOCAL_SEARCH_BUDGET_TYPE</code> */

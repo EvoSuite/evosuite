@@ -238,6 +238,9 @@ public class TestChromosome extends ExecutableChromosome {
 				i += search.getPositionDelta();
 			}
 		}
+
+		LocalSearchBudget.individualImproved(this);
+
 		assert (getFitness() <= oldFitness);
 		//logger.info("Test after local search: " + test.toCode());
 
@@ -386,7 +389,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	private boolean mutationConcolic() {
 		logger.info("Applying DSE mutation");
-	// concolicExecution = new ConcolicExecution();
+		// concolicExecution = new ConcolicExecution();
 
 		// Apply DSE to gather constraints
 		List<BranchCondition> branches = ConcolicExecution.getSymbolicPath(this);

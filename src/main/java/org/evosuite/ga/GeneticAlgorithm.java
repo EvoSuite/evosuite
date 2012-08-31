@@ -124,8 +124,10 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 			if (isFinished())
 				break;
 
-			if (LocalSearchBudget.isFinished())
+			if (LocalSearchBudget.isFinished()) {
+				logger.debug("Local search budget used up, exiting local search");
 				break;
+			}
 
 			individual.localSearch(localObjective);
 		}
