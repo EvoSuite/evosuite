@@ -221,7 +221,7 @@ public class CodeGenerator
 		}
 		catch(Exception e)
 		{
-			System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n"+this.log);
+//			System.out.println("XXXXXXXXXXXXXXXXXXXXXXXXXXXX\n"+this.log);
 			throw new RuntimeException(e.getMessage(), e);
 		}
 

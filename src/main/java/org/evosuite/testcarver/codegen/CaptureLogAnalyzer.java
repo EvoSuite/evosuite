@@ -66,7 +66,38 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	}
 	
 	
-	
+	/**
+	 * 
+	 * @param log
+	 * @param currentRecord
+	 * @return -1, if there is no caller (very first method call)
+	 */
+	private int findCaller(final CaptureLog log, final int currentRecord)
+	{
+		final int numRecords = log.objectIds.size();
+		
+		//--- look for the end of the calling method
+		int record = currentRecord;
+		do
+		{
+	    	record = this.findEndOfMethod(log, record, log.objectIds.getQuick(record));
+	    	record++;
+		}
+		while(  ! log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD) && // is not the end of the calling method
+			      record < numRecords);
+
+    	
+		if(record == numRecords)
+		{
+			// did not find any caller -> must be very first method call
+			return -1;
+		}
+		else
+		{
+			// found caller
+			return log.objectIds.getQuick(record);
+		}
+	}
 	
 	
     private void updateInitRec(final CaptureLog log, final int currentOID, final int currentRecord)
@@ -97,6 +128,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		return record;
     }
 	
+    
 	@SuppressWarnings({ "rawtypes" })
 	private void restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end)
 	{

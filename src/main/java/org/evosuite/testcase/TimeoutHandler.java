@@ -24,10 +24,13 @@ import java.lang.management.ThreadMXBean;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Future;
 import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.exsyst.ui.genetics.ChromosomeUIController;
+import org.exsyst.ui.run.UIController;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -103,8 +106,11 @@ public class TimeoutHandler<T> {
 	        long timeout) throws InterruptedException, ExecutionException,
 	        TimeoutException {
 		task = new FutureTask<T>(testcase);
-		executor.execute(task);
-		T result = task.get(timeout, TimeUnit.MILLISECONDS);
+//		executor.execute(task);
+		Future futureResult = executor.submit(task);
+//		T result = task.get(timeout, TimeUnit.MILLISECONDS);
+		T result = (T) futureResult.get(timeout, TimeUnit.MILLISECONDS);
+		
 		return result;
 	}
 
