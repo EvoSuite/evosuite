@@ -22,7 +22,6 @@ import java.util.Collection;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.ExpressionHelper;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealConstant;
@@ -46,7 +45,8 @@ public abstract class DistanceEstimator {
 
 	static Logger log = LoggerFactory.getLogger(DistanceEstimator.class);
 
-	//	static Logger log = JPF.getLogger("org.evosuite.symbolic.search.DistanceEstimator");
+	// static Logger log =
+	// JPF.getLogger("org.evosuite.symbolic.search.DistanceEstimator");
 
 	private static double normalize(double x) {
 		return x / (x + 1.0);
@@ -67,7 +67,7 @@ public abstract class DistanceEstimator {
 		try {
 			for (Constraint<?> c : constraints) {
 				if (isStrConstraint(c)) {
-					//long strD = getStrDist(c);
+					// long strD = getStrDist(c);
 					// result += (double) strD / size;
 					try {
 						double strD = getStringDist(c);
@@ -89,16 +89,16 @@ public abstract class DistanceEstimator {
 					log.debug("C: " + c + " realDist " + realD);
 				} else {
 					log.warn("DistanceEstimator.getDistance(): "
-					        + "got an unknown constraint: " + c);
+							+ "got an unknown constraint: " + c);
 					return Double.MAX_VALUE;
 				}
 			}
 			log.debug("Resulting distance: " + result);
 			return Math.abs(result);
 		} catch (Exception e) {
-						//log.warn(e.toString());
-			//System.err.println(e.getClass().getName());
-			//e.printStackTrace();
+			// log.warn(e.toString());
+			// System.err.println(e.getClass().getName());
+			// e.printStackTrace();
 			return Double.MAX_VALUE;
 		}
 	}
@@ -108,11 +108,12 @@ public abstract class DistanceEstimator {
 		Expression<?> exprRight = c.getRightOperand();
 
 		boolean leftSide = exprLeft instanceof RealVariable
-		        || exprLeft instanceof RealConstant || exprLeft instanceof RealValue;
+				|| exprLeft instanceof RealConstant
+				|| exprLeft instanceof RealValue;
 
 		boolean rightSide = exprRight instanceof RealVariable
-		        || exprRight instanceof RealConstant
-		        || exprRight instanceof RealValue;
+				|| exprRight instanceof RealConstant
+				|| exprRight instanceof RealValue;
 
 		return leftSide && rightSide;
 	}
@@ -122,20 +123,20 @@ public abstract class DistanceEstimator {
 		Expression<?> exprRight = c.getRightOperand();
 
 		boolean leftSide = exprLeft instanceof IntegerVariable
-		        || exprLeft instanceof IntegerConstant
-		        || exprLeft instanceof IntegerValue
-		        //					||		exprLeft instanceof IntegerUnaryExpression
-		        //					||		exprLeft instanceof IntegerBinaryExpression
-		        || exprLeft instanceof StringUnaryExpression
-		        || exprLeft instanceof StringBinaryExpression;
+				|| exprLeft instanceof IntegerConstant
+				|| exprLeft instanceof IntegerValue
+				// || exprLeft instanceof IntegerUnaryExpression
+				// || exprLeft instanceof IntegerBinaryExpression
+				|| exprLeft instanceof StringUnaryExpression
+				|| exprLeft instanceof StringBinaryExpression;
 
 		boolean rightSide = exprRight instanceof IntegerVariable
-		        || exprRight instanceof IntegerConstant
-		        || exprRight instanceof IntegerValue
-		        //					||		exprRight instanceof IntegerUnaryExpression
-		        //					||		exprRight instanceof IntegerBinaryExpression
-		        || exprRight instanceof StringUnaryExpression
-		        || exprRight instanceof StringBinaryExpression;
+				|| exprRight instanceof IntegerConstant
+				|| exprRight instanceof IntegerValue
+				// || exprRight instanceof IntegerUnaryExpression
+				// || exprRight instanceof IntegerBinaryExpression
+				|| exprRight instanceof StringUnaryExpression
+				|| exprRight instanceof StringBinaryExpression;
 
 		return leftSide && rightSide;
 	}
@@ -145,9 +146,10 @@ public abstract class DistanceEstimator {
 		Comparator cmpr = c.getComparator();
 		Expression<?> exprRight = c.getRightOperand();
 
-		if (exprLeft instanceof StringComparison && exprRight instanceof IntegerConstant) {
+		if (exprLeft instanceof StringComparison
+				&& exprRight instanceof IntegerConstant) {
 			if (((IntegerConstant) exprRight).getConcreteValue() == 0
-			        && (cmpr == Comparator.EQ || cmpr == Comparator.NE)) {
+					&& (cmpr == Comparator.EQ || cmpr == Comparator.NE)) {
 				return true;
 			}
 		}
@@ -164,8 +166,8 @@ public abstract class DistanceEstimator {
 		if (cmpr == Comparator.NE) {
 			return distance;
 		} else {
-			//if we don't want to satisfy return 0 
-			//	if not satisfied Long.MAX_VALUE else
+			// if we don't want to satisfy return 0
+			// if not satisfied Long.MAX_VALUE else
 			return distance > 0 ? 0.0 : Double.MAX_VALUE;
 		}
 	}
@@ -188,7 +190,7 @@ public abstract class DistanceEstimator {
 				return DistanceEstimator.RegexMatches(second, first);
 			default:
 				log.warn("StringComparison: unimplemented operator!"
-				        + comparison.getOperator());
+						+ comparison.getOperator());
 				return Double.MAX_VALUE;
 			}
 		} catch (Exception e) {
@@ -240,10 +242,8 @@ public abstract class DistanceEstimator {
 	 */
 	public static long getIntegerDist(Constraint<?> target) {
 
-		long left = ExpressionHelper.getLongResult(target.getLeftOperand());
-		long right = ExpressionHelper.getLongResult(target.getRightOperand());
-		//long left = (Long) target.getLeftOperand().execute();
-		//long right = (Long) target.getRightOperand().execute();
+		long left = (Long) target.getLeftOperand().execute();
+		long right = (Long) target.getRightOperand().execute();
 
 		Comparator cmpr = target.getComparator();
 		log.debug("Calculating distance for " + left + " " + cmpr + " " + right);
@@ -294,8 +294,8 @@ public abstract class DistanceEstimator {
 		if (cmpr == Comparator.NE) {
 			return scTarget.execute();
 		} else {
-			//if we don't want to satisfy return 0 
-			//	if not satisfied Long.MAX_VALUE else
+			// if we don't want to satisfy return 0
+			// if not satisfied Long.MAX_VALUE else
 			return scTarget.execute() > 0 ? 0 : Long.MAX_VALUE;
 		}
 	}
@@ -341,9 +341,9 @@ public abstract class DistanceEstimator {
 			return n;
 		}
 
-		double p[] = new double[n + 1]; //'previous' cost array, horizontally
+		double p[] = new double[n + 1]; // 'previous' cost array, horizontally
 		double d[] = new double[n + 1]; // cost array, horizontally
-		double _d[]; //placeholder to assist in swapping p and d
+		double _d[]; // placeholder to assist in swapping p and d
 
 		// indexes into strings s and t
 		int i; // iterates through s
@@ -362,10 +362,12 @@ public abstract class DistanceEstimator {
 			d[0] = j;
 
 			for (i = 1; i <= n; i++) {
-				//				cost = s.charAt(i - 1) == t_j ? 0 : 1;
+				// cost = s.charAt(i - 1) == t_j ? 0 : 1;
 				cost = normalize(Math.abs(s.charAt(i - 1) - t_j));
-				// minimum of cell to the left+1, to the top+1, diagonally left and up +cost				
-				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
+				// minimum of cell to the left+1, to the top+1, diagonally left
+				// and up +cost
+				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1]
+						+ cost);
 			}
 
 			// copy current distance counts to 'previous row' distance counts
@@ -374,7 +376,7 @@ public abstract class DistanceEstimator {
 			d = _d;
 		}
 
-		// our last action in the above loop was to switch d and p, so p now 
+		// our last action in the above loop was to switch d and p, so p now
 		// actually has the most recent cost counts
 		return p[n];
 	}
@@ -486,8 +488,8 @@ public abstract class DistanceEstimator {
 	 *            a boolean.
 	 * @return a int.
 	 */
-	public static double StrRegionMatches(String value, int thisStart, String string,
-	        int start, int length, boolean ignoreCase) {
+	public static double StrRegionMatches(String value, int thisStart,
+			String string, int start, int length, boolean ignoreCase) {
 		if (value == null || string == null)
 			throw new NullPointerException();
 
@@ -510,7 +512,7 @@ public abstract class DistanceEstimator {
 		}
 
 		return StrEquals(s1.substring(thisStart, length + thisStart),
-		                 s2.substring(start, length + start));
+				s2.substring(start, length + start));
 	}
 
 	/**
