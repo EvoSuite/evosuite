@@ -152,7 +152,7 @@ public final class StringVariable extends AbstractExpression<String> implements
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		return minValue;
+		return concreteValue;
 
 	}
 

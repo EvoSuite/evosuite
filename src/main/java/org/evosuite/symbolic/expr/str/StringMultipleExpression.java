@@ -163,26 +163,6 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 
 		switch (op) {
 
-		// // returns int
-		// case INDEXOFCI:
-		// secLong = ExpressionHelper.getLongResult(right);
-		// thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
-		// return Integer.toString(first
-		// .indexOf((int) secLong, (int) thrdLong));
-		// case INDEXOFSI:
-		// secStr = (String) right.execute();
-		// thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
-		// return Integer.toString(first.indexOf(secStr, (int) thrdLong));
-		// case LASTINDEXOFCI:
-		// secLong = ExpressionHelper.getLongResult(right);
-		// thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
-		// return Integer.toString(first.lastIndexOf((int) secLong,
-		// (int) thrdLong));
-		// case LASTINDEXOFSI:
-		// secStr = (String) right.execute();
-		// thrdLong = ExpressionHelper.getLongResult(other_v.get(0));
-		// return Integer.toString(first.lastIndexOf(secStr, (int) thrdLong));
-
 		// returns string
 		case SUBSTRING: {
 			secLong = (Long) right.execute();
@@ -231,7 +211,6 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 		return retVal;
 	}
 
-	
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();

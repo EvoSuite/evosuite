@@ -1857,6 +1857,6 @@ public class ConcolicExecutionTest {
 	public void testCase87() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase87();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(3, branch_conditions.size());
 	}
 }

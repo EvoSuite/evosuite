@@ -50,13 +50,13 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 	protected static Logger log = LoggerFactory
 			.getLogger(StringMultipleComparison.class);
 
-	private Operator op;
+	private final Operator op;
 
-	private Expression<String> left;
+	private final Expression<String> left;
 
-	private Expression<?> right;
+	private final Expression<?> right;
 
-	private ArrayList<Expression<?>> other_v;
+	private final ArrayList<Expression<?>> other_v;
 
 	/**
 	 * <p>
@@ -83,6 +83,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 		this.op = _op;
 		this.left = _left;
 		this.right = _right;
+		this.other_v = _other;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
