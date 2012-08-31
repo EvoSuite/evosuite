@@ -42,19 +42,6 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 
 	private final Expression<Double> expr;
 
-	/**
-	 * <p>
-	 * Constructor for RealToStringCast.
-	 * </p>
-	 * 
-	 * @param _expr
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
-	@Deprecated
-	public RealToStringCast(Expression<Double> _expr) {
-		this(_expr, Double.toString(_expr.getConcreteValue()));
-	}
-
 	public RealToStringCast(Expression<Double> _expr, String concVal) {
 		super(concVal, 1 + _expr.getSize(), _expr.containsSymbolicVariable());
 		this.expr = _expr;
