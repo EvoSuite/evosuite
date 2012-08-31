@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -29,7 +29,7 @@ public final class B_ByteValue extends Function {
 
 	@Override
 	public void CALL_RESULT(int conc_byte_value) {
-		IntegerExpression symb_byte_value = env.heap.getField(
+		IntegerValue symb_byte_value = env.heap.getField(
 				Types.JAVA_LANG_BYTE, SymbolicHeap.$BYTE_VALUE, conc_byte,
 				symb_byte, conc_byte_value);
 

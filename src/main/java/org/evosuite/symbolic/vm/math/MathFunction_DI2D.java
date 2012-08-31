@@ -2,8 +2,8 @@ package org.evosuite.symbolic.vm.math;
 
 import java.util.Iterator;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -11,8 +11,8 @@ import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class MathFunction_DI2D extends Function {
 
-	protected RealExpression left;
-	protected IntegerExpression right;
+	protected RealValue left;
+	protected IntegerValue right;
 
 	public MathFunction_DI2D(SymbolicEnvironment env, String name) {
 		super(env, Types.JAVA_LANG_MATH, name,
@@ -31,10 +31,10 @@ public abstract class MathFunction_DI2D extends Function {
 	@Override
 	public final void CALL_RESULT(double res) {
 		if (left.containsSymbolicVariable() || right.containsSymbolicVariable()) {
-			RealExpression ret_val = executeFunction(res);
+			RealValue ret_val = executeFunction(res);
 			replaceTopFp64(ret_val);
 		}
 	}
 
-	protected abstract RealExpression executeFunction(double res);
+	protected abstract RealValue executeFunction(double res);
 }

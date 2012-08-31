@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -13,7 +13,7 @@ public final class F_Init extends Function {
 		super(env, Types.JAVA_LANG_FLOAT, Types.INIT, Types.F_TO_VOID);
 	}
 
-	private RealExpression fp32;
+	private RealValue fp32;
 
 	@Override
 	public void INVOKESPECIAL() {

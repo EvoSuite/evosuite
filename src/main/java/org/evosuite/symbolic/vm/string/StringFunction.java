@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.string;
 
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
@@ -25,7 +25,7 @@ public abstract class StringFunction extends Function {
 		INVOKEVIRTUAL_String((String) receiver);
 	}
 
-	protected StringExpression stringReceiverExpr;
+	protected StringValue stringReceiverExpr;
 
 	/**
 	 * This method should not consume the symbolic arguments in the stack

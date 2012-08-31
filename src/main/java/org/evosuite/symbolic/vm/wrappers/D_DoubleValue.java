@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -29,7 +29,7 @@ public final class D_DoubleValue extends Function {
 
 	@Override
 	public void CALL_RESULT(double conc_double_value) {
-		RealExpression symb_int_value = env.heap.getField(
+		RealValue symb_int_value = env.heap.getField(
 				Types.JAVA_LANG_DOUBLE, SymbolicHeap.$DOUBLE_VALUE, conc_double,
 				symb_double, conc_double_value);
 

@@ -1,10 +1,9 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.IntegerConstant;
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealConstant;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.StringConstant;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.fp.RealValue;
 
 import edu.uta.cse.dsc.AbstractVM;
 
@@ -215,28 +214,28 @@ public final class LocalsVM extends AbstractVM {
 	 */
 	@Override
 	public void ILOAD(int i) {
-		IntegerExpression integerExpression = env.topFrame().localsTable
+		IntegerValue integerExpression = env.topFrame().localsTable
 				.getBv32Local(i);
 		env.topFrame().operandStack.pushBv32(integerExpression);
 	}
 
 	@Override
 	public void LLOAD(int i) {
-		IntegerExpression integerExpression = env.topFrame().localsTable
+		IntegerValue integerExpression = env.topFrame().localsTable
 				.getBv64Local(i);
 		env.topFrame().operandStack.pushBv64(integerExpression);
 	}
 
 	@Override
 	public void FLOAD(int i) {
-		RealExpression realExpr = (RealExpression) env.topFrame().localsTable
+		RealValue realExpr = (RealValue) env.topFrame().localsTable
 				.getFp32Local(i);
 		env.topFrame().operandStack.pushFp32(realExpr);
 	}
 
 	@Override
 	public void DLOAD(int i) {
-		RealExpression realExpr = (RealExpression) env.topFrame().localsTable
+		RealValue realExpr = (RealValue) env.topFrame().localsTable
 				.getFp64Local(i);
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}
@@ -255,25 +254,25 @@ public final class LocalsVM extends AbstractVM {
 	 */
 	@Override
 	public void ISTORE(int i) {
-		IntegerExpression integerExpr = env.topFrame().operandStack.popBv32();
+		IntegerValue integerExpr = env.topFrame().operandStack.popBv32();
 		env.topFrame().localsTable.setBv32Local(i, integerExpr);
 	}
 
 	@Override
 	public void LSTORE(int i) {
-		IntegerExpression integerExpr = env.topFrame().operandStack.popBv64();
+		IntegerValue integerExpr = env.topFrame().operandStack.popBv64();
 		env.topFrame().localsTable.setBv64Local(i, integerExpr);
 	}
 
 	@Override
 	public void FSTORE(int i) {
-		RealExpression realExpr = env.topFrame().operandStack.popFp32();
+		RealValue realExpr = env.topFrame().operandStack.popFp32();
 		env.topFrame().localsTable.setFp32Local(i, realExpr);
 	}
 
 	@Override
 	public void DSTORE(int i) {
-		RealExpression realExpr = env.topFrame().operandStack.popFp64();
+		RealValue realExpr = env.topFrame().operandStack.popFp64();
 		env.topFrame().localsTable.setFp64Local(i, realExpr);
 	}
 

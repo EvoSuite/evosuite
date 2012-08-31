@@ -6,8 +6,8 @@ import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringMultipleExpression;
+import org.evosuite.symbolic.expr.str.StringMultipleExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -15,8 +15,8 @@ import org.evosuite.symbolic.vm.SymbolicHeap;
 
 public final class ReplaceAll extends StringFunction {
 
-	private StringExpression regexExpr;
-	private StringExpression replacementExpr;
+	private StringValue regexExpr;
+	private StringValue replacementExpr;
 
 	private static final String REPLACE_ALL = "replaceAll";
 

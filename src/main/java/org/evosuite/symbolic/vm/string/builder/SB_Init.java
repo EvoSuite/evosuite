@@ -2,8 +2,7 @@ package org.evosuite.symbolic.vm.string.builder;
 
 import java.util.Iterator;
 
-import org.evosuite.symbolic.expr.StringBuilderExpression;
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.Reference;
@@ -26,7 +25,7 @@ public abstract class SB_Init extends StringBuilderFunction {
 
 		}
 
-		private StringExpression strExpr;
+		private StringValue strExpr;
 		private NonNullReference symb_str_builder;
 
 		@Override
@@ -52,14 +51,11 @@ public abstract class SB_Init extends StringBuilderFunction {
 			/**
 			 * Symbolic execution
 			 */
-			StringBuilderExpression strBuilderExpr = new StringBuilderExpression(
-					strExpr);
-
 			// update symbolic heap
 			this.env.heap.putField(
 					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
-					SymbolicHeap.$STRING_BUILDER_CONTENTS, null, symb_str_builder,
-					strBuilderExpr);
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, null,
+					symb_str_builder, strExpr);
 		}
 
 		@Override

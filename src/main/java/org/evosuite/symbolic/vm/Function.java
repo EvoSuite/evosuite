@@ -1,8 +1,8 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.wrappers.Types;
 
 /**
@@ -12,15 +12,15 @@ import org.evosuite.symbolic.vm.wrappers.Types;
  */
 public abstract class Function {
 
-	protected static RealExpression fp32(Operand op) {
+	protected static RealValue fp32(Operand op) {
 		return ((Fp32Operand) op).getRealExpression();
 	}
 
-	protected static IntegerExpression bv32(Operand op) {
+	protected static IntegerValue bv32(Operand op) {
 		return ((Bv32Operand) op).getIntegerExpression();
 	}
 
-	protected static IntegerExpression bv64(Operand op) {
+	protected static IntegerValue bv64(Operand op) {
 		return ((Bv64Operand) op).getIntegerExpression();
 	}
 
@@ -87,27 +87,27 @@ public abstract class Function {
 		/* STUB */
 	}
 
-	protected void replaceTopBv32(IntegerExpression expr) {
+	protected void replaceTopBv32(IntegerValue expr) {
 		env.topFrame().operandStack.popBv32();
 		env.topFrame().operandStack.pushBv32(expr);
 	}
 
-	protected void replaceTopFp64(RealExpression expr) {
+	protected void replaceTopFp64(RealValue expr) {
 		env.topFrame().operandStack.popFp64();
 		env.topFrame().operandStack.pushFp64(expr);
 	}
 
-	protected void replaceTopFp32(RealExpression expr) {
+	protected void replaceTopFp32(RealValue expr) {
 		this.env.topFrame().operandStack.popFp32();
 		this.env.topFrame().operandStack.pushFp32(expr);
 	}
 
-	protected void replaceTopBv64(IntegerExpression expr) {
+	protected void replaceTopBv64(IntegerValue expr) {
 		env.topFrame().operandStack.popBv64();
 		env.topFrame().operandStack.pushBv64(expr);
 	}
 
-	protected static RealExpression fp64(Operand op) {
+	protected static RealValue fp64(Operand op) {
 		return ((Fp64Operand) op).getRealExpression();
 	}
 
@@ -120,7 +120,7 @@ public abstract class Function {
 		return ref instanceof NullReference;
 	}
 
-	protected StringExpression getStringExpression(Operand operand) {
+	protected StringValue getStringExpression(Operand operand) {
 		ReferenceOperand refOp = (ReferenceOperand) operand;
 		Reference ref = (Reference) refOp.getReference();
 		if (ref instanceof NullReference) {
@@ -130,7 +130,7 @@ public abstract class Function {
 			if (nonNullRef.isString()) {
 				String conc_string = (String) nonNullRef
 						.getWeakConcreteObject();
-				StringExpression strExpr = env.heap.getField(
+				StringValue strExpr = env.heap.getField(
 						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 						conc_string, nonNullRef, conc_string);
 				return strExpr;

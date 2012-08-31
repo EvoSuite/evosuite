@@ -1,13 +1,13 @@
 package org.evosuite.symbolic.vm.math;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
 public abstract class MathFunction_L2L extends Function {
 
-	protected IntegerExpression integerExpression;
+	protected IntegerValue integerExpression;
 
 	public MathFunction_L2L(SymbolicEnvironment env, String name) {
 		super(env, Types.JAVA_LANG_MATH, name,
@@ -22,10 +22,10 @@ public abstract class MathFunction_L2L extends Function {
 	@Override
 	public final void CALL_RESULT(long res) {
 		if (integerExpression.containsSymbolicVariable()) {
-			IntegerExpression acosExpr = executeFunction(res);
+			IntegerValue acosExpr = executeFunction(res);
 			replaceTopBv64(acosExpr);
 		}
 	}
 
-	protected abstract IntegerExpression executeFunction(long res);
+	protected abstract IntegerValue executeFunction(long res);
 }

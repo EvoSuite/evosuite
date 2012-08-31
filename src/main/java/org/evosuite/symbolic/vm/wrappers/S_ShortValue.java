@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -29,7 +29,7 @@ public final class S_ShortValue extends Function {
 
 	@Override
 	public void CALL_RESULT(int conc_short_value) {
-		IntegerExpression symb_short_value = env.heap.getField(
+		IntegerValue symb_short_value = env.heap.getField(
 				Types.JAVA_LANG_SHORT, SymbolicHeap.$SHORT_VALUE, conc_short, symb_short,
 				conc_short_value);
 

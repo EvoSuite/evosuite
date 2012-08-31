@@ -4,11 +4,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringMultipleComparison;
-import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.Reference;
@@ -19,11 +19,11 @@ public final class RegionMatches extends StringFunction {
 
 	private static final String REGION_MATCHES = "regionMatches";
 
-	private IntegerExpression lenExpr;
-	private IntegerExpression ooffsetExpr;
-	private StringExpression otherExpr;
-	private IntegerExpression toffsetExpr;
-	private IntegerExpression ignoreCaseExpr;
+	private IntegerValue lenExpr;
+	private IntegerValue ooffsetExpr;
+	private StringValue otherExpr;
+	private IntegerValue toffsetExpr;
+	private IntegerValue ignoreCaseExpr;
 
 	public RegionMatches(SymbolicEnvironment env) {
 		super(env, REGION_MATCHES,

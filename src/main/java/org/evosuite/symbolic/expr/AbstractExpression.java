@@ -17,9 +17,8 @@
  *
  * @author Gordon Fraser
  */
-package org.evosuite.symbolic.expr.bv;
+package org.evosuite.symbolic.expr;
 
-import org.evosuite.symbolic.expr.Expression;
 
 public abstract class AbstractExpression<T> implements Expression<T> {
 

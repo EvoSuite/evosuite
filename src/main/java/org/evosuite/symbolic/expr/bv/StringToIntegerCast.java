@@ -20,10 +20,16 @@
  */
 package org.evosuite.symbolic.expr.bv;
 
+import gnu.trove.set.hash.THashSet;
+
+import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.Variable;
 
 /**
  * <p>
@@ -96,4 +102,12 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 	public Expression<String> getParam() {
 		return this.expr;
 	}
+	
+	@Override
+	public Set<Variable<?>> getVariables() {
+		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		variables.addAll(this.expr.getVariables());
+		return variables;
+	}
+
 }

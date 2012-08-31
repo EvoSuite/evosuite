@@ -11,10 +11,10 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEBudgetType;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.StringToIntCast;
-import org.evosuite.symbolic.expr.StringVariable;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.junit.Test;
 
 public class TestSeeker3 {
@@ -27,7 +27,7 @@ public class TestSeeker3 {
 		StringVariable var0 = new StringVariable("var0", INIT_STRING,
 				INIT_STRING, INIT_STRING);
 
-		StringToIntCast castStr = new StringToIntCast(var0,
+		StringToIntegerCast castStr = new StringToIntegerCast(var0,
 				(long) Integer.parseInt(INIT_STRING));
 
 		IntegerConstant const126 = new IntegerConstant(EXPECTED_INTEGER);

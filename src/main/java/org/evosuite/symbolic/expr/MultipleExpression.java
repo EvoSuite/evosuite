@@ -17,12 +17,12 @@
  *
  * @author Gordon Fraser
  */
-package org.evosuite.symbolic.expr.bv;
+package org.evosuite.symbolic.expr;
 
-import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.Operator;
+import java.util.ArrayList;
 
-public interface BinaryExpression<T extends Object> {
+
+public interface MultipleExpression<T extends Object> {
 
 	/**
 	 * <p>
@@ -52,5 +52,9 @@ public interface BinaryExpression<T extends Object> {
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<?> getRightOperand();
+
+	public ArrayList<Expression<?>> getOther();
+	
+	
 
 }

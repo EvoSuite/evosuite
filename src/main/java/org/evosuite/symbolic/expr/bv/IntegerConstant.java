@@ -19,6 +19,14 @@
  */
 package org.evosuite.symbolic.expr.bv;
 
+import gnu.trove.set.hash.THashSet;
+
+import java.util.Set;
+
+import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.Variable;
+
+
 public final class IntegerConstant extends AbstractExpression<Long> implements
 		IntegerValue {
 
@@ -62,5 +70,12 @@ public final class IntegerConstant extends AbstractExpression<Long> implements
 	public int hashCode() {
 		return getConcreteValue().hashCode();
 	}
+	
+	@Override
+	public Set<Variable<?>> getVariables() {
+		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		return variables;
+	}
+
 
 }

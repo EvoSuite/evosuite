@@ -19,11 +19,16 @@
  */
 package org.evosuite.symbolic.expr.fp;
 
+import gnu.trove.set.hash.THashSet;
+
+import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.bv.AbstractExpression;
+import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 
 public final class IntegerToRealCast extends AbstractExpression<Double>
@@ -88,4 +93,12 @@ public final class IntegerToRealCast extends AbstractExpression<Double>
 		Long exprVal = expr.execute();
 		return exprVal.doubleValue();
 	}
+	
+	@Override
+	public Set<Variable<?>> getVariables() {
+		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		variables.addAll(this.expr.getVariables());
+		return variables;
+	}
+
 }
