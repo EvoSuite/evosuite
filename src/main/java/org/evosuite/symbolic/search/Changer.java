@@ -74,7 +74,7 @@ public class Changer {
 	}
 
 	private void backup(StringVariable var, double newDist) {
-		var.setMaxValue(var.getMinValue());
+		var.setMaxValue(var.getConcreteValue());
 		oldDist = newDist;
 	}
 
@@ -88,7 +88,7 @@ public class Changer {
 	}
 
 	private void restore(StringVariable var) {
-		var.setMinValue(var.getMaxValue());
+		var.setConcreteValue(var.getMaxValue());
 	}
 
 	/**
@@ -158,9 +158,8 @@ public class Changer {
 	 *            a {@link java.util.HashMap} object.
 	 * @return a boolean.
 	 */
-	public boolean strLocalSearch(StringVariable strVar,
-			Collection<Constraint<?>> cnstr,
-			HashMap<String, Object> varsToChange) {
+	public boolean strLocalSearch(StringVariable strVar, Collection<Constraint<?>> cnstr,
+	        HashMap<String, Object> varsToChange) {
 
 		// try to remove each
 		log.debug("Trying to remove characters");
@@ -170,13 +169,14 @@ public class Changer {
 
 		String oldString = strVar.execute();
 		for (int i = oldString.length() - 1; i >= 0; i--) {
-			String newStr = oldString.substring(0, i)
-					+ oldString.substring(i + 1);
-			strVar.setMinValue(newStr);
+			String newStr = oldString.substring(0, i) + oldString.substring(i + 1);
+			strVar.setConcreteValue(newStr);
+			log.debug("Current attempt: " + newStr);
 
 			double newDist = DistanceEstimator.getDistance(cnstr);
 
 			if (distImpr(newDist)) {
+				log.debug("Distance improved, keeping change");
 				improvement = true;
 				oldString = newStr;
 				varsToChange.put(strVar.getName(), newStr);
@@ -185,6 +185,7 @@ public class Changer {
 				}
 				backup(strVar, newDist);
 			} else {
+				log.debug("Distance did not improve, reverting change");
 				restore(strVar);
 			}
 		}
@@ -209,9 +210,8 @@ public class Changer {
 			boolean add = true;
 			while (add) {
 				add = false;
-				String newStr = oldString.substring(0, i) + '_'
-						+ oldString.substring(i);
-				strVar.setMinValue(newStr);
+				String newStr = oldString.substring(0, i) + '_' + oldString.substring(i);
+				strVar.setConcreteValue(newStr);
 				double newDist = DistanceEstimator.getDistance(cnstr);
 				log.debug("Adding " + i + ": " + newStr + ": " + newDist);
 
@@ -240,9 +240,8 @@ public class Changer {
 	 * @param oldString
 	 * @return
 	 */
-	private boolean doStringAVM(StringVariable strVar,
-			Collection<Constraint<?>> cnstr,
-			HashMap<String, Object> varsToChange, String oldString) {
+	private boolean doStringAVM(StringVariable strVar, Collection<Constraint<?>> cnstr,
+	        HashMap<String, Object> varsToChange, String oldString) {
 
 		boolean improvement = false;
 
@@ -264,8 +263,8 @@ public class Changer {
 	 * @return
 	 */
 	private boolean doCharacterAVM(StringVariable strVar,
-			Collection<Constraint<?>> cnstr,
-			HashMap<String, Object> varsToChange, int position) {
+	        Collection<Constraint<?>> cnstr, HashMap<String, Object> varsToChange,
+	        int position) {
 		backup(strVar, DistanceEstimator.getDistance(cnstr));
 		boolean done = false;
 		boolean hasImproved = false;
@@ -281,10 +280,10 @@ public class Changer {
 			replacement++;
 			characters[position] = replacement;
 			String newString = new String(characters);
-			strVar.setMinValue(newString);
+			strVar.setConcreteValue(newString);
 			double newDist = DistanceEstimator.getDistance(cnstr);
-			log.debug("Probing increment " + position + ": " + newString + ": "
-					+ newDist + " replacement = " + (int) replacement);
+			log.debug("Probing increment " + position + ": " + newString + ": " + newDist
+			        + " replacement = " + (int) replacement);
 			if (distImpr(newDist)) {
 				backup(strVar, newDist);
 				varsToChange.put(strVar.getName(), newString);
@@ -298,11 +297,10 @@ public class Changer {
 				replacement -= 2;
 				characters[position] = replacement;
 				newString = new String(characters);
-				strVar.setMinValue(newString);
+				strVar.setConcreteValue(newString);
 				newDist = DistanceEstimator.getDistance(cnstr);
-				log.debug("Probing decrement " + position + ": " + newString
-						+ ": " + newDist + " replacement = "
-						+ (int) replacement);
+				log.debug("Probing decrement " + position + ": " + newString + ": "
+				        + newDist + " replacement = " + (int) replacement);
 				if (distImpr(newDist)) {
 					backup(strVar, newDist);
 					varsToChange.put(strVar.getName(), newString);
@@ -312,16 +310,14 @@ public class Changer {
 
 					done = false;
 					hasImproved = true;
-					iterateCharacterAVM(strVar, cnstr, varsToChange, position,
-							-2);
+					iterateCharacterAVM(strVar, cnstr, varsToChange, position, -2);
 				} else {
 					restore(strVar);
 					if (done)
-						log.debug("Search finished " + position + ": "
-								+ newString + ": " + newDist);
+						log.debug("Search finished " + position + ": " + newString + ": "
+						        + newDist);
 					else
-						log.debug("Going for another iteration at position "
-								+ position);
+						log.debug("Going for another iteration at position " + position);
 
 				}
 			}
@@ -330,8 +326,8 @@ public class Changer {
 	}
 
 	private boolean iterateCharacterAVM(StringVariable strVar,
-			Collection<Constraint<?>> cnstr,
-			HashMap<String, Object> varsToChange, int position, int delta) {
+	        Collection<Constraint<?>> cnstr, HashMap<String, Object> varsToChange,
+	        int position, int delta) {
 
 		boolean improvement = false;
 		String oldString = strVar.execute();
@@ -345,7 +341,7 @@ public class Changer {
 		replacement += delta;
 		characters[position] = replacement;
 		String newString = new String(characters);
-		strVar.setMinValue(newString);
+		strVar.setConcreteValue(newString);
 		double newDist = DistanceEstimator.getDistance(cnstr);
 
 		while (distImpr(newDist)) {
@@ -363,10 +359,9 @@ public class Changer {
 			log.info("Current delta: " + delta + " -> " + replacement);
 			characters[position] = replacement;
 			newString = new String(characters);
-			log.info(" " + position + " " + oldString + "/"
-					+ oldString.length() + " -> " + newString + "/"
-					+ newString.length());
-			strVar.setMinValue(newString);
+			log.info(" " + position + " " + oldString + "/" + oldString.length() + " -> "
+			        + newString + "/" + newString.length());
+			strVar.setConcreteValue(newString);
 			newDist = DistanceEstimator.getDistance(cnstr);
 		}
 		log.debug("No improvement on " + oldString);
@@ -391,8 +386,7 @@ public class Changer {
 	 * @return a boolean.
 	 */
 	public boolean intLocalSearch(IntegerVariable intVar,
-			Collection<Constraint<?>> cnstr,
-			HashMap<String, Object> varsToChange) {
+	        Collection<Constraint<?>> cnstr, HashMap<String, Object> varsToChange) {
 		double newDist;
 		boolean improvement = false;
 		boolean done = false;
@@ -456,9 +450,8 @@ public class Changer {
 	 *            a {@link java.util.HashMap} object.
 	 * @return a boolean.
 	 */
-	public boolean realLocalSearch(RealVariable realVar,
-			Collection<Constraint<?>> cnstr,
-			HashMap<String, Object> varsToChange) {
+	public boolean realLocalSearch(RealVariable realVar, Collection<Constraint<?>> cnstr,
+	        HashMap<String, Object> varsToChange) {
 		boolean improvement = false;
 
 		improvement = doRealSearch(realVar, cnstr, 1.0, 2.0);
@@ -491,8 +484,8 @@ public class Changer {
 	 * @param factor
 	 * @return
 	 */
-	private boolean doRealSearch(RealVariable realVar,
-			Collection<Constraint<?>> cnstr, double delta, double factor) {
+	private boolean doRealSearch(RealVariable realVar, Collection<Constraint<?>> cnstr,
+	        double delta, double factor) {
 
 		double newDist;
 		boolean improvement = false;
@@ -551,8 +544,7 @@ public class Changer {
 	 * @param cnstr
 	 * @return
 	 */
-	private boolean afterCommaSearch(RealVariable realVar,
-			Collection<Constraint<?>> cnstr) {
+	private boolean afterCommaSearch(RealVariable realVar, Collection<Constraint<?>> cnstr) {
 		boolean improvement = false;
 
 		// Assume that floats have 7 digits after comma and double 15. This is
@@ -580,12 +572,11 @@ public class Changer {
 	 * @param precision
 	 * @param isFloat
 	 */
-	private void roundPrecision(RealVariable realVar,
-			Collection<Constraint<?>> cnstr, int precision, boolean isFloat) {
+	private void roundPrecision(RealVariable realVar, Collection<Constraint<?>> cnstr,
+	        int precision, boolean isFloat) {
 
 		double value = realVar.getConcreteValue();
-		BigDecimal bd = new BigDecimal(value).setScale(precision,
-				RoundingMode.HALF_EVEN);
+		BigDecimal bd = new BigDecimal(value).setScale(precision, RoundingMode.HALF_EVEN);
 		if (bd.doubleValue() == value) {
 			return;// false;
 		}
@@ -596,8 +587,8 @@ public class Changer {
 		else
 			realVar.setConcreteValue((new Double(newValue)));
 
-		log.debug("Trying to chop precision " + precision + ": " + value
-				+ " -> " + newValue);
+		log.debug("Trying to chop precision " + precision + ": " + value + " -> "
+		        + newValue);
 		double dist = DistanceEstimator.getDistance(cnstr);
 		if (!distWrsn(dist)) {
 			backup(realVar, dist);
@@ -617,15 +608,13 @@ public class Changer {
 	 * @param factor
 	 */
 	private void iterate(RealVariable realVar, Collection<Constraint<?>> cnstr,
-			double delta, double factor) {
+	        double delta, double factor) {
 
-		log.debug("[Loop] Trying increment " + delta + " of "
-				+ realVar.toString());
+		log.debug("[Loop] Trying increment " + delta + " of " + realVar.toString());
 
 		increment(realVar, delta);
 		double newDist = DistanceEstimator.getDistance(cnstr);
-		log.debug("[Loop] Old distance: " + oldDist + ", new distance: "
-				+ newDist);
+		log.debug("[Loop] Old distance: " + oldDist + ", new distance: " + newDist);
 		while (distImpr(newDist)) {
 			backup(realVar, newDist);
 
@@ -648,8 +637,8 @@ public class Changer {
 	 * @param cnstr
 	 * @param delta
 	 */
-	private void iterate(IntegerVariable intVar,
-			Collection<Constraint<?>> cnstr, long delta) {
+	private void iterate(IntegerVariable intVar, Collection<Constraint<?>> cnstr,
+	        long delta) {
 
 		log.debug("Trying increment " + delta + " of " + intVar.toString());
 

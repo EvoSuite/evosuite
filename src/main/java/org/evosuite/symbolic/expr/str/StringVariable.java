@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -35,13 +35,11 @@ import org.evosuite.symbolic.expr.Variable;
  * @author krusev
  */
 public final class StringVariable extends AbstractExpression<String> implements
-		StringValue, Variable<String> {
+        StringValue, Variable<String> {
 
 	private static final long serialVersionUID = 5925030390824261492L;
 
 	private final String name;
-
-	private String minValue;
 
 	private String maxValue;
 
@@ -59,12 +57,10 @@ public final class StringVariable extends AbstractExpression<String> implements
 	 * @param maxValue
 	 *            a {@link java.lang.String} object.
 	 */
-	public StringVariable(String name, String concVal, String minValue,
-			String maxValue) {
+	public StringVariable(String name, String concVal) {
 		super(concVal, 1, true);
 		this.name = name;
-		this.minValue = minValue;
-		this.maxValue = maxValue;
+		this.maxValue = concVal;
 	}
 
 	/**
@@ -100,27 +96,6 @@ public final class StringVariable extends AbstractExpression<String> implements
 		this.maxValue = maxValue;
 	}
 
-	/*
-	 * store the working value here
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public String getMinValue() {
-		return minValue;
-	}
-
-	/**
-	 * <p>
-	 * Setter for the field <code>minValue</code>.
-	 * </p>
-	 * 
-	 * @param minValue
-	 *            the minValue to set
-	 */
-	public void setMinValue(String minValue) {
-		this.minValue = minValue;
-	}
-
 	/** {@inheritDoc} */
 	@Override
 	public String getName() {
@@ -130,7 +105,7 @@ public final class StringVariable extends AbstractExpression<String> implements
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return name + "(" + minValue + ")";
+		return name + "(" + concreteValue + ")";
 	}
 
 	/** {@inheritDoc} */
@@ -161,6 +136,14 @@ public final class StringVariable extends AbstractExpression<String> implements
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.add(this);
 		return variables;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.symbolic.expr.Variable#getMinValue()
+	 */
+	@Override
+	public String getMinValue() {
+		return concreteValue;
 	}
 
 }

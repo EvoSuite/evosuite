@@ -11,10 +11,10 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEBudgetType;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.str.StringVariable;
 import org.junit.Test;
 
 public class TestSeeker3 {
@@ -24,16 +24,15 @@ public class TestSeeker3 {
 
 	private static Collection<Constraint<?>> buildConstraintSystem() {
 
-		StringVariable var0 = new StringVariable("var0", INIT_STRING,
-				INIT_STRING, INIT_STRING);
+		StringVariable var0 = new StringVariable("var0", INIT_STRING);
 
 		StringToIntegerCast castStr = new StringToIntegerCast(var0,
-				(long) Integer.parseInt(INIT_STRING));
+		        (long) Integer.parseInt(INIT_STRING));
 
 		IntegerConstant const126 = new IntegerConstant(EXPECTED_INTEGER);
 
-		IntegerConstraint constr1 = new IntegerConstraint(castStr,
-				Comparator.EQ, const126);
+		IntegerConstraint constr1 = new IntegerConstraint(castStr, Comparator.EQ,
+		        const126);
 
 		return Arrays.<Constraint<?>> asList(constr1);
 	}
@@ -53,13 +52,9 @@ public class TestSeeker3 {
 		System.out.println("");
 		System.out.println("Initial: " + INIT_STRING);
 
-
-		
 		Seeker seeker = new Seeker();
 		Map<String, Object> model = seeker.getModel(constraints);
 
-
-		
 		if (model == null) {
 			fail("search was unsuccessfull");
 		} else {

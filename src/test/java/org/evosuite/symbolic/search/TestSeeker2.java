@@ -10,12 +10,12 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEBudgetType;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
-import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.junit.Test;
 
 public class TestSeeker2 {
@@ -25,18 +25,16 @@ public class TestSeeker2 {
 
 	private static Collection<Constraint<?>> buildConstraintSystem() {
 
-		StringVariable var0 = new StringVariable("var0", INIT_STRING,
-				INIT_STRING, INIT_STRING);
+		StringVariable var0 = new StringVariable("var0", INIT_STRING);
 
 		StringConstant const0 = new StringConstant(EXPECTED_STRING);
 
-		StringComparison strEqual = new StringComparison(var0, Operator.EQUALS,
-				const0, (long) 0);
+		StringComparison strEqual = new StringComparison(var0, Operator.EQUALS, const0,
+		        (long) 0);
 
 		IntegerConstant const1 = new IntegerConstant(1);
 
-		IntegerConstraint constr1 = new IntegerConstraint(strEqual,
-				Comparator.EQ, const1);
+		IntegerConstraint constr1 = new IntegerConstraint(strEqual, Comparator.EQ, const1);
 
 		return Arrays.<Constraint<?>> asList(constr1);
 	}
