@@ -180,7 +180,8 @@ public final class PostProcessor
 			
 			log = logs.get(i);
 			
-			
+			long s = System.currentTimeMillis();
+			System.out.println(">>>> (postprocess) start test create ");
 			
 			targetFile = new File(tempDir, targetFolder);
 			targetFile.mkdirs();
@@ -191,6 +192,7 @@ public final class PostProcessor
 			// write out test files containing post-processing statements
 			writeTest(log, packageName, testClassName, classes, targetFile, true);
 			
+			System.out.println(">>>> (postprocess) end test creation -> " + (System.currentTimeMillis() - s) / 1000);
 			
 			//=============== compile generated post-processing test ================================================
 			

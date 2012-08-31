@@ -6,6 +6,9 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 
 import org.evosuite.testcarver.codegen.PostProcessor;
 import org.evosuite.testcarver.exception.CapturerException;
@@ -23,6 +26,8 @@ public final class Capturer
 	private static boolean                     isCaptureStarted    = false;
 	private static boolean                     isShutdownHookAdded = false;
 	private static final ArrayList<CaptureLog> logs                = new ArrayList<CaptureLog>();
+	
+	private static ExecutorService executor;
 	
 	public static final String DEFAULT_SAVE_LOC = "captured.log";
 	
@@ -46,7 +51,6 @@ public final class Capturer
 			}
 		}));
 	}
-	
 	
 	public static void postProcess()
 	{
@@ -145,12 +149,14 @@ public final class Capturer
 			throw new IllegalStateException("Capture has already been started");
 		}
 		
-		currentLog = new CaptureLog();
+		executor         = Executors.newSingleThreadExecutor();
+		currentLog       = new CaptureLog();
 		isCaptureStarted = true;
 		
 		FieldRegistry.restoreForegoingGETSTATIC();
 		
 		LOG.info("Capturer has been started successfully");
+
 	}
 	
 	synchronized
@@ -193,7 +199,8 @@ public final class Capturer
 			isShutdownHookAdded = true;
 		}
 
-		currentLog = new CaptureLog();
+		executor         = Executors.newSingleThreadExecutor();
+		currentLog       = new CaptureLog();
 		isCaptureStarted = true;
 		
 		
@@ -218,6 +225,18 @@ public final class Capturer
 		if(isCaptureStarted)
 		{
 			isCaptureStarted = false;
+			
+			executor.shutdown();
+			try 
+			{
+				executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+			} 
+			catch (final InterruptedException e) 
+			{
+				e.printStackTrace();
+			}
+			
+			
 			logs.add(currentLog);
 			
 			final CaptureLog log = currentLog;
@@ -226,9 +245,6 @@ public final class Capturer
 			LOG.info("Capturer has been stopped successfully");
 			
 			FieldRegistry.clear();
-			
-			
-			System.out.println("LOG: " + log);
 			
 			return log;
 		}
@@ -242,151 +258,85 @@ public final class Capturer
 		return isCaptureStarted;
 	}
 
-	
 	synchronized
+	public static void setCapturing(final boolean isCapturing)
+	{
+		Capturer.isCaptureStarted = isCapturing;
+	}
+	
+	
 	public static void capture(final int captureId, final Object receiver, final String methodName, final String methodDesc, final Object[] methodParams)
 	{
-		if(isCaptureStarted)
-		{
-			isCaptureStarted = false;
-			if(LOG.isDebugEnabled())
+			if(isCapturing())
 			{
-				LOG.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} " + Arrays.toString(methodParams), 
-																					  new Object[]{ captureId, 
-																					 System.identityHashCode(receiver), 
-																					 receiver.getClass().getName(), 
-																					 methodName,
-																					 methodDesc});				
-				
+				synchronized (currentLog)
+				{
+					executor.execute(new Runnable() 
+					{
+						@Override
+						public void run() 
+						{
+						    System.out.println("CAPTURE -------> " + System.currentTimeMillis() );
+
+						    
+							setCapturing(false);
+							
+							if(LOG.isDebugEnabled())
+							{
+								LOG.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} " + Arrays.toString(methodParams), 
+																									  new Object[]{ captureId, 
+																									 System.identityHashCode(receiver), 
+																									 receiver.getClass().getName(), 
+																									 methodName,
+																									 methodDesc});				
+								
+							}
+							
+							currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
+							
+							setCapturing(true);
+
+						    System.out.println("END CAPTURE -------> " + System.currentTimeMillis() );
+						}
+					});
+				}
 			}
-			currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
-			isCaptureStarted = true;
-		}
 	}
 	
 	
 	@SuppressWarnings("unchecked")
-	synchronized
 	public static List<CaptureLog> getCaptureLogs()
 	{
 		return (List<CaptureLog>) logs.clone();
 	}
 	
-	synchronized
+	
 	public static void enable(final int captureId, final Object receiver, final Object returnValue)
 	{
-		if(isCaptureStarted)
-		{
-			if(LOG.isDebugEnabled())
+			if(isCapturing())
 			{
-			   isCaptureStarted = false;
-			   LOG.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}", new Object[]{ captureId, System.identityHashCode(receiver), returnValue, System.identityHashCode(returnValue)});
-			   isCaptureStarted = true;
+				synchronized (currentLog) {
+					executor.execute(new Runnable() {
+						@Override
+						public void run() 
+						{
+						   System.out.println("ENABLE -------> " + System.currentTimeMillis() );
+
+						   setCapturing(false);
+
+						   if(LOG.isDebugEnabled())
+						   {
+							  LOG.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}", new Object[]{ captureId, System.identityHashCode(receiver), returnValue, System.identityHashCode(returnValue)});
+						   }
+							
+						   currentLog.logEnd(captureId, receiver, returnValue);
+						   setCapturing(true);
+
+						   
+						   System.out.println("END ENABLE -------> " + System.currentTimeMillis() );
+						}
+					});
+				}
 			}
-			
-			currentLog.logEnd(captureId, receiver, returnValue);
-		}
 	}
-
-	
-	
-//	public static void generateTests(final File targetFolder, final String nameBase, final Class<?>...observedClasses)
-//	{
-//		LOG.debug("Start test generation with target folder={} nameBase= observedClasses=", new Object[]{targetFolder, nameBase, Arrays.toString(observedClasses)});
-//		
-//		if(isCaptureStarted)
-//		{
-//			throw new IllegalStateException("Tests can not be generate while performing capture");
-//		}
-//		
-//		if(targetFolder == null)
-//		{
-//			throw new NullPointerException("target folder must not be null");
-//		}
-//		
-//		if(! targetFolder.exists())
-//		{
-//			throw new IllegalArgumentException("target folder " + targetFolder + " does not exist");
-//		}
-//		
-//		if(nameBase == null)
-//		{
-//			throw new NullPointerException("name base must not be null");
-//		}
-//		
-//		if(nameBase.trim().isEmpty())
-//		{
-//			throw new IllegalArgumentException("nameBase must not be empty");
-//		}
-//		
-//		if(observedClasses == null)
-//		{
-//			throw new NullPointerException("observed classes must not be null");
-//		}
-//		
-//		if(observedClasses.length == 0)
-//		{
-//			throw new IllegalArgumentException("there has to be at least one class specified to be observed");
-//		}
-//		
-//		File srcFile;
-//		
-//		CaptureLog log;
-//		final int numLogs = logs.size();
-//		for(int i = 0; i < numLogs; i++)
-//		{
-//			log = logs.get(i);
-//			
-//			String name;
-//			
-//			name    = nameBase + i;
-//			srcFile = new File(targetFolder, name + ".java");
-//			int j   = i;
-//			while(srcFile.exists())
-//			{
-//				j++;
-//				name    = nameBase + j;
-//				srcFile = new File(targetFolder, name + ".java");
-//			}
-//			
-//			
-//			// TODO parallelize
-//			FileOutputStream fout = null;
-//			try
-//			{
-//				fout = new FileOutputStream(srcFile);
-//				
-//				final CodeGenerator generator = new CodeGenerator(log);
-//				final String code = generator.generateCode(name, observedClasses).toString();
-//				
-//				
-//				// TODO not nice but how can blank line be inserted with JDT?
-//				fout.write(code.replaceAll("\\s+;", "\n").getBytes());
-//			}
-//			catch(final Exception e)
-//			{
-//				LOG.error("an error occurred during the test generation", e);
-//				throw new CapturerException(e);
-//			}
-//			finally
-//			{
-//				try 
-//				{
-//					if(fout != null)
-//					{
-//						fout.close();
-//					}
-//				} 
-//				catch (final IOException e) 
-//				{
-//					LOG.error("an error occurred while closing the output stream", e);
-//					throw new CapturerException(e);
-//				}
-//			}
-//		}
-//		
-//	}
-	
-	
-
 }

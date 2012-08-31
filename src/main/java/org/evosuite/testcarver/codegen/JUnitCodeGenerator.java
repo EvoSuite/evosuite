@@ -655,9 +655,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		final boolean haveSamePackage = type.getPackage().getName().equals(packageName); // TODO might be nicer...
 		
 		
-		
-		
-		
 		final Statement finalStmt;
 		
 		@SuppressWarnings("rawtypes")
@@ -816,7 +813,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			
 			final String varName = this.oidToVarMapping.get(oid);
 			
-
+			System.err.println("--recno-- " + logRecNo);
 			
 			final int     methodTypeModifiers      = this.getMethodModifiers(type, methodName, methodParamTypeClasses);
 			final boolean isPublic                 = java.lang.reflect.Modifier.isPublic(methodTypeModifiers);
@@ -945,6 +942,14 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					System.out.println("METHODARGS: " + Arrays.toString(methodArgs));
 					System.out.println("METHODNAME: " + methodName);
 					
+					// TODO: Warten was Florian und Gordon dazu sagen. Siehe Mail 04.08.2012
+					if(argType == null)
+					{
+						System.err.println("Call within constructor needs instance of enclosing object as parameter -> ignored");
+						methodBlock.statements().remove(methodBlock.statements().size() - 1);
+						return;
+					}
+					
 					if(methodParamType.isAssignableFrom(argType))
 					{
 						arguments.add(ast.newSimpleName(this.oidToVarMapping.get(arg)));
@@ -956,7 +961,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 						
 						if(methodParamType.getName().contains("."))
 						{
-							cast.setType(ast.newSimpleType(ast.newName(methodParamType.getName())));
+							cast.setType(this.createAstType(methodParamType.getName(), ast));//ast.newSimpleType(ast.newName(methodParamType.getName())));
 							
 						}
 						else

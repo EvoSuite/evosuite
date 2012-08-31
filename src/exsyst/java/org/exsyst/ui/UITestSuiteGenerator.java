@@ -96,6 +96,8 @@ public class UITestSuiteGenerator {
 	}
 
 	public static void main(String[] args) {
+		System.out.println(System.out);
+		
 		try {
 			System.setProperty("uispec4j.test.library", "junit");
 
@@ -380,16 +382,17 @@ public class UITestSuiteGenerator {
 		// variables needed in loop
 		for(UITestChromosome t : testsToBeCarved)
 		{
-			System.err.println("##########################################");
-			
+			System.out.println(">>> start c");
 			// start capture before genetic algorithm is applied so that all interactions can be captured
 			Capturer.startCapture();
 			
 			// execute test case
 			ReplayUITestHelper.run(t);
-		
+			System.out.println("AFTER RUN");
+			
 			// stop capture after best individual has been determined and obtain corresponding capture log
 			Capturer.stopCapture();
+			System.out.println(">>> end c");
 		}
 
 		final List<CaptureLog> logs = Capturer.getCaptureLogs();
@@ -403,8 +406,12 @@ public class UITestSuiteGenerator {
 	
 	private void carveTests(List<UITestChromosome> testsToBeCarved)
 	{
+		
+		System.out.println(">>>> start capture");
+		long s = System.currentTimeMillis();
 		final List<CaptureLog> logs   = this.executeAndCapture(testsToBeCarved);
 		final Logger           logger = LoggingUtils.getEvoLogger();
+		System.out.println(">>>> end capture " + (System.currentTimeMillis() - s) / 1000 );
 		
 		final HashSet<Class<?>>     allAccessedClasses = new HashSet<Class<?>>();
 		final ArrayList<String>     packages           = new ArrayList<String>();

@@ -236,7 +236,10 @@ public class BytecodeInstrumentation {
 		if (DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
 			logger.debug("Applying target transformation to class " + classNameWithDots);
 			// Print out bytecode if debug is enabled
-			cv = new AccessibleClassAdapter(cv, className);
+			if (Properties.MAKE_ACCESSIBLE) {
+				cv = new AccessibleClassAdapter(cv, className);
+			}
+			
 			for (ClassAdapterFactory factory : externalPostVisitors) {
 				cv = factory.getVisitor(cv, className);
 			}
