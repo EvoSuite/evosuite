@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
@@ -21,7 +21,7 @@ public final class Pattern_Matcher extends Function {
 	}
 
 	Pattern conc_pattern;
-	StringExpression symb_input;
+	StringValue symb_input;
 
 	@Override
 	public void INVOKEVIRTUAL(Object receiver) {

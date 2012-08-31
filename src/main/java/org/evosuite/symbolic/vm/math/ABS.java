@@ -1,12 +1,11 @@
 package org.evosuite.symbolic.vm.math;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.IntegerUnaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealUnaryExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
 
 public abstract class ABS {
 
@@ -19,7 +18,7 @@ public abstract class ABS {
 		}
 
 		@Override
-		protected RealExpression executeFunction(double res) {
+		protected RealValue executeFunction(double res) {
 			RealUnaryExpression sym_val = new RealUnaryExpression(
 					realExpression, Operator.ABS, res);
 			return sym_val;
@@ -34,7 +33,7 @@ public abstract class ABS {
 		}
 
 		@Override
-		protected RealExpression executeFunction(float res) {
+		protected RealValue executeFunction(float res) {
 			RealUnaryExpression sym_val = new RealUnaryExpression(
 					realExpression, Operator.ABS, (double) res);
 			return sym_val;
@@ -49,7 +48,7 @@ public abstract class ABS {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(int res) {
+		protected IntegerValue executeFunction(int res) {
 			IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
 					integerExpression, Operator.ABS, (long) res);
 			return sym_val;
@@ -64,7 +63,7 @@ public abstract class ABS {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(long res) {
+		protected IntegerValue executeFunction(long res) {
 			IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
 					integerExpression, Operator.ABS, res);
 			return sym_val;

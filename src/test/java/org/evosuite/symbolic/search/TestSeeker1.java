@@ -10,13 +10,13 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEBudgetType;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringBinaryExpression;
-import org.evosuite.symbolic.expr.StringToIntCast;
-import org.evosuite.symbolic.expr.StringUnaryExpression;
-import org.evosuite.symbolic.expr.StringVariable;
+import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
+import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.junit.Test;
 
 public class TestSeeker1 {
@@ -47,11 +47,11 @@ public class TestSeeker1 {
 				Operator.CHARAT, const4,
 				Integer.toString(INIT_STRING.charAt(4)));
 
-		StringToIntCast cast_length = new StringToIntCast(length,
+		StringToIntegerCast cast_length = new StringToIntegerCast(length,
 				(long) INIT_STRING.length());
-		StringToIntCast cast_charAt3 = new StringToIntCast(charAt3,
+		StringToIntegerCast cast_charAt3 = new StringToIntegerCast(charAt3,
 				(long) INIT_STRING.charAt(3));
-		StringToIntCast cast_charAt4 = new StringToIntCast(charAt4,
+		StringToIntegerCast cast_charAt4 = new StringToIntegerCast(charAt4,
 				(long) INIT_STRING.charAt(4));
 
 		IntegerConstant const5 = new IntegerConstant(INIT_STRING.length());

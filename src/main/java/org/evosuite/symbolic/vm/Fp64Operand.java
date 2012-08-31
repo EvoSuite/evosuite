@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 
 /**
  * 
@@ -8,13 +8,13 @@ import org.evosuite.symbolic.expr.RealExpression;
  *
  */
 public final class Fp64Operand implements DoubleWordOperand, RealOperand {
-	private final RealExpression realExpr;
+	private final RealValue realExpr;
 
-	public Fp64Operand(RealExpression realExpr) {
+	public Fp64Operand(RealValue realExpr) {
 		this.realExpr = realExpr;
 	}
 
-	public RealExpression getRealExpression() {
+	public RealValue getRealExpression() {
 		return realExpr;
 	}
 

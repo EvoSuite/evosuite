@@ -20,6 +20,7 @@
 package org.evosuite.symbolic.expr;
 
 import java.io.Serializable;
+import java.util.Set;
 
 public abstract interface Expression<T extends Object> extends Serializable {
 
@@ -76,4 +77,5 @@ public abstract interface Expression<T extends Object> extends Serializable {
 	 */
 	public boolean containsSymbolicVariable();
 
+	public Set<Variable<?>> getVariables();
 }

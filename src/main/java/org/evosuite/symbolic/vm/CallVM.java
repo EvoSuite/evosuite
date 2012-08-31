@@ -8,8 +8,8 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.evosuite.symbolic.expr.IntegerConstant;
-import org.evosuite.symbolic.expr.RealConstant;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.fp.RealConstant;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;

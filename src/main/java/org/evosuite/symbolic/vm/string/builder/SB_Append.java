@@ -1,14 +1,15 @@
 package org.evosuite.symbolic.vm.string.builder;
 
-
 import java.util.Iterator;
 
-import org.evosuite.symbolic.expr.IntToStringCast;
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealToStringCast;
-import org.evosuite.symbolic.expr.StringBuilderExpression;
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.str.IntegerToStringCast;
+import org.evosuite.symbolic.expr.str.RealToStringCast;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
@@ -21,7 +22,7 @@ public abstract class SB_Append extends StringBuilderFunction {
 
 	private static final String FUNCTION_NAME = "append";
 	protected static final String NULL_STRING = "null";
-	protected StringExpression strExprToAppend;
+	protected StringValue strExprToAppend;
 	protected StringBuilder conc_str_builder;
 	public String conc_str_builder_to_string_pre;
 
@@ -43,11 +44,11 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv32(it.next());
+			IntegerValue integerExpr = bv32(it.next());
 			char charValue = (char) ((Long) integerExpr.getConcreteValue())
 					.intValue();
 			String charToAdd = new String(new char[] { charValue });
-			strExprToAppend = new IntToStringCast(integerExpr, charToAdd);
+			strExprToAppend = new IntegerToStringCast(integerExpr, charToAdd);
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
@@ -115,13 +116,13 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv32(it.next());
+			IntegerValue integerExpr = bv32(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new IntToStringCast(integerExpr);
+			strExprToAppend = new IntegerToStringCast(integerExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
@@ -142,13 +143,13 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv64(it.next());
+			IntegerValue integerExpr = bv64(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new IntToStringCast(integerExpr);
+			strExprToAppend = new IntegerToStringCast(integerExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
@@ -169,13 +170,13 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv32(it.next());
+			IntegerValue integerExpr = bv32(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new IntToStringCast(integerExpr);
+			strExprToAppend = new IntegerToStringCast(integerExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
@@ -196,7 +197,7 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			RealExpression realExpr = fp32(it.next());
+			RealValue realExpr = fp32(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
@@ -223,7 +224,7 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			RealExpression realExpr = fp64(it.next());
+			RealValue realExpr = fp64(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
@@ -276,30 +277,55 @@ public abstract class SB_Append extends StringBuilderFunction {
 			conc_str_builder_to_string_pre = NULL_STRING;
 		}
 
-		StringExpression strExpr = this.env.heap.getField(
+		StringValue strExpr = this.env.heap.getField(
 				StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
-				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder, symb_receiver,
-				conc_str_builder_to_string_pre);
+				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+				symb_receiver, conc_str_builder_to_string_pre);
 
-		StringBuilderExpression stringBuilderExpr;
-		if (!(strExpr instanceof StringBuilderExpression)) {
-			stringBuilderExpr = new StringBuilderExpression(strExpr);
-		} else {
-			stringBuilderExpr = (StringBuilderExpression) strExpr;
+		// replace with null string
+		if (strExprToAppend == null) {
+			strExprToAppend = ExpressionFactory
+					.buildNewStringConstant(NULL_STRING);
 		}
 
 		// append string expression
-		stringBuilderExpr.append(strExprToAppend);
+		StringValue newStrExpr = append(strExpr, strExprToAppend);
 
 		// store to symbolic heap
 		env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
-				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder, symb_receiver,
-				stringBuilderExpr);
+				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+				symb_receiver, newStrExpr);
 
 		this.symb_receiver = null;
 		this.conc_str_builder = null;
 		this.strExprToAppend = null;
 		this.conc_str_builder_to_string_pre = null;
+	}
+
+	private static StringValue append(final StringValue expr, final StringValue _expr) {
+
+		if (_expr instanceof StringConstant) {
+			if (expr instanceof StringConstant) {
+				return new StringConstant(((String) expr.getConcreteValue())
+						+ ((String) _expr.getConcreteValue()));
+
+			} else if (expr instanceof StringBinaryExpression) {
+				StringBinaryExpression sBin = (StringBinaryExpression) expr;
+				if (sBin.getRightOperand() instanceof StringConstant) {
+					StringConstant strConst = new StringConstant(sBin
+							.getRightOperand().getConcreteValue()
+							+ ((String) _expr.getConcreteValue()));
+					return new StringBinaryExpression(sBin.getLeftOperand(),
+							Operator.APPEND, strConst, sBin.getConcreteValue()
+									+ ((String) _expr.getConcreteValue()));
+				}
+			}
+
+		}
+
+		return new StringBinaryExpression(expr, Operator.APPEND, _expr,
+				((String) expr.getConcreteValue())
+						+ ((String) _expr.getConcreteValue()));
 	}
 
 }

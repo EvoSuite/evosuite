@@ -23,15 +23,15 @@ import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.ExpressionHelper;
-import org.evosuite.symbolic.expr.IntegerConstant;
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.IntegerVariable;
-import org.evosuite.symbolic.expr.RealConstant;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealVariable;
-import org.evosuite.symbolic.expr.StringBinaryExpression;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringUnaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
+import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -108,11 +108,11 @@ public abstract class DistanceEstimator {
 		Expression<?> exprRight = c.getRightOperand();
 
 		boolean leftSide = exprLeft instanceof RealVariable
-		        || exprLeft instanceof RealConstant || exprLeft instanceof RealExpression;
+		        || exprLeft instanceof RealConstant || exprLeft instanceof RealValue;
 
 		boolean rightSide = exprRight instanceof RealVariable
 		        || exprRight instanceof RealConstant
-		        || exprRight instanceof RealExpression;
+		        || exprRight instanceof RealValue;
 
 		return leftSide && rightSide;
 	}
@@ -123,7 +123,7 @@ public abstract class DistanceEstimator {
 
 		boolean leftSide = exprLeft instanceof IntegerVariable
 		        || exprLeft instanceof IntegerConstant
-		        || exprLeft instanceof IntegerExpression
+		        || exprLeft instanceof IntegerValue
 		        //					||		exprLeft instanceof IntegerUnaryExpression
 		        //					||		exprLeft instanceof IntegerBinaryExpression
 		        || exprLeft instanceof StringUnaryExpression
@@ -131,7 +131,7 @@ public abstract class DistanceEstimator {
 
 		boolean rightSide = exprRight instanceof IntegerVariable
 		        || exprRight instanceof IntegerConstant
-		        || exprRight instanceof IntegerExpression
+		        || exprRight instanceof IntegerValue
 		        //					||		exprRight instanceof IntegerUnaryExpression
 		        //					||		exprRight instanceof IntegerBinaryExpression
 		        || exprRight instanceof StringUnaryExpression

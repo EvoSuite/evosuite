@@ -20,7 +20,12 @@
  */
 package org.evosuite.symbolic.expr.str;
 
-import org.evosuite.symbolic.expr.bv.AbstractExpression;
+import gnu.trove.set.hash.THashSet;
+
+import java.util.Set;
+
+import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.Variable;
 
 /**
  * <p>
@@ -73,6 +78,12 @@ public final class StringConstant extends AbstractExpression<String> implements
 	public String execute() {
 		return this.concreteValue;
 
+	}
+
+	@Override
+	public Set<Variable<?>> getVariables() {
+		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		return variables;
 	}
 
 }

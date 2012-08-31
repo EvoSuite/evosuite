@@ -19,6 +19,8 @@
  */
 package org.evosuite.symbolic.expr;
 
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,8 +38,8 @@ public abstract class ExpressionHelper {
 	 * @return a long.
 	 */
 	public static long getLongResult(Expression<?> expr) {
-		if (expr instanceof IntegerExpression) {
-			return (Long) ((IntegerExpression) expr).execute();
+		if (expr instanceof IntegerValue) {
+			return (Long) ((IntegerValue) expr).execute();
 		}
 
 		// charAt returns String but can be in an int constraint so handle:		

@@ -19,7 +19,12 @@
  */
 package org.evosuite.symbolic.expr.fp;
 
-import org.evosuite.symbolic.expr.bv.AbstractExpression;
+import gnu.trove.set.hash.THashSet;
+
+import java.util.Set;
+
+import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.Variable;
 
 public final class RealConstant extends AbstractExpression<Double> implements
 		RealValue {
@@ -63,4 +68,11 @@ public final class RealConstant extends AbstractExpression<Double> implements
 	public Double execute() {
 		return this.concreteValue;
 	}
+	
+	@Override
+	public Set<Variable<?>> getVariables() {
+		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		return variables;
+	}
+
 }

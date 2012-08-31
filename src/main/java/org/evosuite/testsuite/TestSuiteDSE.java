@@ -23,7 +23,6 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +31,10 @@ import java.util.Set;
 import org.evosuite.ga.DSEBudget;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
-import org.evosuite.symbolic.expr.BinaryExpression;
-import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.StringBuilderExpression;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringMultipleComparison;
-import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.search.Seeker;
 import org.evosuite.testcase.ExecutionResult;
@@ -63,7 +56,8 @@ import org.slf4j.LoggerFactory;
  */
 public class TestSuiteDSE {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestSuiteDSE.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(TestSuiteDSE.class);
 
 	/** Constant <code>nrConstraints=0</code> */
 	public static int nrConstraints = 0;
@@ -120,7 +114,7 @@ public class TestSuiteDSE {
 		TestSuiteChromosome newTestSuite = new TestSuiteChromosome();
 		for (TestChromosome test : individual.getTestChromosomes()) {
 
-			// First make sure we are up to date with the execution 
+			// First make sure we are up to date with the execution
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
 				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
@@ -128,7 +122,7 @@ public class TestSuiteDSE {
 
 			// We skip tests that have problems
 			if (test.getLastExecutionResult().hasTimeout()
-			        || test.getLastExecutionResult().hasTestException()) {
+					|| test.getLastExecutionResult().hasTestException()) {
 				logger.info("Skipping test with timeout or exception");
 				continue;
 			}
@@ -136,12 +130,11 @@ public class TestSuiteDSE {
 			TestCase newTest = test.getTestCase().clone();
 			// TODO: We could cut away the call that leads to an exception?
 			/*
-			if (!test.getLastExecutionResult().noThrownExceptions()) {
-				while (newTest.size() - 1 >= test.getLastExecutionResult().getFirstPositionOfThrownException()) {
-					newTest.remove(newTest.size() - 1);
-				}
-			}
-			*/
+			 * if (!test.getLastExecutionResult().noThrownExceptions()) { while
+			 * (newTest.size() - 1 >=
+			 * test.getLastExecutionResult().getFirstPositionOfThrownException
+			 * ()) { newTest.remove(newTest.size() - 1); } }
+			 */
 			TestCase expandedTest = expandTestCase(newTest);
 			newTestSuite.addTest(expandedTest);
 		}
@@ -165,26 +158,27 @@ public class TestSuiteDSE {
 				String index = getBranchIndex(branch);
 				if (!solvedConstraints.containsKey(index))
 					solvedConstraints.put(index,
-					                      new HashMap<Comparator, Set<TestBranchPair>>());
+							new HashMap<Comparator, Set<TestBranchPair>>());
 
 				Constraint<?> c = branch.getLocalConstraint();
-				if (!solvedConstraints.get(index).containsKey(c.getComparator()))
+				if (!solvedConstraints.get(index)
+						.containsKey(c.getComparator()))
 					solvedConstraints.get(index).put(c.getComparator(),
-					                                 new HashSet<TestBranchPair>());
-				solvedConstraints.get(index).get(c.getComparator()).add(new TestBranchPair(
-				                                                                test,
-				                                                                branch));
+							new HashSet<TestBranchPair>());
+				solvedConstraints.get(index).get(c.getComparator())
+						.add(new TestBranchPair(test, branch));
 			}
 		}
 
 		for (String index : solvedConstraints.keySet()) {
 			if (solvedConstraints.get(index).size() == 1) {
-				Set<TestBranchPair> branches = solvedConstraints.get(index).values().iterator().next();
+				Set<TestBranchPair> branches = solvedConstraints.get(index)
+						.values().iterator().next();
 				unsolvedBranchConditions.addAll(branches);
 			}
 		}
 		logger.info("Update set of unsolved branch conditions to "
-		        + unsolvedBranchConditions.size());
+				+ unsolvedBranchConditions.size());
 
 		Randomness.shuffle(unsolvedBranchConditions);
 	}
@@ -195,7 +189,8 @@ public class TestSuiteDSE {
 	 * @param test
 	 */
 	private void updatePathConstraints(TestChromosome test) {
-		List<BranchCondition> branches = ConcolicExecution.getSymbolicPath(test);
+		List<BranchCondition> branches = ConcolicExecution
+				.getSymbolicPath(test);
 		branchConditions.put(test, branches);
 	}
 
@@ -248,11 +243,12 @@ public class TestSuiteDSE {
 
 		while (hasNextBranchCondition() && !DSEBudget.isFinished()) {
 			logger.info("DSE time remaining: " + DSEBudget.getTimeRemaining());
-			logger.info("Branches remaining: " + unsolvedBranchConditions.size());
+			logger.info("Branches remaining: "
+					+ unsolvedBranchConditions.size());
 			for (TestBranchPair b : unsolvedBranchConditions) {
 				logger.info(b.branch.getFullName() + " : "
-				        + b.branch.getInstructionIndex() + ", "
-				        + b.branch.getReachingConstraints().size());
+						+ b.branch.getInstructionIndex() + ", "
+						+ b.branch.getReachingConstraints().size());
 			}
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
@@ -260,11 +256,11 @@ public class TestSuiteDSE {
 			logger.info(branch.getReachingConstraints().toString());
 
 			TestCase newTest = negateCondition(branch.getReachingConstraints(),
-			                                   branch.getLocalConstraint(),
-			                                   next.test.getTestCase());
+					branch.getLocalConstraint(), next.test.getTestCase());
 			if (newTest != null) {
 				logger.info("Found new test: " + newTest.toCode());
-				//TestChromosome newTestChromosome = expandedTests.addTest(newTest);
+				// TestChromosome newTestChromosome =
+				// expandedTests.addTest(newTest);
 				TestChromosome newTestChromosome = new TestChromosome();
 				newTestChromosome.setTestCase(newTest);
 				// expandedTests.addTest(newTestChromosome);
@@ -273,13 +269,17 @@ public class TestSuiteDSE {
 
 				if (fitness.getFitness(expandedTests) < originalFitness) {
 					logger.info("New test improves fitness to {}",
-					            expandedTests.getFitness());
-					expandedTests.addTest(newTestChromosome); // no need to clone so we can keep executionresult
+							expandedTests.getFitness());
+					expandedTests.addTest(newTestChromosome); // no need to
+																// clone so we
+																// can keep
+																// executionresult
 					updatePathConstraints(newTestChromosome);
 					calculateUncoveredBranches();
 					individual.addTest(newTest);
 					originalFitness = expandedTests.getFitness();
-					// TODO: Cancel on fitness 0 - would need to know if ZeroFitness is a stopping condition
+					// TODO: Cancel on fitness 0 - would need to know if
+					// ZeroFitness is a stopping condition
 				} else {
 					logger.info("New test does not improve fitness");
 					expandedTests.deleteTest(newTest);
@@ -307,13 +307,14 @@ public class TestSuiteDSE {
 	// @SuppressWarnings("rawtypes")
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private TestCase negateCondition(Set<Constraint<?>> reachingConstraints,
-	        Constraint<?> localConstraint, TestCase test) {
+			Constraint<?> localConstraint, TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(reachingConstraints);
 
 		Constraint<Long> targetConstraint = new IntegerConstraint(
-		        localConstraint.getLeftOperand(), localConstraint.getComparator().not(),
-		        localConstraint.getRightOperand());
+				localConstraint.getLeftOperand(), localConstraint
+						.getComparator().not(),
+				localConstraint.getRightOperand());
 		constraints.add(targetConstraint);
 		if (!targetConstraint.isSolveable()) {
 			logger.info("Found unsolvable constraint: " + targetConstraint);
@@ -330,9 +331,11 @@ public class TestSuiteDSE {
 		 * DistanceEstimator.getDistance(constraints)); }
 		 */
 		if (size > 0) {
-			logger.debug("Calculating cone of influence for " + size + " constraints");
+			logger.debug("Calculating cone of influence for " + size
+					+ " constraints");
 			constraints = reduce(constraints);
-			logger.info("Reduced constraints from " + size + " to " + constraints.size());
+			logger.info("Reduced constraints from " + size + " to "
+					+ constraints.size());
 			for (Constraint<?> c : constraints) {
 				logger.info(c.toString());
 			}
@@ -372,15 +375,16 @@ public class TestSuiteDSE {
 							p.setValue(value.byteValue() > 0);
 						else
 							logger.warn("New value is of an unsupported type: "
-							        + p.getValue().getClass() + val);
+									+ p.getValue().getClass() + val);
 					} else if (val instanceof String) {
 						String name = ((String) key).replace("__SYM", "");
 						PrimitiveStatement p = getStatement(newTest, name);
 						// logger.warn("New string value for " + name + " is " +
 						// val);
 						assert (p != null) : "Could not find variable " + name
-						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode() + ", seed: " + Randomness.getSeed();
+								+ " in test: " + newTest.toCode()
+								+ " / Orig test: " + test.toCode() + ", seed: "
+								+ Randomness.getSeed();
 						if (p.getValue().getClass().equals(Character.class))
 							p.setValue((char) Integer.parseInt(val.toString()));
 						else
@@ -392,17 +396,20 @@ public class TestSuiteDSE {
 						// logger.warn("New double value for " + name + " is " +
 						// value);
 						assert (p != null) : "Could not find variable " + name
-						        + " in test: " + newTest.toCode() + " / Orig test: "
-						        + test.toCode() + ", seed: " + Randomness.getSeed();
+								+ " in test: " + newTest.toCode()
+								+ " / Orig test: " + test.toCode() + ", seed: "
+								+ Randomness.getSeed();
 
 						if (p.getValue().getClass().equals(Double.class))
 							p.setValue(value);
 						else if (p.getValue().getClass().equals(Float.class))
 							p.setValue(value.floatValue());
 						else
-							logger.warn("New value is of an unsupported type: " + val);
+							logger.warn("New value is of an unsupported type: "
+									+ val);
 					} else {
-						logger.debug("New value is of an unsupported type: " + val);
+						logger.debug("New value is of an unsupported type: "
+								+ val);
 					}
 				} else {
 					logger.debug("New value is null");
@@ -509,39 +516,9 @@ public class TestSuiteDSE {
 	 * @param variables
 	 *            a {@link java.util.Set} object.
 	 */
-	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
-		if (expr instanceof Variable<?>) {
-			variables.add((Variable<?>) expr);
-		} else if (expr instanceof StringMultipleComparison) {
-			StringMultipleComparison smc = (StringMultipleComparison) expr;
-			getVariables(smc.getLeftOperand(), variables);
-			getVariables(smc.getRightOperand(), variables);
-			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
-			Iterator<Expression<?>> itr = ar_l_ex.iterator();
-			while (itr.hasNext()) {
-				Expression<?> element = itr.next();
-				getVariables(element, variables);
-			}
-		} else if (expr instanceof StringBuilderExpression) {
-			StringBuilderExpression sB = (StringBuilderExpression) expr;
-			getVariables(sB.getExpr(), variables);
-		} else if (expr instanceof StringComparison) {
-			StringComparison sc = (StringComparison) expr;
-			getVariables(sc.getLeftOperand(), variables);
-			getVariables(sc.getRightOperand(), variables);
-		} else if (expr instanceof BinaryExpression<?>) {
-			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
-			getVariables(bin.getLeftOperand(), variables);
-			getVariables(bin.getRightOperand(), variables);
-		} else if (expr instanceof UnaryExpression<?>) {
-			UnaryExpression<?> un = (UnaryExpression<?>) expr;
-			getVariables(un.getOperand(), variables);
-		} else if (expr instanceof Cast<?>) {
-			Cast<?> cst = (Cast<?>) expr;
-			getVariables(cst.getArgument(), variables);
-		} else if (expr instanceof Constraint<?>) {
-			// ignore
-		}
+	public static void getVariables(Expression<?> expr,
+			Set<Variable<?>> variables) {
+		variables.addAll(expr.getVariables());
 	}
 
 	private TestCase expandTestCase(TestCase test) {

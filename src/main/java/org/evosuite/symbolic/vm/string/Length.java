@@ -1,11 +1,11 @@
 package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringToIntCast;
-import org.evosuite.symbolic.expr.StringUnaryExpression;
+import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
+import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
 
 public final class Length extends StringFunction {
 
@@ -24,11 +24,9 @@ public final class Length extends StringFunction {
 	@Override
 	public void CALL_RESULT(int res) {
 		if (stringReceiverExpr.containsSymbolicVariable()) {
-			StringUnaryExpression strUnExpr = new StringUnaryExpression(
-					stringReceiverExpr, Operator.LENGTH, Integer.toString(res));
-			StringToIntCast castExpr = new StringToIntCast(strUnExpr,
-					(long) res);
-			replaceTopBv32(castExpr);
+			StringUnaryToIntegerExpression strUnExpr = new StringUnaryToIntegerExpression(
+					stringReceiverExpr, Operator.LENGTH, (long) res);
+			replaceTopBv32(strUnExpr);
 		} else {
 			// do nothing
 		}

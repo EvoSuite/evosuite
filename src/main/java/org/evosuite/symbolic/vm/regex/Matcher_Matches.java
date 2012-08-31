@@ -3,10 +3,9 @@ package org.evosuite.symbolic.vm.regex;
 import java.util.regex.Matcher;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringConstant;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
@@ -38,7 +37,7 @@ public final class Matcher_Matches extends Function {
 	public void CALL_RESULT(boolean res) {
 		String conc_regex = conc_matcher.pattern().pattern();
 
-		StringExpression symb_input = (StringExpression) env.heap.getField(
+		StringValue symb_input = (StringValue) env.heap.getField(
 				Types.JAVA_UTIL_REGEX_MATCHER, SymbolicHeap.$MATCHER_INPUT,
 				conc_matcher, symb_matcher);
 		if (symb_input != null && symb_input.containsSymbolicVariable()) {

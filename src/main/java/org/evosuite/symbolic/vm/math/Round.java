@@ -1,13 +1,11 @@
 package org.evosuite.symbolic.vm.math;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealToIntegerCast;
-import org.evosuite.symbolic.expr.RealUnaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.bv.RealUnaryToIntegerExpression;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-
-public abstract class Round  {
+public abstract class Round {
 
 	private static final String ROUND = "round";
 
@@ -18,11 +16,11 @@ public abstract class Round  {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(long res) {
+		protected IntegerValue executeFunction(long res) {
 			Operator op = Operator.ROUND;
-			RealUnaryExpression realUnaryExpression = new RealUnaryExpression(
-					realExpression, op, (double) res);
-			return new RealToIntegerCast(realUnaryExpression, res);
+			RealUnaryToIntegerExpression realUnaryExpression = new RealUnaryToIntegerExpression(
+					realExpression, op, res);
+			return realUnaryExpression;
 		}
 
 	}
@@ -34,11 +32,11 @@ public abstract class Round  {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(int res) {
+		protected IntegerValue executeFunction(int res) {
 			Operator op = Operator.ROUND;
-			RealUnaryExpression realUnaryExpression = new RealUnaryExpression(
-					realExpression, op, (double) res);
-			return new RealToIntegerCast(realUnaryExpression, (long) res);
+			RealUnaryToIntegerExpression realUnaryExpression = new RealUnaryToIntegerExpression(
+					realExpression, op, (long) res);
+			return realUnaryExpression;
 		}
 
 	}

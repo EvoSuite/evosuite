@@ -1,8 +1,8 @@
 package org.evosuite.symbolic.vm.math;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
@@ -17,7 +17,7 @@ public abstract class ULP {
 		}
 
 		@Override
-		protected RealExpression executeFunction(double res) {
+		protected RealValue executeFunction(double res) {
 			Operator op = Operator.ULP;
 			return new RealUnaryExpression(realExpression, op, res);
 		}
@@ -31,7 +31,7 @@ public abstract class ULP {
 		}
 
 		@Override
-		protected RealExpression executeFunction(float res) {
+		protected RealValue executeFunction(float res) {
 			Operator op = Operator.ULP;
 			return new RealUnaryExpression(realExpression, op, (double) res);
 		}

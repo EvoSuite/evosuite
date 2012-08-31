@@ -2,9 +2,9 @@ package org.evosuite.symbolic.vm;
 
 import java.util.Vector;
 
-import org.evosuite.symbolic.expr.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.IntegerExpression;
 
 import edu.uta.cse.dsc.AbstractVM;
 
@@ -90,10 +90,10 @@ public final class JumpVM extends AbstractVM {
 	 */
 	@Override
 	public void IFGT(String className, String methName, int branchIndex, int p) {
-		IntegerExpression rightBv = env.topFrame().operandStack.popBv32(); // symbolic
-																			// version
-																			// of
-																			// p
+		IntegerValue rightBv = env.topFrame().operandStack.popBv32(); // symbolic
+																		// version
+																		// of
+																		// p
 		env.topFrame().operandStack.pushBv32(ExpressionFactory.ICONST_0); // left
 																			// hand
 																			// side
@@ -120,8 +120,8 @@ public final class JumpVM extends AbstractVM {
 	@Override
 	public void IF_ICMPEQ(String className, String methName, int branchIndex,
 			int left, int right) {
-		IntegerExpression rightOp = env.topFrame().operandStack.popBv32();
-		IntegerExpression leftOp = env.topFrame().operandStack.popBv32();
+		IntegerValue rightOp = env.topFrame().operandStack.popBv32();
+		IntegerValue leftOp = env.topFrame().operandStack.popBv32();
 
 		IntegerConstraint cnstr;
 		if (left == right)
@@ -150,8 +150,8 @@ public final class JumpVM extends AbstractVM {
 	@Override
 	public void IF_ICMPLT(String className, String methName, int branchIndex,
 			int left, int right) {
-		IntegerExpression rightBv = env.topFrame().operandStack.popBv32();
-		IntegerExpression leftBv = env.topFrame().operandStack.popBv32();
+		IntegerValue rightBv = env.topFrame().operandStack.popBv32();
+		IntegerValue leftBv = env.topFrame().operandStack.popBv32();
 
 		IntegerConstraint cnstr;
 		if (left < right)
@@ -183,8 +183,8 @@ public final class JumpVM extends AbstractVM {
 			int left, int right) {
 		// FIXME: Replace following five instructions with SWAP
 
-		IntegerExpression rightBv = env.topFrame().operandStack.popBv32();
-		IntegerExpression leftBv = env.topFrame().operandStack.popBv32();
+		IntegerValue rightBv = env.topFrame().operandStack.popBv32();
+		IntegerValue leftBv = env.topFrame().operandStack.popBv32();
 
 		env.topFrame().operandStack.pushBv32(rightBv);
 		env.topFrame().operandStack.pushBv32(leftBv);
@@ -271,7 +271,7 @@ public final class JumpVM extends AbstractVM {
 	@Override
 	public void TABLESWITCH(String className, String methName, int branchIndex,
 			int goalConcrete, int min, int max) {
-		final IntegerExpression value = env.topFrame().operandStack.popBv32();
+		final IntegerValue value = env.topFrame().operandStack.popBv32();
 
 		Vector<IntegerConstraint> constraints = new Vector<IntegerConstraint>();
 
@@ -322,7 +322,7 @@ public final class JumpVM extends AbstractVM {
 		// TODO: target array remains constant. Do we really need to create and
 		// pass
 		// this array every time as a paremeter?
-		final IntegerExpression goal = env.topFrame().operandStack.popBv32();
+		final IntegerValue goal = env.topFrame().operandStack.popBv32();
 
 		Vector<IntegerConstraint> constraints = new Vector<IntegerConstraint>();
 

@@ -20,12 +20,17 @@
  */
 package org.evosuite.symbolic.expr.str;
 
+import gnu.trove.set.hash.THashSet;
+
+import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.expr.AbstractExpression;
+import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.AbstractExpression;
-import org.evosuite.symbolic.expr.bv.BinaryExpression;
+import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -148,4 +153,13 @@ public final class StringBinaryExpression extends AbstractExpression<String>
 		}
 
 	}
+	
+	@Override
+	public Set<Variable<?>> getVariables() {
+		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		variables.addAll(this.left.getVariables());
+		variables.addAll(this.right.getVariables());
+		return variables;
+	}
+
 }
