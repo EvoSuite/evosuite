@@ -42,19 +42,6 @@ public final class IntegerToStringCast extends AbstractExpression<String>
 
 	private final Expression<Long> expr;
 
-	/**
-	 * <p>
-	 * Constructor for IntToStringCast.
-	 * </p>
-	 * 
-	 * @param expr
-	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
-	 */
-	@Deprecated
-	public IntegerToStringCast(Expression<Long> expr) {
-		this(expr, Long.toString((Long) expr.getConcreteValue()));
-	}
-
 	public IntegerToStringCast(Expression<Long> expr, String concV) {
 		super(concV, 1 + expr.getSize(), expr.containsSymbolicVariable());
 		this.expr = expr;
