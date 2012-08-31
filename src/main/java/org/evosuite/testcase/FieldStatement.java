@@ -104,21 +104,6 @@ public class FieldStatement extends AbstractStatement {
 		this.source = source;
 	}
 
-	private Object readResolve() {
-		try {
-			Class<?> clazz = Class.forName(className);
-			this.field = clazz.getField(fieldName);
-		} catch (ClassNotFoundException e) {
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		return this;
-	}
-
 	/**
 	 * <p>
 	 * Getter for the field <code>source</code>.
