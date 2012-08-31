@@ -213,8 +213,8 @@ public class LoggingUtils {
 		PrintStream outStream = new PrintStream(byteStream);
 		latestOut = System.out;
 		latestErr = System.err;
-		System.setOut(outStream);
-		System.setErr(outStream);
+		//System.setOut(outStream);
+		//System.setErr(outStream);
 
 		alreadyMuted = true;
 	}
@@ -226,8 +226,8 @@ public class LoggingUtils {
 		if (!alreadyMuted) {
 			return;
 		}
-		System.setOut(latestOut);
-		System.setErr(latestErr);
+		//System.setOut(latestOut);
+		//System.setErr(latestErr);
 		alreadyMuted = false;
 	}
 
@@ -235,8 +235,8 @@ public class LoggingUtils {
 	 * Allow again printing to System.out and System.err
 	 */
 	public static void restoreDefaultOutAndErrStream() {
-		System.setOut(DEFAULT_OUT);
-		System.setErr(DEFAULT_ERR);
+		//System.setOut(DEFAULT_OUT);
+		//System.setErr(DEFAULT_ERR);
 	}
 
 	/**

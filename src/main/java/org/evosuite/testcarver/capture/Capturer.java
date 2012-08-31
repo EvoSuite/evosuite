@@ -27,8 +27,6 @@ public final class Capturer
 	private static boolean                     isShutdownHookAdded = false;
 	private static final ArrayList<CaptureLog> logs                = new ArrayList<CaptureLog>();
 	
-	private static ExecutorService executor;
-	
 	public static final String DEFAULT_SAVE_LOC = "captured.log";
 	
 	
@@ -149,7 +147,6 @@ public final class Capturer
 			throw new IllegalStateException("Capture has already been started");
 		}
 		
-		executor         = Executors.newSingleThreadExecutor();
 		currentLog       = new CaptureLog();
 		isCaptureStarted = true;
 		
@@ -199,7 +196,6 @@ public final class Capturer
 			isShutdownHookAdded = true;
 		}
 
-		executor         = Executors.newSingleThreadExecutor();
 		currentLog       = new CaptureLog();
 		isCaptureStarted = true;
 		
@@ -225,17 +221,6 @@ public final class Capturer
 		if(isCaptureStarted)
 		{
 			isCaptureStarted = false;
-			
-			executor.shutdown();
-			try 
-			{
-				executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
-			} 
-			catch (final InterruptedException e) 
-			{
-				e.printStackTrace();
-			}
-			
 			
 			logs.add(currentLog);
 			
@@ -271,11 +256,11 @@ public final class Capturer
 			{
 				synchronized (currentLog)
 				{
-					executor.execute(new Runnable() 
-					{
-						@Override
-						public void run() 
-						{
+//					executor.execute(new Runnable() 
+//					{
+//						@Override
+//						public void run() 
+//						{
 						    System.out.println("CAPTURE -------> " + System.currentTimeMillis() );
 
 						    
@@ -297,8 +282,8 @@ public final class Capturer
 							setCapturing(true);
 
 						    System.out.println("END CAPTURE -------> " + System.currentTimeMillis() );
-						}
-					});
+//						}
+//					});
 				}
 			}
 	}
@@ -316,10 +301,10 @@ public final class Capturer
 			if(isCapturing())
 			{
 				synchronized (currentLog) {
-					executor.execute(new Runnable() {
-						@Override
-						public void run() 
-						{
+//					executor.execute(new Runnable() {
+//						@Override
+//						public void run() 
+//						{
 						   System.out.println("ENABLE -------> " + System.currentTimeMillis() );
 
 						   setCapturing(false);
@@ -334,8 +319,8 @@ public final class Capturer
 
 						   
 						   System.out.println("END ENABLE -------> " + System.currentTimeMillis() );
-						}
-					});
+//						}
+//					});
 				}
 			}
 	}
