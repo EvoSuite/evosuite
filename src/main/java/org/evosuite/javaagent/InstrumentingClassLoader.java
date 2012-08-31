@@ -102,6 +102,9 @@ public class InstrumentingClassLoader extends ClassLoader {
 		        "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
 		        "testing.generation.evosuite",
 		        "com.yourkit", "daikon.",
+		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "de.unisb.cs.st.testcarver",
+		        "de.unisb.cs.st.evosuite", "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
+		        "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.",
 		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
 		        "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
 		        "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc",

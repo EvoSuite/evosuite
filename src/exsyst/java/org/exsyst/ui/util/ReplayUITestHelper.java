@@ -20,12 +20,22 @@ package org.exsyst.ui.util;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.swing.UIManager;
 
+import org.evosuite.Properties;
 import org.evosuite.testcarver.capture.Capturer;
+import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.InterfaceTestRunnable;
+import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.TimeoutHandler;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.exsyst.ui.genetics.ChromosomeUIController;
+import org.exsyst.ui.genetics.ReplayChromosomeUIController;
 import org.exsyst.ui.genetics.UITestChromosome;
 import org.uispec4j.UISpec4J;
 
@@ -42,30 +52,49 @@ public final class ReplayUITestHelper {
 	 * @param args
 	 */
 	public static void run(UITestChromosome test) {
-		System.setProperty("uispec4j.test.library", "junit");
+		
+		
+		
+		final TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
+		final ChromosomeUIController callable = new ChromosomeUIController(test);
+		final ExecutorService executor = Executors.newSingleThreadExecutor(TestCaseExecutor.getInstance());
 
-		try {
+		try 
+		{
+			System.setProperty("uispec4j.test.library", "junit");
+			
 			UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-		} catch (Exception e) {
-			e.printStackTrace();
+			
+			// Really, really important, otherwise event loops get killed
+			// randomly!
+			AWTAutoShutdown.getInstance().notifyThreadBusy(Thread.currentThread());
+			// Also important to do this very early (here), otherwise we might
+			// end up with multiple event loops from loading classes
+			UISpec4J.init();
+	
+//			Properties.TIMEOUT
+			handler.execute(callable, executor, Integer.MAX_VALUE, Properties.CPU_TIMEOUT);
+		
 		}
-
-		// Really, really important, otherwise event loops get killed
-		// randomly!
-		AWTAutoShutdown.getInstance().notifyThreadBusy(Thread.currentThread());
-		// Also important to do this very early (here), otherwise we might
-		// end up with multiple event loops from loading classes
-		UISpec4J.init();
-
-		try {
-			new ChromosomeUIController(test).call();
-		} catch (Exception e) {
-			System.out.println("Got exception in initialization random walk:");
+		catch(final Exception e)
+		{
 			e.printStackTrace();
+			executor.shutdownNow();
+			try {
+				System.out.println("waiting for termination");
+				executor.awaitTermination(2000, TimeUnit.MILLISECONDS);
+				System.out.println("terminated");
+			} catch (InterruptedException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+
 		}
-
-
-		System.out.println("Finished!");
-		AWTAutoShutdown.getInstance().notifyThreadFree(Thread.currentThread());
+		finally
+		{
+			System.out.println("Finished!");
+			AWTAutoShutdown.getInstance().notifyThreadFree(Thread.currentThread());
+//			executor.shutdownNow();
+		}
 	}
 }

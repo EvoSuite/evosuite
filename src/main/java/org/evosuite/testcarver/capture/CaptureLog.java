@@ -4,6 +4,8 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.Arrays;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.xerial.snappy.SnappyOutputStream;
 
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.ConversionException;
@@ -77,8 +80,20 @@ public final class CaptureLog implements Cloneable
 	
 	private static final Logger LOG = LoggerFactory.getLogger(CaptureLog.class);
 	
+//	private  final ByteArrayOutputStream bout;
+//	private final SnappyOutputStream sout;
+	
 	public CaptureLog()
 	{	
+//		bout = new ByteArrayOutputStream(1024 * 1024);
+//		try {
+//			sout = new SnappyOutputStream(bout);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//			throw new RuntimeException(e);
+//		}
+//		
 		this.objectIds      = new TIntArrayList();
 		this.methodNames    = new ArrayList<String>();
 		this.params         = new ArrayList<Object[]>();
@@ -341,7 +356,7 @@ public final class CaptureLog implements Cloneable
 			}
 			else
 			{
-				if(! Modifier.isStatic(receiverClass.getModifiers()))
+				if( ! receiverClass.isAnonymousClass() && ! Modifier.isStatic(receiverClass.getModifiers()))
 				{
 			        try 
 			        {
@@ -352,7 +367,7 @@ public final class CaptureLog implements Cloneable
 			             * see http://stackoverflow.com/questions/763543/in-java-how-do-i-access-the-outer-class-when-im-not-in-the-inner-class
 			             * for further details
 			             */
-			        	final Field  this$0        = receiverClass.getDeclaredField("this$0");
+			        	final Field  this$0  = receiverClass.getDeclaredField("this$0");
 			        	this$0.setAccessible(true);
 			            final Object outerInstance = this$0.get(receiver);
 
@@ -365,6 +380,7 @@ public final class CaptureLog implements Cloneable
 			        catch (final Exception e) 
 			        {
 			        	System.err.println("ARGH!!");
+			        	System.out.println("FIELDS: " + Arrays.toString(receiverClass.getDeclaredFields()));
 			        	e.printStackTrace();
 			            LOG.warn("An error occurred while obtaining the enclosing object of an inner non-static class instance", e);
 			        } 
@@ -440,6 +456,14 @@ public final class CaptureLog implements Cloneable
 				// So if there is no foregoing entry in the oid info table, the param is a new and
 				// not monitored instance. That's why this param has to be serialized.
 				paramOID = System.identityHashCode(param);
+				
+				if(paramOID == oid)
+				{
+					System.err.println("PARAM is 'this' reference -> ignore");
+					// TODO remove meta inf entries
+					return;
+				}
+				
 				if(this.updateInfoTable(paramOID, param, false))
 				{
 					this.objectIds.add(paramOID);
@@ -460,9 +484,20 @@ public final class CaptureLog implements Cloneable
 
 						try
 						{
+							
+//							this.xstream.toXML(param, sout);
+//							this.sout.flush();
+//							
+//							this.params.add(new Object[]{ this.bout.toByteArray() });
+//							
+//							this.bout.reset();
+							
 							this.params.add(new Object[]{ this.xstream.toXML(param) });
+							
+							
+							
 						}
-						catch(final ConversionException e)
+						catch(final Exception e)
 						{
 							LOG.warn("an error occurred while serializing param '{}' -> adding null as param instead", param, e);
 							
