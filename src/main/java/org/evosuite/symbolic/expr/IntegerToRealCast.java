@@ -55,7 +55,7 @@ public class IntegerToRealCast extends RealExpression implements Cast<Long> {
 
 	/** {@inheritDoc} */
 	@Override
-	public Expression<Long> getConcreteObject() {
+	public Expression<Long> getArgument() {
 		return expr;
 	}
 

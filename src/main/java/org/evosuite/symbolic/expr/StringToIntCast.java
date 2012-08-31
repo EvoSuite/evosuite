@@ -64,7 +64,7 @@ public class StringToIntCast extends IntegerExpression implements Cast<String> {
 
 	/** {@inheritDoc} */
 	@Override
-	public Expression<String> getConcreteObject() {
+	public Expression<String> getArgument() {
 		return expr;
 	}
 

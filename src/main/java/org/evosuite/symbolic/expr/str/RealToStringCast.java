@@ -17,60 +17,58 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.symbolic.expr;
+package org.evosuite.symbolic.expr.str;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.expr.Cast;
+import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.bv.AbstractExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class IntToStringCast extends StringExpression implements Cast<Long> {
+public final class RealToStringCast extends AbstractExpression<String> implements
+		StringValue, Cast<Double> {
 
-	private static final long serialVersionUID = 2414222998301630838L;
+	private static final long serialVersionUID = -5322228289539145088L;
 
-	protected static Logger log = LoggerFactory.getLogger(IntToStringCast.class);
+	protected static Logger log = LoggerFactory
+			.getLogger(RealToStringCast.class);
 
-	protected final Expression<Long> intVar;
+	protected final Expression<Double> expr;
 
 	/**
 	 * <p>
-	 * Constructor for IntToStringCast.
+	 * Constructor for RealToStringCast.
 	 * </p>
 	 * 
-	 * @param expr
+	 * @param _expr
 	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	@Deprecated
-	public IntToStringCast(Expression<Long> expr) {
-		this(expr, Long.toString((Long) expr.getConcreteValue()));
+	public RealToStringCast(Expression<Double> _expr) {
+		this(_expr, Double.toString(_expr.getConcreteValue()));
 	}
 
-	private final String concreteValue;
+	public RealToStringCast(Expression<Double> _expr, String concVal) {
+		super(concVal, 1 + _expr.getSize(), _expr.containsSymbolicVariable());
+		this.expr = _expr;
 
-	public IntToStringCast(Expression<Long> expr, String concV) {
-		this.intVar = expr;
-		this.containsSymbolicVariable = this.intVar.containsSymbolicVariable();
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
 			throw new ConstraintTooLongException();
-		this.concreteValue = concV;
+
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		return Long.toString((Long) intVar.execute());
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public String getConcreteValue() {
-		return concreteValue;
+		return Double.toString((Double) expr.execute());
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return intVar.toString();
+		return "(String)" + expr.toString();
 	}
 
 	/** {@inheritDoc} */
@@ -79,28 +77,22 @@ public class IntToStringCast extends StringExpression implements Cast<Long> {
 		if (obj == this) {
 			return true;
 		}
-		if (obj instanceof IntToStringCast) {
-			IntToStringCast other = (IntToStringCast) obj;
-			return this.intVar.equals(other.intVar);
+		if (obj instanceof RealToStringCast) {
+			RealToStringCast other = (RealToStringCast) obj;
+			return this.expr.equals(other.expr);
 		}
 
 		return false;
 	}
 
-	protected int size = 0;
-
-	/** {@inheritDoc} */
 	@Override
-	public int getSize() {
-		if (size == 0) {
-			size = 1 + intVar.getSize();
-		}
-		return size;
+	public int hashCode() {
+		return this.expr.hashCode();
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Expression<Long> getArgument() {
-		return intVar;
+	public Expression<Double> getArgument() {
+		return expr;
 	}
 }
