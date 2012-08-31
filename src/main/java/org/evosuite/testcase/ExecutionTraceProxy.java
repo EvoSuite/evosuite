@@ -171,6 +171,22 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	}
 
 	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredDefinitions()
+	 */
+	@Override
+	public Set<Integer> getCoveredDefinitions() {
+		return trace.getCoveredDefinitions();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getDefinitionExecutionCount()
+	 */
+	@Override
+	public Map<Integer, Integer> getDefinitionExecutionCount() {
+		return trace.getDefinitionExecutionCount();
+	}
+
+	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionTrace#getDefinitionData()
 	 */
 	/** {@inheritDoc} */

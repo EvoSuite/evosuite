@@ -48,13 +48,13 @@ public final class StringMultipleToIntegerExpression extends
 
 	private static final long serialVersionUID = 7172041118401792672L;
 
-	private ArrayList<Expression<?>> other_v;
+	private final ArrayList<Expression<?>> other_v;
 
-	private Operator op;
+	private final Operator op;
 
-	private Expression<String> left;
+	private final Expression<String> left;
 
-	private Expression<?> right;
+	private final Expression<?> right;
 
 	protected static Logger log = LoggerFactory
 			.getLogger(StringMultipleToIntegerExpression.class);

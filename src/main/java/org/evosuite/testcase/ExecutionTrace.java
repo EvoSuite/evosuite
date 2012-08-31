@@ -73,6 +73,13 @@ public interface ExecutionTrace {
 	public Set<Integer> getCoveredPredicates();
 
 	/**
+	 * Retrieve set of definitions that were executed
+	 * 
+	 * @return a {@link java.util.Set} object.
+	 */
+	public Set<Integer> getCoveredDefinitions();
+
+	/**
 	 * Retrieve execution counts for branches
 	 * 
 	 * @return a {@link java.util.Map} object.
@@ -85,6 +92,13 @@ public interface ExecutionTrace {
 	 * @return a {@link java.util.Map} object.
 	 */
 	public Map<String, Integer> getMethodExecutionCount();
+
+	/**
+	 * Retrieve execution counts for definitions
+	 * 
+	 * @return a {@link java.util.Map} object.
+	 */
+	public Map<Integer, Integer> getDefinitionExecutionCount();
 
 	/**
 	 * Determine if a branch has a true distance stored
@@ -474,6 +488,7 @@ public interface ExecutionTrace {
 	 * 
 	 * @return
 	 */
+	@Deprecated
 	public Set<Integer> getPassedDefIDs();
 
 }
