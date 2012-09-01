@@ -45,6 +45,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
+import org.objectweb.asm.tree.InnerClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
@@ -289,6 +290,7 @@ public class TestClusterGenerator {
 	 * 
 	 * @param targetClass
 	 */
+	@SuppressWarnings("unchecked")
 	private static void initializeTargetMethods() throws RuntimeException,
 	        ClassNotFoundException {
 		logger.info("Analyzing target class");
@@ -301,7 +303,28 @@ public class TestClusterGenerator {
 		}
 		targetClasses.add(targetClass);
 		for (Class<?> c : targetClass.getDeclaredClasses()) {
+			logger.info("Adding declared class " + c);
 			targetClasses.add(c);
+		}
+
+		// To make sure we also have anonymous inner classes double check inner classes using ASM
+		ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);
+		List<InnerClassNode> innerClasses = targetClassNode.innerClasses;
+		for (InnerClassNode icn : innerClasses) {
+			try {
+				logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name
+				        + "," + icn.outerName);
+				String innerClassName = icn.name.replace('/', '.');
+				Class<?> innerClass = TestCluster.classLoader.loadClass(innerClassName);
+				if (!targetClasses.contains(innerClass)) {
+					logger.info("Adding inner class " + innerClassName);
+					targetClasses.add(innerClass);
+				}
+
+			} catch (Throwable t) {
+				logger.info("Error loading inner class: " + icn.innerName + ", "
+				        + icn.name + "," + icn.outerName + ": " + t);
+			}
 		}
 
 		for (Class<?> clazz : targetClasses) {
