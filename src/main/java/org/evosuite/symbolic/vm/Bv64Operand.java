@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 
 /**
  * 
@@ -8,14 +8,14 @@ import org.evosuite.symbolic.expr.IntegerExpression;
  *
  */
 public final class Bv64Operand implements DoubleWordOperand, IntegerOperand {
-	private final IntegerExpression integerExpr;
+	private final IntegerValue integerExpr;
 
-	public Bv64Operand(IntegerExpression integerExpr) {
+	public Bv64Operand(IntegerValue integerExpr) {
 		this.integerExpr = integerExpr;
 	}
 
 	@Override
-	public IntegerExpression getIntegerExpression() {
+	public IntegerValue getIntegerExpression() {
 		return integerExpr;
 	}
 	

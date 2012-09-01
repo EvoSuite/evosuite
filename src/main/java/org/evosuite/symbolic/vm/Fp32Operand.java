@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 
 /**
  * 
@@ -9,14 +9,14 @@ import org.evosuite.symbolic.expr.RealExpression;
  */
 public final class Fp32Operand implements SingleWordOperand, RealOperand {
 	
-	private final RealExpression realExpr;
+	private final RealValue realExpr;
 	
-	public Fp32Operand(RealExpression realExpr) {
+	public Fp32Operand(RealValue realExpr) {
 		this.realExpr=realExpr;
 	}
 
 	@Override
-	public RealExpression getRealExpression() {
+	public RealValue getRealExpression() {
 		return realExpr;
 	}
 	

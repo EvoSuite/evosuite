@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -29,7 +29,7 @@ public final class Z_BooleanValue extends Function {
 
 	@Override
 	public void CALL_RESULT(boolean conc_boolean_value) {
-		IntegerExpression symb_boolean_value = env.heap.getField(
+		IntegerValue symb_boolean_value = env.heap.getField(
 				Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
 				conc_boolean, symb_boolean, conc_boolean_value ? 1 : 0);
 

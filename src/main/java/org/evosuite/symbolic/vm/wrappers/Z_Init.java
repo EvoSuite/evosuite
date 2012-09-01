@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -12,7 +12,7 @@ public final class Z_Init extends Function {
 		super(env, Types.JAVA_LANG_BOOLEAN, Types.INIT, Types.Z_TO_VOID);
 	}
 
-	private IntegerExpression bv32;
+	private IntegerValue bv32;
 
 	@Override
 	public void INVOKESPECIAL() {

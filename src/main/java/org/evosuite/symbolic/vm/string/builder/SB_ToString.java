@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.string.builder;
 
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
@@ -31,14 +31,11 @@ public final class SB_ToString extends StringBuilderFunction {
 	@Override
 	public void CALL_RESULT(Object res) {
 
-		// get from symbolic heap (it could be null if no symbolic expression
-		// was saved)
-		this.stringBuilderExpr = this.getStringBuilderExpression(
-				conc_str_builder, this.symb_receiver);
-
 		if (res != null) {
-			StringExpression symb_value = (StringExpression) this.stringBuilderExpr
-					.getExpr();
+			StringValue symb_value = env.heap.getField(
+					JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder.toString());
 
 			NonNullReference symb_receiver = (NonNullReference) env.topFrame().operandStack
 					.peekRef();

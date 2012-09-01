@@ -1,14 +1,11 @@
 package org.evosuite.symbolic.vm.string.builder;
 
-
 import java.util.Iterator;
 
-import org.evosuite.symbolic.expr.IntToStringCast;
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealToStringCast;
-import org.evosuite.symbolic.expr.StringBuilderExpression;
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
@@ -21,9 +18,9 @@ public abstract class SB_Append extends StringBuilderFunction {
 
 	private static final String FUNCTION_NAME = "append";
 	protected static final String NULL_STRING = "null";
-	protected StringExpression strExprToAppend;
+	protected Expression<?> rightExpr;
 	protected StringBuilder conc_str_builder;
-	public String conc_str_builder_to_string_pre;
+	protected String conc_str_builder_to_string_pre;
 
 	public SB_Append(SymbolicEnvironment env, String desc) {
 		super(env, FUNCTION_NAME, desc);
@@ -43,11 +40,7 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv32(it.next());
-			char charValue = (char) ((Long) integerExpr.getConcreteValue())
-					.intValue();
-			String charToAdd = new String(new char[] { charValue });
-			strExprToAppend = new IntToStringCast(integerExpr, charToAdd);
+			rightExpr = bv32(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
@@ -57,6 +50,29 @@ public abstract class SB_Append extends StringBuilderFunction {
 
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
+		}
+
+		@Override
+		public void CALL_RESULT(Object res) {
+
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_CHAR, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
 
 	}
@@ -87,17 +103,41 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 			Reference refStrToAppend = ref(it.next());
 			if (isNullRef(refStrToAppend)) {
-				strExprToAppend = ExpressionFactory
+				rightExpr = ExpressionFactory
 						.buildNewStringConstant(NULL_STRING);
 			} else {
 				NonNullReference symb_string = (NonNullReference) refStrToAppend;
 				String string = (String) value;
-				strExprToAppend = env.heap
+				rightExpr = env.heap
 						.getField(Types.JAVA_LANG_STRING,
 								SymbolicHeap.$STRING_VALUE, string,
 								symb_string, string);
 
 			}
+		}
+		
+		
+		@Override
+		public void CALL_RESULT(Object res) {
+
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_STRING, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
 	}
 
@@ -115,16 +155,38 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv32(it.next());
+			rightExpr = bv32(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new IntToStringCast(integerExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
+		}
+
+		@Override
+		public void CALL_RESULT(Object res) {
+
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_INTEGER, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
 	}
 
@@ -142,16 +204,38 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv64(it.next());
+			rightExpr = bv64(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new IntToStringCast(integerExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
+		}
+
+		@Override
+		public void CALL_RESULT(Object res) {
+
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_INTEGER, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
 	}
 
@@ -169,16 +253,38 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			IntegerExpression integerExpr = bv32(it.next());
+			rightExpr = bv32(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new IntToStringCast(integerExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
+		}
+
+		@Override
+		public void CALL_RESULT(Object res) {
+
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_BOOLEAN, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
 	}
 
@@ -196,16 +302,38 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			RealExpression realExpr = fp32(it.next());
+			rightExpr = fp32(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new RealToStringCast(realExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
+		}
+
+		@Override
+		public void CALL_RESULT(Object res) {
+
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_REAL, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
 	}
 
@@ -223,16 +351,38 @@ public abstract class SB_Append extends StringBuilderFunction {
 			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
 
 			// get argument from stack
-			RealExpression realExpr = fp64(it.next());
+			rightExpr = fp64(it.next());
 
 			// get StringBuilder reference from stack.
 			symb_receiver = (NonNullReference) ref(it.next());
 
 			// create parameters for execution
-			strExprToAppend = new RealToStringCast(realExpr);
 			conc_str_builder = conc_receiver;
 			conc_str_builder_to_string_pre = conc_receiver.toString();
 
+		}
+
+		@Override
+		public void CALL_RESULT(Object res) {
+
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_REAL, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
 	}
 
@@ -263,43 +413,34 @@ public abstract class SB_Append extends StringBuilderFunction {
 				/* TODO: What if value instance of StringBuilder */
 				throw new UnsupportedOperationException("Implement Me!");
 			} else {
-				strExprToAppend = ExpressionFactory
-						.buildNewStringConstant(String.valueOf(value));
+				rightExpr = ExpressionFactory.buildNewStringConstant(String
+						.valueOf(value));
 			}
 		}
-	}
+		
+		
+		@Override
+		public void CALL_RESULT(Object res) {
 
-	@Override
-	public void CALL_RESULT(Object res) {
-		// get from symbolic heap (or create if null)
-		if (conc_str_builder_to_string_pre == null) {
-			conc_str_builder_to_string_pre = NULL_STRING;
+			StringValue leftExpr = this.env.heap.getField(
+					StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, conc_str_builder_to_string_pre);
+
+			// append string expression
+			StringValue newStrExpr = new StringBinaryExpression(leftExpr,
+					Operator.APPEND_STRING, rightExpr, res.toString());
+
+			// store to symbolic heap
+			env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
+					SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder,
+					symb_receiver, newStrExpr);
+
+			this.symb_receiver = null;
+			this.conc_str_builder = null;
+			this.rightExpr = null;
+			this.conc_str_builder_to_string_pre = null;
 		}
-
-		StringExpression strExpr = this.env.heap.getField(
-				StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
-				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder, symb_receiver,
-				conc_str_builder_to_string_pre);
-
-		StringBuilderExpression stringBuilderExpr;
-		if (!(strExpr instanceof StringBuilderExpression)) {
-			stringBuilderExpr = new StringBuilderExpression(strExpr);
-		} else {
-			stringBuilderExpr = (StringBuilderExpression) strExpr;
-		}
-
-		// append string expression
-		stringBuilderExpr.append(strExprToAppend);
-
-		// store to symbolic heap
-		env.heap.putField(StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
-				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_str_builder, symb_receiver,
-				stringBuilderExpr);
-
-		this.symb_receiver = null;
-		this.conc_str_builder = null;
-		this.strExprToAppend = null;
-		this.conc_str_builder_to_string_pre = null;
 	}
 
 }

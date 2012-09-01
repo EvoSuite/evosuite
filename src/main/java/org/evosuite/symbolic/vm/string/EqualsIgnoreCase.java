@@ -3,16 +3,15 @@ package org.evosuite.symbolic.vm.string;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public final class EqualsIgnoreCase extends StringFunction {
 
 	private static final String EQUALS_IGNORE_CASE = "equalsIgnoreCase";
-	private StringExpression strExpr;
+	private StringValue strExpr;
 
 	public EqualsIgnoreCase(SymbolicEnvironment env) {
 		super(env, EQUALS_IGNORE_CASE, Types.STR_TO_BOOL_DESCRIPTOR);

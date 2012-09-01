@@ -42,8 +42,9 @@ public class ReferenceLocalSearch extends LocalSearch {
 		if (backup == null)
 			return;
 
-		test.lastExecutionResult = backup.lastExecutionResult.clone();
+		// test.lastExecutionResult = backup.lastExecutionResult.clone();
 		test.test = backup.test.clone();
+		test.copyCachedResults(backup);
 		test.setFitness(backup.getFitness());
 		test.setChanged(backup.isChanged());
 

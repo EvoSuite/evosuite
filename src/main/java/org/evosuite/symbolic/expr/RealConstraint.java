@@ -22,7 +22,7 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
-public class RealConstraint extends Constraint<Double> {
+public final class RealConstraint extends Constraint<Double> {
 
 	private static final long serialVersionUID = 6021027178547577289L;
 

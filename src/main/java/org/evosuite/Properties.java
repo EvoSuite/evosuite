@@ -303,6 +303,15 @@ public class Properties {
 	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
 	public static int LOCAL_SEARCH_PROBES = 10;
 
+	@Parameter(key = "local_search_primitives", group = "Search Algorithm", description = "Perform local search on primitive values")
+	public static boolean LOCAL_SEARCH_PRIMITIVES = true;
+
+	@Parameter(key = "local_search_arrays", group = "Search Algorithm", description = "Perform local search on array statements")
+	public static boolean LOCAL_SEARCH_ARRAYS = true;
+
+	@Parameter(key = "local_search_references", group = "Search Algorithm", description = "Perform local search on reference types")
+	public static boolean LOCAL_SEARCH_REFERENCES = true;
+
 	/** Constant <code>CROSSOVER_RATE=0.75</code> */
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)

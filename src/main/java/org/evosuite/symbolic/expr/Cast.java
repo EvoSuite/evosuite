@@ -33,12 +33,5 @@ public abstract interface Cast<T> {
 	 * @param <T> a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public Expression<T> getConcreteObject();
-	
-	/**
-	 * <p>getSize</p>
-	 *
-	 * @return a int.
-	 */
-	public int getSize();
+	public Expression<T> getArgument();
 }

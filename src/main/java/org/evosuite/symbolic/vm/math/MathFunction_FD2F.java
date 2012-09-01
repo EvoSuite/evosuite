@@ -2,7 +2,7 @@ package org.evosuite.symbolic.vm.math;
 
 import java.util.Iterator;
 
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -10,8 +10,8 @@ import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class MathFunction_FD2F extends Function {
 
-	protected RealExpression left;
-	protected RealExpression right;
+	protected RealValue left;
+	protected RealValue right;
 
 	public MathFunction_FD2F(SymbolicEnvironment env, String name) {
 		super(env, Types.JAVA_LANG_MATH, name,
@@ -28,10 +28,10 @@ public abstract class MathFunction_FD2F extends Function {
 	@Override
 	public final void CALL_RESULT(float res) {
 		if (left.containsSymbolicVariable() || right.containsSymbolicVariable()) {
-			RealExpression ret_val = executeFunction(res);
+			RealValue ret_val = executeFunction(res);
 			replaceTopFp32(ret_val);
 		}
 	}
 
-	protected abstract RealExpression executeFunction(float res);
+	protected abstract RealValue executeFunction(float res);
 }

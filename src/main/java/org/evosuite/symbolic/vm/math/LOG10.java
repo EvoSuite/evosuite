@@ -1,8 +1,8 @@
 package org.evosuite.symbolic.vm.math;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
@@ -15,7 +15,7 @@ public final class LOG10 extends MathFunction_D2D {
 	}
 
 	@Override
-	protected RealExpression executeFunction(double res) {
+	protected RealValue executeFunction(double res) {
 		Operator op = Operator.LOG10;
 		return new RealUnaryExpression(realExpression, op, res);
 	}

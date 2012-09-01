@@ -190,6 +190,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 
 	public Map<Integer, Integer> coveredTrue = Collections.synchronizedMap(new HashMap<Integer, Integer>());
 
+	public Map<Integer, Integer> coveredDefs = Collections.synchronizedMap(new HashMap<Integer, Integer>());
+
 	// number of seen Definitions and uses for indexing purposes
 	private int duCounter = 0;
 	// The last explicitly thrown exception is kept here
@@ -344,6 +346,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		coveredPredicates = new HashMap<Integer, Integer>();
 		coveredTrue = new HashMap<Integer, Integer>();
 		coveredFalse = new HashMap<Integer, Integer>();
+		coveredDefs = new HashMap<Integer, Integer>();
 		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		branchesTrace = new ArrayList<BranchEval>();
@@ -380,6 +383,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.coveredPredicates.putAll(coveredPredicates);
 		copy.coveredTrue.putAll(coveredTrue);
 		copy.coveredFalse.putAll(coveredFalse);
+		copy.coveredDefs.putAll(coveredDefs);
 		copy.touchedMutants.addAll(touchedMutants);
 		copy.mutantDistances.putAll(mutantDistances);
 		copy.passedDefinitions.putAll(passedDefinitions);
@@ -416,7 +420,11 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			throw new IllegalStateException(
 			        "expect DefUsePool to known defIDs that are passed by instrumented code");
 		}
-
+		if (!coveredDefs.containsKey(defID)) {
+			coveredDefs.put(defID, 0);
+		} else {
+			coveredDefs.put(defID, coveredDefs.get(defID) + 1);
+		}
 		String varName = def.getVariableName();
 
 		int objectID = registerObject(caller);
@@ -630,6 +638,22 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		}
 
 		return covered;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getCoveredDefinitions()
+	 */
+	@Override
+	public Set<Integer> getCoveredDefinitions() {
+		return coveredDefs.keySet();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getDefinitionExecutionCount()
+	 */
+	@Override
+	public Map<Integer, Integer> getDefinitionExecutionCount() {
+		return coveredDefs;
 	}
 
 	/* (non-Javadoc)

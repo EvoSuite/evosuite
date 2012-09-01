@@ -3,10 +3,9 @@ package org.evosuite.symbolic.vm.string;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringConstant;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -14,7 +13,7 @@ import org.evosuite.symbolic.vm.SymbolicEnvironment;
 public final class Matches extends StringFunction {
 
 	private static final String MATCHES = "matches";
-	private StringExpression regExStrExpr;
+	private StringValue regExStrExpr;
 
 	public Matches(SymbolicEnvironment env) {
 		super(env, MATCHES, Types.STR_TO_BOOL_DESCRIPTOR);
