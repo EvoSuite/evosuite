@@ -941,7 +941,7 @@ public class EvoSuite {
 			evosuite.parseCommandLine(args);
 		} catch(Throwable t){
 			logger.error("Fatal crash on main EvoSuite process. Class "+ Properties.TARGET_CLASS
-			        + " using seed " + Randomness.getSeed(),t);
+			        + " using seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID,t);
 			System.exit(-1);
 		}
 
