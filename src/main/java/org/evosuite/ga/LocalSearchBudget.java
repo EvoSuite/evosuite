@@ -49,6 +49,8 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/** Constant <code>endTime=0L</code> */
 	protected static long endTime = 0L;
 
+	protected static GeneticAlgorithm ga = null;
+
 	/**
 	 * <p>
 	 * isFinished
@@ -57,6 +59,9 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 * @return a boolean.
 	 */
 	public static boolean isFinished() {
+		if (ga.isFinished())
+			return true;
+
 		if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.STATEMENTS)
 			return attempts >= Properties.LOCAL_SEARCH_BUDGET;
 		else if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.TIME)
@@ -104,8 +109,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void searchStarted(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
-
+		ga = algorithm;
 	}
 
 	/* (non-Javadoc)
@@ -123,8 +127,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
-		// TODO Auto-generated method stub
-
+		ga = null;
 	}
 
 	/* (non-Javadoc)
