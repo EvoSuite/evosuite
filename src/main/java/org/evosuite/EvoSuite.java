@@ -49,6 +49,7 @@ import org.evosuite.javaagent.InstrumentingClassLoader;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
@@ -934,8 +935,15 @@ public class EvoSuite {
 	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
-		EvoSuite evosuite = new EvoSuite();
-		evosuite.parseCommandLine(args);
+		
+		try{
+			EvoSuite evosuite = new EvoSuite();
+			evosuite.parseCommandLine(args);
+		} catch(Throwable t){
+			logger.error("Fatal crash on main EvoSuite process. Class "+ Properties.TARGET_CLASS
+			        + " using seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID,t);
+			System.exit(-1);
+		}
 
 		/*
 		 * Some threads could still be running, so we need to kill the process explicitly

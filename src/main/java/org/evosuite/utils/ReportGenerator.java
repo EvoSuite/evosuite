@@ -112,7 +112,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** The class under test */
 		Class,
 		/** Number of predicates */
-		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals, Coverage, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File
+		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals, 
+		/** Obtained coverage of the chosen testing criterion*/
+		Coverage, 
+		/** Not only the covered branches ratio, but also including the branchless methods */
+		BranchCoverage,
+		Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File
 	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
@@ -401,6 +406,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + covered_goals;
 			case Coverage:
 				return "" + getCoverageDouble();
+			case BranchCoverage:
+				double cov = (double) (covered_branches+ covered_branchless_methods) / (double )((total_branches * 2) + branchless_methods);
+				if( !(cov >=0 && cov <=1) ){
+					String message = "Invalid coverage: "+cov;
+					message += " . covered_branches="+covered_branches;
+					message += " , covered_branchless_methods="+covered_branchless_methods;
+					message += " , total_branches*2="+(total_branches*2);
+					message += " , branchless_methods="+branchless_methods;
+					logger.error(message);
+					throw new AssertionError("Wrong coverage value: "+cov);
+				}
+				return "" + cov;
 			case Creation_Time:
 				return "" + (minimized_time - start_time);
 			case Minimization_Time:
