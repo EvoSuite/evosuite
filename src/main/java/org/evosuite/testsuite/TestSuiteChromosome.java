@@ -182,10 +182,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		Map<Integer, TestChromosome> testMap = new HashMap<Integer, TestChromosome>();
 		for (TestChromosome test : getTestChromosomes()) {
 
-			// Only check already executed tests
-			// TODO: Execute at this point?
-			if (test.getLastExecutionResult() == null)
-				continue;
+			// Make sure we have an execution result
+			if (test.getLastExecutionResult() == null) {
+				test.executeForFitnessFunction(objective);
+			}
 
 			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().getPredicateExecutionCount().entrySet()) {
 				if (!covered.containsKey(entry.getKey())) {
