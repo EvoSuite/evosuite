@@ -34,6 +34,7 @@ import org.evosuite.ga.LocalSearchBudget;
 import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.ga.SecondaryObjective;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
@@ -183,8 +184,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		for (TestChromosome test : getTestChromosomes()) {
 
 			// Make sure we have an execution result
-			if (test.getLastExecutionResult() == null) {
-				test.executeForFitnessFunction(objective);
+			if (test.getLastExecutionResult() == null || test.isChanged()) {
+				ExecutionResult result = test.executeForFitnessFunction(objective);
+				test.setLastExecutionResult(result); // .clone();
+				test.setChanged(false);
 			}
 
 			for (Entry<Integer, Integer> entry : test.getLastExecutionResult().getTrace().getPredicateExecutionCount().entrySet()) {
@@ -200,7 +203,11 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		for (Integer branchId : covered.keySet()) {
 			int count = covered.get(branchId);
 			if (count == 1) {
-				duplicates.add((TestChromosome) testMap.get(branchId).clone());
+				TestChromosome duplicate = (TestChromosome) testMap.get(branchId).clone();
+				ExecutionResult result = duplicate.executeForFitnessFunction(objective);
+				duplicate.setLastExecutionResult(result); // .clone();
+				duplicate.setChanged(false);
+				duplicates.add(duplicate);
 			}
 		}
 
