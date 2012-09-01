@@ -408,7 +408,15 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + getCoverageDouble();
 			case BranchCoverage:
 				double cov = (double) (covered_branches+ covered_branchless_methods) / (double )((total_branches * 2) + branchless_methods);
-				assert cov >=0 && cov <=1 : "Wrong coverage value: "+cov;
+				if( cov >=0 && cov <=1){
+					String message = "Invalid coverage: "+cov;
+					message += " . covered_branches="+covered_branches;
+					message += " , covered_branchless_methods="+covered_branchless_methods;
+					message += " , total_branches*2="+(total_branches*2);
+					message += " , branchless_methods="+branchless_methods;
+					logger.error(message);
+					throw new AssertionError("Wrong coverage value: "+cov);
+				}
 				return "" + cov;
 			case Creation_Time:
 				return "" + (minimized_time - start_time);
