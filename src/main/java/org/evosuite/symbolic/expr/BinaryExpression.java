@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -19,25 +18,35 @@
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
-public interface BinaryExpression<T extends Object> extends Expression<T> {
-	
+
+
+public interface BinaryExpression<T extends Object> {
+
 	/**
-	 * <p>getOperator</p>
-	 *
-	 * @param <T> a T object.
+	 * <p>
+	 * getOperator
+	 * </p>
+	 * 
+	 * @param <T>
+	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Operator} object.
 	 */
 	public Operator getOperator();
-	
+
 	/**
-	 * <p>getLeftOperand</p>
-	 *
+	 * <p>
+	 * getLeftOperand
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<T> getLeftOperand();
+
 	/**
-	 * <p>getRightOperand</p>
-	 *
+	 * <p>
+	 * getRightOperand
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public Expression<?> getRightOperand();

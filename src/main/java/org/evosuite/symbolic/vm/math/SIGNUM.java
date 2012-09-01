@@ -1,8 +1,8 @@
 package org.evosuite.symbolic.vm.math;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealExpression;
-import org.evosuite.symbolic.expr.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
@@ -17,7 +17,7 @@ public abstract class SIGNUM  {
 		}
 
 		@Override
-		protected RealExpression executeFunction(double res) {
+		protected RealValue executeFunction(double res) {
 			RealUnaryExpression sym_val = new RealUnaryExpression(
 					realExpression, Operator.SIGNUM, res);
 			return sym_val;
@@ -32,7 +32,7 @@ public abstract class SIGNUM  {
 		}
 
 		@Override
-		protected RealExpression executeFunction(float res) {
+		protected RealValue executeFunction(float res) {
 			RealUnaryExpression sym_val = new RealUnaryExpression(
 					realExpression, Operator.SIGNUM, (double) res);
 			return sym_val;

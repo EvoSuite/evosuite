@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 
 /**
  * 
@@ -9,5 +9,5 @@ import org.evosuite.symbolic.expr.IntegerExpression;
  */
 public interface IntegerOperand extends Operand {
 
-	public IntegerExpression getIntegerExpression();
+	public IntegerValue getIntegerExpression();
 }

@@ -1,11 +1,8 @@
 package org.evosuite.symbolic.vm.string.builder;
 
-import org.evosuite.symbolic.expr.StringBuilderExpression;
-import org.evosuite.symbolic.expr.StringExpression;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-import org.evosuite.symbolic.vm.SymbolicHeap;
 
 
 public abstract class StringBuilderFunction extends Function {
@@ -28,8 +25,6 @@ public abstract class StringBuilderFunction extends Function {
 		INVOKEVIRTUAL_StringBuilder((StringBuilder) receiver);
 	}
 
-	protected StringBuilderExpression stringBuilderExpr;
-
 	protected NonNullReference symb_receiver;
 
 	public static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
@@ -45,21 +40,6 @@ public abstract class StringBuilderFunction extends Function {
 	 */
 	protected void INVOKEVIRTUAL_StringBuilder(StringBuilder receiver) {
 		/* STUB */
-	}
-
-	protected StringBuilderExpression getStringBuilderExpression(
-			StringBuilder conc_receiver, NonNullReference symb_receiver) {
-
-		StringExpression strExpr = this.env.heap.getField(
-				StringBuilderFunction.JAVA_LANG_STRING_BUILDER,
-				SymbolicHeap.$STRING_BUILDER_CONTENTS, conc_receiver, symb_receiver,
-				conc_receiver.toString());
-
-		if (!(strExpr instanceof StringBuilderExpression)) {
-			return new StringBuilderExpression(strExpr);
-		} else {
-			return (StringBuilderExpression) strExpr;
-		}
 	}
 
 	protected void replaceRefTop(NonNullReference ref) {

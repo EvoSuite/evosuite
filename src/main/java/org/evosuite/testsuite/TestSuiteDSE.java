@@ -23,7 +23,6 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -32,16 +31,10 @@ import java.util.Set;
 import org.evosuite.ga.DSEBudget;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
-import org.evosuite.symbolic.expr.BinaryExpression;
-import org.evosuite.symbolic.expr.Cast;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.StringBuilderExpression;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringMultipleComparison;
-import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.search.Seeker;
 import org.evosuite.testcase.ExecutionResult;
@@ -120,7 +113,7 @@ public class TestSuiteDSE {
 		TestSuiteChromosome newTestSuite = new TestSuiteChromosome();
 		for (TestChromosome test : individual.getTestChromosomes()) {
 
-			// First make sure we are up to date with the execution 
+			// First make sure we are up to date with the execution
 			if (test.getLastExecutionResult() == null || test.isChanged()) {
 				test.setLastExecutionResult(runTest(test.getTestCase()));
 				test.setChanged(false);
@@ -136,12 +129,11 @@ public class TestSuiteDSE {
 			TestCase newTest = test.getTestCase().clone();
 			// TODO: We could cut away the call that leads to an exception?
 			/*
-			if (!test.getLastExecutionResult().noThrownExceptions()) {
-				while (newTest.size() - 1 >= test.getLastExecutionResult().getFirstPositionOfThrownException()) {
-					newTest.remove(newTest.size() - 1);
-				}
-			}
-			*/
+			 * if (!test.getLastExecutionResult().noThrownExceptions()) { while
+			 * (newTest.size() - 1 >=
+			 * test.getLastExecutionResult().getFirstPositionOfThrownException
+			 * ()) { newTest.remove(newTest.size() - 1); } }
+			 */
 			TestCase expandedTest = expandTestCase(newTest);
 			newTestSuite.addTest(expandedTest);
 		}
@@ -249,11 +241,13 @@ public class TestSuiteDSE {
 		while (hasNextBranchCondition() && !DSEBudget.isFinished()) {
 			logger.info("DSE time remaining: " + DSEBudget.getTimeRemaining());
 			logger.info("Branches remaining: " + unsolvedBranchConditions.size());
+			/*
 			for (TestBranchPair b : unsolvedBranchConditions) {
 				logger.info(b.branch.getFullName() + " : "
 				        + b.branch.getInstructionIndex() + ", "
 				        + b.branch.getReachingConstraints().size());
 			}
+			*/
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
 			logger.info("Chosen branch condition: " + branch);
@@ -264,22 +258,27 @@ public class TestSuiteDSE {
 			                                   next.test.getTestCase());
 			if (newTest != null) {
 				logger.info("Found new test: " + newTest.toCode());
-				//TestChromosome newTestChromosome = expandedTests.addTest(newTest);
+				// TestChromosome newTestChromosome =
+				// expandedTests.addTest(newTest);
 				TestChromosome newTestChromosome = new TestChromosome();
 				newTestChromosome.setTestCase(newTest);
-				// expandedTests.addTest(newTestChromosome);
+				expandedTests.addTest(newTestChromosome);
 				// updatePathConstraints(newTestChromosome);
 				// calculateUncoveredBranches();
 
 				if (fitness.getFitness(expandedTests) < originalFitness) {
 					logger.info("New test improves fitness to {}",
 					            expandedTests.getFitness());
-					expandedTests.addTest(newTestChromosome); // no need to clone so we can keep executionresult
+					//expandedTests.addTest(newTestChromosome); // no need to
+					// clone so we
+					// can keep
+					// executionresult
 					updatePathConstraints(newTestChromosome);
 					calculateUncoveredBranches();
 					individual.addTest(newTest);
 					originalFitness = expandedTests.getFitness();
-					// TODO: Cancel on fitness 0 - would need to know if ZeroFitness is a stopping condition
+					// TODO: Cancel on fitness 0 - would need to know if
+					// ZeroFitness is a stopping condition
 				} else {
 					logger.info("New test does not improve fitness");
 					expandedTests.deleteTest(newTest);
@@ -510,38 +509,7 @@ public class TestSuiteDSE {
 	 *            a {@link java.util.Set} object.
 	 */
 	public static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
-		if (expr instanceof Variable<?>) {
-			variables.add((Variable<?>) expr);
-		} else if (expr instanceof StringMultipleComparison) {
-			StringMultipleComparison smc = (StringMultipleComparison) expr;
-			getVariables(smc.getLeftOperand(), variables);
-			getVariables(smc.getRightOperand(), variables);
-			ArrayList<Expression<?>> ar_l_ex = smc.getOther();
-			Iterator<Expression<?>> itr = ar_l_ex.iterator();
-			while (itr.hasNext()) {
-				Expression<?> element = itr.next();
-				getVariables(element, variables);
-			}
-		} else if (expr instanceof StringBuilderExpression) {
-			StringBuilderExpression sB = (StringBuilderExpression) expr;
-			getVariables(sB.getExpr(), variables);
-		} else if (expr instanceof StringComparison) {
-			StringComparison sc = (StringComparison) expr;
-			getVariables(sc.getLeftOperand(), variables);
-			getVariables(sc.getRightOperand(), variables);
-		} else if (expr instanceof BinaryExpression<?>) {
-			BinaryExpression<?> bin = (BinaryExpression<?>) expr;
-			getVariables(bin.getLeftOperand(), variables);
-			getVariables(bin.getRightOperand(), variables);
-		} else if (expr instanceof UnaryExpression<?>) {
-			UnaryExpression<?> un = (UnaryExpression<?>) expr;
-			getVariables(un.getOperand(), variables);
-		} else if (expr instanceof Cast<?>) {
-			Cast<?> cst = (Cast<?>) expr;
-			getVariables(cst.getConcreteObject(), variables);
-		} else if (expr instanceof Constraint<?>) {
-			// ignore
-		}
+		variables.addAll(expr.getVariables());
 	}
 
 	private TestCase expandTestCase(TestCase test) {
