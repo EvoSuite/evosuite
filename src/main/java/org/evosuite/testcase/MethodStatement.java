@@ -114,7 +114,10 @@ public class MethodStatement extends AbstractStatement {
 		assert (parameters != null);
 		assert (method.getParameterTypes().length == parameters.size());
 		this.method = method;
-		this.callee = callee;
+		if (isStatic())
+			this.callee = null;
+		else
+			this.callee = callee;
 		this.parameters = parameters;
 	}
 
@@ -162,7 +165,8 @@ public class MethodStatement extends AbstractStatement {
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public void setCallee(VariableReference callee) {
-		this.callee = callee;
+		if (!isStatic())
+			this.callee = callee;
 	}
 
 	/**
@@ -272,7 +276,7 @@ public class MethodStatement extends AbstractStatement {
 		}
 
 		MethodStatement m;
-		if (Modifier.isStatic(method.getModifiers())) {
+		if (isStatic()) {
 			// FIXXME: If callee is an array index, this will return an invalid
 			// copy of the cloned variable!
 			m = new MethodStatement(newTestCase, method, null, retval.getType(),
@@ -595,7 +599,7 @@ public class MethodStatement extends AbstractStatement {
 		for (VariableReference v : parameters) {
 			v.getStPosition();
 		}
-		if (callee != null) {
+		if (!isStatic()) {
 			callee.getStPosition();
 		}
 		return true;
