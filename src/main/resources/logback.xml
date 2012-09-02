@@ -82,14 +82,21 @@
 		<reconnectionDelay>10000</reconnectionDelay>
 	</appender>
 
+
+
+	<!-- Loggers  -->
+
 	<logger name="evo_logger" level="ALL" additivity="false">
 		<appender-ref ref="EVO_LOGGER_${evosuite.log.appender:-MASTER}" />
 	</logger>
 
 
-	<!-- main root logger. -->
+	<logger name="org.evosuite" level="${log.level:-WARN}" />
 
-	<root level="${log.level:-WARN}">
+
+	<!-- main root logger. Note: it is turned OFF to avoid SUT using it-->
+
+	<root level="OFF">
 		<appender-ref ref="STDOUT_${evosuite.log.appender:-MASTER}" />
 		<appender-ref ref="STDERR_${evosuite.log.appender:-MASTER}" />
 	</root>
