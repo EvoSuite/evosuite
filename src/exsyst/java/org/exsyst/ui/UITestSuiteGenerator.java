@@ -379,6 +379,8 @@ public class UITestSuiteGenerator {
 	
 	private List<CaptureLog> executeAndCapture(List<UITestChromosome> testsToBeCarved)
 	{
+		System.err.println("NUM TESTS TO BE CARVED: " + testsToBeCarved.size());
+
 		// variables needed in loop
 		for(UITestChromosome t : testsToBeCarved)
 		{
@@ -388,7 +390,6 @@ public class UITestSuiteGenerator {
 			
 			// execute test case
 			ReplayUITestHelper.run(t);
-			System.out.println("AFTER RUN");
 			
 			// stop capture after best individual has been determined and obtain corresponding capture log
 			Capturer.stopCapture();
@@ -407,11 +408,9 @@ public class UITestSuiteGenerator {
 	private void carveTests(List<UITestChromosome> testsToBeCarved)
 	{
 		
-		System.out.println(">>>> start capture");
 		long s = System.currentTimeMillis();
 		final List<CaptureLog> logs   = this.executeAndCapture(testsToBeCarved);
 		final Logger           logger = LoggingUtils.getEvoLogger();
-		System.out.println(">>>> end capture " + (System.currentTimeMillis() - s) / 1000 );
 		
 		final HashSet<Class<?>>     allAccessedClasses = new HashSet<Class<?>>();
 		final ArrayList<String>     packages           = new ArrayList<String>();
