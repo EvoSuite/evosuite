@@ -17,25 +17,19 @@
  */
 package org.exsyst.ui.util;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.ObjectInputStream;
+import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import javax.swing.UIManager;
 
 import org.evosuite.Properties;
-import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcase.ExecutionResult;
-import org.evosuite.testcase.InterfaceTestRunnable;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TimeoutHandler;
-import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.exsyst.ui.genetics.ChromosomeUIController;
-import org.exsyst.ui.genetics.ReplayChromosomeUIController;
 import org.exsyst.ui.genetics.UITestChromosome;
 import org.uispec4j.UISpec4J;
 
@@ -51,10 +45,8 @@ public final class ReplayUITestHelper {
 	/**
 	 * @param args
 	 */
-	public static void run(UITestChromosome test) {
-		
-		
-		
+	public static void run(final UITestChromosome test) 
+	{
 		final TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		final ChromosomeUIController callable = new ChromosomeUIController(test);
 		final ExecutorService executor = Executors.newSingleThreadExecutor(TestCaseExecutor.getInstance());
@@ -72,29 +64,48 @@ public final class ReplayUITestHelper {
 			// end up with multiple event loops from loading classes
 			UISpec4J.init();
 	
-//			Properties.TIMEOUT
 			handler.execute(callable, executor, Integer.MAX_VALUE, Properties.CPU_TIMEOUT);
-		
 		}
 		catch(final Exception e)
 		{
 			e.printStackTrace();
-			executor.shutdownNow();
-			try {
-				System.out.println("waiting for termination");
-				executor.awaitTermination(2000, TimeUnit.MILLISECONDS);
-				System.out.println("terminated");
-			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-
 		}
 		finally
 		{
-			System.out.println("Finished!");
+			executor.shutdown();
+			try 
+			{
+				System.out.println("waiting for termination");
+				
+				try 
+				{
+					EventQueue.invokeAndWait(new Runnable() {
+						@Override
+						public void run() {
+							// Waiting for EventQueue to be empty
+						}
+					});
+				} 
+				catch (final Exception e) {
+				}
+				
+				
+				final EventQueue evtQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+				while(evtQueue.peekEvent() != null)
+				{
+					System.out.println("EMPTYING EVENT QUEUE");
+					evtQueue.getNextEvent();
+				}
+				
+				
+				executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
+				System.out.println("terminated");
+			} 
+			catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+
 			AWTAutoShutdown.getInstance().notifyThreadFree(Thread.currentThread());
-//			executor.shutdownNow();
 		}
 	}
 }
