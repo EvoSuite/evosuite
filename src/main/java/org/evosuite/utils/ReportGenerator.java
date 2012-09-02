@@ -94,9 +94,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/**
 	 * <p>
-	 * This enumeration defines all the runtime variables we want to store in the CSV
-	 * files. Note, it is perfectly fine to add new ones, in any position. Just
-	 * be sure to define a proper mapper in {@code getCSVvalue}.
+	 * This enumeration defines all the runtime variables we want to store in
+	 * the CSV files. Note, it is perfectly fine to add new ones, in any
+	 * position. Just be sure to define a proper mapper in {@code getCSVvalue}.
 	 * </p>
 	 * 
 	 * <p>
@@ -112,12 +112,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** The class under test */
 		Class,
 		/** Number of predicates */
-		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals, 
-		/** Obtained coverage of the chosen testing criterion*/
-		Coverage, 
-		/** Not only the covered branches ratio, but also including the branchless methods */
-		BranchCoverage,
-		Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File
+		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals,
+		/** Obtained coverage of the chosen testing criterion */
+		Coverage,
+		/**
+		 * Not only the covered branches ratio, but also including the
+		 * branchless methods
+		 */
+		BranchCoverage, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File
 	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
@@ -268,60 +270,65 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public Map<String, Set<Class<?>>> explicitExceptions;
 
 		/**
-		 * Return array of variables to dump in CSV files, based on
-		 * what defined in {@code Properties.OUTPUT_VARIABLES}
+		 * Return array of variables to dump in CSV files, based on what defined
+		 * in {@code Properties.OUTPUT_VARIABLES}
 		 * 
 		 * @return
 		 */
-		public	String[] getUsedVariables() throws IllegalStateException{
+		public String[] getUsedVariables() throws IllegalStateException {
 			String property = Properties.OUTPUT_VARIABLES;
-			
+
 			String[] runtime = new String[RuntimeVariable.values().length];
-			for(int i=0; i<runtime.length; i++){
+			for (int i = 0; i < runtime.length; i++) {
 				runtime[i] = RuntimeVariable.values()[i].toString();
 			}
-			
-			if(property==null){
+
+			if (property == null) {
 				return runtime;
 			}
 
 			//extract parameters
 			String[] splitArray = property.split(",");
-			List<String> usedList = new LinkedList<String>(); 
-			for(int i=0;i<splitArray.length; i++){
+			List<String> usedList = new LinkedList<String>();
+			for (int i = 0; i < splitArray.length; i++) {
 				splitArray[i] = splitArray[i].trim();
-				if(!splitArray[i].isEmpty()){
+				if (!splitArray[i].isEmpty()) {
 					usedList.add(splitArray[i]);
 				}
 			}
 			String[] usedArray = usedList.toArray(new String[usedList.size()]);
-			
+
 			Vector<String> runtimeVector = new Vector<String>();
-			for(String s : runtime){
+			for (String s : runtime) {
 				runtimeVector.add(s);
 			}
-			
+
 			//check if parameters exist
-			for(String param : usedArray){
-				if(runtimeVector.contains(param)){ continue;}
-				if(Properties.hasParameter(param)){ continue;}
-				
-				throw new IllegalStateException("Parameter \""+param+"\" defined inside \"output_variables\" does not exist");
+			for (String param : usedArray) {
+				if (runtimeVector.contains(param)) {
+					continue;
+				}
+				if (Properties.hasParameter(param)) {
+					continue;
+				}
+
+				throw new IllegalStateException("Parameter \"" + param
+				        + "\" defined inside \"output_variables\" does not exist");
 			}
-			
+
 			return usedArray;
 		}
 
-
 		/**
-		 * Return value of a parameter, based on whether it is a EvoSuite property (e.g., population size),
-		 * or something calculated at runtime (e.g. coverage)
+		 * Return value of a parameter, based on whether it is a EvoSuite
+		 * property (e.g., population size), or something calculated at runtime
+		 * (e.g. coverage)
 		 * 
 		 * @return
 		 */
-		private String getValueOfOutputVariable(String name){
+		private String getValueOfOutputVariable(String name) {
 			//first check if it is an EvoSuite parameter (e.g. population size)
-			if(Properties.hasParameter(name)){
+			if (Properties.hasParameter(name)) {
 				try {
 					return Properties.getStringValue(name);
 				} catch (Exception e) {
@@ -329,23 +336,25 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					 * when we call this method, the parameters should had been already validated, and program aborted if necessary.
 					 * An exception here is likely a bug
 					 */
-					logger.error("Error in getting value of parameter "+name, e);
-					throw new Error("If this method inside EvoSuite is called, then it should never happen that the following exception is raised: "+e.getMessage());
+					logger.error("Error in getting value of parameter " + name, e);
+					throw new Error(
+					        "If this method inside EvoSuite is called, then it should never happen that the following exception is raised: "
+					                + e.getMessage());
 				}
 			}
 			//check if it is a runtime property of the search, e.g. coverage
 			RuntimeVariable var = null;
-			try{
+			try {
 				var = RuntimeVariable.valueOf(name);
-			} catch(Exception e){
+			} catch (Exception e) {
 				//note: we throw an Error as this protected method should never be called with wrong input / or on wrong internal state
-				throw new Error("Parameter "+name+" does not exist");
+				throw new Error("Parameter " + name + " does not exist");
 			}
-			
+
 			//if it is not an EvoSuite property, it has to be a runtime one
 			return getCSVvalue(var);
 		}
-		
+
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 
@@ -378,7 +387,6 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			return r.toString();
 		}
 
-		
 		private String getCSVvalue(RuntimeVariable var) {
 
 			PermissionStatistics pstats = PermissionStatistics.getInstance();
@@ -407,15 +415,23 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case Coverage:
 				return "" + getCoverageDouble();
 			case BranchCoverage:
-				double cov = (double) (covered_branches+ covered_branchless_methods) / (double )((total_branches * 2) + branchless_methods);
-				if( !(cov >=0 && cov <=1) ){
-					String message = "Invalid coverage: "+cov;
-					message += " . covered_branches="+covered_branches;
-					message += " , covered_branchless_methods="+covered_branchless_methods;
-					message += " , total_branches*2="+(total_branches*2);
-					message += " , branchless_methods="+branchless_methods;
+				double cov = 0.0;
+
+				if (total_branches + branchless_methods > 0)
+					cov = (double) (covered_branches + covered_branchless_methods)
+					        / (double) ((total_branches * 2) + branchless_methods);
+				else
+					cov = 1.0;
+
+				if (!(cov >= 0 && cov <= 1)) {
+					String message = "Invalid coverage: " + cov;
+					message += " . covered_branches=" + covered_branches;
+					message += " , covered_branchless_methods="
+					        + covered_branchless_methods;
+					message += " , total_branches*2=" + (total_branches * 2);
+					message += " , branchless_methods=" + branchless_methods;
 					logger.error(message);
-					throw new AssertionError("Wrong coverage value: "+cov);
+					throw new AssertionError("Wrong coverage value: " + cov);
 				}
 				return "" + cov;
 			case Creation_Time:
@@ -548,7 +564,6 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			return "-1";
 		}
-
 
 		public String getCSVFilepath() {
 			return getReportDir().getAbsolutePath() + File.separator + getCSVFileName();
@@ -1153,16 +1168,16 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			logger.warn("Error while writing statistics: " + e.getMessage());
 		}
 
-		
-		if(Properties.SAVE_ALL_DATA){
+		if (Properties.SAVE_ALL_DATA) {
 			if (Properties.CRITERION == Properties.Criterion.EXCEPTION) {
-				writeExceptionData(entry.getExceptionFilepath(), entry.implicitExceptions,
-						entry.explicitExceptions);
+				writeExceptionData(entry.getExceptionFilepath(),
+				                   entry.implicitExceptions, entry.explicitExceptions);
 			}
 			writeCSVData(entry.getCSVFilepath(), entry.fitness_history,
-					entry.coverage_history, entry.size_history, entry.length_history,
-					entry.average_length_history, entry.fitness_evaluations,
-					entry.tests_executed, entry.statements_executed, entry.timeStamps);
+			             entry.coverage_history, entry.size_history,
+			             entry.length_history, entry.average_length_history,
+			             entry.fitness_evaluations, entry.tests_executed,
+			             entry.statements_executed, entry.timeStamps);
 		}
 	}
 
