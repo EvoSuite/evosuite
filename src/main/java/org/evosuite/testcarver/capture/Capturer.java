@@ -1,5 +1,6 @@
 package org.evosuite.testcarver.capture;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,6 +10,8 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+
+import javax.swing.SwingUtilities;
 
 import org.evosuite.testcarver.codegen.PostProcessor;
 import org.evosuite.testcarver.exception.CapturerException;
@@ -256,14 +259,11 @@ public final class Capturer
 			{
 				synchronized (currentLog)
 				{
-//					executor.execute(new Runnable() 
+//					final Runnable r = new Runnable() 
 //					{
 //						@Override
 //						public void run() 
 //						{
-						    System.out.println("CAPTURE -------> " + System.currentTimeMillis() );
-
-						    
 							setCapturing(false);
 							
 							if(LOG.isDebugEnabled())
@@ -280,10 +280,18 @@ public final class Capturer
 							currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
 							
 							setCapturing(true);
-
-						    System.out.println("END CAPTURE -------> " + System.currentTimeMillis() );
 //						}
-//					});
+//					};
+//					
+//					if(true && ! EventQueue.isDispatchThread()) //isGUI
+//					{
+//						SwingUtilities.invokeLater(r);
+//					}
+//					else
+//					{
+//						r.run();
+//					}
+						
 				}
 			}
 	}
@@ -301,12 +309,10 @@ public final class Capturer
 			if(isCapturing())
 			{
 				synchronized (currentLog) {
-//					executor.execute(new Runnable() {
+//					final Runnable r = new Runnable() {
 //						@Override
 //						public void run() 
 //						{
-						   System.out.println("ENABLE -------> " + System.currentTimeMillis() );
-
 						   setCapturing(false);
 
 						   if(LOG.isDebugEnabled())
@@ -316,11 +322,17 @@ public final class Capturer
 							
 						   currentLog.logEnd(captureId, receiver, returnValue);
 						   setCapturing(true);
-
-						   
-						   System.out.println("END ENABLE -------> " + System.currentTimeMillis() );
 //						}
-//					});
+//					};
+//					
+//					if(true && ! EventQueue.isDispatchThread()) //isGUI
+//					{
+//						SwingUtilities.invokeLater(r);
+//					}
+//					else
+//					{
+//						r.run();
+//					}
 				}
 			}
 	}

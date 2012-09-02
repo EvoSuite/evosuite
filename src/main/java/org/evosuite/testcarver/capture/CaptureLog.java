@@ -284,9 +284,8 @@ public final class CaptureLog implements Cloneable
 						 
 						 currentRecord--;
 					 }
-
-//					 this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
-					 
+	
+		
 					 if(this.oidRecMapping.containsKey(returnValueOID))
 					 {
 						 final int infoRecNo = this.oidRecMapping.get(returnValueOID);
@@ -296,8 +295,6 @@ public final class CaptureLog implements Cloneable
 						 if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT.equals(method))
 						 {
 							 this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
-
-							 System.err.println(returnValueOID + " ======TEST=========> " + (-currentRecord) + "   old:  " + this.oidInitRecNo.getQuick(infoRecNo));
 							 this.oidInitRecNo.set(infoRecNo, -currentRecord);
 							 this.firstInits.set(infoRecNo, currentRecord);
 						 }
@@ -484,7 +481,6 @@ public final class CaptureLog implements Cloneable
 
 						try
 						{
-							
 //							this.xstream.toXML(param, sout);
 //							this.sout.flush();
 //							
@@ -493,9 +489,6 @@ public final class CaptureLog implements Cloneable
 //							this.bout.reset();
 							
 							this.params.add(new Object[]{ this.xstream.toXML(param) });
-							
-							
-							
 						}
 						catch(final Exception e)
 						{

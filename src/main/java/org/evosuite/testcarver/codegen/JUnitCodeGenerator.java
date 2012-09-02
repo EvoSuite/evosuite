@@ -7,7 +7,6 @@ import gnu.trove.set.hash.TIntHashSet;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -29,6 +28,7 @@ import org.eclipse.jdt.core.dom.ImportDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
@@ -44,7 +44,6 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
 
@@ -384,8 +383,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				System.arraycopy(pkgArray,   0, newPkgType, 0,               pkgArray.length);
 				System.arraycopy(clazzSplit, 0, newPkgType, pkgArray.length, clazzSplit.length - 1);
 
-				System.err.println("PKGTYPE: " + Arrays.toString(newPkgType) + " clz: " + clazzSplit[clazzSplit.length - 1]);
-				
 				if(clazzName.endsWith("[]"))
 				{
 					final QualifiedType t = ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1].replace("[]", "")));
@@ -404,8 +401,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				System.arraycopy(pkgArray,   0, newPkgType, 0,               pkgArray.length);
 				System.arraycopy(clazzSplit, 0, newPkgType, pkgArray.length, clazzSplit.length - 1);
 
-				System.err.println("PKGTYPE: " + Arrays.toString(newPkgType) + " clz: " + clazzSplit[clazzSplit.length - 1]);
-				
 				if(clazzName.endsWith("[]"))
 				{
 					final QualifiedType t = ast.newQualifiedType(  ast.newSimpleType(ast.newName(newPkgType)), ast.newSimpleName(clazzSplit[clazzSplit.length - 1].replace("[]", "")));
@@ -723,8 +718,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				
 				if(dependencyOID == CaptureLog.NO_DEPENDENCY)
 				{
-					System.out.println(varName + "xxxx2");
-					
 					ci.setType(this.createAstType(typeName, ast));
 				}
 				else
@@ -738,15 +731,8 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					ci.setType(this.createAstType(typeName.substring(typeName.indexOf('$') + 1), ast));
 					ci.setExpression(ast.newSimpleName(oidToVarMapping.get(dependencyOID)));
 					
-					System.out.println(varName + "xxxx1");
 					
 					final int index = Arrays.binarySearch(methodArgs, dependencyOID);
-					
-					System.out.println(varName + " x1args " + Arrays.toString(methodArgs));
-					System.out.println(varName + " x1index " + index);
-					System.out.println(varName + " x1dep " + dependencyOID);
-					
-					
 					
 					if(index > -1)
 					{
@@ -768,11 +754,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 						System.arraycopy(methodParamTypes, 0,         newParamTypes, 0,     index);
 						System.arraycopy(methodParamTypes, index + 1, newParamTypes, index, methodParamTypes.length - index - 1);
 						methodParamTypes = newParamTypes;
-						
-						
-						System.out.println(varName + " x3args " + Arrays.toString(methodArgs));
-						System.out.println(varName + " x3index " + index);
-						System.out.println(varName + " x3dep " + Integer.valueOf(dependencyOID));
 					}
 				}
 				
@@ -811,10 +792,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			}
 
 			
-			final String varName = this.oidToVarMapping.get(oid);
-			
-			System.err.println("--recno-- " + logRecNo);
-			
+			final String  varName                  = this.oidToVarMapping.get(oid);
 			final int     methodTypeModifiers      = this.getMethodModifiers(type, methodName, methodParamTypeClasses);
 			final boolean isPublic                 = java.lang.reflect.Modifier.isPublic(methodTypeModifiers);
 			final boolean isReflectionAccessNeeded = ! isPublic && ! haveSamePackage;
@@ -868,7 +846,9 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 						System.err.println("--recno-- " + logRecNo);
 						System.err.println("--oid-- " + oid);
 						System.err.println("--method-- " + methodName);
+						ex.printStackTrace();
 						System.out.println(log);
+						System.exit(-1);
 					}
 				}
 				
@@ -935,17 +915,10 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					methodParamType = CaptureUtil.getClassFromDesc(methodParamTypes[i].getDescriptor());
 					argType			= this.oidToTypeMapping.get(arg);
 							
-					System.out.println("LOGRECNO: " + logRecNo);
-					System.out.println("DESCRIPTOR: " + methodParamTypes[i].getDescriptor());
-					System.out.println("ARG: " + arg);
-					System.out.println("ARGTYPE: " + argType);
-					System.out.println("METHODARGS: " + Arrays.toString(methodArgs));
-					System.out.println("METHODNAME: " + methodName);
-					
 					// TODO: Warten was Florian und Gordon dazu sagen. Siehe Mail 04.08.2012
 					if(argType == null)
 					{
-						System.err.println("Call within constructor needs instance of enclosing object as parameter -> ignored");
+						System.err.println("########################## Call within constructor needs instance of enclosing object as parameter -> ignored");
 						methodBlock.statements().remove(methodBlock.statements().size() - 1);
 						return;
 					}
@@ -1847,12 +1820,10 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			if(type.endsWith("[]"))
 			{
 				type = type.replace("[]", "");
-				System.err.println("2---------------> " + "[L" + type + ";");
 				return Class.forName("[L" + type + ";");
 			}
 			else
 			{
-				System.err.println("1---------------> " +type.replace('/', '.'));
 				return Class.forName(type.replace('/', '.'));
 			}
 		} 
@@ -1874,9 +1845,5 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		System.arraycopy(methodArgs, 0,         newArgs, 0,     index);
 		System.arraycopy(methodArgs, index + 1, newArgs, index, methodArgs.length - index - 1);
 		methodArgs = newArgs;
-		
-		System.out.println(Arrays.toString(methodArgs));
 	}
-
-	
 }
