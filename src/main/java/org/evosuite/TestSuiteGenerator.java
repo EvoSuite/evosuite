@@ -420,24 +420,32 @@ public class TestSuiteGenerator {
 
 			long startTime = System.currentTimeMillis();
 
-			MutationAssertionGenerator masserter = new MutationAssertionGenerator();
-			Set<Integer> tkilled = new HashSet<Integer>();
-			int numTest = 0;
-			for (TestCase test : tests) {
-				long currentTime = System.currentTimeMillis();
-				if (currentTime - startTime > Properties.ASSERTION_TIMEOUT)
-					break;
-				//Set<Integer> killed = new HashSet<Integer>();
-				masserter.addAssertions(test, tkilled);
-				progressMonitor.updateStatus((100 * numTest++) / tests.size());
-				//tkilled.addAll(killed);
+			if (MutationPool.getMutantCounter() == 0) {
+				Properties.CRITERION = oldCriterion;
+				SearchStatistics.getInstance().mutationScore(1.0);
+				LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
+				                                         + NumberFormat.getPercentInstance().format(1.0));
+
+			} else {
+				MutationAssertionGenerator masserter = new MutationAssertionGenerator();
+				Set<Integer> tkilled = new HashSet<Integer>();
+				int numTest = 0;
+				for (TestCase test : tests) {
+					long currentTime = System.currentTimeMillis();
+					if (currentTime - startTime > Properties.ASSERTION_TIMEOUT)
+						break;
+					//Set<Integer> killed = new HashSet<Integer>();
+					masserter.addAssertions(test, tkilled);
+					progressMonitor.updateStatus((100 * numTest++) / tests.size());
+					//tkilled.addAll(killed);
+				}
+				Properties.CRITERION = oldCriterion;
+				double score = (double) tkilled.size()
+				        / (double) MutationPool.getMutantCounter();
+				SearchStatistics.getInstance().mutationScore(score);
+				LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
+				                                         + NumberFormat.getPercentInstance().format(score));
 			}
-			Properties.CRITERION = oldCriterion;
-			double score = (double) tkilled.size()
-			        / (double) MutationPool.getMutantCounter();
-			SearchStatistics.getInstance().mutationScore(score);
-			LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
-			                                         + NumberFormat.getPercentInstance().format(score));
 
 			return;
 
@@ -453,18 +461,23 @@ public class TestSuiteGenerator {
 
 	private void handleMutations(List<TestCase> tests) {
 		// TODO better method name?
-		MutationAssertionGenerator asserter = new MutationAssertionGenerator();
-		Set<Integer> tkilled = new HashSet<Integer>();
-		int num = 0;
-		for (TestCase test : tests) {
-			progressMonitor.updateStatus((100 * num++) / tests.size());
+		if (MutationPool.getMutantCounter() == 0) {
+			SearchStatistics.getInstance().mutationScore(1.0);
+		} else {
+			MutationAssertionGenerator asserter = new MutationAssertionGenerator();
+			Set<Integer> tkilled = new HashSet<Integer>();
+			int num = 0;
+			for (TestCase test : tests) {
+				progressMonitor.updateStatus((100 * num++) / tests.size());
 
-			//Set<Integer> killed = new HashSet<Integer>();
-			asserter.addAssertions(test, tkilled);
-			//tkilled.addAll(killed);
+				//Set<Integer> killed = new HashSet<Integer>();
+				asserter.addAssertions(test, tkilled);
+				//tkilled.addAll(killed);
+			}
+			double score = (double) tkilled.size()
+			        / (double) MutationPool.getMutantCounter();
+			SearchStatistics.getInstance().mutationScore(score);
 		}
-		double score = (double) tkilled.size() / (double) MutationPool.getMutantCounter();
-		SearchStatistics.getInstance().mutationScore(score);
 		// asserter.writeStatistics();
 		//LoggingUtils.getEvoLogger().info("Killed: " + tkilled.size() + "/" + asserter.numMutants());
 	}
