@@ -74,7 +74,10 @@ public class MethodStatement extends AbstractStatement {
 		assert (method.getParameterTypes().length == parameters.size()) : method.getParameterTypes().length
 		        + " != " + parameters.size();
 		this.method = method;
-		this.callee = callee;
+		if (isStatic())
+			this.callee = null;
+		else
+			this.callee = callee;
 		this.parameters = parameters;
 	}
 
