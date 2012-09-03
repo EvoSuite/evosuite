@@ -264,6 +264,8 @@ public class GraphPool {
 	}
 	
 	public static boolean canMakeCCFGForClass(String className) {
+//		if(!rawCFGs.containsKey(className))
+//			LoggingUtils.getEvoLogger().info("unable to create CCFG for "+className);
 		return rawCFGs.containsKey(className);
 	}
 
