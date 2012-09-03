@@ -1,14 +1,16 @@
 package org.evosuite.symbolic.vm;
 
+import org.objectweb.asm.Type;
+
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public final class ExceptionReference extends NonNullReference {
 
 	private ExceptionReference() {
-		super("java.lang.Exception", -1);
+		super(Type.getType(Exception.class), -1);
 	}
 
 	private static final ExceptionReference instance = new ExceptionReference();
@@ -21,6 +23,5 @@ public final class ExceptionReference extends NonNullReference {
 	public String toString() {
 		return "EXCEPTION";
 	}
-	
 
 }
