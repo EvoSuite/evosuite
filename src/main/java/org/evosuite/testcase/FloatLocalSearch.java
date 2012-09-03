@@ -53,9 +53,7 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 
 		NumericalPrimitiveStatement<T> p = (NumericalPrimitiveStatement<T>) test.test.getStatement(statement);
 		double value = p.getValue().doubleValue();
-		if (value == Double.NaN || value == Double.POSITIVE_INFINITY
-		        || value == Double.NEGATIVE_INFINITY || value == Float.NaN
-		        || value == Float.POSITIVE_INFINITY || value == Float.NEGATIVE_INFINITY) {
+		if (Double.isInfinite(value) || Double.isNaN(value)) {
 			return false;
 		}
 
@@ -79,9 +77,7 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 	        LocalSearchObjective objective, int precision,
 	        NumericalPrimitiveStatement<T> p) {
 		double value = p.getValue().doubleValue();
-		if (value == Double.NaN || value == Double.POSITIVE_INFINITY
-		        || value == Double.NEGATIVE_INFINITY || value == Float.NaN
-		        || value == Float.POSITIVE_INFINITY || value == Float.NEGATIVE_INFINITY) {
+		if (Double.isInfinite(value) || Double.isNaN(value)) {
 			return false;
 		}
 
