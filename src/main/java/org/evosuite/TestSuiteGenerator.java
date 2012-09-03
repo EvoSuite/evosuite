@@ -686,14 +686,26 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
+		} else {
+			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
 		}
 		progressMonitor.updateStatus(99);
+
+		if (Properties.CRITERION == Criterion.MUTATION
+		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
+			SearchStatistics.getInstance().mutationScore(best.getCoverage());
+		}
 
 		statistics.iteration(ga);
 		statistics.minimized(best);
 		LoggingUtils.getEvoLogger().info("* Generated " + best.size()
 		                                         + " tests with total length "
 		                                         + best.totalLengthOfTestCases());
+
+		// TODO: In the end we will only need one analysis technique
+		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
+			CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA);
+		}
 
 		if (analyzing)
 			CoverageStatistics.analyzeCoverage(best);
@@ -947,6 +959,11 @@ public class TestSuiteGenerator {
 		}
 		statistics.minimized(suiteGA.getBestIndividual());
 
+		// TODO: In the end we will only need one analysis technique
+		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
+			CoverageAnalysis.analyzeCriteria(suite, Properties.ANALYSIS_CRITERIA);
+		}
+
 		return suite.getTests();
 	}
 
@@ -1199,6 +1216,11 @@ public class TestSuiteGenerator {
 		                                         + current_budget
 		                                         + " statements, best individual has fitness "
 		                                         + suite.getFitness());
+
+		// TODO: In the end we will only need one analysis technique
+		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
+			CoverageAnalysis.analyzeCriteria(suite, Properties.ANALYSIS_CRITERIA);
+		}
 
 		if (!analyzing) {
 			LoggingUtils.getEvoLogger().info("* Covered " + covered_goals + "/"

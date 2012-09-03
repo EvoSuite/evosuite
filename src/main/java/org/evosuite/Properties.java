@@ -478,6 +478,9 @@ public class Properties {
 	@IntValue(min = 0)
 	public static int EXTRA_TIMEOUT = 120;
 
+	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
+	public static String ANALYSIS_CRITERIA = "";
+
 	// ---------------------------------------------------------------
 	// Single branch mode
 	/** Constant <code>RANDOM_TESTS=0</code> */

@@ -116,22 +116,37 @@ public class TestSuiteMinimizer {
 		}
 
 		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
+		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
+		int numCovered = 0;
+		int numGoals = goals.size();
+
+		if (Properties.CRITERION != Properties.Criterion.BRANCH) {
+			BranchCoverageFactory branchFactory = new BranchCoverageFactory();
+			branchGoals.addAll(branchFactory.getCoverageGoals());
+			goals.addAll(branchGoals);
+		}
+
 		Collections.sort(goals);
 		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
 		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
 
 		for (TestFitnessFunction goal : goals) {
+			logger.info("Considering goal: " + goal);
 			for (TestChromosome test : minimizedTests) {
 				if (goal.isCovered(test)) {
-					logger.info("Already covered: " + goal);
+					logger.info("Covered by minimized test: " + goal);
 					covered.add(goal);
+					if (!branchGoals.contains(goal))
+						numCovered++;
 					test.getTestCase().addCoveredGoal(goal);
 					break;
 				}
 			}
-			if (covered.contains(goal))
+			if (covered.contains(goal)) {
+				logger.info("Already covered: " + goal);
 				continue;
+			}
 
 			List<TestChromosome> coveredTests = new ArrayList<TestChromosome>();
 			for (TestChromosome test : suite.getTestChromosomes()) {
@@ -153,9 +168,14 @@ public class TestSuiteMinimizer {
 				minimizedTests.add(copy);
 				minimizedSuite.insertTest(copy.getTestCase());
 				covered.add(goal);
+				if (!branchGoals.contains(goal))
+					numCovered++;
+
 				logger.info("After new test the suite covers " + covered.size() + "/"
 				        + goals.size() + " goals");
 
+			} else {
+				logger.info("Goal is not covered: " + goal);
 			}
 		}
 
@@ -165,6 +185,13 @@ public class TestSuiteMinimizer {
 		for (TestCase test : minimizedSuite.getTestCases()) {
 			suite.addTest(test);
 		}
+		if (numGoals == 0)
+			suite.setCoverage(1.0);
+		else
+			suite.setCoverage((double) numCovered / (double) numGoals);
+
+		SearchStatistics.getInstance().setCoveredGoals(numCovered);
+
 		for (TestFitnessFunction goal : goals) {
 			if (!covered.contains(goal))
 				logger.info("Failed to cover: " + goal);
