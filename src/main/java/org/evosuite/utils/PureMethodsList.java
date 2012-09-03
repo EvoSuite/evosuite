@@ -8,10 +8,13 @@ import java.io.InputStreamReader;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.objectweb.asm.Type;
+
 public enum PureMethodsList {
 
 	instance;
-	
+
 	private Set<String> pureMethods;
 
 	private PureMethodsList() {
@@ -40,6 +43,24 @@ public enum PureMethodsList {
 					"Error in the initialization of the set containing the pure java.* methods");
 
 		return set;
+	}
+
+	public boolean checkPurity(BytecodeInstruction fieldCall) {
+		if(!fieldCall.isMethodCall())
+			throw new IllegalArgumentException("method only accepts method calls");
+		
+		String paraz = fieldCall.getMethodCallDescriptor();
+		Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(paraz);
+		String newParams = "";
+		if (parameters.length != 0) {
+			for (Type i : parameters) {
+				newParams = newParams + "," + i.getClassName();
+			}
+			newParams = newParams.substring(1, newParams.length());
+		}
+		String qualifiedName = fieldCall.getCalledMethodsClass() + "."
+				+ fieldCall.getCalledMethodName() + "(" + newParams + ")";
+		return checkPurity(qualifiedName);
 	}
 
 	public boolean checkPurity(String qualifiedName) {
