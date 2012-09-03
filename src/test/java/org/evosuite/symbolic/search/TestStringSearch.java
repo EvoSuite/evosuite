@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -28,16 +28,14 @@ import java.util.Map;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringConstant;
-import org.evosuite.symbolic.expr.StringMultipleComparison;
-import org.evosuite.symbolic.expr.StringVariable;
-import org.evosuite.symbolic.search.Seeker;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringVariable;
 import org.junit.Test;
-
 
 public class TestStringSearch {
 
@@ -46,7 +44,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foo";
 		String const2 = "test";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALS, strConst,
 		        0L);
@@ -65,7 +63,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foo";
 		String const2 = "foo";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALS, strConst,
 		        0L);
@@ -84,7 +82,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foo";
 		String const2 = "Fest";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALSIGNORECASE,
 		        strConst, 0L);
@@ -103,7 +101,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foo";
 		String const2 = "FOO";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALSIGNORECASE,
 		        strConst, 0L);
@@ -122,7 +120,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foo";
 		String const2 = "test";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		IntegerConstant offs_expr = new IntegerConstant(2);
 		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
@@ -145,7 +143,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "footest";
 		String const2 = "test";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		IntegerConstant offs_expr = new IntegerConstant(3);
 		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
@@ -168,7 +166,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foo";
 		String const2 = "test";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
 		Expression<?> strComp = new StringComparison(strVar, Operator.ENDSWITH, strConst,
@@ -188,7 +186,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "footest";
 		String const2 = "test";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
 		Expression<?> strComp = new StringComparison(strVar, Operator.ENDSWITH, strConst,
@@ -208,7 +206,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foo";
 		String const2 = "test";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
 		Expression<?> strComp = new StringComparison(strVar, Operator.CONTAINS, strConst,
@@ -228,7 +226,7 @@ public class TestStringSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "fotesto";
 		String const2 = "test";
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
 		Expression<?> strComp = new StringComparison(strVar, Operator.CONTAINS, strConst,
@@ -253,7 +251,7 @@ public class TestStringSearch {
 		int offset2 = 1;
 		int len = 4;
 
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		IntegerConstant len_expr = new IntegerConstant(len);
 		IntegerConstant offs_two = new IntegerConstant(offset2);
@@ -288,7 +286,7 @@ public class TestStringSearch {
 		int offset2 = 1;
 		int len = 4;
 
-		StringVariable strVar = new StringVariable("test1", var1, var1, var1);
+		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		IntegerConstant len_expr = new IntegerConstant(len);
 		IntegerConstant offs_two = new IntegerConstant(offset2);

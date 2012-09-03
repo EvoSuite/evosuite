@@ -49,8 +49,9 @@ public class ArrayLocalSearch extends LocalSearch {
 		if (backup == null)
 			return;
 
-		test.lastExecutionResult = backup.lastExecutionResult.clone();
+		// test.lastExecutionResult = backup.lastExecutionResult.clone();
 		test.test = backup.test.clone();
+		test.copyCachedResults(backup);
 		test.setFitness(backup.getFitness());
 		test.setChanged(backup.isChanged());
 
@@ -68,8 +69,12 @@ public class ArrayLocalSearch extends LocalSearch {
 
 		boolean hasImproved = false;
 		ArrayStatement p = (ArrayStatement) test.test.getStatement(statement);
+		logger.debug("Doing array local search on statement " + statement + ": "
+		        + test.getTestCase().toCode());
 
 		int difference = stripAssignments(p, test, objective);
+		logger.debug("Adjusting position from " + statement + " to "
+		        + (statement - difference) + ": " + test.getTestCase().toCode());
 		statement = statement - difference;
 		p = (ArrayStatement) test.test.getStatement(statement);
 
@@ -98,29 +103,46 @@ public class ArrayLocalSearch extends LocalSearch {
 		ArrayReference arrRef = (ArrayReference) statement.getReturnValue();
 		TestFactory factory = TestFactory.getInstance();
 		for (int position = test.size() - 1; position > statement.getPosition(); position--) {
+			logger.debug("Current delete position: " + position);
 			if (test.getTestCase().getStatement(position) instanceof AssignmentStatement) {
+				logger.debug("Is assignment statement");
 				AssignmentStatement assignment = (AssignmentStatement) test.getTestCase().getStatement(position);
 				StatementInterface valueStatement = test.getTestCase().getStatement(assignment.getValue().getStPosition());
 				if (assignment.getReturnValue().getAdditionalVariableReference() == arrRef) {
+
+					int currentDelta = 0;
+					int differenceDelta = 0;
+
+					logger.debug("Assigns to target array. Checking if we can remove it without worsening fitness");
 					backup(test);
 					try {
 						factory.deleteStatement(test.getTestCase(), position);
+
 						if (valueStatement instanceof PrimitiveStatement
 						        || valueStatement instanceof NullStatement) {
 							if (!test.getTestCase().hasReferences(valueStatement.getReturnValue())) {
 								if (valueStatement.getPosition() < statement.getPosition())
-									difference++;
-								position--;
-
+									differenceDelta = 1;
+								currentDelta = 1;
+								logger.debug("Deleting primitive statement assigned to this array at "
+								        + valueStatement.getPosition());
 								factory.deleteStatement(test.getTestCase(),
 								                        valueStatement.getPosition());
 							}
 						}
-						if (!objective.hasNotWorsened(test))
+						if (!objective.hasNotWorsened(test)) {
+							logger.debug("Fitness has decreased, so restoring test");
 							restore(test);
+							currentDelta = 0;
+							differenceDelta = 0;
+						}
 					} catch (ConstructionFailedException e) {
+						currentDelta = 0;
+						differenceDelta = 0;
 						restore(test);
 					}
+					position -= currentDelta;
+					difference += differenceDelta;
 				}
 			}
 		}

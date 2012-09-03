@@ -46,6 +46,7 @@ import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.objectweb.asm.tree.analysis.BasicValue;
 import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,7 +69,6 @@ public class ReplaceVariable implements MutationOperator {
 	@Override
 	public List<Mutation> apply(MethodNode mn, String className, String methodName,
 	        BytecodeInstruction instruction, Frame frame) {
-
 		List<Mutation> mutations = new LinkedList<Mutation>();
 		if (mn.localVariables.isEmpty()) {
 			logger.debug("Have no information about local variables - recompile with full debug information");
@@ -83,7 +83,8 @@ public class ReplaceVariable implements MutationOperator {
 			for (Entry<String, InsnList> mutation : getReplacements(
 			                                                        mn,
 			                                                        className,
-			                                                        instruction.getASMNode()).entrySet()) {
+			                                                        instruction.getASMNode(),
+			                                                        frame).entrySet()) {
 
 				if (numReplacements++ > Properties.MAX_REPLACE_MUTANTS) {
 					logger.info("Reached maximum number of variable replacements");
@@ -309,7 +310,7 @@ public class ReplaceVariable implements MutationOperator {
 	 * @return
 	 */
 	private Map<String, InsnList> getReplacements(MethodNode mn, String className,
-	        AbstractInsnNode node) {
+	        AbstractInsnNode node, Frame frame) {
 		Map<String, InsnList> variables = new HashMap<String, InsnList>();
 
 		if (node instanceof VarInsnNode) {
@@ -324,7 +325,7 @@ public class ReplaceVariable implements MutationOperator {
 
 				// FIXXME: ASM gets scopes wrong, so we only use primitive vars?
 				//if (!origVar.desc.startsWith("L"))
-				variables.putAll(getLocalReplacements(mn, origVar.desc, node));
+				variables.putAll(getLocalReplacements(mn, origVar.desc, node, frame));
 				variables.putAll(getFieldReplacements(mn, className, origVar.desc, node));
 			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable, not replacing it: " + var.var);
@@ -341,7 +342,7 @@ public class ReplaceVariable implements MutationOperator {
 			if (field.owner.replace("/", ".").equals(className)) {
 				logger.info("Looking for replacements for static field " + field.name
 				        + " of type " + field.desc);
-				variables.putAll(getLocalReplacements(mn, field.desc, node));
+				variables.putAll(getLocalReplacements(mn, field.desc, node, frame));
 				variables.putAll(getFieldReplacements(mn, className, field.desc, node));
 			}
 		} else if (node instanceof IincInsnNode) {
@@ -380,7 +381,7 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	private Map<String, InsnList> getLocalReplacements(MethodNode mn, String desc,
-	        AbstractInsnNode node) {
+	        AbstractInsnNode node, Frame frame) {
 		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
 
 		//if (desc.equals("I"))
@@ -391,7 +392,14 @@ public class ReplaceVariable implements MutationOperator {
 			VarInsnNode vNode = (VarInsnNode) node;
 			otherNum = vNode.var;
 		}
+		if (otherNum == -1)
+			return replacements;
+
 		int currentId = mn.instructions.indexOf(node);
+		logger.info("Looking for replacements at position " + currentId + " of variable "
+		        + otherNum + " of type " + desc);
+
+		//	return replacements;
 
 		for (Object v : mn.localVariables) {
 			LocalVariableNode localVar = (LocalVariableNode) v;
@@ -407,9 +415,13 @@ public class ReplaceVariable implements MutationOperator {
 				logger.info("- Out of scope (start)");
 			if (currentId > endId)
 				logger.info("- Out of scope (end)");
+			BasicValue newValue = (BasicValue) frame.getLocal(localVar.index);
+			if (newValue == BasicValue.UNINITIALIZED_VALUE)
+				logger.info("- Not initialized");
 
 			if (localVar.desc.equals(desc) && localVar.index != otherNum
-			        && currentId >= startId && currentId <= endId) {
+			        && currentId >= startId && currentId <= endId
+			        && newValue != BasicValue.UNINITIALIZED_VALUE) {
 
 				logger.info("Adding local variable " + localVar.name + " of type "
 				        + localVar.desc + " at index " + localVar.index + ",  " + startId
@@ -480,7 +492,8 @@ public class ReplaceVariable implements MutationOperator {
 		}
 		try {
 			logger.info("Checking class " + className);
-			Class<?> clazz = Class.forName(className);
+			Class<?> clazz = Class.forName(className, false,
+			                               ReplaceVariable.class.getClassLoader());
 
 			for (Field field : TestClusterGenerator.getFields(clazz)) {
 				Type type = Type.getType(field.getType());
@@ -516,7 +529,7 @@ public class ReplaceVariable implements MutationOperator {
 					        + type.getDescriptor());
 				}
 			}
-		} catch (ClassNotFoundException e) {
+		} catch (Throwable t) {
 			logger.info("Class not found: " + className);
 			// TODO Auto-generated catch block
 			//e.printStackTrace();
@@ -590,7 +603,7 @@ public class ReplaceVariable implements MutationOperator {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isApplicable(BytecodeInstruction instruction) {
-		return instruction.isLocalVarUse()
+		return instruction.isLocalVariableUse()
 		        || instruction.getASMNode().getOpcode() == Opcodes.GETSTATIC
 		        || instruction.getASMNode().getOpcode() == Opcodes.GETFIELD;
 	}

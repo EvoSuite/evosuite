@@ -300,6 +300,8 @@ public class FieldReference extends VariableReferenceImpl {
 			throw new CodeUnderTestException(e);
 		} catch (ExceptionInInitializerError e) {
 			throw new CodeUnderTestException(e);
+		} catch (NoClassDefFoundError e) {
+			throw new EvosuiteError(e);
 		}
 	}
 

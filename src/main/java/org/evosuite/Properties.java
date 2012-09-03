@@ -292,7 +292,7 @@ public class Properties {
 	public static long LOCAL_SEARCH_BUDGET = 100;
 
 	public enum LocalSearchBudgetType {
-		STATEMENTS, TIME
+		STATEMENTS, TIME, INDIVIDUALS
 	}
 
 	/** Constant <code>LOCAL_SEARCH_BUDGET_TYPE</code> */
@@ -302,6 +302,15 @@ public class Properties {
 	/** Constant <code>LOCAL_SEARCH_PROBES=10</code> */
 	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
 	public static int LOCAL_SEARCH_PROBES = 10;
+
+	@Parameter(key = "local_search_primitives", group = "Search Algorithm", description = "Perform local search on primitive values")
+	public static boolean LOCAL_SEARCH_PRIMITIVES = true;
+
+	@Parameter(key = "local_search_arrays", group = "Search Algorithm", description = "Perform local search on array statements")
+	public static boolean LOCAL_SEARCH_ARRAYS = true;
+
+	@Parameter(key = "local_search_references", group = "Search Algorithm", description = "Perform local search on reference types")
+	public static boolean LOCAL_SEARCH_REFERENCES = true;
 
 	/** Constant <code>CROSSOVER_RATE=0.75</code> */
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
@@ -591,7 +600,7 @@ public class Properties {
 	public static int MAX_MUTANTS_PER_TEST = 100;
 
 	@Parameter(key = "max_mutants_per_method", group = "Output", description = "How many mutants can be inserted into a single method")
-	public static int MAX_MUTANTS_PER_METHOD = 1000;
+	public static int MAX_MUTANTS_PER_METHOD = 700;
 
 	@Parameter(key = "max_replace_mutants", group = "Output", description = "How many replacement mutants can be inserted for any one variable")
 	public static int MAX_REPLACE_MUTANTS = 100;
@@ -869,6 +878,10 @@ public class Properties {
 	/** Constant <code>ENABLE_ALTERNATIVE_FITNESS_CALCULATION=false</code> */
 	@Parameter(key = "enable_alternative_fitness_calculation", description = "")
 	public static boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = false;
+
+	/** Constant <code>ENABLE_ALTERNATIVE_FITNESS_CALCULATION=false</code> */
+	@Parameter(key = "enable_alternative_suite_fitness", description = "")
+	public static boolean ENABLE_ALTERNATIVE_SUITE_FITNESS = false;
 
 	/** Constant <code>DEFUSE_DEBUG_MODE=false</code> */
 	@Parameter(key = "defuse_debug_mode", description = "")
@@ -1597,7 +1610,9 @@ public class Properties {
 		BytecodeInstructionPool.clear();
 
 		try {
-			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
+			                                      TestCluster.classLoader);
+			//TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS, true);
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("* Could not find class under test: " + e);

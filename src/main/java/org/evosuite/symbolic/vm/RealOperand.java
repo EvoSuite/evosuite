@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 
 /**
  * 
@@ -9,5 +9,5 @@ import org.evosuite.symbolic.expr.RealExpression;
  */
 public interface RealOperand extends Operand {
 
-	public RealExpression getRealExpression();
+	public RealValue getRealExpression();
 }

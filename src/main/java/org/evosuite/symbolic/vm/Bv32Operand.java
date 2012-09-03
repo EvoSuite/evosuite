@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 
 /**
  * 
@@ -9,14 +9,14 @@ import org.evosuite.symbolic.expr.IntegerExpression;
  */
 public final class Bv32Operand implements SingleWordOperand, IntegerOperand {
 
-	private final IntegerExpression integerExpr;
+	private final IntegerValue integerExpr;
 
-	public Bv32Operand(IntegerExpression integerExpr) {
+	public Bv32Operand(IntegerValue integerExpr) {
 		this.integerExpr = integerExpr;
 	}
 
 	@Override
-	public IntegerExpression getIntegerExpression() {
+	public IntegerValue getIntegerExpression() {
 		return integerExpr;
 	}
 

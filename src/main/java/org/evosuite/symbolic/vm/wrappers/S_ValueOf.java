@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -14,7 +14,7 @@ public final class S_ValueOf extends Function {
 		super(env, Types.JAVA_LANG_SHORT, VALUE_OF, Types.S_TO_SHORT);
 	}
 
-	private IntegerExpression bv32;
+	private IntegerValue bv32;
 
 	@Override
 	public void INVOKESTATIC() {

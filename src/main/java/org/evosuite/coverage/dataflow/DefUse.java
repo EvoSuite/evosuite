@@ -83,7 +83,7 @@ public class DefUse extends BytecodeInstruction {
 				        "field method calls only accepted once they got categorized");
 		}
 
-		this.varName = super.getDUVariableName();
+		this.varName = super.getVariableName();
 		if (this.varName == null)
 			throw new IllegalStateException(
 			        "expect defUses to have non-null varaible names");
@@ -147,7 +147,7 @@ public class DefUse extends BytecodeInstruction {
 		if (!instruction.isDefUse())
 			return false;
 
-		return varName.equals(instruction.getDUVariableName());
+		return varName.equals(instruction.getVariableName());
 	}
 
 	/**
@@ -174,7 +174,7 @@ public class DefUse extends BytecodeInstruction {
 
 	/** {@inheritDoc} */
 	@Override
-	public String getDUVariableName() {
+	public String getVariableName() {
 		return varName;
 	}
 
@@ -238,7 +238,7 @@ public class DefUse extends BytecodeInstruction {
 		if (isStaticDefUse())
 			r.append("static ");
 		r.append(getDUVariableType());
-		r.append("-Variable \"" + getDUVariableName() + "\"");
+		r.append("-Variable \"" + getVariableName() + "\"");
 		r.append(" in " + getMethodName() + "." + getInstructionId());
 		if (isRootBranchDependent())
 			r.append(" root-Branch");
@@ -248,4 +248,57 @@ public class DefUse extends BytecodeInstruction {
 		r.append(" Line " + getLineNumber());
 		return r.toString();
 	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = super.hashCode();
+		result = prime * result + defId;
+		result = prime * result + defuseId;
+		result = prime * result + (isFieldMethodCall ? 1231 : 1237);
+		result = prime * result + (isFieldMethodCallDefinition ? 1231 : 1237);
+		result = prime * result + (isFieldMethodCallUse ? 1231 : 1237);
+		result = prime * result + (isParameterUse ? 1231 : 1237);
+		result = prime * result + useId;
+		result = prime * result + ((varName == null) ? 0 : varName.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (!super.equals(obj))
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		DefUse other = (DefUse) obj;
+		if (defId != other.defId)
+			return false;
+		if (defuseId != other.defuseId)
+			return false;
+		if (isFieldMethodCall != other.isFieldMethodCall)
+			return false;
+		if (isFieldMethodCallDefinition != other.isFieldMethodCallDefinition)
+			return false;
+		if (isFieldMethodCallUse != other.isFieldMethodCallUse)
+			return false;
+		if (isParameterUse != other.isParameterUse)
+			return false;
+		if (useId != other.useId)
+			return false;
+		if (varName == null) {
+			if (other.varName != null)
+				return false;
+		} else if (!varName.equals(other.varName))
+			return false;
+		return true;
+	}
+
 }

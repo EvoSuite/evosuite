@@ -4,8 +4,8 @@ import java.util.Deque;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealValue;
 
 /**
  * 
@@ -23,19 +23,19 @@ public final class OperandStack implements Iterable<Operand> {
 		stack.push(new ReferenceOperand(r));
 	}
 
-	public void pushBv32(IntegerExpression e) {
+	public void pushBv32(IntegerValue e) {
 		stack.push(new Bv32Operand(e));
 	}
 
-	public void pushBv64(IntegerExpression e) {
+	public void pushBv64(IntegerValue e) {
 		stack.push(new Bv64Operand(e));
 	}
 
-	public void pushFp32(RealExpression e) {
+	public void pushFp32(RealValue e) {
 		stack.push(new Fp32Operand(e));
 	}
 
-	public void pushFp64(RealExpression e) {
+	public void pushFp64(RealValue e) {
 		stack.push(new Fp64Operand(e));
 	}
 
@@ -45,25 +45,25 @@ public final class OperandStack implements Iterable<Operand> {
 		return ref.getReference();
 	}
 
-	public IntegerExpression popBv32() {
+	public IntegerValue popBv32() {
 		Operand x = this.popOperand();
 		Bv32Operand e = (Bv32Operand) x;
 		return e.getIntegerExpression();
 	}
 
-	public IntegerExpression popBv64() {
+	public IntegerValue popBv64() {
 		Operand x = this.popOperand();
 		Bv64Operand e = (Bv64Operand) x;
 		return e.getIntegerExpression();
 	}
 
-	public RealExpression popFp32() {
+	public RealValue popFp32() {
 		Operand x = this.popOperand();
 		Fp32Operand e = (Fp32Operand) x;
 		return e.getRealExpression();
 	}
 
-	public RealExpression popFp64() {
+	public RealValue popFp64() {
 		Operand x = this.popOperand();
 		Fp64Operand e = (Fp64Operand) x;
 		return e.getRealExpression();
@@ -82,25 +82,25 @@ public final class OperandStack implements Iterable<Operand> {
 		stack.push(operand);
 	}
 
-	public RealExpression peekFp64() {
+	public RealValue peekFp64() {
 		Operand operand = stack.peek();
 		Fp64Operand fp64 = (Fp64Operand) operand;
 		return fp64.getRealExpression();
 	}
 
-	public RealExpression peekFp32() {
+	public RealValue peekFp32() {
 		Operand operand = stack.peek();
 		Fp32Operand fp32 = (Fp32Operand) operand;
 		return fp32.getRealExpression();
 	}
 
-	public IntegerExpression peekBv64() {
+	public IntegerValue peekBv64() {
 		Operand operand = stack.peek();
 		Bv64Operand bv64 = (Bv64Operand) operand;
 		return bv64.getIntegerExpression();
 	}
 
-	public IntegerExpression peekBv32() {
+	public IntegerValue peekBv32() {
 		Operand operand = stack.peek();
 		Bv32Operand bv32 = (Bv32Operand) operand;
 		return bv32.getIntegerExpression();

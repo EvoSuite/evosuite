@@ -102,7 +102,6 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 		this.className = className;
 		this.methodName = methodName;
-
 		setId();
 		setInstructions(blockNodes);
 
@@ -123,7 +122,6 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 
 		this.className = className;
 		this.methodName = methodName;
-
 		this.isAuxiliaryBlock = true;
 	}
 
@@ -420,39 +418,57 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 		return r;
 	}
 
-	/** {@inheritDoc} */
+
+
+	// sanity check
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((className == null) ? 0 : className.hashCode());
+		result = prime * result + id;
+		result = prime * result
+				+ ((instructions == null) ? 0 : instructions.hashCode());
+		result = prime * result + (isAuxiliaryBlock ? 1231 : 1237);
+		result = prime * result
+				+ ((methodName == null) ? 0 : methodName.hashCode());
+		return result;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
-
-		// logger.debug(getName() + " got asked asked for equality");
-
 		if (this == obj)
 			return true;
 		if (obj == null)
 			return false;
 		if (!(obj instanceof BasicBlock))
 			return false;
-
 		BasicBlock other = (BasicBlock) obj;
-
-		// logger.debug(".. other object different instance of BasicBlock "+other.getName());
-
-		if (!className.equals(other.className))
+		if (id != other.id)
 			return false;
-		if (!methodName.equals(other.methodName))
-			return false;
-		if (this.instructions.size() != other.instructions.size())
-			return false;
-		for (BytecodeInstruction instruction : other.instructions)
-			if (!this.instructions.contains(instruction))
+		if (className == null) {
+			if (other.className != null)
 				return false;
-
-		// logger.debug("was different instance but equal");
-
+		} else if (!className.equals(other.className))
+			return false;
+		if (methodName == null) {
+			if (other.methodName != null)
+				return false;
+		} else if (!methodName.equals(other.methodName))
+			return false;
+		if (instructions == null) {
+			if (other.instructions != null)
+				return false;
+		} else if (!instructions.equals(other.instructions))
+			return false;
+		if (isEntryBlock() != other.isEntryBlock())
+			return false;
+		if (isExitBlock() != other.isExitBlock())
+			return false;
 		return true;
 	}
-
-	// sanity check
 
 	/**
 	 * <p>

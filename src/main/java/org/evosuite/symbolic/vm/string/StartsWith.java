@@ -5,18 +5,18 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringMultipleComparison;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
 public final class StartsWith extends StringFunction {
 
-	private StringExpression prefixExpr;
-	private IntegerExpression offsetExpr;
+	private StringValue prefixExpr;
+	private IntegerValue offsetExpr;
 
 	private static final String STARTS_WITH = "startsWith";
 

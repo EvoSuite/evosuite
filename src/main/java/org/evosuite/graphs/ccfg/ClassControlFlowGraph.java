@@ -318,10 +318,10 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				throw new IllegalStateException(
 						"expect each CCFGMethodEntryNode to have its entryInstruction set");
 
-			r.addAll(determineInterMethodPairs(publicMethodEntry));
+			r.addAll(determineIntraInterMethodPairs(publicMethodEntry));
 		}
 		// create intra-method pairs
-		r.addAll(createIntraMethodPairs());
+		r.addAll(createIntraClassPairs());
 
 		freeMemory();
 		return r;
@@ -356,7 +356,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			if (analyzedMethods.contains(analyzeableEntry))
 				continue;
 
-			r.addAll(determineInterMethodPairs(analyzeableEntry));
+			r.addAll(determineIntraInterMethodPairs(analyzeableEntry));
 
 			// check if we can pre-analyze further methods now
 			Set<ClassCallNode> parents = ccg.getParents(currentMethod);
@@ -408,7 +408,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 	// intra-class pairs
 
-	private Set<DefUseCoverageTestFitness> createIntraMethodPairs() {
+	private Set<DefUseCoverageTestFitness> createIntraClassPairs() {
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 
 		for (String method : determinedFreeUses.keySet()) {
@@ -418,13 +418,13 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				continue;
 			}
 			for (BytecodeInstruction freeUse : determinedFreeUses.get(method))
-				r.addAll(createIntraMethodPairsForFreeUse(freeUse));
+				r.addAll(createIntraClassPairsForFreeUse(freeUse));
 		}
 
 		return r;
 	}
 
-	private Set<DefUseCoverageTestFitness> createIntraMethodPairsForFreeUse(
+	private Set<DefUseCoverageTestFitness> createIntraClassPairsForFreeUse(
 			BytecodeInstruction freeUse) {
 		checkFreeUseSanity(freeUse);
 
@@ -443,7 +443,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// continue;
 
 				BytecodeInstruction activeDef = activeDefs.get(freeUse
-						.getDUVariableName());
+						.getVariableName());
 				if (activeDef == null)
 					continue;
 				addNewGoalToFoundPairs(null, activeDef, freeUse,
@@ -453,9 +453,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return r;
 	}
 
-	// inter-method pair search
+	// intra- and inter-method pair search
 
-	private Set<DefUseCoverageTestFitness> determineInterMethodPairs(
+	private Set<DefUseCoverageTestFitness> determineIntraInterMethodPairs(
 			CCFGMethodEntryNode methodEntry) {
 
 		long start = System.currentTimeMillis();
@@ -475,7 +475,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		Stack<MethodCall> callStack = createInitialCallStack(methodEntry);
 
 		// search
-		Integer calls = determineInterMethodPairs(methodEntry,
+		Integer calls = determineIntraInterMethodPairs(methodEntry,
 				methodEntry.getEntryInstruction(), new HashSet<CCFGNode>(),
 				new HashSet<CCFGEdge>(), activeDefs, freeUses, foundPairs,
 				callStack, 0, true);
@@ -518,7 +518,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return foundPairs;
 	}
 
-	private int determineInterMethodPairs(
+	private int determineIntraInterMethodPairs(
 			CCFGMethodEntryNode investigatedMethod, CCFGNode node,
 			Set<CCFGNode> handled, Set<CCFGEdge> handledBackEdges,
 			Set<Map<String, VariableDefinition>> activeDefs,
@@ -607,7 +607,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// only have to copy stuff if current node has more than one
 				// child
 				if (children.size() > 1)
-					invocationCount = determineInterMethodPairs(
+					invocationCount = determineIntraInterMethodPairs(
 							investigatedMethod, child, new HashSet<CCFGNode>(
 									handled), new HashSet<CCFGEdge>(
 									handledBackEdges),
@@ -616,7 +616,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 							foundPairs, copyCallStack(nextCallStack),
 							invocationCount, handleLoops);
 				else
-					invocationCount = determineInterMethodPairs(
+					invocationCount = determineIntraInterMethodPairs(
 							investigatedMethod, child, handled,
 							handledBackEdges, activeDefs, freeUses, foundPairs,
 							nextCallStack, invocationCount, handleLoops);
@@ -783,7 +783,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		VariableDefinition def = new VariableDefinition(code, callStack.peek());
 		for (Map<String, VariableDefinition> activeDefMap : activeDefMaps) {
-			activeDefMap.put(code.getDUVariableName(), def);
+			activeDefMap.put(code.getVariableName(), def);
 			// System.out.println("  setting activeDef:" + def.toString());
 		}
 	}
@@ -794,7 +794,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			Set<BytecodeInstruction> freeUses,
 			Set<DefUseCoverageTestFitness> foundPairs) {
 
-		String varName = code.getDUVariableName();
+		String varName = code.getVariableName();
 //		LoggingUtils.getEvoLogger().info("Processing Use for "+varName);
 
 		for (Map<String, VariableDefinition> activeDefs : activeDefMaps) {
@@ -923,7 +923,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		for (BytecodeInstruction freeUseInCalledMethod : freeUsesInCalledMethod) {
 			for (Map<String, VariableDefinition> activeDefMap : activeDefMapsInCaller) {
 				VariableDefinition activeDef = activeDefMap
-						.get(freeUseInCalledMethod.getDUVariableName());
+						.get(freeUseInCalledMethod.getVariableName());
 
 				if (activeDef == null) {
 					// there was a path to the calledMethod that did not define

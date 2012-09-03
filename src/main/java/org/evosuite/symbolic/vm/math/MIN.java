@@ -3,11 +3,11 @@ package org.evosuite.symbolic.vm.math;
 import java.util.Stack;
 
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerBinaryExpression;
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealBinaryExpression;
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
@@ -22,7 +22,7 @@ public abstract class MIN {
 		}
 
 		@Override
-		protected RealExpression executeFunction(double res) {
+		protected RealValue executeFunction(double res) {
 			RealBinaryExpression sym_val = new RealBinaryExpression(left,
 					Operator.MIN, right, res);
 			return sym_val;
@@ -37,7 +37,7 @@ public abstract class MIN {
 		}
 
 		@Override
-		protected RealExpression executeFunction(float res) {
+		protected RealValue executeFunction(float res) {
 			RealBinaryExpression sym_val = new RealBinaryExpression(left,
 					Operator.MIN, right, (double) res);
 			return sym_val;
@@ -51,9 +51,9 @@ public abstract class MIN {
 			super(env, MIN);
 		}
 
-		public IntegerExpression execute(Stack<Expression<?>> params, int res) {
-			IntegerExpression right = (IntegerExpression) params.pop();
-			IntegerExpression left = (IntegerExpression) params.pop();
+		public IntegerValue execute(Stack<Expression<?>> params, int res) {
+			IntegerValue right = (IntegerValue) params.pop();
+			IntegerValue left = (IntegerValue) params.pop();
 			if (left.containsSymbolicVariable()
 					|| right.containsSymbolicVariable()) {
 				IntegerBinaryExpression sym_val = new IntegerBinaryExpression(
@@ -64,7 +64,7 @@ public abstract class MIN {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(int res) {
+		protected IntegerValue executeFunction(int res) {
 			IntegerBinaryExpression sym_val = new IntegerBinaryExpression(left,
 					Operator.MIN, right, (long) res);
 			return sym_val;
@@ -79,7 +79,7 @@ public abstract class MIN {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(long res) {
+		protected IntegerValue executeFunction(long res) {
 			IntegerBinaryExpression sym_val = new IntegerBinaryExpression(left,
 					Operator.MIN, right, res);
 			return sym_val;

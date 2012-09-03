@@ -3,8 +3,8 @@ package org.evosuite.symbolic.vm.string;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringBinaryExpression;
-import org.evosuite.symbolic.expr.StringExpression;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -14,7 +14,7 @@ public final class Concat extends StringFunction {
 
 	private static final String CONCAT = "concat";
 
-	private StringExpression strExpr;
+	private StringValue strExpr;
 
 	public Concat(SymbolicEnvironment env) {
 		super(env, CONCAT, Types.STR_TO_STR_DESCRIPTOR);

@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -29,7 +29,7 @@ public final class J_LongValue extends Function {
 
 	@Override
 	public void CALL_RESULT(long conc_long_value) {
-		IntegerExpression symb_long_value = env.heap.getField(
+		IntegerValue symb_long_value = env.heap.getField(
 				Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE, conc_long, symb_long,
 				conc_long_value);
 

@@ -20,6 +20,7 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.LocalSearchObjective;
 
 /**
@@ -59,9 +60,15 @@ public abstract class LocalSearch {
 	public static LocalSearch getLocalSearchFor(StatementInterface statement) {
 		LocalSearch search = null;
 		if (statement instanceof NullStatement) {
+			if (Properties.LOCAL_SEARCH_REFERENCES == false)
+				return null;
+
 			search = new ReferenceLocalSearch();
 			//search = new NullReferenceSearch();
 		} else if (statement instanceof PrimitiveStatement<?>) {
+			if (Properties.LOCAL_SEARCH_PRIMITIVES == false)
+				return null;
+
 			Class<?> type = statement.getReturnValue().getVariableClass();
 			if (type.equals(Integer.class) || type.equals(int.class)) {
 				search = new IntegerLocalSearch<Integer>();
@@ -85,12 +92,24 @@ public abstract class LocalSearch {
 				search = new EnumLocalSearch();
 			}
 		} else if (statement instanceof ArrayStatement) {
+			if (Properties.LOCAL_SEARCH_ARRAYS == false)
+				return null;
+
 			search = new ArrayLocalSearch();
 		} else if (statement instanceof MethodStatement) {
+			if (Properties.LOCAL_SEARCH_REFERENCES == false)
+				return null;
+
 			search = new ReferenceLocalSearch();
 		} else if (statement instanceof ConstructorStatement) {
+			if (Properties.LOCAL_SEARCH_REFERENCES == false)
+				return null;
+
 			search = new ReferenceLocalSearch();
 		} else if (statement instanceof FieldStatement) {
+			if (Properties.LOCAL_SEARCH_REFERENCES == false)
+				return null;
+
 			search = new ReferenceLocalSearch();
 		}
 		return search;

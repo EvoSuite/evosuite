@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -29,7 +29,7 @@ public final class I_IntValue extends Function {
 
 	@Override
 	public void CALL_RESULT(int conc_int_value) {
-		IntegerExpression symb_int_value = env.heap.getField(
+		IntegerValue symb_int_value = env.heap.getField(
 				Types.JAVA_LANG_INTEGER, SymbolicHeap.$INT_VALUE, conc_integer, symb_integer,
 				conc_int_value);
 

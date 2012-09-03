@@ -1,13 +1,13 @@
 package org.evosuite.symbolic.vm;
 
-import org.evosuite.symbolic.expr.IntegerConstant;
-import org.evosuite.symbolic.expr.RealConstant;
-import org.evosuite.symbolic.expr.StringConstant;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.str.StringConstant;
 
 /**
  * 
  * @author galeotti
- *
+ * 
  */
 public abstract class ExpressionFactory {
 

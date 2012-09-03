@@ -31,13 +31,13 @@ import java.util.Map;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerBinaryExpression;
-import org.evosuite.symbolic.expr.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.IntegerVariable;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringBinaryExpression;
-import org.evosuite.symbolic.expr.StringConstant;
+import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.junit.Ignore;
 import org.junit.Test;
 
