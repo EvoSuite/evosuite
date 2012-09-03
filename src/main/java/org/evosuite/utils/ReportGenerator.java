@@ -174,6 +174,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public double mutationScore = 0.0;
 
+		public Map<String, Double> coverageMap = new HashMap<String, Double>();
+
 		/** Resulting test cases */
 		public List<TestCase> tests = null;
 

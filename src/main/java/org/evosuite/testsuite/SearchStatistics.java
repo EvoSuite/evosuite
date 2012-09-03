@@ -296,6 +296,16 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.mutationScore = mutationScore;
 	}
 
+	public void addCoverage(String criterion, double coverage) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		entry.coverageMap.put(criterion, coverage);
+	}
+
+	public void setCoveredGoals(int num) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		entry.covered_goals = num;
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public void minimized(Chromosome chromosome) {
