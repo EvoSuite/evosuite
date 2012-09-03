@@ -3,9 +3,8 @@ package org.evosuite.symbolic.vm.regex;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringComparison;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Operand;
@@ -36,8 +35,8 @@ public final class Pattern_Matches extends Function {
 
 	}
 
-	private StringExpression symb_regex;
-	private StringExpression symb_input;
+	private StringValue symb_regex;
+	private StringValue symb_input;
 
 	@Override
 	public void CALL_RESULT(boolean res) {

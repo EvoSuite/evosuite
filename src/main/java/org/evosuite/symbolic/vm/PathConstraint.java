@@ -7,13 +7,13 @@ import java.util.Stack;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerComparison;
-import org.evosuite.symbolic.expr.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerComparison;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.expr.IntegerExpression;
-import org.evosuite.symbolic.expr.RealComparison;
+import org.evosuite.symbolic.expr.bv.RealComparison;
 import org.evosuite.symbolic.expr.RealConstraint;
-import org.evosuite.symbolic.expr.StringComparison;
 
 /**
  * 
@@ -66,8 +66,8 @@ public final class PathConstraint {
 		return new LinkedList<BranchCondition>(branchConditions);
 	}
 
-	private IntegerConstraint createNormalizedIntegerConstraint(IntegerExpression left,
-	        Comparator comp, IntegerExpression right) {
+	private IntegerConstraint createNormalizedIntegerConstraint(IntegerValue left,
+	        Comparator comp, IntegerValue right) {
 		IntegerConstant integerConstant = (IntegerConstant) right;
 		StringComparison stringComparison = (StringComparison) left;
 
@@ -77,8 +77,8 @@ public final class PathConstraint {
 
 	}
 
-	private static boolean isStringConstraint(IntegerExpression left, Comparator comp,
-	        IntegerExpression right) {
+	private static boolean isStringConstraint(IntegerValue left, Comparator comp,
+	        IntegerValue right) {
 
 		return ((comp.equals(Comparator.NE) || comp.equals(Comparator.EQ))
 		        && (left instanceof StringComparison) && (right instanceof IntegerConstant));
@@ -86,9 +86,9 @@ public final class PathConstraint {
 	}
 
 	private Constraint<?> removeStringComparison(IntegerConstraint c) {
-		IntegerExpression left = (IntegerExpression) c.getLeftOperand();
+		IntegerValue left = (IntegerValue) c.getLeftOperand();
 		Comparator comp = c.getComparator();
-		IntegerExpression right = (IntegerExpression) c.getRightOperand();
+		IntegerValue right = (IntegerValue) c.getRightOperand();
 
 		if (isStringConstraint(left, comp, right))
 			return createNormalizedIntegerConstraint(left, comp, right);

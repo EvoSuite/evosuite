@@ -1,10 +1,10 @@
 package org.evosuite.symbolic.vm.math;
 
-import org.evosuite.symbolic.expr.IntegerBinaryExpression;
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealBinaryExpression;
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
@@ -19,7 +19,7 @@ public abstract class MAX {
 		}
 
 		@Override
-		protected RealExpression executeFunction(double res) {
+		protected RealValue executeFunction(double res) {
 			RealBinaryExpression sym_val = new RealBinaryExpression(left,
 					Operator.MAX, right, res);
 			return sym_val;
@@ -34,7 +34,7 @@ public abstract class MAX {
 		}
 
 		@Override
-		protected RealExpression executeFunction(float res) {
+		protected RealValue executeFunction(float res) {
 			RealBinaryExpression sym_val = new RealBinaryExpression(left,
 					Operator.MAX, right, (double) res);
 			return sym_val;
@@ -49,7 +49,7 @@ public abstract class MAX {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(int res) {
+		protected IntegerValue executeFunction(int res) {
 			IntegerBinaryExpression sym_val = new IntegerBinaryExpression(left,
 					Operator.MAX, right, (long) res);
 			return sym_val;
@@ -64,7 +64,7 @@ public abstract class MAX {
 		}
 
 		@Override
-		protected IntegerExpression executeFunction(long res) {
+		protected IntegerValue executeFunction(long res) {
 			IntegerBinaryExpression sym_val = new IntegerBinaryExpression(left,
 					Operator.MAX, right, res);
 			return sym_val;

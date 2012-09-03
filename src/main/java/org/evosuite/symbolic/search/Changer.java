@@ -23,9 +23,9 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerVariable;
-import org.evosuite.symbolic.expr.RealVariable;
-import org.evosuite.symbolic.expr.StringVariable;
+import org.evosuite.symbolic.expr.bv.IntegerVariable;
+import org.evosuite.symbolic.expr.fp.RealVariable;
+import org.evosuite.symbolic.expr.str.StringVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -74,7 +74,7 @@ public class Changer {
 	}
 
 	private void backup(StringVariable var, double newDist) {
-		var.setMaxValue(var.getMinValue());
+		var.setMaxValue(var.getConcreteValue());
 		oldDist = newDist;
 	}
 
@@ -88,7 +88,7 @@ public class Changer {
 	}
 
 	private void restore(StringVariable var) {
-		var.setMinValue(var.getMaxValue());
+		var.setConcreteValue(var.getMaxValue());
 	}
 
 	/**
@@ -170,11 +170,13 @@ public class Changer {
 		String oldString = strVar.execute();
 		for (int i = oldString.length() - 1; i >= 0; i--) {
 			String newStr = oldString.substring(0, i) + oldString.substring(i + 1);
-			strVar.setMinValue(newStr);
+			strVar.setConcreteValue(newStr);
+			log.debug("Current attempt: " + newStr);
 
 			double newDist = DistanceEstimator.getDistance(cnstr);
 
 			if (distImpr(newDist)) {
+				log.debug("Distance improved, keeping change");
 				improvement = true;
 				oldString = newStr;
 				varsToChange.put(strVar.getName(), newStr);
@@ -183,11 +185,12 @@ public class Changer {
 				}
 				backup(strVar, newDist);
 			} else {
+				log.debug("Distance did not improve, reverting change");
 				restore(strVar);
 			}
 		}
 
-		// try to replace each 
+		// try to replace each
 		log.debug("Trying to replace characters");
 		// Backup is done internally
 		if (doStringAVM(strVar, cnstr, varsToChange, oldString)) {
@@ -208,7 +211,7 @@ public class Changer {
 			while (add) {
 				add = false;
 				String newStr = oldString.substring(0, i) + '_' + oldString.substring(i);
-				strVar.setMinValue(newStr);
+				strVar.setConcreteValue(newStr);
 				double newDist = DistanceEstimator.getDistance(cnstr);
 				log.debug("Adding " + i + ": " + newStr + ": " + newDist);
 
@@ -277,7 +280,7 @@ public class Changer {
 			replacement++;
 			characters[position] = replacement;
 			String newString = new String(characters);
-			strVar.setMinValue(newString);
+			strVar.setConcreteValue(newString);
 			double newDist = DistanceEstimator.getDistance(cnstr);
 			log.debug("Probing increment " + position + ": " + newString + ": " + newDist
 			        + " replacement = " + (int) replacement);
@@ -294,7 +297,7 @@ public class Changer {
 				replacement -= 2;
 				characters[position] = replacement;
 				newString = new String(characters);
-				strVar.setMinValue(newString);
+				strVar.setConcreteValue(newString);
 				newDist = DistanceEstimator.getDistance(cnstr);
 				log.debug("Probing decrement " + position + ": " + newString + ": "
 				        + newDist + " replacement = " + (int) replacement);
@@ -338,7 +341,7 @@ public class Changer {
 		replacement += delta;
 		characters[position] = replacement;
 		String newString = new String(characters);
-		strVar.setMinValue(newString);
+		strVar.setConcreteValue(newString);
 		double newDist = DistanceEstimator.getDistance(cnstr);
 
 		while (distImpr(newDist)) {
@@ -358,7 +361,7 @@ public class Changer {
 			newString = new String(characters);
 			log.info(" " + position + " " + oldString + "/" + oldString.length() + " -> "
 			        + newString + "/" + newString.length());
-			strVar.setMinValue(newString);
+			strVar.setConcreteValue(newString);
 			newDist = DistanceEstimator.getDistance(cnstr);
 		}
 		log.debug("No improvement on " + oldString);
@@ -426,9 +429,9 @@ public class Changer {
 		if (improvement) {
 			varsToChange.put(intVar.getName(), intVar.getConcreteValue());
 			log.debug("Finished long local search with new value " + intVar);
-			//if (DistanceEstimator.getDistance(cnstr) == 0) {
+			// if (DistanceEstimator.getDistance(cnstr) == 0) {
 			return true;
-			//}
+			// }
 		}
 
 		return false;
@@ -454,7 +457,8 @@ public class Changer {
 		improvement = doRealSearch(realVar, cnstr, 1.0, 2.0);
 
 		if (oldDist > 0) {
-			//improvement = doRealSearch(realVar, cnstr, Double.MIN_VALUE, 2.0);
+			// improvement = doRealSearch(realVar, cnstr, Double.MIN_VALUE,
+			// 2.0);
 			if (afterCommaSearch(realVar, cnstr))
 				improvement = true;
 		}
@@ -462,9 +466,9 @@ public class Changer {
 		if (improvement) {
 			varsToChange.put(realVar.getName(), realVar.getConcreteValue());
 			log.debug("Finished real local search with new value " + realVar);
-			//if (oldDist <= 0) {
-			//	return true;
-			//}
+			// if (oldDist <= 0) {
+			// return true;
+			// }
 			return true;
 		}
 
@@ -543,7 +547,8 @@ public class Changer {
 	private boolean afterCommaSearch(RealVariable realVar, Collection<Constraint<?>> cnstr) {
 		boolean improvement = false;
 
-		// Assume that floats have 7 digits after comma and double 15. This is based on Flopsy
+		// Assume that floats have 7 digits after comma and double 15. This is
+		// based on Flopsy
 		int maxPrecision = realVar.getMaxValue() > Float.MAX_VALUE ? 15 : 7;
 
 		for (int precision = 1; precision <= maxPrecision; precision++) {

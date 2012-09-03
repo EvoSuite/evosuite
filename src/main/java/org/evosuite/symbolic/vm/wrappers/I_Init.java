@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -8,7 +8,7 @@ import org.evosuite.symbolic.vm.SymbolicHeap;
 
 public final class I_Init extends Function {
 
-	private IntegerExpression bv32;
+	private IntegerValue bv32;
 
 	public I_Init(SymbolicEnvironment env) {
 		super(env, Types.JAVA_LANG_INTEGER, Types.INIT, Types.I_TO_VOID);

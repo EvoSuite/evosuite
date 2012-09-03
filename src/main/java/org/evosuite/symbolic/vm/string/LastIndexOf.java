@@ -5,15 +5,13 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerExpression;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.StringBinaryExpression;
-import org.evosuite.symbolic.expr.StringExpression;
-import org.evosuite.symbolic.expr.StringMultipleExpression;
-import org.evosuite.symbolic.expr.StringToIntCast;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
 
 public abstract class LastIndexOf extends StringFunction {
 
@@ -25,7 +23,7 @@ public abstract class LastIndexOf extends StringFunction {
 
 	public final static class LastIndexOf_C extends LastIndexOf {
 
-		private IntegerExpression charExpr;
+		private IntegerValue charExpr;
 
 		public LastIndexOf_C(SymbolicEnvironment env) {
 			super(env, Types.INT_TO_INT_DESCRIPTOR);
@@ -42,12 +40,10 @@ public abstract class LastIndexOf extends StringFunction {
 		public void CALL_RESULT(int res) {
 			if (stringReceiverExpr.containsSymbolicVariable()
 					|| charExpr.containsSymbolicVariable()) {
-				StringBinaryExpression strBExpr = new StringBinaryExpression(
+				StringBinaryToIntegerExpression strBExpr = new StringBinaryToIntegerExpression(
 						stringReceiverExpr, Operator.LASTINDEXOFC, charExpr,
-						Integer.toString(res));
-				StringToIntCast castExpr = new StringToIntCast(strBExpr,
 						(long) res);
-				this.replaceTopBv32(castExpr);
+				this.replaceTopBv32(strBExpr);
 			} else {
 				// do nothing (concrete value only)
 			}
@@ -57,8 +53,8 @@ public abstract class LastIndexOf extends StringFunction {
 
 	public final static class LastIndexOf_CI extends LastIndexOf {
 
-		private IntegerExpression charExpr;
-		private IntegerExpression fromIndexExpr;
+		private IntegerValue charExpr;
+		private IntegerValue fromIndexExpr;
 
 		public LastIndexOf_CI(SymbolicEnvironment env) {
 			super(env, Types.INT_INT_TO_INT_DESCRIPTOR);
@@ -78,15 +74,13 @@ public abstract class LastIndexOf extends StringFunction {
 					|| charExpr.containsSymbolicVariable()
 					|| fromIndexExpr.containsSymbolicVariable()) {
 
-				StringMultipleExpression strTExpr = new StringMultipleExpression(
+				StringMultipleToIntegerExpression strTExpr = new StringMultipleToIntegerExpression(
 						stringReceiverExpr, Operator.LASTINDEXOFCI, charExpr,
 						new ArrayList<Expression<?>>(Collections
 								.singletonList(fromIndexExpr)),
-						Integer.toString(res));
-
-				StringToIntCast castExpr = new StringToIntCast(strTExpr,
 						(long) res);
-				this.replaceTopBv32(castExpr);
+
+				this.replaceTopBv32(strTExpr);
 			} else {
 				// do nothing (concrete value only)
 			}
@@ -96,7 +90,7 @@ public abstract class LastIndexOf extends StringFunction {
 
 	public final static class LastIndexOf_S extends LastIndexOf {
 
-		private StringExpression strExpr;
+		private StringValue strExpr;
 
 		public LastIndexOf_S(SymbolicEnvironment env) {
 			super(env, Types.STR_TO_INT_DESCRIPTOR);
@@ -115,12 +109,11 @@ public abstract class LastIndexOf extends StringFunction {
 		public void CALL_RESULT(int res) {
 			if (stringReceiverExpr.containsSymbolicVariable()
 					|| strExpr.containsSymbolicVariable()) {
-				StringBinaryExpression strBExpr = new StringBinaryExpression(
+				StringBinaryToIntegerExpression strBExpr = new StringBinaryToIntegerExpression(
 						stringReceiverExpr, Operator.LASTINDEXOFS, strExpr,
-						Integer.toString(res));
-				StringToIntCast castExpr = new StringToIntCast(strBExpr,
 						(long) res);
-				this.replaceTopBv32(castExpr);
+
+				this.replaceTopBv32(strBExpr);
 			} else {
 				// do nothing (concrete value only)
 			}
@@ -130,8 +123,8 @@ public abstract class LastIndexOf extends StringFunction {
 
 	public final static class LastIndexOf_SI extends LastIndexOf {
 
-		private StringExpression strExpr;
-		private IntegerExpression fromIndexExpr;
+		private StringValue strExpr;
+		private IntegerValue fromIndexExpr;
 
 		public LastIndexOf_SI(SymbolicEnvironment env) {
 			super(env, Types.STR_INT_TO_INT_DESCRIPTOR);
@@ -151,14 +144,13 @@ public abstract class LastIndexOf extends StringFunction {
 			if (stringReceiverExpr.containsSymbolicVariable()
 					|| strExpr.containsSymbolicVariable()
 					|| fromIndexExpr.containsSymbolicVariable()) {
-				StringMultipleExpression strTExpr = new StringMultipleExpression(
+				StringMultipleToIntegerExpression strTExpr = new StringMultipleToIntegerExpression(
 						stringReceiverExpr, Operator.LASTINDEXOFSI, strExpr,
 						new ArrayList<Expression<?>>(Collections
 								.singletonList(fromIndexExpr)),
-						Integer.toString(res));
-				StringToIntCast castExpr = new StringToIntCast(strTExpr,
 						(long) res);
-				this.replaceTopBv32(castExpr);
+
+				this.replaceTopBv32(strTExpr);
 			} else {
 				// do nothing (concrete value only)
 			}

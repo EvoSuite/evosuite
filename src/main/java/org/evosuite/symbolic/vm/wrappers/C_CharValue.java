@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm.wrappers;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -29,7 +29,7 @@ public final class C_CharValue extends Function {
 
 	@Override
 	public void CALL_RESULT(int conc_char_value) {
-		IntegerExpression symb_char_value = env.heap.getField(
+		IntegerValue symb_char_value = env.heap.getField(
 				Types.JAVA_LANG_CHARACTER, SymbolicHeap.$CHAR_VALUE,
 				conc_character, symb_character, conc_char_value);
 

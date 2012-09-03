@@ -18,9 +18,11 @@
 package org.evosuite.symbolic;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.search.DistanceEstimator;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.FunctionVM;
@@ -51,7 +53,8 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  */
 public abstract class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ConcolicExecution.class);
 
 	/**
 	 * Retrieve the path condition for a given test case
@@ -62,12 +65,14 @@ public abstract class ConcolicExecution {
 	 */
 	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
+				.getTestCase();
 
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected static List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
+	protected static List<BranchCondition> executeConcolic(
+			DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
 
@@ -109,10 +114,11 @@ public abstract class ConcolicExecution {
 		ExecutionResult result = TestCaseExecutor.runTest(defaultTestCase);
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
-		        + " branches collected");
+				+ " branches collected");
 		if (!result.noThrownExceptions()) {
 			int idx = result.getFirstPositionOfThrownException();
-			logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
+			logger.info("Exception thrown: "
+					+ result.getExceptionThrownAtPosition(idx));
 		}
 		logNrOfConstraints(branches);
 
@@ -125,14 +131,15 @@ public abstract class ConcolicExecution {
 
 	private static void logNrOfConstraints(List<BranchCondition> branches) {
 		int nrOfConstraints = 0;
+
 		for (BranchCondition branchCondition : branches) {
 
 			Constraint<?> constraint = branchCondition.getLocalConstraint();
 			Object leftVal = constraint.getLeftOperand().execute();
 			Object rightVal = constraint.getRightOperand().execute();
 			nrOfConstraints++;
-		}
 
+		}
 		logger.debug("nrOfConstraints=" + nrOfConstraints);
 	}
 }

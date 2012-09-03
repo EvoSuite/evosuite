@@ -1,8 +1,8 @@
 package org.evosuite.symbolic.vm.math;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.RealBinaryExpression;
-import org.evosuite.symbolic.expr.RealExpression;
+import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
@@ -15,7 +15,7 @@ public abstract class SCALB {
 		}
 
 		@Override
-		protected RealExpression executeFunction(double res) {
+		protected RealValue executeFunction(double res) {
 			RealBinaryExpression sym_val = new RealBinaryExpression(left,
 					Operator.SCALB, right, res);
 			return sym_val;
@@ -32,7 +32,7 @@ public abstract class SCALB {
 		}
 
 		@Override
-		protected RealExpression executeFunction(float res) {
+		protected RealValue executeFunction(float res) {
 			RealBinaryExpression sym_val = new RealBinaryExpression(left,
 					Operator.SCALB, right, (double) res);
 			return sym_val;

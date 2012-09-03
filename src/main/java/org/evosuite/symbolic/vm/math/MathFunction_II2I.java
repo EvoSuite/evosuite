@@ -2,7 +2,7 @@ package org.evosuite.symbolic.vm.math;
 
 import java.util.Iterator;
 
-import org.evosuite.symbolic.expr.IntegerExpression;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -10,8 +10,8 @@ import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class MathFunction_II2I extends Function {
 
-	protected IntegerExpression left;
-	protected IntegerExpression right;
+	protected IntegerValue left;
+	protected IntegerValue right;
 
 	public MathFunction_II2I(SymbolicEnvironment env, String name) {
 		super(env, Types.JAVA_LANG_MATH, name,
@@ -28,10 +28,10 @@ public abstract class MathFunction_II2I extends Function {
 	@Override
 	public final void CALL_RESULT(int res) {
 		if (left.containsSymbolicVariable() || right.containsSymbolicVariable()) {
-			IntegerExpression ret_val = executeFunction(res);
+			IntegerValue ret_val = executeFunction(res);
 			replaceTopBv32(ret_val);
 		}
 	}
 
-	protected abstract IntegerExpression executeFunction(int res);
+	protected abstract IntegerValue executeFunction(int res);
 }

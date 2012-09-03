@@ -1000,6 +1000,11 @@ public class TestFactory {
 		// Get possible replacements
 		List<VariableReference> alternatives = test.getObjects(var.getType(), position);
 
+		int maxIndex = 0;
+		if (var instanceof ArrayReference) {
+			maxIndex = ((ArrayReference) var).getMaximumIndex();
+		}
+
 		// Remove invalid classes if this is an Object.class reference
 		if (test.getStatement(position) instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) test.getStatement(position);
@@ -1021,7 +1026,12 @@ public class TestFactory {
 			VariableReference r = replacement.next();
 			if (var.equals(r.getAdditionalVariableReference()))
 				replacement.remove();
+			if (r instanceof ArrayReference) {
+				if (maxIndex >= ((ArrayReference) r).getArrayLength())
+					replacement.remove();
+			}
 		}
+
 		if (!alternatives.isEmpty()) {
 			// Change all references to return value at position to something
 			// else

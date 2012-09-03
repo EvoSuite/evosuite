@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -70,7 +70,6 @@ public class DefUsePool {
 	// and an extra one to keep track of field method calls
 	private static List<BytecodeInstruction> knownFieldMethodCalls = new ArrayList<BytecodeInstruction>();
 
-
 	// keep track of known DUs and assign IDs accordingly
 	private static int defCounter = 0;
 	private static int useCounter = 0;
@@ -113,6 +112,10 @@ public class DefUsePool {
 		if (!d.canBeInstrumented())
 			return false;
 
+		if (d.isLocalArrayDefinition())
+			LoggingUtils.getEvoLogger().info("registering LOCAL ARRAY VAR DEF "
+			                                         + d.toString());
+
 		// register instruction
 
 		// IINCs and field method calls already have duID set so this can fail
@@ -121,13 +124,13 @@ public class DefUsePool {
 		// sanity check for IINCs
 		if (!registeredAsDU && !(d.isIINC() || d.isMethodCallOfField()))
 			throw new IllegalStateException(
-					"expect registering to fail only on IINCs and field method calls");
+			        "expect registering to fail only on IINCs and field method calls");
 
 		registerAsDefinition(d);
 
-		if(d.isMethodCallOfField())
-			LoggingUtils.getEvoLogger().info(
-				"Registered field method call as Definition " + d.toString());
+		if (d.isMethodCallOfField())
+			LoggingUtils.getEvoLogger().info("Registered field method call as Definition "
+			                                         + d.toString());
 
 		return true;
 	}
@@ -161,20 +164,20 @@ public class DefUsePool {
 			return false;
 
 		// register instruction
-		
+
 		// field method calls already have duID set so this can fail
 		boolean registeredAsDU = registerAsDefUse(u);
 
 		// sanity check for IINCs
 		if (!registeredAsDU && !u.isMethodCallOfField())
 			throw new IllegalStateException(
-					"expect registering to fail only on field method calls");
+			        "expect registering to fail only on field method calls");
 
 		registerAsUse(u);
-		
-		if(u.isMethodCallOfField())
-			LoggingUtils.getEvoLogger().info(
-				"Registered field method call as Use " + u.toString());
+
+		if (u.isMethodCallOfField())
+			LoggingUtils.getEvoLogger().info("Registered field method call as Use "
+			                                         + u.toString());
 
 		return true;
 	}
@@ -191,8 +194,8 @@ public class DefUsePool {
 	 * 
 	 * The instrumentation will call a special method of the ExecutionTracer
 	 * which will redirect the instrumentation call to either passedDefinition()
-	 * or passedUse() depending on how the given instruction will be
-	 * categorized later on.
+	 * or passedUse() depending on how the given instruction will be categorized
+	 * later on.
 	 * 
 	 * Registers the given instruction as a field method call and assigns a
 	 * fresh defUseId to the given instruction.
@@ -211,15 +214,15 @@ public class DefUsePool {
 	 * @return a boolean.
 	 */
 	public static boolean addAsFieldMethodCall(BytecodeInstruction f) {
-		if(!f.isMethodCallOfField())
+		if (!f.isMethodCallOfField())
 			return false;
 		if (!f.canBeInstrumented())
 			return false;
-		
+
 		registerAsDefUse(f);
-		
+
 		registerAsFieldMethodCall(f);
-		
+
 		return true;
 	}
 
@@ -239,7 +242,7 @@ public class DefUsePool {
 	private static boolean registerAsDefinition(BytecodeInstruction d) {
 		if (!registeredDUs.containsKey(d))
 			throw new IllegalStateException(
-					"expect registerAsDefUse() to be called before registerAsDefinition()/Use()");
+			        "expect registerAsDefUse() to be called before registerAsDefinition()/Use()");
 		if (registeredDefs.containsKey(d))
 			return false;
 
@@ -250,6 +253,10 @@ public class DefUsePool {
 		// now the first Definition instance for this instruction can be created
 		Definition def = DefUseFactory.makeDefinition(d);
 
+		if (d.isLocalArrayDefinition())
+			LoggingUtils.getEvoLogger().info("succesfully registered LOCAL ARRAY VAR DEF "
+			                                         + def.toString());
+
 		// finally add the Definition to all corresponding maps
 		fillDefinitionMaps(def);
 		return true;
@@ -258,7 +265,7 @@ public class DefUsePool {
 	private static boolean registerAsUse(BytecodeInstruction d) {
 		if (!registeredDUs.containsKey(d))
 			throw new IllegalStateException(
-					"expect registerAsDefUse() to be called before registerAsDefinition()/Use()");
+			        "expect registerAsDefUse() to be called before registerAsDefinition()/Use()");
 		if (registeredUses.containsKey(d))
 			return false;
 
@@ -267,7 +274,7 @@ public class DefUsePool {
 		registeredUses.put(d, useCounter);
 
 		// check if this particular use is a parameterUse
-		if (d.isLocalVarUse() && !knowsDefinitionForVariableOf(d))
+		if (d.isLocalVariableUse() && !knowsDefinitionForVariableOf(d))
 			registerParameterUse(d);
 
 		// now the first Use instance for this instruction can be created
@@ -282,9 +289,9 @@ public class DefUsePool {
 		if (!knownParameterUses.contains(d))
 			knownParameterUses.add(d);
 	}
-	
+
 	private static void registerAsFieldMethodCall(BytecodeInstruction f) {
-		if(!knownFieldMethodCalls.contains(f))
+		if (!knownFieldMethodCalls.contains(f))
 			knownFieldMethodCalls.add(f);
 	}
 
@@ -309,7 +316,7 @@ public class DefUsePool {
 	private static boolean addToDefMap(Definition d) {
 		String className = d.getClassName();
 		String methodName = d.getMethodName();
-		String varName = d.getDUVariableName();
+		String varName = d.getVariableName();
 
 		initMap(defMap, className, methodName, varName);
 
@@ -319,16 +326,15 @@ public class DefUsePool {
 	private static boolean addToUseMap(Use u) {
 		String className = u.getClassName();
 		String methodName = u.getMethodName();
-		String varName = u.getDUVariableName();
+		String varName = u.getVariableName();
 
 		initMap(useMap, className, methodName, varName);
 
 		return useMap.get(className).get(methodName).get(varName).add(u);
 	}
 
-	private static <T> void initMap(
-			Map<String, Map<String, Map<String, List<T>>>> map,
-			String className, String methodName, String varName) {
+	private static <T> void initMap(Map<String, Map<String, Map<String, List<T>>>> map,
+	        String className, String methodName, String varName) {
 
 		if (!map.containsKey(className))
 			map.put(className, new HashMap<String, Map<String, List<T>>>());
@@ -355,7 +361,7 @@ public class DefUsePool {
 
 		String className = du.getClassName();
 		String methodName = du.getMethodName();
-		String varName = du.getDUVariableName();
+		String varName = du.getVariableName();
 
 		try {
 			return defMap.get(className).get(methodName).get(varName).size() > 0;
@@ -391,11 +397,11 @@ public class DefUsePool {
 	public static boolean isKnownAsDefinition(BytecodeInstruction instruction) {
 		return registeredDefs.containsKey(instruction);
 	}
-	
+
 	public static boolean isKnownAsDefinition(int defuseId) {
 		return defuseIdsToDefs.containsKey(defuseId);
 	}
-	
+
 	public static boolean isKnownAsUse(int defuseId) {
 		return defuseIdsToUses.containsKey(defuseId);
 	}
@@ -412,7 +418,7 @@ public class DefUsePool {
 	public static boolean isKnownAsUse(BytecodeInstruction instruction) {
 		return registeredUses.containsKey(instruction);
 	}
-	
+
 	/**
 	 * <p>
 	 * isKnownAsFieldMethodCall
@@ -425,8 +431,7 @@ public class DefUsePool {
 	public static boolean isKnownAsFieldMethodCall(BytecodeInstruction instruction) {
 		return knownFieldMethodCalls.contains(instruction);
 	}
-	
-	
+
 	/**
 	 * <p>
 	 * isKnownAsParameterUse
@@ -436,8 +441,7 @@ public class DefUsePool {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
-	public static boolean isKnownAsParameterUse(
-			BytecodeInstruction instruction) {
+	public static boolean isKnownAsParameterUse(BytecodeInstruction instruction) {
 		return knownParameterUses.contains(instruction);
 	}
 
@@ -470,10 +474,10 @@ public class DefUsePool {
 		}
 		return r;
 	}
-	
+
 	public static Set<BytecodeInstruction> retrieveFieldMethodCalls() {
 		return new HashSet<BytecodeInstruction>(knownFieldMethodCalls);
-		
+
 	}
 
 	/**
@@ -656,7 +660,7 @@ public class DefUsePool {
 	public static int getUseCounter() {
 		return useCounter;
 	}
-	
+
 	/**
 	 * Returns the number of currently known DUs
 	 * 
@@ -664,5 +668,23 @@ public class DefUsePool {
 	 */
 	public static int getDefUseCounter() {
 		return duCounter;
+	}
+
+	/**
+	 * Determine the number of DefUse pairs for the given Def
+	 * 
+	 * @param def
+	 * @return
+	 */
+	public static int getDefUseCounterForDef(Definition def) {
+		int count = 0;
+		if (def == null)
+			return 1; // FIXXME - what is this?
+
+		for (Definition d : defuseIdsToDefs.values()) {
+			if (d.getDefId() == def.getDefId())
+				count++;
+		}
+		return count;
 	}
 }
