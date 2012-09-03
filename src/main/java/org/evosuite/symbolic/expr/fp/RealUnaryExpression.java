@@ -156,7 +156,7 @@ public final class RealUnaryExpression extends AbstractExpression<Double>
 			return Math.ulp(leftVal);
 
 		default:
-			log.warn("IntegerUnaryExpression: unimplemented operator: " + op);
+			log.warn("RealUnaryExpression: unimplemented operator: " + op);
 			return null;
 		}
 	}
