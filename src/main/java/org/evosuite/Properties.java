@@ -879,6 +879,10 @@ public class Properties {
 	@Parameter(key = "enable_alternative_fitness_calculation", description = "")
 	public static boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = false;
 
+	/** Constant <code>ENABLE_ALTERNATIVE_FITNESS_CALCULATION=false</code> */
+	@Parameter(key = "enable_alternative_suite_fitness", description = "")
+	public static boolean ENABLE_ALTERNATIVE_SUITE_FITNESS = false;
+
 	/** Constant <code>DEFUSE_DEBUG_MODE=false</code> */
 	@Parameter(key = "defuse_debug_mode", description = "")
 	public static boolean DEFUSE_DEBUG_MODE = false;

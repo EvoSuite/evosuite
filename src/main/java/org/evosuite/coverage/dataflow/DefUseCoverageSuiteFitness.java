@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
 import org.evosuite.ga.Chromosome;
@@ -113,10 +114,10 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 			if (result.hasTimeout()) {
 				logger.debug("Skipping test with timeout");
-				double fitness = goals.size();
+				double fitness = goals.size() * 100;
 				updateIndividual(individual, fitness);
 				suite.setCoverage(0.0);
-				logger.info("Test case has timed out, setting fitness to max value "
+				logger.debug("Test case has timed out, setting fitness to max value "
 				        + fitness);
 				return fitness;
 			}
@@ -164,29 +165,15 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		// 1. Need to reach each definition
 		double fitness = branchFitness.getFitness(individual);
-		logger.info("Branch fitness: " + fitness);
-
-		// 2. Need to execute each definition X times
-		// TODO ...unless all defuse pairs are covered?
-		for (Entry<Definition, Integer> defCount : maxDefinitionCount.entrySet()) {
-			int executionCount = passedDefinitionCount.get(defCount.getKey());
-			int max = defCount.getValue();
-			if (executionCount < max) {
-				fitness += normalize(max - executionCount);
-			}
-		}
-		for (Entry<String, Integer> methodCount : maxMethodCount.entrySet()) {
-			int executionCount = executedMethodsCount.get(methodCount.getKey());
-			int max = methodCount.getValue();
-			if (executionCount < max) {
-				fitness += normalize(max - executionCount);
-			}
-		}
+		// logger.info("Branch fitness: " + fitness);
 
 		// 3. For all covered defs, calculate minimal use distance
-		Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
+		//Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
+		Set<DefUseCoverageTestFitness> coveredGoalsSet = new HashSet<DefUseCoverageTestFitness>();//DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
 
 		initCoverageMaps();
+		Set<Definition> notFullyCoveredDefs = new HashSet<Definition>();
+		boolean methodIsNotFullyCovered = false;
 
 		for (DefUseCoverageTestFitness goal : goals) {
 			if (coveredGoalsSet.contains(goal)) {
@@ -197,23 +184,33 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			Set<TestChromosome> coveringTests = new HashSet<TestChromosome>();
 
 			if (goal.isParameterGoal()) {
-				if (executedMethods.containsKey(goal.getGoalUse().getMethodName())) {
-					coveringTests.addAll(executedMethods.get(goal.getGoalUse().getMethodName()));
+				String methodKey = goal.getGoalUse().getClassName() + "."
+				        + goal.getGoalUse().getMethodName();
+				if (executedMethods.containsKey(methodKey)) {
+					coveringTests.addAll(executedMethods.get(methodKey));
 				}
 			} else {
 				if (passedDefinitions.containsKey(goal.getGoalDefinition())) {
 					coveringTests.addAll(passedDefinitions.get(goal.getGoalDefinition()));
 				}
 			}
+			if (coveringTests.isEmpty()) {
+				logger.debug("No tests cover " + goal);
+			} else {
+				logger.debug("Checking " + coveringTests.size() + " tests covering "
+				        + goal);
+
+			}
 			//			for (TestChromosome test : passedDefinitions.get(goal.getGoalDefinition())) {
-			//for (TestChromosome test : coveringTests) {
-			for (TestChromosome test : suite.getTestChromosomes()) {
+			for (TestChromosome test : coveringTests) {
+				// for (TestChromosome test : suite.getTestChromosomes()) {
 
 				ExecutionResult result = test.getLastExecutionResult();
 				DefUseFitnessCalculator calculator = new DefUseFitnessCalculator(goal,
 				        test, result);
-				double resultFitness = goal.getFitness(test, result);
-				//double resultFitness = calculator.calculateDUFitness();
+				//double resultFitness = goal.getFitness(test, result);
+				double resultFitness = calculator.calculateDUFitness();
+
 				if (resultFitness < goalFitness)
 					goalFitness = resultFitness;
 				if (goalFitness == 0.0) {
@@ -222,9 +219,36 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					break;
 				}
 			}
+			if (goalFitness > 0.0) {
+				if (goal.isParameterGoal())
+					notFullyCoveredDefs.add(goal.getGoalDefinition());
+				else
+					methodIsNotFullyCovered = true;
+			}
 
 			fitness += goalFitness;
 
+		}
+
+		// 2. Need to execute each definition X times
+		// TODO ...unless all defuse pairs are covered?
+		for (Entry<Definition, Integer> defCount : maxDefinitionCount.entrySet()) {
+			if (notFullyCoveredDefs.contains(defCount.getKey())) {
+				int executionCount = passedDefinitionCount.get(defCount.getKey());
+				int max = defCount.getValue();
+				if (executionCount < max) {
+					fitness += normalize(max - executionCount);
+				}
+			}
+		}
+		if (methodIsNotFullyCovered) {
+			for (Entry<String, Integer> methodCount : maxMethodCount.entrySet()) {
+				int executionCount = executedMethodsCount.get(methodCount.getKey());
+				int max = methodCount.getValue();
+				if (executionCount < max) {
+					fitness += normalize(max - executionCount);
+				}
+			}
 		}
 
 		countCoveredGoals(coveredGoalsSet);
@@ -241,6 +265,17 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public double getFitness(Chromosome individual) {
+		if (Properties.ENABLE_ALTERNATIVE_SUITE_FITNESS)
+			return getFitnessAlternative(individual);
+		else
+			return getFitnessOld(individual);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -249,8 +284,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * evosuite.ga.Chromosome)
 	 */
 	/** {@inheritDoc} */
-	@Override
-	public double getFitness(Chromosome individual) {
+	//@Override
+	public double getFitnessOld(Chromosome individual) {
 		logger.trace("Calculating defuse fitness");
 
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
