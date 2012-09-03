@@ -12,6 +12,7 @@ import org.evosuite.coverage.mutation.MutationSuiteFitness;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.SearchStatistics;
@@ -81,6 +82,7 @@ public class CoverageAnalysis {
 	        Properties.Criterion criterion) {
 
 		Properties.Criterion oldCriterion = Properties.CRITERION;
+		ExecutionTracer.enableTraceCalls();
 
 		reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
