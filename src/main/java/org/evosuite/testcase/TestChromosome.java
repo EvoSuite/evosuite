@@ -219,7 +219,7 @@ public class TestChromosome extends ExecutableChromosome {
 			if (LocalSearchBudget.isFinished())
 				break;
 
-			if (lastPosition >= test.size()) {
+			if (i >= test.size()) {
 				logger.warn("Test size decreased unexpectedly during local search, aborting local search");
 				logger.warn(test.toCode());
 				break;

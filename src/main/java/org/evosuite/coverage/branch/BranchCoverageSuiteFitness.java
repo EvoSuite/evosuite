@@ -347,8 +347,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 
 		}
-		if (mostCoveredGoals < coverage)
+		if (mostCoveredGoals < coverage) {
+			logger.info("Most covered goals: " + mostCoveredGoals);
 			mostCoveredGoals = coverage;
+		}
 
 		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
 		        + totalGoals;

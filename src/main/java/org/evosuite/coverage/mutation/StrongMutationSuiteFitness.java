@@ -247,8 +247,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 		//for (TestChromosome copy : safeCopies) {
 		//	suite.addUnmodifiableTest(copy);
 		//}
-		int coverage = ((TestSuiteChromosome) individual).getCoveredGoals().size();
-
+		//int coverage = ((TestSuiteChromosome) individual).getCoveredGoals().size();
+		int coverage = MutationTestPool.getCoveredMutants();
 		if (mostCoveredGoals < coverage)
 			mostCoveredGoals = coverage;
 
