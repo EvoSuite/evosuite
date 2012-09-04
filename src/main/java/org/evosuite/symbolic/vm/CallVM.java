@@ -96,17 +96,26 @@ public final class CallVM extends AbstractVM {
 	public void HANDLER_BEGIN(int access, String className, String methName,
 			String methDesc) {
 
-		// the method or constructor containing this handler
-		Member function = null;
-		if (conf.INIT.equals(methName))
-			function = resolveConstructorOverloading(className, methDesc);
-		else
-			function = resolveMethodOverloading(className, methName, methDesc);
+		if (conf.CLINIT.equals(methName)) {
 
-		/**
-		 * function could be equal to null if handler is in class initializer
-		 */
-		discardFrames(className, methName, function);
+			discardFramesClassInitializer(className, methName);
+
+		} else {
+
+			// the method or constructor containing this handler
+			Member function = null;
+			if (conf.INIT.equals(methName))
+				function = resolveConstructorOverloading(className, methDesc);
+			else
+				function = resolveMethodOverloading(className, methName,
+						methDesc);
+
+			/**
+			 * function could be equal to null if handler is in class
+			 * initializer
+			 */
+			discardFrames(className, methName, function);
+		}
 
 		env.topFrame().operandStack.clearOperands();
 		/**
@@ -115,6 +124,27 @@ public final class CallVM extends AbstractVM {
 		 * the exception to the locals table
 		 */
 		env.topFrame().operandStack.pushRef(ExceptionReference.getInstance());
+	}
+
+	private boolean discardFramesClassInitializer(String className,
+			String methName) {
+		if (!conf.CLINIT.equals(methName))
+			throw new IllegalArgumentException("methName should be <clinit>");
+
+		if (env.topFrame() instanceof FakeBottomFrame)
+			return false;
+
+		Frame topFrame = env.topFrame();
+		if (topFrame instanceof StaticInitializerFrame) {
+			StaticInitializerFrame clinitFrame = (StaticInitializerFrame) topFrame;
+			if (methName.equals(conf.CLINIT)
+					&& clinitFrame.getClassName().equals(className)) {
+				return true;
+			}
+		}
+
+		env.popFrame();
+		return discardFramesClassInitializer(className, methName);
 	}
 
 	private final THashMap<Member, MemberInfo> memberInfos = new THashMap<Member, MemberInfo>();
