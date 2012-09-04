@@ -31,10 +31,11 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
-
 /**
- * <p>WeakMutationSuiteFitness class.</p>
- *
+ * <p>
+ * WeakMutationSuiteFitness class.
+ * </p>
+ * 
  * @author fraser
  */
 public class WeakMutationSuiteFitness extends MutationSuiteFitness {
@@ -81,6 +82,7 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 			if (distance < 0) {
 				logger.warn("Distance is " + distance + " / " + Integer.MAX_VALUE + " / "
 				        + Integer.MIN_VALUE);
+				distance = 0.0; // FIXXME
 			}
 
 			fitness += normalize(distance);
