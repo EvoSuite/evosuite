@@ -1,6 +1,7 @@
 package org.evosuite.symbolic.vm.regex;
 
 import java.util.regex.Matcher;
+import java.util.regex.PatternSyntaxException;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringComparison;
@@ -45,8 +46,8 @@ public final class Matcher_Matches extends Function {
 			int concrete_value = res ? 1 : 0;
 			StringConstant symb_regex = ExpressionFactory
 					.buildNewStringConstant(conc_regex);
-				StringComparison strComp = new StringComparison(symb_regex,
-						Operator.PATTERNMATCHES, symb_input, (long) concrete_value);
+			StringComparison strComp = new StringComparison(symb_regex,
+					Operator.PATTERNMATCHES, symb_input, (long) concrete_value);
 
 			replaceTopBv32(strComp);
 		}
