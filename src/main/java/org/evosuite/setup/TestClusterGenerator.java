@@ -29,8 +29,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -309,8 +311,10 @@ public class TestClusterGenerator {
 
 		// To make sure we also have anonymous inner classes double check inner classes using ASM
 		ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);
-		List<InnerClassNode> innerClasses = targetClassNode.innerClasses;
-		for (InnerClassNode icn : innerClasses) {
+		Queue<InnerClassNode> innerClasses = new LinkedList<InnerClassNode>();
+		innerClasses.addAll(targetClassNode.innerClasses);
+		while (!innerClasses.isEmpty()) {
+			InnerClassNode icn = innerClasses.poll();
 			try {
 				logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name
 				        + "," + icn.outerName);
@@ -319,6 +323,8 @@ public class TestClusterGenerator {
 				if (!targetClasses.contains(innerClass)) {
 					logger.info("Adding inner class " + innerClassName);
 					targetClasses.add(innerClass);
+					ClassNode innerClassNode = DependencyAnalysis.getClassNode(innerClassName);
+					innerClasses.addAll(innerClassNode.innerClasses);
 				}
 
 			} catch (Throwable t) {
