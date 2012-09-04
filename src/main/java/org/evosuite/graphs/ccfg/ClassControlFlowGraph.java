@@ -742,8 +742,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		BytecodeInstruction code = ((CCFGCodeNode) node).getCodeInstruction();
 
-		LoggingUtils.getEvoLogger().info(
-				"Processing field call: " + node.toString());
+//		LoggingUtils.getEvoLogger().info(
+//				"Processing field call: " + node.toString());
 
 		handleDefUse(investigatedMethod, code, callStack, activeDefs, freeUses,
 				foundPairs);
@@ -1218,9 +1218,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 						return false;
 					}
 				}
-			}
-			
-		/*	else{
+			} else{
 
 				//The format that ASM for types and the one used in my data file is different: in particular ASM uses the 
 				//Class.getName format for types see http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#getName(), while the data
@@ -1234,23 +1232,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				//The file with the method list is in src/resources, it SHOULD be accurate but not perfect, some methods are missing for sure.
 				
 				if(toAnalyze.startsWith("java.")){
-					 
-					String paraz = fieldCall.getOnlyParameters();
-					Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(fieldCall.getOnlyParameters());
-					String newParams = "";
-					if(parameters.length!=0){
-						for (Type i : parameters) {
-							newParams = newParams + "," + i.getClassName();
-						}
-						newParams = newParams.substring(1, newParams.length());
-					}
-					toAnalyze=fieldCall.getClassName() + "." + fieldCall.getOnlyMethodName()+"("+newParams+")";
-					//System.out.println(toAnalyze);
-					
-					return PureMethodsList.instance.checkPurity(toAnalyze);
+					return PureMethodsList.instance.checkPurity(fieldCall.getCodeInstruction());
 				}
 			}
-			*/
 			// otherwise proceed
 		} else if (currentNode instanceof CCFGCodeNode) {
 			CCFGCodeNode codeNode = (CCFGCodeNode) currentNode;

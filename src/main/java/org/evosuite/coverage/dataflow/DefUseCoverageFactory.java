@@ -33,6 +33,7 @@ import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.PureMethodsList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -100,12 +101,12 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		
 		// TODO remove the following lines once purity analysis is implemented
 		// they are just for testing purposes
-		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
-			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
-				LoggingUtils.getEvoLogger().info("PURE method:\t"+methodInCCFG);
-			else
-				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+methodInCCFG);
-		}
+//		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
+//			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
+//				LoggingUtils.getEvoLogger().info("PURE method:\t"+methodInCCFG);
+//			else
+//				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+methodInCCFG);
+//		}
 		
 		long start = System.currentTimeMillis();
 		logger.trace("starting DefUse-Coverage goal generation");
@@ -146,20 +147,30 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	private static void categorizeFieldMethodCalls() {
 		Set<BytecodeInstruction> fieldMethodCalls = DefUsePool.retrieveFieldMethodCalls();
 		
-		LoggingUtils.getEvoLogger().info(
-				"Categorizing field method calls: " + fieldMethodCalls.size());
+//		LoggingUtils.getEvoLogger().info(
+//				"Categorizing field method calls: " + fieldMethodCalls.size());
 		
 		for(BytecodeInstruction fieldMethodCall : fieldMethodCalls) {
+			
+//			LoggingUtils.getEvoLogger().info("Categorizing "+fieldMethodCall.toString());
+			boolean isPure;
 			if(!GraphPool.canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
+				isPure = PureMethodsList.instance.checkPurity(fieldMethodCall);
+//				LoggingUtils.getEvoLogger().info("asked pure methods list for "+fieldMethodCall.toString()+" was pure "+isPure);
 				// classes in java.* can not be analyzed for purity yet. for now just ignore them
-				continue;
+//				continue;
+			} else {
+				ClassControlFlowGraph ccfg = GraphPool.getCCFG(fieldMethodCall.getCalledMethodsClass());
+				isPure = ccfg.isPure(fieldMethodCall.getCalledMethod()); 
 			}
 			
-			ClassControlFlowGraph ccfg = GraphPool.getCCFG(fieldMethodCall.getCalledMethodsClass());
-			if(ccfg.isPure(fieldMethodCall.getCalledMethod())) {
+			
+			if(isPure) {
+//				LoggingUtils.getEvoLogger().info("Categorized as use "+fieldMethodCall.toString());
 				if(!DefUsePool.addAsUse(fieldMethodCall))
 					throw new IllegalStateException("unable to register field method call as a use "+fieldMethodCall.toString());
 			} else {
+//				LoggingUtils.getEvoLogger().info("Categorized as def "+fieldMethodCall.toString());
 				if(!DefUsePool.addAsDefinition(fieldMethodCall))
 					throw new IllegalStateException("unable to register field method call as a definition "+fieldMethodCall.toString());
 			}
@@ -248,7 +259,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 			goalCounts.put(goal.getType(), 0);
 		goalCounts.put(goal.getType(), goalCounts.get(goal.getType()) + 1);
 		
-		LoggingUtils.getEvoLogger().info(goal.toString());
+//		LoggingUtils.getEvoLogger().info(goal.toString());
 	}
 
 	/**

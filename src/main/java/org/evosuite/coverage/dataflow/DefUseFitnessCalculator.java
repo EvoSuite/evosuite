@@ -189,9 +189,11 @@ public class DefUseFitnessCalculator {
 		// if the use was not passed at all just calculate the fitness
 		// over all objects without any filtering
 
+		/* FIXXME: This doesn't seem to make much sense
 		if (!hasEntriesForId(result.getTrace().getPassedUses(goalVariable),
 		                     goalUse.getUseId()))
 			return calculateUseFitnessForCompleteTrace();
+			*/
 
 		// Case 3.
 		// filter the trace for each considerable object that passed both the

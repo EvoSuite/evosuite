@@ -303,6 +303,15 @@ public class Properties {
 	@Parameter(key = "local_search_probes", group = "Search Algorithm", description = "How many mutations to apply to a string to check whether it improves coverage")
 	public static int LOCAL_SEARCH_PROBES = 10;
 
+	@Parameter(key = "local_search_primitives", group = "Search Algorithm", description = "Perform local search on primitive values")
+	public static boolean LOCAL_SEARCH_PRIMITIVES = true;
+
+	@Parameter(key = "local_search_arrays", group = "Search Algorithm", description = "Perform local search on array statements")
+	public static boolean LOCAL_SEARCH_ARRAYS = true;
+
+	@Parameter(key = "local_search_references", group = "Search Algorithm", description = "Perform local search on reference types")
+	public static boolean LOCAL_SEARCH_REFERENCES = true;
+
 	/** Constant <code>CROSSOVER_RATE=0.75</code> */
 	@Parameter(key = "crossover_rate", group = "Search Algorithm", description = "Probability of crossover")
 	@DoubleValue(min = 0.0, max = 1.0)
@@ -468,6 +477,9 @@ public class Properties {
 	@Parameter(key = "extra_timeout", group = "Search Algorithm", description = "Extra seconds allowed for the search")
 	@IntValue(min = 0)
 	public static int EXTRA_TIMEOUT = 120;
+
+	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
+	public static String ANALYSIS_CRITERIA = "";
 
 	// ---------------------------------------------------------------
 	// Single branch mode
@@ -869,6 +881,10 @@ public class Properties {
 	/** Constant <code>ENABLE_ALTERNATIVE_FITNESS_CALCULATION=false</code> */
 	@Parameter(key = "enable_alternative_fitness_calculation", description = "")
 	public static boolean ENABLE_ALTERNATIVE_FITNESS_CALCULATION = false;
+
+	/** Constant <code>ENABLE_ALTERNATIVE_FITNESS_CALCULATION=false</code> */
+	@Parameter(key = "enable_alternative_suite_fitness", description = "")
+	public static boolean ENABLE_ALTERNATIVE_SUITE_FITNESS = false;
 
 	/** Constant <code>DEFUSE_DEBUG_MODE=false</code> */
 	@Parameter(key = "defuse_debug_mode", description = "")
