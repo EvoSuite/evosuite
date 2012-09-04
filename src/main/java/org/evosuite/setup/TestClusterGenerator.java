@@ -949,8 +949,8 @@ public class TestClusterGenerator {
 
 							if (!canUse(subClazz))
 								continue;
-							if (Modifier.isAbstract(subClazz.getModifiers()))
-								continue;
+							//if (Modifier.isAbstract(subClazz.getModifiers()))
+							//continue;
 							actualClasses.add(subClazz);
 
 						} catch (ClassNotFoundException e) {
