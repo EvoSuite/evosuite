@@ -442,8 +442,17 @@ public final class CallVM extends AbstractVM {
 			return false;
 
 		/* virtual method */
-		String declClass = method.getDeclaringClass().getCanonicalName();
-		return !conf.isIgnored(declClass);
+
+		if (method.getDeclaringClass().isAnonymousClass()) {
+			// anonymous class
+			String name = method.getDeclaringClass().getName();
+			int indexOf = name.indexOf("$");
+			String fullyQualifiedTopLevelClassName = name.substring(0, indexOf);
+			return !conf.isIgnored(fullyQualifiedTopLevelClassName);
+		} else {
+			String declClass = method.getDeclaringClass().getCanonicalName();
+			return !conf.isIgnored(declClass);
+		}
 	}
 
 	/**
