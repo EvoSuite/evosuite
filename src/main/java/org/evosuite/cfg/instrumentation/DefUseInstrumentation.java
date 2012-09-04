@@ -78,10 +78,10 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 
 					boolean isValidDU = false;
 
-					if(v.isLocalArrayDefinition()) {
-						LoggingUtils.getEvoLogger().info(
-							"LOCAL ARRAY VAR DEF " + v.toString()+" loaded by "+v.getSourceOfStackInstruction(2).toString());
-					}
+//					if(v.isLocalArrayDefinition()) {
+//						LoggingUtils.getEvoLogger().info(
+//							"LOCAL ARRAY VAR DEF " + v.toString()+" loaded by "+v.getSourceOfStackInstruction(2).toString());
+//					}
 					
 					if (v.isMethodCallOfField()) {
 						// keep track of field method calls, though we do not

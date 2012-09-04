@@ -747,7 +747,7 @@ public class ExecutionTracer {
 			Use passedUse = DefUsePool.getUseByDefUseId(defuseId);
 			passedUse(caller, passedUse.getUseId());
 		} else
-			throw new IllegalStateException(
+			throw new EvosuiteError(
 			        "instrumentation called passedFieldMethodCall with invalid defuseId");
 	}
 
