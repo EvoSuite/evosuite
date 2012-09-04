@@ -154,7 +154,7 @@ public final class StringComparison extends AbstractExpression<Long> implements
 		case CONTAINS:
 			return first.contains(second) ? 1L : 0L;
 		case PATTERNMATCHES:
-			return first.matches(second) ? 1L : 0L;
+			return second.matches(first) ? 1L : 0L;
 		default:
 			log.warn("StringComparison: unimplemented operator!" + op);
 			return null;
