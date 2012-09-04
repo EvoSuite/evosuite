@@ -213,7 +213,7 @@ public class RegexDistance {
 			State state = intToStateMap.get(col - 1);
 
 			int min = Integer.MAX_VALUE;
-			System.out.println(transitions.get(0));
+
 			for (GraphTransition t : transitions.get(0).get(state)) {
 				int oldCol = stateToIntMap.get(t.fromState) + 1;
 				int oldCost = graph[t.fromRow][oldCol];

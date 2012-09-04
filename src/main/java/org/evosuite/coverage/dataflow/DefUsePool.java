@@ -112,9 +112,9 @@ public class DefUsePool {
 		if (!d.canBeInstrumented())
 			return false;
 
-		if (d.isLocalArrayDefinition())
-			LoggingUtils.getEvoLogger().info("registering LOCAL ARRAY VAR DEF "
-			                                         + d.toString());
+//		if (d.isLocalArrayDefinition())
+//			LoggingUtils.getEvoLogger().info("registering LOCAL ARRAY VAR DEF "
+//			                                         + d.toString());
 
 		// register instruction
 
@@ -128,9 +128,9 @@ public class DefUsePool {
 
 		registerAsDefinition(d);
 
-		if (d.isMethodCallOfField())
-			LoggingUtils.getEvoLogger().info("Registered field method call as Definition "
-			                                         + d.toString());
+//		if (d.isMethodCallOfField())
+//			LoggingUtils.getEvoLogger().info("Registered field method call as Definition "
+//			                                         + d.toString());
 
 		return true;
 	}
@@ -175,9 +175,9 @@ public class DefUsePool {
 
 		registerAsUse(u);
 
-		if (u.isMethodCallOfField())
-			LoggingUtils.getEvoLogger().info("Registered field method call as Use "
-			                                         + u.toString());
+//		if (u.isMethodCallOfField())
+//			LoggingUtils.getEvoLogger().info("Registered field method call as Use "
+//			                                         + u.toString());
 
 		return true;
 	}

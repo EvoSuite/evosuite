@@ -23,6 +23,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeRecycler;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
  * Abstract base class for fitness functions for test case chromosomes
@@ -201,6 +202,14 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	public boolean isCoveredByResults(List<ExecutionResult> tests) {
 		for (ExecutionResult result : tests) {
 			if (isCovered(result))
+				return true;
+		}
+		return false;
+	}
+
+	public boolean isCoveredBy(TestSuiteChromosome testSuite) {
+		for (TestChromosome test : testSuite.getTestChromosomes()) {
+			if (isCovered(test))
 				return true;
 		}
 		return false;
