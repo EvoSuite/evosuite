@@ -48,6 +48,13 @@ public class DependencyAnalysis {
 	private static InheritanceTree inheritanceTree = null;
 
 	/**
+	 * @return the inheritanceTree
+	 */
+	public static InheritanceTree getInheritanceTree() {
+		return inheritanceTree;
+	}
+
+	/**
 	 * Start analysis from target class
 	 * 
 	 * @param className
