@@ -947,6 +947,8 @@ public class TestClusterGenerator {
 							                                  TestCluster.classLoader);
 							// Class<?> subClazz = Class.forName(subClass);
 
+							if (!canUse(subClazz))
+								continue;
 							if (Modifier.isAbstract(subClazz.getModifiers()))
 								continue;
 							actualClasses.add(subClazz);
