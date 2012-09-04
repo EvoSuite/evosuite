@@ -28,15 +28,19 @@ public final class ReplaceAll extends StringFunction {
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-		this.replacementExpr = getStringExpression(it.next());
-		this.regexExpr = getStringExpression(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		Operand replacement_operand = it.next();
+		Operand regex_operand =it.next();
+		Operand receiver_operand = it.next();
+
+		this.replacementExpr = getStringExpression(replacement_operand);
+		this.regexExpr = getStringExpression(regex_operand);
+		this.stringReceiverExpr = getStringExpression(receiver_operand);
 
 	}
 
 	@Override
 	public void CALL_RESULT(Object res) {
-		if (res != null) {
+		if (res != null && replacementExpr!=null) {
 
 			StringMultipleExpression symb_value = new StringMultipleExpression(
 					stringReceiverExpr, Operator.REPLACEALL, regexExpr,
