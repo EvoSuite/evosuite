@@ -345,6 +345,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 
 		result.setExecutionTime(System.currentTimeMillis() - startTime);
+		result.setExecutedStatements(num);
 
 		// FIXXME: Why don't we write into the result directly?
 		result.setThrownExceptions(getExceptionsThrown());

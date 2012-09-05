@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.AbstractStatement;
 import org.evosuite.testcase.CodeUnderTestException;
@@ -42,10 +43,11 @@ import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
- * <p>TestCallStatement class.</p>
- *
+ * <p>
+ * TestCallStatement class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class TestCallStatement extends AbstractStatement {
@@ -55,11 +57,16 @@ public class TestCallStatement extends AbstractStatement {
 	private final TestCallObject testCall;
 
 	/**
-	 * <p>Constructor for TestCallStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param call a {@link org.evosuite.testsuite.TestCallObject} object.
-	 * @param type a {@link java.lang.reflect.Type} object.
+	 * <p>
+	 * Constructor for TestCallStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param call
+	 *            a {@link org.evosuite.testsuite.TestCallObject} object.
+	 * @param type
+	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	public TestCallStatement(TestCase tc, TestCallObject call, Type type) {
 		super(tc, new VariableReferenceImpl(tc, type));
@@ -68,7 +75,7 @@ public class TestCallStatement extends AbstractStatement {
 
 	/**
 	 * Execute a test case
-	 *
+	 * 
 	 * @param test
 	 *            The test case to execute
 	 * @return Result of the execution
@@ -80,7 +87,7 @@ public class TestCallStatement extends AbstractStatement {
 			Scope scope = new Scope();
 			// logger.info("Starting test call " + test.toCode());
 			// logger.info("Original test was: " + testCall.testCase.toCode());
-			executor.execute(test, scope);
+			executor.execute(test, scope, Properties.TIMEOUT);
 
 			// TODO: Count as 1 or length?
 			int num = test.size();
@@ -249,8 +256,10 @@ public class TestCallStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>getTest</p>
-	 *
+	 * <p>
+	 * getTest
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getTest() {
@@ -258,8 +267,10 @@ public class TestCallStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>getTestNum</p>
-	 *
+	 * <p>
+	 * getTestNum
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getTestNum() {
@@ -267,9 +278,12 @@ public class TestCallStatement extends AbstractStatement {
 	}
 
 	/**
-	 * <p>setTestNum</p>
-	 *
-	 * @param num a int.
+	 * <p>
+	 * setTestNum
+	 * </p>
+	 * 
+	 * @param num
+	 *            a int.
 	 */
 	public void setTestNum(int num) {
 		testCall.setNum(num);

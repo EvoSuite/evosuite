@@ -18,11 +18,11 @@
 package org.evosuite.symbolic;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.Properties;
+import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.search.DistanceEstimator;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
 import org.evosuite.symbolic.vm.FunctionVM;
@@ -53,8 +53,7 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  */
 public abstract class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
 	/**
 	 * Retrieve the path condition for a given test case
@@ -65,14 +64,12 @@ public abstract class ConcolicExecution {
 	 */
 	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
-				.getTestCase();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
 
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected static List<BranchCondition> executeConcolic(
-			DefaultTestCase defaultTestCase) {
+	protected static List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
 
@@ -111,16 +108,26 @@ public abstract class ConcolicExecution {
 		TestCaseExecutor.getInstance().addObserver(symbolicExecObserver);
 
 		logger.info("Starting concolic execution");
-		ExecutionResult result = TestCaseExecutor.runTest(defaultTestCase);
+		ExecutionResult result = new ExecutionResult(defaultTestCase, null);
+
+		try {
+			logger.debug("Executing test");
+			result = TestCaseExecutor.getInstance().execute(defaultTestCase,
+			                                                Properties.CONCOLIC_TIMEOUT);
+			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
+
+		} catch (Exception e) {
+			logger.error("Exception during concolic execution {}", e);
+			return new ArrayList<BranchCondition>();
+		}
 		VM.vm.cleanupConcolicExecution(); // ignore all callbacks from now on
 
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
-				+ " branches collected");
+		        + " branches collected");
 		if (!result.noThrownExceptions()) {
 			int idx = result.getFirstPositionOfThrownException();
-			logger.info("Exception thrown: "
-					+ result.getExceptionThrownAtPosition(idx));
+			logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
 		}
 		logNrOfConstraints(branches);
 

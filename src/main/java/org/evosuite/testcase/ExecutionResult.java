@@ -51,6 +51,24 @@ public class ExecutionResult implements Cloneable {
 	/** Duration of execution */
 	protected long executionTime = 0L;
 
+	/** Number of statements executed */
+	protected int executedStatements = 0;
+
+	/**
+	 * @return the executedStatements
+	 */
+	public int getExecutedStatements() {
+		return executedStatements;
+	}
+
+	/**
+	 * @param executedStatements
+	 *            the executedStatements to set
+	 */
+	public void setExecutedStatements(int executedStatements) {
+		this.executedStatements = executedStatements;
+	}
+
 	/** Output traces produced by observers */
 	protected final Map<Class<?>, OutputTrace<?>> traces = new HashMap<Class<?>, OutputTrace<?>>();
 
