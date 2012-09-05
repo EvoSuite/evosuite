@@ -22,5 +22,5 @@
 mvn package appassembler:assemble
 chmod +x target/bin/EvoSuite
 
-## this is done due to strange behavior on cluster... in which EvoSuite reduce to 0 the size of this jar during search
-chmod -w target/repo/org/evosuite/dsc-evosuite/0.3.13/dsc-evosuite-0.3.13.jar
+## this is done due to strange behavior on cluster... in which EvoSuite reduce to 0 the size of some jars during search
+chmod -w -R target/repo
