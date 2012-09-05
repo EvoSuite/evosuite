@@ -112,7 +112,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** The class under test */
 		Class,
 		/** Number of predicates */
-		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals,
+		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals, Statements_Executed,
 		/** Obtained coverage of the chosen testing criterion */
 		Coverage,
 		/**
@@ -556,6 +556,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + FailingTestSet.getNumberOfUniqueViolations();
 			case Data_File:
 				return getCSVFilepath();
+			case Statements_Executed:
+				return "" + result_statements_executed;
 			}
 
 			/*

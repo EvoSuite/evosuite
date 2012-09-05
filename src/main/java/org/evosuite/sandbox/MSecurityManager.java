@@ -213,6 +213,17 @@ class MSecurityManager extends SecurityManager {
 					return true;
 			}
 
+			/*// I think we might need this!
+			if (permName.equals("java.net.NetPermission")) {
+				for (StackTraceElement e : stackTraceElements) {
+					if (e.getClassName().startsWith("java.net.URLClassLoader"))
+						return true;
+					if (e.getClassName().startsWith("java.lang.ClassLoader"))
+						return true;
+				}
+			}
+			*/
+
 			if (permName.equals("java.io.FilePermission")) {
 
 				// check if we try to access sandbox folder. In that case allow.

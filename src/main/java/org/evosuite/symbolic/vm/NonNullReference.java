@@ -2,6 +2,8 @@ package org.evosuite.symbolic.vm;
 
 import java.lang.ref.WeakReference;
 
+import org.objectweb.asm.Type;
+
 /**
  * 
  * @author galeotti
@@ -10,13 +12,13 @@ import java.lang.ref.WeakReference;
 public class NonNullReference implements Reference {
 
 	private final int instanceId;
-	private final String className;
+	private final Type objectType;
 
 	private WeakReference<Object> weakReference;
 	private int concIdentityHashCode;
 
-	public NonNullReference(String className, int instanceId) {
-		this.className = className;
+	public NonNullReference(Type objectType, int instanceId) {
+		this.objectType = objectType;
 		this.instanceId = instanceId;
 
 		weakReference = null;
@@ -25,7 +27,7 @@ public class NonNullReference implements Reference {
 
 	@Override
 	public String toString() {
-		return this.className + "$" + this.instanceId;
+		return this.getClassName() + "$" + this.instanceId;
 	}
 
 	public void initializeReference(Object obj) {
@@ -64,10 +66,11 @@ public class NonNullReference implements Reference {
 	}
 
 	public String getClassName() {
-		return this.className;
+		return this.objectType.getClassName();
 	}
 
 	public boolean isString() {
-		return this.className.equals(String.class.getName());
+		Type stringType = Type.getType(String.class);
+		return this.objectType.equals(stringType);
 	}
 }
