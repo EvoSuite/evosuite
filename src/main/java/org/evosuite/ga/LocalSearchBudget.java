@@ -59,7 +59,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 * @return a boolean.
 	 */
 	public static boolean isFinished() {
-		if (ga.isFinished())
+		if (ga != null && ga.isFinished())
 			return true;
 
 		if (Properties.LOCAL_SEARCH_BUDGET_TYPE == LocalSearchBudgetType.STATEMENTS)

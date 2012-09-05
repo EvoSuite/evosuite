@@ -32,7 +32,7 @@ import org.evosuite.Properties.DSEBudgetType;
  * 
  * @author fraser
  */
-public class DSEBudget implements Serializable {
+public class DSEBudget implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = -2513164673911510952L;
 
@@ -46,6 +46,8 @@ public class DSEBudget implements Serializable {
 
 	/** Constant <code>lastIndividualFinished=0L</code> */
 	protected static long lastIndividualFinished = 0L;
+
+	protected static GeneticAlgorithm ga = null;
 
 	/**
 	 * <p>
@@ -67,6 +69,9 @@ public class DSEBudget implements Serializable {
 	 * @return a boolean.
 	 */
 	public static boolean isFinished() {
+		if (ga != null && ga.isFinished())
+			return true;
+
 		if (Properties.DSE_BUDGET_TYPE == DSEBudgetType.INDIVIDUALS)
 			return attempts >= Properties.DSE_BUDGET;
 		else if (Properties.DSE_BUDGET_TYPE == DSEBudgetType.TIME)
@@ -107,5 +112,48 @@ public class DSEBudget implements Serializable {
 	public static void evaluation() {
 		attempts++;
 		lastIndividualFinished = System.currentTimeMillis();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
+	 */
+	@Override
+	public void searchStarted(GeneticAlgorithm algorithm) {
+		ga = algorithm;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
+	 */
+	@Override
+	public void iteration(GeneticAlgorithm algorithm) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
+	 */
+	@Override
+	public void searchFinished(GeneticAlgorithm algorithm) {
+		ga = null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.ga.SearchListener#fitnessEvaluation(org.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public void fitnessEvaluation(Chromosome individual) {
+		// TODO Auto-generated method stub
+
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.ga.SearchListener#modification(org.evosuite.ga.Chromosome)
+	 */
+	@Override
+	public void modification(Chromosome individual) {
+		// TODO Auto-generated method stub
+
 	}
 }
