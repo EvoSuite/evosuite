@@ -1,7 +1,12 @@
 package org.evosuite.symbolic.vm;
 
+import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerValue;
+import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealConstant;
+import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.str.StringConstant;
 
 /**
@@ -64,4 +69,234 @@ public abstract class ExpressionFactory {
 		return new StringConstant(string.intern());
 	}
 
+	public static IntegerValue add(IntegerValue left, IntegerValue right,
+			long con) {
+		if (!(left instanceof IntegerConstant)
+				&& (right instanceof IntegerConstant)) {
+
+			return buildAddNormalized(right, left, con);
+		} else {
+			return buildAddNormalized(left, right, con);
+		}
+	}
+
+	private static IntegerValue buildAddNormalized(IntegerValue left,
+			IntegerValue right, long con) {
+
+		// can only optimize if left is a literal
+		if (!(left instanceof IntegerConstant))
+			return new IntegerBinaryExpression(left, Operator.PLUS, right, con);
+
+		/*
+		 * (add 0 x) --> x
+		 */
+		if (((IntegerConstant) left).getConcreteValue() == 0) {
+			return right;
+		}
+
+		/*
+		 * (add a b) --> result of a+b
+		 */
+		if (right instanceof IntegerConstant) {
+			long a = left.getConcreteValue();
+			long b = right.getConcreteValue();
+			return buildNewIntegerConstant(a + b);
+		}
+
+		/*
+		 * (add a (add b x)) --> (add (a+b) x)
+		 */
+		if (right instanceof IntegerBinaryExpression
+				&& ((IntegerBinaryExpression) right).getOperator() == Operator.PLUS) {
+			IntegerBinaryExpression add = (IntegerBinaryExpression) right;
+			if (add.getLeftOperand() instanceof IntegerConstant) {
+				long a = left.getConcreteValue();
+				long b = add.getLeftOperand().getConcreteValue();
+
+				IntegerConstant a_plus_b = buildNewIntegerConstant(a + b);
+
+				return new IntegerBinaryExpression(a_plus_b, Operator.PLUS,
+						add.getRightOperand(), con);
+			}
+		}
+
+		return new IntegerBinaryExpression(left, Operator.PLUS, right, con);
+	}
+
+	public static RealValue add(RealValue left, RealValue right, double con) {
+		if (!(left instanceof RealConstant) && (right instanceof RealConstant)) {
+
+			return buildAddNormalized(right, left, con);
+		} else {
+			return buildAddNormalized(left, right, con);
+		}
+	}
+
+	private static RealValue buildAddNormalized(RealValue right,
+			RealValue left, double con) {
+		// can only optimize if left is a literal
+		if (!(left instanceof RealConstant))
+			return new RealBinaryExpression(left, Operator.PLUS, right, con);
+
+		/*
+		 * (add 0 x) --> x
+		 */
+		if (((RealConstant) left).getConcreteValue() == 0) {
+			return right;
+		}
+
+		/*
+		 * (add a b) --> result of a+b
+		 */
+		if (right instanceof RealConstant) {
+			double a = left.getConcreteValue();
+			double b = right.getConcreteValue();
+			return buildNewRealConstant(a + b);
+		}
+
+		/*
+		 * (add a (add b x)) --> (add (a+b) x)
+		 */
+		if (right instanceof RealBinaryExpression
+				&& ((RealBinaryExpression) right).getOperator() == Operator.PLUS) {
+			RealBinaryExpression add = (RealBinaryExpression) right;
+			if (add.getLeftOperand() instanceof RealConstant) {
+				double a = left.getConcreteValue();
+				double b = add.getLeftOperand().getConcreteValue();
+
+				RealConstant a_plus_b = buildNewRealConstant(a + b);
+
+				return new RealBinaryExpression(a_plus_b, Operator.PLUS,
+						add.getRightOperand(), con);
+			}
+		}
+
+		return new RealBinaryExpression(left, Operator.PLUS, right, con);
+
+	}
+
+	public static IntegerValue mul(IntegerValue left, IntegerValue right,
+			long con) {
+
+		if ((!(left instanceof IntegerConstant))
+				&& (right instanceof IntegerConstant))
+			return buildMulNormalized(right, left, con);
+		else
+			return buildMulNormalized(left, right, con);
+
+	}
+
+	private static IntegerValue buildMulNormalized(IntegerValue right,
+			IntegerValue left, long con) {
+
+		/*
+		 * (mul 0 x) --> 0
+		 */
+		if ((left instanceof IntegerConstant) && left.getConcreteValue() == 0)
+			return buildNewIntegerConstant(0);
+
+		/*
+		 * (mul 1 x) --> x
+		 */
+		if ((left instanceof IntegerConstant) && left.getConcreteValue() == 1)
+			return right;
+
+		/*
+		 * (mul a b) --> result of a*b
+		 */
+		if ((left instanceof IntegerConstant)
+				&& (right instanceof IntegerConstant)) {
+			long a = left.getConcreteValue();
+			long b = right.getConcreteValue();
+			return buildNewIntegerConstant(a * b);
+
+		}
+
+		return new IntegerBinaryExpression(left, Operator.MUL, right,
+				(long) con);
+	}
+
+	public static RealValue mul(RealValue left, RealValue right, double con) {
+
+		if ((!(left instanceof RealConstant))
+				&& (right instanceof RealConstant))
+			return buildMulNormalized(right, left, con);
+		else
+			return buildMulNormalized(left, right, con);
+
+	}
+
+	private static RealValue buildMulNormalized(RealValue right,
+			RealValue left, double con) {
+
+		/*
+		 * (mul 0 x) --> 0
+		 */
+		if ((left instanceof RealConstant) && left.getConcreteValue() == 0.0)
+			return buildNewRealConstant(0.0);
+
+		/*
+		 * (mul 1 x) --> x
+		 */
+		if ((left instanceof RealConstant) && left.getConcreteValue() == 1.0)
+			return right;
+
+		/*
+		 * (mul a b) --> result of a*b
+		 */
+		if ((left instanceof RealConstant) && (right instanceof RealConstant)) {
+			double a = left.getConcreteValue();
+			double b = right.getConcreteValue();
+			return buildNewRealConstant(a * b);
+
+		}
+
+		return new RealBinaryExpression(left, Operator.MUL, right, (double) con);
+	}
+
+	public static RealValue div(RealValue left, RealValue right, double con) {
+
+		/*
+		 * (div 0 x) --> 0
+		 */
+		if (left instanceof RealConstant && left.getConcreteValue() == 0)
+			return buildNewRealConstant(0);
+
+		return new RealBinaryExpression(left, Operator.DIV, right, con);
+	}
+
+	public static IntegerValue div(IntegerValue left, IntegerValue right,
+			long con) {
+
+		/*
+		 * (div 0 x) --> 0
+		 */
+		if (left instanceof IntegerConstant && left.getConcreteValue() == 0)
+			return buildNewIntegerConstant(0);
+
+		return new IntegerBinaryExpression(left, Operator.DIV, right, con);
+	}
+
+	public static RealValue rem(RealValue left, RealValue right, double con) {
+
+		/*
+		 * (rem 0 x) --> 0
+		 */
+		if (left instanceof RealConstant && left.getConcreteValue() == 0)
+			return buildNewRealConstant(0);
+
+		return new RealBinaryExpression(left, Operator.REM, right, con);
+	}
+
+	public static IntegerValue rem(IntegerValue left, IntegerValue right,
+			long con) {
+
+		/*
+		 * (rem 0 x) --> 0
+		 */
+		if (left instanceof IntegerConstant && left.getConcreteValue() == 0)
+			return buildNewIntegerConstant(0);
+
+		return new IntegerBinaryExpression(left, Operator.REM, right, con);
+	}
 }

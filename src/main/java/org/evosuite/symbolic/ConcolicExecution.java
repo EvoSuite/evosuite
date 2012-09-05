@@ -142,9 +142,16 @@ public abstract class ConcolicExecution {
 
 		for (BranchCondition branchCondition : branches) {
 
+			for (Constraint<?> supporting_constraint : branchCondition
+					.getSupportingConstraints()) {
+				supporting_constraint.getLeftOperand().execute();
+				supporting_constraint.getRightOperand().execute();
+				nrOfConstraints++;
+			}
+
 			Constraint<?> constraint = branchCondition.getLocalConstraint();
-			Object leftVal = constraint.getLeftOperand().execute();
-			Object rightVal = constraint.getRightOperand().execute();
+			constraint.getLeftOperand().execute();
+			constraint.getRightOperand().execute();
 			nrOfConstraints++;
 
 		}
