@@ -157,7 +157,7 @@
 		<dependency>
 			<groupId>org.evosuite</groupId>
 			<artifactId>dsc-evosuite</artifactId>
-			<version>0.3.13</version>
+			<version>0.3.14</version>
 		</dependency>
                    <dependency>
                       <groupId>dk.brics.automaton</groupId>
