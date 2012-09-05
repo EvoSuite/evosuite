@@ -289,8 +289,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		int con = left_concrete_value + right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.PLUS,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.add(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv32(intExpr);
 
@@ -320,8 +319,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		long con = left_concrete_value + right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.PLUS,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.add(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv64(intExpr);
 	}
@@ -350,8 +348,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		float con = left_concrete_value + right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.PLUS,
-				right, (double) con);
+		RealValue realExpr = ExpressionFactory.add(left, right, (double) con);
 
 		env.topFrame().operandStack.pushFp32(realExpr);
 
@@ -377,8 +374,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		double con = left_concrete_value + right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.PLUS,
-				right, con);
+		RealValue realExpr = ExpressionFactory.add(left, right, con);
 
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}
@@ -524,8 +520,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		int con = left_concrete_value * right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.MUL,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.mul(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv32(intExpr);
 
@@ -556,8 +551,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		long con = left_concrete_value * right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.MUL,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.mul(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv64(intExpr);
 	}
@@ -582,8 +576,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		float con = left_concrete_value * right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.MUL,
-				right, (double) con);
+		RealValue realExpr = ExpressionFactory.mul(left, right, (double) con);
 
 		env.topFrame().operandStack.pushFp32(realExpr);
 	}
@@ -608,8 +601,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		double con = left_concrete_value * right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.MUL,
-				right, con);
+		RealValue realExpr = ExpressionFactory.mul(left, right, con);
 
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}
@@ -647,8 +639,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		int con = left_concrete_value / right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.DIV,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.div(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv32(intExpr);
 
@@ -682,8 +673,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		long con = left_concrete_value / right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.DIV,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.div(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv64(intExpr);
 	}
@@ -708,8 +698,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		float con = left_concrete_value / right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.DIV,
-				right, (double) con);
+		RealValue realExpr = ExpressionFactory.div(left, right, (double) con);
 
 		env.topFrame().operandStack.pushFp32(realExpr);
 	}
@@ -734,8 +723,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		double con = left_concrete_value / right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.DIV,
-				right, con);
+		RealValue realExpr = ExpressionFactory.div(left, right, con);
 
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}
@@ -768,8 +756,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		int con = left_concrete_value % right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.REM,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.rem(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv32(intExpr);
 
@@ -795,8 +782,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		float con = left_concrete_value % right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.REM,
-				right, (double) con);
+		RealValue realExpr = ExpressionFactory.rem(left, right, (double) con);
 
 		env.topFrame().operandStack.pushFp32(realExpr);
 	}
@@ -821,8 +807,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		double con = left_concrete_value % right_concrete_value;
 
-		RealValue realExpr = new RealBinaryExpression(left, Operator.REM,
-				right, con);
+		RealValue realExpr = ExpressionFactory.rem(left, right, con);
 
 		env.topFrame().operandStack.pushFp64(realExpr);
 	}
@@ -1289,8 +1274,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		int con = left_concrete_value + right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.PLUS,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.add(left, right, (long) con);
 
 		env.topFrame().localsTable.setBv32Local(i, intExpr);
 	}
@@ -1632,8 +1616,7 @@ public final class ArithmeticVM extends AbstractVM {
 
 		long con = left_concrete_value % right_concrete_value;
 
-		IntegerValue intExpr = new IntegerBinaryExpression(left, Operator.REM,
-				right, (long) con);
+		IntegerValue intExpr = ExpressionFactory.rem(left, right, (long) con);
 
 		env.topFrame().operandStack.pushBv64(intExpr);
 	}
