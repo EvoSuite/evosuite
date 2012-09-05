@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.DSEBudget;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
@@ -76,6 +77,8 @@ public class TestSuiteDSE {
 	private final List<TestBranchPair> unsolvedBranchConditions = new ArrayList<TestBranchPair>();
 
 	private final Set<BranchCondition> unsolvableBranchConditions = new HashSet<BranchCondition>();
+
+	private final Map<String, Integer> solutionAttempts = new HashMap<String, Integer>();
 
 	private class TestBranchPair {
 		TestChromosome test;
@@ -212,7 +215,25 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	private TestBranchPair getNextBranchCondition() {
-		return unsolvedBranchConditions.remove(0);
+		TestBranchPair pair = unsolvedBranchConditions.remove(0);
+
+		String index = getBranchIndex(pair.branch);
+		if (!unsolvedBranchConditions.isEmpty()) {
+			while (solutionAttempts.containsKey(index)
+			        && solutionAttempts.get(index) >= Properties.CONSTRAINT_SOLUTION_ATTEMPTS
+			        && !unsolvedBranchConditions.isEmpty()) {
+				logger.info("Reached maximum number of attempts for branch " + index);
+				pair = unsolvedBranchConditions.remove(0);
+				index = getBranchIndex(pair.branch);
+			}
+		}
+
+		if (!solutionAttempts.containsKey(index))
+			solutionAttempts.put(index, 1);
+		else
+			solutionAttempts.put(index, solutionAttempts.get(index) + 1);
+
+		return pair;
 	}
 
 	/**

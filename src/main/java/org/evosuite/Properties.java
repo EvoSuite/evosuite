@@ -750,6 +750,9 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double CONCOLIC_MUTATION = 0.0;
 
+	@Parameter(key = "constraint_solution_attempts", description = "Number of attempts to solve constraints related to one code branch")
+	public static int CONSTRAINT_SOLUTION_ATTEMPTS = 3;
+
 	/** Constant <code>UI_TEST=false</code> */
 	@Parameter(key = "ui", description = "Do User Interface tests")
 	public static boolean UI_TEST = false;
