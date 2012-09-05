@@ -60,18 +60,13 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 	 *            The test case to execute
 	 * @return Result of the execution
 	 */
+	@Deprecated
 	public ExecutionResult runTest(TestCase test) {
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
 			result = executor.execute(test);
-			/*
-			 * result.exceptions = executor.run(test);
-			 * executor.setLogging(true); result.trace =
-			 * ExecutionTracer.getExecutionTracer().getTrace();
-			 */
-			int num = test.size();
-			MaxStatementsStoppingCondition.statementsExecuted(num);
+			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();

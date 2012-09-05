@@ -22,7 +22,6 @@ import java.util.List;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeRecycler;
 import org.evosuite.ga.FitnessFunction;
-import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -39,39 +38,6 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	static boolean warnedAboutIsSimilarTo = false;
-
-	/**
-	 * Execute a test case
-	 * 
-	 * @param test
-	 *            The test case to execute
-	 * @return Result of the execution
-	 */
-	public ExecutionResult runTest(TestCase test) {
-
-		ExecutionResult result = new ExecutionResult(test, null);
-
-		try {
-			result = executor.execute(test);
-
-			int num = test.size();
-			if (!result.noThrownExceptions()) {
-				num = result.getFirstPositionOfThrownException();
-			}
-			MaxStatementsStoppingCondition.statementsExecuted(num);
-			// for(TestObserver observer : observers) {
-			// observer.testResult(result);
-			// }
-		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			logger.error("TG: Exception caught: ", e);
-			System.exit(1);
-		}
-
-		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
-		return result;
-	}
 
 	/**
 	 * <p>
@@ -93,7 +59,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		TestChromosome c = (TestChromosome) individual;
 		ExecutionResult orig_result = c.getLastExecutionResult();
 		if (orig_result == null || c.isChanged()) {
-			orig_result = runTest(c.test);
+			orig_result = TestCaseExecutor.runTest(c.test);
 			c.setLastExecutionResult(orig_result);
 			c.setChanged(false);
 		}
@@ -242,7 +208,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	public boolean isCovered(TestChromosome tc) {
 		ExecutionResult result = tc.getLastExecutionResult();
 		if (result == null || tc.isChanged()) {
-			result = runTest(tc.test);
+			result = TestCaseExecutor.runTest(tc.test);
 			tc.setLastExecutionResult(result);
 			tc.setChanged(false);
 		}
