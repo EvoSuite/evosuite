@@ -55,6 +55,9 @@ public abstract class ConcolicExecution {
 
 	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
 
+	/** Instrumenting class loader */
+	private static final DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
+
 	/**
 	 * Retrieve the path condition for a given test case
 	 * 
@@ -77,10 +80,6 @@ public abstract class ConcolicExecution {
 		 * Prepare DSC configuration
 		 */
 		MainConfig.setInstance();
-		/**
-		 * Instrumenting class loader
-		 */
-		DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
 
 		/**
 		 * Path constraint and symbolic environment
@@ -142,8 +141,7 @@ public abstract class ConcolicExecution {
 
 		for (BranchCondition branchCondition : branches) {
 
-			for (Constraint<?> supporting_constraint : branchCondition
-					.getSupportingConstraints()) {
+			for (Constraint<?> supporting_constraint : branchCondition.getSupportingConstraints()) {
 				supporting_constraint.getLeftOperand().execute();
 				supporting_constraint.getRightOperand().execute();
 				nrOfConstraints++;
