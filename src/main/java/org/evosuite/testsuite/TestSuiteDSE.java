@@ -250,8 +250,8 @@ public class TestSuiteDSE {
 			*/
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
-			logger.info("Chosen branch condition: " + branch);
-			logger.info(branch.getReachingConstraints().toString());
+			//logger.info("Chosen branch condition: " + branch);
+			//logger.info(branch.getReachingConstraints().toString());
 
 			TestCase newTest = negateCondition(branch.getReachingConstraints(),
 			                                   branch.getLocalConstraint(),
@@ -332,9 +332,9 @@ public class TestSuiteDSE {
 			logger.debug("Calculating cone of influence for " + size + " constraints");
 			constraints = reduce(constraints);
 			logger.info("Reduced constraints from " + size + " to " + constraints.size());
-			for (Constraint<?> c : constraints) {
-				logger.info(c.toString());
-			}
+			//for (Constraint<?> c : constraints) {
+			//	logger.info(c.toString());
+			//}
 		}
 
 		nrCurrConstraints = constraints.size();

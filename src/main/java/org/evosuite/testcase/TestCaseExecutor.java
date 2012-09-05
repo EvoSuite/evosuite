@@ -107,12 +107,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			logger.debug("Executing test");
 			result = executor.execute(test);
 
-			int num = test.size();
-			MaxStatementsStoppingCondition.statementsExecuted(num);
+			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 
-			// for(TestObserver observer : observers) {
-			// observer.testResult(result);
-			// }
 		} catch (Exception e) {
 			System.out.println("TG: Exception caught: " + e);
 			e.printStackTrace();
@@ -120,7 +116,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			System.exit(1);
 		}
 
-		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());
 		return result;
 	}
 
@@ -233,7 +228,19 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public ExecutionResult execute(TestCase tc) {
 		Scope scope = new Scope();
-		return execute(tc, scope);
+		return execute(tc, scope, Properties.TIMEOUT);
+	}
+
+	/**
+	 * Execute a test case on a new scope
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
+	 */
+	public ExecutionResult execute(TestCase tc, int timeout) {
+		Scope scope = new Scope();
+		return execute(tc, scope, timeout);
 	}
 
 	/**
@@ -246,7 +253,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * @return a {@link org.evosuite.testcase.ExecutionResult} object.
 	 */
 	@SuppressWarnings("deprecation")
-	public ExecutionResult execute(TestCase tc, Scope scope) {
+	public ExecutionResult execute(TestCase tc, Scope scope, int timeout) {
 		ExecutionTracer.getExecutionTracer().clear();
 		// TODO: Re-insert!
 		if (Properties.STATIC_HACK)
@@ -267,8 +274,7 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor,
-			                                         Properties.TIMEOUT,
+			ExecutionResult result = handler.execute(callable, executor, timeout,
 			                                         Properties.CPU_TIMEOUT);
 
 			long endTime = System.currentTimeMillis();

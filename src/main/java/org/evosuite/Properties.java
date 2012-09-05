@@ -807,6 +807,9 @@ public class Properties {
 	@Parameter(key = "timeout", group = "Test Execution", description = "Milliseconds allowed per test")
 	public static int TIMEOUT = 5000;
 
+	@Parameter(key = "concolic_timeout", group = "Test Execution", description = "Milliseconds allowed per test during concolic execution")
+	public static int CONCOLIC_TIMEOUT = 15000;
+
 	/** Constant <code>SHUTDOWN_TIMEOUT=1000</code> */
 	@Parameter(key = "shutdown_timeout", group = "Test Execution", description = "Milliseconds grace time to shut down test cleanly")
 	public static int SHUTDOWN_TIMEOUT = 1000;
