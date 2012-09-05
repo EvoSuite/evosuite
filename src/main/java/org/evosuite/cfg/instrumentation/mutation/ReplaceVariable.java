@@ -350,7 +350,7 @@ public class ReplaceVariable implements MutationOperator {
 			try {
 				LocalVariableNode origVar = getLocal(mn, node, incNode.var);
 
-				variables.putAll(getLocalReplacementsInc(mn, origVar.desc, incNode));
+				variables.putAll(getLocalReplacementsInc(mn, origVar.desc, incNode, frame));
 			} catch (VariableNotFoundException e) {
 				logger.info("Could not find variable, not replacing it: " + incNode.var);
 			}
@@ -439,7 +439,7 @@ public class ReplaceVariable implements MutationOperator {
 	}
 
 	private Map<String, InsnList> getLocalReplacementsInc(MethodNode mn, String desc,
-	        IincInsnNode node) {
+	        IincInsnNode node, Frame frame) {
 		Map<String, InsnList> replacements = new HashMap<String, InsnList>();
 
 		int otherNum = -1;
@@ -460,9 +460,13 @@ public class ReplaceVariable implements MutationOperator {
 				logger.info("- Out of scope (start) " + localVar.name);
 			if (currentId > endId)
 				logger.info("- Out of scope (end) " + localVar.name);
+			BasicValue newValue = (BasicValue) frame.getLocal(localVar.index);
+			if (newValue == BasicValue.UNINITIALIZED_VALUE)
+				logger.info("- Not initialized");
 
 			if (localVar.desc.equals(desc) && localVar.index != otherNum
-			        && currentId >= startId && currentId <= endId) {
+			        && currentId >= startId && currentId <= endId
+			        && newValue != BasicValue.UNINITIALIZED_VALUE) {
 
 				logger.info("Adding local variable " + localVar.name + " of type "
 				        + localVar.desc + " at index " + localVar.index);

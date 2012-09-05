@@ -41,8 +41,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringUnaryExpression extends AbstractExpression<String> implements
-		StringValue, UnaryExpression<String> {
+public final class StringUnaryExpression extends AbstractExpression<String>
+		implements StringValue, UnaryExpression<String> {
 
 	private static final long serialVersionUID = -384874147850376188L;
 
@@ -129,17 +129,16 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 			return exOn.trim();
 
 		default:
-			log.warn("StringUnaryExpression: unimplemented operator!");
+			log.warn("StringUnaryExpression: unimplemented operator!" + op);
 			return null;
 		}
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.addAll(this.expr.getVariables());
 		return variables;
 	}
-
 
 }

@@ -21,6 +21,7 @@ public final class Length extends StringFunction {
 
 	@Override
 	public void CALL_RESULT(int res) {
+		
 		if (stringReceiverExpr.containsSymbolicVariable()) {
 			StringUnaryToIntegerExpression strUnExpr = new StringUnaryToIntegerExpression(
 					stringReceiverExpr, Operator.LENGTH, (long) res);

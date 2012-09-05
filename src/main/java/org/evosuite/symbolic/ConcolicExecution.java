@@ -112,6 +112,8 @@ public abstract class ConcolicExecution {
 
 		logger.info("Starting concolic execution");
 		ExecutionResult result = TestCaseExecutor.runTest(defaultTestCase);
+		VM.vm.cleanupConcolicExecution(); // ignore all callbacks from now on
+
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
 				+ " branches collected");
@@ -124,7 +126,6 @@ public abstract class ConcolicExecution {
 
 		logger.debug("Cleaning concolic execution");
 		TestCaseExecutor.getInstance().removeObserver(symbolicExecObserver);
-		VM.vm.cleanupConcolicExecution();
 
 		return branches;
 	}

@@ -41,6 +41,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.javaagent.BooleanValueInterpreter;
+import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.ExecutionTracer;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -85,7 +86,6 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		mutationOperators.add(new ReplaceBitwiseOperator());
 		mutationOperators.add(new ReplaceArithmeticOperator());
 		mutationOperators.add(new ReplaceVariable());
-
 		mutationOperators.add(new ReplaceConstant());
 		// mutationOperators.add(new NegateCondition());
 		// FIXME: Don't apply to boolean values!
@@ -95,7 +95,6 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		mutationOperators.add(new DeleteStatement());
 		mutationOperators.add(new DeleteField());
 		// TODO: Replace iinc?
-
 	}
 
 	private void getFrames(MethodNode mn, String className) {
@@ -142,7 +141,13 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			if (!constructorInvoked) {
 				if (in.getOpcode() == Opcodes.INVOKESPECIAL) {
-					constructorInvoked = true;
+					MethodInsnNode cn = (MethodInsnNode) in;
+					List<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
+					superClasses.add(className);
+					String classNameWithDots = cn.owner.replace('/', '.');
+					if (superClasses.contains(classNameWithDots)) {
+						constructorInvoked = true;
+					}
 				} else {
 					continue;
 				}

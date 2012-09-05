@@ -11,6 +11,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.str.StringValue;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,8 +76,12 @@ public final class SymbolicHeap {
 	 * 
 	 * @return
 	 */
-	public NonNullReference newReference(String className) {
-		return new NonNullReference(className, newInstanceCount++);
+	public NonNullReference newReference(Type objectType) {
+
+		if (objectType.getClassName()==null)
+			throw new IllegalArgumentException();
+
+		return new NonNullReference(objectType, newInstanceCount++);
 	}
 
 	/**
@@ -169,8 +174,7 @@ public final class SymbolicHeap {
 
 		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
 				owner, name);
-		IntegerValue symb_value = (IntegerValue) symb_field
-				.get(symb_receiver);
+		IntegerValue symb_value = (IntegerValue) symb_field.get(symb_receiver);
 		if (symb_value == null
 				|| ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
@@ -247,8 +251,7 @@ public final class SymbolicHeap {
 
 		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
 				className, fieldName);
-		RealValue symb_value = (RealValue) symb_field
-				.get(symb_receiver);
+		RealValue symb_value = (RealValue) symb_field.get(symb_receiver);
 		if (symb_value == null
 				|| ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
@@ -274,8 +277,7 @@ public final class SymbolicHeap {
 
 		Map<NonNullReference, Expression<?>> symb_field = getOrCreateSymbolicField(
 				className, fieldName);
-		StringValue symb_value = (StringValue) symb_field
-				.get(symb_receiver);
+		StringValue symb_value = (StringValue) symb_field.get(symb_receiver);
 		if (symb_value == null
 				|| !((String) symb_value.getConcreteValue()).equals(conc_value)) {
 			symb_value = ExpressionFactory.buildNewStringConstant(conc_value);
@@ -322,8 +324,7 @@ public final class SymbolicHeap {
 			long conc_value) {
 
 		FieldKey k = new FieldKey(owner, name);
-		IntegerValue symb_value = (IntegerValue) symb_static_fields
-				.get(k);
+		IntegerValue symb_value = (IntegerValue) symb_static_fields.get(k);
 		if (symb_value == null
 				|| ((Long) symb_value.getConcreteValue()).longValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewIntegerConstant(conc_value);
@@ -335,8 +336,7 @@ public final class SymbolicHeap {
 
 	}
 
-	public RealValue getStaticField(String owner, String name,
-			double conc_value) {
+	public RealValue getStaticField(String owner, String name, double conc_value) {
 
 		FieldKey k = new FieldKey(owner, name);
 		RealValue symb_value = (RealValue) symb_static_fields.get(k);
@@ -355,8 +355,7 @@ public final class SymbolicHeap {
 			String conc_value) {
 
 		FieldKey k = new FieldKey(owner, name);
-		StringValue symb_value = (StringValue) symb_static_fields
-				.get(k);
+		StringValue symb_value = (StringValue) symb_static_fields.get(k);
 		if (symb_value == null
 				|| !((String) symb_value.getConcreteValue()).equals(conc_value)) {
 			symb_value = ExpressionFactory.buildNewStringConstant(conc_value);
@@ -378,8 +377,8 @@ public final class SymbolicHeap {
 			if (symb_ref == null
 					|| symb_ref.getWeakConcreteObject() != conc_ref) {
 				// unknown object or out of synch object
-				symb_ref = new NonNullReference(conc_ref.getClass().getName(),
-						newInstanceCount++);
+				symb_ref = new NonNullReference(Type.getType(conc_ref
+						.getClass()), newInstanceCount++);
 				symb_ref.initializeReference(conc_ref);
 				nonNullRefs.put(identityHashCode, symb_ref);
 			}
@@ -438,8 +437,8 @@ public final class SymbolicHeap {
 		return symb_array_contents;
 	}
 
-	public StringValue array_load(NonNullReference symb_array,
-			int conc_index, String conc_value) {
+	public StringValue array_load(NonNullReference symb_array, int conc_index,
+			String conc_value) {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
 		StringValue symb_value = (StringValue) symb_array_contents
@@ -454,8 +453,8 @@ public final class SymbolicHeap {
 		return symb_value;
 	}
 
-	public IntegerValue array_load(NonNullReference symb_array,
-			int conc_index, long conc_value) {
+	public IntegerValue array_load(NonNullReference symb_array, int conc_index,
+			long conc_value) {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
 		IntegerValue symb_value = (IntegerValue) symb_array_contents
@@ -470,12 +469,11 @@ public final class SymbolicHeap {
 		return symb_value;
 	}
 
-	public RealValue array_load(NonNullReference symb_array,
-			int conc_index, double conc_value) {
+	public RealValue array_load(NonNullReference symb_array, int conc_index,
+			double conc_value) {
 
 		Map<Integer, Expression<?>> symb_array_contents = getOrCreateSymbolicArray(symb_array);
-		RealValue symb_value = (RealValue) symb_array_contents
-				.get(conc_index);
+		RealValue symb_value = (RealValue) symb_array_contents.get(conc_index);
 		if (symb_value == null
 				|| ((Double) symb_value.getConcreteValue()).doubleValue() != conc_value) {
 			symb_value = ExpressionFactory.buildNewRealConstant(conc_value);
