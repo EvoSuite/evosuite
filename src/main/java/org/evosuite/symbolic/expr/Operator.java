@@ -118,6 +118,10 @@ public enum Operator {
 	REGIONMATCHES("regionMatches", 6), 
 	PATTERNMATCHES("patternMatches", 2), 
 
+	// character operators
+	ISLETTER("isLetter",1),
+	ISDIGIT("isDigit",1),
+	GETNUMERICVALUE("getNumericValue",1),
 
 	// String operators
 	TRIM("trim", 1), 

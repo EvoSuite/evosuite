@@ -2,6 +2,9 @@ package org.evosuite.symbolic.vm;
 
 import java.util.Map;
 
+import org.evosuite.symbolic.vm.bigint.BigInteger_Ctor;
+import org.evosuite.symbolic.vm.bigint.BigInteger_DivideAndRemainder;
+import org.evosuite.symbolic.vm.bigint.BigInteger_IntValue;
 import org.evosuite.symbolic.vm.math.ABS;
 import org.evosuite.symbolic.vm.math.ACOS;
 import org.evosuite.symbolic.vm.math.ASIN;
@@ -73,6 +76,9 @@ import org.evosuite.symbolic.vm.wrappers.B_ValueOf;
 import org.evosuite.symbolic.vm.wrappers.C_CharValue;
 import org.evosuite.symbolic.vm.wrappers.C_Init;
 import org.evosuite.symbolic.vm.wrappers.C_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.Character_getNumericValue;
+import org.evosuite.symbolic.vm.wrappers.Character_isDigit;
+import org.evosuite.symbolic.vm.wrappers.Character_isLetter;
 import org.evosuite.symbolic.vm.wrappers.D_DoubleValue;
 import org.evosuite.symbolic.vm.wrappers.D_Init;
 import org.evosuite.symbolic.vm.wrappers.D_ValueOf;
@@ -174,6 +180,9 @@ public final class FunctionVM extends AbstractVM {
 		addFunctionToTable(new C_Init(env));
 		addFunctionToTable(new C_ValueOf(env));
 		addFunctionToTable(new C_CharValue(env));
+		addFunctionToTable(new Character_getNumericValue(env));
+		addFunctionToTable(new Character_isDigit(env));
+		addFunctionToTable(new Character_isLetter(env));
 
 		// java.lang.Boolean
 		addFunctionToTable(new Z_Init(env));
@@ -286,6 +295,11 @@ public final class FunctionVM extends AbstractVM {
 
 		// java.util.regex.Matcher
 		addFunctionToTable(new Matcher_Matches(env));
+
+		// java.math.BigInteger
+		addFunctionToTable(new BigInteger_Ctor(env));
+		addFunctionToTable(new BigInteger_DivideAndRemainder(env));
+		addFunctionToTable(new BigInteger_IntValue(env));
 	}
 
 	private void addFunctionToTable(Function f) {

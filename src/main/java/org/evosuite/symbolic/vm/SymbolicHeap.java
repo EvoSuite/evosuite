@@ -25,6 +25,7 @@ public final class SymbolicHeap {
 	protected static Logger logger = LoggerFactory
 			.getLogger(SymbolicHeap.class);
 
+
 	private static final class FieldKey {
 		private String owner;
 		private String name;
@@ -403,6 +404,8 @@ public final class SymbolicHeap {
 	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new THashMap<NonNullReference, Map<Integer, Expression<?>>>();
 
 	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
+
+	public static String $BIG_INTEGER_CONTENTS = "$bigInteger_contents";
 
 	public static final String $MATCHER_INPUT = "$matcherInput";
 
