@@ -29,18 +29,35 @@ public final class ReplaceAll extends StringFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
 		Operand replacement_operand = it.next();
-		Operand regex_operand =it.next();
+		Operand regex_operand = it.next();
 		Operand receiver_operand = it.next();
 
-		this.replacementExpr = getStringExpression(replacement_operand);
-		this.regexExpr = getStringExpression(regex_operand);
-		this.stringReceiverExpr = getStringExpression(receiver_operand);
+		this.replacementExpr = null;
+		this.regexExpr = null;
+		this.stringReceiverExpr = getStringExpression(receiver_operand,
+				receiver);
 
 	}
 
 	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+
+		String string = (String) value;
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		if (nr == 1) {
+			Operand operand = it.next();
+			this.replacementExpr = getStringExpression(operand, string);
+
+		} else if (nr == 0) {
+			it.next();
+			Operand operand = it.next();
+			this.regexExpr = getStringExpression(operand, string);
+		}
+	}
+
+	@Override
 	public void CALL_RESULT(Object res) {
-		if (res != null && replacementExpr!=null) {
+		if (res != null && replacementExpr != null) {
 
 			StringMultipleExpression symb_value = new StringMultipleExpression(
 					stringReceiverExpr, Operator.REPLACEALL, regexExpr,

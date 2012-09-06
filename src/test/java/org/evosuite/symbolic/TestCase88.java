@@ -15,15 +15,13 @@ public class TestCase88 {
 		return counter;
 	}
 
-	public static void test() throws SecurityException, NoSuchMethodException,
+	public static void test(int int0, int int1) throws SecurityException, NoSuchMethodException,
 			IllegalArgumentException, IllegalAccessException,
 			InvocationTargetException {
 
 		TestCase88 instance0 = new TestCase88();
 		Method method = TestCase88.class.getMethod("callbackMethodToIgnore",
 				int.class, int.class);
-		int int0 = 10;
-		int int1 = 20;
 
 		Object ret = method.invoke(instance0, int0, int1);
 		int int2 = (Integer) ret;

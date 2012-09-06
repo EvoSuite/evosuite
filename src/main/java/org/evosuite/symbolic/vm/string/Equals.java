@@ -25,7 +25,7 @@ public final class Equals extends StringFunction {
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		ref(it.next()); // discard argument
-		this.stringReceiverExpr = getStringExpression(it.next()); // get
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver); // get
 																	// receiver
 
 	}

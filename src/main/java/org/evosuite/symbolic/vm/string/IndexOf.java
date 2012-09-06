@@ -33,7 +33,7 @@ public abstract class IndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 		}
 
 		@Override
@@ -66,7 +66,7 @@ public abstract class IndexOf extends StringFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 		}
 
 		@Override
@@ -101,11 +101,19 @@ public abstract class IndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-			this.strExpr = getStringExpression(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			it.next(); // discard symb ref (for now)
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 
 		}
 
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+			String string_value = (String) value;
+			Iterator<Operand> it = env.topFrame().operandStack.iterator();
+			this.strExpr = getStringExpression(it.next(), string_value);
+		}
+
+		
 		@Override
 		public void CALL_RESULT(int res) {
 			if (stringReceiverExpr.containsSymbolicVariable()
@@ -120,6 +128,9 @@ public abstract class IndexOf extends StringFunction {
 			}
 
 		}
+		
+		
+		
 	}
 
 	public final static class IndexOf_SI extends IndexOf {
@@ -135,8 +146,8 @@ public abstract class IndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
-			this.strExpr = getStringExpression(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			it.next(); // discard symb ref (for now)
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 
 		}
 
@@ -152,11 +163,19 @@ public abstract class IndexOf extends StringFunction {
 						(long) res);
 
 				this.replaceTopBv32(strTExpr);
-			} else {
-				// do nothing (concrete value only)
 			}
 
 		}
+
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+				Object value) {
+			String string_value = (String) value;
+			Iterator<Operand> it = env.topFrame().operandStack.iterator();
+			it.next(); // discard int
+			this.strExpr = getStringExpression(it.next(), string_value);
+		}
+
 	}
 
 }

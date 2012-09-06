@@ -36,7 +36,7 @@ public abstract class Replace extends StringFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.newCharExpr = bv32(it.next());
 			this.oldCharExpr = bv32(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 		}
 
 		@Override
@@ -72,9 +72,38 @@ public abstract class Replace extends StringFunction {
 		@Override
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.newStringExpr = getStringExpression(it.next());
-			this.oldStringExpr = getStringExpression(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			it.next(); // discard
+			it.next(); // discard
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
+		}
+
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+				Object value) {
+
+			if (nr == 0) {
+				if (value instanceof String) {
+					String string_value = (String) value;
+					Iterator<Operand> it = env.topFrame().operandStack
+							.iterator();
+					it.next();
+					this.oldStringExpr = getStringExpression(it.next(),
+							string_value);
+				} else {
+					oldStringExpr = null;
+				}
+
+			} else if (nr == 1) {
+				if (value instanceof String) {
+					String string_value = (String) value;
+					Iterator<Operand> it = env.topFrame().operandStack
+							.iterator();
+					this.newStringExpr = getStringExpression(it.next(),
+							string_value);
+				} else {
+					newStringExpr = null;
+				}
+			}
 		}
 
 		@Override

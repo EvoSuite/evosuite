@@ -34,7 +34,7 @@ public final class RegionMatches extends StringFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		lenExpr = bv32(it.next());
 		ooffsetExpr = bv32(it.next());
-		otherExpr = getStringExpression(it.next());
+		it.next(); // discard now
 		toffsetExpr = bv32(it.next());
 		ignoreCaseExpr = bv32(it.next());
 		Operand receiver_operand = it.next();
@@ -43,8 +43,17 @@ public final class RegionMatches extends StringFunction {
 		if (receiver_ref instanceof NullReference) {
 			return;
 		}
-		stringReceiverExpr = getStringExpression(receiver_operand);
+		stringReceiverExpr = getStringExpression(receiver_operand, receiver);
 
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		String string_value = (String) value;
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		it.next();
+		it.next();
+		this.otherExpr = getStringExpression(it.next(), string_value);
 	}
 
 	@Override

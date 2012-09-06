@@ -28,10 +28,24 @@ public final class ReplaceFirst extends StringFunction {
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-		this.replacementExpr = getStringExpression(it.next());
-		this.regexExpr = getStringExpression(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		it.next();
+		it.next();
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+
+		String string = (String) value;
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		if (nr == 1) {
+			this.replacementExpr = getStringExpression(it.next(), string);
+
+		} else if (nr == 0) {
+			it.next();
+			this.regexExpr = getStringExpression(it.next(), string);
+		}
 	}
 
 	@Override
@@ -51,4 +65,5 @@ public final class ReplaceFirst extends StringFunction {
 					symb_value);
 		}
 	}
+
 }

@@ -12,7 +12,6 @@ import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-
 public final class StartsWith extends StringFunction {
 
 	private StringValue prefixExpr;
@@ -28,8 +27,16 @@ public final class StartsWith extends StringFunction {
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.offsetExpr = bv32(it.next());
-		this.prefixExpr = getStringExpression(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		it.next(); // discard now
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		String string = (String) value;
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		it.next();
+		this.prefixExpr = getStringExpression(it.next(), string);
 	}
 
 	@Override
@@ -44,11 +51,9 @@ public final class StartsWith extends StringFunction {
 					new ArrayList<Expression<?>>(
 							Collections.singletonList(offsetExpr)), (long) conV);
 
-
 			this.replaceTopBv32(strTExpr);
-		} else {
-			// do nothing (concrete value only)
 		}
 
 	}
+
 }

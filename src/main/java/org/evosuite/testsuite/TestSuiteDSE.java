@@ -270,8 +270,8 @@ public class TestSuiteDSE {
 			*/
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
-			//logger.info("Chosen branch condition: " + branch);
-			//logger.info(branch.getReachingConstraints().toString());
+			logger.info("Chosen branch condition: " + branch);
+			logger.info(branch.getReachingConstraints().toString());
 
 			TestCase newTest = negateCondition(branch.getReachingConstraints(),
 			                                   branch.getLocalConstraint(),

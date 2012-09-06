@@ -16,7 +16,7 @@ public final class Length extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Operand operand = env.topFrame().operandStack.peekOperand();
-		this.stringReceiverExpr = getStringExpression(operand);
+		this.stringReceiverExpr = getStringExpression(operand, receiver);
 	}
 
 	@Override

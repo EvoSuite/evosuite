@@ -20,9 +20,17 @@ public final class EqualsIgnoreCase extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = getStringExpression(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		it.next();
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 	}
+	
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		String string_value = (String) value;
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		this.strExpr = getStringExpression(it.next(), string_value);
+	}
+
 
 	@Override
 	public void CALL_RESULT(boolean res) {
