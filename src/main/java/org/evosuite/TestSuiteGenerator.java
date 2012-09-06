@@ -101,6 +101,9 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.primitives.ObjectPool;
+import org.evosuite.regression.RegressionSuiteFitness;
+import org.evosuite.regression.RegressionTestChromosomeFactory;
+import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.setup.DependencyAnalysis;
@@ -771,6 +774,8 @@ public class TestSuiteGenerator {
 			return new ExceptionCoverageSuiteFitness();
 		case LOOP_INV_CANDIDATE_FALSE_BRANCH:
 			return new BranchCoverageSuiteFitness();
+		case REGRESSION:
+			return new RegressionSuiteFitness();
 		default:
 			logger.warn("No TestSuiteFitnessFunction defined for " + Properties.CRITERION
 			        + " using default one (BranchCoverageSuiteFitness)");
@@ -1397,6 +1402,8 @@ public class TestSuiteGenerator {
 				throw new RuntimeException("Unsupported test factory: "
 				        + Properties.TEST_FACTORY);
 			}
+		case REGRESSION:
+			return new RegressionTestSuiteChromosomeFactory();
 		default:
 			switch (Properties.TEST_FACTORY) {
 			case ALLMETHODS:
@@ -1430,6 +1437,8 @@ public class TestSuiteGenerator {
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
 			return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
+		case REGRESSION:
+			return new RegressionTestChromosomeFactory();
 		default:
 			return new RandomLengthTestFactory();
 		}
