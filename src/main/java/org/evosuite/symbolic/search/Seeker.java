@@ -20,6 +20,8 @@
  */
 package org.evosuite.symbolic.search;
 
+import gnu.trove.map.hash.THashMap;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -75,6 +77,8 @@ public class Seeker implements Solver {
 		HashMap<String, Object> result = new HashMap<String, Object>();
 
 		Set<Variable<?>> vars = getVarsOfSet(constraints);
+
+		saveOriginalValues(vars);
 
 		boolean searchSuccess = false;
 		// log.warning("Variables: " + vars.size());
@@ -134,6 +138,7 @@ public class Seeker implements Solver {
 				distance = DistanceEstimator.getDistance(constraints);
 				if (distance <= 0) {
 					log.debug("Distance is " + distance + ", found solution");
+					restoreOriginalValues(vars);
 					return result;
 				}
 
@@ -149,6 +154,8 @@ public class Seeker implements Solver {
 			}
 
 		}
+
+		restoreOriginalValues(vars);
 		// This will return any improvement, even if it does not cover a new
 		// branch
 		if (searchSuccess) {
@@ -157,6 +164,41 @@ public class Seeker implements Solver {
 		} else {
 			log.debug("Returning null, search was not successful");
 			return null;
+		}
+	}
+
+	private void restoreOriginalValues(Set<Variable<?>> vars) {
+		for (Variable<?> v : vars) {
+
+			Object concreteValue = concreteValues.get(v);
+
+			if (v instanceof StringVariable) {
+				StringVariable sv = (StringVariable) v;
+				String concreteString = (String) concreteValue;
+				sv.setConcreteValue(concreteString);
+			} else if (v instanceof IntegerVariable) {
+				IntegerVariable iv = (IntegerVariable) v;
+				Long concreteInteger = (Long) concreteValue;
+				iv.setConcreteValue(concreteInteger);
+			} else if (v instanceof RealVariable) {
+				RealVariable ir = (RealVariable) v;
+				Double concreteReal = (Double) concreteValue;
+				ir.setConcreteValue(concreteReal);
+			} else {
+				log.warn("unknow variable type " + v.getClass().getName());
+			}
+		}
+
+		concreteValues.clear();
+	}
+
+	private Map<Variable<?>, Object> concreteValues = new THashMap<Variable<?>, Object>();
+
+	private void saveOriginalValues(Set<Variable<?>> vars) {
+		concreteValues.clear();
+		for (Variable<?> v : vars) {
+			Object concreteValue = v.getConcreteValue();
+			concreteValues.put(v, concreteValue);
 		}
 	}
 

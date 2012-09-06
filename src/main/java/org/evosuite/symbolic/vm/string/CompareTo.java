@@ -20,8 +20,8 @@ public final class CompareTo extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = getStringExpression(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		it.next(); // discard symbolic ref;
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 
 	}
 
@@ -37,5 +37,12 @@ public final class CompareTo extends StringFunction {
 			// do nothing (concrete value only)
 		}
 
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		String param = (String) value;
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		this.strExpr = getStringExpression(it.next(), param);
 	}
 }

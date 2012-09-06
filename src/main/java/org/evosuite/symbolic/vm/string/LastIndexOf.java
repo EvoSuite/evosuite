@@ -33,7 +33,7 @@ public abstract class LastIndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 		}
 
 		@Override
@@ -44,8 +44,6 @@ public abstract class LastIndexOf extends StringFunction {
 						stringReceiverExpr, Operator.LASTINDEXOFC, charExpr,
 						(long) res);
 				this.replaceTopBv32(strBExpr);
-			} else {
-				// do nothing (concrete value only)
 			}
 
 		}
@@ -65,7 +63,7 @@ public abstract class LastIndexOf extends StringFunction {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
 			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 		}
 
 		@Override
@@ -81,8 +79,6 @@ public abstract class LastIndexOf extends StringFunction {
 						(long) res);
 
 				this.replaceTopBv32(strTExpr);
-			} else {
-				// do nothing (concrete value only)
 			}
 
 		}
@@ -100,9 +96,17 @@ public abstract class LastIndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 
-			this.strExpr = getStringExpression(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			it.next(); // discard (for now)
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 
+		}
+
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+				Object value) {
+			String string_value = (String) value;
+			Iterator<Operand> it = env.topFrame().operandStack.iterator();
+			this.strExpr = getStringExpression(it.next(), string_value);
 		}
 
 		@Override
@@ -114,8 +118,6 @@ public abstract class LastIndexOf extends StringFunction {
 						(long) res);
 
 				this.replaceTopBv32(strBExpr);
-			} else {
-				// do nothing (concrete value only)
 			}
 
 		}
@@ -134,9 +136,17 @@ public abstract class LastIndexOf extends StringFunction {
 		protected void INVOKEVIRTUAL_String(String receiver) {
 			Iterator<Operand> it = env.topFrame().operandStack.iterator();
 			this.fromIndexExpr = bv32(it.next());
-			this.strExpr = getStringExpression(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next());
+			it.next(); // discard symb ref
+			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
+		}
 
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+				Object value) {
+			String string_value = (String) value;
+			Iterator<Operand> it = env.topFrame().operandStack.iterator();
+			it.next(); // discard bv32
+			this.strExpr = getStringExpression(it.next(), string_value);
 		}
 
 		@Override
@@ -151,8 +161,6 @@ public abstract class LastIndexOf extends StringFunction {
 						(long) res);
 
 				this.replaceTopBv32(strTExpr);
-			} else {
-				// do nothing (concrete value only)
 			}
 
 		}

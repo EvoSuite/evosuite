@@ -23,8 +23,14 @@ public final class Concat extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = getStringExpression(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		it.next(); // discard (for now);
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		this.strExpr = getStringExpression(it.next(), (String) value);
 	}
 
 	@Override
@@ -41,4 +47,5 @@ public final class Concat extends StringFunction {
 					symb_value);
 		}
 	}
+
 }

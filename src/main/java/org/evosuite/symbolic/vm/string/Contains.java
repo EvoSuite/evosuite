@@ -20,8 +20,18 @@ public final class Contains extends StringFunction {
 	@Override
 	protected void INVOKEVIRTUAL_String(String receiver) {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = getStringExpression(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		it.next(); // discard (for now)
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
+	}
+
+	@Override
+	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+		if (value instanceof String) {
+			String string = (String) value;
+			Iterator<Operand> it = env.topFrame().operandStack.iterator();
+			this.strExpr = getStringExpression(it.next(), string);
+
+		}
 	}
 
 	@Override
@@ -40,4 +50,5 @@ public final class Contains extends StringFunction {
 			}
 		}
 	}
+
 }

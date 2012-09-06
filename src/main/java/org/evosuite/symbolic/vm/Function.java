@@ -120,7 +120,8 @@ public abstract class Function {
 		return ref instanceof NullReference;
 	}
 
-	protected StringValue getStringExpression(Operand operand) {
+	protected StringValue getStringExpression(Operand operand,
+			String conc_string) {
 		ReferenceOperand refOp = (ReferenceOperand) operand;
 		Reference ref = (Reference) refOp.getReference();
 		if (ref instanceof NullReference) {
@@ -128,11 +129,9 @@ public abstract class Function {
 		} else {
 			NonNullReference nonNullRef = (NonNullReference) ref;
 			if (nonNullRef.isString()) {
-				String conc_string = (String) nonNullRef
-						.getWeakConcreteObject();
-				StringValue strExpr = env.heap.getField(
-						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
-						conc_string, nonNullRef, conc_string);
+				StringValue strExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+						SymbolicHeap.$STRING_VALUE, conc_string, nonNullRef,
+						conc_string);
 				return strExpr;
 			} else {
 				return null;

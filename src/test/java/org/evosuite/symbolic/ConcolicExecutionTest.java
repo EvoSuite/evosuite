@@ -32,6 +32,7 @@ public class ConcolicExecutionTest {
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.PRINT_TO_SYSTEM = true;
 		Properties.TIMEOUT = 5000000;
+		Properties.CONCOLIC_TIMEOUT = 5000000;
 
 		System.out.println("TestCase=");
 		System.out.println(tc.toCode());
@@ -1856,8 +1857,12 @@ public class ConcolicExecutionTest {
 			NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
 
-		Method method = TestCase88.class.getMethod("test");
-		tc.appendMethod(null, method);
+		VariableReference int0 = tc.appendIntPrimitive(10);
+		VariableReference int1 = tc.appendIntPrimitive(20);
+
+		Method method = TestCase88.class
+				.getMethod("test", int.class, int.class);
+		tc.appendMethod(null, method, int0, int1);
 		return tc.getDefaultTestCase();
 	}
 
@@ -1882,7 +1887,7 @@ public class ConcolicExecutionTest {
 	public void testCase88() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase88();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(0, branch_conditions.size());
 	}
 
 	@Test
@@ -1926,6 +1931,6 @@ public class ConcolicExecutionTest {
 	public void testCase91() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase91();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(5, branch_conditions.size());
+		assertEquals(6, branch_conditions.size());
 	}
 }

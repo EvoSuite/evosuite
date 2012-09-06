@@ -18,8 +18,17 @@ public abstract class ValueOf {
 
 		@Override
 		public void INVOKESTATIC() {
-			Operand op = env.topFrame().operandStack.peekOperand();
-			strExpr = getStringExpression(op);
+			// do nothing
+		}
+
+		@Override
+		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
+				Object value) {
+			if (value instanceof String) {
+				String string = (String) value;
+				Operand op = env.topFrame().operandStack.peekOperand();
+				strExpr = getStringExpression(op, string);
+			}
 		}
 
 		@Override
@@ -36,5 +45,6 @@ public abstract class ValueOf {
 
 			}
 		}
+
 	}
 }

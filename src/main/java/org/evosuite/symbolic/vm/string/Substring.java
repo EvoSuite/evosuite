@@ -29,7 +29,7 @@ public final class Substring extends StringFunction {
 		Iterator<Operand> it = env.topFrame().operandStack.iterator();
 		this.endIndexExpr = bv32(it.next());
 		this.beginIndexExpr = bv32(it.next());
-		this.stringReceiverExpr = getStringExpression(it.next());
+		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
 	}
 
 	@Override
