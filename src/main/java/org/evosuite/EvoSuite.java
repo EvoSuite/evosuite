@@ -317,6 +317,9 @@ public class EvoSuite {
 		case RANDOM:
 			cmdLine.add("-Dstrategy=Random");
 			break;
+		case REGRESSION:
+			cmdLine.add("-Dstrategy=Regression");
+			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
 		}
