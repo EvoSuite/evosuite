@@ -7,6 +7,9 @@ import mockit.external.asm4.Type;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Ctor.StringBufferCtor_S;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
 
 import edu.uta.cse.dsc.AbstractVM;
 import gnu.trove.map.hash.THashMap;
@@ -56,6 +59,18 @@ public final class RFunctionVM extends AbstractVM {
 	}
 
 	private void fillFunctionsTable() {
+
+		// java.lang.StringBuffer
+		addFunctionToTable(new StringBufferCtor_S(env));
+		addFunctionToTable(new StringBuffer_ToString(env));
+		addFunctionToTable(new StringBufferAppend_B(env));
+		addFunctionToTable(new StringBufferAppend_C(env));
+		addFunctionToTable(new StringBufferAppend_I(env));
+		addFunctionToTable(new StringBufferAppend_L(env));
+		addFunctionToTable(new StringBufferAppend_F(env));
+		addFunctionToTable(new StringBufferAppend_D(env));
+		addFunctionToTable(new StringBufferAppend_STR(env));
+
 		// // java.lang.Integer
 		// addFunctionToTable(new I_Init(env));
 		// addFunctionToTable(new I_ValueOf(env));
@@ -213,7 +228,9 @@ public final class RFunctionVM extends AbstractVM {
 	public void INVOKESTATIC(String owner, String name, String desc) {
 		functionUnderExecution = getFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
-			/* do nothing */
+			if (Type.getArgumentTypes(desc).length == 0) {
+				functionUnderExecution.beforeExecuteFunction();
+			}
 		}
 	}
 
@@ -224,6 +241,9 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			Reference symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
+			if (Type.getArgumentTypes(desc).length == 0) {
+				functionUnderExecution.beforeExecuteFunction();
+			}
 		}
 	}
 
@@ -374,7 +394,12 @@ public final class RFunctionVM extends AbstractVM {
 	public void INVOKESPECIAL(String owner, String name, String desc) {
 		functionUnderExecution = getFunction(owner, name, desc);
 		if (functionUnderExecution != null) {
-			/* do nothing */
+			Reference symb_receiver = getReceiverFromStack();
+			functionUnderExecution.setReceiver(
+					null /* receiver not yet ready */, symb_receiver);
+			if (Type.getArgumentTypes(desc).length == 0) {
+				functionUnderExecution.beforeExecuteFunction();
+			}
 		}
 	}
 
@@ -385,6 +410,9 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			Reference symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
+			if (Type.getArgumentTypes(desc).length == 0) {
+				functionUnderExecution.beforeExecuteFunction();
+			}
 		}
 
 	}
@@ -398,6 +426,9 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			Reference symb_receiver = getReceiverFromStack();
 			functionUnderExecution.setReceiver(conc_receiver, symb_receiver);
+			if (Type.getArgumentTypes(functionUnderExecution.getDesc()).length == 0) {
+				functionUnderExecution.beforeExecuteFunction();
+			}
 		}
 
 	}
@@ -407,6 +438,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			IntegerValue symb_arg = getIntegerExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 
@@ -416,6 +449,14 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			IntegerValue symb_arg = getIntegerExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+		}
+	}
+
+	private void beforeExecuteFunction(int nr) {
+		String desc = functionUnderExecution.getDesc();
+		if (Type.getArgumentTypes(desc).length - 1 == nr) {
+			functionUnderExecution.beforeExecuteFunction();
 		}
 	}
 
@@ -424,6 +465,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			IntegerValue symb_arg = getIntegerExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 
@@ -432,6 +475,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			IntegerValue symb_arg = getIntegerExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 
@@ -440,6 +485,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			IntegerValue symb_arg = getIntegerExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 
@@ -448,6 +495,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			IntegerValue symb_arg = getIntegerExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 
@@ -456,6 +505,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			RealValue symb_arg = getRealExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 
@@ -465,6 +516,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			RealValue symb_arg = getRealExprFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 
@@ -474,6 +527,8 @@ public final class RFunctionVM extends AbstractVM {
 		if (functionUnderExecution != null) {
 			Reference symb_arg = getReferenceFromStack(nr);
 			functionUnderExecution.setParam(nr, conc_arg, symb_arg);
+			beforeExecuteFunction(nr);
+
 		}
 	}
 

@@ -268,4 +268,8 @@ public abstract class RFunction {
 		return desc;
 	}
 
+	public void beforeExecuteFunction() {
+		/* STUB */
+	}
+
 }
