@@ -33,6 +33,7 @@ public class CoverageAnalysis {
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			test.setChanged(true);
 			test.clearCachedResults();
+			test.clearCachedMutationResults();
 		}
 
 		if (oldCriterion == criterion)

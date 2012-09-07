@@ -59,7 +59,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 		TestChromosome c = (TestChromosome) individual;
 		ExecutionResult orig_result = c.getLastExecutionResult();
 		if (orig_result == null || c.isChanged()) {
-			orig_result = TestCaseExecutor.runTest(c.test);
+			orig_result = runTest(c.test);
 			c.setLastExecutionResult(orig_result);
 			c.setChanged(false);
 		}
@@ -143,6 +143,11 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	@Override
 	public abstract int compareTo(TestFitnessFunction other);
 
+	/** {@inheritDoc} */
+	public ExecutionResult runTest(TestCase test) {
+		return TestCaseExecutor.runTest(test);
+	}
+
 	/**
 	 * Determine if there is an existing test case covering this goal
 	 * 
@@ -208,7 +213,7 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 	public boolean isCovered(TestChromosome tc) {
 		ExecutionResult result = tc.getLastExecutionResult();
 		if (result == null || tc.isChanged()) {
-			result = TestCaseExecutor.runTest(tc.test);
+			result = runTest(tc.test);
 			tc.setLastExecutionResult(result);
 			tc.setChanged(false);
 		}

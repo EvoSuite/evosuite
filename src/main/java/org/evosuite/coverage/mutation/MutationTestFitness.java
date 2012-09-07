@@ -30,7 +30,6 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 
@@ -79,8 +78,9 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	}
 
 	/** {@inheritDoc} */
+	@Override
 	public ExecutionResult runTest(TestCase test) {
-		return TestCaseExecutor.runTest(test);
+		return runTest(test, null);
 	}
 
 	/**
