@@ -35,7 +35,7 @@ import org.evosuite.symbolic.expr.Variable;
  * @author krusev
  */
 public final class StringVariable extends AbstractExpression<String> implements
-        StringValue, Variable<String> {
+		StringValue, Variable<String> {
 
 	private static final long serialVersionUID = 5925030390824261492L;
 
@@ -102,10 +102,28 @@ public final class StringVariable extends AbstractExpression<String> implements
 		return name;
 	}
 
+	private static boolean isAsciiPrintable(char ch) {
+		return ch >= 32 && ch < 127;
+	}
+
+	private String removeNonAsciiPrintable(String string) {
+		StringBuffer bf = new StringBuffer();
+		for (int i = 0; i < string.length() - 1; i++) {
+			char charAt = string.charAt(i);
+			if (isAsciiPrintable(charAt)) {
+				bf.append(charAt);
+			}
+		}
+		return bf.toString();
+	}
+
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		return name + "(" + concreteValue + ")";
+		String asciiPrintableString = removeNonAsciiPrintable(concreteValue);
+		return name + "(\""
+				+ asciiPrintableString.replace("\n", "").replace(" ", "")
+				+ "\")";
 	}
 
 	/** {@inheritDoc} */
@@ -138,7 +156,9 @@ public final class StringVariable extends AbstractExpression<String> implements
 		return variables;
 	}
 
-	/* (non-Javadoc)
+	/*
+	 * (non-Javadoc)
+	 * 
 	 * @see org.evosuite.symbolic.expr.Variable#getMinValue()
 	 */
 	@Override

@@ -270,12 +270,20 @@ public class TestSuiteDSE {
 			*/
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
+			System.out.println("");
+			System.out.println(branch.getReachingConstraints().toString());
+			System.out.println(branch.getLocalConstraint());
 //			logger.info("Chosen branch condition: " + branch);
 //			logger.info(branch.getReachingConstraints().toString());
 
 			TestCase newTest = negateCondition(branch.getReachingConstraints(),
 			                                   branch.getLocalConstraint(),
 			                                   next.test.getTestCase());
+			
+			if (newTest==null) {
+				System.out.println("No new test found");
+			}
+			
 			if (newTest != null) {
 				logger.info("Found new test: " + newTest.toCode());
 				// TestChromosome newTestChromosome =
