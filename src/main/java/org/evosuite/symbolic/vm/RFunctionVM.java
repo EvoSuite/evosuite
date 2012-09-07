@@ -3,13 +3,13 @@ package org.evosuite.symbolic.vm;
 import java.util.Iterator;
 import java.util.Map;
 
-import mockit.external.asm4.Type;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Ctor.StringBufferCtor_S;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
+import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
 import gnu.trove.map.hash.THashMap;
