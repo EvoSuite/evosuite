@@ -22,7 +22,9 @@ import java.util.Collection;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.bv.StringComparison;
@@ -89,7 +91,7 @@ public abstract class DistanceEstimator {
 					log.debug("C: " + c + " realDist " + realD);
 				} else {
 					log.warn("DistanceEstimator.getDistance(): "
-					        + "got an unknown constraint: " + c);
+							+ "got an unknown constraint: " + c);
 					return Double.MAX_VALUE;
 				}
 			}
@@ -108,10 +110,12 @@ public abstract class DistanceEstimator {
 		Expression<?> exprRight = c.getRightOperand();
 
 		boolean leftSide = exprLeft instanceof RealVariable
-		        || exprLeft instanceof RealConstant || exprLeft instanceof RealValue;
+				|| exprLeft instanceof RealConstant
+				|| exprLeft instanceof RealValue;
 
 		boolean rightSide = exprRight instanceof RealVariable
-		        || exprRight instanceof RealConstant || exprRight instanceof RealValue;
+				|| exprRight instanceof RealConstant
+				|| exprRight instanceof RealValue;
 
 		return leftSide && rightSide;
 	}
@@ -121,20 +125,20 @@ public abstract class DistanceEstimator {
 		Expression<?> exprRight = c.getRightOperand();
 
 		boolean leftSide = exprLeft instanceof IntegerVariable
-		        || exprLeft instanceof IntegerConstant
-		        || exprLeft instanceof IntegerValue
-		        // || exprLeft instanceof IntegerUnaryExpression
-		        // || exprLeft instanceof IntegerBinaryExpression
-		        || exprLeft instanceof StringUnaryExpression
-		        || exprLeft instanceof StringBinaryExpression;
+				|| exprLeft instanceof IntegerConstant
+				|| exprLeft instanceof IntegerValue
+				// || exprLeft instanceof IntegerUnaryExpression
+				// || exprLeft instanceof IntegerBinaryExpression
+				|| exprLeft instanceof StringUnaryExpression
+				|| exprLeft instanceof StringBinaryExpression;
 
 		boolean rightSide = exprRight instanceof IntegerVariable
-		        || exprRight instanceof IntegerConstant
-		        || exprRight instanceof IntegerValue
-		        // || exprRight instanceof IntegerUnaryExpression
-		        // || exprRight instanceof IntegerBinaryExpression
-		        || exprRight instanceof StringUnaryExpression
-		        || exprRight instanceof StringBinaryExpression;
+				|| exprRight instanceof IntegerConstant
+				|| exprRight instanceof IntegerValue
+				// || exprRight instanceof IntegerUnaryExpression
+				// || exprRight instanceof IntegerBinaryExpression
+				|| exprRight instanceof StringUnaryExpression
+				|| exprRight instanceof StringBinaryExpression;
 
 		return leftSide && rightSide;
 	}
@@ -144,9 +148,10 @@ public abstract class DistanceEstimator {
 		Comparator cmpr = c.getComparator();
 		Expression<?> exprRight = c.getRightOperand();
 
-		if (exprLeft instanceof StringComparison && exprRight instanceof IntegerConstant) {
+		if (exprLeft instanceof StringComparison
+				&& exprRight instanceof IntegerConstant) {
 			if (((IntegerConstant) exprRight).getConcreteValue() == 0
-			        && (cmpr == Comparator.EQ || cmpr == Comparator.NE)) {
+					&& (cmpr == Comparator.EQ || cmpr == Comparator.NE)) {
 				return true;
 			}
 		}
@@ -178,8 +183,8 @@ public abstract class DistanceEstimator {
 			case EQUALSIGNORECASE:
 				return DistanceEstimator.StrEqualsIgnoreCase(first, second);
 			case EQUALS:
-				log.debug("Edit distance between " + first + " and " + second + " is: "
-				        + DistanceEstimator.StrEquals(first, second));
+				log.debug("Edit distance between " + first + " and " + second
+						+ " is: " + DistanceEstimator.StrEquals(first, second));
 				return DistanceEstimator.StrEquals(first, second);
 			case ENDSWITH:
 				return DistanceEstimator.StrEndsWith(first, second);
@@ -189,7 +194,7 @@ public abstract class DistanceEstimator {
 				return DistanceEstimator.RegexMatches(second, first);
 			default:
 				log.warn("StringComparison: unimplemented operator!"
-				        + comparison.getOperator());
+						+ comparison.getOperator());
 				return Double.MAX_VALUE;
 			}
 		} catch (Exception e) {
@@ -243,6 +248,53 @@ public abstract class DistanceEstimator {
 
 		long left = (Long) target.getLeftOperand().execute();
 		long right = (Long) target.getRightOperand().execute();
+
+		if (target.getLeftOperand() instanceof IntegerUnaryExpression) {
+			if (((IntegerUnaryExpression) target.getLeftOperand())
+					.getOperator() == Operator.ISDIGIT) {
+				long left_operand = (Long) ((IntegerUnaryExpression) target
+						.getLeftOperand()).getOperand().execute();
+				char theChar = (char) left_operand;
+				if ((target.getComparator() == Comparator.EQ && right == 1L)
+						|| (target.getComparator() == Comparator.NE && right == 0L)) {
+					if (theChar < '0')
+						return '0' - theChar;
+					else if (theChar > '9')
+						return theChar - '9';
+					else
+						return 0;
+				} else if ((target.getComparator() == Comparator.EQ && right == 0L)
+						|| (target.getComparator() == Comparator.NE && right == 1L)) {
+					if (theChar < '0' || theChar > '9')
+						return 0;
+					else
+						return Math.min(Math.abs('9' - theChar),
+								Math.abs(theChar - '0'));
+				}
+
+			} else if (((IntegerUnaryExpression) target.getLeftOperand())
+					.getOperator() == Operator.ISLETTER) {
+				long left_operand = (Long) ((IntegerUnaryExpression) target
+						.getLeftOperand()).getOperand().execute();
+				char theChar = (char) left_operand;
+				if ((target.getComparator() == Comparator.EQ && right == 1L)
+						|| (target.getComparator() == Comparator.NE && right == 0L)) {
+					if (theChar < 'A')
+						return 'A' - theChar;
+					else if (theChar > 'z')
+						return theChar - 'z';
+					else
+						return 0;
+				} else if ((target.getComparator() == Comparator.EQ && right == 0L)
+						|| (target.getComparator() == Comparator.NE && right == 1L)) {
+					if (theChar < 'A' || theChar > 'z')
+						return 0;
+					else
+						return Math.min(Math.abs('z' - theChar),
+								Math.abs(theChar - 'A'));
+				}
+			}
+		}
 
 		Comparator cmpr = target.getComparator();
 		log.debug("Calculating distance for " + left + " " + cmpr + " " + right);
@@ -365,7 +417,8 @@ public abstract class DistanceEstimator {
 				cost = normalize(Math.abs(s.charAt(i - 1) - t_j));
 				// minimum of cell to the left+1, to the top+1, diagonally left
 				// and up +cost
-				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
+				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1]
+						+ cost);
 			}
 
 			// copy current distance counts to 'previous row' distance counts
@@ -486,8 +539,8 @@ public abstract class DistanceEstimator {
 	 *            a boolean.
 	 * @return a int.
 	 */
-	public static double StrRegionMatches(String value, int thisStart, String string,
-	        int start, int length, boolean ignoreCase) {
+	public static double StrRegionMatches(String value, int thisStart,
+			String string, int start, int length, boolean ignoreCase) {
 		if (value == null || string == null)
 			throw new NullPointerException();
 
@@ -510,7 +563,7 @@ public abstract class DistanceEstimator {
 		}
 
 		return StrEquals(s1.substring(thisStart, length + thisStart),
-		                 s2.substring(start, length + start));
+				s2.substring(start, length + start));
 	}
 
 	/**
