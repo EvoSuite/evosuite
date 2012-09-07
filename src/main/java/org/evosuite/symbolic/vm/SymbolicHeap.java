@@ -405,6 +405,8 @@ public final class SymbolicHeap {
 
 	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
+	public static String $STRING_BUFFER_CONTENTS = "$stringBuffer_contents";
+
 	public static String $BIG_INTEGER_CONTENTS = "$bigInteger_contents";
 
 	public static final String $MATCHER_INPUT = "$matcherInput";
