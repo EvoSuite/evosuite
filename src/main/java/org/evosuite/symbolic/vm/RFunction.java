@@ -1,6 +1,6 @@
 package org.evosuite.symbolic.vm;
 
-import mockit.external.asm4.Type;
+import org.objectweb.asm.Type;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
