@@ -1675,9 +1675,8 @@ public class SymbolicObserver extends ExecutionObserver {
 
 	private NonNullReference newStringReference(String conc_string,
 			StringValue str_expr) {
-		NonNullReference stringRef = env.heap.newReference(Type
-				.getType(String.class));
-		stringRef.initializeReference(conc_string);
+		NonNullReference stringRef = (NonNullReference) env.heap
+				.getReference(conc_string);
 		env.heap.putField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
 				conc_string, stringRef, str_expr);
 		return stringRef;

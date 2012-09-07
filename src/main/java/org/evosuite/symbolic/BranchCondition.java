@@ -57,9 +57,10 @@ public class BranchCondition {
 	 * @param ins
 	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(BranchCondition previousBranchCondition, String className,
-	        String methodName, int branchIndex, Constraint<?> localConstraint,
-	        List<Constraint<?>> supportingConstraints) {
+	public BranchCondition(BranchCondition previousBranchCondition,
+			String className, String methodName, int branchIndex,
+			Constraint<?> localConstraint,
+			List<Constraint<?>> supportingConstraints) {
 
 		this.className = className;
 		this.methodName = methodName;
@@ -74,12 +75,12 @@ public class BranchCondition {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		String ret = "Branch condition with local constraint " + this.localConstraint
-		        + " and supporting constraints: ";
+		String ret = "";
 		for (Constraint<?> c : this.supportingConstraints) {
-			ret += " " + c;
+			ret += " " + c + "\n";
 		}
 
+		ret += this.localConstraint + "\n";
 		return ret;
 	}
 
