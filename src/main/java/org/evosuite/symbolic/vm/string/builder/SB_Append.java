@@ -115,8 +115,7 @@ public abstract class SB_Append extends StringBuilderFunction {
 
 			}
 		}
-		
-		
+
 		@Override
 		public void CALL_RESULT(Object res) {
 
@@ -413,12 +412,14 @@ public abstract class SB_Append extends StringBuilderFunction {
 				/* TODO: What if value instance of StringBuilder */
 				throw new UnsupportedOperationException("Implement Me!");
 			} else {
-				rightExpr = ExpressionFactory.buildNewStringConstant(String
-						.valueOf(value));
+				String valueOf = String.valueOf(value);
+				if (valueOf == null) {
+					valueOf = NULL_STRING;
+				}
+				rightExpr = ExpressionFactory.buildNewStringConstant(valueOf);
 			}
 		}
-		
-		
+
 		@Override
 		public void CALL_RESULT(Object res) {
 
