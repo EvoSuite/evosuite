@@ -230,10 +230,7 @@ public class TestSuiteWriter implements Opcodes {
 			logger.debug("Executing test");
 			result = executor.execute(test);
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			logger.error("TG: Exception caught: ", e);
-			System.exit(1);
+			throw new Error(e);
 		}
 
 		return result;

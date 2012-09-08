@@ -449,8 +449,7 @@ public class ExternalProcessHandler {
 					if (process != null)
 						process.waitFor();
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					logger.warn("",e);
 				}
 			}
 

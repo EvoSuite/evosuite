@@ -312,9 +312,7 @@ public class BytecodeInstrumentation {
 					//if (isTargetClassName(classNameWithDots))
 					cn = tt.transform();
 				} catch (Throwable t) {
-					logger.info("1 Error: " + t);
-					t.printStackTrace();
-					System.exit(0);
+					throw new Error(t);
 				}
 
 				logger.info("Testability Transformation done: " + className);

@@ -637,13 +637,9 @@ public class TestFactory {
 				logger.debug("Using field " + f.getCode());
 
 				test.setStatement(f, position);
-			} catch (Throwable e) {
-
-				logger.warn("Error: " + e);
-				e.printStackTrace();
-				logger.warn("Field: " + field);
-				logger.warn("Test: " + test);
-				System.exit(0);
+			} catch (Throwable e) {			
+				logger.error("Error: " + e + " , Field: " + field+" , Test: " + test);
+				throw new Error(e);
 			}
 		}
 	}

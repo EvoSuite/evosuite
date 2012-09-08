@@ -69,10 +69,8 @@ public class PrintBytecodeTransformer implements ClassFileTransformer {
 				return classfileBuffer;
 				
 			} catch (Throwable t) {
-				StringWriter writer = new StringWriter();
-				t.printStackTrace(new PrintWriter(writer));
-				t.printStackTrace();
-				System.exit(0);
+				throw new Error(t);
+
 			}
 		}
 		

@@ -144,13 +144,5 @@ public class ExternalProcessUtilities {
 			logger.debug("Thread interrupted while waiting after sending results from client to master",
 			             e);
 		}
-
-		if (!Properties.CLIENT_ON_THREAD) {
-			/*
-			 * If we we are in debug mode in which we run client on separated thread,
-			 * then do not kill the JVM
-			 */
-			System.exit(0);
-		}
 	}
 }

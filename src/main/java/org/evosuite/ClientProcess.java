@@ -56,9 +56,8 @@ public class ClientProcess {
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		                                         + Properties.PROCESS_COMMUNICATION_PORT);
 		if (!util.connectToMainProcess()) {
-			LoggingUtils.getEvoLogger().error("* Could not connect to master process on port "
-			                                          + Properties.PROCESS_COMMUNICATION_PORT);
-			System.exit(1);
+			throw new RuntimeException("Could not connect to master process on port "
+                    + Properties.PROCESS_COMMUNICATION_PORT);
 		}
 
 		TestSuiteGenerator generator = null;
@@ -99,6 +98,10 @@ public class ClientProcess {
 			ClientProcess process = new ClientProcess();
 			process.run();
 			if (!Properties.CLIENT_ON_THREAD) {
+				/*
+				 * If we we are in debug mode in which we run client on separated thread,
+				 * then do not kill the JVM
+				 */
 				System.exit(0);
 			}
 		} catch (Throwable t) {
