@@ -40,6 +40,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.Randomness;
 
 /**
  * <p>
@@ -118,15 +119,13 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	protected void handleTestCallStatements() {
 		Iterator<TestChromosome> it = tests.iterator();
-		Iterator<Boolean> uit = unmodifiableTests.iterator();
 
 		int num = 0;
 		while (it.hasNext()) {
 			ExecutableChromosome t = it.next();
-			uit.next();
 			if (t.size() == 0) {
 				it.remove();
-				uit.remove();
+				unmodifiableTests.remove(t);
 				for (TestChromosome test : tests) {
 					for (StatementInterface s : test.getTestCase()) {
 						if (s instanceof TestCallStatement) {
@@ -150,26 +149,38 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@Override
 	public void localSearch(LocalSearchObjective objective) {
 
+		/*
+		 * When we apply local search, due to budget constraints we might not be able
+		 * to evaluate all the test cases in a test suite. When we apply LS several times on
+		 * same individual in different generations, to avoid having always the same test cases searched for and
+		 * others skipped, then we shuffle the test cases, so each time the order is different 
+		 */
+		Randomness.shuffle(tests);
+		
 		ensureDoubleExecution((TestSuiteFitnessFunction) objective.getFitnessFunction());
 
 		double fitnessBefore = getFitness();
 		for (int i = 0; i < tests.size(); i++) {
-			if (unmodifiableTests.get(i))
+			TestChromosome test = tests.get(i);
+			if (unmodifiableTests.contains(test)){
 				continue;
+			}
+			
 			logger.debug("Local search on test " + i);
 			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
 			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, i);
+			
 			if (LocalSearchBudget.isFinished()) {
 				logger.debug("Local search budget used up");
 				break;
 			}
 			logger.debug("Local search budget not yet used up");
 
-			tests.get(i).localSearch(testObjective);
+			test.localSearch(testObjective);
 		}
 
 		LocalSearchBudget.individualImproved(this);
-		assert (fitnessBefore >= getFitness());
+		assert (fitnessBefore >= getFitness());  //FIXME doesn't it assume minimization?
 	}
 
 	/**
