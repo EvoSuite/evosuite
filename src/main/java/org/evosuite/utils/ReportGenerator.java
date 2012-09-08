@@ -1345,8 +1345,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				} catch (Exception e1) {
 					logger.error("Cannot set trace in test case with exception. Going to kill client",
 					             e1);
-					//TODO: some error recovery?
-					System.exit(1);
+					throw new Error(e1);
 				}
 			}
 		}

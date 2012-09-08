@@ -62,11 +62,9 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 			// for(TestObserver observer : observers) {
 			// observer.testResult(result);
 			// }
-		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
+		} catch (Exception e) {			
 			logger.error("TG: Exception caught: ", e);
-			System.exit(1);
+			throw new Error(e);
 		}
 
 		// System.out.println("TG: Killed "+result.getNumKilled()+" out of "+mutants.size());

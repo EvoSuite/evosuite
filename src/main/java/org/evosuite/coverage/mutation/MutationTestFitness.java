@@ -120,9 +120,7 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			System.exit(1);
+			throw new Error(e);
 		}
 
 		return result;

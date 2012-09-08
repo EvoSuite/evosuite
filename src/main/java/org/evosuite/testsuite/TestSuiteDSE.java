@@ -447,9 +447,8 @@ public class TestSuiteDSE {
 		try {
 			result = TestCaseExecutor.getInstance().execute(test);
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			System.exit(1);
+			logger.error("",e);
+			throw new Error(e);
 		}
 
 		return result;
