@@ -487,8 +487,8 @@ public final class CaptureLog implements Cloneable
 //							this.params.add(new Object[]{ this.bout.toByteArray() });
 //							
 //							this.bout.reset();
-							
-							this.params.add(new Object[]{ this.xstream.toXML(param) });
+							// FIXME
+							this.params.add(new Object[]{ "XSTREAM"});// this.xstream.toXML(param) });
 						}
 						catch(final Exception e)
 						{

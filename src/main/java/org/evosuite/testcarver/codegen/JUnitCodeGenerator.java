@@ -846,6 +846,10 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 						System.err.println("--recno-- " + logRecNo);
 						System.err.println("--oid-- " + oid);
 						System.err.println("--method-- " + methodName);
+						System.err.println("--varName-- " + varName);
+						System.err.println("--oidToVarMap-- " +  this.oidToVarMapping);
+						
+						
 						ex.printStackTrace();
 						System.out.println(log);
 						System.exit(-1);
@@ -918,7 +922,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					// TODO: Warten was Florian und Gordon dazu sagen. Siehe Mail 04.08.2012
 					if(argType == null)
 					{
-						System.err.println("########################## Call within constructor needs instance of enclosing object as parameter -> ignored");
+						System.err.println("########################## Call within constructor needs instance of enclosing object as parameter -> ignored: " + arg);
 						methodBlock.statements().remove(methodBlock.statements().size() - 1);
 						return;
 					}
