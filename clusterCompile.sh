@@ -18,9 +18,12 @@
 #
 
 
+chmod +w -R target/repo
 
 
-## to add -DskipTests when we put them back inb pom file
-mvn package appassembler:assemble
+mvn clean -DskipTests package appassembler:assemble
 chmod +x target/bin/EvoSuite
 
+
+## this is done due to strange behavior on cluster... in which EvoSuite reduce to 0 the size of some jars during search
+chmod -w -R target/repo
