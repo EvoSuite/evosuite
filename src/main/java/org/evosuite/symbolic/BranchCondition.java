@@ -57,10 +57,9 @@ public class BranchCondition {
 	 * @param ins
 	 *            a {@link gov.nasa.jpf.jvm.bytecode.Instruction} object.
 	 */
-	public BranchCondition(BranchCondition previousBranchCondition,
-			String className, String methodName, int branchIndex,
-			Constraint<?> localConstraint,
-			List<Constraint<?>> supportingConstraints) {
+	public BranchCondition(BranchCondition previousBranchCondition, String className,
+	        String methodName, int branchIndex, Constraint<?> localConstraint,
+	        List<Constraint<?>> supportingConstraints) {
 
 		this.className = className;
 		this.methodName = methodName;
@@ -80,7 +79,7 @@ public class BranchCondition {
 			ret += " " + c + "\n";
 		}
 
-		ret += this.localConstraint + "\n";
+		ret += this.localConstraint;
 		return ret;
 	}
 
