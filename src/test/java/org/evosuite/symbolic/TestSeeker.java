@@ -13,6 +13,7 @@ import org.evosuite.Properties;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.search.Seeker;
 import org.evosuite.symbolic.search.TestInput1;
 import org.evosuite.testcase.DefaultTestCase;
@@ -34,7 +35,6 @@ public class TestSeeker {
 		List<BranchCondition> branch_conditions = ConcolicExecution
 				.executeConcolic(tc);
 
-		printConstraints(branch_conditions);
 		return branch_conditions;
 	}
 
@@ -68,12 +68,22 @@ public class TestSeeker {
 	private Map<String, Object> executeSeeker(
 			List<BranchCondition> branch_conditions) {
 
-		BranchCondition last_branch = branch_conditions.get(branch_conditions
-				.size() - 1);
+		final int lastBranchIndex = branch_conditions.size() - 1;
+		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
 
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(last_branch.getReachingConstraints());
-		constraints.add(last_branch.getLocalConstraint());
+
+		Constraint<?> lastConstraint = last_branch.getLocalConstraint();
+
+		Constraint<Long> targetConstraint = new IntegerConstraint(
+				lastConstraint.getLeftOperand(), lastConstraint.getComparator()
+						.not(), lastConstraint.getRightOperand());
+
+		constraints.add(targetConstraint);
+
+		System.out.println("Target constraints");
+		printConstraints(constraints);
 
 		Seeker seeker = new Seeker();
 		Map<String, Object> model = seeker.getModel(constraints);
@@ -83,8 +93,15 @@ public class TestSeeker {
 		else {
 			System.out.println(model.toString());
 		}
-		
+
 		return model;
+	}
+
+	private static void printConstraints(List<Constraint<?>> constraints) {
+		for (Constraint<?> constraint : constraints) {
+			System.out.println(constraint);
+		}
+
 	}
 
 }
