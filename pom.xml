@@ -321,6 +321,12 @@
                  <artifactId>spoon-core</artifactId>
                  <version>1.4.2</version>
          </dependency>
+ 	        <dependency>
+ 	        	<groupId>org.evosuite</groupId>
+ 	        	<artifactId>evosuite-io</artifactId>
+ 	        	<version>0.3</version>
+ 	        	<classifier>io</classifier>
+ 	        </dependency>
 	</dependencies>
 	<repositories>
 
