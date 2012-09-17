@@ -47,16 +47,6 @@ public final class ReplayUITestHelper {
 	 */
 	public static void run(final UITestChromosome test) 
 	{
-		// TODO proper log output
-		try 
-		{
-			waitForEmptyAWTEventQueue();
-		} 
-		catch (final InterruptedException e2) 
-		{
-			e2.printStackTrace();
-		}
-		
 		final TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		final ChromosomeUIController callable = new ChromosomeUIController(test);
 		final ExecutorService executor = Executors.newSingleThreadExecutor(TestCaseExecutor.getInstance());
@@ -101,7 +91,7 @@ public final class ReplayUITestHelper {
 	}
 	
 	
-	private static void waitForEmptyAWTEventQueue() throws InterruptedException
+	public static void waitForEmptyAWTEventQueue()
 	{
 		try 
 		{
@@ -120,9 +110,16 @@ public final class ReplayUITestHelper {
 		while(evtQueue.peekEvent() != null)
 		{
 			System.out.println("EMPTYING EVENT QUEUE");
-			evtQueue.getNextEvent();
+			try {
+				evtQueue.getNextEvent();
+			} catch (InterruptedException e) {
+			}
 		}
 
+		// FIXME how to recognize end of foregoing executions???
+		try {
+			Thread.sleep(10000l);
+		} catch (InterruptedException e) {
+		}
 	}
-	
 }

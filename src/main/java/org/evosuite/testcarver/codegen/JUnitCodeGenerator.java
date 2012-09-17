@@ -616,6 +616,9 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 	
 	
 	
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcarver.codegen.ICodeGenerator#createMethodCallStmt(org.evosuite.testcarver.capture.CaptureLog, int)
+	 */
 	@SuppressWarnings("unchecked")
 	@Override
 	public void createMethodCallStmt(CaptureLog log, int logRecNo) 
@@ -852,6 +855,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 						
 						ex.printStackTrace();
 						System.out.println(log);
+						System.err.println("------------------BYE------------");
 						System.exit(-1);
 					}
 				}
