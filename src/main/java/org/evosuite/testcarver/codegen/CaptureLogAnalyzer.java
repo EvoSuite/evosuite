@@ -444,7 +444,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						}
 					}
 					
-					System.out.println("BLACKLIST BEFORE CRASH; " + blackList);
+//					System.out.println("BLACKLIST BEFORE CRASH; " + blackList);
 					
 					// TODO in arbeit
 					if(isBlackListed(currentOID, blackList, log))

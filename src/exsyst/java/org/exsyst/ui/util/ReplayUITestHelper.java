@@ -47,6 +47,16 @@ public final class ReplayUITestHelper {
 	 */
 	public static void run(final UITestChromosome test) 
 	{
+		// TODO proper log output
+		try 
+		{
+			waitForEmptyAWTEventQueue();
+		} 
+		catch (final InterruptedException e2) 
+		{
+			e2.printStackTrace();
+		}
+		
 		final TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 		final ChromosomeUIController callable = new ChromosomeUIController(test);
 		final ExecutorService executor = Executors.newSingleThreadExecutor(TestCaseExecutor.getInstance());
@@ -77,26 +87,7 @@ public final class ReplayUITestHelper {
 			{
 				System.out.println("waiting for termination");
 				
-				try 
-				{
-					EventQueue.invokeAndWait(new Runnable() {
-						@Override
-						public void run() {
-							// Waiting for EventQueue to be empty
-						}
-					});
-				} 
-				catch (final Exception e) {
-				}
-				
-				
-				final EventQueue evtQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
-				while(evtQueue.peekEvent() != null)
-				{
-					System.out.println("EMPTYING EVENT QUEUE");
-					evtQueue.getNextEvent();
-				}
-				
+				waitForEmptyAWTEventQueue();
 				
 				executor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 				System.out.println("terminated");
@@ -108,4 +99,30 @@ public final class ReplayUITestHelper {
 			AWTAutoShutdown.getInstance().notifyThreadFree(Thread.currentThread());
 		}
 	}
+	
+	
+	private static void waitForEmptyAWTEventQueue() throws InterruptedException
+	{
+		try 
+		{
+			EventQueue.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					// Waiting for EventQueue to be empty
+				}
+			});
+		} 
+		catch (final Exception e) {
+		}
+
+		
+		final EventQueue evtQueue = Toolkit.getDefaultToolkit().getSystemEventQueue();
+		while(evtQueue.peekEvent() != null)
+		{
+			System.out.println("EMPTYING EVENT QUEUE");
+			evtQueue.getNextEvent();
+		}
+
+	}
+	
 }
