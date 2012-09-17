@@ -385,6 +385,10 @@ public class UITestSuiteGenerator {
 		for(UITestChromosome t : testsToBeCarved)
 		{
 			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>> start c");
+			ReplayUITestHelper.waitForEmptyAWTEventQueue();
+			
+			
+			
 			// start capture before genetic algorithm is applied so that all interactions can be captured
 			Capturer.startCapture();
 			
