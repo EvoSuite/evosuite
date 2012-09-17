@@ -27,7 +27,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.vfs2.FileSystemException;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
@@ -101,7 +100,6 @@ import org.evosuite.ga.stoppingconditions.ZeroFitnessStoppingCondition;
 import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.primitives.ObjectPool;
-import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
@@ -149,7 +147,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import sun.misc.Signal;
-import de.unisb.cs.st.evosuite.io.IOWrapper;
 
 /**
  * Main entry point
@@ -1734,14 +1731,6 @@ public class TestSuiteGenerator {
 	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
-		if (Properties.VIRTUAL_FS) {
-			try {
-				FileSystem.manager = IOWrapper.initVFS();
-			} catch (FileSystemException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
 		TestSuiteGenerator generator = new TestSuiteGenerator();
 		generator.generateTestSuite();
 		System.exit(0);

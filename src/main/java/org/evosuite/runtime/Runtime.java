@@ -50,9 +50,9 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {
-
-			IOWrapper.initialize(Properties.PROJECT_PREFIX); // TODO find a better place for this (so that it only gets executed once before the first
-			                                                 // test execution)
+			IOWrapper.initialize(Properties.PROJECT_PREFIX); // actually only needs to be executed once before the very first test run - if you read
+																// this comment and know a nice place for this, feel free to move it there; for now
+																// I'm leaving it here for code coherence since runtime is negligible
 			FileSystem.reset();
 		}
 	}
@@ -67,8 +67,9 @@ public class Runtime {
 
 			if (Random.wasAccessed()) {
 				try {
-					TestCluster.getInstance().addTestCall(Random.class.getMethod("setNextRandom",
-					                                                             new Class<?>[] { int.class }));
+					TestCluster.getInstance().addTestCall(
+							Random.class.getMethod("setNextRandom",
+									new Class<?>[] { int.class }));
 				} catch (SecurityException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -79,8 +80,9 @@ public class Runtime {
 			}
 			if (System.wasAccessed()) {
 				try {
-					TestCluster.getInstance().addTestCall(System.class.getMethod("setCurrentTimeMillis",
-					                                                             new Class<?>[] { long.class }));
+					TestCluster.getInstance().addTestCall(
+							System.class.getMethod("setCurrentTimeMillis",
+									new Class<?>[] { long.class }));
 				} catch (SecurityException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -94,17 +96,15 @@ public class Runtime {
 		if (Properties.VIRTUAL_FS && FileSystem.wasAccessed()) {
 			try {
 				logger.info("Adding EvoSuiteFile calls to cluster");
-				TestCluster.getInstance().addTestCall(FileSystem.class.getMethod("setFileContent",
-				                                                                 new Class<?>[] {
-				                                                                         EvoSuiteFile.class,
-				                                                                         String.class }));
+				TestCluster.getInstance().addTestCall(
+						FileSystem.class.getMethod("setFileContent",
+								new Class<?>[] { EvoSuiteFile.class,
+										String.class }));
 				// TODO: Add other methods (setFilePermission, etc)
 
 			} catch (SecurityException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

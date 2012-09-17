@@ -25,9 +25,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.vfs2.FileSystemException;
-import org.apache.commons.vfs2.FileSystemManager;
+
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,41 +37,43 @@ import org.slf4j.LoggerFactory;
 import de.unisb.cs.st.evosuite.io.IOWrapper;
 
 /**
- * <p>FileSystem class.</p>
+ * provides file system operations for an <code>EvoSuiteFile</code>
  *
- * @author fraser
+ * @author Daniel Muth
  */
 public class FileSystem {
 
 	private static Logger logger = LoggerFactory.getLogger(FileSystem.class);
 
-	/** Constant <code>manager</code> */
-	public static FileSystemManager manager = null;
+	/**
+	 * saves the files, that shall be deleted after test execution; this includes files created by setFileContent plus files accessed by class under
+	 * test
+	 */
+	private static Set<String> filesToBeDeleted = new HashSet<String>();
 
 	/**
 	 * Test method that sets content of a file
-	 *
-	 * @param fileName a {@link org.evosuite.runtime.EvoSuiteFile} object.
-	 * @param content a {@link java.lang.String} object.
+	 * 
+	 * @param fileName
+	 * @param content
 	 */
 	public static void setFileContent(EvoSuiteFile fileName, String content) {
 		// Put "content" into "file"
 		try {
-			for (String canonicalPath : IOWrapper.getAccessedFiles()) {
-				if (canonicalPath.equals(fileName.getPath())) {
-					logger.info("Writing content to (virtual) file " + fileName.getPath());
-					File ramFile = new File(fileName.getPath());
-					Writer writer = new BufferedWriter(new FileWriter(ramFile));
-					writer.write(content);
-					writer.close();
-				}
-			}
+			logger.info("Writing \"" + content + "\" to (virtual) file "
+					+ fileName.getPath());
+			File ramFile = new File(fileName.getPath());
+			IOWrapper.setOriginal(ramFile, false);
+			Writer writer = new BufferedWriter(new FileWriter(ramFile));
+			writer.write(content);
+			writer.close();
+			filesToBeDeleted.add(fileName.getPath());
 		} catch (FileSystemException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Error while writing \"" + content + "\" to virtual file "
+					+ fileName.getPath() + ":\n" + e.toString());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.warn("Error while writing \"" + content + "\" to virtual file "
+					+ fileName.getPath() + ":\n" + e.toString());
 		}
 	}
 
@@ -80,42 +84,36 @@ public class FileSystem {
 	// public static void deleteFile(EvoSuiteFile file);
 
 	/**
-	 * Reset runtime to initial state
+	 * Resets the vfs to a default state (all files deleted or all files in a specific state)
+	 * 
 	 */
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
 			try {
-				// Class<?> clazz = TestCluster.classLoader
-				// .loadClass("org.apache.commons.vfs2.VFS");
-				// clazz.getMethod("getManager", new Class<?>[] {}).invoke(null); // throws FileSystemException
-
 				IOWrapper.initVFS();
 
-				// for (File f : File.createdFiles) {
-				// f.delete();
-				// }
-				// TODO: Find proper way to clear filesystem
-
-				IOWrapper.clearAccessedFiles();
+				// TODO: also delete folder structure? do not delete (virtual) files, but only 'reset' their content?
 				IOWrapper.activeVFS = true;
+				filesToBeDeleted.addAll(IOWrapper.getAccessedFiles());
+				for (String fileName : filesToBeDeleted) {
+					logger.info("Deleting virtual file: " + fileName);
+					File f = new File(fileName);
+					IOWrapper.setOriginal(f, false);
+					f.delete();
+				}
+				IOWrapper.clearAccessedFiles();
+				filesToBeDeleted.clear();
 			} catch (FileSystemException e) {
 				logger.warn("Error during initialization of virtual FS: " + e
 						+ ", " + e.getCause());//
 			} catch (Throwable t) {
 				logger.warn("Error: " + t);
 			}
-			/*
-			 * catch (ClassNotFoundException e) { // TODO Auto-generated catch block e.printStackTrace(); } catch (IllegalArgumentException e) { //
-			 * TODO Auto-generated catch block e.printStackTrace(); } catch (SecurityException e) { // TODO Auto-generated catch block
-			 * e.printStackTrace(); } catch (IllegalAccessException e) { // TODO Auto-generated catch block e.printStackTrace(); } catch
-			 * (InvocationTargetException e) { // TODO Auto-generated catch block e.printStackTrace(); } catch (NoSuchMethodException e) { // TODO
-			 * Auto-generated catch block e.printStackTrace(); }
-			 */
 		}
 	}
 
 	/**
-	 * <p>restoreOriginalFS</p>
+	 * restores the original, 'real' file system
 	 */
 	public static void restoreOriginalFS() {
 		if (Properties.VIRTUAL_FS) {
@@ -124,9 +122,9 @@ public class FileSystem {
 	}
 
 	/**
-	 * Getter to check whether this runtime replacement was accessed during test execution
-	 *
-	 * @return a boolean.
+	 * checks, if files were accessed in the vfs
+	 * 
+	 * @return true, if files were accessed, false otherwise
 	 */
 	public static boolean wasAccessed() {
 		return IOWrapper.filesWereAccessed();
