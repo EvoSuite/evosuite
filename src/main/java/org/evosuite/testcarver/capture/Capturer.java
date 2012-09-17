@@ -255,6 +255,15 @@ public final class Capturer
 	
 	public static void capture(final int captureId, final Object receiver, final String methodName, final String methodDesc, final Object[] methodParams)
 	{
+		//FIXME only for debugging
+		if(methodName.equals(CaptureLog.OBSERVED_INIT))
+		{
+			if(receiver != null && receiver.getClass().getName().contains("Ekit"))
+			{
+				System.out.println("INIT OID: " + System.identityHashCode(receiver) + " isCapturing: " + isCapturing());
+			}
+		}
+		
 			if(isCapturing())
 			{
 				synchronized (currentLog)

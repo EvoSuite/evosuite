@@ -384,7 +384,7 @@ public class UITestSuiteGenerator {
 		// variables needed in loop
 		for(UITestChromosome t : testsToBeCarved)
 		{
-			System.out.println(">>> start c");
+			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>> start c");
 			// start capture before genetic algorithm is applied so that all interactions can be captured
 			Capturer.startCapture();
 			
@@ -393,7 +393,7 @@ public class UITestSuiteGenerator {
 			
 			// stop capture after best individual has been determined and obtain corresponding capture log
 			Capturer.stopCapture();
-			System.out.println(">>> end c");
+			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>> end c");
 		}
 
 		final List<CaptureLog> logs = Capturer.getCaptureLogs();

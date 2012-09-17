@@ -420,7 +420,6 @@ public final class CaptureLog implements Cloneable
 		final boolean replace = OBSERVED_INIT.equals(methodName);
 		this.updateInfoTable(oid, receiver, replace);	
 		
-		
 		// save receiver class -> might be reference in later calls e.g. doSth(Person.class)
 		if(receiver instanceof Class)
 		{
