@@ -34,7 +34,7 @@ import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import de.unisb.cs.st.evosuite.io.IOWrapper;
+import org.evosuite.io.IOWrapper;
 
 /**
  * provides file system operations for an <code>EvoSuiteFile</code>
