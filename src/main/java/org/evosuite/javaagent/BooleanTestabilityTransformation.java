@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -37,6 +37,7 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionFactory;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
+import org.evosuite.setup.TestCluster;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -65,15 +66,14 @@ import org.objectweb.asm.tree.analysis.Frame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Transform everything Boolean to ints.
- *
+ * 
  * This transformation replaces: - TRUE/FALSE with +K/-K - IFEQ/IFNE with
  * IFLE/IFGT - Signatures in fields and calls - Inserts calls to remember
  * distance of last boolean calculation - Inserts calls to recall distance of
  * last boolean calculation when Boolean is used
- *
+ * 
  * @author Gordon Fraser
  */
 public class BooleanTestabilityTransformation {
@@ -89,9 +89,12 @@ public class BooleanTestabilityTransformation {
 	private MethodNode currentMethodNode = null;
 
 	/**
-	 * <p>Constructor for BooleanTestabilityTransformation.</p>
-	 *
-	 * @param cn a {@link org.objectweb.asm.tree.ClassNode} object.
+	 * <p>
+	 * Constructor for BooleanTestabilityTransformation.
+	 * </p>
+	 * 
+	 * @param cn
+	 *            a {@link org.objectweb.asm.tree.ClassNode} object.
 	 */
 	public BooleanTestabilityTransformation(ClassNode cn) {
 		this.cn = cn;
@@ -100,7 +103,7 @@ public class BooleanTestabilityTransformation {
 
 	/**
 	 * Transform all methods and fields
-	 *
+	 * 
 	 * @return a {@link org.objectweb.asm.tree.ClassNode} object.
 	 */
 	public ClassNode transform() {
@@ -120,8 +123,8 @@ public class BooleanTestabilityTransformation {
 		for (MethodNode mn : methodNodes) {
 			if ((mn.access & Opcodes.ACC_NATIVE) == Opcodes.ACC_NATIVE)
 				continue;
-			GraphPool.clear(className, mn.name + mn.desc);
-			BytecodeInstructionPool.clear(className, mn.name + mn.desc);
+			GraphPool.clearAll(className, mn.name + mn.desc);
+			BytecodeInstructionPool.clearAll(className, mn.name + mn.desc);
 			BranchPool.clear(className, mn.name + mn.desc);
 		}
 	}
@@ -164,11 +167,16 @@ public class BooleanTestabilityTransformation {
 	}
 
 	/**
-	 * <p>getOriginalNameDesc</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param desc a {@link java.lang.String} object.
+	 * <p>
+	 * getOriginalNameDesc
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param desc
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getOriginalNameDesc(String className, String methodName,
@@ -186,11 +194,16 @@ public class BooleanTestabilityTransformation {
 	}
 
 	/**
-	 * <p>getOriginalDesc</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param desc a {@link java.lang.String} object.
+	 * <p>
+	 * getOriginalDesc
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param desc
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getOriginalDesc(String className, String methodName, String desc) {
@@ -205,11 +218,16 @@ public class BooleanTestabilityTransformation {
 	}
 
 	/**
-	 * <p>hasTransformedParameters</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param desc a {@link java.lang.String} object.
+	 * <p>
+	 * hasTransformedParameters
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param desc
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public static boolean hasTransformedParameters(String className, String methodName,
@@ -226,11 +244,16 @@ public class BooleanTestabilityTransformation {
 	}
 
 	/**
-	 * <p>isTransformedField</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param fieldName a {@link java.lang.String} object.
-	 * @param desc a {@link java.lang.String} object.
+	 * <p>
+	 * isTransformedField
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param fieldName
+	 *            a {@link java.lang.String} object.
+	 * @param desc
+	 *            a {@link java.lang.String} object.
 	 * @return a boolean.
 	 */
 	public static boolean isTransformedField(String className, String fieldName,
@@ -300,7 +323,10 @@ public class BooleanTestabilityTransformation {
 
 	private BytecodeInstruction getBytecodeInstruction(MethodNode mn,
 	        AbstractInsnNode node) {
-		return BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc, node);
+		return BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstruction(className,
+		                                                                                   mn.name
+		                                                                                           + mn.desc,
+		                                                                                   node); // TODO: Adapt for classloaders
 	}
 
 	private int getBranchID(MethodNode mn, JumpInsnNode jumpNode) {
@@ -592,14 +618,18 @@ public class BooleanTestabilityTransformation {
 	}
 
 	private void generateCDG(MethodNode mn) {
-		BytecodeInstructionPool.registerMethodNode(mn, className, mn.name + mn.desc);
+		BytecodeInstructionPool.getInstance(TestCluster.classLoader).registerMethodNode(mn,
+		                                                                                className,
+		                                                                                mn.name
+		                                                                                        + mn.desc); // TODO: Adapt for multiple classLoaders
 
 		BytecodeAnalyzer bytecodeAnalyzer = new BytecodeAnalyzer();
 		logger.info("Generating initial CFG for method " + mn.name);
 
 		try {
 
-			bytecodeAnalyzer.analyze(className, mn.name + mn.desc, mn);
+			bytecodeAnalyzer.analyze(TestCluster.classLoader, className, mn.name
+			        + mn.desc, mn); // TODO
 		} catch (AnalyzerException e) {
 			logger.error("Analyzer exception while analyzing " + className + "."
 			        + mn.name + ": " + e);
@@ -1189,18 +1219,19 @@ public class BooleanTestabilityTransformation {
 
 		private void registerInstruction(MethodNode mn, AbstractInsnNode oldValue,
 		        AbstractInsnNode newValue) {
-			BytecodeInstruction oldInstruction = BytecodeInstructionPool.getInstruction(className,
-			                                                                            mn.name
-			                                                                                    + mn.desc,
-			                                                                            oldValue);
-			BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(className,
+			BytecodeInstruction oldInstruction = BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstruction(className,
+			                                                                                                                 mn.name
+			                                                                                                                         + mn.desc,
+			                                                                                                                 oldValue);
+			BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(TestCluster.classLoader,
+			                                                                                       className,
 			                                                                                       mn.name
 			                                                                                               + mn.desc,
 			                                                                                       oldInstruction.getInstructionId(),
 			                                                                                       0,
 			                                                                                       newValue);
 			instruction.setBasicBlock(oldInstruction.getBasicBlock());
-			BytecodeInstructionPool.registerInstruction(instruction);
+			BytecodeInstructionPool.getInstance(TestCluster.classLoader).registerInstruction(instruction);
 		}
 
 		private void handleDependency(ControlDependency dependency,
@@ -1328,28 +1359,32 @@ public class BooleanTestabilityTransformation {
 				logger.info("Handling PUTFIELD case!");
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
-				ControlDependenceGraph cdg = GraphPool.getCDG(className.replace("/", "."),
-				                                              mn.name + mn.desc);
+				ControlDependenceGraph cdg = GraphPool.getInstance(TestCluster.classLoader).getCDG(className.replace("/",
+				                                                                                                     "."),
+				                                                                                   mn.name
+				                                                                                           + mn.desc);
 				int index = mn.instructions.indexOf(fieldNode);
 				logger.info("Getting bytecode instruction for " + fieldNode.name + "/"
 				        + ((FieldInsnNode) mn.instructions.get(index)).name);
 				InsnList nodes = mn.instructions;
 				ListIterator it = nodes.iterator();
 				while (it.hasNext()) {
-					BytecodeInstruction in = new BytecodeInstruction(className, mn.name,
-					        0, 0, (AbstractInsnNode) it.next());
+					BytecodeInstruction in = new BytecodeInstruction(
+					        TestCluster.classLoader, className, mn.name, 0, 0,
+					        (AbstractInsnNode) it.next());
 					logger.info(in.toString());
 				}
-				BytecodeInstruction insn = BytecodeInstructionPool.getInstruction(className.replace("/",
-				                                                                                    "."),
-				                                                                  mn.name
-				                                                                          + mn.desc,
-				                                                                  index);
+				BytecodeInstruction insn = BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstruction(className.replace("/",
+				                                                                                                                         "."),
+				                                                                                                       mn.name
+				                                                                                                               + mn.desc,
+				                                                                                                       index);
 				if (insn == null)
-					insn = BytecodeInstructionPool.getInstruction(className.replace("/",
-					                                                                "."),
-					                                              mn.name + mn.desc,
-					                                              fieldNode);
+					insn = BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstruction(className.replace("/",
+					                                                                                                     "."),
+					                                                                                   mn.name
+					                                                                                           + mn.desc,
+					                                                                                   fieldNode);
 				//varNode);
 				if (insn == null) {
 					// TODO: Find out why
@@ -1358,8 +1393,10 @@ public class BooleanTestabilityTransformation {
 				}
 				if (insn.getASMNode().getOpcode() != fieldNode.getOpcode()) {
 					logger.info("Found wrong bytecode instruction at this index!");
-					BytecodeInstructionPool.getInstruction(className, mn.name + mn.desc,
-					                                       fieldNode);
+					BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstruction(className,
+					                                                                            mn.name
+					                                                                                    + mn.desc,
+					                                                                            fieldNode);
 				}
 				if (insn.getBasicBlock() == null) {
 					logger.info("ERROR: Problematic node found");
@@ -1386,14 +1423,16 @@ public class BooleanTestabilityTransformation {
 			        && isBooleanVariable(varNode.var, mn)) {
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
-				ControlDependenceGraph cdg = GraphPool.getCDG(className.replace("/", "."),
-				                                              mn.name + mn.desc);
+				ControlDependenceGraph cdg = GraphPool.getInstance(TestCluster.classLoader).getCDG(className.replace("/",
+				                                                                                                     "."),
+				                                                                                   mn.name
+				                                                                                           + mn.desc);
 				int index = mn.instructions.indexOf(varNode);
-				BytecodeInstruction insn = BytecodeInstructionPool.getInstruction(className.replace("/",
-				                                                                                    "."),
-				                                                                  mn.name
-				                                                                          + mn.desc,
-				                                                                  index);
+				BytecodeInstruction insn = BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstruction(className.replace("/",
+				                                                                                                                         "."),
+				                                                                                                       mn.name
+				                                                                                                               + mn.desc,
+				                                                                                                       index);
 				//varNode);
 				if (insn == null) {
 					// TODO: Debug this on org.exolab.jms.net.uri.URI
@@ -1402,8 +1441,10 @@ public class BooleanTestabilityTransformation {
 				}
 				if (insn.getASMNode().getOpcode() != varNode.getOpcode()) {
 					logger.info("Found wrong bytecode instruction at this index!");
-					insn = BytecodeInstructionPool.getInstruction(className, mn.name
-					        + mn.desc, varNode);
+					insn = BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstruction(className,
+					                                                                                   mn.name
+					                                                                                           + mn.desc,
+					                                                                                   varNode);
 					if (insn == null) {
 						// TODO: Debug this on org.exolab.jms.net.uri.URI
 						logger.info("WARNING: Instruction not found!");

@@ -1594,7 +1594,7 @@ public class Properties {
 		BranchPool.reset();
 		TestCluster.reset();
 		org.evosuite.testcase.TestFactory.getInstance().reset();
-		BytecodeInstructionPool.clear();
+		BytecodeInstructionPool.clearAll(); // TODO: This should be removed
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
@@ -1631,7 +1631,7 @@ public class Properties {
 		BranchPool.reset();
 		TestCluster.reset();
 		org.evosuite.testcase.TestFactory.getInstance().reset();
-		BytecodeInstructionPool.clear();
+		BytecodeInstructionPool.clearAll(); // TODO: This should be deleted
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);

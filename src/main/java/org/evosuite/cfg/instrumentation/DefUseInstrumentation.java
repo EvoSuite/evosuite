@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -22,11 +22,9 @@ package org.evosuite.cfg.instrumentation;
 
 import java.util.Iterator;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.evosuite.Properties;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -39,6 +37,8 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -49,8 +49,7 @@ import org.objectweb.asm.tree.VarInsnNode;
  */
 public class DefUseInstrumentation implements MethodInstrumentation {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(DefUseInstrumentation.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUseInstrumentation.class);
 
 	/*
 	 * (non-Javadoc)
@@ -62,18 +61,18 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, String className, String methodName,
-			int access) {
-		RawControlFlowGraph completeCFG = GraphPool.getRawCFG(className,
-				methodName);
+	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
+	        String methodName, int access) {
+		RawControlFlowGraph completeCFG = GraphPool.getInstance(classLoader).getRawCFG(className,
+		                                                                               methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 				if ((Properties.CRITERION == Criterion.DEFUSE
-						|| Properties.CRITERION == Criterion.ALLDEFS
-						|| Properties.CRITERION == Criterion.ANALYZE || TestSuiteGenerator.analyzing)
-						&& in.equals(v.getASMNode()) && v.isDefUse()) {
+				        || Properties.CRITERION == Criterion.ALLDEFS
+				        || Properties.CRITERION == Criterion.ANALYZE || TestSuiteGenerator.analyzing)
+				        && in.equals(v.getASMNode()) && v.isDefUse()) {
 
 					boolean isValidDU = false;
 
@@ -89,21 +88,20 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 							isValidDU = DefUsePool.addAsUse(v);
 						// keep track of definitions
 						if (v.isDefinition())
-							isValidDU = DefUsePool.addAsDefinition(v)
-									|| isValidDU;
+							isValidDU = DefUsePool.addAsDefinition(v) || isValidDU;
 					}
 					if (isValidDU) {
 						boolean staticContext = v.isStaticDefUse()
-								|| ((access & Opcodes.ACC_STATIC) > 0);
+						        || ((access & Opcodes.ACC_STATIC) > 0);
 						// adding instrumentation for defuse-coverage
-						InsnList instrumentation = getInstrumentation(v,
-								staticContext, className, methodName);
+						InsnList instrumentation = getInstrumentation(v, staticContext,
+						                                              className,
+						                                              methodName);
 						if (instrumentation == null)
-							throw new IllegalStateException(
-									"error instrumenting node " + v.toString());
+							throw new IllegalStateException("error instrumenting node "
+							        + v.toString());
 
-						mn.instructions.insertBefore(v.getASMNode(),
-								instrumentation);
+						mn.instructions.insertBefore(v.getASMNode(), instrumentation);
 					}
 				}
 			}
@@ -114,8 +112,8 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * Creates the instrumentation needed to track defs and uses
 	 * 
 	 */
-	private InsnList getInstrumentation(BytecodeInstruction v,
-			boolean staticContext, String className, String methodName) {
+	private InsnList getInstrumentation(BytecodeInstruction v, boolean staticContext,
+	        String className, String methodName) {
 		InsnList instrumentation = new InsnList();
 
 		if (!v.isDefUse()) {
@@ -133,8 +131,8 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			// using the information available during runtime (the CCFGs)
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"org/evosuite/testcase/ExecutionTracer",
-					"passedFieldMethodCall", "(Ljava/lang/Object;I)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedFieldMethodCall",
+			        "(Ljava/lang/Object;I)V"));
 
 			return instrumentation;
 		}
@@ -143,22 +141,22 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"org/evosuite/testcase/ExecutionTracer", "passedUse",
-					"(Ljava/lang/Object;I)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedUse",
+			        "(Ljava/lang/Object;I)V"));
 		}
 		if (DefUsePool.isKnownAsDefinition(v)) {
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-					"org/evosuite/testcase/ExecutionTracer",
-					"passedDefinition", "(Ljava/lang/Object;I)V"));
+			        "org/evosuite/testcase/ExecutionTracer", "passedDefinition",
+			        "(Ljava/lang/Object;I)V"));
 		}
 
 		return instrumentation;
 	}
 
 	private void addCallingObjectInstrumentation(boolean staticContext,
-			InsnList instrumentation) {
+	        InsnList instrumentation) {
 		// the object on which the DU is covered is passed by the
 		// instrumentation.
 		// If we are in a static context, null is passed instead

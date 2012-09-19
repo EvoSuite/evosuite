@@ -201,7 +201,8 @@ public class BytecodeInstrumentation {
 	 *            a {@link org.objectweb.asm.ClassReader} object.
 	 * @return an array of byte.
 	 */
-	public byte[] transformBytes(String className, ClassReader reader) {
+	public byte[] transformBytes(ClassLoader classLoader, String className,
+	        ClassReader reader) {
 		int readFlags = ClassReader.SKIP_FRAMES;
 
 		if (Properties.INSTRUMENTATION_SKIP_DEBUG)
@@ -233,7 +234,7 @@ public class BytecodeInstrumentation {
 				cv = factory.getVisitor(cv, className);
 			}
 			cv = new ExecutionPathClassAdapter(cv, className);
-			cv = new CFGClassAdapter(cv, className);
+			cv = new CFGClassAdapter(classLoader, cv, className);
 
 			if (Properties.ERROR_BRANCHES) {
 				cv = new ErrorConditionClassAdapter(cv, className);
@@ -254,7 +255,7 @@ public class BytecodeInstrumentation {
 			}
 			// If we are doing testability transformation on all classes we need to create the CFG first
 			if (Properties.TT && classNameWithDots.startsWith(Properties.CLASS_PREFIX)) {
-				cv = new CFGClassAdapter(cv, className);
+				cv = new CFGClassAdapter(classLoader, cv, className);
 			}
 		}
 

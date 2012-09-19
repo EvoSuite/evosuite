@@ -28,16 +28,16 @@ import java.util.Set;
 
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.MethodCall;
 
-
 /**
- *
+ * 
  * This class is a library holding all methods needed to analyze an
  * ExecutionTrace with respect to DefUseCoverage fitness calculation
- *
+ * 
  * @author Andre Mis
  */
 public abstract class DefUseExecutionTraceAnalyzer {
@@ -48,13 +48,17 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	/**
 	 * Determines the definitionId for targetVar before tagetDUPos in the given
 	 * ExecutionTrace
-	 *
+	 * 
 	 * If no such definition exists -1 is returned
-	 *
-	 * @param targetVariable a {@link java.lang.String} object.
-	 * @param objectTrace a {@link org.evosuite.testcase.ExecutionTrace} object.
-	 * @param targetDUPos a {@link java.lang.Integer} object.
-	 * @param objectId a {@link java.lang.Integer} object.
+	 * 
+	 * @param targetVariable
+	 *            a {@link java.lang.String} object.
+	 * @param objectTrace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param targetDUPos
+	 *            a {@link java.lang.Integer} object.
+	 * @param objectId
+	 *            a {@link java.lang.Integer} object.
 	 * @return a int.
 	 */
 	public static int getPreviousDefinitionId(String targetVariable,
@@ -74,16 +78,20 @@ public abstract class DefUseExecutionTraceAnalyzer {
 
 	/**
 	 * Determines the overwriting definition for the given goalDefPos
-	 *
+	 * 
 	 * An overwriting definition position is the duCounter position of the next
 	 * definition for goalVariable that was not the goalDefinition
-	 *
+	 * 
 	 * If no such definition exists Integer.MAX_VALUE is returned
-	 *
-	 * @param targetDefinition a {@link org.evosuite.coverage.dataflow.Definition} object.
-	 * @param objectTrace a {@link org.evosuite.testcase.ExecutionTrace} object.
-	 * @param goalDefPos a {@link java.lang.Integer} object.
-	 * @param objectId a {@link java.lang.Integer} object.
+	 * 
+	 * @param targetDefinition
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param objectTrace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param goalDefPos
+	 *            a {@link java.lang.Integer} object.
+	 * @param objectId
+	 *            a {@link java.lang.Integer} object.
 	 * @return a int.
 	 */
 	public static int getNextOverwritingDefinitionPosition(Definition targetDefinition,
@@ -106,10 +114,13 @@ public abstract class DefUseExecutionTraceAnalyzer {
 
 	/**
 	 * Returns all the duCounterPositions of the targetUse in the given trace
-	 *
-	 * @param targetUse a {@link org.evosuite.coverage.dataflow.Use} object.
-	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
-	 * @param objectId a int.
+	 * 
+	 * @param targetUse
+	 *            a {@link org.evosuite.coverage.dataflow.Use} object.
+	 * @param trace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param objectId
+	 *            a int.
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Integer> getUsePositions(Use targetUse, ExecutionTrace trace,
@@ -130,10 +141,13 @@ public abstract class DefUseExecutionTraceAnalyzer {
 
 	/**
 	 * Returns all the duCounterPositions of the goalUse in the given trace
-	 *
-	 * @param targetDefinition a {@link org.evosuite.coverage.dataflow.Definition} object.
-	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
-	 * @param objectId a int.
+	 * 
+	 * @param targetDefinition
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param trace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param objectId
+	 *            a int.
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<Integer> getDefinitionPositions(Definition targetDefinition,
@@ -157,16 +171,21 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	 * Returns the a map of definitionIds from all definitions that overwrite
 	 * the goal definition in the given duCounter-range pointing to the duPos at
 	 * which they first overwrote.
-	 *
+	 * 
 	 * This method expects the given ExecutionTrace not to contain any trace
 	 * information for the targetDefinition in the given range. If such a trace
 	 * is detected this method throws an IllegalStateException!
-	 *
-	 * @param targetDefinition a {@link org.evosuite.coverage.dataflow.Definition} object.
-	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
-	 * @param startingDUPos a int.
-	 * @param endDUPos a int.
-	 * @param objectId a int.
+	 * 
+	 * @param targetDefinition
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param trace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param startingDUPos
+	 *            a int.
+	 * @param endDUPos
+	 *            a int.
+	 * @param objectId
+	 *            a int.
 	 * @return a {@link java.util.Map} object.
 	 */
 	public static Map<Integer, Integer> getOverwritingDefinitionsBetween(
@@ -196,10 +215,14 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	}
 
 	/**
-	 * <p>getDefinitionsIn</p>
-	 *
-	 * @param targetVariable a {@link java.lang.String} object.
-	 * @param vertices a {@link java.util.Set} object.
+	 * <p>
+	 * getDefinitionsIn
+	 * </p>
+	 * 
+	 * @param targetVariable
+	 *            a {@link java.lang.String} object.
+	 * @param vertices
+	 *            a {@link java.util.Set} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<BytecodeInstruction> getDefinitionsIn(String targetVariable,
@@ -220,9 +243,11 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	/**
 	 * Returns a Set containing all elements in the given vertex set that are
 	 * overwriting definitions for the given targetDefinition
-	 *
-	 * @param targetDefinition a {@link org.evosuite.coverage.dataflow.Definition} object.
-	 * @param vertices a {@link java.util.Collection} object.
+	 * 
+	 * @param targetDefinition
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param vertices
+	 *            a {@link java.util.Collection} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<BytecodeInstruction> getOverwritingDefinitionsIn(
@@ -231,8 +256,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for (BytecodeInstruction vertex : vertices) {
 			if (!vertex.isDefinition())
 				continue;
-			BytecodeInstruction vertexInOtherGraph = GraphPool.getRawCFG(vertex.getClassName(),
-			                                                             vertex.getMethodName()).getInstruction(vertex.getInstructionId());
+			BytecodeInstruction vertexInOtherGraph = GraphPool.getInstance(TestCluster.classLoader).getRawCFG(vertex.getClassName(),
+			                                                                                                  vertex.getMethodName()).getInstruction(vertex.getInstructionId());
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph);
 			if (isOverwritingDefinition(targetDefinition, currentDefinition))
 				r.add(vertex);
@@ -243,9 +268,11 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	/**
 	 * Determines if the two given Definitions refer to the same variable but
 	 * are different
-	 *
-	 * @param targetDefinition a {@link org.evosuite.coverage.dataflow.Definition} object.
-	 * @param definition a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * 
+	 * @param targetDefinition
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param definition
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @return a boolean.
 	 */
 	public static boolean isOverwritingDefinition(Definition targetDefinition,
@@ -261,11 +288,15 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	/**
 	 * Returns the defID of the Definition that is active in the given trace at
 	 * usePos
-	 *
-	 * @param targetVariable a {@link java.lang.String} object.
-	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
-	 * @param usePos a int.
-	 * @param objectId a int.
+	 * 
+	 * @param targetVariable
+	 *            a {@link java.lang.String} object.
+	 * @param trace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * @param usePos
+	 *            a int.
+	 * @param objectId
+	 *            a int.
 	 * @return a int.
 	 */
 	public static int getActiveDefinitionIdAt(String targetVariable,
@@ -293,8 +324,9 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	/**
 	 * Prints all information found concerning finished calls of the given
 	 * ExecutionTrace
-	 *
-	 * @param trace a {@link org.evosuite.testcase.ExecutionTrace} object.
+	 * 
+	 * @param trace
+	 *            a {@link org.evosuite.testcase.ExecutionTrace} object.
 	 */
 	public static void printFinishCalls(ExecutionTrace trace) {
 		for (MethodCall call : trace.getMethodCalls()) {
@@ -312,9 +344,12 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	}
 
 	/**
-	 * <p>getCoveredGoals</p>
-	 *
-	 * @param results a {@link java.util.List} object.
+	 * <p>
+	 * getCoveredGoals
+	 * </p>
+	 * 
+	 * @param results
+	 *            a {@link java.util.List} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(
@@ -385,9 +420,12 @@ public abstract class DefUseExecutionTraceAnalyzer {
 	}
 
 	/**
-	 * <p>getCoveredGoals</p>
-	 *
-	 * @param result a {@link org.evosuite.testcase.ExecutionResult} object.
+	 * <p>
+	 * getCoveredGoals
+	 * </p>
+	 * 
+	 * @param result
+	 *            a {@link org.evosuite.testcase.ExecutionResult} object.
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<DefUseCoverageTestFitness> getCoveredGoals(ExecutionResult result) {

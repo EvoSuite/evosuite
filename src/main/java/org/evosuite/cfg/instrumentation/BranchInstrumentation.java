@@ -66,8 +66,10 @@ public class BranchInstrumentation implements MethodInstrumentation {
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, String className, String methodName, int access) {
-		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
+	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
+	        String methodName, int access) {
+		RawControlFlowGraph graph = GraphPool.getInstance(classLoader).getRawCFG(className,
+		                                                                         methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
