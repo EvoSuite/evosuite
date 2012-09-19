@@ -28,6 +28,7 @@ import org.evosuite.coverage.branch.BranchCoverageGoal;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.ActualControlFlowGraph;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
@@ -61,8 +62,8 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	public MutationTestFitness(Mutation mutation) {
 		this.mutation = mutation;
 		controlDependencies.addAll(mutation.getControlDependencies());
-		ActualControlFlowGraph cfg = GraphPool.getActualCFG(mutation.getClassName(),
-		                                                    mutation.getMethodName());
+		ActualControlFlowGraph cfg = GraphPool.getInstance(TestCluster.classLoader).getActualCFG(mutation.getClassName(),
+		                                                                                         mutation.getMethodName());
 		diameter = cfg.getDiameter();
 	}
 

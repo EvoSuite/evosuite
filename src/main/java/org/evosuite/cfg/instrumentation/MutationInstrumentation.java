@@ -118,12 +118,14 @@ public class MutationInstrumentation implements MethodInstrumentation {
 	/** {@inheritDoc} */
 	@SuppressWarnings("unchecked")
 	@Override
-	public void analyze(MethodNode mn, String className, String methodName, int access) {
+	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
+	        String methodName, int access) {
 
 		if (methodName.startsWith("<clinit>"))
 			return;
 
-		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
+		RawControlFlowGraph graph = GraphPool.getInstance(classLoader).getRawCFG(className,
+		                                                                         methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 
 		getFrames(mn, className);
@@ -188,7 +190,8 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		logger.info("Result of mutation: ");
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
-			logger.info(new BytecodeInstruction(className, methodName, 0, 0, in).toString());
+			logger.info(new BytecodeInstruction(classLoader, className, methodName, 0, 0,
+			        in).toString());
 		}
 		logger.info("Done.");
 		// mn.maxStack += 3;

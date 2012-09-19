@@ -84,6 +84,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 	private final String plain_name;
 	private final int access;
 	private final String className;
+	private final ClassLoader classLoader;
 
 	private int lineNumber = 0;
 
@@ -107,8 +108,9 @@ public class CFGMethodAdapter extends MethodVisitor {
 	 * @param mv
 	 *            a {@link org.objectweb.asm.MethodVisitor} object.
 	 */
-	public CFGMethodAdapter(String className, int access, String name, String desc,
-	        String signature, String[] exceptions, MethodVisitor mv) {
+	public CFGMethodAdapter(ClassLoader classLoader, String className, int access,
+	        String name, String desc, String signature, String[] exceptions,
+	        MethodVisitor mv) {
 
 		// super(new MethodNode(access, name, desc, signature, exceptions),
 		// className,
@@ -122,6 +124,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 		this.access = access;
 		this.methodName = name + desc;
 		this.plain_name = name;
+		this.classLoader = classLoader;
 	}
 
 	/* (non-Javadoc)
@@ -200,7 +203,7 @@ public class CFGMethodAdapter extends MethodVisitor {
 
 			try {
 
-				bytecodeAnalyzer.analyze(className, methodName, mn);
+				bytecodeAnalyzer.analyze(classLoader, className, methodName, mn);
 				logger.trace("Method graph for "
 				        + className
 				        + "."
@@ -227,7 +230,8 @@ public class CFGMethodAdapter extends MethodVisitor {
 				logger.info("Instrumenting method " + methodName + " in class "
 				        + className);
 				for (MethodInstrumentation instrumentation : instrumentations)
-					instrumentation.analyze(mn, className, methodName, access);
+					instrumentation.analyze(classLoader, mn, className, methodName,
+					                        access);
 
 				handleBranchlessMethods();
 				String id = className + "." + methodName;

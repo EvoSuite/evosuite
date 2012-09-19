@@ -45,8 +45,9 @@ import org.evosuite.Properties;
 public class ResourceList {
 
 	public static boolean hasClass(String className) {
-		Pattern pattern = Pattern.compile(".*"+className.replaceAll("\\.",
-		                                                       Matcher.quoteReplacement(Pattern.quote(File.separator)))
+		Pattern pattern = Pattern.compile(".*"
+		        + className.replaceAll("\\.",
+		                               Matcher.quoteReplacement(Pattern.quote(File.separator)))
 		        + ".class");
 		final String[] classPathElements = Properties.CP.split(File.pathSeparator);
 		for (final String element : classPathElements) {
@@ -67,7 +68,7 @@ public class ResourceList {
 	public static Collection<String> getResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		//final String classPath = System.getProperty("java.class.path", ".");
-		final String[] classPathElements = Properties.CP.split(":");
+		final String[] classPathElements = Properties.CP.split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
@@ -131,8 +132,8 @@ public class ResourceList {
 			}
 		} else if (!file.exists()) {
 			//do nothing
-//			System.out.println(file.getAbsolutePath()
-//			        + " is on the class path, but doesn't exist");
+			//			System.out.println(file.getAbsolutePath()
+			//			        + " is on the class path, but doesn't exist");
 
 		} else if (file.getName().endsWith(".jar")) {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
@@ -177,7 +178,8 @@ public class ResourceList {
 				retval.addAll(getResourcesFromDirectory(file, pattern, dirName));
 			} else {
 				try {
-					final String fileName = file.getCanonicalPath().replace(dirName + File.separator,
+					final String fileName = file.getCanonicalPath().replace(dirName
+					                                                                + File.separator,
 					                                                        "");
 					final boolean accept = pattern.matcher(fileName).matches();
 					if (accept) {

@@ -65,6 +65,7 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 	private static int blockCount = 0;
 
 	private int id = -1;
+	protected ClassLoader classLoader;
 	protected String className;
 	protected String methodName;
 
@@ -95,13 +96,14 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 	 * @param blockNodes
 	 *            a {@link java.util.List} object.
 	 */
-	public BasicBlock(String className, String methodName,
+	public BasicBlock(ClassLoader classLoader, String className, String methodName,
 	        List<BytecodeInstruction> blockNodes) {
 		if (className == null || methodName == null || blockNodes == null)
 			throw new IllegalArgumentException("null given");
 
 		this.className = className;
 		this.methodName = methodName;
+		this.classLoader = classLoader;
 
 		setId();
 		setInstructions(blockNodes);
@@ -138,7 +140,8 @@ public class BasicBlock implements Serializable, Iterable<BytecodeInstruction> {
 	 */
 	public ControlDependenceGraph getCDG() {
 
-		ControlDependenceGraph myCDG = GraphPool.getCDG(className, methodName);
+		ControlDependenceGraph myCDG = GraphPool.getInstance(classLoader).getCDG(className,
+		                                                                         methodName);
 		if (myCDG == null)
 			throw new IllegalStateException(
 			        "expect GraphPool to know CDG for every method for which an instruction is known");

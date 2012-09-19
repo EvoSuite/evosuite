@@ -27,6 +27,7 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
@@ -464,8 +465,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getInstructionsAfterGoalDefinition() {
-		RawControlFlowGraph cfg = GraphPool.getRawCFG(goalDefinition.getClassName(),
-		                                              goalDefinition.getMethodName());
+		RawControlFlowGraph cfg = GraphPool.getInstance(TestCluster.classLoader).getRawCFG(goalDefinition.getClassName(),
+		                                                                                   goalDefinition.getMethodName());
 		BytecodeInstruction defVertex = cfg.getInstruction(goalDefinition.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getLaterInstructionsInMethod(defVertex);
 		//		for (BytecodeInstruction v : r) {
@@ -484,8 +485,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getInstructionsBeforeGoalUse() {
-		RawControlFlowGraph cfg = GraphPool.getRawCFG(goalUse.getClassName(),
-		                                              goalUse.getMethodName());
+		RawControlFlowGraph cfg = GraphPool.getInstance(TestCluster.classLoader).getRawCFG(goalUse.getClassName(),
+		                                                                                   goalUse.getMethodName());
 		BytecodeInstruction useVertex = cfg.getInstruction(goalUse.getInstructionId());
 		Set<BytecodeInstruction> r = cfg.getPreviousInstructionsInMethod(useVertex);
 		//		for (BytecodeInstruction v : r) {
@@ -746,7 +747,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		if (other instanceof DefUseCoverageTestFitness) {
 			DefUseCoverageTestFitness otherFitness = (DefUseCoverageTestFitness) other;
 			// goalDefinition can be null for parameter goals
-			if(goalDefinition == null || otherFitness.getGoalDefinition() == null)
+			if (goalDefinition == null || otherFitness.getGoalDefinition() == null)
 				return goalUse.compareTo(otherFitness.getGoalUse());
 			if (goalDefinition.compareTo(otherFitness.getGoalDefinition()) == 0) {
 				return goalUse.compareTo(otherFitness.getGoalUse());

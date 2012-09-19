@@ -36,6 +36,8 @@ public class CFGClassAdapter extends ClassVisitor {
 	/** Current class */
 	private final String className;
 
+	private final ClassLoader classLoader;
+
 	/** Skip methods on enums - at least some */
 	private boolean isEnum = false;
 
@@ -47,9 +49,10 @@ public class CFGClassAdapter extends ClassVisitor {
 	 * @param className
 	 *            a {@link java.lang.String} object.
 	 */
-	public CFGClassAdapter(ClassVisitor visitor, String className) {
+	public CFGClassAdapter(ClassLoader classLoader, ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 		this.className = className;
+		this.classLoader = classLoader;
 	}
 
 	/* (non-Javadoc)
@@ -96,8 +99,8 @@ public class CFGClassAdapter extends ClassVisitor {
 
 		String classNameWithDots = className.replace('/', '.');
 
-		mv = new CFGMethodAdapter(classNameWithDots, methodAccess, name, descriptor,
-		        signature, exceptions, mv);
+		mv = new CFGMethodAdapter(classLoader, classNameWithDots, methodAccess, name,
+		        descriptor, signature, exceptions, mv);
 		return mv;
 	}
 }

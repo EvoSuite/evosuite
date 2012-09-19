@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,21 +20,20 @@ package org.evosuite.graphs.cfg;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Analyzer;
 import org.objectweb.asm.tree.analysis.AnalyzerException;
-import org.objectweb.asm.tree.analysis.BasicInterpreter;
 import org.objectweb.asm.tree.analysis.Frame;
 import org.objectweb.asm.tree.analysis.SourceInterpreter;
 
 /**
  * This class analyzes the byteCode from a method in the CUT and generates it's
  * CFG using a cfg.CFGGenerator
- *
+ * 
  * This is done using the ASM library, extending from it's asm.Analyzer and
  * redirecting the calls to newControlFlowEdge() to an instance of
  * cfg.CFGGenerator which in turn builds up a graph representation of the CFG,
  * which later is used to build a "smaller" CFG containing not
  * BytecodeInstructions but BasicBlocks of BytecodeInstructions which are always
  * executed successively
- *
+ * 
  * @author Gordon Fraser, Andre Mis
  */
 public class BytecodeAnalyzer extends Analyzer {
@@ -42,7 +41,9 @@ public class BytecodeAnalyzer extends Analyzer {
 	CFGGenerator cfgGenerator;
 
 	/**
-	 * <p>Constructor for BytecodeAnalyzer.</p>
+	 * <p>
+	 * Constructor for BytecodeAnalyzer.
+	 * </p>
 	 */
 	public BytecodeAnalyzer() {
 		super(new SourceInterpreter());
@@ -54,17 +55,21 @@ public class BytecodeAnalyzer extends Analyzer {
 	 * Analyzes the method corresponding to the given Strings and initializes
 	 * the CFGGenerator and thus the BytecodeInstructionPool for the given
 	 * method in the given class.
-	 *
-	 * @param owner a {@link java.lang.String} object.
-	 * @param method a {@link java.lang.String} object.
-	 * @param node a {@link org.objectweb.asm.tree.MethodNode} object.
+	 * 
+	 * @param owner
+	 *            a {@link java.lang.String} object.
+	 * @param method
+	 *            a {@link java.lang.String} object.
+	 * @param node
+	 *            a {@link org.objectweb.asm.tree.MethodNode} object.
 	 * @return a {@link org.evosuite.graphs.cfg.CFGFrame} object.
-	 * @throws org.objectweb.asm.tree.analysis.AnalyzerException if any.
+	 * @throws org.objectweb.asm.tree.analysis.AnalyzerException
+	 *             if any.
 	 */
-	public CFGFrame analyze(String owner, String method, MethodNode node)
-	        throws AnalyzerException {
+	public CFGFrame analyze(ClassLoader classLoader, String owner, String method,
+	        MethodNode node) throws AnalyzerException {
 
-		cfgGenerator = new CFGGenerator(owner, method, node);
+		cfgGenerator = new CFGGenerator(classLoader, owner, method, node);
 		this.analyze(owner, node);
 
 		Frame[] frames = getFrames();
@@ -79,7 +84,7 @@ public class BytecodeAnalyzer extends Analyzer {
 	 * After running analyze() this method yields the filled CFGGenerator for
 	 * further processing of the gathered information from analyze() within the
 	 * ByteCode representation of EvoSuite
-	 *
+	 * 
 	 * @return a {@link org.evosuite.graphs.cfg.CFGGenerator} object.
 	 */
 	public CFGGenerator retrieveCFGGenerator() {
@@ -93,7 +98,7 @@ public class BytecodeAnalyzer extends Analyzer {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Called for each non-exceptional cfg edge
 	 */
 	@Override
@@ -104,7 +109,7 @@ public class BytecodeAnalyzer extends Analyzer {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * We also need to keep track of exceptional edges - they are also branches
 	 */
 	@Override

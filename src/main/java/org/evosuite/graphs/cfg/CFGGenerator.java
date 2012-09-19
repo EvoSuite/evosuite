@@ -61,6 +61,7 @@ public class CFGGenerator {
 	private MethodNode currentMethod;
 	private String className;
 	private String methodName;
+	private final ClassLoader classLoader;
 
 	/**
 	 * Initializes this generator to generate the CFG for the method identified
@@ -80,7 +81,9 @@ public class CFGGenerator {
 	 * @param node
 	 *            a {@link org.objectweb.asm.tree.MethodNode} object.
 	 */
-	public CFGGenerator(String className, String methodName, MethodNode node) {
+	public CFGGenerator(ClassLoader classLoader, String className, String methodName,
+	        MethodNode node) {
+		this.classLoader = classLoader;
 		registerMethodNode(node, className, methodName);
 	}
 
@@ -96,8 +99,8 @@ public class CFGGenerator {
 
 		// non-minimized cfg needed for defuse-coverage and control
 		// dependence calculation
-		GraphPool.registerRawCFG(getRawGraph());
-		GraphPool.registerActualCFG(computeActualCFG());
+		GraphPool.getInstance(classLoader).registerRawCFG(getRawGraph());
+		GraphPool.getInstance(classLoader).registerActualCFG(computeActualCFG());
 	}
 
 	// build up the graph
@@ -114,12 +117,12 @@ public class CFGGenerator {
 		this.className = className;
 		this.methodName = methodName;
 
-		this.rawGraph = new RawControlFlowGraph(className, methodName,
+		this.rawGraph = new RawControlFlowGraph(classLoader, className, methodName,
 		        currentMethod.access);
 
-		List<BytecodeInstruction> instructionsInMethod = BytecodeInstructionPool.registerMethodNode(currentMethod,
-		                                                                                            className,
-		                                                                                            methodName);
+		List<BytecodeInstruction> instructionsInMethod = BytecodeInstructionPool.getInstance(classLoader).registerMethodNode(currentMethod,
+		                                                                                                                     className,
+		                                                                                                                     methodName);
 
 		// sometimes there is a Label at the very end of a method without a
 		// controlFlowEdge to it. In order to keep the graph as connected as
@@ -186,14 +189,14 @@ public class CFGGenerator {
 		AbstractInsnNode dstNode = currentMethod.instructions.get(dst);
 
 		// those nodes should have gotten registered by registerMethodNode()
-		BytecodeInstruction srcInstruction = BytecodeInstructionPool.getInstruction(className,
-		                                                                            methodName,
-		                                                                            src,
-		                                                                            srcNode);
-		BytecodeInstruction dstInstruction = BytecodeInstructionPool.getInstruction(className,
-		                                                                            methodName,
-		                                                                            dst,
-		                                                                            dstNode);
+		BytecodeInstruction srcInstruction = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+		                                                                                                     methodName,
+		                                                                                                     src,
+		                                                                                                     srcNode);
+		BytecodeInstruction dstInstruction = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+		                                                                                                     methodName,
+		                                                                                                     dst,
+		                                                                                                     dstNode);
 
 		srcInstruction.setCFGFrame(srcFrame);
 
@@ -214,7 +217,8 @@ public class CFGGenerator {
 	 * @return a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph} object.
 	 */
 	public ActualControlFlowGraph computeActualCFG() {
-		BytecodeInstructionPool.logInstructionsIn(className, methodName);
+		BytecodeInstructionPool.getInstance(classLoader).logInstructionsIn(className,
+		                                                                   methodName);
 
 		ActualControlFlowGraph cfg = new ActualControlFlowGraph(rawGraph);
 
