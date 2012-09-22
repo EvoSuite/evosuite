@@ -101,6 +101,7 @@ import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.sandbox.PermissionStatistics;
+import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
@@ -188,16 +189,21 @@ public class TestSuiteGenerator {
 	public String generateTestSuite() {
 
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath: ");
+		
+		Sandbox.goingToExecuteSUTCode();
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(Properties.CP.split(":")));
 		} catch (Throwable e) {
-			LoggingUtils.getEvoLogger().info("* Error while initializing target class: "
+			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                         + (e.getMessage() != null ? e.getMessage()
 			                                                 : e.toString()));
-			// e.printStackTrace();
 			return "";
+		}  finally {
+			Sandbox.goingToEndExecutingSUTCode();
 		}
+		
+		
 		TestCaseExecutor.initExecutor();
 		setupProgressMonitor();
 

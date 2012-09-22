@@ -21,6 +21,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.sandbox.Sandbox;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -67,6 +68,11 @@ public class ClientProcess {
 		 * restarts, but that will be done in RMI)
 		 */
 
+		//Before starting search, let's activate the sandbox
+		if (Properties.SANDBOX){
+			Sandbox.initializeSecurityManagerForSUT();
+		}
+		
 		// Starting a new search
 		generator = new TestSuiteGenerator();
 		generator.generateTestSuite();
