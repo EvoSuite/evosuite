@@ -40,8 +40,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * The test case executor manages thread creation/deletion to execute a test
- * case
+ * <p>The test case executor manages thread creation/deletion to execute a test
+ * case </p>
+ * 
+ * <p>WARNING: never give "privileged" rights in MSecurityManager to any of the threads generated here
+ * </p>
  * 
  * @author Gordon Fraser
  */
@@ -258,17 +261,31 @@ public class TestCaseExecutor implements ThreadFactory {
 		TimeoutHandler<ExecutionResult> handler = new TimeoutHandler<ExecutionResult>();
 
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
-		InterfaceTestRunnable callable = new TestRunnable(tc, scope, observers);
-
-		//FutureTask<ExecutionResult> task = new FutureTask<ExecutionResult>(callable);
-		//executor.execute(task);
+		TestRunnable callable = new TestRunnable(tc, scope, observers);
+		callable.storeCurrentThreads();
+		
+		/*
+		 * FIXME: the sequence of "catch" with calls to "result.set" should be re-factored, as
+		 * these things should be (already) handled in TestRunnable.call.
+		 * If not, it should be explained, as it is not necessarily obvious why some checks are
+		 * done here, and others in TestRunnable
+		 */
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
 			ExecutionResult result = handler.execute(callable, executor,
 			                                         Properties.TIMEOUT,
 			                                         Properties.CPU_TIMEOUT);
+			/*
+			 * TODO: this will need proper care when we ll start to handle threads in the search.
+			 */
+			callable.joinClientThreads();
 
+			/*
+			 * TODO: we might want to initialize the ExecutionResult here, once we waited for all SUT
+			 * threads to finish
+			 */
+			
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;

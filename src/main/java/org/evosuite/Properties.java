@@ -646,6 +646,7 @@ public class Properties {
 
 	//---------------------------------------------------------------
 	// Sandbox
+	//FIXME: once we are happy with the sandbox, we should turn it on by default
 	/** Constant <code>SANDBOX=false</code> */
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
 	public static boolean SANDBOX = false;
