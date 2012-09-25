@@ -98,10 +98,36 @@ public class Runtime {
 				logger.info("Adding EvoSuiteFile calls to cluster");
 				TestCluster.getInstance().addTestCall(
 						FileSystem.class.getMethod("setFileContent",
-								new Class<?>[] { EvoSuiteFile.class,
-										String.class }));
-				// TODO: Add other methods (setFilePermission, etc)
+								EvoSuiteFile.class, String.class));
 
+				// TODO test calls concerning permissions do not work with evosuite-io v0.3 - enable them with evosuite-io v0.4
+				// TestCluster.getInstance().addTestCall(
+				// FileSystem.class.getMethod("setReadPermission",
+				// EvoSuiteFile.class, boolean.class));
+				// TestCluster.getInstance().addTestCall(
+				// FileSystem.class.getMethod("setWritePermission",
+				// EvoSuiteFile.class, boolean.class));
+				// TestCluster.getInstance().addTestCall(
+				// FileSystem.class.getMethod("setExecutePermission",
+				// EvoSuiteFile.class, boolean.class));
+				TestCluster.getInstance().addTestCall(
+						FileSystem.class.getMethod("deepDelete",
+								EvoSuiteFile.class));
+				TestCluster.getInstance().addTestCall(
+						FileSystem.class.getMethod("createFile",
+								EvoSuiteFile.class));
+				TestCluster.getInstance().addTestCall(
+						FileSystem.class.getMethod("createFolder",
+								EvoSuiteFile.class));
+//				TestCluster.getInstance().addTestCall(
+//						FileSystem.class.getMethod("fillFolder",
+//								EvoSuiteFile.class));
+//				TestCluster.getInstance().addTestCall(
+//						FileSystem.class.getMethod("createParent",
+//								EvoSuiteFile.class));
+//				TestCluster.getInstance().addTestCall(
+//						FileSystem.class.getMethod("deepDeleteParent",
+//								EvoSuiteFile.class));
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {

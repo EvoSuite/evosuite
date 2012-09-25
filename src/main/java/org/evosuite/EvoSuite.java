@@ -657,7 +657,7 @@ public class EvoSuite {
 		URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs();
 		URL evosuiteIO = null;
 		for (URL url : urls) {
-			if (url.getPath().endsWith("evosuite-io-0.2.jar")) {
+			if (url.getPath().contains("evosuite-io")) {
 				evosuiteIO = url;
 				break;
 			}
