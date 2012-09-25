@@ -79,7 +79,12 @@ public class FileNamePrimitiveStatement extends PrimitiveStatement<EvoSuiteFile>
 	/** {@inheritDoc} */
 	@Override
 	public void randomize() {
-		setValue(new EvoSuiteFile(Randomness.choice(tc.getAccessedFiles())));
+		String path = Randomness.choice(tc.getAccessedFiles());
+		if (path != null) {
+			setValue(new EvoSuiteFile(path));
+		} else {
+			setValue(null); // FIXME find out why this case can actually happen! (I don't think we want this?)
+		}
 		logger.info("Randomized filename: " + value);
 	}
 
