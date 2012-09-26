@@ -32,6 +32,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
@@ -42,6 +46,7 @@ import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.repair.JUnit4AssertionLogAdapter;
+import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -79,6 +84,13 @@ public class TestSuiteWriter implements Opcodes {
 
 	private final TestCodeVisitor visitor = new TestCodeVisitor();
 
+	private static final String METHOD_SPACE             = "  ";
+	private static final String BLOCK_SPACE              = "     "; 
+	private static final String INNER_BLOCK_SPACE        = "         "; 
+	private static final String INNER_INNER_BLOCK_SPACE  = "             "; 
+	
+	private final String EXECUTOR_SERVICE = "executor";
+	
 	class TestFilter implements IOFileFilter {
 		@Override
 		public boolean accept(File f, String s) {
@@ -244,7 +256,7 @@ public class TestSuiteWriter implements Opcodes {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String makeDirectory(String directory) {
-		String dirname = directory + "/" + Properties.CLASS_PREFIX.replace('.', '/'); // +"/GeneratedTests";
+		String dirname = directory + File.separator + Properties.CLASS_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -321,6 +333,19 @@ public class TestSuiteWriter implements Opcodes {
 				import_names.add(imp.getName());
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
+		
+		//Add import info for EvoSuite classes used in the generated test suite
+		imports_sorted.add(Sandbox.class.getCanonicalName());
+		imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
+		imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
+		imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
+		imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
+		imports_sorted.add(org.junit.Before.class.getCanonicalName());
+		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+		imports_sorted.add(org.junit.After.class.getCanonicalName());
+		imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
+		
+		
 		Collections.sort(imports_sorted);
 		for (String imp : imports_sorted) {
 			builder.append("import ");
@@ -445,6 +470,8 @@ public class TestSuiteWriter implements Opcodes {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results));
+		builder.append(getBeforeAndAfterMethods());
+		
 		for (int i = 0; i < testCases.size(); i++) {
 			builder.append(testToString(i, i, results.get(i)));
 		}
@@ -469,12 +496,118 @@ public class TestSuiteWriter implements Opcodes {
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name + "_" + testId, results));
+		builder.append(getBeforeAndAfterMethods());
 		builder.append(testToString(testId, testId, results.get(0)));
 		builder.append(getFooter());
 
 		return builder.toString();
 	}
 
+	/**
+	 * Get the code of methods for @BeforeClass, @Before, @AfterClass and @After.
+	 * In those methods, the EvoSuite framework for running the generated test
+	 * cases is handled (e.g., use of customized SecurityManager)
+	 * 
+	 * @return
+	 */
+	protected String getBeforeAndAfterMethods(){
+		
+		if(! Properties.SANDBOX){
+			/*
+			 * For the moment, the code generated in this method is only
+			 * used in a sanbox is activated
+			 */
+			return "";
+		}
+		
+		/*
+		 * TODO: for now we only have code for sandbox.
+		 * But, in the future, we should also handle the instrumenting classloader
+		 */
+		
+		
+		/*
+		 * Note: the result of this method is always a constant.
+		 * But we don't code it as a constant just for ease of maintenance.
+		 * Furthermore, because this method is perhaps called only once per SUT,
+		 * not much of the point to try to optimize it 
+		 */
+		StringBuilder bd = new StringBuilder("");
+						
+		bd.append("\n");
+		
+	
+		//-------- Fields       ---------------------------------------------		
+		
+		bd.append(METHOD_SPACE);
+		bd.append("private static ExecutorService "+EXECUTOR_SERVICE+"; \n");
+		
+		bd.append("\n");
+
+		
+		//-------- BeforeClass  ---------------------------------------------
+		
+		bd.append(METHOD_SPACE);
+		bd.append("@BeforeClass \n");
+		
+		bd.append(METHOD_SPACE);
+		bd.append("public static void initEvoSuiteFramework(){ \n");		
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
+		bd.append(BLOCK_SPACE);
+		bd.append(EXECUTOR_SERVICE+" = Executors.newCachedThreadPool(); \n");		
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
+		
+		bd.append("\n");
+		
+		//-------- AfterClass  ---------------------------------------------
+
+		bd.append(METHOD_SPACE);
+		bd.append("@AfterClass \n");		
+		bd.append(METHOD_SPACE);
+		bd.append("public static void clearEvoSuiteFramework(){ \n");
+		bd.append(BLOCK_SPACE);
+		bd.append(EXECUTOR_SERVICE+".shutdownNow(); \n");		
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.resetDefaultSecurityManager(); \n");
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
+				
+		bd.append("\n");
+
+		//-------- Before  --------------------------------------------------
+
+		bd.append(METHOD_SPACE);
+		bd.append("@Before \n");		
+		bd.append(METHOD_SPACE);
+		bd.append("public void initTestCase(){ \n");
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.goingToExecuteSUTCode(); \n");
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
+		
+		bd.append("\n");
+		
+		//-------- After   --------------------------------------------------
+		
+		bd.append(METHOD_SPACE);
+		bd.append("@After \n");		
+		bd.append(METHOD_SPACE);
+		bd.append("public void doneWithTestCase(){ \n");
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.goingToEndExecutingSUTCode(); \n");
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
+		
+		bd.append("\n");
+		
+		
+		return bd.toString(); 
+	}
+	
+	
+	
 	/**
 	 * Convert one test case to a Java method
 	 * 
@@ -488,10 +621,22 @@ public class TestSuiteWriter implements Opcodes {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
-		builder.append("   //");
+		builder.append(METHOD_SPACE);
+		builder.append("//");
 		builder.append(getInformation(id));
 		builder.append("\n");
 		builder.append(adapter.getMethodDefinition("test" + number));
+		
+		/*
+		 * A test case might throw a lot of different kinds of exceptions. 
+		 * These might come from SUT, and might also come from the framework itself (eg, see ExecutorService.submit).
+		 * Regardless of whether they are declared or not, an exception that propagates to the JUnit framework will
+		 * result in a failure for the test case. However, there might be some checked exceptions, and for those 
+		 * we need to declare them in the signature with "throws". So, the easiest (but still correct) option
+		 * is to just declare once to throw any genetic Exception, and be done with it once and for all
+		 */
+		builder.append(" throws Exception ");
+		/*
 		Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
 		if (!exceptions.isEmpty()) {
 			builder.append("throws ");
@@ -504,15 +649,40 @@ public class TestSuiteWriter implements Opcodes {
 				builder.append(visitor.getClassName(exception));
 			}
 		}
+		*/		
 		builder.append(" {\n");
+		
+		// ---------   start with the body -------------------------
+		
+		builder.append(BLOCK_SPACE);
+		builder.append("Future<?> future = "+EXECUTOR_SERVICE+".submit(new Runnable(){ \n");
+		builder.append(INNER_BLOCK_SPACE);
+		builder.append("@Override \n");
+		builder.append(INNER_BLOCK_SPACE);
+		builder.append("public void run() { \n");
+		
 		for (String line : adapter.getTestString(id, testCases.get(id),
 		                                         result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
-			builder.append("      ");
+			builder.append(INNER_INNER_BLOCK_SPACE);
 			builder.append(line);
-			// builder.append(";\n");
 			builder.append("\n");
 		}
-		builder.append("   }\n");
+		
+		builder.append(INNER_BLOCK_SPACE);
+		builder.append("} \n");  //closing run(){
+		builder.append(BLOCK_SPACE);
+		builder.append("}); \n"); //closing submit
+
+		long time = Properties.TIMEOUT + 1000; // we add one second just to be sure, that to avoid issues with test cases taking exactly TIMEOUT ms
+		builder.append(BLOCK_SPACE);
+		builder.append("future.get("+time+", TimeUnit.MILLISECONDS); \n"); 
+	
+		
+		// ---------   end of the body ----------------------------
+		
+		
+		builder.append(METHOD_SPACE);
+		builder.append("}\n");
 
 		return builder.toString();
 	}
