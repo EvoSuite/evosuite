@@ -65,6 +65,13 @@ public class Sandbox {
 		}
 	}
 	
+	public static void resetDefaultSecurityManager() {
+		if(manager!=null){
+			manager.restoreDefaultManager();
+		}
+	}
+	
+	
 	public static boolean isSecurityManagerInitialized(){
 		return manager!=null; 
 	}
