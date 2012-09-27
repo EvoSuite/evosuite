@@ -61,7 +61,7 @@ public class BranchCondition {
 	        String methodName, int branchIndex, Constraint<?> localConstraint,
 	        List<Constraint<?>> supportingConstraints) {
 
-		this.className = className;
+		this.className = className.replace('/', '.');
 		this.methodName = methodName;
 		this.branchIndex = branchIndex;
 
