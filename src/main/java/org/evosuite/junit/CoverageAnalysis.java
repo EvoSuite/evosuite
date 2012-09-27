@@ -362,9 +362,8 @@ public class CoverageAnalysis {
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		                                         + Properties.PROCESS_COMMUNICATION_PORT);
 		if (!util.connectToMainProcess()) {
-			LoggingUtils.getEvoLogger().error("* Could not connect to master process on port "
-			                                          + Properties.PROCESS_COMMUNICATION_PORT);
-			System.exit(1);
+			throw new RuntimeException("Could not connect to master process on port "
+                    + Properties.PROCESS_COMMUNICATION_PORT);
 		}
 
 		analyzeCoverage();
@@ -397,8 +396,7 @@ public class CoverageAnalysis {
 			                                          + Properties.TARGET_CLASS
 			                                          + " with seed "
 			                                          + Randomness.getSeed(), t);
-			t.printStackTrace();
-
+	
 			//sleep 1 sec to be more sure that the above log is recorded
 			try {
 				Thread.sleep(100);

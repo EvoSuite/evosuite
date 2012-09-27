@@ -21,6 +21,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.stoppingconditions.StoppingConditionImpl;
+import org.evosuite.utils.LoggingUtils;
 
 import sun.misc.Signal;
 import sun.misc.SignalHandler;
@@ -43,7 +44,7 @@ public class ShutdownTestWriter extends StoppingConditionImpl implements SignalH
 	/** {@inheritDoc} */
 	@Override
 	public void handle(Signal arg0) {
-		System.out.println("\n* User requested search stop");
+		LoggingUtils.getEvoLogger().info("\n* User requested search stop");
 
 		// If this is the second Ctrl+C the user _really_ wants to stop...
 		if (interrupted)

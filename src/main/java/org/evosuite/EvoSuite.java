@@ -778,9 +778,9 @@ public class EvoSuite {
 			Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
 			for (String propertyName : properties.stringPropertyNames()) {
 				if (!propertyNames.contains(propertyName)) {
-					System.out.println("* EvoSuite " + version);
-					System.err.println("* Unknown property: " + propertyName);
-					System.exit(1);
+					LoggingUtils.getEvoLogger().error("* EvoSuite " + version);
+					LoggingUtils.getEvoLogger().error("* Unknown property: " + propertyName);
+					throw new Error("Unknown property: " + propertyName);
 				}
 				String propertyValue = properties.getProperty(propertyName);
 				javaOpts.add("-D" + propertyName + "=" + propertyValue);

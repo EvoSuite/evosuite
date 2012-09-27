@@ -140,10 +140,7 @@ public class JUnitTestSuite {
 			//result.touched.addAll(HOMObserver.getTouched());
 
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			logger.error("TG: Exception caught: ", e);
-			System.exit(1);
+			throw new Error(e);
 		}
 
 		return result;

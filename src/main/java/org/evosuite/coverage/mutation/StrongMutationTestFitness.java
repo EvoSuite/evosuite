@@ -120,9 +120,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 			}
 
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			System.exit(1);
+			throw new Error(e);
 		}
 
 		return result;

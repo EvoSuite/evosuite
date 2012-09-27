@@ -130,9 +130,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			result.setTrace(nullObserver.getTrace(), NullTraceEntry.class);
 
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			//System.exit(1);
+			throw new Error(e);
 		}
 
 		return result;

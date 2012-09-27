@@ -105,9 +105,7 @@ public abstract class AssertionGenerator {
 			result.setTrace(null_observer.getTrace(), NullTraceEntry.class);
 			result.setTrace(same_observer.getTrace(), SameTraceEntry.class);
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
-			System.exit(1);
+			throw new Error(e);
 		}
 
 		return result;
