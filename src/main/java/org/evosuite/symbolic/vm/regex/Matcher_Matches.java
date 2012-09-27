@@ -1,7 +1,6 @@
 package org.evosuite.symbolic.vm.regex;
 
 import java.util.regex.Matcher;
-import java.util.regex.PatternSyntaxException;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringComparison;

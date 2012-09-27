@@ -700,7 +700,7 @@ public class ConcolicExecutionTest {
 	public void testCase39() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase39();
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(2, branch_conditions.size());
 	}
 
 	// int int0 = ConcolicMarker.mark(10, "int0");
@@ -1932,5 +1932,26 @@ public class ConcolicExecutionTest {
 		DefaultTestCase tc = buildTestCase91();
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(6, branch_conditions.size());
+	}
+
+	private DefaultTestCase buildTestCase92() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference string0 = tc
+				.appendStringPrimitive("Togliere sta roba");
+		VariableReference catchCount = tc.appendIntPrimitive(0);
+		VariableReference boolean0 = tc.appendBooleanPrimitive(true);
+		Method method = TestCase92.class.getMethod("test", String.class,
+				int.class, boolean.class);
+		tc.appendMethod(null, method, string0, catchCount, boolean0);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase92() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase92();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(11, branch_conditions.size());
 	}
 }

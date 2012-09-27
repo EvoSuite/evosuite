@@ -105,7 +105,7 @@ public final class RealVariable extends AbstractExpression<Double> implements
 	/** {@inheritDoc} */
 	@Override
 	public int hashCode() {
-		return this.concreteValue.hashCode();
+		return this.name.hashCode();
 	}
 
 	/** {@inheritDoc} */

@@ -218,8 +218,11 @@ public class Changer {
 				if (distImpr(newDist)) {
 					improvement = true;
 					backup(strVar, newDist);
-					if (oldDist == 0.0)
+					if (oldDist == 0.0) {
+						log.debug("Search seems successful, stopping at " + oldDist + "/"
+						        + newDist);
 						return true;
+					}
 
 					doCharacterAVM(strVar, cnstr, varsToChange, i);
 					oldString = strVar.execute();

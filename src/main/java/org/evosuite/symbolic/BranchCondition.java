@@ -74,12 +74,12 @@ public class BranchCondition {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		String ret = "Branch condition with local constraint " + this.localConstraint
-		        + " and supporting constraints: ";
+		String ret = "";
 		for (Constraint<?> c : this.supportingConstraints) {
-			ret += " " + c;
+			ret += " " + c + "\n";
 		}
 
+		ret += this.localConstraint;
 		return ret;
 	}
 

@@ -266,7 +266,7 @@ public class SymbolicObserverTest {
 				.executeConcolic(tc);
 
 		printConstraints(branch_conditions);
-		assertEquals(1, branch_conditions.size());
+		assertEquals(2, branch_conditions.size());
 	}
 
 	private static void test_input4() {

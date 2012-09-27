@@ -104,8 +104,7 @@ public class Seeker implements Solver {
 						log.debug("searching for string " + var);
 						StringVariable strVar = (StringVariable) var;
 						try {
-							if (changer.strLocalSearch(strVar, constraints,
-									result)) {
+							if (changer.strLocalSearch(strVar, constraints, result)) {
 								searchSuccess = true;
 								done = false;
 								// break;
@@ -126,8 +125,7 @@ public class Seeker implements Solver {
 					if (var instanceof RealVariable) {
 						log.debug("searching for real ");
 						RealVariable realVar = (RealVariable) var;
-						if (changer.realLocalSearch(realVar, constraints,
-								result)) {
+						if (changer.realLocalSearch(realVar, constraints, result)) {
 							searchSuccess = true;
 							done = false;
 							// break;
@@ -151,6 +149,11 @@ public class Seeker implements Solver {
 
 			if (i != Properties.DSE_VARIABLE_RESETS) {
 				randomizeVars(vars);
+				distance = DistanceEstimator.getDistance(constraints);
+				if (distance == 0.0) {
+					log.debug("Resetting gave us solution by chance, quitting");
+					return result;
+				}
 			}
 
 		}
@@ -192,7 +195,7 @@ public class Seeker implements Solver {
 		concreteValues.clear();
 	}
 
-	private Map<Variable<?>, Object> concreteValues = new THashMap<Variable<?>, Object>();
+	private final Map<Variable<?>, Object> concreteValues = new THashMap<Variable<?>, Object>();
 
 	private void saveOriginalValues(Set<Variable<?>> vars) {
 		concreteValues.clear();
@@ -214,8 +217,7 @@ public class Seeker implements Solver {
 				}
 			} else if (var instanceof RealVariable) {
 				RealVariable realV = (RealVariable) var;
-				int max = (int) Math
-						.min(Integer.MAX_VALUE, realV.getMaxValue());
+				int max = (int) Math.min(Integer.MAX_VALUE, realV.getMaxValue());
 				if (Randomness.nextBoolean())
 					realV.setConcreteValue(Randomness.nextInt(max));
 				// + Randomness.nextFloat());
@@ -224,8 +226,7 @@ public class Seeker implements Solver {
 				// + Randomness.nextFloat());
 			} else if (var instanceof StringVariable) {
 				StringVariable stringV = (StringVariable) var;
-				stringV.setConcreteValue(Randomness.nextString(Randomness
-						.nextInt(Properties.STRING_LENGTH)));
+				stringV.setConcreteValue(Randomness.nextString(Randomness.nextInt(Properties.STRING_LENGTH)));
 			}
 			log.info("Reseted var: " + var);
 		}
