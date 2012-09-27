@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.EvoSuite;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.AbstractStatement;
 import org.evosuite.testcase.CodeUnderTestException;
@@ -42,6 +43,8 @@ import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
 import org.objectweb.asm.commons.GeneratorAdapter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -54,6 +57,9 @@ public class TestCallStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = -7886618899521718039L;
 
+
+	private static final Logger loggger =  LoggerFactory.getLogger(TestCallStatement.class); 
+	
 	private final TestCallObject testCall;
 
 	/**
@@ -105,15 +111,8 @@ public class TestCallStatement extends AbstractStatement {
 			}
 
 		} catch (Exception e) {
-			System.out.println("TestCallStatement: Exception caught: " + e);
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e1) {
-				e.printStackTrace();
-				// TODO: Do some error recovery?
-				System.exit(1);
-			}
-
+			logger.error("TestCallStatement: Exception caught",e);
+			throw new Error(e);
 		}
 
 		return null;

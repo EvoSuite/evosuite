@@ -45,7 +45,7 @@ public final class Agent
 			catch(CapturerException e)
 			{
 				LOG.error(e.getMessage(), e);
-				System.exit(-1);
+				throw new Error(e);
 			}
 			
 			final Transformer trans = new Transformer(agentArgs.split("\\s+"));

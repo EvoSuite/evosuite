@@ -20,37 +20,206 @@ package org.evosuite.sandbox;
 import java.awt.AWTPermission;
 import java.io.File;
 import java.io.FilePermission;
+import java.lang.reflect.ReflectPermission;
+import java.security.AccessControlContext;
 import java.security.Permission;
+import java.security.SecurityPermission;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.PropertyPermission;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.logging.LoggingPermission;
+import java.security.AllPermission;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.thoughtworks.xstream.core.util.ThreadSafePropertyEditor;
+
 /**
- * Mocked Security Manager, which forbids any access to I/O, network, etc.
+ * <p>Mocked Security Manager, which forbids any access to I/O, network, etc.</p>
  * 
- * @author Andrey Tarasevich
+ * <p>Note: this class needs to be thread safe, as it will be accessed by the SUT</p>
+ * 
+ * <p>Regarding the different permissions, and the associated risks in allowing them, see:
+ * 
+ * http://download.oracle.com/javase/6/docs/technotes/guides/security/permissions.html
+ * </p>
+ * 
+ * <p>This class grants permissions based on thread references, and not on the "context".
+ * As such it is actually more restrictive, and granting some kinds of risky permissions should so be fine</p>
  * 
  */
 class MSecurityManager extends SecurityManager {
-	/** package under test */
-	private final String testPackage = Properties.PROJECT_PREFIX;
-
-	/** indicates if mocks are enabled */
-	private final boolean mocksEnabled = Properties.MOCKS;
 
 	private static Logger logger = LoggerFactory.getLogger(MSecurityManager.class);
 
 	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
 
+	private SecurityManager defaultManager;
+
+	/**
+	 *  Is EvoSuite executing a test case? 
+	 */
+	private volatile boolean executingTestCase;
+	
+	
+	/**
+	 *  Default Java properties before we run the SUT
+	 */
+	private volatile java.util.Properties defaultProperties;
+	
+	/**
+	 * If SUT changed some properites, we need to re-set the default values
+	 */
+	private volatile boolean needToRestoreProperties;
+	
+	/**
+	 *  Data structure containing all the (EvoSuite) threads that do not need to go through
+	 *  the same sandbox as the SUT threads
+	 */
+	private Set<Thread> privilegedThreads; 
+	
+	/**
+	 *  Create a custom security manager for the SUT.
+	 *  The thread that create this instance is automatically added as "privileged"
+	 */
+	public MSecurityManager(){
+		privilegedThreads = new CopyOnWriteArraySet<Thread>();
+		privilegedThreads.add(Thread.currentThread());
+		defaultManager = System.getSecurityManager();
+		executingTestCase = false;
+		defaultProperties = (java.util.Properties) System.getProperties().clone();
+	}
+	
+	/**
+	 * When we start EvoSuite, quite a few other threads could start as well (e.g., "Reference Handler", "Finalizer" and "Signal Dispatcher").
+	 * This is a convenience method to grant permissions to all threads before starting to execute test cases
+	 * 
+	 * WARNING: to use only before any SUT code has been executed. Afterwards, it would not be safe (cannot really
+	 * guarantee that all SUT have been terminated) 
+	 */
+	public void makePriviligedAllCurrentThreads(){
+		ThreadGroup root = Thread.currentThread().getThreadGroup();
+		while(root.getParent() != null){
+			root  = root.getParent();
+		}
+		
+		/*
+		 * As discussed in the API, this code is not 100% robust
+		 */
+		Thread[] threads = new Thread[root.activeCount() + 10];
+		root.enumerate(threads);
+		for(Thread t : threads){
+			if(t != null){
+				addPrivilegedThread(t);
+			}
+		}
+	}
+	
+	/**
+	 * Use this manager as security manager
+	 * 
+	 * @throws IllegalStateException
+	 */
+	public void apply() throws IllegalStateException{
+		try{
+			System.setSecurityManager(this);
+		} catch(SecurityException e){
+			//this should never happen in EvoSuite, ie this object should be created just once
+			logger.error("Cannot instantiate mock security manager",e);
+			throw new IllegalStateException(e); 
+		}
+	}
+	
+	/**
+	 *  Note: an un-privileged thread would throw a security exception
+	 */
+	public void restoreDefaultManager() throws SecurityException{
+		System.setSecurityManager(defaultManager);
+	}
+	
+	public void goingToExecuteTestCase() throws IllegalStateException{
+		if(executingTestCase){
+			throw new IllegalStateException();
+		}
+		executingTestCase = true;
+		needToRestoreProperties = false;
+	}
+	
+	public void goingToEndTestCase() throws IllegalStateException{
+		if(!executingTestCase){
+			throw new IllegalStateException();
+		}
+		/*
+		 * The synchronization is used to avoid (if possible) a SUT thread to modify
+		 * a property just immediately after we restore them. this could actually happen if
+		 * this method is called while a SUT thread is executing a permission check  
+		 */
+		synchronized(defaultProperties){
+			if(needToRestoreProperties){
+				System.setProperties((java.util.Properties)defaultProperties.clone()); 
+				needToRestoreProperties = false;
+			}
+		}
+
+		executingTestCase = false;		
+	}
+	
+	
+	
+	/**
+	 * Add a thread to the list of privileged thread. This is useful if EvoSuite
+	 * needs to spawn new threads that require permissions.
+	 * 
+	 * @param t
+	 * @throws SecurityException if the thread calling this method is not privileged itself
+	 */
+	public void addPrivilegedThread(Thread t) throws SecurityException{
+		if(privilegedThreads.contains(Thread.currentThread())){
+			logger.debug("Adding privileged thread: "+t.getName()); 
+			privilegedThreads.add(t);
+		} else {
+			throw new SecurityException("Unprivileged thread cannot add a privileged thread");
+		}
+	}
+	
+	
+	//------------------------------------------------------------------------------------------
+	
+	/*
+	 * the following two methods are the only ones we need to override from SecurityManager, as all 
+	 * the other call those 2. However, if the SecurityManager code will change in future,
+	 * we might need to double-check this class
+	 */
+	
+	/**
+	 * {@inheritDoc}}
+	 */
+	@Override
+	 public void checkPermission(Permission perm, Object context) throws SecurityException, NullPointerException{
+		/*
+		 * Note: this code is copy and paste from "super", with only one difference
+		 */
+		 if (context instanceof AccessControlContext) {
+			 checkPermission(perm); // this is the difference, i.e. we ignore context //TODO maybe check if privileged, and if so, actually use the context?
+			} else {
+			    throw new SecurityException();
+			}
+	 }
+	
+	
 	/**
 	 * {@inheritDoc}
 	 * 
 	 * Overridden method for checking permissions for any operation.
 	 */
 	@Override
-	public void checkPermission(Permission perm) {
+	public void checkPermission(Permission perm) throws SecurityException{
 		// check access  
 		if (!allowPermission(perm)) {
 			statistics.permissionDenied(perm);
@@ -67,6 +236,10 @@ class MSecurityManager extends SecurityManager {
 		return;
 	}
 
+	//------------------------------------------------------------------------------------------
+	
+	
+	
 	private boolean isAWTThread() {
 		for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 			if (e.getClassName().startsWith("java.awt"))
@@ -91,188 +264,349 @@ class MSecurityManager extends SecurityManager {
 	 * @return false if access is forbidden, true otherwise
 	 */
 	private boolean allowPermission(Permission perm) {
-		// get all elements of the stack trace for the current thread 
-		StackTraceElement[] stackTraceElements = Thread.currentThread().getStackTrace();
-
-		// false if "executeTestCase" method wasn't in a stack trace, true otherwise
-		boolean testExec = false;
-
-		// Always forbid deleting - EvoSuite doesn't do it
-		if (perm instanceof FilePermission && perm.getActions().equals("delete"))
+		
+		//first check if calling thread belongs to EvoSuite rather than the SUT
+		if(privilegedThreads.contains(Thread.currentThread())){
+			if(defaultManager==null){
+				return true;  // no security manager, so allow it
+			} else {
+				try{
+					defaultManager.checkPermission(perm); // if not allowed, it will throw exception
+				} catch(SecurityException e){
+					return false;
+				}
+				return true;
+			}
+		}
+		
+		if(!executingTestCase){
+			/*
+			 * Here, the thread is not "privileged" (either from SUT or an un-registered by EvoSuite), and we
+			 * are not executing a test case (if from SUT, that means the thread was not stopped properly).
+			 * So, we deny any permission
+			 */
+			logger.info("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "+perm.toString());
 			return false;
+		}
+		
+		/*
+		 * FIXME: check what it is intended for
+		 */
+		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+		
+		if(perm instanceof AllPermission){
+			return checkAllPermission((AllPermission)perm);
+		}
+		
+		if(perm instanceof SecurityPermission){
+			return checkSecurityPermission((SecurityPermission) perm);
+		}
+		
+		if(perm instanceof FilePermission){
+			return checkFilePermission((FilePermission)perm);
+		}
+		
+		if(perm instanceof LoggingPermission){
+			return checkLoggingPermission((LoggingPermission)perm);
+		}
+		
+		if(perm instanceof ReflectPermission){
+			return checkReflectPermission((ReflectPermission)perm);
+		}
+		
+		if(perm instanceof PropertyPermission){
+			return checkPropertyPermission((PropertyPermission)perm);
+		}
 
-		// iterate through all elements and check if name of the calling class contains 
-		// the name of the class under test or "executeTestCase" method call.
-		// Also check for few special cases, when permission should be granted
-		for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {
-			StackTraceElement e = stackTraceElements[elementCounter];
+		if(perm instanceof RuntimePermission){
+			return checkRuntimePermission((RuntimePermission)perm);
+		}
+		
+		if(perm instanceof AWTPermission){
+			return checkAWTPermission((AWTPermission)perm);
+		}
+		
+		//TODO: there are several other permission types that we still need to handle 
+		
+		
+		
+		//for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {					
+			// FIXME: what is this?			 
+			//if (e.getClassName().contains("MockingBridge") && Properties.MOCKS)
+			//	return true;
+		//}
 
-			String[] packageNameSplit = e.getClassName().split("\\.");
-			String packageName = "";
-			if (packageNameSplit.length > 1) {
-				packageName = packageNameSplit[0];
-				for (int i = 1; i < packageNameSplit.length - 1; i++)
-					packageName += "." + packageNameSplit[i];
-			}
+		//TODO put it back
+		//logger.error("Unrecognized permission type: "+perm.getClass().getCanonicalName());
+		
+		return false;
+	}
+	
+	
+	/*
+	 * Note: many of the String constants used below in the various methods come from
+	 * sun.security.util.SecurityConstants
+	 * but accessing them directly can issue some warnings, and might make EvoSuite more difficult to port
+	 * and use on different OS,installations, or even Java versions
+	 */
 
-			if (e.getMethodName().equals("executeTestCase")
-			        || e.getMethodName().equals("call")
-			        || (packageName.equals(testPackage) && !testPackage.equals(""))
-			        || e.getClassName().equals(TestRunnable.class.getName())) {
-				testExec = true;
-				break;
-			}
+	
+	protected boolean  checkAllPermission(AllPermission perm){
+		/*
+		 * should never grant all the permissions
+		 */
+		return false;
+	}
+	
+	
+	protected boolean checkSecurityPermission(SecurityPermission perm){
+		/*
+		 * TODO: quite a few are actually safe
+		 */
+		return false;
+	}
+	
+	
+	protected boolean checkAWTPermission(AWTPermission perm){
+		//TODO need to investigate in more details
+		if ("true".equals(System.getProperty("java.awt.headless"))){
+			return true;
+		} else {
+			return false;
+		}
+	}
 
-			if (e.getMethodName().equals("setSecurityManager")) {
-				if (stackTraceElements[elementCounter + 1].getMethodName().equals("tearDownMockedSecurityManager")
-				        || stackTraceElements[elementCounter + 1].getMethodName().equals("setUpMockedSecurityManager"))
-					return true;
-				else if (stackTraceElements[elementCounter + 1].getMethodName().equals("call"))
-					return true;
-			}
+	
+	protected boolean checkRuntimePermission(RuntimePermission perm){
+		
+		final String name = perm.getName().trim(); 
+		
+		/*
+		 *  At the moment this is the only way to allow classes under test define and load
+		 *  other classes, but the way it is done seriously damages security of the program.
+		 *  However, as we check permissions based on thread references, it might be safe.
+		 *  See comments on allowing reflection. 
+		 */
+		if (name.equals("getClassLoader")
+				|| name.equals("createClassLoader")
+				|| name.startsWith("accessClassInPackage")
+				|| name.startsWith("defineClassInPackage")
+				|| name.equals("setContextClassLoader")
+				|| name.equals("accessDeclaredMembers")){
+			return true;
+		}
 
-			if (e.getMethodName().equals("setOut") || e.getMethodName().equals("setErr"))
-				if (stackTraceElements[elementCounter + 1].getMethodName().equals("execute"))
-					return true;
-			if (e.getClassName().contains("MockingBridge") && this.mocksEnabled)
+		//never allow it!!! far too dangerous, as it would break the sandbox
+		if(name.equals("setSecurityManager") || name.equals("createSecurityManager")){
+			return false;
+		}
+		
+		//AWT needs to be treated specially
+		if ("true".equals(System.getProperty("java.awt.headless"))
+		        && isAWTThread()) {
+			if (name.equals("shutdownHooks"))
+				return true;
+			if (name.equals("modifyThreadGroup"))
+				return true;
+			if (name.equals("modifyThread"))
 				return true;
 		}
 
-		// if permission was asked during test case execution, then check permission itself
-		if (testExec) {
-			String permName = perm.getClass().getCanonicalName();
-
-			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
-			// Check for allowed permissions.
-			// Done with chunk of ugly "if-case" code, since it switch statement does not
-			// support Strings as parameters. Doing it through Enum is also not an option,
-			// since java cannot guarantee the unique values returned by hashCode() method.
-			if (permName.equals("java.lang.reflect.ReflectPermission"))
-				return true;
-			if (permName.equals("java.util.PropertyPermission")) {
-				if (perm.getActions().equals("read"))
-					return true;
-				else if (perm.getActions().equals("write")) {
-					// AWT classes try to set this when loaded
-					if (perm.getName().equals("sun.awt.exception.handler"))
-						return true;
-					else if (perm.getName().startsWith("apple.awt"))
-						return true;
-					else if (perm.getName().startsWith("javax.accessibility"))
-						return true;
-					else if (perm.getName().startsWith("sun.font.fontmanager"))
-						return true;
-				}
-			}
-
-			if (perm.getClass().equals(java.util.logging.LoggingPermission.class)) {
-				return true;
-			}
-			if (perm instanceof RuntimePermission) {
-				if (perm.getName().startsWith("loadLibrary."))
-					return true;
-				if (perm.getName().equals("loadLibrary.awt"))
-					return true;
-				if (perm.getName().equals("loadLibrary.net"))
-					return true;
-				if (perm.getName().equals("getProtectionDomain"))
-					return true;
-				if (perm.getName().equals("charsetProvider"))
-					return true;
-				if (perm.getName().startsWith("getenv."))
-					return true;
-				if ("true".equals(System.getProperty("java.awt.headless"))
-				        && isAWTThread()) {
-					if (perm.getName().equals("shutdownHooks"))
-						return true;
-					if (perm.getName().equals("modifyThreadGroup"))
-						return true;
-					if (perm.getName().equals("modifyThread"))
-						return true;
-				}
-			}
-
-			if (perm instanceof AWTPermission) {
-				if ("true".equals(System.getProperty("java.awt.headless")))
-					return true;
-			}
-
-			//TODO: -------------------- NEED TO FIND BETTER SOLUTION ----------------------- 
-			// At the moment this is the only way to allow classes under test define and load 
-			// other classes, but the way it is done seriously damages security of the program.
-			//
-			// Oracle explains risks here
-			// http://download.oracle.com/javase/6/docs/technotes/guides/security/permissions.html
-			if (permName.equals("java.lang.RuntimePermission")) {
-				if (perm.getName().equals("getClassLoader")
-				        || perm.getName().equals("createClassLoader")
-				        || perm.getName().contains("accessClassInPackage")
-				        || perm.getName().equals("setContextClassLoader"))
-					return true;
-				if (perm.getName().equals("accessDeclaredMembers"))
-					return true;
-			}
-
-			/*// I think we might need this!
-			if (permName.equals("java.net.NetPermission")) {
-				for (StackTraceElement e : stackTraceElements) {
-					if (e.getClassName().startsWith("java.net.URLClassLoader"))
-						return true;
-					if (e.getClassName().startsWith("java.lang.ClassLoader"))
-						return true;
-				}
-			}
-			*/
-
-			if (permName.equals("java.io.FilePermission")) {
-
-				// check if we try to access sandbox folder. In that case allow.
-				//TODO: -------------------- VERY VERY V-E-R-Y DANGEROUS -----------------------
-				// Assume some malicious code was written to the sandbox folder, then it was compiled 
-				// and executed during test execution. Then we have problems. Once again. PROBLEMS!!!
-				// But I leave this as temporary solution since test generated inside chroot environment
-				// and let's hope nothing will go wrong.  
-				FilePermission fp = (FilePermission) perm;
-				if (fp.getName().contains(Properties.SANDBOX_FOLDER))
-					return true;
-
-				if (perm.getActions().equals("read")) {
-					if (fp.getName().endsWith(".properties"))
-						return true;
-
-					if (fp.getName().endsWith("charsets.jar"))
-						return true;
-
-					for (StackTraceElement e : stackTraceElements) {
-						if (e.getClassName().startsWith("java.net.URLClassLoader"))
-							return true;
-						if (e.getClassName().startsWith("java.lang.ClassLoader"))
-							return true;
-						if (e.getClassName().startsWith("org.evosuite.javaagent.InstrumentingClassLoader"))
-							return true;
-						if (e.getClassName().startsWith("edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader"))
-							return true;
-						// Allow Logback configuration, because the logback.xml is in evosuite.jar
-						if (e.getClassName().startsWith("ch.qos.logback.core.joran.GenericConfigurator"))
-							return true;
-					}
-
-					String absoluteName = new File(fp.getName()).getAbsolutePath();
-
-					if (absoluteName.startsWith(System.getProperty("java.home")))
-						return true;
-
-					if (absoluteName.startsWith(System.getProperty("java.io.tmpdir")))
-						return true;
-
-					if (absoluteName.startsWith(System.getProperty("user.dir")))
-						return true;
-
-				}
-			}
-
+		
+		/*
+		 * Note: this actually should never be called, as the instrumenting class loader
+		 * should replace System.exit 
+		 */
+		if(name.startsWith("exitVM") || name.equals("shutdownHooks")){
 			return false;
 		}
+
+
+		/*
+		 * For the moment, we don't allow it. but we might once we address Networking
+		 */
+		if(name.equals("setFactory")){
+			return false;
+		}
+
+		/*
+		 * As client use logging, and we don't read std/err output from it, then 
+		 * it should be safe to allow it 
+		 */
+		if(name.equals("setIO")){
+			return true;
+		}
+		
+
+		/*
+		 * far too risky for the moment, as they might mess up with EvoSuite threads.
+		 * But they could be allowed in the future, if we manage to identify the SUT's threads,
+		 * and allow such permissions only on those. At any rate, because such  permissions are useful for
+		 * multi-thread code, it is not major priority now, because anyway we don't really support that kind
+		 * of software yet
+		 */
+		if(name.equals("modifyThread") ||
+				name.equals("stopThread") ||
+				name.equals("modifyThreadGroup")){
+			return false;
+		}
+		
+		/*
+		 * this looks safe... but not 100% sure to be honest
+		 */
+		if (name.equals("setDefaultUncaughtExceptionHandler")){
+			return true;
+		}
+		
+		/*
+		 * those are perfectly fine
+		 */
+		if(name.startsWith("getenv.") || name.equals("getProtectionDomain") || name.equals("readFileDescriptor")){
+			return true;
+		}
+		
+		/*
+		 * not fully understand this one... so let's block it for now
+		 */
+		if(name.equals("writeFileDescriptor")){
+			return false;
+		}
+
+		if (name.startsWith("loadLibrary.")){
+			
+			/*
+			 * There might quite a few risks if SUT uses native code developed by user.
+			 * By default, we deny this permissions, but then we can allow the loading of some
+			 * specific libraries. 
+			 * Ultimately, the user should be able to choose if some libraries can be loaded or not
+			 */
+			
+			String library = name.substring("loadLibrary.".length(), name.length());
+			
+			if(library.equals("awt") ||
+					library.equals("fontmanager") ||
+					library.equals("laf")){
+				return true;
+			}
+			
+			return false;
+		}
+
+		/*
+		 * Definitely not! furthermore, testing machine might not have a printer anyway...
+		 * if SUT needs a printer, I guess we should somehow manage to mock it.
+		 * But low priority, as I don't think many SUTs do print...
+		 */
+		if (name.equals("queuePrintJob")){
+			return false;
+		}
+
+		
+		/*
+		 * Why not? only possible issue is if here, in this security manager, we use stack info to check whether or not
+		 * allow permissions
+		 */
+		if (name.equals("getStackTrace")){
+			return true;
+		}
+		
+		/*
+		 * writing in persistent backing store of the file system does not sound much safe...
+		 */
+		if (name.equals("preferences")){
+			return false;
+		}
+		
+	
+		/*
+		 * This is permissions in NIO, which seems safe...
+		 */
+		if (name.equals("charsetProvider") || name.equals("selectorProvider")){
+			return true;
+		}
+		
+		/*
+		 * this is also useful for checking types in the String constants, and to be warned if they ll change in
+		 * future JDKs 
+		 */
+		logger.error("SUT asked for a runtime permission that EvoSuite does not recognize: "+name);	
+		
+		return false; 
+	}
+	
+	protected boolean checkPropertyPermission(PropertyPermission perm){
+		/*
+		 * we allow both writing and reading any properties.
+		 * But, if SUT writes anything, then we need to re-store the values to their default.
+		 * this is very important, otherwise:
+		 * 1) test cases might have side effects on each other
+		 * 2) SUT might change properties that are used by EvoSuite
+		 */
+
+		if(perm.getActions().contains("write") && !needToRestoreProperties){
+			synchronized(defaultProperties){
+				if(!executingTestCase){ //just to be sure
+					return false;
+				}
+				needToRestoreProperties = true;
+			}
+		}
+
 		return true;
+	}
+
+	protected boolean checkReflectPermission(ReflectPermission perm){
+		/*
+		 * might be some possible side effects but, again, such side-effects
+		 * would be confined inside the client JVM.
+		 * 
+		 * One issue though: the SUT can access to this security manager, and through
+		 * reflection mess up its internal state, which might lead to allow other
+		 * security permissions...
+		 */
+		return true;
+	}
+	
+	protected boolean checkLoggingPermission(LoggingPermission perm){
+		/*
+		 * we allow it because worst thing  it can happen is getting more/less 
+		 * log events from client. we might lose some debugging, but really not a big deal,
+		 * because in any case log levels are set in master (ie client events do not change them)
+		 */
+		return true;
+	}
+	
+	protected boolean checkFilePermission(FilePermission fp){
+		String action = fp.getActions();
+		if(action==null){
+			//might not ever happen, but just in case we log it and return false
+			logger.warn("File permission with empty action");
+			return false;
+		}
+		
+		/*
+		 * Reading can be considered "fine", even outside sandbox. 
+		 * Only issue I can think of is on Windows, if a process is trying to delete a file a EvoSuite client is reading, then
+		 * that deletion would be forbidden, as client has lock. 
+		 */
+		if(action.equals("read")){
+			return true;
+		}
+		
+		/*
+		 * FIXME: "contains" is pretty unsecure, and we should check actual path hierarchy. Eg, SUT could create
+		 * a file named $Properties.SANDBOX_FOLDER anywhere in the file system
+		 */
+		if (fp.getName().contains(Properties.SANDBOX_FOLDER)){ 
+			/*
+			 * need to check "execute". in some cases, for browising directory we need "execute", but we don't
+			 * want to execute files!!! (eg scripts) 
+			 */
+			if(action.equals("write") || action.equals("delete")){ 
+				//return true; //TODO allow it once the I/O is fixed and properly tested
+			}
+		}
+		
+		return false;
 	}
 }

@@ -222,14 +222,12 @@ public class TestSuiteMinimizer {
 		try {
 			result = executor.execute(test);
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
+			logger.warn("TG: Exception caught: " + e.getMessage(),e);
 			try {
 				Thread.sleep(1000);
 				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			} catch (Exception e1) {
-				e.printStackTrace();
-				System.exit(1);
+				throw new Error(e1);
 			}
 		}
 		return result;

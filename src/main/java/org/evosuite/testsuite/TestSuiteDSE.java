@@ -38,6 +38,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.search.Seeker;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -464,6 +465,26 @@ public class TestSuiteDSE {
 			}
 		}
 		return null;
+	}
+
+	/**
+	 * Concrete execution
+	 * 
+	 * @param test
+	 * @return
+	 */
+	private ExecutionResult runTest(TestCase test) {
+
+		ExecutionResult result = new ExecutionResult(test, null);
+
+		try {
+			result = TestCaseExecutor.getInstance().execute(test);
+		} catch (Exception e) {
+			logger.error("",e);
+			throw new Error(e);
+		}
+
+		return result;
 	}
 
 	/**

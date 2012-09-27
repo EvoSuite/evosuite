@@ -68,15 +68,12 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			result = executor.execute(test);
 			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 		} catch (Exception e) {
-			System.out.println("TG: Exception caught: " + e);
-			e.printStackTrace();
+			logger.warn("TG: Exception caught: " + e.getMessage(),e);
 			try {
 				Thread.sleep(1000);
 				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
 			} catch (Exception e1) {
-				e.printStackTrace();
-				// TODO: Do some error recovery?
-				System.exit(1);
+				throw new Error(e1);
 			}
 
 		}

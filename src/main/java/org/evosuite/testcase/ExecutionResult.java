@@ -89,11 +89,11 @@ public class ExecutionResult implements Cloneable {
 
 	/**
 	 * <p>
-	 * setThrownExceptions
+	 * Copy the input map data into internal structures
 	 * </p>
 	 * 
 	 * @param data
-	 *            a {@link java.util.Map} object.
+	 *            a {@link java.util.Map} object. It has a mapping from test sequence position toward thrown exception
 	 */
 	public void setThrownExceptions(Map<Integer, Throwable> data) {
 		exceptions.clear();
