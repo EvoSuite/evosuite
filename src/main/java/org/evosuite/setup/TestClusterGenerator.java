@@ -577,7 +577,8 @@ public class TestClusterGenerator {
 
 	private static boolean isEvoSuiteClass(Class<?> c) {
 		return c.getName().startsWith("org.evosuite")
-		        || c.getName().startsWith("edu.uta.cse.dsc");
+		        || c.getName().startsWith("edu.uta.cse.dsc")
+		        || c.getName().equals("java.lang.String");
 	}
 
 	private static boolean canUse(Class<?> c) {
@@ -899,7 +900,8 @@ public class TestClusterGenerator {
 				cluster.addModifier(clazz, method);
 				GenericClass retClass = new GenericClass(method.getGenericReturnType());
 
-				if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject())
+				if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject()
+				        && !retClass.equals(String.class))
 					cluster.addGenerator(retClass, method);
 			} else {
 				logger.debug("Method cannot be used: " + method);
