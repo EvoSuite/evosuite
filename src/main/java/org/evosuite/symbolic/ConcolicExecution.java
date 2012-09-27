@@ -31,6 +31,7 @@ import org.evosuite.symbolic.vm.JumpVM;
 import org.evosuite.symbolic.vm.LocalsVM;
 import org.evosuite.symbolic.vm.OtherVM;
 import org.evosuite.symbolic.vm.PathConstraint;
+import org.evosuite.symbolic.vm.RFunctionVM;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
@@ -53,7 +54,8 @@ import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
  */
 public abstract class ConcolicExecution {
 
-	private static Logger logger = LoggerFactory.getLogger(ConcolicExecution.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(ConcolicExecution.class);
 
 	/** Instrumenting class loader */
 	private static final DscInstrumentingClassLoader classLoader = new DscInstrumentingClassLoader();
@@ -67,12 +69,14 @@ public abstract class ConcolicExecution {
 	 */
 	public static List<BranchCondition> getSymbolicPath(TestChromosome test) {
 		TestChromosome dscCopy = (TestChromosome) test.clone();
-		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy.getTestCase();
+		DefaultTestCase defaultTestCase = (DefaultTestCase) dscCopy
+				.getTestCase();
 
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected static List<BranchCondition> executeConcolic(DefaultTestCase defaultTestCase) {
+	protected static List<BranchCondition> executeConcolic(
+			DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
 
@@ -98,6 +102,7 @@ public abstract class ConcolicExecution {
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
 		listeners.add(new FunctionVM(env));
+		listeners.add(new RFunctionVM(env));
 		VM.vm.setListeners(listeners);
 		VM.vm.startupConcolicExecution();
 
@@ -112,8 +117,9 @@ public abstract class ConcolicExecution {
 		try {
 			logger.debug("Executing test");
 			result = TestCaseExecutor.getInstance().execute(defaultTestCase,
-			                                                Properties.CONCOLIC_TIMEOUT);
-			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
+					Properties.CONCOLIC_TIMEOUT);
+			MaxStatementsStoppingCondition.statementsExecuted(result
+					.getExecutedStatements());
 
 		} catch (Exception e) {
 			logger.error("Exception during concolic execution {}", e);
@@ -123,10 +129,11 @@ public abstract class ConcolicExecution {
 
 		List<BranchCondition> branches = pc.getBranchConditions();
 		logger.info("Concolic execution ended with " + branches.size()
-		        + " branches collected");
+				+ " branches collected");
 		if (!result.noThrownExceptions()) {
 			int idx = result.getFirstPositionOfThrownException();
-			logger.info("Exception thrown: " + result.getExceptionThrownAtPosition(idx));
+			logger.info("Exception thrown: "
+					+ result.getExceptionThrownAtPosition(idx));
 		}
 		logNrOfConstraints(branches);
 
@@ -141,7 +148,8 @@ public abstract class ConcolicExecution {
 
 		for (BranchCondition branchCondition : branches) {
 
-			for (Constraint<?> supporting_constraint : branchCondition.getSupportingConstraints()) {
+			for (Constraint<?> supporting_constraint : branchCondition
+					.getSupportingConstraints()) {
 				supporting_constraint.getLeftOperand().execute();
 				supporting_constraint.getRightOperand().execute();
 				nrOfConstraints++;
