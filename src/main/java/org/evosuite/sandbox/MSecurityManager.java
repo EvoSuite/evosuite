@@ -222,7 +222,14 @@ class MSecurityManager extends SecurityManager {
 	public void checkPermission(Permission perm) throws SecurityException{
 		// check access  
 		if (!allowPermission(perm)) {
-			statistics.permissionDenied(perm);
+			if(executingTestCase){
+				/*
+				 * report statistics only during test case execution, although still log them.
+				 * The reason is to avoid EvoSuite threads which might not privileged to mess
+				 * up with the statistics on the SUT 
+				 */
+				statistics.permissionDenied(perm);
+			}
 			String stack = "\n";
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 				stack += e + "\n";
@@ -230,7 +237,9 @@ class MSecurityManager extends SecurityManager {
 			logger.info("Security manager blocks permission " + perm + stack);
 			throw new SecurityException("Security manager blocks " + perm + stack);
 		} else {
-			statistics.permissionAllowed(perm);
+			if(executingTestCase){
+				statistics.permissionAllowed(perm);
+			}
 		}
 
 		return;
