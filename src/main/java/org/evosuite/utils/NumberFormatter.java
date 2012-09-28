@@ -45,21 +45,21 @@ public class NumberFormatter {
 			return "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
 		} else if (value.getClass().equals(float.class)
 		        || value.getClass().equals(Float.class)) {
-			if (value.toString().equals("NaN"))
+			if (value.toString().equals(""+Float.NaN))
 				return "Float.NaN";
-			else if (value.toString().equals("NEGATIVE_INFINITY"))
+			else if (value.toString().equals(""+Float.NEGATIVE_INFINITY))
 				return "Float.NEGATIVE_INFINITY";
-			else if (value.toString().equals("POSITIVE_INFINITY"))
+			else if (value.toString().equals(""+Float.POSITIVE_INFINITY))
 				return "Float.POSITIVE_INFINITY";
 			else
 				return value + "F";
 		} else if (value.getClass().equals(double.class)
 		        || value.getClass().equals(Double.class)) {
-			if (value.toString().equals("NaN"))
+			if (value.toString().equals(""+Double.NaN))
 				return "Double.NaN";
-			else if (value.toString().equals("NEGATIVE_INFINITY"))
+			else if (value.toString().equals(""+Double.NEGATIVE_INFINITY))
 				return "Double.NEGATIVE_INFINITY";
-			else if (value.toString().equals("POSITIVE_INFINITY"))
+			else if (value.toString().equals(""+Double.POSITIVE_INFINITY))
 				return "Double.POSITIVE_INFINITY";
 			else
 				return value.toString();
