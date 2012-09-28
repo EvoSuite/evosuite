@@ -24,6 +24,8 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -35,6 +37,8 @@ import org.objectweb.asm.Opcodes;
 public class ErrorConditionClassAdapter extends ClassVisitor {
 
 	private final String className;
+
+	private static final Logger logger = LoggerFactory.getLogger(ErrorConditionClassAdapter.class);
 
 	/**
 	 * <p>
@@ -62,9 +66,11 @@ public class ErrorConditionClassAdapter extends ClassVisitor {
 		if (name.equals("<clinit>"))
 			return mv;
 
-		if (!DependencyAnalysis.shouldInstrument(className, name + desc))
+		if (!DependencyAnalysis.shouldInstrument(className.replace('/', '.'), name + desc))
 			return mv;
 
+		logger.info("Applying error transformation to " + className + ", method " + name
+		        + desc);
 		return new ErrorConditionMethodAdapter(mv, className, name, access, desc);
 	}
 }
