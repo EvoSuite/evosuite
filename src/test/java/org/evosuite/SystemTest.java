@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,18 +19,13 @@ package org.evosuite;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.net.URLClassLoader;
 
-import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
-import org.junit.*;
-
-
+import org.junit.Assert;
+import org.junit.Before;
 
 /**
  * @author Andrea Arcuri
@@ -39,44 +34,51 @@ import org.junit.*;
 public class SystemTest {
 
 	//private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
-	
+
 	public static final String ALREADY_SETUP = "systemtest.alreadysetup";
-	
-	 static{
+
+	static {
 		String s = System.getProperty(ALREADY_SETUP);
-		if(s==null){
+		if (s == null) {
 			System.setProperty(ALREADY_SETUP, ALREADY_SETUP);
-			runSetup();			
-		}	
+			runSetup();
+		}
 	}
-	
-	
+
 	@Before
 	/**
 	 * Before running any test case, we reset the random generator
 	 */
-	public void resetSeed(){
+	public void resetSeed() {
 		Randomness.setSeed(42);
 	}
-	
+
 	@Before
-	public void setDefaultPropertiesForTestCases(){
+	/**
+	 * FIXME: The branch coverage remembers the max value seen, and this is ugly
+	 */
+	public void resetStaticVariables() {
+		BranchCoverageSuiteFitness.mostCoveredGoals = 0;
+	}
+
+	@Before
+	public void setDefaultPropertiesForTestCases() {
 		Properties.HTML = false;
 		Properties.SHOW_PROGRESS = false;
 		Properties.SERIALIZE_RESULT = false;
 		Properties.JUNIT_TESTS = false;
 		Properties.PLOT = false;
-		
+
 		Properties.STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
 		Properties.SEARCH_BUDGET = 10000;
 
 		Properties.GLOBAL_TIMEOUT = 50;
 		Properties.MINIMIZATION_TIMEOUT = 8;
 		Properties.EXTRA_TIMEOUT = 2;
-		
+
 		Properties.CLIENT_ON_THREAD = true;
 	}
-	
+
 	/*
 	 * stupid Maven plug-ins do not properly handle custom output directories
 	 * when JUnit is run, ie problems with classpath :(
@@ -93,36 +95,38 @@ public class SystemTest {
 		}
 	}
 	*/
-	
+
 	/*
 	 * this static variable is a safety net to be sure it is called only once. 
 	 * static variables are shared and not re-initialized
 	 * during a sequence of test cases.
 	 */
 	private static boolean hasBeenAlreadyRun = false;
-	
-	private static void runSetup(){
-		if(hasBeenAlreadyRun){
+
+	private static void runSetup() {
+		if (hasBeenAlreadyRun) {
 			return;
 		}
-						
+
 		LoggingUtils.checkAndSetLogLevel();
-		
+
 		deleteEvoDirs();
-		
+
 		System.out.println("*** SystemTest: runSetup() ***");
-		
+
 		//String target = System.getProperty("user.dir") + File.separator+"target"+File.separator+"suts-for-system-testing";
-		String target = System.getProperty("user.dir") + File.separator+"target"+File.separator+"test-classes";
-		
+		String target = System.getProperty("user.dir") + File.separator + "target"
+		        + File.separator + "test-classes";
+
 		File targetDir = new File(target);
 		try {
-			Assert.assertTrue("Target directory does not exist: "+targetDir.getCanonicalPath(), targetDir.exists());
+			Assert.assertTrue("Target directory does not exist: "
+			                          + targetDir.getCanonicalPath(), targetDir.exists());
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
 		Assert.assertTrue(targetDir.isDirectory());
-		
+
 		/*
 		 * "stupid" Java does not allow to change the current directory:
 		 * http://bugs.sun.com/bugdatabase/view%5Fbug.do?bug%5Fid=4045688
@@ -143,30 +147,30 @@ public class SystemTest {
 		System.setProperty("user.dir", newDir.getAbsolutePath());
 		*/
 		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[]{				
-				//EvoSuite.JAVA_CMD,
-				"-setup",
-				target
-		};
+		String[] command = new String[] {
+		        //EvoSuite.JAVA_CMD,
+		        "-setup", target };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertNull(result);
 		//File evoDir = new File(newDir.getAbsoluteFile()+File.separator+Properties.OUTPUT_DIR + File.separator+ "evosuite.properties");
-		File evoProp = new File(Properties.OUTPUT_DIR + File.separator+ "evosuite.properties");
-		Assert.assertTrue("It was not created: "+evoProp.getAbsolutePath(), evoProp.exists());
-		
+		File evoProp = new File(Properties.OUTPUT_DIR + File.separator
+		        + "evosuite.properties");
+		Assert.assertTrue("It was not created: " + evoProp.getAbsolutePath(),
+		                  evoProp.exists());
+
 		hasBeenAlreadyRun = true;
 	}
-	
+
 	/*
 	 * it's giving some problems
 	 */
 	//
-	private static void deleteEvoDirs(){
+	private static void deleteEvoDirs() {
 		//if(!hasBeenAlreadyRun){
-			//return;
+		//return;
 		//}
-		
+
 		System.out.println("*** SystemTest: deleteEvoDirs() ***");
 
 		try {
@@ -179,7 +183,6 @@ public class SystemTest {
 		hasBeenAlreadyRun = false;
 	}
 }
-
 
 /*
 class ClassPathHacker 
