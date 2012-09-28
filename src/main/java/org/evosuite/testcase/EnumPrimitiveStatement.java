@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,10 +27,11 @@ import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
- * <p>EnumPrimitiveStatement class.</p>
- *
+ * <p>
+ * EnumPrimitiveStatement class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatement<T> {
@@ -39,14 +40,19 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 	private T[] constants;
 
-	private final Class<T> enumClass;
+	private Class<T> enumClass;
 
 	/**
-	 * <p>Constructor for EnumPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param clazz a {@link java.lang.Class} object.
-	 * @param <T> a T object.
+	 * <p>
+	 * Constructor for EnumPrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param clazz
+	 *            a {@link java.lang.Class} object.
+	 * @param <T>
+	 *            a T object.
 	 */
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, Class<T> clazz) {
@@ -74,10 +80,14 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/**
-	 * <p>Constructor for EnumPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a T object.
+	 * <p>
+	 * Constructor for EnumPrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value
+	 *            a T object.
 	 */
 	@SuppressWarnings("unchecked")
 	public EnumPrimitiveStatement(TestCase tc, T value) {
@@ -106,8 +116,10 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/**
-	 * <p>Getter for the field <code>enumClass</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>enumClass</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
 	public Class<T> getEnumClass() {
@@ -115,8 +127,10 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 	}
 
 	/**
-	 * <p>getEnumValues</p>
-	 *
+	 * <p>
+	 * getEnumValues
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public List<T> getEnumValues() {
@@ -183,6 +197,24 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 			int pos = Randomness.nextInt(constants.length);
 			value = constants[pos];
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
+	 */
+	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		try {
+			enumClass = (Class<T>) loader.loadClass(enumClass.getName());
+			constants = enumClass.getEnumConstants();
+		} catch (ClassNotFoundException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		} catch (SecurityException e) {
+			logger.warn("Class not found - keeping old class loader ", e);
+		}
+		super.changeClassLoader(loader);
 	}
 
 }
