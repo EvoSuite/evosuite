@@ -94,7 +94,7 @@ public class DependencyAnalysis {
 		// annotated with @Test (> JUnit 4.0)
 		// or contains Test or Suite in it's inheritance structure
 		try {
-			Class<?> clazz = TestCluster.classLoader.loadClass(className);
+			Class<?> clazz = Class.forName(className);
 			Class<?> superClazz = clazz.getSuperclass();
 			while (!superClazz.equals(Object.class)) {
 				if (superClazz.equals(Suite.class))
