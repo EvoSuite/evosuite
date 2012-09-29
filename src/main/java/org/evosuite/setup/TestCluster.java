@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  */
 public class TestCluster {
 
-	protected static Logger logger = LoggerFactory.getLogger(TestCluster.class);
+	protected static final Logger logger = LoggerFactory.getLogger(TestCluster.class);
 
 	/**
 	 * This is the classloader that does the instrumentation - it needs to be
@@ -256,7 +256,7 @@ public class TestCluster {
 				// TODO Auto-generated catch block
 				// e.printStackTrace();
 			}
-			;
+
 		}
 		if (tracerEnabled)
 			ExecutionTracer.enable();

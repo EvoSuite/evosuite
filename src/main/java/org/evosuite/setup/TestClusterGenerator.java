@@ -900,8 +900,7 @@ public class TestClusterGenerator {
 				cluster.addModifier(clazz, method);
 				GenericClass retClass = new GenericClass(method.getGenericReturnType());
 
-				if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject()
-				        && !retClass.equals(String.class))
+				if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject())
 					cluster.addGenerator(retClass, method);
 			} else {
 				logger.debug("Method cannot be used: " + method);
