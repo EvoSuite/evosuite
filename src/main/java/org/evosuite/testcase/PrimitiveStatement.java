@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.primitives.PrimitivePool;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -45,9 +44,6 @@ import com.googlecode.gentyref.GenericTypeReflector;
 public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	private static final long serialVersionUID = -7721106626421922833L;
-
-	/** Constant <code>primitive_pool</code> */
-	protected static final PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	/**
 	 * The value

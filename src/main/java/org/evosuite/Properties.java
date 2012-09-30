@@ -141,6 +141,15 @@ public class Properties {
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double PRIMITIVE_POOL = 0.5;
 
+	/** Constant <code>DYNAMIC_POOL=0.5</code> */
+	@Parameter(key = "dynamic_pool", group = "Test Creation", description = "Probability to use a primitive from the dynamic pool rather than a random value")
+	@DoubleValue(min = 0.0, max = 1.0)
+	public static double DYNAMIC_POOL = 1d / 3d;
+
+	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
+	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
+	public static int DYNAMIC_POOL_SIZE = 50;
+
 	/** Constant <code>OBJECT_POOL=0.0</code> */
 	@Parameter(key = "object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
 	@DoubleValue(min = 0.0, max = 1.0)
