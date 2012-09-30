@@ -29,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
+import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 
@@ -669,6 +670,8 @@ public class BooleanHelper {
 		if (first.equals(second)) {
 			return K; // Identical
 		} else {
+			ConstantPoolManager.getInstance().addDynamicConstant(first);
+			ConstantPoolManager.getInstance().addDynamicConstant(second);
 			//System.out.println("Edit distance between " + first + " and " + second
 			//       + " is " + -editDistance(first, second.toString()) + " / "
 			//      + getLevenshteinDistance(first, (String) second));
@@ -839,6 +842,7 @@ public class BooleanHelper {
 		//System.out.println("StartsWith: " + start + ": " + value + " / " + prefix + ": "
 		//        + value.substring(start, start + len) + " / " + prefix + " = "
 		//        + StringEquals(value.substring(start, start + len), prefix));
+		ConstantPoolManager.getInstance().addDynamicConstant(prefix + value);
 		return StringEquals(value.substring(start, start + len), prefix);
 	}
 
@@ -856,6 +860,7 @@ public class BooleanHelper {
 	public static int StringEndsWith(String value, String suffix) {
 		int len = Math.min(suffix.length(), value.length());
 		String val1 = value.substring(value.length() - len);
+		ConstantPoolManager.getInstance().addDynamicConstant(value + suffix);
 		return StringEquals(val1, suffix);
 	}
 

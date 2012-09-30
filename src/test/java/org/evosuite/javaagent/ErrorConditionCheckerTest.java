@@ -31,15 +31,15 @@ public class ErrorConditionCheckerTest {
 	public void testIntAddOverflow() {
 		int distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE, 2,
 		                                                      Opcodes.IADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE,
 		                                                  Integer.MAX_VALUE, Opcodes.IADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE, 1,
 		                                                  Opcodes.IADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE, 0,
 		                                                  Opcodes.IADD);
@@ -82,11 +82,11 @@ public class ErrorConditionCheckerTest {
 	public void testIntAddUnderflow() {
 		int distance = ErrorConditionChecker.underflowDistance(Integer.MIN_VALUE, -1,
 		                                                       Opcodes.IADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(-1, Integer.MIN_VALUE,
 		                                                   Opcodes.IADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(Integer.MIN_VALUE / 2,
 		                                                   Integer.MIN_VALUE / 2,
@@ -96,7 +96,7 @@ public class ErrorConditionCheckerTest {
 		distance = ErrorConditionChecker.underflowDistance((Integer.MIN_VALUE / 2) - 1,
 		                                                   (Integer.MIN_VALUE / 2) - 1,
 		                                                   Opcodes.IADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance((Integer.MIN_VALUE + 1) / 2,
 		                                                   (Integer.MIN_VALUE + 1) / 2,
@@ -116,15 +116,15 @@ public class ErrorConditionCheckerTest {
 	public void testIntSubOverflow() {
 		int distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE, -2,
 		                                                      Opcodes.ISUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE,
 		                                                  Integer.MIN_VALUE, Opcodes.ISUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE, -1,
 		                                                  Opcodes.ISUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE, 0,
 		                                                  Opcodes.ISUB);
@@ -132,7 +132,7 @@ public class ErrorConditionCheckerTest {
 
 		distance = ErrorConditionChecker.overflowDistance(0, Integer.MIN_VALUE,
 		                                                  Opcodes.ISUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(-1, Integer.MIN_VALUE,
 		                                                  Opcodes.ISUB);
@@ -171,7 +171,7 @@ public class ErrorConditionCheckerTest {
 	public void testIntSubUnderflow() {
 		int distance = ErrorConditionChecker.underflowDistance(Integer.MIN_VALUE, 2,
 		                                                       Opcodes.ISUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(Integer.MIN_VALUE, -2,
 		                                                   Opcodes.ISUB);
@@ -179,7 +179,7 @@ public class ErrorConditionCheckerTest {
 
 		distance = ErrorConditionChecker.underflowDistance(-2, Integer.MAX_VALUE,
 		                                                   Opcodes.ISUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		int distance1 = ErrorConditionChecker.underflowDistance(10, 10, Opcodes.ISUB);
 		assertTrue("Expected value greater 0 but got " + distance1, distance1 > 0);
@@ -204,23 +204,23 @@ public class ErrorConditionCheckerTest {
 	public void testIntMulOverflow() {
 		int distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE, 2,
 		                                                      Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MAX_VALUE / 2, 3,
 		                                                  Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MIN_VALUE, -2,
 		                                                  Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MIN_VALUE, -1,
 		                                                  Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(-15000000, -15000000,
 		                                                  Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		int distance1 = ErrorConditionChecker.overflowDistance(10, 10, Opcodes.IMUL);
 		assertTrue("Expected value greater 0 but got " + distance1, distance1 > 0);
@@ -253,15 +253,15 @@ public class ErrorConditionCheckerTest {
 	public void testIntMulUnderflow() {
 		int distance = ErrorConditionChecker.underflowDistance(Integer.MAX_VALUE, -2,
 		                                                       Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(-2, Integer.MAX_VALUE,
 		                                                   Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(2, Integer.MIN_VALUE,
 		                                                   Opcodes.IMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(Integer.MIN_VALUE,
 		                                                   Integer.MIN_VALUE,
@@ -286,7 +286,7 @@ public class ErrorConditionCheckerTest {
 	public void testIntDivOverflow() {
 		int distance = ErrorConditionChecker.overflowDistance(Integer.MIN_VALUE, -1,
 		                                                      Opcodes.IDIV);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Integer.MIN_VALUE, 1,
 		                                                  Opcodes.IDIV);
@@ -301,9 +301,9 @@ public class ErrorConditionCheckerTest {
 
 		distance = ErrorConditionChecker.overflowDistance(Float.MAX_VALUE,
 		                                                  Float.MAX_VALUE, Opcodes.FADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Float.MAX_VALUE, 0F,
 		                                                  Opcodes.FADD);
@@ -347,7 +347,7 @@ public class ErrorConditionCheckerTest {
 		int distance = ErrorConditionChecker.underflowDistance(-Float.MAX_VALUE,
 		                                                       -Float.MAX_VALUE,
 		                                                       Opcodes.FADD);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(-Float.MAX_VALUE / 2F,
 		                                                   -Float.MAX_VALUE / 2F,
@@ -379,11 +379,11 @@ public class ErrorConditionCheckerTest {
 		int distance = ErrorConditionChecker.overflowDistance(Float.MAX_VALUE,
 		                                                      -Float.MAX_VALUE,
 		                                                      Opcodes.FSUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Float.MAX_VALUE,
 		                                                  -Float.MAX_VALUE, Opcodes.FSUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Float.MAX_VALUE, -1F,
 		                                                  Opcodes.FSUB);
@@ -435,7 +435,7 @@ public class ErrorConditionCheckerTest {
 		int distance = ErrorConditionChecker.underflowDistance(-Float.MAX_VALUE,
 		                                                       Float.MAX_VALUE,
 		                                                       Opcodes.FSUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(-Float.MAX_VALUE, -2F,
 		                                                   Opcodes.FSUB);
@@ -443,7 +443,7 @@ public class ErrorConditionCheckerTest {
 
 		distance = ErrorConditionChecker.underflowDistance(-Float.MAX_VALUE,
 		                                                   Float.MAX_VALUE, Opcodes.FSUB);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		int distance1 = ErrorConditionChecker.underflowDistance(10F, 10F, Opcodes.FSUB);
 		assertTrue("Expected value greater 0 but got " + distance1, distance1 > 0);
@@ -469,15 +469,15 @@ public class ErrorConditionCheckerTest {
 	public void testFloatMulOverflow() {
 		int distance = ErrorConditionChecker.overflowDistance(Float.MAX_VALUE, 2F,
 		                                                      Opcodes.FMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(Float.MAX_VALUE / 2F, 3F,
 		                                                  Opcodes.FMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(-Float.MAX_VALUE, -2F,
 		                                                  Opcodes.FMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(-Float.MAX_VALUE, -1,
 		                                                  Opcodes.FMUL);
@@ -486,7 +486,7 @@ public class ErrorConditionCheckerTest {
 		distance = ErrorConditionChecker.overflowDistance(-150000000000000000000000.0000000002F,
 		                                                  -150000000000000000000000.000000001F,
 		                                                  Opcodes.FMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		int distance1 = ErrorConditionChecker.overflowDistance(10F, 10F, Opcodes.FMUL);
 		assertTrue("Expected value greater 0 but got " + distance1, distance1 > 0);
@@ -519,15 +519,15 @@ public class ErrorConditionCheckerTest {
 	public void testFloatMulUnderflow() {
 		int distance = ErrorConditionChecker.underflowDistance(Float.MAX_VALUE, -2F,
 		                                                       Opcodes.FMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(-2F, Float.MAX_VALUE,
 		                                                   Opcodes.FMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(2F, -Float.MAX_VALUE,
 		                                                   Opcodes.FMUL);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.underflowDistance(-Float.MAX_VALUE,
 		                                                   -Float.MAX_VALUE, Opcodes.FMUL);
@@ -551,7 +551,7 @@ public class ErrorConditionCheckerTest {
 	public void testFloatDivOverflow() {
 		int distance = ErrorConditionChecker.overflowDistance(-Float.MAX_VALUE, -1F,
 		                                                      Opcodes.FDIV);
-		assertEquals(-1, distance);
+		assertTrue(distance <= 0);
 
 		distance = ErrorConditionChecker.overflowDistance(-Float.MAX_VALUE, 1F,
 		                                                  Opcodes.FDIV);
