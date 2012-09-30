@@ -920,7 +920,7 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		EXCEPTION, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA, BEHAVIORAL, IBRANCH, LOOP_INV_CANDIDATE_FALSE_BRANCH
+		EXCEPTION, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, ANALYZE, DATA, BEHAVIORAL, IBRANCH, LOOP_INV_CANDIDATE_FALSE_BRANCH, REGRESSION
 	}
 
 	/** Cache target class */
@@ -969,7 +969,7 @@ public class Properties {
 	public static Criterion CRITERION = Criterion.BRANCH;
 
 	public enum Strategy {
-		ONEBRANCH, EVOSUITE, RANDOM
+		ONEBRANCH, EVOSUITE, RANDOM, REGRESSION
 	}
 
 	/** Constant <code>STRATEGY</code> */
@@ -1626,7 +1626,7 @@ public class Properties {
 		BranchPool.reset();
 		TestCluster.reset();
 		org.evosuite.testcase.TestFactory.getInstance().reset();
-		BytecodeInstructionPool.clear();
+		BytecodeInstructionPool.clearAll(); // TODO: This should be removed
 
 		try {
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
@@ -1665,7 +1665,7 @@ public class Properties {
 		BranchPool.reset();
 		TestCluster.reset();
 		org.evosuite.testcase.TestFactory.getInstance().reset();
-		BytecodeInstructionPool.clear();
+		BytecodeInstructionPool.clearAll(); // TODO: This should be deleted
 
 		try {
 			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);

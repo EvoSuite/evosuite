@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,48 +23,47 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- *
+ * 
  * Supposed to become the new implementation of a control flow graph inside
  * EvoSuite
- *
+ * 
  * The "actual" CFG does not contain single cfg.BytecodeInstructions as nodes,
  * but contains cfg.BasicBlocks - look at that class for more information
- *
+ * 
  * Simply put this is a minimized version of the complete/raw CFG the
  * cfg.BytecodeAnalyzer and cfg.CFGGenerator produce - which holds a node for
  * every BytecodeInstruction
- *
+ * 
  * Out of the above described raw CFG the following "pin-points" are extracted:
- *
+ * 
  * 1) the entryNode (first instruction in the method)
- *
+ * 
  * 2) all exitNodes (outDegree 0)
- *
+ * 
  * 3.1) all branches (outDegree>1) 3.2) in a subsequent step all targets of all
  * branches
- *
+ * 
  * 4.1) all joins (inDegree>1) 4.2) in a subsequent step all sources of all
  * joins
- *
+ * 
  * All those "pin-points" are put into a big set (some of the above categories
  * may overlap) and for all those single BytecodeInstrucions their corresponding
  * BasicBlock is computed and added to this CFGs vertexSet. After that the raw
  * CFG is asked for the parents of the first instruction of each BasicBlock and
  * the children of that blocks last instruction. Then the edges to their
  * corresponding BasicBlocks are added to this CFG
- *
+ * 
  * TODO: verify that this method works :D
- *
- *
+ * 
+ * 
  * cfg.EvoSuiteGraph is used as the underlying data structure holding the
  * graphical representation of the CFG
- *
+ * 
  * WORK IN PROGRESS
- *
+ * 
  * TODO implement
- *
+ * 
  * @author Andre Mis
  */
 public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
@@ -81,12 +80,16 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	private Set<BytecodeInstruction> joinSources;
 
 	/**
-	 * <p>Constructor for ActualControlFlowGraph.</p>
-	 *
-	 * @param rawGraph a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
+	 * <p>
+	 * Constructor for ActualControlFlowGraph.
+	 * </p>
+	 * 
+	 * @param rawGraph
+	 *            a {@link org.evosuite.graphs.cfg.RawControlFlowGraph} object.
 	 */
 	public ActualControlFlowGraph(RawControlFlowGraph rawGraph) {
-		super(rawGraph.getClassName(), rawGraph.getMethodName(), rawGraph.getMethodAccess());
+		super(rawGraph.getClassName(), rawGraph.getMethodName(),
+		        rawGraph.getMethodAccess());
 
 		this.rawGraph = rawGraph;
 
@@ -96,18 +99,25 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 
 	// "revert" constructor ... for now ... TODO
 	/**
-	 * <p>Constructor for ActualControlFlowGraph.</p>
-	 *
-	 * @param toRevert a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph} object.
+	 * <p>
+	 * Constructor for ActualControlFlowGraph.
+	 * </p>
+	 * 
+	 * @param toRevert
+	 *            a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph}
+	 *            object.
 	 */
 	protected ActualControlFlowGraph(ActualControlFlowGraph toRevert) {
-		super(toRevert.className, toRevert.methodName, toRevert.access, toRevert.computeReverseJGraph());
+		super(toRevert.className, toRevert.methodName, toRevert.access,
+		        toRevert.computeReverseJGraph());
 
 	}
 
 	/**
-	 * <p>computeReverseCFG</p>
-	 *
+	 * <p>
+	 * computeReverseCFG
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.graphs.cfg.ActualControlFlowGraph} object.
 	 */
 	public ActualControlFlowGraph computeReverseCFG() {
@@ -331,9 +341,12 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	// internal graph handling
 
 	/**
-	 * <p>addBlock</p>
-	 *
-	 * @param nodeBlock a {@link org.evosuite.graphs.cfg.BasicBlock} object.
+	 * <p>
+	 * addBlock
+	 * </p>
+	 * 
+	 * @param nodeBlock
+	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
 	 */
 	protected void addBlock(BasicBlock nodeBlock) {
 		if (nodeBlock == null)
@@ -380,11 +393,16 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>addRawEdge</p>
-	 *
-	 * @param src a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param target a {@link org.evosuite.graphs.cfg.BasicBlock} object.
-	 * @param origEdge a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+	 * <p>
+	 * addRawEdge
+	 * </p>
+	 * 
+	 * @param src
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param target
+	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
+	 * @param origEdge
+	 *            a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
 	 */
 	protected void addRawEdge(BytecodeInstruction src, BasicBlock target,
 	        ControlFlowEdge origEdge) {
@@ -397,11 +415,16 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>addRawEdge</p>
-	 *
-	 * @param src a {@link org.evosuite.graphs.cfg.BasicBlock} object.
-	 * @param target a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param origEdge a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+	 * <p>
+	 * addRawEdge
+	 * </p>
+	 * 
+	 * @param src
+	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
+	 * @param target
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param origEdge
+	 *            a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
 	 */
 	protected void addRawEdge(BasicBlock src, BytecodeInstruction target,
 	        ControlFlowEdge origEdge) {
@@ -414,11 +437,16 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>addRawEdge</p>
-	 *
-	 * @param src a {@link org.evosuite.graphs.cfg.BasicBlock} object.
-	 * @param target a {@link org.evosuite.graphs.cfg.BasicBlock} object.
-	 * @param origEdge a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
+	 * <p>
+	 * addRawEdge
+	 * </p>
+	 * 
+	 * @param src
+	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
+	 * @param target
+	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
+	 * @param origEdge
+	 *            a {@link org.evosuite.graphs.cfg.ControlFlowEdge} object.
 	 */
 	protected void addRawEdge(BasicBlock src, BasicBlock target, ControlFlowEdge origEdge) {
 		if (src == null || target == null)
@@ -462,8 +490,9 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	/**
 	 * If the given instruction is known to this graph, the BasicBlock holding
 	 * that instruction is returned. Otherwise null will be returned.
-	 *
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * 
+	 * @param instruction
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link org.evosuite.graphs.cfg.BasicBlock} object.
 	 */
 	public BasicBlock getBlockOf(BytecodeInstruction instruction) {
@@ -486,8 +515,9 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	/**
 	 * Checks whether this graph knows the given instruction. That is there is a
 	 * BasicBlock in this graph's vertexSet containing the given instruction.
-	 *
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * 
+	 * @param instruction
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
 	public boolean knowsInstruction(BytecodeInstruction instruction) {
@@ -505,10 +535,14 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>getDistance</p>
-	 *
-	 * @param v1 a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param v2 a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * <p>
+	 * getDistance
+	 * </p>
+	 * 
+	 * @param v1
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param v2
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a int.
 	 */
 	public int getDistance(BytecodeInstruction v1, BytecodeInstruction v2) {
@@ -528,10 +562,14 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>isDirectSuccessor</p>
-	 *
-	 * @param v1 a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param v2 a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * <p>
+	 * isDirectSuccessor
+	 * </p>
+	 * 
+	 * @param v1
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param v2
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
 	public boolean isDirectSuccessor(BytecodeInstruction v1, BytecodeInstruction v2) {
@@ -553,9 +591,12 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	// retrieve information about the CFG
 
 	/**
-	 * <p>isEntryPoint</p>
-	 *
-	 * @param block a {@link org.evosuite.graphs.cfg.BasicBlock} object.
+	 * <p>
+	 * isEntryPoint
+	 * </p>
+	 * 
+	 * @param block
+	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
 	 * @return a boolean.
 	 */
 	public boolean isEntryPoint(BasicBlock block) {
@@ -577,9 +618,12 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>isExitPoint</p>
-	 *
-	 * @param block a {@link org.evosuite.graphs.cfg.BasicBlock} object.
+	 * <p>
+	 * isExitPoint
+	 * </p>
+	 * 
+	 * @param block
+	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
 	 * @return a boolean.
 	 */
 	public boolean isExitPoint(BasicBlock block) {
@@ -599,9 +643,12 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>belongsToMethod</p>
-	 *
-	 * @param instruction a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * <p>
+	 * belongsToMethod
+	 * </p>
+	 * 
+	 * @param instruction
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a boolean.
 	 */
 	public boolean belongsToMethod(BytecodeInstruction instruction) {
@@ -619,7 +666,9 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	// sanity checks
 
 	/**
-	 * <p>checkSanity</p>
+	 * <p>
+	 * checkSanity
+	 * </p>
 	 */
 	public void checkSanity() {
 
@@ -741,9 +790,9 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	@Override
 	public BytecodeInstruction getInstruction(int instructionId) {
 
-		BytecodeInstruction searchedFor = BytecodeInstructionPool.getInstruction(className,
-		                                                                         methodName,
-		                                                                         instructionId);
+		BytecodeInstruction searchedFor = BytecodeInstructionPool.getInstance(rawGraph.getClassLoader()).getInstruction(className,
+		                                                                                                                methodName,
+		                                                                                                                instructionId);
 
 		if (containsInstruction(searchedFor))
 			return searchedFor;
@@ -767,8 +816,10 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	// }
 
 	/**
-	 * <p>Getter for the field <code>entryPoint</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>entryPoint</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public BytecodeInstruction getEntryPoint() {
@@ -776,8 +827,10 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>Getter for the field <code>exitPoints</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>exitPoints</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getExitPoints() {
@@ -785,8 +838,10 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>Getter for the field <code>branches</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>branches</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getBranches() {
@@ -794,8 +849,10 @@ public class ActualControlFlowGraph extends ControlFlowGraph<BasicBlock> {
 	}
 
 	/**
-	 * <p>Getter for the field <code>joins</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>joins</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<BytecodeInstruction> getJoins() {

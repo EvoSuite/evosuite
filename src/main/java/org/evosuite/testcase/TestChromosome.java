@@ -123,7 +123,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	protected void copyCachedResults(ExecutableChromosome other) {
+	public void copyCachedResults(ExecutableChromosome other) {
 		if (test == null)
 			throw new RuntimeException("Test is null!");
 

@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,7 +20,6 @@
  */
 package org.evosuite.cfg.instrumentation;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -34,7 +33,6 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.lcsaj.LCSAJ;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.GraphPool;
-import org.evosuite.graphs.LCSAJGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
@@ -50,10 +48,11 @@ import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
 
-
 /**
- * <p>LCSAJsInstrumentation class.</p>
- *
+ * <p>
+ * LCSAJsInstrumentation class.
+ * </p>
+ * 
  * @author copied from CFGMethodAdapter
  */
 public class LCSAJsInstrumentation implements MethodInstrumentation {
@@ -65,7 +64,8 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 	@SuppressWarnings("unchecked")
 	//using external lib
 	@Override
-	public void analyze(MethodNode mn, String className, String methodName, int access) {
+	public void analyze(ClassLoader classLoader, MethodNode mn, String className,
+	        String methodName, int access) {
 
 		Queue<LCSAJ> lcsaj_queue = new LinkedList<LCSAJ>();
 		HashSet<Integer> targets_reached = new HashSet<Integer>();
@@ -79,9 +79,13 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 				startID = 4;
 			}
 		}
-		LCSAJ a = new LCSAJ(className, methodName,
-		        BytecodeInstructionPool.getInstruction(className, methodName, startID,
-		                                               start));
+		LCSAJ a = new LCSAJ(
+		        className,
+		        methodName,
+		        BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+		                                                                        methodName,
+		                                                                        startID,
+		                                                                        start));
 		lcsaj_queue.add(a);
 
 		targets_reached.add(0);
@@ -92,10 +96,10 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 			LCSAJ b = new LCSAJ(
 			        className,
 			        methodName,
-			        BytecodeInstructionPool.getInstruction(className,
-			                                               methodName,
-			                                               mn.instructions.indexOf(t.handler),
-			                                               t.handler));
+			        BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+			                                                                        methodName,
+			                                                                        mn.instructions.indexOf(t.handler),
+			                                                                        t.handler));
 			lcsaj_queue.add(b);
 		}
 
@@ -114,10 +118,10 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 			AbstractInsnNode next = mn.instructions.get(position);
 			currentLCSAJ.lookupInstruction(position,
-			                               BytecodeInstructionPool.getInstruction(className,
-			                                                                      methodName,
-			                                                                      position,
-			                                                                      next));
+			                               BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+			                                                                                               methodName,
+			                                                                                               position,
+			                                                                                               next));
 
 			if (next instanceof JumpInsnNode) {
 
@@ -138,8 +142,10 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 					LCSAJ c = new LCSAJ(
 					        className,
 					        methodName,
-					        BytecodeInstructionPool.getInstruction(className, methodName,
-					                                               targetPosition, target));
+					        BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+					                                                                        methodName,
+					                                                                        targetPosition,
+					                                                                        target));
 					lcsaj_queue.add(c);
 
 					targets_reached.add(targetPosition);
@@ -156,11 +162,13 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 					if (!targets_reached.contains(targetPosition)) {
 
-						LCSAJ b = new LCSAJ(className, methodName,
-						        BytecodeInstructionPool.getInstruction(className,
-						                                               methodName,
-						                                               targetPosition,
-						                                               target));
+						LCSAJ b = new LCSAJ(
+						        className,
+						        methodName,
+						        BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
+						                                                                        methodName,
+						                                                                        targetPosition,
+						                                                                        target));
 						lcsaj_queue.add(b);
 
 						targets_reached.add(targetPosition);
@@ -184,28 +192,30 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 			} else
 				lcsaj_queue.add(currentLCSAJ);
 		}
-		
+
 		if (Properties.STRATEGY != Strategy.EVOSUITE)
-			addInstrumentation(mn, className, methodName);
-		
-//		if (Properties.WRITE_CFG)
-//			for (LCSAJ l : LCSAJPool.getLCSAJs(className, methodName)) {
-//				LCSAJGraph graph = new LCSAJGraph(l, false);
-//				String graphDestination = "evosuite-graphs/LCSAJGraphs/" + className
-//				        + "/" + methodName;
-//				File dir = new File(graphDestination);
-//				if (dir.mkdirs())
-//					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
-//					        + l.getID() + ".dot"));
-//				else if (dir.exists())
-//					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
-//					        + l.getID() + ".dot"));
-//			}
+			addInstrumentation(classLoader, mn, className, methodName);
+
+		//		if (Properties.WRITE_CFG)
+		//			for (LCSAJ l : LCSAJPool.getLCSAJs(className, methodName)) {
+		//				LCSAJGraph graph = new LCSAJGraph(l, false);
+		//				String graphDestination = "evosuite-graphs/LCSAJGraphs/" + className
+		//				        + "/" + methodName;
+		//				File dir = new File(graphDestination);
+		//				if (dir.mkdirs())
+		//					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
+		//					        + l.getID() + ".dot"));
+		//				else if (dir.exists())
+		//					graph.generate(new File(graphDestination + "/LCSAJGraph no: "
+		//					        + l.getID() + ".dot"));
+		//			}
 	}
 
 	@SuppressWarnings("unchecked")
-	private void addInstrumentation(MethodNode mn, String className, String methodName) {
-		RawControlFlowGraph graph = GraphPool.getRawCFG(className, methodName);
+	private void addInstrumentation(ClassLoader classLoader, MethodNode mn,
+	        String className, String methodName) {
+		RawControlFlowGraph graph = GraphPool.getInstance(classLoader).getRawCFG(className,
+		                                                                         methodName);
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
