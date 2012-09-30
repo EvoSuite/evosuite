@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,13 +21,16 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
+import org.evosuite.primitives.ConstantPool;
+import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
- * <p>LongPrimitiveStatement class.</p>
- *
+ * <p>
+ * LongPrimitiveStatement class.
+ * </p>
+ * 
  * @author fraser
  */
 public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
@@ -35,19 +38,26 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	private static final long serialVersionUID = 6902273233816031053L;
 
 	/**
-	 * <p>Constructor for LongPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a {@link java.lang.Long} object.
+	 * <p>
+	 * Constructor for LongPrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value
+	 *            a {@link java.lang.Long} object.
 	 */
 	public LongPrimitiveStatement(TestCase tc, Long value) {
 		super(tc, long.class, value);
 	}
 
 	/**
-	 * <p>Constructor for LongPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * <p>
+	 * Constructor for LongPrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public LongPrimitiveStatement(TestCase tc) {
 		super(tc, long.class, (long) 0);
@@ -98,8 +108,10 @@ public class LongPrimitiveStatement extends NumericalPrimitiveStatement<Long> {
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
 			value = (long) (Randomness.nextInt(2 * Properties.MAX_INT) - Properties.MAX_INT);
-		else
-			value = primitive_pool.getRandomLong();
+		else {
+			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
+			value = constantPool.getRandomLong();
+		}
 	}
 
 	/* (non-Javadoc)
