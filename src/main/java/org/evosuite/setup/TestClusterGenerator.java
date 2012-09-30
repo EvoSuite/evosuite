@@ -64,7 +64,7 @@ public class TestClusterGenerator {
 	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
 	public static void resetCluster() throws RuntimeException, ClassNotFoundException {
-		BytecodeInstructionPool.clear();
+		BytecodeInstructionPool.clearAll();
 		BranchPool.clear();
 		CFGMethodAdapter.methods.clear();
 		TestCluster.reset();

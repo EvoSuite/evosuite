@@ -173,6 +173,27 @@ public class InstrumentingClassLoader extends ClassLoader {
 		logger.info("Instrumenting class '" + fullyQualifiedTargetClass + "'.");
 		try {
 			String className = fullyQualifiedTargetClass.replace('.', '/');
+
+			/*
+			 * TODO: We will need something like this
+			 * but need to make sure that we properly
+			 * open the target as an input stream
+			 * 
+			Pattern pattern = Pattern.compile(className + "\\.class");
+			Collection<String> resources = ResourceList.getResources(pattern);
+			InputStream is = null;
+			if (resources.isEmpty()) {
+				try {
+					is = findTargetResource(".*" + className + ".class");
+				} catch (FileNotFoundException e) {
+					throw new ClassNotFoundException("Class '" + className + ".class"
+					        + "' should be in target project, but could not be found!");
+				}
+			} else {
+				String input = resources.iterator().next();
+				is = new FileInputStream(input);
+			}
+			*/
 			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
 			if (is == null) {
 				try {
@@ -182,7 +203,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 					        + "' should be in target project, but could not be found!");
 				}
 			}
-			byte[] byteBuffer = instrumentation.transformBytes(className,
+			byte[] byteBuffer = instrumentation.transformBytes(this, className,
 			                                                   new ClassReader(is));
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);
@@ -193,5 +214,4 @@ public class InstrumentingClassLoader extends ClassLoader {
 			throw new ClassNotFoundException(t.getMessage(), t);
 		}
 	}
-
 }

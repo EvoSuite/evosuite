@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -36,9 +36,7 @@ import org.evosuite.graphs.ccg.ClassCallNode;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.PureMethodsList;
-import org.objectweb.asm.Type;
 
 /**
  * This class computes the Class Control Flow Graph (CCFG) of a CUT.
@@ -100,11 +98,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	private final int UPPER_PAIR_SEARCH_INVOCATION_BOUND = 2000000;
 	private boolean warnedAboutAbortion = false;
 
-	private String className;
-	private ClassCallGraph ccg;
+	private final String className;
+	private final ClassCallGraph ccg;
+	private final ClassLoader classLoader;
 
-	private Map<String, CCFGMethodEntryNode> methodEntries = new HashMap<String, CCFGMethodEntryNode>();
-	private Map<String, CCFGMethodExitNode> methodExits = new HashMap<String, CCFGMethodExitNode>();
+	private final Map<String, CCFGMethodEntryNode> methodEntries = new HashMap<String, CCFGMethodEntryNode>();
+	private final Map<String, CCFGMethodExitNode> methodExits = new HashMap<String, CCFGMethodExitNode>();
 
 	// map methods to Sets of definitions that can be active at method
 	// return. map according to defined variables name
@@ -115,14 +114,14 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 	private Set<CCFGMethodEntryNode> analyzedMethods = new HashSet<CCFGMethodEntryNode>();
 
-	private Set<CCFGMethodEntryNode> publicMethods = new HashSet<CCFGMethodEntryNode>();
+	private final Set<CCFGMethodEntryNode> publicMethods = new HashSet<CCFGMethodEntryNode>();
 
-	private Map<FrameNodeType, CCFGFrameNode> frameNodes = new HashMap<FrameNodeType, CCFGFrameNode>();
+	private final Map<FrameNodeType, CCFGFrameNode> frameNodes = new HashMap<FrameNodeType, CCFGFrameNode>();
 
 	// cache of already analyzed methods that are known to be pure or impure
 	// respectively
-	private Set<String> pureMethods = new HashSet<String>();
-	private Set<String> impureMethods = new HashSet<String>();
+	private final Set<String> pureMethods = new HashSet<String>();
+	private final Set<String> impureMethods = new HashSet<String>();
 
 	// auxilary set for purity analysis to keep track of methods that are
 	// currently
@@ -170,8 +169,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + invocationNumber;
-			result = prime * result
-					+ ((methodCall == null) ? 0 : methodCall.hashCode());
+			result = prime * result + ((methodCall == null) ? 0 : methodCall.hashCode());
 			return result;
 		}
 
@@ -194,6 +192,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			return true;
 		}
 
+		@Override
 		public String toString() {
 			if (methodCall == null)
 				return "initCall for " + calledMethod + " " + invocationNumber;
@@ -204,8 +203,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			return calledMethod;
 		}
 
-		public static MethodCall constructForCallNode(
-				CCFGMethodCallNode callNode) {
+		public static MethodCall constructForCallNode(CCFGMethodCallNode callNode) {
 			if (callNode == null)
 				throw new IllegalArgumentException("given call node was null");
 			return new MethodCall(callNode, callNode.getCalledMethod());
@@ -227,8 +225,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		private final BytecodeInstruction definition;
 		private final MethodCall call;
 
-		public VariableDefinition(BytecodeInstruction definition,
-				MethodCall call) {
+		public VariableDefinition(BytecodeInstruction definition, MethodCall call) {
 			this.definition = definition;
 			this.call = call;
 		}
@@ -246,8 +243,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((call == null) ? 0 : call.hashCode());
-			result = prime * result
-					+ ((definition == null) ? 0 : definition.hashCode());
+			result = prime * result + ((definition == null) ? 0 : definition.hashCode());
 			return result;
 		}
 
@@ -273,6 +269,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			return true;
 		}
 
+		@Override
 		public String toString() {
 			return definition.toString() + " in " + call.toString();
 		}
@@ -289,6 +286,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		super(CCFGEdge.class);
 		this.className = ccg.getClassName();
 		this.ccg = ccg;
+		this.classLoader = ccg.getClassLoader();
 		nicenDotOutput();
 		compute();
 	}
@@ -316,7 +314,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			}
 			if (publicMethodEntry.getEntryInstruction() == null)
 				throw new IllegalStateException(
-						"expect each CCFGMethodEntryNode to have its entryInstruction set");
+				        "expect each CCFGMethodEntryNode to have its entryInstruction set");
 
 			r.addAll(determineIntraInterMethodPairs(publicMethodEntry));
 		}
@@ -363,16 +361,14 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			for (ClassCallNode parent : parents) {
 				if (toAnalyze.contains(parent))
 					continue; // will be analyzed anyway
-				if (analyzedMethods
-						.contains(getMethodEntryNodeForClassCallNode(parent)))
+				if (analyzedMethods.contains(getMethodEntryNodeForClassCallNode(parent)))
 					continue; // was already analyzed
 
 				Set<ClassCallNode> parentsChildren = ccg.getChildren(parent);
 				boolean canAnalyzeNow = true;
 				for (ClassCallNode parentsChild : parentsChildren) {
 					if (!parentsChild.equals(parent)
-							&& !(toAnalyze.contains(parentsChild) || analyzedMethods
-									.contains(getMethodEntryNodeForClassCallNode(parentsChild)))) {
+					        && !(toAnalyze.contains(parentsChild) || analyzedMethods.contains(getMethodEntryNodeForClassCallNode(parentsChild)))) {
 						// found child of parent that will not be pre-analyzed
 						canAnalyzeNow = false;
 						break;
@@ -425,7 +421,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private Set<DefUseCoverageTestFitness> createIntraClassPairsForFreeUse(
-			BytecodeInstruction freeUse) {
+	        BytecodeInstruction freeUse) {
 		checkFreeUseSanity(freeUse);
 
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
@@ -435,19 +431,17 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// + method);
 				continue;
 			}
-			Set<Map<String, BytecodeInstruction>> activeDefss = determinedActiveDefs
-					.get(method);
+			Set<Map<String, BytecodeInstruction>> activeDefss = determinedActiveDefs.get(method);
 			for (Map<String, BytecodeInstruction> activeDefs : activeDefss) {
 				// checkActiveDefsSanity(activeDefs);
 				// if (activeDefs.get(freeUse.getDUVariableName()) == null)
 				// continue;
 
-				BytecodeInstruction activeDef = activeDefs.get(freeUse
-						.getVariableName());
+				BytecodeInstruction activeDef = activeDefs.get(freeUse.getVariableName());
 				if (activeDef == null)
 					continue;
 				addNewGoalToFoundPairs(null, activeDef, freeUse,
-						DefUsePairType.INTRA_CLASS, r);
+				                       DefUsePairType.INTRA_CLASS, r);
 			}
 		}
 		return r;
@@ -456,15 +450,14 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	// intra- and inter-method pair search
 
 	private Set<DefUseCoverageTestFitness> determineIntraInterMethodPairs(
-			CCFGMethodEntryNode methodEntry) {
+	        CCFGMethodEntryNode methodEntry) {
 
 		long start = System.currentTimeMillis();
 		long mingled = timeSpentMingling;
 
 		// TODO get a logger and replace System.outs with logger.debug
 
-		System.out.print("* Searching for pairs in " + methodEntry.getMethod()
-				+ " ... ");
+		System.out.print("* Searching for pairs in " + methodEntry.getMethod() + " ... ");
 
 		warnedAboutAbortion = false;
 
@@ -476,9 +469,11 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		// search
 		Integer calls = determineIntraInterMethodPairs(methodEntry,
-				methodEntry.getEntryInstruction(), new HashSet<CCFGNode>(),
-				new HashSet<CCFGEdge>(), activeDefs, freeUses, foundPairs,
-				callStack, 0, true);
+		                                               methodEntry.getEntryInstruction(),
+		                                               new HashSet<CCFGNode>(),
+		                                               new HashSet<CCFGEdge>(),
+		                                               activeDefs, freeUses, foundPairs,
+		                                               callStack, 0, true);
 
 		long spentTime = System.currentTimeMillis() - start;
 
@@ -510,24 +505,21 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		mingled = timeSpentMingling - mingled;
 
 		System.out.println("  invocations: " + (calls + rerunCalls) + " took "
-				+ spentTime + "ms (" + mingled + ") found " + foundPairs.size()
-				+ " pairs");
+		        + spentTime + "ms (" + mingled + ") found " + foundPairs.size()
+		        + " pairs");
 
 		analyzedMethods.add(methodEntry);
 
 		return foundPairs;
 	}
 
-	private int determineIntraInterMethodPairs(
-			CCFGMethodEntryNode investigatedMethod, CCFGNode node,
-			Set<CCFGNode> handled, Set<CCFGEdge> handledBackEdges,
-			Set<Map<String, VariableDefinition>> activeDefs,
-			Set<BytecodeInstruction> freeUses,
-			Set<DefUseCoverageTestFitness> foundPairs,
-			Stack<MethodCall> callStack, int invocationCount,
-			boolean handleLoops) {
+	private int determineIntraInterMethodPairs(CCFGMethodEntryNode investigatedMethod,
+	        CCFGNode node, Set<CCFGNode> handled, Set<CCFGEdge> handledBackEdges,
+	        Set<Map<String, VariableDefinition>> activeDefs,
+	        Set<BytecodeInstruction> freeUses, Set<DefUseCoverageTestFitness> foundPairs,
+	        Stack<MethodCall> callStack, int invocationCount, boolean handleLoops) {
 
-//		LoggingUtils.getEvoLogger().info("  processing " + node.toString());
+		//		LoggingUtils.getEvoLogger().info("  processing " + node.toString());
 
 		handleHandledNodesSet(node, handled);
 
@@ -536,11 +528,11 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			return invocationCount;
 
 		if (node instanceof CCFGFieldClassCallNode)
-			handleFieldCallNode(investigatedMethod, node, callStack,
-					activeDefs, freeUses, foundPairs);
+			handleFieldCallNode(investigatedMethod, node, callStack, activeDefs,
+			                    freeUses, foundPairs);
 		else if (node instanceof CCFGCodeNode)
-			handleCodeNode(investigatedMethod, node, callStack, activeDefs,
-					freeUses, foundPairs);
+			handleCodeNode(investigatedMethod, node, callStack, activeDefs, freeUses,
+			               foundPairs);
 		else if (node instanceof CCFGMethodCallNode)
 			handled = handleMethodCallNode(node, callStack, handled);
 		else if (node instanceof CCFGMethodReturnNode)
@@ -554,13 +546,13 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		Set<CCFGNode> children = getChildren(node);
 
-		boolean skipChildren = shouldSkipChildren(node, handledBackEdges,
-				children, handleLoops);
+		boolean skipChildren = shouldSkipChildren(node, handledBackEdges, children,
+		                                          handleLoops);
 
 		if (!skipChildren)
 			for (CCFGNode child : children) {
 				if (!shouldProcessChild(node, child, handled, handledBackEdges,
-						handleLoops))
+				                        handleLoops))
 					continue;
 
 				// System.out.println("  nextChild of "+node.toString()+" is "+child.toString());
@@ -591,9 +583,10 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 						nextCallStack = copyCallStack(callStack);
 
 						// use previously stored information
-						activeDefs = handleMethodCallNodeChild(callNode,
-								activeDefs, freeUses, foundPairs,
-								nextCallStack, investigatedMethod);
+						activeDefs = handleMethodCallNodeChild(callNode, activeDefs,
+						                                       freeUses, foundPairs,
+						                                       nextCallStack,
+						                                       investigatedMethod);
 						// now we can continue our search with the
 						// CCFGMethodReturnNode of our call
 						child = callNode.getReturnNode();
@@ -607,19 +600,29 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// only have to copy stuff if current node has more than one
 				// child
 				if (children.size() > 1)
-					invocationCount = determineIntraInterMethodPairs(
-							investigatedMethod, child, new HashSet<CCFGNode>(
-									handled), new HashSet<CCFGEdge>(
-									handledBackEdges),
-							copyActiveDefs(activeDefs),
-							new HashSet<BytecodeInstruction>(freeUses),
-							foundPairs, copyCallStack(nextCallStack),
-							invocationCount, handleLoops);
+					invocationCount = determineIntraInterMethodPairs(investigatedMethod,
+					                                                 child,
+					                                                 new HashSet<CCFGNode>(
+					                                                         handled),
+					                                                 new HashSet<CCFGEdge>(
+					                                                         handledBackEdges),
+					                                                 copyActiveDefs(activeDefs),
+					                                                 new HashSet<BytecodeInstruction>(
+					                                                         freeUses),
+					                                                 foundPairs,
+					                                                 copyCallStack(nextCallStack),
+					                                                 invocationCount,
+					                                                 handleLoops);
 				else
-					invocationCount = determineIntraInterMethodPairs(
-							investigatedMethod, child, handled,
-							handledBackEdges, activeDefs, freeUses, foundPairs,
-							nextCallStack, invocationCount, handleLoops);
+					invocationCount = determineIntraInterMethodPairs(investigatedMethod,
+					                                                 child, handled,
+					                                                 handledBackEdges,
+					                                                 activeDefs,
+					                                                 freeUses,
+					                                                 foundPairs,
+					                                                 nextCallStack,
+					                                                 invocationCount,
+					                                                 handleLoops);
 
 				if (invocationCount >= UPPER_PAIR_SEARCH_INVOCATION_BOUND)
 					continue;
@@ -638,18 +641,17 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * 
 	 */
 	private Set<Map<String, VariableDefinition>> handleMethodCallNodeChild(
-			CCFGMethodCallNode callNode,
-			Set<Map<String, VariableDefinition>> activeDefs,
-			Set<BytecodeInstruction> freeUses,
-			Set<DefUseCoverageTestFitness> foundPairs,
-			Stack<MethodCall> callStack, CCFGMethodEntryNode investigatedMethod) {
+	        CCFGMethodCallNode callNode, Set<Map<String, VariableDefinition>> activeDefs,
+	        Set<BytecodeInstruction> freeUses, Set<DefUseCoverageTestFitness> foundPairs,
+	        Stack<MethodCall> callStack, CCFGMethodEntryNode investigatedMethod) {
 		// create MethodCall object to avoid weird special cases
 		MethodCall call = MethodCall.constructForCallNode(callNode);
 		// since we already analyzed the called method we will
 		// use the previously stored information in determinedActiveDefs
 		// and determinedFreeUses
-		activeDefs = useStoredInformationForMethodCall(investigatedMethod,
-				callNode, activeDefs, freeUses, foundPairs, call);
+		activeDefs = useStoredInformationForMethodCall(investigatedMethod, callNode,
+		                                               activeDefs, freeUses, foundPairs,
+		                                               call);
 		// and push a MethodCall onto the Stack in order to avoid special
 		// cases in handleMethodReturnNode()
 		updateCallStackForCall(callStack, call);
@@ -667,7 +669,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	private void handleHandledNodesSet(CCFGNode node, Set<CCFGNode> handled) {
 		if (handled.contains(node))
 			throw new IllegalStateException(
-					"visiting already handled node, should not happen");
+			        "visiting already handled node, should not happen");
 		handled.add(node);
 	}
 
@@ -680,7 +682,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * some nodes more than once in case of a recursive method call for example
 	 */
 	private Set<CCFGNode> handleMethodCallNode(CCFGNode node,
-			Stack<MethodCall> callStack, Set<CCFGNode> handled) {
+	        Stack<MethodCall> callStack, Set<CCFGNode> handled) {
 
 		CCFGMethodCallNode callNode = (CCFGMethodCallNode) node;
 		updateCallStackForCallNode(callStack, callNode);
@@ -697,23 +699,22 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * 
 	 * Otherwise we pop the top of our callStack.
 	 */
-	private void handleMethodReturnNode(CCFGNode node,
-			Stack<MethodCall> callStack) {
+	private void handleMethodReturnNode(CCFGNode node, Stack<MethodCall> callStack) {
 		if (callStack.peek().isInitialMethodCall())
 			throw new IllegalStateException(
-					"found method return but had no more method calls on stack");
+			        "found method return but had no more method calls on stack");
 
 		CCFGMethodReturnNode retrn = (CCFGMethodReturnNode) node;
 		if (!callStack.peek().isMethodCallFor(retrn.getCallInstruction()))
 			throw new IllegalStateException(
-					"visiting MethodReturnNode even though lastly visited MethodCallNode was from a different method");
+			        "visiting MethodReturnNode even though lastly visited MethodCallNode was from a different method");
 
 		callStack.pop();
 	}
 
 	private void handleFrameNode() {
 		throw new IllegalStateException(
-				"visiting CCFGFrameNode during pair search, which should not happen");
+		        "visiting CCFGFrameNode during pair search, which should not happen");
 	}
 
 	/**
@@ -723,9 +724,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * @param freeUses
 	 */
 	private void handleMethodExitNode(CCFGNode node,
-			CCFGMethodEntryNode investigatedMethod,
-			Set<Map<String, VariableDefinition>> activeDefs,
-			Set<BytecodeInstruction> freeUses) {
+	        CCFGMethodEntryNode investigatedMethod,
+	        Set<Map<String, VariableDefinition>> activeDefs,
+	        Set<BytecodeInstruction> freeUses) {
 
 		CCFGMethodExitNode exitNode = (CCFGMethodExitNode) node;
 		if (exitNode.isExitOfMethodEntry(investigatedMethod)) {
@@ -735,51 +736,47 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private void handleFieldCallNode(CCFGMethodEntryNode investigatedMethod,
-			CCFGNode node, Stack<MethodCall> callStack,
-			Set<Map<String, VariableDefinition>> activeDefs,
-			Set<BytecodeInstruction> freeUses,
-			Set<DefUseCoverageTestFitness> foundPairs) {
+	        CCFGNode node, Stack<MethodCall> callStack,
+	        Set<Map<String, VariableDefinition>> activeDefs,
+	        Set<BytecodeInstruction> freeUses, Set<DefUseCoverageTestFitness> foundPairs) {
 
 		BytecodeInstruction code = ((CCFGCodeNode) node).getCodeInstruction();
 
-//		LoggingUtils.getEvoLogger().info(
-//				"Processing field call: " + node.toString());
+		//		LoggingUtils.getEvoLogger().info(
+		//				"Processing field call: " + node.toString());
 
 		handleDefUse(investigatedMethod, code, callStack, activeDefs, freeUses,
-				foundPairs);
+		             foundPairs);
 	}
 
-	private void handleCodeNode(CCFGMethodEntryNode investigatedMethod,
-			CCFGNode node, Stack<MethodCall> callStack,
-			Set<Map<String, VariableDefinition>> activeDefs,
-			Set<BytecodeInstruction> freeUses,
-			Set<DefUseCoverageTestFitness> foundPairs) {
+	private void handleCodeNode(CCFGMethodEntryNode investigatedMethod, CCFGNode node,
+	        Stack<MethodCall> callStack, Set<Map<String, VariableDefinition>> activeDefs,
+	        Set<BytecodeInstruction> freeUses, Set<DefUseCoverageTestFitness> foundPairs) {
 
 		BytecodeInstruction code = ((CCFGCodeNode) node).getCodeInstruction();
 
 		handleDefUse(investigatedMethod, code, callStack, activeDefs, freeUses,
-				foundPairs);
+		             foundPairs);
 	}
 
 	private void handleDefUse(CCFGMethodEntryNode investigatedMethod,
-			BytecodeInstruction code, Stack<MethodCall> callStack,
-			Set<Map<String, VariableDefinition>> activeDefs,
-			Set<BytecodeInstruction> freeUses,
-			Set<DefUseCoverageTestFitness> foundPairs) {
+	        BytecodeInstruction code, Stack<MethodCall> callStack,
+	        Set<Map<String, VariableDefinition>> activeDefs,
+	        Set<BytecodeInstruction> freeUses, Set<DefUseCoverageTestFitness> foundPairs) {
 
 		checkCallStackSanity(callStack, code);
 
 		if (code.isUse())
-			handleUseInstruction(investigatedMethod, code, callStack,
-					activeDefs, freeUses, foundPairs);
+			handleUseInstruction(investigatedMethod, code, callStack, activeDefs,
+			                     freeUses, foundPairs);
 
 		if (code.isDefinition())
 			handleDefInstruction(code, callStack, activeDefs);
 	}
 
 	private void handleDefInstruction(BytecodeInstruction code,
-			Stack<MethodCall> callStack,
-			Set<Map<String, VariableDefinition>> activeDefMaps) {
+	        Stack<MethodCall> callStack,
+	        Set<Map<String, VariableDefinition>> activeDefMaps) {
 
 		VariableDefinition def = new VariableDefinition(code, callStack.peek());
 		for (Map<String, VariableDefinition> activeDefMap : activeDefMaps) {
@@ -789,13 +786,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private void handleUseInstruction(CCFGMethodEntryNode investigatedMethod,
-			BytecodeInstruction code, Stack<MethodCall> callStack,
-			Set<Map<String, VariableDefinition>> activeDefMaps,
-			Set<BytecodeInstruction> freeUses,
-			Set<DefUseCoverageTestFitness> foundPairs) {
+	        BytecodeInstruction code, Stack<MethodCall> callStack,
+	        Set<Map<String, VariableDefinition>> activeDefMaps,
+	        Set<BytecodeInstruction> freeUses, Set<DefUseCoverageTestFitness> foundPairs) {
 
 		String varName = code.getVariableName();
-//		LoggingUtils.getEvoLogger().info("Processing Use for "+varName);
+		//		LoggingUtils.getEvoLogger().info("Processing Use for "+varName);
 
 		for (Map<String, VariableDefinition> activeDefs : activeDefMaps) {
 
@@ -806,8 +802,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// the
 				// same method and executed during a single invocation of
 				// that method
-				boolean isIntraPair = activeDef.getMethodCall().equals(
-						callStack.peek());
+				boolean isIntraPair = activeDef.getMethodCall().equals(callStack.peek());
 				DefUseCoverageTestFitness.DefUsePairType type;
 				if (isIntraPair)
 					type = DefUseCoverageTestFitness.DefUsePairType.INTRA_METHOD;
@@ -816,9 +811,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				}
 
 				if (!activeDef.getDefinition().isLocalDU()
-						|| type.equals(DefUsePairType.INTRA_METHOD))
-					addNewGoalToFoundPairs(investigatedMethod, activeDef, code,
-							type, foundPairs);
+				        || type.equals(DefUsePairType.INTRA_METHOD))
+					addNewGoalToFoundPairs(investigatedMethod, activeDef, code, type,
+					                       foundPairs);
 			} else {
 				// if we encounter a use here but have no activeDef yet we know
 				// the
@@ -841,9 +836,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * the first walk through the loop. so after we make our two runs through
 	 * the loop we don't have to walk through everything after the loop again
 	 */
-	private boolean shouldSkipChildren(CCFGNode node,
-			Set<CCFGEdge> handledBackEdges, Set<CCFGNode> children,
-			boolean handleLoops) {
+	private boolean shouldSkipChildren(CCFGNode node, Set<CCFGEdge> handledBackEdges,
+	        Set<CCFGNode> children, boolean handleLoops) {
 		boolean skipChildren = false;
 		if (handleLoops) {
 			for (CCFGNode child : children) {
@@ -859,14 +853,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private boolean shouldProcessChild(CCFGNode node, CCFGNode child,
-			Set<CCFGNode> handled, Set<CCFGEdge> handledBackEdges,
-			boolean handleLoops) {
+	        Set<CCFGNode> handled, Set<CCFGEdge> handledBackEdges, boolean handleLoops) {
 
 		if (handleLoops) {
 			CCFGEdge currentEdge = getEdge(node, child);
 			if (handledBackEdges.contains(currentEdge))
-				throw new IllegalStateException(
-						"should have been detected earlier");
+				throw new IllegalStateException("should have been detected earlier");
 			if (handled.contains(child)) {
 				// whenever we encounter an edge back to a previously handled
 				// node we need to clear handled set once, otherwise we are
@@ -888,20 +880,19 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * a DefUse-instruction that child does not need to be processed explicitly
 	 * and can be skipped
 	 */
-	private CCFGNode determineNextRelevantNode(CCFGNode node,
-			Set<CCFGNode> handled) {
+	private CCFGNode determineNextRelevantNode(CCFGNode node, Set<CCFGNode> handled) {
 		CCFGNode nextNode;
 		while (outDegreeOf(node) == 1
-				&& (nextNode = getSingleChild(node)) instanceof CCFGCodeNode
-				&& !((CCFGCodeNode) nextNode).getCodeInstruction().isDefUse()
-				&& !handled.contains(nextNode)) {
+		        && (nextNode = getSingleChild(node)) instanceof CCFGCodeNode
+		        && !((CCFGCodeNode) nextNode).getCodeInstruction().isDefUse()
+		        && !handled.contains(nextNode)) {
 			node = nextNode;
 		}
 		return node;
 	}
 
 	private Set<Map<String, VariableDefinition>> copyActiveDefs(
-			Set<Map<String, VariableDefinition>> activeDefs) {
+	        Set<Map<String, VariableDefinition>> activeDefs) {
 
 		HashSet<Map<String, VariableDefinition>> r = new HashSet<Map<String, VariableDefinition>>();
 		for (Map<String, VariableDefinition> activeDef : activeDefs)
@@ -910,20 +901,17 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private Set<Map<String, VariableDefinition>> useStoredInformationForMethodCall(
-			CCFGMethodEntryNode investigatedMethod,
-			CCFGMethodCallNode callNode,
-			Set<Map<String, VariableDefinition>> activeDefMapsInCaller,
-			Set<BytecodeInstruction> freeUses,
-			Set<DefUseCoverageTestFitness> foundPairs, MethodCall call) {
+	        CCFGMethodEntryNode investigatedMethod, CCFGMethodCallNode callNode,
+	        Set<Map<String, VariableDefinition>> activeDefMapsInCaller,
+	        Set<BytecodeInstruction> freeUses, Set<DefUseCoverageTestFitness> foundPairs,
+	        MethodCall call) {
 
 		//
-		Set<BytecodeInstruction> freeUsesInCalledMethod = determinedFreeUses
-				.get(callNode.getCalledMethod());
+		Set<BytecodeInstruction> freeUsesInCalledMethod = determinedFreeUses.get(callNode.getCalledMethod());
 
 		for (BytecodeInstruction freeUseInCalledMethod : freeUsesInCalledMethod) {
 			for (Map<String, VariableDefinition> activeDefMap : activeDefMapsInCaller) {
-				VariableDefinition activeDef = activeDefMap
-						.get(freeUseInCalledMethod.getVariableName());
+				VariableDefinition activeDef = activeDefMap.get(freeUseInCalledMethod.getVariableName());
 
 				if (activeDef == null) {
 					// there was a path to the calledMethod that did not define
@@ -937,15 +925,14 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 					// inter-method pair
 					if (freeUseInCalledMethod.isFieldUse()) {
 						addNewGoalToFoundPairs(investigatedMethod, activeDef,
-								freeUseInCalledMethod,
-								DefUsePairType.INTER_METHOD, foundPairs);
+						                       freeUseInCalledMethod,
+						                       DefUsePairType.INTER_METHOD, foundPairs);
 					}
 				}
 			}
 		}
 
-		Set<Map<String, BytecodeInstruction>> activeDefMapsInCallee = determinedActiveDefs
-				.get(callNode.getCalledMethod());
+		Set<Map<String, BytecodeInstruction>> activeDefMapsInCallee = determinedActiveDefs.get(callNode.getCalledMethod());
 
 		Set<Map<String, VariableDefinition>> activeDefMapsAfterCurrentCall = new HashSet<Map<String, VariableDefinition>>();
 
@@ -957,7 +944,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		for (Map<String, BytecodeInstruction> activeDefMapInCallee : activeDefMapsInCallee) {
 			for (Map<String, VariableDefinition> activeDefMapInCaller : activeDefMapsInCaller) {
 				Set<String> relevantVariables = new HashSet<String>(
-						activeDefMapInCallee.keySet());
+				        activeDefMapInCallee.keySet());
 				relevantVariables.addAll(activeDefMapInCaller.keySet());
 
 				// mingle both activeDefMaps from prior to the call and when
@@ -965,29 +952,25 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// call
 				Map<String, VariableDefinition> activeDefMapAfterCurrentCall = new HashMap<String, VariableDefinition>();
 				for (String variable : relevantVariables) {
-					BytecodeInstruction activeDefAfterCall = activeDefMapInCallee
-							.get(variable);
-					VariableDefinition activeDefPriorToCall = activeDefMapInCaller
-							.get(variable);
+					BytecodeInstruction activeDefAfterCall = activeDefMapInCallee.get(variable);
+					VariableDefinition activeDefPriorToCall = activeDefMapInCaller.get(variable);
 
 					if (activeDefAfterCall == null) {
 						if (activeDefPriorToCall == null)
 							throw new IllegalStateException(
-									"expect activeDefMaps not to map to null values");
+							        "expect activeDefMaps not to map to null values");
 
 						// variable was not overwritten in called
 						// method, so the activeDef prior to the call stays
 						// active
-						activeDefMapAfterCurrentCall.put(variable,
-								activeDefPriorToCall);
+						activeDefMapAfterCurrentCall.put(variable, activeDefPriorToCall);
 					} else {
 						// variable was overwritten in call, so we will make a
 						// new VariableDefinition and keep that active in the
 						// newly created map
 						VariableDefinition overwritingDefinition = new VariableDefinition(
-								activeDefAfterCall, call);
-						activeDefMapAfterCurrentCall.put(variable,
-								overwritingDefinition);
+						        activeDefAfterCall, call);
+						activeDefMapAfterCurrentCall.put(variable, overwritingDefinition);
 					}
 				}
 
@@ -1010,8 +993,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		if (determinedFreeUses.get(method) != null) {
 			if (determinedActiveDefs.get(method) == null)
 				throw new IllegalStateException(
-						"found already determined freeUse but no activeDefs for method "
-								+ method);
+				        "found already determined freeUse but no activeDefs for method "
+				                + method);
 			return true;
 		}
 		return false;
@@ -1022,7 +1005,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * it onto the given callStack.
 	 */
 	private void updateCallStackForCallNode(Stack<MethodCall> callStack,
-			CCFGMethodCallNode callNode) {
+	        CCFGMethodCallNode callNode) {
 
 		MethodCall call = MethodCall.constructForCallNode(callNode);
 		updateCallStackForCall(callStack, call);
@@ -1031,42 +1014,40 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	/**
 	 * Pushes the given MethodCall object onto the given callStack
 	 */
-	private void updateCallStackForCall(Stack<MethodCall> callStack,
-			MethodCall call) {
+	private void updateCallStackForCall(Stack<MethodCall> callStack, MethodCall call) {
 
 		callStack.push(call);
 	}
 
 	private void addNewGoalToFoundPairs(CCFGMethodEntryNode investigatedMethod,
-			VariableDefinition activeDef, BytecodeInstruction code,
-			DefUsePairType type, Set<DefUseCoverageTestFitness> foundPairs) {
+	        VariableDefinition activeDef, BytecodeInstruction code, DefUsePairType type,
+	        Set<DefUseCoverageTestFitness> foundPairs) {
 
-		addNewGoalToFoundPairs(investigatedMethod, activeDef.getDefinition(),
-				code, type, foundPairs);
+		addNewGoalToFoundPairs(investigatedMethod, activeDef.getDefinition(), code, type,
+		                       foundPairs);
 	}
 
 	private void addNewGoalToFoundPairs(CCFGMethodEntryNode investigatedMethod,
-			BytecodeInstruction activeDef, BytecodeInstruction freeUse,
-			DefUsePairType type, Set<DefUseCoverageTestFitness> foundPairs) {
+	        BytecodeInstruction activeDef, BytecodeInstruction freeUse,
+	        DefUsePairType type, Set<DefUseCoverageTestFitness> foundPairs) {
 
 		checkDefinitionSanity(activeDef);
 		checkUseSanity(freeUse);
 
 		if (type.equals(DefUsePairType.INTER_METHOD)
-				&& !isPublicMethod(investigatedMethod))
+		        && !isPublicMethod(investigatedMethod))
 			return;
 
-		DefUseCoverageTestFitness goal = DefUseCoverageFactory.createGoal(
-				activeDef, freeUse, type);
+		DefUseCoverageTestFitness goal = DefUseCoverageFactory.createGoal(activeDef,
+		                                                                  freeUse, type);
 		if (goal != null) {
 			foundPairs.add(goal);
-//			System.out.println();
-//			System.out.println("  created goal: " + goal.toString());
+			//			System.out.println();
+			//			System.out.println("  created goal: " + goal.toString());
 		}
 	}
 
-	private boolean handleReturnNodeChild(CCFGNode child,
-			Stack<MethodCall> callStack) {
+	private boolean handleReturnNodeChild(CCFGNode child, Stack<MethodCall> callStack) {
 
 		if (callStack.peek().isInitialMethodCall())
 			return true;
@@ -1081,16 +1062,16 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		CCFGFrameNode frameNode = (CCFGFrameNode) child;
 		if (!frameNode.getType().equals(FrameNodeType.RETURN))
 			throw new IllegalStateException(
-					"found CCFGFrameNode that was not of type RETURN. should not be possible "
-							+ frameNode.toString());
+			        "found CCFGFrameNode that was not of type RETURN. should not be possible "
+			                + frameNode.toString());
 	}
 
 	private void rememberActiveDefs(String method,
-			Set<Map<String, VariableDefinition>> activeDefMaps) {
+	        Set<Map<String, VariableDefinition>> activeDefMaps) {
 
 		if (determinedActiveDefs.get(method) == null)
 			determinedActiveDefs.put(method,
-					new HashSet<Map<String, BytecodeInstruction>>());
+			                         new HashSet<Map<String, BytecodeInstruction>>());
 
 		Set<Map<String, BytecodeInstruction>> defMaps = toRememberableBytecodeInstructionMap(activeDefMaps);
 
@@ -1099,8 +1080,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		}
 	}
 
-	private void rememberFreeUses(String method,
-			Set<BytecodeInstruction> freeUses) {
+	private void rememberFreeUses(String method, Set<BytecodeInstruction> freeUses) {
 		if (determinedFreeUses.get(method) == null)
 			determinedFreeUses.put(method, new HashSet<BytecodeInstruction>());
 		determinedFreeUses.get(method).addAll(freeUses);
@@ -1113,12 +1093,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return r;
 	}
 
-	private Set<CCFGNode> filterHandledMapForMethodCallNode(
-			CCFGMethodCallNode callNode, Set<CCFGNode> handled) {
+	private Set<CCFGNode> filterHandledMapForMethodCallNode(CCFGMethodCallNode callNode,
+	        Set<CCFGNode> handled) {
 		Set<CCFGNode> r = new HashSet<CCFGNode>();
 		for (CCFGNode node : handled)
 			if (!nodeBelongsToMethod(node, callNode.getCalledMethod())
-					|| (node instanceof CCFGMethodCallNode))
+			        || (node instanceof CCFGMethodCallNode))
 				r.add(node);
 
 		r.add(callNode);
@@ -1188,7 +1168,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private boolean analyzePurity(String analyzedMethod, CCFGNode currentNode,
-			Set<CCFGNode> handled) {
+	        Set<CCFGNode> handled) {
 
 		if (handled.contains(currentNode)) {
 			// if we already handled the node we know it is pure otherwise we
@@ -1200,25 +1180,23 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		// the node at which analysis is supposed to continue
 		// used for skipping intermediate nodes for CCFGMethodCallNodes
 		CCFGNode nextNode = currentNode;
-		
+
 		if (currentNode instanceof CCFGFieldClassCallNode) {
 			CCFGFieldClassCallNode fieldCall = (CCFGFieldClassCallNode) currentNode;
 			// TODO for now we will have to ignore classes that we are not able
 			// to analyze.
 			// this should only happen for classes in java.*
-			String toAnalyze = fieldCall.getClassName() + "."
-					+ fieldCall.getMethodName();
-			if (GraphPool.canMakeCCFGForClass(fieldCall.getClassName())) {
-				
+			String toAnalyze = fieldCall.getClassName() + "." + fieldCall.getMethodName();
+			if (GraphPool.getInstance(classLoader).canMakeCCFGForClass(fieldCall.getClassName())) {
+
 				if (!methodsInPurityAnalysis.contains(toAnalyze)) {
-					ClassControlFlowGraph ccfg = GraphPool.getCCFG(fieldCall
-							.getClassName());
+					ClassControlFlowGraph ccfg = GraphPool.getInstance(classLoader).getCCFG(fieldCall.getClassName());
 					if (!ccfg.isPure(fieldCall.getMethodName())) {
 						// if fieldCall is impure this method is also impure
 						return false;
 					}
 				}
-			} else{
+			} else {
 
 				//The format that ASM for types and the one used in my data file is different: in particular ASM uses the 
 				//Class.getName format for types see http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#getName(), while the data
@@ -1230,8 +1208,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				//In the mean time this method convert the ASM/JVM format into the normal one, using an utility 
 				//of ASM.
 				//The file with the method list is in src/resources, it SHOULD be accurate but not perfect, some methods are missing for sure.
-				
-				if(toAnalyze.startsWith("java.")){
+
+				if (toAnalyze.startsWith("java.")) {
 					return PureMethodsList.instance.checkPurity(fieldCall.getCodeInstruction());
 				}
 			}
@@ -1252,7 +1230,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				return true;
 			else
 				throw new IllegalStateException(
-						"MethodExitNodes from methods other then the currently analyzed one should not be reached");
+				        "MethodExitNodes from methods other then the currently analyzed one should not be reached");
 		} else if (currentNode instanceof CCFGMethodCallNode) {
 			CCFGMethodCallNode callNode = (CCFGMethodCallNode) currentNode;
 			// avoid loops in analysis
@@ -1270,8 +1248,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			// do nothing special
 		} else
 			throw new IllegalStateException(
-					"purity analysis should not reach this kind of CCFGNode: "
-							+ currentNode.getClass().toString());
+			        "purity analysis should not reach this kind of CCFGNode: "
+			                + currentNode.getClass().toString());
 
 		Set<CCFGNode> children = getChildren(nextNode);
 		for (CCFGNode child : children) {
@@ -1289,12 +1267,10 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * Returns true iff the given invocationCount has exceeded the upper limit
 	 * defined by UPPER_PAIR_SEARCH_INVOCATION_BOUND
 	 */
-	private boolean checkInvocationBound(int invocationCount,
-			Stack<MethodCall> callStack) {
+	private boolean checkInvocationBound(int invocationCount, Stack<MethodCall> callStack) {
 
 		if (invocationCount % (UPPER_PAIR_SEARCH_INVOCATION_BOUND / 10) == 0) {
-			int percent = invocationCount
-					/ (UPPER_PAIR_SEARCH_INVOCATION_BOUND / 10);
+			int percent = invocationCount / (UPPER_PAIR_SEARCH_INVOCATION_BOUND / 10);
 			System.out.print(percent + "0% .. ");
 		}
 
@@ -1302,9 +1278,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			if (!warnedAboutAbortion) {
 				System.out.println();
 				System.out.println("* ABORTED inter method pair search in "
-						+ callStack.peek()
-						+ "! Reached maximum invocation limit: "
-						+ UPPER_PAIR_SEARCH_INVOCATION_BOUND);
+				        + callStack.peek() + "! Reached maximum invocation limit: "
+				        + UPPER_PAIR_SEARCH_INVOCATION_BOUND);
 				warnedAboutAbortion = true;
 			}
 			return true;
@@ -1317,20 +1292,17 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * given BytecodeInstruction this methods throws an IllegalStateException
 	 */
 	private void checkCallStackSanity(Stack<MethodCall> callStack,
-			BytecodeInstruction code) {
+	        BytecodeInstruction code) {
 
-		if (!callStack.peek().getCalledMethodName()
-				.equals(code.getMethodName())) {
+		if (!callStack.peek().getCalledMethodName().equals(code.getMethodName())) {
 
 			for (MethodCall mc : callStack) {
 				System.out.println("  " + mc.toString());
 			}
 
-			throw new IllegalStateException(
-					"insane callStack: peek is in method "
-							+ callStack.peek().getCalledMethodName()
-							+ " and i encountered code of method "
-							+ code.getMethodName());
+			throw new IllegalStateException("insane callStack: peek is in method "
+			        + callStack.peek().getCalledMethodName()
+			        + " and i encountered code of method " + code.getMethodName());
 		}
 	}
 
@@ -1339,25 +1311,22 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 		if (!freeUse.isFieldUse())
 			throw new IllegalStateException(
-					"expect all freeUses to be Use instructions for field variable");
+			        "expect all freeUses to be Use instructions for field variable");
 	}
 
 	private void checkUseSanity(BytecodeInstruction freeUse) {
 		if (freeUse == null)
-			throw new IllegalStateException(
-					"null values not allowed in freeUses map");
+			throw new IllegalStateException("null values not allowed in freeUses map");
 		else if (!freeUse.isUse())
-			throw new IllegalStateException(
-					"expect all freeUses to be Use instructions");
+			throw new IllegalStateException("expect all freeUses to be Use instructions");
 	}
 
 	private void checkDefinitionSanity(BytecodeInstruction activeDef) {
 		if (activeDef == null)
-			throw new IllegalStateException(
-					"null values not allowed in activeDef map");
+			throw new IllegalStateException("null values not allowed in activeDef map");
 		else if (!activeDef.isDefinition())
 			throw new IllegalStateException(
-					"expect all activeDefs to be Definition instructions");
+			        "expect all activeDefs to be Definition instructions");
 	}
 
 	/**
@@ -1365,7 +1334,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * BytecodeInstructions and filters out local variables.
 	 */
 	private Set<Map<String, BytecodeInstruction>> toRememberableBytecodeInstructionMap(
-			Set<Map<String, VariableDefinition>> activeDefMaps) {
+	        Set<Map<String, VariableDefinition>> activeDefMaps) {
 
 		Set<Map<String, BytecodeInstruction>> r = new HashSet<Map<String, BytecodeInstruction>>();
 
@@ -1402,8 +1371,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		return activeDefs;
 	}
 
-	private Stack<MethodCall> createInitialCallStack(
-			CCFGMethodEntryNode publicMethodEntry) {
+	private Stack<MethodCall> createInitialCallStack(CCFGMethodEntryNode publicMethodEntry) {
 		Stack<MethodCall> callStack = new Stack<MethodCall>();
 		// null will represent the public method call itself
 		callStack.add(new MethodCall(null, publicMethodEntry.getMethod()));
@@ -1413,13 +1381,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 
 	// convenience getters
 
-	private CCFGMethodEntryNode getMethodEntryNodeForClassCallNode(
-			ClassCallNode ccgNode) {
+	private CCFGMethodEntryNode getMethodEntryNodeForClassCallNode(ClassCallNode ccgNode) {
 		CCFGMethodEntryNode r = methodEntries.get(ccgNode.getMethod());
 		if (r == null)
 			throw new IllegalStateException(
-					"expect the CCFG to contain a CCFGMethodEntryNode for each node in the corresponding CCG "
-							+ ccgNode.getMethod());
+			        "expect the CCFG to contain a CCFGMethodEntryNode for each node in the corresponding CCG "
+			                + ccgNode.getMethod());
 		return r;
 	}
 
@@ -1432,7 +1399,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private RawControlFlowGraph getRCFG(ClassCallNode ccgNode) {
-		return GraphPool.getRawCFG(className, ccgNode.getMethod());
+		return GraphPool.getInstance(classLoader).getRawCFG(className,
+		                                                    ccgNode.getMethod());
 	}
 
 	/**
@@ -1485,17 +1453,15 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private void connectCFGs(
-			Map<RawControlFlowGraph, Map<BytecodeInstruction, CCFGCodeNode>> tempMap) {
+	        Map<RawControlFlowGraph, Map<BytecodeInstruction, CCFGCodeNode>> tempMap) {
 
 		for (RawControlFlowGraph cfg : tempMap.keySet()) {
-			List<BytecodeInstruction> calls = cfg
-					.determineMethodCallsToOwnClass();
+			List<BytecodeInstruction> calls = cfg.determineMethodCallsToOwnClass();
 			for (BytecodeInstruction call : calls) {
 				// we do not want to connect every method call to the target
 				// class, but only those that are called on the same object or
 				// are static
-				if (!(call.isCallToStaticMethod() || call
-						.isMethodCallOnSameObject())) {
+				if (!(call.isCallToStaticMethod() || call.isMethodCallOnSameObject())) {
 					// System.out.println("excluded method call: "
 					// + call.toString());
 					// System.out.println("DESC: "+call.getCalledMethodsArgumentCount());
@@ -1507,10 +1473,8 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		}
 	}
 
-	private void connectCFG(
-			RawControlFlowGraph cfg,
-			BytecodeInstruction call,
-			Map<RawControlFlowGraph, Map<BytecodeInstruction, CCFGCodeNode>> tempMap) {
+	private void connectCFG(RawControlFlowGraph cfg, BytecodeInstruction call,
+	        Map<RawControlFlowGraph, Map<BytecodeInstruction, CCFGCodeNode>> tempMap) {
 
 		// add MethodCallNode and MethodReturnNode
 		CCFGMethodReturnNode returnNode = new CCFGMethodReturnNode(call);
@@ -1531,13 +1495,12 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 		// redirect edges from the original CodeNode to the new nodes
 		CCFGNode origCallNode = tempMap.get(cfg).get(call);
 		if (!redirectEdges(origCallNode, callNode, returnNode)
-				|| !graph.removeVertex(origCallNode))
+		        || !graph.removeVertex(origCallNode))
 			throw new IllegalStateException(
-					"internal error while connecting cfgs during CCFG construction");
+			        "internal error while connecting cfgs during CCFG construction");
 	}
 
-	private Map<BytecodeInstruction, CCFGCodeNode> importCFG(
-			RawControlFlowGraph cfg) {
+	private Map<BytecodeInstruction, CCFGCodeNode> importCFG(RawControlFlowGraph cfg) {
 		Map<BytecodeInstruction, CCFGCodeNode> temp = new HashMap<BytecodeInstruction, CCFGCodeNode>();
 
 		importCFGNodes(cfg, temp);
@@ -1558,14 +1521,14 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	 * @param temp
 	 */
 	private void importCFGNodes(RawControlFlowGraph cfg,
-			Map<BytecodeInstruction, CCFGCodeNode> temp) {
+	        Map<BytecodeInstruction, CCFGCodeNode> temp) {
 
 		// add BytecodeInstructions as CCFGCodeNodes
 		for (BytecodeInstruction code : cfg.vertexSet()) {
 			CCFGCodeNode node;
 			if (code.isMethodCallOfField()) {
-				node = new CCFGFieldClassCallNode(code,
-						code.getCalledMethodsClass(), code.getCalledMethodName(), code.getMethodCallDescriptor());
+				node = new CCFGFieldClassCallNode(code, code.getCalledMethodsClass(),
+				        code.getCalledMethodName(), code.getMethodCallDescriptor());
 			} else {
 				node = new CCFGCodeNode(code);
 			}
@@ -1575,7 +1538,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private void importCFGEdges(RawControlFlowGraph cfg,
-			Map<BytecodeInstruction, CCFGCodeNode> temp) {
+	        Map<BytecodeInstruction, CCFGCodeNode> temp) {
 
 		// add ControlFlowEdges as CCFGCodeEdges
 		for (ControlFlowEdge e : cfg.edgeSet()) {
@@ -1588,18 +1551,18 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private void encloseCFG(RawControlFlowGraph cfg,
-			Map<BytecodeInstruction, CCFGCodeNode> temp) {
+	        Map<BytecodeInstruction, CCFGCodeNode> temp) {
 
 		addCCFGMethodEntryNode(cfg, temp);
 		addCCFGMethodExitNode(cfg, temp);
 	}
 
 	private CCFGMethodEntryNode addCCFGMethodEntryNode(RawControlFlowGraph cfg,
-			Map<BytecodeInstruction, CCFGCodeNode> temp) {
+	        Map<BytecodeInstruction, CCFGCodeNode> temp) {
 
 		CCFGCodeNode entryInstruction = temp.get(cfg.determineEntryPoint());
-		CCFGMethodEntryNode entry = new CCFGMethodEntryNode(
-				cfg.getMethodName(), entryInstruction);
+		CCFGMethodEntryNode entry = new CCFGMethodEntryNode(cfg.getMethodName(),
+		        entryInstruction);
 		addVertex(entry);
 		addEdge(entry, entryInstruction);
 		methodEntries.put(cfg.getMethodName(), entry);
@@ -1607,7 +1570,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private CCFGMethodExitNode addCCFGMethodExitNode(RawControlFlowGraph cfg,
-			Map<BytecodeInstruction, CCFGCodeNode> temp) {
+	        Map<BytecodeInstruction, CCFGCodeNode> temp) {
 
 		CCFGMethodExitNode exit = new CCFGMethodExitNode(cfg.getMethodName());
 		addVertex(exit);
@@ -1635,14 +1598,14 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 	}
 
 	private void addFrameEdges() {
-		addEdge(getFrameNode(FrameNodeType.ENTRY),
-				getFrameNode(FrameNodeType.LOOP), new CCFGFrameEdge());
-		addEdge(getFrameNode(FrameNodeType.LOOP),
-				getFrameNode(FrameNodeType.CALL), new CCFGFrameEdge());
-		addEdge(getFrameNode(FrameNodeType.LOOP),
-				getFrameNode(FrameNodeType.EXIT), new CCFGFrameEdge());
-		addEdge(getFrameNode(FrameNodeType.RETURN),
-				getFrameNode(FrameNodeType.LOOP), new CCFGFrameEdge());
+		addEdge(getFrameNode(FrameNodeType.ENTRY), getFrameNode(FrameNodeType.LOOP),
+		        new CCFGFrameEdge());
+		addEdge(getFrameNode(FrameNodeType.LOOP), getFrameNode(FrameNodeType.CALL),
+		        new CCFGFrameEdge());
+		addEdge(getFrameNode(FrameNodeType.LOOP), getFrameNode(FrameNodeType.EXIT),
+		        new CCFGFrameEdge());
+		addEdge(getFrameNode(FrameNodeType.RETURN), getFrameNode(FrameNodeType.LOOP),
+		        new CCFGFrameEdge());
 	}
 
 	/**
@@ -1670,10 +1633,9 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 			RawControlFlowGraph cfg = getRCFG(ccgNode);
 			if (cfg.isPublicMethod()) {
 				addEdge(getFrameNode(FrameNodeType.CALL),
-						methodEntries.get(ccgNode.getMethod()),
-						new CCFGFrameEdge());
+				        methodEntries.get(ccgNode.getMethod()), new CCFGFrameEdge());
 				addEdge(methodExits.get(ccgNode.getMethod()),
-						getFrameNode(FrameNodeType.RETURN), new CCFGFrameEdge());
+				        getFrameNode(FrameNodeType.RETURN), new CCFGFrameEdge());
 
 				publicMethods.add(methodEntries.get(ccgNode.getMethod()));
 			}

@@ -371,6 +371,9 @@ public class EvoSuite {
 		case RANDOM:
 			cmdLine.add("-Dstrategy=Random");
 			break;
+		case REGRESSION:
+			cmdLine.add("-Dstrategy=Regression");
+			break;
 		default:
 			throw new RuntimeException("Unsupported strategy: " + strategy);
 		}
@@ -707,6 +710,8 @@ public class EvoSuite {
 		        "list the testable classes found in the specified classpath/prefix");
 		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("Create evosuite-files with property file").create("setup");
 		Option generateRandom = new Option("generateRandom", "use random test generation");
+		Option generateRegressionSuite = new Option("regressionSuite",
+		        "generate a regression test suite");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
 		Option targetPrefix = OptionBuilder.withArgName("prefix").hasArg().withDescription("target prefix for test generation").create("prefix");
 		Option targetCP = OptionBuilder.withArgName("target").hasArg().withDescription("target classpath for test generation").create("target");
@@ -734,6 +739,7 @@ public class EvoSuite {
 		options.addOption(generateSuite);
 		options.addOption(generateTests);
 		options.addOption(generateRandom);
+		options.addOption(generateRegressionSuite);
 		options.addOption(measureCoverage);
 		options.addOption(listClasses);
 		options.addOption(setup);
@@ -798,8 +804,12 @@ public class EvoSuite {
 				javaOpts.add("-XX:+HeapDumpOnOutOfMemoryError");
 			if (line.hasOption("jar"))
 				evosuiteJar = line.getOptionValue("jar");
-			if (line.hasOption("criterion"))
-				javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+			if (!line.hasOption("regressionSuite")) {
+				if (line.hasOption("criterion"))
+					javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+			} else {
+				javaOpts.add("-Dcriterion=regression");
+			}
 			if (line.hasOption("sandbox"))
 				javaOpts.add("-Dsandbox=true");
 			if (line.hasOption("mocks"))
@@ -891,9 +901,11 @@ public class EvoSuite {
 					strategy = Strategy.EVOSUITE;
 				} else if (line.hasOption("generateRandom")) {
 					strategy = Strategy.RANDOM;
+				} else if (line.hasOption("regressionSuite")) {
+					strategy = Strategy.REGRESSION;
 				}
 				if (strategy == null) {
-					System.err.println("Please specify strategy: -generateSuite, -generateTests, -generateRandom");
+					System.err.println("Please specify strategy: -generateSuite, -generateTests, -generateRandom, -regressionSuite");
 					HelpFormatter formatter = new HelpFormatter();
 					formatter.printHelp("EvoSuite", options);
 				} else {

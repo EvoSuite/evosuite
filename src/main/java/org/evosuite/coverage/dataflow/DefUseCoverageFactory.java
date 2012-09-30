@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -29,24 +29,23 @@ import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.graphs.cfg.BytecodeInstructionPool;
+import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.PureMethodsList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
- * <p>DefUseCoverageFactory class.</p>
- *
+ * <p>
+ * DefUseCoverageFactory class.
+ * </p>
+ * 
  * @author Andre Mis
  */
 public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
-	private static Logger logger = LoggerFactory
-			.getLogger(DefUseCoverageFactory.class);
+	private static Logger logger = LoggerFactory.getLogger(DefUseCoverageFactory.class);
 
 	// TestSuiteMinimizer seems to call getCoverageGoals() a second time
 	// and since analysis takes a little ...
@@ -60,8 +59,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	private static Map<DefUseCoverageTestFitness.DefUsePairType, Integer> goalCounts = new HashMap<DefUseCoverageTestFitness.DefUsePairType, Integer>();
 
 	/**
-	 * <p>getDUGoals</p>
-	 *
+	 * <p>
+	 * getDUGoals
+	 * </p>
+	 * 
 	 * @return a {@link java.util.List} object.
 	 */
 	public static List<DefUseCoverageTestFitness> getDUGoals() {
@@ -88,7 +89,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * Determines all goals that need to get covered in order to fulfill
 	 * DefUseCoverage
-	 *
+	 * 
 	 * Those are the following: - for each parameterUse this method creates a
 	 * goal trying to cover i - for each duPair with a definition clear path
 	 * inside the methods of the CUT a goal is created - for each definition in
@@ -97,89 +98,88 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 */
 	public static void computeGoals() {
 
-		categorizeFieldMethodCalls(); 
-		
+		categorizeFieldMethodCalls();
+
 		// TODO remove the following lines once purity analysis is implemented
 		// they are just for testing purposes
-//		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
-//			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
-//				LoggingUtils.getEvoLogger().info("PURE method:\t"+methodInCCFG);
-//			else
-//				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+methodInCCFG);
-//		}
-		
+		//		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
+		//			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
+		//				LoggingUtils.getEvoLogger().info("PURE method:\t"+methodInCCFG);
+		//			else
+		//				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+methodInCCFG);
+		//		}
+
 		long start = System.currentTimeMillis();
 		logger.trace("starting DefUse-Coverage goal generation");
 		duGoals = new ArrayList<DefUseCoverageTestFitness>();
 
 		System.out.println("* Creating DefUse-Pairs from CCFG...");
 		duGoals.addAll(getCCFGPairs());
-		System.out.println("..created " + getIntraMethodGoalsCount()
-				+ " intra-method-, " + getInterMethodGoalsCount()
-				+ " inter-method- and " + getIntraClassGoalsCount()
-				+ " intra-class-pairs");
+		System.out.println("..created " + getIntraMethodGoalsCount() + " intra-method-, "
+		        + getInterMethodGoalsCount() + " inter-method- and "
+		        + getIntraClassGoalsCount() + " intra-class-pairs");
 
 		System.out.print("* Creating parameter goals...");
 		duGoals.addAll(getParameterGoals());
-		System.out.println(" created " + getParamGoalsCount()
-				+ " parameter goals");
+		System.out.println(" created " + getParamGoalsCount() + " parameter goals");
 
 		called = true;
 		goals = new ArrayList<TestFitnessFunction>();
 		goals.addAll(duGoals);
 		long end = System.currentTimeMillis();
 		goalComputationTime = end - start;
-		System.out.println("* Goal computation took: " + goalComputationTime
-				+ "ms");
+		System.out.println("* Goal computation took: " + goalComputationTime + "ms");
 	}
 
 	/**
-	 * Determines for all method calls on fields of the CUT whether the call
-	 * is to a pure or impure method. For these calls Uses and Definitions are
+	 * Determines for all method calls on fields of the CUT whether the call is
+	 * to a pure or impure method. For these calls Uses and Definitions are
 	 * created respectively.
 	 * 
-	 *  Since purity analysis is used here and requires all classes along the
-	 *  call tree to be completely analyzed this part of the CUT analysis
-	 *  can not be done in the CFGMethodAdapter like the rest of it.
-	 *  
-	 *  WORK IN PROGRESS
+	 * Since purity analysis is used here and requires all classes along the
+	 * call tree to be completely analyzed this part of the CUT analysis can not
+	 * be done in the CFGMethodAdapter like the rest of it.
+	 * 
+	 * WORK IN PROGRESS
 	 */
 	private static void categorizeFieldMethodCalls() {
 		Set<BytecodeInstruction> fieldMethodCalls = DefUsePool.retrieveFieldMethodCalls();
-		
-//		LoggingUtils.getEvoLogger().info(
-//				"Categorizing field method calls: " + fieldMethodCalls.size());
-		
-		for(BytecodeInstruction fieldMethodCall : fieldMethodCalls) {
-			
-//			LoggingUtils.getEvoLogger().info("Categorizing "+fieldMethodCall.toString());
+
+		//		LoggingUtils.getEvoLogger().info(
+		//				"Categorizing field method calls: " + fieldMethodCalls.size());
+
+		for (BytecodeInstruction fieldMethodCall : fieldMethodCalls) {
+
+			//			LoggingUtils.getEvoLogger().info("Categorizing "+fieldMethodCall.toString());
 			boolean isPure;
-			if(!GraphPool.canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
+			if (!GraphPool.getInstance(TestCluster.classLoader).canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
 				isPure = PureMethodsList.instance.checkPurity(fieldMethodCall);
-//				LoggingUtils.getEvoLogger().info("asked pure methods list for "+fieldMethodCall.toString()+" was pure "+isPure);
+				//				LoggingUtils.getEvoLogger().info("asked pure methods list for "+fieldMethodCall.toString()+" was pure "+isPure);
 				// classes in java.* can not be analyzed for purity yet. for now just ignore them
-//				continue;
+				//				continue;
 			} else {
-				ClassControlFlowGraph ccfg = GraphPool.getCCFG(fieldMethodCall.getCalledMethodsClass());
-				isPure = ccfg.isPure(fieldMethodCall.getCalledMethod()); 
+				ClassControlFlowGraph ccfg = GraphPool.getInstance(TestCluster.classLoader).getCCFG(fieldMethodCall.getCalledMethodsClass());
+				isPure = ccfg.isPure(fieldMethodCall.getCalledMethod());
 			}
-			
-			
-			if(isPure) {
-//				LoggingUtils.getEvoLogger().info("Categorized as use "+fieldMethodCall.toString());
-				if(!DefUsePool.addAsUse(fieldMethodCall))
-					throw new IllegalStateException("unable to register field method call as a use "+fieldMethodCall.toString());
+
+			if (isPure) {
+				//				LoggingUtils.getEvoLogger().info("Categorized as use "+fieldMethodCall.toString());
+				if (!DefUsePool.addAsUse(fieldMethodCall))
+					throw new IllegalStateException(
+					        "unable to register field method call as a use "
+					                + fieldMethodCall.toString());
 			} else {
-//				LoggingUtils.getEvoLogger().info("Categorized as def "+fieldMethodCall.toString());
-				if(!DefUsePool.addAsDefinition(fieldMethodCall))
-					throw new IllegalStateException("unable to register field method call as a definition "+fieldMethodCall.toString());
+				//				LoggingUtils.getEvoLogger().info("Categorized as def "+fieldMethodCall.toString());
+				if (!DefUsePool.addAsDefinition(fieldMethodCall))
+					throw new IllegalStateException(
+					        "unable to register field method call as a definition "
+					                + fieldMethodCall.toString());
 			}
 		}
 	}
 
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
-		ClassControlFlowGraph ccfg = GraphPool
-				.getCCFG(Properties.TARGET_CLASS);
+		ClassControlFlowGraph ccfg = GraphPool.getInstance(TestCluster.classLoader).getCCFG(Properties.TARGET_CLASS);
 		Set<DefUseCoverageTestFitness> r = ccfg.determineDefUsePairs();
 
 		return r;
@@ -188,19 +188,21 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * Given a definition and a use, this method creates a DefUseCoverageGoal
 	 * for this DefUsePair.
-	 *
+	 * 
 	 * @param def
 	 *            The definition of the goal
 	 * @param use
 	 *            The use of the goal
 	 * @return The created DefUseCoverageGoal
-	 * @param type a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType} object.
+	 * @param type
+	 *            a
+	 *            {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType}
+	 *            object.
 	 */
 	public static DefUseCoverageTestFitness createGoal(Definition def, Use use,
-			DefUseCoverageTestFitness.DefUsePairType type) {
+	        DefUseCoverageTestFitness.DefUsePairType type) {
 
-		DefUseCoverageTestFitness goal = new DefUseCoverageTestFitness(def,
-				use, type);
+		DefUseCoverageTestFitness goal = new DefUseCoverageTestFitness(def, use, type);
 
 		if (registerGoal(goal))
 			return goal;
@@ -214,15 +216,21 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 * Convenience method that retrieves the Definition and Use object for the
 	 * given BytecodeInstructions from the DefUsePool and calls
 	 * createGoal(Definition,Use)
-	 *
-	 * @param def a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param use a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @param type a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType} object.
-	 * @return a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
+	 * 
+	 * @param def
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param use
+	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
+	 * @param type
+	 *            a
+	 *            {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType}
+	 *            object.
+	 * @return a
+	 *         {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness}
+	 *         object.
 	 */
 	public static DefUseCoverageTestFitness createGoal(BytecodeInstruction def,
-			BytecodeInstruction use,
-			DefUseCoverageTestFitness.DefUsePairType type) {
+	        BytecodeInstruction use, DefUseCoverageTestFitness.DefUsePairType type) {
 		if (def == null)
 			throw new IllegalArgumentException("null given as def");
 		if (use == null)
@@ -231,8 +239,8 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		Definition definition = DefUsePool.getDefinitionByInstruction(def);
 		Use usee = DefUsePool.getUseByInstruction(use);
 		if (definition == null || usee == null) // can happen in (very, very)
-												// weird cases, ignoring that
-												// for now
+		                                        // weird cases, ignoring that
+		                                        // for now
 			return null;
 
 		return createGoal(definition, usee, type);
@@ -241,9 +249,8 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	private static boolean registerGoal(DefUseCoverageTestFitness goal) {
 		if (!goalMap.containsKey(goal.getGoalDefinition()))
 			goalMap.put(goal.getGoalDefinition(),
-					new HashMap<Use, DefUseCoverageTestFitness>());
-		if (goalMap.get(goal.getGoalDefinition())
-				.containsKey(goal.getGoalUse()) /* && goal.isInterMethodPair() */)
+			            new HashMap<Use, DefUseCoverageTestFitness>());
+		if (goalMap.get(goal.getGoalDefinition()).containsKey(goal.getGoalUse()) /* && goal.isInterMethodPair() */)
 			// when intra-goal DUs also have free paths to method start and end
 			// it can be declared both an intra-goal and an inter-goal. in this
 			// case we declare the goal to be intra
@@ -258,16 +265,22 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		if (goalCounts.get(goal.getType()) == null)
 			goalCounts.put(goal.getType(), 0);
 		goalCounts.put(goal.getType(), goalCounts.get(goal.getType()) + 1);
-		
-//		LoggingUtils.getEvoLogger().info(goal.toString());
+
+		//		LoggingUtils.getEvoLogger().info(goal.toString());
 	}
 
 	/**
-	 * <p>retrieveGoal</p>
-	 *
-	 * @param defId a int.
-	 * @param useId a int.
-	 * @return a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
+	 * <p>
+	 * retrieveGoal
+	 * </p>
+	 * 
+	 * @param defId
+	 *            a int.
+	 * @param useId
+	 *            a int.
+	 * @return a
+	 *         {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness}
+	 *         object.
 	 */
 	public static DefUseCoverageTestFitness retrieveGoal(int defId, int useId) {
 
@@ -278,11 +291,17 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	/**
-	 * <p>retrieveGoal</p>
-	 *
-	 * @param def a {@link org.evosuite.coverage.dataflow.Definition} object.
-	 * @param use a {@link org.evosuite.coverage.dataflow.Use} object.
-	 * @return a {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness} object.
+	 * <p>
+	 * retrieveGoal
+	 * </p>
+	 * 
+	 * @param def
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * @param use
+	 *            a {@link org.evosuite.coverage.dataflow.Use} object.
+	 * @return a
+	 *         {@link org.evosuite.coverage.dataflow.DefUseCoverageTestFitness}
+	 *         object.
 	 */
 	public static DefUseCoverageTestFitness retrieveGoal(Definition def, Use use) {
 		if (!goalMap.containsKey(def))
@@ -296,7 +315,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	/**
 	 * For each parameterUse in the CUT this method creates a
 	 * DefUseCoverageTestFitness that tries to cover that use
-	 *
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<DefUseCoverageTestFitness> getParameterGoals() {
@@ -313,8 +332,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	/**
-	 * <p>getRegsiteredDefinitions</p>
-	 *
+	 * <p>
+	 * getRegsiteredDefinitions
+	 * </p>
+	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public static Set<Definition> getRegsiteredDefinitions() {
@@ -324,13 +345,16 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	/**
-	 * <p>getRegisteredGoalsForDefinition</p>
-	 *
-	 * @param def a {@link org.evosuite.coverage.dataflow.Definition} object.
+	 * <p>
+	 * getRegisteredGoalsForDefinition
+	 * </p>
+	 * 
+	 * @param def
+	 *            a {@link org.evosuite.coverage.dataflow.Definition} object.
 	 * @return a {@link java.util.Map} object.
 	 */
 	public static Map<Use, DefUseCoverageTestFitness> getRegisteredGoalsForDefinition(
-			Definition def) {
+	        Definition def) {
 		if (!called)
 			computeGoals();
 		return goalMap.get(def);
@@ -339,8 +363,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	// Getter
 
 	/**
-	 * <p>getParamGoalsCount</p>
-	 *
+	 * <p>
+	 * getParamGoalsCount
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int getParamGoalsCount() {
@@ -351,8 +377,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	/**
-	 * <p>getIntraMethodGoalsCount</p>
-	 *
+	 * <p>
+	 * getIntraMethodGoalsCount
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int getIntraMethodGoalsCount() {
@@ -363,8 +391,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	/**
-	 * <p>getInterMethodGoalsCount</p>
-	 *
+	 * <p>
+	 * getInterMethodGoalsCount
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int getInterMethodGoalsCount() {
@@ -375,8 +405,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	/**
-	 * <p>getIntraClassGoalsCount</p>
-	 *
+	 * <p>
+	 * getIntraClassGoalsCount
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public static int getIntraClassGoalsCount() {
