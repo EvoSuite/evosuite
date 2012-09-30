@@ -4,11 +4,9 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
-import org.evosuite.primitives.PrimitivePool;
+import org.evosuite.primitives.ConstantPool;
+import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.utils.Randomness;
-import org.uispec4j.TextBox;
-import org.uispec4j.UIComponent;
-
 import org.exsyst.ui.run.AbstractUIEnvironment;
 
 public class EnterText extends UIAction<TextBox> {
@@ -17,8 +15,6 @@ public class EnterText extends UIAction<TextBox> {
 	}
 
 	private static final long serialVersionUID = 1L;
-
-	protected static PrimitivePool primitive_pool = PrimitivePool.getInstance();
 
 	private String text;
 	private Mode mode;
@@ -59,8 +55,10 @@ public class EnterText extends UIAction<TextBox> {
 
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
 			this.text = Randomness.nextString(Randomness.nextInt(Properties.STRING_LENGTH));
-		else
-			this.text = primitive_pool.getRandomString();
+		else {
+			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
+			this.text = constantPool.getRandomString();
+		}
 
 		this.mode = Randomness.choice(Mode.values());
 		this.posRand = (this.mode == Mode.InsertText) ? Randomness.nextDouble() : 0;

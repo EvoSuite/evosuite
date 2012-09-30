@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,17 +30,16 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
 /**
  * Testing might require adapting function signatures, for example Object
  * classes.
- *
+ * 
  * @author Gordon Fraser
  */
 public class ObjectSignatureAdapter extends ClassVisitor {
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(ObjectSignatureAdapter.class);
+	protected static final Logger logger = LoggerFactory.getLogger(ObjectSignatureAdapter.class);
 
 	private final String className;
 
@@ -49,17 +48,22 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 	private Map<String, String> descriptors = new HashMap<String, String>();
 
 	/**
-	 * <p>Constructor for ObjectSignatureAdapter.</p>
-	 *
-	 * @param visitor a {@link org.objectweb.asm.ClassVisitor} object.
-	 * @param className a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for ObjectSignatureAdapter.
+	 * </p>
+	 * 
+	 * @param visitor
+	 *            a {@link org.objectweb.asm.ClassVisitor} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
 	 */
 	public ObjectSignatureAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 
 		this.className = className.replace('/', '.');
 
-		if (!(this.className.startsWith(Properties.PROJECT_PREFIX)) && !(this.className.startsWith(Properties.TARGET_CLASS_PREFIX))) {
+		if (!(this.className.startsWith(Properties.PROJECT_PREFIX))
+		        && !(this.className.startsWith(Properties.TARGET_CLASS_PREFIX))) {
 			exclude = true;
 		} else {
 			exclude = false;

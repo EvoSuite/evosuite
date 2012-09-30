@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -21,13 +21,16 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
+import org.evosuite.primitives.ConstantPool;
+import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
- * <p>StringPrimitiveStatement class.</p>
- *
+ * <p>
+ * StringPrimitiveStatement class.
+ * </p>
+ * 
  * @author fraser
  */
 public class StringPrimitiveStatement extends PrimitiveStatement<String> {
@@ -35,19 +38,26 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	private static final long serialVersionUID = 274445526699835887L;
 
 	/**
-	 * <p>Constructor for StringPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
-	 * @param value a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for StringPrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param value
+	 *            a {@link java.lang.String} object.
 	 */
 	public StringPrimitiveStatement(TestCase tc, String value) {
 		super(tc, String.class, value);
 	}
 
 	/**
-	 * <p>Constructor for StringPrimitiveStatement.</p>
-	 *
-	 * @param tc a {@link org.evosuite.testcase.TestCase} object.
+	 * <p>
+	 * Constructor for StringPrimitiveStatement.
+	 * </p>
+	 * 
+	 * @param tc
+	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public StringPrimitiveStatement(TestCase tc) {
 		super(tc, String.class, "");
@@ -146,7 +156,9 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	 * @see org.evosuite.testcase.PrimitiveStatement#increment(java.lang.Object)
 	 */
 	/**
-	 * <p>increment</p>
+	 * <p>
+	 * increment
+	 * </p>
 	 */
 	public void increment() {
 		String s = value;
@@ -167,8 +179,10 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	public void randomize() {
 		if (Randomness.nextDouble() >= Properties.PRIMITIVE_POOL)
 			value = Randomness.nextString(Randomness.nextInt(Properties.STRING_LENGTH));
-		else
-			value = primitive_pool.getRandomString();
+		else {
+			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
+			value = constantPool.getRandomString();
+		}
 	}
 
 }
