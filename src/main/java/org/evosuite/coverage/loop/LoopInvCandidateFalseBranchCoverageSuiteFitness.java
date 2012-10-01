@@ -27,20 +27,12 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.objectweb.asm.Type;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.LabelNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
-import org.evosuite.ga.Chromosome;
-import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.LinePool;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -50,6 +42,9 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Fitness function for a whole test suite for all branches
@@ -58,12 +53,11 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
  * 
  */
 public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
-		TestSuiteFitnessFunction {
+        TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 2991632394620406243L;
 
-	private static Logger logger = LoggerFactory
-			.getLogger(TestSuiteFitnessFunction.class);
+	private static Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
 	public final int totalMethods;
 	public final int totalBranches;
@@ -95,15 +89,12 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 			prefix = Properties.TARGET_CLASS;
 			totalMethods = CFGMethodAdapter.getNumMethodsMemberClasses(prefix);
 			totalBranches = BranchPool.getBranchCountForMemberClasses(prefix);
-			numBranchlessMethods = BranchPool
-					.getNumBranchlessMethodsMemberClasses(prefix);
-			branchlessMethods = BranchPool
-					.getBranchlessMethodsMemberClasses(prefix);
+			numBranchlessMethods = BranchPool.getNumBranchlessMethodsMemberClasses(prefix);
+			branchlessMethods = BranchPool.getBranchlessMethodsMemberClasses(prefix);
 		} else {
 			totalMethods = CFGMethodAdapter.getNumMethodsPrefix(prefix);
 			totalBranches = BranchPool.getBranchCountForPrefix(prefix);
-			numBranchlessMethods = BranchPool
-					.getNumBranchlessMethodsPrefix(prefix);
+			numBranchlessMethods = BranchPool.getNumBranchlessMethodsPrefix(prefix);
 			branchlessMethods = BranchPool.getBranchlessMethodsPrefix(prefix);
 		}
 
@@ -113,8 +104,7 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 			if (branch == null)
 				throw new IllegalStateException("unknown branch!");
 
-			if (branch.getMethodName().startsWith(
-					"check_loop_invariant_candidate")) {
+			if (branch.getMethodName().startsWith("check_loop_invariant_candidate")) {
 				checkLoopInvariantCandidateBranchCount++;
 			}
 		}
@@ -129,7 +119,7 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 		logger.info("Total branches: " + totalBranches);
 		logger.info("Total branchless methods: " + numBranchlessMethods);
 		logger.info("Total methods: " + totalMethods + ": "
-				+ CFGMethodAdapter.methods.get(Properties.TARGET_CLASS));
+		        + CFGMethodAdapter.methods.get(Properties.TARGET_CLASS));
 
 		getPublicMethods();
 		determineCoverageGoals();
@@ -147,20 +137,19 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 	private final Map<String, TestFitnessFunction> branchlessMethodCoverageMap = new HashMap<String, TestFitnessFunction>();
 
 	private void determineCoverageGoals() {
-		List<TestFitnessFunction> goals = new BranchCoverageFactory()
-				.getCoverageGoals();
+		List<TestFitnessFunction> goals = new BranchCoverageFactory().getCoverageGoals();
 		for (TestFitnessFunction goal : goals) {
 			BranchCoverageTestFitness goalFitness = (BranchCoverageTestFitness) goal;
 			if (goalFitness.getBranch() == null) {
-				branchlessMethodCoverageMap.put(goalFitness.getClassName()
-						+ "." + goalFitness.getMethod(), goal);
+				branchlessMethodCoverageMap.put(goalFitness.getClassName() + "."
+				        + goalFitness.getMethod(), goal);
 			} else {
 				if (goalFitness.getBranchExpressionValue())
-					branchCoverageTrueMap.put(goalFitness.getBranch()
-							.getActualBranchId(), goal);
+					branchCoverageTrueMap.put(goalFitness.getBranch().getActualBranchId(),
+					                          goal);
 				else
-					branchCoverageFalseMap.put(goalFitness.getBranch()
-							.getActualBranchId(), goal);
+					branchCoverageFalseMap.put(goalFitness.getBranch().getActualBranchId(),
+					                           goal);
 			}
 		}
 	}
@@ -168,15 +157,14 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 	private void getPublicMethods() {
 		for (Method method : Properties.getTargetClass().getDeclaredMethods()) {
 			if (Modifier.isPublic(method.getModifiers())) {
-				String name = method.getName()
-						+ Type.getMethodDescriptor(method);
+				String name = method.getName() + Type.getMethodDescriptor(method);
 				publicTargetMethods.add(name);
 			}
 		}
 	}
 
 	private Set<String> getDirectlyCoveredMethods(
-			AbstractTestSuiteChromosome<ExecutableChromosome> suite) {
+	        AbstractTestSuiteChromosome<ExecutableChromosome> suite) {
 		Set<String> covered = new HashSet<String>();
 		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			ExecutionResult result = test.getLastExecutionResult();
@@ -189,11 +177,9 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 				if (statement instanceof MethodStatement) {
 					MethodStatement methodStatement = (MethodStatement) statement;
 					Method method = methodStatement.getMethod();
-					if (method.getDeclaringClass().equals(
-							Properties.getTargetClass())
-							&& Modifier.isPublic(method.getModifiers())) {
-						String name = method.getName()
-								+ Type.getMethodDescriptor(method);
+					if (method.getDeclaringClass().equals(Properties.getTargetClass())
+					        && Modifier.isPublic(method.getModifiers())) {
+						String name = method.getName() + Type.getMethodDescriptor(method);
 						covered.add(name);
 					}
 				}
@@ -207,13 +193,13 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 
 		logger.trace("Calculating branch fitness");
 
 		long start = System.currentTimeMillis();
 
-		AbstractTestSuiteChromosome<ExecutableChromosome> suite = (AbstractTestSuiteChromosome<ExecutableChromosome>) individual;
 		long estart = System.currentTimeMillis();
 		List<ExecutionResult> results = runTestSuite(suite);
 		long eend = System.currentTimeMillis();
@@ -293,14 +279,12 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 			//	fitness += 1.0;
 		}
 
-		
 		int numCoveredBranches = 0;
 		int loopInvCandidatePredicateCount = 0;
 
 		for (Integer key : predicateCount.keySet()) {
 
-			if (!trueDistance.containsKey(key)
-					|| !falseDistance.containsKey(key))
+			if (!trueDistance.containsKey(key) || !falseDistance.containsKey(key))
 				continue;
 
 			Branch branch = BranchPool.getBranch(key);
@@ -355,22 +339,22 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 		if (mostCoveredGoals < coverage)
 			mostCoveredGoals = coverage;
 
-		assert (coverage <= totalGoals) : "Covered " + coverage
-				+ " vs total goals " + totalGoals;
+		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
+		        + totalGoals;
 		suite.setCoverage((double) coverage / (double) totalGoals);
-		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: "
-				+ fitness + ", " + "coverage: " + coverage + "/" + totalGoals;
+		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
+		        + "coverage: " + coverage + "/" + totalGoals;
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value "
-					+ (totalCheckLoopInvariantCandidateBranchs));
+			        + (totalCheckLoopInvariantCandidateBranchs));
 			fitness = totalCheckLoopInvariantCandidateBranchs;
 			// suite.setCoverage(0.0);
 		}
 
-		updateIndividual(individual, fitness);
+		updateIndividual(suite, fitness);
 
 		assert (suite.getCoverage() <= 1.0) && (suite.getCoverage() >= 0.0) : "Wrong coverage value "
-				+ suite.getCoverage();
+		        + suite.getCoverage();
 		// if (!check)
 		// checkFitness(suite, fitness);
 		return fitness;
@@ -384,32 +368,32 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 	 * @param fitness
 	 */
 	private void printStatusMessages(
-			AbstractTestSuiteChromosome<ExecutableChromosome> suite,
-			int coveredBranches, int coveredMethods, double fitness) {
+	        AbstractTestSuiteChromosome<ExecutableChromosome> suite, int coveredBranches,
+	        int coveredMethods, double fitness) {
 		if (coveredBranches > maxCoveredBranches) {
 			maxCoveredBranches = coveredBranches;
-			logger.info("(Branches) Best individual covers " + coveredBranches
-					+ "/" + (totalBranches * 2) + " branches and "
-					+ coveredMethods + "/" + totalMethods + " methods");
-			logger.info("Fitness: " + fitness + ", size: " + suite.size()
-					+ ", length: " + suite.totalLengthOfTestCases());
+			logger.info("(Branches) Best individual covers " + coveredBranches + "/"
+			        + (totalBranches * 2) + " branches and " + coveredMethods + "/"
+			        + totalMethods + " methods");
+			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+			        + suite.totalLengthOfTestCases());
 		}
 		if (coveredMethods > maxCoveredMethods) {
-			logger.info("(Methods) Best individual covers " + coveredBranches
-					+ "/" + (totalBranches * 2) + " branches and "
-					+ coveredMethods + "/" + totalMethods + " methods");
+			logger.info("(Methods) Best individual covers " + coveredBranches + "/"
+			        + (totalBranches * 2) + " branches and " + coveredMethods + "/"
+			        + totalMethods + " methods");
 			maxCoveredMethods = coveredMethods;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size()
-					+ ", length: " + suite.totalLengthOfTestCases());
+			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+			        + suite.totalLengthOfTestCases());
 
 		}
 		if (fitness < bestFitness) {
-			logger.info("(Fitness) Best individual covers " + coveredBranches
-					+ "/" + (totalBranches * 2) + " branches and "
-					+ coveredMethods + "/" + totalMethods + " methods");
+			logger.info("(Fitness) Best individual covers " + coveredBranches + "/"
+			        + (totalBranches * 2) + " branches and " + coveredMethods + "/"
+			        + totalMethods + " methods");
 			bestFitness = fitness;
-			logger.info("Fitness: " + fitness + ", size: " + suite.size()
-					+ ", length: " + suite.totalLengthOfTestCases());
+			logger.info("Fitness: " + fitness + ", size: " + suite.size() + ", length: "
+			        + suite.totalLengthOfTestCases());
 
 		}
 	}
@@ -421,9 +405,8 @@ public class LoopInvCandidateFalseBranchCoverageSuiteFitness extends
 	 * @param suite
 	 * @param fitness
 	 */
-	protected void checkFitness(
-			AbstractTestSuiteChromosome<ExecutableChromosome> suite,
-			double fitness) {
+	protected void checkFitness(AbstractTestSuiteChromosome<ExecutableChromosome> suite,
+	        double fitness) {
 		for (ExecutableChromosome test : suite.getTestChromosomes()) {
 			test.setChanged(true);
 		}

@@ -27,8 +27,9 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -47,8 +48,9 @@ public class WeakMutationSuiteFitness extends MutationSuiteFitness {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(Chromosome individual) {
-		List<ExecutionResult> results = runTestSuite((TestSuiteChromosome) individual);
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
+		List<ExecutionResult> results = runTestSuite(individual);
 
 		// First objective: achieve branch coverage
 		logger.debug("Calculating branch fitness: ");

@@ -27,9 +27,10 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
-import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -93,7 +94,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	// Not working yet
 	//@Override
-	public double getFitnessAlternative(Chromosome individual) {
+	public double getFitnessAlternative(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 
@@ -269,11 +271,12 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		if (Properties.ENABLE_ALTERNATIVE_SUITE_FITNESS)
-			return getFitnessAlternative(individual);
+			return getFitnessAlternative(suite);
 		else
-			return getFitnessOld(individual);
+			return getFitnessOld(suite);
 	}
 
 	/*
@@ -285,7 +288,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	/** {@inheritDoc} */
 	//@Override
-	public double getFitnessOld(Chromosome individual) {
+	public double getFitnessOld(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
 		logger.trace("Calculating defuse fitness");
 
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;

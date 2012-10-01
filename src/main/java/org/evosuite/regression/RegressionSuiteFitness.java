@@ -3,7 +3,8 @@
  */
 package org.evosuite.regression;
 
-import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
 /**
@@ -16,7 +17,8 @@ public class RegressionSuiteFitness extends TestSuiteFitnessFunction {
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
 		// TODO Auto-generated method stub
 		return 0;
 	}

@@ -43,7 +43,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class TestSuiteFitnessFunction extends FitnessFunction {
+public abstract class TestSuiteFitnessFunction extends
+        FitnessFunction<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> {
 
 	private static final long serialVersionUID = 7243635497292960457L;
 
@@ -68,7 +69,7 @@ public abstract class TestSuiteFitnessFunction extends FitnessFunction {
 			result = executor.execute(test);
 			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 		} catch (Exception e) {
-			logger.warn("TG: Exception caught: " + e.getMessage(),e);
+			logger.warn("TG: Exception caught: " + e.getMessage(), e);
 			try {
 				Thread.sleep(1000);
 				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());

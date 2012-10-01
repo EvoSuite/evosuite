@@ -19,7 +19,6 @@ package org.evosuite.testcase;
 
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeRecycler;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.testsuite.TestSuiteChromosome;
@@ -29,8 +28,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
  * 
  * @author Gordon Fraser
  */
-public abstract class TestFitnessFunction extends FitnessFunction implements
-        Comparable<TestFitnessFunction> {
+public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome>
+        implements Comparable<TestFitnessFunction> {
 
 	private static final long serialVersionUID = 5602125855207061901L;
 
@@ -54,21 +53,20 @@ public abstract class TestFitnessFunction extends FitnessFunction implements
 
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(TestChromosome individual) {
 		logger.trace("Executing test case on original");
-		TestChromosome c = (TestChromosome) individual;
-		ExecutionResult orig_result = c.getLastExecutionResult();
-		if (orig_result == null || c.isChanged()) {
-			orig_result = runTest(c.test);
-			c.setLastExecutionResult(orig_result);
-			c.setChanged(false);
+		ExecutionResult origResult = individual.getLastExecutionResult();
+		if (origResult == null || individual.isChanged()) {
+			origResult = runTest(individual.test);
+			individual.setLastExecutionResult(origResult);
+			individual.setChanged(false);
 		}
 
-		double fitness = getFitness(c, orig_result);
+		double fitness = getFitness(individual, origResult);
 
-		updateIndividual(c, fitness);
+		updateIndividual(individual, fitness);
 
-		return c.getFitness();
+		return individual.getFitness();
 	}
 
 	/**

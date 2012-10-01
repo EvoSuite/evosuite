@@ -5,7 +5,6 @@ package org.evosuite.coverage.ibranch;
 
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestFitnessFunction;
@@ -31,10 +30,10 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		double fitness = 0.0;
 
-		AbstractTestSuiteChromosome<ExecutableChromosome> suite = (AbstractTestSuiteChromosome<ExecutableChromosome>) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 
 		return fitness;

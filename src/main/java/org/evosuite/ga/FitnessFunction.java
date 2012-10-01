@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class FitnessFunction implements Serializable {
+public abstract class FitnessFunction<T extends Chromosome> implements Serializable {
 
 	private static final long serialVersionUID = -8876797554111396910L;
 
@@ -42,7 +42,7 @@ public abstract class FitnessFunction implements Serializable {
 	 * @param fitness
 	 *            a double.
 	 */
-	protected void updateIndividual(Chromosome individual, double fitness) {
+	protected void updateIndividual(T individual, double fitness) {
 		individual.setFitness(fitness);
 	}
 
@@ -54,7 +54,7 @@ public abstract class FitnessFunction implements Serializable {
 	 *            a {@link org.evosuite.ga.Chromosome} object.
 	 * @return new fitness
 	 */
-	public abstract double getFitness(Chromosome individual);
+	public abstract double getFitness(T individual);
 
 	/**
 	 * Normalize a value using Andrea's normalization function

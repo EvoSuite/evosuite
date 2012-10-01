@@ -3,7 +3,6 @@
  */
 package org.evosuite.regression;
 
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.FitnessFunction;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutionResult;
@@ -15,7 +14,8 @@ import org.evosuite.testcase.TestChromosome;
  * @author Gordon Fraser
  * 
  */
-public class RegressionTestFitnessFunction extends FitnessFunction {
+public class RegressionTestFitnessFunction extends
+        FitnessFunction<RegressionTestChromosome> {
 
 	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
@@ -23,8 +23,7 @@ public class RegressionTestFitnessFunction extends FitnessFunction {
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
 	@Override
-	public double getFitness(Chromosome individual) {
-		RegressionTestChromosome regressionTest = (RegressionTestChromosome) individual;
+	public double getFitness(RegressionTestChromosome regressionTest) {
 		ExecutionResult firstResult = runTest(regressionTest.getTheTest());
 		ExecutionResult secondResult = runTest(regressionTest.getTheSameTestForTheOtherClassLoader());
 
