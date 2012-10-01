@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
@@ -53,18 +53,18 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 		String targetMethod = Properties.TARGET_METHOD;
 		String targetClass = Properties.TARGET_CLASS;
 
-		for (String className : BytecodeInstructionPool.getInstance(TestCluster.classLoader).knownClasses()) {
+		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
 
 			if (!(targetClass.equals("") || className.endsWith(targetClass)))
 				continue;
 
-			for (String methodName : BytecodeInstructionPool.getInstance(TestCluster.classLoader).knownMethods(className)) {
+			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
 
 				if (!targetMethod.equals("") && !methodName.equals(targetMethod))
 					continue;
 
-				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestCluster.classLoader).getInstructionsIn(className,
-				                                                                                                              methodName))
+				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
+				                                                                                                                             methodName))
 					if (isUsable(ins))
 						goals.add(new StatementCoverageTestFitness(ins));
 			}

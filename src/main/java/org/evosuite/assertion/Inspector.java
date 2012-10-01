@@ -26,7 +26,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.objectweb.asm.Type;
 
 public class Inspector implements Serializable {
@@ -169,8 +169,8 @@ public class Inspector implements Serializable {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		this.clazz = TestCluster.classLoader.loadClass((String) ois.readObject());
-		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		this.clazz = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
+		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
 
 		String methodName = (String) ois.readObject();
 		String methodDesc = (String) ois.readObject();

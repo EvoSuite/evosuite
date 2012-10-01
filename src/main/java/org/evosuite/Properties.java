@@ -34,9 +34,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -1623,15 +1620,16 @@ public class Properties {
 		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
+		/*
 		BranchPool.reset();
 		TestCluster.reset();
 		org.evosuite.testcase.TestFactory.getInstance().reset();
 		BytecodeInstructionPool.clearAll(); // TODO: This should be removed
+		*/
 
 		try {
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
-			                                      TestCluster.classLoader);
-			//TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS, true);
+			                                      TestGenerationContext.getClassLoader());
 			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("* Could not find class under test: " + e);
@@ -1647,7 +1645,7 @@ public class Properties {
 				cause = cause.getCause();
 			}
 			try {
-				Thread.currentThread().sleep(100);
+				Thread.sleep(100);
 			} catch (InterruptedException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
@@ -1661,37 +1659,8 @@ public class Properties {
 	 * 
 	 * @return a {@link java.lang.Class} object.
 	 */
-	public static Class<?> resetTargetClass() {
-		BranchPool.reset();
-		TestCluster.reset();
-		org.evosuite.testcase.TestFactory.getInstance().reset();
-		BytecodeInstructionPool.clearAll(); // TODO: This should be deleted
-
-		try {
-			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
-			return TARGET_CLASS_INSTANCE;
-		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
-			                                         + (e.getMessage() != null ? e.getMessage()
-			                                                 : e));
-		}
-		return null;
-	}
-
-	/**
-	 * Get class object of class under test
-	 * 
-	 * @return a {@link java.lang.Class} object.
-	 */
-	@Deprecated
-	public static Class<?> loadTargetClass() {
-		try {
-			TARGET_CLASS_INSTANCE = TestCluster.classLoader.loadClass(TARGET_CLASS);
-			return TARGET_CLASS_INSTANCE;
-		} catch (ClassNotFoundException e) {
-			System.err.println("* Could not find class under test: " + TARGET_CLASS);
-		}
-		return null;
+	public static void resetTargetClass() {
+		TARGET_CLASS_INSTANCE = null;
 	}
 
 	/**

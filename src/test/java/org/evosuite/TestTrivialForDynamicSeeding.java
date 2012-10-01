@@ -19,12 +19,20 @@ package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.TrivialForDynamicSeeding;
 
 public class TestTrivialForDynamicSeeding extends SystemTest {
+
+	public static final double defaultDynamicPool = Properties.DYNAMIC_POOL;
+
+	@After
+	public void resetProperties() {
+		Properties.DYNAMIC_POOL = defaultDynamicPool;
+	}
 
 	@Test
 	public void testConcatenatedStringEquals() {

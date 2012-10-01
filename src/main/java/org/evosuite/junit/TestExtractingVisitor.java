@@ -85,12 +85,12 @@ import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.javaagent.BytecodeInstrumentation;
 import org.evosuite.junit.CompoundTestCase.MethodDef;
 import org.evosuite.junit.CompoundTestCase.ReturnStatementPlaceholder;
 import org.evosuite.junit.CompoundTestCase.TestScope;
 import org.evosuite.junit.TestRuntimeValuesDeterminer.CursorableTrace;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.ArrayStatement;
@@ -1329,7 +1329,7 @@ public class TestExtractingVisitor extends ASTVisitor {
 			if (!BytecodeInstrumentation.isTargetProject(simpleName)) {
 				return Class.forName(className);
 			}
-			return Class.forName(className, true, TestCluster.classLoader);
+			return Class.forName(className, true, TestGenerationContext.getClassLoader());
 		} catch (ClassNotFoundException exc) {
 			throw new RuntimeException(exc);
 		}

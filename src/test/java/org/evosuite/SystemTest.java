@@ -21,9 +21,9 @@ import java.io.File;
 import java.io.IOException;
 
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 
@@ -53,12 +53,9 @@ public class SystemTest {
 		Randomness.setSeed(42);
 	}
 
-	@Before
-	/**
-	 * FIXME: The branch coverage remembers the max value seen, and this is ugly
-	 */
+	@After
 	public void resetStaticVariables() {
-		BranchCoverageSuiteFitness.mostCoveredGoals = 0;
+		TestGenerationContext.getInstance().resetContext();
 	}
 
 	@Before

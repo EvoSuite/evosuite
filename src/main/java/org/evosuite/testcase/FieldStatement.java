@@ -31,7 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -444,7 +444,7 @@ public class FieldStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
 		String fieldName = (String) ois.readObject();
 
 		try {

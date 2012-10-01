@@ -24,7 +24,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.TestCase;
@@ -144,7 +144,7 @@ public class PrimitiveFieldAssertion extends Assertion {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
 		String fieldName = (String) ois.readObject();
 
 		try {

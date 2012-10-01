@@ -10,7 +10,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
 import org.evosuite.testcase.AssignmentStatement;
@@ -516,7 +516,8 @@ public class TestCaseCodeGenerator {
 		}
 
 		try {
-			return Class.forName(type.getClassName(), true, TestCluster.classLoader);
+			return Class.forName(type.getClassName(), true,
+			                     TestGenerationContext.getClassLoader());
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -541,10 +542,11 @@ public class TestCaseCodeGenerator {
 			} else if (type.equals("Short")) {
 				return Short.TYPE;
 			} else if (type.equals("String")) {
-				return Class.forName("java.lang.String", true, TestCluster.classLoader);
+				return Class.forName("java.lang.String", true,
+				                     TestGenerationContext.getClassLoader());
 			}
 
-			return Class.forName(type, true, TestCluster.classLoader);
+			return Class.forName(type, true, TestGenerationContext.getClassLoader());
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}

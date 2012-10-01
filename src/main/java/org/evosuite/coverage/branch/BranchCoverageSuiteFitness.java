@@ -111,7 +111,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.info("Total branches: " + totalBranches);
 		logger.info("Total branchless methods: " + numBranchlessMethods);
 		logger.info("Total methods: " + totalMethods + ": "
-		        + CFGMethodAdapter.methods.get(Properties.TARGET_CLASS));
+		        + CFGMethodAdapter.methods.values());
 
 		// getPublicMethods();
 		determineCoverageGoals();
@@ -357,6 +357,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		if (totalGoals > 0)
 			suite.setCoverage((double) coverage / (double) totalGoals);
 
+		assert (fitness >= 0.0);
 		assert (fitness != 0.0 || coverage == totalGoals) : "Fitness: " + fitness + ", "
 		        + "coverage: " + coverage + "/" + totalGoals;
 		if (hasTimeoutOrTestException) {

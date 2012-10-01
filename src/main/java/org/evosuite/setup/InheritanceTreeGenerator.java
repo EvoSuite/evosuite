@@ -37,6 +37,7 @@ import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -196,7 +197,7 @@ public class InheritanceTreeGenerator {
 			// We do not consider sun.* and apple.* and com.* 
 			if (!classExceptions.contains(name) && (name.startsWith("java/") // || name.startsWith("sun") || name.startsWith("com/sun") 
 			        || name.startsWith("javax/"))) { // || name.startsWith("java/awt")) {
-				InputStream stream = TestCluster.classLoader.getResourceAsStream(name);
+				InputStream stream = TestGenerationContext.getClassLoader().getResourceAsStream(name);
 				analyzeClassStream(inheritanceTree, stream);
 			}
 		}

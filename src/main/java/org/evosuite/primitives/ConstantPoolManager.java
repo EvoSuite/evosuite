@@ -14,7 +14,7 @@ public class ConstantPoolManager {
 
 	private static ConstantPoolManager instance = new ConstantPoolManager();
 
-	private final ConstantPool[] pools;
+	private ConstantPool[] pools;
 	private double[] probabilities;
 
 	/*
@@ -24,6 +24,10 @@ public class ConstantPoolManager {
 	private static final int DYNAMIC_POOL_INDEX = 2;
 
 	private ConstantPoolManager() {
+		init();
+	}
+
+	private void init() {
 		pools = new ConstantPool[] { new StaticConstantPool(), new StaticConstantPool(),
 		        new DynamicConstantPool() };
 
@@ -86,5 +90,9 @@ public class ConstantPoolManager {
 		 * This should not happen, but you never know with double computations...
 		 */
 		return pools[0];
+	}
+
+	public void reset() {
+		init();
 	}
 }
