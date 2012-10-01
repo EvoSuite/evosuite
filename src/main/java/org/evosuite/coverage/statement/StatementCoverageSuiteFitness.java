@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.coverage.statement;
@@ -24,23 +23,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+
 public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -4479582777935260157L;
 
 	/** Constant <code>mostCoveredGoals=0</code> */
 	public static int mostCoveredGoals = 0;
-	
+
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(Chromosome individual) {
-		TestSuiteChromosome suite = (TestSuiteChromosome)individual;
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
 
@@ -48,38 +48,38 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		//  just take each goal, calculate the minimal fitness over all results in the suite
 		//  once a goal is covered don't check for it again
 		//  in the end sum up all those fitness and it's the resulting suite-fitness
-		
+
 		// guess this is horribly inefficient but it's a start
 		List<TestFitnessFunction> totalGoals = StatementCoverageFactory.retrieveCoverageGoals();
-		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>(); 
+		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
-		for(TestFitnessFunction goal : totalGoals) {
+		for (TestFitnessFunction goal : totalGoals) {
 			double goalFitness = Double.MAX_VALUE;
-			for(ExecutionResult result : results) {
+			for (ExecutionResult result : results) {
 				TestChromosome tc = new TestChromosome();
 				tc.setTestCase(result.test);
-				double resultFitness = goal.getFitness(tc,result);
-				if(resultFitness<goalFitness)
-					goalFitness=resultFitness;
-				if(goalFitness == 0.0) {
-//					result.test.addCoveredGoal(goal);
+				double resultFitness = goal.getFitness(tc, result);
+				if (resultFitness < goalFitness)
+					goalFitness = resultFitness;
+				if (goalFitness == 0.0) {
+					//					result.test.addCoveredGoal(goal);
 					coveredGoals.add(goal);
 					break;
 				}
 			}
 			fitness += goalFitness;
 		}
-		
-		if(totalGoals.size()>0)
-			suite.setCoverage(coveredGoals.size()/(double)totalGoals.size());
+
+		if (totalGoals.size() > 0)
+			suite.setCoverage(coveredGoals.size() / (double) totalGoals.size());
 		else
 			suite.setCoverage(1.0);
-		
-		if(coveredGoals.size()>mostCoveredGoals)
+
+		if (coveredGoals.size() > mostCoveredGoals)
 			mostCoveredGoals = coveredGoals.size();
-		
-		updateIndividual(individual, fitness);
-		
+
+		updateIndividual(suite, fitness);
+
 		return fitness;
 	}
 

@@ -36,11 +36,13 @@ import org.evosuite.Properties;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -116,8 +118,9 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(Chromosome individual) {
-		runTestSuite((TestSuiteChromosome) individual);
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
+		runTestSuite(individual);
 
 		// Set<MutationTestFitness> uncoveredMutants = MutationTestPool.getUncoveredFitnessFunctions();
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;

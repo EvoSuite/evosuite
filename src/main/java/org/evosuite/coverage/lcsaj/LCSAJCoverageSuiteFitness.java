@@ -24,17 +24,16 @@ import java.util.Map.Entry;
 
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
-import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
-
 
 /**
  * Evaluate fitness of a test suite with respect to all LCSAJs of a class
- *
+ * 
  * @author Merlin Lang
  */
 public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
@@ -51,7 +50,9 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final BranchCoverageSuiteFitness branchFitness = new BranchCoverageSuiteFitness();
 
 	/**
-	 * <p>Constructor for LCSAJCoverageSuiteFitness.</p>
+	 * <p>
+	 * Constructor for LCSAJCoverageSuiteFitness.
+	 * </p>
 	 */
 	public LCSAJCoverageSuiteFitness() {
 		ExecutionTracer.enableTraceCalls();
@@ -86,12 +87,12 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 
-		double fitness = branchFitness.getFitness(individual);
+		double fitness = branchFitness.getFitness(suite);
 		logger.debug("Branch fitness: {}", fitness);
 
 		//Map<String, Integer> call_count = new HashMap<String, Integer>();
@@ -138,7 +139,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += normalize(LCSAJFitnesses.get(l));
 		}
 
-		fitness += branchFitness.getFitness(individual);
+		fitness += branchFitness.getFitness(suite);
 
 		logger.debug("Combined fitness: " + fitness);
 		double missingBranches = 0.0;
@@ -165,7 +166,7 @@ public class LCSAJCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		logger.info("Combined fitness with correction: " + fitness);
 
-		updateIndividual(individual, fitness);
+		updateIndividual(suite, fitness);
 
 		double coverage = 0.0;
 

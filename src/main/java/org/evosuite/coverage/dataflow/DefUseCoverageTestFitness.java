@@ -510,7 +510,8 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	 * @param objectId
 	 *            a {@link java.lang.Integer} object.
 	 */
-	public void setCovered(Chromosome individual, ExecutionTrace trace, Integer objectId) {
+	public void setCovered(TestChromosome individual, ExecutionTrace trace,
+	        Integer objectId) {
 		if (PRINT_DEBUG) {
 			logger.debug("goal COVERED by object " + objectId);
 			logger.debug("==============================================================");

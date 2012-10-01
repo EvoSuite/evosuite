@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.LinePool;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -212,11 +211,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	@SuppressWarnings("unchecked")
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		logger.trace("Calculating branch fitness");
 		double fitness = 0.0;
 
-		AbstractTestSuiteChromosome<ExecutableChromosome> suite = (AbstractTestSuiteChromosome<ExecutableChromosome>) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 		Map<Integer, Double> trueDistance = new HashMap<Integer, Double>();
 		Map<Integer, Double> falseDistance = new HashMap<Integer, Double>();
@@ -310,7 +309,7 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			//suite.setCoverage(0.0);
 		}
 
-		updateIndividual(individual, fitness);
+		updateIndividual(suite, fitness);
 
 		assert (coverage <= totalGoals) : "Covered " + coverage + " vs total goals "
 		        + totalGoals;
@@ -331,8 +330,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * @param fitness
 	 */
 	private void printStatusMessages(
-	        AbstractTestSuiteChromosome<ExecutableChromosome> suite, int coveredBranches,
-	        int coveredMethods, double fitness) {
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite,
+	        int coveredBranches, int coveredMethods, double fitness) {
 		if (coveredBranches > maxCoveredBranches) {
 			maxCoveredBranches = coveredBranches;
 			logger.info("(Branches) Best individual covers " + coveredBranches + "/"

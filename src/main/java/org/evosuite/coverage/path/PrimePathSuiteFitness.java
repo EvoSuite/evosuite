@@ -23,18 +23,19 @@ package org.evosuite.coverage.path;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.evosuite.ga.Chromosome;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
-
 /**
- * <p>PrimePathSuiteFitness class.</p>
- *
+ * <p>
+ * PrimePathSuiteFitness class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
@@ -44,7 +45,9 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 	List<TestFitnessFunction> goals;
 
 	/**
-	 * <p>Constructor for PrimePathSuiteFitness.</p>
+	 * <p>
+	 * Constructor for PrimePathSuiteFitness.
+	 * </p>
 	 */
 	public PrimePathSuiteFitness() {
 		PrimePathCoverageFactory factory = new PrimePathCoverageFactory();
@@ -57,8 +60,8 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(Chromosome individual) {
-		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		List<ExecutionResult> results = runTestSuite(suite);
 		List<TestFitnessFunction> coveredGoals = new ArrayList<TestFitnessFunction>();
 		double fitness = 0.0;
@@ -80,7 +83,7 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 			fitness += goalFitness;
 		}
 		suite.setCoverage(coveredGoals.size() / (double) goals.size());
-		updateIndividual(individual, fitness);
+		updateIndividual(suite, fitness);
 		return fitness;
 	}
 }

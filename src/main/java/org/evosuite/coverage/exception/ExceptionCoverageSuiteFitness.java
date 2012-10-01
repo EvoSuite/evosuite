@@ -1,21 +1,20 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.coverage.exception;
@@ -30,7 +29,6 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -42,6 +40,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 1565793073526627496L;
@@ -51,7 +50,9 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	protected TestSuiteFitnessFunction baseFF;
 
 	/**
-	 * <p>Constructor for ExceptionCoverageSuiteFitness.</p>
+	 * <p>
+	 * Constructor for ExceptionCoverageSuiteFitness.
+	 * </p>
 	 */
 	public ExceptionCoverageSuiteFitness() {
 		baseFF = new BranchCoverageSuiteFitness();
@@ -59,7 +60,8 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	/** {@inheritDoc} */
 	@Override
-	public double getFitness(Chromosome individual) {
+	public double getFitness(
+	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
 		logger.trace("Calculating exception fitness");
 
 		/*
@@ -68,7 +70,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		 * but because "coverage" is only used for stats, no need to update it here, as
 		 * anyway it d be bit difficult to define
 		 */
-		double coverageFitness = baseFF.getFitness(individual);
+		double coverageFitness = baseFF.getFitness(suite);
 
 		/*
 		 * for each method in the SUT, we keep track of which kind of exceptions were thrown.
@@ -77,7 +79,6 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		Map<String, Set<Class<?>>> implicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 		Map<String, Set<Class<?>>> explicitTypesOfExceptions = new HashMap<String, Set<Class<?>>>();
 
-		AbstractTestSuiteChromosome<ExecutableChromosome> suite = (AbstractTestSuiteChromosome<ExecutableChromosome>) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
@@ -157,7 +158,7 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		double exceptionFitness = 1d / (1d + nExc);
 
-		individual.setFitness(coverageFitness + exceptionFitness);
+		suite.setFitness(coverageFitness + exceptionFitness);
 		return coverageFitness + exceptionFitness;
 	}
 
