@@ -36,7 +36,7 @@ import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
-import org.evosuite.coverage.ibranch.CallContext;
+import org.evosuite.setup.CallContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

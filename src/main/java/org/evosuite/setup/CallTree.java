@@ -99,6 +99,12 @@ public class CallTree implements Iterable<CallTreeEntry> {
 		return callSet;
 	}
 
+	public Set<CallContext> getAllContexts(String className, String methodName) {
+		Set<CallContext> contexts = new HashSet<CallContext>();
+		// TODO: implement
+		return contexts;
+	}
+
 	/**
 	 * @return the className
 	 */

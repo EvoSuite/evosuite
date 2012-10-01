@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.coverage.ibranch;
+package org.evosuite.setup;
 
 import java.util.ArrayList;
 import java.util.List;
