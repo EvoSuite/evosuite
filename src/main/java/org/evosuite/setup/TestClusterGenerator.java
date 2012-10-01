@@ -37,6 +37,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
@@ -84,7 +85,7 @@ public class TestClusterGenerator {
 		if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) {
 			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
 				try {
-					TestCluster.classLoader.loadClass(callTreeClass);
+					TestGenerationContext.getClassLoader().loadClass(callTreeClass);
 				} catch (ClassNotFoundException e) {
 					logger.info("Class not found: " + callTreeClass);
 				}
@@ -231,7 +232,7 @@ public class TestClusterGenerator {
 	private static void addCastClasses(Set<String> castClasses) {
 		for (String className : castClasses) {
 			try {
-				Class<?> clazz = TestCluster.classLoader.loadClass(className);
+				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 				addDependencyClass(clazz);
 			} catch (ClassNotFoundException e) {
 				//
@@ -319,7 +320,7 @@ public class TestClusterGenerator {
 				logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name
 				        + "," + icn.outerName);
 				String innerClassName = icn.name.replace('/', '.');
-				Class<?> innerClass = TestCluster.classLoader.loadClass(innerClassName);
+				Class<?> innerClass = TestGenerationContext.getClassLoader().loadClass(innerClassName);
 				if (!targetClasses.contains(innerClass)) {
 					logger.info("Adding inner class " + innerClassName);
 					targetClasses.add(innerClass);
@@ -415,7 +416,7 @@ public class TestClusterGenerator {
 		if (Properties.INSTRUMENT_PARENT) {
 			for (String superClass : inheritanceTree.getSuperclasses(Properties.TARGET_CLASS)) {
 				try {
-					Class<?> superClazz = TestCluster.classLoader.loadClass(superClass);
+					Class<?> superClazz = TestGenerationContext.getClassLoader().loadClass(superClass);
 					dependencies.add(superClazz);
 				} catch (ClassNotFoundException e) {
 					// TODO
@@ -944,8 +945,9 @@ public class TestClusterGenerator {
 				for (String subClass : subClasses) {
 					if (classDistance.get(subClass) == distance) {
 						try {
-							Class<?> subClazz = Class.forName(subClass, false,
-							                                  TestCluster.classLoader);
+							Class<?> subClazz = Class.forName(subClass,
+							                                  false,
+							                                  TestGenerationContext.getClassLoader());
 							// Class<?> subClazz = Class.forName(subClass);
 
 							if (!canUse(subClazz))

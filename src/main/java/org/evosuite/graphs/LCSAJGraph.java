@@ -23,11 +23,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.lcsaj.LCSAJ;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlFlowEdge;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
-import org.evosuite.setup.TestCluster;
 import org.kohsuke.graphviz.Edge;
 import org.kohsuke.graphviz.Graph;
 import org.kohsuke.graphviz.Node;
@@ -51,8 +51,8 @@ public class LCSAJGraph {
 	 *            a boolean.
 	 */
 	public LCSAJGraph(LCSAJ lcsaj, boolean fitnessGraph) {
-		graph = GraphPool.getInstance(TestCluster.classLoader).getRawCFG(lcsaj.getClassName(),
-		                                                                 lcsaj.getMethodName());
+		graph = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFG(lcsaj.getClassName(),
+		                                                                                lcsaj.getMethodName());
 		this.lcsaj = lcsaj;
 		this.fitnessGraph = fitnessGraph;
 	}

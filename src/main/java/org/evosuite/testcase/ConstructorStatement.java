@@ -34,7 +34,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -213,8 +213,10 @@ public class ConstructorStatement extends AbstractStatement {
 					// If this is a non-static member class, the first parameter must not be null
 					if (constructor.getDeclaringClass().isMemberClass()
 					        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
-						if (inputs[0] == null)
+						if (inputs[0] == null) {
+							// throw new NullPointerException();
 							throw new CodeUnderTestException(new NullPointerException());
+						}
 					}
 
 					Object ret = constructor.newInstance(inputs);
@@ -556,7 +558,7 @@ public class ConstructorStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> constructorClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		Class<?> constructorClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
 		String constructorDesc = (String) ois.readObject();
 		for (Constructor<?> constructor : constructorClass.getDeclaredConstructors()) {
 			if (Type.getConstructorDescriptor(constructor).equals(constructorDesc)) {

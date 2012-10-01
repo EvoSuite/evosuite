@@ -33,7 +33,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,7 +75,7 @@ public class InspectorManager {
 			//			String name = f.getName().replaceAll("_\\d+.inspectors$", "").replace("_", "$");
 			String name = f.getName().replaceAll(".inspectors", "").replace("_", "$");
 			try {
-				Class<?> clazz = TestCluster.classLoader.loadClass(name);
+				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(name);
 				Scanner scanner = new Scanner(f);
 				Set<String> inspector_names = new HashSet<String>();
 				try {

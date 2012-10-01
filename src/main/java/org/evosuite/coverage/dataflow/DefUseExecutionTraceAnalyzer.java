@@ -26,9 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.TestGenerationContext;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.MethodCall;
@@ -256,8 +256,8 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		for (BytecodeInstruction vertex : vertices) {
 			if (!vertex.isDefinition())
 				continue;
-			BytecodeInstruction vertexInOtherGraph = GraphPool.getInstance(TestCluster.classLoader).getRawCFG(vertex.getClassName(),
-			                                                                                                  vertex.getMethodName()).getInstruction(vertex.getInstructionId());
+			BytecodeInstruction vertexInOtherGraph = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFG(vertex.getClassName(),
+			                                                                                                                 vertex.getMethodName()).getInstruction(vertex.getInstructionId());
 			Definition currentDefinition = DefUseFactory.makeDefinition(vertexInOtherGraph);
 			if (isOverwritingDefinition(targetDefinition, currentDefinition))
 				r.add(vertex);

@@ -103,7 +103,6 @@ import org.evosuite.primitives.ObjectPool;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
-import org.evosuite.runtime.FileSystem;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
@@ -193,21 +192,20 @@ public class TestSuiteGenerator {
 	public String generateTestSuite() {
 
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath: ");
-		
+
 		Sandbox.goingToExecuteSUTCode();
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(Properties.CP.split(":")));
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
-			                                         + (e.getMessage() != null ? e.getMessage()
-			                                                 : e.toString()));
+			                                          + (e.getMessage() != null ? e.getMessage()
+			                                                  : e.toString()));
 			return "";
-		}  finally {
+		} finally {
 			Sandbox.goingToEndExecutingSUTCode();
 		}
-		
-		
+
 		TestCaseExecutor.initExecutor();
 		setupProgressMonitor();
 
@@ -421,7 +419,7 @@ public class TestSuiteGenerator {
 				// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
 				for (TestCase test : tests) {
 					DefaultTestCase dtest = (DefaultTestCase) test;
-					dtest.changeClassLoader(TestCluster.classLoader);
+					dtest.changeClassLoader(TestGenerationContext.getClassLoader());
 				}
 			}
 

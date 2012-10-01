@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -573,7 +573,7 @@ public class GenericClass implements Serializable {
 		} else if (name.endsWith(".class")) {
 			return getClass(name.replace(".class", ""));
 		} else
-			return TestCluster.classLoader.loadClass(name);
+			return TestGenerationContext.getClassLoader().loadClass(name);
 	}
 
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,

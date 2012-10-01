@@ -33,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -670,8 +670,11 @@ public class MethodStatement extends AbstractStatement {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> methodClass = TestCluster.classLoader.loadClass((String) ois.readObject());
-		methodClass = TestCluster.classLoader.loadClass(methodClass.getName());
+		Class<?> methodClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
+
+		// TODO: What was the point of this??
+		// methodClass = TestCluster.classLoader.loadClass(methodClass.getName());
+
 		String methodName = (String) ois.readObject();
 		String methodDesc = (String) ois.readObject();
 

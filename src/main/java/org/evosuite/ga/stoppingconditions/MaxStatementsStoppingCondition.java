@@ -106,6 +106,17 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	}
 
 	/**
+	 * <p>
+	 * getNumExecutedStatements
+	 * </p>
+	 * 
+	 * @return a long.
+	 */
+	public static void setNumExecutedStatements(long value) {
+		currentStatement = value;
+	}
+
+	/**
 	 * Set new upper limit
 	 * 
 	 * @param max

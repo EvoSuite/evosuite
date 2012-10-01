@@ -34,8 +34,8 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.javaagent.InstrumentingClassLoader;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.GenericClass;
 import org.evosuite.utils.Randomness;
@@ -57,7 +57,7 @@ public class TestCluster {
 	 * This is the classloader that does the instrumentation - it needs to be
 	 * used by all test code
 	 */
-	public static ClassLoader classLoader = new InstrumentingClassLoader();
+	// public static ClassLoader classLoader = new InstrumentingClassLoader();
 
 	/** Singleton instance */
 	private static TestCluster instance = null;
@@ -130,7 +130,7 @@ public class TestCluster {
 		// annotated with @Test (> JUnit 4.0)
 		// or contains Test or Suite in it's inheritance structure
 		try {
-			Class<?> clazz = classLoader.loadClass(className);
+			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 			Class<?> superClazz = clazz.getSuperclass();
 			while (!superClazz.equals(Object.class)) {
 				if (superClazz.equals(Suite.class))
@@ -180,7 +180,7 @@ public class TestCluster {
 
 		for (String castClass : classes) {
 			try {
-				Class<?> clazz = classLoader.loadClass(castClass);
+				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(castClass);
 				if (!clazz.isAssignableFrom(Properties.getTargetClass())) {
 					castClasses.add(new GenericClass(clazz));
 					castClassNames.add(castClass);
@@ -196,9 +196,18 @@ public class TestCluster {
 	}
 
 	public static void reset() {
-		classLoader = new InstrumentingClassLoader();
+		// classLoader = new InstrumentingClassLoader();
 		finalClasses.clear();
 		staticInitializers.clear();
+
+		analyzedClasses.clear();
+		testMethods.clear();
+		generators.clear();
+		generatorCache.clear();
+		modifiers.clear();
+		castClassNames.clear();
+		castClasses.clear();
+
 		instance = null;
 	}
 
@@ -209,7 +218,7 @@ public class TestCluster {
 	private static void loadStaticInitializers() {
 		for (String className : finalClasses) {
 			try {
-				Class<?> clazz = classLoader.loadClass(className);
+				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 				Method m = clazz.getMethod("__STATIC_RESET", (Class<?>[]) null);
 				m.setAccessible(true);
 				staticInitializers.add(m);
@@ -302,7 +311,7 @@ public class TestCluster {
 
 		// Or try java.lang
 		try {
-			classLoader.loadClass("java.lang." + name);
+			TestGenerationContext.getClassLoader().loadClass("java.lang." + name);
 		} catch (ClassNotFoundException e) {
 			// Ignore it as we throw our own
 		}

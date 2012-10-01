@@ -8,7 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
 import org.evosuite.testcarver.codegen.ICodeGenerator;
@@ -290,7 +290,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		}
 
 		try {
-			return Class.forName(type.getClassName(), true, TestCluster.classLoader);
+			return Class.forName(type.getClassName(), true,
+			                     TestGenerationContext.getClassLoader());
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);
 		}
@@ -315,15 +316,17 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			} else if (type.equals("short") || type.equals("Short")) {
 				return Short.TYPE;
 			} else if (type.equals("String")) {
-				return Class.forName("java.lang." + type, true, TestCluster.classLoader);
+				return Class.forName("java.lang." + type, true,
+				                     TestGenerationContext.getClassLoader());
 			}
 
 			if (type.endsWith("[]")) {
 				type = type.replace("[]", "");
-				return Class.forName("[L" + type + ";", true, TestCluster.classLoader);
+				return Class.forName("[L" + type + ";", true,
+				                     TestGenerationContext.getClassLoader());
 			} else {
 				return Class.forName(type.replace('/', '.'), true,
-				                     TestCluster.classLoader);
+				                     TestGenerationContext.getClassLoader());
 			}
 		} catch (final ClassNotFoundException e) {
 			throw new RuntimeException(e);

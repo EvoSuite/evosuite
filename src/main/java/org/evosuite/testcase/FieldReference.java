@@ -29,7 +29,7 @@ import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.setup.TestCluster;
+import org.evosuite.TestGenerationContext;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -533,7 +533,7 @@ public class FieldReference extends VariableReferenceImpl {
 		ois.defaultReadObject();
 
 		// Read/initialize additional fields
-		Class<?> fieldClass = TestCluster.classLoader.loadClass((String) ois.readObject());
+		Class<?> fieldClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
 		String fieldName = (String) ois.readObject();
 
 		try {

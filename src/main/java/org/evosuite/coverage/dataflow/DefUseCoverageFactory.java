@@ -25,11 +25,11 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.PureMethodsList;
@@ -152,13 +152,13 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 
 			//			LoggingUtils.getEvoLogger().info("Categorizing "+fieldMethodCall.toString());
 			boolean isPure;
-			if (!GraphPool.getInstance(TestCluster.classLoader).canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
+			if (!GraphPool.getInstance(TestGenerationContext.getClassLoader()).canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
 				isPure = PureMethodsList.instance.checkPurity(fieldMethodCall);
 				//				LoggingUtils.getEvoLogger().info("asked pure methods list for "+fieldMethodCall.toString()+" was pure "+isPure);
 				// classes in java.* can not be analyzed for purity yet. for now just ignore them
 				//				continue;
 			} else {
-				ClassControlFlowGraph ccfg = GraphPool.getInstance(TestCluster.classLoader).getCCFG(fieldMethodCall.getCalledMethodsClass());
+				ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCCFG(fieldMethodCall.getCalledMethodsClass());
 				isPure = ccfg.isPure(fieldMethodCall.getCalledMethod());
 			}
 
@@ -179,7 +179,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	}
 
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
-		ClassControlFlowGraph ccfg = GraphPool.getInstance(TestCluster.classLoader).getCCFG(Properties.TARGET_CLASS);
+		ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCCFG(Properties.TARGET_CLASS);
 		Set<DefUseCoverageTestFitness> r = ccfg.determineDefUsePairs();
 
 		return r;

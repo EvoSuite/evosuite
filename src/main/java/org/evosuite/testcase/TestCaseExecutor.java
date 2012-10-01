@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
@@ -40,10 +41,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>The test case executor manages thread creation/deletion to execute a test
- * case </p>
+ * <p>
+ * The test case executor manages thread creation/deletion to execute a test
+ * case
+ * </p>
  * 
- * <p>WARNING: never give "privileged" rights in MSecurityManager to any of the threads generated here
+ * <p>
+ * WARNING: never give "privileged" rights in MSecurityManager to any of the
+ * threads generated here
  * </p>
  * 
  * @author Gordon Fraser
@@ -159,9 +164,9 @@ public class TestCaseExecutor implements ThreadFactory {
 				logger.warn("TestCaseExecutor instance is non-null, but its actual executor is null");
 				instance.executor = Executors.newSingleThreadExecutor(instance);
 			} else {
-				if (instance.executor.isShutdown()) {
-					instance.executor = Executors.newSingleThreadExecutor(instance);
-				}
+				//if (instance.executor.isShutdown()) {
+				instance.executor = Executors.newSingleThreadExecutor(instance);
+				//}
 			}
 		}
 	}
@@ -270,7 +275,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		//#TODO steenbuck could be nicer (TestRunnable should be an interface
 		TestRunnable callable = new TestRunnable(tc, scope, observers);
 		callable.storeCurrentThreads();
-		
+
 		/*
 		 * FIXME: the sequence of "catch" with calls to "result.set" should be re-factored, as
 		 * these things should be (already) handled in TestRunnable.call.
@@ -291,7 +296,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			 * TODO: we might want to initialize the ExecutionResult here, once we waited for all SUT
 			 * threads to finish
 			 */
-			
+
 			long endTime = System.currentTimeMillis();
 			timeExecuted += endTime - startTime;
 			testsExecuted++;
@@ -453,7 +458,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 		threadGroup = new ThreadGroup(TEST_EXECUTION_THREAD_GROUP);
 		currentThread = new Thread(threadGroup, r);
-		currentThread.setContextClassLoader(TestCluster.classLoader);
+		currentThread.setContextClassLoader(TestGenerationContext.getClassLoader());
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
 	}

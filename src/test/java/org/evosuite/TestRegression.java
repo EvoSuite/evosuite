@@ -3,11 +3,9 @@
  */
 package org.evosuite;
 
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
+import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,24 +35,20 @@ import com.examples.with.different.packagename.ExampleInheritedClass;
  * @author Gordon Fraser
  * 
  */
-public class TestRegression {
-
-	@After
-	public void pullDown() {
-		CFGMethodAdapter.methods.clear();
-		BranchCoverageSuiteFitness.mostCoveredGoals = 0;
-	}
+public class TestRegression extends SystemTest {
 
 	private GeneticAlgorithm runTest(String targetClass) {
 		EvoSuite evosuite = new EvoSuite();
 
-		Properties.CLIENT_ON_THREAD = true;
+		//Properties.CLIENT_ON_THREAD = true;
 		Properties.TARGET_CLASS = targetClass;
-		Properties.resetTargetClass();
+		//Properties.resetTargetClass();
+		Properties.SEARCH_BUDGET = 100000;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-cp",
-		        "target/test-classes", "-Dshow_progress=false",
-		        "-Dclient_on_thread=true", "-Dsearch_budget=100000" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		//, "-cp",
+		//        "target/test-classes", "-Dshow_progress=false"};
+		//		        "-Dclient_on_thread=true", "-Dsearch_budget=100000" };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertTrue(result != null);
@@ -68,8 +62,8 @@ public class TestRegression {
 		GeneticAlgorithm ga = runTest(targetClass);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		// TODO: Need to fix the check, some reset is not working
-		// Assert.assertEquals("Wrong number of target goals", numGoals,
-		//                    TestSuiteFitnessFunction.getCoveredGoals());
+		Assert.assertEquals("Wrong number of target goals", numGoals,
+		                    TestSuiteFitnessFunction.getCoveredGoals());
 		Assert.assertEquals("Wrong fitness: ", 0.0, best.getFitness(), 0.00);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		Assert.assertTrue("Wrong number of statements: ", best.size() > 0);
@@ -85,6 +79,7 @@ public class TestRegression {
 		testCovered(ArrayTest.class.getCanonicalName(), 11);
 	}
 
+	// TODO: This test fails if primitive_reuse_probability is too high/low. 
 	@Test
 	public void testAssignment() {
 		testCovered(AssignmentTest.class.getCanonicalName(), 30);
