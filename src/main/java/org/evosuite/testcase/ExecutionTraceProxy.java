@@ -512,7 +512,7 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 */
 	@Override
 	public Map<Integer, Map<CallContext, Double>> getTrueDistancesContext() {
-		return null;
+		return trace.getTrueDistancesContext();
 	}
 
 	/* (non-Javadoc)
@@ -520,7 +520,14 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 */
 	@Override
 	public Map<Integer, Map<CallContext, Double>> getFalseDistancesContext() {
-		// TODO Auto-generated method stub
-		return null;
+		return trace.getFalseDistancesContext();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getPredicateContextExecutionCount()
+	 */
+	@Override
+	public Map<Integer, Map<CallContext, Integer>> getPredicateContextExecutionCount() {
+		return trace.getPredicateContextExecutionCount();
 	}
 }
