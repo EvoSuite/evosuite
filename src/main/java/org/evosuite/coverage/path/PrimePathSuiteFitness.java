@@ -42,7 +42,7 @@ public class PrimePathSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = 8301900778876171653L;
 
-	List<TestFitnessFunction> goals;
+	List<PrimePathTestFitness> goals;
 
 	/**
 	 * <p>

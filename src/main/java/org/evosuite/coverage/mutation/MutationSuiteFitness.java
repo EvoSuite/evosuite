@@ -28,7 +28,6 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
 
@@ -45,7 +44,7 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final BranchCoverageSuiteFitness branchFitness;
 
-	protected final List<TestFitnessFunction> mutationGoals;
+	protected final List<MutationTestFitness> mutationGoals;
 
 	/** Constant <code>mostCoveredGoals=0</code> */
 	public static int mostCoveredGoals = 0;

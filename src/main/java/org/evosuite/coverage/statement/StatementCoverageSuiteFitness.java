@@ -50,7 +50,7 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		//  in the end sum up all those fitness and it's the resulting suite-fitness
 
 		// guess this is horribly inefficient but it's a start
-		List<TestFitnessFunction> totalGoals = StatementCoverageFactory.retrieveCoverageGoals();
+		List<? extends TestFitnessFunction> totalGoals = StatementCoverageFactory.retrieveCoverageGoals();
 		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
 
 		for (TestFitnessFunction goal : totalGoals) {
