@@ -1343,4 +1343,22 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		return uses;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getTrueDistancesContext()
+	 */
+	@Override
+	public Map<Integer, Map<CallContext, Double>> getTrueDistancesContext() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getFalseDistancesContext()
+	 */
+	@Override
+	public Map<Integer, Map<CallContext, Double>> getFalseDistancesContext() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

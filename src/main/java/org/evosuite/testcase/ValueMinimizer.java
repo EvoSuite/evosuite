@@ -161,7 +161,6 @@ public class ValueMinimizer implements TestVisitor {
 
 	@SuppressWarnings("unchecked")
 	private <T> void binarySearch(NumericalPrimitiveStatement<T> statement) {
-		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> zero = (PrimitiveStatement<T>) PrimitiveStatement.getPrimitiveStatement(statement.tc,
 		                                                                                              statement.getReturnClass());
 		T max = statement.getValue();
