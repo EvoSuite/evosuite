@@ -93,8 +93,8 @@ public class TestCaseMinimizer {
 		return has_deleted;
 	}
 
-	private static boolean isWorse(FitnessFunction fitness, TestChromosome oldChromosome,
-	        TestChromosome newChromosome) {
+	private static boolean isWorse(FitnessFunction<TestChromosome> fitness,
+	        TestChromosome oldChromosome, TestChromosome newChromosome) {
 		if (fitness.isMaximizationFunction()) {
 			if (oldChromosome.getFitness() > newChromosome.getFitness())
 				return true;

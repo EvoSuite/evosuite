@@ -17,8 +17,21 @@ public class IBranchTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = -1399396770125054561L;
 
-	public IBranchTestFitness(Branch branch, CallContext context) {
+	private final Branch branch;
 
+	private final CallContext context;
+
+	public IBranchTestFitness(Branch branch, CallContext context) {
+		this.branch = branch;
+		this.context = context;
+	}
+
+	public Branch getBranch() {
+		return branch;
+	}
+
+	public CallContext getContext() {
+		return context;
 	}
 
 	/* (non-Javadoc)

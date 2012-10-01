@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutionTraceImpl.BranchEval;
 
 /**
@@ -504,5 +505,22 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	@Override
 	public Set<Integer> getPassedUseIDs() {
 		return trace.getPassedUseIDs();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getTrueDistancesContext()
+	 */
+	@Override
+	public Map<Integer, Map<CallContext, Double>> getTrueDistancesContext() {
+		return null;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getFalseDistancesContext()
+	 */
+	@Override
+	public Map<Integer, Map<CallContext, Double>> getFalseDistancesContext() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

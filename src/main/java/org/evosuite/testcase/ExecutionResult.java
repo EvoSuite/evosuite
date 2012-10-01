@@ -26,12 +26,8 @@ import java.util.Set;
 
 import org.evosuite.assertion.OutputTrace;
 import org.evosuite.coverage.mutation.Mutation;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class ExecutionResult implements Cloneable {
-
-	private static final Logger logger = LoggerFactory.getLogger(ExecutionResult.class);
 
 	/** Test case that produced this execution result */
 	public TestCase test;
@@ -93,7 +89,8 @@ public class ExecutionResult implements Cloneable {
 	 * </p>
 	 * 
 	 * @param data
-	 *            a {@link java.util.Map} object. It has a mapping from test sequence position toward thrown exception
+	 *            a {@link java.util.Map} object. It has a mapping from test
+	 *            sequence position toward thrown exception
 	 */
 	public void setThrownExceptions(Map<Integer, Throwable> data) {
 		exceptions.clear();

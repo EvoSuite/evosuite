@@ -48,10 +48,6 @@ public class FieldStatement extends AbstractStatement {
 
 	transient Field field;
 	VariableReference source;
-	// VariableReference ret_val;
-
-	private final String className;
-	private final String fieldName;
 
 	/**
 	 * <p>
@@ -71,8 +67,6 @@ public class FieldStatement extends AbstractStatement {
 	        java.lang.reflect.Type type) {
 		super(tc, new VariableReferenceImpl(tc, type));
 		this.field = field;
-		this.className = field.getDeclaringClass().getName();
-		this.fieldName = field.getName();
 		this.source = source;
 		if (retval.getComponentType() != null) {
 			retval = new ArrayReference(tc, retval.getGenericClass(), 0);
@@ -99,8 +93,6 @@ public class FieldStatement extends AbstractStatement {
 		super(tc, ret_var);
 		assert (tc.size() > ret_var.getStPosition()); //as an old statement should be replaced by this statement
 		this.field = field;
-		this.className = field.getDeclaringClass().getName();
-		this.fieldName = field.getName();
 		this.source = source;
 	}
 

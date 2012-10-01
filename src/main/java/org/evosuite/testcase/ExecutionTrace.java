@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.coverage.dataflow.DefUse;
+import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutionTraceImpl.BranchEval;
 
 /**
@@ -131,6 +132,20 @@ public interface ExecutionTrace {
 	 * @return a {@link java.util.Map} object.
 	 */
 	public Map<Integer, Double> getFalseDistances();
+
+	/**
+	 * Retrieve map of all minimal true distances
+	 * 
+	 * @return a {@link java.util.Map} object.
+	 */
+	public Map<Integer, Map<CallContext, Double>> getTrueDistancesContext();
+
+	/**
+	 * Retrieve map of all minimal false distances
+	 * 
+	 * @return a {@link java.util.Map} object.
+	 */
+	public Map<Integer, Map<CallContext, Double>> getFalseDistancesContext();
 
 	/**
 	 * Retrieve the set of line numbers covered
