@@ -346,7 +346,12 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
 			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
 
-			covered_methods.addAll(trace.getCoveredMethods());
+			for (String method : trace.getCoveredMethods()) {
+				if (method.startsWith(Properties.TARGET_CLASS)
+				        || method.startsWith(Properties.TARGET_CLASS + '$'))
+					covered_methods.add(method);
+			}
+			// covered_methods.addAll(trace.getCoveredMethods());
 
 			for (Entry<Integer, Double> e : trace.getTrueDistances().entrySet()) {
 				if (!predicate_count.containsKey(e.getKey()))
@@ -436,6 +441,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			double df = true_distance.get(key);
 			double dt = false_distance.get(key);
 			Branch b = BranchPool.getBranch(key);
+			if (!b.getClassName().startsWith(Properties.TARGET_CLASS)
+			        && !b.getClassName().startsWith(Properties.TARGET_CLASS + '$'))
+				continue;
+
 			//if (!b.isInstrumented()) {
 			if (df == 0.0)
 				num_covered++;
