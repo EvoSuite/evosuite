@@ -24,7 +24,6 @@ import org.evosuite.Properties;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +35,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public class BranchCoverageFactory extends AbstractFitnessFactory {
+public class BranchCoverageFactory extends
+        AbstractFitnessFactory<BranchCoverageTestFitness> {
 
 	private static Logger logger = LoggerFactory.getLogger(BranchCoverageFactory.class);
 
@@ -48,7 +48,7 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public List<TestFitnessFunction> getCoverageGoals() {
+	public List<BranchCoverageTestFitness> getCoverageGoals() {
 		return getCoverageGoals(Properties.TARGET_METHOD);
 	}
 
@@ -67,9 +67,9 @@ public class BranchCoverageFactory extends AbstractFitnessFactory {
 	 *            a {@link java.lang.String} object.
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<TestFitnessFunction> getCoverageGoals(String targetMethod) {
+	public List<BranchCoverageTestFitness> getCoverageGoals(String targetMethod) {
 		long start = System.currentTimeMillis();
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		List<BranchCoverageTestFitness> goals = new ArrayList<BranchCoverageTestFitness>();
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {

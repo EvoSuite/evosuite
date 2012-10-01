@@ -111,19 +111,16 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * Initialize the set of known coverage goals
 	 */
 	private void determineCoverageGoals() {
-		List<TestFitnessFunction> goals = new BranchCoverageFactory().getCoverageGoals();
-		for (TestFitnessFunction goal : goals) {
-			BranchCoverageTestFitness goalFitness = (BranchCoverageTestFitness) goal;
-			if (goalFitness.getBranch() == null) {
-				branchlessMethodCoverageMap.put(goalFitness.getClassName() + "."
-				        + goalFitness.getMethod(), goal);
+		List<BranchCoverageTestFitness> goals = new BranchCoverageFactory().getCoverageGoals();
+		for (BranchCoverageTestFitness goal : goals) {
+			if (goal.getBranch() == null) {
+				branchlessMethodCoverageMap.put(goal.getClassName() + "."
+				                                        + goal.getMethod(), goal);
 			} else {
-				if (goalFitness.getBranchExpressionValue())
-					branchCoverageTrueMap.put(goalFitness.getBranch().getActualBranchId(),
-					                          goal);
+				if (goal.getBranchExpressionValue())
+					branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), goal);
 				else
-					branchCoverageFalseMap.put(goalFitness.getBranch().getActualBranchId(),
-					                           goal);
+					branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), goal);
 			}
 		}
 	}

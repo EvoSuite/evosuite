@@ -37,7 +37,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private static final long serialVersionUID = 1L;
 
-	static List<TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory(Criterion.ALLDEFS).getCoverageGoals();
+	static List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory(Criterion.ALLDEFS).getCoverageGoals();
 
 	/** Constant <code>totalGoals=goals.size()</code> */
 	public static int totalGoals = goals.size();

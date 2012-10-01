@@ -11,32 +11,30 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.setup.CallContext;
 import org.evosuite.setup.CallTree;
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public class IBranchFitnessFactory extends AbstractFitnessFactory {
+public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFitness> {
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
 	@Override
-	public List<TestFitnessFunction> getCoverageGoals() {
+	public List<IBranchTestFitness> getCoverageGoals() {
 
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+		List<IBranchTestFitness> goals = new ArrayList<IBranchTestFitness>();
 
 		// retrieve set of branches
 		BranchCoverageFactory branchFactory = new BranchCoverageFactory();
-		List<TestFitnessFunction> branchGoals = branchFactory.getCoverageGoals();
+		List<BranchCoverageTestFitness> branchGoals = branchFactory.getCoverageGoals();
 
 		CallTree callTree = DependencyAnalysis.getCallTree();
 
 		// try to find all occurrences of this branch in the call tree
-		for (TestFitnessFunction fitnessFunction : branchGoals) {
-			BranchCoverageTestFitness branchGoal = (BranchCoverageTestFitness) fitnessFunction;
+		for (BranchCoverageTestFitness branchGoal : branchGoals) {
 			for (CallContext context : callTree.getAllContexts(branchGoal.getClassName(),
 			                                                   branchGoal.getMethod())) {
 				goals.add(new IBranchTestFitness(branchGoal.getBranch(), context));

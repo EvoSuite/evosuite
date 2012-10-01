@@ -290,7 +290,7 @@ public class CoverageAnalysis {
 		LoggingUtils.getEvoLogger().info("* Executed " + result.getRunCount() + " tests");
 		ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
 
-		List<TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
 		TestChromosome dummy = new TestChromosome();
 		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
 		executionResult.setTrace(trace);

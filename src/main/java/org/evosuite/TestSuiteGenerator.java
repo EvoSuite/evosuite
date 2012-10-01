@@ -116,6 +116,7 @@ import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.JUnitTestChromosomeFactory;
@@ -128,6 +129,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.CoverageCrossOver;
 import org.evosuite.testsuite.CoverageStatistics;
 import org.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
@@ -600,7 +602,7 @@ public class TestSuiteGenerator {
 		long start_time = System.currentTimeMillis() / 1000;
 
 		// What's the search target
-		FitnessFunction fitness_function = getFitnessFunction();
+		FitnessFunction<?> fitness_function = getFitnessFunction();
 		ga.setFitnessFunction(fitness_function);
 		if (Properties.CRITERION == Criterion.STRONGMUTATION) {
 			ga.addListener((StrongMutationSuiteFitness) fitness_function);
@@ -619,8 +621,8 @@ public class TestSuiteGenerator {
 		//if (analyzing)
 		ga.resetStoppingConditions();
 
-		TestFitnessFactory goal_factory = getFitnessFactory();
-		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
+		TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory();
+		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
 		TestSuiteChromosome best = new TestSuiteChromosome();
 		if (!goals.isEmpty()) {
@@ -824,7 +826,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
 	 */
-	public static TestFitnessFactory getFitnessFactory() {
+	public static TestFitnessFactory<? extends TestFitnessFunction> getFitnessFactory() {
 		return getFitnessFactory(Properties.CRITERION);
 	}
 
@@ -837,7 +839,8 @@ public class TestSuiteGenerator {
 	 *            a {@link org.evosuite.Properties.Criterion} object.
 	 * @return a {@link org.evosuite.coverage.TestFitnessFactory} object.
 	 */
-	public static TestFitnessFactory getFitnessFactory(Criterion crit) {
+	public static TestFitnessFactory<? extends TestFitnessFunction> getFitnessFactory(
+	        Criterion crit) {
 		switch (crit) {
 		case STRONGMUTATION:
 		case MUTATION:
@@ -872,8 +875,8 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return
 	 */
-	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction fitness,
-	        TestFitnessFactory goals) {
+	private TestSuiteChromosome bootstrapRandomSuite(FitnessFunction<?> fitness,
+	        TestFitnessFactory<?> goals) {
 
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS) {
@@ -991,22 +994,22 @@ public class TestSuiteGenerator {
 			ga.resetStoppingConditions();
 
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
-		FitnessFunction suite_fitness = getFitnessFunction();
-		suiteGA.setFitnessFunction(suite_fitness);
+		FitnessFunction<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> suiteFitness = getFitnessFunction();
+		suiteGA.setFitnessFunction(suiteFitness);
 
 		if (analyzing)
 			suiteGA.resetStoppingConditions();
 
 		long start_time = System.currentTimeMillis() / 1000;
-		FitnessLogger fitness_logger = new FitnessLogger();
+		FitnessLogger fitnessLogger = new FitnessLogger();
 		if (Properties.LOG_GOALS) {
-			ga.addListener(fitness_logger);
+			ga.addListener(fitnessLogger);
 		}
 
 		// Get list of goals
-		TestFitnessFactory goal_factory = getFitnessFactory();
+		TestFitnessFactory<?> goalFactory = getFitnessFactory();
 		long goalComputationStart = System.currentTimeMillis();
-		List<TestFitnessFunction> goals = goal_factory.getCoverageGoals();
+		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		if (AbstractFitnessFactory.goalComputationTime != 0l)
 			AbstractFitnessFactory.goalComputationTime = System.currentTimeMillis()
 			        - goalComputationStart;
@@ -1029,7 +1032,7 @@ public class TestSuiteGenerator {
 		// Bootstrap with random testing to cover easy goals
 		statistics.searchStarted(suiteGA);
 
-		TestSuiteChromosome suite = bootstrapRandomSuite(suite_fitness, goal_factory);
+		TestSuiteChromosome suite = bootstrapRandomSuite(suiteFitness, goalFactory);
 		suiteGA.getPopulation().add(suite);
 		Set<Integer> covered = new HashSet<Integer>();
 		int covered_goals = 0;
@@ -1067,7 +1070,7 @@ public class TestSuiteGenerator {
 			num = 0;
 			// int num_statements = 0;
 			// //MaxStatementsStoppingCondition.getNumExecutedStatements();
-			for (TestFitnessFunction fitness_function : goals) {
+			for (TestFitnessFunction fitnessFunction : goals) {
 
 				if (covered.contains(num)) {
 					num++;
@@ -1076,15 +1079,13 @@ public class TestSuiteGenerator {
 
 				ga.resetStoppingConditions();
 				ga.clearPopulation();
-				ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
+				ga.setChromosomeFactory(getChromosomeFactory(fitnessFunction));
 
 				if (Properties.PRINT_CURRENT_GOALS)
-					LoggingUtils.getEvoLogger().info("* Searching for goal "
-					                                         + num
-					                                         + ": "
-					                                         + fitness_function.toString());
+					LoggingUtils.getEvoLogger().info("* Searching for goal " + num + ": "
+					                                         + fitnessFunction.toString());
 				logger.info("Goal " + num + "/" + (total_goals - covered_goals) + ": "
-				        + fitness_function);
+				        + fitnessFunction);
 
 				if (ShutdownTestWriter.isInterrupted()) {
 					num++;
@@ -1097,10 +1098,10 @@ public class TestSuiteGenerator {
 				}
 
 				// FitnessFunction fitness_function = new
-				ga.setFitnessFunction(fitness_function);
+				ga.setFitnessFunction(fitnessFunction);
 
 				// Perform search
-				logger.info("Starting evolution for goal " + fitness_function);
+				logger.info("Starting evolution for goal " + fitnessFunction);
 				ga.generateSolution();
 
 				if (ga.getBestIndividual().getFitness() == 0.0) {
@@ -1112,14 +1113,14 @@ public class TestSuiteGenerator {
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
 					if (Properties.MINIMIZE && !Properties.MINIMIZE_OLD) {
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
-						        fitness_function);
+						        fitnessFunction);
 						minimizer.minimize(best);
 					}
-					best.getTestCase().addCoveredGoal(fitness_function);
+					best.getTestCase().addCoveredGoal(fitnessFunction);
 					suite.addTest(best);
 					suiteGA.getPopulation().set(0, suite);
 					// Calculate and keep track of overall fitness
-					suite_fitness.getFitness(suite);
+					suiteFitness.getFitness(suite);
 
 					covered_goals++;
 					covered.add(num);
@@ -1137,7 +1138,7 @@ public class TestSuiteGenerator {
 					}
 
 				} else {
-					logger.info("Found no solution for " + fitness_function + " at "
+					logger.info("Found no solution for " + fitnessFunction + " at "
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 				}
 
@@ -1269,7 +1270,7 @@ public class TestSuiteGenerator {
 		return suite.getTests();
 	}
 
-	private void orderGoalsByDifficulty(List<TestFitnessFunction> goals) {
+	private void orderGoalsByDifficulty(List<? extends TestFitnessFunction> goals) {
 
 		Collections.sort(goals);
 		// for(TestFitnessFunction goal : goals)
@@ -1284,8 +1285,9 @@ public class TestSuiteGenerator {
 	 * Used to avoid unnecessary solutionGenerations in
 	 * generateIndividualTests()
 	 */
-	private Set<Integer> getAdditionallyCoveredGoals(List<TestFitnessFunction> goals,
-	        Set<Integer> covered, TestChromosome best) {
+	private Set<Integer> getAdditionallyCoveredGoals(
+	        List<? extends TestFitnessFunction> goals, Set<Integer> covered,
+	        TestChromosome best) {
 
 		Set<Integer> r = new HashSet<Integer>();
 		ExecutionResult result = best.getLastExecutionResult();
@@ -1421,7 +1423,7 @@ public class TestSuiteGenerator {
 	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
 	protected static ChromosomeFactory<? extends Chromosome> getChromosomeFactory(
-	        FitnessFunction fitness) {
+	        FitnessFunction<?> fitness) {
 
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:

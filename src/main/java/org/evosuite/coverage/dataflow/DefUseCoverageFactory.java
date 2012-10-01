@@ -30,7 +30,6 @@ import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.PureMethodsList;
 import org.slf4j.Logger;
@@ -43,7 +42,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Andre Mis
  */
-public class DefUseCoverageFactory extends AbstractFitnessFactory {
+public class DefUseCoverageFactory extends
+        AbstractFitnessFactory<DefUseCoverageTestFitness> {
 
 	private static Logger logger = LoggerFactory.getLogger(DefUseCoverageFactory.class);
 
@@ -51,7 +51,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	// and since analysis takes a little ...
 	private static boolean called = false;
 	private static List<DefUseCoverageTestFitness> duGoals;
-	private static List<TestFitnessFunction> goals;
+	private static List<DefUseCoverageTestFitness> goals;
 
 	// map of all NON-parameter-goals
 	private static Map<Definition, Map<Use, DefUseCoverageTestFitness>> goalMap = new HashMap<Definition, Map<Use, DefUseCoverageTestFitness>>();
@@ -79,7 +79,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public List<TestFitnessFunction> getCoverageGoals() {
+	public List<DefUseCoverageTestFitness> getCoverageGoals() {
 		if (!called)
 			computeGoals();
 
@@ -124,7 +124,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		System.out.println(" created " + getParamGoalsCount() + " parameter goals");
 
 		called = true;
-		goals = new ArrayList<TestFitnessFunction>();
+		goals = new ArrayList<DefUseCoverageTestFitness>();
 		goals.addAll(duGoals);
 		long end = System.currentTimeMillis();
 		goalComputationTime = end - start;

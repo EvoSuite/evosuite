@@ -26,18 +26,18 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
 
-public class StatementCoverageFactory extends AbstractFitnessFactory {
+public class StatementCoverageFactory extends
+        AbstractFitnessFactory<StatementCoverageTestFitness> {
 
 	private static boolean called = false;
-	private static List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>();
+	private static List<StatementCoverageTestFitness> goals = new ArrayList<StatementCoverageTestFitness>();
 
 	/** {@inheritDoc} */
 	@Override
-	public List<TestFitnessFunction> getCoverageGoals() {
+	public List<StatementCoverageTestFitness> getCoverageGoals() {
 
 		if (!called)
 			computeGoals();
@@ -89,7 +89,7 @@ public class StatementCoverageFactory extends AbstractFitnessFactory {
 	 * 
 	 * @return a {@link java.util.List} object.
 	 */
-	public static List<TestFitnessFunction> retrieveCoverageGoals() {
+	public static List<StatementCoverageTestFitness> retrieveCoverageGoals() {
 		if (!called)
 			computeGoals();
 
