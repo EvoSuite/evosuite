@@ -41,11 +41,23 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		return distanceMap;
 	}
 
-	private Map<Branch, Map<CallContext, Integer>> getDefaultCallCountMap() {
-		Map<Branch, Map<CallContext, Integer>> distanceMap = new HashMap<Branch, Map<CallContext, Integer>>();
+	private Map<IBranchTestFitness, Integer> getDefaultCallCountMap() {
+		Map<IBranchTestFitness, Integer> distanceMap = new HashMap<IBranchTestFitness, Integer>();
 		for (IBranchTestFitness goal : branchGoals)
-			distanceMap.put(goal.getBranch(), new HashMap<CallContext, Integer>());
+			distanceMap.put(goal, 0);
 		return distanceMap;
+	}
+
+	private IBranchTestFitness getContextGoal(Integer branchId, CallContext context) {
+		for (IBranchTestFitness goal : branchGoals) {
+			if (goal.getBranch().getActualBranchId() == branchId) {
+				if (goal.getContext().equals(context))
+					return goal;
+			}
+		}
+
+		throw new RuntimeException("Could not find goal for " + branchId + ", context "
+		        + context);
 	}
 
 	/* (non-Javadoc)
@@ -59,13 +71,14 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> results = runTestSuite(suite);
 		Map<IBranchTestFitness, Double> distanceMap = getDefaultDistanceMap();
 
-		Map<Branch, Map<CallContext, Integer>> callCount = getDefaultCallCountMap();
+		Map<IBranchTestFitness, Integer> callCount = getDefaultCallCountMap();
 
-		// Determine minimum branch distance for each branch in each context
 		for (ExecutionResult result : results) {
+			// Determine minimum branch distance for each branch in each context
 			for (Entry<Integer, Map<CallContext, Double>> entry : result.getTrace().getTrueDistancesContext().entrySet()) {
 				for (Entry<CallContext, Double> value : entry.getValue().entrySet()) {
-					IBranchTestFitness goal = null;
+					IBranchTestFitness goal = getContextGoal(entry.getKey(),
+					                                         value.getKey());
 					double distance = value.getValue();
 					if (distanceMap.get(goal) > distance) {
 						distanceMap.put(goal, distance);
@@ -73,15 +86,23 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 				}
 			}
 
-			// TODO: Update call count
+			// Determine maximum execution count for each branch in each context
+			for (Entry<Integer, Map<CallContext, Integer>> entry : result.getTrace().getPredicateContextExecutionCount().entrySet()) {
+				for (Entry<CallContext, Integer> value : entry.getValue().entrySet()) {
+					IBranchTestFitness goal = getContextGoal(entry.getKey(),
+					                                         value.getKey());
+					int count = value.getValue();
+					if (callCount.get(goal) < count) {
+						callCount.put(goal, count);
+					}
+				}
+			}
 		}
 
 		for (IBranchTestFitness goal : branchGoals) {
 			double distance = distanceMap.get(goal);
-			int count = 0;
-			if (callCount.get(goal.getBranch()).containsKey(goal.getContext())) {
-				count = callCount.get(goal.getBranch()).get(goal.getContext());
-			}
+			int count = callCount.get(goal);
+
 			// If branch is called exactly once in that context, 
 			// then the sum of false and true distance must be 1
 			if (count == 1)

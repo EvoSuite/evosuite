@@ -148,6 +148,13 @@ public interface ExecutionTrace {
 	public Map<Integer, Map<CallContext, Double>> getFalseDistancesContext();
 
 	/**
+	 * Retrieve number of predicate executions
+	 * 
+	 * @return a {@link java.util.Map} object.
+	 */
+	public Map<Integer, Map<CallContext, Integer>> getPredicateContextExecutionCount();
+
+	/**
 	 * Retrieve the set of line numbers covered
 	 * 
 	 * @param className
