@@ -72,13 +72,6 @@ public class ResourceList {
 		final ArrayList<String> retval = new ArrayList<String>();
 		//final String classPath = System.getProperty("java.class.path", ".");
 		final String[] classPathElements = Properties.CP.split(":");
-		
-		// DEBUG Konrad
-		LoggingUtils.getEvoLogger().info("DEBUG-KONRAD ClassPathElements:" );
-		for (String string : classPathElements) {
-			LoggingUtils.getEvoLogger().info("DEBUG-KONRAD "+string);
-		}
-		// /DEBUG		
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
@@ -148,14 +141,6 @@ public class ResourceList {
 		} else if (file.getName().endsWith(".jar")) {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		}
-		
-		// DEBUG Konrad
-		LoggingUtils.getEvoLogger().info("DEBUG-KONRAD classPathElement "+element+" PATTERN: "+pattern );
-		for (String string : retval) {
-			LoggingUtils.getEvoLogger().info("DEBUG-KONRAD retval: "+string);
-		}
-		// /DEBUG
-
 		return retval;
 	}
 
