@@ -89,7 +89,7 @@ public class FileSystem {
 			logger.debug("Setting read permission of " + evoSuiteFile.getPath()
 					+ " to " + readable + " failed!");
 		}
-		
+
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
@@ -132,21 +132,23 @@ public class FileSystem {
 	 * also deletes a folder that contains children (by deleting them as well).
 	 * 
 	 * @param evoSuiteFile
+	 * @throws IOException 
 	 */
-	public static void deepDelete(EvoSuiteFile evoSuiteFile) {
+	public static void deepDelete(EvoSuiteFile evoSuiteFile) throws IOException {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
 		IOWrapper.setOriginal(file, false);
 		IOWrapper.deepDelete(file); // TODO use return value of this method in evosuite-io v0.4 to create logger messages
-		
+
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	public static void createFile(EvoSuiteFile evoSuiteFile) throws IOException {
 		if (evoSuiteFile == null)
-			throw new NullPointerException("evoSuiteFile must not be null!");;
+			throw new NullPointerException("evoSuiteFile must not be null!");
+		;
 
 		File file = new File(evoSuiteFile.getPath());
 		IOWrapper.setOriginal(file, false);
@@ -157,7 +159,7 @@ public class FileSystem {
 			logger.debug("Creation of " + evoSuiteFile.getPath()
 					+ " as a file failed!");
 		}
-		
+
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
@@ -179,7 +181,7 @@ public class FileSystem {
 			logger.debug("Creation of " + evoSuiteFile.getPath()
 					+ " as a folder failed!");
 		}
-		
+
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
@@ -238,7 +240,7 @@ public class FileSystem {
 		File parent = file.getCanonicalFile().getParentFile();
 		IOWrapper.setOriginal(parent, false);
 		parent.mkdirs();
-		
+
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 		filesToBeDeleted.add(parent.getCanonicalPath());
 	}
@@ -254,7 +256,7 @@ public class FileSystem {
 		File parent = file.getCanonicalFile().getParentFile();
 		IOWrapper.setOriginal(parent, false);
 		IOWrapper.deepDelete(parent);
-		
+
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
@@ -267,19 +269,20 @@ public class FileSystem {
 			try {
 				IOWrapper.initVFS();
 
-				// TODO: also delete folder structure? do not delete (virtual) files, but only 'reset' their content?
+				// this should simply delete all files in VFS
 				IOWrapper.activeVFS = true;
-				filesToBeDeleted.addAll(IOWrapper.getAccessedFiles()); // FIXME check if this is correct - don't know it atm
-				for (String fileName : filesToBeDeleted) {
-					logger.info("Deleting virtual file: " + fileName);
-					File f = new File(fileName);
-					IOWrapper.setOriginal(f, false);
-					f.delete(); // TODO replace this with the following line after integrating evosuite-io v0.4
-//					IOWrapper.deepDelete(f);
-//					IOWrapper.forceReinitialization(f); // TODO this may be costly -> reset instead of reinitialization?
+				for (File root : File.listRoots()) {
+					logger.info("deleting all files in root: \""
+							+ root.getPath() + "\"");
+					IOWrapper.setOriginal(root, false);
+					IOWrapper.setShallowCopy(root, true);
+					IOWrapper.forceReinitialization(root);
 				}
+
 				IOWrapper.clearAccessedFiles();
 				filesToBeDeleted.clear();
+
+				IOWrapper.resetVFS();
 			} catch (FileSystemException e) {
 				logger.warn("Error during initialization of virtual FS: " + e
 						+ ", " + e.getCause());//
