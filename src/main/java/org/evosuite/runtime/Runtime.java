@@ -31,7 +31,7 @@ import org.evosuite.setup.TestCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.evosuite.io.IOWrapper;
+import java.io.EvoSuiteIO;
 
 /**
  * <p>
@@ -63,8 +63,8 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {
-			if (!IOWrapper.isInitialized())
-				IOWrapper.initialize(Properties.PROJECT_PREFIX,
+			if (!EvoSuiteIO.isInitialized())
+				EvoSuiteIO.initialize(Properties.PROJECT_PREFIX,
 						Properties.READ_ONLY_FROM_SANDBOX_FOLDER, new File(
 								Properties.SANDBOX_FOLDER, "read")
 								.getAbsoluteFile());
