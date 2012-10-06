@@ -34,7 +34,7 @@ import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.evosuite.io.IOWrapper;
+import java.io.EvoSuiteIO;
 
 /**
  * provides file system operations for an <code>EvoSuiteFile</code>
@@ -68,7 +68,7 @@ public class FileSystem {
 		logger.info("Writing \"" + content + "\" to (virtual) file "
 				+ evoSuiteFile.getPath());
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 		Writer writer = new BufferedWriter(new FileWriter(file));
 		writer.write(content);
 		writer.close();
@@ -81,7 +81,7 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 		if (file.setReadable(readable)) {
 			logger.debug("Read permisson of " + evoSuiteFile.getPath()
 					+ " was successfully set to " + readable + " !");
@@ -99,7 +99,7 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 		if (file.setWritable(writable)) {
 			logger.debug("Write permisson of " + evoSuiteFile.getPath()
 					+ " was successfully set to " + writable + " !");
@@ -116,7 +116,7 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 		if (file.setExecutable(executable)) {
 			logger.debug("Execute permisson of " + evoSuiteFile.getPath()
 					+ " was successfully set to " + executable + " !");
@@ -128,7 +128,7 @@ public class FileSystem {
 	}
 
 	/**
-	 * Test method that tries to delete a file or folder by calling {@link IOWrapper#deepDelete(File)}. In contrast to normal deletion this method
+	 * Test method that tries to delete a file or folder by calling {@link EvoSuiteIO#deepDelete(File)}. In contrast to normal deletion this method
 	 * also deletes a folder that contains children (by deleting them as well).
 	 * 
 	 * @param evoSuiteFile
@@ -139,8 +139,8 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
-		IOWrapper.deepDelete(file); // TODO use return value of this method in evosuite-io v0.4 to create logger messages
+		EvoSuiteIO.setOriginal(file, false);
+		EvoSuiteIO.deepDelete(file); // TODO use return value of this method in evosuite-io v0.4 to create logger messages
 
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
@@ -151,7 +151,7 @@ public class FileSystem {
 		;
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 		if (file.createNewFile()) {
 			logger.debug(evoSuiteFile.getPath()
 					+ " was successfully created as a file!");
@@ -173,7 +173,7 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 		if (file.mkdirs()) {
 			logger.debug(evoSuiteFile.getPath()
 					+ " was successfully created as a folder!");
@@ -197,16 +197,16 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 		if (!file.isDirectory()) // TODO should this method be such 'intelligent'?
 			return;
 
 		File subFolder = new File(file, "EvoSuiteTestSubFolder");
-		IOWrapper.setOriginal(subFolder, false);
+		EvoSuiteIO.setOriginal(subFolder, false);
 		filesToBeDeleted.add(subFolder.getCanonicalPath());
 
 		File subFile = new File(file, "EvoSuiteTestSubFile");
-		IOWrapper.setOriginal(subFile, false);
+		EvoSuiteIO.setOriginal(subFile, false);
 		filesToBeDeleted.add(subFile.getCanonicalPath());
 
 		boolean successful = true;
@@ -235,10 +235,10 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 
 		File parent = file.getCanonicalFile().getParentFile();
-		IOWrapper.setOriginal(parent, false);
+		EvoSuiteIO.setOriginal(parent, false);
 		parent.mkdirs();
 
 		filesToBeDeleted.add(evoSuiteFile.getPath());
@@ -251,11 +251,11 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
-		IOWrapper.setOriginal(file, false);
+		EvoSuiteIO.setOriginal(file, false);
 
 		File parent = file.getCanonicalFile().getParentFile();
-		IOWrapper.setOriginal(parent, false);
-		IOWrapper.deepDelete(parent);
+		EvoSuiteIO.setOriginal(parent, false);
+		EvoSuiteIO.deepDelete(parent);
 
 		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
@@ -267,22 +267,22 @@ public class FileSystem {
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
 			try {
-				IOWrapper.initVFS();
+				EvoSuiteIO.initVFS();
 
 				// this should simply delete all files in VFS
-				IOWrapper.activeVFS = true;
+				EvoSuiteIO.activeVFS = true;
 				for (File root : File.listRoots()) {
 					logger.info("deleting all files in root: \""
 							+ root.getPath() + "\"");
-					IOWrapper.setOriginal(root, false);
-					IOWrapper.setShallowCopy(root, true);
-					IOWrapper.forceReinitialization(root);
+					EvoSuiteIO.setOriginal(root, false);
+					EvoSuiteIO.setShallowCopy(root, true);
+					EvoSuiteIO.forceReinitialization(root);
 				}
 
-				IOWrapper.clearAccessedFiles();
+				EvoSuiteIO.clearAccessedFiles();
 				filesToBeDeleted.clear();
 
-				IOWrapper.resetVFS();
+				EvoSuiteIO.resetVFS();
 			} catch (FileSystemException e) {
 				logger.warn("Error during initialization of virtual FS: " + e
 						+ ", " + e.getCause());//
@@ -297,7 +297,7 @@ public class FileSystem {
 	 */
 	public static void restoreOriginalFS() {
 		if (Properties.VIRTUAL_FS) {
-			IOWrapper.activeVFS = false;
+			EvoSuiteIO.activeVFS = false;
 		}
 	}
 
@@ -307,6 +307,6 @@ public class FileSystem {
 	 * @return true, if files were accessed, false otherwise
 	 */
 	public static boolean wasAccessed() {
-		return IOWrapper.filesWereAccessed();
+		return EvoSuiteIO.filesWereAccessed();
 	}
 }

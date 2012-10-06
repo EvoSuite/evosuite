@@ -39,7 +39,7 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.evosuite.io.IOWrapper;
+import java.io.EvoSuiteIO;
 import edu.uta.cse.dsc.VMError;
 
 /**
@@ -340,7 +340,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
 		if (Properties.VIRTUAL_FS) {
-			test.setAccessedFiles(new ArrayList<String>(IOWrapper.getAccessedFiles()));
+			test.setAccessedFiles(new ArrayList<String>(EvoSuiteIO.getAccessedFiles()));
 			FileSystem.restoreOriginalFS();
 		}
 
