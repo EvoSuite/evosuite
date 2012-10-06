@@ -142,13 +142,14 @@ public class Runtime {
 							.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
 					fileOperationSelectors
 							.add(FileOperationSelectors.CREATION_AND_DELETION);
+					
+					 fileOperationSelectors.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
 
 					// TODO test calls concerning permissions do not work with evosuite-io v0.3 - enable them with evosuite-io v0.4
-					// fileOperationSelectors.add(FileOperationSelectors.PERMISSION_MODIFICATION);
+					 fileOperationSelectors.add(FileOperationSelectors.PERMISSION_MODIFICATION);
 
-					// TODO lead to bad performance - commented out until reason found
-					// fileOperationSelectors.add(FileOperationSelectors.FOLDER_CONTENT_MODIFICATION);
-					// fileOperationSelectors.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
+					// TODO I observed freezes once in a while - check why
+					 fileOperationSelectors.add(FileOperationSelectors.FOLDER_CONTENT_MODIFICATION);
 				}
 
 				for (String method : fileOperations.keySet()) {
@@ -161,39 +162,6 @@ public class Runtime {
 						}
 					}
 				}
-
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("setFileContent",
-				// EvoSuiteFile.class, String.class));
-
-				// TODO test calls concerning permissions do not work with evosuite-io v0.3 - enable them with evosuite-io v0.4
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("setReadPermission",
-				// EvoSuiteFile.class, boolean.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("setWritePermission",
-				// EvoSuiteFile.class, boolean.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("setExecutePermission",
-				// EvoSuiteFile.class, boolean.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("deepDelete",
-				// EvoSuiteFile.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("createFile",
-				// EvoSuiteFile.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("createFolder",
-				// EvoSuiteFile.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("fillFolder",
-				// EvoSuiteFile.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("createParent",
-				// EvoSuiteFile.class));
-				// TestCluster.getInstance().addTestCall(
-				// FileSystem.class.getMethod("deepDeleteParent",
-				// EvoSuiteFile.class));
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {
