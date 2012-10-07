@@ -18,6 +18,7 @@
 package org.evosuite;
 
 import static org.junit.Assert.fail;
+import junit.framework.Assert;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -41,15 +42,10 @@ public class TestShouldNotWork {
 				targetClass
 		};
 
-		try{
-			Object result = evosuite.parseCommandLine(command);
-		} catch(IllegalArgumentException e){
-			//as expected
-			System.out.println(e.toString());
-			return;
-		}
 		
-		fail("An exception should have been thrown");
+		Object result = evosuite.parseCommandLine(command);
+		
+		Assert.assertNull(result);
 	}
 	
 }
