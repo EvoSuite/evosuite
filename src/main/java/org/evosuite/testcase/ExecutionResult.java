@@ -340,6 +340,23 @@ public class ExecutionResult implements Cloneable {
 		return false;
 	}
 
+
+	/**
+	 * check if the test case threw any security exception
+ 	 * 
+	 * @return 
+	 */
+	public boolean hasSecurityException(){
+		for(Throwable t : exceptions.values()){
+			if(t instanceof SecurityException){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
+	
 	/**
 	 * @return the executionTime
 	 */

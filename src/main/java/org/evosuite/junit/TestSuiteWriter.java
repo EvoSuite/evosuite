@@ -463,14 +463,25 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	public String getUnitTest(String name) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
+		
+		/*
+		 * if there was any security exception, then we need to scaffold the
+		 * test cases with a sandbox
+		 */
+		boolean wasSecurityException = false;
+		
 		for (int i = 0; i < testCases.size(); i++) {
-			results.add(runTest(testCases.get(i)));
+			ExecutionResult result = runTest(testCases.get(i));
+			results.add(result);
+			if(!wasSecurityException){
+				wasSecurityException = result.hasSecurityException();
+			}
 		}
 
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name, results));
-		builder.append(getBeforeAndAfterMethods());
+		builder.append(getBeforeAndAfterMethods(wasSecurityException));
 		
 		for (int i = 0; i < testCases.size(); i++) {
 			builder.append(testToString(i, i, results.get(i)));
@@ -491,15 +502,17 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	public String getUnitTest(String name, int testId) {
 		List<ExecutionResult> results = new ArrayList<ExecutionResult>();
-		results.add(runTest(testCases.get(testId)));
-
+		ExecutionResult result = runTest(testCases.get(testId));
+		results.add(result);
+		boolean wasSecurityException = result.hasSecurityException();
+		
 		StringBuilder builder = new StringBuilder();
 
 		builder.append(getHeader(name + "_" + testId, results));
-		builder.append(getBeforeAndAfterMethods());
+		builder.append(getBeforeAndAfterMethods(wasSecurityException));
 		builder.append(testToString(testId, testId, results.get(0)));
 		builder.append(getFooter());
-
+		
 		return builder.toString();
 	}
 
@@ -510,12 +523,12 @@ public class TestSuiteWriter implements Opcodes {
 	 * 
 	 * @return
 	 */
-	protected String getBeforeAndAfterMethods(){
+	protected String getBeforeAndAfterMethods(boolean wasSecurityException){
 		
-		if(! Properties.SANDBOX){
+		if(! wasSecurityException){
 			/*
 			 * For the moment, the code generated in this method is only
-			 * used in a sanbox is activated
+			 * used there is a need for a security manager
 			 */
 			return "";
 		}
@@ -619,6 +632,8 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String testToString(int number, int id, ExecutionResult result) {
 
+		boolean wasSecurityException = result.hasSecurityException();
+		
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
 		builder.append(METHOD_SPACE);
@@ -636,30 +651,18 @@ public class TestSuiteWriter implements Opcodes {
 		 * is to just declare once to throw any genetic Exception, and be done with it once and for all
 		 */
 		builder.append(" throws Exception ");
-		/*
-		Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
-		if (!exceptions.isEmpty()) {
-			builder.append("throws ");
-			boolean first = true;
-			for (Class<?> exception : exceptions) {
-				if (first)
-					first = false;
-				else
-					builder.append(", ");
-				builder.append(visitor.getClassName(exception));
-			}
-		}
-		*/		
 		builder.append(" {\n");
 		
 		// ---------   start with the body -------------------------
 		
-		builder.append(BLOCK_SPACE);
-		builder.append("Future<?> future = "+EXECUTOR_SERVICE+".submit(new Runnable(){ \n");
-		builder.append(INNER_BLOCK_SPACE);
-		builder.append("@Override \n");
-		builder.append(INNER_BLOCK_SPACE);
-		builder.append("public void run() { \n");
+		if(wasSecurityException){
+			builder.append(BLOCK_SPACE);
+			builder.append("Future<?> future = "+EXECUTOR_SERVICE+".submit(new Runnable(){ \n");
+			builder.append(INNER_BLOCK_SPACE);
+			builder.append("@Override \n");
+			builder.append(INNER_BLOCK_SPACE);
+			builder.append("public void run() { \n");
+		}
 		
 		for (String line : adapter.getTestString(id, testCases.get(id),
 		                                         result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
@@ -667,16 +670,17 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append(line);
 			builder.append("\n");
 		}
-		
-		builder.append(INNER_BLOCK_SPACE);
-		builder.append("} \n");  //closing run(){
-		builder.append(BLOCK_SPACE);
-		builder.append("}); \n"); //closing submit
 
-		long time = Properties.TIMEOUT + 1000; // we add one second just to be sure, that to avoid issues with test cases taking exactly TIMEOUT ms
-		builder.append(BLOCK_SPACE);
-		builder.append("future.get("+time+", TimeUnit.MILLISECONDS); \n"); 
-	
+		if(wasSecurityException){
+			builder.append(INNER_BLOCK_SPACE);
+			builder.append("} \n");  //closing run(){
+			builder.append(BLOCK_SPACE);
+			builder.append("}); \n"); //closing submit
+
+			long time = Properties.TIMEOUT + 1000; // we add one second just to be sure, that to avoid issues with test cases taking exactly TIMEOUT ms
+			builder.append(BLOCK_SPACE);
+			builder.append("future.get("+time+", TimeUnit.MILLISECONDS); \n"); 
+		}
 		
 		// ---------   end of the body ----------------------------
 		

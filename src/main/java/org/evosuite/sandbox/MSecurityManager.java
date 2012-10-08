@@ -20,10 +20,15 @@ package org.evosuite.sandbox;
 import java.awt.AWTPermission;
 import java.io.File;
 import java.io.FilePermission;
+import java.io.SerializablePermission;
+import java.lang.management.ManagementPermission;
 import java.lang.reflect.ReflectPermission;
+import java.net.NetPermission;
+import java.net.SocketPermission;
 import java.security.AccessControlContext;
 import java.security.Permission;
 import java.security.SecurityPermission;
+import java.security.UnresolvedPermission;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.PropertyPermission;
@@ -32,6 +37,19 @@ import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.LoggingPermission;
 import java.security.AllPermission;
+import java.sql.SQLPermission;
+
+import javax.management.MBeanPermission;
+import javax.management.MBeanServerPermission;
+import javax.management.MBeanTrustPermission;
+import javax.management.remote.SubjectDelegationPermission;
+import javax.net.ssl.SSLPermission;
+import javax.security.auth.AuthPermission;
+import javax.security.auth.PrivateCredentialPermission;
+import javax.security.auth.kerberos.DelegationPermission;
+import javax.security.auth.kerberos.ServicePermission;
+import javax.sound.sampled.AudioPermission;
+import javax.xml.ws.WebServicePermission;
 
 import org.evosuite.Properties;
 import org.evosuite.testcase.TestRunnable;
@@ -52,6 +70,13 @@ import com.thoughtworks.xstream.core.util.ThreadSafePropertyEditor;
  * 
  * <p>This class grants permissions based on thread references, and not on the "context".
  * As such it is actually more restrictive, and granting some kinds of risky permissions should so be fine</p>
+ * 
+ * <p>
+ * FIXME: this class should be refactored in a way that each permission should be
+ * defined in a property/configuration file. The user (through the Eclipse plug-in) should
+ * be allowed to choose which permissions to allow. Current settings in this class could be
+ * considered as the "default" settings.
+ * </p>
  * 
  */
 class MSecurityManager extends SecurityManager {
@@ -74,7 +99,7 @@ class MSecurityManager extends SecurityManager {
 	private volatile java.util.Properties defaultProperties;
 	
 	/**
-	 * If SUT changed some properites, we need to re-set the default values
+	 * If SUT changed some properties, we need to re-set the default values
 	 */
 	private volatile boolean needToRestoreProperties;
 	
@@ -97,11 +122,13 @@ class MSecurityManager extends SecurityManager {
 	}
 	
 	/**
-	 * When we start EvoSuite, quite a few other threads could start as well (e.g., "Reference Handler", "Finalizer" and "Signal Dispatcher").
+	 * <p>When we start EvoSuite, quite a few other threads could start as well (e.g., "Reference Handler", "Finalizer" and "Signal Dispatcher").
 	 * This is a convenience method to grant permissions to all threads before starting to execute test cases
+	 * </p>
 	 * 
-	 * WARNING: to use only before any SUT code has been executed. Afterwards, it would not be safe (cannot really
-	 * guarantee that all SUT have been terminated) 
+	 * <p>WARNING: to use only before any SUT code has been executed. Afterwards, it would not be safe (cannot really
+	 * guarantee that all SUT have been terminated)
+	 * </p> 
 	 */
 	public void makePriviligedAllCurrentThreads(){
 		ThreadGroup root = Thread.currentThread().getThreadGroup();
@@ -193,7 +220,7 @@ class MSecurityManager extends SecurityManager {
 	
 	/*
 	 * the following two methods are the only ones we need to override from SecurityManager, as all 
-	 * the other call those 2. However, if the SecurityManager code will change in future,
+	 * the other call those 2. However, if the SecurityManager code will change in future JDK releases,
 	 * we might need to double-check this class
 	 */
 	
@@ -335,9 +362,73 @@ class MSecurityManager extends SecurityManager {
 			return checkAWTPermission((AWTPermission)perm);
 		}
 		
-		//TODO: there are several other permission types that we still need to handle 
+		if(perm instanceof UnresolvedPermission){
+			return checkUnresolvedPermission((UnresolvedPermission)perm);
+		}
 		
+		if(perm instanceof SerializablePermission){
+			return checkSerializablePermission((SerializablePermission)perm);
+		}
 		
+		if(perm instanceof AudioPermission){
+			return checkAudioPermission((AudioPermission)perm);
+		}
+		
+		if(perm instanceof DelegationPermission){
+			return checkDelegationPermission((DelegationPermission)perm);
+		}
+
+		if(perm instanceof ServicePermission){
+			return checkServicePermission((ServicePermission)perm);
+		}
+		
+		if(perm instanceof SQLPermission){
+			return checkSQLPermission((SQLPermission)perm);
+		}
+
+		if(perm instanceof SSLPermission){
+			return checkSSLPermission((SSLPermission)perm);
+		}
+		
+		if(perm instanceof PrivateCredentialPermission){
+			return checkPrivateCredentialPermission((PrivateCredentialPermission)perm);
+		}
+				
+		if(perm instanceof WebServicePermission){
+			return checkWebServicePermission((WebServicePermission)perm);
+		}
+		
+		if(perm instanceof SubjectDelegationPermission){
+			return checkSubjectDelegationPermission((SubjectDelegationPermission)perm);
+		}
+		
+		if(perm instanceof ManagementPermission){
+			return checkManagementPermission((ManagementPermission)perm);
+		}
+		
+		if(perm instanceof MBeanPermission){
+			return checkMBeanPermission((MBeanPermission)perm);
+		}
+		
+		if(perm instanceof MBeanServerPermission){
+			return checkMBeanServerPermission((MBeanServerPermission)perm);
+		}
+		
+		if(perm instanceof MBeanTrustPermission){
+			return checkMBeanTrustPermission((MBeanTrustPermission)perm);
+		}
+		
+		if(perm instanceof NetPermission){
+			return checkNetPermission((NetPermission)perm);
+		}
+		
+		if(perm instanceof AuthPermission){
+			return checkAuthPermission((AuthPermission)perm);
+		}
+		
+		if(perm instanceof SocketPermission){
+			return checkSocketPermission((SocketPermission)perm);
+		}
 		
 		//for (int elementCounter = 0; elementCounter < stackTraceElements.length; elementCounter++) {					
 			// FIXME: what is this?			 
@@ -345,8 +436,12 @@ class MSecurityManager extends SecurityManager {
 			//	return true;
 		//}
 
-		//TODO put it back
-		//logger.error("Unrecognized permission type: "+perm.getClass().getCanonicalName());
+		/*
+		 * as far as JDK 6 is concern, those should be all possible permissions.
+		 * But just in case, if there is a permission we don't know, we just deny it
+		 */
+		
+		logger.debug("Unrecognized permission type: "+perm.getClass().getCanonicalName());
 		
 		return false;
 	}
@@ -360,6 +455,176 @@ class MSecurityManager extends SecurityManager {
 	 */
 
 	
+	protected boolean checkSocketPermission(SocketPermission perm){
+		/*
+		 * Handling UDP/TCP connections will require special mocks. 
+		 * So, for now we just deny this permission
+		 */
+		return false;
+	}
+	
+	protected boolean checkAuthPermission(AuthPermission perm){
+		/*
+		 * some of the permissions might be granted, but need to study them in details.
+		 * but because it is pretty rare, for now we can just forbid it
+		 */
+		return false;
+	}
+	
+	protected boolean checkNetPermission(NetPermission perm){
+		/*
+		 * "specifyStreamHandler" seems the only tricky one. But because a
+		 * URL cannot be used to write to file-system (although it can be  used for remote resources),
+		 * it should be fine  
+		 */
+		return true;
+	}
+	
+	//-----------------------------------------------------------------------------
+	/*
+	 * EvoSuite does not use any bean, so allowing the SUT to create/use beans should be fine.
+	 * However, there is possible issue of beans created by a test case carrying over the following
+	 * executions. In theory, this should be handled when we re-set static variables. If not, then here we can
+	 * do as following: if any of the bean permissions is called at least once, delete all beans after the test case
+	 * is executed.
+	 */
+	protected boolean checkMBeanPermission(MBeanPermission perm){
+		return true;
+	}
+	
+	protected boolean checkMBeanServerPermission(MBeanServerPermission perm){
+		return true;
+	}
+	
+	protected boolean checkMBeanTrustPermission(MBeanTrustPermission perm){
+		return true;
+	}
+	//-----------------------------------------------------------------------------
+	
+	
+	protected boolean checkManagementPermission(ManagementPermission perm){
+		String name = perm.getName();
+		
+		if(name.equals("monitor")){
+			return true;
+		}
+		
+		/*
+		 * "control" sounds bit risky
+		 */
+		return false;
+	}
+	
+	
+	protected boolean checkSubjectDelegationPermission(SubjectDelegationPermission perm){
+		/*
+		 * seems fine
+		 */
+		return true;
+	}
+	
+	protected boolean checkWebServicePermission(WebServicePermission perm){
+		/*
+		 *  "publishing a web service endpoint" should be fine, but unsure whether it has effects or not on opening UDP/TCP ports.
+		 *  Need more investigations before allowing it 
+		 */
+		return false;
+	}
+	
+	protected boolean checkPrivateCredentialPermission(PrivateCredentialPermission perm){
+		/*
+		 * it is only used to "read"
+		 */
+		return true;
+	}
+	
+	protected boolean checkSSLPermission(SSLPermission perm){
+		String name = perm.getName();
+		
+		if(name.equals("getSSLSessionContext")){
+			return true;
+		}
+		
+		/*
+		 * setHostnameVerifier, setDefaultSSLContext
+		 */
+		return false;
+	}
+	
+	protected boolean checkSQLPermission(SQLPermission perm){
+		/*
+		 * SQL (and database in general) will require specialized techniques in 
+		 * EvoSuite. For now, we just forbid it
+		 */
+		return false;
+	}
+	
+	protected boolean checkServicePermission(ServicePermission perm){
+		/*
+		 * Seems used for some authentication protocols. 
+		 * If service is outside SUT, anyway it will be blocked in other ways (eg Sockets).
+		 * If in SUT, then it should be fine to allow it
+		 */
+		return true;
+	}
+	
+	protected boolean checkDelegationPermission(DelegationPermission perm){
+		/*
+		 * I don't really fully understand it, but in any case it seems pretty rare
+		 * permission. For now we just forbid it
+		 */
+		return false;
+	}
+	
+	
+	protected boolean checkAudioPermission(AudioPermission perm){
+		/*
+		 * If SUT plays some music, then I do not see any major side effect.
+		 * In worst case, tester can just switch off the speakers during testing.
+		 */
+		return true;
+	}
+	
+	protected boolean checkSerializablePermission(SerializablePermission perm){
+		/*
+		 * seems safe
+		 */
+		return true;
+	}
+	
+	protected boolean checkUnresolvedPermission(UnresolvedPermission perm){
+		/*
+		 * From documentation:
+		 * 
+		 * --------------------------------------------------------------------------------------------------------------------------
+		 *  The java.security.UnresolvedPermission class is used to hold Permissions that were "unresolved" when the Policy 
+		 *  was initialized. An unresolved permission is one whose actual Permission class does not yet exist at the time the Policy 
+		 *  is initialized (see below).
+         *  The policy for a Java runtime (specifying which permissions are available for code from various principals) is represented 
+         *  by a Policy object. Whenever a Policy is initialized or refreshed, Permission objects of appropriate classes are created 
+         *  for all permissions allowed by the Policy.
+         *  Many permission class types referenced by the policy configuration are ones that exist locally (i.e., ones that can be 
+         *  found on CLASSPATH). Objects for such permissions can be instantiated during Policy initialization. For example, it is 
+         *  always possible to instantiate a java.io.FilePermission, since the FilePermission class is found on the CLASSPATH.
+         *  Other permission classes may not yet exist during Policy initialization. For example, a referenced permission class may 
+         *  be in a JAR file that will later be loaded. For each such class, an UnresolvedPermission is instantiated. Thus, an 
+         *  UnresolvedPermission is essentially a "placeholder" containing information about the permission.
+         *  Later, when code calls AccessController.checkPermission on a permission of a type that was previously unresolved, 
+         *  but whose class has since been loaded, previously-unresolved permissions of that type are "resolved". That is, for 
+         *  each such UnresolvedPermission, a new object of the appropriate class type is instantiated, based on the information in 
+         *  the UnresolvedPermission. This new object replaces the UnresolvedPermission, which is removed.
+         *  --------------------------------------------------------------------------------------------------------------------------
+         *  
+         *  In theory it shouldn't really happen, unless some customized permission classes are used in the SUT.
+         *  It also poses a problem: we might run a test case that throws this security exception but, if we run it again,
+         *  it might not throw it anymore.
+         *  
+         *  Just to be sure, for now we deny this permission
+		 */
+		return false;
+	}
+	
+	
 	protected boolean  checkAllPermission(AllPermission perm){
 		/*
 		 * should never grant all the permissions
@@ -369,18 +634,64 @@ class MSecurityManager extends SecurityManager {
 	
 	
 	protected boolean checkSecurityPermission(SecurityPermission perm){
+
+		String name = perm.getName();
+		
+		if(name.equals("getDomainCombiner") ||
+				name.equals("getPolicy") ||
+				name.equals("printIdentity") ||
+				name.equals("getSignerPrivateKey") ||
+				name.startsWith("getProperty.")){ 
+			return true;
+		}
+		
 		/*
-		 * TODO: quite a few are actually safe
+		 * createAccessControlContext
+		 * setPolicy
+		 * createPolicy.{policy type}
+		 * setProperty.{key}
+		 * insertProvider.{provider name}
+		 * removeProvider.{provider name}
+		 * setSystemScope
+		 * setIdentityPublicKey
+		 * setIdentityInfo
+		 * addIdentityCertificate
+		 * removeIdentityCertificate
+		 * clearProviderProperties.{provider name}
+		 * putProviderProperty.{provider name}
+		 * removeProviderProperty.{provider name}
+		 * setSignerKeyPair
 		 */
 		return false;
 	}
 	
 	
 	protected boolean checkAWTPermission(AWTPermission perm){
-		//TODO need to investigate in more details
+		/*
+		 * For now, we run EvoSuite in headless mode (ie no support for display, mouse, keyboard, etc).
+		 * Methods that will need those devices will throw a Headless exception.
+		 * so, here, we can just grant permissions, as shouldn't really have any effect.
+		 * When we ll start to test GUI (without headless), then we ll need to carefully
+		 * check which permissions to grant (eg "createRobot" seems very dangerous)
+		 */
 		if ("true".equals(System.getProperty("java.awt.headless"))){
 			return true;
 		} else {
+			/*
+			 * accessClipboard
+			 * accessEventQueue
+			 * accessSystemTray
+			 * createRobot
+			 * fullScreenExclusive
+			 * listenToAllAWTEvents
+			 * readDisplayPixels
+			 * replaceKeyboardFocusManager
+			 * setAppletStub
+			 * setWindowAlwaysOnTop
+			 * showWindowWithoutWarningBanner
+			 * toolkitModality
+			 * watchMousePointer
+			 */
 			return false;
 		}
 	}

@@ -6,6 +6,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,6 +49,84 @@ public class MSecurityManagerTest {
 	
 	
 	@Test
+	public void testSpecifyStreamHandler() throws Exception{
+		File tmp = null;
+		try {
+			tmp = File.createTempFile("testFile_"+System.currentTimeMillis(), "txt");
+			tmp.deleteOnExit();
+			
+			final String text = "The answer is 42";
+			BufferedWriter out = new BufferedWriter(new FileWriter(tmp));
+			out.write(text);
+			out.flush();
+			out.close();
+			
+			final String fileName = tmp.getAbsolutePath();
+			
+			//check that reading from URL is fine
+			Future<?> future = executor.submit(new Runnable(){
+				@Override
+				public void run() {
+					try {
+						URL url = new URL("file:"+fileName);
+						
+						BufferedReader in = new BufferedReader(new InputStreamReader(url.openStream()));
+						String input = in.readLine();
+						Assert.assertEquals(text, input);
+						in.close();
+					} catch (Exception e) {
+						throw new Error(e);
+					}
+				}
+				
+			});			
+			future.get(1000, TimeUnit.MILLISECONDS);
+			
+			//check that writing from URL is forbidden
+			future = executor.submit(new Runnable(){
+				@Override
+				public void run() {
+					try {
+						URL url = new URL("file:"+fileName);
+						URLConnection connection = url.openConnection();
+						connection.setDoOutput(true);
+						
+						/*
+						 * URL cannot be used to write to a file. if try to do it, a UnknownServiceException
+						 * should be thrown
+						 */
+						
+						BufferedWriter out = new BufferedWriter(new OutputStreamWriter(connection.getOutputStream()));
+						out.write(text);
+						out.flush();
+						out.close();
+					}  catch(SecurityException se){
+						throw se;
+					}catch (Exception e) {
+						throw new Error(e);
+					}
+				}
+
+			});		
+			try{
+				future.get(1000, TimeUnit.MILLISECONDS);
+				Assert.fail();
+			} catch(ExecutionException e){
+				if(! (e.getCause().getCause() instanceof java.net.UnknownServiceException) ){
+					Assert.fail("Cause is "+e.getCause().getCause().getMessage());
+				}
+			}
+			
+		} catch (Exception e) {
+			if(tmp!=null){
+				tmp.delete();
+			}
+			throw e;
+		}
+	}
+	
+	
+	@Test
 	public void testReadButNotWriteOfFiles() throws IOException, InterruptedException, ExecutionException, TimeoutException{
 		
 		File tmp = null;
@@ -53,7 +135,7 @@ public class MSecurityManagerTest {
 		
 		try{
 			//even if securityManager is on, the thread that set it should be able to write files
-			tmp = File.createTempFile("foo", "tmp");
+			tmp = File.createTempFile("foo_"+System.currentTimeMillis(), "tmp");
 			tmp.deleteOnExit(); //just in case...
 			
 			BufferedWriter out = new BufferedWriter(new FileWriter(tmp));
@@ -63,7 +145,6 @@ public class MSecurityManagerTest {
 			
 			final String fileName = tmp.getAbsolutePath();
 			
-
 			
 			//check that reading is fine
 			Future<?> future = executor.submit(new Runnable(){
