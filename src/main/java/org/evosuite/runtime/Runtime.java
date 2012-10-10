@@ -47,7 +47,10 @@ public class Runtime {
 	 */
 	private static Map<String, Class<?>[]> fileOperations;
 
-	public static Set<FileOperationSelector> fileOperationSelectors;
+	/**
+	 * the set of file operation selectors that shall be used to select FileSystem methods
+	 */
+	private static Set<FileOperationSelector> fileOperationSelectors;
 
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
@@ -108,7 +111,7 @@ public class Runtime {
 			}
 		}
 
-		if (Properties.VIRTUAL_FS && FileSystem.wasAccessed()) {
+		if (Properties.VIRTUAL_FS && EvoSuiteIO.filesWereAccessedByCUT()) {
 			try {
 				logger.info("Adding EvoSuiteFile calls to cluster");
 
@@ -142,14 +145,12 @@ public class Runtime {
 							.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
 					fileOperationSelectors
 							.add(FileOperationSelectors.CREATION_AND_DELETION);
-					
-					 fileOperationSelectors.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
-
-					// TODO test calls concerning permissions do not work with evosuite-io v0.3 - enable them with evosuite-io v0.4
-					 fileOperationSelectors.add(FileOperationSelectors.PERMISSION_MODIFICATION);
-
-					// TODO I observed freezes once in a while - check why
-					 fileOperationSelectors.add(FileOperationSelectors.FOLDER_CONTENT_MODIFICATION);
+					fileOperationSelectors
+							.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
+					fileOperationSelectors
+							.add(FileOperationSelectors.PERMISSION_MODIFICATION);
+					fileOperationSelectors
+							.add(FileOperationSelectors.FOLDER_CONTENT_MODIFICATION);
 				}
 
 				for (String method : fileOperations.keySet()) {

@@ -21,20 +21,16 @@
 package org.evosuite.runtime;
 
 import java.io.BufferedWriter;
+import java.io.EvoSuiteIO;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.commons.vfs2.FileSystemException;
-
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.EvoSuiteIO;
 
 /**
  * provides file system operations for an <code>EvoSuiteFile</code>
@@ -44,12 +40,25 @@ import java.io.EvoSuiteIO;
 public class FileSystem {
 
 	private static Logger logger = LoggerFactory.getLogger(FileSystem.class);
-
+	
 	/**
-	 * saves the files, that shall be deleted after test execution; this includes files created by FileSystem methods plus files accessed by class
-	 * under test
+	 * Resets the vfs to a default state (all files deleted or all files in a specific state)
+	 * 
 	 */
-	private static Set<String> filesToBeDeleted = new HashSet<String>();
+	public static void reset() {
+		if (Properties.VIRTUAL_FS) {
+			try {
+				logger.info("Resetting the VFS...");
+				EvoSuiteIO.resetVFS();
+				EvoSuiteIO.enableVFS();
+			} catch (FileSystemException e) {
+				logger.warn("Error during initialization of virtual FS: " + e
+						+ ", " + e.getCause());//
+			} catch (Throwable t) {
+				logger.warn("Error: " + t);
+			}
+		}
+	}
 
 	/**
 	 * Test method that sets content of a file
@@ -72,7 +81,6 @@ public class FileSystem {
 		Writer writer = new BufferedWriter(new FileWriter(file));
 		writer.write(content);
 		writer.close();
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	public static void setReadPermission(EvoSuiteFile evoSuiteFile,
@@ -89,8 +97,6 @@ public class FileSystem {
 			logger.debug("Setting read permission of " + evoSuiteFile.getPath()
 					+ " to " + readable + " failed!");
 		}
-
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	public static void setWritePermission(EvoSuiteFile evoSuiteFile,
@@ -107,7 +113,6 @@ public class FileSystem {
 			logger.debug("Setting write permission of "
 					+ evoSuiteFile.getPath() + " to " + writable + " failed!");
 		}
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	public static void setExecutePermission(EvoSuiteFile evoSuiteFile,
@@ -124,7 +129,6 @@ public class FileSystem {
 			logger.debug("Setting execute permission of "
 					+ evoSuiteFile.getPath() + " to " + executable + " failed!");
 		}
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	/**
@@ -140,15 +144,16 @@ public class FileSystem {
 
 		File file = new File(evoSuiteFile.getPath());
 		EvoSuiteIO.setOriginal(file, false);
-		EvoSuiteIO.deepDelete(file); // TODO use return value of this method in evosuite-io v0.4 to create logger messages
-
-		filesToBeDeleted.add(evoSuiteFile.getPath());
+		if (EvoSuiteIO.deepDelete(file)) {
+			logger.debug("Deep-deleting \""+evoSuiteFile.getPath()+ "\" was successful!");
+		} else {
+			logger.debug("Deep-deleting \""+evoSuiteFile.getPath()+ "\" failed!");
+		}
 	}
 
 	public static void createFile(EvoSuiteFile evoSuiteFile) throws IOException {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
-		;
 
 		File file = new File(evoSuiteFile.getPath());
 		EvoSuiteIO.setOriginal(file, false);
@@ -159,8 +164,6 @@ public class FileSystem {
 			logger.debug("Creation of " + evoSuiteFile.getPath()
 					+ " as a file failed!");
 		}
-
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	/**
@@ -181,8 +184,6 @@ public class FileSystem {
 			logger.debug("Creation of " + evoSuiteFile.getPath()
 					+ " as a folder failed!");
 		}
-
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	/**
@@ -203,11 +204,9 @@ public class FileSystem {
 
 		File subFolder = new File(file, "EvoSuiteTestSubFolder");
 		EvoSuiteIO.setOriginal(subFolder, false);
-		filesToBeDeleted.add(subFolder.getCanonicalPath());
 
 		File subFile = new File(file, "EvoSuiteTestSubFile");
 		EvoSuiteIO.setOriginal(subFile, false);
-		filesToBeDeleted.add(subFile.getCanonicalPath());
 
 		boolean successful = true;
 		successful &= subFolder.mkdir();
@@ -220,7 +219,6 @@ public class FileSystem {
 			logger.debug("filling folder " + evoSuiteFile.getPath()
 					+ " failed!");
 		}
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
 
 	/**
@@ -240,9 +238,6 @@ public class FileSystem {
 		File parent = file.getCanonicalFile().getParentFile();
 		EvoSuiteIO.setOriginal(parent, false);
 		parent.mkdirs();
-
-		filesToBeDeleted.add(evoSuiteFile.getPath());
-		filesToBeDeleted.add(parent.getCanonicalPath());
 	}
 
 	public static void deepDeleteParent(EvoSuiteFile evoSuiteFile)
@@ -256,57 +251,6 @@ public class FileSystem {
 		File parent = file.getCanonicalFile().getParentFile();
 		EvoSuiteIO.setOriginal(parent, false);
 		EvoSuiteIO.deepDelete(parent);
-
-		filesToBeDeleted.add(evoSuiteFile.getPath());
 	}
-
-	/**
-	 * Resets the vfs to a default state (all files deleted or all files in a specific state)
-	 * 
-	 */
-	public static void reset() {
-		if (Properties.VIRTUAL_FS) {
-			try {
-				EvoSuiteIO.initVFS();
-
-				// this should simply delete all files in VFS
-				EvoSuiteIO.activeVFS = true;
-				for (File root : File.listRoots()) {
-					logger.info("deleting all files in root: \""
-							+ root.getPath() + "\"");
-					EvoSuiteIO.setOriginal(root, false);
-					EvoSuiteIO.setShallowCopy(root, true);
-					EvoSuiteIO.forceReinitialization(root);
-				}
-
-				EvoSuiteIO.clearAccessedFiles();
-				filesToBeDeleted.clear();
-
-				EvoSuiteIO.resetVFS();
-			} catch (FileSystemException e) {
-				logger.warn("Error during initialization of virtual FS: " + e
-						+ ", " + e.getCause());//
-			} catch (Throwable t) {
-				logger.warn("Error: " + t);
-			}
-		}
-	}
-
-	/**
-	 * restores the original, 'real' file system
-	 */
-	public static void restoreOriginalFS() {
-		if (Properties.VIRTUAL_FS) {
-			EvoSuiteIO.activeVFS = false;
-		}
-	}
-
-	/**
-	 * checks, if files were accessed in the vfs
-	 * 
-	 * @return true, if files were accessed, false otherwise
-	 */
-	public static boolean wasAccessed() {
-		return EvoSuiteIO.filesWereAccessed();
-	}
+	
 }

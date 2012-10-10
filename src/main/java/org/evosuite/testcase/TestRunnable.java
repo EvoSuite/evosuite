@@ -340,8 +340,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Sandbox.tearDownMocks();
 		Runtime.handleRuntimeAccesses();
 		if (Properties.VIRTUAL_FS) {
-			test.setAccessedFiles(new ArrayList<String>(EvoSuiteIO.getAccessedFiles()));
-			FileSystem.restoreOriginalFS();
+			test.setAccessedFiles(new ArrayList<String>(EvoSuiteIO.getFilesAccessedByCUT()));
+			EvoSuiteIO.disableVFS();
 		}
 
 		result.setExecutionTime(System.currentTimeMillis() - startTime);
