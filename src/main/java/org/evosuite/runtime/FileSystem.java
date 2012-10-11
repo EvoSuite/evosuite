@@ -69,8 +69,7 @@ public class FileSystem {
 	 */
 	public static void setFileContent(EvoSuiteFile evoSuiteFile, String content)
 			throws IOException {
-		if (evoSuiteFile == null) // FIXME actually we should not return 'silently' but for now we have to - FileNamePrimitive has to be fixed in some
-									// way to remove this
+		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		// Put "content" into "file"

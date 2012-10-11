@@ -294,11 +294,10 @@
 		<dependency>
 			<groupId>org.evosuite</groupId>
 			<artifactId>evosuite-io</artifactId>
-			<version>0.4</version>
+			<version>0.4.0</version>
 		</dependency>
 	</dependencies>
 	<repositories>
-
 		<repository>
 			<releases>
 				<enabled>true</enabled>
@@ -317,12 +316,6 @@
 
 		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
 			</repository> -->
-
-		<repository> <!-- used for evosuite-io jars that are not yet stable enough to be uploaded 
-				to Titania - will be removed after the next release of evosuite-io -->
-			<id>lib</id>
-			<url>file://${project.basedir}/lib</url>
-		</repository>
 	</repositories>
 
 	<build>
