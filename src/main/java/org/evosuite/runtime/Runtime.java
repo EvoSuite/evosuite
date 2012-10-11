@@ -71,6 +71,7 @@ public class Runtime {
 						Properties.READ_ONLY_FROM_SANDBOX_FOLDER, new File(
 								Properties.SANDBOX_FOLDER, "read")
 								.getAbsoluteFile());
+			EvoSuiteIO.disableTolerantExceptionHandling();
 			FileSystem.reset();
 		}
 	}
