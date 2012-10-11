@@ -48,7 +48,7 @@ public class FileSystem {
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
 			try {
-				logger.info("Resetting the VFS...");
+				logger.info("Resetting and enabling the VFS...");
 				EvoSuiteIO.resetVFS();
 				EvoSuiteIO.enableVFS();
 			} catch (FileSystemException e) {
