@@ -141,6 +141,14 @@ public class ResourceList {
 		} else if (file.getName().endsWith(".jar")) {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		}
+		
+		// DEBUG Konrad
+		LoggingUtils.getEvoLogger().info("DEBUG-KONRAD classPathElement "+element+" PATTERN: "+pattern );
+		for (String string : retval) {
+			LoggingUtils.getEvoLogger().info("DEBUG-KONRAD retval: "+string);
+		}
+		// /DEBUG
+
 		return retval;
 	}
 
