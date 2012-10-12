@@ -247,6 +247,9 @@ class MSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm) throws SecurityException{
+
+		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+		
 		// check access  
 		if (!allowPermission(perm)) {
 			if(executingTestCase){
@@ -324,11 +327,6 @@ class MSecurityManager extends SecurityManager {
 			logger.info("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "+perm.toString());
 			return false;
 		}
-		
-		/*
-		 * FIXME: check what it is intended for
-		 */
-		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 		
 		if(perm instanceof AllPermission){
 			return checkAllPermission((AllPermission)perm);

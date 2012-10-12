@@ -287,6 +287,8 @@ public class TestCaseExecutor implements ThreadFactory {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
 			ExecutionResult result = handler.execute(callable, executor, timeout,
 			                                         Properties.CPU_TIMEOUT);
+			
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 			/*
 			 * TODO: this will need proper care when we ll start to handle threads in the search.
 			 */
