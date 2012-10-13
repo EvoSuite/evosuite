@@ -43,11 +43,11 @@ final class FileOperationSelectors {
 		}
 	};
 
-	public static final FileOperationSelector FOLDER_CONTENT_MODIFICATION = new FileOperationSelector() {
+	public static final FileOperationSelector DIRECTORY_CONTENT_MODIFICATION = new FileOperationSelector() {
 
 		@Override
 		public boolean select(String method) {
-			return (method.equals("fillFolder") || method.equals("deepDelete"));
+			return (method.equals("createAndFillDirectory") || method.equals("deepDelete"));
 		}
 	};
 
@@ -55,7 +55,7 @@ final class FileOperationSelectors {
 
 		@Override
 		public boolean select(String method) {
-			return (method.equals("createFile") || method.equals("createFolder") || method.equals("deepDelete"));
+			return (method.equals("createFile") || method.equals("createDirectory") || method.equals("deepDelete"));
 		}
 	};
 
