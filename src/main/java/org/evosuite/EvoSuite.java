@@ -180,7 +180,7 @@ public class EvoSuite {
 			try {
 				if (isInterface(resource)) {
 					System.out.println("* Skipping interface: "
-							+ resource.replace(".class", "").replace('/', '.'));
+							+ resource.replace(".class", "").replace(File.separatorChar, '.'));
 					continue;
 				}
 			} catch (IOException e) {
@@ -188,9 +188,9 @@ public class EvoSuite {
 				continue;
 			}
 			System.out.println("* Current class: "
-					+ resource.replace(".class", "").replace('/', '.'));
+					+ resource.replace(".class", "").replace(File.separatorChar, '.'));
 			generateTests(Strategy.EVOSUITE, resource.replace(".class", "")
-					.replace('/', '.'), args, cp);
+					.replace(File.separatorChar, '.'), args, cp);
 		}
 
 	}

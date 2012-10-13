@@ -23,6 +23,7 @@ package org.evosuite.runtime;
 import java.io.BufferedWriter;
 import java.io.EvoSuiteIO;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -40,7 +41,7 @@ import org.slf4j.LoggerFactory;
 public class FileSystem {
 
 	private static Logger logger = LoggerFactory.getLogger(FileSystem.class);
-	
+
 	/**
 	 * Resets the vfs to a default state (all files deleted or all files in a specific state)
 	 * 
@@ -73,9 +74,13 @@ public class FileSystem {
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		// Put "content" into "file"
+		File file = new File(evoSuiteFile.getPath());
+
+		if (!file.exists())
+			throw new FileNotFoundException();
+
 		logger.info("Writing \"" + content + "\" to (virtual) file "
 				+ evoSuiteFile.getPath());
-		File file = new File(evoSuiteFile.getPath());
 		EvoSuiteIO.setOriginal(file, false);
 		Writer writer = new BufferedWriter(new FileWriter(file));
 		writer.write(content);
@@ -131,11 +136,11 @@ public class FileSystem {
 	}
 
 	/**
-	 * Test method that tries to delete a file or folder by calling {@link EvoSuiteIO#deepDelete(File)}. In contrast to normal deletion this method
-	 * also deletes a folder that contains children (by deleting them as well).
+	 * Test method that tries to delete a file or directory by calling {@link EvoSuiteIO#deepDelete(File)}. In contrast to normal deletion this method
+	 * also deletes a directory that contains children (by deleting them as well).
 	 * 
 	 * @param evoSuiteFile
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void deepDelete(EvoSuiteFile evoSuiteFile) throws IOException {
 		if (evoSuiteFile == null)
@@ -144,9 +149,11 @@ public class FileSystem {
 		File file = new File(evoSuiteFile.getPath());
 		EvoSuiteIO.setOriginal(file, false);
 		if (EvoSuiteIO.deepDelete(file)) {
-			logger.debug("Deep-deleting \""+evoSuiteFile.getPath()+ "\" was successful!");
+			logger.debug("Deep-deleting \"" + evoSuiteFile.getPath()
+					+ "\" was successful!");
 		} else {
-			logger.debug("Deep-deleting \""+evoSuiteFile.getPath()+ "\" failed!");
+			logger.debug("Deep-deleting \"" + evoSuiteFile.getPath()
+					+ "\" failed!");
 		}
 	}
 
@@ -166,11 +173,11 @@ public class FileSystem {
 	}
 
 	/**
-	 * Test method that tries to create this file as a folder. Also creates any necessary but nonexistent parent folders.
+	 * Test method that tries to create this file as a directory. Also creates any necessary but nonexistent parent directories.
 	 * 
 	 * @param evoSuiteFile
 	 */
-	public static void createFolder(EvoSuiteFile evoSuiteFile) {
+	public static void createDirectory(EvoSuiteFile evoSuiteFile) {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
@@ -178,45 +185,45 @@ public class FileSystem {
 		EvoSuiteIO.setOriginal(file, false);
 		if (file.mkdirs()) {
 			logger.debug(evoSuiteFile.getPath()
-					+ " was successfully created as a folder!");
+					+ " was successfully created as a directory!");
 		} else {
 			logger.debug("Creation of " + evoSuiteFile.getPath()
-					+ " as a folder failed!");
+					+ " as a directory failed!");
 		}
 	}
 
 	/**
-	 * Test method that tries to fill a folder with a subFile and a subFolder
+	 * Test method that tries to fill a directory with a subFile and a subDirectory
 	 * 
 	 * @param evoSuiteFile
-	 * @return true if the folder was filled successfully
+	 * @return true if the directory was filled successfully
 	 * @throws IOException
 	 */
-	public static void fillFolder(EvoSuiteFile evoSuiteFile) throws IOException {
+	public static void createAndFillDirectory(EvoSuiteFile evoSuiteFile)
+			throws IOException {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
 		File file = new File(evoSuiteFile.getPath());
 		EvoSuiteIO.setOriginal(file, false);
-		if (!file.isDirectory()) // TODO should this method be such 'intelligent'?
-			return;
+		file.mkdirs();
 
-		File subFolder = new File(file, "EvoSuiteTestSubFolder");
-		EvoSuiteIO.setOriginal(subFolder, false);
+		File subDirectory = new File(file, "EvoSuiteTestSubDirectory");
+		EvoSuiteIO.setOriginal(subDirectory, false);
 
 		File subFile = new File(file, "EvoSuiteTestSubFile");
 		EvoSuiteIO.setOriginal(subFile, false);
 
 		boolean successful = true;
-		successful &= subFolder.mkdir();
+		successful &= subDirectory.mkdir();
 		successful &= subFile.createNewFile();
 
 		if (successful) {
-			logger.debug("filling folder " + evoSuiteFile.getPath()
-					+ " was successful!");
+			logger.debug("creating and filling directory "
+					+ evoSuiteFile.getPath() + " was successful!");
 		} else {
-			logger.debug("filling folder " + evoSuiteFile.getPath()
-					+ " failed!");
+			logger.debug("creating and filling directory "
+					+ evoSuiteFile.getPath() + " failed!");
 		}
 	}
 
@@ -226,7 +233,7 @@ public class FileSystem {
 	 * @return <code>true</code>, if creation was successful, <code>false</code> otherwise
 	 * @throws IOException
 	 */
-	public static void createParent(EvoSuiteFile evoSuiteFile)
+	public static void createParent(EvoSuiteFile evoSuiteFile) // TODO unnecessary?
 			throws IOException {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
@@ -239,7 +246,7 @@ public class FileSystem {
 		parent.mkdirs();
 	}
 
-	public static void deepDeleteParent(EvoSuiteFile evoSuiteFile)
+	public static void deepDeleteParent(EvoSuiteFile evoSuiteFile) // TODO unnecessary?
 			throws IOException {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
@@ -251,5 +258,5 @@ public class FileSystem {
 		EvoSuiteIO.setOriginal(parent, false);
 		EvoSuiteIO.deepDelete(parent);
 	}
-	
+
 }

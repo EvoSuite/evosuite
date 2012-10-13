@@ -132,7 +132,7 @@ public class Runtime {
 							new Class<?>[] { EvoSuiteFile.class });
 					fileOperations.put("createFolder",
 							new Class<?>[] { EvoSuiteFile.class });
-					fileOperations.put("fillFolder",
+					fileOperations.put("fillDirectory",
 							new Class<?>[] { EvoSuiteFile.class });
 					fileOperations.put("createParent",
 							new Class<?>[] { EvoSuiteFile.class });
@@ -146,12 +146,12 @@ public class Runtime {
 							.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
 					fileOperationSelectors
 							.add(FileOperationSelectors.CREATION_AND_DELETION);
-					fileOperationSelectors
-							.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
+//					fileOperationSelectors
+//							.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
 					fileOperationSelectors
 							.add(FileOperationSelectors.PERMISSION_MODIFICATION);
 					fileOperationSelectors
-							.add(FileOperationSelectors.FOLDER_CONTENT_MODIFICATION);
+							.add(FileOperationSelectors.DIRECTORY_CONTENT_MODIFICATION);
 				}
 
 				for (String method : fileOperations.keySet()) {
