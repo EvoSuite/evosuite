@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.evosuite.Properties;
-import org.evosuite.io.IOWrapper;
-import org.evosuite.runtime.FileSystem;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.sandbox.EvosuiteFile;
@@ -41,6 +39,7 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.EvoSuiteIO;
 import edu.uta.cse.dsc.VMError;
 
 /**
@@ -376,8 +375,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		//FIXME: what is this for?
 		Runtime.handleRuntimeAccesses();
 		if (Properties.VIRTUAL_FS) {
-			test.setAccessedFiles(new ArrayList<String>(IOWrapper.getAccessedFiles()));
-			FileSystem.restoreOriginalFS();
+			test.setAccessedFiles(new ArrayList<String>(EvoSuiteIO.getFilesAccessedByCUT()));
+			EvoSuiteIO.disableVFS();
 		}
 
 		if (Sandbox.canUseFileContentGeneration()) {
