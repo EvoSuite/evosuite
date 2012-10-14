@@ -99,35 +99,34 @@
 							</execution>
 						</executions>
 					</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>org.evosuite.EvoSuite</mainClass>
-						</manifest>
-					</archive>
-					<descriptors>
-						<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
-						<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
-						<descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
-						<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
-						<!-- <descriptor>src/main/assembly/bin.xml</descriptor>
-						-->
-						<descriptor>src/main/assembly/source.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- append to the packaging phase. -->
-						<goals>
-							<goal>single</goal> <!-- goals == mojos -->
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-assembly-plugin</artifactId>
+						<configuration>
+							<archive>
+								<manifest>
+									<mainClass>org.evosuite.EvoSuite</mainClass>
+								</manifest>
+							</archive>
+							<descriptors>
+								<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
+								<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
+								<descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
+								<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
+								<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
+								<descriptor>src/main/assembly/source.xml</descriptor>
+							</descriptors>
+						</configuration>
+						<executions>
+							<execution>
+								<id>make-assembly</id> <!-- this is used for inheritance merges -->
+								<phase>package</phase> <!-- append to the packaging phase. -->
+								<goals>
+									<goal>single</goal> <!-- goals == mojos -->
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 				</plugins>
 			</build>
 			<dependencies>
@@ -159,11 +158,11 @@
 			<artifactId>dsc-evosuite</artifactId>
 			<version>0.3.15</version>
 		</dependency>
-                   <dependency>
-                      <groupId>dk.brics.automaton</groupId>
-                      <artifactId>automaton</artifactId>
-                      <version>1.11-8</version>
-                    </dependency>
+		<dependency>
+			<groupId>dk.brics.automaton</groupId>
+			<artifactId>automaton</artifactId>
+			<version>1.11-8</version>
+		</dependency>
 		<dependency>
 			<groupId>com.googlecode.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
@@ -231,70 +230,46 @@
 			<artifactId>commons-vfs2</artifactId>
 			<version>2.0</version>
 			<exclusions>
-			  <exclusion>
-			    <groupId>org.apache.maven.scm</groupId>
-			    <artifactId>maven-scm-api</artifactId>
-			  </exclusion>
-			  <exclusion>
-			    <groupId>org.apache.maven.scm</groupId>
-			    <artifactId>maven-scm-provider-svnexe</artifactId>
-			  </exclusion>
+				<exclusion>
+					<groupId>org.apache.maven.scm</groupId>
+					<artifactId>maven-scm-api</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.apache.maven.scm</groupId>
+					<artifactId>maven-scm-provider-svnexe</artifactId>
+				</exclusion>
 			</exclusions>
 		</dependency>
 		<dependency>
-		  <groupId>org.eclipse.equinox</groupId>
-		  <artifactId>common</artifactId>
-		  <version>3.6.0</version>
+			<groupId>org.eclipse.equinox</groupId>
+			<artifactId>common</artifactId>
+			<version>3.6.0</version>
 		</dependency>
 		<dependency>
 			<groupId>org.eclipse.jdt</groupId>
 			<artifactId>core</artifactId>
 			<version>3.6.0</version>
 			<exclusions>
-<!--  		         <exclusion>
-		          <groupId>org.eclipse</groupId>
-		          <artifactId>osgi</artifactId>
-		         </exclusion>
-  		         <exclusion>
-		          <groupId>org.eclipse.core</groupId>
-		          <artifactId>jobs</artifactId>
-		         </exclusion>
-		         -->
-		         
-		         <!-- ***
-  		         <exclusion>
-		          <groupId>org.eclipse.equinox</groupId>
-		          <artifactId>registry</artifactId>
-		         </exclusion>
-		         -->
-		         
-<!--  		         <exclusion>
-		          <groupId>org.eclipse.equinox</groupId>
-		          <artifactId>preferences</artifactId>
-		         </exclusion> -->
+				<!-- <exclusion> <groupId>org.eclipse</groupId> <artifactId>osgi</artifactId> 
+					</exclusion> <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>jobs</artifactId> 
+					</exclusion> -->
 
-		         <!-- ***
-  		         <exclusion>
-		          <groupId>org.eclipse.equinox</groupId>
-		          <artifactId>app</artifactId>
-		         </exclusion> -->
-		         
-<!--  		         <exclusion>
-		          <groupId>org.eclipse.core</groupId>
-		          <artifactId>contenttype</artifactId>
-		         </exclusion> -->
-		         
-		<!-- ***		         
-  		         <exclusion>
-		          <groupId>org.eclipse.core</groupId>
-		          <artifactId>filesystem</artifactId>
-		         </exclusion>
-  		         <exclusion>
-		          <groupId>org.eclipse</groupId>
-		          <artifactId>text</artifactId>
-		         </exclusion>
-		         -->
-		        </exclusions>
+				<!-- *** <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>registry</artifactId> 
+					</exclusion> -->
+
+				<!-- <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>preferences</artifactId> 
+					</exclusion> -->
+
+				<!-- *** <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>app</artifactId> 
+					</exclusion> -->
+
+				<!-- <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>contenttype</artifactId> 
+					</exclusion> -->
+
+				<!-- *** <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>filesystem</artifactId> 
+					</exclusion> <exclusion> <groupId>org.eclipse</groupId> <artifactId>text</artifactId> 
+					</exclusion> -->
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.kohsuke</groupId>
@@ -311,20 +286,18 @@
 			<artifactId>trove4j</artifactId>
 			<version>3.0.2</version>
 		</dependency>
- 	        <dependency>
-                 <groupId>fr.inria.gforge.spoon</groupId>
-                 <artifactId>spoon-core</artifactId>
-                 <version>1.4.2</version>
-         </dependency>
- 	        <dependency>
- 	        	<groupId>org.evosuite</groupId>
- 	        	<artifactId>evosuite-io</artifactId>
- 	        	<version>0.3.2</version>
- 	        	<classifier>io</classifier>
- 	        </dependency>
+		<dependency>
+			<groupId>fr.inria.gforge.spoon</groupId>
+			<artifactId>spoon-core</artifactId>
+			<version>1.4.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.evosuite</groupId>
+			<artifactId>evosuite-io</artifactId>
+			<version>0.4.0</version>
+		</dependency>
 	</dependencies>
 	<repositories>
-
 		<repository>
 			<releases>
 				<enabled>true</enabled>
@@ -340,10 +313,11 @@
 			<url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
 			<layout>default</layout>
 		</repository>
+
 		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
 			</repository> -->
 	</repositories>
- 
+
 	<build>
 		<plugins>
 			<!-- Generate startings scripts for different platforms -->
@@ -445,11 +419,9 @@
 					<descriptors>
 						<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
 						<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
-						<!-- <descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
-						-->
+						<!-- <descriptor>src/main/assembly/jar-exsyst.xml</descriptor> -->
 						<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
-						<!-- <descriptor>src/main/assembly/bin.xml</descriptor>
-						-->
+						<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
 						<descriptor>src/main/assembly/source.xml</descriptor>
 					</descriptors>
 				</configuration>
@@ -489,14 +461,14 @@
 				</executions>
 			</plugin>
 			<plugin>
-			  <groupId>org.apache.maven.plugins</groupId>
-			  <artifactId>maven-surefire-plugin</artifactId>
-			  <version>2.12.2</version>
-			  <configuration>
-			    <skipTests>${skipTests}</skipTests>
-			    <forkMode>once</forkMode>
-			    <reportFormat>xml</reportFormat>
-			  </configuration>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>2.12.2</version>
+				<configuration>
+					<skipTests>${skipTests}</skipTests>
+					<forkMode>once</forkMode>
+					<reportFormat>xml</reportFormat>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -527,58 +499,53 @@
 
 		<pluginManagement>
 			<plugins>
-				<plugin> 
+				<plugin>
 					<!-- We still use Beta 5 because of various bugs: http://jira.codehaus.org/ 
 						- MSITE-262, MSITE-293, MSITE-297 -->
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
 					<version>3.1</version>
 					<configuration>
-					  <reportPlugins>
-					    <plugin>
-					      <groupId>org.codehaus.mojo</groupId>
-					      <artifactId>findbugs-maven-plugin</artifactId>
-					      <version>2.5.2</version>
-					      <configuration>
-						<xmlOutput>true</xmlOutput>
-					      </configuration>
-					    </plugin>
-					    <!--
-					    <plugin>
-					      <groupId>org.apache.maven.plugins</groupId>
-					      <artifactId>maven-checkstyle-plugin</artifactId>
-					      <version>2.9.1</version>
-					    </plugin>
-					    -->
-					    <plugin>
-					      <groupId>org.apache.maven.plugins</groupId>
-					      <artifactId>maven-pmd-plugin</artifactId>
-					      <configuration>
-					        <targetJdk>1.6</targetJdk>
-					      </configuration>
-					    </plugin>
-					    <plugin>
-					      <groupId>org.apache.maven.plugins</groupId>
-					      <artifactId>maven-project-info-reports-plugin</artifactId>
-					      <version>2.1.1</version>
-					    </plugin>
-					    <plugin>      
-					      <groupId>org.codehaus.mojo</groupId>
-					      <artifactId>emma-maven-plugin</artifactId>
-					      <version>1.0-alpha-3</version>
-					      <configuration>
-						<skipTests>${skipTests}</skipTests>
-					      </configuration>
-					    </plugin>
-					    <plugin>
-					      <groupId>org.apache.maven.plugins</groupId>
-					      <artifactId>maven-surefire-report-plugin</artifactId>
-					    </plugin>
-					    <plugin>
-					      <groupId>org.apache.maven.plugins</groupId>
-					      <artifactId>maven-jxr-plugin</artifactId>
-					    </plugin>
-					  </reportPlugins>
+						<reportPlugins>
+							<plugin>
+								<groupId>org.codehaus.mojo</groupId>
+								<artifactId>findbugs-maven-plugin</artifactId>
+								<version>2.5.2</version>
+								<configuration>
+									<xmlOutput>true</xmlOutput>
+								</configuration>
+							</plugin>
+							<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
+								<version>2.9.1</version> </plugin> -->
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-pmd-plugin</artifactId>
+								<configuration>
+									<targetJdk>1.6</targetJdk>
+								</configuration>
+							</plugin>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-project-info-reports-plugin</artifactId>
+								<version>2.1.1</version>
+							</plugin>
+							<plugin>
+								<groupId>org.codehaus.mojo</groupId>
+								<artifactId>emma-maven-plugin</artifactId>
+								<version>1.0-alpha-3</version>
+								<configuration>
+									<skipTests>${skipTests}</skipTests>
+								</configuration>
+							</plugin>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-surefire-report-plugin</artifactId>
+							</plugin>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-jxr-plugin</artifactId>
+							</plugin>
+						</reportPlugins>
 					</configuration>
 				</plugin>
 				<!--This plugin's configuration is used to store Eclipse m2e settings 
@@ -622,5 +589,5 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<skipTests>true</skipTests>
 	</properties>
-	
+
 </project>
