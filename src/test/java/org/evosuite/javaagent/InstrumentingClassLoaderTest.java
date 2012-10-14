@@ -20,6 +20,7 @@ package org.evosuite.javaagent;
 import junit.framework.Assert;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.TestUtil;
 import org.evosuite.javaagent.InstrumentingClassLoader;
 import org.evosuite.testcase.ExecutionTrace;
@@ -30,6 +31,14 @@ import org.junit.Test;
 
 public class InstrumentingClassLoaderTest {
 
+	@Test
+	public void testClassWithStaticInitializationCallingGetPackage() throws ClassNotFoundException{
+		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
+		Class<?> stat = Class.forName("com.examples.with.different.packagename.StatInitIssue", true,
+				instrumentingClassLoader);
+	}
+	
+	
 	/*
 	 * Tests the child-first/parent-last property of the classloader.
 	 */
