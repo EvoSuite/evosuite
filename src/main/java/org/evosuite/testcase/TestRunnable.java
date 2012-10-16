@@ -359,12 +359,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 			logger.error("Suppressed/ignored exception during test case execution: "
 			                     + e.getMessage(), e);
-		} finally {
-			runFinished = true;
+		} finally {			
 			if (!Properties.PRINT_TO_SYSTEM) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 			}
 			Sandbox.goingToEndExecutingSUTCode();
+			runFinished = true;
 		}
 
 		result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());

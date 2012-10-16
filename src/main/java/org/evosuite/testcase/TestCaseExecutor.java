@@ -346,22 +346,16 @@ public class TestCaseExecutor implements ThreadFactory {
 			//System.setErr(systemErr);
 
 			if (Properties.LOG_TIMEOUT) {
-				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
+				logger.warn("Timeout occurred for " + Properties.TARGET_CLASS);
 			}
 			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
 			try {
 				handler.getLastTask().get(Properties.SHUTDOWN_TIMEOUT,
 				                          TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e2) {
-				// TODO Auto-generated catch block
-				//e2.printStackTrace();
+			} catch (InterruptedException e2) {				
 			} catch (ExecutionException e2) {
-				// TODO Auto-generated catch block
-				//e2.printStackTrace();
 			} catch (TimeoutException e2) {
-				// TODO Auto-generated catch block
-				//e2.printStackTrace();
 			}
 			//task.cancel(true);
 
@@ -401,6 +395,14 @@ public class TestCaseExecutor implements ThreadFactory {
 					}
 					ExecutionTracer.disable();
 					executor = Executors.newSingleThreadExecutor(this);
+					
+					
+					/*
+					 * Last check before tear down the sandbox  
+					 */
+					if(!callable.isRunFinished()){
+						Sandbox.goingToEndExecutingSUTCode();
+					}
 				}
 			} else {
 				logger.info("Run is finished - " + currentThread.isAlive() + ": "
