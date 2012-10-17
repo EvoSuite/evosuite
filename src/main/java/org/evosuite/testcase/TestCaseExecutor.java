@@ -164,9 +164,7 @@ public class TestCaseExecutor implements ThreadFactory {
 				logger.warn("TestCaseExecutor instance is non-null, but its actual executor is null");
 				instance.executor = Executors.newSingleThreadExecutor(instance);
 			} else {
-				//if (instance.executor.isShutdown()) {
 				instance.executor = Executors.newSingleThreadExecutor(instance);
-				//}
 			}
 		}
 	}

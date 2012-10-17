@@ -368,7 +368,7 @@ public class EvoSuite {
 			cmdLine.add("-Xdebug");
 			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
 					+ Properties.PORT);
-			System.out.println("Waiting for remote debugger to connect..."); // TODO find the right place for this
+			logger.debug("Waiting for remote debugger to connect..."); // TODO find the right place for this
 		}
 
 		for (String arg : args) {
@@ -545,6 +545,8 @@ public class EvoSuite {
 			logUtils.closeLogServer();
 		}
 
+		logger.debug("Master process has finished to wait for client");
+		
 		return result;
 	}
 
