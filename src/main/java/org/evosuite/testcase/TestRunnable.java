@@ -205,8 +205,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 	@Override
 	public ExecutionResult call() {
 
-		Sandbox.goingToExecuteSUTCode();
-
 		exceptionsThrown.clear();
 
 		runFinished = false;
@@ -363,7 +361,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 			if (!Properties.PRINT_TO_SYSTEM) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 			}
-			Sandbox.goingToEndExecutingSUTCode();
 			runFinished = true;
 		}
 
