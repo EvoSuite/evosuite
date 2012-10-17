@@ -247,6 +247,9 @@ class MSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm) throws SecurityException{
+
+		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+		
 		// check access  
 		if (!allowPermission(perm)) {
 			if(executingTestCase){
@@ -261,7 +264,7 @@ class MSecurityManager extends SecurityManager {
 			for (StackTraceElement e : Thread.currentThread().getStackTrace()) {
 				stack += e + "\n";
 			}
-			logger.info("Security manager blocks permission " + perm + stack);
+			logger.debug("Security manager blocks permission " + perm + stack);
 			throw new SecurityException("Security manager blocks " + perm + stack);
 		} else {
 			if(executingTestCase){
@@ -321,14 +324,9 @@ class MSecurityManager extends SecurityManager {
 			 * are not executing a test case (if from SUT, that means the thread was not stopped properly).
 			 * So, we deny any permission
 			 */
-			logger.info("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "+perm.toString());
+			logger.debug("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "+perm.toString());
 			return false;
 		}
-		
-		/*
-		 * FIXME: check what it is intended for
-		 */
-		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
 		
 		if(perm instanceof AllPermission){
 			return checkAllPermission((AllPermission)perm);
@@ -849,7 +847,7 @@ class MSecurityManager extends SecurityManager {
 		 * this is also useful for checking types in the String constants, and to be warned if they ll change in
 		 * future JDKs 
 		 */
-		logger.error("SUT asked for a runtime permission that EvoSuite does not recognize: "+name);	
+		logger.debug("SUT asked for a runtime permission that EvoSuite does not recognize: "+name);	
 		
 		return false; 
 	}
@@ -900,7 +898,7 @@ class MSecurityManager extends SecurityManager {
 		String action = fp.getActions();
 		if(action==null){
 			//might not ever happen, but just in case we log it and return false
-			logger.warn("File permission with empty action");
+			logger.debug("File permission with empty action");
 			return false;
 		}
 		

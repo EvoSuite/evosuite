@@ -27,11 +27,14 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.Properties.Criterion;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This class performs static analysis before everything else initializes
@@ -41,6 +44,8 @@ import org.objectweb.asm.tree.ClassNode;
  */
 public class DependencyAnalysis {
 
+	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
+	
 	private static HashMap<String, ClassNode> classCache = new HashMap<String, ClassNode>();
 
 	private static CallTree callTree = null;
@@ -62,20 +67,19 @@ public class DependencyAnalysis {
 	public static void analyze(String className, List<String> classPath)
 	        throws RuntimeException, ClassNotFoundException {
 
-		// Calculate inheritance hierarchy
+		logger.debug("Calculate inheritance hierarchy");		
 		inheritanceTree = InheritanceTreeGenerator.analyze(classPath);
 
-		// Calculate call tree
+		logger.debug("Calculate call tree");
 		callTree = CallTreeGenerator.analyze(className);
 
 		// TODO: Need to make sure that all classes in calltree are instrumented
 
-		// Update call tree with calls to overridden methods
+		logger.debug("Update call tree with calls to overridden methods");
 		CallTreeGenerator.update(callTree, inheritanceTree);
 
-		// Create test cluster
+		logger.debug("Create test cluster");
 		TestClusterGenerator.generateCluster(className, inheritanceTree, callTree);
-
 	}
 
 	public static CallTree getCallTree() {

@@ -1,67 +1,87 @@
-<!--
-
-    Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
-    contributors
-
-    This file is part of EvoSuite.
-
-    EvoSuite is free software: you can redistribute it and/or modify it under the
-    terms of the GNU Public License as published by the Free Software Foundation,
-    either version 3 of the License, or (at your option) any later version.
-
-    EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
-    WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
-    A PARTICULAR PURPOSE. See the GNU Public License for more details.
-
-    You should have received a copy of the GNU Public License along with
-    EvoSuite. If not, see <http://www.gnu.org/licenses/>.
-
--->
-<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0" 
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
-  <id>jar-minimal</id>
-  <formats>
-    <format>jar</format>
-  </formats>
-  <includeBaseDirectory>false</includeBaseDirectory>
-  <fileSets>
-    <fileSet>
-      <directory>${project.build.directory}</directory>
-      <outputDirectory>/</outputDirectory>
-      <includes>
-	<include>*evosuite-io.jar</include>
-      </includes>
-    </fileSet>
-    <fileSet>
-      <directory>${project.build.directory}/classes</directory>
-      <outputDirectory>/</outputDirectory>
-      <excludes>
-	<exclude>*.jar</exclude>
-        <exclude>org/evosuite/ui/**/*.class</exclude>
-      </excludes>
-    </fileSet>
-  </fileSets>
- <dependencySets>
-    <dependencySet>
-      <outputDirectory>/</outputDirectory>
-      <useProjectArtifact>false</useProjectArtifact>
-      <excludes>
-        <exclude>jmockit:*</exclude>
-        <exclude>org.uispec4j:*</exclude>
-        <exclude>com.ibm:icu</exclude>
-      </excludes>
-      <unpack>true</unpack>
-      <unpackOptions>
-        <excludes>
-          <exclude>logback.xml</exclude>
-          <exclude>META-INF/MANIFEST.MF</exclude>
-          <exclude>*.html</exclude>
-          <exclude>COPYING*</exclude>
-          <exclude>LICENSE*</exclude>
-        </excludes>
-      </unpackOptions>
-      <scope>runtime</scope>
-    </dependencySet>
-  </dependencySets>
+<!-- Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors 
+	This file is part of EvoSuite. EvoSuite is free software: you can redistribute 
+	it and/or modify it under the terms of the GNU Public License as published 
+	by the Free Software Foundation, either version 3 of the License, or (at 
+	your option) any later version. EvoSuite is distributed in the hope that 
+	it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty 
+	of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Public 
+	License for more details. You should have received a copy of the GNU Public 
+	License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>. -->
+<assembly
+	xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+	<id>jar-minimal</id>
+	<formats>
+		<format>jar</format>
+	</formats>
+	<includeBaseDirectory>false</includeBaseDirectory>
+	<files>
+		<file>
+			<source>${project.build.directory}/${project.artifactId}-${project.version}-evosuite-io.jar</source>
+			<outputDirectory>/</outputDirectory>
+			<destName>evosuite-io.jar</destName>
+			<!-- Not sure if this works always, but should do better than the purely 
+				hardcoded solution (in EvoSuite.java for retrieving the evosuite-io jar file 
+				as a resource) that was used so far. Now if the build process was successful, 
+				we can be sure there is an "evosuite.jar" inside the "jar-minimal" version. 
+				If the build process is not successful because <source> cannot be found, 
+				we see why and simply fix the path. However, a neater solution to this is 
+				appreciated! ;-) -->
+		</file>
+	</files>
+	<fileSets>
+		<fileSet>
+			<directory>${project.build.directory}/classes</directory>
+			<outputDirectory>/</outputDirectory>
+			<excludes>
+				<exclude>*.jar</exclude>
+				<exclude>org/evosuite/ui/**/*.class</exclude>
+			</excludes>
+		</fileSet>
+	</fileSets>
+	<dependencySets>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
+			<includes>
+				<include>org.evosuite:evosuite-io</include>
+				<include>org.apache.commons:commons-vfs2</include>
+				<include>org.apache.commons:commons-logging</include>
+			</includes>
+			<unpack>true</unpack>
+			<unpackOptions>
+				<excludes>
+					<exclude>logback.xml</exclude>
+					<exclude>META-INF/*.SF</exclude>
+					<exclude>META-INF/*.sf</exclude>
+					<exclude>META-INF/*.RSA</exclude>
+					<exclude>META-INF/*.rsa</exclude>
+					<exclude>META-INF/*.INF</exclude>
+					<exclude>META-INF/*.inf</exclude>
+				</excludes>
+			</unpackOptions>
+			<scope>runtime</scope>
+		</dependencySet>
+		<dependencySet>
+			<outputDirectory>/</outputDirectory>
+			<useProjectArtifact>false</useProjectArtifact>
+			<excludes>
+				<exclude>jmockit:*</exclude>
+				<exclude>org.uispec4j:*</exclude>
+				<exclude>com.ibm:icu</exclude>
+			</excludes>
+			<unpack>true</unpack>
+			<unpackOptions>
+				<excludes>
+					<exclude>logback.xml</exclude>
+					<exclude>META-INF/MANIFEST.MF</exclude>
+					<exclude>*.html</exclude>
+					<exclude>COPYING*</exclude>
+					<exclude>LICENSE*</exclude>
+				</excludes>
+			</unpackOptions>
+			<scope>runtime</scope>
+		</dependencySet>
+	</dependencySets>
 </assembly>
