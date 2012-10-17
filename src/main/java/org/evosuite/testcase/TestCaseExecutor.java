@@ -285,8 +285,14 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor, timeout,
-			                                         Properties.CPU_TIMEOUT);
+			
+			ExecutionResult result;
+			Sandbox.goingToExecuteSUTCode();
+			try{ 
+				result = handler.execute(callable, executor, timeout, Properties.CPU_TIMEOUT);
+			} finally {
+				Sandbox.goingToEndExecutingSUTCode();
+			}
 			
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 			/*
@@ -394,15 +400,7 @@ public class TestCaseExecutor implements ThreadFactory {
 						logger.info("Throwable: " + t);
 					}
 					ExecutionTracer.disable();
-					executor = Executors.newSingleThreadExecutor(this);
-					
-					
-					/*
-					 * Last check before tear down the sandbox  
-					 */
-					if(!callable.isRunFinished()){
-						Sandbox.goingToEndExecutingSUTCode();
-					}
+					executor = Executors.newSingleThreadExecutor(this);					
 				}
 			} else {
 				logger.info("Run is finished - " + currentThread.isAlive() + ": "
