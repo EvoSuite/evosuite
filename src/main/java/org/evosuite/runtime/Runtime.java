@@ -20,12 +20,18 @@
  */
 package org.evosuite.runtime;
 
+import java.io.File;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import org.evosuite.Properties;
 import org.evosuite.setup.TestCluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.evosuite.io.IOWrapper;
+import java.io.EvoSuiteIO;
 
 /**
  * <p>
@@ -35,6 +41,16 @@ import org.evosuite.io.IOWrapper;
  * @author Gordon Fraser
  */
 public class Runtime {
+
+	/**
+	 * maps from the name of a FileSystem method to a class array containing its parameter types
+	 */
+	private static Map<String, Class<?>[]> fileOperations;
+
+	/**
+	 * the set of file operation selectors that shall be used to select FileSystem methods
+	 */
+	private static Set<FileOperationSelector> fileOperationSelectors;
 
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
@@ -50,9 +66,12 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {
-			IOWrapper.initialize(Properties.PROJECT_PREFIX); // actually only needs to be executed once before the very first test run - if you read
-																// this comment and know a nice place for this, feel free to move it there; for now
-																// I'm leaving it here for code coherence since runtime is negligible
+			if (!EvoSuiteIO.isInitialized())
+				EvoSuiteIO.initialize(Properties.PROJECT_PREFIX,
+						Properties.READ_ONLY_FROM_SANDBOX_FOLDER, new File(
+								Properties.SANDBOX_FOLDER, "read")
+								.getAbsoluteFile());
+			EvoSuiteIO.disableTolerantExceptionHandling();
 			FileSystem.reset();
 		}
 	}
@@ -93,15 +112,58 @@ public class Runtime {
 			}
 		}
 
-		if (Properties.VIRTUAL_FS && FileSystem.wasAccessed()) {
+		if (Properties.VIRTUAL_FS && EvoSuiteIO.filesWereAccessedByCUT()) {
 			try {
 				logger.info("Adding EvoSuiteFile calls to cluster");
-				TestCluster.getInstance().addTestCall(
-						FileSystem.class.getMethod("setFileContent",
-								new Class<?>[] { EvoSuiteFile.class,
-										String.class }));
-				// TODO: Add other methods (setFilePermission, etc)
 
+				if (fileOperations == null) {
+					fileOperations = new HashMap<String, Class<?>[]>();
+					fileOperations.put("setFileContent", new Class<?>[] {
+							EvoSuiteFile.class, String.class });
+					fileOperations.put("setReadPermission", new Class<?>[] {
+							EvoSuiteFile.class, boolean.class });
+					fileOperations.put("setWritePermission", new Class<?>[] {
+							EvoSuiteFile.class, boolean.class });
+					fileOperations.put("setExecutePermission", new Class<?>[] {
+							EvoSuiteFile.class, boolean.class });
+					fileOperations.put("deepDelete",
+							new Class<?>[] { EvoSuiteFile.class });
+					fileOperations.put("createFile",
+							new Class<?>[] { EvoSuiteFile.class });
+					fileOperations.put("createFolder",
+							new Class<?>[] { EvoSuiteFile.class });
+					fileOperations.put("fillDirectory",
+							new Class<?>[] { EvoSuiteFile.class });
+					fileOperations.put("createParent",
+							new Class<?>[] { EvoSuiteFile.class });
+					fileOperations.put("deepDeleteParent",
+							new Class<?>[] { EvoSuiteFile.class });
+				}
+
+				if (fileOperationSelectors == null) {
+					fileOperationSelectors = new HashSet<FileOperationSelector>();
+					fileOperationSelectors
+							.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
+					fileOperationSelectors
+							.add(FileOperationSelectors.CREATION_AND_DELETION);
+//					fileOperationSelectors
+//							.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
+					fileOperationSelectors
+							.add(FileOperationSelectors.PERMISSION_MODIFICATION);
+					fileOperationSelectors
+							.add(FileOperationSelectors.DIRECTORY_CONTENT_MODIFICATION);
+				}
+
+				for (String method : fileOperations.keySet()) {
+					for (FileOperationSelector fileOperationSelector : fileOperationSelectors) {
+						if (fileOperationSelector.select(method)) {
+							TestCluster.getInstance().addTestCall(
+									FileSystem.class.getMethod(method,
+											fileOperations.get(method)));
+							break;
+						}
+					}
+				}
 			} catch (SecurityException e) {
 				e.printStackTrace();
 			} catch (NoSuchMethodException e) {

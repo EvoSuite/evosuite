@@ -37,7 +37,7 @@ import org.evosuite.utils.LoggingUtils;
  *
  *
  * 
- * <p> FIXME: This class seem directly used by the SUT, when its method check the security manager. This can lead to concurrency issues when the
+ * <p> FIXME: This class seem directly used by the SUT, when its methods check the security manager. This can lead to concurrency issues when the
  * SUT is multi-threaded. Some re-factoring might be needed, but that would need some discussions first regarding its use/goals<p> 
  *
  *
@@ -45,12 +45,14 @@ import org.evosuite.utils.LoggingUtils;
  */
 public class PermissionStatistics {
 
-	private static PermissionStatistics instance;
+	private static PermissionStatistics instance = new PermissionStatistics();
 
 	private final Map<String, Map<String, Integer>> allowedCount;
 	private final Map<String, Map<String, Integer>> deniedCount;
 	private final Map<Class<?>, Integer> deniedClassCount;
 	private final Set<String> recentAccess;
+	private int maxThreads;
+
 
 	// Private constructor
 	private PermissionStatistics() {
@@ -58,6 +60,7 @@ public class PermissionStatistics {
 		deniedCount = new ConcurrentHashMap<String, Map<String, Integer>>();
 		deniedClassCount = new ConcurrentHashMap<Class<?>, Integer>();
 		recentAccess = Collections.synchronizedSet(new HashSet<String>());
+		maxThreads = 1;
 	}
 
 	/**
@@ -66,9 +69,6 @@ public class PermissionStatistics {
 	 * @return a {@link org.evosuite.sandbox.PermissionStatistics} object.
 	 */
 	public static PermissionStatistics getInstance() {
-		if (instance == null) {
-			instance = new PermissionStatistics();
-		}
 		return instance;
 	}
 
@@ -366,10 +366,10 @@ public class PermissionStatistics {
 		}
 	}
 
-	private int maxThreads = 1;
-
 	/**
-	 * <p>countThreads</p>
+	 * Check how many threads are active, and store the maximum value seen so far.
+	 * Note: this is used to check if the SUT is multi-threading, but it is not a 100% bullet-proof solution,
+	 * as this method is only called any now and then.
 	 *
 	 * @param numThreads a int.
 	 */

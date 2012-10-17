@@ -164,9 +164,7 @@ public class TestCaseExecutor implements ThreadFactory {
 				logger.warn("TestCaseExecutor instance is non-null, but its actual executor is null");
 				instance.executor = Executors.newSingleThreadExecutor(instance);
 			} else {
-				//if (instance.executor.isShutdown()) {
 				instance.executor = Executors.newSingleThreadExecutor(instance);
-				//}
 			}
 		}
 	}
@@ -285,8 +283,16 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor, timeout,
-			                                         Properties.CPU_TIMEOUT);
+			
+			ExecutionResult result;
+			Sandbox.goingToExecuteSUTCode();
+			try{ 
+				result = handler.execute(callable, executor, timeout, Properties.CPU_TIMEOUT);
+			} finally {
+				Sandbox.goingToEndExecutingSUTCode();
+			}
+			
+			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 			/*
 			 * TODO: this will need proper care when we ll start to handle threads in the search.
 			 */
@@ -344,22 +350,16 @@ public class TestCaseExecutor implements ThreadFactory {
 			//System.setErr(systemErr);
 
 			if (Properties.LOG_TIMEOUT) {
-				System.err.println("Timeout occurred for " + Properties.TARGET_CLASS);
+				logger.warn("Timeout occurred for " + Properties.TARGET_CLASS);
 			}
 			logger.info("TimeoutException, need to stop runner", e1);
 			ExecutionTracer.setKillSwitch(true);
 			try {
 				handler.getLastTask().get(Properties.SHUTDOWN_TIMEOUT,
 				                          TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e2) {
-				// TODO Auto-generated catch block
-				//e2.printStackTrace();
+			} catch (InterruptedException e2) {				
 			} catch (ExecutionException e2) {
-				// TODO Auto-generated catch block
-				//e2.printStackTrace();
 			} catch (TimeoutException e2) {
-				// TODO Auto-generated catch block
-				//e2.printStackTrace();
 			}
 			//task.cancel(true);
 
@@ -398,7 +398,7 @@ public class TestCaseExecutor implements ThreadFactory {
 						logger.info("Throwable: " + t);
 					}
 					ExecutionTracer.disable();
-					executor = Executors.newSingleThreadExecutor(this);
+					executor = Executors.newSingleThreadExecutor(this);					
 				}
 			} else {
 				logger.info("Run is finished - " + currentThread.isAlive() + ": "
