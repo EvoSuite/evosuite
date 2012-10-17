@@ -128,8 +128,7 @@ public class InheritanceTreeGenerator {
 			try {
 				analyzeClassStream(inheritanceTree, zf.getInputStream(ze));
 			} catch (IOException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				logger.error("",e1);
 			}
 		}
 		try {
@@ -149,8 +148,7 @@ public class InheritanceTreeGenerator {
 		try {
 			analyzeClassStream(inheritanceTree, new FileInputStream(classFile));
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
@@ -175,8 +173,7 @@ public class InheritanceTreeGenerator {
 			// TODO: Should we store the ClassNode?
 
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
@@ -193,7 +190,6 @@ public class InheritanceTreeGenerator {
 		InheritanceTree inheritanceTree = new InheritanceTree();
 
 		for (String name : list) {
-			//			if (!name.startsWith("de/unisb")) {
 			// We do not consider sun.* and apple.* and com.* 
 			if (!classExceptions.contains(name) && (name.startsWith("java/") // || name.startsWith("sun") || name.startsWith("com/sun") 
 			        || name.startsWith("javax/"))) { // || name.startsWith("java/awt")) {
@@ -202,10 +198,6 @@ public class InheritanceTreeGenerator {
 			}
 		}
 
-		// Set<String> writers = new HashSet<String>();
-		// writers.add("java.io.StringWriter");
-		// generatorData.put("java.io.Writer", writers);
-
 		// Write data to XML file
 		try {
 			FileOutputStream stream = new FileOutputStream(
@@ -213,8 +205,7 @@ public class InheritanceTreeGenerator {
 			XStream xstream = new XStream();
 			xstream.toXML(inheritanceTree, stream);
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("",e);
 		}
 	}
 
@@ -240,8 +231,6 @@ public class InheritanceTreeGenerator {
 
 	private static Collection<String> getResources(String classPath) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		//String classPath = System.getProperty("java.class.path", ".");
-		//String classPath = Properties.CP;
 		String[] classPathElements = classPath.split(":");
 		Pattern pattern = Pattern.compile(".*\\.class$");
 
