@@ -127,10 +127,18 @@ public class TestClusterGenerator {
 					AbstractInsnNode insn = it.next();
 					if (insn.getOpcode() == Opcodes.CHECKCAST) {
 						TypeInsnNode typeNode = (TypeInsnNode) insn;
-						castClasses.add(Type.getObjectType(typeNode.desc));
+						Type castType = Type.getObjectType(typeNode.desc);
+						while(castType.getSort() == Type.ARRAY) {
+							castType = castType.getElementType();
+						}
+						castClasses.add(castType);
 					} else if (insn.getOpcode() == Opcodes.INSTANCEOF) {
 						TypeInsnNode typeNode = (TypeInsnNode) insn;
-						castClasses.add(Type.getObjectType(typeNode.desc));
+						Type castType = Type.getObjectType(typeNode.desc);
+						while(castType.getSort() == Type.ARRAY) {
+							castType = castType.getElementType();
+						}
+						castClasses.add(castType);
 
 					} else if (insn instanceof MethodInsnNode) {
 						MethodInsnNode methodInsnNode = (MethodInsnNode) insn;
