@@ -156,17 +156,30 @@ public class TestClusterGenerator {
 		for (Type type : castClasses) {
 			classNames.add(type.getClassName());
 		}
+		
+		/*
+		 * If we fail to load a class, we skip it, and avoid to try
+		 * to load it again (which would result in extra unnecessary logging)
+		 */
+		Set<String> blackList = new HashSet<String>();
+		
 		TestCluster.setCastClasses(classNames);
-		addCastClasses(classNames);
+		addCastClasses(classNames,blackList);
 
-		resolveDependencies();
+		resolveDependencies(blackList);
 	}
 
-	private static void addCastClasses(Set<String> castClasses) {
+	private static void addCastClasses(Set<String> castClasses, Set<String> blackList) {
 		for (String className : castClasses) {
+			if(blackList.contains(className)){
+				continue;
+			}
 			try {
 				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
-				addDependencyClass(clazz);
+				boolean added = addDependencyClass(clazz); 
+				if(!added){
+					blackList.add(className);
+				}
 			} catch (ClassNotFoundException e) {
 				logger.error("Class not found",e);
 			}
@@ -191,7 +204,7 @@ public class TestClusterGenerator {
 	/**
 	 * Continue adding generators for classes that are needed
 	 */
-	private static void resolveDependencies() {
+	private static void resolveDependencies(Set<String> blackList) {
 		dependencies.removeAll(analyzedClasses);
 
 		while (!dependencies.isEmpty()) {
@@ -200,7 +213,16 @@ public class TestClusterGenerator {
 			Iterator<Class<?>> iterator = dependencies.iterator();
 			Class<?> dependency = iterator.next();
 			iterator.remove();
-			addDependencyClass(dependency);
+			String className = dependency.getName();
+			
+			if(blackList.contains(className)){
+				continue;
+			}
+			
+			boolean added = addDependencyClass(dependency);
+			if(!added){
+				blackList.add(className);
+			}
 			dependencies.removeAll(analyzedClasses);
 		}
 
@@ -697,88 +719,99 @@ public class TestClusterGenerator {
 		}
 	}
 
-	private static void addDependencyClass(Class<?> clazz) {
-		TestCluster cluster = TestCluster.getInstance();
-		logger.debug("Adding dependency class " + clazz.getName());
+	private static boolean addDependencyClass(Class<?> clazz) {
+		try{
+			TestCluster cluster = TestCluster.getInstance();
+			logger.debug("Adding dependency class " + clazz.getName());
 
-		// TODO: Should we include declared classes as well?
+			// TODO: Should we include declared classes as well?
 
-		if (!canUse(clazz)) {
-			logger.info("*** Cannot use class: " + clazz.getName());
-			return;
-		}
+			if (!canUse(clazz)) {
+				logger.info("*** Cannot use class: " + clazz.getName());
+				return false;
+			}
 
-		// Add all constructors
-		for (Constructor<?> constructor : getConstructors(clazz)) {
-			String name = "<init>"
-			        + org.objectweb.asm.Type.getConstructorDescriptor(constructor);
+			// Add all constructors
+			for (Constructor<?> constructor : getConstructors(clazz)) {
+				String name = "<init>"
+						+ org.objectweb.asm.Type.getConstructorDescriptor(constructor);
 
-			if (Properties.TT) {
-				String orig = name;
-				name = BooleanTestabilityTransformation.getOriginalNameDesc(clazz.getName(),
-				                                                            "<init>",
-				                                                            org.objectweb.asm.Type.getConstructorDescriptor(constructor));
-				if (!orig.equals(name))
-					logger.info("TT name: " + orig + " -> " + name);
+				if (Properties.TT) {
+					String orig = name;
+					name = BooleanTestabilityTransformation.getOriginalNameDesc(clazz.getName(),
+							"<init>",
+							org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+					if (!orig.equals(name))
+						logger.info("TT name: " + orig + " -> " + name);
+
+				}
+
+				if (canUse(constructor)) {
+					cluster.addGenerator(new GenericClass(clazz), constructor);
+					addDependencies(constructor);
+					logger.debug("Keeping track of "
+							+ constructor.getDeclaringClass().getName() + "."
+							+ constructor.getName()
+							+ org.objectweb.asm.Type.getConstructorDescriptor(constructor));
+				} else {
+					logger.debug("Constructor cannot be used: " + constructor);
+				}
 
 			}
 
-			if (canUse(constructor)) {
-				cluster.addGenerator(new GenericClass(clazz), constructor);
-				addDependencies(constructor);
-				logger.debug("Keeping track of "
-				        + constructor.getDeclaringClass().getName() + "."
-				        + constructor.getName()
-				        + org.objectweb.asm.Type.getConstructorDescriptor(constructor));
-			} else {
-				logger.debug("Constructor cannot be used: " + constructor);
-			}
+			// Add all methods
+			for (Method method : getMethods(clazz)) {
+				String name = method.getName()
+						+ org.objectweb.asm.Type.getMethodDescriptor(method);
 
-		}
+				if (Properties.TT) {
+					String orig = name;
+					name = BooleanTestabilityTransformation.getOriginalNameDesc(clazz.getName(),
+							method.getName(),
+							org.objectweb.asm.Type.getMethodDescriptor(method));
+					if (!orig.equals(name))
+						logger.info("TT name: " + orig + " -> " + name);
+				}
 
-		// Add all methods
-		for (Method method : getMethods(clazz)) {
-			String name = method.getName()
-			        + org.objectweb.asm.Type.getMethodDescriptor(method);
+				if (canUse(method)) {
+					logger.debug("Adding method " + clazz.getName() + "." + method.getName()
+							+ org.objectweb.asm.Type.getMethodDescriptor(method));
+					addDependencies(method);
+					cluster.addModifier(clazz, method);
+					GenericClass retClass = new GenericClass(method.getGenericReturnType());
 
-			if (Properties.TT) {
-				String orig = name;
-				name = BooleanTestabilityTransformation.getOriginalNameDesc(clazz.getName(),
-				                                                            method.getName(),
-				                                                            org.objectweb.asm.Type.getMethodDescriptor(method));
-				if (!orig.equals(name))
-					logger.info("TT name: " + orig + " -> " + name);
-			}
-
-			if (canUse(method)) {
-				logger.debug("Adding method " + clazz.getName() + "." + method.getName()
-				        + org.objectweb.asm.Type.getMethodDescriptor(method));
-				addDependencies(method);
-				cluster.addModifier(clazz, method);
-				GenericClass retClass = new GenericClass(method.getGenericReturnType());
-
-				if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject())
-					cluster.addGenerator(retClass, method);
-			} else {
-				logger.debug("Method cannot be used: " + method);
-			}
-		}
-
-		// Add all fields
-		for (Field field : getFields(clazz)) {
-			if (canUse(field)) {
-				// logger.info("Adding field " + classname + "." +
-				// field.getName());
-				cluster.addGenerator(new GenericClass(field.getGenericType()), field);
-				if (!Modifier.isFinal(field.getModifiers())) {
-					cluster.addModifier(clazz, field);
-					addDependencies(field);
+					if (!retClass.isPrimitive() && !retClass.isVoid() && !retClass.isObject())
+						cluster.addGenerator(retClass, method);
+				} else {
+					logger.debug("Method cannot be used: " + method);
 				}
 			}
+
+			// Add all fields
+			for (Field field : getFields(clazz)) {
+				if (canUse(field)) {
+					// logger.info("Adding field " + classname + "." +
+					// field.getName());
+					cluster.addGenerator(new GenericClass(field.getGenericType()), field);
+					if (!Modifier.isFinal(field.getModifiers())) {
+						cluster.addModifier(clazz, field);
+						addDependencies(field);
+					}
+				}
+			}
+			logger.info("Finished analyzing " + clazz.getName());
+			cluster.getAnalyzedClasses().add(clazz);
+			analyzedClasses.add(clazz);
+		} catch(Throwable t){
+			/*
+			 * NOTE: this is a problem we know it can happen in some cases in SF110, but don't
+			 * have a real solution now. As it is bound to happen, we try to minimize the logging (eg no
+			 * stack trace), although we still need to log it
+			 */
+			logger.error("Failed to add dependencies for class "+clazz.getName());
+			return false;
 		}
-		logger.info("Finished analyzing " + clazz.getName());
-		cluster.getAnalyzedClasses().add(clazz);
-		analyzedClasses.add(clazz);
+		return true;
 	}
 
 	private static Set<Class<?>> getConcreteClasses(Class<?> clazz) {

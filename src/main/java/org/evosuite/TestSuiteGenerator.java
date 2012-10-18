@@ -204,6 +204,7 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
 			                                                  : e.toString()));
+			logger.error("full stack:",e);
 			return "";
 		} finally {
 			Sandbox.goingToEndExecutingSUTCode();
