@@ -304,8 +304,17 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			return false;
 		if (getClass() != s.getClass())
 			return false;
-
+		
 		PrimitiveStatement<?> ps = (PrimitiveStatement<?>) s;
+
+		if(retval==null && ps.retval!=null){
+			return false;
+		}
+			
+		if(value==null && ps.value!=null){
+			return false;
+		}
+		
 		return (retval.same(ps.retval) && value.equals(ps.value));
 	}
 
