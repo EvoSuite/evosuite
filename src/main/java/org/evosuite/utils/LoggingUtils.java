@@ -115,7 +115,6 @@ public class LoggingUtils {
 									while (socket != null && socket.isConnected()
 									        && !isServerClosed()) {
 										ILoggingEvent event = (ILoggingEvent) ois.readObject();
-
 										/*
 										 * We call the appender regardless of level in the master (ie, if the level was
 										 * set in the client and we receive a log message, then we just print it). 
@@ -123,9 +122,7 @@ public class LoggingUtils {
 										 * the local logger with same name just for formatting reasons 
 										 */
 										ch.qos.logback.classic.Logger remoteLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(event.getLoggerName());
-										//if (remoteLogger.isEnabledFor(event.getLevel())) {
 										remoteLogger.callAppenders(event);
-										//}
 									}
 								} catch (java.net.SocketException se) {
 									/*
@@ -139,7 +136,13 @@ public class LoggingUtils {
 								}
 								catch (java.io.EOFException eof) {
 									//this is normal, do nothing
-								} catch (Exception e) {
+								} catch(java.io.InvalidClassException ice){
+									/*
+									 * TODO: unclear why it happens... need more investigation 
+									 */
+									log.error("Error in de-serialized log event: "+ice.getMessage());
+								}
+								catch (Exception e) {
 									log.error("Problem in reading loggings", e);
 								}
 								return null;

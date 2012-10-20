@@ -684,6 +684,15 @@ class MSecurityManager extends SecurityManager {
 			return true;
 		}
 		
+		
+		/*
+		 * this seems needed when analyzing classpath, but not fully sure of its consequences 
+		 */
+		if(name.startsWith("putProviderProperty.")){ 
+			return true;
+		}
+		
+		
 		/*
 		 * createAccessControlContext
 		 * setPolicy
