@@ -289,7 +289,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			try{ 
 				result = handler.execute(callable, executor, timeout, Properties.CPU_TIMEOUT);
 			} finally {
-				Sandbox.goingToEndExecutingSUTCode();
+				Sandbox.doneWithExecutingSUTCode();
 			}
 			
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());

@@ -181,7 +181,7 @@ public class TestClusterGenerator {
 					blackList.add(className);
 				}
 			} catch (ClassNotFoundException e) {
-				logger.error("Class not found",e);
+				logger.error("Problem for "+Properties.TARGET_CLASS+". Class not found",e);
 			}
 		}
 	}
@@ -271,7 +271,7 @@ public class TestClusterGenerator {
 				}
 
 			} catch (Throwable t) {
-				logger.error("Error loading inner class: " + icn.innerName + ", "
+				logger.error("Problem for "+Properties.TARGET_CLASS+". Error loading inner class: " + icn.innerName + ", "
 				        + icn.name + "," + icn.outerName + ": " + t);
 			}
 		}
@@ -361,7 +361,7 @@ public class TestClusterGenerator {
 					Class<?> superClazz = TestGenerationContext.getClassLoader().loadClass(superClass);
 					dependencies.add(superClazz);
 				} catch (ClassNotFoundException e) {
-					logger.error("",e);
+					logger.error("Problem for "+Properties.TARGET_CLASS+". Class not found: "+superClass,e);
 				}
 
 			}
@@ -808,7 +808,7 @@ public class TestClusterGenerator {
 			 * have a real solution now. As it is bound to happen, we try to minimize the logging (eg no
 			 * stack trace), although we still need to log it
 			 */
-			logger.error("Failed to add dependencies for class "+clazz.getName());
+			logger.error("Problem for "+Properties.TARGET_CLASS+". Failed to add dependencies for class "+clazz.getName());
 			return false;
 		}
 		return true;
@@ -842,7 +842,7 @@ public class TestClusterGenerator {
 							actualClasses.add(subClazz);
 
 						} catch (ClassNotFoundException e) {
-							logger.error("",e);
+							logger.error("Problem for "+Properties.TARGET_CLASS+". Class not found: "+subClass,e);
 						}
 					}
 				}

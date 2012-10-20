@@ -196,6 +196,7 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath: ");
 
 		Sandbox.goingToExecuteSUTCode();
+		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(Properties.CP.split(":")));
@@ -204,10 +205,11 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
 			                                                  : e.toString()));
-			logger.error("full stack:",e);
+			logger.error("Problem for "+Properties.TARGET_CLASS+". Full stack:",e);
 			return "";
 		} finally {
-			Sandbox.goingToEndExecutingSUTCode();
+			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+			Sandbox.doneWithExecutingSUTCode();
 		}
 
 		TestCaseExecutor.initExecutor();

@@ -30,7 +30,7 @@ public class SanboxFromJUnitTest {
 	
 	@After
 	public void doneWithTestCase(){
-		Sandbox.goingToEndExecutingSUTCode();	
+		Sandbox.doneWithExecutingSUTCode();	
 	}
 	
 	
