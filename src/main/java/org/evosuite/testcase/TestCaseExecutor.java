@@ -164,9 +164,7 @@ public class TestCaseExecutor implements ThreadFactory {
 				logger.warn("TestCaseExecutor instance is non-null, but its actual executor is null");
 				instance.executor = Executors.newSingleThreadExecutor(instance);
 			} else {
-				//if (instance.executor.isShutdown()) {
 				instance.executor = Executors.newSingleThreadExecutor(instance);
-				//}
 			}
 		}
 	}
@@ -285,8 +283,14 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			ExecutionResult result = handler.execute(callable, executor, timeout,
-			                                         Properties.CPU_TIMEOUT);
+			
+			ExecutionResult result;
+			Sandbox.goingToExecuteSUTCode();
+			try{ 
+				result = handler.execute(callable, executor, timeout, Properties.CPU_TIMEOUT);
+			} finally {
+				Sandbox.doneWithExecutingSUTCode();
+			}
 			
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
 			/*
@@ -394,15 +398,7 @@ public class TestCaseExecutor implements ThreadFactory {
 						logger.info("Throwable: " + t);
 					}
 					ExecutionTracer.disable();
-					executor = Executors.newSingleThreadExecutor(this);
-					
-					
-					/*
-					 * Last check before tear down the sandbox  
-					 */
-					if(!callable.isRunFinished()){
-						Sandbox.goingToEndExecutingSUTCode();
-					}
+					executor = Executors.newSingleThreadExecutor(this);					
 				}
 			} else {
 				logger.info("Run is finished - " + currentThread.isAlive() + ": "

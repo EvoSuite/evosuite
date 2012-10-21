@@ -185,15 +185,12 @@ public class CallTreeGenerator {
 
 		Set<CallTreeEntry> subclassCalls = new LinkedHashSet<CallTreeEntry>();
 		for (CallTreeEntry call : callTree) {
-			//logger.info("Current call: " + call);
 			String targetClass = call.getTargetClass();
 			String targetMethod = call.getTargetMethod();
 			if (targetMethod.startsWith("<init>"))
 				continue;
 
-			//logger.info("Getting subclasses of " + targetClass);
 			for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
-				//logger.info("Subclass: " + subclass);
 				if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
 					subclassCalls.add(new CallTreeEntry(call.getSourceClass(),
 					        call.getSourceMethod(), subclass, targetMethod));

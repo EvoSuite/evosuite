@@ -553,6 +553,8 @@ public class EvoSuite {
 			logUtils.closeLogServer();
 		}
 
+		logger.debug("Master process has finished to wait for client");
+		
 		return result;
 	}
 
