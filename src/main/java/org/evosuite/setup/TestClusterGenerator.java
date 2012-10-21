@@ -43,6 +43,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.BooleanTestabilityTransformation;
+import org.evosuite.runtime.FileSystem;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.testcase.GenericClass;
 import org.junit.Test;
@@ -288,7 +289,7 @@ public class TestClusterGenerator {
 			 * We need to initialize and temporarily enable the VFS here because Properties.getTargetClass() triggers loading of the target class what
 			 * could lead to execution of static code blocks that may contain statements altering the file system!
 			 */
-			Runtime.resetRuntime();
+			FileSystem.reset();
 			EvoSuiteIO.enableVFS();
 		}
 
