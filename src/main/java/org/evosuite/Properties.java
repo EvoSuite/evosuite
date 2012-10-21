@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -1643,18 +1644,13 @@ public class Properties {
 						.equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
-		/*
-		BranchPool.reset();
-		TestCluster.reset();
-		org.evosuite.testcase.TestFactory.getInstance().reset();
-		BytecodeInstructionPool.clearAll(); // TODO: This should be removed
-		*/
-
+		
+		TARGET_CLASS_INSTANCE = null;
+		
 		try {
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
 			                                      TestGenerationContext.getClassLoader());
 
-			return TARGET_CLASS_INSTANCE;
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info(
 					"* Could not find class under test: " + e);
@@ -1669,14 +1665,17 @@ public class Properties {
 				}
 				cause = cause.getCause();
 			}
+			/*
+			 * FIXME: Why this sleep???
+			 */
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
+				logger.debug(e1.getMessage());
 			}
+		} finally {
 		}
-		return null;
+		return TARGET_CLASS_INSTANCE;
 	}
 
 	/**

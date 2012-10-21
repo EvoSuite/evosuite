@@ -107,7 +107,14 @@ class MSecurityManager extends SecurityManager {
 	 *  Data structure containing all the (EvoSuite) threads that do not need to go through
 	 *  the same sandbox as the SUT threads
 	 */
-	private Set<Thread> privilegedThreads; 
+	private volatile Set<Thread> privilegedThreads; 
+	
+	
+	/**
+	 * Check whether a privileged thread should use the sandbox as for SUT code
+	 */
+	private volatile boolean ignorePrivileged;
+
 	
 	/**
 	 *  Create a custom security manager for the SUT.
@@ -119,6 +126,40 @@ class MSecurityManager extends SecurityManager {
 		defaultManager = System.getSecurityManager();
 		executingTestCase = false;
 		defaultProperties = (java.util.Properties) System.getProperties().clone();
+		ignorePrivileged = false;
+	}
+	
+	
+	/**
+	 * Use this method if you are going to execute SUT code from a privileged thread (ie if you don't want to do it on a new thread)
+	 * 
+	 * @throws SecurityException
+	 * @throws IllegalStateException
+	 */
+	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException, IllegalStateException {
+		if(!privilegedThreads.contains(Thread.currentThread())){
+			throw new SecurityException("Only a privileged thread can execute unsafe code");
+		}
+		if(ignorePrivileged){
+			throw new IllegalStateException("The thread is already executing unsafe code");
+		}
+		ignorePrivileged = true;
+	}
+	
+	/**
+	 * Call after goingToExecuteUnsafeCodeOnSameThread when done with unsafe code
+	 * 
+	 * @throws SecurityException
+	 * @throws IllegalStateException
+	 */
+	public void doneWithExecutingUnsafeCodeOnSameThread() throws SecurityException, IllegalStateException {
+		if(!privilegedThreads.contains(Thread.currentThread())){
+			throw new SecurityException("Only a privileged thread can return from unsafe code execution");
+		}
+		if(!ignorePrivileged){
+			throw new IllegalStateException("The thread was not executing unsafe code");
+		}
+		ignorePrivileged = false;
 	}
 	
 	/**
@@ -305,7 +346,7 @@ class MSecurityManager extends SecurityManager {
 	private boolean allowPermission(Permission perm) {
 		
 		//first check if calling thread belongs to EvoSuite rather than the SUT
-		if(privilegedThreads.contains(Thread.currentThread())){
+		if(!ignorePrivileged && privilegedThreads.contains(Thread.currentThread())){
 			if(defaultManager==null){
 				return true;  // no security manager, so allow it
 			} else {
@@ -643,6 +684,15 @@ class MSecurityManager extends SecurityManager {
 			return true;
 		}
 		
+		
+		/*
+		 * this seems needed when analyzing classpath, but not fully sure of its consequences 
+		 */
+		if(name.startsWith("putProviderProperty.")){ 
+			return true;
+		}
+		
+		
 		/*
 		 * createAccessControlContext
 		 * setPolicy
@@ -757,16 +807,21 @@ class MSecurityManager extends SecurityManager {
 		
 
 		/*
-		 * far too risky for the moment, as they might mess up with EvoSuite threads.
-		 * But they could be allowed in the future, if we manage to identify the SUT's threads,
-		 * and allow such permissions only on those. At any rate, because such  permissions are useful for
-		 * multi-thread code, it is not major priority now, because anyway we don't really support that kind
-		 * of software yet
+		 * we need it for reflection
+		 */
+		if(name.equals("reflectionFactoryAccess")){
+			return true;
+		}
+		
+		/*
+		 *  it might be considered risky, as it can stop the EvoSuite threads. Worst case,
+		 *  we ll get no data from client, which is better than just skipping testing the SUT 
+		 *  by throwing a security exception
 		 */
 		if(name.equals("modifyThread") ||
 				name.equals("stopThread") ||
 				name.equals("modifyThreadGroup")){
-			return false;
+			return true;
 		}
 		
 		/*
@@ -797,12 +852,17 @@ class MSecurityManager extends SecurityManager {
 			 * By default, we deny this permissions, but then we can allow the loading of some
 			 * specific libraries. 
 			 * Ultimately, the user should be able to choose if some libraries can be loaded or not
+			 * 
 			 */
 			
 			String library = name.substring("loadLibrary.".length(), name.length());
 			
 			if(library.equals("awt") ||
 					library.equals("fontmanager") ||
+					library.equals("net") ||
+					library.equals("lcms") ||
+					library.equals("j2pkcs11") ||
+					library.equals("nio") ||
 					library.equals("laf")){
 				return true;
 			}

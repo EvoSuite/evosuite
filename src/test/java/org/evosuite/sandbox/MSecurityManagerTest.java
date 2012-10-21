@@ -197,6 +197,67 @@ public class MSecurityManagerTest {
 		}
 	}
 
+	/*
+	 * Note: this comes from Guava library's Files.createTempDir().
+	 * Java 6 does not have such method, but should be in Java 7
+	 */
+	public static File createTempDir() {
+		final int TEMP_DIR_ATTEMPTS = 10000; 
+		File baseDir = new File(System.getProperty("java.io.tmpdir"));
+		String baseName = System.currentTimeMillis() + "-";
+
+		for (int counter = 0; counter < TEMP_DIR_ATTEMPTS; counter++) {
+			File tempDir = new File(baseDir, baseName + counter);
+			if (tempDir.mkdir()) {
+				return tempDir;
+			}
+		}
+		throw new IllegalStateException("Failed to create directory within "
+				+ TEMP_DIR_ATTEMPTS + " attempts (tried "
+				+ baseName + "0 to " + baseName + (TEMP_DIR_ATTEMPTS - 1) + ')');
+	}
+
+	
+	@Test
+	public void cannotCreateDeleteDirectory() throws InterruptedException, ExecutionException, TimeoutException{
+		
+		File dir = createTempDir();
+		dir.deleteOnExit();
+		Assert.assertTrue(dir.exists());
+		dir.delete();
+		Thread.sleep(100);
+		Assert.assertTrue( ! dir.exists());
+		
+		final File toDelete = createTempDir();
+		toDelete.deleteOnExit();
+		Assert.assertTrue(toDelete.exists());
+		
+		Future<?> future = executor.submit(new Runnable(){
+			@Override
+			public void run() {
+				try{
+					createTempDir();
+					Assert.fail("Failed to block creating a new dir");
+				} catch(SecurityException e){
+					//EvoSuite should block creating a new folder
+				}
+				
+				try{
+					toDelete.delete();
+					Assert.fail("Failed to block deleting an existing dir");
+				} catch(SecurityException e){
+					//EvoSuite should block deleting folder
+				}
+				
+			}			
+		});	
+		future.get(1000, TimeUnit.MILLISECONDS);
+		
+		Assert.assertTrue(toDelete.exists());
+		toDelete.delete();
+	}
+	
+	
 	@Test
 	public void testReadAndWriteOfProperties() throws InterruptedException, ExecutionException, TimeoutException{
 		final String userDir = System.getProperty("user.dir");
@@ -252,4 +313,6 @@ public class MSecurityManagerTest {
 		});	
 		future.get(1000, TimeUnit.MILLISECONDS);
 	}
+	
+	
 }

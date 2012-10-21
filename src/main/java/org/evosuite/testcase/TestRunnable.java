@@ -23,7 +23,6 @@ package org.evosuite.testcase;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -39,7 +38,6 @@ import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.EvoSuiteIO;
 import edu.uta.cse.dsc.VMError;
 
 /**
@@ -202,8 +200,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 	/** {@inheritDoc} */
 	@Override
 	public ExecutionResult call() {
-
-		Sandbox.goingToExecuteSUTCode();
 
 		exceptionsThrown.clear();
 
@@ -370,7 +366,6 @@ public class TestRunnable implements InterfaceTestRunnable {
 			if (!Properties.PRINT_TO_SYSTEM) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 			}
-			Sandbox.goingToEndExecutingSUTCode();
 			runFinished = true;
 		}
 
