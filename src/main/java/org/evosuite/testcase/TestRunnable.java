@@ -51,7 +51,8 @@ import edu.uta.cse.dsc.VMError;
  */
 public class TestRunnable implements InterfaceTestRunnable {
 
-	private static final Logger logger = LoggerFactory.getLogger(TestRunnable.class);
+	private static final Logger logger = LoggerFactory
+			.getLogger(TestRunnable.class);
 
 	private static ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
 
@@ -62,8 +63,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected boolean runFinished;
 
 	/**
-	 * Map a thrown exception ('value') with the the position ('key') in the
-	 * test sequence in which it was thrown from.
+	 * Map a thrown exception ('value') with the the position ('key') in the test sequence in which it was thrown from.
 	 */
 	protected Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -85,7 +85,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param observers
 	 *            a {@link java.util.Set} object.
 	 */
-	public TestRunnable(TestCase tc, Scope scope, Set<ExecutionObserver> observers) {
+	public TestRunnable(TestCase tc, Scope scope,
+			Set<ExecutionObserver> observers) {
 		test = tc;
 		this.scope = scope;
 		this.observers = observers;
@@ -94,15 +95,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	/**
 	 * <p>
-	 * After the test case is executed, if any SUT thread is still running, we
-	 * will wait for their termination. To identify which thread belong to SUT,
-	 * before test case execution we should check which are the threads that are
-	 * running.
+	 * After the test case is executed, if any SUT thread is still running, we will wait for their termination. To identify which thread belong to
+	 * SUT, before test case execution we should check which are the threads that are running.
 	 * </p>
 	 * 
 	 * <p>
-	 * WARNiNG: This method cannot be called from within this class, as a test
-	 * case has not right (yet) to access thread informations
+	 * WARNiNG: This method cannot be called from within this class, as a test case has not right (yet) to access thread informations
 	 * </p>
 	 */
 	public void storeCurrentThreads() {
@@ -134,7 +132,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 					long delta = System.currentTimeMillis() - startTime;
 					long waitingTime = Properties.TIMEOUT - delta;
 					if (waitingTime > 0) {
-						t.join(waitingTime);
+						t.join(waitingTime); // FIXME causes a long delay after the very first "progress bar entry" on console (depending on the
+												// TIMEOUT value) - joins thread(s) that shouldn't be joined it seems
 					}
 				} catch (InterruptedException e) {
 					// What can we do?
@@ -147,9 +146,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 	}
 
 	/**
-	 * Going to join SUT threads if active threads are more than numThreads. In
-	 * other words, we are trying to join till all SUT threads are done within
-	 * the defined time threshold
+	 * Going to join SUT threads if active threads are more than numThreads. In other words, we are trying to join till all SUT threads are done
+	 * within the defined time threshold
 	 * 
 	 * @param numThreads
 	 */
@@ -187,10 +185,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param s
 	 *            the executed statement
 	 * @param exceptionThrown
-	 *            the exception thrown when executing the statement, if any (can
-	 *            be null)
+	 *            the exception thrown when executing the statement, if any (can be null)
 	 */
-	protected void informObservers_after(StatementInterface s, Throwable exceptionThrown) {
+	protected void informObservers_after(StatementInterface s,
+			Throwable exceptionThrown) {
 		ExecutionTracer.disable();
 		try {
 			for (ExecutionObserver observer : observers) {
@@ -215,8 +213,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Runtime.resetRuntime();
 		ExecutionTracer.enable();
 
-		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
-		        byteStream));
+		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out
+				: new PrintStream(byteStream));
 		byteStream.reset();
 
 		if (!Properties.PRINT_TO_SYSTEM) {
@@ -229,9 +227,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 		try {
 			for (StatementInterface s : test) {
 
-				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
+				if (Thread.currentThread().isInterrupted()
+						|| Thread.interrupted()) {
 					logger.info("Thread interrupted at statement " + num + ": "
-					        + s.getCode());
+							+ s.getCode());
 					throw new TimeoutException();
 				}
 
@@ -248,69 +247,73 @@ public class TestRunnable implements InterfaceTestRunnable {
 				Throwable exceptionThrown = s.execute(scope, out);
 
 				if (exceptionThrown != null) {
-					//if internal error, than throw exception 
-					//-------------------------------------------------------
+					// if internal error, than throw exception
+					// -------------------------------------------------------
 					if (exceptionThrown instanceof VMError) {
 						throw (VMError) exceptionThrown;
 					}
 					if (exceptionThrown instanceof EvosuiteError) {
 						throw (EvosuiteError) exceptionThrown;
 					}
-					//-------------------------------------------------------
+					// -------------------------------------------------------
 
-					//FIXME: why???
+					// FIXME: why???
 					if (exceptionThrown instanceof TestCaseExecutor.TimeoutExceeded) {
 						logger.debug("Test timed out!");
 						exceptionsThrown.put(test.size(), exceptionThrown);
 						result.setThrownExceptions(exceptionsThrown);
-						result.reportNewThrownException(test.size(), exceptionThrown);
-						result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
+						result.reportNewThrownException(test.size(),
+								exceptionThrown);
+						result.setTrace(ExecutionTracer.getExecutionTracer()
+								.getTrace());
 						break;
 					}
 
-					//keep track if the exception and where it was thrown					
+					// keep track if the exception and where it was thrown
 					exceptionsThrown.put(num, exceptionThrown);
 
-					//check if it was an explicit exception
-					//--------------------------------------------------------
+					// check if it was an explicit exception
+					// --------------------------------------------------------
 					if (ExecutionTracer.getExecutionTracer().getLastException() == exceptionThrown) {
 						result.explicitExceptions.put(num, true);
 					} else {
 						result.explicitExceptions.put(num, false);
 					}
-					//--------------------------------------------------------
+					// --------------------------------------------------------
 
-					//some debugging info
-					//--------------------------------------------------------
+					// some debugging info
+					// --------------------------------------------------------
 
 					if (logger.isDebugEnabled()) {
-						logger.debug("Exception thrown in statement: " + s.getCode()
-						        + " - " + exceptionThrown.getClass().getName() + " - "
-						        + exceptionThrown.getMessage());
-						for (StackTraceElement elem : exceptionThrown.getStackTrace()) {
+						logger.debug("Exception thrown in statement: "
+								+ s.getCode() + " - "
+								+ exceptionThrown.getClass().getName() + " - "
+								+ exceptionThrown.getMessage());
+						for (StackTraceElement elem : exceptionThrown
+								.getStackTrace()) {
 							logger.debug(elem.toString());
 						}
 						if (exceptionThrown.getCause() != null) {
 							logger.debug("Cause: "
-							        + exceptionThrown.getCause().getClass().getName()
-							        + " - " + exceptionThrown.getCause().getMessage());
-							for (StackTraceElement elem : exceptionThrown.getCause().getStackTrace()) {
+									+ exceptionThrown.getCause().getClass()
+											.getName() + " - "
+									+ exceptionThrown.getCause().getMessage());
+							for (StackTraceElement elem : exceptionThrown
+									.getCause().getStackTrace()) {
 								logger.debug(elem.toString());
 							}
 						} else {
 							logger.debug("Cause is null");
 						}
 					}
-					//--------------------------------------------------------
+					// --------------------------------------------------------
 
 					/*
-					 * If an exception is thrown, we stop the execution of the
-					 * test case, because the internal state could be corrupted,
-					 * and not possible to verify the behavior of any following
-					 * function call. Predicate should be true by default
+					 * If an exception is thrown, we stop the execution of the test case, because the internal state could be corrupted, and not
+					 * possible to verify the behavior of any following function call. Predicate should be true by default
 					 */
 					if (Properties.BREAK_ON_EXCEPTION
-					        || exceptionThrown instanceof SystemExitException) {
+							|| exceptionThrown instanceof SystemExitException) {
 						break;
 					}
 				}
@@ -322,10 +325,10 @@ public class TestRunnable implements InterfaceTestRunnable {
 				informObservers_after(s, exceptionThrown);
 
 				num++;
-			} // end of loop			
+			} // end of loop
 		} catch (ThreadDeath e) {// can't stop these guys
 			logger.info("Found error in " + test.toCode(), e);
-			throw e; //this needs to be propagated
+			throw e; // this needs to be propagated
 		} catch (TimeoutException e) {
 			logger.info("Test timed out!");
 		} catch (TestCaseExecutor.TimeoutExceeded e) {
@@ -348,18 +351,22 @@ public class TestRunnable implements InterfaceTestRunnable {
 				e = e.getCause();
 			}
 			if (e instanceof AssertionError
-			        && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
-				logger.error("Assertion Error in evosuitecode, for statement \n"
-				        + test.getStatement(num).getCode() + " \n which is number: "
-				        + num + " testcase \n" + test.toCode(), e);
+					&& e.getStackTrace()[0].getClassName().contains(
+							"org.evosuite")) {
+				logger.error(
+						"Assertion Error in evosuitecode, for statement \n"
+								+ test.getStatement(num).getCode()
+								+ " \n which is number: " + num
+								+ " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
-			//FIXME: why this "clear()"?
-			//ExecutionTracer.getExecutionTracer().clear();
+			// FIXME: why this "clear()"?
+			// ExecutionTracer.getExecutionTracer().clear();
 
-			logger.error("Suppressed/ignored exception during test case execution: "
-			                     + e.getMessage(), e);
-		} finally {			
+			logger.error(
+					"Suppressed/ignored exception during test case execution: "
+							+ e.getMessage(), e);
+		} finally {
 			if (!Properties.PRINT_TO_SYSTEM) {
 				LoggingUtils.restorePreviousOutAndErrStream();
 			}
@@ -372,18 +379,14 @@ public class TestRunnable implements InterfaceTestRunnable {
 		result.setExecutedStatements(num);
 		result.setThrownExceptions(exceptionsThrown);
 
-		//FIXME: what is this for?
-		Runtime.handleRuntimeAccesses();
-		if (Properties.VIRTUAL_FS) {
-			test.setAccessedFiles(new ArrayList<String>(EvoSuiteIO.getFilesAccessedByCUT()));
-			EvoSuiteIO.disableVFS();
-		}
+		// FIXME: what is this for? - 17.10.12: JavaDoc added by Daniel
+		Runtime.handleRuntimeAccesses(test);
 
 		if (Sandbox.canUseFileContentGeneration()) {
 			try {
 				logger.debug("Enabling file handling");
 				Method m = Sandbox.class.getMethod("generateFileContent",
-				                                   EvosuiteFile.class, String.class);
+						EvosuiteFile.class, String.class);
 				// TODO: Re-insert!
 				// if (!TestCluster.getInstance().test_methods.contains(m))
 				// TestCluster.getInstance().test_methods.add(m);

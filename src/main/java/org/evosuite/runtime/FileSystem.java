@@ -23,18 +23,17 @@ package org.evosuite.runtime;
 import java.io.BufferedWriter;
 import java.io.EvoSuiteIO;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 
-import org.apache.commons.vfs2.FileSystemException;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * provides file system operations for an <code>EvoSuiteFile</code>
+ * Provides file system operations for an <code>EvoSuiteFile</code>. Uses the {@link EvoSuiteIO} library to simulate these file operations on virtual
+ * copies of the original files.
  * 
  * @author Daniel Muth
  */
@@ -48,21 +47,26 @@ public class FileSystem {
 	 */
 	public static void reset() {
 		if (Properties.VIRTUAL_FS) {
-			try {
-				logger.info("Resetting and enabling the VFS...");
+			if (!EvoSuiteIO.isInitialized()) {
+				EvoSuiteIO.initialize(Properties.PROJECT_PREFIX,
+						Properties.READ_ONLY_FROM_SANDBOX_FOLDER, new File(
+								Properties.SANDBOX_FOLDER, "read")
+								.getAbsoluteFile());
+				EvoSuiteIO.disableTolerantExceptionHandling();
+			}
+			
+			logger.info("Resetting and enabling the VFS...");
+			try {	
 				EvoSuiteIO.resetVFS();
-				EvoSuiteIO.enableVFS();
-			} catch (FileSystemException e) {
-				logger.warn("Error during initialization of virtual FS: " + e
-						+ ", " + e.getCause());//
-			} catch (Throwable t) {
-				logger.warn("Error: " + t);
+			} catch (IOException e) {
+				logger.warn("Error during initialization/reset of virtual FS: "
+						+ e + ", " + e.getCause());
 			}
 		}
 	}
 
 	/**
-	 * Test method that sets content of a file
+	 * Test method that sets content of a file. Also creates the file if it does not exist.
 	 * 
 	 * @param evoSuiteFile
 	 * @param content
@@ -73,18 +77,25 @@ public class FileSystem {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
-		// Put "content" into "file"
 		File file = new File(evoSuiteFile.getPath());
 
-		if (!file.exists())
-			throw new FileNotFoundException();
+		// the GA would have to insert FileSystem.createFile before this setFileContent statement if the file does not exist but it is terribly bad at
+		// it for some reason; therefore the following is outcommented what implies, that the FileWriter will try to create the file if it does not
+		// exist already
+		// if (!file.exists())
+		// throw new FileNotFoundException("File does not exist: \""
+		// + evoSuiteFile.getPath() + "\"");
 
+		// Put "content" into "file"
 		logger.info("Writing \"" + content + "\" to (virtual) file "
 				+ evoSuiteFile.getPath());
 		EvoSuiteIO.setOriginal(file, false);
 		Writer writer = new BufferedWriter(new FileWriter(file));
-		writer.write(content);
-		writer.close();
+		try {
+			writer.write(content);
+		} finally {
+			writer.close();
+		}
 	}
 
 	public static void setReadPermission(EvoSuiteFile evoSuiteFile,
@@ -157,7 +168,7 @@ public class FileSystem {
 		}
 	}
 
-	public static void createFile(EvoSuiteFile evoSuiteFile) throws IOException {
+	public static void createFile(EvoSuiteFile evoSuiteFile) throws IOException { // TODO unnecessary? -> setFileContent
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
 
@@ -199,7 +210,7 @@ public class FileSystem {
 	 * @return true if the directory was filled successfully
 	 * @throws IOException
 	 */
-	public static void createAndFillDirectory(EvoSuiteFile evoSuiteFile)
+	public static void createAndFillDirectory(EvoSuiteFile evoSuiteFile)  // TODO fill with actually accessed files/directories?
 			throws IOException {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
@@ -233,7 +244,7 @@ public class FileSystem {
 	 * @return <code>true</code>, if creation was successful, <code>false</code> otherwise
 	 * @throws IOException
 	 */
-	public static void createParent(EvoSuiteFile evoSuiteFile) // TODO unnecessary?
+	public static void createParent(EvoSuiteFile evoSuiteFile)
 			throws IOException {
 		if (evoSuiteFile == null)
 			throw new NullPointerException("evoSuiteFile must not be null!");
@@ -242,8 +253,10 @@ public class FileSystem {
 		EvoSuiteIO.setOriginal(file, false);
 
 		File parent = file.getCanonicalFile().getParentFile();
-		EvoSuiteIO.setOriginal(parent, false);
-		parent.mkdirs();
+		if (parent != null) {
+			EvoSuiteIO.setOriginal(parent, false);
+			parent.mkdirs();
+		}
 	}
 
 	public static void deepDeleteParent(EvoSuiteFile evoSuiteFile) // TODO unnecessary?
@@ -255,8 +268,10 @@ public class FileSystem {
 		EvoSuiteIO.setOriginal(file, false);
 
 		File parent = file.getCanonicalFile().getParentFile();
-		EvoSuiteIO.setOriginal(parent, false);
-		EvoSuiteIO.deepDelete(parent);
+		if (parent != null) {
+			EvoSuiteIO.setOriginal(parent, false);
+			EvoSuiteIO.deepDelete(parent);
+		}
 	}
 
 }

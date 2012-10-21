@@ -158,13 +158,14 @@ public class EvoSuite {
 					.println(resource.replace(".class", "").replace('/', '.'));
 		}
 	}
-	
-	// TODO this method may need the same fixing as generateTestsTarget, by replacing '/' with File.separatorChar in call to generateTests.
+
+	// TODO this method may need the same fixing as generateTestsTarget, by replacing '/' with File.separatorChar in call to generateTests. - Done by
+	// Daniel (Windows-user :-x )
 	private static void generateTestsPrefix(Properties.Strategy strategy,
 			String prefix, List<String> args, String cp) {
 
-		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/")
-				+ "[^\\$]*.class");
+		Pattern pattern = Pattern.compile(prefix.replace('.',
+				File.separatorChar) + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
 			resources.addAll(ResourceList.getResources(pattern,
@@ -181,7 +182,8 @@ public class EvoSuite {
 			try {
 				if (isInterface(resource)) {
 					System.out.println("* Skipping interface: "
-							+ resource.replace(".class", "").replace(File.separatorChar, '.'));
+							+ resource.replace(".class", "").replace(
+									File.separatorChar, '.'));
 					continue;
 				}
 			} catch (IOException e) {
@@ -189,7 +191,8 @@ public class EvoSuite {
 				continue;
 			}
 			System.out.println("* Current class: "
-					+ resource.replace(".class", "").replace(File.separatorChar, '.'));
+					+ resource.replace(".class", "").replace(
+							File.separatorChar, '.'));
 			generateTests(Strategy.EVOSUITE, resource.replace(".class", "")
 					.replace(File.separatorChar, '.'), args, cp);
 		}
@@ -218,7 +221,7 @@ public class EvoSuite {
 					.println(resource.replace(".class", "").replace('/', '.'));
 		}
 	}
-	
+
 	private static void generateTestsTarget(Properties.Strategy strategy,
 			String target, List<String> args, String cp) {
 
@@ -236,7 +239,8 @@ public class EvoSuite {
 			try {
 				if (isInterface(resource)) {
 					System.out.println("* Skipping interface: "
-					        + resource.replace(".class", "").replace(File.separatorChar, '.'));
+							+ resource.replace(".class", "").replace(
+									File.separatorChar, '.'));
 					continue;
 				}
 			} catch (IOException e) {
@@ -244,9 +248,10 @@ public class EvoSuite {
 				continue;
 			}
 			System.out.println("* Current class: "
-			        + resource.replace(".class", "").replace(File.separatorChar, '.'));
-			generateTests(Strategy.EVOSUITE,
-			              resource.replace(".class", "").replace(File.separatorChar, '.'), args, cp);
+					+ resource.replace(".class", "").replace(
+							File.separatorChar, '.'));
+			generateTests(Strategy.EVOSUITE, resource.replace(".class", "")
+					.replace(File.separatorChar, '.'), args, cp);
 		}
 	}
 
@@ -365,10 +370,13 @@ public class EvoSuite {
 
 		if (Properties.DEBUG) {
 			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
+			cmdLine.add("-Ddebug=true");
 			cmdLine.add("-Xdebug");
 			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
 					+ Properties.PORT);
-			System.out.println("Waiting for remote debugger to connect..."); // TODO find the right place for this
+			LoggingUtils.getEvoLogger().info(
+					"* Waiting for remote debugger to connect on port "
+							+ Properties.PORT + "..."); // TODO find the right place for this
 		}
 
 		for (String arg : args) {
@@ -684,7 +692,7 @@ public class EvoSuite {
 			// if not found try to locate all needed jars in classpath
 			logger.info("\"evosuite-io.jar\" could not be found by EvoSuite.class.getClassLoader().getResource. "
 					+ "EvoSuite is likely not executing out of an executable jar file at the moment. "
-					+ "Now trying to locate all needed jars for VFS functionality in classpath instead...");	
+					+ "Now trying to locate all needed jars for VFS functionality in classpath instead...");
 			URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader())
 					.getURLs();
 			URL evosuiteIOjar = null;
@@ -710,14 +718,17 @@ public class EvoSuite {
 					continue;
 				}
 			}
-			
-			if (evosuiteIOjar == null || !(new File(evosuiteIOjar.getPath())).canRead()) {
+
+			if (evosuiteIOjar == null
+					|| !(new File(evosuiteIOjar.getPath())).canRead()) {
 				throw new IllegalStateException(
 						"The evosuite-io JAR cannot be read!");
-			} else if (commonsVFSjar == null || !(new File(commonsVFSjar.getPath())).canRead()) {
+			} else if (commonsVFSjar == null
+					|| !(new File(commonsVFSjar.getPath())).canRead()) {
 				throw new IllegalStateException(
 						"The commons-vfs2 JAR cannot be read!");
-			} else if (commonsLoggingjar == null || !(new File(commonsLoggingjar.getPath())).canRead()) {
+			} else if (commonsLoggingjar == null
+					|| !(new File(commonsLoggingjar.getPath())).canRead()) {
 				throw new IllegalStateException(
 						"The commons-logging JAR cannot be read!");
 			} else {
@@ -762,20 +773,43 @@ public class EvoSuite {
 		Option measureCoverage = new Option("measureCoverage",
 				"measure coverage on existing test cases");
 		Option listClasses = new Option("listClasses",
-		        "list the testable classes found in the specified classpath/prefix");
-		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("Create evosuite-files with property file").create("setup");
-		Option generateRandom = new Option("generateRandom", "use random test generation");
+				"list the testable classes found in the specified classpath/prefix");
+		Option setup = OptionBuilder.withArgName("target").hasArg()
+				.withDescription("Create evosuite-files with property file")
+				.create("setup");
+		Option generateRandom = new Option("generateRandom",
+				"use random test generation");
 		Option generateRegressionSuite = new Option("regressionSuite",
-		        "generate a regression test suite");
-		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
-		Option targetPrefix = OptionBuilder.withArgName("prefix").hasArg().withDescription("target prefix for test generation").create("prefix");
-		Option targetCP = OptionBuilder.withArgName("target").hasArg().withDescription("target classpath for test generation").create("target");
-		Option classPath = OptionBuilder.withArgName("cp").hasArg().withDescription("classpath of the project under test").withValueSeparator(':').create("cp");
-		Option junitPrefix = OptionBuilder.withArgName("junit").hasArg().withDescription("junit prefix").create("junit");
-		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
-		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
-		Option mem = OptionBuilder.withArgName("mem").hasArg().withDescription("heap size for client process (in megabytes)").create("mem");
-		Option jar = OptionBuilder.withArgName("jar").hasArg().withDescription("location of EvoSuite jar file to use in client process").create("jar");
+				"generate a regression test suite");
+		Option targetClass = OptionBuilder.withArgName("class").hasArg()
+				.withDescription("target class for test generation")
+				.create("class");
+		Option targetPrefix = OptionBuilder.withArgName("prefix").hasArg()
+				.withDescription("target prefix for test generation")
+				.create("prefix");
+		Option targetCP = OptionBuilder.withArgName("target").hasArg()
+				.withDescription("target classpath for test generation")
+				.create("target");
+		Option classPath = OptionBuilder.withArgName("cp").hasArg()
+				.withDescription("classpath of the project under test")
+				.withValueSeparator(':').create("cp");
+		Option junitPrefix = OptionBuilder.withArgName("junit").hasArg()
+				.withDescription("junit prefix").create("junit");
+		Option criterion = OptionBuilder.withArgName("criterion").hasArg()
+				.withDescription("target criterion for test generation")
+				.create("criterion");
+		Option seed = OptionBuilder.withArgName("seed").hasArg()
+				.withDescription("seed for random number generator")
+				.create("seed");
+		Option mem = OptionBuilder.withArgName("mem").hasArg()
+				.withDescription("heap size for client process (in megabytes)")
+				.create("mem");
+		Option jar = OptionBuilder
+				.withArgName("jar")
+				.hasArg()
+				.withDescription(
+						"location of EvoSuite jar file to use in client process")
+				.create("jar");
 
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
 		Option mocks = new Option("mocks", "Use mock classes");
@@ -867,7 +901,8 @@ public class EvoSuite {
 				evosuiteJar = line.getOptionValue("jar");
 			if (!line.hasOption("regressionSuite")) {
 				if (line.hasOption("criterion"))
-					javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
+					javaOpts.add("-Dcriterion="
+							+ line.getOptionValue("criterion"));
 			} else {
 				javaOpts.add("-Dcriterion=regression");
 			}
