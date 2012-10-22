@@ -761,7 +761,8 @@ class MSecurityManager extends SecurityManager {
 			String library = name.substring("loadLibrary.".length(), name.length());
 
 			if (library.equals("awt") || library.equals("fontmanager") || library.equals("net") || library.equals("lcms")
-					|| library.equals("j2pkcs11") || library.equals("nio") || library.equals("laf")) {
+					|| library.equals("j2pkcs11") || library.equals("nio") || library.equals("laf") || library.endsWith("libmawt.so") ||
+					library.equals("jpeg")) {
 				return true;
 			}
 
