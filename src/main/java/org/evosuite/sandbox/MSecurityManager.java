@@ -1,14 +1,23 @@
 /**
- * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite contributors This file is part of EvoSuite. EvoSuite is free software: you can
- * redistribute it and/or modify it under the terms of the GNU Public License as published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version. EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even
- * the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU Public License for more details. You should have received
- * a copy of the GNU Public License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
+ * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
+ * contributors
+ * 
+ * This file is part of EvoSuite.
+ * 
+ * EvoSuite is free software: you can redistribute it and/or modify it under the
+ * terms of the GNU Public License as published by the Free Software Foundation,
+ * either version 3 of the License, or (at your option) any later version.
+ * 
+ * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
+ * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
+ * A PARTICULAR PURPOSE. See the GNU Public License for more details.
+ * 
+ * You should have received a copy of the GNU Public License along with
+ * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
 package org.evosuite.sandbox;
 
 import java.awt.AWTPermission;
-import java.io.File;
 import java.io.FilePermission;
 import java.io.SerializablePermission;
 import java.lang.management.ManagementPermission;
@@ -16,18 +25,15 @@ import java.lang.reflect.ReflectPermission;
 import java.net.NetPermission;
 import java.net.SocketPermission;
 import java.security.AccessControlContext;
+import java.security.AllPermission;
 import java.security.Permission;
 import java.security.SecurityPermission;
 import java.security.UnresolvedPermission;
-import java.util.LinkedList;
-import java.util.List;
+import java.sql.SQLPermission;
 import java.util.PropertyPermission;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.logging.LoggingPermission;
-import java.security.AllPermission;
-import java.sql.SQLPermission;
 
 import javax.management.MBeanPermission;
 import javax.management.MBeanServerPermission;
@@ -42,11 +48,8 @@ import javax.sound.sampled.AudioPermission;
 import javax.xml.ws.WebServicePermission;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.TestRunnable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.core.util.ThreadSafePropertyEditor;
 
 /**
  * <p>
