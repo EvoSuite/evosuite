@@ -134,6 +134,15 @@ public class TestRunnable implements InterfaceTestRunnable {
 		 * try to interrupt the SUT threads
 		 */
 		for (Thread t : threadMap.keySet()) {
+			/*
+			 * the TestCaseExecutor threads are executing the SUT, so they are not privileged.
+			 * But we don't want to stop/join them, as they just execute Runnable objects, and
+			 * stay in a pool in an execution service.  
+			 */
+			if(t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)){
+				continue;
+			}
+			
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
 				t.interrupt();
 			}
@@ -144,9 +153,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 		 * 
 		 */
 		for (Thread t : threadMap.keySet()) {
+			if(t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)){
+				continue;
+			}
+			
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
 
-				logger.debug("Thread " + t + ". This looks like the new thread");
+				logger.info("Thread " + t + ". This looks like the new thread");
 				try {
 					/*
 					 * In total the test case should not run for more than Properties.TIMEOUT ms
@@ -161,7 +174,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 					break;
 				}
 				if (t.isAlive()) {
-					logger.debug("Thread is still alive: " + t.getName());
+					logger.info("Thread is still alive: " + t.getName());
 				}
 			}
 		}

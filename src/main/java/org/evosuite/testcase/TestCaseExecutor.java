@@ -60,6 +60,11 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public static final String TEST_EXECUTION_THREAD_GROUP = "Test Execution";
 
+	/**
+	 * Name used to define the threads spawn by this factory
+	 */
+	public static final String TEST_EXECUTION_THREAD = "TEST_EXECUTION_THREAD";
+	
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
@@ -85,6 +90,11 @@ public class TestCaseExecutor implements ThreadFactory {
 	/** Constant <code>testsExecuted=0</code> */
 	public static int testsExecuted = 0;
 
+	/**
+	 * Used when we spawn a new thread to give a unique name
+	 */
+	public volatile int threadCounter;
+	
 	/**
 	 * <p>
 	 * Getter for the field <code>instance</code>.
@@ -458,6 +468,8 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 		threadGroup = new ThreadGroup(TEST_EXECUTION_THREAD_GROUP);
 		currentThread = new Thread(threadGroup, r);
+		currentThread.setName(TEST_EXECUTION_THREAD+"_"+threadCounter);
+		threadCounter++;
 		currentThread.setContextClassLoader(TestGenerationContext.getClassLoader());
 		ExecutionTracer.setThread(currentThread);
 		return currentThread;
