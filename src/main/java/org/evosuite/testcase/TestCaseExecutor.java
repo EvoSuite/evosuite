@@ -296,7 +296,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			/*
 			 * TODO: this will need proper care when we ll start to handle threads in the search.
 			 */
-			callable.joinClientThreads();
+			callable.killAndJoinClientThreads();
 
 			/*
 			 * TODO: we might want to initialize the ExecutionResult here, once we waited for all SUT

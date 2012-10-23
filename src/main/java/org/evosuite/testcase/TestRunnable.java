@@ -88,11 +88,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	/**
 	 * <p>
-	 * After the test case is executed, if any SUT thread is still running, we will wait for their termination. To identify which thread belong to
+	 * After the test case is executed, if any SUT thread is still running, we will wait for their termination. 
+	 * To identify which thread belong to
 	 * SUT, before test case execution we should check which are the threads that are running.
 	 * </p>
 	 * <p>
-	 * WARNiNG: This method cannot be called from within this class, as a test case has not right (yet) to access thread informations
+	 * WARNING: The sandbox might prevent accessing thread informations, so best to call this method from outside this class
 	 * </p>
 	 */
 	public void storeCurrentThreads() {
@@ -110,9 +111,38 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 	}
 
-	public void joinClientThreads() {
+	/**
+	 * Try to kill (and then join) the SUT threads.
+	 * Killing the SUT threads is important, because some spawn threads could just wait on objects/locks,
+	 * and so make the test case executions always last TIMEOUT ms.
+	 */
+	public void killAndJoinClientThreads() throws IllegalStateException{
+		
+		if(currentRunningThreads==null){
+			throw new IllegalStateException("The current threads are not set. You need to call storeCurrentThreads() first");
+		}
+		
+		/*
+		 * First we set the kill switch in the instrumented bytecode, this
+		 * to prevent issues with code that do not handle interrupt 
+		 */
+		ExecutionTracer.setKillSwitch(true);
+		
 		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
 
+		/*
+		 * try to interrupt the SUT threads
+		 */
+		for (Thread t : threadMap.keySet()) {
+			if (t.isAlive() && !currentRunningThreads.contains(t)) {
+				t.interrupt();
+			}
+		}
+		
+		/*
+		 * now, join up to a total of TIMEOUT ms. 
+		 * 
+		 */
 		for (Thread t : threadMap.keySet()) {
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
 
@@ -124,18 +154,22 @@ public class TestRunnable implements InterfaceTestRunnable {
 					long delta = System.currentTimeMillis() - startTime;
 					long waitingTime = Properties.TIMEOUT - delta;
 					if (waitingTime > 0) {
-						t.join(waitingTime); // FIXME causes a long delay (depending on the TIMEOUT value) after the very first "progress bar entry"
-												// on console (that is after the very first execution of a TestRunnable) - joins thread(s) that
-												// shouldn't be joined it seems?
+						t.join(waitingTime); 
 					}
 				} catch (InterruptedException e) {
 					// What can we do?
+					break;
 				}
 				if (t.isAlive()) {
 					logger.debug("Thread is still alive: " + t.getName());
 				}
 			}
 		}
+		
+		/*
+		 * important. this is used to later check if current threads are set
+		 */
+		currentRunningThreads = null;
 	}
 
 	/**
@@ -148,7 +182,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 	private void checkClientThreads(int numThreads) {
 		if (Thread.activeCount() > numThreads) {
 			try {
-				joinClientThreads();
+				killAndJoinClientThreads();
 			} catch (Throwable t) {
 				logger.debug("Error while tyring to join thread: {}", t);
 			}
