@@ -167,6 +167,12 @@ public class TestRunnable implements InterfaceTestRunnable {
 		}
 		
 		/*
+		 * we need it, otherwise issue during search in which accessing enum in SUT would call toString,
+		 * and so throw a TimeoutExceeded exception 
+		 */
+		ExecutionTracer.setKillSwitch(false);
+		
+		/*
 		 * important. this is used to later check if current threads are set
 		 */
 		currentRunningThreads = null;
