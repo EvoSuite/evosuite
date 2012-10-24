@@ -164,6 +164,7 @@ public class TestClusterGenerator {
 		 * to load it again (which would result in extra unnecessary logging)
 		 */
 		Set<String> blackList = new HashSet<String>();
+		initBlackListWithPrimitives(blackList);
 		
 		TestCluster.setCastClasses(classNames);
 		addCastClasses(classNames,blackList);
@@ -171,6 +172,17 @@ public class TestClusterGenerator {
 		resolveDependencies(blackList);
 	}
 
+	private static void initBlackListWithPrimitives(Set<String> blackList) throws NullPointerException{
+		blackList.add("int");
+		blackList.add("short");
+		blackList.add("float");
+		blackList.add("double");
+		blackList.add("byte");
+		blackList.add("char");
+		blackList.add("boolean");
+		blackList.add("long");
+	}
+	
 	private static void addCastClasses(Set<String> castClasses, Set<String> blackList) {
 		for (String className : castClasses) {
 			if(blackList.contains(className)){
@@ -184,6 +196,7 @@ public class TestClusterGenerator {
 				}
 			} catch (ClassNotFoundException e) {
 				logger.error("Problem for "+Properties.TARGET_CLASS+". Class not found",e);
+				blackList.add(className);
 			}
 		}
 	}
