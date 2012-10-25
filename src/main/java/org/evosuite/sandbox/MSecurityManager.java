@@ -270,8 +270,6 @@ class MSecurityManager extends SecurityManager {
 	@Override
 	public void checkPermission(Permission perm) throws SecurityException {
 
-		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
-
 		// check access
 		if (!allowPermission(perm)) {
 			if (executingTestCase) {
@@ -345,6 +343,15 @@ class MSecurityManager extends SecurityManager {
 			return false;
 		}
 
+		/*
+		 * If we only check threads at the end of test case execution, we would miss
+		 * all the threads that are started and ended within the execution.
+		 * Checking every time the SM is called is a cheap way to get this method called
+		 * by the SUT during test case execution without the need to do any bytecode
+		 * instrumentation. 
+		 */
+		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+		
 		if (perm instanceof AllPermission) {
 			return checkAllPermission((AllPermission) perm);
 		}
