@@ -546,6 +546,10 @@ public class Properties {
 	@Parameter(key = "minimize", group = "Output", description = "Minimize test suite after generation")
 	public static boolean MINIMIZE = true;
 
+	/** Constant <code>COVERAGE=true</code> */
+	@Parameter(key = "coverage", group = "Output", description = "Minimize test suite after generation")
+	public static boolean COVERAGE = true;
+
 	/** Constant <code>MINIMIZE_OLD=false</code> */
 	@Parameter(key = "minimize_old", group = "Output", description = "Minimize test suite using old algorithm")
 	public static boolean MINIMIZE_OLD = false;
