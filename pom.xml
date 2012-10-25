@@ -316,12 +316,6 @@
 
 		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
 			</repository> -->
-
-		<repository> <!-- temporarily used for evosuite-io jars that are not yet uploaded to Titania -->
-			<id>lib</id>
-			<url>file://${project.basedir}/lib</url>
-		</repository>
-
 	</repositories>
 
 	<build>
