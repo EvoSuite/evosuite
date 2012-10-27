@@ -683,7 +683,13 @@ public class Properties {
 	/** Constant <code>CALCULATE_CLUSTER=false</code> */
 	@Parameter(key = "calculate_cluster", description = "Automatically calculate test cluster during setup")
 	public static boolean CALCULATE_CLUSTER = false;
-
+	
+	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
+	public static int CLUSTER_RECURSION = 10;
+	
+	@Parameter(key = "inheritance_file", description = "Cached version of inheritance tree")
+	public static String INHERITANCE_FILE = "";
+	
 	/** Constant <code>BRANCH_EVAL=false</code> */
 	@Parameter(key = "branch_eval", description = "Jeremy's branch evaluation")
 	public static boolean BRANCH_EVAL = false;

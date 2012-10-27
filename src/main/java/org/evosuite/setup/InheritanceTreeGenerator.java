@@ -26,15 +26,20 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
+import java.util.zip.ZipInputStream;
+import java.util.zip.ZipOutputStream;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -61,6 +66,16 @@ public class InheritanceTreeGenerator {
 	 * @return
 	 */
 	public static InheritanceTree analyze(List<String> classPath) {
+		if(!Properties.INHERITANCE_FILE.isEmpty()) {
+			try {
+				InheritanceTree tree = readInheritanceTree(Properties.INHERITANCE_FILE);
+				LoggingUtils.getEvoLogger().info("* Inheritance tree loaded from {}", Properties.INHERITANCE_FILE);
+				return tree;
+				
+			} catch (IOException e) {
+				LoggingUtils.getEvoLogger().warn("* Error loading inheritance tree: {}", e);
+			}
+		}
 		InheritanceTree inheritanceTree = readJDKData();
 
 		for (String classPathEntry : classPath) {
@@ -216,6 +231,21 @@ public class InheritanceTreeGenerator {
 			return (InheritanceTree) xstream.fromXML(inheritance);
 		else
 			return new InheritanceTree();
+	}
+	
+	public static InheritanceTree readInheritanceTree(String fileName) throws IOException {
+		XStream xstream = new XStream();
+		// InputStream inheritance = new FileInputStream(new File(fileName));
+		GZIPInputStream inheritance = new GZIPInputStream(new FileInputStream(new File(fileName)));
+		return (InheritanceTree) xstream.fromXML(inheritance);		
+	}
+
+	public static void writeInheritanceTree(InheritanceTree tree, File file) throws IOException {
+		XStream xstream = new XStream();
+//		OutputStream output = new FileOutputStream(file);	
+		GZIPOutputStream output = new GZIPOutputStream(new FileOutputStream(file));
+		xstream.toXML(tree, output);
+		output.close();
 	}
 
 	public static Collection<String> getResources() {

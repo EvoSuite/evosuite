@@ -20,13 +20,16 @@
  */
 package org.evosuite.setup;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.DirectedMultigraph;
+import org.jgrapht.graph.EdgeReversedGraph;
+import org.jgrapht.traverse.BreadthFirstIterator;
 
 /**
  * @author Gordon Fraser
@@ -34,92 +37,59 @@ import java.util.Set;
  */
 public class InheritanceTree {
 
-	private final Map<String, InheritanceTreeEntry> classInformation = new HashMap<String, InheritanceTreeEntry>();
-
 	private final Map<String, Set<String>> subclassCache = new HashMap<String, Set<String>>();
+
+	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(DefaultEdge.class);
 
 	public boolean isMethodDefined(String className, String methodName) {
 		return false;
 	}
 
 	public void addSuperclass(String className, String superName, int access) {
-		String classNameWithDots = className.replaceAll("/", ".");
-		classInformation.put(classNameWithDots, new InheritanceTreeEntry(
-		        classNameWithDots, superName.replaceAll("/", "."), access));
+		String classNameWithDots = className.replace('/', '.');
+		String superNameWithDots = superName.replace('/', '.');
 
+		if(inheritanceGraph == null)
+			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(DefaultEdge.class);
+		
+		inheritanceGraph.addVertex(classNameWithDots);
+		inheritanceGraph.addVertex(superNameWithDots);
+		inheritanceGraph.addEdge(superNameWithDots, classNameWithDots);
 	}
 
 	public void addInterface(String className, String interfaceName) {
-		String classNameWithDots = className.replaceAll("/", ".");
-		assert (classInformation.containsKey(classNameWithDots));
+		String classNameWithDots = className.replace('/', '.');
+		String interfaceNameWithDots = interfaceName.replace('/', '.');
 
-		classInformation.get(classNameWithDots).addInterface(interfaceName.replaceAll("/",
-		                                                                              "."));
+		inheritanceGraph.addVertex(classNameWithDots);
+		inheritanceGraph.addVertex(interfaceNameWithDots);
+		inheritanceGraph.addEdge(interfaceNameWithDots, classNameWithDots);
 	}
 
 	public Set<String> getSubclasses(String className) {
-		if (subclassCache.containsKey(className))
-			return subclassCache.get(className);
+		String classNameWithDots = className.replace('/', '.');
+		
+		if (subclassCache.containsKey(classNameWithDots))
+			return subclassCache.get(classNameWithDots);
 
-		Set<String> subClasses = new HashSet<String>();
-		Set<String> workingSet = getDirectSubclasses(className.replace("/", "."));
-		while (!workingSet.isEmpty()) {
-			Iterator<String> it = workingSet.iterator();
-			String next = it.next();
-			subClasses.add(next);
-			it.remove();
-			Set<String> directSubClasses = getDirectSubclasses(next);
-			for (String subClass : directSubClasses) {
-				if (!subClasses.contains(subClass)) {
-					subClasses.add(subClass);
-					workingSet.add(subClass);
-				}
-			}
+		Set<String> result = new HashSet<String>();
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(inheritanceGraph, classNameWithDots);
+		while(bfi.hasNext()) {
+			result.add(bfi.next());
 		}
-		subclassCache.put(className, subClasses);
-		return subClasses;
+		subclassCache.put(classNameWithDots, result);
+		return result;
 	}
 
-	private Set<String> getDirectSubclasses(String className) {
-		Set<String> subClasses = new HashSet<String>();
-		for (InheritanceTreeEntry entry : classInformation.values()) {
-			if (entry.getSuperClass().equals(className)) {
-				subClasses.add(entry.getClassName());
-			} else if (entry.getInterfaces().contains(className)) {
-				subClasses.add(entry.getClassName());
-			}
-		}
 
-		return subClasses;
-	}
+	public Collection<String> getSuperclasses(String className) {
+		String classNameWithDots = className.replace('/', '.');
 
-	public List<String> getSuperclasses(String className) {
-		List<String> superClasses = new ArrayList<String>();
-		String currentClass = className;
-		while (hasEntry(currentClass)) {
-			InheritanceTreeEntry entry = getEntry(currentClass);
-			superClasses.add(entry.getSuperClass());
-			currentClass = entry.getSuperClass();
-		}
-		return superClasses;
-	}
-
-	private boolean hasEntry(String className) {
-		return classInformation.containsKey(className);
-	}
-
-	private InheritanceTreeEntry getEntry(String className) {
-		return classInformation.get(className);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	@Override
-	public String toString() {
-		String result = "";
-		for (InheritanceTreeEntry entry : classInformation.values()) {
-			result += entry.toString() + "\n";
+		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(inheritanceGraph);
+		Set<String> result = new HashSet<String>();
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(reverseGraph, classNameWithDots);
+		while(bfi.hasNext()) {
+			result.add(bfi.next());
 		}
 		return result;
 	}
