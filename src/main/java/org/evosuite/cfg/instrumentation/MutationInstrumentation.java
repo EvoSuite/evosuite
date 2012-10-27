@@ -21,6 +21,7 @@
 package org.evosuite.cfg.instrumentation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -144,7 +145,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			if (!constructorInvoked) {
 				if (in.getOpcode() == Opcodes.INVOKESPECIAL) {
 					MethodInsnNode cn = (MethodInsnNode) in;
-					List<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
+					Collection<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
 					superClasses.add(className);
 					String classNameWithDots = cn.owner.replace('/', '.');
 					if (superClasses.contains(classNameWithDots)) {

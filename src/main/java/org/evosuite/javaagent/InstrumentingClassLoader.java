@@ -105,7 +105,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		        "testing.generation.evosuite",
 		        "com.yourkit",
 		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-		        "apple.", "com.apple.", "org.junit", "junit.framework",
+		        "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
 		        "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc",
 		        "corina.cross.Single" // I really don't know what is wrong with this class, but we need to exclude it 
 		};

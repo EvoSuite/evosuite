@@ -190,7 +190,7 @@ public class TestClusterGenerator {
 			}
 			try {
 				Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
-				boolean added = addDependencyClass(clazz); 
+				boolean added = addDependencyClass(clazz, 1); 
 				if(!added){
 					blackList.add(className);
 				}
@@ -225,16 +225,16 @@ public class TestClusterGenerator {
 		while (!dependencies.isEmpty()) {
 			logger.debug("Dependencies left: " + dependencies.size());
 
-			Iterator<Class<?>> iterator = dependencies.iterator();
-			Class<?> dependency = iterator.next();
+			Iterator<Pair> iterator = dependencies.iterator();
+			Pair dependency = iterator.next();
 			iterator.remove();
-			String className = dependency.getName();
+			String className = dependency.getDependencyClass().getName();
 			
 			if(blackList.contains(className)){
 				continue;
 			}
 			
-			boolean added = addDependencyClass(dependency);
+			boolean added = addDependencyClass(dependency.getDependencyClass(), dependency.getRecursion());
 			if(!added){
 				blackList.add(className);
 			}
@@ -325,7 +325,7 @@ public class TestClusterGenerator {
 				if (canUse(constructor)) {
 					cluster.addTestCall(constructor);
 					cluster.addGenerator(new GenericClass(clazz), constructor);
-					addDependencies(constructor);
+					addDependencies(constructor, 1);
 					logger.debug("Keeping track of "
 					        + constructor.getDeclaringClass().getName()
 					        + "."
@@ -358,7 +358,7 @@ public class TestClusterGenerator {
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
 
 					cluster.addTestCall(method);
-					addDependencies(method);
+					addDependencies(method, 1);
 					GenericClass retClass = new GenericClass(
 					        method.getGenericReturnType());
 
@@ -374,7 +374,7 @@ public class TestClusterGenerator {
 				logger.info("Checking target field " + field);
 
 				if (canUse(field)) {
-					addDependencies(field);
+					addDependencies(field, 1);
 					cluster.addGenerator(new GenericClass(field.getGenericType()), field);
 					if (!Modifier.isFinal(field.getModifiers())) {
 						cluster.addTestCall(field);
@@ -388,7 +388,7 @@ public class TestClusterGenerator {
 			for (String superClass : inheritanceTree.getSuperclasses(Properties.TARGET_CLASS)) {
 				try {
 					Class<?> superClazz = TestGenerationContext.getClassLoader().loadClass(superClass);
-					dependencies.add(superClazz);
+					dependencies.add(new Pair(0, superClazz));
 				} catch (ClassNotFoundException e) {
 					logger.error("Problem for "+Properties.TARGET_CLASS+". Class not found: "+superClass,e);
 				}
@@ -692,40 +692,79 @@ public class TestClusterGenerator {
 
 	private static Set<Class<?>> analyzedClasses = new HashSet<Class<?>>();
 
-	private static Set<Class<?>> dependencies = new HashSet<Class<?>>();
+	private static class Pair {private int recursion; private Class<?> dependencyClass;
+	
+	public Pair(int recursion, Class<?> dependencyClass) {
+		this.recursion = recursion;
+		this.dependencyClass = dependencyClass;
+	}
+
+	public int getRecursion() {
+		return recursion;
+	}
+
+	public void setRecursion(int recursion) {
+		this.recursion = recursion;
+	}
+
+	public Class<?> getDependencyClass() {
+		return dependencyClass;
+	}
+
+	public void setDependencyClass(Class<?> clazz) {
+		this.dependencyClass = clazz;
+	}};
+	
+	private static Set<Pair> dependencies = new HashSet<Pair>();
 
 	private static InheritanceTree inheritanceTree = null;
 
-	private static void addDependencies(Constructor<?> constructor) {
-		logger.debug("Analyzing dependencies of " + constructor);
+	private static void addDependencies(Constructor<?> constructor, int recursionLevel) {
+		if(recursionLevel > Properties.CLUSTER_RECURSION) {
+			logger.debug("Maximum recursion level reached, not adding dependencies of {}",  constructor);
+			return;
+		}
+
+		logger.debug("Analyzing dependencies of " + constructor);		
+		
 		for (Class<?> parameterClass : constructor.getParameterTypes()) {
 			logger.debug("Adding dependency " + parameterClass.getName());
-			addDependency(parameterClass);
+			addDependency(parameterClass, recursionLevel);
 		}
 	}
 
-	private static void addDependencies(Method method) {
+	private static void addDependencies(Method method, int recursionLevel) {
+		if(recursionLevel > Properties.CLUSTER_RECURSION) {
+			logger.debug("Maximum recursion level reached, not adding dependencies of {}", method);
+			return;
+		}
+
 		logger.debug("Analyzing dependencies of " + method);
 		for (Class<?> parameterClass : method.getParameterTypes()) {
 			if (parameterClass.isPrimitive() || parameterClass.equals(String.class))
 				continue;
 
 			logger.debug("Adding dependency " + parameterClass.getName());
-			addDependency(parameterClass);
+			addDependency(parameterClass, recursionLevel);
 		}
 	}
 
-	private static void addDependencies(Field field) {
+	private static void addDependencies(Field field, int recursionLevel) {
+		if(recursionLevel > Properties.CLUSTER_RECURSION) {
+			logger.debug("Maximum recursion level reached, not adding dependencies of {}", field);
+			return;
+		}
+
 		if (field.getType().isPrimitive() || field.getType().equals(String.class))
 			return;
 
 		logger.debug("Analyzing dependencies of " + field);
 
 		logger.debug("Adding dependency " + field.getName());
-		addDependency(field.getType());
+		addDependency(field.getType(), recursionLevel);
 	}
 
-	private static void addDependency(Class<?> clazz) {
+	private static void addDependency(Class<?> clazz, int recursionLevel) {
 		if (analyzedClasses.contains(clazz) || dependencies.contains(clazz))
 			return;
 
@@ -736,7 +775,7 @@ public class TestClusterGenerator {
 			return;
 
 		if (clazz.isArray()) {
-			addDependency(clazz.getComponentType());
+			addDependency(clazz.getComponentType(), recursionLevel);
 			return;
 		}
 
@@ -744,11 +783,16 @@ public class TestClusterGenerator {
 		Set<Class<?>> actualClasses = getConcreteClasses(clazz);
 		logger.debug("Concrete classes for " + clazz.getName() + ": " + actualClasses);
 		for (Class<?> targetClass : actualClasses) {
-			dependencies.add(targetClass);
+			dependencies.add(new Pair(recursionLevel, targetClass));
 		}
 	}
 
-	private static boolean addDependencyClass(Class<?> clazz) {
+	private static boolean addDependencyClass(Class<?> clazz, int recursionLevel) {
+		if(recursionLevel > Properties.CLUSTER_RECURSION) {
+			logger.debug("Maximum recursion level reached, not adding dependency {}", clazz.getName());
+			return false;
+		}
+
 		try{
 			TestCluster cluster = TestCluster.getInstance();
 			logger.debug("Adding dependency class " + clazz.getName());
@@ -777,7 +821,7 @@ public class TestClusterGenerator {
 
 				if (canUse(constructor)) {
 					cluster.addGenerator(new GenericClass(clazz), constructor);
-					addDependencies(constructor);
+					addDependencies(constructor, recursionLevel + 1);
 					logger.debug("Keeping track of "
 							+ constructor.getDeclaringClass().getName() + "."
 							+ constructor.getName()
@@ -805,7 +849,7 @@ public class TestClusterGenerator {
 				if (canUse(method)) {
 					logger.debug("Adding method " + clazz.getName() + "." + method.getName()
 							+ org.objectweb.asm.Type.getMethodDescriptor(method));
-					addDependencies(method);
+					addDependencies(method, recursionLevel + 1);
 					cluster.addModifier(clazz, method);
 					GenericClass retClass = new GenericClass(method.getGenericReturnType());
 
@@ -824,11 +868,11 @@ public class TestClusterGenerator {
 					cluster.addGenerator(new GenericClass(field.getGenericType()), field);
 					if (!Modifier.isFinal(field.getModifiers())) {
 						cluster.addModifier(clazz, field);
-						addDependencies(field);
+						addDependencies(field, recursionLevel + 1);
 					}
 				}
 			}
-			logger.info("Finished analyzing " + clazz.getName());
+			logger.info("Finished analyzing " + clazz.getName() + " at recursion level "+recursionLevel);
 			cluster.getAnalyzedClasses().add(clazz);
 			analyzedClasses.add(clazz);
 		} catch(Throwable t){

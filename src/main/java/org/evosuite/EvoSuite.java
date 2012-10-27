@@ -21,12 +21,14 @@
 package org.evosuite;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -43,14 +45,18 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.setup.InheritanceTree;
+import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceList;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -116,6 +122,24 @@ public class EvoSuite {
 				return;
 			}
 		}
+		
+		try {
+			String fileName = generateInheritanceTree(Properties.CP);
+			FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR + separator + "inheritance.xml.gz"));
+			Properties.getInstance().setValue("inheritance_file", Properties.OUTPUT_DIR + separator + "inheritance.xml.gz");
+		} catch(IOException e) {
+			System.err.println("* Error while creating inheritance tree: "+e);
+		} catch (IllegalArgumentException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchParameterException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		System.out.println("* Creating new evosuite.properties in "
 				+ base_dir_path + separator + Properties.OUTPUT_DIR);
 		Properties.getInstance().writeConfiguration(
@@ -158,6 +182,16 @@ public class EvoSuite {
 					.println(resource.replace(".class", "").replace('/', '.'));
 		}
 	}
+	
+	private static String generateInheritanceTree(String cp) throws IOException {
+		System.out.println("* Analyzing classpath");
+		List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
+		InheritanceTree tree = InheritanceTreeGenerator.analyze(cpList);
+		File outputFile = File.createTempFile("ES_inheritancetree",".xml.gz");
+		outputFile.deleteOnExit();
+		InheritanceTreeGenerator.writeInheritanceTree(tree, outputFile);
+		return outputFile.getAbsolutePath();
+	}
 
 	// TODO this method may need the same fixing as generateTestsTarget, by replacing '/' with File.separatorChar in call to generateTests. - Done by
 	// Daniel (Windows-user :-x )
@@ -175,6 +209,15 @@ public class EvoSuite {
 			} catch (IOException e) {
 				// Ignore?
 			}
+		}
+		try {
+			if(Properties.INHERITANCE_FILE.isEmpty()) {
+				String inheritanceFile = generateInheritanceTree(cp);
+				args.add("-Dinheritance_file="+inheritanceFile);
+			}
+		} catch(IOException e) {
+			System.out.println("* Error while traversing classpath: "+e);
+			return;
 		}
 		System.out.println("* Found " + resources.size()
 				+ " matching classes for prefix " + prefix);
@@ -235,6 +278,16 @@ public class EvoSuite {
 		} catch (IOException e) {
 			// Ignore?
 		}
+		try {
+			if(Properties.INHERITANCE_FILE.isEmpty()) {
+				String inheritanceFile = generateInheritanceTree(cp);
+				args.add("-Dinheritance_file="+inheritanceFile);
+			}
+		} catch(IOException e) {
+			System.out.println("* Error while traversing classpath: "+e);
+			return;
+		}
+
 		for (String resource : resources) {
 			try {
 				if (isInterface(resource)) {
