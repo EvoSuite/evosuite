@@ -337,9 +337,7 @@
 					<!-- set alternative assemble directory -->
 					<assembleDirectory>${project.build.directory}</assembleDirectory>
 					<!-- Extra JVM arguments that will be included in the bin scripts -->
-					<extraJvmArguments>-Xms128m</extraJvmArguments>
-					<extraJvmArguments>-Xmx256m</extraJvmArguments>
-					<extraJvmArguments>-Dlogback.configurationFile=logback.xml</extraJvmArguments>
+					<extraJvmArguments>-Xms128m  -Xmx1024m  -Dlogback.configurationFile=logback.xml</extraJvmArguments>
 					<platforms>
 						<platform>windows</platform>
 						<platform>unix</platform>
