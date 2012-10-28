@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -187,9 +188,15 @@ public class CallTreeGenerator {
 		for (CallTreeEntry call : callTree) {
 			String targetClass = call.getTargetClass();
 			String targetMethod = call.getTargetMethod();
+			
+			// Ignore constructors
 			if (targetMethod.startsWith("<init>"))
 				continue;
-
+			
+			// Ignore calls to Array (e.g. clone())
+			if(targetClass.startsWith("["))
+				continue;
+			
 			for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
 				if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
 					subclassCalls.add(new CallTreeEntry(call.getSourceClass(),
