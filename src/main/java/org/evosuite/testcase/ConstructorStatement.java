@@ -242,14 +242,12 @@ public class ConstructorStatement extends AbstractStatement {
 
 		} catch (InvocationTargetException e) {
 			VM.setIgnoreCallBack(true);
-			//System.setOut(old_out);
-			//System.setErr(old_err);
 			exceptionThrown = e.getCause();
-			logger.debug("Exception thrown in constructor: " + e.getCause());
-
-			//} finally {
-			//	System.setOut(old_out);
-			//	System.setErr(old_err);
+			if(logger.isDebugEnabled()){
+				try{ logger.debug("Exception thrown in constructor: " + e.getCause());}
+				//this can happen if SUT throws exception on toString
+				catch(Exception ex){logger.debug("Exception thrown in constructor and SUT gives issue when calling e.getCause()",ex);}
+			}
 		}
 		return exceptionThrown;
 	}
