@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -38,8 +37,6 @@ import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
-import java.util.zip.ZipInputStream;
-import java.util.zip.ZipOutputStream;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -194,7 +191,7 @@ public class InheritanceTreeGenerator {
 
 	private static List<String> classExceptions = Arrays.asList(new String[] {
 	        "java/lang/Class", "java/lang/Object", "java/lang/String",
-	        "java/lang/Comparable", "java/io/Serializable" });
+	        "java/lang/Comparable", "java/io/Serializable", "com/apple", "apple/", "sun/", "com/sun", "com/oracle", "sun/awt" });
 
 	/**
 	 * During runtime, we do not want to consider standard classes to safe some
@@ -204,13 +201,15 @@ public class InheritanceTreeGenerator {
 		Collection<String> list = getAllResources();
 		InheritanceTree inheritanceTree = new InheritanceTree();
 
+		EXCEPTION:
 		for (String name : list) {
 			// We do not consider sun.* and apple.* and com.* 
-			if (!classExceptions.contains(name) && (name.startsWith("java/") // || name.startsWith("sun") || name.startsWith("com/sun") 
-			        || name.startsWith("javax/"))) { // || name.startsWith("java/awt")) {
-				InputStream stream = TestGenerationContext.getClassLoader().getResourceAsStream(name);
-				analyzeClassStream(inheritanceTree, stream);
+			for(String exception : classExceptions) {
+				if(name.startsWith(exception))
+					continue EXCEPTION;
 			}
+			InputStream stream = TestGenerationContext.getClassLoader().getResourceAsStream(name);
+			analyzeClassStream(inheritanceTree, stream);
 		}
 
 		// Write data to XML file
@@ -221,6 +220,7 @@ public class InheritanceTreeGenerator {
 			xstream.toXML(inheritanceTree, stream);
 		} catch (FileNotFoundException e) {
 			logger.error("",e);
+			System.out.println("EEEEE "+e);
 		}
 	}
 

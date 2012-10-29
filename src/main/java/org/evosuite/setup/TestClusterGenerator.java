@@ -45,6 +45,7 @@ import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.BooleanTestabilityTransformation;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.testcase.GenericClass;
+import org.evosuite.utils.LoggingUtils;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -66,6 +67,25 @@ public class TestClusterGenerator {
 
 	private static Logger logger = LoggerFactory.getLogger(TestClusterGenerator.class);
 
+	private static List<String> classExceptions = Arrays.asList(new String[] {
+	        "com.apple", "apple.", "sun.", "com.sun.", "com.oracle.", "sun.awt." });
+
+	
+	/**
+	 * Check if we can use the given class
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @return a boolean.
+	 */
+	public static boolean checkIfCanUse(String className) {
+		for (String s : classExceptions) {
+			if (className.startsWith(s)) {
+				return false;
+			}
+		}
+		return true;
+	}
 	public static void resetCluster() throws RuntimeException, ClassNotFoundException {
 		BytecodeInstructionPool.clearAll();
 		BranchPool.clear();
@@ -778,6 +798,9 @@ public class TestClusterGenerator {
 			addDependency(clazz.getComponentType(), recursionLevel);
 			return;
 		}
+		
+		if(!checkIfCanUse(clazz.getName()))
+			return;
 
 		logger.debug("Getting concrete classes for " + clazz.getName());
 		Set<Class<?>> actualClasses = getConcreteClasses(clazz);
@@ -881,7 +904,8 @@ public class TestClusterGenerator {
 			 * have a real solution now. As it is bound to happen, we try to minimize the logging (eg no
 			 * stack trace), although we still need to log it
 			 */
-			logger.error("Problem for "+Properties.TARGET_CLASS+". Failed to add dependencies for class "+clazz.getName());
+			logger.error("Problem for "+Properties.TARGET_CLASS+". Failed to add dependencies for class "+clazz.getName()+": "+t+"\n"+Arrays.asList(t.getStackTrace()));
+			
 			return false;
 		}
 		return true;
