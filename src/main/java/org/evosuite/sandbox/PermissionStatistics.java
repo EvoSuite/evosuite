@@ -48,7 +48,14 @@ public class PermissionStatistics {
 	private static PermissionStatistics instance = new PermissionStatistics();
 
 	private final Map<String, Map<String, Integer>> allowedCount;
+	
+	/**
+	 * Keep track of the denied exceptions. 
+	 * Key -> name of the permission class
+	 * Value -> a map from type (name+action) to counter of times it was thrown
+	 */
 	private final Map<String, Map<String, Integer>> deniedCount;
+	
 	private final Map<Class<?>, Integer> deniedClassCount;
 	private final Set<String> recentAccess;
 	private int maxThreads;
@@ -107,7 +114,7 @@ public class PermissionStatistics {
 	public void permissionAllowed(Permission permission) {
 		rememberRecentReadFilePermissions(permission);
 		String name = permission.getClass().getName();
-		String type = permission.getName();
+		String type = getPermissionType(permission);
 		if (!allowedCount.containsKey(name)) {
 			allowedCount.put(name, new HashMap<String, Integer>());
 		}
@@ -130,6 +137,19 @@ public class PermissionStatistics {
 		deniedClassCount.put(permissionClass, getCurrentCount(permissionClass) + 1);
 	}
 
+	private String getPermissionType(Permission permission){
+		String name = permission.getName();
+		String actions = permission.getActions();
+		String type = "";
+		if(actions!=null && !actions.isEmpty()){
+			type += actions+" ";
+		}
+		if(name!=null && !name.isEmpty()){
+			type += name;
+		}
+		return type;
+	}
+	
 	/**
 	 * <p>permissionDenied</p>
 	 *
@@ -138,18 +158,19 @@ public class PermissionStatistics {
 	public void permissionDenied(Permission permission) {
 		incCurrentCount(permission.getClass());
 		rememberRecentReadFilePermissions(permission);
-		String name = permission.getClass().getName();
-		String type = permission.getName();
-		if (!deniedCount.containsKey(name)) {
-			deniedCount.put(name, new HashMap<String, Integer>());
+		
+		String permissionClassName = permission.getClass().getName();		
+		String type = getPermissionType(permission);
+		
+		if (!deniedCount.containsKey(permissionClassName)) {
+			deniedCount.put(permissionClassName, new HashMap<String, Integer>());
 		}
 
-		if (deniedCount.get(name).containsKey(type)) {
-			deniedCount.get(name).put(type, deniedCount.get(name).get(type) + 1);
+		if (deniedCount.get(permissionClassName).containsKey(type)) {
+			deniedCount.get(permissionClassName).put(type, deniedCount.get(permissionClassName).get(type) + 1);
 		} else {
-			deniedCount.get(name).put(type, 1);
+			deniedCount.get(permissionClassName).put(type, 1);
 		}
-
 	}
 
 	/**
@@ -160,7 +181,7 @@ public class PermissionStatistics {
 	 */
 	public int getPermissionDeniedCount(Permission permission) {
 		String name = permission.getClass().getName();
-		String type = permission.getName();
+		String type = getPermissionType(permission);
 		if (deniedCount.containsKey(name)) {
 			if (deniedCount.get(name).containsKey(type)) {
 				return deniedCount.get(name).get(type);
@@ -356,12 +377,27 @@ public class PermissionStatistics {
 			LoggingUtils.getEvoLogger().info("* Permissions denied during test execution: ");
 			for (String name : deniedCount.keySet()) {
 				LoggingUtils.getEvoLogger().info("  - " + name + ": ");
-				if (deniedCount.get(name).size() <= 3) {
-					for (String type : deniedCount.get(name).keySet()) {
-						LoggingUtils.getEvoLogger().info("         " + type + ": "
+				
+				/*
+				 * We don't want to print all the exceptions if they are too many
+				 */				
+				final int MAX_TO_PRINT = 4;
+				int counter = 0;
+				int total = deniedCount.get(name).keySet().size();
+				boolean printAll = (total <= MAX_TO_PRINT); 
+				for (String type : deniedCount.get(name).keySet()) {
+					LoggingUtils.getEvoLogger().info("         " + type + ": "
 						        + deniedCount.get(name).get(type));
-					}
+					counter++;
+					if(!printAll && counter>=(MAX_TO_PRINT-1)){
+						break;
+					} 
 				}
+				int remaining = total - counter;
+				if(remaining > 1){
+					LoggingUtils.getEvoLogger().info("         and other "+
+							remaining +" cases of action/name for this exception class");
+				} 
 			}
 		}
 	}
