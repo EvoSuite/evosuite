@@ -89,7 +89,7 @@ public class EvoSuite {
 	private static String base_dir_path = System.getProperty("user.dir");
 
 	private static void setup(String target, String[] args,
-			List<String> javaArgs) {
+			List<String> javaArgs, boolean doInheritance) {
 
 		Properties.CP = "";
 
@@ -123,21 +123,23 @@ public class EvoSuite {
 			}
 		}
 		
-		try {
-			String fileName = generateInheritanceTree(Properties.CP);
-			FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR + separator + "inheritance.xml.gz"));
-			Properties.getInstance().setValue("inheritance_file", Properties.OUTPUT_DIR + separator + "inheritance.xml.gz");
-		} catch(IOException e) {
-			System.err.println("* Error while creating inheritance tree: "+e);
-		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchParameterException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		if(doInheritance) {
+			try {
+				String fileName = generateInheritanceTree(Properties.CP);
+				FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR + separator + "inheritance.xml.gz"));
+				Properties.getInstance().setValue("inheritance_file", Properties.OUTPUT_DIR + separator + "inheritance.xml.gz");
+			} catch(IOException e) {
+				System.err.println("* Error while creating inheritance tree: "+e);
+			} catch (IllegalArgumentException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (NoSuchParameterException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IllegalAccessException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
 		
 		System.out.println("* Creating new evosuite.properties in "
@@ -872,6 +874,7 @@ public class EvoSuite {
 		Option assertions = new Option("assertions", "Add assertions");
 		Option signature = new Option("signature",
 				"Allow manual tweaking of method signatures");
+		Option inheritance = new Option("inheritanceTree", "Cache inheritance tree during setup");
 		Option heapDump = new Option("heapdump",
 				"Create heap dump on client VM out of memory error");
 
@@ -900,6 +903,7 @@ public class EvoSuite {
 		options.addOption(jar);
 		options.addOption(assertions);
 		options.addOption(signature);
+		options.addOption(inheritance);
 		options.addOption(base_dir);
 		options.addOption(property);
 		options.addOption(classPath);
@@ -1020,7 +1024,8 @@ public class EvoSuite {
 				formatter.printHelp("EvoSuite", options);
 			} else if (line.hasOption("setup")) {
 				System.out.println("* EvoSuite " + version);
-				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts);
+				boolean inheritanceTree = line.hasOption("inheritanceTree");
+				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts, inheritanceTree);
 			} else if (line.hasOption("measureCoverage")) {
 				System.out.println("* EvoSuite " + version);
 				if (line.hasOption("class"))
