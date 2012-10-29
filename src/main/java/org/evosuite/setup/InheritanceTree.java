@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.utils.LoggingUtils;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.EdgeReversedGraph;
@@ -49,8 +50,9 @@ public class InheritanceTree {
 		String classNameWithDots = className.replace('/', '.');
 		String superNameWithDots = superName.replace('/', '.');
 
-		if(inheritanceGraph == null)
+		if(inheritanceGraph == null) {
 			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(DefaultEdge.class);
+		}
 		
 		inheritanceGraph.addVertex(classNameWithDots);
 		inheritanceGraph.addVertex(superNameWithDots);
@@ -72,6 +74,9 @@ public class InheritanceTree {
 		if (subclassCache.containsKey(classNameWithDots))
 			return subclassCache.get(classNameWithDots);
 
+		if(!inheritanceGraph.containsVertex(classNameWithDots)) {
+			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "+classNameWithDots);
+		}
 		Set<String> result = new HashSet<String>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(inheritanceGraph, classNameWithDots);
 		while(bfi.hasNext()) {

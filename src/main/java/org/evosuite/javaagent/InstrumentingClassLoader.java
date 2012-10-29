@@ -17,7 +17,6 @@
  */
 package org.evosuite.javaagent;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -27,7 +26,6 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.slf4j.Logger;
