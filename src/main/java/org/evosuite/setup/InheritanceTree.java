@@ -98,5 +98,9 @@ public class InheritanceTree {
 		}
 		return result;
 	}
+	
+	public boolean hasClass(String className) {
+		return inheritanceGraph.containsVertex(className);
+	}
 
 }

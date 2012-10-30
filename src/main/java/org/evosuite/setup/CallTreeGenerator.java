@@ -197,6 +197,11 @@ public class CallTreeGenerator {
 			if(targetClass.startsWith("["))
 				continue;
 			
+			if(!inheritanceTree.hasClass(targetClass)) {
+				LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath", targetClass);
+				continue;
+			}
+			
 			for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
 				if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
 					subclassCalls.add(new CallTreeEntry(call.getSourceClass(),
