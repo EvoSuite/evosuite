@@ -463,9 +463,23 @@ class MSecurityManager extends SecurityManager {
 		 * deny it
 		 */
 
-		logger.debug("Unrecognized permission type: " + perm.getClass().getCanonicalName());
-
-		return false;
+		String canonicalName = perm.getClass().getCanonicalName();
+		/*
+		 * API permissions seems all in java.* and javax.*
+		 * Although this check is not 100% bullet proof, it is a risk
+		 * we have to take, ie allowing SUT permissions
+		 */
+		if(canonicalName.startsWith("java")){
+			logger.debug("Unrecognized permission type: " + canonicalName);
+			return false;
+		} else {
+			/*
+			 * We need to allow SUT permissions, as anyway they cannot make any harm that
+			 * we are not already handling
+			 */
+			logger.debug("Allowing permission defined by the SUT: " + canonicalName);
+			return true;
+		}
 	}
 
 	/*
