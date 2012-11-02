@@ -141,13 +141,6 @@ public class ResourceList {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		}
 		
-		if(logger.isDebugEnabled()){
-			logger.debug("DEBUG-KONRAD classPathElement "+element+" PATTERN: "+pattern );
-			for (String string : retval) {
-				logger.debug("DEBUG-KONRAD retval: "+string);
-			}
-		}
-
 		return retval;
 	}
 
