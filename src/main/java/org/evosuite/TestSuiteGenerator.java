@@ -413,7 +413,8 @@ public class TestSuiteGenerator {
 			        && Properties.CRITERION != Criterion.WEAKMUTATION
 			        && Properties.CRITERION != Criterion.STRONGMUTATION) {
 				Properties.CRITERION = Criterion.MUTATION;
-
+				TestGenerationContext.getInstance().resetContext();
+				/*
 				try {
 					TestClusterGenerator.resetCluster();
 				} catch (Exception e) {
@@ -421,6 +422,7 @@ public class TestSuiteGenerator {
 					                                         + e.getMessage());
 					return;
 				}
+				*/
 
 				// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
 				for (TestCase test : tests) {
@@ -429,7 +431,7 @@ public class TestSuiteGenerator {
 				}
 			}
 
-			long startTime = System.currentTimeMillis();
+			long startTime = System.currentTimeMillis() / 1000;
 
 			if (MutationPool.getMutantCounter() == 0) {
 				Properties.CRITERION = oldCriterion;
@@ -442,9 +444,11 @@ public class TestSuiteGenerator {
 				Set<Integer> tkilled = new HashSet<Integer>();
 				int numTest = 0;
 				for (TestCase test : tests) {
-					long currentTime = System.currentTimeMillis();
-					if (currentTime - startTime > Properties.ASSERTION_TIMEOUT)
+					long currentTime = System.currentTimeMillis() / 1000;
+					if (currentTime - startTime > Properties.ASSERTION_TIMEOUT) {
+						logger.info("Reached maximum time to generate assertions!");
 						break;
+					}
 					//Set<Integer> killed = new HashSet<Integer>();
 					masserter.addAssertions(test, tkilled);
 					progressMonitor.updateStatus((100 * numTest++) / tests.size());
