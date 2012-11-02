@@ -81,6 +81,8 @@ public class TestGenerationContext {
 		// TODO: These should not exist
 		BranchCoverageSuiteFitness.mostCoveredGoals = 0;
 
+		TestCaseExecutor.initExecutor();
+		
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 	}

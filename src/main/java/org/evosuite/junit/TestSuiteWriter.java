@@ -286,9 +286,13 @@ public class TestSuiteWriter implements Opcodes {
 	protected String getImports(List<ExecutionResult> results) {
 		StringBuilder builder = new StringBuilder();
 		Set<Class<?>> imports = new HashSet<Class<?>>();
+		boolean wasSecurityException = false;
 
 		for (ExecutionResult result : results) {
 			result.test.accept(visitor);
+			if (!wasSecurityException) {
+				wasSecurityException = result.hasSecurityException();
+			}
 
 			// Iterate over declared exceptions to make sure they are known to the visitor
 			Set<Class<?>> exceptions = result.test.getDeclaredExceptions();
@@ -331,12 +335,14 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 
-		//Add import info for EvoSuite classes used in the generated test suite
-		imports_sorted.add(Sandbox.class.getCanonicalName());
-		imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
-		imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
-		imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
-		imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
+		if(wasSecurityException) {
+			//Add import info for EvoSuite classes used in the generated test suite
+			imports_sorted.add(Sandbox.class.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
+			imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
+		}
 		imports_sorted.add(org.junit.Before.class.getCanonicalName());
 		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 		imports_sorted.add(org.junit.After.class.getCanonicalName());

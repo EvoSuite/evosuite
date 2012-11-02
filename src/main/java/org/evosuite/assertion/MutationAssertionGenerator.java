@@ -393,15 +393,16 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		int s2 = killed.size() - s1;
 		assert (killedBefore == killedAfter) : "Mutants killed before / after / should be: "
 		        + killedBefore + "/" + killedAfter + "/" + s2 + ": " + test.toCode();
-		logger.debug("Mutants killed before / after / should be: " + killedBefore + "/"
+		logger.info("Mutants killed before / after / should be: " + killedBefore + "/"
 		        + killedAfter + "/" + s2);
 
+		logger.info("Assertions in this test: "+test.getAssertions().size());
 		//TestCase clone = test.clone();
 
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
-			logger.debug("Last statement has no assertions: " + test.toCode());
+			logger.info("Last statement has no assertions: " + test.toCode());
 
 			if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
 				logger.debug("Last statement: "
