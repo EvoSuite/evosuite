@@ -201,6 +201,10 @@ public class Properties {
 	@Parameter(key = "num_tests", group = "Test Creation", description = "Number of tests in initial test suites")
 	public static int NUM_TESTS = 2;
 
+	@Parameter(key = "num_random_tests", group = "Test Creation", description = "Number of random tests")
+	public static int NUM_RANDOM_TESTS = 20;
+
+
 	/** Constant <code>MIN_INITIAL_TESTS=1</code> */
 	@Parameter(key = "min_initial_tests", group = "Test Creation", description = "Minimum number of tests in initial test suites")
 	public static int MIN_INITIAL_TESTS = 1;
@@ -973,7 +977,7 @@ public class Properties {
 	public static Criterion CRITERION = Criterion.BRANCH;
 
 	public enum Strategy {
-		ONEBRANCH, EVOSUITE, RANDOM, REGRESSION
+		ONEBRANCH, EVOSUITE, RANDOM, RANDOM_FIXED, REGRESSION
 	}
 
 	/** Constant <code>STRATEGY</code> */
