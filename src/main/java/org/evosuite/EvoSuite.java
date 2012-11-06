@@ -450,6 +450,9 @@ public class EvoSuite {
 		case RANDOM:
 			cmdLine.add("-Dstrategy=Random");
 			break;
+		case RANDOM_FIXED:
+			cmdLine.add("-Dstrategy=Random_Fixed");
+			break;
 		case REGRESSION:
 			cmdLine.add("-Dstrategy=Regression");
 			break;
@@ -836,6 +839,9 @@ public class EvoSuite {
 				.create("setup");
 		Option generateRandom = new Option("generateRandom",
 				"use random test generation");
+		Option generateFixedRandom = OptionBuilder.withArgName("generateNumRandom").hasArg()
+				.withDescription("generate fixed number of random tests")
+				.create("generateNumRandom");
 		Option generateRegressionSuite = new Option("regressionSuite",
 				"generate a regression test suite");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg()
@@ -889,6 +895,7 @@ public class EvoSuite {
 		options.addOption(generateSuite);
 		options.addOption(generateTests);
 		options.addOption(generateRandom);
+		options.addOption(generateFixedRandom);
 		options.addOption(generateRegressionSuite);
 		options.addOption(measureCoverage);
 		options.addOption(listClasses);
@@ -1061,6 +1068,9 @@ public class EvoSuite {
 					strategy = Strategy.RANDOM;
 				} else if (line.hasOption("regressionSuite")) {
 					strategy = Strategy.REGRESSION;
+				} else if(line.hasOption("generateNumRandom")) {
+					strategy = Strategy.RANDOM_FIXED;
+					javaOpts.add("-Dnum_random_tests="+line.getOptionValue("generateNumRandom"));
 				}
 				if (strategy == null) {
 					System.err

@@ -303,6 +303,8 @@ public class TestSuiteGenerator {
 			tests = generateWholeSuite();
 		else if (Properties.STRATEGY == Strategy.RANDOM)
 			tests = generateRandomTests();
+		else if (Properties.STRATEGY == Strategy.RANDOM_FIXED)
+			tests = generateFixedRandomTests();
 		else
 			tests = generateIndividualTests();
 
@@ -928,6 +930,45 @@ public class TestSuiteGenerator {
 		return false;
 	}
 
+
+	/**
+	 * Generate one random test at a time and check if adding it improves
+	 * fitness (1+1)RT
+	 * 
+	 * @return a {@link java.util.List} object.
+	 */
+	public List<TestCase> generateFixedRandomTests() {
+		LoggingUtils.getEvoLogger().info("* Generating fixed number of random tests");
+		RandomLengthTestFactory factory = new RandomLengthTestFactory();
+		TestSuiteChromosome suite = new TestSuiteChromosome();
+		// The GA is not actually used, except to provide the same statistics as during search
+		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
+		// GeneticAlgorithm suiteGA = setup();
+		stopping_condition = getStoppingCondition();
+		statistics.searchStarted(suiteGA);
+		
+		for(int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
+			logger.info("Current test: "+i+"/"+Properties.NUM_RANDOM_TESTS);
+			TestChromosome test = factory.getChromosome();
+			ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
+			Integer pos = result.getFirstPositionOfThrownException();
+			if(pos != null) {
+				test.getTestCase().chop(pos+1);
+				test.setChanged(true);
+			} else {
+				test.setLastExecutionResult(result);
+			}
+			suite.addTest(test);
+		}
+		
+		suiteGA.getPopulation().add(suite);
+		statistics.searchFinished(suiteGA);
+		suiteGA.printBudget();
+		statistics.minimized(suiteGA.getBestIndividual());
+
+		return suite.getTests();
+	}
+	
 	/**
 	 * Generate one random test at a time and check if adding it improves
 	 * fitness (1+1)RT
