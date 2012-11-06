@@ -689,26 +689,6 @@ public class TestCodeVisitor implements TestVisitor {
 			// testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 			// + getVariableName(retval) + " = \""
 			// + StringEscapeUtils.escapeJava((String) value) + "\";\n";
-		} else if (statement instanceof LongPrimitiveStatement) {
-			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-					+ getVariableName(retval) + " = " + value + "L;\n";
-		} else if (statement instanceof FloatPrimitiveStatement) {
-			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-					+ getVariableName(retval) + " = " + value + "F;\n";
-		} else if (statement instanceof CharPrimitiveStatement) {
-			testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
-					+ getVariableName(retval) + " = '"
-					+ StringEscapeUtils.escapeJava(value.toString()) + "';\n";
-		} else if (statement instanceof EnumPrimitiveStatement) {
-			if (value != null)
-				testCode += getClassName(retval) + " "
-						+ getVariableName(retval) + " = "
-						+ getEnumValue((EnumPrimitiveStatement<?>) statement)
-						+ ";\n";
-			else
-				testCode += getClassName(retval) + " "
-						+ getVariableName(retval) + " = ("
-						+ getClassName(retval) + ") null;\n";
 		} else if (statement instanceof FileNamePrimitiveStatement) {
 			// changed by Daniel
 			if (value != null) {
@@ -723,7 +703,7 @@ public class TestCodeVisitor implements TestVisitor {
 
 		} else {
 			testCode += getClassName(retval) + " " + getVariableName(retval)
-					+ " = " + value + ";\n";
+					+ " = " + NumberFormatter.getNumberString(value) + ";\n";
 		}
 		addAssertions(statement);
 	}

@@ -175,6 +175,13 @@ public class DelegatingTestCase implements TestCase {
 	public VariableReference getRandomNonNullObject(Type type, int position) throws ConstructionFailedException {
 		return delegate.getRandomNonNullObject(type, position);
 	}
+	
+
+	@Override
+	public VariableReference getRandomNonNullNonPrimitiveObject(Type type,
+			int position) throws ConstructionFailedException {
+		return delegate.getRandomNonNullNonPrimitiveObject(type, position);
+	}
 
 	/** {@inheritDoc} */
 	@Override
@@ -362,6 +369,7 @@ public class DelegatingTestCase implements TestCase {
 		}
 		return super.toString();
 	}
+
 	
 
 }

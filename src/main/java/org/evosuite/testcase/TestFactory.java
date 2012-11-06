@@ -272,7 +272,7 @@ public class TestFactory {
 				                                             // probability here?
 				try {
 					// TODO: Would casting be an option here?
-					callee = test.getRandomNonNullObject(method.getDeclaringClass(),
+					callee = test.getRandomNonNullNonPrimitiveObject(method.getDeclaringClass(),
 					                                     position);
 					logger.debug("Found callee of type "
 					        + method.getDeclaringClass().getName() + ": "
@@ -607,7 +607,7 @@ public class TestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
 			if (!Modifier.isStatic(method.getModifiers()))
-				callee = test.getRandomNonNullObject(method.getDeclaringClass(), position);
+				callee = test.getRandomNonNullNonPrimitiveObject(method.getDeclaringClass(), position);
 			List<VariableReference> parameters = new ArrayList<VariableReference>();
 			for (Type type : method.getParameterTypes()) {
 				parameters.add(test.getRandomObject(type, position));
@@ -637,7 +637,7 @@ public class TestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference source = null;
 			if (!Modifier.isStatic(field.getModifiers()))
-				source = test.getRandomNonNullObject(field.getDeclaringClass(), position);
+				source = test.getRandomNonNullNonPrimitiveObject(field.getDeclaringClass(), position);
 
 			try {
 				FieldStatement f = new FieldStatement(test, field, source, retval);
@@ -1392,7 +1392,8 @@ public class TestFactory {
 
 			if (dist >= rnd
 			        && !(test.getStatement(i).getReturnValue() instanceof NullReference)
-			        && !(test.getStatement(i).getReturnValue().isVoid()))
+			        && !(test.getStatement(i).getReturnValue().isVoid()) 
+			        && !(test.getStatement(i) instanceof PrimitiveStatement))
 				return test.getStatement(i).getReturnValue();
 			else
 				rnd = rnd - dist;
@@ -1402,7 +1403,7 @@ public class TestFactory {
 			position = Randomness.nextInt(position);
 
 		VariableReference var = test.getStatement(position).getReturnValue();
-		if (!(var instanceof NullReference) && !var.isVoid())
+		if (!(var instanceof NullReference) && !var.isVoid() && !(test.getStatement(position) instanceof PrimitiveStatement))
 			return var;
 		else
 			return null;

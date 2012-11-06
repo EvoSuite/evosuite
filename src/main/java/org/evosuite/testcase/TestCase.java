@@ -155,6 +155,20 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 */
 	public VariableReference getRandomNonNullObject(Type type, int position)
 	        throws ConstructionFailedException;
+	
+	/**
+	 * Get a random object matching type
+	 *
+	 * @param type a {@link java.lang.reflect.Type} object.
+	 * @param position
+	 *            Upper bound in test case up to which objects are considered
+	 * @throws org.evosuite.ga.ConstructionFailedException
+	 *             if no such object exists
+	 * @return a {@link org.evosuite.testcase.VariableReference} object.
+	 */
+	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
+	        throws ConstructionFailedException;
+
 
 	/**
 	 * Get actual object represented by a variable for a given execution scope
