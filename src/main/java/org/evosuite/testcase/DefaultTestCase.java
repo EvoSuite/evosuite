@@ -300,6 +300,32 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		return Randomness.choice(variables);
 	}
+	
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
+	 */
+	/** {@inheritDoc} */
+	@Override
+	public VariableReference getRandomNonNullNonPrimitiveObject(Type type, int position)
+	        throws ConstructionFailedException {
+		assert (type != null);
+		List<VariableReference> variables = getObjects(type, position);
+		Iterator<VariableReference> iterator = variables.iterator();
+		while (iterator.hasNext()) {
+			VariableReference var = iterator.next();
+			if (var instanceof NullReference)
+				iterator.remove();
+			else if(getStatement(var.getStPosition()) instanceof PrimitiveStatement)
+				iterator.remove();
+			else if(var.isPrimitive() || var.isWrapperType())
+				iterator.remove();
+		}
+		if (variables.isEmpty())
+			throw new ConstructionFailedException("Found no variables of type " + type
+			        + " at position " + position);
+
+		return Randomness.choice(variables);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getObject(org.evosuite.testcase.VariableReference, org.evosuite.testcase.Scope)
