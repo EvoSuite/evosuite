@@ -929,7 +929,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * ('this')
 	 * 
 	 * This is done using the getSourceOfMethodInvocationInstruction() method
-	 * and checking if the return of that method is an ALOAD_0 instruction
+	 * and checking if the return of that method loads this using loadsReferenceToThis()
 	 * 
 	 * @return a boolean.
 	 */
@@ -937,7 +937,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
 		if (srcInstruction == null)
 			return false;
-		return srcInstruction.isALOAD0();
+		return srcInstruction.loadsReferenceToThis();
 	}
 
 	/**

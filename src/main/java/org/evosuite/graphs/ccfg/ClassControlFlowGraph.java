@@ -1220,7 +1220,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				}
 			}
 			
-		/*	else{
+			else{
 
 				//The format that ASM for types and the one used in my data file is different: in particular ASM uses the 
 				//Class.getName format for types see http://docs.oracle.com/javase/6/docs/api/java/lang/Class.html#getName(), while the data
@@ -1235,7 +1235,6 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				
 				if(toAnalyze.startsWith("java.")){
 					 
-					String paraz = fieldCall.getOnlyParameters();
 					Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(fieldCall.getOnlyParameters());
 					String newParams = "";
 					if(parameters.length!=0){
@@ -1250,7 +1249,7 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 					return PureMethodsList.instance.checkPurity(toAnalyze);
 				}
 			}
-			*/
+			
 			// otherwise proceed
 		} else if (currentNode instanceof CCFGCodeNode) {
 			CCFGCodeNode codeNode = (CCFGCodeNode) currentNode;
