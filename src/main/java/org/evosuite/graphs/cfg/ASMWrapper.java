@@ -17,7 +17,6 @@
  */
 package org.evosuite.graphs.cfg;
 
-import org.evosuite.coverage.dataflow.DefUsePool;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -502,6 +501,10 @@ public abstract class ASMWrapper {
 		return isFieldDefinition() || isFieldUse();
 	}
 
+	public boolean isFieldNodeDU() {
+		return isFieldNodeDefinition() || isFieldNodeUse();
+	}
+
 	/**
 	 * <p>
 	 * isLocalDU
@@ -554,6 +557,19 @@ public abstract class ASMWrapper {
 
 	/**
 	 * <p>
+	 * isFieldDefinition
+	 * </p>
+	 * 
+	 * @return a boolean.
+	 */
+	public boolean isFieldNodeDefinition() {
+		return asmNode.getOpcode() == Opcodes.PUTFIELD
+				|| asmNode.getOpcode() == Opcodes.PUTSTATIC
+				|| isFieldArrayDefinition();
+	}
+
+	/**
+	 * <p>
 	 * isFieldUse
 	 * </p>
 	 * 
@@ -563,6 +579,18 @@ public abstract class ASMWrapper {
 		return asmNode.getOpcode() == Opcodes.GETFIELD
 				|| asmNode.getOpcode() == Opcodes.GETSTATIC
 				|| isFieldMethodCallUse();
+	}
+
+	/**
+	 * <p>
+	 * isFieldUse
+	 * </p>
+	 * 
+	 * @return a boolean.
+	 */
+	public boolean isFieldNodeUse() {
+		return asmNode.getOpcode() == Opcodes.GETFIELD
+				|| asmNode.getOpcode() == Opcodes.GETSTATIC;
 	}
 
 	/**
@@ -607,9 +635,35 @@ public abstract class ASMWrapper {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
+	protected String getFieldSimpleName() {
+		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
+		return fieldNode.name;
+		// return fieldNode.name;
+	}
+
+	/**
+	 * <p>
+	 * getFieldName
+	 * </p>
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
 	protected String getFieldName() {
 		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
 		return fieldNode.owner + "." + fieldNode.name;
+		// return fieldNode.name;
+	}
+
+	/**
+	 * <p>
+	 * getFieldName
+	 * </p>
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
+	protected String getFieldType() {
+		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
+		return fieldNode.desc;
 		// return fieldNode.name;
 	}
 
@@ -671,9 +725,7 @@ public abstract class ASMWrapper {
 				|| asmNode.getOpcode() == Opcodes.FLOAD
 				|| asmNode.getOpcode() == Opcodes.DLOAD
 				|| asmNode.getOpcode() == Opcodes.IINC
-				|| (asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() != 0); // exclude
-		// ALOAD_0
-		// (this)
+				|| (asmNode.getOpcode() == Opcodes.ALOAD && !loadsReferenceToThis());
 	}
 
 	public boolean isIINC() {
@@ -684,44 +736,54 @@ public abstract class ASMWrapper {
 	 * Determines whether this is the special ALOAD that pushes 'this' onto the
 	 * stack
 	 * 
+	 * In non static methods the variable slot 0 holds the reference to "this".
+	 * Loading this reference is not seen as a Use for defuse purposes. This
+	 * method checks if this is the case
+	 * 
 	 * @return a boolean.
 	 */
-	public boolean isALOAD0() {
-		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
+	public boolean loadsReferenceToThis() {
+		if(getRawCFG().isStaticMethod())
+			return false;
+		
+		return asmNode.getOpcode() == Opcodes.ALOAD
+				&& getLocalVariableSlot() == 0;
 	}
+	
+	public abstract RawControlFlowGraph getRawCFG();
 
 	public boolean isLocalArrayDefinition() {
 		if (!isArrayStoreInstruction())
 			return false;
-		
+
 		// only local var if arrayref on stack is from local var use
 		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
-		if(arrayLoader == null)
+		if (arrayLoader == null)
 			return false;
-		
+
 		return arrayLoader.isLocalVariableUse();
 	}
 
 	public boolean isFieldArrayDefinition() {
 		if (!isArrayStoreInstruction())
 			return false;
-		
+
 		// only field var if arrayref on stack is from field var use
 		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
-		if(arrayLoader == null)
+		if (arrayLoader == null)
 			return false;
-		
+
 		return arrayLoader.isFieldUse();
 	}
-	
+
 	public boolean isStaticArrayUsage() {
-		if(!isArrayStoreInstruction())
+		if (!isArrayStoreInstruction())
 			return false;
-		
+
 		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
-		if(arrayLoader == null)
+		if (arrayLoader == null)
 			return false;
-		
+
 		return arrayLoader.isStaticDefUse();
 	}
 
@@ -732,12 +794,12 @@ public abstract class ASMWrapper {
 				|| asmNode.getOpcode() == Opcodes.DASTORE
 				|| asmNode.getOpcode() == Opcodes.AASTORE;
 	}
-	
+
 	protected String getArrayVariableName() {
 		BytecodeInstruction arrayLoader = getSourceOfArrayReference();
-		if(arrayLoader == null)
+		if (arrayLoader == null)
 			return null;
-		
+
 		return arrayLoader.getVariableName();
 	}
 

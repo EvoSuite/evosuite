@@ -129,9 +129,9 @@ public class DefUsePool {
 
 		registerAsDefinition(d);
 
-		if(d.isMethodCallOfField())
-			LoggingUtils.getEvoLogger().info(
-				"Registered field method call as Definition " + d.toString());
+//		if(d.isMethodCallOfField())
+//			LoggingUtils.getEvoLogger().info(
+//				"Registered field method call as Definition " + d.toString());
 		
 		return true;
 	}
@@ -169,16 +169,18 @@ public class DefUsePool {
 		// field method calls already have duID set so this can fail
 		boolean registeredAsDU = registerAsDefUse(u);
 
-		// sanity check for IINCs
+		// sanity check for field method calls
 		if (!registeredAsDU && !u.isMethodCallOfField())
 			throw new IllegalStateException(
 					"expect registering to fail only on field method calls");
 
 		registerAsUse(u);
 		
-		if(u.isMethodCallOfField())
-			LoggingUtils.getEvoLogger().info(
-				"Registered field method call as Use " + u.toString());
+//		LoggingUtils.getEvoLogger().info("Registered as use: "+u.toString());
+		
+//		if(u.isMethodCallOfField())
+//			LoggingUtils.getEvoLogger().info(
+//				"Registered field method call as Use " + u.toString());
 
 		return true;
 	}
