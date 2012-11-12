@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
+import org.evosuite.coverage.dataflow.analysis.AllUsesAnalysis;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
@@ -169,7 +170,8 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
 		ClassControlFlowGraph ccfg = GraphPool
 				.getCCFG(Properties.TARGET_CLASS);
-		Set<DefUseCoverageTestFitness> r = ccfg.determineDefUsePairs();
+		AllUsesAnalysis aua = new AllUsesAnalysis(ccfg);
+		Set<DefUseCoverageTestFitness> r = aua.determineDefUsePairs();
 
 		return r;
 	}
