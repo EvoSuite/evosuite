@@ -335,7 +335,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 
-		if(wasSecurityException) {
+		if (wasSecurityException) {
 			//Add import info for EvoSuite classes used in the generated test suite
 			imports_sorted.add(Sandbox.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
@@ -634,10 +634,12 @@ public class TestSuiteWriter implements Opcodes {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
-		builder.append(METHOD_SPACE);
-		builder.append("//");
-		builder.append(getInformation(id));
-		builder.append("\n");
+		if (Properties.TEST_COMMENTS) {
+			builder.append(METHOD_SPACE);
+			builder.append("//");
+			builder.append(getInformation(id));
+			builder.append("\n");
+		}
 		builder.append(adapter.getMethodDefinition("test" + number));
 
 		/*
