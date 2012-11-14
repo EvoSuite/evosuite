@@ -34,27 +34,28 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.sandbox.Sandbox;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Central property repository. All global parameters of EvoSuite should be declared as fields here, using the appropriate annotation. Access is
- * possible directly via the fields, or with getter/setter methods.
+ * Central property repository. All global parameters of EvoSuite should be
+ * declared as fields here, using the appropriate annotation. Access is possible
+ * directly via the fields, or with getter/setter methods.
  * 
  * @author Gordon Fraser
  */
 public class Properties {
 
-	private final static Logger logger = LoggerFactory
-			.getLogger(Properties.class);
+	private final static Logger logger = LoggerFactory.getLogger(Properties.class);
 
 	/**
-	 * Parameters are fields of the Properties class, annotated with this annotation. The key parameter is used to identify values in property files
-	 * or on the command line, the group is used in the config file or input plugins to organize parameters, and the description is also displayed
-	 * there.
+	 * Parameters are fields of the Properties class, annotated with this
+	 * annotation. The key parameter is used to identify values in property
+	 * files or on the command line, the group is used in the config file or
+	 * input plugins to organize parameters, and the description is also
+	 * displayed there.
 	 */
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)
@@ -203,7 +204,6 @@ public class Properties {
 
 	@Parameter(key = "num_random_tests", group = "Test Creation", description = "Number of random tests")
 	public static int NUM_RANDOM_TESTS = 20;
-
 
 	/** Constant <code>MIN_INITIAL_TESTS=1</code> */
 	@Parameter(key = "min_initial_tests", group = "Test Creation", description = "Minimum number of tests in initial test suites")
@@ -395,10 +395,11 @@ public class Properties {
 	public static String OUTPUT_DIR = "evosuite-files";
 
 	/**
-	 * Constant <code>PROPERTIES_FILE="OUTPUT_DIR + File.separatorevosuite.pro"{trunked}</code>
+	 * Constant
+	 * <code>PROPERTIES_FILE="OUTPUT_DIR + File.separatorevosuite.pro"{trunked}</code>
 	 */
 	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator
-			+ "evosuite.properties";
+	        + "evosuite.properties";
 
 	public enum StoppingCondition {
 		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
@@ -418,20 +419,25 @@ public class Properties {
 
 	public enum TheReplacementFunction {
 		/**
-		 * Indicates a replacement function which works for all chromosomes because it solely relies on fitness values.
+		 * Indicates a replacement function which works for all chromosomes
+		 * because it solely relies on fitness values.
 		 */
 		FITNESSREPLACEMENT,
 		/**
-		 * EvoSuite's default replacement function which only works on subtypes of the default chromosome types. Relies on fitness plus secondary
+		 * EvoSuite's default replacement function which only works on subtypes
+		 * of the default chromosome types. Relies on fitness plus secondary
 		 * goals such as length.
 		 */
 		DEFAULT
 	}
 
 	/**
-	 * During search the genetic algorithm has to decide whether the parent chromosomes or the freshly created offspring chromosomes should be
-	 * preferred. If you use EvoSuite with its default chromosomes the TheReplacementFunction.DEFAULT is what you want. If your chromosomes are not a
-	 * subclass of the default chromosomes your have to write your own replacement function or use TheReplacementFunction.FITNESSREPLACEMENT.
+	 * During search the genetic algorithm has to decide whether the parent
+	 * chromosomes or the freshly created offspring chromosomes should be
+	 * preferred. If you use EvoSuite with its default chromosomes the
+	 * TheReplacementFunction.DEFAULT is what you want. If your chromosomes are
+	 * not a subclass of the default chromosomes your have to write your own
+	 * replacement function or use TheReplacementFunction.FITNESSREPLACEMENT.
 	 */
 	@Parameter(key = "replacement_function", group = "Search Algorithm", description = "Replacement function for comparing offspring to parents during search")
 	public static TheReplacementFunction REPLACEMENT_FUNCTION = TheReplacementFunction.DEFAULT;
@@ -515,6 +521,9 @@ public class Properties {
 	/** Constant <code>TEST_FORMAT</code> */
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
 	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
+
+	@Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
+	public static boolean TEST_COMMENTS = true;
 
 	/** Constant <code>PRINT_TO_SYSTEM=false</code> */
 	@Parameter(key = "print_to_system", group = "Output", description = "Allow test output on console")
@@ -687,13 +696,13 @@ public class Properties {
 	/** Constant <code>CALCULATE_CLUSTER=false</code> */
 	@Parameter(key = "calculate_cluster", description = "Automatically calculate test cluster during setup")
 	public static boolean CALCULATE_CLUSTER = false;
-	
+
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
-	
+
 	@Parameter(key = "inheritance_file", description = "Cached version of inheritance tree")
 	public static String INHERITANCE_FILE = "";
-	
+
 	/** Constant <code>BRANCH_EVAL=false</code> */
 	@Parameter(key = "branch_eval", description = "Jeremy's branch evaluation")
 	public static boolean BRANCH_EVAL = false;
@@ -1063,11 +1072,9 @@ public class Properties {
 			} catch (NoSuchParameterException e) {
 				logger.info("- No such parameter: " + parameter);
 			} catch (IllegalArgumentException e) {
-				logger.info("- Error setting parameter \"" + parameter + "\": "
-						+ e);
+				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
 			} catch (IllegalAccessException e) {
-				logger.info("- Error setting parameter \"" + parameter + "\": "
-						+ e);
+				logger.info("- Error setting parameter \"" + parameter + "\": " + e);
 			}
 		}
 		if (POPULATION_LIMIT == PopulationLimit.STATEMENTS) {
@@ -1082,7 +1089,8 @@ public class Properties {
 	 */
 	public void loadProperties(boolean silent) {
 		loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
-				"evosuite-files/evosuite.properties"), silent);
+		                                      "evosuite-files/evosuite.properties"),
+		                   silent);
 		initializeProperties();
 	}
 
@@ -1113,33 +1121,25 @@ public class Properties {
 				properties.load(in);
 
 				if (!silent)
-					LoggingUtils.getEvoLogger().info(
-							"* Properties loaded from "
-									+ propertiesFile.getAbsolutePath());
+					LoggingUtils.getEvoLogger().info("* Properties loaded from "
+					                                         + propertiesFile.getAbsolutePath());
 			} else {
 				propertiesPath = "evosuite.properties";
-				in = this.getClass().getClassLoader()
-						.getResourceAsStream(propertiesPath);
+				in = this.getClass().getClassLoader().getResourceAsStream(propertiesPath);
 				if (in != null) {
 					properties.load(in);
 					if (!silent)
-						LoggingUtils.getEvoLogger().info(
-								"* Properties loaded from "
-										+ this.getClass().getClassLoader()
-												.getResource(propertiesPath)
-												.getPath());
+						LoggingUtils.getEvoLogger().info("* Properties loaded from "
+						                                         + this.getClass().getClassLoader().getResource(propertiesPath).getPath());
 				}
 				// logger.info("* Properties loaded from default configuration file.");
 			}
 		} catch (FileNotFoundException e) {
-			logger.info("- Error: Could not find configuration file "
-					+ propertiesPath);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		} catch (IOException e) {
-			logger.info("- Error: Could not find configuration file "
-					+ propertiesPath);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		} catch (Exception e) {
-			logger.info("- Error: Could not find configuration file "
-					+ propertiesPath);
+			logger.info("- Error: Could not find configuration file " + propertiesPath);
 		}
 	}
 
@@ -1150,7 +1150,8 @@ public class Properties {
 	private static Map<Field, Object> defaultMap = new HashMap<Field, Object>();
 
 	/**
-	 * Keep track of which fields have been changed from their defaults during loading
+	 * Keep track of which fields have been changed from their defaults during
+	 * loading
 	 */
 	private static Set<String> changedFields = new HashSet<String>();
 
@@ -1180,8 +1181,7 @@ public class Properties {
 	 *             if any.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public static String getDescription(String key)
-			throws NoSuchParameterException {
+	public static String getDescription(String key) throws NoSuchParameterException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1217,8 +1217,7 @@ public class Properties {
 	 *             if any.
 	 * @return a {@link org.evosuite.Properties.IntValue} object.
 	 */
-	public static IntValue getIntLimits(String key)
-			throws NoSuchParameterException {
+	public static IntValue getIntLimits(String key) throws NoSuchParameterException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1235,8 +1234,7 @@ public class Properties {
 	 *             if any.
 	 * @return a {@link org.evosuite.Properties.LongValue} object.
 	 */
-	public static LongValue getLongLimits(String key)
-			throws NoSuchParameterException {
+	public static LongValue getLongLimits(String key) throws NoSuchParameterException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1253,8 +1251,7 @@ public class Properties {
 	 *             if any.
 	 * @return a {@link org.evosuite.Properties.DoubleValue} object.
 	 */
-	public static DoubleValue getDoubleLimits(String key)
-			throws NoSuchParameterException {
+	public static DoubleValue getDoubleLimits(String key) throws NoSuchParameterException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1275,9 +1272,8 @@ public class Properties {
 	 *             if any.
 	 * @return a int.
 	 */
-	public static int getIntegerValue(String key)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public static int getIntegerValue(String key) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1297,9 +1293,8 @@ public class Properties {
 	 *             if any.
 	 * @return a long.
 	 */
-	public static long getLongValue(String key)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public static long getLongValue(String key) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1319,9 +1314,8 @@ public class Properties {
 	 *             if any.
 	 * @return a boolean.
 	 */
-	public static boolean getBooleanValue(String key)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public static boolean getBooleanValue(String key) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1341,9 +1335,8 @@ public class Properties {
 	 *             if any.
 	 * @return a double.
 	 */
-	public static double getDoubleValue(String key)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public static double getDoubleValue(String key) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1363,9 +1356,8 @@ public class Properties {
 	 *             if any.
 	 * @return a {@link java.lang.String} object.
 	 */
-	public static String getStringValue(String key)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public static String getStringValue(String key) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1409,9 +1401,8 @@ public class Properties {
 	 * @throws java.lang.IllegalArgumentException
 	 *             if any.
 	 */
-	public void setValue(String key, int value)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public void setValue(String key, int value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1440,9 +1431,8 @@ public class Properties {
 	 * @throws java.lang.IllegalArgumentException
 	 *             if any.
 	 */
-	public void setValue(String key, long value)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public void setValue(String key, long value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1471,9 +1461,8 @@ public class Properties {
 	 * @throws java.lang.IllegalArgumentException
 	 *             if any.
 	 */
-	public void setValue(String key, boolean value)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public void setValue(String key, boolean value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1495,9 +1484,8 @@ public class Properties {
 	 * @throws java.lang.IllegalAccessException
 	 *             if any.
 	 */
-	public void setValue(String key, double value)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public void setValue(String key, double value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1525,9 +1513,8 @@ public class Properties {
 	 *             if any.
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
-	public void setValue(String key, String value)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public void setValue(String key, String value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key)) {
 			throw new NoSuchParameterException(key);
 		}
@@ -1535,8 +1522,7 @@ public class Properties {
 		Field f = parameterMap.get(key);
 		changedFields.add(key);
 		if (f.getType().isEnum()) {
-			f.set(null, Enum.valueOf((Class<Enum>) f.getType(),
-					value.toUpperCase()));
+			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
 		} else if (f.getType().equals(int.class)) {
 			setValue(key, Integer.parseInt(value));
 		} else if (f.getType().equals(long.class)) {
@@ -1570,9 +1556,8 @@ public class Properties {
 	 * @throws java.lang.IllegalAccessException
 	 *             if any.
 	 */
-	public void setValue(String key, String[] value)
-			throws NoSuchParameterException, IllegalArgumentException,
-			IllegalAccessException {
+	public void setValue(String key, String[] value) throws NoSuchParameterException,
+	        IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key)) {
 			throw new NoSuchParameterException(key);
 		}
@@ -1631,14 +1616,12 @@ public class Properties {
 			loadProperties(silent);
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			if (TARGET_CLASS.contains(".")) {
-				CLASS_PREFIX = TARGET_CLASS.substring(0,
-						TARGET_CLASS.lastIndexOf('.'));
+				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
 				SUB_PREFIX = CLASS_PREFIX.replace(PROJECT_PREFIX + ".", "");
 			}
 			if (PROJECT_PREFIX == null || PROJECT_PREFIX.equals("")) {
 				if (CLASS_PREFIX.contains("."))
-					PROJECT_PREFIX = CLASS_PREFIX.substring(0,
-							CLASS_PREFIX.indexOf("."));
+					PROJECT_PREFIX = CLASS_PREFIX.substring(0, CLASS_PREFIX.indexOf("."));
 				else
 					PROJECT_PREFIX = CLASS_PREFIX;
 				// LoggingUtils.getEvoLogger().info("* Using project prefix: "
@@ -1654,20 +1637,17 @@ public class Properties {
 	 */
 	public static Class<?> getTargetClass() {
 		if (TARGET_CLASS_INSTANCE != null
-				&& TARGET_CLASS_INSTANCE.getCanonicalName()
-						.equals(TARGET_CLASS))
+		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
-		
 		TARGET_CLASS_INSTANCE = null;
-		
+
 		try {
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
 			                                      TestGenerationContext.getClassLoader());
 
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info(
-					"* Could not find class under test: " + e);
+			LoggingUtils.getEvoLogger().info("* Could not find class under test: " + e);
 			for (StackTraceElement s : e.getStackTrace()) {
 				LoggingUtils.getEvoLogger().info("   " + s.toString());
 			}
@@ -1705,8 +1685,7 @@ public class Properties {
 	 * Update the evosuite.properties file with the current setting
 	 */
 	public void writeConfiguration() {
-		URL fileURL = this.getClass().getClassLoader()
-				.getResource("evosuite.properties");
+		URL fileURL = this.getClass().getClassLoader().getResource("evosuite.properties");
 		String name = fileURL.getFile();
 		writeConfiguration(name);
 	}
