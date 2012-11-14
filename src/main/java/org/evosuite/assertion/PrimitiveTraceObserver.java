@@ -72,7 +72,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 
 			}
 		} catch (CodeUnderTestException e) {
-			logger.warn("", e);			
+			logger.debug("", e);			
 		}
 	}
 }
