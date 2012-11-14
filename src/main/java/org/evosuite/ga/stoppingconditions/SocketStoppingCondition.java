@@ -18,7 +18,7 @@ import org.evosuite.utils.LoggingUtils;
  */
 public class SocketStoppingCondition implements StoppingCondition {
 
-	private static boolean interrupted = false;
+	private volatile boolean interrupted = false;
 
 	/**
 	 * <p>accept</p>
@@ -31,9 +31,7 @@ public class SocketStoppingCondition implements StoppingCondition {
 					ServerSocket serverSocket = new ServerSocket(Properties.STOPPING_PORT);
 					serverSocket.accept();
 					LoggingUtils.getEvoLogger().info("* Stopping request received");
-					synchronized (this) {
-						interrupted = true;
-					}
+					interrupted = true;
 
 				} catch (IOException e) {
 					LoggingUtils.getEvoLogger().warn("Failed to create socket on port "
