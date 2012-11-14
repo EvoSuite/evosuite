@@ -49,7 +49,7 @@ public class SameTraceObserver extends AssertionTraceObserver<SameTraceEntry> {
 
 			trace.addEntry(statement.getPosition(), var, entry);
 		} catch (CodeUnderTestException e) {
-			logger.warn("", e);
+			logger.debug("", e);
 		}
 	}
 }
