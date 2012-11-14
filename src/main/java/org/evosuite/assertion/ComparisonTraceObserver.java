@@ -68,7 +68,7 @@ public class ComparisonTraceObserver extends AssertionTraceObserver<ComparisonTr
 
 			trace.addEntry(statement.getPosition(), var, entry);
 		} catch (CodeUnderTestException e) {
-			logger.warn("", e);			
+			logger.debug("", e);
 		}
 
 	}
