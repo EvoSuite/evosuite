@@ -114,6 +114,7 @@ import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
 import org.evosuite.testcarver.testcase.EvoTestCaseCodeGenerator;
 import org.evosuite.testcarver.testcase.TestCarvingExecutionObserver;
 import org.evosuite.testcase.AllMethodsTestChromosomeFactory;
+import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
@@ -953,7 +954,11 @@ public class TestSuiteGenerator {
 			ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
 			Integer pos = result.getFirstPositionOfThrownException();
 			if(pos != null) {
-				test.getTestCase().chop(pos+1);
+				if(result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
+					test.getTestCase().chop(pos);					
+				} else {
+					test.getTestCase().chop(pos+1);
+				}
 				test.setChanged(true);
 			} else {
 				test.setLastExecutionResult(result);
