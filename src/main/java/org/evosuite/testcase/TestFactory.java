@@ -1221,7 +1221,9 @@ public class TestFactory {
 				Method m = (Method) o;
 				//logger.info("Adding method call " + m.getName());
 				name = m.getName();
-				addMethod(test, m, position, 0);
+				VariableReference callee = test.getRandomObject(Properties.getTargetClass(), position);
+				addMethodFor(test, callee, m, position);
+				//addMethod(test, m, position, 0);
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
 				//logger.info("Adding field assignment " + f.getName());
