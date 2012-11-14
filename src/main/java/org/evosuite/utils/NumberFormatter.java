@@ -44,10 +44,16 @@ public class NumberFormatter {
 		if (value == null)
 			return "null";
 		else if (value.getClass().equals(char.class)
-		        || value.getClass().equals(Character.class))
-			return "'"
+		        || value.getClass().equals(Character.class)) {
+			// StringEscapeUtils fails to escape a single quote char
+			if(Character.valueOf('\'').equals(value)) {
+				return "'\''";
+			} else {
+				return "'"
 			        + StringEscapeUtils.escapeJava(Character.toString((Character) value))
 			        + "'";
+			}
+		}
 		else if (value.getClass().equals(String.class)) {
 			return "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
 		} else if (value.getClass().equals(float.class)
