@@ -273,7 +273,7 @@ public class TestFactory {
 				try {
 					// TODO: Would casting be an option here?
 					callee = test.getRandomNonNullNonPrimitiveObject(method.getDeclaringClass(),
-					                                     position);
+					                                                 position);
 					logger.debug("Found callee of type "
 					        + method.getDeclaringClass().getName() + ": "
 					        + callee.getName());
@@ -607,7 +607,8 @@ public class TestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
 			if (!Modifier.isStatic(method.getModifiers()))
-				callee = test.getRandomNonNullNonPrimitiveObject(method.getDeclaringClass(), position);
+				callee = test.getRandomNonNullNonPrimitiveObject(method.getDeclaringClass(),
+				                                                 position);
 			List<VariableReference> parameters = new ArrayList<VariableReference>();
 			for (Type type : method.getParameterTypes()) {
 				parameters.add(test.getRandomObject(type, position));
@@ -637,7 +638,8 @@ public class TestFactory {
 			VariableReference retval = statement.getReturnValue();
 			VariableReference source = null;
 			if (!Modifier.isStatic(field.getModifiers()))
-				source = test.getRandomNonNullNonPrimitiveObject(field.getDeclaringClass(), position);
+				source = test.getRandomNonNullNonPrimitiveObject(field.getDeclaringClass(),
+				                                                 position);
 
 			try {
 				FieldStatement f = new FieldStatement(test, field, source, retval);
@@ -1000,6 +1002,8 @@ public class TestFactory {
 			return;
 		}
 
+		boolean replacingPrimitive = test.getStatement(position) instanceof PrimitiveStatement;
+
 		// Get possible replacements
 		List<VariableReference> alternatives = test.getObjects(var.getType(), position);
 
@@ -1029,9 +1033,13 @@ public class TestFactory {
 			VariableReference r = replacement.next();
 			if (var.equals(r.getAdditionalVariableReference()))
 				replacement.remove();
-			if (r instanceof ArrayReference) {
+			else if (r instanceof ArrayReference) {
 				if (maxIndex >= ((ArrayReference) r).getArrayLength())
 					replacement.remove();
+			} else if (!replacingPrimitive) {
+				if (test.getStatement(r.getStPosition()) instanceof PrimitiveStatement) {
+					replacement.remove();
+				}
 			}
 		}
 
@@ -1392,7 +1400,7 @@ public class TestFactory {
 
 			if (dist >= rnd
 			        && !(test.getStatement(i).getReturnValue() instanceof NullReference)
-			        && !(test.getStatement(i).getReturnValue().isVoid()) 
+			        && !(test.getStatement(i).getReturnValue().isVoid())
 			        && !(test.getStatement(i) instanceof PrimitiveStatement))
 				return test.getStatement(i).getReturnValue();
 			else
@@ -1403,7 +1411,8 @@ public class TestFactory {
 			position = Randomness.nextInt(position);
 
 		VariableReference var = test.getStatement(position).getReturnValue();
-		if (!(var instanceof NullReference) && !var.isVoid() && !(test.getStatement(position) instanceof PrimitiveStatement))
+		if (!(var instanceof NullReference) && !var.isVoid()
+		        && !(test.getStatement(position) instanceof PrimitiveStatement))
 			return var;
 		else
 			return null;
