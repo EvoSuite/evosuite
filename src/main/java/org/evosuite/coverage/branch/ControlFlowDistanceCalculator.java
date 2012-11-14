@@ -289,16 +289,18 @@ public class ControlFlowDistanceCalculator {
 		Set<ControlFlowDistance> r = new HashSet<ControlFlowDistance>();
 		Set<ControlDependency> nextToLookAt = instruction.getControlDependencies();
 
-		if (nextToLookAt.isEmpty()) {
-			// instruction only dependent on root branch
-			// since this method is called by getNonRootDistance(MethodCall)
-			// which in turn is only called when a MethodCall for this branch's
-			// method was found in the given result, i can safely assume that
-			// the 0-distance is a control dependence distance for the given
-			// instruction ... right?
-			r.add(new ControlFlowDistance());
-		}
-
+		//XXX TODO BUG?!
+//UNCOMMENT THIS		
+//		if (nextToLookAt.isEmpty()) {
+//			// instruction only dependent on root branch
+//			// since this method is called by getNonRootDistance(MethodCall)
+//			// which in turn is only called when a MethodCall for this branch's
+//			// method was found in the given result, i can safely assume that
+//			// the 0-distance is a control dependence distance for the given
+//			// instruction ... right?
+//			r.add(new ControlFlowDistance());
+//		}
+		
 		for (ControlDependency next : nextToLookAt) {
 			if (instruction.equals(next.getBranch().getInstruction()))
 				continue; // avoid loops
@@ -312,6 +314,16 @@ public class ControlFlowDistanceCalculator {
 			r.add(nextDistance);
 		}
 
+//UNCOMMENT THIS
+//		if (!nextToLookAt.isEmpty() && r.isEmpty()){
+//			throw new IllegalStateException("why?");
+//		}
+//		
+		//COMMENT THIS
+		if(r.isEmpty()){
+			r.add(new ControlFlowDistance());
+		}
+		
 		return r;
 	}
 
