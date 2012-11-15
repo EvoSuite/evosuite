@@ -950,6 +950,9 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 */
 	// TODO comments and ISTATIC?
 	public boolean isMethodCallOfField() {
+		//If the instruction belongs to static initialization block of the class, then the method call cannot be done on a fields.
+		if(this.methodName.contains("<clinit>"))
+			return false;
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
 		if (srcInstruction == null)
 			return false;
