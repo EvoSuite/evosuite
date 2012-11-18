@@ -527,8 +527,8 @@ public class AllUsesAnalysis {
 
 		BytecodeInstruction code = ((CCFGCodeNode) node).getCodeInstruction();
 
-		LoggingUtils.getEvoLogger().debug(
-				"Processing field call: " + node.toString());
+//		LoggingUtils.getEvoLogger().debug(
+//				"Processing field call: " + node.toString());
 
 		handleDefUse(investigatedMethod, code, callStack, activeDefs, freeUses,
 				foundPairs);

@@ -103,9 +103,9 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		// they are just for testing purposes
 		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
 			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
-				LoggingUtils.getEvoLogger().info("PURE method:\t"+methodInCCFG);
+				LoggingUtils.getEvoLogger().debug("PURE method:\t"+methodInCCFG);
 			else
-				LoggingUtils.getEvoLogger().info("IMPURE method:\t"+methodInCCFG);
+				LoggingUtils.getEvoLogger().debug("IMPURE method:\t"+methodInCCFG);
 		}
 		
 		long start = System.currentTimeMillis();
