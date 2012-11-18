@@ -283,6 +283,19 @@ public abstract class ASMWrapper {
 
 	/**
 	 * <p>
+	 * 	isInvokeStatic
+	 * </p>
+	 * @return a boolean representing whether the instruction is a static method call.
+	 */
+	public boolean isInvokeStatic() {
+		if (asmNode instanceof MethodInsnNode){
+			return (asmNode.getOpcode() == Opcodes.INVOKESTATIC );
+		}
+		return false;
+	}
+	
+	/**
+	 * <p>
 	 * isGoto
 	 * </p>
 	 * 
