@@ -948,8 +948,9 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * 
 	 * @return a boolean.
 	 */
-	// TODO comments and ISTATIC?
-	public boolean isMethodCallOfField() {
+	public boolean isMethodCallOfField() {		
+		if(this.isInvokeStatic())
+			return false;
 		//If the instruction belongs to static initialization block of the class, then the method call cannot be done on a fields.
 		if(this.methodName.contains("<clinit>"))
 			return false;
@@ -1036,6 +1037,17 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 					"expect each BytecodeInstruction to have its CFGFrame set");
 
 		int stackPos = frame.getStackSize() - (1 + positionFromTop);
+		if (stackPos < 0){
+			LoggingUtils.getEvoLogger().debug("getSourceOfStackInstruction has stackPos "+stackPos+". This should not happen. Corner case not correctly handled??!");
+			StackTraceElement[] se = new Throwable().getStackTrace();
+			int t=0;
+			System.out.println("Stack trace: ");
+			while(t<se.length){
+				System.out.println(se[t]);
+				t++;
+			}
+			return null;
+		}
 		SourceValue source = (SourceValue) frame.getStack(stackPos);
 		if (source.insns.size() != 1) {
 			// we don't know for sure, let's be conservative
