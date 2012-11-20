@@ -30,7 +30,6 @@ import org.evosuite.coverage.dataflow.analysis.AllUsesAnalysis;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
@@ -250,7 +249,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 			goalCounts.put(goal.getType(), 0);
 		goalCounts.put(goal.getType(), goalCounts.get(goal.getType()) + 1);
 		
-		LoggingUtils.getEvoLogger().info(goal.toString());
+//		LoggingUtils.getEvoLogger().info(goal.toString());
 	}
 
 	/**
@@ -376,135 +375,5 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 			return 0;
 		return r;
 	}
-
-	// public static Set<DefUseCoverageTestFitness> getInterMethodPairs() {
-	//
-	// Set<DefUseCoverageTestFitness> r = new
-	// HashSet<DefUseCoverageTestFitness>();
-	//
-	// // System.out.print("* Searching for clear Defs...");
-	// Set<Definition> freeDefs = getDefinitionsWithClearPathToMethodEnd();
-	// // System.out.println(" found " + freeDefs.size());
-	//
-	// // System.out.print("* Searching for clear Uses...");
-	// Set<Use> freeUses = getUsesWithClearPathFromMethodStart();
-	// // System.out.println(" found " + freeUses.size());
-	//
-	// for (Definition def : freeDefs)
-	// for (Use use : freeUses)
-	// if (def.getDUVariableName().equals(use.getDUVariableName())) {
-	// DefUseCoverageTestFitness newGoal = createGoal(def, use,
-	// DefUseCoverageTestFitness.DefUsePairType.INTRA_CLASS);
-	// if (newGoal != null)
-	// r.add(newGoal);
-	// }
-	//
-	// // interGoalsCount = r.size();
-	// return r;
-	// }
-
-	// /**
-	// * For every definition found by the CFGMethodAdapter this Method checks,
-	// * what uses there are in the same method and for the same field of that
-	// * definition.
-	// *
-	// * If there is a definition clear path from the definition to the use, a
-	// * DefUseCoverageGoal for this pair is created.
-	// *
-	// * @return A list of all the DefUseCoverageGoals created this way
-	// */
-	// public static Set<DefUseCoverageTestFitness> getIntraMethodPairs() {
-	// Set<DefUseCoverageTestFitness> r = new
-	// HashSet<DefUseCoverageTestFitness>();
-	//
-	// for (Definition def : DefUsePool.retrieveRegisteredDefinitions()) {
-	//
-	// String className = def.getClassName();
-	// String methodName = def.getMethodName();
-	//
-	// RawControlFlowGraph cfg = GraphPool
-	// .getRawCFG(className, methodName);
-	// if (cfg == null)
-	// throw new IllegalStateException("Expect CFG to exist for "
-	// + methodName);
-	//
-	// Set<Use> uses = cfg.getUsesForDef(def);
-	// logger.debug("Found " + uses.size() + " Uses for Def "
-	// + def.getDefId() + " in " + def.getMethodName());
-	//
-	// for (Use use : uses) {
-	// DefUseCoverageTestFitness newGoal = createGoal(def,
-	// DefUsePool.getUseByDefUseId(use.getDefUseId()),
-	// DefUseCoverageTestFitness.DefUsePairType.INTRA_METHOD);
-	// if (newGoal == null)
-	// throw new IllegalStateException(
-	// "expect intra-method-pair creation to always succeed");
-	// r.add(newGoal);
-	// }
-	// }
-	// // intraMethodGoalsCount = r.size();
-	// logger.info("# DU-Pairs within methods: " + r.size());
-	// return r;
-	// }
-	//
-	// /**
-	// * For every definition found by the CFGMethodAdapter this Method checks,
-	// if
-	// * there is a definition clear path from that definition to an exit of its
-	// * method.
-	// *
-	// * @return A Set of all the definitions for which the above holds
-	// */
-	// public static Set<Definition> getDefinitionsWithClearPathToMethodEnd() {
-	// HashSet<Definition> r = new HashSet<Definition>();
-	// for (Definition def : DefUsePool.retrieveRegisteredDefinitions()) {
-	//
-	// String className = def.getClassName();
-	// String methodName = def.getMethodName();
-	//
-	// RawControlFlowGraph cfg = GraphPool
-	// .getRawCFG(className, methodName);
-	// if (cfg == null)
-	// throw new IllegalStateException("Expect CFG to exist for "
-	// + methodName);
-	//
-	// if (cfg.hasDefClearPathToMethodExit(def))
-	// r.add(def);
-	// else
-	// logger.debug("no defclearpath to method end for Def "
-	// + def.getDefId());
-	// }
-	//
-	// logger.info("# Definitions with clear path to method exit " + r.size());
-	// return r;
-	// }
-	//
-	// /**
-	// * For every use found by the CFGMethodAdapter this method checks, if
-	// there
-	// * is a definition clear path from an entry of the uses method to the use
-	// * itself.
-	// *
-	// * @return A Set of all the uses for which the above holds
-	// */
-	// public static Set<Use> getUsesWithClearPathFromMethodStart() {
-	// Set<Use> r = new HashSet<Use>();
-	//
-	// Set<Use> allUses = DefUsePool.retrieveRegisteredUses();
-	// for (Use use : allUses) {
-	// RawControlFlowGraph cfg = GraphPool.getRawCFG(use.getClassName(),
-	// use.getMethodName());
-	// if (cfg == null)
-	// throw new IllegalStateException("no cfg for method "
-	// + use.getMethodName());
-	// if (cfg.hasDefClearPathFromMethodEntry(use))
-	// r.add(use);
-	// else
-	// logger.debug("no defclearpath from method start for Use "
-	// + use.getUseId());
-	// }
-	// logger.info("# Uses with clear path from method entry " + r.size());
-	// return r;
-	// }
 
 }
