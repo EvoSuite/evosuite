@@ -33,6 +33,8 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.PureMethodsList;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -151,7 +153,31 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory {
 		
 		for(BytecodeInstruction fieldMethodCall : fieldMethodCalls) {
 			if(!GraphPool.canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
-				// classes in java.* can not be analyzed for purity yet. for now just ignore them
+							
+				String toAnalyze = fieldMethodCall.getCalledMethodsClass() + "."
+						+ fieldMethodCall.getCalledMethodName();
+				
+				if(toAnalyze.startsWith("java.")){
+					 
+					Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(fieldMethodCall.getMethodCallDescriptor());
+					String newParams = "";
+					if(parameters.length!=0){
+						for (Type i : parameters) {
+							newParams = newParams + "," + i.getClassName();
+						}
+						newParams = newParams.substring(1, newParams.length());
+					}
+					toAnalyze=fieldMethodCall.getCalledMethodsClass() + "." + fieldMethodCall.getCalledMethodName()+"("+newParams+")";
+					//System.out.println(toAnalyze);
+					
+					if(PureMethodsList.instance.checkPurity(toAnalyze)){
+						if(!DefUsePool.addAsUse(fieldMethodCall))
+							throw new IllegalStateException("unable to register field method call as a use "+fieldMethodCall.toString());
+					} else {
+						if(!DefUsePool.addAsDefinition(fieldMethodCall))
+							throw new IllegalStateException("unable to register field method call as a definition "+fieldMethodCall.toString());
+					}
+				}
 				continue;
 			}
 			
