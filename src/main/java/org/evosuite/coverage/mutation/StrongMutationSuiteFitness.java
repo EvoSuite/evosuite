@@ -251,10 +251,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 		//	suite.addUnmodifiableTest(copy);
 		//}
 		//int coverage = ((TestSuiteChromosome) individual).getCoveredGoals().size();
-		int coverage = MutationTestPool.getCoveredMutants();
-		if (mostCoveredGoals < coverage)
-			mostCoveredGoals = coverage;
-
+		
 		//logger.info("Fitness values for " + minMutantFitness.size() + " mutants");
 		int numKilled = MutationTestPool.getCoveredMutants();
 		for (Double fit : minMutantFitness.values()) {
@@ -289,7 +286,8 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 		updateIndividual(individual, fitness);
 		updateGoals();
 		suite.setCoverage(1.0 * numKilled / mutationGoals.size());
-
+		suite.setNumOfCoveredGoals(numKilled);
+		
 		return fitness;
 	}
 

@@ -60,7 +60,7 @@ public class RegressionTestSuiteChromosome extends
 	 * @see org.evosuite.testsuite.AbstractTestSuiteChromosome#clone()
 	 */
 	@Override
-	public AbstractTestSuiteChromosome<RegressionTestChromosome> clone() {
+	public Chromosome clone() {
 		return new RegressionTestSuiteChromosome(this);
 	}
 
