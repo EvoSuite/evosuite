@@ -27,7 +27,7 @@ public class TestEnabledAssertions {
 
 	/*
 	 * when we run the test cases in series, we need to be reminded that we should activate 
-	 * the assertions inside EvoSuite with -ea:de.unisb.cs.st...
+	 * the assertions inside EvoSuite with -ea:org.evosuite...
 	 */
 	@Test
 	public void testIfAssertionsAreEnabled(){
