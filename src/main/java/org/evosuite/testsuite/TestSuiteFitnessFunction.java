@@ -117,36 +117,7 @@ public abstract class TestSuiteFitnessFunction extends
 		return results;
 	}
 
-	/**
-	 * <p>
-	 * getCoveredGoals
-	 * </p>
-	 * 
-	 * @return a int.
-	 */
-	public static int getCoveredGoals() {
 
-		// TODO could be done nicer for arbitrary criteria but tbh right now it
-		// works for me
-
-		switch (Properties.CRITERION) {
-		case DEFUSE:
-			return DefUseCoverageSuiteFitness.countMostCoveredGoals();
-		case STATEMENT:
-			return StatementCoverageSuiteFitness.mostCoveredGoals;
-		case BRANCH:
-		case EXCEPTION:
-			return BranchCoverageSuiteFitness.mostCoveredGoals;
-		case ALLDEFS:
-			return AllDefsCoverageSuiteFitness.mostCoveredGoals;
-		case MUTATION:
-		case WEAKMUTATION:
-		case STRONGMUTATION:
-			return MutationSuiteFitness.mostCoveredGoals;
-		default:
-			return -1; // to indicate value is missing
-		}
-	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()

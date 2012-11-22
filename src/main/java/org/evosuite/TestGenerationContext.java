@@ -78,9 +78,6 @@ public class TestGenerationContext {
 		// Forget the old SUT
 		Properties.resetTargetClass();
 
-		// TODO: These should not exist
-		BranchCoverageSuiteFitness.mostCoveredGoals = 0;
-
 		TestCaseExecutor.initExecutor();
 		
 		// Constant pool
