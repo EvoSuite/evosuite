@@ -51,8 +51,6 @@ public abstract class TestSuiteFitnessFunction extends
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	/** Constant <code>executor</code> */
-	protected static final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
@@ -66,7 +64,7 @@ public abstract class TestSuiteFitnessFunction extends
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			result = executor.execute(test);
+			result = TestCaseExecutor.getInstance().execute(test);
 			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 		} catch (Exception e) {
 			logger.warn("TG: Exception caught: " + e.getMessage(), e);
