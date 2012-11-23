@@ -949,15 +949,37 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * @return a boolean.
 	 */
 	public boolean isMethodCallOfField() {		
-		if(this.isInvokeStatic())
+		if (this.isInvokeStatic())
 			return false;
-		//If the instruction belongs to static initialization block of the class, then the method call cannot be done on a fields.
-		if(this.methodName.contains("<clinit>"))
+		// If the instruction belongs to static initialization block of the
+		// class, then the method call cannot be done on a fields.
+		if (this.methodName.contains("<clinit>"))
 			return false;
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
 		if (srcInstruction == null)
 			return false;
-		return srcInstruction.isFieldUse();
+		
+		//is a field use? But field uses are also "GETSTATIC"
+		if (srcInstruction.isFieldUse()) {
+			
+			//is static? if not, return yes. This control is not necessary in theory, but you never know...
+			if (srcInstruction.isStaticDefUse()) {
+				//is static, check if the name of the class that contain the static field is equals to the current class name
+				//if is equals, return true, otherwise we are in a case where we are calling a field over an external static class
+				//e.g. System.out
+				if (srcInstruction.asmNode instanceof FieldInsnNode) {
+					String classNameField = ((FieldInsnNode) srcInstruction.asmNode).owner;
+					classNameField = classNameField.replace("/", ".");
+					if (classNameField.equals(className)) {
+						return true;
+					}
+				}
+			} else {
+				return true;
+			}
+		}
+		return false;
+
 	}
 
 	/**
