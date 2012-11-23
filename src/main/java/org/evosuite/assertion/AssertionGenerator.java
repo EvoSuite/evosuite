@@ -57,21 +57,18 @@ public abstract class AssertionGenerator {
 	/** Constant <code>null_observer</code> */
 	protected static final NullTraceObserver null_observer = new NullTraceObserver();
 
-	/** Constant <code>executor</code> */
-	protected static final TestCaseExecutor executor = TestCaseExecutor.getInstance();
-
 	/**
 	 * <p>
 	 * Constructor for AssertionGenerator.
 	 * </p>
 	 */
 	public AssertionGenerator() {
-		executor.addObserver(primitive_observer);
-		executor.addObserver(comparison_observer);
-		executor.addObserver(inspector_observer);
-		executor.addObserver(field_observer);
-		executor.addObserver(null_observer);
-		executor.addObserver(same_observer);
+		TestCaseExecutor.getInstance().addObserver(primitive_observer);
+		TestCaseExecutor.getInstance().addObserver(comparison_observer);
+		TestCaseExecutor.getInstance().addObserver(inspector_observer);
+		TestCaseExecutor.getInstance().addObserver(field_observer);
+		TestCaseExecutor.getInstance().addObserver(null_observer);
+		TestCaseExecutor.getInstance().addObserver(same_observer);
 	}
 
 	/**
@@ -95,7 +92,7 @@ public abstract class AssertionGenerator {
 		ExecutionResult result = new ExecutionResult(test);
 		try {
 			logger.debug("Executing test");
-			result = executor.execute(test);
+			result = TestCaseExecutor.getInstance().execute(test);
 			int num = test.size();
 			MaxStatementsStoppingCondition.statementsExecuted(num);
 			result.setTrace(comparison_observer.getTrace(), ComparisonTraceEntry.class);

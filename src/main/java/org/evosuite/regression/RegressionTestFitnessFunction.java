@@ -17,8 +17,6 @@ import org.evosuite.testcase.TestChromosome;
 public class RegressionTestFitnessFunction extends
         FitnessFunction<RegressionTestChromosome> {
 
-	protected static TestCaseExecutor executor = TestCaseExecutor.getInstance();
-
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#getFitness(org.evosuite.ga.Chromosome)
 	 */
@@ -49,7 +47,7 @@ public class RegressionTestFitnessFunction extends
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			result = executor.execute(test);
+			result = TestCaseExecutor.getInstance().execute(test);
 
 			int num = test.size();
 			if (!result.noThrownExceptions()) {
