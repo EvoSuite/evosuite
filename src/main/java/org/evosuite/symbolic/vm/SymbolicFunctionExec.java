@@ -5,10 +5,17 @@ import org.objectweb.asm.Type;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
 
-public abstract class RFunction {
+/**
+ * This class represents the execution of a concrete method (Math.abs(), new
+ * Integer(), etc.) at the symbolic level.
+ * 
+ * @author galeotti
+ * 
+ */
+public abstract class SymbolicFunctionExec {
 
-	public RFunction(SymbolicEnvironment env, String owner, String name,
-			String desc) {
+	public SymbolicFunctionExec(SymbolicEnvironment env, String owner,
+			String name, String desc) {
 		super();
 		this.env = env;
 		this.owner = owner;
