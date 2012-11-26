@@ -2,11 +2,11 @@ package org.evosuite.symbolic.vm.string.buffer;
 
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.RFunction;
+import org.evosuite.symbolic.vm.SymbolicFunctionExec;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class StringBuffer_ToString extends RFunction {
+public final class StringBuffer_ToString extends SymbolicFunctionExec {
 
 	private static final String TO_STRING = "toString";
 

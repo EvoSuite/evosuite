@@ -3,10 +3,10 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.RFunction;
+import org.evosuite.symbolic.vm.SymbolicFunctionExec;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-public final class ToRadians extends RFunction {
+public final class ToRadians extends SymbolicFunctionExec {
 
 	private static final String TO_RADIANS = "toRadians";
 
