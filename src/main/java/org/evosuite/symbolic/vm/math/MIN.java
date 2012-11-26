@@ -1,88 +1,111 @@
 package org.evosuite.symbolic.vm.math;
 
-import java.util.Stack;
-
-import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.vm.RFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-
 
 public abstract class MIN {
 
 	private static final String MIN = "min";
 
-	public final static class MIN_D extends MathFunction_DD2D {
+	public final static class MIN_D extends RFunction {
 
 		public MIN_D(SymbolicEnvironment env) {
-			super(env, MIN);
+			super(env, Types.JAVA_LANG_MATH, MIN, Types.DD2D_DESCRIPTOR);
 		}
 
 		@Override
-		protected RealValue executeFunction(double res) {
-			RealBinaryExpression sym_val = new RealBinaryExpression(left,
-					Operator.MIN, right, res);
-			return sym_val;
-		}
-
-	}
-
-	public final static class MIN_F extends MathFunction_FF2F {
-
-		public MIN_F(SymbolicEnvironment env) {
-			super(env, MIN);
-		}
-
-		@Override
-		protected RealValue executeFunction(float res) {
-			RealBinaryExpression sym_val = new RealBinaryExpression(left,
-					Operator.MIN, right, (double) res);
-			return sym_val;
-		}
-
-	}
-
-	public final static class MIN_I extends MathFunction_II2I {
-
-		public MIN_I(SymbolicEnvironment env) {
-			super(env, MIN);
-		}
-
-		public IntegerValue execute(Stack<Expression<?>> params, int res) {
-			IntegerValue right = (IntegerValue) params.pop();
-			IntegerValue left = (IntegerValue) params.pop();
+		public Object executeFunction() {
+			double res = this.getConcDoubleRetVal();
+			RealValue left = this.getSymbRealArgument(0);
+			RealValue right = this.getSymbRealArgument(1);
+			RealValue minExpr;
 			if (left.containsSymbolicVariable()
 					|| right.containsSymbolicVariable()) {
-				IntegerBinaryExpression sym_val = new IntegerBinaryExpression(
-						left, Operator.MIN, right, (long) res);
-				return sym_val;
-			} else
-				return null;
-		}
-
-		@Override
-		protected IntegerValue executeFunction(int res) {
-			IntegerBinaryExpression sym_val = new IntegerBinaryExpression(left,
-					Operator.MIN, right, (long) res);
-			return sym_val;
+				Operator op = Operator.MIN;
+				minExpr = new RealBinaryExpression(left, op, right, res);
+			} else {
+				minExpr = this.getSymbRealRetVal();
+			}
+			return minExpr;
 		}
 
 	}
 
-	public static class MIN_L extends MathFunction_LL2L {
+	public final static class MIN_F extends RFunction {
 
-		public MIN_L(SymbolicEnvironment env) {
-			super(env, MIN);
+		public MIN_F(SymbolicEnvironment env) {
+			super(env, Types.JAVA_LANG_MATH, MIN, Types.FF2F_DESCRIPTOR);
 		}
 
 		@Override
-		protected IntegerValue executeFunction(long res) {
-			IntegerBinaryExpression sym_val = new IntegerBinaryExpression(left,
-					Operator.MIN, right, res);
-			return sym_val;
+		public Object executeFunction() {
+			float res = this.getConcFloatRetVal();
+			RealValue left = this.getSymbRealArgument(0);
+			RealValue right = this.getSymbRealArgument(1);
+			RealValue minExpr;
+			if (left.containsSymbolicVariable()
+					|| right.containsSymbolicVariable()) {
+				Operator op = Operator.MIN;
+				minExpr = new RealBinaryExpression(left, op, right,
+						(double) res);
+			} else {
+				minExpr = this.getSymbRealRetVal();
+			}
+			return minExpr;
+		}
+
+	}
+
+	public final static class MIN_I extends RFunction {
+
+		public MIN_I(SymbolicEnvironment env) {
+			super(env, Types.JAVA_LANG_MATH, MIN, Types.II2I_DESCRIPTOR);
+		}
+
+		@Override
+		public Object executeFunction() {
+			int res = this.getConcIntRetVal();
+			IntegerValue left = this.getSymbIntegerArgument(0);
+			IntegerValue right = this.getSymbIntegerArgument(1);
+			IntegerValue minExpr;
+			if (left.containsSymbolicVariable()
+					|| right.containsSymbolicVariable()) {
+				Operator op = Operator.MIN;
+				minExpr = new IntegerBinaryExpression(left, op, right,
+						(long) res);
+			} else {
+				minExpr = this.getSymbIntegerRetVal();
+			}
+			return minExpr;
+		}
+
+	}
+
+	public static class MIN_L extends RFunction {
+
+		public MIN_L(SymbolicEnvironment env) {
+			super(env, Types.JAVA_LANG_MATH, MIN, Types.LL2L_DESCRIPTOR);
+		}
+
+		@Override
+		public Object executeFunction() {
+			long res = this.getConcLongRetVal();
+			IntegerValue left = this.getSymbIntegerArgument(0);
+			IntegerValue right = this.getSymbIntegerArgument(1);
+			IntegerValue minExpr;
+			if (left.containsSymbolicVariable()
+					|| right.containsSymbolicVariable()) {
+				Operator op = Operator.MIN;
+				minExpr = new IntegerBinaryExpression(left, op, right, res);
+			} else {
+				minExpr = this.getSymbIntegerRetVal();
+			}
+			return minExpr;
 		}
 
 	}

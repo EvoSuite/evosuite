@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +17,7 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.search.Seeker;
 import org.evosuite.symbolic.search.TestInput1;
+import org.evosuite.symbolic.search.TestInput2;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 import org.junit.Test;
@@ -101,6 +103,47 @@ public class TestSeeker {
 		for (Constraint<?> constraint : constraints) {
 			System.out.println(constraint);
 		}
+
+	}
+
+	/**
+	 * @param int0==5
+	 * @param int1==16
+	 * @param int2==16
+	 * @param int3==22
+	 * @param int4==22
+	 * 
+	 */
+	private DefaultTestCase buildTestCase2() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+		VariableReference int0 = tc.appendIntPrimitive(5);
+		VariableReference int1 = tc.appendIntPrimitive(16);
+		VariableReference int2 = tc.appendIntPrimitive(16);
+		VariableReference int3 = tc.appendIntPrimitive(22);
+		VariableReference int4 = tc.appendIntPrimitive(22);
+
+		Method method = TestInput2.class.getMethod("test", int.class,
+				int.class, int.class, int.class, int.class);
+		tc.appendMethod(null, method, int0, int1, int2, int3, int4);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase2() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase2();
+		// build patch condition
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(57, branch_conditions.size());
+
+		// keep only 2 top-most branch conditions
+		List<BranchCondition> sublist = new ArrayList<BranchCondition>();
+		sublist.add(branch_conditions.get(0));
+		sublist.add(branch_conditions.get(1));
+				
+		// invoke seeker
+		Map<String, Object> model = executeSeeker(sublist);
+		assertNotNull(model);
 
 	}
 
