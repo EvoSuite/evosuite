@@ -57,7 +57,7 @@ import gnu.trove.map.hash.THashMap;
  * @author galeotti
  * 
  */
-public final class RFunctionVM extends AbstractVM {
+public final class SymbolicFunctionVM extends AbstractVM {
 
 	private static class FunctionKey {
 		public FunctionKey(String owner, String name, String desc) {
@@ -91,7 +91,7 @@ public final class RFunctionVM extends AbstractVM {
 
 	private final SymbolicEnvironment env;
 
-	public RFunctionVM(SymbolicEnvironment env) {
+	public SymbolicFunctionVM(SymbolicEnvironment env) {
 		this.env = env;
 		fillFunctionsTable();
 	}
@@ -263,7 +263,7 @@ public final class RFunctionVM extends AbstractVM {
 
 	}
 
-	private void addFunctionToTable(RFunction f) {
+	private void addFunctionToTable(SymbolicFunctionExec f) {
 		FunctionKey k = new FunctionKey(f.getOwner(), f.getName(), f.getDesc());
 		functionsTable.put(k, f);
 	}
@@ -330,11 +330,11 @@ public final class RFunctionVM extends AbstractVM {
 		return op.getReference();
 	}
 
-	private final Map<FunctionKey, RFunction> functionsTable = new THashMap<FunctionKey, RFunction>();
+	private final Map<FunctionKey, SymbolicFunctionExec> functionsTable = new THashMap<FunctionKey, SymbolicFunctionExec>();
 
-	private RFunction getFunction(String owner, String name, String desc) {
+	private SymbolicFunctionExec getFunction(String owner, String name, String desc) {
 		FunctionKey k = new FunctionKey(owner, name, desc);
-		RFunction f = functionsTable.get(k);
+		SymbolicFunctionExec f = functionsTable.get(k);
 		return f;
 	}
 
@@ -461,7 +461,7 @@ public final class RFunctionVM extends AbstractVM {
 
 	}
 
-	private RFunction functionUnderExecution;
+	private SymbolicFunctionExec functionUnderExecution;
 
 	@Override
 	public void INVOKEINTERFACE(Object conc_receiver, String owner,
