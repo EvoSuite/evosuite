@@ -5,14 +5,14 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.RFunction;
+import org.evosuite.symbolic.vm.SymbolicFunctionExec;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class MAX {
 
 	private static final String MAX = "max";
 
-	public final static class MAX_D extends RFunction {
+	public final static class MAX_D extends SymbolicFunctionExec {
 
 		public MAX_D(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MAX, Types.DD2D_DESCRIPTOR);
@@ -35,7 +35,7 @@ public abstract class MAX {
 		}
 	}
 
-	public final static class MAX_F extends RFunction {
+	public final static class MAX_F extends SymbolicFunctionExec {
 
 		public MAX_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MAX, Types.FF2F_DESCRIPTOR);
@@ -60,7 +60,7 @@ public abstract class MAX {
 
 	}
 
-	public final static class MAX_I extends RFunction {
+	public final static class MAX_I extends SymbolicFunctionExec {
 
 		public MAX_I(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MAX, Types.II2I_DESCRIPTOR);
@@ -85,7 +85,7 @@ public abstract class MAX {
 
 	}
 
-	public static class MAX_L extends RFunction {
+	public static class MAX_L extends SymbolicFunctionExec {
 
 		public MAX_L(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MAX, Types.LL2L_DESCRIPTOR);

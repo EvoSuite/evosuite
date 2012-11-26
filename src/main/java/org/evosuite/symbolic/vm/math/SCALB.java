@@ -4,12 +4,12 @@ import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.RFunction;
+import org.evosuite.symbolic.vm.SymbolicFunctionExec;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class SCALB {
 
-	public static class SCALB_D extends RFunction {
+	public static class SCALB_D extends SymbolicFunctionExec {
 
 		public SCALB_D(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, SCALB, Types.DI2D_DESCRIPTOR);
@@ -35,7 +35,7 @@ public abstract class SCALB {
 
 	private static final String SCALB = "scalb";
 
-	public static class SCALB_F extends RFunction {
+	public static class SCALB_F extends SymbolicFunctionExec {
 
 		public SCALB_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, SCALB, Types.FI2F_DESCRIPTOR);

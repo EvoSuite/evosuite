@@ -3,14 +3,14 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.RFunction;
+import org.evosuite.symbolic.vm.SymbolicFunctionExec;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class NextAfter {
 
 	private static final String NEXT_AFTER = "nextAfter";
 
-	public final static class NextAfter_D extends RFunction {
+	public final static class NextAfter_D extends SymbolicFunctionExec {
 
 		public NextAfter_D(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, NEXT_AFTER, Types.DD2D_DESCRIPTOR);
@@ -34,7 +34,7 @@ public abstract class NextAfter {
 
 	}
 
-	public static class NextAfter_F extends RFunction {
+	public static class NextAfter_F extends SymbolicFunctionExec {
 
 		public NextAfter_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, NEXT_AFTER, Types.FD2F_DESCRIPTOR);

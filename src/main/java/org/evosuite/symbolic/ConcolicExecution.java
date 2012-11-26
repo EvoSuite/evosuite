@@ -31,7 +31,7 @@ import org.evosuite.symbolic.vm.JumpVM;
 import org.evosuite.symbolic.vm.LocalsVM;
 import org.evosuite.symbolic.vm.OtherVM;
 import org.evosuite.symbolic.vm.PathConstraint;
-import org.evosuite.symbolic.vm.RFunctionVM;
+import org.evosuite.symbolic.vm.SymbolicFunctionVM;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionResult;
@@ -102,7 +102,7 @@ public abstract class ConcolicExecution {
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
 		listeners.add(new FunctionVM(env));
-		listeners.add(new RFunctionVM(env));
+		listeners.add(new SymbolicFunctionVM(env));
 		VM.vm.setListeners(listeners);
 		VM.vm.startupConcolicExecution();
 
