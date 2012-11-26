@@ -3,39 +3,54 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.vm.RFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-
-public abstract class SIGNUM  {
+public abstract class SIGNUM {
 
 	private static final String SIGNUM = "signum";
 
-	public final static class SIGNUM_D extends MathFunction_D2D {
+	public final static class SIGNUM_D extends RFunction {
 
 		public SIGNUM_D(SymbolicEnvironment env) {
-			super(env, SIGNUM);
+			super(env, Types.JAVA_LANG_MATH, SIGNUM, Types.D2D_DESCRIPTOR);
 		}
 
 		@Override
-		protected RealValue executeFunction(double res) {
-			RealUnaryExpression sym_val = new RealUnaryExpression(
-					realExpression, Operator.SIGNUM, res);
-			return sym_val;
+		public Object executeFunction() {
+			double res = this.getConcDoubleRetVal();
+			RealValue realExpression = this.getSymbRealArgument(0);
+			RealValue signumExpr;
+			if (realExpression.containsSymbolicVariable()) {
+				Operator op = Operator.SIGNUM;
+				signumExpr = new RealUnaryExpression(realExpression, op, res);
+			} else {
+				signumExpr = this.getSymbRealRetVal();
+			}
+			return signumExpr;
 		}
 
 	}
 
-	public final static class SIGNUM_F extends MathFunction_F2F {
+	public final static class SIGNUM_F extends RFunction {
 
 		public SIGNUM_F(SymbolicEnvironment env) {
-			super(env, SIGNUM);
+			super(env, Types.JAVA_LANG_MATH, SIGNUM, Types.F2F_DESCRIPTOR);
 		}
 
 		@Override
-		protected RealValue executeFunction(float res) {
-			RealUnaryExpression sym_val = new RealUnaryExpression(
-					realExpression, Operator.SIGNUM, (double) res);
-			return sym_val;
+		public Object executeFunction() {
+			float res = this.getConcFloatRetVal();
+			RealValue realExpression = this.getSymbRealArgument(0);
+			RealValue signumExpr;
+			if (realExpression.containsSymbolicVariable()) {
+				Operator op = Operator.SIGNUM;
+				signumExpr = new RealUnaryExpression(realExpression, op,
+						(double) res);
+			} else {
+				signumExpr = this.getSymbRealRetVal();
+			}
+			return signumExpr;
 		}
 
 	}

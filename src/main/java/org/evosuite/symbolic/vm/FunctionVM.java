@@ -2,45 +2,6 @@ package org.evosuite.symbolic.vm;
 
 import java.util.Map;
 
-import org.evosuite.symbolic.vm.bigint.BigInteger_Ctor;
-import org.evosuite.symbolic.vm.bigint.BigInteger_DivideAndRemainder;
-import org.evosuite.symbolic.vm.bigint.BigInteger_IntValue;
-import org.evosuite.symbolic.vm.math.ABS;
-import org.evosuite.symbolic.vm.math.ACOS;
-import org.evosuite.symbolic.vm.math.ASIN;
-import org.evosuite.symbolic.vm.math.ATAN;
-import org.evosuite.symbolic.vm.math.ATAN2;
-import org.evosuite.symbolic.vm.math.CBRT;
-import org.evosuite.symbolic.vm.math.CEIL;
-import org.evosuite.symbolic.vm.math.COS;
-import org.evosuite.symbolic.vm.math.COSH;
-import org.evosuite.symbolic.vm.math.CopySign;
-import org.evosuite.symbolic.vm.math.EXP;
-import org.evosuite.symbolic.vm.math.EXPM1;
-import org.evosuite.symbolic.vm.math.FLOOR;
-import org.evosuite.symbolic.vm.math.GetExponent;
-import org.evosuite.symbolic.vm.math.HYPOT;
-import org.evosuite.symbolic.vm.math.IEEEremainder;
-import org.evosuite.symbolic.vm.math.LOG;
-import org.evosuite.symbolic.vm.math.LOG10;
-import org.evosuite.symbolic.vm.math.LOG1P;
-import org.evosuite.symbolic.vm.math.MAX;
-import org.evosuite.symbolic.vm.math.MIN;
-import org.evosuite.symbolic.vm.math.NextAfter;
-import org.evosuite.symbolic.vm.math.NextUp;
-import org.evosuite.symbolic.vm.math.POW;
-import org.evosuite.symbolic.vm.math.RINT;
-import org.evosuite.symbolic.vm.math.Round;
-import org.evosuite.symbolic.vm.math.SCALB;
-import org.evosuite.symbolic.vm.math.SIGNUM;
-import org.evosuite.symbolic.vm.math.SIN;
-import org.evosuite.symbolic.vm.math.SINH;
-import org.evosuite.symbolic.vm.math.SQRT;
-import org.evosuite.symbolic.vm.math.TAN;
-import org.evosuite.symbolic.vm.math.TANH;
-import org.evosuite.symbolic.vm.math.ToDegrees;
-import org.evosuite.symbolic.vm.math.ToRadians;
-import org.evosuite.symbolic.vm.math.ULP;
 import org.evosuite.symbolic.vm.regex.Matcher_Matches;
 import org.evosuite.symbolic.vm.regex.Pattern_Matcher;
 import org.evosuite.symbolic.vm.regex.Pattern_Matches;
@@ -189,60 +150,6 @@ public final class FunctionVM extends AbstractVM {
 		addFunctionToTable(new Z_ValueOf(env));
 		addFunctionToTable(new Z_BooleanValue(env));
 
-		// java.lang.Math
-		addFunctionToTable(new ABS.ABS_I(env));
-		addFunctionToTable(new ABS.ABS_L(env));
-		addFunctionToTable(new ABS.ABS_F(env));
-		addFunctionToTable(new ABS.ABS_D(env));
-		addFunctionToTable(new ACOS(env));
-		addFunctionToTable(new ASIN(env));
-		addFunctionToTable(new ATAN(env));
-		addFunctionToTable(new ATAN2(env));
-		addFunctionToTable(new CBRT(env));
-		addFunctionToTable(new CEIL(env));
-		addFunctionToTable(new CopySign.CopySign_F(env));
-		addFunctionToTable(new CopySign.CopySign_D(env));
-		addFunctionToTable(new COS(env));
-		addFunctionToTable(new COSH(env));
-		addFunctionToTable(new EXP(env));
-		addFunctionToTable(new EXPM1(env));
-		addFunctionToTable(new FLOOR(env));
-		addFunctionToTable(new GetExponent.GetExponent_F(env));
-		addFunctionToTable(new GetExponent.GetExponent_D(env));
-		addFunctionToTable(new HYPOT(env));
-		addFunctionToTable(new IEEEremainder(env));
-		addFunctionToTable(new LOG(env));
-		addFunctionToTable(new LOG10(env));
-		addFunctionToTable(new LOG1P(env));
-		addFunctionToTable(new MIN.MIN_I(env));
-		addFunctionToTable(new MIN.MIN_L(env));
-		addFunctionToTable(new MIN.MIN_F(env));
-		addFunctionToTable(new MIN.MIN_D(env));
-		addFunctionToTable(new MAX.MAX_I(env));
-		addFunctionToTable(new MAX.MAX_L(env));
-		addFunctionToTable(new MAX.MAX_F(env));
-		addFunctionToTable(new MAX.MAX_D(env));
-		addFunctionToTable(new NextAfter.NextAfter_F(env));
-		addFunctionToTable(new NextAfter.NextAfter_D(env));
-		addFunctionToTable(new NextUp.NextUp_F(env));
-		addFunctionToTable(new NextUp.NextUp_D(env));
-		addFunctionToTable(new POW(env));
-		addFunctionToTable(new RINT(env));
-		addFunctionToTable(new Round.Round_F(env));
-		addFunctionToTable(new Round.Round_D(env));
-		addFunctionToTable(new SCALB.SCALB_F(env));
-		addFunctionToTable(new SCALB.SCALB_D(env));
-		addFunctionToTable(new SIGNUM.SIGNUM_F(env));
-		addFunctionToTable(new SIGNUM.SIGNUM_D(env));
-		addFunctionToTable(new SIN(env));
-		addFunctionToTable(new SINH(env));
-		addFunctionToTable(new SQRT(env));
-		addFunctionToTable(new TAN(env));
-		addFunctionToTable(new TANH(env));
-		addFunctionToTable(new ToDegrees(env));
-		addFunctionToTable(new ToRadians(env));
-		addFunctionToTable(new ULP.ULP_F(env));
-		addFunctionToTable(new ULP.ULP_D(env));
 
 		// java.lang.String
 		addFunctionToTable(new CharAt(env));
@@ -296,10 +203,6 @@ public final class FunctionVM extends AbstractVM {
 		// java.util.regex.Matcher
 		addFunctionToTable(new Matcher_Matches(env));
 
-		// java.math.BigInteger
-		addFunctionToTable(new BigInteger_Ctor(env));
-		addFunctionToTable(new BigInteger_DivideAndRemainder(env));
-		addFunctionToTable(new BigInteger_IntValue(env));
 	}
 
 	private void addFunctionToTable(Function f) {

@@ -3,21 +3,29 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.vm.RFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 
-public final class COSH extends MathFunction_D2D {
+public final class COSH extends RFunction {
 
 	private static final String COSH = "cosh";
 
 	public COSH(SymbolicEnvironment env) {
-		super(env, COSH);
+		super(env, Types.JAVA_LANG_MATH, COSH, Types.D2D_DESCRIPTOR);
 	}
 
 	@Override
-	protected RealValue executeFunction(double res) {
-		Operator op = Operator.COSH;
-		return new RealUnaryExpression(realExpression, op, res);
+	public Object executeFunction() {
+		double res = this.getConcDoubleRetVal();
+		RealValue realExpression = this.getSymbRealArgument(0);
+		RealValue coshExpr;
+		if (realExpression.containsSymbolicVariable()) {
+			Operator op = Operator.COSH;
+			coshExpr = new RealUnaryExpression(realExpression, op, res);
+		} else {
+			coshExpr = this.getSymbRealRetVal();
+		}
+		return coshExpr;
 	}
-
 }
