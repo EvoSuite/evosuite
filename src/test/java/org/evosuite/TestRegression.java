@@ -62,8 +62,7 @@ public class TestRegression extends SystemTest {
 		GeneticAlgorithm ga = runTest(targetClass);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		// TODO: Need to fix the check, some reset is not working
-		Assert.assertEquals("Wrong number of target goals", numGoals,
-		                    TestSuiteFitnessFunction.getCoveredGoals());
+		Assert.assertEquals("Wrong number of target goals", numGoals,best.getNumOfCoveredGoals());
 		Assert.assertEquals("Wrong fitness: ", 0.0, best.getFitness(), 0.00);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		Assert.assertTrue("Wrong number of statements: ", best.size() > 0);

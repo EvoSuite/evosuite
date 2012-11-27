@@ -51,8 +51,6 @@ public abstract class TestSuiteFitnessFunction extends
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(TestSuiteFitnessFunction.class);
 
-	/** Constant <code>executor</code> */
-	protected static final TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Execute a test case
@@ -66,7 +64,7 @@ public abstract class TestSuiteFitnessFunction extends
 		ExecutionResult result = new ExecutionResult(test, null);
 
 		try {
-			result = executor.execute(test);
+			result = TestCaseExecutor.getInstance().execute(test);
 			MaxStatementsStoppingCondition.statementsExecuted(result.getExecutedStatements());
 		} catch (Exception e) {
 			logger.warn("TG: Exception caught: " + e.getMessage(), e);
@@ -117,36 +115,7 @@ public abstract class TestSuiteFitnessFunction extends
 		return results;
 	}
 
-	/**
-	 * <p>
-	 * getCoveredGoals
-	 * </p>
-	 * 
-	 * @return a int.
-	 */
-	public static int getCoveredGoals() {
 
-		// TODO could be done nicer for arbitrary criteria but tbh right now it
-		// works for me
-
-		switch (Properties.CRITERION) {
-		case DEFUSE:
-			return DefUseCoverageSuiteFitness.countMostCoveredGoals();
-		case STATEMENT:
-			return StatementCoverageSuiteFitness.mostCoveredGoals;
-		case BRANCH:
-		case EXCEPTION:
-			return BranchCoverageSuiteFitness.mostCoveredGoals;
-		case ALLDEFS:
-			return AllDefsCoverageSuiteFitness.mostCoveredGoals;
-		case MUTATION:
-		case WEAKMUTATION:
-		case STRONGMUTATION:
-			return MutationSuiteFitness.mostCoveredGoals;
-		default:
-			return -1; // to indicate value is missing
-		}
-	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.FitnessFunction#isMaximizationFunction()

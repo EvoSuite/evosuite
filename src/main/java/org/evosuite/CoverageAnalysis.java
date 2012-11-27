@@ -112,7 +112,7 @@ public class CoverageAnalysis {
 				                                                     / (double) goals.size());
 				if (oldCriterion == criterion)
 					SearchStatistics.getInstance().setCoveredGoals(covered);
-				MutationSuiteFitness.mostCoveredGoals = covered;
+				
 			}
 
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion "

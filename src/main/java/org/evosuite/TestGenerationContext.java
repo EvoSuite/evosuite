@@ -3,7 +3,6 @@
  */
 package org.evosuite;
 
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.ga.stoppingconditions.GlobalTimeStoppingCondition;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
@@ -77,9 +76,6 @@ public class TestGenerationContext {
 
 		// Forget the old SUT
 		Properties.resetTargetClass();
-
-		// TODO: These should not exist
-		BranchCoverageSuiteFitness.mostCoveredGoals = 0;
 
 		TestCaseExecutor.initExecutor();
 		

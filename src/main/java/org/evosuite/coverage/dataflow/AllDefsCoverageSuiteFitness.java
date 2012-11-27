@@ -42,8 +42,6 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/** Constant <code>totalGoals=goals.size()</code> */
 	public static int totalGoals = goals.size();
 
-	/** Constant <code>mostCoveredGoals=0</code> */
-	public static int mostCoveredGoals = 0;
 
 	/*
 	 * (non-Javadoc)
@@ -100,5 +98,7 @@ public class AllDefsCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			suite.setCoverage(coveredGoals.size() / (double) goals.size());
 		else
 			suite.setCoverage(1.0);
+		
+		suite.setNumOfCoveredGoals(coveredGoals.size());
 	}
 }
