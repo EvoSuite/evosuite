@@ -69,6 +69,7 @@ public class Sandbox {
 		if(manager!=null){
 			manager.restoreDefaultManager();
 		}
+		manager = null;
 	}
 	
 	

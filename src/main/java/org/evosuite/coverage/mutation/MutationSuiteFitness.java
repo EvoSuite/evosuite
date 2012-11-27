@@ -46,9 +46,6 @@ public abstract class MutationSuiteFitness extends TestSuiteFitnessFunction {
 
 	protected final List<MutationTestFitness> mutationGoals;
 
-	/** Constant <code>mostCoveredGoals=0</code> */
-	public static int mostCoveredGoals = 0;
-
 	/**
 	 * <p>
 	 * Constructor for MutationSuiteFitness.

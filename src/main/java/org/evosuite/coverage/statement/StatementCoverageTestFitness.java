@@ -35,8 +35,8 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 4609519536866911970L;
 
-	BytecodeInstruction goalInstruction;
-	List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+	protected BytecodeInstruction goalInstruction;
+	protected List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
 
 	BranchCoverageTestFitness lastCoveringFitness = null;
 

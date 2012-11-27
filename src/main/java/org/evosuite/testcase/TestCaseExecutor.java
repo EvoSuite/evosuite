@@ -160,8 +160,10 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public static void pullDown() {
 		if (instance != null) {
-			instance.executor.shutdownNow();
-			instance.executor = null;
+			if(instance.executor!=null){
+				instance.executor.shutdownNow();
+				instance.executor = null;
+			}
 		}
 	}
 
