@@ -183,6 +183,7 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	// coverage information
 	private Integer coveringObjectId = -1;
 	private ExecutionTrace coveringTrace;
+	private boolean covered = false;
 
 	// constructors
 
@@ -757,6 +758,21 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 		return 0;
+	}
+	
+
+	/**
+	 * @return the covered
+	 */
+	public boolean isCovered() {
+		return covered;
+	}
+
+	/**
+	 * @param covered the covered to set
+	 */
+	public void setCovered(boolean covered) {
+		this.covered = covered;
 	}
 
 	//	@Override

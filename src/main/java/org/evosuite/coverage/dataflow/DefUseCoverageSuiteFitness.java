@@ -17,6 +17,7 @@
  */
 package org.evosuite.coverage.dataflow;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -34,6 +35,7 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * Evaluate fitness of a test suite with respect to all of its def-use pairs
@@ -302,8 +304,10 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		initCoverageMaps();
 
 		for (DefUseCoverageTestFitness goal : goals) {
-			if (coveredGoalsSet.contains(goal))
-				continue;
+			if (coveredGoalsSet.contains(goal)){
+				goal.setCovered(true);
+				continue;				
+			}
 
 			double goalFitness = 2.0;
 			for (ExecutionResult result : results) {
@@ -315,6 +319,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				if (goalFitness == 0.0) {
 					result.test.addCoveredGoal(goal);
 					coveredGoalsSet.add(goal);
+					goal.setCovered(true);
 					break;
 				}
 			}
@@ -393,7 +398,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private void countCoveredGoals(Set<DefUseCoverageTestFitness> coveredGoalsSet) {
 		for (DefUseCoverageTestFitness goal : coveredGoalsSet) {
 			coveredGoals.put(goal.getType(), coveredGoals.get(goal.getType()) + 1);
-
+			
 		}
 	}
 
@@ -426,15 +431,37 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	public static void printCoverage() {
 
-		System.out.println("* Time spent optimizing covered goals analysis: "
+		LoggingUtils.getEvoLogger().info("* Time spent optimizing covered goals analysis: "
 		        + DefUseExecutionTraceAnalyzer.timeGetCoveredGoals + "ms");
-
+		
 		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
-			System.out.println("* Covered goals of type " + type + ": "
+			LoggingUtils.getEvoLogger().info("* Covered goals of type " + type + ": "
 			        + mostCoveredGoals.get(type) + " / " + totalGoals.get(type));
+			for(DefUseCoverageTestFitness pair:getPairsOfType(type)){
+				if(pair.isCovered()){
+					LoggingUtils.getEvoLogger().info("*(X) "+pair.toString());
+				}else{
+					LoggingUtils.getEvoLogger().info("*( ) "+pair.toString());
+				}
+			}
+				
 		}
 
-		System.out.println("* Covered " + countMostCoveredGoals() + "/"
+		LoggingUtils.getEvoLogger().info("* Covered " + countMostCoveredGoals() + "/"
 		        + countTotalGoals() + " goals");
+	}
+
+	/**
+	 * Returns a list of du pairs of the specific type.
+	 * @param type the type of pairs. See DefUseCoverageTestFitness.DefUsePairType
+	 * @return
+	 */
+	private static ArrayList<DefUseCoverageTestFitness> getPairsOfType(DefUsePairType type) {
+		ArrayList<DefUseCoverageTestFitness> pairs = new ArrayList<DefUseCoverageTestFitness>();
+		for(DefUseCoverageTestFitness pair:goals){
+			if(pair.getType() == type)
+				pairs.add(pair);
+		}
+		return pairs;
 	}
 }

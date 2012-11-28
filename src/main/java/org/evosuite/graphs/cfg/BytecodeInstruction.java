@@ -25,6 +25,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cdg.ControlDependenceGraph;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.FrameNode;
@@ -938,7 +939,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * ('this')
 	 * 
 	 * This is done using the getSourceOfMethodInvocationInstruction() method
-	 * and checking if the return of that method is an ALOAD_0 instruction
+	 * and checking if the return of that method loads this using loadsReferenceToThis()
 	 * 
 	 * @return a boolean.
 	 */
@@ -946,7 +947,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
 		if (srcInstruction == null)
 			return false;
-		return srcInstruction.isALOAD0();
+		return srcInstruction.loadsReferenceToThis();
 	}
 
 	/**
@@ -957,12 +958,38 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * 
 	 * @return a boolean.
 	 */
-	// TODO comments and ISTATIC?
-	public boolean isMethodCallOfField() {
+	public boolean isMethodCallOfField() {		
+		if (this.isInvokeStatic())
+			return false;
+		// If the instruction belongs to static initialization block of the
+		// class, then the method call cannot be done on a fields.
+		if (this.methodName.contains("<clinit>"))
+			return false;
 		BytecodeInstruction srcInstruction = getSourceOfMethodInvocationInstruction();
 		if (srcInstruction == null)
 			return false;
-		return srcInstruction.isFieldUse();
+		
+		//is a field use? But field uses are also "GETSTATIC"
+		if (srcInstruction.isFieldUse()) {
+			
+			//is static? if not, return yes. This control is not necessary in theory, but you never know...
+			if (srcInstruction.isStaticDefUse()) {
+				//is static, check if the name of the class that contain the static field is equals to the current class name
+				//if is equals, return true, otherwise we are in a case where we are calling a field over an external static class
+				//e.g. System.out
+				if (srcInstruction.asmNode instanceof FieldInsnNode) {
+					String classNameField = ((FieldInsnNode) srcInstruction.asmNode).owner;
+					classNameField = classNameField.replace("/", ".");
+					if (classNameField.equals(className)) {
+						return true;
+					}
+				}
+			} else {
+				return true;
+			}
+		}
+		return false;
+
 	}
 
 	/**
@@ -1043,6 +1070,17 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 					"expect each BytecodeInstruction to have its CFGFrame set");
 
 		int stackPos = frame.getStackSize() - (1 + positionFromTop);
+		if (stackPos < 0){
+			LoggingUtils.getEvoLogger().debug("getSourceOfStackInstruction has stackPos "+stackPos+". This should not happen. Corner case not correctly handled??!");
+			StackTraceElement[] se = new Throwable().getStackTrace();
+			int t=0;
+			System.out.println("Stack trace: ");
+			while(t<se.length){
+				System.out.println(se[t]);
+				t++;
+			}
+			return null;
+		}
 		SourceValue source = (SourceValue) frame.getStack(stackPos);
 		if (source.insns.size() != 1) {
 			// we don't know for sure, let's be conservative
