@@ -41,12 +41,6 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	protected Set<T> unmodifiableTests = new HashSet<T>();
 	protected ChromosomeFactory<T> testChromosomeFactory;
 
-	/*
-	 * coverage is used only for output/statistics purposes
-	 */
-	protected double coverage = 0.0;
-
-
 	/**
 	 * only used for testing/debugging
 	 */
@@ -249,7 +243,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 	/** {@inheritDoc} */
 	@Override
-	public abstract AbstractTestSuiteChromosome<T> clone();
+	public abstract Chromosome clone();
 
 	/**
 	 * <p>getTestChromosome</p>
@@ -279,23 +273,5 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 	public void setTestChromosome(int index, T test) {
 		tests.set(index, test);
 		this.setChanged(true);
-	}
-
-	/**
-	 * <p>Getter for the field <code>coverage</code>.</p>
-	 *
-	 * @return a double.
-	 */
-	public double getCoverage() {
-		return coverage;
-	}
-
-	/**
-	 * <p>Setter for the field <code>coverage</code>.</p>
-	 *
-	 * @param coverage a double.
-	 */
-	public void setCoverage(double coverage) {
-		this.coverage = coverage;
 	}
 }

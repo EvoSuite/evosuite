@@ -27,6 +27,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness.DefUsePairType;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
@@ -289,7 +290,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	/** {@inheritDoc} */
 	//@Override
 	public double getFitnessOld(
-	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
+	        Chromosome individual) {
 		logger.trace("Calculating defuse fitness");
 
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
@@ -322,7 +323,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		countCoveredGoals(coveredGoalsSet);
 		trackCoverageStatistics(suite);
-		updateIndividual(individual, fitness);
+		updateIndividual(suite, fitness);
 
 		int coveredGoalCount = countCoveredGoals();
 		int totalGoalCount = countTotalGoals();

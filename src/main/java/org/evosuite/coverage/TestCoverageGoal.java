@@ -38,8 +38,6 @@ public abstract class TestCoverageGoal {
 	/** Constant <code>logger</code> */
 	protected final static Logger logger = LoggerFactory.getLogger(TestCoverageGoal.class);
 
-	/** Constant <code>executor</code> */
-	protected final static TestCaseExecutor executor = TestCaseExecutor.getInstance();
 
 	/**
 	 * Return true if this coverage goal is covered by the given test
@@ -106,7 +104,7 @@ public abstract class TestCoverageGoal {
 			return test.getLastExecutionResult();
 
 		try {
-			ExecutionResult result = executor.execute(test.getTestCase());
+			ExecutionResult result = TestCaseExecutor.getInstance().execute(test.getTestCase());
 			return result;
 		} catch (Exception e) {
 			logger.error("TG: Exception caught: ", e);
