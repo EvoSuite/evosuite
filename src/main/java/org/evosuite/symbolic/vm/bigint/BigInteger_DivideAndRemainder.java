@@ -6,12 +6,12 @@ import java.math.BigInteger;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class BigInteger_DivideAndRemainder extends SymbolicFunctionExec {
+public final class BigInteger_DivideAndRemainder extends SymbolicFunction {
 
 	private static final String DIVIDE_AND_REMAINDER = "divideAndRemainder";
 	private static final int REMAINDER_ARRAY_INDEX = 1;

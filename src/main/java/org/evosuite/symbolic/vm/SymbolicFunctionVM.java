@@ -266,7 +266,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 
 	}
 
-	private void addFunctionToTable(SymbolicFunctionExec f) {
+	private void addFunctionToTable(SymbolicFunction f) {
 		FunctionKey k = new FunctionKey(f.getOwner(), f.getName(), f.getDesc());
 		functionsTable.put(k, f);
 	}
@@ -333,11 +333,11 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		return op.getReference();
 	}
 
-	private final Map<FunctionKey, SymbolicFunctionExec> functionsTable = new THashMap<FunctionKey, SymbolicFunctionExec>();
+	private final Map<FunctionKey, SymbolicFunction> functionsTable = new THashMap<FunctionKey, SymbolicFunction>();
 
-	private SymbolicFunctionExec getFunction(String owner, String name, String desc) {
+	private SymbolicFunction getFunction(String owner, String name, String desc) {
 		FunctionKey k = new FunctionKey(owner, name, desc);
-		SymbolicFunctionExec f = functionsTable.get(k);
+		SymbolicFunction f = functionsTable.get(k);
 		return f;
 	}
 
@@ -464,7 +464,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 
 	}
 
-	private SymbolicFunctionExec functionUnderExecution;
+	private SymbolicFunction functionUnderExecution;
 
 	@Override
 	public void INVOKEINTERFACE(Object conc_receiver, String owner,

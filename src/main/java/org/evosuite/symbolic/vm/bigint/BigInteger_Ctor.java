@@ -5,11 +5,11 @@ import java.math.BigInteger;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class BigInteger_Ctor extends SymbolicFunctionExec {
+public final class BigInteger_Ctor extends SymbolicFunction {
 
 	public BigInteger_Ctor(SymbolicEnvironment env) {
 		super(env, Types.JAVA_MATH_BIG_INTEGER, Types.INIT, Types.STRING_TO_VOID);

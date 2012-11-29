@@ -3,14 +3,14 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class SIGNUM {
 
 	private static final String SIGNUM = "signum";
 
-	public final static class SIGNUM_D extends SymbolicFunctionExec {
+	public final static class SIGNUM_D extends SymbolicFunction {
 
 		public SIGNUM_D(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, SIGNUM, Types.D2D_DESCRIPTOR);
@@ -32,7 +32,7 @@ public abstract class SIGNUM {
 
 	}
 
-	public final static class SIGNUM_F extends SymbolicFunctionExec {
+	public final static class SIGNUM_F extends SymbolicFunction {
 
 		public SIGNUM_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, SIGNUM, Types.F2F_DESCRIPTOR);

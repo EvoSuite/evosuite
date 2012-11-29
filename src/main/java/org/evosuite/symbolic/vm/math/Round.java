@@ -4,14 +4,14 @@ import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.RealUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class Round {
 
 	private static final String ROUND = "round";
 
-	public static class Round_D extends SymbolicFunctionExec {
+	public static class Round_D extends SymbolicFunction {
 
 		public Round_D(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, ROUND, Types.D2L_DESCRIPTOR);
@@ -34,7 +34,7 @@ public abstract class Round {
 
 	}
 
-	public static class Round_F extends SymbolicFunctionExec {
+	public static class Round_F extends SymbolicFunction {
 
 		public Round_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, ROUND, Types.F2I_DESCRIPTOR);

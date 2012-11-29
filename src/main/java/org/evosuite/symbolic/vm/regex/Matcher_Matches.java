@@ -9,10 +9,10 @@ import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class Matcher_Matches extends SymbolicFunctionExec {
+public final class Matcher_Matches extends SymbolicFunction {
 
 	private static final String MATCHES = "matches";
 
