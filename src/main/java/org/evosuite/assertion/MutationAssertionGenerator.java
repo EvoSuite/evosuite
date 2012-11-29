@@ -37,6 +37,7 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -77,13 +78,13 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		for (Mutation m : MutationPool.getMutants()) {
 			mutants.put(m.getId(), m);
 		}
-		executor.newObservers();
-		executor.addObserver(primitiveObserver);
-		executor.addObserver(comparisonObserver);
-		executor.addObserver(sameObserver);
-		executor.addObserver(inspectorObserver);
-		executor.addObserver(fieldObserver);
-		executor.addObserver(nullObserver);
+		TestCaseExecutor.getInstance().newObservers();
+		TestCaseExecutor.getInstance().addObserver(primitiveObserver);
+		TestCaseExecutor.getInstance().addObserver(comparisonObserver);
+		TestCaseExecutor.getInstance().addObserver(sameObserver);
+		TestCaseExecutor.getInstance().addObserver(inspectorObserver);
+		TestCaseExecutor.getInstance().addObserver(fieldObserver);
+		TestCaseExecutor.getInstance().addObserver(nullObserver);
 	}
 
 	/**
@@ -116,7 +117,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		try {
 			logger.debug("Executing test");
 			MutationObserver.activateMutation(mutant);
-			result = executor.execute(test);
+			result = TestCaseExecutor.getInstance().execute(test);
 			MutationObserver.deactivateMutation(mutant);
 
 			int num = test.size();

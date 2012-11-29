@@ -579,7 +579,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
 		entry.testExecutionTime = TestCaseExecutor.timeExecuted;
 		entry.goalComputationTime = AbstractFitnessFactory.goalComputationTime;
-		entry.covered_goals = TestSuiteFitnessFunction.getCoveredGoals();
+		entry.covered_goals = result.getNumOfCoveredGoals();
 		entry.timedOut = TestSuiteGenerator.global_time.isFinished();
 		entry.stoppingCondition = TestSuiteGenerator.stopping_condition.getCurrentValue();
 		entry.globalTimeStoppingCondition = TestSuiteGenerator.global_time.getCurrentValue();
@@ -645,7 +645,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		Chromosome best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome) {
 			entry.length_history.add(((TestSuiteChromosome) best).totalLengthOfTestCases());
-			entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
+			entry.coverage_history.add(((TestSuiteChromosome) best).getCoverage());
 			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
 			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
 			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());

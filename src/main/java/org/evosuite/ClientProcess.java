@@ -88,6 +88,13 @@ public class ClientProcess {
 		}
 
 		util.informSearchIsFinished(ga);
+		
+		if (Properties.SANDBOX){
+			/*
+			 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written 
+			 */
+			Sandbox.resetDefaultSecurityManager();
+		}
 	}
 
 	/**

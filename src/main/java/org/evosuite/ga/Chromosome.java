@@ -52,6 +52,10 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	/** Has this chromosome changed since its fitness was last evaluated? */
 	protected boolean changed = true;
 
+	protected double coverage = 0.0;
+
+	protected int numOfCoveredGoals = 0;
+
 	/**
 	 * Return current fitness value
 	 * 
@@ -211,5 +215,31 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 */
 	public void setChanged(boolean changed) {
 		this.changed = changed;
+	}
+
+	/**
+	 * <p>Getter for the field <code>coverage</code>.</p>
+	 *
+	 * @return a double.
+	 */
+	public double getCoverage() {
+		return coverage;
+	}
+
+	/**
+	 * <p>Setter for the field <code>coverage</code>.</p>
+	 *
+	 * @param coverage a double.
+	 */
+	public void setCoverage(double coverage) {
+		this.coverage = coverage;
+	}
+
+	public int getNumOfCoveredGoals() {
+		return numOfCoveredGoals;
+	}
+
+	public void setNumOfCoveredGoals(int numOfCoveredGoals) {
+		this.numOfCoveredGoals = numOfCoveredGoals;
 	}
 }
