@@ -2,36 +2,40 @@ package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class ToUpperCase extends StringFunction {
+public final class ToUpperCase extends SymbolicFunction {
 
 	private static final String TO_UPPER_CASE = "toUpperCase";
 
 	public ToUpperCase(SymbolicEnvironment env) {
-		super(env, TO_UPPER_CASE, Types.TO_STR_DESCRIPTOR);
+		super(env, Types.JAVA_LANG_STRING, TO_UPPER_CASE,
+				Types.TO_STR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL_String(String receiver) {
-		this.stringReceiverExpr = getStringExpression(env.topFrame().operandStack
-				.peekOperand(), receiver);
-	}
+	public Object executeFunction() {
 
-	@Override
-	public void CALL_RESULT(Object res) {
-		if (res != null) {
-			StringUnaryExpression symb_value = new StringUnaryExpression(
-					stringReceiverExpr, Operator.TOUPPERCASE, (String) res);
+		// object receiver
+		NonNullReference symb_str = this.getSymbReceiver();
+		String conc_str = (String) this.getConcReceiver();
 
-			NonNullReference symb_receiver = (NonNullReference) env.topFrame().operandStack
-					.peekRef();
-			String conc_receiver = (String) res;
-			env.heap.putField(Types.JAVA_LANG_STRING,
-					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
-					symb_value);
-		}
+		// return value
+		String conc_ret_val = (String) this.getConcRetVal();
+		NonNullReference symb_ret_val = (NonNullReference) this.getSymbRetVal();
+
+		StringValue string_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_str, symb_str, conc_str);
+		StringUnaryExpression symb_value = new StringUnaryExpression(
+				string_expr, Operator.TOUPPERCASE, conc_ret_val);
+
+		env.heap.putField(Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
+				conc_ret_val, symb_ret_val, symb_value);
+
+		return this.getSymbRetVal();
 	}
 }

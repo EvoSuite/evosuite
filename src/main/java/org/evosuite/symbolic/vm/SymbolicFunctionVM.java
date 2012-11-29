@@ -57,6 +57,12 @@ import org.evosuite.symbolic.vm.string.Equals;
 import org.evosuite.symbolic.vm.string.EqualsIgnoreCase;
 import org.evosuite.symbolic.vm.string.IndexOf;
 import org.evosuite.symbolic.vm.string.LastIndexOf;
+import org.evosuite.symbolic.vm.string.Length;
+import org.evosuite.symbolic.vm.string.Matches;
+import org.evosuite.symbolic.vm.string.ToLowerCase;
+import org.evosuite.symbolic.vm.string.ToString;
+import org.evosuite.symbolic.vm.string.ToUpperCase;
+import org.evosuite.symbolic.vm.string.Trim;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Init.StringBufferInit_S;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
@@ -267,8 +273,8 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new LastIndexOf.LastIndexOf_S(env));
 		addFunctionToTable(new LastIndexOf.LastIndexOf_CI(env));
 		addFunctionToTable(new LastIndexOf.LastIndexOf_SI(env));
-		// addFunctionToTable(new Length(env));
-		// addFunctionToTable(new Matches(env));
+		addFunctionToTable(new Length(env));
+		addFunctionToTable(new Matches(env));
 		// addFunctionToTable(new RegionMatches(env));
 		// addFunctionToTable(new Replace.Replace_C(env));
 		// addFunctionToTable(new Replace.Replace_CS(env));
@@ -276,10 +282,10 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		// addFunctionToTable(new ReplaceFirst(env));
 		// addFunctionToTable(new StartsWith(env));
 		// addFunctionToTable(new Substring(env));
-		// addFunctionToTable(new ToLowerCase(env));
-		// addFunctionToTable(new ToString(env));
-		// addFunctionToTable(new ToUpperCase(env));
-		// addFunctionToTable(new Trim(env));
+		addFunctionToTable(new ToLowerCase(env));
+		addFunctionToTable(new ToString(env));
+		addFunctionToTable(new ToUpperCase(env));
+		addFunctionToTable(new Trim(env));
 		// addFunctionToTable(new ValueOf.ValueOf_O(env));
 		//
 
