@@ -1,15 +1,12 @@
 package org.evosuite.symbolic.vm.regex;
 
-import java.util.Iterator;
-
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunctionExec;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
 /**
@@ -17,7 +14,7 @@ import org.evosuite.symbolic.vm.SymbolicHeap;
  * @author galeotti
  * 
  */
-public final class Pattern_Matches extends Function {
+public final class Pattern_Matches extends SymbolicFunctionExec {
 
 	private static final String MATCHES = "matches";
 
@@ -27,19 +24,25 @@ public final class Pattern_Matches extends Function {
 	}
 
 	@Override
-	public void INVOKESTATIC() {
+	public Object executeFunction() {
 
-		symb_input = null;
+		// argument 0
+		String regex_str = (String) this.getConcArgument(0);
+		NonNullReference regex_ref = (NonNullReference) this.getSymbArgument(0);
 
-		symb_regex = null;
+		// argument 1
+		CharSequence input_char_seq = (CharSequence) this.getConcArgument(1);
+		Reference input_ref = this.getSymbArgument(1);
 
-	}
+		// return value
+		boolean res = this.getConcBooleanRetVal();
 
-	private StringValue symb_regex;
-	private StringValue symb_input;
+		// symbolic execution
+		StringValue symb_regex = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, regex_str, regex_ref, regex_str);
 
-	@Override
-	public void CALL_RESULT(boolean res) {
+		StringValue symb_input = getSymbInput(input_char_seq, input_ref);
+
 		if (symb_input != null && symb_input.containsSymbolicVariable()) {
 
 			int concrete_value = res ? 1 : 0;
@@ -47,56 +50,39 @@ public final class Pattern_Matches extends Function {
 			StringComparison strComp = new StringComparison(symb_regex,
 					Operator.PATTERNMATCHES, symb_input, (long) concrete_value);
 
-
-			replaceTopBv32(strComp);
+			return strComp;
+		} else {
+			return this.getSymbIntegerRetVal();
 		}
+
 	}
 
-	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
+	private StringValue getSymbInput(CharSequence input_char_seq,
+			Reference input_ref) {
+		StringValue symb_input;
+		if (input_ref instanceof NonNullReference) {
+			NonNullReference input_str_ref = (NonNullReference) input_ref;
+			assert input_char_seq != null;
 
-		if (nr == 0) {
-			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
-			ref(it.next());
-			Reference regex_ref = ref(it.next());
-			if (regex_ref instanceof NonNullReference) {
-				String string = (String) value;
-				NonNullReference regex_str_ref = (NonNullReference) regex_ref;
-				symb_regex = env.heap.getField(Types.JAVA_LANG_STRING,
-						SymbolicHeap.$STRING_VALUE, string, regex_str_ref,
+			if (input_char_seq instanceof String) {
+
+				String string = (String) input_char_seq;
+				symb_input = env.heap.getField(Types.JAVA_LANG_STRING,
+						SymbolicHeap.$STRING_VALUE, string, input_str_ref,
 						string);
-			} else {
-				symb_regex = null;
-			}
 
-		} else if (nr == 1) {
+			} else if (input_char_seq instanceof StringBuilder) {
 
-			Iterator<Operand> it = this.env.topFrame().operandStack.iterator();
-			Reference input_ref = ref(it.next());
-			if (input_ref instanceof NonNullReference) {
-
-				NonNullReference input_str_ref = (NonNullReference) input_ref;
-				if (value instanceof String) {
-
-					String string = (String) value;
-					symb_input = env.heap.getField(Types.JAVA_LANG_STRING,
-							SymbolicHeap.$STRING_VALUE, string, input_str_ref,
-							string);
-				} else if (value instanceof StringBuilder) {
-
-					StringBuilder stringBuffer = (StringBuilder) value;
-					env.heap.getField(Types.JAVA_LANG_STRING_BUILDER,
-							SymbolicHeap.$STRING_BUILDER_CONTENTS,
-							stringBuffer, input_str_ref,
-							stringBuffer.toString());
-
-				} else {
-					symb_input = null;
-				}
+				StringBuilder stringBuffer = (StringBuilder) input_char_seq;
+				symb_input = env.heap.getField(Types.JAVA_LANG_STRING_BUILDER,
+						SymbolicHeap.$STRING_BUILDER_CONTENTS, stringBuffer,
+						input_str_ref, stringBuffer.toString());
 			} else {
 				symb_input = null;
 			}
-
+		} else {
+			symb_input = null;
 		}
+		return symb_input;
 	}
 }
