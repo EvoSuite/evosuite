@@ -25,9 +25,6 @@ import org.evosuite.symbolic.vm.string.ToString;
 import org.evosuite.symbolic.vm.string.ToUpperCase;
 import org.evosuite.symbolic.vm.string.Trim;
 import org.evosuite.symbolic.vm.string.ValueOf;
-import org.evosuite.symbolic.vm.string.builder.SB_Append;
-import org.evosuite.symbolic.vm.string.builder.SB_Init;
-import org.evosuite.symbolic.vm.string.builder.SB_ToString;
 import org.evosuite.symbolic.vm.wrappers.B_ByteValue;
 import org.evosuite.symbolic.vm.wrappers.B_Init;
 import org.evosuite.symbolic.vm.wrappers.B_ValueOf;
@@ -180,18 +177,7 @@ public final class FunctionVM extends AbstractVM {
 		addFunctionToTable(new Trim(env));
 		addFunctionToTable(new ValueOf.ValueOf_O(env));
 
-		// java.lang.StringBuilder
-		addFunctionToTable(new SB_Init.StringBuilderInit_CS(env));
-		addFunctionToTable(new SB_Init.StringBuilderInit_S(env));
-		addFunctionToTable(new SB_Append.Append_B(env));
-		addFunctionToTable(new SB_Append.Append_C(env));
-		addFunctionToTable(new SB_Append.Append_D(env));
-		addFunctionToTable(new SB_Append.Append_F(env));
-		addFunctionToTable(new SB_Append.Append_I(env));
-		addFunctionToTable(new SB_Append.Append_L(env));
-		addFunctionToTable(new SB_Append.Append_O(env));
-		addFunctionToTable(new SB_Append.Append_S(env));
-		addFunctionToTable(new SB_ToString(env));
+
 
 
 	}
