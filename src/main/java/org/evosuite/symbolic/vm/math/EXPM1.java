@@ -3,10 +3,10 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-public final class EXPM1 extends SymbolicFunctionExec {
+public final class EXPM1 extends SymbolicFunction {
 
 	private static final String EXPM1 = "expm1";
 

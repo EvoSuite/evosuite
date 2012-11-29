@@ -6,10 +6,10 @@ import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class Pattern_Matcher extends SymbolicFunctionExec {
+public final class Pattern_Matcher extends SymbolicFunction {
 
 	private static final String MATCHER = "matcher";
 

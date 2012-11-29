@@ -5,14 +5,14 @@ import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class MIN {
 
 	private static final String MIN = "min";
 
-	public final static class MIN_D extends SymbolicFunctionExec {
+	public final static class MIN_D extends SymbolicFunction {
 
 		public MIN_D(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MIN, Types.DD2D_DESCRIPTOR);
@@ -36,7 +36,7 @@ public abstract class MIN {
 
 	}
 
-	public final static class MIN_F extends SymbolicFunctionExec {
+	public final static class MIN_F extends SymbolicFunction {
 
 		public MIN_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MIN, Types.FF2F_DESCRIPTOR);
@@ -61,7 +61,7 @@ public abstract class MIN {
 
 	}
 
-	public final static class MIN_I extends SymbolicFunctionExec {
+	public final static class MIN_I extends SymbolicFunction {
 
 		public MIN_I(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MIN, Types.II2I_DESCRIPTOR);
@@ -86,7 +86,7 @@ public abstract class MIN {
 
 	}
 
-	public static class MIN_L extends SymbolicFunctionExec {
+	public static class MIN_L extends SymbolicFunction {
 
 		public MIN_L(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, MIN, Types.LL2L_DESCRIPTOR);

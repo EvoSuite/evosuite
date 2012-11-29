@@ -3,14 +3,14 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class CopySign {
 
 	private static final String COPY_SIGN = "copySign";
 
-	public static final class CopySign_F extends SymbolicFunctionExec {
+	public static final class CopySign_F extends SymbolicFunction {
 
 		public CopySign_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, COPY_SIGN, Types.FF2F_DESCRIPTOR);
@@ -35,7 +35,7 @@ public abstract class CopySign {
 
 	}
 
-	public final static class CopySign_D extends SymbolicFunctionExec {
+	public final static class CopySign_D extends SymbolicFunction {
 
 		private static final String COPY_SIGN = "copySign";
 

@@ -5,14 +5,14 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class ABS {
 
 	private static final String ABS_FUNCTION_NAME = "abs";
 
-	public final static class ABS_D extends SymbolicFunctionExec {
+	public final static class ABS_D extends SymbolicFunction {
 
 		public ABS_D(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,
@@ -36,7 +36,7 @@ public abstract class ABS {
 
 	}
 
-	public final static class ABS_F extends SymbolicFunctionExec {
+	public final static class ABS_F extends SymbolicFunction {
 
 		public ABS_F(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,
@@ -59,7 +59,7 @@ public abstract class ABS {
 		}
 	}
 
-	public final static class ABS_I extends SymbolicFunctionExec {
+	public final static class ABS_I extends SymbolicFunction {
 
 		public ABS_I(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,
@@ -82,7 +82,7 @@ public abstract class ABS {
 
 	}
 
-	public final static class ABS_L extends SymbolicFunctionExec {
+	public final static class ABS_L extends SymbolicFunction {
 
 		public ABS_L(SymbolicEnvironment env) {
 			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,

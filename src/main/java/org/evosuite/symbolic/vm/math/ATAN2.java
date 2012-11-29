@@ -3,10 +3,10 @@ package org.evosuite.symbolic.vm.math;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.SymbolicFunctionExec;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
-public final class ATAN2 extends SymbolicFunctionExec {
+public final class ATAN2 extends SymbolicFunction {
 
 	private static final String ATAN2 = "atan2";
 
