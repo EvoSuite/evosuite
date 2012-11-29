@@ -47,6 +47,14 @@ import org.evosuite.symbolic.vm.math.ULP;
 import org.evosuite.symbolic.vm.regex.Matcher_Matches;
 import org.evosuite.symbolic.vm.regex.Pattern_Matcher;
 import org.evosuite.symbolic.vm.regex.Pattern_Matches;
+import org.evosuite.symbolic.vm.string.CharAt;
+import org.evosuite.symbolic.vm.string.CompareTo;
+import org.evosuite.symbolic.vm.string.CompareToIgnoreCase;
+import org.evosuite.symbolic.vm.string.Concat;
+import org.evosuite.symbolic.vm.string.Contains;
+import org.evosuite.symbolic.vm.string.EndsWith;
+import org.evosuite.symbolic.vm.string.Equals;
+import org.evosuite.symbolic.vm.string.EqualsIgnoreCase;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Init.StringBufferInit_S;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
@@ -241,15 +249,14 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new ULP.ULP_D(env));
 		//
 		// // java.lang.String
-		// addFunctionToTable(new CharAt(env));
-		// addFunctionToTable(new CompareTo(env));
-		// addFunctionToTable(new CompareToIgnoreCase(env));
-		// addFunctionToTable(new Concat(env));
-		// addFunctionToTable(new Contains(env));
-		// addFunctionToTable(new EndsWith(env));
-		// addFunctionToTable(new Matches(env));
-		// addFunctionToTable(new Equals(env));
-		// addFunctionToTable(new EqualsIgnoreCase(env));
+		addFunctionToTable(new CharAt(env));
+		addFunctionToTable(new CompareTo(env));
+		addFunctionToTable(new CompareToIgnoreCase(env));
+		addFunctionToTable(new Concat(env));
+		addFunctionToTable(new Contains(env));
+		addFunctionToTable(new EndsWith(env));
+		addFunctionToTable(new Equals(env));
+		addFunctionToTable(new EqualsIgnoreCase(env));
 		// addFunctionToTable(new IndexOf.IndexOf_C(env));
 		// addFunctionToTable(new IndexOf.IndexOf_S(env));
 		// addFunctionToTable(new IndexOf.IndexOf_CI(env));
@@ -259,6 +266,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		// addFunctionToTable(new LastIndexOf.LastIndexOf_CI(env));
 		// addFunctionToTable(new LastIndexOf.LastIndexOf_SI(env));
 		// addFunctionToTable(new Length(env));
+		// addFunctionToTable(new Matches(env));
 		// addFunctionToTable(new RegionMatches(env));
 		// addFunctionToTable(new Replace.Replace_C(env));
 		// addFunctionToTable(new Replace.Replace_CS(env));

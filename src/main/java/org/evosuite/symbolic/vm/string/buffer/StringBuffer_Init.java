@@ -6,17 +6,17 @@ import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public abstract class StringBuffer_Ctor extends SymbolicFunction {
+public abstract class StringBuffer_Init extends SymbolicFunction {
 
 	private static final String INIT = "<init>";
 
-	public StringBuffer_Ctor(SymbolicEnvironment env, String desc) {
+	public StringBuffer_Init(SymbolicEnvironment env, String desc) {
 		super(env, Types.JAVA_LANG_STRING_BUFFER, INIT, desc);
 	}
 
-	public static final class StringBufferCtor_S extends StringBuffer_Ctor {
+	public static final class StringBufferInit_S extends StringBuffer_Init {
 
-		public StringBufferCtor_S(SymbolicEnvironment env) {
+		public StringBufferInit_S(SymbolicEnvironment env) {
 			super(env, Types.STR_TO_VOID_DESCRIPTOR);
 
 		}

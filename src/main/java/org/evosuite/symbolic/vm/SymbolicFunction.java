@@ -12,9 +12,9 @@ import org.evosuite.symbolic.expr.fp.RealValue;
  * @author galeotti
  * 
  */
-public abstract class SymbolicFunctionExec {
+public abstract class SymbolicFunction {
 
-	public SymbolicFunctionExec(SymbolicEnvironment env, String owner,
+	public SymbolicFunction(SymbolicEnvironment env, String owner,
 			String name, String desc) {
 		super();
 		this.env = env;
