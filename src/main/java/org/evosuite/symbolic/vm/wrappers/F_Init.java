@@ -1,31 +1,26 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.fp.RealValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class F_Init extends Function {
-
+public final class F_Init extends SymbolicFunction {
 
 	public F_Init(SymbolicEnvironment env) {
 		super(env, Types.JAVA_LANG_FLOAT, Types.INIT, Types.F_TO_VOID);
 	}
 
-	private RealValue fp32;
-
 	@Override
-	public void INVOKESPECIAL() {
-		fp32 = env.topFrame().operandStack.peekFp32();
-	}
+	public Object executeFunction() {
 
-	@Override
-	public void CALL_RESULT() {
-		NonNullReference symb_float = (NonNullReference) env.topFrame().operandStack
-				.peekRef();
+		RealValue fp32 = this.getSymbRealArgument(0);
+		NonNullReference symb_float = this.getSymbReceiver();
 		env.heap.putField(Types.JAVA_LANG_FLOAT, SymbolicHeap.$FLOAT_VALUE,
 				null/* conc_float */, symb_float, fp32);
+		// return void
+		return null;
 	}
 
 }

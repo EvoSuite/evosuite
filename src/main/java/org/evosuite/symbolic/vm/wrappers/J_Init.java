@@ -1,30 +1,25 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class J_Init extends Function {
+public final class J_Init extends SymbolicFunction {
 
 	public J_Init(SymbolicEnvironment env) {
 		super(env, Types.JAVA_LANG_LONG, Types.INIT, Types.J_TO_VOID);
 	}
 
-	private IntegerValue bv64;
-
 	@Override
-	public void INVOKESPECIAL() {
-		bv64 = env.topFrame().operandStack.peekBv64();
-	}
-
-	@Override
-	public void CALL_RESULT() {
-		NonNullReference symb_long = (NonNullReference) env.topFrame().operandStack
-				.peekRef();
+	public Object executeFunction() {
+		IntegerValue bv64 = this.getSymbIntegerArgument(0);
+		NonNullReference symb_long = this.getSymbReceiver();
 		env.heap.putField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE,
 				null/* conc_long */, symb_long, bv64);
+		// return void
+		return null;
 	}
 
 }

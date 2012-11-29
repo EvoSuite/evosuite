@@ -1,15 +1,12 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class S_ShortValue extends Function {
-
-	private NonNullReference symb_short;
-	private Short conc_short;
+public final class S_ShortValue extends SymbolicFunction {
 
 	private static final String SHORT_VALUE = "shortValue";
 
@@ -18,22 +15,16 @@ public final class S_ShortValue extends Function {
 	}
 
 	@Override
-	public void INVOKEVIRTUAL(Object conc_short) {
-		if (conc_short == null)
-			return;
+	public Object executeFunction() {
 
-		symb_short = (NonNullReference) this.env.topFrame().operandStack
-				.peekRef();
-		this.conc_short = (Short) conc_short;
-	}
+		NonNullReference symb_short = this.getSymbReceiver();
+		Short conc_short = (Short) this.getConcReceiver();
 
-	@Override
-	public void CALL_RESULT(int conc_short_value) {
+		short conc_short_value = this.getConcShortRetVal();
 		IntegerValue symb_short_value = env.heap.getField(
-				Types.JAVA_LANG_SHORT, SymbolicHeap.$SHORT_VALUE, conc_short, symb_short,
-				conc_short_value);
-
-		replaceTopBv32(symb_short_value);
+				Types.JAVA_LANG_SHORT, SymbolicHeap.$SHORT_VALUE, conc_short,
+				symb_short, conc_short_value);
+		return symb_short_value;
 	}
 
 }
