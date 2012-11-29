@@ -1,15 +1,12 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class Z_BooleanValue extends Function {
-
-	private NonNullReference symb_boolean;
-	private Boolean conc_boolean;
+public final class Z_BooleanValue extends SymbolicFunction {
 
 	private static final String BOOLEAN_VALUE = "booleanValue";
 
@@ -18,22 +15,14 @@ public final class Z_BooleanValue extends Function {
 	}
 
 	@Override
-	public void INVOKEVIRTUAL(Object conc_boolean) {
-		if (conc_boolean == null)
-			return;
-
-		symb_boolean = (NonNullReference) this.env.topFrame().operandStack
-				.peekRef();
-		this.conc_boolean = (Boolean) conc_boolean;
-	}
-
-	@Override
-	public void CALL_RESULT(boolean conc_boolean_value) {
+	public Object executeFunction() {
+		NonNullReference symb_boolean = this.getSymbReceiver();
+		Boolean conc_boolean = (Boolean) this.getConcReceiver();
+		boolean conc_boolean_value = this.getConcBooleanRetVal();
 		IntegerValue symb_boolean_value = env.heap.getField(
 				Types.JAVA_LANG_BOOLEAN, SymbolicHeap.$BOOLEAN_VALUE,
 				conc_boolean, symb_boolean, conc_boolean_value ? 1 : 0);
-
-		replaceTopBv32(symb_boolean_value);
+		return symb_boolean_value;
 	}
 
 }

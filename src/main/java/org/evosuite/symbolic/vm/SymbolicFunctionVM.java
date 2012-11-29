@@ -53,6 +53,33 @@ import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Init;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_ToString;
+import org.evosuite.symbolic.vm.wrappers.B_ByteValue;
+import org.evosuite.symbolic.vm.wrappers.B_Init;
+import org.evosuite.symbolic.vm.wrappers.B_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.C_CharValue;
+import org.evosuite.symbolic.vm.wrappers.C_Init;
+import org.evosuite.symbolic.vm.wrappers.C_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.Character_getNumericValue;
+import org.evosuite.symbolic.vm.wrappers.Character_isDigit;
+import org.evosuite.symbolic.vm.wrappers.Character_isLetter;
+import org.evosuite.symbolic.vm.wrappers.D_DoubleValue;
+import org.evosuite.symbolic.vm.wrappers.D_Init;
+import org.evosuite.symbolic.vm.wrappers.D_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.F_FloatValue;
+import org.evosuite.symbolic.vm.wrappers.F_Init;
+import org.evosuite.symbolic.vm.wrappers.F_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.I_Init;
+import org.evosuite.symbolic.vm.wrappers.I_IntValue;
+import org.evosuite.symbolic.vm.wrappers.I_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.J_Init;
+import org.evosuite.symbolic.vm.wrappers.J_LongValue;
+import org.evosuite.symbolic.vm.wrappers.J_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.S_Init;
+import org.evosuite.symbolic.vm.wrappers.S_ShortValue;
+import org.evosuite.symbolic.vm.wrappers.S_ValueOf;
+import org.evosuite.symbolic.vm.wrappers.Z_BooleanValue;
+import org.evosuite.symbolic.vm.wrappers.Z_Init;
+import org.evosuite.symbolic.vm.wrappers.Z_ValueOf;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
@@ -115,45 +142,48 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new StringBufferAppend_D(env));
 		addFunctionToTable(new StringBufferAppend_STR(env));
 
-		// // java.lang.Integer
-		// addFunctionToTable(new I_Init(env));
-		// addFunctionToTable(new I_ValueOf(env));
-		// addFunctionToTable(new I_IntValue(env));
+		// java.lang.Integer
+		addFunctionToTable(new I_Init(env));
+		addFunctionToTable(new I_ValueOf(env));
+		addFunctionToTable(new I_IntValue(env));
 		//
-		// // java.lang.Long
-		// addFunctionToTable(new J_Init(env));
-		// addFunctionToTable(new J_ValueOf(env));
-		// addFunctionToTable(new J_LongValue(env));
+		// java.lang.Long
+		addFunctionToTable(new J_Init(env));
+		addFunctionToTable(new J_ValueOf(env));
+		addFunctionToTable(new J_LongValue(env));
 		//
-		// // java.lang.Float
-		// addFunctionToTable(new F_Init(env));
-		// addFunctionToTable(new F_ValueOf(env));
-		// addFunctionToTable(new F_FloatValue(env));
+		// java.lang.Float
+		addFunctionToTable(new F_Init(env));
+		addFunctionToTable(new F_ValueOf(env));
+		addFunctionToTable(new F_FloatValue(env));
 		//
-		// // java.lang.Double
-		// addFunctionToTable(new D_Init(env));
-		// addFunctionToTable(new D_ValueOf(env));
-		// addFunctionToTable(new D_DoubleValue(env));
+		// java.lang.Double
+		addFunctionToTable(new D_Init(env));
+		addFunctionToTable(new D_ValueOf(env));
+		addFunctionToTable(new D_DoubleValue(env));
 		//
-		// // java.lang.Short
-		// addFunctionToTable(new S_Init(env));
-		// addFunctionToTable(new S_ValueOf(env));
-		// addFunctionToTable(new S_ShortValue(env));
+		// java.lang.Short
+		addFunctionToTable(new S_Init(env));
+		addFunctionToTable(new S_ValueOf(env));
+		addFunctionToTable(new S_ShortValue(env));
 		//
-		// // java.lang.Byte
-		// addFunctionToTable(new B_Init(env));
-		// addFunctionToTable(new B_ValueOf(env));
-		// addFunctionToTable(new B_ByteValue(env));
+		// java.lang.Byte
+		addFunctionToTable(new B_Init(env));
+		addFunctionToTable(new B_ValueOf(env));
+		addFunctionToTable(new B_ByteValue(env));
 		//
-		// // java.lang.Character
-		// addFunctionToTable(new C_Init(env));
-		// addFunctionToTable(new C_ValueOf(env));
-		// addFunctionToTable(new C_CharValue(env));
+		// java.lang.Character
+		addFunctionToTable(new C_Init(env));
+		addFunctionToTable(new C_ValueOf(env));
+		addFunctionToTable(new C_CharValue(env));
+		addFunctionToTable(new Character_getNumericValue(env));
+		addFunctionToTable(new Character_isDigit(env));
+		addFunctionToTable(new Character_isLetter(env));
 		//
-		// // java.lang.Boolean
-		// addFunctionToTable(new Z_Init(env));
-		// addFunctionToTable(new Z_ValueOf(env));
-		// addFunctionToTable(new Z_BooleanValue(env));
+		// java.lang.Boolean
+		addFunctionToTable(new Z_Init(env));
+		addFunctionToTable(new Z_ValueOf(env));
+		addFunctionToTable(new Z_BooleanValue(env));
 		//
 		// java.lang.Math
 		addFunctionToTable(new ABS.ABS_I(env));
