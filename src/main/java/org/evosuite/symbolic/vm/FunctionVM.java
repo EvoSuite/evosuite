@@ -2,18 +2,13 @@ package org.evosuite.symbolic.vm;
 
 import java.util.Map;
 
-import org.evosuite.symbolic.vm.string.Length;
-import org.evosuite.symbolic.vm.string.Matches;
 import org.evosuite.symbolic.vm.string.RegionMatches;
 import org.evosuite.symbolic.vm.string.Replace;
 import org.evosuite.symbolic.vm.string.ReplaceAll;
 import org.evosuite.symbolic.vm.string.ReplaceFirst;
 import org.evosuite.symbolic.vm.string.StartsWith;
 import org.evosuite.symbolic.vm.string.Substring;
-import org.evosuite.symbolic.vm.string.ToLowerCase;
 import org.evosuite.symbolic.vm.string.ToString;
-import org.evosuite.symbolic.vm.string.ToUpperCase;
-import org.evosuite.symbolic.vm.string.Trim;
 import org.evosuite.symbolic.vm.string.ValueOf;
 
 import edu.uta.cse.dsc.AbstractVM;
@@ -67,9 +62,6 @@ public final class FunctionVM extends AbstractVM {
 
 		// java.lang.String
 
-
-		addFunctionToTable(new Length(env));
-		addFunctionToTable(new Matches(env));
 		addFunctionToTable(new RegionMatches(env));
 		addFunctionToTable(new Replace.Replace_C(env));
 		addFunctionToTable(new Replace.Replace_CS(env));
@@ -77,10 +69,6 @@ public final class FunctionVM extends AbstractVM {
 		addFunctionToTable(new ReplaceFirst(env));
 		addFunctionToTable(new StartsWith(env));
 		addFunctionToTable(new Substring(env));
-		addFunctionToTable(new ToLowerCase(env));
-		addFunctionToTable(new ToString(env));
-		addFunctionToTable(new ToUpperCase(env));
-		addFunctionToTable(new Trim(env));
 		addFunctionToTable(new ValueOf.ValueOf_O(env));
 
 	}
