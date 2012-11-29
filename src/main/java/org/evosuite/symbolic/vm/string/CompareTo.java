@@ -1,48 +1,49 @@
 package org.evosuite.symbolic.vm.string;
 
-import java.util.Iterator;
-
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.Operand;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class CompareTo extends StringFunction {
+public final class CompareTo extends SymbolicFunction {
 
 	private static final String COMPARE_TO = "compareTo";
-	private StringValue strExpr;
 
 	public CompareTo(SymbolicEnvironment env) {
-		super(env, COMPARE_TO, Types.STR_TO_INT_DESCRIPTOR);
+		super(env, Types.JAVA_LANG_STRING, COMPARE_TO,
+				Types.STR_TO_INT_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL_String(String receiver) {
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		it.next(); // discard symbolic ref;
-		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
+	public Object executeFunction() {
 
-	}
+		String conc_left = (String) this.getConcReceiver();
+		NonNullReference symb_left = this.getSymbReceiver();
 
-	@Override
-	public void CALL_RESULT(int res) {
-		if (stringReceiverExpr.containsSymbolicVariable()
-				|| strExpr.containsSymbolicVariable()) {
+		StringValue left_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_left, symb_left, conc_left);
+
+		String conc_right = (String) this.getConcArgument(0);
+		NonNullReference symb_right = (NonNullReference) this
+				.getSymbArgument(0);
+
+		StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_right, symb_right, conc_right);
+
+		int res = this.getConcIntRetVal();
+
+		if (left_expr.containsSymbolicVariable()
+				|| right_expr.containsSymbolicVariable()) {
 			StringBinaryToIntegerExpression strBExpr = new StringBinaryToIntegerExpression(
-					stringReceiverExpr, Operator.COMPARETO, strExpr, (long) res);
+					left_expr, Operator.COMPARETO, right_expr, (long) res);
 
-			this.replaceTopBv32(strBExpr);
+			return strBExpr;
 		} else {
-			// do nothing (concrete value only)
+
+			return this.getSymbIntegerRetVal();
 		}
-
-	}
-
-	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-		String param = (String) value;
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = getStringExpression(it.next(), param);
 	}
 }
