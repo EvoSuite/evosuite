@@ -25,7 +25,6 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.vm.ArithmeticVM;
 import org.evosuite.symbolic.vm.CallVM;
-import org.evosuite.symbolic.vm.FunctionVM;
 import org.evosuite.symbolic.vm.HeapVM;
 import org.evosuite.symbolic.vm.JumpVM;
 import org.evosuite.symbolic.vm.LocalsVM;
@@ -101,7 +100,6 @@ public abstract class ConcolicExecution {
 		listeners.add(new LocalsVM(env));
 		listeners.add(new ArithmeticVM(env, pc));
 		listeners.add(new OtherVM(env));
-		listeners.add(new FunctionVM(env));
 		listeners.add(new SymbolicFunctionVM(env));
 		VM.vm.setListeners(listeners);
 		VM.vm.startupConcolicExecution();

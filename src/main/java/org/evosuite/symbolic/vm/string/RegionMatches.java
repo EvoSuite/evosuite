@@ -1,64 +1,48 @@
 package org.evosuite.symbolic.vm.string;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.NullReference;
-import org.evosuite.symbolic.vm.Operand;
-import org.evosuite.symbolic.vm.Reference;
-import org.evosuite.symbolic.vm.ReferenceOperand;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class RegionMatches extends StringFunction {
+public final class RegionMatches extends SymbolicFunction {
 
 	private static final String REGION_MATCHES = "regionMatches";
 
-	private IntegerValue lenExpr;
-	private IntegerValue ooffsetExpr;
-	private StringValue otherExpr;
-	private IntegerValue toffsetExpr;
-	private IntegerValue ignoreCaseExpr;
-
 	public RegionMatches(SymbolicEnvironment env) {
-		super(env, REGION_MATCHES,
+		super(env, Types.JAVA_LANG_STRING, REGION_MATCHES,
 				Types.BOOL_INT_STR_INT_INT_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
-	public void INVOKEVIRTUAL_String(String receiver) {
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		lenExpr = bv32(it.next());
-		ooffsetExpr = bv32(it.next());
-		it.next(); // discard now
-		toffsetExpr = bv32(it.next());
-		ignoreCaseExpr = bv32(it.next());
-		Operand receiver_operand = it.next();
-		Reference receiver_ref = ((ReferenceOperand) receiver_operand)
-				.getReference();
-		if (receiver_ref instanceof NullReference) {
-			return;
-		}
-		stringReceiverExpr = getStringExpression(receiver_operand, receiver);
+	public Object executeFunction() {
 
-	}
+		NonNullReference symb_receiver = (NonNullReference) this
+				.getSymbReceiver();
+		String conc_receiver = (String) this.getConcReceiver();
+		StringValue stringReceiverExpr = env.heap.getField(
+				Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
+				conc_receiver, symb_receiver, conc_receiver);
 
-	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-		String string_value = (String) value;
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		it.next();
-		it.next();
-		this.otherExpr = getStringExpression(it.next(), string_value);
-	}
+		IntegerValue ignoreCaseExpr = this.getSymbIntegerArgument(0);
+		IntegerValue toffsetExpr = this.getSymbIntegerArgument(1);
 
-	@Override
-	public void CALL_RESULT(boolean res) {
+		NonNullReference symb_other = (NonNullReference) this
+				.getSymbArgument(2);
+		String conc_other = (String) this.getConcArgument(2);
+		StringValue otherExpr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_other, symb_other, conc_other);
+		IntegerValue ooffsetExpr = this.getSymbIntegerArgument(3);
+		IntegerValue lenExpr = this.getSymbIntegerArgument(4);
 
+		boolean res = this.getConcBooleanRetVal();
 		if (stringReceiverExpr.containsSymbolicVariable()
 				|| ignoreCaseExpr.containsSymbolicVariable()
 				|| toffsetExpr.containsSymbolicVariable()
@@ -67,7 +51,7 @@ public final class RegionMatches extends StringFunction {
 				|| lenExpr.containsSymbolicVariable()) {
 
 			ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
-			other.add(this.toffsetExpr);
+			other.add(toffsetExpr);
 			other.add(ooffsetExpr);
 			other.add(lenExpr);
 			other.add(ignoreCaseExpr);
@@ -76,8 +60,11 @@ public final class RegionMatches extends StringFunction {
 			StringMultipleComparison strComp = new StringMultipleComparison(
 					stringReceiverExpr, Operator.REGIONMATCHES, otherExpr,
 					other, (long) conV);
-			this.replaceTopBv32(strComp);
+
+			return strComp;
 		}
+
+		return this.getSymbIntegerRetVal();
 	}
 
 }
