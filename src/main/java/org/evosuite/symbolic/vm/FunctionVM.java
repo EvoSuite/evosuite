@@ -2,8 +2,6 @@ package org.evosuite.symbolic.vm;
 
 import java.util.Map;
 
-import org.evosuite.symbolic.vm.string.IndexOf;
-import org.evosuite.symbolic.vm.string.LastIndexOf;
 import org.evosuite.symbolic.vm.string.Length;
 import org.evosuite.symbolic.vm.string.Matches;
 import org.evosuite.symbolic.vm.string.RegionMatches;
@@ -69,14 +67,7 @@ public final class FunctionVM extends AbstractVM {
 
 		// java.lang.String
 
-		addFunctionToTable(new IndexOf.IndexOf_C(env));
-		addFunctionToTable(new IndexOf.IndexOf_S(env));
-		addFunctionToTable(new IndexOf.IndexOf_CI(env));
-		addFunctionToTable(new IndexOf.IndexOf_SI(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_C(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_S(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_CI(env));
-		addFunctionToTable(new LastIndexOf.LastIndexOf_SI(env));
+
 		addFunctionToTable(new Length(env));
 		addFunctionToTable(new Matches(env));
 		addFunctionToTable(new RegionMatches(env));
