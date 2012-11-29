@@ -47,7 +47,7 @@ import org.evosuite.symbolic.vm.math.ULP;
 import org.evosuite.symbolic.vm.regex.Matcher_Matches;
 import org.evosuite.symbolic.vm.regex.Pattern_Matcher;
 import org.evosuite.symbolic.vm.regex.Pattern_Matches;
-import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Ctor.StringBufferCtor_S;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Init.StringBufferInit_S;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
@@ -105,7 +105,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 	private void fillFunctionsTable() {
 
 		// java.lang.StringBuffer
-		addFunctionToTable(new StringBufferCtor_S(env));
+		addFunctionToTable(new StringBufferInit_S(env));
 		addFunctionToTable(new StringBuffer_ToString(env));
 		addFunctionToTable(new StringBufferAppend_B(env));
 		addFunctionToTable(new StringBufferAppend_C(env));
