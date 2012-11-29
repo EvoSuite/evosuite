@@ -50,6 +50,9 @@ import org.evosuite.symbolic.vm.regex.Pattern_Matches;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Ctor.StringBufferCtor_S;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
+import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
+import org.evosuite.symbolic.vm.string.builder.StringBuilder_Init;
+import org.evosuite.symbolic.vm.string.builder.StringBuilder_ToString;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
@@ -239,25 +242,25 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		// addFunctionToTable(new Trim(env));
 		// addFunctionToTable(new ValueOf.ValueOf_O(env));
 		//
-		// // java.lang.StringBuilder
-		// addFunctionToTable(new SB_Init.StringBuilderInit_CS(env));
-		// addFunctionToTable(new SB_Init.StringBuilderInit_S(env));
-		// addFunctionToTable(new SB_Append.Append_B(env));
-		// addFunctionToTable(new SB_Append.Append_C(env));
-		// addFunctionToTable(new SB_Append.Append_D(env));
-		// addFunctionToTable(new SB_Append.Append_F(env));
-		// addFunctionToTable(new SB_Append.Append_I(env));
-		// addFunctionToTable(new SB_Append.Append_L(env));
-		// addFunctionToTable(new SB_Append.Append_O(env));
-		// addFunctionToTable(new SB_Append.Append_S(env));
-		// addFunctionToTable(new SB_ToString(env));
-		
-		 // java.util.regex.Pattern
-		 addFunctionToTable(new Pattern_Matches(env));
-		 addFunctionToTable(new Pattern_Matcher(env));
-		
-		 // java.util.regex.Matcher
-		 addFunctionToTable(new Matcher_Matches(env));
+
+		// java.lang.StringBuilder
+		addFunctionToTable(new StringBuilder_Init(env));
+		addFunctionToTable(new StringBuilder_Append.Append_B(env));
+		addFunctionToTable(new StringBuilder_Append.Append_C(env));
+		addFunctionToTable(new StringBuilder_Append.Append_D(env));
+		addFunctionToTable(new StringBuilder_Append.Append_F(env));
+		addFunctionToTable(new StringBuilder_Append.Append_I(env));
+		addFunctionToTable(new StringBuilder_Append.Append_L(env));
+		addFunctionToTable(new StringBuilder_Append.Append_O(env));
+		addFunctionToTable(new StringBuilder_Append.Append_S(env));
+		addFunctionToTable(new StringBuilder_ToString(env));
+
+		// java.util.regex.Pattern
+		addFunctionToTable(new Pattern_Matches(env));
+		addFunctionToTable(new Pattern_Matcher(env));
+
+		// java.util.regex.Matcher
+		addFunctionToTable(new Matcher_Matches(env));
 
 		// java.math.BigInteger
 		addFunctionToTable(new BigInteger_Ctor(env));
