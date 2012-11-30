@@ -45,6 +45,7 @@ import org.evosuite.repair.JUnit4AssertionLogAdapter;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.StructuredTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCodeVisitor;
@@ -78,8 +79,8 @@ public class TestSuiteWriter implements Opcodes {
 
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
-	private final TestCodeVisitor visitor = new TestCodeVisitor();
-
+	private TestCodeVisitor visitor = Properties.STRUCTURED_TESTS ? visitor = new StructuredTestCodeVisitor() : new TestCodeVisitor();
+		
 	private static final String METHOD_SPACE = "  ";
 	private static final String BLOCK_SPACE = "    ";
 	private static final String INNER_BLOCK_SPACE = "      ";
@@ -638,7 +639,6 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append(METHOD_SPACE);
 			builder.append("//");
 			builder.append(getInformation(id));
-			builder.append("\n");
 		}
 		builder.append(adapter.getMethodDefinition("test" + number));
 

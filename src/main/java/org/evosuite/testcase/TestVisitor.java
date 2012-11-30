@@ -20,74 +20,105 @@
  */
 package org.evosuite.testcase;
 
+import org.evosuite.utils.LoggingUtils;
+
 /**
  * <p>TestVisitor interface.</p>
  *
  * @author fraser
  */
-public interface TestVisitor {
+public abstract class TestVisitor {
 
 	/**
 	 * <p>visitTestCase</p>
 	 *
 	 * @param test a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public void visitTestCase(TestCase test);
+	public abstract void visitTestCase(TestCase test);
 
 	/**
 	 * <p>visitPrimitiveStatement</p>
 	 *
 	 * @param statement a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
-	public void visitPrimitiveStatement(PrimitiveStatement<?> statement);
+	public abstract void visitPrimitiveStatement(PrimitiveStatement<?> statement);
 
 	/**
 	 * <p>visitFieldStatement</p>
 	 *
 	 * @param statement a {@link org.evosuite.testcase.FieldStatement} object.
 	 */
-	public void visitFieldStatement(FieldStatement statement);
+	public abstract void visitFieldStatement(FieldStatement statement);
 
 	/**
 	 * <p>visitMethodStatement</p>
 	 *
 	 * @param statement a {@link org.evosuite.testcase.MethodStatement} object.
 	 */
-	public void visitMethodStatement(MethodStatement statement);
+	public abstract void visitMethodStatement(MethodStatement statement);
 
 	/**
 	 * <p>visitConstructorStatement</p>
 	 *
 	 * @param statement a {@link org.evosuite.testcase.ConstructorStatement} object.
 	 */
-	public void visitConstructorStatement(ConstructorStatement statement);
+	public abstract void visitConstructorStatement(ConstructorStatement statement);
 
 	/**
 	 * <p>visitArrayStatement</p>
 	 *
 	 * @param statement a {@link org.evosuite.testcase.ArrayStatement} object.
 	 */
-	public void visitArrayStatement(ArrayStatement statement);
+	public abstract void visitArrayStatement(ArrayStatement statement);
 
 	/**
 	 * <p>visitAssignmentStatement</p>
 	 *
 	 * @param statement a {@link org.evosuite.testcase.AssignmentStatement} object.
 	 */
-	public void visitAssignmentStatement(AssignmentStatement statement);
+	public abstract void visitAssignmentStatement(AssignmentStatement statement);
 
 	/**
 	 * <p>visitNullStatement</p>
 	 *
 	 * @param statement a {@link org.evosuite.testcase.NullStatement} object.
 	 */
-	public void visitNullStatement(NullStatement statement);
+	public abstract void visitNullStatement(NullStatement statement);
 
 	/**
 	 * <p>visitPrimitiveExpression</p>
 	 *
 	 * @param primitiveExpression a {@link org.evosuite.testcase.PrimitiveExpression} object.
 	 */
-	public void visitPrimitiveExpression(PrimitiveExpression primitiveExpression);
+	public abstract void visitPrimitiveExpression(PrimitiveExpression primitiveExpression);
 
+	/**
+	 * <p>
+	 * visitStatement
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 */
+	public void visitStatement(StatementInterface statement) {
+		
+		if (statement instanceof PrimitiveStatement<?>)
+			visitPrimitiveStatement((PrimitiveStatement<?>) statement);
+		else if (statement instanceof FieldStatement)
+			visitFieldStatement((FieldStatement) statement);
+		else if (statement instanceof ConstructorStatement)
+			visitConstructorStatement((ConstructorStatement) statement);
+		else if (statement instanceof MethodStatement)
+			visitMethodStatement((MethodStatement) statement);
+		else if (statement instanceof AssignmentStatement)
+			visitAssignmentStatement((AssignmentStatement) statement);
+		else if (statement instanceof ArrayStatement)
+			visitArrayStatement((ArrayStatement) statement);
+		else if (statement instanceof NullStatement)
+			visitNullStatement((NullStatement) statement);
+		else if (statement instanceof PrimitiveExpression)
+			visitPrimitiveExpression((PrimitiveExpression) statement);
+		else
+			throw new RuntimeException("Unknown statement type: " + statement);
+	}
 }

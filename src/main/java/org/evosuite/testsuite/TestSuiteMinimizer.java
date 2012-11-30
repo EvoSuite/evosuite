@@ -33,6 +33,7 @@ import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
@@ -160,7 +161,14 @@ public class TestSuiteMinimizer {
 				org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
 				        goal);
 				TestChromosome copy = (TestChromosome) test.clone();
+				if(Properties.STRUCTURED_TESTS) {
+					copy.setTestCase(new StructuredTestCase(test.getTestCase()));
+				}
 				minimizer.minimize(copy);
+				if(Properties.STRUCTURED_TESTS) {
+					// TODO: Find proper way to determine statements
+					((StructuredTestCase)copy.getTestCase()).setExerciseStatement(copy.size() - 1);
+				}
 
 				// TODO: Need proper list of covered goals
 				copy.getTestCase().clearCoveredGoals();

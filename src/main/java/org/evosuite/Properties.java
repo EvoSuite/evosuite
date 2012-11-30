@@ -522,6 +522,9 @@ public class Properties {
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
 	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
 
+	@Parameter(key = "structured_tests", group = "Output", description = "Structure tests according to setup - exercise - check")
+	public static boolean STRUCTURED_TESTS = false;
+	
 	@Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
 	public static boolean TEST_COMMENTS = true;
 

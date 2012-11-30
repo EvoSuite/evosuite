@@ -34,6 +34,7 @@ import org.evosuite.Properties.TheReplacementFunction;
 import org.evosuite.assertion.AssertionGenerator;
 import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.MutationAssertionGenerator;
+import org.evosuite.assertion.StructuredAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classcreation.ClassFactory;
 import org.evosuite.contracts.ContractChecker;
@@ -107,7 +108,6 @@ import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
@@ -443,26 +443,42 @@ public class TestSuiteGenerator {
 				                                         + NumberFormat.getPercentInstance().format(1.0));
 
 			} else {
-				MutationAssertionGenerator masserter = new MutationAssertionGenerator();
-				Set<Integer> tkilled = new HashSet<Integer>();
-				int numTest = 0;
-				for (TestCase test : tests) {
-					long currentTime = System.currentTimeMillis() / 1000;
-					if (currentTime - startTime > Properties.ASSERTION_TIMEOUT) {
-						logger.info("Reached maximum time to generate assertions!");
-						break;
+				if(Properties.STRUCTURED_TESTS) {
+					StructuredAssertionGenerator sasserter = new StructuredAssertionGenerator();
+					int numTest = 0;
+					for (TestCase test : tests) {
+						long currentTime = System.currentTimeMillis() / 1000;
+						if (currentTime - startTime > Properties.ASSERTION_TIMEOUT) {
+							logger.info("Reached maximum time to generate assertions!");
+							break;
+						}
+						//Set<Integer> killed = new HashSet<Integer>();
+						sasserter.addAssertions(test);
+						progressMonitor.updateStatus((100 * numTest++) / tests.size());
+						//tkilled.addAll(killed);
 					}
-					//Set<Integer> killed = new HashSet<Integer>();
-					masserter.addAssertions(test, tkilled);
-					progressMonitor.updateStatus((100 * numTest++) / tests.size());
-					//tkilled.addAll(killed);
+				} else {
+					MutationAssertionGenerator masserter = new MutationAssertionGenerator();
+					Set<Integer> tkilled = new HashSet<Integer>();
+					int numTest = 0;
+					for (TestCase test : tests) {
+						long currentTime = System.currentTimeMillis() / 1000;
+						if (currentTime - startTime > Properties.ASSERTION_TIMEOUT) {
+							logger.info("Reached maximum time to generate assertions!");
+							break;
+						}
+						//Set<Integer> killed = new HashSet<Integer>();
+						masserter.addAssertions(test, tkilled);
+						progressMonitor.updateStatus((100 * numTest++) / tests.size());
+						//tkilled.addAll(killed);
+					}
+					Properties.CRITERION = oldCriterion;
+					double score = (double) tkilled.size()
+							/ (double) MutationPool.getMutantCounter();
+					SearchStatistics.getInstance().mutationScore(score);
+					LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
+							+ NumberFormat.getPercentInstance().format(score));
 				}
-				Properties.CRITERION = oldCriterion;
-				double score = (double) tkilled.size()
-				        / (double) MutationPool.getMutantCounter();
-				SearchStatistics.getInstance().mutationScore(score);
-				LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
-				                                         + NumberFormat.getPercentInstance().format(score));
 			}
 
 			return;
