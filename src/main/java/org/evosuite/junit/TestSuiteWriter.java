@@ -36,6 +36,7 @@ import java.util.Set;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
@@ -45,6 +46,7 @@ import org.evosuite.repair.JUnit4AssertionLogAdapter;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.StructuredTestCodeVisitor;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
@@ -79,8 +81,9 @@ public class TestSuiteWriter implements Opcodes {
 
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
-	private TestCodeVisitor visitor = Properties.STRUCTURED_TESTS ? visitor = new StructuredTestCodeVisitor() : new TestCodeVisitor();
-		
+	private TestCodeVisitor visitor = Properties.STRUCTURED_TESTS ? visitor = new StructuredTestCodeVisitor()
+	        : new TestCodeVisitor();
+
 	private static final String METHOD_SPACE = "  ";
 	private static final String BLOCK_SPACE = "    ";
 	private static final String INNER_BLOCK_SPACE = "      ";
@@ -211,6 +214,18 @@ public class TestSuiteWriter implements Opcodes {
 	public void insertTests(List<TestCase> tests) {
 		for (TestCase test : tests)
 			insertTest(test);
+	}
+
+	/**
+	 * <p>
+	 * insertTests
+	 * </p>
+	 * 
+	 * @param tests
+	 *            a {@link java.util.List} object.
+	 */
+	public void insertAllTests(List<TestCase> tests) {
+		testCases.addAll(tests);
 	}
 
 	/**
@@ -620,6 +635,8 @@ public class TestSuiteWriter implements Opcodes {
 		return bd.toString();
 	}
 
+	private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
+
 	/**
 	 * Convert one test case to a Java method
 	 * 
@@ -640,7 +657,24 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append("//");
 			builder.append(getInformation(id));
 		}
-		builder.append(adapter.getMethodDefinition("test" + number));
+		if (Properties.STRUCTURED_TESTS) {
+			StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
+			String targetMethod = structuredTest.getTargetMethods().iterator().next();
+			targetMethod = targetMethod.replace("<init>", "Constructor");
+			if (targetMethod.indexOf('(') != -1)
+				targetMethod = targetMethod.substring(0, targetMethod.indexOf('('));
+			targetMethod = StringUtils.capitalize(targetMethod);
+			int num = 0;
+			if (testMethodNumber.containsKey(targetMethod)) {
+				num = testMethodNumber.get(targetMethod);
+				testMethodNumber.put(targetMethod, num + 1);
+			} else {
+				testMethodNumber.put(targetMethod, 1);
+			}
+			builder.append(adapter.getMethodDefinition("test" + targetMethod + num));
+		} else {
+			builder.append(adapter.getMethodDefinition("test" + number));
+		}
 
 		/*
 		 * A test case might throw a lot of different kinds of exceptions. 

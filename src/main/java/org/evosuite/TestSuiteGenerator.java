@@ -206,7 +206,7 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
 			                                                  : e.toString()));
-			logger.error("Problem for "+Properties.TARGET_CLASS+". Full stack:",e);
+			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
 			return "";
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
@@ -369,7 +369,10 @@ public class TestSuiteGenerator {
 	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
 			TestSuiteWriter suite = new TestSuiteWriter();
-			suite.insertTests(tests);
+			if (Properties.STRUCTURED_TESTS)
+				suite.insertAllTests(tests);
+			else
+				suite.insertTests(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			if (analyzing)
@@ -443,7 +446,7 @@ public class TestSuiteGenerator {
 				                                         + NumberFormat.getPercentInstance().format(1.0));
 
 			} else {
-				if(Properties.STRUCTURED_TESTS) {
+				if (Properties.STRUCTURED_TESTS) {
 					StructuredAssertionGenerator sasserter = new StructuredAssertionGenerator();
 					int numTest = 0;
 					for (TestCase test : tests) {
@@ -474,10 +477,10 @@ public class TestSuiteGenerator {
 					}
 					Properties.CRITERION = oldCriterion;
 					double score = (double) tkilled.size()
-							/ (double) MutationPool.getMutantCounter();
+					        / (double) MutationPool.getMutantCounter();
 					SearchStatistics.getInstance().mutationScore(score);
 					LoggingUtils.getEvoLogger().info("* Resulting test suite's mutation score: "
-							+ NumberFormat.getPercentInstance().format(score));
+					                                         + NumberFormat.getPercentInstance().format(score));
 				}
 			}
 
@@ -720,7 +723,7 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
-		} else if(Properties.COVERAGE){
+		} else if (Properties.COVERAGE) {
 			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
 		}
 		progressMonitor.updateStatus(99);
@@ -947,7 +950,6 @@ public class TestSuiteGenerator {
 		return false;
 	}
 
-
 	/**
 	 * Generate one random test at a time and check if adding it improves
 	 * fitness (1+1)RT
@@ -963,17 +965,17 @@ public class TestSuiteGenerator {
 		// GeneticAlgorithm suiteGA = setup();
 		stopping_condition = getStoppingCondition();
 		statistics.searchStarted(suiteGA);
-		
-		for(int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
-			logger.info("Current test: "+i+"/"+Properties.NUM_RANDOM_TESTS);
+
+		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
+			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
 			TestChromosome test = factory.getChromosome();
 			ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
 			Integer pos = result.getFirstPositionOfThrownException();
-			if(pos != null) {
-				if(result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
-					test.getTestCase().chop(pos);					
+			if (pos != null) {
+				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
+					test.getTestCase().chop(pos);
 				} else {
-					test.getTestCase().chop(pos+1);
+					test.getTestCase().chop(pos + 1);
 				}
 				test.setChanged(true);
 			} else {
@@ -981,7 +983,7 @@ public class TestSuiteGenerator {
 			}
 			suite.addTest(test);
 		}
-		
+
 		suiteGA.getPopulation().add(suite);
 		statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
@@ -989,7 +991,7 @@ public class TestSuiteGenerator {
 
 		return suite.getTests();
 	}
-	
+
 	/**
 	 * Generate one random test at a time and check if adding it improves
 	 * fitness (1+1)RT
@@ -1088,14 +1090,6 @@ public class TestSuiteGenerator {
 			//LoggingUtils.getEvoLogger().info("* Shuffling goals");
 			Randomness.shuffle(goals);
 		}
-		if (Properties.PREORDER_GOALS_BY_DIFFICULTY) {
-			orderGoalsByDifficulty(goals);
-			//LoggingUtils.getEvoLogger().info("* Time taken for difficulty computation: "
-			//        + DefUseCoverageTestFitness.difficulty_time + "ms");
-		}// else
-		 //	LoggingUtils.getEvoLogger().info("* Goal preordering by difficulty disabled!");
-		 //if (!Properties.RECYCLE_CHROMOSOMES)
-		 //	LoggingUtils.getEvoLogger().info("* ChromosomeRecycler disabled!");
 
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
 
@@ -1338,13 +1332,6 @@ public class TestSuiteGenerator {
 		statistics.minimized(suite);
 
 		return suite.getTests();
-	}
-
-	private void orderGoalsByDifficulty(List<? extends TestFitnessFunction> goals) {
-
-		Collections.sort(goals);
-		// for(TestFitnessFunction goal : goals)
-		// LoggingUtils.getEvoLogger().info(goal.toString());
 	}
 
 	/**

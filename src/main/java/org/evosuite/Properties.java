@@ -524,7 +524,7 @@ public class Properties {
 
 	@Parameter(key = "structured_tests", group = "Output", description = "Structure tests according to setup - exercise - check")
 	public static boolean STRUCTURED_TESTS = false;
-	
+
 	@Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
 	public static boolean TEST_COMMENTS = true;
 
@@ -897,10 +897,6 @@ public class Properties {
 	/** Constant <code>ALTERNATIVE_FITNESS_RANGE=100.0</code> */
 	@Parameter(key = "alternative_fitness_range", description = "")
 	public static double ALTERNATIVE_FITNESS_RANGE = 100.0;
-
-	/** Constant <code>PREORDER_GOALS_BY_DIFFICULTY=false</code> */
-	@Parameter(key = "preorder_goals_by_difficulty", description = "")
-	public static boolean PREORDER_GOALS_BY_DIFFICULTY = false;
 
 	/** Constant <code>STARVE_BY_FITNESS=true</code> */
 	@Parameter(key = "starve_by_fitness", description = "")

@@ -9,24 +9,22 @@ public class StructuredTestCase extends DefaultTestCase {
 
 	private static final long serialVersionUID = -1896651382970358963L;
 
-	private Set<TestFitnessFunction> primaryTargets = new HashSet<TestFitnessFunction>();
-	
-	private Set<TestFitnessFunction> secondaryTargets = new HashSet<TestFitnessFunction>();
+	private final Set<TestFitnessFunction> primaryTargets = new HashSet<TestFitnessFunction>();
 
-	private Set<Integer> targetStatements = new HashSet<Integer>();
-	
+	private final Set<TestFitnessFunction> secondaryTargets = new HashSet<TestFitnessFunction>();
+
+	private final Set<Integer> targetStatements = new HashSet<Integer>();
+
 	public StructuredTestCase(TestCase test) {
-		for(StatementInterface statement : test) {
-			addStatement(statement);
+		for (StatementInterface statement : test) {
+			addStatement(statement.clone(this));
 		}
 	}
-	
-	@Override
-	public void addCoveredGoal(TestFitnessFunction goal) {
+
+	public void addPrimaryGoal(TestFitnessFunction goal) {
 		primaryTargets.add(goal);
-		super.addCoveredGoal(goal);
 	}
-	
+
 	/**
 	 * Determine the set of methods this test case is exercising
 	 * 
@@ -34,12 +32,12 @@ public class StructuredTestCase extends DefaultTestCase {
 	 */
 	public Set<String> getTargetMethods() {
 		Set<String> targetMethods = new HashSet<String>();
-		for(TestFitnessFunction goal : primaryTargets) {
-			// TODO
+		for (TestFitnessFunction goal : primaryTargets) {
+			targetMethods.add(goal.getTargetMethod());
 		}
 		return targetMethods;
 	}
-	
+
 	/**
 	 * Determine the class that is exercised by this test case
 	 * 
@@ -49,7 +47,7 @@ public class StructuredTestCase extends DefaultTestCase {
 		return null;
 		//primaryTargets.iterator().next().
 	}
-	
+
 	/**
 	 * Determine if the given statement is part of the setup code
 	 * 
@@ -57,20 +55,21 @@ public class StructuredTestCase extends DefaultTestCase {
 	 * @return
 	 */
 	public boolean isSetupStatement(int position) {
-	
+
 		int exerciseStart = Collections.min(targetStatements);
-		return position < exerciseStart;		
+		return position < exerciseStart;
 	}
-	
+
 	/**
 	 * Determine if the given statement is part of the exercised code
+	 * 
 	 * @param position
 	 * @return
 	 */
 	public boolean isExerciseStatement(int position) {
 		return targetStatements.contains(position);
 	}
-	
+
 	/**
 	 * Return the first statement that is not setup code
 	 * 
@@ -79,7 +78,7 @@ public class StructuredTestCase extends DefaultTestCase {
 	public int getFirstExerciseStatement() {
 		return Collections.min(targetStatements);
 	}
-	
+
 	/**
 	 * Tag a new statement as exercising statement
 	 * 
@@ -88,14 +87,14 @@ public class StructuredTestCase extends DefaultTestCase {
 	public void setExerciseStatement(int position) {
 		targetStatements.add(position);
 	}
-	
+
 	/**
 	 * Return the first statement that is not exercise code
 	 * 
 	 * @return
 	 */
 	public int getFirstCheckingStatement() {
-		return Collections.max(targetStatements) + 1;
+		return Collections.max(targetStatements);
 	}
 
 	@Override
@@ -104,15 +103,15 @@ public class StructuredTestCase extends DefaultTestCase {
 		accept(visitor);
 		return visitor.getCode();
 	}
-	
+
 	@Override
 	public String toCode(Map<Integer, Throwable> exceptions) {
 		StructuredTestCodeVisitor visitor = new StructuredTestCodeVisitor();
 		visitor.setExceptions(exceptions);
 		accept(visitor);
-		return visitor.getCode();	
+		return visitor.getCode();
 	}
-	
+
 	@Override
 	public DefaultTestCase clone() {
 		StructuredTestCase copy = new StructuredTestCase(this);
@@ -121,5 +120,5 @@ public class StructuredTestCase extends DefaultTestCase {
 		copy.secondaryTargets.addAll(secondaryTargets);
 		return copy;
 	}
-	
+
 }

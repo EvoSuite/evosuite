@@ -1,14 +1,11 @@
 package org.evosuite.assertion;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Map.Entry;
 
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
@@ -19,11 +16,9 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.Randomness;
 
 public class StructuredAssertionGenerator extends AssertionGenerator {
-
 
 	private static PrimitiveTraceObserver primitiveObserver = new PrimitiveTraceObserver();
 	private static ComparisonTraceObserver comparisonObserver = new ComparisonTraceObserver();
@@ -51,75 +46,110 @@ public class StructuredAssertionGenerator extends AssertionGenerator {
 		TestCaseExecutor.getInstance().addObserver(fieldObserver);
 		TestCaseExecutor.getInstance().addObserver(nullObserver);
 	}
-	
+
 	@Override
 	public void addAssertions(TestCase test) {
-		if(!(test instanceof StructuredTestCase))
+		if (!(test instanceof StructuredTestCase))
 			throw new IllegalArgumentException("Expecting StructuredTestCase");
-		
-		StructuredTestCase structuredTest = (StructuredTestCase)test;
-		
+
+		StructuredTestCase structuredTest = (StructuredTestCase) test;
+
 		Set<String> targetMethods = structuredTest.getTargetMethods();
-		
+
 		List<Mutation> mutants = MutationPool.getMutants();
-		
+
 		ExecutionResult origResult = runTest(test);
 		Map<Mutation, ExecutionResult> mutationResults = new HashMap<Mutation, ExecutionResult>();
-		
+
 		// execute on all mutants in the target method that were touched
-		for(Mutation mutant : mutants) {
-			if(!origResult.getTrace().wasMutationTouched(mutant.getId()))
+		for (Mutation mutant : mutants) {
+			if (!origResult.getTrace().wasMutationTouched(mutant.getId()))
 				continue;
-			if(!targetMethods.contains(mutant.getMethodName()))
+			if (!targetMethods.contains(mutant.getMethodName())) {
 				continue;
-			
+			}
+
 			ExecutionResult mutationResult = runTest(test, mutant);
 			mutationResults.put(mutant, mutationResult);
 		}
-		
+
 		addAssertions(structuredTest, origResult, mutationResults);
 	}
-	
-	private void minimizeAssertions(StructuredTestCase test, ExecutionResult origResult, Map<Mutation, ExecutionResult> mutationResults) {
+
+	private void minimizeAssertions(StructuredTestCase test, ExecutionResult origResult,
+	        Map<Mutation, ExecutionResult> mutationResults) {
 		Set<Integer> killedMutants = new HashSet<Integer>();
-		
-		for(int position = test.size() - 1; position >= test.getFirstExerciseStatement(); position--) {
+
+		for (int position = test.size() - 1; position >= test.getFirstExerciseStatement(); position--) {
 			StatementInterface statement = test.getStatement(position);
-			if(!statement.hasAssertions()) 
+			if (!statement.hasAssertions())
 				continue;
-			
-			List<Assertion> assertions = new ArrayList<Assertion>(statement.getAssertions());
+
+			List<Assertion> assertions = new ArrayList<Assertion>(
+			        statement.getAssertions());
 			Map<Integer, Set<Integer>> killMap = getKillMap(assertions, mutationResults);
-			
-			for(Entry<Integer, Set<Integer>> assertionEntry : killMap.entrySet()) {
-				Assertion assertion = assertions.get(assertionEntry.getKey());
+			int num = 0;
+
+			// This is to make sure we prefer assertions on return values.
+			// TODO: Refactor
+			for (Assertion assertion : assertions) {
+				if (assertion instanceof PrimitiveAssertion) {
+					boolean killsNew = false;
+					for (Integer mutationId : killMap.get(num)) {
+						if (!killedMutants.contains(mutationId)) {
+							killsNew = true;
+							break;
+						}
+					}
+					if (!killsNew) {
+						statement.removeAssertion(assertion);
+					} else {
+						killedMutants.addAll(killMap.get(num));
+					}
+
+				}
+				num++;
+			}
+
+			for (int i = 0; i < assertions.size(); i++) {
+				if (!killMap.containsKey(i)) {
+					statement.removeAssertion(assertions.get(i));
+					continue;
+				}
+				Assertion assertion = assertions.get(i);
 				boolean killsNew = false;
-				for(Integer mutationId : assertionEntry.getValue()) {
-					if(!killedMutants.contains(mutationId)) {
+				for (Integer mutationId : killMap.get(i)) {
+					if (!killedMutants.contains(mutationId)) {
 						killsNew = true;
 						break;
 					}
 				}
-				if(!killsNew) {
+				if (!killsNew) {
 					statement.removeAssertion(assertion);
 				} else {
-					killedMutants.addAll(assertionEntry.getValue());
+					killedMutants.addAll(killMap.get(i));
 				}
 			}
-			
+
 			// If we have no assertions, then add...something?
-			if(!statement.hasAssertions()) {
-				statement.addAssertion(Randomness.choice(assertions));
+			if (!statement.hasAssertions()) {
+				boolean addedPrimitive = false;
+				for (Assertion assertion : assertions) {
+					if (assertion instanceof PrimitiveAssertion) {
+						statement.addAssertion(assertion);
+						addedPrimitive = true;
+					}
+				}
+				if (!addedPrimitive)
+					statement.addAssertion(Randomness.choice(assertions));
 			}
 		}
 	}
-	
-	
-	
-	
-	private Map<Integer, Set<Integer>> getKillMap(List<Assertion> assertions, Map<Mutation, ExecutionResult> mutationResults) {
+
+	private Map<Integer, Set<Integer>> getKillMap(List<Assertion> assertions,
+	        Map<Mutation, ExecutionResult> mutationResults) {
 		Map<Integer, Set<Integer>> killMap = new HashMap<Integer, Set<Integer>>();
-		
+
 		int num = 0;
 		for (Assertion assertion : assertions) {
 			Set<Integer> killedMutations = new HashSet<Integer>();
@@ -134,15 +164,16 @@ public class StructuredAssertionGenerator extends AssertionGenerator {
 				}
 				if (isKilled) {
 					killedMutations.add(m.getId());
+					assertion.addKilledMutation(m);
 				}
 			}
 			killMap.put(num, killedMutations);
 			num++;
 		}
-		
+
 		return killMap;
 	}
-	
+
 	/**
 	 * Add all assertions to the test case
 	 * 
@@ -151,22 +182,25 @@ public class StructuredAssertionGenerator extends AssertionGenerator {
 	 * @param mutantResult
 	 * @return
 	 */
-	private int addAssertions(StructuredTestCase test, ExecutionResult origResult, Map<Mutation, ExecutionResult> mutationResults) {
+	private int addAssertions(StructuredTestCase test, ExecutionResult origResult,
+	        Map<Mutation, ExecutionResult> mutationResults) {
 		int numKilled = 0;
-		
+
 		for (Class<?> observerClass : observerClasses) {
 			if (origResult.getTrace(observerClass) == null)
 				continue;
-			
-			origResult.getTrace(observerClass).getAllAssertions(test);
+
+			for (int i = 0; i < test.size(); i++) {
+				if (test.isExerciseStatement(i))
+					origResult.getTrace(observerClass).getAllAssertions(test, i);
+			}
 		}
 
 		minimizeAssertions(test, origResult, mutationResults);
-		
+
 		return numKilled;
 	}
-	
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 
