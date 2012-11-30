@@ -54,6 +54,8 @@ import org.evosuite.contracts.JCrasherExceptionContract;
 import org.evosuite.contracts.NullPointerExceptionContract;
 import org.evosuite.contracts.ToStringReturnsNormallyContract;
 import org.evosuite.contracts.UndeclaredExceptionContract;
+import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
+import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
@@ -119,7 +121,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		 * Not only the covered branches ratio, but also including the
 		 * branchless methods
 		 */
-		BranchCoverage, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File
+		BranchCoverage, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File,
+		/**
+		 * Dataflow stuff
+		 */
+		Definitions, Uses, DefUsePairs, IntraMethodPairs, InterMethodPairs, IntraClassPairs, ParameterPairs, CoveredIntraMethodPairs, CoveredInterMethodPairs, CoveredIntraClassPairs, CoveredParameterPairs
 	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
@@ -256,6 +262,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public int interDUGoalCount;
 
 		public int intraDUGoalCount;
+
+		public int coveredIntraMethodPairs;
+		public int coveredInterMethodPairs;
+		public int coveredIntraClassPairs;
+		public int coveredParameterPairs;
 
 		public String goalCoverage;
 
@@ -558,6 +569,29 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return getCSVFilepath();
 			case Statements_Executed:
 				return "" + result_statements_executed;
+			case Definitions:
+				return "" + DefUsePool.getDefCounter();
+			case Uses:
+				return "" + DefUsePool.getUseCounter();
+			case DefUsePairs:
+				return "" + DefUseCoverageFactory.getDUGoals().size();
+			case IntraMethodPairs:
+				return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
+			case InterMethodPairs:
+				return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
+			case IntraClassPairs:
+				return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
+			case ParameterPairs:
+				return "" + DefUseCoverageFactory.getParamGoalsCount();
+			case CoveredIntraMethodPairs:
+				return "" + coveredIntraMethodPairs;
+			case CoveredInterMethodPairs:
+				return "" + coveredInterMethodPairs;
+			case CoveredIntraClassPairs:
+				return "" + coveredIntraClassPairs;
+			case CoveredParameterPairs:
+				return "" + coveredParameterPairs;
+
 			}
 
 			/*
