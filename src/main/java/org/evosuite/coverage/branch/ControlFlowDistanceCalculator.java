@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.coverage.ControlFlowDistance;
-import org.evosuite.coverage.TestCoverageGoal;
+import org.evosuite.coverage.CoverageGoal;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.ExecutionResult;
@@ -108,7 +108,7 @@ public class ControlFlowDistanceCalculator {
 		}
 
 		// handle timeout in ExecutionResult
-		if (TestCoverageGoal.hasTimeout(result))
+		if (CoverageGoal.hasTimeout(result))
 			return getTimeoutDistance(result, branch);
 
 		// if branch is null, we will just try to call the method at hand
@@ -127,7 +127,7 @@ public class ControlFlowDistanceCalculator {
 	private static ControlFlowDistance getTimeoutDistance(ExecutionResult result,
 	        Branch branch) {
 
-		if (!TestCoverageGoal.hasTimeout(result))
+		if (!CoverageGoal.hasTimeout(result))
 			throw new IllegalArgumentException("expect given result to have a timeout");
 		logger.debug("Has timeout!");
 		return worstPossibleDistanceForMethod(branch);

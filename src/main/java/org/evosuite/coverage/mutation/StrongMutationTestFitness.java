@@ -38,7 +38,7 @@ import org.evosuite.assertion.PrimitiveFieldTraceEntry;
 import org.evosuite.assertion.PrimitiveFieldTraceObserver;
 import org.evosuite.assertion.PrimitiveTraceEntry;
 import org.evosuite.assertion.PrimitiveTraceObserver;
-import org.evosuite.coverage.TestCoverageGoal;
+import org.evosuite.coverage.CoverageGoal;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
@@ -131,7 +131,7 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 
 		MutationExecutionResult result = new MutationExecutionResult();
 
-		if (TestCoverageGoal.hasTimeout(mutationResult)) {
+		if (CoverageGoal.hasTimeout(mutationResult)) {
 			logger.debug("Found timeout in mutant!");
 			MutationTimeoutStoppingCondition.timeOut(mutation);
 			result.setHasTimeout(true);

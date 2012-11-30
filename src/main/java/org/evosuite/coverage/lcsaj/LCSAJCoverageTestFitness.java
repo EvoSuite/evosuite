@@ -213,4 +213,20 @@ public class LCSAJCoverageTestFitness extends TestFitnessFunction {
 	public LCSAJ getLcsaj() {
 		return this.lcsaj;
 	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
+	 */
+	@Override
+	public String getTargetClass() {
+		return lcsaj.getClassName();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
+	 */
+	@Override
+	public String getTargetMethod() {
+		return lcsaj.getMethodName();
+	}
 }

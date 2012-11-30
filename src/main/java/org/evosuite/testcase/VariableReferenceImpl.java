@@ -106,6 +106,11 @@ public class VariableReferenceImpl implements VariableReference {
 				        msg
 				                + "A VariableReferences position is only defined if the VariableReference is defined by a statement in the testCase");
 			}
+		} else {
+			int position = stPosition;
+			stPosition = null;
+			stPosition = getStPosition();
+			assert (stPosition == position);
 		}
 		return stPosition;
 	}
