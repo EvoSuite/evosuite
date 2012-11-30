@@ -85,7 +85,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public int getStPosition() {
-		if ((stPosition == null) || changeListener.hasChanged()) {
+		if (stPosition == null || changeListener.hasChanged()) {
 			stPosition = null;
 			for (int i = 0; i < testCase.size(); i++) {
 				StatementInterface stmt = testCase.getStatement(i);

@@ -825,24 +825,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		while (iterator.hasNext()) {
 			StatementInterface statement = iterator.next();
 			logger.trace("Visiting statement " + statement.getCode());
-			if (statement instanceof PrimitiveStatement<?>)
-				visitor.visitPrimitiveStatement((PrimitiveStatement<?>) statement);
-			else if (statement instanceof FieldStatement)
-				visitor.visitFieldStatement((FieldStatement) statement);
-			else if (statement instanceof ConstructorStatement)
-				visitor.visitConstructorStatement((ConstructorStatement) statement);
-			else if (statement instanceof MethodStatement)
-				visitor.visitMethodStatement((MethodStatement) statement);
-			else if (statement instanceof AssignmentStatement)
-				visitor.visitAssignmentStatement((AssignmentStatement) statement);
-			else if (statement instanceof ArrayStatement)
-				visitor.visitArrayStatement((ArrayStatement) statement);
-			else if (statement instanceof NullStatement)
-				visitor.visitNullStatement((NullStatement) statement);
-			else if (statement instanceof PrimitiveExpression)
-				visitor.visitPrimitiveExpression((PrimitiveExpression) statement);
-			else
-				throw new RuntimeException("Unknown statement type: " + statement);
+			visitor.visitStatement(statement);
 		}
 	}
 

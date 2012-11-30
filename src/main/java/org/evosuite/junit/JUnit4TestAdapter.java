@@ -25,6 +25,7 @@ import java.util.Map;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * <p>JUnit4TestAdapter class.</p>
