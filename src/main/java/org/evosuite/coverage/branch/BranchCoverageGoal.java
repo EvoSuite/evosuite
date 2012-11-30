@@ -26,7 +26,6 @@ import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.ControlFlowDistance;
-import org.evosuite.coverage.CoverageGoal;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.ExecutionResult;
@@ -38,7 +37,7 @@ import org.evosuite.testcase.TestChromosome;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public class BranchCoverageGoal extends CoverageGoal implements Serializable,
+public class BranchCoverageGoal implements Serializable,
         Comparable<BranchCoverageGoal> {
 
 	private static final long serialVersionUID = 2962922303111452419L;
@@ -158,21 +157,6 @@ public class BranchCoverageGoal extends CoverageGoal implements Serializable,
 
 		return branch.getInstruction().isDirectlyControlDependentOn(goal.branch)
 		        || goal.branch.getInstruction().isDirectlyControlDependentOn(branch);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Determine if there is an existing test case covering this goal
-	 */
-	@Override
-	public boolean isCovered(TestChromosome test) {
-		ExecutionResult result = runTest(test);
-		ControlFlowDistance d = getDistance(result);
-		if (d.getApproachLevel() == 0 && d.getBranchDistance() == 0.0)
-			return true;
-		else
-			return false;
 	}
 
 	/**
@@ -300,24 +284,6 @@ public class BranchCoverageGoal extends CoverageGoal implements Serializable,
 			this.branch = BranchPool.getBranch(branchId);
 		else
 			this.branch = null;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.coverage.CoverageGoal#getTargetClass()
-	 */
-	@Override
-	public String getTargetClass() {
-		return className;
-	}
-
-	/* (non-Javadoc)
-	 * @see org.evosuite.coverage.CoverageGoal#getTargetMethods()
-	 */
-	@Override
-	public Set<String> getTargetMethods() {
-		Set<String> targetMethods = new HashSet<String>();
-		targetMethods.add(methodName);
-		return targetMethods;
 	}
 
 }

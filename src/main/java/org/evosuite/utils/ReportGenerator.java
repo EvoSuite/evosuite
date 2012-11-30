@@ -570,19 +570,40 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case Statements_Executed:
 				return "" + result_statements_executed;
 			case Definitions:
-				return "" + DefUsePool.getDefCounter();
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+					return "" + DefUsePool.getDefCounter();
+				else
+					return "";
 			case Uses:
-				return "" + DefUsePool.getUseCounter();
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+					return "" + DefUsePool.getUseCounter();
+				else
+					return "";
 			case DefUsePairs:
-				return "" + DefUseCoverageFactory.getDUGoals().size();
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+					return "" + DefUseCoverageFactory.getDUGoals().size();
+				else
+					return "";
 			case IntraMethodPairs:
-				return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+					return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
+				else
+					return "";
 			case InterMethodPairs:
-				return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+					return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
+				else
+					return "";
 			case IntraClassPairs:
-				return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+					return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
+				else
+					return "";
 			case ParameterPairs:
-				return "" + DefUseCoverageFactory.getParamGoalsCount();
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+					return "" + DefUseCoverageFactory.getParamGoalsCount();
+				else
+					return "";
 			case CoveredIntraMethodPairs:
 				return "" + coveredIntraMethodPairs;
 			case CoveredInterMethodPairs:
