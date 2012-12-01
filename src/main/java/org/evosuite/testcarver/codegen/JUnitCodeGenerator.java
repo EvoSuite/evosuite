@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.dom.Modifier.ModifierKeyword;
 import org.eclipse.jdt.core.dom.Name;
 import org.eclipse.jdt.core.dom.NormalAnnotation;
 import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
 import org.eclipse.jdt.core.dom.SimpleType;
@@ -44,6 +45,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
 
@@ -370,6 +372,11 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				}
 			}
 			
+			if(type.startsWith("java.lang"))
+			{
+				return ast.newSimpleType(ast.newSimpleName(fragments[2]));
+			}
+			
 			final String[] pkgArray = new String[fragments.length - 1];
 			System.arraycopy(fragments, 0, pkgArray, 0, pkgArray.length);
 			final SimpleType pkgType = ast.newSimpleType(ast.newName(pkgArray));
@@ -642,13 +649,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		
 		final String  typeName  = log.oidClassNames.get(log.oidRecMapping.get(oid));
 		Class<?> type = getClassForName(typeName);
-		
-//		Class<?> type;
-//		try {
-//			type = Class.forName(typeName);
-//		} catch (ClassNotFoundException e) {
-//			throw new RuntimeException(e);
-//		}
 		
 		final boolean haveSamePackage = type.getPackage().getName().equals(packageName); // TODO might be nicer...
 		
@@ -931,28 +931,66 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 						return;
 					}
 					
-					if(methodParamType.isAssignableFrom(argType))
+					final CastExpression cast = ast.newCastExpression();
+					
+					if(methodParamType.isPrimitive())
 					{
-						arguments.add(ast.newSimpleName(this.oidToVarMapping.get(arg)));
+						// cast to ensure that right method is called
+						// --> see doSth(int) and doSth(Integer)
+						
+						if(methodParamType.equals(boolean.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.BOOLEAN));
+						}
+						else if(methodParamType.equals(byte.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.BYTE));
+						}
+						else if(methodParamType.equals(char.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.CHAR));
+						}
+						else if(methodParamType.equals(double.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.DOUBLE));
+						}
+						else if(methodParamType.equals(float.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.FLOAT));
+						}
+						else if(methodParamType.equals(int.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.INT));
+						}
+						else if(methodParamType.equals(long.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.LONG));
+						}
+						else if(methodParamType.equals(short.class))
+						{
+							cast.setType(ast.newPrimitiveType(PrimitiveType.SHORT));
+						}
+						else
+						{
+							throw new RuntimeException("unknown primitive type: " + methodParamType);
+						}
+
 					}
 					else
 					{
 						// we need an up-cast
-						final CastExpression cast = ast.newCastExpression();
-						
 						if(methodParamType.getName().contains("."))
 						{
-							cast.setType(this.createAstType(methodParamType.getName(), ast));//ast.newSimpleType(ast.newName(methodParamType.getName())));
-							
+							cast.setType(this.createAstType(methodParamType.getName(), ast));
 						}
 						else
 						{
 							cast.setType(ast.newSimpleType(ast.newSimpleName(methodParamType.getName())));
 						}
-						
-						cast.setExpression(ast.newSimpleName(this.oidToVarMapping.get(arg)));
-						arguments.add(cast);
 					}
+					
+					cast.setExpression(ast.newSimpleName(this.oidToVarMapping.get(arg)));
+					arguments.add(cast);
 				}
 			}
 		}
@@ -1165,7 +1203,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				final String   fieldDesc = log.descList.get(logRecNo);
 				final Class<?> fieldType = CaptureUtil.getClassFromDesc(fieldDesc);
 				
-				if(fieldType.isAssignableFrom(argType))
+				if(fieldType.isAssignableFrom(argType) || fieldType.isPrimitive())
 				{
 					assignment.setRightHandSide(ast.newSimpleName(this.oidToVarMapping.get(arg)));
 				}
