@@ -58,7 +58,7 @@ public class MasterServices {
 	
 	public void registerServices() throws RemoteException{
 		masterNode = new MasterNodeImpl(registry);
-		MasterNodeRemote stub = (MasterNodeRemote) UnicastRemoteObject.exportObject(masterNode);
+		MasterNodeRemote stub = (MasterNodeRemote) UnicastRemoteObject.exportObject(masterNode,registryPort);
 		registry.rebind(MasterNodeRemote.RMI_SERVICE_NAME, stub);
 	}
 	
