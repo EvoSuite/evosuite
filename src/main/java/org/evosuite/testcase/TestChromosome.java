@@ -108,7 +108,7 @@ public class TestChromosome extends ExecutableChromosome {
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
 		
-		if(c.test.isEmpty())
+		if(test.isEmpty())
 		{
 			c.test = new DefaultTestCase();
 		}
