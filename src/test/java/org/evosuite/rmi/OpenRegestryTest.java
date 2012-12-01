@@ -35,7 +35,7 @@ public class OpenRegestryTest {
 		}
 		
 		FooImpl foo = new FooImpl();
-		Ifoo stub = (Ifoo) UnicastRemoteObject.exportObject(foo,0);
+		Ifoo stub = (Ifoo) UnicastRemoteObject.exportObject(foo,port);
 		String service = "Foo";
 		registry.rebind(service, stub);
 		
