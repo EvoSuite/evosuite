@@ -78,6 +78,7 @@
 	 	<profile>
 	 	  <id>Java6</id>
 	  	  <activation>
+	  	  	<jdk>1.6</jdk>
 			<property>
 		 	<name>Java6</name>
 			</property>
