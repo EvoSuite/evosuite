@@ -391,9 +391,13 @@ public class EvoSuite {
 							+ target
 							+ " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
+		
+		
 		ExternalProcessHandler handler = new ExternalProcessHandler();
 		handler.openServer();
 		int port = handler.getServerPort();
+		
+		
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(JAVA_CMD);
 		cmdLine.add("-cp");
@@ -693,9 +697,8 @@ public class EvoSuite {
 		}
 
 		handler.setBaseDir(base_dir_path);
-		Object result = null;
 		if (handler.startProcess(newArgs)) {
-			result = handler
+			 handler
 					.waitForResult((Properties.GLOBAL_TIMEOUT
 							+ Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search timeout plus 100 seconds?
 			try {

@@ -104,6 +104,8 @@ import org.evosuite.primitives.ObjectPool;
 import org.evosuite.regression.RegressionSuiteFitness;
 import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
@@ -196,6 +198,8 @@ public class TestSuiteGenerator {
 
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath: ");
 
+		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
+		
 		Sandbox.goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {

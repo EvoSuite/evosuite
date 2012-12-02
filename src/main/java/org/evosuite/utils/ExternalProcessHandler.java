@@ -27,12 +27,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.rmi.RemoteException;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.ClientProcess;
 import org.evosuite.ConsoleProgressBar;
 import org.evosuite.Properties;
+import org.evosuite.rmi.MasterServices;
+import org.evosuite.rmi.service.ClientNodeRemote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +44,9 @@ import sun.misc.Signal;
 import sun.misc.SignalHandler;
 
 /*
- * this code should be used by the main process
+ * this code should be used by the main master process.
+ * 
+ * FIXME: once RMI is stable tested, we ll need to remove all the TCP stuff, and refactor
  */
 
 @SuppressWarnings("restriction")
@@ -126,7 +132,8 @@ public class ExternalProcessHandler {
 
 		latch = new CountDownLatch(1);
 		final_result = WAITING_FOR_DATA;
-
+	
+		
 		//the following thread is important to make sure that the external process is killed
 		//when current process ends
 
@@ -140,7 +147,7 @@ public class ExternalProcessHandler {
 
 		Runtime.getRuntime().addShutdownHook(processKillHook);
 		// now start the process
-
+		
 		if (!Properties.CLIENT_ON_THREAD) {
 			File dir = new File(base_dir);
 			ProcessBuilder builder = new ProcessBuilder(command);
@@ -177,6 +184,29 @@ public class ExternalProcessHandler {
 		}
 		//wait for connection from external process
 
+		Set<ClientNodeRemote> clients;
+		try {
+			clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
+		} catch (InterruptedException e) {
+			return false;
+		}
+		if(clients==null){
+			logger.error("Not possible to access to clients");
+			return false;
+		}
+
+		for(ClientNodeRemote client : clients){
+			try {
+				client.startNewSearch();
+			} catch (RemoteException e) {
+				logger.error("Error in starting clients",e);
+				return false;
+			}
+		}
+		
+		/*
+		 * TODO remove once RMI is stable
+		 * 
 		try {
 			connection = server.accept();
 			out = new ObjectOutputStream(connection.getOutputStream());
@@ -199,6 +229,9 @@ public class ExternalProcessHandler {
 		}
 
 		startExternalProcessMessageHandler();
+		*/
+		
+		
 		startSignalHandler();
 		last_command = command;
 
@@ -216,6 +249,11 @@ public class ExternalProcessHandler {
 		} catch (Exception e) { /* do nothing. this can happen if shutdown is in progress */
 		}
 
+		
+		/*
+		 * TODO: use RMI to 'gracefully' stop the client
+		 */
+		
 		if (process != null)
 			process.destroy();
 		process = null;
@@ -251,10 +289,13 @@ public class ExternalProcessHandler {
 	 * @return a int.
 	 */
 	public int getServerPort() {
+		return MasterServices.getInstance().getRegistryPort();
+		/*
 		if (server != null)
 			return server.getLocalPort();
 		else
 			return -1;
+			*/
 	}
 
 	/**
@@ -265,6 +306,21 @@ public class ExternalProcessHandler {
 	 * @return a int.
 	 */
 	public int openServer() {
+		boolean started = MasterServices.getInstance().startRegistry();
+		if(!started){
+			logger.error("Not possible to start RMI registry");
+			return -1;
+		}
+		
+		try {
+			MasterServices.getInstance().registerServices();
+		} catch (RemoteException e) {
+			logger.error("Failed to start RMI services",e);
+		}
+
+		return MasterServices.getInstance().getRegistryPort();
+
+		/*
 		if (server == null) {
 			try {
 				server = new ServerSocket();
@@ -276,6 +332,7 @@ public class ExternalProcessHandler {
 			}
 		}
 		return -1;
+		*/
 	}
 
 	/**
@@ -284,6 +341,8 @@ public class ExternalProcessHandler {
 	 * </p>
 	 */
 	public void closeServer() {
+		MasterServices.getInstance().stopServices();
+		/*
 		if (server != null) {
 			try {
 				server.close();
@@ -293,6 +352,7 @@ public class ExternalProcessHandler {
 
 			server = null;
 		}
+		*/
 	}
 
 	/**
@@ -466,6 +526,39 @@ public class ExternalProcessHandler {
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public Object waitForResult(int timeout) {
+		
+		try {
+			long start = System.currentTimeMillis();
+			Set<ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(timeout);
+			if(clients==null){
+				logger.error("Not possible to access to clients");
+				return null;
+			}
+			
+			for(ClientNodeRemote client : clients){
+				long passed = System.currentTimeMillis() - start;
+				long remaining = timeout - passed;
+				if(remaining <=0 ){ remaining = 1;}
+				boolean finished = client.waitUntilDone(remaining);
+				
+				if(!finished){
+					/*
+					 * TODO what to do here? Try to stop the the client through RMI?
+					 * Or check in which state it is, and based on that decide if giving more time?
+					 */
+					logger.error("Class "+ Properties.TARGET_CLASS+". Clients have not finished yet, although timeout.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses());					
+				}				
+			}
+		} catch (InterruptedException e) {		
+		} catch(RemoteException e){
+			logger.error("Class "+ Properties.TARGET_CLASS+". Lost connection with clients.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses(),e);
+		}
+		
+		killProcess();
+		LoggingUtils.getEvoLogger().info("* Computation finished");
+		
+		return null; //TODO refactoring
+		/*
 		try {
 			latch.await(timeout, TimeUnit.MILLISECONDS);
 		} catch (InterruptedException e) {
@@ -476,6 +569,7 @@ public class ExternalProcessHandler {
 		}
 
 		return final_result;
+		*/
 	}
 
 }

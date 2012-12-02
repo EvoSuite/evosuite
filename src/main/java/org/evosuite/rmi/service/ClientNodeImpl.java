@@ -1,12 +1,17 @@
 package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
-import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
+import org.evosuite.TestSuiteGenerator;
+import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.sandbox.Sandbox;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +24,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 	private String clientRmiIdentifier;
 	protected volatile CountDownLatch latch;
 	protected Registry registry;
+	
+	protected final ExecutorService executor = Executors.newSingleThreadExecutor();
 	
 	public ClientNodeImpl(Registry registry){
 		this.registry = registry;
@@ -35,8 +42,53 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 		if(!state.equals(ClientState.NOT_STARTED)){
 			throw new IllegalArgumentException("Search has already been started");
 		}
-		changeState(ClientState.STARTED);
-		//TODO
+
+		/*
+		 * Needs to be done on separated thread, otherwise the master will block on this
+		 * function call until end of the search, even if it is on remote process
+		 */
+		executor.submit(new Runnable(){
+			@Override
+			public void run() {				
+				changeState(ClientState.STARTED);
+				
+				
+				//Before starting search, let's activate the sandbox
+				if (Properties.SANDBOX){
+					Sandbox.initializeSecurityManagerForSUT();
+				}
+				//Object instruction = util.receiveInstruction();
+				/*
+				 * for now, we ignore the instruction (originally was meant to support several client in parallel and
+				 * restarts, but that will be done in RMI)
+				 */
+
+				
+				// Starting a new search
+				TestSuiteGenerator generator = new TestSuiteGenerator();
+				generator.generateTestSuite();
+
+				GeneticAlgorithm ga = generator.getEmployedGeneticAlgorithm();
+
+				if (Properties.CLIENT_ON_THREAD) {
+					/*
+					 * this is done when the client is run on same JVM, to avoid
+					 * problems of serializing ga
+					 */
+					ClientProcess.geneticAlgorithmStatus = ga;
+				}
+
+				
+				changeState(ClientState.DONE);
+				
+				if (Properties.SANDBOX){
+					/*
+					 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written 
+					 */
+					Sandbox.resetDefaultSecurityManager();
+				}
+			}			
+		});
 	}
 
 	@Override
@@ -46,8 +98,18 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 
 	@Override
 	public boolean waitUntilDone(long timeoutInMs) throws RemoteException, InterruptedException {
-		return latch.await(timeoutInMs, TimeUnit.MILLISECONDS);
+		return latch.await(timeoutInMs, TimeUnit.MILLISECONDS); 
 	}
+	
+	@Override
+	public void waitUntilDone()  {
+		try{
+			latch.await(); 
+		} catch(InterruptedException e){			
+		}
+	}
+	
+	
 
 	@Override
 	public void changeState(ClientState state) {

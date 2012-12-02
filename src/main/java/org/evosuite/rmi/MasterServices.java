@@ -1,5 +1,6 @@
 package org.evosuite.rmi;
 
+import java.rmi.NoSuchObjectException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
@@ -9,9 +10,23 @@ import org.evosuite.rmi.service.MasterNodeLocal;
 import org.evosuite.rmi.service.MasterNodeRemote;
 import org.evosuite.rmi.service.MasterNodeImpl;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+/**
+ * This class should be used only in the Master process, not the clients.
+ * Used to initialize and store all the RMI services in the master.
+ * It is also used to start the RMI registry
+ * 
+ * @author arcuri
+ *
+ */
 public class MasterServices {
 
+	private static Logger logger = LoggerFactory.getLogger(MasterServices.class);
+	
+	private static MasterServices instance = new MasterServices();
+	
 	private int registryPort = -1;
 	
 	/**
@@ -21,7 +36,20 @@ public class MasterServices {
 
 	private MasterNodeImpl masterNode; 
 	
-	public boolean startRegistry(){
+	
+	protected MasterServices(){		
+	}
+	
+	
+	public static MasterServices getInstance(){
+		return instance;
+	}
+	
+	public boolean startRegistry() throws IllegalStateException{
+		
+		if(registry != null){
+			throw new IllegalStateException("RMI registry is already running");
+		}
 		
 		/*
 		 * Unfortunately, it does not seem possible to start a RMI registry on an
@@ -31,7 +59,7 @@ public class MasterServices {
 		 */
 		
 		int port = 2000;
-		port += Randomness.nextInt(10000);
+		port += Randomness.nextInt(20000);
 		
 		final int TRIES = 100;
 		for(int i=0; i<TRIES; i++){
@@ -58,7 +86,7 @@ public class MasterServices {
 	
 	public void registerServices() throws RemoteException{
 		masterNode = new MasterNodeImpl(registry);
-		MasterNodeRemote stub = (MasterNodeRemote) UnicastRemoteObject.exportObject(masterNode,registryPort);
+		MasterNodeRemote stub = (MasterNodeRemote) UtilsRMI.exportObject(masterNode);
 		registry.rebind(MasterNodeRemote.RMI_SERVICE_NAME, stub);
 	}
 	
@@ -66,5 +94,25 @@ public class MasterServices {
 
 	public MasterNodeLocal getMasterNode() {
 		return masterNode;
+	}
+	
+	public void stopServices(){
+		if(masterNode != null){
+			try {
+				UnicastRemoteObject.unexportObject(masterNode,true);
+			} catch (NoSuchObjectException e) {
+				logger.warn("Failed to delete MasterNode RMI instance",e);
+			}
+			masterNode = null;
+		}
+		
+		if(registry != null){
+			try {
+				UnicastRemoteObject.unexportObject(registry,true);
+			} catch (NoSuchObjectException e) {
+				logger.warn("Failed to stop RMI registry",e);
+			}
+			registry = null;
+		}
 	}
 }
