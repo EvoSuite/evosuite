@@ -401,11 +401,15 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 	}
 	
 	public static void clear() {
-		called = false;
-		duGoals.clear();
-		goals.clear();
-		goalMap.clear();
-		goalCounts.clear();
+		if(called) {
+			called = false;
+			/*
+			duGoals.clear();
+			goals.clear();
+			goalMap.clear();
+			goalCounts.clear();
+			*/
+		}
 	}
 
 }

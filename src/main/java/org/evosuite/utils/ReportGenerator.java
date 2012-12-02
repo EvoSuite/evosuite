@@ -580,37 +580,37 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case Statements_Executed:
 				return "" + result_statements_executed;
 			case Definitions:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUsePool.getDefCounter();
 				else
 					return "";
 			case Uses:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUsePool.getUseCounter();
 				else
 					return "";
 			case DefUsePairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getDUGoals().size();
 				else
 					return "";
 			case IntraMethodPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
 				else
 					return "";
 			case InterMethodPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
 				else
 					return "";
 			case IntraClassPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
 				else
 					return "";
 			case ParameterPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getParamGoalsCount();
 				else
 					return "";
