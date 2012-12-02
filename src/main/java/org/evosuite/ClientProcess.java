@@ -21,6 +21,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
@@ -42,7 +43,7 @@ public class ClientProcess {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
 
-	private final ExternalProcessUtilities util = new ExternalProcessUtilities();
+	//private final ExternalProcessUtilities util = new ExternalProcessUtilities();
 
 	/** Constant <code>geneticAlgorithmStatus</code> */
 	public static GeneticAlgorithm geneticAlgorithmStatus;
@@ -56,45 +57,21 @@ public class ClientProcess {
 		Properties.getInstance();
 		LoggingUtils.getEvoLogger().info("* Connecting to master process on port "
 		                                         + Properties.PROCESS_COMMUNICATION_PORT);
-		if (!util.connectToMainProcess()) {
+	
+		boolean registered = ClientServices.getInstance().registerServices();
+	
+		//if (!util.connectToMainProcess()) {
+		if (!registered) {
 			throw new RuntimeException("Could not connect to master process on port "
                     + Properties.PROCESS_COMMUNICATION_PORT);
 		}
-
-		TestSuiteGenerator generator = null;
-		Object instruction = util.receiveInstruction();
+		
 		/*
-		 * for now, we ignore the instruction (originally was meant to support several client in parallel and
-		 * restarts, but that will be done in RMI)
+		 * Now the client node is registered with RMI.
+		 * The master will control this node directly.
 		 */
-
-		//Before starting search, let's activate the sandbox
-		if (Properties.SANDBOX){
-			Sandbox.initializeSecurityManagerForSUT();
-		}
 		
-		// Starting a new search
-		generator = new TestSuiteGenerator();
-		generator.generateTestSuite();
-
-		GeneticAlgorithm ga = generator.getEmployedGeneticAlgorithm();
-
-		if (Properties.CLIENT_ON_THREAD) {
-			/*
-			 * this is done when the client is run on same JVM, to avoid
-			 * problems of serializing ga
-			 */
-			geneticAlgorithmStatus = ga;
-		}
-
-		util.informSearchIsFinished(ga);
-		
-		if (Properties.SANDBOX){
-			/*
-			 * Note: this is mainly done for debugging purposes, to simplify how test cases are run/written 
-			 */
-			Sandbox.resetDefaultSecurityManager();
-		}
+		ClientServices.getInstance().getClientNode().waitUntilDone();
 	}
 
 	/**
