@@ -399,5 +399,13 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 			return 0;
 		return r;
 	}
+	
+	public static void clear() {
+		called = false;
+		duGoals.clear();
+		goals.clear();
+		goalMap.clear();
+		goalCounts.clear();
+	}
 
 }
