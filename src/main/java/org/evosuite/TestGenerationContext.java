@@ -61,7 +61,6 @@ public class TestGenerationContext {
 		// TODO: BranchPool should not be static
 		BranchPool.reset();
 		MutationPool.clear();
-		DefUsePool.clear();
 
 		// TODO: Clear only pool of current classloader?
 		GraphPool.clearAll();
@@ -89,6 +88,18 @@ public class TestGenerationContext {
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 
+		if(Properties.CRITERION == Properties.Criterion.DEFUSE) {
+			DefUsePool.clear();
+			try {
+				TestClusterGenerator.generateCluster(Properties.TARGET_CLASS, DependencyAnalysis.getInheritanceTree(), DependencyAnalysis.getCallTree());
+			} catch (RuntimeException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ClassNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		//Properties.getTargetClass();
 }
 
