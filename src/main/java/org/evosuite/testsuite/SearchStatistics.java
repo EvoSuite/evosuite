@@ -302,6 +302,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.coverageMap.put(criterion, coverage);
 	}
 
+	public boolean hasCoverage(String criterion) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		return entry.coverageMap.containsKey(criterion);
+	}
+
 	public void setCoveredGoals(int num) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.covered_goals = num;

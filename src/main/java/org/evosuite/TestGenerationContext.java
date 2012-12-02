@@ -88,6 +88,8 @@ public class TestGenerationContext {
 		
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
-	}
+
+		//Properties.getTargetClass();
+}
 
 }
