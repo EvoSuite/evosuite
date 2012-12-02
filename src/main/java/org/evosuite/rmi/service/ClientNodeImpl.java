@@ -12,6 +12,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,21 +64,24 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 				 * restarts, but that will be done in RMI)
 				 */
 
-				
-				// Starting a new search
-				TestSuiteGenerator generator = new TestSuiteGenerator();
-				generator.generateTestSuite();
+				try{
+					// Starting a new search
+					TestSuiteGenerator generator = new TestSuiteGenerator();
+					generator.generateTestSuite();
 
-				GeneticAlgorithm ga = generator.getEmployedGeneticAlgorithm();
+					GeneticAlgorithm ga = generator.getEmployedGeneticAlgorithm();
 
-				if (Properties.CLIENT_ON_THREAD) {
-					/*
-					 * this is done when the client is run on same JVM, to avoid
-					 * problems of serializing ga
-					 */
-					ClientProcess.geneticAlgorithmStatus = ga;
+					if (Properties.CLIENT_ON_THREAD) {
+						/*
+						 * this is done when the client is run on same JVM, to avoid
+						 * problems of serializing ga
+						 */
+						ClientProcess.geneticAlgorithmStatus = ga;
+					}
+				} catch(Throwable t){
+					logger.error("Error when generating tests for: " + Properties.TARGET_CLASS
+					        + " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);					
 				}
-
 				
 				changeState(ClientState.DONE);
 				
