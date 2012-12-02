@@ -687,4 +687,21 @@ public class DefUsePool {
 		}
 		return count;
 	}
+	
+	public static void clear() {
+		defMap.clear();
+		useMap.clear();
+		defuseIdsToDefUses.clear();
+		defuseIdsToDefs.clear();
+		defuseIdsToUses.clear();
+		registeredDUs.clear();
+		registeredDefs.clear();
+		registeredUses.clear();
+		knownParameterUses.clear();
+		knownFieldMethodCalls.clear();
+		defCounter = 0;
+		useCounter = 0;
+		duCounter = 0;
+		DefUseCoverageFactory.clear();		
+	}
 }

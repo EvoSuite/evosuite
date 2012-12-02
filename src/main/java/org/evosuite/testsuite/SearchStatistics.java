@@ -353,8 +353,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
 			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
 
-			if (Properties.CRITERION == Properties.Criterion.DEFUSE
-			        || Properties.ANALYSIS_CRITERIA.contains("DefUse")) {
+			if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 				for (DefUseCoverageTestFitness goal : DefUseCoverageFactory.getDUGoals()) {
 					if (coveredDUGoals.contains(goal))
 						continue;

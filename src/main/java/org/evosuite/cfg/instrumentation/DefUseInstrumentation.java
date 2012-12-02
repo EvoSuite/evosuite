@@ -66,10 +66,12 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	        String methodName, int access) {
 		RawControlFlowGraph completeCFG = GraphPool.getInstance(classLoader).getRawCFG(className,
 		                                                                               methodName);
+		logger.info("Applying DefUse instrumentation on CFG with "+completeCFG.vertexCount() +" nodes");
 		Iterator<AbstractInsnNode> j = mn.instructions.iterator();
 		while (j.hasNext()) {
 			AbstractInsnNode in = j.next();
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
+
 				if ((Properties.CRITERION == Criterion.DEFUSE
 				        || Properties.CRITERION == Criterion.ALLDEFS
 				        || Properties.CRITERION == Criterion.ANALYZE || TestSuiteGenerator.analyzing)

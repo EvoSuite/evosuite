@@ -116,7 +116,7 @@ public class TestSuiteMinimizer {
 			test.clearCachedResults();
 		}
 
-		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(testFitnessFactory.getCoverageGoals());
 		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
 		int numCovered = 0;
 		int numGoals = goals.size();

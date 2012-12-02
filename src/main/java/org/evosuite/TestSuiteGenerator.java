@@ -733,16 +733,18 @@ public class TestSuiteGenerator {
 			SearchStatistics.getInstance().mutationScore(best.getCoverage());
 		}
 
+
+		
 		statistics.iteration(ga);
 		statistics.minimized(best);
 		LoggingUtils.getEvoLogger().info("* Generated " + best.size()
 		                                         + " tests with total length "
 		                                         + best.totalLengthOfTestCases());
-
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
 			CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA);
 		}
+
 
 		if (analyzing)
 			CoverageStatistics.analyzeCoverage(best);
@@ -752,7 +754,7 @@ public class TestSuiteGenerator {
 		}
 
 		ga.printBudget();
-		if (Properties.CRITERION == Criterion.DEFUSE)
+		if (Properties.CRITERION == Criterion.DEFUSE && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
 		return best.getTests();
