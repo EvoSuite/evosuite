@@ -746,6 +746,7 @@ public class TestSuiteGenerator {
 		                                         + best.totalLengthOfTestCases());
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
+			SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), best.getCoverage());
 			CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA);
 		}
 

@@ -56,6 +56,7 @@ public class CoverageAnalysis {
 		TestGenerationContext.getInstance().resetContext();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
+		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "+Properties.CRITERION);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getClassLoader());
@@ -66,6 +67,11 @@ public class CoverageAnalysis {
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
 		Criterion oldCriterion = Properties.CRITERION;
 		for (String criterion : criteria.split(",")) {
+			if(SearchStatistics.getInstance().hasCoverage(criterion)) {
+				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "+criterion);
+				continue;
+			}
+			
 			analyzeCoverage(testSuite, criterion);
 		}
 		reinstrument(testSuite, oldCriterion);
