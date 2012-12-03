@@ -253,9 +253,9 @@ public class DefUsePool {
 		// now the first Definition instance for this instruction can be created
 		Definition def = DefUseFactory.makeDefinition(d);
 
-		if (d.isLocalArrayDefinition())
-			LoggingUtils.getEvoLogger().info("succesfully registered LOCAL ARRAY VAR DEF "
-			                                         + def.toString());
+//		if (d.isLocalArrayDefinition())
+//			LoggingUtils.getEvoLogger().info("succesfully registered LOCAL ARRAY VAR DEF "
+//			                                         + def.toString());
 
 		// finally add the Definition to all corresponding maps
 		fillDefinitionMaps(def);
