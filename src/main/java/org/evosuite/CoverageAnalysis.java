@@ -4,15 +4,11 @@
 package org.evosuite;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.coverage.mutation.MutationSuiteFitness;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
