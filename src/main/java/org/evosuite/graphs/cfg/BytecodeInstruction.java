@@ -972,7 +972,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			return false;
 		
 		//is a field use? But field uses are also "GETSTATIC"
-		if (srcInstruction.isFieldUse()) {
+		if (srcInstruction.isFieldNodeUse()) {
 			
 			//is static? if not, return yes. This control is not necessary in theory, but you never know...
 			if (srcInstruction.isStaticDefUse()) {
@@ -1105,8 +1105,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		// know if
 		// this instruction calls a pure or impure method, so we just label it
 		// as both a Use and Definition for now
-		if (!(DefUsePool.isKnownAsUse(this) || DefUsePool
-				.isKnownAsDefinition(this))) {
+		if (!(DefUsePool.isKnownAsUse(this) && DefUsePool
+				.isKnownAsFieldMethodCall(this))) {
 			return true;
 		}
 		// once the DefUsePool knows about this instruction we only return true
@@ -1122,8 +1122,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 		// know if
 		// this instruction calls a pure or impure method, so we just label it
 		// as both a Use and Definition for now
-		if (!(DefUsePool.isKnownAsUse(this) || DefUsePool
-				.isKnownAsDefinition(this))) {
+		if ((DefUsePool.isKnownAsFieldMethodCall(this) && !DefUsePool.isKnownAsDefinition(this))) {
 			return true;
 		}
 		// once the DefUsePool knows about this instruction we only return true
