@@ -155,6 +155,8 @@ public class AllUsesAnalysis {
 				Set<ClassCallNode> parentsChildren = ccfg.getCcg().getChildren(parent);
 				boolean canAnalyzeNow = true;
 				for (ClassCallNode parentsChild : parentsChildren) {
+					if(parentsChild == null)
+						continue;
 					if (!parentsChild.equals(parent)
 							&& !(toAnalyze.contains(parentsChild) || analyzedMethods
 									.contains(ccfg.getMethodEntryNodeForClassCallNode(parentsChild)))) {
@@ -180,9 +182,12 @@ public class AllUsesAnalysis {
 		Set<ClassCallNode> preAnalyzeable = new HashSet<ClassCallNode>();
 		for (ClassCallNode ccgNode : ccfg.getCcg().vertexSet()) {
 			boolean add = true;
-			for (ClassCallNode child : ccfg.getCcg().getChildren(ccgNode))
+			for (ClassCallNode child : ccfg.getCcg().getChildren(ccgNode)){
+				if(child == null)
+					continue;
 				if (!child.equals(ccgNode))
 					add = false;
+			}
 
 			if (add)
 				preAnalyzeable.add(ccgNode);
@@ -635,6 +640,8 @@ public class AllUsesAnalysis {
 	private boolean shouldSkipChildren(CCFGNode node,
 			Set<CCFGEdge> handledBackEdges, Set<CCFGNode> children,
 			boolean handleLoops) {
+		if(node == null || children == null)
+			return true;
 		boolean skipChildren = false;
 		if (handleLoops) {
 			for (CCFGNode child : children) {
