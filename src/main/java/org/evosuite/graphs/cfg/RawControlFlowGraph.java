@@ -76,6 +76,7 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	        String methodName, int access) {
 		super(className, methodName, access);
 		this.classLoader = classLoader;
+		logger.info("Creating new RawCFG for "+className+"."+methodName+": "+this.vertexCount());
 	}
 
 	// inherited from ControlFlowGraph
@@ -123,6 +124,8 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 */
 	protected ControlFlowEdge addEdge(BytecodeInstruction src,
 	        BytecodeInstruction target, boolean isExceptionEdge) {
+
+		logger.info("Adding edge to RawCFG of "+className+"."+methodName+": "+this.vertexCount());
 
 		if (BranchPool.isKnownAsBranch(src))
 			if (src.isBranch())

@@ -253,9 +253,9 @@ public class DefUsePool {
 		// now the first Definition instance for this instruction can be created
 		Definition def = DefUseFactory.makeDefinition(d);
 
-		if (d.isLocalArrayDefinition())
-			LoggingUtils.getEvoLogger().info("succesfully registered LOCAL ARRAY VAR DEF "
-			                                         + def.toString());
+//		if (d.isLocalArrayDefinition())
+//			LoggingUtils.getEvoLogger().info("succesfully registered LOCAL ARRAY VAR DEF "
+//			                                         + def.toString());
 
 		// finally add the Definition to all corresponding maps
 		fillDefinitionMaps(def);
@@ -686,5 +686,22 @@ public class DefUsePool {
 				count++;
 		}
 		return count;
+	}
+	
+	public static void clear() {
+		defMap.clear();
+		useMap.clear();
+		defuseIdsToDefUses.clear();
+		defuseIdsToDefs.clear();
+		defuseIdsToUses.clear();
+		registeredDUs.clear();
+		registeredDefs.clear();
+		registeredUses.clear();
+		knownParameterUses.clear();
+		knownFieldMethodCalls.clear();
+		defCounter = 0;
+		useCounter = 0;
+		duCounter = 0;
+		DefUseCoverageFactory.clear();		
 	}
 }
