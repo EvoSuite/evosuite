@@ -958,6 +958,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * 
 	 * @return a boolean.
 	 */
+
+	
 	public boolean isMethodCallOfField() {	
 		if(!this.isMethodCall())
 			return false;
