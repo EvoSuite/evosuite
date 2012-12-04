@@ -56,8 +56,26 @@ public class ClientServices {
 	
 	public void stopServices(){
 		if(clientNode!=null){
+			int i = 0;
+			final int tries = 10;
+			boolean done = false;
 			try {
-				UnicastRemoteObject.unexportObject(clientNode, true);
+				while(!done){
+					/*
+					 * A call from Master could still be active on this node. so we cannot
+					 * forcely stop the client, we need to wait
+					 */
+					done = UnicastRemoteObject.unexportObject(clientNode, false);
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {						
+					}
+					i++;
+					if(i>=tries){
+						logger.error("Tried "+tries+" times to stop RMI ClientNode, giving up");
+						break;
+					}
+				}
 			} catch (NoSuchObjectException e) {
 				logger.warn("Failed to delete ClientNode RMI instance",e);
 			}
