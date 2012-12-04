@@ -958,6 +958,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 * 
 	 * @return a boolean.
 	 */
+
+	
 	public boolean isMethodCallOfField() {	
 		if(!this.isMethodCall())
 			return false;
@@ -972,7 +974,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 			return false;
 		
 		//is a field use? But field uses are also "GETSTATIC"
-		if (srcInstruction.isFieldUse()) {
+		if (srcInstruction.isFieldNodeUse()) {
 			
 			//is static? if not, return yes. This control is not necessary in theory, but you never know...
 			if (srcInstruction.isStaticDefUse()) {
