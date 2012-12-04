@@ -63,8 +63,6 @@ public class CoverageAnalysis {
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
 		Criterion oldCriterion = Properties.CRITERION;
-		LoggingUtils.getEvoLogger().info("Have coverage for: "
-		                                         + SearchStatistics.getInstance().hasCoverage());
 		for (String criterion : criteria.split(",")) {
 			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
 				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
