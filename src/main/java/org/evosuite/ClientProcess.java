@@ -72,6 +72,7 @@ public class ClientProcess {
 		 */
 		
 		ClientServices.getInstance().getClientNode().waitUntilDone();
+		ClientServices.getInstance().stopServices();
 	}
 
 	/**
