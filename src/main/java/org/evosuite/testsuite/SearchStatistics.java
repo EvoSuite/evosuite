@@ -302,6 +302,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.coverageMap.put(criterion, coverage);
 	}
 
+	public boolean hasCoverage(String criterion) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		return entry.coverageMap.containsKey(criterion);
+	}
+
 	public void setCoveredGoals(int num) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.covered_goals = num;
@@ -353,8 +358,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
 			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
 
-			if (Properties.CRITERION == Properties.Criterion.DEFUSE
-			        || Properties.ANALYSIS_CRITERIA.contains("DefUse")) {
+			if (Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE")) {
 				for (DefUseCoverageTestFitness goal : DefUseCoverageFactory.getDUGoals()) {
 					if (coveredDUGoals.contains(goal))
 						continue;

@@ -4,12 +4,11 @@
 package org.evosuite;
 
 import java.text.NumberFormat;
-import java.util.Arrays;
 import java.util.List;
 
+import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.TestFitnessFactory;
-import org.evosuite.coverage.mutation.MutationSuiteFitness;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
@@ -17,6 +16,7 @@ import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.ReportGenerator.StatisticEntry;
 
 /**
  * @author Gordon Fraser
@@ -27,6 +27,8 @@ public class CoverageAnalysis {
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
 		Properties.Criterion oldCriterion = Properties.CRITERION;
+		if (oldCriterion == criterion)
+			return;
 
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -35,27 +37,22 @@ public class CoverageAnalysis {
 			test.clearCachedMutationResults();
 		}
 
-		if (oldCriterion == criterion)
-			return;
 
+		/*
 		List<Properties.Criterion> mutationCriteria = Arrays.asList(new Properties.Criterion[] {
 		        Properties.Criterion.WEAKMUTATION, Properties.Criterion.STRONGMUTATION,
 		        Properties.Criterion.MUTATION });
 		if (mutationCriteria.contains(criterion)
 		        && mutationCriteria.contains(oldCriterion))
 			return;
+			*/
 
 		Properties.CRITERION = criterion;
-
-		try {
-			TestClusterGenerator.resetCluster();
-		} catch (Exception e) {
-			LoggingUtils.getEvoLogger().info("Error while instrumenting for assertion generation: "
-			                                         + e.getMessage());
-			return;
-		}
+		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "+Properties.CRITERION);
+		TestGenerationContext.getInstance().resetContext();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
+		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "+Properties.CRITERION);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getClassLoader());
@@ -64,13 +61,23 @@ public class CoverageAnalysis {
 	}
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
+		Criterion oldCriterion = Properties.CRITERION;
 		for (String criterion : criteria.split(",")) {
+			if(SearchStatistics.getInstance().hasCoverage(criterion)) {
+				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "+criterion);
+				continue;
+			}
+			
 			analyzeCoverage(testSuite, criterion);
 		}
+		reinstrument(testSuite, oldCriterion);
+		Properties.CRITERION = oldCriterion;
 	}
 
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
 		try {
+			LoggingUtils.getEvoLogger().info("Measuring coverage of criterion: "+criterion);
+
 			Properties.Criterion crit = Properties.Criterion.valueOf(criterion.toUpperCase());
 			analyzeCoverage(testSuite, crit);
 		} catch (IllegalArgumentException e) {
@@ -92,6 +99,18 @@ public class CoverageAnalysis {
 		for (TestFitnessFunction goal : goals) {
 			if (goal.isCoveredBy(testSuite)) {
 				covered++;
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
+					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
+							if (((DefUseCoverageTestFitness)goal).isInterMethodPair())
+								entry.coveredInterMethodPairs++;
+							else if (((DefUseCoverageTestFitness)goal).isIntraClassPair())
+								entry.coveredIntraClassPairs++;
+							else if (((DefUseCoverageTestFitness)goal).isParameterGoal())
+								entry.coveredParameterPairs++;
+							else
+								entry.coveredIntraMethodPairs++;
+					
+				}
 			}
 		}
 
@@ -122,7 +141,8 @@ public class CoverageAnalysis {
 			                                                                                            / (double) goals.size()));
 
 		}
-		Properties.CRITERION = oldCriterion;
+
+
 
 	}
 }

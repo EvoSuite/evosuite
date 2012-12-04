@@ -89,10 +89,10 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				maxDefinitionCount.put(def, maxDefinitionCount.get(def) + 1);
 			}
 		}
-
-		for (Definition def : maxDefinitionCount.keySet()) {
-			logger.warn("Known definition: " + def + ", " + maxDefinitionCount.get(def));
-		}
+		// Why should this be a warning??
+//		for (Definition def : maxDefinitionCount.keySet()) {
+//			logger.warn("Known definition: " + def + ", " + maxDefinitionCount.get(def));
+//		}
 	}
 
 	// Not working yet

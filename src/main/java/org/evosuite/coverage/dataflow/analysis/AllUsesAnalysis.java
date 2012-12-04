@@ -248,7 +248,7 @@ public class AllUsesAnalysis {
 
 		// TODO get a logger and replace System.outs with logger.debug
 
-		System.out.print("* Searching for pairs in " + methodEntry.getMethod()
+		LoggingUtils.getEvoLogger().debug("* Searching for pairs in " + methodEntry.getMethod()
 				+ " ... ");
 
 		warnedAboutAbortion = false;
@@ -312,7 +312,7 @@ public class AllUsesAnalysis {
 			Stack<MethodCall> callStack, int invocationCount,
 			boolean handleLoops) {
 
-//		LoggingUtils.getEvoLogger().info("  processing " + node.toString());
+//		LoggingUtils.getEvoLogger().debug("  processing " + node.toString());
 
 		handleHandledNodesSet(node, handled);
 
@@ -450,9 +450,15 @@ public class AllUsesAnalysis {
 	 * Well ... funny method name i know
 	 */
 	private void handleHandledNodesSet(CCFGNode node, Set<CCFGNode> handled) {
-		if (handled.contains(node))
-			throw new IllegalStateException(
-					"visiting already handled node, should not happen");
+		if (handled.contains(node)){
+			//TODO recursion is probably not handled correctly. Fix it properly
+			// https://caloriecount.svn.sourceforge.net/svnroot/caloriecount/trunk/src/com/lts/xml/simple/SimpleElementConverter.java
+			// project 78 is a good case study
+			LoggingUtils.getEvoLogger().info("We are in a recursive call. Skipping the node");
+			//Actually, this can happen in case of recursion 
+			//throw new IllegalStateException(
+			//		"visiting already handled node "+node+", should not happen")
+			};
 		handled.add(node);
 	}
 

@@ -121,7 +121,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		 * Not only the covered branches ratio, but also including the
 		 * branchless methods
 		 */
-		BranchCoverage, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File,
+		BranchCoverage, DefUseCoverage, WeakMutationScore, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File,
 		/**
 		 * Dataflow stuff
 		 */
@@ -447,6 +447,16 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					throw new AssertionError("Wrong coverage value: " + cov);
 				}
 				return "" + cov;
+			case DefUseCoverage:
+				if(coverageMap.containsKey("DEFUSE"))
+					return "" + coverageMap.get("DEFUSE");
+				else
+					return "";
+			case WeakMutationScore:
+				if(coverageMap.containsKey("WEAKMUTATION"))
+					return "" + coverageMap.get("WEAKMUTATION");
+				else
+					return "";
 			case Creation_Time:
 				return "" + (minimized_time - start_time);
 			case Minimization_Time:
@@ -570,37 +580,37 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case Statements_Executed:
 				return "" + result_statements_executed;
 			case Definitions:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUsePool.getDefCounter();
 				else
 					return "";
 			case Uses:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUsePool.getUseCounter();
 				else
 					return "";
 			case DefUsePairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getDUGoals().size();
 				else
 					return "";
 			case IntraMethodPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
 				else
 					return "";
 			case InterMethodPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
 				else
 					return "";
 			case IntraClassPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
 				else
 					return "";
 			case ParameterPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.contains("DefUse"))
+				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getParamGoalsCount();
 				else
 					return "";

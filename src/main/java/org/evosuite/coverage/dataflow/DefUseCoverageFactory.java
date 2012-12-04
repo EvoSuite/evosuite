@@ -98,10 +98,10 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 
 		categorizeFieldMethodCalls(); 
 		
-		// TODO remove the following lines once purity analysis is implemented
-		// they are just for testing purposes
-/*		for(String methodInCCFG : GraphPool.getRawCFGs(Properties.TARGET_CLASS).keySet()) {
-			if(GraphPool.getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
+
+		// XXX testing purposes
+		/*for(String methodInCCFG : GraphPool.getInstance(TestGenerationContext.getClassLoader()).getRawCFGs(Properties.TARGET_CLASS).keySet()) {
+			if(GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCCFG(Properties.TARGET_CLASS).isPure(methodInCCFG))
 				LoggingUtils.getEvoLogger().debug("PURE method:\t"+methodInCCFG);
 			else
 				LoggingUtils.getEvoLogger().debug("IMPURE method:\t"+methodInCCFG);
@@ -141,7 +141,6 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 	 *  call tree to be completely analyzed this part of the CUT analysis
 	 *  can not be done in the CFGMethodAdapter like the rest of it.
 	 *  
-	 *  WORK IN PROGRESS
 	 */
 	private static void categorizeFieldMethodCalls() {
 		Set<BytecodeInstruction> fieldMethodCalls = DefUsePool.retrieveFieldMethodCalls();
@@ -150,12 +149,20 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 				"Categorizing field method calls: " + fieldMethodCalls.size());
 		
 		for(BytecodeInstruction fieldMethodCall : fieldMethodCalls) {
-			if(!GraphPool.getInstance(TestGenerationContext.getClassLoader()).canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
-							
+			if(GraphPool.getInstance(TestGenerationContext.getClassLoader()).canMakeCCFGForClass(fieldMethodCall.getCalledMethodsClass())) {
+				ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCCFG(fieldMethodCall.getCalledMethodsClass());
+				if(ccfg.isPure(fieldMethodCall.getCalledMethod())) {
+					if(!DefUsePool.addAsUse(fieldMethodCall))
+						throw new IllegalStateException("unable to register field method call as a use "+fieldMethodCall.toString());
+				} else {
+					if(!DefUsePool.addAsDefinition(fieldMethodCall))
+						throw new IllegalStateException("unable to register field method call as a definition "+fieldMethodCall.toString());
+				}
+			}else{			
 				String toAnalyze = fieldMethodCall.getCalledMethodsClass() + "."
 						+ fieldMethodCall.getCalledMethodName();
 				
-				if(toAnalyze.startsWith("java.")){
+				if(toAnalyze!=null&&toAnalyze.startsWith("java.")){
 					 
 					Type[] parameters = org.objectweb.asm.Type.getArgumentTypes(fieldMethodCall.getMethodCallDescriptor());
 					String newParams = "";
@@ -175,20 +182,15 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 						if(!DefUsePool.addAsDefinition(fieldMethodCall))
 							throw new IllegalStateException("unable to register field method call as a definition "+fieldMethodCall.toString());
 					}
+				}else{
+					if(!DefUsePool.addAsUse(fieldMethodCall))
+						throw new IllegalStateException("unable to register field method call as a use "+fieldMethodCall.toString());
 				}
-				continue;
-			}
-			
-			ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCCFG(fieldMethodCall.getCalledMethodsClass());
-			if(ccfg.isPure(fieldMethodCall.getCalledMethod())) {
-				if(!DefUsePool.addAsUse(fieldMethodCall))
-					throw new IllegalStateException("unable to register field method call as a use "+fieldMethodCall.toString());
-			} else {
-				if(!DefUsePool.addAsDefinition(fieldMethodCall))
-					throw new IllegalStateException("unable to register field method call as a definition "+fieldMethodCall.toString());
 			}
 		}
 	}
+
+
 
 	private static Set<DefUseCoverageTestFitness> getCCFGPairs() {
 		ClassControlFlowGraph ccfg = GraphPool.getInstance(TestGenerationContext.getClassLoader())
@@ -398,6 +400,18 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 		if (r == null)
 			return 0;
 		return r;
+	}
+	
+	public static void clear() {
+		if(called) {
+			called = false;
+			/*
+			duGoals.clear();
+			goals.clear();
+			goalMap.clear();
+			goalCounts.clear();
+			*/
+		}
 	}
 
 }
