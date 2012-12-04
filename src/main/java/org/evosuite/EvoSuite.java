@@ -195,13 +195,11 @@ public class EvoSuite {
 		return outputFile.getAbsolutePath();
 	}
 
-	// TODO this method may need the same fixing as generateTestsTarget, by replacing '/' with File.separatorChar in call to generateTests. - Done by
-	// Daniel (Windows-user :-x )
 	private static void generateTestsPrefix(Properties.Strategy strategy,
 			String prefix, List<String> args, String cp) {
 
-		Pattern pattern = Pattern.compile(prefix.replace('.',
-				File.separatorChar) + "[^\\$]*.class");
+		Pattern pattern = Pattern.compile(prefix.replace("\\.",
+				File.separator) + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
 			resources.addAll(ResourceList.getResources(pattern,

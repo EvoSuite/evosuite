@@ -200,7 +200,7 @@ public class TestSuiteGenerator {
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-			                           Arrays.asList(Properties.CP.split(":")));
+			                           Arrays.asList(Properties.CP.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished to analyze classpath");
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
