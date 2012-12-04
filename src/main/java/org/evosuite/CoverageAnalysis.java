@@ -37,7 +37,6 @@ public class CoverageAnalysis {
 			test.clearCachedMutationResults();
 		}
 
-
 		/*
 		List<Properties.Criterion> mutationCriteria = Arrays.asList(new Properties.Criterion[] {
 		        Properties.Criterion.WEAKMUTATION, Properties.Criterion.STRONGMUTATION,
@@ -48,11 +47,13 @@ public class CoverageAnalysis {
 			*/
 
 		Properties.CRITERION = criterion;
-		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "+Properties.CRITERION);
+		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "
+		                                         + Properties.CRITERION);
 		TestGenerationContext.getInstance().resetContext();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
-		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "+Properties.CRITERION);
+		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "
+		                                         + Properties.CRITERION);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			DefaultTestCase dtest = (DefaultTestCase) test.getTestCase();
 			dtest.changeClassLoader(TestGenerationContext.getClassLoader());
@@ -62,21 +63,27 @@ public class CoverageAnalysis {
 
 	public static void analyzeCriteria(TestSuiteChromosome testSuite, String criteria) {
 		Criterion oldCriterion = Properties.CRITERION;
+		LoggingUtils.getEvoLogger().info("Have coverage for: "
+		                                         + SearchStatistics.getInstance().hasCoverage());
 		for (String criterion : criteria.split(",")) {
-			if(SearchStatistics.getInstance().hasCoverage(criterion)) {
-				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "+criterion);
+			if (SearchStatistics.getInstance().hasCoverage(criterion)) {
+				LoggingUtils.getEvoLogger().info("Skipping measuring coverage of criterion: "
+				                                         + criterion);
 				continue;
 			}
-			
+
 			analyzeCoverage(testSuite, criterion);
 		}
-		reinstrument(testSuite, oldCriterion);
+		LoggingUtils.getEvoLogger().info("Reinstrumenting for original criterion "
+		                                         + oldCriterion);
+		//reinstrument(testSuite, oldCriterion);
 		Properties.CRITERION = oldCriterion;
 	}
 
 	public static void analyzeCoverage(TestSuiteChromosome testSuite, String criterion) {
 		try {
-			LoggingUtils.getEvoLogger().info("Measuring coverage of criterion: "+criterion);
+			LoggingUtils.getEvoLogger().info("Measuring coverage of criterion: "
+			                                         + criterion);
 
 			Properties.Criterion crit = Properties.Criterion.valueOf(criterion.toUpperCase());
 			analyzeCoverage(testSuite, crit);
@@ -101,15 +108,15 @@ public class CoverageAnalysis {
 				covered++;
 				if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
-							if (((DefUseCoverageTestFitness)goal).isInterMethodPair())
-								entry.coveredInterMethodPairs++;
-							else if (((DefUseCoverageTestFitness)goal).isIntraClassPair())
-								entry.coveredIntraClassPairs++;
-							else if (((DefUseCoverageTestFitness)goal).isParameterGoal())
-								entry.coveredParameterPairs++;
-							else
-								entry.coveredIntraMethodPairs++;
-					
+					if (((DefUseCoverageTestFitness) goal).isInterMethodPair())
+						entry.coveredInterMethodPairs++;
+					else if (((DefUseCoverageTestFitness) goal).isIntraClassPair())
+						entry.coveredIntraClassPairs++;
+					else if (((DefUseCoverageTestFitness) goal).isParameterGoal())
+						entry.coveredParameterPairs++;
+					else
+						entry.coveredIntraMethodPairs++;
+
 				}
 			}
 		}
@@ -131,7 +138,7 @@ public class CoverageAnalysis {
 				                                                     / (double) goals.size());
 				if (oldCriterion == criterion)
 					SearchStatistics.getInstance().setCoveredGoals(covered);
-				
+
 			}
 
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion "
@@ -141,8 +148,6 @@ public class CoverageAnalysis {
 			                                                                                            / (double) goals.size()));
 
 		}
-
-
 
 	}
 }
