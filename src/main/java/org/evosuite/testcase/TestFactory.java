@@ -1179,10 +1179,14 @@ public class TestFactory {
 		for (AccessibleObject call : allCalls) {
 			Set<Type> dependencies = null;
 			if (call instanceof Method) {
+				if (!((Method) call).getReturnType().equals(returnType))
+					continue;
 				dependencies = getDependencies((Method) call);
 			} else if (call instanceof Constructor<?>) {
 				dependencies = getDependencies((Constructor<?>) call);
 			} else if (call instanceof Field) {
+				if (!((Field) call).getType().equals(returnType))
+					continue;
 				dependencies = getDependencies((Field) call);
 			} else {
 				assert (false);
@@ -1221,7 +1225,8 @@ public class TestFactory {
 				Method m = (Method) o;
 				//logger.info("Adding method call " + m.getName());
 				name = m.getName();
-				VariableReference callee = test.getRandomObject(Properties.getTargetClass(), position);
+				VariableReference callee = test.getRandomObject(Properties.getTargetClass(),
+				                                                position);
 				addMethodFor(test, callee, m, position);
 				//addMethod(test, m, position, 0);
 			} else if (o instanceof Field) {

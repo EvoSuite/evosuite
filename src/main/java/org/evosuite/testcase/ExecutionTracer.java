@@ -185,7 +185,7 @@ public class ExecutionTracer {
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
 		if (currentThread == null) {
-			logger.warn("CurrentThread has not been set!");
+			logger.info("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
 			for (Thread t : map.keySet()) {
 				System.err.println("Thread: " + t);
