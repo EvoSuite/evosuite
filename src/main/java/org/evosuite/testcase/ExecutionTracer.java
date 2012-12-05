@@ -740,6 +740,13 @@ public class ExecutionTracer {
 	 * @param defuseId
 	 */
 	public static void passedFieldMethodCall(Object caller, int defuseId) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
+			return;
+
 		if (DefUsePool.isKnownAsDefinition(defuseId)) {
 			Definition passedDef = DefUsePool.getDefinitionByDefUseId(defuseId);
 			passedDefinition(caller, passedDef.getDefId());
@@ -748,7 +755,8 @@ public class ExecutionTracer {
 			passedUse(caller, passedUse.getUseId());
 		} else
 			throw new EvosuiteError(
-			        "instrumentation called passedFieldMethodCall with invalid defuseId: "+defuseId+", known IDs: "+DefUsePool.getDefUseCounter());
+			        "instrumentation called passedFieldMethodCall with invalid defuseId: "
+			                + defuseId + ", known IDs: " + DefUsePool.getDefUseCounter());
 	}
 
 	/**
