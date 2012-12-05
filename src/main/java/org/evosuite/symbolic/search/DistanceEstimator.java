@@ -165,7 +165,7 @@ public abstract class DistanceEstimator {
 		return false;
 	}
 
-	public static double getStringDist(Constraint<?> target) {
+	private static double getStringDist(Constraint<?> target) {
 		Expression<?> exprLeft = target.getLeftOperand();
 		Comparator cmpr = target.getComparator();
 		double distance = 0.0;
@@ -190,7 +190,7 @@ public abstract class DistanceEstimator {
 		}
 	}
 
-	public static double getStringDistance(StringComparison comparison) {
+	private static double getStringDistance(StringComparison comparison) {
 		try {
 			String first = comparison.getLeftOperand().execute();
 			String second = (String) comparison.getRightOperand().execute();
@@ -218,7 +218,7 @@ public abstract class DistanceEstimator {
 		}
 	}
 
-	public static double getStringDistance(StringMultipleComparison comparison) {
+	private static double getStringDistance(StringMultipleComparison comparison) {
 		try {
 			String first = comparison.getLeftOperand().execute();
 			String second = (String) comparison.getRightOperand().execute();
@@ -288,7 +288,7 @@ public abstract class DistanceEstimator {
 	 *            a {@link org.evosuite.symbolic.expr.Constraint} object.
 	 * @return a long.
 	 */
-	public static long getIntegerDist(Constraint<?> target) {
+	private static long getIntegerDist(Constraint<?> target) {
 
 		long left = (Long) target.getLeftOperand().execute();
 		long right = (Long) target.getRightOperand().execute();
@@ -367,50 +367,6 @@ public abstract class DistanceEstimator {
 
 	/**
 	 * <p>
-	 * getStrDist
-	 * </p>
-	 * 
-	 * @param target
-	 *            a {@link org.evosuite.symbolic.expr.Constraint} object.
-	 * @return a long.
-	 */
-	public static long getStrDist(Constraint<?> target) {
-		Expression<?> exprLeft = target.getLeftOperand();
-		Comparator cmpr = target.getComparator();
-		StringComparison scTarget = (StringComparison) exprLeft;
-		log.debug("Calculating distance of constraint " + target);
-
-		if (cmpr == Comparator.NE) {
-			return scTarget.execute();
-		} else {
-			// if we don't want to satisfy return 0
-			// if not satisfied Long.MAX_VALUE else
-			return scTarget.execute() > 0 ? 0 : Long.MAX_VALUE;
-		}
-	}
-
-	/**
-	 * <p>
-	 * min
-	 * </p>
-	 * 
-	 * @param a
-	 *            a int.
-	 * @param b
-	 *            a int.
-	 * @param c
-	 *            a int.
-	 * @return a int.
-	 */
-	public static int min(int a, int b, int c) {
-		if (a < b)
-			return Math.min(a, c);
-		else
-			return Math.min(b, c);
-	}
-
-	/**
-	 * <p>
 	 * editDistance
 	 * </p>
 	 * 
@@ -420,7 +376,7 @@ public abstract class DistanceEstimator {
 	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
-	public static double editDistance(String s, String t) {
+	private static double editDistance(String s, String t) {
 		int n = s.length(); // length of s
 		int m = t.length(); // length of t
 
@@ -480,7 +436,7 @@ public abstract class DistanceEstimator {
 	 *            a {@link java.lang.Object} object.
 	 * @return a int.
 	 */
-	public static double StrEquals(String first, Object second) {
+	private static double StrEquals(String first, Object second) {
 		if (first.equals(second))
 			return 0; // Identical
 		else {
@@ -499,7 +455,7 @@ public abstract class DistanceEstimator {
 	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
-	public static double StrEqualsIgnoreCase(String first, String second) {
+	private static double StrEqualsIgnoreCase(String first, String second) {
 		return StrEquals(first.toLowerCase(), second.toLowerCase());
 	}
 
@@ -516,7 +472,7 @@ public abstract class DistanceEstimator {
 	 *            a int.
 	 * @return a int.
 	 */
-	public static double StrStartsWith(String value, String prefix, int start) {
+	private static double StrStartsWith(String value, String prefix, int start) {
 		int len = Math.min(prefix.length(), value.length());
 		int end = (start + len > value.length()) ? value.length() : start + len;
 		return StrEquals(value.substring(start, end), prefix);
@@ -533,28 +489,10 @@ public abstract class DistanceEstimator {
 	 *            a {@link java.lang.String} object.
 	 * @return a int.
 	 */
-	public static double StrEndsWith(String value, String suffix) {
+	private static double StrEndsWith(String value, String suffix) {
 		int len = Math.min(suffix.length(), value.length());
 		String val1 = value.substring(value.length() - len);
 		return StrEquals(val1, suffix);
-	}
-
-	/**
-	 * <p>
-	 * StrIsEmpty
-	 * </p>
-	 * 
-	 * @param value
-	 *            a {@link java.lang.String} object.
-	 * @return a int.
-	 */
-	public static double StrIsEmpty(String value) {
-		int len = value.length();
-		if (len == 0) {
-			return 0;
-		} else {
-			return len;
-		}
 	}
 
 	/**
@@ -576,7 +514,7 @@ public abstract class DistanceEstimator {
 	 *            a boolean.
 	 * @return a int.
 	 */
-	public static double StrRegionMatches(String value, int thisStart, String string,
+	private static double StrRegionMatches(String value, int thisStart, String string,
 	        int start, int length, boolean ignoreCase) {
 		if (value == null || string == null)
 			throw new NullPointerException();
@@ -614,7 +552,7 @@ public abstract class DistanceEstimator {
 	 *            a {@link java.lang.CharSequence} object.
 	 * @return a int.
 	 */
-	public static double StrContains(String val, CharSequence subStr) {
+	private static double StrContains(String val, CharSequence subStr) {
 		int val_length = val.length();
 		int subStr_length = subStr.length();
 		double min_dist = Double.MAX_VALUE;
@@ -634,7 +572,7 @@ public abstract class DistanceEstimator {
 		return min_dist;
 	}
 
-	public static double RegexMatches(String val, String regex) {
+	private static double RegexMatches(String val, String regex) {
 		return RegexDistance.getDistance(val, regex);
 	}
 
