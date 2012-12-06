@@ -316,6 +316,7 @@ public class ExternalProcessHandler {
 			MasterServices.getInstance().registerServices();
 		} catch (RemoteException e) {
 			logger.error("Failed to start RMI services",e);
+			return -1;
 		}
 
 		return MasterServices.getInstance().getRegistryPort();

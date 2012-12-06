@@ -387,9 +387,11 @@ public class EvoSuite {
 		}
 
 		ExternalProcessHandler handler = new ExternalProcessHandler();
-		handler.openServer();
-		int port = handler.getServerPort();
-
+		int port = handler.openServer();
+		if(port <= 0){
+			throw new RuntimeException("Not possible to start RMI service");
+		}
+		
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(JAVA_CMD);
 		cmdLine.add("-cp");
@@ -1049,7 +1051,7 @@ public class EvoSuite {
 			}
 		} catch (ParseException exp) {
 			// oops, something went wrong
-			System.err.println("Parsing failed.  Reason: " + exp.getMessage());
+			logger.error("Parsing failed.  Reason: " + exp.getMessage());
 			// automatically generate the help statement
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("EvoSuite", options);
