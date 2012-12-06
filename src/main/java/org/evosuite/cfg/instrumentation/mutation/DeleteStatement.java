@@ -83,7 +83,7 @@ public class DeleteStatement implements MutationOperator {
 		} else if (node.getOpcode() == Opcodes.INVOKEINTERFACE) {
 			boolean isStatic = false;
 			try {
-				Class<?> clazz = Class.forName(node.owner.replace("/", "."));
+				Class<?> clazz = Class.forName(node.owner.replace("/", "."), false, DeleteStatement.class.getClassLoader());
 				for (java.lang.reflect.Method method : clazz.getMethods()) {
 					if (method.getName().equals(node.name)) {
 						if (Type.getMethodDescriptor(method).equals(node.desc)) {

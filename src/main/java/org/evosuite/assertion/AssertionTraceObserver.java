@@ -22,6 +22,7 @@ package org.evosuite.assertion;
 
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
@@ -43,6 +44,10 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 
 	protected OutputTrace<T> trace = new OutputTrace<T>();
 
+	protected boolean checkThread() {
+		return ExecutionTracer.isThreadNeqCurrentThread();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
@@ -117,6 +122,9 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	@Override
 	public void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
+		if(!checkThread())
+			return;
+		
 		//visitReturnValue(statement, scope);
 		visitDependencies(statement, scope);
 	}
@@ -135,6 +143,9 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	/** {@inheritDoc} */
 	@Override
 	public void clear() {
+		if(!checkThread())
+			return;
+
 		trace.clear();
 	}
 

@@ -1648,7 +1648,7 @@ public class Properties {
 		TARGET_CLASS_INSTANCE = null;
 
 		try {
-			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, false,
 			                                      TestGenerationContext.getClassLoader());
 
 		} catch (ClassNotFoundException e) {
