@@ -176,7 +176,7 @@ public class ExecutionTracer {
 	 * 
 	 * @return
 	 */
-	private static boolean isThreadNeqCurrentThread() {
+	public static boolean isThreadNeqCurrentThread() {
 		if (!checkCallerThread) {
 			return false;
 		}
