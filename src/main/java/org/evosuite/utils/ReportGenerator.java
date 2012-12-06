@@ -118,6 +118,10 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** Obtained coverage of the chosen testing criterion */
 		Coverage,
 		/**
+		 * Obtained coverage at different points in time 
+		 */
+		CoverageTimeline,
+		/**
 		 * Not only the covered branches ratio, but also including the
 		 * branchless methods
 		 */
@@ -282,6 +286,41 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public Map<String, Set<Class<?>>> explicitExceptions;
 
+		//--------------------------------------------------
+		
+		
+		private String[] getTimelineHeaderSuffixes(){
+			int numberOfIntervals = calculateNumberOfIntervals();
+			String[] suffixes = new String[numberOfIntervals]; 
+			for(int i=0; i<suffixes.length; i++){
+				/*
+				 * NOTE: we start from T1 and not T0 because, by definition, coverage
+				 * at T0 is equal to T0, and no point in showing it in a graph
+				 */
+				suffixes[i] = "_T"+(i+1);
+			}
+			return suffixes;
+		}
+
+
+		private int calculateNumberOfIntervals() {
+			long interval = Properties.TIMELINE_INTERVAL;
+			/*
+			 * TODO: this might need refactoring once we choose 
+			 * a different way to handle search timeouts.
+			 * 
+			 * The point here is that we need to support both if we use time
+			 * as search budget, and fitness/statement evaluations.
+			 * We cannot just look at the obtained history, because the search might
+			 * have finished earlier, eg if 100% coverage
+			 */
+			long totalTime = Properties.GLOBAL_TIMEOUT * 1000l;
+			
+			int numberOfIntervals = (int) (totalTime / interval);
+			return numberOfIntervals;
+		}
+		
+		
 		/**
 		 * Return array of variables to dump in CSV files, based on what defined
 		 * in {@code Properties.OUTPUT_VARIABLES}
@@ -291,34 +330,30 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public String[] getUsedVariables() throws IllegalStateException {
 			String property = Properties.OUTPUT_VARIABLES;
 
-			String[] runtime = new String[RuntimeVariable.values().length];
-			for (int i = 0; i < runtime.length; i++) {
-				runtime[i] = RuntimeVariable.values()[i].toString();
+			List<String> runtimeList = new ArrayList<String>();
+			for (RuntimeVariable var : RuntimeVariable.values()) {
+				runtimeList.add(var.toString());
 			}
-
+			
+			//no choice define, just dump all runtime variables
 			if (property == null) {
-				return runtime;
+				handleTimelineVariableHeaders(runtimeList);
+				return runtimeList.toArray(new String[runtimeList.size()]);
 			}
 
 			//extract parameters
 			String[] splitArray = property.split(",");
-			List<String> usedList = new LinkedList<String>();
+			List<String> usedList = new ArrayList<String>();
 			for (int i = 0; i < splitArray.length; i++) {
 				splitArray[i] = splitArray[i].trim();
 				if (!splitArray[i].isEmpty()) {
 					usedList.add(splitArray[i]);
 				}
 			}
-			String[] usedArray = usedList.toArray(new String[usedList.size()]);
-
-			Vector<String> runtimeVector = new Vector<String>();
-			for (String s : runtime) {
-				runtimeVector.add(s);
-			}
 
 			//check if parameters exist
-			for (String param : usedArray) {
-				if (runtimeVector.contains(param)) {
+			for (String param : usedList) {
+				if (runtimeList.contains(param)) {
 					continue;
 				}
 				if (Properties.hasParameter(param)) {
@@ -329,7 +364,23 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				        + "\" defined inside \"output_variables\" does not exist");
 			}
 
+			handleTimelineVariableHeaders(usedList);
+			String[] usedArray = usedList.toArray(new String[usedList.size()]);			
 			return usedArray;
+		}
+
+
+		private void handleTimelineVariableHeaders(List<String> usedList) {
+			/*
+			 * now, handle timeline variables. For now, it is just coverage
+			 */
+			String covTimeline = RuntimeVariable.CoverageTimeline.toString();
+			if(usedList.contains(covTimeline)){
+				usedList.remove(covTimeline);
+				for(String suf : getTimelineHeaderSuffixes()){
+					usedList.add(covTimeline+suf);
+				}
+			}
 		}
 
 		/**
@@ -355,6 +406,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					                + e.getMessage());
 				}
 			}
+			
+			if(isTimelineVariable(name)){
+				return timeLineValue(name);
+			}
+			
 			//check if it is a runtime property of the search, e.g. coverage
 			RuntimeVariable var = null;
 			try {
@@ -368,17 +424,86 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			return getCSVvalue(var);
 		}
 
+		private String timeLineValue(String name) {
+			
+			long interval = Properties.TIMELINE_INTERVAL;
+			
+			int index = Integer.parseInt( (name.split("_T"))[1] );
+			long preferredTime = interval * index;
+			
+			assert this.timeStamps.size() == this.coverage_history.size();
+
+			/*
+			 * No data. Is it even possible? Maybe if population is too large,
+			 * and budget was not enough to get even first generation
+			 */
+			if(timeStamps.size() == 0){
+				return "" + 0;
+			}
+			
+			for(int i=0; i<timeStamps.size(); i++){
+				/*
+				 * find the first stamp that is after the time we would like to
+				 * get coverage from
+				 */
+				long stamp = timeStamps.get(i);
+				if(stamp < preferredTime){
+					continue;
+				}
+				
+				if(i==0){
+					/*
+					 * it is the first element, so not much to do, we just use it as value
+					 */
+					return "" + coverage_history.get(i);
+				}
+				
+				/*
+				 * Now we interpolate the coverage, as usually we don't have the value for exact time we want
+				 */
+				long timeDelta = timeStamps.get(i) - timeStamps.get(i-1);
+				
+				if(timeDelta > 0 ){
+					double covDelta = coverage_history.get(i) - coverage_history.get(i-1);
+					double ratio = covDelta / timeDelta;
+					
+					long diff = preferredTime - timeStamps.get(i-1);
+					double cov = coverage_history.get(i-1) +  (diff * ratio);
+					return "" + cov;
+				}
+			}
+			
+			/*
+			 * No time stamp was higher. This might happen if coverage is 100% and we stop search.
+			 * So just return last value seen
+			 */
+			
+			return "" + coverage_history.get(coverage_history.size()-1);
+		}
+
+
+		private boolean isTimelineVariable(String name){
+			if(name==null || name.isEmpty()){
+				return false;
+			}
+			if(name.startsWith(RuntimeVariable.CoverageTimeline.toString())){
+				return true;
+			} else {
+				return false;
+			}
+		}
+		
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 
 			String[] variables = getUsedVariables();
 			if (variables.length > 0) {
-				r.append(variables[0].toString());
+				r.append(variables[0]);
 			}
 
 			for (int i = 1; i < variables.length; i++) {
 				r.append(",");
-				r.append(variables[i].toString());
+				r.append(variables[i]);
 			}
 
 			return r.toString();
