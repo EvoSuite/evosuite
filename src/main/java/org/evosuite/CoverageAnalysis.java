@@ -23,12 +23,35 @@ import org.evosuite.utils.ReportGenerator.StatisticEntry;
  * 
  */
 public class CoverageAnalysis {
+	
+	private static boolean isMutationCriterion(Properties.Criterion criterion) {
+		switch(criterion) {
+		case MUTATION:
+		case WEAKMUTATION:
+		case STRONGMUTATION:
+			return true;
+		default:
+			return false;
+		}
+	}
 
 	private static void reinstrument(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
 		Properties.Criterion oldCriterion = Properties.CRITERION;
 		if (oldCriterion == criterion)
 			return;
+		
+		if(isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
+			if(oldCriterion == Properties.Criterion.WEAKMUTATION) {
+				testSuite.setChanged(true);
+				for (TestChromosome test : testSuite.getTestChromosomes()) {
+					test.setChanged(true);
+					test.clearCachedResults();
+					test.clearCachedMutationResults();
+				}				
+			}
+			return;
+		}
 
 		testSuite.setChanged(true);
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
@@ -50,6 +73,9 @@ public class CoverageAnalysis {
 		LoggingUtils.getEvoLogger().info("Re-instrumenting for criterion: "
 		                                         + Properties.CRITERION);
 		TestGenerationContext.getInstance().resetContext();
+		// Need to load class explicitly in case there are no test cases.
+		// If there are tests, then this is redundant
+		Properties.getTargetClass();
 
 		// TODO: Now all existing test cases have reflection objects pointing to the wrong classloader
 		LoggingUtils.getEvoLogger().info("Changing classloader of test suite for criterion: "

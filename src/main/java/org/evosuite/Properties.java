@@ -1646,7 +1646,7 @@ public class Properties {
 			                                      TestGenerationContext.getClassLoader());
 
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("* Could not find class under test: " + e);
+			LoggingUtils.getEvoLogger().info("* Could not find class under test: " +Properties.TARGET_CLASS+": "+ e);
 			for (StackTraceElement s : e.getStackTrace()) {
 				LoggingUtils.getEvoLogger().info("   " + s.toString());
 			}

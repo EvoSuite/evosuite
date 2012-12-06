@@ -72,20 +72,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 		        new ArrayList<StatementInterface>());
 	}
 
-	/**
-	 * Convenience constructor
-	 * 
-	 * @param statements
-	 *            a {@link java.util.List} object.
-	 */
-	public DefaultTestCase(List<StatementInterface> statements) {
-		if (statements instanceof ListenableList) {
-			this.statements = (ListenableList<StatementInterface>) statements;
-		} else {
-			this.statements = new ListenableList<StatementInterface>(statements);
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#size()
 	 */
