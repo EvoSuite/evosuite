@@ -651,6 +651,12 @@ public class Properties {
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
 
+	/** Constant <code>TIMELINE_INTERVAL=60000</code> */
+	@Parameter(key = "timeline_interval", group = "Output", description = "Time interval in milliseconds for timeline statistics")
+	public static long TIMELINE_INTERVAL = 60 * 1000;
+
+	
+	
 	public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
