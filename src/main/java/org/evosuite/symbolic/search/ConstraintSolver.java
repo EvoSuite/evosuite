@@ -146,10 +146,4 @@ public final class ConstraintSolver implements Solver {
 		return variables;
 	}
 
-	@Override
-	public boolean solve(Collection<Constraint<?>> constraints) {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
 }
