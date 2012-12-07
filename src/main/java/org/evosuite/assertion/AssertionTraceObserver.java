@@ -53,7 +53,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void output(int position, String output) {
+	public synchronized void output(int position, String output) {
 		// Default behavior is to ignore console output
 
 	}
@@ -120,7 +120,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
 		if(!checkThread())
 			return;
@@ -133,7 +133,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public synchronized void beforeStatement(StatementInterface statement, Scope scope) {
 		// Do nothing
 	}
 
@@ -142,7 +142,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void clear() {
+	public synchronized void clear() {
 		if(!checkThread())
 			return;
 
@@ -156,7 +156,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * 
 	 * @return a {@link org.evosuite.assertion.OutputTrace} object.
 	 */
-	public OutputTrace<T> getTrace() {
+	public synchronized OutputTrace<T> getTrace() {
 		return trace.clone();
 	}
 

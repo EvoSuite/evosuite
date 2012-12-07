@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
@@ -130,7 +131,7 @@ public class AssignmentStatement extends AbstractStatement {
 					        + parameter.getSimpleClassName() + " defined at statement "
 					        + tc.getStatement(parameter.getStPosition()).getCode()
 					        + ", assignment statement: "
-					        + tc.getStatement(retval.getStPosition()).getCode());
+					        + tc.getStatement(retval.getStPosition()).getCode()+"; SUT="+Properties.TARGET_CLASS);
 
 					// FIXXME: IllegalArgumentException may happen when we only have generators
 					// for an abstract supertype and not the concrete type that we need!

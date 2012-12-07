@@ -47,7 +47,8 @@ public class InspectorManager {
 	Map<Class<?>, List<Inspector>> inspectors = new HashMap<Class<?>, List<Inspector>>();
 
 	private InspectorManager() {
-		readInspectors();
+		// TODO: Need to replace this with proper analysis
+		// readInspectors();
 	}
 
 	private void addInspector(Class<?> clazz, Method m) {
@@ -57,6 +58,8 @@ public class InspectorManager {
 		i.add(new Inspector(clazz, m));
 	}
 
+	@SuppressWarnings("unused")
+	@Deprecated
 	private void readInspectors() {
 		FilenameFilter inspector_filter = new FilenameFilter() {
 			@Override
