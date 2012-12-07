@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
@@ -42,7 +42,7 @@ public final class Contains extends SymbolicFunction {
 
 					int concrete_value = res ? 1 : 0;
 
-					StringComparison strComp = new StringComparison(left_expr,
+					StringBinaryComparison strComp = new StringBinaryComparison(left_expr,
 							Operator.CONTAINS, right_expr,
 							(long) concrete_value);
 

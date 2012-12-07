@@ -35,9 +35,8 @@ import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.search.Seeker;
+import org.evosuite.symbolic.search.ConstraintSolver;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -336,10 +335,7 @@ public class TestSuiteDSE {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(reachingConstraints);
 
-		Constraint<Long> targetConstraint = new IntegerConstraint(
-				localConstraint.getLeftOperand(), localConstraint
-						.getComparator().not(),
-				localConstraint.getRightOperand());
+		Constraint<?> targetConstraint =localConstraint.negate();
 		constraints.add(targetConstraint);
 		if (!targetConstraint.isSolveable()) {
 			logger.info("Found unsolvable constraint: " + targetConstraint);
@@ -370,7 +366,7 @@ public class TestSuiteDSE {
 		nrConstraints += nrCurrConstraints;
 
 		logger.info("Applying local search");
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> values = skr.getModel(constraints);
 
 		if (values != null && !values.isEmpty()) {

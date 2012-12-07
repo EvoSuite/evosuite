@@ -1,7 +1,7 @@
 package org.evosuite.symbolic.vm.string;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
@@ -41,7 +41,7 @@ public final class Matches extends SymbolicFunction {
 					.buildNewStringConstant(conc_argument);
 			int conV = res ? 1 : 0;
 
-			StringComparison strBExpr = new StringComparison(left_expr,
+			StringBinaryComparison strBExpr = new StringBinaryComparison(left_expr,
 					Operator.PATTERNMATCHES, right_expr, (long) conV);
 
 			return strBExpr;

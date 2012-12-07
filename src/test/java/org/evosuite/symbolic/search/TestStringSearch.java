@@ -28,10 +28,10 @@ import java.util.Map;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
-import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
@@ -46,12 +46,12 @@ public class TestStringSearch {
 		String const2 = "test";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALS, strConst,
-		        0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.NE,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.EQUALS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -65,12 +65,12 @@ public class TestStringSearch {
 		String const2 = "foo";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALS, strConst,
-		        0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.EQ,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.EQUALS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -84,12 +84,12 @@ public class TestStringSearch {
 		String const2 = "Fest";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALSIGNORECASE,
-		        strConst, 0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.NE,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.EQUALSIGNORECASE, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -103,12 +103,12 @@ public class TestStringSearch {
 		String const2 = "FOO";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
-		Expression<?> strComp = new StringComparison(strVar, Operator.EQUALSIGNORECASE,
-		        strConst, 0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.EQ,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.EQUALSIGNORECASE, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -126,12 +126,12 @@ public class TestStringSearch {
 		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 		other.add(offs_expr);
 
-		Expression<?> strComp = new StringMultipleComparison(strVar, Operator.STARTSWITH,
-		        strConst, other, 0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.NE,
-		        new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
+				Operator.STARTSWITH, strConst, other, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -149,12 +149,12 @@ public class TestStringSearch {
 		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
 		other.add(offs_expr);
 
-		Expression<?> strComp = new StringMultipleComparison(strVar, Operator.STARTSWITH,
-		        strConst, other, 0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.EQ,
-		        new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
+				Operator.STARTSWITH, strConst, other, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -169,12 +169,12 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		Expression<?> strComp = new StringComparison(strVar, Operator.ENDSWITH, strConst,
-		        0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.NE,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.ENDSWITH, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -189,12 +189,12 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		Expression<?> strComp = new StringComparison(strVar, Operator.ENDSWITH, strConst,
-		        0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.EQ,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.ENDSWITH, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -209,12 +209,12 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		Expression<?> strComp = new StringComparison(strVar, Operator.CONTAINS, strConst,
-		        0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.NE,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.CONTAINS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -229,12 +229,12 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 
-		Expression<?> strComp = new StringComparison(strVar, Operator.CONTAINS, strConst,
-		        0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.EQ,
-		        new IntegerConstant(0)));
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.CONTAINS, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -264,17 +264,17 @@ public class TestStringSearch {
 		other.add(len_expr);
 		other.add(ign_case);
 
-		Expression<?> strComp = new StringMultipleComparison(strVar,
-		        Operator.REGIONMATCHES, strConst, other, 0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.NE,
-		        new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
+				Operator.REGIONMATCHES, strConst, other, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
-		assertTrue((result.get("test1").toString()).regionMatches(ignore_case, offset1,
-		                                                          const2, offset2, len));
+		assertTrue((result.get("test1").toString()).regionMatches(ignore_case,
+				offset1, const2, offset2, len));
 	}
 
 	public void testRegionMatchesICFalseConstant() {
@@ -299,16 +299,16 @@ public class TestStringSearch {
 		other.add(len_expr);
 		other.add(ign_case);
 
-		Expression<?> strComp = new StringMultipleComparison(strVar,
-		        Operator.REGIONMATCHES, strConst, other, 0L);
-		constraints.add(new IntegerConstraint(strComp, Comparator.EQ,
-		        new IntegerConstant(0)));
+		StringMultipleComparison strComp = new StringMultipleComparison(strVar,
+				Operator.REGIONMATCHES, strConst, other, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ,
+				new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
-		assertFalse((result.get("test1").toString()).regionMatches(ignore_case, offset1,
-		                                                           const2, offset2, len));
+		assertFalse((result.get("test1").toString()).regionMatches(ignore_case,
+				offset1, const2, offset2, len));
 	}
 }

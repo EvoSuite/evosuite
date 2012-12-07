@@ -13,13 +13,15 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
+import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.junit.Test;
 
-public class TestSeeker1 {
+public class TestConstraintSolver1 {
 	public void testMe(String x) {
 		if (x.length() == 5 && x.charAt(4) == '_') {
 			System.out.println("Juhu");
@@ -35,32 +37,25 @@ public class TestSeeker1 {
 
 	private static Collection<Constraint<?>> buildConstraintSystem() {
 		StringVariable var0 = new StringVariable("var0", INIT_STRING);
-		StringUnaryExpression length = new StringUnaryExpression(var0, Operator.LENGTH,
-		        Integer.toString(INIT_STRING.length()));
+		StringUnaryToIntegerExpression length = new StringUnaryToIntegerExpression(
+				var0, Operator.LENGTH, (long) INIT_STRING.length());
 		IntegerConstant const3 = new IntegerConstant(3);
-		StringBinaryExpression charAt3 = new StringBinaryExpression(var0,
-		        Operator.CHARAT, const3, Integer.toString(INIT_STRING.charAt(3)));
+		StringBinaryToIntegerExpression charAt3 = new StringBinaryToIntegerExpression(
+				var0, Operator.CHARAT, const3, (long) INIT_STRING.charAt(3));
 		IntegerConstant const4 = new IntegerConstant(4);
-		StringBinaryExpression charAt4 = new StringBinaryExpression(var0,
-		        Operator.CHARAT, const4, Integer.toString(INIT_STRING.charAt(4)));
-
-		StringToIntegerCast cast_length = new StringToIntegerCast(length,
-		        (long) INIT_STRING.length());
-		StringToIntegerCast cast_charAt3 = new StringToIntegerCast(charAt3,
-		        (long) INIT_STRING.charAt(3));
-		StringToIntegerCast cast_charAt4 = new StringToIntegerCast(charAt4,
-		        (long) INIT_STRING.charAt(4));
+		StringBinaryToIntegerExpression charAt4 = new StringBinaryToIntegerExpression(
+				var0, Operator.CHARAT, const4, (long) INIT_STRING.charAt(4));
 
 		IntegerConstant const5 = new IntegerConstant(INIT_STRING.length());
 		IntegerConstant const95 = new IntegerConstant(EXPECTED_STRING.charAt(3));
 		IntegerConstant const43 = new IntegerConstant(EXPECTED_STRING.charAt(4));
 
-		IntegerConstraint constr1 = new IntegerConstraint(cast_length, Comparator.EQ,
-		        const5);
-		IntegerConstraint constr2 = new IntegerConstraint(cast_charAt3, Comparator.EQ,
-		        const95);
-		IntegerConstraint constr3 = new IntegerConstraint(cast_charAt4, Comparator.EQ,
-		        const43);
+		IntegerConstraint constr1 = new IntegerConstraint(length,
+				Comparator.EQ, const5);
+		IntegerConstraint constr2 = new IntegerConstraint(charAt3,
+				Comparator.EQ, const95);
+		IntegerConstraint constr3 = new IntegerConstraint(charAt4,
+				Comparator.EQ, const43);
 
 		return Arrays.<Constraint<?>> asList(constr1, constr2, constr3);
 	}
@@ -77,7 +72,7 @@ public class TestSeeker1 {
 			System.out.println(c.toString());
 		}
 
-		Seeker seeker = new Seeker();
+		ConstraintSolver seeker = new ConstraintSolver();
 		Map<String, Object> model = seeker.getModel(constraints);
 		System.out.println(model);
 
