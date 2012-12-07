@@ -21,6 +21,7 @@
 package org.evosuite.setup;
 
 import java.io.EvoSuiteIO;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -95,6 +96,8 @@ public class TestClusterGenerator {
 		                DependencyAnalysis.getCallTree());
 	}
 
+	private static Set<AccessibleObject> dependencyCache = new HashSet<AccessibleObject>();
+	
 	@SuppressWarnings("unchecked")
 	public static void generateCluster(String targetClass,
 	        InheritanceTree inheritanceTree, CallTree callTree) throws RuntimeException,
@@ -190,6 +193,11 @@ public class TestClusterGenerator {
 		addCastClasses(classNames,blackList);
 
 		resolveDependencies(blackList);
+		
+		if(logger.isDebugEnabled()) {
+			logger.debug(TestCluster.getInstance().toString());
+		}
+		dependencyCache.clear();
 	}
 
 	private static void initBlackListWithPrimitives(Set<String> blackList) throws NullPointerException{
@@ -744,13 +752,19 @@ public class TestClusterGenerator {
 			logger.debug("Maximum recursion level reached, not adding dependencies of {}",  constructor);
 			return;
 		}
+		
+		if(dependencyCache.contains(constructor)) {
+			return;
+		}
 
 		logger.debug("Analyzing dependencies of " + constructor);		
+		dependencyCache.add(constructor);
 		
 		for (Class<?> parameterClass : constructor.getParameterTypes()) {
 			logger.debug("Adding dependency " + parameterClass.getName());
 			addDependency(parameterClass, recursionLevel);
 		}
+		
 	}
 
 	private static void addDependencies(Method method, int recursionLevel) {
@@ -759,7 +773,13 @@ public class TestClusterGenerator {
 			return;
 		}
 
+		if(dependencyCache.contains(method)) {
+			return;
+		}
+
 		logger.debug("Analyzing dependencies of " + method);
+		dependencyCache.add(method);
+
 		for (Class<?> parameterClass : method.getParameterTypes()) {
 			if (parameterClass.isPrimitive() || parameterClass.equals(String.class))
 				continue;
@@ -767,6 +787,7 @@ public class TestClusterGenerator {
 			logger.debug("Adding dependency " + parameterClass.getName());
 			addDependency(parameterClass, recursionLevel);
 		}
+		
 	}
 
 	private static void addDependencies(Field field, int recursionLevel) {
@@ -775,13 +796,19 @@ public class TestClusterGenerator {
 			return;
 		}
 
+		if(dependencyCache.contains(field)) {
+			return;
+		}
+
 		if (field.getType().isPrimitive() || field.getType().equals(String.class))
 			return;
 
 		logger.debug("Analyzing dependencies of " + field);
+		dependencyCache.add(field);
 
 		logger.debug("Adding dependency " + field.getName());
 		addDependency(field.getType(), recursionLevel);
+		
 	}
 
 	private static void addDependency(Class<?> clazz, int recursionLevel) {
