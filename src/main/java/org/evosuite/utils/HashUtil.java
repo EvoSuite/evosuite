@@ -34,7 +34,7 @@ public abstract class HashUtil {
 		int result = 1;
 		
 		for (Object component : components) {
-			result = prime * result + component.hashCode();
+			result = prime * result + ((component == null) ? 0 : component.hashCode());
 		}
 		
 		return result;
