@@ -74,6 +74,7 @@ public class SystemTest {
 		Properties.EXTRA_TIMEOUT = 2;
 
 		Properties.CLIENT_ON_THREAD = true;
+		Properties.SANDBOX = false;
 	}
 
 	/*

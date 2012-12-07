@@ -21,10 +21,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.ControlFlowDistance;
-import org.evosuite.coverage.TestCoverageGoal;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
 import org.evosuite.testcase.ExecutionResult;
@@ -36,7 +37,7 @@ import org.evosuite.testcase.TestChromosome;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public class BranchCoverageGoal extends TestCoverageGoal implements Serializable,
+public class BranchCoverageGoal implements Serializable,
         Comparable<BranchCoverageGoal> {
 
 	private static final long serialVersionUID = 2962922303111452419L;
@@ -158,35 +159,6 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		        || goal.branch.getInstruction().isDirectlyControlDependentOn(branch);
 	}
 
-	//	/**
-	//	 * Returns the number of branches
-	//	 */
-	//	public int getDifficulty() {
-	//		int r = 1;
-	//
-	//		// TODO map this to new CDG !
-	//
-	//		if (branch != null) {
-	//			r += branch.getInstruction().getCDGDepth();
-	//		}
-	//		return r;
-	//	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Determine if there is an existing test case covering this goal
-	 */
-	@Override
-	public boolean isCovered(TestChromosome test) {
-		ExecutionResult result = runTest(test);
-		ControlFlowDistance d = getDistance(result);
-		if (d.getApproachLevel() == 0 && d.getBranchDistance() == 0.0)
-			return true;
-		else
-			return false;
-	}
-
 	/**
 	 * <p>
 	 * getDistance
@@ -205,55 +177,6 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 
 		return r;
 	}
-
-	// SAFETY BACKUP BEFORE REIMPLEMENTATION
-	// private ControlFlowDistance getNonRootDistance(List<Integer> path,
-	// List<Double> true_distances, List<Double> false_distances) {
-	//
-	// if(branch == null)
-	// throw new
-	// IllegalStateException("expect getNonRootDistance() to only be called if this goal's branch is not a root branch");
-	//		
-	// ActualControlFlowGraph cfg = branch.getActualCFG();
-	//		
-	// ControlFlowDistance d = new ControlFlowDistance();
-	// int min_approach = cfg.getDiameter() + 1;
-	//		
-	// double min_dist = 0.0;
-	// for (int i = 0; i < path.size(); i++) {
-	// BytecodeInstruction v = cfg.getInstruction(path.get(i));
-	// if (v != null) {
-	// int approach = cfg.getDistance(v, branch);
-	// //logger.debug("B: Path vertex "+i+" has approach: "+approach+" and branch distance "+distances.get(i));
-	//
-	// if (approach <= min_approach && approach >= 0) {
-	// double branch_distance = 0.0;
-	//
-	// if (approach > 0)
-	// branch_distance = true_distances.get(i) + false_distances.get(i);
-	// else if (value)
-	// branch_distance = true_distances.get(i);
-	// else
-	// branch_distance = false_distances.get(i);
-	//
-	// if (approach == min_approach)
-	// min_dist = Math.min(min_dist, branch_distance);
-	// else {
-	// min_approach = approach;
-	// min_dist = branch_distance;
-	// }
-	//
-	// }
-	// } else {
-	// logger.info("Path vertex does not exist in graph");
-	// }
-	// }
-	//
-	// d.approach = min_approach;
-	// d.branch = min_dist;
-	//
-	// return d;
-	// }
 
 	// inherited from Object
 
@@ -287,10 +210,13 @@ public class BranchCoverageGoal extends TestCoverageGoal implements Serializable
 		        + (branch == null ? 0 : branch.getInstruction().getInstructionId());
 		// TODO sure you want to call hashCode() on the cfg? doesn't that take
 		// long?
+		// Seems redundant -- GF
+		/*
 		result = prime
 		        * result
 		        + ((branch == null) ? 0
 		                : branch.getInstruction().getActualCFG().hashCode());
+		                */
 		result = prime * result + className.hashCode();
 		result = prime * result + methodName.hashCode();
 		result = prime * result + (value ? 1231 : 1237);

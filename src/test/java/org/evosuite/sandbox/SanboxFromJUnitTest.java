@@ -13,14 +13,20 @@ public class SanboxFromJUnitTest {
 	
 	@BeforeClass
 	public static void initEvoSuiteFramework(){
+		Assert.assertNull(System.getSecurityManager());
+		
 		Sandbox.initializeSecurityManagerForSUT();
 		executor = Executors.newCachedThreadPool();
 	}
 	
 	@AfterClass
 	public static void clearEvoSuiteFramework(){
+		Assert.assertNotNull(System.getSecurityManager());	
+		
 		executor.shutdownNow();
 		Sandbox.resetDefaultSecurityManager();
+
+		Assert.assertNull(System.getSecurityManager());		
 	}
 	
 	@Before
