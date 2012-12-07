@@ -146,6 +146,10 @@ public class ExecutionTracer {
 		ExecutionTraceImpl.enableTraceCalls();
 	}
 
+	public static boolean isTraceCallsEnabled() {
+		return ExecutionTraceImpl.isTraceCallsEnabled();
+	}
+
 	/**
 	 * <p>
 	 * getExecutionTracer
