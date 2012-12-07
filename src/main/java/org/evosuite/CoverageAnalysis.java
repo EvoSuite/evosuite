@@ -120,7 +120,15 @@ public class CoverageAnalysis {
 	        Properties.Criterion criterion) {
 
 		Properties.Criterion oldCriterion = Properties.CRITERION;
-		ExecutionTracer.enableTraceCalls();
+		if(!ExecutionTracer.isTraceCallsEnabled()) {
+			ExecutionTracer.enableTraceCalls();
+			testSuite.setChanged(true);
+			for (TestChromosome test : testSuite.getTestChromosomes()) {
+				test.setChanged(true);
+				test.clearCachedResults();
+				test.clearCachedMutationResults();
+			}				
+		}
 
 		reinstrument(testSuite, criterion);
 		TestFitnessFactory factory = TestSuiteGenerator.getFitnessFactory(criterion);
