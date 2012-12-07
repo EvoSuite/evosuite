@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.evosuite.Properties;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.Properties.Criterion;
 import org.junit.Test;
 import org.junit.runners.Suite;

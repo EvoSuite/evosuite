@@ -36,6 +36,7 @@ import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
+import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
@@ -301,6 +302,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.coverageMap.put(criterion, coverage);
 	}
 
+	public boolean hasCoverage(String criterion) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		return entry.coverageMap.containsKey(criterion);
+	}
+
 	public void setCoveredGoals(int num) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		entry.covered_goals = num;
@@ -319,6 +325,10 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.minimized_time = System.currentTimeMillis();
 
 		entry.coverage = new HashSet<Integer>();
+		entry.coveredIntraMethodPairs = 0;
+		entry.coveredInterMethodPairs = 0;
+		entry.coveredIntraClassPairs = 0;
+		entry.coveredParameterPairs = 0;
 
 		// TODO isn't this more or less copy-paste of
 		// BranchCoverageSuiteFitness.getFitness()?
@@ -338,6 +348,8 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
+		Set<DefUseCoverageTestFitness> coveredDUGoals = new HashSet<DefUseCoverageTestFitness>();
+
 		logger.debug("Calculating line coverage");
 
 		for (TestChromosome test : best.tests) {
@@ -345,6 +357,25 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 			ExecutionTrace trace = result.getTrace();
 			entry.coverage.addAll(getCoveredLines(trace, entry.className));
 			isExceptionExplicit.put(test.getTestCase(), result.explicitExceptions);
+
+			if (Properties.CRITERION == Properties.Criterion.DEFUSE
+			        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE")) {
+				for (DefUseCoverageTestFitness goal : DefUseCoverageFactory.getDUGoals()) {
+					if (coveredDUGoals.contains(goal))
+						continue;
+					if (goal.isCovered(result)) {
+						coveredDUGoals.add(goal);
+						if (goal.isInterMethodPair())
+							entry.coveredInterMethodPairs++;
+						else if (goal.isIntraClassPair())
+							entry.coveredIntraClassPairs++;
+						else if (goal.isParameterGoal())
+							entry.coveredParameterPairs++;
+						else
+							entry.coveredIntraMethodPairs++;
+					}
+				}
+			}
 
 			for (String method : trace.getCoveredMethods()) {
 				if (method.startsWith(Properties.TARGET_CLASS)
@@ -492,6 +523,16 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.covered_branchless_methods = coveredBranchlessMethods;
 		BranchCoverageSuiteFitness f = new BranchCoverageSuiteFitness();
 
+		/*
+		if (Properties.CRITERION == Properties.Criterion.DEFUSE
+		        || Properties.ANALYSIS_CRITERIA.contains("DefUse")) {
+			entry.coveredIntraMethodPairs = DefUseCoverageSuiteFitness.mostCoveredGoals.get(DefUsePairType.INTRA_METHOD);
+			entry.coveredInterMethodPairs = DefUseCoverageSuiteFitness.mostCoveredGoals.get(DefUsePairType.INTER_METHOD);
+			entry.coveredIntraClassPairs = DefUseCoverageSuiteFitness.mostCoveredGoals.get(DefUsePairType.INTRA_CLASS);
+			entry.coveredParameterPairs = DefUseCoverageSuiteFitness.mostCoveredGoals.get(DefUsePairType.PARAMETER);
+		}
+			*/
+
 		//System.out.println(covered_methods);
 
 		// DONE make this work for other criteria too. this will only work for
@@ -579,7 +620,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.result_statements_executed = MaxStatementsStoppingCondition.getNumExecutedStatements();
 		entry.testExecutionTime = TestCaseExecutor.timeExecuted;
 		entry.goalComputationTime = AbstractFitnessFactory.goalComputationTime;
-		entry.covered_goals = TestSuiteFitnessFunction.getCoveredGoals();
+		entry.covered_goals = result.getNumOfCoveredGoals();
 		entry.timedOut = TestSuiteGenerator.global_time.isFinished();
 		entry.stoppingCondition = TestSuiteGenerator.stopping_condition.getCurrentValue();
 		entry.globalTimeStoppingCondition = TestSuiteGenerator.global_time.getCurrentValue();
@@ -645,7 +686,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		Chromosome best = algorithm.getBestIndividual();
 		if (best instanceof TestSuiteChromosome) {
 			entry.length_history.add(((TestSuiteChromosome) best).totalLengthOfTestCases());
-			entry.coverage_history.add(((TestSuiteChromosome) best).coverage);
+			entry.coverage_history.add(((TestSuiteChromosome) best).getCoverage());
 			entry.tests_executed.add(MaxTestsStoppingCondition.getNumExecutedTests());
 			entry.statements_executed.add(MaxStatementsStoppingCondition.getNumExecutedStatements());
 			entry.fitness_evaluations.add(MaxFitnessEvaluationsStoppingCondition.getNumFitnessEvaluations());

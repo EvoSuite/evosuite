@@ -17,7 +17,6 @@
  */
 package org.evosuite.coverage.dataflow;
 
-import java.text.NumberFormat;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -32,7 +31,6 @@ import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
-import org.evosuite.utils.Randomness;
 
 /*
  * // (0) TODO IDEA FOR AN EVO-SUITE-FEATURE: // given a test(suite) for a
@@ -176,13 +174,14 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final TestFitnessFunction goalDefinitionFitness;
 	private final TestFitnessFunction goalUseFitness;
 
-	private int difficulty = -1;
+	private final int difficulty = -1;
 	/** Constant <code>difficulty_time=0l</code> */
 	public static long difficulty_time = 0l; // experiment 
 
 	// coverage information
 	private Integer coveringObjectId = -1;
 	private ExecutionTrace coveringTrace;
+	private boolean covered = false;
 
 	// constructors
 
@@ -324,90 +323,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		//		} catch (ClassCastException e) {
 		//			return false;
 		//		}
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * If the goalDefinition is null, meaning the goalVariable is a
-	 * Parameter-Variable this method returns the goalUseDifficulty, otherwise
-	 * the product of goalUseDifficulty and goalDefinitionDicciculty is returned
-	 * 
-	 * Since the computation of DefUSeCoverageTestFitness difficulty takes some
-	 * time the computation takes place only the first time this method is
-	 * called. On later invocations this method returns the stored result from
-	 * the previous computation.
-	 * 
-	 * consult calculateDifficulty() for more information
-	 */
-	@Override
-	public int getDifficulty() {
-		if (difficulty == -1)
-			difficulty = calculateDifficulty();
-		return difficulty;
-	}
-
-	/**
-	 * Calculates the difficulty of this DefUseCoverage goal as follows
-	 * 
-	 * goalUseBranchDifficulty * goalDefinitionBranchDifficult *
-	 * (1+instructionsInBetween/10) * (10*overwritingDefinitionsInBetween+1)^2
-	 * 
-	 * Since ordering by difficulty as it stands would result in a deterministic
-	 * order in which the goals will always be searched for. Do have best of
-	 * both worlds one can set the property "randomize_difficulty" to randomly
-	 * multiply the deterministic difficulty by something between 0.5 and 2.0 -
-	 * effectively returning something between the half and two times the
-	 * difficulty
-	 */
-	private int calculateDifficulty() {
-		long start = System.currentTimeMillis();
-		int overallDifficulty = calculateUseDifficulty();
-		overallDifficulty *= calculateDefinitionDifficulty();
-		overallDifficulty *= (getInstructionsInBetweenDU().size() / 3) + 1;
-		if (overallDifficulty <= 0.0) {
-			throw new IllegalStateException("difficulty out of bounds - overflow?"
-			        + overallDifficulty);
-		}
-		int overDefs = getPotentialOverwritingDefinitions().size();
-		overallDifficulty *= Math.pow(10 * overDefs + 1, 2);
-		if (overallDifficulty <= 0.0)
-			throw new IllegalStateException("difficulty out of bounds - overflow? "
-			        + overallDifficulty);
-		difficulty_time += System.currentTimeMillis() - start;
-		if (Properties.RANDOMIZE_DIFFICULTY) {
-			float modifier = 1.5f * Randomness.nextFloat() + 0.5f;
-			overallDifficulty = Math.round(overallDifficulty * modifier);
-		}
-		if (overallDifficulty <= 0.0)
-			throw new IllegalStateException("difficulty out of bounds - overflow? "
-			        + overallDifficulty);
-		difficulty = overallDifficulty;
-		return overallDifficulty;
-	}
-
-	/**
-	 * Returns the goalDefinitionBranchDifficulty
-	 * 
-	 * @return a int.
-	 */
-	public int calculateDefinitionDifficulty() {
-		return 0; // disabled for now
-		//		if (goalDefinitionBranchFitness == null)
-		//			return 1;
-		//		int defDifficulty = goalDefinitionBranchFitness.getDifficulty();
-		//		return defDifficulty;
-	}
-
-	/**
-	 * Returns the goalUseBranchDifficulty
-	 * 
-	 * @return a int.
-	 */
-	public int calculateUseDifficulty() {
-		return 0; // disabled for now
-		//		int useDifficulty = goalUseBranchFitness.getDifficulty();
-		//		return useDifficulty;
 	}
 
 	/**
@@ -683,9 +598,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		StringBuffer r = new StringBuffer();
 		r.append(type.toString());
 		r.append("-Definition-Use-Pair");
-		if (difficulty != -1)
-			r.append("- Difficulty "
-			        + NumberFormat.getIntegerInstance().format(difficulty));
 		r.append("\n\t");
 		if (isParameterGoal())
 			r.append("Parameter-Definition " + goalUse.getLocalVariableSlot()
@@ -757,6 +669,37 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 			}
 		}
 		return 0;
+	}
+
+	/**
+	 * @return the covered
+	 */
+	public boolean isCovered() {
+		return covered;
+	}
+
+	/**
+	 * @param covered
+	 *            the covered to set
+	 */
+	public void setCovered(boolean covered) {
+		this.covered = covered;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
+	 */
+	@Override
+	public String getTargetClass() {
+		return goalUse.getClassName();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
+	 */
+	@Override
+	public String getTargetMethod() {
+		return goalUse.getMethodName();
 	}
 
 	//	@Override

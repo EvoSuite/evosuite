@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class ValueMinimizer implements TestVisitor {
+public class ValueMinimizer extends TestVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(ValueMinimizer.class);
 

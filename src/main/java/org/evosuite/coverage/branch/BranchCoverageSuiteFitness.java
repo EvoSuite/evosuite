@@ -56,9 +56,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private final Set<String> branchlessMethods;
 	private final Set<String> methods;
 
-	/** Constant <code>mostCoveredGoals=0</code> */
-	public static int mostCoveredGoals = 0;
-
 	/**
 	 * <p>
 	 * Constructor for BranchCoverageSuiteFitness.
@@ -290,14 +287,11 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		}
 
-		// TODO: This static variable should not really be used
-		if (mostCoveredGoals < coverage) {
-			logger.info("Most covered goals: " + mostCoveredGoals);
-			mostCoveredGoals = coverage;
-		}
-
 		if (totalGoals > 0)
 			suite.setCoverage((double) coverage / (double) totalGoals);
+
+		suite.setNumOfCoveredGoals(coverage);
+		
 
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value "

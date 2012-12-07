@@ -27,6 +27,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import org.evosuite.utils.LoggingUtils;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.ext.DOTExporter;
@@ -177,9 +178,13 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> getChildren(V node) {
-		if (!containsVertex(node)) // should this just return null?
-			throw new IllegalArgumentException(
-					"node not contained in this graph");
+		if (!containsVertex(node)){
+			LoggingUtils.getEvoLogger().warn("getChildren call requests a node not contained in the current graph. Node: "+node);
+			return null;
+		}
+		//TODO check why in project 57_hft-bomberman class client.gui.StartFrame this happens
+		//	throw new IllegalArgumentException(
+		//			"node not contained in this graph");
 		// TODO hash set? can't be sure V implements hash correctly
 		Set<V> r = new HashSet<V>();
 		for (E e : outgoingEdgesOf(node))

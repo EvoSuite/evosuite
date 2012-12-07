@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -45,6 +46,8 @@ public abstract class Assertion implements Serializable {
 
 	/** Statement to which the assertion is added */
 	protected StatementInterface statement;
+
+	protected Set<Mutation> killedMutants = new HashSet<Mutation>();
 
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(Assertion.class);
@@ -80,6 +83,14 @@ public abstract class Assertion implements Serializable {
 		} else if (!value.equals(other.value))
 			return false;
 		return true;
+	}
+
+	public void addKilledMutation(Mutation m) {
+		killedMutants.add(m);
+	}
+
+	public Set<Mutation> getKilledMutations() {
+		return killedMutants;
 	}
 
 	/**

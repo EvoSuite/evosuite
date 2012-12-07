@@ -97,43 +97,6 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	}
 
 	/**
-	 * This function is used for initial preordering of goals in the individual
-	 * test case generation in TestSuiteGenerator
-	 * 
-	 * The idea is to search for easy goals first and reuse their
-	 * TestChromosomes later when looking for harder goals that depend for
-	 * example on Branches that were already covered by the easier goal.
-	 * 
-	 * So the general idea is that a TestFitnessFunction with a higher
-	 * difficulty is concerned with CFGVertices deep down in the CDG one with a
-	 * lower difficulty with vertices near the root-branch of their method.
-	 * 
-	 * Each CoverageTestFitness can override this method to define which goals
-	 * should be searched for first (low difficulty) and which goals should be
-	 * postponed initially
-	 * 
-	 * Disclaimer:
-	 * 
-	 * If this method does not get overwritten preordering of goals by
-	 * difficulty obviously won't work and disabling it using
-	 * Properties.preorder_goals_by_difficulty is encouraged in order to avoid
-	 * unnecessary performance loss
-	 * 
-	 * Also the whole idea of the difficulty value is to boost the performance
-	 * gain in terms of GA-evolutions the ChromosomeRecycler is supposed to
-	 * achieve. So if recycling is disabled or not implemented preordering
-	 * should be disabled too.
-	 * 
-	 * @return a int.
-	 */
-	public int getDifficulty() {
-		//		if (Properties.PREORDER_GOALS_BY_DIFFICULTY)
-		//			logger.warn("called default TestFitness.getDifficulty() though preordering is enabled. "
-		//			        + "possible performance loss. set property preorder_goals_by_difficulty to false");
-		return 0;
-	}
-
-	/**
 	 * {@inheritDoc}
 	 * 
 	 * Used to preorder goals by difficulty
@@ -261,4 +224,8 @@ public abstract class TestFitnessFunction extends FitnessFunction<TestChromosome
 	public boolean isMaximizationFunction() {
 		return false;
 	}
+
+	public abstract String getTargetClass();
+
+	public abstract String getTargetMethod();
 }

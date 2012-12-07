@@ -219,6 +219,7 @@ public class BytecodeInstrumentation {
 		TransformationStatistics.reset();
 
 		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+		        //| ClassWriter.COMPUTE_FRAMES);
 
 		ClassVisitor cv = writer;
 		if (logger.isDebugEnabled()) {

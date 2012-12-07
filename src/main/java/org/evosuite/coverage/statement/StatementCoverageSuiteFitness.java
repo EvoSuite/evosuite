@@ -34,8 +34,6 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 	private static final long serialVersionUID = -4479582777935260157L;
 
-	/** Constant <code>mostCoveredGoals=0</code> */
-	public static int mostCoveredGoals = 0;
 
 	/** {@inheritDoc} */
 	@Override
@@ -75,9 +73,8 @@ public class StatementCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		else
 			suite.setCoverage(1.0);
 
-		if (coveredGoals.size() > mostCoveredGoals)
-			mostCoveredGoals = coveredGoals.size();
-
+		suite.setNumOfCoveredGoals(coveredGoals.size());
+		
 		updateIndividual(suite, fitness);
 
 		return fitness;

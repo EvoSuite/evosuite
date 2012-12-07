@@ -35,8 +35,8 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = 4609519536866911970L;
 
-	BytecodeInstruction goalInstruction;
-	List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
+	protected BytecodeInstruction goalInstruction;
+	protected List<BranchCoverageTestFitness> branchFitnesses = new ArrayList<BranchCoverageTestFitness>();
 
 	BranchCoverageTestFitness lastCoveringFitness = null;
 
@@ -150,5 +150,21 @@ public class StatementCoverageTestFitness extends TestFitnessFunction {
 			return goalInstruction.compareTo(((StatementCoverageTestFitness) other).goalInstruction);
 		}
 		return 0;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
+	 */
+	@Override
+	public String getTargetClass() {
+		return goalInstruction.getClassName();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
+	 */
+	@Override
+	public String getTargetMethod() {
+		return goalInstruction.getMethodName();
 	}
 }

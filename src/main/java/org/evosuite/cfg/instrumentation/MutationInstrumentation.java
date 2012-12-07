@@ -137,8 +137,13 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		logger.info("Applying mutation operators ");
 		int frameIndex = 0;
 		int numMutants = 0;
-		assert (frames.length == mn.instructions.size()) : "Length " + frames.length
-		        + " vs " + mn.instructions.size();
+		if(frames.length != mn.instructions.size()) {
+			logger.error("Number of frames does not match number number of bytecode instructions: "+frames.length +"/" + mn.instructions.size());
+			logger.error("Skipping mutation of method "+className+"."+methodName);
+			return;
+		}
+		//assert (frames.length == mn.instructions.size()) : "Length " + frames.length
+		//        + " vs " + mn.instructions.size();
 		while (j.hasNext()) {
 			Frame currentFrame = frames[frameIndex++];
 			AbstractInsnNode in = j.next();

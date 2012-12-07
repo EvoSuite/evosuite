@@ -130,4 +130,20 @@ public class AllDefsCoverageTestFitness extends TestFitnessFunction {
 		return "AllDef-Goal " + targetDef.toString();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
+	 */
+	@Override
+	public String getTargetClass() {
+		return targetDef.getClassName();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
+	 */
+	@Override
+	public String getTargetMethod() {
+		return targetDef.getMethodName();
+	}
+
 }
