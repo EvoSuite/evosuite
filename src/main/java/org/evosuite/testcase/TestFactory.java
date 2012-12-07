@@ -1225,8 +1225,14 @@ public class TestFactory {
 				Method m = (Method) o;
 				//logger.info("Adding method call " + m.getName());
 				name = m.getName();
-				VariableReference callee = test.getRandomObject(Properties.getTargetClass(),
+				VariableReference callee = test.getRandomNonNullObject(Properties.getTargetClass(),
 				                                                position);
+
+				// This may also be an inner class, in this case we can't use a SUT instance
+				if(!callee.isAssignableTo(m.getDeclaringClass())) {
+					callee = test.getRandomNonNullObject(m.getDeclaringClass(),
+                            position);
+				}
 				addMethodFor(test, callee, m, position);
 				//addMethod(test, m, position, 0);
 			} else if (o instanceof Field) {
