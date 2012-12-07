@@ -31,13 +31,13 @@ import java.util.Map;
 
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerBinaryExpression;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
-import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringConstant;
-import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.junit.Ignore;
 import org.junit.Test;
 
@@ -53,7 +53,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000,
 		        1000000), Comparator.EQ, new IntegerConstant(235082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -68,7 +68,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235082,
 		        -1000000, 1000000), Comparator.NE, new IntegerConstant(235082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -83,7 +83,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235086,
 		        -1000000, 1000000), Comparator.LE, new IntegerConstant(235082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -98,7 +98,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 235086,
 		        -1000000, 1000000), Comparator.LT, new IntegerConstant(235082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -113,7 +113,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000,
 		        1000000), Comparator.GE, new IntegerConstant(235082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -128,7 +128,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", 0, -1000000,
 		        1000000), Comparator.GT, new IntegerConstant(235082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -144,7 +144,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.EQ, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -163,7 +163,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.NE, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -182,7 +182,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.LE, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -201,7 +201,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.LT, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -220,7 +220,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.GE, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -239,7 +239,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.GT, new IntegerVariable("test2", var2,
 		        -1000000, 1000000)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -262,8 +262,8 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
-		Seeker skr = new Seeker();
-		Map<String, Object> result = skr.getModel(constraints);
+		ConstraintSolver solver = new ConstraintSolver();
+		Map<String, Object> result = solver.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -287,7 +287,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -312,7 +312,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -337,7 +337,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -362,7 +362,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -387,7 +387,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test2", var2, -1000000, 1000000), Operator.PLUS,
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -413,7 +413,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(new IntegerVariable("test1", var1,
 		        -1000000, 1000000), Comparator.GE, new IntegerConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -442,7 +442,7 @@ public class TestIntegerSearch {
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new IntegerConstraint(mul, Comparator.EQ, iconst2));
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
@@ -488,15 +488,15 @@ public class TestIntegerSearch {
 
 		IntegerVariable ivar1 = new IntegerVariable("test1", var1, Integer.MIN_VALUE,
 		        Integer.MAX_VALUE);
-		StringBinaryExpression sBExpr = new StringBinaryExpression(strConst,
-		        Operator.CHARAT, new IntegerConstant(0), "y");
+		StringBinaryToIntegerExpression sBExpr = new StringBinaryToIntegerExpression(strConst,
+		        Operator.CHARAT, new IntegerConstant(0), (long)"y".charAt(0));
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, sBExpr));
 		constraints.add(new IntegerConstraint(ivar1, Comparator.NE, iconst1));
 		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, iconst2));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 
 		assertNotNull(result);
@@ -507,7 +507,6 @@ public class TestIntegerSearch {
 		assertTrue(var1 == 108);
 	}
 
-	@Ignore
 	@Test
 	public void testEvosuiteExample6() {
 		//Cnstr 0 : var2__SYM(1890) >= 0 dist: 682.3333333333334
@@ -537,7 +536,7 @@ public class TestIntegerSearch {
 		        new IntegerConstant(0)));
 		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertFalse(result.isEmpty());

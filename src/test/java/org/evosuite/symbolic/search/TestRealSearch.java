@@ -33,7 +33,7 @@ import org.evosuite.symbolic.expr.RealConstraint;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.fp.RealBinaryExpression;
 import org.evosuite.symbolic.search.DistanceEstimator;
-import org.evosuite.symbolic.search.Seeker;
+import org.evosuite.symbolic.search.ConstraintSolver;
 import org.junit.Test;
 import org.junit.Ignore;
 
@@ -43,9 +43,9 @@ public class TestRealSearch {
 	public void testEQConstant() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new RealConstraint(new RealVariable("test1", 0.675464,
-		        -1000000.0, 1000000.0), Comparator.EQ, new RealConstant(2.35082)));
+		        Float.MIN_VALUE, Float.MAX_VALUE), Comparator.EQ, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -58,7 +58,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.35082, -1000000.0,
 		        1000000.0), Comparator.NE, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -72,7 +72,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 5.35086, -1000000.0,
 		        1000000.0), Comparator.LE, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -85,7 +85,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 5.35086, -1000000.0,
 		        1000000.0), Comparator.LT, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -98,7 +98,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0,
 		        1000000.0), Comparator.GE, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -111,7 +111,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0,
 		        1000000.0), Comparator.GT, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -124,7 +124,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 0, -1000000.0,
 		        1000000.0), Comparator.EQ, new RealConstant(0.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -138,7 +138,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.35086, -1000000.0,
 		        1000000.0), Comparator.LE, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -151,7 +151,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.35086, -1000000.0,
 		        1000000.0), Comparator.LT, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -164,7 +164,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.0, -1000000.0,
 		        1000000.0), Comparator.GE, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
@@ -177,14 +177,13 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(new RealVariable("test1", 2.0, -1000000.0,
 		        1000000.0), Comparator.GT, new RealConstant(2.35082)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
 	}
 
-	@Ignore
 	@Test
 	public void testEQVariable() {
 		double var1 = 0.23123;
@@ -194,7 +193,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.EQ, new RealVariable("test2", var2, -1000000.0,
 		        1000000.0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -214,7 +213,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.NE, new RealVariable("test2", var2, -1000000.0,
 		        1000000.0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -233,7 +232,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.LE, new RealVariable("test2", var2, -1000000.0,
 		        1000000.0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -252,7 +251,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.LT, new RealVariable("test2", var2, -1000000.0,
 		        1000000.0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -271,7 +270,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.GE, new RealVariable("test2", var2, -1000000.0,
 		        1000000.0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -290,7 +289,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.GT, new RealVariable("test2", var2, -1000000.0,
 		        1000000.0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -317,7 +316,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(realVar1, Comparator.LT, realVar2));
 		constraints.add(new RealConstraint(realVar1, Comparator.GE, new RealConstant(0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -340,7 +339,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(realVar, Comparator.GE, new RealConstant(0.0)));
 		constraints.add(new RealConstraint(realVar, Comparator.EQ, new RealConstant(0.0)));
 
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -364,7 +363,7 @@ public class TestRealSearch {
 		        2.772399987618165E32)));
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
@@ -379,14 +378,17 @@ public class TestRealSearch {
 	public void testAddition() {
 		double var1 = 1.0;
 
-		RealVariable realVar1 = new RealVariable("test1", var1, -1000000, 1000000);
+		RealVariable realVar1 = new RealVariable("test1", var1, Double.MIN_VALUE, Double.MAX_VALUE);
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		final double doubleValue = 2000.0876588346346;
+      //final double doubleValue = 2000.0876588346346;
+
 		constraints.add(new RealConstraint(new RealBinaryExpression(new RealConstant(
 		        1102.5), Operator.PLUS, realVar1, 1103.5), Comparator.EQ,
-		        new RealConstant(2000.0876588346346)));
+		        new RealConstant(doubleValue)));
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
-		Seeker skr = new Seeker();
+		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.getModel(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))

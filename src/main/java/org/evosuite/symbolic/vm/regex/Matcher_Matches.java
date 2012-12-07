@@ -3,7 +3,7 @@ package org.evosuite.symbolic.vm.regex;
 import java.util.regex.Matcher;
 
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
@@ -36,7 +36,7 @@ public final class Matcher_Matches extends SymbolicFunction {
 			int concrete_value = res ? 1 : 0;
 			StringConstant symb_regex = ExpressionFactory
 					.buildNewStringConstant(conc_regex);
-			StringComparison strComp = new StringComparison(symb_regex,
+			StringBinaryComparison strComp = new StringBinaryComparison(symb_regex,
 					Operator.PATTERNMATCHES, symb_input, (long) concrete_value);
 
 			return strComp;

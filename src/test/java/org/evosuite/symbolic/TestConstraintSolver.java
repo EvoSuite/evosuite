@@ -1,6 +1,5 @@
 package org.evosuite.symbolic;
 
-import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -11,18 +10,15 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.BranchCondition;
-import org.evosuite.symbolic.ConcolicExecution;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
-import org.evosuite.symbolic.search.Seeker;
+import org.evosuite.symbolic.search.ConstraintSolver;
 import org.evosuite.symbolic.search.TestInput1;
 import org.evosuite.symbolic.search.TestInput2;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 import org.junit.Test;
 
-public class TestSeeker {
+public class TestConstraintSolver {
 
 	private List<BranchCondition> executeTest(DefaultTestCase tc) {
 		Properties.CLIENT_ON_THREAD = true;
@@ -78,16 +74,14 @@ public class TestSeeker {
 
 		Constraint<?> lastConstraint = last_branch.getLocalConstraint();
 
-		Constraint<Long> targetConstraint = new IntegerConstraint(
-				lastConstraint.getLeftOperand(), lastConstraint.getComparator()
-						.not(), lastConstraint.getRightOperand());
+		Constraint<?> targetConstraint = lastConstraint.negate();
 
 		constraints.add(targetConstraint);
 
 		System.out.println("Target constraints");
 		printConstraints(constraints);
 
-		Seeker seeker = new Seeker();
+		ConstraintSolver seeker = new ConstraintSolver();
 		Map<String, Object> model = seeker.getModel(constraints);
 
 		if (model == null)

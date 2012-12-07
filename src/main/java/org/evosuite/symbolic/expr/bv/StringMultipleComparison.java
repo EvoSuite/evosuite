@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * @author krusev
  */
 public final class StringMultipleComparison extends AbstractExpression<Long>
-		implements IntegerValue, MultipleExpression<String> {
+		implements StringComparison, MultipleExpression<String> {
 
 	private static final long serialVersionUID = -3844726361666119758L;
 
@@ -197,7 +197,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 			return null;
 		}
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -208,6 +208,5 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 		}
 		return variables;
 	}
-
 
 }

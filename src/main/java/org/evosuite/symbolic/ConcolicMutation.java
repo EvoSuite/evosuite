@@ -26,13 +26,13 @@ import java.util.Set;
 import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.search.Seeker;
+import org.evosuite.symbolic.search.ConstraintSolver;
 import org.evosuite.testcase.BooleanPrimitiveStatement;
 import org.evosuite.testcase.BytePrimitiveStatement;
 import org.evosuite.testcase.CharPrimitiveStatement;
+import org.evosuite.testcase.IntPrimitiveStatement;
 import org.evosuite.testcase.LongPrimitiveStatement;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.ShortPrimitiveStatement;
@@ -51,7 +51,8 @@ import org.slf4j.LoggerFactory;
 public class ConcolicMutation {
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(ConcolicMutation.class);
+	protected static Logger logger = LoggerFactory
+			.getLogger(ConcolicMutation.class);
 
 	/**
 	 * Generate new constraint and ask solver for solution
@@ -62,20 +63,21 @@ public class ConcolicMutation {
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	//	@SuppressWarnings({ "rawtypes", "unchecked" })
+	// @SuppressWarnings({ "rawtypes", "unchecked" })
 	@SuppressWarnings("unchecked")
-	public static TestCase negateCondition(BranchCondition condition, TestCase test) {
+	public static TestCase negateCondition(BranchCondition condition,
+			TestCase test) {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(condition.getReachingConstraints());
-		//constraints.addAll(condition.localConstraints);
+		// constraints.addAll(condition.localConstraints);
 		Constraint<Long> c = (Constraint<Long>) condition.getLocalConstraint();
-		Constraint<Long> targetConstraint = new IntegerConstraint(c.getLeftOperand(),
-		        c.getComparator().not(), c.getRightOperand());
+		Constraint<Long> targetConstraint = c.negate();
 		constraints.add(targetConstraint);
 
 		if (!targetConstraint.isSolveable()) {
 			logger.info("Found unsolvable constraint: " + targetConstraint);
-			// TODO: This is usually the case when the same variable is used for several parameters of a method
+			// TODO: This is usually the case when the same variable is used for
+			// several parameters of a method
 			// Could we treat this as a special case?
 			return null;
 		}
@@ -83,11 +85,12 @@ public class ConcolicMutation {
 		int size = constraints.size();
 		if (size > 0) {
 			constraints = reduce(constraints);
-			//logger.info("Reduced constraints from " + size + " to " + constraints.size());
-			//logger.info("Now solving: " + constraints);
+			// logger.info("Reduced constraints from " + size + " to " +
+			// constraints.size());
+			// logger.info("Now solving: " + constraints);
 		}
 
-		Solver solver = new Seeker();
+		ConstraintSolver solver = new ConstraintSolver();
 		Map<String, Object> values = solver.getModel(constraints);
 
 		if (values != null) {
@@ -101,20 +104,28 @@ public class ConcolicMutation {
 						Long value = (Long) val;
 						String name = ((String) key).replace("__SYM", "");
 						logger.debug("New value for " + name + " is " + value);
-						PrimitiveStatement p = getStatement(newTest, name);
+						PrimitiveStatement<?> p = getStatement(newTest, name);
 						assert (p != null);
-						if (p instanceof BooleanPrimitiveStatement)
-							p.setValue(value.intValue() > 0);
-						else if (p instanceof CharPrimitiveStatement)
-							p.setValue((char) value.intValue());
-						else if (p instanceof BytePrimitiveStatement)
-							p.setValue((byte) value.intValue());
-						else if (p instanceof ShortPrimitiveStatement)
-							p.setValue((short) value.intValue());
-						else if (p instanceof LongPrimitiveStatement)
-							p.setValue(value);
-						else
-							p.setValue(value.intValue());
+						if (p instanceof BooleanPrimitiveStatement) {
+							BooleanPrimitiveStatement bp = (BooleanPrimitiveStatement) p;
+							bp.setValue(value.intValue() > 0);
+						} else if (p instanceof CharPrimitiveStatement) {
+							CharPrimitiveStatement cp = (CharPrimitiveStatement) p;
+							cp.setValue((char) value.intValue());
+						} else if (p instanceof BytePrimitiveStatement) {
+							BytePrimitiveStatement bp = (BytePrimitiveStatement) p;
+							bp.setValue((byte) value.intValue());
+						} else if (p instanceof ShortPrimitiveStatement) {
+							ShortPrimitiveStatement sp = (ShortPrimitiveStatement) p;
+							sp.setValue((short) value.intValue());
+						} else if (p instanceof LongPrimitiveStatement) {
+							LongPrimitiveStatement lp = (LongPrimitiveStatement) p;
+							lp.setValue(value);
+						} else {
+							assert (p instanceof IntPrimitiveStatement);
+							IntPrimitiveStatement ip = (IntPrimitiveStatement) p;
+							ip.setValue(value.intValue());
+						}
 					} else {
 						logger.debug("New value is not long " + val);
 					}
@@ -195,7 +206,8 @@ public class ConcolicMutation {
 	 * @param expr
 	 * @param variables
 	 */
-	private static void getVariables(Expression<?> expr, Set<Variable<?>> variables) {
+	private static void getVariables(Expression<?> expr,
+			Set<Variable<?>> variables) {
 		if (expr instanceof Variable<?>) {
 			variables.add((Variable<?>) expr);
 		} else if (expr instanceof BinaryExpression<?>) {
