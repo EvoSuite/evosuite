@@ -29,7 +29,7 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 
 	/** {@inheritDoc} */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
 		visitReturnValue(statement, scope);
 	}
