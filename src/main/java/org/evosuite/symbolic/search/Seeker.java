@@ -271,12 +271,6 @@ class Seeker implements Solver {
 		}
 	}
 
-	/** {@inheritDoc} */
-	@Override
-	public boolean solve(Collection<Constraint<?>> constraints) {
-		return false;
-	}
-
 	private Set<Variable<?>> getVarsOfSet(Collection<Constraint<?>> constraints) {
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 

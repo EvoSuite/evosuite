@@ -40,13 +40,4 @@ public interface Solver {
 	 * @param constraints a {@link java.util.Collection} object.
 	 */
 	Map<String, Object> getModel(Collection<Constraint<?>> constraints);
-
-	/**
-	 * Determines whether the given PathConditions could be solved.
-	 *
-	 * @return <code>true</code> if the path conditions could be solved, and a
-	 *         concrete model is obtainable via {@link #getConcreteModel()}.
-	 * @param constraints a {@link java.util.Collection} object.
-	 */
-	boolean solve(Collection<Constraint<?>> constraints);
 }
