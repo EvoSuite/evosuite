@@ -621,7 +621,7 @@ public class TestSuiteGenerator {
 
 		ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
 		//if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
-		ga.addListener(progressMonitor);
+		ga.addListener(progressMonitor); // FIXME progressMonitor may cause client hang if EvoSuite is executed with -prefix!
 
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS

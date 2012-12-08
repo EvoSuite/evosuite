@@ -159,7 +159,7 @@ public class EvoSuite {
 	}
 
 	private static void listClassesPrefix(String prefix, String cp) {
-		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/")
+		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/") // FIXME replace "/" by File.separator? (not sure)
 				+ "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
@@ -1013,7 +1013,7 @@ public class EvoSuite {
 							first = false;
 						} else {
 							// Properties.CP += ":";
-							cp += ":";
+							cp += File.pathSeparator;
 						}
 						// Properties.CP += entry;
 						cp += entry;
