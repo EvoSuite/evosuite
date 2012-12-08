@@ -626,7 +626,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append(METHOD_SPACE);
 		bd.append("public void doneWithTestCase(){ \n");
 		bd.append(BLOCK_SPACE);
-		bd.append("Sandbox.goingToEndExecutingSUTCode(); \n");
+		bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
