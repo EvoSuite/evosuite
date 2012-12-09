@@ -54,7 +54,7 @@ public class TestIntegerSearch {
 		        1000000), Comparator.EQ, new IntegerConstant(235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertEquals(235082, ((Number) result.get("test1")).intValue());
@@ -69,7 +69,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.NE, new IntegerConstant(235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(235082 != ((Number) result.get("test1")).intValue());
@@ -84,7 +84,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.LE, new IntegerConstant(235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(235082 >= ((Number) result.get("test1")).intValue());
@@ -99,7 +99,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.LT, new IntegerConstant(235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(235082 > ((Number) result.get("test1")).intValue());
@@ -114,7 +114,7 @@ public class TestIntegerSearch {
 		        1000000), Comparator.GE, new IntegerConstant(235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(235082 <= ((Number) result.get("test1")).intValue());
@@ -129,7 +129,7 @@ public class TestIntegerSearch {
 		        1000000), Comparator.GT, new IntegerConstant(235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(235082 < ((Number) result.get("test1")).intValue());
@@ -145,7 +145,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -164,7 +164,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -183,7 +183,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -202,7 +202,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -221,7 +221,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -240,7 +240,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -263,7 +263,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> result = solver.getModel(constraints);
+		Map<String, Object> result = solver.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -288,7 +288,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -313,7 +313,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -338,7 +338,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -363,7 +363,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -388,7 +388,7 @@ public class TestIntegerSearch {
 		        new IntegerVariable("test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -414,7 +414,7 @@ public class TestIntegerSearch {
 		        -1000000, 1000000), Comparator.GE, new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).intValue();
@@ -443,7 +443,7 @@ public class TestIntegerSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new IntegerConstraint(mul, Comparator.EQ, iconst2));
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
 		if (result.containsKey("test1"))
@@ -497,7 +497,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, iconst2));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
@@ -537,7 +537,7 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertFalse(result.isEmpty());
 		if (result.containsKey("test1"))

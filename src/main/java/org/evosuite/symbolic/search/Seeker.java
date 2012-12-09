@@ -69,7 +69,7 @@ class Seeker implements Solver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
+	public Map<String, Object> solve(Collection<Constraint<?>> constraints) {
 
 		if (constraints.size() <= 0)
 			return null;

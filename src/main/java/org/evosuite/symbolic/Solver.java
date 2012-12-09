@@ -39,5 +39,5 @@ public interface Solver {
 	 *         concrete value that the solver used is the object.
 	 * @param constraints a {@link java.util.Collection} object.
 	 */
-	Map<String, Object> getModel(Collection<Constraint<?>> constraints);
+	Map<String, Object> solve(Collection<Constraint<?>> constraints);
 }
