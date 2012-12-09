@@ -91,7 +91,7 @@ public class ConcolicMutation {
 		}
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> values = solver.getModel(constraints);
+		Map<String, Object> values = solver.solve(constraints);
 
 		if (values != null) {
 			// logger.info(values.toString());

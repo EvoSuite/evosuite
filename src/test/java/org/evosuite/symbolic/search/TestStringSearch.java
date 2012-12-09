@@ -52,7 +52,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(const2.equals(result.get("test1").toString()));
@@ -71,7 +71,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(!const2.equals(result.get("test1").toString()));
@@ -90,7 +90,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(const2.equalsIgnoreCase(result.get("test1").toString()));
@@ -109,7 +109,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertFalse(const2.equalsIgnoreCase(result.get("test1").toString()));
@@ -132,7 +132,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue((result.get("test1").toString()).startsWith(const2, 2));
@@ -155,7 +155,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertFalse((result.get("test1").toString()).startsWith(const2, 3));
@@ -175,7 +175,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue((result.get("test1").toString()).endsWith(const2));
@@ -195,7 +195,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertFalse((result.get("test1").toString()).endsWith(const2));
@@ -215,7 +215,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue((result.get("test1").toString()).contains(const2));
@@ -235,7 +235,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertFalse((result.get("test1").toString()).contains(const2));
@@ -270,7 +270,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue((result.get("test1").toString()).regionMatches(ignore_case,
@@ -305,7 +305,7 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertFalse((result.get("test1").toString()).regionMatches(ignore_case,

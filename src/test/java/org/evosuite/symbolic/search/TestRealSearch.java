@@ -46,7 +46,7 @@ public class TestRealSearch {
 		        Float.MIN_VALUE, Float.MAX_VALUE), Comparator.EQ, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 == ((Number) result.get("test1")).doubleValue());
@@ -59,7 +59,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.NE, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 != ((Number) result.get("test1")).doubleValue());
@@ -73,7 +73,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.LE, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 >= ((Number) result.get("test1")).doubleValue());
@@ -86,7 +86,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.LT, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 > ((Number) result.get("test1")).doubleValue());
@@ -99,7 +99,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.GE, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 <= ((Number) result.get("test1")).doubleValue());
@@ -112,7 +112,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.GT, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
@@ -125,7 +125,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.EQ, new RealConstant(0.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(0.35082 == ((Number) result.get("test1")).doubleValue());
@@ -139,7 +139,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.LE, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 >= ((Number) result.get("test1")).doubleValue());
@@ -152,7 +152,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.LT, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 > ((Number) result.get("test1")).doubleValue());
@@ -165,7 +165,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.GE, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 <= ((Number) result.get("test1")).doubleValue());
@@ -178,7 +178,7 @@ public class TestRealSearch {
 		        1000000.0), Comparator.GT, new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
@@ -194,7 +194,7 @@ public class TestRealSearch {
 		        1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -214,7 +214,7 @@ public class TestRealSearch {
 		        1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -233,7 +233,7 @@ public class TestRealSearch {
 		        1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -252,7 +252,7 @@ public class TestRealSearch {
 		        1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -271,7 +271,7 @@ public class TestRealSearch {
 		        1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -290,7 +290,7 @@ public class TestRealSearch {
 		        1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -317,7 +317,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(realVar1, Comparator.GE, new RealConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -340,7 +340,7 @@ public class TestRealSearch {
 		constraints.add(new RealConstraint(realVar, Comparator.EQ, new RealConstant(0.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -364,7 +364,7 @@ public class TestRealSearch {
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();
@@ -389,7 +389,7 @@ public class TestRealSearch {
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.getModel(constraints);
+		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		if (result.containsKey("test1"))
 			var1 = ((Number) result.get("test1")).doubleValue();

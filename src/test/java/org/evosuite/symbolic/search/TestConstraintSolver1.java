@@ -73,7 +73,7 @@ public class TestConstraintSolver1 {
 		}
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.getModel(constraints);
+		Map<String, Object> model = seeker.solve(constraints);
 		System.out.println(model);
 
 		Object var0 = model.get("var0");

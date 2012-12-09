@@ -82,7 +82,7 @@ public class TestConstraintSolver {
 		printConstraints(constraints);
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.getModel(constraints);
+		Map<String, Object> model = seeker.solve(constraints);
 
 		if (model == null)
 			System.out.println("No new model was found");

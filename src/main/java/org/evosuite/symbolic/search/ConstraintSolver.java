@@ -26,11 +26,11 @@ public final class ConstraintSolver implements Solver {
 	static Logger log = LoggerFactory.getLogger(ConstraintSolver.class);
 
 	/**
-	 * This method searches for a new model satisfying all constraints. If no
-	 * model is found, then the <code>null</code> value is returned.
+	 * This method searches for a new model satisfying all constraints. If UNSAT
+	 * returns <code>null</code>.
 	 */
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
+	public Map<String, Object> solve(Collection<Constraint<?>> constraints) {
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
 			log.info("Initial distance already is 0.0, skipping search");
