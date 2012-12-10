@@ -30,6 +30,7 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -94,6 +95,7 @@ public class FieldReference extends VariableReferenceImpl {
 		assert (source != null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
 		this.field = field;
 		this.source = source;
+		assert(source == null || field.getDeclaringClass().isAssignableFrom(source.getVariableClass()));
 		//		logger.info("Creating new field assignment for field " + field + " of object "
 		//		        + source);
 
@@ -249,6 +251,14 @@ public class FieldReference extends VariableReferenceImpl {
 					 *  and the testcase will execute in evosuite, executing it with junit will however lead to a nullpointer exception
 					 */
 					return;
+				}
+				
+				// TODO: It seems this is unavoidable based on the search operators
+				//       but maybe there is a better solution 
+				if(!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
+					throw new CodeUnderTestException(new IllegalArgumentException("Cannot assignable: " + value + " of class "
+					        + value.getClass() + " to field " + field + " of variable "
+					        + source));					
 				}
 			}
 			if (field.getType().equals(int.class))
