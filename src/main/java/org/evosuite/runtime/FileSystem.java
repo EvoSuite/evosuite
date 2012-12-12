@@ -55,7 +55,6 @@ public class FileSystem {
 				EvoSuiteIO.disableTolerantExceptionHandling();
 			}
 			
-			logger.info("Resetting and enabling the VFS...");
 			try {	
 				EvoSuiteIO.resetVFS();
 			} catch (IOException e) {
