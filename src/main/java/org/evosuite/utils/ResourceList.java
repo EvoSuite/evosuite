@@ -158,8 +158,7 @@ public class ResourceList {
 		final Enumeration<?> e = zf.entries();
 		while (e.hasMoreElements()) {
 			final ZipEntry ze = (ZipEntry) e.nextElement();
-			// On Windows we assume File.separatorChar, but ZipFile will always give /
-			final String fileName = ze.getName().replace('/', File.separatorChar);
+			final String fileName = ze.getName();
 			final boolean accept = pattern.matcher(fileName).matches();
 			if (accept) {
 				retval.add(fileName);
