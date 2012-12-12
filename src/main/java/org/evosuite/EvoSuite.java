@@ -1037,9 +1037,16 @@ public class EvoSuite {
 					else if (line.hasOption("prefix"))
 						generateTestsPrefix(strategy, line.getOptionValue("prefix"),
 						                    javaOpts, cp);
-					else if (line.hasOption("target"))
-						generateTestsTarget(strategy, line.getOptionValue("target"),
+					else if (line.hasOption("target")) {
+						String target =line.getOptionValue("target");
+						if(cp.isEmpty()) {
+							cp = target;
+						} else if(!cp.contains(target)) {
+							cp = cp + File.pathSeparator + target;
+						}
+						generateTestsTarget(strategy, target,
 						                    javaOpts, cp);
+					}
 					else if (hasLegacyTargets())
 						generateTestsLegacy(strategy, javaOpts, cp);
 					else {
