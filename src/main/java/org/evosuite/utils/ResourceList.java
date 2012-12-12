@@ -99,7 +99,7 @@ public class ResourceList {
 	 */
 	public static Collection<String> getAllResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		String[] classPathElements = System.getProperty("java.class.path", ".").split(":");
+		String[] classPathElements = System.getProperty("java.class.path", ".").split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
@@ -117,7 +117,7 @@ public class ResourceList {
 	public static Collection<String> getBootResources(final Pattern pattern) {
 		Collection<String> result = getResources(pattern);
 		String classPath = System.getProperty("sun.boot.class.path", ".");
-		String[] classPathElements = classPath.split(":");
+		String[] classPathElements = classPath.split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			result.addAll(getResources(element, pattern));
 		}

@@ -204,7 +204,7 @@ public class TestSuiteGenerator {
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
-			                           Arrays.asList(Properties.CP.split(":")));
+			                           Arrays.asList(Properties.CP.split(File.pathSeparator)));
 			LoggingUtils.getEvoLogger().info("* Finished to analyze classpath");
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
@@ -644,7 +644,7 @@ public class TestSuiteGenerator {
 
 		ga.setChromosomeFactory(getChromosomeFactory(fitness_function));
 		//if (Properties.SHOW_PROGRESS && !logger.isInfoEnabled())
-		ga.addListener(progressMonitor);
+		ga.addListener(progressMonitor); // FIXME progressMonitor may cause client hang if EvoSuite is executed with -prefix!
 
 		if (Properties.CRITERION == Criterion.DEFUSE
 		        || Properties.CRITERION == Criterion.ALLDEFS
