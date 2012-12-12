@@ -69,7 +69,9 @@ public class Runtime {
 		}
 
 		if (Properties.VIRTUAL_FS) {
+			logger.info("Resetting the VFS...");
 			FileSystem.reset();
+			logger.info("Enabling the VFS...");
 			EvoSuiteIO.enableVFS();
 		}
 	}
