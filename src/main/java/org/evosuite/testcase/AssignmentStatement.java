@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -156,7 +157,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> vars = new HashSet<VariableReference>();
+		Set<VariableReference> vars = new LinkedHashSet<VariableReference>();
 		vars.add(retval);
 		vars.add(parameter);
 
@@ -306,7 +307,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 * @return
 	 */
 	private Set<VariableReference> getSourceReplacements() {
-		Set<VariableReference> variables = new HashSet<VariableReference>();
+		Set<VariableReference> variables = new LinkedHashSet<VariableReference>();
 		for (int i = 0; i < retval.getStPosition() && i < tc.size(); i++) {
 			VariableReference value = tc.getReturnValue(i);
 			if (value == null)

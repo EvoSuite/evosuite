@@ -23,6 +23,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
@@ -186,7 +187,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 		//	throw new IllegalArgumentException(
 		//			"node not contained in this graph");
 		// TODO hash set? can't be sure V implements hash correctly
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 		for (E e : outgoingEdgesOf(node))
 			r.add(getEdgeTarget(e));
 
@@ -228,7 +229,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 */
 	public Set<V> vertexSet() {
 		// TODO hash set? can't be sure V implements hash correctly
-		return new HashSet<V>(graph.vertexSet());
+		return new LinkedHashSet<V>(graph.vertexSet());
 		/*
 		 * Set<V> r = new HashSet<V>();
 		 * 
@@ -245,7 +246,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 */
 	public Set<E> edgeSet() {
 		// TODO hash set? can't be sure E implements hash correctly
-		return new HashSet<E>(graph.edgeSet());
+		return new LinkedHashSet<E>(graph.edgeSet());
 
 		/*
 		 * Set<E> r = new HashSet<E>();

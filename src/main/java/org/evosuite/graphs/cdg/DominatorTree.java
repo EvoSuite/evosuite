@@ -19,6 +19,7 @@ package org.evosuite.graphs.cdg;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -61,9 +62,9 @@ public class DominatorTree<V> extends EvoSuiteGraph<DominatorNode<V>, DefaultEdg
 	private int nodeCount = 0;
 	private final ControlFlowGraph<V> cfg;
 
-	private final Map<V, DominatorNode<V>> dominatorNodesMap = new HashMap<V, DominatorNode<V>>();
-	private final Map<Integer, DominatorNode<V>> dominatorIDMap = new HashMap<Integer, DominatorNode<V>>();
-	private final Map<V, Set<V>> dominatingFrontiers = new HashMap<V, Set<V>>();
+	private final Map<V, DominatorNode<V>> dominatorNodesMap = new LinkedHashMap<V, DominatorNode<V>>();
+	private final Map<Integer, DominatorNode<V>> dominatorIDMap = new LinkedHashMap<Integer, DominatorNode<V>>();
+	private final Map<V, Set<V>> dominatingFrontiers = new LinkedHashMap<V, Set<V>>();
 
 	/**
 	 * Will start the computation of all immediateDominators for the given CFG
