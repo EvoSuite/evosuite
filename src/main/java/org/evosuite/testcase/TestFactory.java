@@ -15,6 +15,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -902,41 +903,6 @@ public class TestFactory {
 			List<VariableReference> candidates = test.getObjects(Object.class, position);
 			filterVariablesByClass(candidates, Object.class);
 
-			/*
-			Set<VariableReference> candidates = new HashSet<VariableReference>();
-			int num = 0;
-			for (StatementInterface statement : test) {
-				if (num++ >= position)
-					break;
-				if (statement instanceof MethodStatement) {
-					MethodStatement ms = (MethodStatement) statement;
-					if (Properties.getTargetClass().equals(ms.getMethod().getDeclaringClass())) {
-						candidates.addAll(ms.getVariableReferences());
-					}
-				} else if (statement instanceof ConstructorStatement) {
-					ConstructorStatement cs = (ConstructorStatement) statement;
-					if (Properties.getTargetClass().equals(cs.getConstructor().getDeclaringClass())) {
-						candidates.addAll(cs.getVariableReferences());
-					}
-				} else if (statement instanceof FieldStatement) {
-					FieldStatement fs = (FieldStatement) statement;
-					if (Properties.getTargetClass().equals(fs.getField().getDeclaringClass())) {
-						candidates.addAll(fs.getVariableReferences());
-					}
-				}
-			}
-			
-
-			Set<VariableReference> objects = new HashSet<VariableReference>();
-			for (VariableReference candidate : candidates) {
-				// if in acceptable set of classes
-				if (TestCluster.isCastClass(candidate.getClassName())
-				        || candidate.getVariableClass().equals(Object.class))
-					objects.add(candidate);
-			}
-			LoggingUtils.getEvoLogger().info("Candidates for Object.class: " + objects);
-			if (!objects.isEmpty())
-				*/
 			if (!candidates.isEmpty())
 				return Randomness.choice(candidates);
 		}
@@ -958,12 +924,12 @@ public class TestFactory {
 		logger.debug("Deleting target statement - " + position);
 		//logger.info(test.toCode());
 
-		Set<VariableReference> references = new HashSet<VariableReference>();
-		Set<Integer> positions = new HashSet<Integer>();
+		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
+		Set<Integer> positions = new LinkedHashSet<Integer>();
 		positions.add(position);
 		references.add(test.getReturnValue(position));
 		for (int i = position; i < test.size(); i++) {
-			Set<VariableReference> temp = new HashSet<VariableReference>();
+			Set<VariableReference> temp = new LinkedHashSet<VariableReference>();
 			for (VariableReference v : references) {
 				if (test.getStatement(i).references(v)) {
 					temp.add(test.getStatement(i).getReturnValue());
@@ -1115,7 +1081,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private static Set<Type> getDependencies(Constructor<?> constructor) {
-		Set<Type> dependencies = new HashSet<Type>();
+		Set<Type> dependencies = new LinkedHashSet<Type>();
 		for (Type type : constructor.getGenericParameterTypes()) {
 			dependencies.add(type);
 		}
@@ -1130,7 +1096,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private static Set<Type> getDependencies(Field field) {
-		Set<Type> dependencies = new HashSet<Type>();
+		Set<Type> dependencies = new LinkedHashSet<Type>();
 		if (!Modifier.isStatic(field.getModifiers())) {
 			dependencies.add(field.getDeclaringClass());
 		}
@@ -1145,7 +1111,7 @@ public class TestFactory {
 	 * @return
 	 */
 	private static Set<Type> getDependencies(Method method) {
-		Set<Type> dependencies = new HashSet<Type>();
+		Set<Type> dependencies = new LinkedHashSet<Type>();
 		if (!Modifier.isStatic(method.getModifiers())) {
 			dependencies.add(method.getDeclaringClass());
 		}

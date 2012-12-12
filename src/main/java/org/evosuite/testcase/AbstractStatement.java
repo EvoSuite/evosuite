@@ -22,6 +22,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
@@ -76,7 +77,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	protected VariableReference retval;
 	protected final TestCase tc;
 
-	protected Set<Assertion> assertions = new HashSet<Assertion>();
+	protected Set<Assertion> assertions = new LinkedHashSet<Assertion>();
 
 	protected Throwable exceptionThrown = null;
 
@@ -214,7 +215,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 * @return a {@link java.util.Set} object.
 	 */
 	protected Set<VariableReference> getAssertionReferences() {
-		Set<VariableReference> variables = new HashSet<VariableReference>();
+		Set<VariableReference> variables = new LinkedHashSet<VariableReference>();
 		for (Assertion assertion : assertions) {
 			variables.addAll(assertion.getReferencedVariables());
 		}
@@ -297,7 +298,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	 */
 	@Override
 	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset) {
-		Set<Assertion> copy = new HashSet<Assertion>();
+		Set<Assertion> copy = new LinkedHashSet<Assertion>();
 		for (Assertion a : assertions) {
 			if (a == null) {
 				logger.info("Assertion is null!");

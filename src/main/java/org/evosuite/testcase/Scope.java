@@ -23,8 +23,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -43,7 +43,7 @@ public class Scope {
 	 * Constructor
 	 */
 	public Scope() {
-		pool = Collections.synchronizedMap(new HashMap<VariableReference, Object>());
+		pool = Collections.synchronizedMap(new LinkedHashMap<VariableReference, Object>());
 	}
 
 	/**
@@ -172,7 +172,7 @@ public class Scope {
 	 */
 	// TODO: Need to add all fields and stuff as well?
 	public Collection<Object> getObjects(Type type) {
-		Set<Object> objects = new HashSet<Object>();
+		Set<Object> objects = new LinkedHashSet<Object>();
 		for (Object o : pool.values()) {
 			if (o.getClass().equals(type))
 				objects.add(o);
