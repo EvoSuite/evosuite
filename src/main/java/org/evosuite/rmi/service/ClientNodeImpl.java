@@ -117,7 +117,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 
 	@Override
 	public void changeState(ClientState state) {
-		logger.info("Client changing state from "+state+" to "+this.state);
+		logger.info("Client changing state from "+this.state+" to "+state);
 		this.state = state;
 		
 		if(this.state.equals(ClientState.DONE)){
