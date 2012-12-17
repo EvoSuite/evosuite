@@ -19,6 +19,8 @@ import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.utils.LoggingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -41,6 +43,8 @@ public class TestGenerationContext {
 	 * used by all test code
 	 */
 	private static ClassLoader classLoader = new InstrumentingClassLoader();
+	
+	private static Logger logger = LoggerFactory.getLogger(TestGenerationContext.class);
 
 	public static ClassLoader getClassLoader() {
 		return classLoader;
@@ -48,7 +52,7 @@ public class TestGenerationContext {
 
 	public void resetContext() {
 
-		LoggingUtils.getEvoLogger().info("*** Resetting context");
+		logger.info("*** Resetting context");
 
 		// A fresh context needs a fresh class loader to make sure we can re-instrument classes
 		classLoader = new InstrumentingClassLoader();

@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,9 +56,6 @@ public class TestSuiteMinimizer {
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
 	private final TestFitnessFactory testFitnessFactory;
-
-	/** Maximum number of seconds. 0 = infinite time */
-	protected static int maxSeconds = Properties.MINIMIZATION_TIMEOUT;
 
 	/** Assume the search has not started until startTime != 0 */
 	protected static long startTime = 0L;
@@ -128,13 +126,25 @@ public class TestSuiteMinimizer {
 		}
 
 		Collections.sort(goals);
-		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
+		Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
 		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
-
-		for (TestFitnessFunction goal : goals) {
+				
+		for (TestFitnessFunction goal : goals) {			
+			if (isTimeoutReached()){
+				/*
+				 * FIXME: if timeout, this algorithm should be changed in a way that the modifications
+				 * done so far are not lost
+				 */
+				logger.warn("Minimization timeout. Roll back to original test suite");
+				return;
+			}
 			logger.info("Considering goal: " + goal);
-			for (TestChromosome test : minimizedTests) {
+			for (TestChromosome test : minimizedTests) {	
+				if (isTimeoutReached()){
+					logger.warn("Minimization timeout. Roll back to original test suite");
+					return;
+				}
 				if (goal.isCovered(test)) {
 					if (Properties.STRUCTURED_TESTS) {
 						StructuredTestCase structuredTest = (StructuredTestCase) test.getTestCase();
@@ -228,6 +238,7 @@ public class TestSuiteMinimizer {
 
 	private boolean isTimeoutReached() {
 		long currentTime = System.currentTimeMillis();
+		int maxSeconds = Properties.MINIMIZATION_TIMEOUT;
 		if (maxSeconds != 0 && startTime != 0
 		        && (currentTime - startTime) / 1000 > maxSeconds)
 			logger.info("Timeout reached");

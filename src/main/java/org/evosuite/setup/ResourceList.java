@@ -51,14 +51,14 @@ public class ResourceList {
 	public static Collection<String> getResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
 		String classPath = System.getProperty("java.class.path", ".");
-		String[] classPathElements = classPath.split(":");
+		String[] classPathElements = classPath.split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			if (element.contains("evosuite-0.1-SNAPSHOT-dependencies.jar"))
 				continue;
 			retval.addAll(getResources(element, pattern));
 		}
 		classPath = Properties.CP;
-		classPathElements = classPath.split(":");
+		classPathElements = classPath.split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
@@ -76,7 +76,7 @@ public class ResourceList {
 	public static Collection<String> getBootResources(final Pattern pattern) {
 		Collection<String> result = getResources(pattern);
 		String classPath = System.getProperty("sun.boot.class.path", ".");
-		String[] classPathElements = classPath.split(":");
+		String[] classPathElements = classPath.split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			result.addAll(getResources(element, pattern));
 		}

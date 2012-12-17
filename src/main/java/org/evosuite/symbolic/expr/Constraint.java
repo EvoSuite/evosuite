@@ -110,4 +110,16 @@ public abstract class Constraint<T extends Object> implements Serializable {
 		return true;
 	}
 
+	
+	public abstract Constraint<T> negate();
+	
+	/**
+	 * Returns x/(x+1)
+	 * @param x
+	 * @return a normalized double value
+	 */
+	protected static double normalize(double x) {
+		return x / (x + 1.0);
+	}
+	
 }

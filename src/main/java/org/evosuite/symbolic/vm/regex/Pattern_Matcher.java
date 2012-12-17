@@ -1,17 +1,15 @@
 package org.evosuite.symbolic.vm.regex;
 
-import java.util.Iterator;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Operand;
+import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class Pattern_Matcher extends Function {
+public final class Pattern_Matcher extends SymbolicFunction {
 
 	private static final String MATCHER = "matcher";
 
@@ -20,47 +18,33 @@ public final class Pattern_Matcher extends Function {
 				Types.CHARSEQ_TO_MATCHER);
 	}
 
-	Pattern conc_pattern;
-	StringValue symb_input;
-
 	@Override
-	public void INVOKEVIRTUAL(Object receiver) {
-		if (receiver == null)
-			return;
+	public Object executeFunction() {
 
-		conc_pattern = (Pattern) receiver;
-	}
+		// receiver
+		NonNullReference symb_receiver = this.getSymbReceiver();
 
-	@Override
-	public void CALL_RESULT(Object res) {
-		if (res == null)
-			return;
+		// argument
+		CharSequence conc_char_seq = (CharSequence) this.getConcArgument(0);
+		Reference symb_char_seq= this.getSymbArgument(0);
 
-		Matcher conc_matcher = (Matcher) res;
-		NonNullReference symb_matcher = (NonNullReference) env.topFrame().operandStack
-				.peekRef();
+		// return value
+		Matcher conc_matcher = (Matcher) this.getConcRetVal();
+		NonNullReference symb_matcher = (NonNullReference) this.getSymbRetVal();
 
-		if (symb_input != null) {
+		if (conc_char_seq != null && conc_char_seq instanceof String) {
+			assert symb_char_seq instanceof NonNullReference;
+			NonNullReference symb_string = (NonNullReference)symb_char_seq;
+			
+			String string = (String) conc_char_seq;
+			StringValue symb_input = env.heap.getField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, string, symb_string, string);
+
 			env.heap.putField(Types.JAVA_UTIL_REGEX_MATCHER,
 					SymbolicHeap.$MATCHER_INPUT, conc_matcher, symb_matcher,
 					symb_input);
 		}
-
-	}
-
-	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-
-		if (value != null && value instanceof String) {
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			NonNullReference symb_receiver = (NonNullReference) ref(it.next());
-			String string = (String) value;
-			symb_input = env.heap.getField(Types.JAVA_LANG_STRING,
-					SymbolicHeap.$STRING_VALUE, string, symb_receiver, string);
-
-		} else {
-			symb_input=null;
-		}
+		return symb_matcher;
 	}
 
 }

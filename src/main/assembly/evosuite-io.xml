@@ -23,7 +23,7 @@
 			<includes>
 				<include>org.evosuite:evosuite-io</include>
 				<include>org.apache.commons:commons-vfs2</include>
-				<include>org.apache.commons:commons-logging</include>
+				<include>commons-logging:commons-logging</include>
 			</includes>
 			<unpack>true</unpack>
 			<unpackOptions>

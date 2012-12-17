@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -22,18 +21,30 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class IntegerConstraint extends Constraint<Long> {
+
+	static Logger log = LoggerFactory.getLogger(IntegerConstraint.class);
 
 	private static final long serialVersionUID = 5345957507046422507L;
 
 	/**
-	 * <p>Constructor for IntegerConstraint.</p>
-	 *
-	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param cmp a {@link org.evosuite.symbolic.expr.Comparator} object.
-	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * <p>
+	 * Constructor for IntegerConstraint.
+	 * </p>
+	 * 
+	 * @param left
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param cmp
+	 *            a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 * @param right
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
-	public IntegerConstraint(Expression<?> left, Comparator cmp, Expression<?> right) {
+	public IntegerConstraint(Expression<Long> left, Comparator cmp,
+			Expression<Long> right) {
 		super();
 		this.left = left;
 		this.cmp = cmp;
@@ -42,10 +53,9 @@ public final class IntegerConstraint extends Constraint<Long> {
 			throw new ConstraintTooLongException();
 	}
 
-	protected Comparator cmp;
-
-	protected Expression<?> left;
-	protected Expression<?> right;
+	private final Expression<Long> left;
+	private final Comparator cmp;
+	private final Expression<Long> right;
 
 	/** {@inheritDoc} */
 	@Override
@@ -69,6 +79,94 @@ public final class IntegerConstraint extends Constraint<Long> {
 	@Override
 	public String toString() {
 		return left + cmp.toString() + right;
+	}
+
+	@Override
+	public Constraint<Long> negate() {
+		return new IntegerConstraint(this.left, this.cmp.not(), this.right);
+	}
+
+	public long getIntegerDist() {
+
+		long left = (Long) this.getLeftOperand().execute();
+		long right = (Long) this.getRightOperand().execute();
+
+		if (this.getLeftOperand() instanceof IntegerUnaryExpression) {
+			if (((IntegerUnaryExpression) this.getLeftOperand())
+					.getOperator() == Operator.ISDIGIT) {
+				long left_operand = ((IntegerUnaryExpression) this
+						.getLeftOperand()).getOperand().execute();
+				char theChar = (char) left_operand;
+				if ((this.getComparator() == Comparator.EQ && right == 1L)
+						|| (this.getComparator() == Comparator.NE && right == 0L)) {
+					if (theChar < '0')
+						return '0' - theChar;
+					else if (theChar > '9')
+						return theChar - '9';
+					else
+						return 0;
+				} else if ((this.getComparator() == Comparator.EQ && right == 0L)
+						|| (this.getComparator() == Comparator.NE && right == 1L)) {
+					if (theChar < '0' || theChar > '9')
+						return 0;
+					else
+						return Math.min(Math.abs('9' - theChar),
+								Math.abs(theChar - '0'));
+				}
+
+			} else if (((IntegerUnaryExpression) this.getLeftOperand())
+					.getOperator() == Operator.ISLETTER) {
+				long left_operand = ((IntegerUnaryExpression) this
+						.getLeftOperand()).getOperand().execute();
+				char theChar = (char) left_operand;
+				if ((this.getComparator() == Comparator.EQ && right == 1L)
+						|| (this.getComparator() == Comparator.NE && right == 0L)) {
+					if (theChar < 'A')
+						return 'A' - theChar;
+					else if (theChar > 'z')
+						return theChar - 'z';
+					else
+						return 0;
+				} else if ((this.getComparator() == Comparator.EQ && right == 0L)
+						|| (this.getComparator() == Comparator.NE && right == 1L)) {
+					if (theChar < 'A' || theChar > 'z')
+						return 0;
+					else
+						return Math.min(Math.abs('z' - theChar),
+								Math.abs(theChar - 'A'));
+				}
+			}
+		}
+
+		Comparator cmpr = this.getComparator();
+		log.debug("Calculating distance for " + left + " " + cmpr + " " + right);
+
+		switch (cmpr) {
+
+		case EQ:
+
+			return Math.abs(left - right);
+		case NE:
+
+			return (left - right) != 0 ? 0 : 1;
+		case LT:
+
+			return left - right < 0 ? 0 : left - right + 1;
+		case LE:
+
+			return left - right <= 0 ? 0 : left - right;
+		case GT:
+
+			return left - right > 0 ? 0 : right - left + 1;
+		case GE:
+
+			return left - right >= 0 ? 0 : right - left;
+
+		default:
+			log.warn("getIntegerDist: unimplemented comparator");
+			return Long.MAX_VALUE;
+		}
+
 	}
 
 }

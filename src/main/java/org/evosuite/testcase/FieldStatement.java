@@ -27,6 +27,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -47,7 +48,7 @@ public class FieldStatement extends AbstractStatement {
 	private static final long serialVersionUID = -4944610139232763790L;
 
 	transient Field field;
-	VariableReference source;
+	protected VariableReference source;
 
 	/**
 	 * <p>
@@ -221,7 +222,7 @@ public class FieldStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new HashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
 		references.add(retval);
 		if (!isStatic()) {
 			references.add(source);
