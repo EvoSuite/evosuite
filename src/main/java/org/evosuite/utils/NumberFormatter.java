@@ -31,6 +31,14 @@ import org.apache.commons.lang3.StringEscapeUtils;
  */
 public class NumberFormatter {
 
+	private static String addParenthesisToNegativeNumber(Number n) {
+		if (n.doubleValue() < 0) {
+			return "(" + n + ")";
+		} else {
+			return "" + n;
+		}
+	}
+
 	/**
 	 * <p>
 	 * getNumberString
@@ -46,15 +54,14 @@ public class NumberFormatter {
 		else if (value.getClass().equals(char.class)
 		        || value.getClass().equals(Character.class)) {
 			// StringEscapeUtils fails to escape a single quote char
-			if(Character.valueOf('\'').equals(value)) {
+			if (Character.valueOf('\'').equals(value)) {
 				return "'\''";
 			} else {
 				return "'"
-			        + StringEscapeUtils.escapeJava(Character.toString((Character) value))
-			        + "'";
+				        + StringEscapeUtils.escapeJava(Character.toString((Character) value))
+				        + "'";
 			}
-		}
-		else if (value.getClass().equals(String.class)) {
+		} else if (value.getClass().equals(String.class)) {
 			return "\"" + StringEscapeUtils.escapeJava((String) value) + "\"";
 		} else if (value.getClass().equals(float.class)
 		        || value.getClass().equals(Float.class)) {
@@ -64,6 +71,8 @@ public class NumberFormatter {
 				return "Float.NEGATIVE_INFINITY";
 			else if (value.toString().equals("" + Float.POSITIVE_INFINITY))
 				return "Float.POSITIVE_INFINITY";
+			else if (((Float) value) < 0F)
+				return "(" + value + "F)";
 			else
 				return value + "F";
 		} else if (value.getClass().equals(double.class)
@@ -74,17 +83,28 @@ public class NumberFormatter {
 				return "Double.NEGATIVE_INFINITY";
 			else if (value.toString().equals("" + Double.POSITIVE_INFINITY))
 				return "Double.POSITIVE_INFINITY";
+			else if (((Double) value) < 0.0)
+				return "(" + value + ")";
 			else
 				return value.toString();
 		} else if (value.getClass().equals(long.class)
 		        || value.getClass().equals(Long.class)) {
-			return value + "L";
+			if (((Long) value) < 0)
+				return "(" + value + "L)";
+			else
+				return value + "L";
 		} else if (value.getClass().equals(byte.class)
 		        || value.getClass().equals(Byte.class)) {
-			return "(byte)" + value;
+			if (((Byte) value) < 0)
+				return "(byte) (" + value + ")";
+			else
+				return "(byte)" + value;
 		} else if (value.getClass().equals(short.class)
 		        || value.getClass().equals(Short.class)) {
-			return "(short)" + value;
+			if (((Byte) value) < 0)
+				return "(short) (" + value + ")";
+			else
+				return "(short)" + value;
 		} else if (value.getClass().equals(int.class)
 		        || value.getClass().equals(Integer.class)) {
 			int val = ((Integer) value).intValue();
@@ -92,6 +112,8 @@ public class NumberFormatter {
 				return "Integer.MAX_VALUE";
 			else if (val == Integer.MIN_VALUE)
 				return "Integer.MIN_VALUE";
+			else if (((Integer) value) < 0)
+				return "(" + value + ")";
 			else
 				return "" + val;
 		} else if (value.getClass().isEnum()) {

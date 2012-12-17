@@ -43,6 +43,7 @@ import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.repair.JUnit4AssertionLogAdapter;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -667,6 +668,16 @@ public class TestSuiteWriter implements Opcodes {
 			CODE_SPACE = INNER_INNER_BLOCK_SPACE;
 		}
 
+		// No code after an exception should be printed as it would break compilability
+		TestCase test = testCases.get(id);
+		Integer pos = result.getFirstPositionOfThrownException();
+		if (pos != null) {
+			if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
+				test.chop(pos);
+			} else {
+				test.chop(pos + 1);
+			}
+		}
 		for (String line : adapter.getTestString(id, testCases.get(id),
 		                                         result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
 			builder.append(CODE_SPACE);
