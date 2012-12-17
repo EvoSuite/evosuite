@@ -236,4 +236,20 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return 0;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
+	 */
+	@Override
+	public String getTargetClass() {
+		return getClassName();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
+	 */
+	@Override
+	public String getTargetMethod() {
+		return getMethod();
+	}
+
 }

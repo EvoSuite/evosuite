@@ -23,11 +23,11 @@ package org.evosuite.setup;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.Properties.Criterion;
 import org.junit.Test;
 import org.junit.runners.Suite;
@@ -46,7 +46,7 @@ public class DependencyAnalysis {
 
 	private static Logger logger = LoggerFactory.getLogger(DependencyAnalysis.class);
 	
-	private static HashMap<String, ClassNode> classCache = new HashMap<String, ClassNode>();
+	private static Map<String, ClassNode> classCache = new LinkedHashMap<String, ClassNode>();
 
 	private static CallTree callTree = null;
 

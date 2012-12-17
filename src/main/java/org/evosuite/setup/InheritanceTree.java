@@ -23,6 +23,8 @@ package org.evosuite.setup;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -38,7 +40,7 @@ import org.jgrapht.traverse.BreadthFirstIterator;
  */
 public class InheritanceTree {
 
-	private final Map<String, Set<String>> subclassCache = new HashMap<String, Set<String>>();
+	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
 
 	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(DefaultEdge.class);
 
@@ -77,7 +79,7 @@ public class InheritanceTree {
 		if(!inheritanceGraph.containsVertex(classNameWithDots)) {
 			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "+classNameWithDots);
 		}
-		Set<String> result = new HashSet<String>();
+		Set<String> result = new LinkedHashSet<String>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(inheritanceGraph, classNameWithDots);
 		while(bfi.hasNext()) {
 			result.add(bfi.next());
@@ -91,7 +93,7 @@ public class InheritanceTree {
 		String classNameWithDots = className.replace('/', '.');
 
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(inheritanceGraph);
-		Set<String> result = new HashSet<String>();
+		Set<String> result = new LinkedHashSet<String>();
 		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(reverseGraph, classNameWithDots);
 		while(bfi.hasNext()) {
 			result.add(bfi.next());

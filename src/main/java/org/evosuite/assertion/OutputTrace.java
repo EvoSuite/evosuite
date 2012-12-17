@@ -180,6 +180,30 @@ public class OutputTrace<T extends OutputTraceEntry> implements Cloneable {
 
 		return num;
 	}
+	
+	/**
+	 * Get all possible assertions
+	 *
+	 * @param test a {@link org.evosuite.testcase.TestCase} object.
+	 * @return a int.
+	 */
+	public int getAllAssertions(TestCase test, int statement) {
+		int num = 0;
+		
+		if(!trace.containsKey(statement))
+			return 0;
+
+		for (VariableReference var : trace.get(statement).keySet()) {
+			for (Assertion assertion : trace.get(statement).get(var).getAssertions()) {
+				assert (assertion.isValid()) : "Invalid assertion: "
+						+ assertion.getCode() + ", " + assertion.value;
+				test.getStatement(statement).addAssertion(assertion);
+				num++;
+			}
+		}
+
+		return num;
+	}
 
 	/**
 	 * Check if this trace makes the assertion fail

@@ -52,4 +52,20 @@ public class IBranchTestFitness extends TestFitnessFunction {
 		return 0;
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetClass()
+	 */
+	@Override
+	public String getTargetClass() {
+		return branch.getClassName();
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.TestFitnessFunction#getTargetMethod()
+	 */
+	@Override
+	public String getTargetMethod() {
+		return branch.getMethodName();
+	}
+
 }

@@ -22,6 +22,7 @@ package org.evosuite.assertion;
 
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionObserver;
+import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
@@ -43,12 +44,16 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 
 	protected OutputTrace<T> trace = new OutputTrace<T>();
 
+	protected boolean checkThread() {
+		return ExecutionTracer.isThreadNeqCurrentThread();
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionObserver#output(int, java.lang.String)
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void output(int position, String output) {
+	public synchronized void output(int position, String output) {
 		// Default behavior is to ignore console output
 
 	}
@@ -115,8 +120,11 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void afterStatement(StatementInterface statement, Scope scope,
+	public synchronized void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
+		if(!checkThread())
+			return;
+		
 		//visitReturnValue(statement, scope);
 		visitDependencies(statement, scope);
 	}
@@ -125,7 +133,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * @see org.evosuite.testcase.ExecutionObserver#beforeStatement(org.evosuite.testcase.StatementInterface, org.evosuite.testcase.Scope)
 	 */
 	@Override
-	public void beforeStatement(StatementInterface statement, Scope scope) {
+	public synchronized void beforeStatement(StatementInterface statement, Scope scope) {
 		// Do nothing
 	}
 
@@ -134,7 +142,10 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void clear() {
+	public synchronized void clear() {
+		if(!checkThread())
+			return;
+
 		trace.clear();
 	}
 
@@ -145,7 +156,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	 * 
 	 * @return a {@link org.evosuite.assertion.OutputTrace} object.
 	 */
-	public OutputTrace<T> getTrace() {
+	public synchronized OutputTrace<T> getTrace() {
 		return trace.clone();
 	}
 
