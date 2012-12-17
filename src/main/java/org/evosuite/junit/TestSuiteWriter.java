@@ -87,8 +87,9 @@ public class TestSuiteWriter implements Opcodes {
 
 	private static final String METHOD_SPACE = "  ";
 	private static final String BLOCK_SPACE = "    ";
-	private static final String INNER_BLOCK_SPACE = "      ";
-	private static final String INNER_INNER_BLOCK_SPACE = "        ";
+	private static final String INNER_BLOCK_SPACE =  "      ";
+	private static final String INNER_INNER_BLOCK_SPACE =  "        ";
+	private static final String INNER_INNER_INNER_BLOCK_SPACE = "          ";
 
 	private final String EXECUTOR_SERVICE = "executor";
 
@@ -698,8 +699,13 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append(INNER_BLOCK_SPACE);
 			builder.append("@Override \n");
 			builder.append(INNER_BLOCK_SPACE);
-			builder.append("public void run() throws Exception { \n");
-			CODE_SPACE = INNER_INNER_BLOCK_SPACE;
+			builder.append("public void run() { \n");
+			Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
+			if(!exceptions.isEmpty()) {
+				builder.append(INNER_INNER_BLOCK_SPACE);
+				builder.append("try {\n");
+			}
+			CODE_SPACE = INNER_INNER_INNER_BLOCK_SPACE;
 		}
 
 		// No code after an exception should be printed as it would break compilability
@@ -720,6 +726,16 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (wasSecurityException) {
+			Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
+			if(!exceptions.isEmpty()) {
+				builder.append(INNER_INNER_BLOCK_SPACE);
+				builder.append("} catch(Exception e) {\n");
+				builder.append(INNER_INNER_INNER_BLOCK_SPACE);
+				builder.append("  // Need to catch declared exceptions\n");
+				builder.append(INNER_INNER_BLOCK_SPACE);
+				builder.append("}\n");
+			}
+
 			builder.append(INNER_BLOCK_SPACE);
 			builder.append("} \n"); //closing run(){
 			builder.append(BLOCK_SPACE);
