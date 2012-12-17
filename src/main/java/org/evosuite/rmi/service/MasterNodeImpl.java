@@ -2,7 +2,9 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -24,11 +26,11 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	 * We cannot query the client directly in those cases, because it is crashed...
 	 * The "key" is the RMI identifier of the client
 	 */
-	private Map<String,ClientState> clientStates;
+	private Map<String,ClientStateInformation> clientStates;
 	
 	public MasterNodeImpl(Registry registry){
 		clients = new CopyOnWriteArraySet<ClientNodeRemote>();
-		clientStates = new ConcurrentHashMap<String,ClientState>();
+		clientStates = new ConcurrentHashMap<String,ClientStateInformation>();
 		this.registry = registry;
 	}
 	
@@ -56,9 +58,24 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 	@Override
 	public void informChangeOfStateInClient(String clientRmiIdentifier,
-			ClientState state) throws RemoteException {
-		clientStates.put(clientRmiIdentifier, state);		
+			ClientStateInformation information) throws RemoteException {
+		clientStates.put(clientRmiIdentifier, information);		
 	}
+	
+	@Override
+	public Collection<ClientState> getCurrentState() {
+		Set<ClientState> states = new HashSet<ClientState>();
+		for(ClientStateInformation info : clientStates.values()) {
+			states.add(info.getState());
+		}
+		return states;
+	}
+	
+	@Override
+	public Collection<ClientStateInformation> getCurrentStateInformation() {
+		return clientStates.values();
+	}
+
 
 	@Override
 	public String getSummaryOfClientStatuses() {
@@ -67,8 +84,8 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		}
 		String summary = "";
 		for(String id : clientStates.keySet()){
-			ClientState state = clientStates.get(id);
-			summary += id + ": "+state+"\n";
+			ClientStateInformation info = clientStates.get(id);
+			summary += id + ": "+info.getState()+"\n";
 		}
 		return summary;
 	}

@@ -20,9 +20,11 @@
  */
 package org.evosuite;
 
-import java.io.ObjectInputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
+import java.util.Collection;
+
+import org.evosuite.rmi.MasterServices;
+import org.evosuite.rmi.service.ClientState;
+import org.evosuite.rmi.service.ClientStateInformation;
 
 /**
  * <p>
@@ -91,29 +93,22 @@ public class ConsoleProgressBar {
 			@Override
 			public void run() {
 				try {
-
-					ServerSocket serverSocket = new ServerSocket(
-					        Properties.PROGRESS_STATUS_PORT);
-					Socket connection = serverSocket.accept();
-					ObjectInputStream in = new ObjectInputStream(
-					        connection.getInputStream());
-
 					int percent = 0;
-					int coverage = 0;
-					int phase = 0;
 					while (percent != -1 && !isInterrupted()) {
-						percent = in.readInt();
-						phase = in.readInt(); // phase
-						in.readInt(); // phases
-						coverage = in.readInt();
-						in.readObject(); // phase name
-						if (percent != -1 && phase <= 1) {
-							printProgressBar(percent, coverage);
+						Collection<ClientStateInformation> currentStates = MasterServices.getInstance().getMasterNode().getCurrentStateInformation();
+						
+						if(currentStates.size() == 1) {
+							ClientStateInformation currentState = currentStates.iterator().next();
+							if(currentState.getState() == ClientState.SEARCH) {
+								percent = currentState.getProgress();
+								printProgressBar(currentState.getProgress(), currentState.getCoverage());
+							}
 						}
+						sleep(100);
 					}
 
 				} catch (Exception e) {
-					//System.err.println("Exception while reading output of client process "
+					// System.err.println("Exception while reading output of client process "
 					//        + e);
 				}
 

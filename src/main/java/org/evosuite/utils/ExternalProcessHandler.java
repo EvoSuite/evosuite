@@ -30,7 +30,6 @@ import java.net.Socket;
 import java.rmi.RemoteException;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import org.evosuite.ClientProcess;
 import org.evosuite.ConsoleProgressBar;
@@ -49,7 +48,6 @@ import sun.misc.SignalHandler;
  * FIXME: once RMI is stable tested, we ll need to remove all the TCP stuff, and refactor
  */
 
-@SuppressWarnings("restriction")
 public class ExternalProcessHandler {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(ExternalProcessHandler.class);
