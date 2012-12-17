@@ -169,6 +169,8 @@ public class InheritanceTreeGenerator {
 	        InputStream inputStream) {
 		try {
 			ClassReader reader = new ClassReader(inputStream);
+			inputStream.close();
+			
 			ClassNode cn = new ClassNode();
 			reader.accept(cn, ClassReader.SKIP_FRAMES | ClassReader.SKIP_DEBUG
 			        | ClassReader.SKIP_CODE);
