@@ -263,7 +263,7 @@ public class InheritanceTreeGenerator {
 
 	private static Collection<String> getResources(String classPath) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		String[] classPathElements = classPath.split(":");
+		String[] classPathElements = classPath.split(File.pathSeparator);
 		Pattern pattern = Pattern.compile(".*\\.class$");
 
 		for (final String element : classPathElements) {

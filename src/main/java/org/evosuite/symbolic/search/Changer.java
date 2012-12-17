@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public class Changer {
+class Changer {
 
 	static Logger log = LoggerFactory.getLogger(Changer.class);
 

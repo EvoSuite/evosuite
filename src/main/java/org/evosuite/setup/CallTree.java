@@ -20,9 +20,9 @@
  */
 package org.evosuite.setup;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -41,9 +41,9 @@ public class CallTree implements Iterable<CallTreeEntry> {
 
 	private final Set<CallTreeEntry> rootCalls = new LinkedHashSet<CallTreeEntry>();
 
-	private final Map<CallTreeEntry, Set<CallTreeEntry>> callMap = new HashMap<CallTreeEntry, Set<CallTreeEntry>>();
+	private final Map<CallTreeEntry, Set<CallTreeEntry>> callMap = new LinkedHashMap<CallTreeEntry, Set<CallTreeEntry>>();
 
-	private final Set<String> callTreeClasses = new HashSet<String>();
+	private final Set<String> callTreeClasses = new LinkedHashSet<String>();
 
 	public CallTree(String className) {
 		this.className = className;

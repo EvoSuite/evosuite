@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -22,19 +21,30 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public final class RealConstraint extends Constraint<Double> {
 
+	static Logger log = LoggerFactory.getLogger(RealConstraint.class);
+
+	
 	private static final long serialVersionUID = 6021027178547577289L;
 
 	/**
-	 * <p>Constructor for RealConstraint.</p>
-	 *
-	 * @param left a {@link org.evosuite.symbolic.expr.Expression} object.
-	 * @param cmp a {@link org.evosuite.symbolic.expr.Comparator} object.
-	 * @param right a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * <p>
+	 * Constructor for RealConstraint.
+	 * </p>
+	 * 
+	 * @param left
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
+	 * @param cmp
+	 *            a {@link org.evosuite.symbolic.expr.Comparator} object.
+	 * @param right
+	 *            a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	public RealConstraint(Expression<Double> left, Comparator cmp,
-	        Expression<Double> right) {
+			Expression<Double> right) {
 		super();
 		this.left = left;
 		this.cmp = cmp;
@@ -43,10 +53,9 @@ public final class RealConstraint extends Constraint<Double> {
 			throw new ConstraintTooLongException();
 	}
 
-	protected Comparator cmp;
-
-	protected Expression<Double> left;
-	protected Expression<Double> right;
+	private final Expression<Double> left;
+	private final Comparator cmp;
+	private final Expression<Double> right;
 
 	/** {@inheritDoc} */
 	@Override
@@ -72,4 +81,43 @@ public final class RealConstraint extends Constraint<Double> {
 		return left + cmp.toString() + right;
 	}
 
+	@Override
+	public Constraint<Double> negate() {
+		return new RealConstraint(left, cmp.not(), right);
+	}
+
+	
+	public double getRealDist() {
+		double left = (Double) this.getLeftOperand().execute();
+		double right = (Double) this.getRightOperand().execute();
+
+		Comparator cmpr = this.getComparator();
+
+		switch (cmpr) {
+
+		case EQ:
+
+			return Math.abs(left - right);
+		case NE:
+
+			return (left - right) != 0 ? 0 : 1;
+		case LT:
+
+			return left - right < 0 ? 0 : left - right + 1;
+		case LE:
+
+			return left - right <= 0 ? 0 : left - right;
+		case GT:
+
+			return left - right > 0 ? 0 : right - left + 1;
+		case GE:
+
+			return left - right >= 0 ? 0 : right - left;
+
+		default:
+			log.warn("getIntegerDist: unimplemented comparator");
+			return Double.MAX_VALUE;
+		}
+	}
+	
 }

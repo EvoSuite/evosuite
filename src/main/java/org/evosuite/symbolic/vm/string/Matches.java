@@ -1,53 +1,52 @@
 package org.evosuite.symbolic.vm.string;
 
-import java.util.Iterator;
-import java.util.regex.PatternSyntaxException;
-
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.ExpressionFactory;
-import org.evosuite.symbolic.vm.Operand;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class Matches extends StringFunction {
+public final class Matches extends SymbolicFunction {
 
 	private static final String MATCHES = "matches";
-	private StringValue regExStrExpr;
 
 	public Matches(SymbolicEnvironment env) {
-		super(env, MATCHES, Types.STR_TO_BOOL_DESCRIPTOR);
+		super(env, Types.JAVA_LANG_STRING, MATCHES,
+				Types.STR_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL_String(String receiver) {
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		it.next(); // discard now
-		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
-	}
+	public Object executeFunction() {
 
-	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-		String string_value = (String) value;
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.regExStrExpr = getStringExpression(it.next(), string_value);
-	}
+		// receiver
+		NonNullReference symb_receiver = this.getSymbReceiver();
+		String conc_receiver = (String) this.getConcReceiver();
 
-	@Override
-	public void CALL_RESULT(boolean res) {
-		if (stringReceiverExpr.containsSymbolicVariable()) {
+		// argument
+		String conc_argument = (String) this.getConcArgument(0);
+
+		StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
+				conc_receiver);
+
+		// return val
+		boolean res = this.getConcBooleanRetVal();
+
+		if (right_expr.containsSymbolicVariable()) {
+			StringConstant left_expr = ExpressionFactory
+					.buildNewStringConstant(conc_argument);
 			int conV = res ? 1 : 0;
 
-			String regEx = (String) regExStrExpr.getConcreteValue();
-			StringConstant strRegEx = ExpressionFactory
-					.buildNewStringConstant(regEx);
+			StringBinaryComparison strBExpr = new StringBinaryComparison(left_expr,
+					Operator.PATTERNMATCHES, right_expr, (long) conV);
 
-			StringComparison strBExpr = new StringComparison(strRegEx,
-					Operator.PATTERNMATCHES, stringReceiverExpr, (long) conV);
-
-			this.replaceTopBv32(strBExpr);
+			return strBExpr;
 		}
 
+		return this.getSymbIntegerRetVal();
 	}
 }

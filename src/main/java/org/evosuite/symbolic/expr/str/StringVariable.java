@@ -108,7 +108,7 @@ public final class StringVariable extends AbstractExpression<String> implements
 
 	private String removeNonAsciiPrintable(String string) {
 		StringBuffer bf = new StringBuffer();
-		for (int i = 0; i < string.length() - 1; i++) {
+		for (int i = 0; i < string.length(); i++) {
 			char charAt = string.charAt(i);
 			if (isAsciiPrintable(charAt)) {
 				bf.append(charAt);

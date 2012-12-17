@@ -31,11 +31,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
+import java.util.TreeMap;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -96,7 +99,7 @@ public class TestClusterGenerator {
 		                DependencyAnalysis.getCallTree());
 	}
 
-	private static Set<AccessibleObject> dependencyCache = new HashSet<AccessibleObject>();
+	private static Set<AccessibleObject> dependencyCache = new LinkedHashSet<AccessibleObject>();
 	
 	@SuppressWarnings("unchecked")
 	public static void generateCluster(String targetClass,
@@ -117,11 +120,11 @@ public class TestClusterGenerator {
 			}
 		}
 
-		Set<Type> castClasses = new HashSet<Type>();
-		Set<Type> parameterClasses = new HashSet<Type>();
-		Set<Type> callTreeClasses = new HashSet<Type>();
-		Set<Type> invokedClasses = new HashSet<Type>();
-		Set<Type> subClasses = new HashSet<Type>();
+		Set<Type> castClasses = new LinkedHashSet<Type>();
+		Set<Type> parameterClasses = new LinkedHashSet<Type>();
+		Set<Type> callTreeClasses = new LinkedHashSet<Type>();
+		Set<Type> invokedClasses = new LinkedHashSet<Type>();
+		Set<Type> subClasses = new LinkedHashSet<Type>();
 
 		for (ClassNode classNode : DependencyAnalysis.getAllClassNodes()) {
 			if (classNode == null)
@@ -176,7 +179,7 @@ public class TestClusterGenerator {
 		parameterClasses.removeAll(callTreeClasses);
 
 		// TODO: Maybe java.lang.Object should only be assigned one of the castClasses?
-		Set<String> classNames = new HashSet<String>();
+		Set<String> classNames = new LinkedHashSet<String>();
 		classNames.add("java.lang.Object");
 		for (Type type : castClasses) {
 			classNames.add(type.getClassName());
@@ -186,7 +189,7 @@ public class TestClusterGenerator {
 		 * If we fail to load a class, we skip it, and avoid to try
 		 * to load it again (which would result in extra unnecessary logging)
 		 */
-		Set<String> blackList = new HashSet<String>();
+		Set<String> blackList = new LinkedHashSet<String>();
 		initBlackListWithPrimitives(blackList);
 		
 		TestCluster.setCastClasses(classNames);
@@ -299,7 +302,7 @@ public class TestClusterGenerator {
 		
 		TestCluster cluster = TestCluster.getInstance();
 
-		Set<Class<?>> targetClasses = new HashSet<Class<?>>();
+		Set<Class<?>> targetClasses = new LinkedHashSet<Class<?>>();
 		if (targetClass == null) {
 			throw new RuntimeException("Failed to load " + Properties.TARGET_CLASS);
 		}
@@ -423,7 +426,6 @@ public class TestClusterGenerator {
 
 			}
 		}
-
 	}
 
 	/**
@@ -433,9 +435,9 @@ public class TestClusterGenerator {
 	 * @return
 	 */
 	public static Set<Constructor<?>> getConstructors(Class<?> clazz) {
-		Map<String, Constructor<?>> helper = new HashMap<String, Constructor<?>>();
+		Map<String, Constructor<?>> helper = new TreeMap<String, Constructor<?>>();
 
-		Set<Constructor<?>> constructors = new HashSet<Constructor<?>>();
+		Set<Constructor<?>> constructors = new LinkedHashSet<Constructor<?>>();
 		try {
 			for (Constructor<?> c : clazz.getDeclaredConstructors()) {
 				helper.put(org.objectweb.asm.Type.getConstructorDescriptor(c), c);
@@ -457,7 +459,7 @@ public class TestClusterGenerator {
 	 */
 	public static Set<Method> getMethods(Class<?> clazz) {
 
-		Map<String, Method> helper = new HashMap<String, Method>();
+		Map<String, Method> helper = new TreeMap<String, Method>();
 
 		if (clazz.getSuperclass() != null) {
 			for (Method m : getMethods(clazz.getSuperclass())) {
@@ -480,7 +482,7 @@ public class TestClusterGenerator {
 			        + ": " + e);
 		}
 
-		Set<Method> methods = new HashSet<Method>();
+		Set<Method> methods = new LinkedHashSet<Method>();		
 		methods.addAll(helper.values());
 		return methods;
 	}
@@ -493,9 +495,9 @@ public class TestClusterGenerator {
 	 */
 	public static Set<Field> getFields(Class<?> clazz) {
 		// TODO: Helper not necessary here!
-		Map<String, Field> helper = new HashMap<String, Field>();
+		Map<String, Field> helper = new TreeMap<String, Field>();
 
-		Set<Field> fields = new HashSet<Field>();
+		Set<Field> fields = new LinkedHashSet<Field>();
 		if (clazz.getSuperclass() != null) {
 			for (Field f : getFields(clazz.getSuperclass())) {
 				helper.put(f.toGenericString(), f);
@@ -529,7 +531,7 @@ public class TestClusterGenerator {
 	 * @return
 	 */
 	public static Set<Field> getAccessibleFields(Class<?> clazz) {
-		Set<Field> fields = new HashSet<Field>();
+		Set<Field> fields = new LinkedHashSet<Field>();
 		try {
 			for (Field f : clazz.getFields()) {
 				if (canUse(f) && !Modifier.isFinal(f.getModifiers())) {
@@ -718,7 +720,7 @@ public class TestClusterGenerator {
 		return false;
 	}
 
-	private static Set<Class<?>> analyzedClasses = new HashSet<Class<?>>();
+	private static Set<Class<?>> analyzedClasses = new LinkedHashSet<Class<?>>();
 
 	private static class Pair {private int recursion; private Class<?> dependencyClass;
 	
@@ -743,7 +745,7 @@ public class TestClusterGenerator {
 		this.dependencyClass = clazz;
 	}};
 	
-	private static Set<Pair> dependencies = new HashSet<Pair>();
+	private static Set<Pair> dependencies = new LinkedHashSet<Pair>();
 
 	private static InheritanceTree inheritanceTree = null;
 
@@ -940,7 +942,7 @@ public class TestClusterGenerator {
 
 	private static Set<Class<?>> getConcreteClasses(Class<?> clazz) {
 
-		Set<Class<?>> actualClasses = new HashSet<Class<?>>();
+		Set<Class<?>> actualClasses = new LinkedHashSet<Class<?>>();
 		if (Modifier.isAbstract(clazz.getModifiers())
 		        || Modifier.isInterface(clazz.getModifiers())) {
 			Set<String> subClasses = inheritanceTree.getSubclasses(clazz.getName());
