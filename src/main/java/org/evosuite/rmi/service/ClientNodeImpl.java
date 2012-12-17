@@ -51,7 +51,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 		executor.submit(new Runnable(){
 			@Override
 			public void run() {				
-				changeState(ClientState.STARTED);
+				changeState(new ClientStateInformation(ClientState.STARTED));
 				
 				
 				//Before starting search, let's activate the sandbox
@@ -83,7 +83,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 					        + " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);					
 				}
 				
-				changeState(ClientState.DONE);
+				changeState(new ClientStateInformation(ClientState.DONE));
 				
 				if (Properties.SANDBOX){
 					/*
@@ -113,22 +113,26 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 		}
 	}
 	
-	
 
 	@Override
 	public void changeState(ClientState state) {
-		logger.info("Client changing state from "+this.state+" to "+state);
-		this.state = state;
+		changeState(new ClientStateInformation(state));
+	}
+
+	@Override
+	public void changeState(ClientStateInformation information) {
+		logger.info("Client changing state from "+this.state+" to "+information.getState());
+		this.state = information.getState();
 		
 		if(this.state.equals(ClientState.DONE)){
 			latch.countDown();
 		}
 		
 		try {
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state);
+			masterNode.informChangeOfStateInClient(clientRmiIdentifier, information);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state",e);
-		}
+		}	
 	}
 
 	@Override
@@ -136,7 +140,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 		try {			
 			masterNode = (MasterNodeRemote) registry.lookup(MasterNodeRemote.RMI_SERVICE_NAME);
 			masterNode.registerClientNode(clientRmiIdentifier);
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state);
+			masterNode.informChangeOfStateInClient(clientRmiIdentifier, new ClientStateInformation(state));
 		} catch (Exception e) {
 			logger.error("Error when connecting to master via RMI",e);
 			return false;

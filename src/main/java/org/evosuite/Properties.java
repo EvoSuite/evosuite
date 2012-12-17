@@ -1002,10 +1002,6 @@ public class Properties {
 	@Parameter(key = "stopping_port", group = "Runtime", description = "Port at which a stopping condition waits for interruption")
 	public static int STOPPING_PORT = -1;
 
-	/** Constant <code>PROGRESS_STATUS_PORT=20080</code> */
-	@Parameter(key = "progress_status_port", group = "Runtime", description = "Port at which the progress status messages are transmitted")
-	public static int PROGRESS_STATUS_PORT = 20080;
-
 	/** Constant <code>MAX_STALLED_THREADS=10</code> */
 	@Parameter(key = "max_stalled_threads", group = "Runtime", description = "Number of stalled threads")
 	public static int MAX_STALLED_THREADS = 10;

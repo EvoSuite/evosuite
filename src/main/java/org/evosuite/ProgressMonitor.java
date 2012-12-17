@@ -20,16 +20,15 @@
  */
 package org.evosuite;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.Socket;
 
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.SearchListener;
 import org.evosuite.ga.stoppingconditions.StoppingCondition;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
+import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -43,14 +42,12 @@ public class ProgressMonitor implements SearchListener, Serializable {
 
 	private static final long serialVersionUID = -8518559681906649686L;
 
-	protected transient Socket connection;
-	protected transient ObjectOutputStream out;
-	protected boolean connected = false;
 	protected int lastCoverage = 0;
 	protected int lastProgress = 0;
 	protected String currentTask = "";
 	protected int phases = 0;
 	protected int currentPhase = 0;
+	protected ClientState state = ClientState.INITIALIZATION;
 
 	/**
 	 * <p>
@@ -68,28 +65,6 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	public ProgressMonitor(int phases) {
 		this.phases = phases;
-		connected = connectToMainProcess(Properties.PROGRESS_STATUS_PORT);
-	}
-
-	/**
-	 * <p>
-	 * connectToMainProcess
-	 * </p>
-	 * 
-	 * @param port
-	 *            a int.
-	 * @return a boolean.
-	 */
-	public boolean connectToMainProcess(int port) {
-
-		try {
-			connection = new Socket("127.0.0.1", port);
-			out = new ObjectOutputStream(connection.getOutputStream());
-		} catch (Exception e) {
-			return false;
-		}
-
-		return true;
 	}
 
 	/**
@@ -103,20 +78,18 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 *            a int.
 	 */
 	public void updateStatus(int percent) {
-		if (connected) {
-			try {
-				lastProgress = percent;
-				// lastCoverage = coverage;
-				out.writeInt(percent);
-				out.writeInt(currentPhase);
-				out.writeInt(phases);
-				out.writeInt(currentCoverage);
-				out.writeObject(currentTask);
-				out.flush();
-			} catch (IOException e) {
-				connected = false;
-			}
-		}
+		ClientStateInformation stateInformation = new ClientStateInformation(ClientState.SEARCH);
+		stateInformation.setCoverage(currentCoverage);
+		stateInformation.setProgress(percent);
+		stateInformation.setDescription(currentTask);
+		ClientServices.getInstance().getClientNode().changeState(stateInformation);
+		lastProgress = percent;
+		// lastCoverage = coverage;
+		//out.writeInt(percent);
+		//out.writeInt(currentPhase);
+		//out.writeInt(phases);
+		//out.writeInt(currentCoverage);
+		//out.writeObject(currentTask);
 	}
 
 	private StoppingCondition stoppingCondition = null;
@@ -153,7 +126,8 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	@Override
 	public void searchFinished(GeneticAlgorithm algorithm) {
 		currentCoverage = (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100);
-		System.out.println("");
+		// updateStatus((int) (100 * stoppingCondition.getCurrentValue() / max));
+		// System.out.println("");
 	}
 
 	/* (non-Javadoc)
@@ -196,9 +170,4 @@ public class ProgressMonitor implements SearchListener, Serializable {
 		this.phases = phases;
 	}
 
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
-		ois.defaultReadObject();
-		connectToMainProcess(Properties.PROGRESS_STATUS_PORT);
-	}
 }
