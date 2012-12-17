@@ -53,7 +53,7 @@ public class TestConstraintSolver3 {
 		System.out.println("Initial: " + INIT_STRING);
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.getModel(constraints);
+		Map<String, Object> model = seeker.solve(constraints);
 
 		if (model == null) {
 			fail("search was unsuccessfull");

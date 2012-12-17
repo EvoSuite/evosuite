@@ -32,6 +32,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.DSEBudget;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
@@ -306,6 +307,7 @@ public class TestSuiteDSE {
 					// ZeroFitness is a stopping condition
 				} else {
 					logger.info("New test does not improve fitness");
+					DSEStats.reportSolutionWithNoFitnessImprovement();
 					expandedTests.deleteTest(newTest);
 				}
 				success++;
@@ -367,9 +369,11 @@ public class TestSuiteDSE {
 
 		logger.info("Applying local search");
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> values = skr.getModel(constraints);
+		Map<String, Object> values = skr.solve(constraints);
 
 		if (values != null && !values.isEmpty()) {
+			DSEStats.reportSAT();
+			
 			TestCase newTest = test.clone();
 
 			for (Object key : values.keySet()) {
@@ -440,6 +444,7 @@ public class TestSuiteDSE {
 			return newTest;
 		} else {
 			logger.info("Found no solution");
+			DSEStats.reportUNSAT();
 			return null;
 		}
 

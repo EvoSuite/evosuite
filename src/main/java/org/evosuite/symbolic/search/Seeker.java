@@ -69,7 +69,7 @@ class Seeker implements Solver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
+	public Map<String, Object> solve(Collection<Constraint<?>> constraints) {
 
 		if (constraints.size() <= 0)
 			return null;
@@ -269,12 +269,6 @@ class Seeker implements Solver {
 			// ignore
 
 		}
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public boolean solve(Collection<Constraint<?>> constraints) {
-		return false;
 	}
 
 	private Set<Variable<?>> getVarsOfSet(Collection<Constraint<?>> constraints) {

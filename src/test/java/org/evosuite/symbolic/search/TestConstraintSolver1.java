@@ -14,10 +14,7 @@ import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
-import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.bv.StringUnaryToIntegerExpression;
-import org.evosuite.symbolic.expr.str.StringBinaryExpression;
-import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.junit.Test;
 
@@ -73,7 +70,7 @@ public class TestConstraintSolver1 {
 		}
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.getModel(constraints);
+		Map<String, Object> model = seeker.solve(constraints);
 		System.out.println(model);
 
 		Object var0 = model.get("var0");
