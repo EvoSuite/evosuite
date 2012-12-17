@@ -23,10 +23,12 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Set;
 
+import org.evosuite.utils.LoggingUtils;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.DijkstraShortestPath;
 import org.jgrapht.ext.DOTExporter;
@@ -177,11 +179,15 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<V> getChildren(V node) {
-		if (!containsVertex(node)) // should this just return null?
-			throw new IllegalArgumentException(
-					"node not contained in this graph");
+		if (!containsVertex(node)){
+			LoggingUtils.getEvoLogger().warn("getChildren call requests a node not contained in the current graph. Node: "+node);
+			return null;
+		}
+		//TODO check why in project 57_hft-bomberman class client.gui.StartFrame this happens
+		//	throw new IllegalArgumentException(
+		//			"node not contained in this graph");
 		// TODO hash set? can't be sure V implements hash correctly
-		Set<V> r = new HashSet<V>();
+		Set<V> r = new LinkedHashSet<V>();
 		for (E e : outgoingEdgesOf(node))
 			r.add(getEdgeTarget(e));
 
@@ -223,7 +229,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 */
 	public Set<V> vertexSet() {
 		// TODO hash set? can't be sure V implements hash correctly
-		return new HashSet<V>(graph.vertexSet());
+		return new LinkedHashSet<V>(graph.vertexSet());
 		/*
 		 * Set<V> r = new HashSet<V>();
 		 * 
@@ -240,7 +246,7 @@ public abstract class EvoSuiteGraph<V, E extends DefaultEdge> {
 	 */
 	public Set<E> edgeSet() {
 		// TODO hash set? can't be sure E implements hash correctly
-		return new HashSet<E>(graph.edgeSet());
+		return new LinkedHashSet<E>(graph.edgeSet());
 
 		/*
 		 * Set<E> r = new HashSet<E>();

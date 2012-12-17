@@ -21,13 +21,18 @@
 package org.evosuite.setup;
 
 import java.lang.reflect.AccessibleObject;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -63,24 +68,24 @@ public class TestCluster {
 	private static TestCluster instance = null;
 
 	/** Set of all classes already analyzed */
-	private final static Set<Class<?>> analyzedClasses = new HashSet<Class<?>>();
+	private final static Set<Class<?>> analyzedClasses = new LinkedHashSet<Class<?>>();
 
 	/** Methods we want to cover when testing */
 	private final static List<AccessibleObject> testMethods = new ArrayList<AccessibleObject>();
 
 	/** Static information about how to generate types */
-	private final static Map<GenericClass, Set<AccessibleObject>> generators = new HashMap<GenericClass, Set<AccessibleObject>>();
+	private final static Map<GenericClass, Set<AccessibleObject>> generators = new LinkedHashMap<GenericClass, Set<AccessibleObject>>();
 
 	/** Cached information about how to generate types */
-	private final static Map<GenericClass, Set<AccessibleObject>> generatorCache = new HashMap<GenericClass, Set<AccessibleObject>>();
+	private final static Map<GenericClass, Set<AccessibleObject>> generatorCache = new LinkedHashMap<GenericClass, Set<AccessibleObject>>();
 
 	/** Cached information about how to modify types */
-	private final static Map<Class<?>, Set<AccessibleObject>> modifiers = new HashMap<Class<?>, Set<AccessibleObject>>();
+	private final static Map<Class<?>, Set<AccessibleObject>> modifiers = new LinkedHashMap<Class<?>, Set<AccessibleObject>>();
 
 	/** Classes to which there are cast statements */
-	private static Set<String> castClassNames = new HashSet<String>();
+	private static Set<String> castClassNames = new LinkedHashSet<String>();
 
-	private static Set<GenericClass> castClasses = new HashSet<GenericClass>();
+	private static Set<GenericClass> castClasses = new LinkedHashSet<GenericClass>();
 
 	private static InheritanceTree inheritanceTree = null;
 
@@ -172,7 +177,7 @@ public class TestCluster {
 
 	private static List<String> finalClasses = new ArrayList<String>();
 
-	private static Set<Method> staticInitializers = new HashSet<Method>();
+	private static Set<Method> staticInitializers = new LinkedHashSet<Method>();
 
 	public static void setCastClasses(Set<String> classes) {
 		castClasses.clear();
@@ -344,7 +349,7 @@ public class TestCluster {
 	 * @return
 	 */
 	public Collection<Class<?>> getKnownMatchingClasses(String name) {
-		Set<Class<?>> classes = new HashSet<Class<?>>();
+		Set<Class<?>> classes = new LinkedHashSet<Class<?>>();
 		for (Class<?> c : analyzedClasses) {
 			if (c.getName().endsWith(name))
 				classes.add(c);
@@ -364,7 +369,7 @@ public class TestCluster {
 		Collection<String> resources = ResourceList.getAllResources(pattern);
 		resources.addAll(ResourceList.getBootResources(pattern));
 
-		Set<String> classes = new HashSet<String>();
+		Set<String> classes = new LinkedHashSet<String>();
 		for (String className : resources) {
 			classes.add(className.replace(".class", "").replace("/", "."));
 		}
@@ -375,7 +380,7 @@ public class TestCluster {
 	private void cacheGenerators(GenericClass clazz) {
 		if (generatorCache.containsKey(clazz))
 			return;
-		Set<AccessibleObject> targetGenerators = new HashSet<AccessibleObject>();
+		Set<AccessibleObject> targetGenerators = new LinkedHashSet<AccessibleObject>();
 
 		if (clazz.isObject()) {
 			for (GenericClass generatorClazz : generators.keySet()) {
@@ -444,7 +449,7 @@ public class TestCluster {
 	public AccessibleObject getRandomGenerator(GenericClass clazz,
 	        Set<AccessibleObject> excluded) throws ConstructionFailedException {
 		cacheGenerators(clazz);
-		Set<AccessibleObject> candidates = new HashSet<AccessibleObject>(
+		Set<AccessibleObject> candidates = new LinkedHashSet<AccessibleObject>(
 		        generatorCache.get(clazz));
 		candidates.removeAll(excluded);
 		if (candidates.isEmpty())
@@ -471,7 +476,7 @@ public class TestCluster {
 	 * @return
 	 */
 	public Set<AccessibleObject> getObjectGenerators() {
-		Set<AccessibleObject> result = new HashSet<AccessibleObject>();
+		Set<AccessibleObject> result = new LinkedHashSet<AccessibleObject>();
 		for (GenericClass clazz : castClasses) {
 			try {
 				result.addAll(getGenerators(clazz));
@@ -508,7 +513,7 @@ public class TestCluster {
 	 * @return
 	 */
 	public Set<AccessibleObject> getGenerators() {
-		Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
+		Set<AccessibleObject> calls = new LinkedHashSet<AccessibleObject>();
 		for (Set<AccessibleObject> generatorCalls : generators.values())
 			calls.addAll(generatorCalls);
 
@@ -521,7 +526,7 @@ public class TestCluster {
 	 * @return
 	 */
 	public Set<AccessibleObject> getModifiers() {
-		Set<AccessibleObject> calls = new HashSet<AccessibleObject>();
+		Set<AccessibleObject> calls = new LinkedHashSet<AccessibleObject>();
 		for (Set<AccessibleObject> modifierCalls : modifiers.values())
 			calls.addAll(modifierCalls);
 
@@ -536,7 +541,7 @@ public class TestCluster {
 	 */
 	public Set<AccessibleObject> getCallsFor(Class<?> clazz) {
 		if (!modifiers.containsKey(clazz))
-			return new HashSet<AccessibleObject>();
+			return new LinkedHashSet<AccessibleObject>();
 
 		return modifiers.get(clazz);
 	}
@@ -577,7 +582,7 @@ public class TestCluster {
 	 */
 	public void addGenerator(GenericClass target, AccessibleObject call) {
 		if (!generators.containsKey(target))
-			generators.put(target, new HashSet<AccessibleObject>());
+			generators.put(target, new LinkedHashSet<AccessibleObject>());
 
 		// TODO: Need to add this call to all subclasses/superclasses?
 		generators.get(target).add(call);
@@ -591,7 +596,7 @@ public class TestCluster {
 	 */
 	public void addModifier(Class<?> target, AccessibleObject call) {
 		if (!modifiers.containsKey(target))
-			modifiers.put(target, new HashSet<AccessibleObject>());
+			modifiers.put(target, new LinkedHashSet<AccessibleObject>());
 
 		// TODO: Need to add this call to all subclasses/superclasses?
 

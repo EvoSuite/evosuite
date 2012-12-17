@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -33,6 +34,7 @@ import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
@@ -115,7 +117,7 @@ public class TestSuiteMinimizer {
 			test.clearCachedResults();
 		}
 
-		List<TestFitnessFunction> goals = testFitnessFactory.getCoverageGoals();
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(testFitnessFactory.getCoverageGoals());
 		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
 		int numCovered = 0;
 		int numGoals = goals.size();
@@ -127,7 +129,7 @@ public class TestSuiteMinimizer {
 		}
 
 		Collections.sort(goals);
-		Set<TestFitnessFunction> covered = new HashSet<TestFitnessFunction>();
+		Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
 		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
 
@@ -135,12 +137,27 @@ public class TestSuiteMinimizer {
 			logger.info("Considering goal: " + goal);
 			for (TestChromosome test : minimizedTests) {
 				if (goal.isCovered(test)) {
-					logger.info("Covered by minimized test: " + goal);
-					covered.add(goal);
-					if (!branchGoals.contains(goal))
-						numCovered++;
-					test.getTestCase().addCoveredGoal(goal);
-					break;
+					if (Properties.STRUCTURED_TESTS) {
+						StructuredTestCase structuredTest = (StructuredTestCase) test.getTestCase();
+						if (structuredTest.getTargetMethods().contains(goal.getTargetMethod())) {
+							logger.info("Covered by minimized test targeting "
+							        + structuredTest.getTargetMethods() + ": " + goal
+							        + " ");
+							covered.add(goal);
+							if (!branchGoals.contains(goal))
+								numCovered++;
+							structuredTest.addPrimaryGoal(goal);
+							break;
+						}
+
+					} else {
+						logger.info("Covered by minimized test: " + goal);
+						covered.add(goal);
+						if (!branchGoals.contains(goal))
+							numCovered++;
+						test.getTestCase().addCoveredGoal(goal);
+						break;
+					}
 				}
 			}
 			if (covered.contains(goal)) {
@@ -160,11 +177,22 @@ public class TestSuiteMinimizer {
 				org.evosuite.testcase.TestCaseMinimizer minimizer = new org.evosuite.testcase.TestCaseMinimizer(
 				        goal);
 				TestChromosome copy = (TestChromosome) test.clone();
+				if (Properties.STRUCTURED_TESTS) {
+					copy.setTestCase(new StructuredTestCase(test.getTestCase()));
+				}
 				minimizer.minimize(copy);
+				if (Properties.STRUCTURED_TESTS) {
+					// TODO: Find proper way to determine statements
+					((StructuredTestCase) copy.getTestCase()).setExerciseStatement(copy.size() - 1);
+				}
 
 				// TODO: Need proper list of covered goals
 				copy.getTestCase().clearCoveredGoals();
-				copy.getTestCase().addCoveredGoal(goal);
+				if (Properties.STRUCTURED_TESTS) {
+					((StructuredTestCase) copy.getTestCase()).addPrimaryGoal(goal);
+				} else {
+					copy.getTestCase().addCoveredGoal(goal);
+				}
 				minimizedTests.add(copy);
 				minimizedSuite.insertTest(copy.getTestCase());
 				covered.add(goal);
@@ -222,7 +250,7 @@ public class TestSuiteMinimizer {
 		try {
 			result = executor.execute(test);
 		} catch (Exception e) {
-			logger.warn("TG: Exception caught: " + e.getMessage(),e);
+			logger.warn("TG: Exception caught: " + e.getMessage(), e);
 			try {
 				Thread.sleep(1000);
 				result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());

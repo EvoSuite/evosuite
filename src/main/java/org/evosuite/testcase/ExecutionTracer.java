@@ -146,6 +146,10 @@ public class ExecutionTracer {
 		ExecutionTraceImpl.enableTraceCalls();
 	}
 
+	public static boolean isTraceCallsEnabled() {
+		return ExecutionTraceImpl.isTraceCallsEnabled();
+	}
+
 	/**
 	 * <p>
 	 * getExecutionTracer
@@ -176,7 +180,7 @@ public class ExecutionTracer {
 	 * 
 	 * @return
 	 */
-	private static boolean isThreadNeqCurrentThread() {
+	public static boolean isThreadNeqCurrentThread() {
 		if (!checkCallerThread) {
 			return false;
 		}
@@ -185,7 +189,7 @@ public class ExecutionTracer {
 			throw new TestCaseExecutor.TimeoutExceeded();
 		}
 		if (currentThread == null) {
-			logger.warn("CurrentThread has not been set!");
+			logger.info("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
 			for (Thread t : map.keySet()) {
 				System.err.println("Thread: " + t);
@@ -740,6 +744,13 @@ public class ExecutionTracer {
 	 * @param defuseId
 	 */
 	public static void passedFieldMethodCall(Object caller, int defuseId) {
+		ExecutionTracer tracer = getExecutionTracer();
+		if (tracer.disabled)
+			return;
+
+		if (isThreadNeqCurrentThread())
+			return;
+
 		if (DefUsePool.isKnownAsDefinition(defuseId)) {
 			Definition passedDef = DefUsePool.getDefinitionByDefUseId(defuseId);
 			passedDefinition(caller, passedDef.getDefId());
@@ -748,7 +759,8 @@ public class ExecutionTracer {
 			passedUse(caller, passedUse.getUseId());
 		} else
 			throw new EvosuiteError(
-			        "instrumentation called passedFieldMethodCall with invalid defuseId");
+			        "instrumentation called passedFieldMethodCall with invalid defuseId: "
+			                + defuseId + ", known IDs: " + DefUsePool.getDefUseCounter());
 	}
 
 	/**

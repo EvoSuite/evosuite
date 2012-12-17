@@ -54,8 +54,8 @@ public class NumberFormatter {
 		else if (value.getClass().equals(char.class)
 		        || value.getClass().equals(Character.class)) {
 			// StringEscapeUtils fails to escape a single quote char
-			if (Character.valueOf('\'').equals(value)) {
-				return "'\''";
+			if(Character.valueOf('\'').equals(value)) {
+				return "'\\\''";
 			} else {
 				return "'"
 				        + StringEscapeUtils.escapeJava(Character.toString((Character) value))

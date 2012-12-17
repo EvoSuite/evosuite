@@ -59,17 +59,21 @@ import org.slf4j.LoggerFactory;
  * Note: this class needs to be thread safe, as it will be accessed by the SUT
  * </p>
  * <p>
- * Regarding the different permissions, and the associated risks in allowing them, see:
- * http://download.oracle.com/javase/6/docs/technotes/guides/security/permissions.html
+ * Regarding the different permissions, and the associated risks in allowing
+ * them, see:
+ * http://download.oracle.com/javase/6/docs/technotes/guides/security/
+ * permissions.html
  * </p>
  * <p>
- * This class grants permissions based on thread references, and not on the "context". As such it is actually more restrictive, and granting some
- * kinds of risky permissions should so be fine
+ * This class grants permissions based on thread references, and not on the
+ * "context". As such it is actually more restrictive, and granting some kinds
+ * of risky permissions should so be fine
  * </p>
  * <p>
- * FIXME: this class should be refactored in a way that each permission should be defined in a property/configuration file. The user (through the
- * Eclipse plug-in) should be allowed to choose which permissions to allow. Current settings in this class could be considered as the "default"
- * settings.
+ * FIXME: this class should be refactored in a way that each permission should
+ * be defined in a property/configuration file. The user (through the Eclipse
+ * plug-in) should be allowed to choose which permissions to allow. Current
+ * settings in this class could be considered as the "default" settings.
  * </p>
  */
 class MSecurityManager extends SecurityManager {
@@ -78,7 +82,7 @@ class MSecurityManager extends SecurityManager {
 
 	private final PermissionStatistics statistics = PermissionStatistics.getInstance();
 
-	private SecurityManager defaultManager;
+	private final SecurityManager defaultManager;
 
 	/**
 	 * Is EvoSuite executing a test case?
@@ -96,7 +100,8 @@ class MSecurityManager extends SecurityManager {
 	private volatile boolean needToRestoreProperties;
 
 	/**
-	 * Data structure containing all the (EvoSuite) threads that do not need to go through the same sandbox as the SUT threads
+	 * Data structure containing all the (EvoSuite) threads that do not need to
+	 * go through the same sandbox as the SUT threads
 	 */
 	private volatile Set<Thread> privilegedThreads;
 
@@ -106,7 +111,8 @@ class MSecurityManager extends SecurityManager {
 	private volatile boolean ignorePrivileged;
 
 	/**
-	 * Create a custom security manager for the SUT. The thread that create this instance is automatically added as "privileged"
+	 * Create a custom security manager for the SUT. The thread that create this
+	 * instance is automatically added as "privileged"
 	 */
 	public MSecurityManager() {
 		privilegedThreads = new CopyOnWriteArraySet<Thread>();
@@ -118,14 +124,17 @@ class MSecurityManager extends SecurityManager {
 	}
 
 	/**
-	 * Use this method if you are going to execute SUT code from a privileged thread (ie if you don't want to do it on a new thread)
+	 * Use this method if you are going to execute SUT code from a privileged
+	 * thread (ie if you don't want to do it on a new thread)
 	 * 
 	 * @throws SecurityException
 	 * @throws IllegalStateException
 	 */
-	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException, IllegalStateException {
+	public void goingToExecuteUnsafeCodeOnSameThread() throws SecurityException,
+	        IllegalStateException {
 		if (!privilegedThreads.contains(Thread.currentThread())) {
-			throw new SecurityException("Only a privileged thread can execute unsafe code");
+			throw new SecurityException(
+			        "Only a privileged thread can execute unsafe code");
 		}
 		if (ignorePrivileged) {
 			throw new IllegalStateException("The thread is already executing unsafe code");
@@ -134,14 +143,17 @@ class MSecurityManager extends SecurityManager {
 	}
 
 	/**
-	 * Call after goingToExecuteUnsafeCodeOnSameThread when done with unsafe code
+	 * Call after goingToExecuteUnsafeCodeOnSameThread when done with unsafe
+	 * code
 	 * 
 	 * @throws SecurityException
 	 * @throws IllegalStateException
 	 */
-	public void doneWithExecutingUnsafeCodeOnSameThread() throws SecurityException, IllegalStateException {
+	public void doneWithExecutingUnsafeCodeOnSameThread() throws SecurityException,
+	        IllegalStateException {
 		if (!privilegedThreads.contains(Thread.currentThread())) {
-			throw new SecurityException("Only a privileged thread can return from unsafe code execution");
+			throw new SecurityException(
+			        "Only a privileged thread can return from unsafe code execution");
 		}
 		if (!ignorePrivileged) {
 			throw new IllegalStateException("The thread was not executing unsafe code");
@@ -151,11 +163,14 @@ class MSecurityManager extends SecurityManager {
 
 	/**
 	 * <p>
-	 * When we start EvoSuite, quite a few other threads could start as well (e.g., "Reference Handler", "Finalizer" and "Signal Dispatcher"). This is
-	 * a convenience method to grant permissions to all threads before starting to execute test cases
+	 * When we start EvoSuite, quite a few other threads could start as well
+	 * (e.g., "Reference Handler", "Finalizer" and "Signal Dispatcher"). This is
+	 * a convenience method to grant permissions to all threads before starting
+	 * to execute test cases
 	 * </p>
 	 * <p>
-	 * WARNING: to use only before any SUT code has been executed. Afterwards, it would not be safe (cannot really guarantee that all SUT have been
+	 * WARNING: to use only before any SUT code has been executed. Afterwards,
+	 * it would not be safe (cannot really guarantee that all SUT have been
 	 * terminated)
 	 * </p>
 	 */
@@ -226,7 +241,8 @@ class MSecurityManager extends SecurityManager {
 	}
 
 	/**
-	 * Add a thread to the list of privileged thread. This is useful if EvoSuite needs to spawn new threads that require permissions.
+	 * Add a thread to the list of privileged thread. This is useful if EvoSuite
+	 * needs to spawn new threads that require permissions.
 	 * 
 	 * @param t
 	 * @throws SecurityException
@@ -237,7 +253,8 @@ class MSecurityManager extends SecurityManager {
 			logger.debug("Adding privileged thread: " + t.getName());
 			privilegedThreads.add(t);
 		} else {
-			throw new SecurityException("Unprivileged thread cannot add a privileged thread");
+			throw new SecurityException(
+			        "Unprivileged thread cannot add a privileged thread");
 		}
 	}
 
@@ -252,20 +269,22 @@ class MSecurityManager extends SecurityManager {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void checkPermission(Permission perm, Object context) throws SecurityException, NullPointerException {
+	public void checkPermission(Permission perm, Object context)
+	        throws SecurityException, NullPointerException {
 		/*
 		 * Note: this code is copy and paste from "super", with only one difference
 		 */
 		if (context instanceof AccessControlContext) {
 			checkPermission(perm); // this is the difference, i.e. we ignore context //TODO maybe check if privileged, and if so, actually use the
-									// context?
+			                       // context?
 		} else {
 			throw new SecurityException();
 		}
 	}
 
 	/**
-	 * {@inheritDoc} Overridden method for checking permissions for any operation.
+	 * {@inheritDoc} Overridden method for checking permissions for any
+	 * operation.
 	 */
 	@Override
 	public void checkPermission(Permission perm) throws SecurityException {
@@ -312,7 +331,8 @@ class MSecurityManager extends SecurityManager {
 	}
 
 	/**
-	 * Method for checking if requested access, specified by the given permission, is permitted.
+	 * Method for checking if requested access, specified by the given
+	 * permission, is permitted.
 	 * 
 	 * @param perm
 	 *            permission for which the security manager is asked
@@ -339,7 +359,8 @@ class MSecurityManager extends SecurityManager {
 			 * Here, the thread is not "privileged" (either from SUT or an un-registered by EvoSuite), and we are not executing a test case (if from
 			 * SUT, that means the thread was not stopped properly). So, we deny any permission
 			 */
-			logger.debug("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: " + perm.toString());
+			logger.debug("Unprivileged thread trying to execute potentially harmfull code outsie SUT code execution. Permission: "
+			        + perm.toString());
 			return false;
 		}
 
@@ -351,7 +372,7 @@ class MSecurityManager extends SecurityManager {
 		 * instrumentation. 
 		 */
 		PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
-		
+
 		if (perm instanceof AllPermission) {
 			return checkAllPermission((AllPermission) perm);
 		}
@@ -469,7 +490,7 @@ class MSecurityManager extends SecurityManager {
 		 * Although this check is not 100% bullet proof, it is a risk
 		 * we have to take, ie allowing SUT permissions
 		 */
-		if(canonicalName.startsWith("java")){
+		if (canonicalName.startsWith("java")) {
 			logger.debug("Unrecognized permission type: " + canonicalName);
 			return false;
 		} else {
@@ -649,8 +670,9 @@ class MSecurityManager extends SecurityManager {
 
 		String name = perm.getName();
 
-		if (name.equals("getDomainCombiner") || name.equals("getPolicy") || name.equals("printIdentity") || name.equals("getSignerPrivateKey")
-				|| name.startsWith("getProperty.")) {
+		if (name.equals("getDomainCombiner") || name.equals("getPolicy")
+		        || name.equals("printIdentity") || name.equals("getSignerPrivateKey")
+		        || name.startsWith("getProperty.")) {
 			return true;
 		}
 
@@ -695,8 +717,11 @@ class MSecurityManager extends SecurityManager {
 		 * security of the program. However, as we check permissions based on thread references, it might be safe. See comments on allowing
 		 * reflection.
 		 */
-		if (name.equals("getClassLoader") || name.equals("createClassLoader") || name.startsWith("accessClassInPackage")
-				|| name.startsWith("defineClassInPackage") || name.equals("setContextClassLoader") || name.equals("accessDeclaredMembers")) {
+		if (name.equals("getClassLoader") || name.equals("createClassLoader")
+		        || name.startsWith("accessClassInPackage")
+		        || name.startsWith("defineClassInPackage")
+		        || name.equals("setContextClassLoader")
+		        || name.equals("accessDeclaredMembers")) {
 			return true;
 		}
 
@@ -747,7 +772,8 @@ class MSecurityManager extends SecurityManager {
 		 * it might be considered risky, as it can stop the EvoSuite threads. Worst case, we ll get no data from client, which is better than just
 		 * skipping testing the SUT by throwing a security exception
 		 */
-		if (name.equals("modifyThread") || name.equals("stopThread") || name.equals("modifyThreadGroup")) {
+		if (name.equals("modifyThread") || name.equals("stopThread")
+		        || name.equals("modifyThreadGroup")) {
 			return true;
 		}
 
@@ -761,7 +787,8 @@ class MSecurityManager extends SecurityManager {
 		/*
 		 * those are perfectly fine
 		 */
-		if (name.startsWith("getenv.") || name.equals("getProtectionDomain") || name.equals("readFileDescriptor")) {
+		if (name.startsWith("getenv.") || name.equals("getProtectionDomain")
+		        || name.equals("readFileDescriptor")) {
 			return true;
 		}
 
@@ -781,9 +808,11 @@ class MSecurityManager extends SecurityManager {
 
 			String library = name.substring("loadLibrary.".length(), name.length());
 
-			if (library.equals("awt") || library.equals("fontmanager") || library.equals("net") || library.equals("lcms")
-					|| library.equals("j2pkcs11") || library.equals("nio") || library.equals("laf") || library.endsWith("libmawt.so") ||
-					library.equals("jpeg")) {
+			if (library.equals("awt") || library.equals("fontmanager")
+			        || library.equals("net") || library.equals("lcms")
+			        || library.equals("j2pkcs11") || library.equals("nio")
+			        || library.equals("laf") || library.endsWith("libmawt.so")
+			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib")) {
 				return true;
 			}
 
@@ -822,7 +851,8 @@ class MSecurityManager extends SecurityManager {
 		/*
 		 * this is also useful for checking types in the String constants, and to be warned if they ll change in future JDKs
 		 */
-		logger.debug("SUT asked for a runtime permission that EvoSuite does not recognize: " + name);
+		logger.debug("SUT asked for a runtime permission that EvoSuite does not recognize: "
+		        + name);
 
 		return false;
 	}

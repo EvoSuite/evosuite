@@ -126,6 +126,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public static void enableTraceCalls() {
 		traceCalls = true;
 	}
+	
+	public static boolean isTraceCallsEnabled() {
+		return traceCalls;
+	}
 
 	/**
 	 * <p>

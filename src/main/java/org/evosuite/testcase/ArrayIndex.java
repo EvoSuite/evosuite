@@ -259,6 +259,51 @@ public class ArrayIndex extends VariableReferenceImpl {
 		}
 	}
 
+	private int getIntValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).intValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0;
+	}
+
+	private long getLongValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).longValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0L;
+	}
+
+	private float getFloatValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).floatValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0F;
+	}
+
+	private double getDoubleValue(Object object) {
+		if (object instanceof Number) {
+			return ((Number) object).doubleValue();
+		} else if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else
+			return 0.0;
+	}
+
+	private char getCharValue(Object object) {
+		if (object instanceof Character) {
+			return ((Character) object).charValue();
+		} else if (object instanceof Number) {
+			return (char) ((Number) object).intValue();
+		} else
+			return '0';
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -277,7 +322,25 @@ public class ArrayIndex extends VariableReferenceImpl {
 			if (arrayObject == null) {
 				throw new CodeUnderTestException(new NullPointerException());
 			}
-			Array.set(arrayObject, indices.get(indices.size() - 1), value);
+			if (arrayObject.getClass().getComponentType().equals(int.class))
+				Array.setInt(arrayObject, indices.get(indices.size() - 1), getIntValue(value));
+			else if (arrayObject.getClass().getComponentType().equals(boolean.class))
+				Array.setBoolean(arrayObject, indices.get(indices.size() - 1), (Boolean)value);
+			else if (arrayObject.getClass().getComponentType().equals(char.class)) {
+				Array.setChar(arrayObject, indices.get(indices.size() - 1), getCharValue(value));
+			} else if (arrayObject.getClass().getComponentType().equals(double.class))
+				Array.setDouble(arrayObject, indices.get(indices.size() - 1), getDoubleValue(value));
+			else if (arrayObject.getClass().getComponentType().equals(float.class))
+				Array.setFloat(arrayObject, indices.get(indices.size() - 1), getFloatValue(value));
+			else if (arrayObject.getClass().getComponentType().equals(long.class))
+				Array.setLong(arrayObject, indices.get(indices.size() - 1), getLongValue(value));
+			else if (arrayObject.getClass().getComponentType().equals(short.class))
+				Array.setShort(arrayObject, indices.get(indices.size() - 1), (short)getIntValue(value));
+			else if (arrayObject.getClass().getComponentType().equals(byte.class))
+				Array.setByte(arrayObject, indices.get(indices.size() - 1), (byte)getIntValue(value));
+			else {
+				Array.set(arrayObject, indices.get(indices.size() - 1), value);
+			}
 		} catch (ArrayIndexOutOfBoundsException e) {
 			throw new CodeUnderTestException(e);
 		}

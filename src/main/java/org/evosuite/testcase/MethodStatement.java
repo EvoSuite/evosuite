@@ -29,6 +29,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -309,7 +310,7 @@ public class MethodStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> references = new HashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
 		references.add(retval);
 		if (isInstanceMethod()) {
 			references.add(callee);

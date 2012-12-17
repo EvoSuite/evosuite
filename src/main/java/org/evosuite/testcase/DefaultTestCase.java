@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -56,7 +57,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	protected final ListenableList<StatementInterface> statements;
 
 	// a list of all goals this test covers
-	private final HashSet<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+	private final HashSet<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
 
 	/** {@inheritDoc} */
 	@Override
@@ -70,20 +71,6 @@ public class DefaultTestCase implements TestCase, Serializable {
 	public DefaultTestCase() {
 		statements = new ListenableList<StatementInterface>(
 		        new ArrayList<StatementInterface>());
-	}
-
-	/**
-	 * Convenience constructor
-	 * 
-	 * @param statements
-	 *            a {@link java.util.List} object.
-	 */
-	public DefaultTestCase(List<StatementInterface> statements) {
-		if (statements instanceof ListenableList) {
-			this.statements = (ListenableList<StatementInterface>) statements;
-		} else {
-			this.statements = new ListenableList<StatementInterface>(statements);
-		}
 	}
 
 	/* (non-Javadoc)
@@ -435,7 +422,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getReferences(VariableReference var) {
-		Set<VariableReference> references = new HashSet<VariableReference>();
+		Set<VariableReference> references = new LinkedHashSet<VariableReference>();
 
 		if (var == null || var.getStPosition() == -1)
 			return references;
@@ -443,7 +430,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		// references.add(var);
 
 		for (int i = var.getStPosition() + 1; i < statements.size(); i++) {
-			Set<VariableReference> temp = new HashSet<VariableReference>();
+			Set<VariableReference> temp = new LinkedHashSet<VariableReference>();
 			if (statements.get(i).references(var))
 				temp.add(statements.get(i).getReturnValue());
 			for (VariableReference v : references) {
@@ -462,16 +449,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getDependencies(VariableReference var) {
-		Set<VariableReference> dependencies = new HashSet<VariableReference>();
+		Set<VariableReference> dependencies = new LinkedHashSet<VariableReference>();
 
 		if (var == null || var.getStPosition() == -1)
 			return dependencies;
 
-		Set<StatementInterface> dependentStatements = new HashSet<StatementInterface>();
+		Set<StatementInterface> dependentStatements = new LinkedHashSet<StatementInterface>();
 		dependentStatements.add(statements.get(var.getStPosition()));
 
 		for (int i = var.getStPosition(); i >= 0; i--) {
-			Set<StatementInterface> newStatements = new HashSet<StatementInterface>();
+			Set<StatementInterface> newStatements = new LinkedHashSet<StatementInterface>();
 			for (StatementInterface s : dependentStatements) {
 				if (s.references(statements.get(i).getReturnValue())) {
 					newStatements.add(statements.get(i));
@@ -627,7 +614,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getAccessedClasses() {
-		Set<Class<?>> accessed_classes = new HashSet<Class<?>>();
+		Set<Class<?>> accessed_classes = new LinkedHashSet<Class<?>>();
 		for (StatementInterface s : statements) {
 			for (VariableReference var : s.getVariableReferences()) {
 				if (var != null && !var.isPrimitive()) {
@@ -732,7 +719,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
-		Set<Class<?>> exceptions = new HashSet<Class<?>>();
+		Set<Class<?>> exceptions = new LinkedHashSet<Class<?>>();
 		for (StatementInterface statement : statements) {
 			exceptions.addAll(statement.getDeclaredExceptions());
 		}
@@ -825,24 +812,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		while (iterator.hasNext()) {
 			StatementInterface statement = iterator.next();
 			logger.trace("Visiting statement " + statement.getCode());
-			if (statement instanceof PrimitiveStatement<?>)
-				visitor.visitPrimitiveStatement((PrimitiveStatement<?>) statement);
-			else if (statement instanceof FieldStatement)
-				visitor.visitFieldStatement((FieldStatement) statement);
-			else if (statement instanceof ConstructorStatement)
-				visitor.visitConstructorStatement((ConstructorStatement) statement);
-			else if (statement instanceof MethodStatement)
-				visitor.visitMethodStatement((MethodStatement) statement);
-			else if (statement instanceof AssignmentStatement)
-				visitor.visitAssignmentStatement((AssignmentStatement) statement);
-			else if (statement instanceof ArrayStatement)
-				visitor.visitArrayStatement((ArrayStatement) statement);
-			else if (statement instanceof NullStatement)
-				visitor.visitNullStatement((NullStatement) statement);
-			else if (statement instanceof PrimitiveExpression)
-				visitor.visitPrimitiveExpression((PrimitiveExpression) statement);
-			else
-				throw new RuntimeException("Unknown statement type: " + statement);
+			visitor.visitStatement(statement);
 		}
 	}
 

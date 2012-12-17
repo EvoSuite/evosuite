@@ -23,10 +23,12 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
@@ -121,10 +123,17 @@ public class AssignmentStatement extends AbstractStatement {
 			        InstantiationException, CodeUnderTestException {
 				try {
 					final Object value = parameter.getObject(scope);
+
 					retval.setObject(scope, value);
 					//} catch (CodeUnderTestException e) {
 					//	throw CodeUnderTestException.throwException(e.getCause());
 				} catch (IllegalArgumentException e) {
+					logger.error("Error assigning value of type "
+					        + parameter.getSimpleClassName() + " defined at statement "
+					        + tc.getStatement(parameter.getStPosition()).getCode()
+					        + ", assignment statement: "
+					        + tc.getStatement(retval.getStPosition()).getCode()+"; SUT="+Properties.TARGET_CLASS);
+
 					// FIXXME: IllegalArgumentException may happen when we only have generators
 					// for an abstract supertype and not the concrete type that we need!
 					throw e;
@@ -148,7 +157,7 @@ public class AssignmentStatement extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public Set<VariableReference> getVariableReferences() {
-		Set<VariableReference> vars = new HashSet<VariableReference>();
+		Set<VariableReference> vars = new LinkedHashSet<VariableReference>();
 		vars.add(retval);
 		vars.add(parameter);
 
@@ -298,7 +307,7 @@ public class AssignmentStatement extends AbstractStatement {
 	 * @return
 	 */
 	private Set<VariableReference> getSourceReplacements() {
-		Set<VariableReference> variables = new HashSet<VariableReference>();
+		Set<VariableReference> variables = new LinkedHashSet<VariableReference>();
 		for (int i = 0; i < retval.getStPosition() && i < tc.size(); i++) {
 			VariableReference value = tc.getReturnValue(i);
 			if (value == null)

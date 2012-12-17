@@ -389,7 +389,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 			// FIXME: why this "clear()"?
 			// ExecutionTracer.getExecutionTracer().clear();
 
-			logger.error("Suppressed/ignored exception during test case execution: " + e.getMessage(), e);
+			logger.error("Suppressed/ignored exception during test case execution on class "+Properties.TARGET_CLASS+": " + e.getMessage(), e);
 		} finally {
 			if (!Properties.PRINT_TO_SYSTEM) {
 				LoggingUtils.restorePreviousOutAndErrStream();

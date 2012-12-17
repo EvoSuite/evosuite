@@ -522,6 +522,9 @@ public class Properties {
 	@Parameter(key = "test_format", group = "Output", description = "Format of the resulting test cases")
 	public static OutputFormat TEST_FORMAT = OutputFormat.JUNIT4;
 
+	@Parameter(key = "structured_tests", group = "Output", description = "Structure tests according to setup - exercise - check")
+	public static boolean STRUCTURED_TESTS = false;
+
 	@Parameter(key = "test_comments", group = "Output", description = "Include a header with coverage information for each test")
 	public static boolean TEST_COMMENTS = true;
 
@@ -648,6 +651,12 @@ public class Properties {
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
 
+	/** Constant <code>TIMELINE_INTERVAL=60000</code> */
+	@Parameter(key = "timeline_interval", group = "Output", description = "Time interval in milliseconds for timeline statistics")
+	public static long TIMELINE_INTERVAL = 60 * 1000;
+
+	
+	
 	public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
@@ -894,10 +903,6 @@ public class Properties {
 	/** Constant <code>ALTERNATIVE_FITNESS_RANGE=100.0</code> */
 	@Parameter(key = "alternative_fitness_range", description = "")
 	public static double ALTERNATIVE_FITNESS_RANGE = 100.0;
-
-	/** Constant <code>PREORDER_GOALS_BY_DIFFICULTY=false</code> */
-	@Parameter(key = "preorder_goals_by_difficulty", description = "")
-	public static boolean PREORDER_GOALS_BY_DIFFICULTY = false;
 
 	/** Constant <code>STARVE_BY_FITNESS=true</code> */
 	@Parameter(key = "starve_by_fitness", description = "")
@@ -1643,11 +1648,11 @@ public class Properties {
 		TARGET_CLASS_INSTANCE = null;
 
 		try {
-			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, false,
 			                                      TestGenerationContext.getClassLoader());
 
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("* Could not find class under test: " + e);
+			LoggingUtils.getEvoLogger().info("* Could not find class under test: " +Properties.TARGET_CLASS+": "+ e);
 			for (StackTraceElement s : e.getStackTrace()) {
 				LoggingUtils.getEvoLogger().info("   " + s.toString());
 			}

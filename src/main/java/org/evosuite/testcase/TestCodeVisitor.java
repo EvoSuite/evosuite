@@ -51,7 +51,7 @@ import org.evosuite.utils.NumberFormatter;
  * 
  * @author Gordon Fraser
  */
-public class TestCodeVisitor implements TestVisitor {
+public class TestCodeVisitor extends TestVisitor {
 
 	protected String testCode = "";
 
@@ -555,7 +555,7 @@ public class TestCodeVisitor implements TestVisitor {
 			        + getVariableName(dest) + ");";
 	}
 
-	private void visitAssertion(Assertion assertion) {
+	protected void visitAssertion(Assertion assertion) {
 		if (assertion instanceof PrimitiveAssertion) {
 			visitPrimitiveAssertion((PrimitiveAssertion) assertion);
 		} else if (assertion instanceof PrimitiveFieldAssertion) {
@@ -1026,30 +1026,4 @@ public class TestCodeVisitor implements TestVisitor {
 		testCode += getClassName(retval) + " " + getVariableName(retval) + " = null;\n";
 	}
 
-	/**
-	 * <p>
-	 * visitStatement
-	 * </p>
-	 * 
-	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
-	 */
-	public void visitStatement(StatementInterface statement) {
-		if (statement instanceof PrimitiveStatement<?>)
-			visitPrimitiveStatement((PrimitiveStatement<?>) statement);
-		else if (statement instanceof FieldStatement)
-			visitFieldStatement((FieldStatement) statement);
-		else if (statement instanceof ConstructorStatement)
-			visitConstructorStatement((ConstructorStatement) statement);
-		else if (statement instanceof MethodStatement)
-			visitMethodStatement((MethodStatement) statement);
-		else if (statement instanceof AssignmentStatement)
-			visitAssignmentStatement((AssignmentStatement) statement);
-		else if (statement instanceof ArrayStatement)
-			visitArrayStatement((ArrayStatement) statement);
-		else if (statement instanceof NullStatement)
-			visitNullStatement((NullStatement) statement);
-		else
-			throw new RuntimeException("Unknown statement type: " + statement);
-	}
 }
