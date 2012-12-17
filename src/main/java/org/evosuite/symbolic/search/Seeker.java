@@ -40,7 +40,7 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.UnaryExpression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
-import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
@@ -55,7 +55,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public class Seeker implements Solver {
+class Seeker implements Solver {
 
 	static Logger log = LoggerFactory.getLogger(Seeker.class);
 
@@ -69,7 +69,7 @@ public class Seeker implements Solver {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public Map<String, Object> getModel(Collection<Constraint<?>> constraints) {
+	public Map<String, Object> solve(Collection<Constraint<?>> constraints) {
 
 		if (constraints.size() <= 0)
 			return null;
@@ -103,17 +103,12 @@ public class Seeker implements Solver {
 					if (var instanceof StringVariable) {
 						log.debug("searching for string " + var);
 						StringVariable strVar = (StringVariable) var;
-						try {
-							if (changer.strLocalSearch(strVar, constraints, result)) {
-								searchSuccess = true;
-								done = false;
-								// break;
-							}
-						} catch (Throwable t) {
-							log.info("Exception during search: " + t);
+						if (changer.strLocalSearch(strVar, constraints, result)) {
+							searchSuccess = true;
+							done = false;
+							// break;
 						}
-					}
-					if (var instanceof IntegerVariable) {
+					} else if (var instanceof IntegerVariable) {
 						log.debug("searching for int " + var);
 						IntegerVariable intVar = (IntegerVariable) var;
 						if (changer.intLocalSearch(intVar, constraints, result)) {
@@ -121,8 +116,7 @@ public class Seeker implements Solver {
 							done = false;
 							// break;
 						}
-					}
-					if (var instanceof RealVariable) {
+					} else if (var instanceof RealVariable) {
 						log.debug("searching for real ");
 						RealVariable realVar = (RealVariable) var;
 						if (changer.realLocalSearch(realVar, constraints, result)) {
@@ -130,6 +124,8 @@ public class Seeker implements Solver {
 							done = false;
 							// break;
 						}
+					} else {
+						throw new IllegalArgumentException("Unknown variable type " + var.getClass().getName());
 					}
 				}
 
@@ -250,8 +246,8 @@ public class Seeker implements Solver {
 				element.setParent(expr);
 				setupTree(element);
 			}
-		} else if (expr instanceof StringComparison) {
-			StringComparison sc = (StringComparison) expr;
+		} else if (expr instanceof StringBinaryComparison) {
+			StringBinaryComparison sc = (StringBinaryComparison) expr;
 			sc.getLeftOperand().setParent(expr);
 			setupTree(sc.getLeftOperand());
 			sc.getRightOperand().setParent(expr);
@@ -273,12 +269,6 @@ public class Seeker implements Solver {
 			// ignore
 
 		}
-	}
-
-	/** {@inheritDoc} */
-	@Override
-	public boolean solve(Collection<Constraint<?>> constraints) {
-		return false;
 	}
 
 	private Set<Variable<?>> getVarsOfSet(Collection<Constraint<?>> constraints) {

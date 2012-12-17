@@ -5,67 +5,101 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealUnaryExpression;
 import org.evosuite.symbolic.expr.fp.RealValue;
 import org.evosuite.symbolic.expr.Operator;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
 
 public abstract class ABS {
 
 	private static final String ABS_FUNCTION_NAME = "abs";
 
-	public final static class ABS_D extends MathFunction_D2D {
+	public final static class ABS_D extends SymbolicFunction {
 
 		public ABS_D(SymbolicEnvironment env) {
-			super(env, ABS_FUNCTION_NAME);
+			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,
+					Types.D2D_DESCRIPTOR);
 		}
 
 		@Override
-		protected RealValue executeFunction(double res) {
-			RealUnaryExpression sym_val = new RealUnaryExpression(
-					realExpression, Operator.ABS, res);
+		public Object executeFunction() {
+			double res = this.getConcDoubleRetVal();
+			RealValue realExpression = this.getSymbRealArgument(0);
+
+			RealValue sym_val;
+			if (realExpression.containsSymbolicVariable()) {
+				sym_val = new RealUnaryExpression(realExpression, Operator.ABS,
+						res);
+			} else {
+				sym_val = this.getSymbRealRetVal();
+			}
 			return sym_val;
 		}
 
 	}
 
-	public final static class ABS_F extends MathFunction_F2F {
+	public final static class ABS_F extends SymbolicFunction {
 
 		public ABS_F(SymbolicEnvironment env) {
-			super(env, ABS_FUNCTION_NAME);
+			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,
+					Types.F2F_DESCRIPTOR);
 		}
 
 		@Override
-		protected RealValue executeFunction(float res) {
-			RealUnaryExpression sym_val = new RealUnaryExpression(
-					realExpression, Operator.ABS, (double) res);
+		public Object executeFunction() {
+			float res = this.getConcFloatRetVal();
+			RealValue realExpression = this.getSymbRealArgument(0);
+
+			RealValue sym_val;
+			if (realExpression.containsSymbolicVariable()) {
+				sym_val = new RealUnaryExpression(realExpression, Operator.ABS,
+						(double) res);
+			} else {
+				sym_val = this.getSymbRealRetVal();
+			}
 			return sym_val;
 		}
-
 	}
 
-	public final static class ABS_I extends MathFunction_I2I {
+	public final static class ABS_I extends SymbolicFunction {
 
 		public ABS_I(SymbolicEnvironment env) {
-			super(env, ABS_FUNCTION_NAME);
+			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,
+					Types.I2I_DESCRIPTOR);
 		}
 
 		@Override
-		protected IntegerValue executeFunction(int res) {
-			IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
-					integerExpression, Operator.ABS, (long) res);
+		public Object executeFunction() {
+			int res = this.getConcIntRetVal();
+			IntegerValue intExpression = this.getSymbIntegerArgument(0);
+			IntegerValue sym_val;
+			if (intExpression.containsSymbolicVariable()) {
+				sym_val = new IntegerUnaryExpression(intExpression,
+						Operator.ABS, (long) res);
+			} else {
+				sym_val = this.getSymbIntegerRetVal();
+			}
 			return sym_val;
 		}
 
 	}
 
-	public final static class ABS_L extends MathFunction_L2L {
+	public final static class ABS_L extends SymbolicFunction {
 
 		public ABS_L(SymbolicEnvironment env) {
-			super(env, ABS_FUNCTION_NAME);
+			super(env, Types.JAVA_LANG_MATH, ABS_FUNCTION_NAME,
+					Types.L2L_DESCRIPTOR);
 		}
 
 		@Override
-		protected IntegerValue executeFunction(long res) {
-			IntegerUnaryExpression sym_val = new IntegerUnaryExpression(
-					integerExpression, Operator.ABS, res);
+		public Object executeFunction() {
+			long res = this.getConcLongRetVal();
+			IntegerValue intExpression = this.getSymbIntegerArgument(0);
+			IntegerValue sym_val;
+			if (intExpression.containsSymbolicVariable()) {
+				sym_val = new IntegerUnaryExpression(intExpression,
+						Operator.ABS, res);
+			} else {
+				sym_val = this.getSymbIntegerRetVal();
+			}
 			return sym_val;
 		}
 

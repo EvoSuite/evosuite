@@ -239,6 +239,7 @@ public class TestSuiteGenerator {
 		 * TODO: when we will have several processes running in parallel, we ll
 		 * need to handle the gathering of the statistics. 
 		 */
+		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
 		statistics.writeReport();
 		statistics.writeStatistics();
 		PermissionStatistics.getInstance().printStatistics();
@@ -329,6 +330,7 @@ public class TestSuiteGenerator {
 		if (Properties.ASSERTIONS) {
 			LoggingUtils.getEvoLogger().info("* Generating assertions");
 			progressMonitor.setCurrentPhase("Generating assertions");
+			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
 			if (Properties.CRITERION == Criterion.MUTATION
 			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
 				handleMutations(tests);
@@ -662,8 +664,9 @@ public class TestSuiteGenerator {
 		if (!goals.isEmpty()) {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
+			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
 			progressMonitor.setCurrentPhase("Generating test cases");
-
+			
 			ga.generateSolution();
 			best = (TestSuiteChromosome) ga.getBestIndividual();
 			if (best == null) {
@@ -724,6 +727,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.MINIMIZE) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
+			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
@@ -1043,6 +1047,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.MINIMIZE) {
 			LoggingUtils.getEvoLogger().info("* Minimizing result");
+			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize((TestSuiteChromosome) suiteGA.getBestIndividual());
 		}
@@ -1183,6 +1188,7 @@ public class TestSuiteGenerator {
 					        + MaxStatementsStoppingCondition.getNumExecutedStatements());
 					TestChromosome best = (TestChromosome) ga.getBestIndividual();
 					if (Properties.MINIMIZE && !Properties.MINIMIZE_OLD) {
+						ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
 						TestCaseMinimizer minimizer = new TestCaseMinimizer(
 						        fitnessFunction);
 						minimizer.minimize(best);

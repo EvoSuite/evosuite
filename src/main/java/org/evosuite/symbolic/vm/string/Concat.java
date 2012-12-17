@@ -1,43 +1,41 @@
 package org.evosuite.symbolic.vm.string;
 
-import java.util.Iterator;
-
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.vm.NonNullReference;
-import org.evosuite.symbolic.vm.Operand;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class Concat extends StringFunction {
+public final class Concat extends SymbolicFunction {
 
 	private static final String CONCAT = "concat";
 
-	private StringValue strExpr;
-
 	public Concat(SymbolicEnvironment env) {
-		super(env, CONCAT, Types.STR_TO_STR_DESCRIPTOR);
+		super(env, Types.JAVA_LANG_STRING, CONCAT, Types.STR_TO_STR_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL_String(String receiver) {
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		it.next(); // discard (for now);
-		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
-	}
+	public Object executeFunction() {
 
-	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		this.strExpr = getStringExpression(it.next(), (String) value);
-	}
+		String conc_left = (String) this.getConcReceiver();
+		NonNullReference symb_left = this.getSymbReceiver();
 
-	@Override
-	public void CALL_RESULT(Object res) {
+		StringValue left_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_left, symb_left, conc_left);
+
+		String conc_right = (String) this.getConcArgument(0);
+		NonNullReference symb_right = (NonNullReference) this
+				.getSymbArgument(0);
+
+		StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_right, symb_right, conc_right);
+
+		String res = (String) this.getConcRetVal();
 		if (res != null) {
 			StringBinaryExpression symb_value = new StringBinaryExpression(
-					stringReceiverExpr, Operator.CONCAT, strExpr, (String) res);
+					left_expr, Operator.CONCAT, right_expr, (String) res);
 
 			NonNullReference symb_receiver = (NonNullReference) env.topFrame().operandStack
 					.peekRef();
@@ -46,6 +44,7 @@ public final class Concat extends StringFunction {
 					SymbolicHeap.$STRING_VALUE, conc_receiver, symb_receiver,
 					symb_value);
 		}
+		return this.getSymbRetVal();
 	}
 
 }

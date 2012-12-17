@@ -17,7 +17,7 @@ import org.evosuite.symbolic.expr.bv.StringToIntegerCast;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.junit.Test;
 
-public class TestSeeker3 {
+public class TestConstraintSolver3 {
 
 	private static final String INIT_STRING = "125";
 	private static final int EXPECTED_INTEGER = 126;
@@ -52,8 +52,8 @@ public class TestSeeker3 {
 		System.out.println("");
 		System.out.println("Initial: " + INIT_STRING);
 
-		Seeker seeker = new Seeker();
-		Map<String, Object> model = seeker.getModel(constraints);
+		ConstraintSolver seeker = new ConstraintSolver();
+		Map<String, Object> model = seeker.solve(constraints);
 
 		if (model == null) {
 			fail("search was unsuccessfull");
@@ -62,7 +62,7 @@ public class TestSeeker3 {
 			System.out.println("Expected: " + EXPECTED_INTEGER);
 			System.out.println("Found: " + var0);
 
-			assertEquals(EXPECTED_INTEGER, var0);
+			assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
 		}
 	}
 }
