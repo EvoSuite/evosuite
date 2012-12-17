@@ -697,7 +697,7 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append(INNER_BLOCK_SPACE);
 			builder.append("@Override \n");
 			builder.append(INNER_BLOCK_SPACE);
-			builder.append("public void run() { \n");
+			builder.append("public void run() throws Exception { \n");
 			CODE_SPACE = INNER_INNER_BLOCK_SPACE;
 		}
 
