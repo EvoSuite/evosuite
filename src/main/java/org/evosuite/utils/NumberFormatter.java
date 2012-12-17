@@ -101,7 +101,7 @@ public class NumberFormatter {
 				return "(byte)" + value;
 		} else if (value.getClass().equals(short.class)
 		        || value.getClass().equals(Short.class)) {
-			if (((Byte) value) < 0)
+			if (((Short) value) < 0)
 				return "(short) (" + value + ")";
 			else
 				return "(short)" + value;
