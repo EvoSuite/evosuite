@@ -107,7 +107,6 @@ import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
-import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
@@ -206,7 +205,7 @@ public class TestSuiteGenerator {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
 			                                                  : e.toString()));
-			logger.error("Problem for "+Properties.TARGET_CLASS+". Full stack:",e);
+			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
 			return "";
 		} finally {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
@@ -704,7 +703,7 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
-		} else if(Properties.COVERAGE){
+		} else if (Properties.COVERAGE) {
 			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
 		}
 		progressMonitor.updateStatus(99);
@@ -931,7 +930,6 @@ public class TestSuiteGenerator {
 		return false;
 	}
 
-
 	/**
 	 * Generate one random test at a time and check if adding it improves
 	 * fitness (1+1)RT
@@ -947,17 +945,17 @@ public class TestSuiteGenerator {
 		// GeneticAlgorithm suiteGA = setup();
 		stopping_condition = getStoppingCondition();
 		statistics.searchStarted(suiteGA);
-		
-		for(int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
-			logger.info("Current test: "+i+"/"+Properties.NUM_RANDOM_TESTS);
+
+		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
+			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
 			TestChromosome test = factory.getChromosome();
 			ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
 			Integer pos = result.getFirstPositionOfThrownException();
-			if(pos != null) {
-				if(result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
-					test.getTestCase().chop(pos);					
+			if (pos != null) {
+				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
+					test.getTestCase().chop(pos);
 				} else {
-					test.getTestCase().chop(pos+1);
+					test.getTestCase().chop(pos + 1);
 				}
 				test.setChanged(true);
 			} else {
@@ -965,7 +963,7 @@ public class TestSuiteGenerator {
 			}
 			suite.addTest(test);
 		}
-		
+
 		suiteGA.getPopulation().add(suite);
 		statistics.searchFinished(suiteGA);
 		suiteGA.printBudget();
@@ -973,7 +971,7 @@ public class TestSuiteGenerator {
 
 		return suite.getTests();
 	}
-	
+
 	/**
 	 * Generate one random test at a time and check if adding it improves
 	 * fitness (1+1)RT
