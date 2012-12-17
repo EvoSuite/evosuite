@@ -119,7 +119,8 @@ public final class StringConstraint extends Constraint<String> {
 		String sub = subStr.toString();
 
 		if (subStr_length > val_length) {
-			return editDistance(val, sub);
+			return avmDistance(val, sub);
+			// return editDistance(val, sub);
 		} else {
 			int diff = val_length - subStr_length;
 			for (int i = 0; i < diff + 1; i++) {
@@ -136,6 +137,15 @@ public final class StringConstraint extends Constraint<String> {
 		int len = Math.min(suffix.length(), value.length());
 		String val1 = value.substring(value.length() - len);
 		return StrEquals(val1, suffix);
+	}
+	
+	private static double avmDistance(String s, String t) {
+		double distance = Math.abs(s.length() - t.length());
+		int max = Math.min(s.length(), t.length());
+		for(int i = 0; i < max; i++) {
+			distance += normalize(Math.abs(s.charAt(i) - t.charAt(i)));
+		}
+		return distance;
 	}
 	
 	private static double editDistance(String s, String t) {
@@ -250,7 +260,8 @@ public final class StringConstraint extends Constraint<String> {
 		if (first.equals(second))
 			return 0; // Identical
 		else {
-			return editDistance(first, second.toString());
+			return avmDistance(first, second.toString());
+			// return editDistance(first, second.toString());
 		}
 	}
 	

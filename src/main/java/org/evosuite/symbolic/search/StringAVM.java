@@ -39,12 +39,14 @@ public final class StringAVM {
 
 		checkpointVar(DistanceEstimator.getDistance(cnstr));
 
+		// First chop characters from the back until distance doesn't improve
 		String oldString = strVar.getConcreteValue();
-		for (int i = oldString.length() - 1; i >= 0; i--) {
-			String newStr = oldString.substring(0, i)
-					+ oldString.substring(i + 1);
+		boolean improved = true;
+		while(improved) {
+			String newStr = oldString.substring(0, oldString.length() - 1);
 			strVar.setConcreteValue(newStr);
 			log.debug("Current attempt: " + newStr);
+			improved = false;
 
 			double newDist = DistanceEstimator.getDistance(cnstr);
 
@@ -52,6 +54,7 @@ public final class StringAVM {
 				log.debug("Distance improved, keeping change");
 				checkpointVar(newDist);
 				improvement = true;
+				improved = true;
 				oldString = newStr;
 				if (newDist == 0) {
 					return true;
@@ -62,7 +65,7 @@ public final class StringAVM {
 			}
 		}
 
-		// try to replace each
+		// next try to replace each character using AVM
 		log.debug("Trying to replace characters");
 		// Backup is done internally
 		if (doStringAVM(oldString)) {
@@ -73,35 +76,33 @@ public final class StringAVM {
 		if (checkpointDistance == 0.0)
 			return true;
 
-		// try to add everywhere
+		// try to add at the end
 		log.debug("Trying to add characters");
 
 		checkpointVar(DistanceEstimator.getDistance(cnstr));
 
-		for (int i = 0; i < oldString.length() + 1; i++) {
-			boolean add = true;
-			while (add) {
-				add = false;
-				String newStr = oldString.substring(0, i) + '_'
-						+ oldString.substring(i);
-				strVar.setConcreteValue(newStr);
-				double newDist = DistanceEstimator.getDistance(cnstr);
-				log.debug("Adding " + i + ": " + newStr + ": " + newDist);
-
-				if (distImpr(newDist)) {
-					improvement = true;
-					checkpointVar(newDist);
-					if (checkpointDistance == 0.0) {
-						log.debug("Search seems successful, stopping at "
-								+ checkpointDistance + "/" + newDist);
-						return true;
-					}
-
-					doCharacterAVM(i);
-					oldString = strVar.getConcreteValue();
-				} else {
-					restoreVar();
+		// Finally add new characters at the end of the string
+		improved = true;
+		while(improved) {
+			improved = false;
+			String newStr = oldString + '_';
+			strVar.setConcreteValue(newStr);
+			double newDist = DistanceEstimator.getDistance(cnstr);
+			log.debug("Adding: " + newStr + ": " + newDist);
+			if (distImpr(newDist)) {
+				improvement = true;
+				improved = true;
+				checkpointVar(newDist);
+				if (checkpointDistance == 0.0) {
+					log.debug("Search seems successful, stopping at "
+							+ checkpointDistance + "/" + newDist);
+					return true;
 				}
+
+				doCharacterAVM(newStr.length() - 1);
+				oldString = strVar.getConcreteValue();
+			} else {
+				restoreVar();
 			}
 		}
 		return improvement;
