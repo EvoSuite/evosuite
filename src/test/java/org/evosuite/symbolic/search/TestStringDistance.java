@@ -53,7 +53,7 @@ public class TestStringDistance {
 		final String str2 = "xbc";
 		Collection<Constraint<?>> cnstr = createConstraints(str1, str2);
 		double distance = DistanceEstimator.getDistance(cnstr);
-		assertEquals(0.666666666666666666 , distance, DELTA);
+		assertEquals(0.48936170212765956 , distance, DELTA);
 	}
 
 	@Test
