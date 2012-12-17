@@ -789,10 +789,6 @@ public class Properties {
 	@Parameter(key = "constraint_solution_attempts", description = "Number of attempts to solve constraints related to one code branch")
 	public static int CONSTRAINT_SOLUTION_ATTEMPTS = 3;
 
-	/** Constant <code>UI_TEST=false</code> */
-	@Parameter(key = "ui", description = "Do User Interface tests")
-	public static boolean UI_TEST = false;
-
 	/** Constant <code>TESTABILITY_TRANSFORMATION=false</code> */
 	@Parameter(key = "testability_transformation", description = "Apply testability transformation (Yanchuan)")
 	public static boolean TESTABILITY_TRANSFORMATION = false;
