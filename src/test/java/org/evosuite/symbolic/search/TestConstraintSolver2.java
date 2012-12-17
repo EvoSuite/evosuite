@@ -11,7 +11,6 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEBudgetType;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
@@ -57,7 +56,7 @@ public class TestConstraintSolver2 {
 		System.out.println("Initial: " + INIT_STRING);
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.getModel(constraints);
+		Map<String, Object> model = seeker.solve(constraints);
 
 		assertNotNull(model);
 		
