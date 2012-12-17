@@ -32,12 +32,12 @@ import org.evosuite.Properties;
 import org.evosuite.ga.DSEBudget;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.search.Seeker;
+import org.evosuite.symbolic.search.ConstraintSolver;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
@@ -307,6 +307,7 @@ public class TestSuiteDSE {
 					// ZeroFitness is a stopping condition
 				} else {
 					logger.info("New test does not improve fitness");
+					DSEStats.reportSolutionWithNoFitnessImprovement();
 					expandedTests.deleteTest(newTest);
 				}
 				success++;
@@ -336,10 +337,7 @@ public class TestSuiteDSE {
 		List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 		constraints.addAll(reachingConstraints);
 
-		Constraint<Long> targetConstraint = new IntegerConstraint(
-				localConstraint.getLeftOperand(), localConstraint
-						.getComparator().not(),
-				localConstraint.getRightOperand());
+		Constraint<?> targetConstraint =localConstraint.negate();
 		constraints.add(targetConstraint);
 		if (!targetConstraint.isSolveable()) {
 			logger.info("Found unsolvable constraint: " + targetConstraint);
@@ -370,10 +368,12 @@ public class TestSuiteDSE {
 		nrConstraints += nrCurrConstraints;
 
 		logger.info("Applying local search");
-		Seeker skr = new Seeker();
-		Map<String, Object> values = skr.getModel(constraints);
+		ConstraintSolver skr = new ConstraintSolver();
+		Map<String, Object> values = skr.solve(constraints);
 
 		if (values != null && !values.isEmpty()) {
+			DSEStats.reportSAT();
+			
 			TestCase newTest = test.clone();
 
 			for (Object key : values.keySet()) {
@@ -444,6 +444,7 @@ public class TestSuiteDSE {
 			return newTest;
 		} else {
 			logger.info("Found no solution");
+			DSEStats.reportUNSAT();
 			return null;
 		}
 

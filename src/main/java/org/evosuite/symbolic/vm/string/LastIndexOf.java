@@ -2,7 +2,6 @@ package org.evosuite.symbolic.vm.string;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
@@ -10,160 +9,173 @@ import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.Operand;
+import org.evosuite.symbolic.vm.NonNullReference;
+import org.evosuite.symbolic.vm.Reference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public abstract class LastIndexOf extends StringFunction {
+public abstract class LastIndexOf extends SymbolicFunction {
 
 	private static final String LAST_INDEX_OF = "lastIndexOf";
 
 	public LastIndexOf(SymbolicEnvironment env, String desc) {
-		super(env, LAST_INDEX_OF, desc);
+		super(env, Types.JAVA_LANG_STRING, LAST_INDEX_OF, desc);
 	}
 
 	public final static class LastIndexOf_C extends LastIndexOf {
-
-		private IntegerValue charExpr;
 
 		public LastIndexOf_C(SymbolicEnvironment env) {
 			super(env, Types.INT_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL_String(String receiver) {
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
-		}
+		public Object executeFunction() {
 
-		@Override
-		public void CALL_RESULT(int res) {
-			if (stringReceiverExpr.containsSymbolicVariable()
-					|| charExpr.containsSymbolicVariable()) {
+			String conc_left = (String) this.getConcReceiver();
+			NonNullReference symb_left = this.getSymbReceiver();
+
+			StringValue left_expr = env.heap
+					.getField(Types.JAVA_LANG_STRING,
+							SymbolicHeap.$STRING_VALUE, conc_left, symb_left,
+							conc_left);
+
+			IntegerValue right_expr = this.getSymbIntegerArgument(0);
+			int res = this.getConcIntRetVal();
+			if (left_expr.containsSymbolicVariable()
+					|| right_expr.containsSymbolicVariable()) {
 				StringBinaryToIntegerExpression strBExpr = new StringBinaryToIntegerExpression(
-						stringReceiverExpr, Operator.LASTINDEXOFC, charExpr,
-						(long) res);
-				this.replaceTopBv32(strBExpr);
+						left_expr, Operator.LASTINDEXOFC, right_expr, (long) res);
+
+				return strBExpr;
 			}
 
+			return this.getSymbIntegerRetVal();
 		}
 	}
 
 	public final static class LastIndexOf_CI extends LastIndexOf {
-
-		private IntegerValue charExpr;
-		private IntegerValue fromIndexExpr;
 
 		public LastIndexOf_CI(SymbolicEnvironment env) {
 			super(env, Types.INT_INT_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL_String(String receiver) {
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.fromIndexExpr = bv32(it.next());
-			this.charExpr = bv32(it.next());
-			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
-		}
+		public Object executeFunction() {
 
-		@Override
-		public void CALL_RESULT(int res) {
-			if (stringReceiverExpr.containsSymbolicVariable()
-					|| charExpr.containsSymbolicVariable()
+			String conc_left = (String) this.getConcReceiver();
+			NonNullReference symb_left = this.getSymbReceiver();
+
+			StringValue left_expr = env.heap
+					.getField(Types.JAVA_LANG_STRING,
+							SymbolicHeap.$STRING_VALUE, conc_left, symb_left,
+							conc_left);
+
+			IntegerValue right_expr = this.getSymbIntegerArgument(0);
+			IntegerValue fromIndexExpr = this.getSymbIntegerArgument(1);
+
+			int res = this.getConcIntRetVal();
+			if (left_expr.containsSymbolicVariable()
+					|| right_expr.containsSymbolicVariable()
 					|| fromIndexExpr.containsSymbolicVariable()) {
-
-				StringMultipleToIntegerExpression strTExpr = new StringMultipleToIntegerExpression(
-						stringReceiverExpr, Operator.LASTINDEXOFCI, charExpr,
+				StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
+						left_expr, Operator.LASTINDEXOFCI, right_expr,
 						new ArrayList<Expression<?>>(Collections
 								.singletonList(fromIndexExpr)),
 						(long) res);
 
-				this.replaceTopBv32(strTExpr);
+				return strBExpr;
 			}
 
+			return this.getSymbIntegerRetVal();
 		}
 	}
 
 	public final static class LastIndexOf_S extends LastIndexOf {
-
-		private StringValue strExpr;
 
 		public LastIndexOf_S(SymbolicEnvironment env) {
 			super(env, Types.STR_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL_String(String receiver) {
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
+		public Object executeFunction() {
 
-			it.next(); // discard (for now)
-			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
+			String conc_left = (String) this.getConcReceiver();
+			NonNullReference symb_left = this.getSymbReceiver();
 
-		}
+			StringValue left_expr = env.heap
+					.getField(Types.JAVA_LANG_STRING,
+							SymbolicHeap.$STRING_VALUE, conc_left, symb_left,
+							conc_left);
 
-		@Override
-		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
-				Object value) {
-			String string_value = (String) value;
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.strExpr = getStringExpression(it.next(), string_value);
-		}
+			String conc_right = (String) this.getConcArgument(0);
+			NonNullReference symb_right = (NonNullReference) this
+					.getSymbArgument(0);
 
-		@Override
-		public void CALL_RESULT(int res) {
-			if (stringReceiverExpr.containsSymbolicVariable()
-					|| strExpr.containsSymbolicVariable()) {
+			StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, conc_right, symb_right,
+					conc_right);
+
+			int res = this.getConcIntRetVal();
+			if (left_expr.containsSymbolicVariable()
+					|| right_expr.containsSymbolicVariable()) {
 				StringBinaryToIntegerExpression strBExpr = new StringBinaryToIntegerExpression(
-						stringReceiverExpr, Operator.LASTINDEXOFS, strExpr,
-						(long) res);
+						left_expr, Operator.LASTINDEXOFS, right_expr, (long) res);
 
-				this.replaceTopBv32(strBExpr);
+				return strBExpr;
 			}
 
+			return this.getSymbIntegerRetVal();
 		}
+
 	}
 
 	public final static class LastIndexOf_SI extends LastIndexOf {
-
-		private StringValue strExpr;
-		private IntegerValue fromIndexExpr;
 
 		public LastIndexOf_SI(SymbolicEnvironment env) {
 			super(env, Types.STR_INT_TO_INT_DESCRIPTOR);
 		}
 
 		@Override
-		protected void INVOKEVIRTUAL_String(String receiver) {
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.fromIndexExpr = bv32(it.next());
-			it.next(); // discard symb ref
-			this.stringReceiverExpr = getStringExpression(it.next(), receiver);
-		}
+		public Object executeFunction() {
 
-		@Override
-		public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex,
-				Object value) {
-			String string_value = (String) value;
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			it.next(); // discard bv32
-			this.strExpr = getStringExpression(it.next(), string_value);
-		}
+			String conc_left = (String) this.getConcReceiver();
+			NonNullReference symb_left = this.getSymbReceiver();
 
-		@Override
-		public void CALL_RESULT(int res) {
-			if (stringReceiverExpr.containsSymbolicVariable()
-					|| strExpr.containsSymbolicVariable()
-					|| fromIndexExpr.containsSymbolicVariable()) {
-				StringMultipleToIntegerExpression strTExpr = new StringMultipleToIntegerExpression(
-						stringReceiverExpr, Operator.LASTINDEXOFSI, strExpr,
-						new ArrayList<Expression<?>>(Collections
-								.singletonList(fromIndexExpr)),
-						(long) res);
+			StringValue left_expr = env.heap
+					.getField(Types.JAVA_LANG_STRING,
+							SymbolicHeap.$STRING_VALUE, conc_left, symb_left,
+							conc_left);
 
-				this.replaceTopBv32(strTExpr);
+			String conc_right = (String) this.getConcArgument(0);
+			Reference symb_right = this.getSymbArgument(0);
+			IntegerValue fromIndexExpr = this.getSymbIntegerArgument(1);
+
+			int res = this.getConcIntRetVal();
+
+			if (symb_right instanceof NonNullReference) {
+				NonNullReference symb_non_null_right = (NonNullReference) symb_right;
+				StringValue right_expr = env.heap.getField(
+						Types.JAVA_LANG_STRING, SymbolicHeap.$STRING_VALUE,
+						conc_right, symb_non_null_right, conc_right);
+
+				if (left_expr.containsSymbolicVariable()
+						|| right_expr.containsSymbolicVariable()
+						|| fromIndexExpr.containsSymbolicVariable()) {
+
+					StringMultipleToIntegerExpression strBExpr = new StringMultipleToIntegerExpression(
+							left_expr, Operator.LASTINDEXOFSI, right_expr,
+							new ArrayList<Expression<?>>(Collections
+									.singletonList(fromIndexExpr)),
+							(long) res);
+
+					return strBExpr;
+				}
 			}
 
+			return this.getSymbIntegerRetVal();
 		}
+
 	}
 
 }

@@ -1,39 +1,29 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-
-public final class J_LongValue extends Function {
+public final class J_LongValue extends SymbolicFunction {
 
 	private static final String LONG_VALUE = "longValue";
-	private NonNullReference symb_long;
-	private Long conc_long;
 
 	public J_LongValue(SymbolicEnvironment env) {
 		super(env, Types.JAVA_LANG_LONG, LONG_VALUE, Types.TO_LONG);
 	}
 
 	@Override
-	public void INVOKEVIRTUAL(Object conc_long) {
-		if (conc_long == null)
-			return;
+	public Object executeFunction() {
+		NonNullReference symb_long = this.getSymbReceiver();
+		Long conc_long = (Long) this.getConcReceiver();
 
-		symb_long = (NonNullReference) this.env.topFrame().operandStack
-				.peekRef();
-		this.conc_long = (Long) conc_long;
-	}
-
-	@Override
-	public void CALL_RESULT(long conc_long_value) {
-		IntegerValue symb_long_value = env.heap.getField(
-				Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE, conc_long, symb_long,
-				conc_long_value);
-
-		replaceTopBv64(symb_long_value);
+		long conc_long_value = this.getConcLongRetVal();
+		IntegerValue symb_long_value = env.heap
+				.getField(Types.JAVA_LANG_LONG, SymbolicHeap.$LONG_VALUE,
+						conc_long, symb_long, conc_long_value);
+		return symb_long_value;
 	}
 
 }

@@ -1,15 +1,12 @@
 package org.evosuite.symbolic.vm.wrappers;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
-import org.evosuite.symbolic.vm.Function;
 import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
 import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class B_ByteValue extends Function {
-
-	private NonNullReference symb_byte;
-	private Byte conc_byte;
+public final class B_ByteValue extends SymbolicFunction {
 
 	private static final String BYTE_VALUE = "byteValue";
 
@@ -18,22 +15,17 @@ public final class B_ByteValue extends Function {
 	}
 
 	@Override
-	public void INVOKEVIRTUAL(Object conc_byte) {
-		if (conc_byte == null)
-			return;
+	public Object executeFunction() {
+		NonNullReference symb_byte = this.getSymbReceiver();
+		Byte conc_byte = (Byte) this.getConcReceiver();
 
-		symb_byte = (NonNullReference) this.env.topFrame().operandStack
-				.peekRef();
-		this.conc_byte = (Byte) conc_byte;
-	}
+		int conc_byte_value = this.getConcByteRetVal();
 
-	@Override
-	public void CALL_RESULT(int conc_byte_value) {
-		IntegerValue symb_byte_value = env.heap.getField(
-				Types.JAVA_LANG_BYTE, SymbolicHeap.$BYTE_VALUE, conc_byte,
-				symb_byte, conc_byte_value);
+		IntegerValue symb_byte_value = env.heap
+				.getField(Types.JAVA_LANG_BYTE, SymbolicHeap.$BYTE_VALUE,
+						conc_byte, symb_byte, conc_byte_value);
 
-		replaceTopBv32(symb_byte_value);
+		return symb_byte_value;
 	}
 
 }

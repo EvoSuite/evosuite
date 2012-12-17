@@ -1,54 +1,57 @@
 package org.evosuite.symbolic.vm.string;
 
-import java.util.Iterator;
-
 import org.evosuite.symbolic.expr.Operator;
-import org.evosuite.symbolic.expr.bv.StringComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.str.StringValue;
-import org.evosuite.symbolic.vm.Operand;
+import org.evosuite.symbolic.vm.NonNullReference;
 import org.evosuite.symbolic.vm.SymbolicEnvironment;
+import org.evosuite.symbolic.vm.SymbolicFunction;
+import org.evosuite.symbolic.vm.SymbolicHeap;
 
-public final class Contains extends StringFunction {
+public final class Contains extends SymbolicFunction {
 
-	private StringValue strExpr;
 	private static final String CONTAINS = "contains";
 
 	public Contains(SymbolicEnvironment env) {
-		super(env, CONTAINS, Types.CHARSEQ_TO_BOOL_DESCRIPTOR);
+		super(env, Types.JAVA_LANG_STRING, CONTAINS,
+				Types.CHARSEQ_TO_BOOL_DESCRIPTOR);
 	}
 
 	@Override
-	protected void INVOKEVIRTUAL_String(String receiver) {
-		Iterator<Operand> it = env.topFrame().operandStack.iterator();
-		it.next(); // discard (for now)
-		this.stringReceiverExpr = getStringExpression(it.next(), receiver);
-	}
+	public Object executeFunction() {
+		String conc_left = (String) this.getConcReceiver();
+		NonNullReference symb_left = this.getSymbReceiver();
 
-	@Override
-	public void CALLER_STACK_PARAM(int nr, int calleeLocalsIndex, Object value) {
-		if (value instanceof String) {
-			String string = (String) value;
-			Iterator<Operand> it = env.topFrame().operandStack.iterator();
-			this.strExpr = getStringExpression(it.next(), string);
+		StringValue left_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+				SymbolicHeap.$STRING_VALUE, conc_left, symb_left, conc_left);
 
-		}
-	}
+		CharSequence conc_right = (CharSequence) this.getConcArgument(0);
+		NonNullReference symb_right = (NonNullReference) this
+				.getSymbArgument(0);
 
-	@Override
-	public void CALL_RESULT(boolean res) {
-		if (strExpr != null) {
-			if (stringReceiverExpr.containsSymbolicVariable()
-					|| strExpr.containsSymbolicVariable()) {
+		if (conc_right instanceof String) {
+			String conc_right_str = (String) conc_right;
+			StringValue right_expr = env.heap.getField(Types.JAVA_LANG_STRING,
+					SymbolicHeap.$STRING_VALUE, conc_right_str, symb_right,
+					conc_right_str);
 
-				int concrete_value = res ? 1 : 0;
+			boolean res = this.getConcBooleanRetVal();
+			if (right_expr != null) {
+				if (left_expr.containsSymbolicVariable()
+						|| right_expr.containsSymbolicVariable()) {
 
-				StringComparison strComp = new StringComparison(
-						stringReceiverExpr, Operator.CONTAINS, strExpr,
-						(long) concrete_value);
+					int concrete_value = res ? 1 : 0;
 
-				replaceTopBv32(strComp);
+					StringBinaryComparison strComp = new StringBinaryComparison(left_expr,
+							Operator.CONTAINS, right_expr,
+							(long) concrete_value);
+
+					return strComp;
+				}
 			}
 		}
+
+		return this.getSymbIntegerRetVal();
 	}
 
 }
