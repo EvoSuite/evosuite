@@ -387,7 +387,11 @@ public class CoverageAnalysis {
 	 * @param args
 	 *            an array of {@link java.lang.String} objects.
 	 */
+	@Deprecated
 	public static void main(String[] args) {
+		LoggingUtils.getEvoLogger().error("Cannot start CoverageAnalysis directly");
+		return;
+		/*
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");
 			CoverageAnalysis process = new CoverageAnalysis();
@@ -411,6 +415,7 @@ public class CoverageAnalysis {
 				System.exit(1);
 			}
 		}
+		*/
 	}
 
 }

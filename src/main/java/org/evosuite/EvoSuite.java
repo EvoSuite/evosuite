@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -48,6 +49,8 @@ import org.evosuite.Properties.NoSuchParameterException;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.rmi.MasterServices;
+import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.ClassPathHacker;
@@ -387,7 +390,7 @@ public class EvoSuite {
 			cmdLine.add("-Xdebug");
 			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + Properties.PORT);
 			LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port " + Properties.PORT + "..."); // TODO find the right
-																																// place for this
+			// place for this
 		}
 
 		for (String arg : args) {
@@ -523,31 +526,41 @@ public class EvoSuite {
 		handler.setBaseDir(base_dir_path);
 		Object result = null;
 		if (handler.startProcess(newArgs)) {
-			int time = Properties.EXTRA_TIMEOUT;
-			if (Properties.STOPPING_CONDITION == StoppingCondition.MAXTIME) {
-				time += Math.max(Properties.GLOBAL_TIMEOUT, Properties.SEARCH_BUDGET);
-			} else {
-				time += Properties.GLOBAL_TIMEOUT;
-			}
-			if (Properties.MINIMIZE) {
-				time += Properties.MINIMIZATION_TIMEOUT;
-			}
-			if (Properties.ASSERTIONS) {
-				time += Properties.ASSERTION_TIMEOUT;
-			}
-			result = handler.waitForResult(time * 1000); // FIXXME: search timeout plus 100 seconds?
+
+			Set<ClientNodeRemote> clients = null;
 			try {
-				Thread.sleep(100);
+				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
 			} catch (InterruptedException e) {
 			}
+			if(clients==null){
+				logger.error("Not possible to access to clients");
+			} else {
+				/*
+				 * The clients have started, and connected back to Master.
+				 * So now we just need to tell them to start a search
+				 */
+				for(ClientNodeRemote client : clients){
+					try {
+						client.startNewSearch();
+					} catch (RemoteException e) {
+						logger.error("Error in starting clients",e);						
+					}
+				}
 
+				int time = calculateHowLongSearchShouldWaitInSeconds();
+				result = handler.waitForResult(time * 1000); // FIXXME: search timeout plus 100 seconds?
+				try {
+					Thread.sleep(100);
+				} catch (InterruptedException e) {
+				}
+			}
 			handler.killProcess();
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 
 		handler.closeServer();
-		
+
 		if (Properties.CLIENT_ON_THREAD) {
 			/*
 			 * FIXME: this is done only to avoid current problems with serialization
@@ -566,6 +579,22 @@ public class EvoSuite {
 		logger.debug("Master process has finished to wait for client");
 
 		return result;
+	}
+
+	private static int calculateHowLongSearchShouldWaitInSeconds() {
+		int time = Properties.EXTRA_TIMEOUT;
+		if (Properties.STOPPING_CONDITION == StoppingCondition.MAXTIME) {
+			time += Math.max(Properties.GLOBAL_TIMEOUT, Properties.SEARCH_BUDGET);
+		} else {
+			time += Properties.GLOBAL_TIMEOUT;
+		}
+		if (Properties.MINIMIZE) {
+			time += Properties.MINIMIZATION_TIMEOUT;
+		}
+		if (Properties.ASSERTIONS) {
+			time += Properties.ASSERTION_TIMEOUT;
+		}
+		return time;
 	}
 
 	private static void measureCoverage(String targetClass, String junitPrefix, List<String> args, String cp) {
@@ -605,7 +634,7 @@ public class EvoSuite {
 		}
 
 		cmdLine.add("-Dclassloader=true");
-		cmdLine.add("org.evosuite.junit.CoverageAnalysis");
+		cmdLine.add("org.evosuite.ClientProcess");
 
 		/*
 		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
@@ -642,19 +671,41 @@ public class EvoSuite {
 
 		handler.setBaseDir(base_dir_path);
 		if (handler.startProcess(newArgs)) {
-			handler.waitForResult((Properties.GLOBAL_TIMEOUT + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search
-																																	// timeout plus
-																																	// 100 seconds?
+			Set<ClientNodeRemote> clients = null;
+			try {
+				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
+			} catch (InterruptedException e) {
+			}
+			if(clients==null){
+				logger.error("Not possible to access to clients");
+			} else {
+				/*
+				 * The clients have started, and connected back to Master.
+				 * So now we just need to tell them to start a search
+				 */
+				for(ClientNodeRemote client : clients){
+					try {
+						client.doCoverageAnalysis();
+					} catch (RemoteException e) {
+						logger.error("Error in starting clients",e);						
+					}
+				}
+
+				handler.waitForResult((Properties.GLOBAL_TIMEOUT + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search
+			}
+			// timeout plus
+			// 100 seconds?
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
 			}
 
 			handler.killProcess();
-			handler.closeServer();
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
+
+		handler.closeServer();
 
 		if (!Properties.CLIENT_ON_THREAD) {
 			try {
@@ -677,13 +728,13 @@ public class EvoSuite {
 
 		// try to find it inside the jar // FIXME this does still not seem to be the golden solution
 		InputStream evosuiteIOjarInputStream = EvoSuite.class.getClassLoader().getResourceAsStream("evosuite-io.jar"); // created by maven with the
-																														// jar-minimal.xml assembly
-																														// file - contains the
-																														// evosuite-io classes
-																														// plus the needed
-																														// commons-vfs2 and
-																														// commons-logging
-																														// dependencies
+		// jar-minimal.xml assembly
+		// file - contains the
+		// evosuite-io classes
+		// plus the needed
+		// commons-vfs2 and
+		// commons-logging
+		// dependencies
 		if (evosuiteIOjarInputStream != null) {
 			// extract evosuite-io.jar into the system-default temporary directory
 			String tmpFilePath = System.getProperty("java.io.tmpdir") + File.separator + "evosuite-io.jar";
@@ -979,7 +1030,7 @@ public class EvoSuite {
 						result = generateTests(strategy, line.getOptionValue("class"), javaOpts, cp);
 					else if (line.hasOption("prefix"))
 						generateTestsPrefix(strategy, line.getOptionValue("prefix"),
-						                    javaOpts, cp);
+								javaOpts, cp);
 					else if (line.hasOption("target")) {
 						String target =line.getOptionValue("target");
 						if(cp.isEmpty()) {
@@ -988,7 +1039,7 @@ public class EvoSuite {
 							cp = cp + File.pathSeparator + target;
 						}
 						generateTestsTarget(strategy, target,
-						                    javaOpts, cp);
+								javaOpts, cp);
 					}
 					else if (hasLegacyTargets())
 						generateTestsLegacy(strategy, javaOpts, cp);
