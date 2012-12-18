@@ -182,25 +182,8 @@ public class ExternalProcessHandler {
 		}
 		//wait for connection from external process
 
-		Set<ClientNodeRemote> clients;
-		try {
-			clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
-		} catch (InterruptedException e) {
-			return false;
-		}
-		if(clients==null){
-			logger.error("Not possible to access to clients");
-			return false;
-		}
-
-		for(ClientNodeRemote client : clients){
-			try {
-				client.startNewSearch();
-			} catch (RemoteException e) {
-				logger.error("Error in starting clients",e);
-				return false;
-			}
-		}
+		
+		
 		
 		/*
 		 * TODO remove once RMI is stable
