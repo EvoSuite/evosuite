@@ -28,10 +28,12 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.utils.Utils;
 
+/*
 import mockit.Deencapsulation;
 import mockit.Mock;
 import mockit.MockUp;
 import mockit.Mockit;
+*/
 
 /**
  * This class is used for the mocks creation and destruction. The implementation
@@ -90,15 +92,15 @@ class Mocks {
 	public void setUpMocks() {
 		Utils.createDir(sandboxWriteFolder);
 		Utils.createDir(sandboxReadFolder);
-		setUpMockedClasses();
+		// setUpMockedClasses();
 		if(mock_strategies.contains("io")){
-			setUpFileOutputStreamMock();
-			setUpFileMock();
-			setUpFileInputStreamMock();
+			//setUpFileOutputStreamMock();
+			//setUpFileMock();
+			//setUpFileInputStreamMock();
 		}
 		if(mock_strategies.contains("everything") ||
 				mock_strategies.contains("external"))
-			setUpSystemMock();
+			//setUpSystemMock();
 		mocksEnabled = true;
 	}
 
@@ -107,7 +109,7 @@ class Mocks {
 	 */
 	public void tearDownMocks() {
 		if (mocksEnabled) {
-			Mockit.tearDownMocks();
+			//Mockit.tearDownMocks();
 			Utils.deleteDir(sandboxWriteFolder);
 			mocksEnabled = false;
 			filesAccessed.clear();
@@ -118,6 +120,7 @@ class Mocks {
 	/**
 	 * Apply mocks according to mocking strategy
 	 */
+	/*
 	private void setUpMockedClasses(){
 		String targetClass = Properties.TARGET_CLASS;
 		
@@ -151,11 +154,13 @@ class Mocks {
 			}
 		} 
 	}
+	*/
 	
 	/**
 	 * Apply mock to one particular class 
 	 * @param clazz
 	 */
+	/*
 	private void setUpMockClass(Class<?> clazz){
 		String className = clazz.getCanonicalName();
 		
@@ -179,10 +184,12 @@ class Mocks {
 				classesMocked.add(clazz);
 			}
 	}
+	*/
 	
 	/**
 	 * Create mocks for the class java.io.FileOutputStream
 	 */
+	/*
 	private void setUpFileOutputStreamMock() {
 		new MockUp<java.io.FileOutputStream>() {
 			FileOutputStream it;
@@ -219,10 +226,12 @@ class Mocks {
 		};
 		classesMocked.add(FileOutputStream.class);
 	}
+	*/
 
 	/**
 	 * Create mocks for the class java.lang.System
 	 */
+	/*
 	private void setUpSystemMock() {
 		new MockUp<java.lang.System>() {
 			@SuppressWarnings("unused")
@@ -235,10 +244,12 @@ class Mocks {
 		};
 		classesMocked.add(System.class);
 	}
+	*/
 
 	/**
 	 * Create mocks for the class java.io.File
 	 */
+	/*
 	private void setUpFileMock() {
 		new MockUp<File>() {
 			File it;
@@ -282,10 +293,12 @@ class Mocks {
 		};
 		classesMocked.add(File.class);
 	}
-
+	 */
+	
 	/**
 	 * Create mocks for the class java.io.FileInputStream
 	 */
+	/*
 	private void setUpFileInputStreamMock() {
 		new MockUp<FileInputStream>() {
 			FileInputStream it;
@@ -327,6 +340,7 @@ class Mocks {
 		};
 		classesMocked.add(FileInputStream.class);
 	}
+	*/
 
 	/**
 	 * Checks StackTrace of the current thread and decides, whether the file

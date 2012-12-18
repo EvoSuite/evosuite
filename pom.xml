@@ -191,11 +191,13 @@
 			<artifactId>automaton</artifactId>
 			<version>1.11-8</version>
 		</dependency>
+		<!--
 		<dependency>
 			<groupId>com.googlecode.jmockit</groupId>
 			<artifactId>jmockit</artifactId>
 			<version>0.999.16</version>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-api</artifactId>
@@ -461,8 +463,9 @@
 							<goal>single</goal> <!-- goals == mojos -->
 						</goals>
 					</execution>
-				</executions>
+				</executions>				
 			</plugin>
+			<!--
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
@@ -489,6 +492,7 @@
 					</execution>
 				</executions>
 			</plugin>
+			-->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
