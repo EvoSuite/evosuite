@@ -686,7 +686,7 @@ public class TestSuiteWriter implements Opcodes {
 		 * we need to declare them in the signature with "throws". So, the easiest (but still correct) option
 		 * is to just declare once to throw any genetic Exception, and be done with it once and for all
 		 */
-		builder.append(" throws Exception ");
+		builder.append(" throws Throwable ");
 		builder.append(" {\n");
 
 		// ---------   start with the body -------------------------
@@ -730,7 +730,7 @@ public class TestSuiteWriter implements Opcodes {
 			Set<Class<?>> exceptions = test.getDeclaredExceptions();
 			if (!exceptions.isEmpty()) {
 				builder.append(INNER_INNER_BLOCK_SPACE);
-				builder.append("} catch(Exception e) {\n");
+				builder.append("} catch(Throwable t) {\n");
 				builder.append(INNER_INNER_INNER_BLOCK_SPACE);
 				builder.append("  // Need to catch declared exceptions\n");
 				builder.append(INNER_INNER_BLOCK_SPACE);
