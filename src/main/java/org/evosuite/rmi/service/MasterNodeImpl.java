@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,11 +27,14 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	 * We cannot query the client directly in those cases, because it is crashed...
 	 * The "key" is the RMI identifier of the client
 	 */
-	private Map<String,ClientStateInformation> clientStates;
-	
+	private Map<String,ClientState> clientStates;
+
+	private Map<String,ClientStateInformation> clientStateInformation;
+
 	public MasterNodeImpl(Registry registry){
 		clients = new CopyOnWriteArraySet<ClientNodeRemote>();
-		clientStates = new ConcurrentHashMap<String,ClientStateInformation>();
+		clientStates = new ConcurrentHashMap<String,ClientState>();
+		clientStateInformation = new ConcurrentHashMap<String,ClientStateInformation>();
 		this.registry = registry;
 	}
 	
@@ -58,25 +62,23 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
 	@Override
 	public void informChangeOfStateInClient(String clientRmiIdentifier,
-			ClientStateInformation information) throws RemoteException {
-		clientStates.put(clientRmiIdentifier, information);		
+			ClientState state, ClientStateInformation information) throws RemoteException {
+		clientStates.put(clientRmiIdentifier, state);
+		// To be on the safe side
+		information.setState(state);
+		clientStateInformation.put(clientRmiIdentifier, information);
 	}
 	
 	@Override
 	public Collection<ClientState> getCurrentState() {
-		Set<ClientState> states = new HashSet<ClientState>();
-		for(ClientStateInformation info : clientStates.values()) {
-			states.add(info.getState());
-		}
-		return states;
+		return clientStates.values();
 	}
 	
 	@Override
 	public Collection<ClientStateInformation> getCurrentStateInformation() {
-		return clientStates.values();
+		return clientStateInformation.values();
 	}
-
-
+		
 	@Override
 	public String getSummaryOfClientStatuses() {
 		if(clientStates.isEmpty()){
@@ -84,8 +86,8 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		}
 		String summary = "";
 		for(String id : clientStates.keySet()){
-			ClientStateInformation info = clientStates.get(id);
-			summary += id + ": "+info.getState()+"\n";
+			ClientState state = clientStates.get(id);
+			summary += id + ": "+state+"\n";
 		}
 		return summary;
 	}

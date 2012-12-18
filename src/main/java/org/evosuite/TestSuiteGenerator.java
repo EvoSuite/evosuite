@@ -218,7 +218,6 @@ public class TestSuiteGenerator {
 		}
 
 		TestCaseExecutor.initExecutor();
-		setupProgressMonitor();
 
 		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 
@@ -282,18 +281,6 @@ public class TestSuiteGenerator {
 		CoverageStatistics.writeCSV();
 	}
 
-	private void setupProgressMonitor() {
-		int phases = 1;
-		if (Properties.ASSERTIONS)
-			phases++;
-		//if (Properties.JUNIT_TESTS)
-		//	phases++;
-		if (Properties.MINIMIZE || Properties.INLINE || Properties.MINIMIZE_VALUES)
-			phases++;
-
-		progressMonitor.setNumberOfPhases(phases);
-	}
-
 	private List<TestCase> generateTests() {
 		List<TestCase> tests;
 		// Make sure target class is loaded at this point
@@ -329,7 +316,7 @@ public class TestSuiteGenerator {
 
 		if (Properties.ASSERTIONS) {
 			LoggingUtils.getEvoLogger().info("* Generating assertions");
-			progressMonitor.setCurrentPhase("Generating assertions");
+			//progressMonitor.setCurrentPhase("Generating assertions");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
 			if (Properties.CRITERION == Criterion.MUTATION
 			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
@@ -665,7 +652,6 @@ public class TestSuiteGenerator {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
-			progressMonitor.setCurrentPhase("Generating test cases");
 			
 			ga.generateSolution();
 			best = (TestSuiteChromosome) ga.getBestIndividual();
@@ -708,8 +694,8 @@ public class TestSuiteGenerator {
 			}
 		}
 
-		progressMonitor.setCurrentPhase("Reducing tests");
 		if (Properties.MINIMIZE_VALUES) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZING_VALUES);
 			LoggingUtils.getEvoLogger().info("* Minimizing values");
 			ValueMinimizer minimizer = new ValueMinimizer();
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
@@ -718,6 +704,7 @@ public class TestSuiteGenerator {
 		progressMonitor.updateStatus(33);
 
 		if (Properties.INLINE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
 			ConstantInliner inliner = new ConstantInliner();
 			// progressMonitor.setCurrentPhase("Inlining constants");
 			inliner.inline(best);

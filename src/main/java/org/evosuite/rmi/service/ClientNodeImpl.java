@@ -51,7 +51,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 		executor.submit(new Runnable(){
 			@Override
 			public void run() {				
-				changeState(new ClientStateInformation(ClientState.STARTED));
+				changeState(ClientState.STARTED);
 				
 				
 				//Before starting search, let's activate the sandbox
@@ -83,7 +83,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 					        + " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);					
 				}
 				
-				changeState(new ClientStateInformation(ClientState.DONE));
+				changeState(ClientState.DONE);
 				
 				if (Properties.SANDBOX){
 					/*
@@ -111,36 +111,37 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 			latch.await(); 
 		} catch(InterruptedException e){			
 		}
-	}
-	
+	}	
 
 	@Override
 	public void changeState(ClientState state) {
-		changeState(new ClientStateInformation(state));
+		changeState(state, new ClientStateInformation(state));
 	}
-
+	
 	@Override
-	public void changeState(ClientStateInformation information) {
-		logger.info("Client changing state from "+this.state+" to "+information.getState());
-		this.state = information.getState();
+	public void changeState(ClientState state,
+			ClientStateInformation information) {
+		logger.info("Client changing state from "+this.state+" to "+state);
+		this.state = state;
 		
 		if(this.state.equals(ClientState.DONE)){
 			latch.countDown();
 		}
 		
 		try {
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, information);
+			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state, information);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of change of state",e);
 		}	
 	}
+
 
 	@Override
 	public boolean init() {
 		try {			
 			masterNode = (MasterNodeRemote) registry.lookup(MasterNodeRemote.RMI_SERVICE_NAME);
 			masterNode.registerClientNode(clientRmiIdentifier);
-			masterNode.informChangeOfStateInClient(clientRmiIdentifier, new ClientStateInformation(state));
+			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state, new ClientStateInformation(state));
 		} catch (Exception e) {
 			logger.error("Error when connecting to master via RMI",e);
 			return false;

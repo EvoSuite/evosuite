@@ -21,6 +21,10 @@ public class ClientStateInformation implements Serializable {
 		this.state = state;
 	}
 	
+	public void setState(ClientState state) {
+		this.state = state;
+	}
+	
 	public ClientState getState() {
 		return state;
 	}
