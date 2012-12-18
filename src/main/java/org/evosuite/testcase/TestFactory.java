@@ -1192,12 +1192,11 @@ public class TestFactory {
 				//logger.info("Adding method call " + m.getName());
 				name = m.getName();
 				VariableReference callee = test.getRandomNonNullObject(Properties.getTargetClass(),
-				                                                position);
+				                                                       position);
 
 				// This may also be an inner class, in this case we can't use a SUT instance
-				if(!callee.isAssignableTo(m.getDeclaringClass())) {
-					callee = test.getRandomNonNullObject(m.getDeclaringClass(),
-                            position);
+				if (!callee.isAssignableTo(m.getDeclaringClass())) {
+					callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
 				}
 				addMethodFor(test, callee, m, position);
 				//addMethod(test, m, position, 0);
@@ -1379,6 +1378,7 @@ public class TestFactory {
 
 			if (dist >= rnd
 			        && !(test.getStatement(i).getReturnValue() instanceof NullReference)
+			        && !(test.getStatement(i).getReturnValue().isPrimitive())
 			        && !(test.getStatement(i).getReturnValue().isVoid())
 			        && !(test.getStatement(i) instanceof PrimitiveStatement))
 				return test.getStatement(i).getReturnValue();
@@ -1391,7 +1391,8 @@ public class TestFactory {
 
 		VariableReference var = test.getStatement(position).getReturnValue();
 		if (!(var instanceof NullReference) && !var.isVoid()
-		        && !(test.getStatement(position) instanceof PrimitiveStatement))
+		        && !(test.getStatement(position) instanceof PrimitiveStatement)
+		        && !var.isPrimitive())
 			return var;
 		else
 			return null;
