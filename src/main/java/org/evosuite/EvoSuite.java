@@ -542,11 +542,12 @@ public class EvoSuite {
 			}
 
 			handler.killProcess();
-			handler.closeServer();
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
 		}
 
+		handler.closeServer();
+		
 		if (Properties.CLIENT_ON_THREAD) {
 			/*
 			 * FIXME: this is done only to avoid current problems with serialization
