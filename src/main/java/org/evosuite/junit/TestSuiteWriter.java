@@ -87,8 +87,8 @@ public class TestSuiteWriter implements Opcodes {
 
 	private static final String METHOD_SPACE = "  ";
 	private static final String BLOCK_SPACE = "    ";
-	private static final String INNER_BLOCK_SPACE =  "      ";
-	private static final String INNER_INNER_BLOCK_SPACE =  "        ";
+	private static final String INNER_BLOCK_SPACE = "      ";
+	private static final String INNER_INNER_BLOCK_SPACE = "        ";
 	private static final String INNER_INNER_INNER_BLOCK_SPACE = "          ";
 
 	private final String EXECUTOR_SERVICE = "executor";
@@ -692,22 +692,6 @@ public class TestSuiteWriter implements Opcodes {
 		// ---------   start with the body -------------------------
 		String CODE_SPACE = INNER_BLOCK_SPACE;
 
-		if (wasSecurityException) {
-			builder.append(BLOCK_SPACE);
-			builder.append("Future<?> future = " + EXECUTOR_SERVICE
-			        + ".submit(new Runnable(){ \n");
-			builder.append(INNER_BLOCK_SPACE);
-			builder.append("@Override \n");
-			builder.append(INNER_BLOCK_SPACE);
-			builder.append("public void run() { \n");
-			Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
-			if(!exceptions.isEmpty()) {
-				builder.append(INNER_INNER_BLOCK_SPACE);
-				builder.append("try {\n");
-			}
-			CODE_SPACE = INNER_INNER_INNER_BLOCK_SPACE;
-		}
-
 		// No code after an exception should be printed as it would break compilability
 		TestCase test = testCases.get(id);
 		Integer pos = result.getFirstPositionOfThrownException();
@@ -718,7 +702,24 @@ public class TestSuiteWriter implements Opcodes {
 				test.chop(pos + 1);
 			}
 		}
-		for (String line : adapter.getTestString(id, testCases.get(id),
+
+		if (wasSecurityException) {
+			builder.append(BLOCK_SPACE);
+			builder.append("Future<?> future = " + EXECUTOR_SERVICE
+			        + ".submit(new Runnable(){ \n");
+			builder.append(INNER_BLOCK_SPACE);
+			builder.append("@Override \n");
+			builder.append(INNER_BLOCK_SPACE);
+			builder.append("public void run() { \n");
+			Set<Class<?>> exceptions = test.getDeclaredExceptions();
+			if (!exceptions.isEmpty()) {
+				builder.append(INNER_INNER_BLOCK_SPACE);
+				builder.append("try {\n");
+			}
+			CODE_SPACE = INNER_INNER_INNER_BLOCK_SPACE;
+		}
+
+		for (String line : adapter.getTestString(id, test,
 		                                         result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
 			builder.append(CODE_SPACE);
 			builder.append(line);
@@ -726,8 +727,8 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		if (wasSecurityException) {
-			Set<Class<?>> exceptions = testCases.get(id).getDeclaredExceptions();
-			if(!exceptions.isEmpty()) {
+			Set<Class<?>> exceptions = test.getDeclaredExceptions();
+			if (!exceptions.isEmpty()) {
 				builder.append(INNER_INNER_BLOCK_SPACE);
 				builder.append("} catch(Exception e) {\n");
 				builder.append(INNER_INNER_INNER_BLOCK_SPACE);
