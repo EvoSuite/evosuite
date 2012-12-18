@@ -11,6 +11,7 @@ import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -150,6 +151,34 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 
 	public String getClientRmiIdentifier() {
 		return clientRmiIdentifier;
+	}
+
+	@Override
+	public void doCoverageAnalysis() {
+		if(!state.equals(ClientState.NOT_STARTED)){
+			throw new IllegalArgumentException("Search has already been started");
+		}
+
+		/*
+		 * Needs to be done on separated thread, otherwise the master will block on this
+		 * function call until end of the search, even if it is on remote process
+		 */
+		executor.submit(new Runnable(){
+			@Override
+			public void run() {				
+				changeState(new ClientStateInformation(ClientState.STARTED));
+				
+				try{
+					CoverageAnalysis process = new CoverageAnalysis();
+					process.run();
+				} catch(Throwable t){
+					logger.error("Error when analysing coverage for: " + Properties.TARGET_CLASS
+					        + " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);					
+				}
+				
+				changeState(new ClientStateInformation(ClientState.DONE));
+			}			
+		});
 	}
 
 }
