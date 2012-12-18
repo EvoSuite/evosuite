@@ -17,4 +17,6 @@ public interface ClientNodeRemote extends Remote {
 	public void cancelCurrentSearch() throws RemoteException;
 	
 	public boolean waitUntilDone(long timeoutInMs) throws RemoteException, InterruptedException;
+	
+	public void doCoverageAnalysis() throws RemoteException;
 }
