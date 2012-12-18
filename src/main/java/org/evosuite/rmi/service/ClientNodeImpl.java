@@ -167,17 +167,17 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 		executor.submit(new Runnable(){
 			@Override
 			public void run() {				
-				changeState(new ClientStateInformation(ClientState.STARTED));
+				changeState(ClientState.STARTED);
 				
 				try{
-					CoverageAnalysis process = new CoverageAnalysis();
-					process.run();
+					CoverageAnalysis.analyzeCoverage();
+					
 				} catch(Throwable t){
 					logger.error("Error when analysing coverage for: " + Properties.TARGET_CLASS
 					        + " with seed " + Randomness.getSeed()+". Configuration id : "+Properties.CONFIGURATION_ID, t);					
 				}
 				
-				changeState(new ClientStateInformation(ClientState.DONE));
+				changeState(ClientState.DONE);
 			}			
 		});
 	}
