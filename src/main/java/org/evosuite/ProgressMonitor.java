@@ -30,6 +30,7 @@ import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * <p>
@@ -44,28 +45,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 
 	protected int lastCoverage = 0;
 	protected int lastProgress = 0;
-	protected String currentTask = "";
-	protected int phases = 0;
-	protected int currentPhase = 0;
 	protected ClientState state = ClientState.INITIALIZATION;
-
-	/**
-	 * <p>
-	 * Constructor for ProgressMonitor.
-	 * </p>
-	 */
-	public ProgressMonitor() {
-		this(1);
-	}
-
-	/**
-	 * <p>
-	 * Constructor for ProgressMonitor.
-	 * </p>
-	 */
-	public ProgressMonitor(int phases) {
-		this.phases = phases;
-	}
 
 	/**
 	 * <p>
@@ -78,11 +58,12 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 *            a int.
 	 */
 	public void updateStatus(int percent) {
-		ClientStateInformation stateInformation = new ClientStateInformation(ClientState.SEARCH);
-		stateInformation.setCoverage(currentCoverage);
-		stateInformation.setProgress(percent);
-		stateInformation.setDescription(currentTask);
-		ClientServices.getInstance().getClientNode().changeState(stateInformation);
+		ClientState state = ClientState.SEARCH;
+		ClientStateInformation information = new ClientStateInformation(state);
+		information.setCoverage(currentCoverage);
+		information.setProgress(percent);
+		//LoggingUtils.getEvoLogger().info("Setting to: "+state.getNumPhase()+": "+information.getCoverage()+"/"+information.getProgress());
+		ClientServices.getInstance().getClientNode().changeState(state, information);
 		lastProgress = percent;
 		// lastCoverage = coverage;
 		//out.writeInt(percent);
@@ -150,24 +131,5 @@ public class ProgressMonitor implements SearchListener, Serializable {
 
 	}
 
-	/**
-	 * Set the name of the current task. As everything is done in sequence in
-	 * EvoSuite currently we just make this static.
-	 * 
-	 * @param task
-	 */
-	public void setCurrentPhase(String task) {
-		currentTask = task;
-		currentPhase++;
-		updateStatus(0);
-	}
-
-	public void updateAssertionStatus(int assertions, int totalAssertions) {
-
-	}
-
-	public void setNumberOfPhases(int phases) {
-		this.phases = phases;
-	}
 
 }

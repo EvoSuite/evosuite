@@ -14,5 +14,5 @@ public interface MasterNodeRemote extends Remote {
 	
 	public void registerClientNode(String clientRmiIdentifier) throws RemoteException;
 	
-	public void informChangeOfStateInClient(String clientRmiIdentifier, ClientStateInformation information) throws RemoteException;
+	public void informChangeOfStateInClient(String clientRmiIdentifier, ClientState state, ClientStateInformation information) throws RemoteException;
 }

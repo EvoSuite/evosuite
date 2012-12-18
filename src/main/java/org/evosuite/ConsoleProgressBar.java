@@ -101,10 +101,10 @@ public class ConsoleProgressBar {
 							ClientStateInformation currentState = currentStates.iterator().next();
 							if(currentState.getState() == ClientState.SEARCH) {
 								percent = currentState.getProgress();
-								printProgressBar(currentState.getProgress(), currentState.getCoverage());
+								printProgressBar(percent, currentState.getCoverage());
 							}
 						}
-						sleep(100);
+						sleep(250); // TODO - should use observer pattern
 					}
 
 				} catch (Exception e) {

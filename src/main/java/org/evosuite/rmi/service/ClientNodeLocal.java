@@ -11,7 +11,7 @@ public interface ClientNodeLocal {
 	
 	public void changeState(ClientState state);
 
-	public void changeState(ClientStateInformation information);
+	public void changeState(ClientState state, ClientStateInformation information);
 
 	public void waitUntilDone();  
 }
