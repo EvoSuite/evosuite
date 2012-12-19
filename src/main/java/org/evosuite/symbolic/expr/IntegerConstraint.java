@@ -21,6 +21,7 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +50,10 @@ public final class IntegerConstraint extends Constraint<Long> {
 		this.left = left;
 		this.cmp = cmp;
 		this.right = right;
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException();
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+			DSEStats.reportConstraintTooLong(getSize());
+			throw new ConstraintTooLongException(getSize());
+		}
 	}
 
 	private final Expression<Long> left;
@@ -92,8 +95,7 @@ public final class IntegerConstraint extends Constraint<Long> {
 		long right = (Long) this.getRightOperand().execute();
 
 		if (this.getLeftOperand() instanceof IntegerUnaryExpression) {
-			if (((IntegerUnaryExpression) this.getLeftOperand())
-					.getOperator() == Operator.ISDIGIT) {
+			if (((IntegerUnaryExpression) this.getLeftOperand()).getOperator() == Operator.ISDIGIT) {
 				long left_operand = ((IntegerUnaryExpression) this
 						.getLeftOperand()).getOperand().execute();
 				char theChar = (char) left_operand;

@@ -26,6 +26,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
@@ -73,8 +74,10 @@ public final class StringUnaryExpression extends AbstractExpression<String>
 		this.expr = param;
 		this.op = op2;
 
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException();
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+			DSEStats.reportConstraintTooLong(getSize());
+			throw new ConstraintTooLongException(getSize());
+		}
 	}
 
 	/** {@inheritDoc} */
