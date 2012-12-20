@@ -103,10 +103,10 @@ public abstract class DSEStats {
 
 		LoggingUtils.getEvoLogger().info("");
 		printConstraintSizeStatistics();
-		
+
 		LoggingUtils.getEvoLogger().info("");
 		printPathConditionLengthStatistics();
-		
+
 		LoggingUtils.getEvoLogger().info("");
 		printTimeStatistics();
 	}
@@ -151,7 +151,6 @@ public abstract class DSEStats {
 					.format(unuseful_tests_ratio);
 		}
 
-
 		LoggingUtils.getEvoLogger().info("* DSE) Solving statistics");
 		LoggingUtils.getEvoLogger().info(
 				String.format("* DSE)   SAT: %s (%s)", DSEStats.getSAT(),
@@ -165,6 +164,10 @@ public abstract class DSEStats {
 		LoggingUtils.getEvoLogger().info(
 				String.format("* DSE)   UNSAT: %s (%s)", DSEStats.getUNSAT(),
 						UNSAT_ratio_str));
+		LoggingUtils.getEvoLogger().info(
+				String.format("* DSE)   # Constraint solvings: %s (%s+%s)",
+						total_constraint_solvings, DSEStats.getSAT(),
+						DSEStats.getUNSAT()));
 	}
 
 	private static void printConstraintSizeStatistics() {
@@ -183,7 +186,7 @@ public abstract class DSEStats {
 						DSEStats.getConstraintTooLongCounter(),
 						Properties.DSE_CONSTRAINT_LENGTH));
 	}
-	
+
 	private static void printPathConditionLengthStatistics() {
 		LoggingUtils.getEvoLogger().info("* DSE) Path condition length:");
 		LoggingUtils.getEvoLogger().info(
@@ -196,7 +199,6 @@ public abstract class DSEStats {
 				String.format("* DSE)   avg path condition length: %s",
 						avg_path_condition_length));
 	}
-	
 
 	private static int getConstraintTooLongCounter() {
 		return constraintTooLongCounter;
@@ -205,20 +207,17 @@ public abstract class DSEStats {
 	private static int max_path_condition_length;
 	private static int min_path_condition_length;
 	private static double avg_path_condition_length;
-	
-	
-	private static int max_constraint_size=0;
-	private static int min_constraint_size=0;
-	private static double avg_constraint_size=0;
-	private static int constraint_count =0;
-	private static int path_condition_count =0;
+
+	private static int max_constraint_size = 0;
+	private static int min_constraint_size = 0;
+	private static double avg_constraint_size = 0;
+	private static int constraint_count = 0;
+	private static int path_condition_count = 0;
 
 	public static void reportNewConstraints(
 			Collection<Constraint<?>> constraints) {
-		
-		
 
-		if (path_condition_count  == 0) {
+		if (path_condition_count == 0) {
 			min_path_condition_length = constraints.size();
 			max_path_condition_length = constraints.size();
 			avg_path_condition_length = constraints.size();
@@ -232,7 +231,7 @@ public abstract class DSEStats {
 			if (constraints.size() > max_path_condition_length) {
 				max_path_condition_length = constraints.size();
 			}
-			
+
 			// update min length
 			if (constraints.size() < min_path_condition_length) {
 				min_path_condition_length = constraints.size();
@@ -240,7 +239,7 @@ public abstract class DSEStats {
 		}
 
 		path_condition_count++;
-		
+
 		for (Constraint<?> c : constraints) {
 			if (constraint_count == 0) {
 				min_constraint_size = c.getSize();
@@ -251,7 +250,7 @@ public abstract class DSEStats {
 				double new_avg_size = avg_constraint_size
 						+ ((((double) c.getSize() - avg_constraint_size)) / ((double) constraint_count + 1));
 				avg_constraint_size = new_avg_size;
-				
+
 				// update max size
 				if (c.getSize() > max_constraint_size) {
 					max_constraint_size = c.getSize();
