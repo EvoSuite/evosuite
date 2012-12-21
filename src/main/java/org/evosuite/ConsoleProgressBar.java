@@ -20,11 +20,10 @@
  */
 package org.evosuite;
 
-import java.util.Collection;
-
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
+import org.evosuite.utils.Listener;
 
 /**
  * <p>
@@ -33,98 +32,58 @@ import org.evosuite.rmi.service.ClientStateInformation;
  * 
  * @author Gordon Fraser
  */
-public class ConsoleProgressBar {
+public class ConsoleProgressBar implements Listener<ClientStateInformation>{
+
+	private static final long serialVersionUID = 8930332599188240933L;
 
 	/**
 	 * <p>
 	 * startProgressBar
 	 * </p>
 	 * 
-	 * @return a {@link java.lang.Thread} object.
 	 */
-	public static Thread startProgressBar() {
-		Thread progressPrinter = new Thread() {
+	public static void startProgressBar() {
+		MasterServices.getInstance().getMasterNode().addListener(new ConsoleProgressBar());
+	}
+	
+	@Override
+	public void receiveEvent(ClientStateInformation event) {
+		if(event.getState() != ClientState.SEARCH) {
+			return;
+		}
+		
+		int percent = event.getProgress();
+		int coverage = event.getCoverage();
+		
+		
+		StringBuilder bar = new StringBuilder("[Progress:");
 
-			public void printProgressBar(int percent, int coverage) {
-				StringBuilder bar = new StringBuilder("[Progress:");
-
-				/*
-				for (int i = 0; i < 50; i++) {
-					if (i < (percent / 2)) {
-						bar.append("=");
-					} else if (i == (percent / 2)) {
-						bar.append(">");
-					} else {
-						bar.append(" ");
-					}
-				}
-				bar.append("]   " + percent + "%  [Coverage: " + coverage + "%]");
-				System.out.print("\r" + bar.toString());
-				*/
-
-				for (int i = 0; i < 30; i++) {
-					if (i < (int) (percent * 0.30)) {
-						bar.append("=");
-					} else if (i == (int) (percent * 0.30)) {
-						bar.append(">");
-					} else {
-						bar.append(" ");
-					}
-				}
-
-				bar.append(Math.min(100, percent) + "%] [Cov:");
-
-				for (int i = 0; i < 35; i++) {
-					if (i < (int) (coverage * 0.35)) {
-						bar.append("=");
-					} else if (i == (int) (coverage * 0.35)) {
-						bar.append(">");
-					} else {
-						bar.append(" ");
-					}
-				}
-
-				bar.append(coverage + "%]");
-
-				System.out.print("\r" + bar.toString());
-
+		for (int i = 0; i < 30; i++) {
+			if (i < (int) (percent * 0.30)) {
+				bar.append("=");
+			} else if (i == (int) (percent * 0.30)) {
+				bar.append(">");
+			} else {
+				bar.append(" ");
 			}
+		}
 
-			@Override
-			public void run() {
-				try {
-					int percent = 0;
-					while (percent != -1 && !isInterrupted()) {
-						Collection<ClientStateInformation> currentStates = MasterServices.getInstance().getMasterNode().getCurrentStateInformation();
-						
-						if(currentStates.size() == 1) {
-							ClientStateInformation currentState = currentStates.iterator().next();
-							if(currentState.getState() == ClientState.SEARCH) {
-								percent = currentState.getProgress();
-								printProgressBar(percent, currentState.getCoverage());
-							}
-						}
-						sleep(250); // TODO - should use observer pattern
-					}
+		bar.append(Math.min(100, percent) + "%] [Cov:");
 
-				} catch (Exception e) {
-					// System.err.println("Exception while reading output of client process "
-					//        + e);
-				}
-
+		for (int i = 0; i < 35; i++) {
+			if (i < (int) (coverage * 0.35)) {
+				bar.append("=");
+			} else if (i == (int) (coverage * 0.35)) {
+				bar.append(">");
+			} else {
+				bar.append(" ");
 			}
+		}
 
-			/* (non-Javadoc)
-			 * @see java.lang.Thread#interrupt()
-			 */
-			@Override
-			public void interrupt() {
-				System.out.print("\n");
-				super.interrupt();
-			}
-		};
-		progressPrinter.start();
-		return progressPrinter;
+		bar.append(coverage + "%]");
+
+		System.out.print("\r" + bar.toString());
+		
 	}
 
 }

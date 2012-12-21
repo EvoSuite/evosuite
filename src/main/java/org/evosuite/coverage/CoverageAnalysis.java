@@ -1,14 +1,17 @@
 /**
  * 
  */
-package org.evosuite;
+package org.evosuite.coverage;
 
 import java.text.NumberFormat;
 import java.util.List;
 
+import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.TestSuiteGenerator;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestChromosome;
@@ -160,14 +163,20 @@ public class CoverageAnalysis {
 				SearchStatistics.getInstance().mutationScore(1.0);
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion
 			                                         + ": 100% (no goals)");
+			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion+"Coverage", 1.0);
 		} else {
+
 			SearchStatistics.getInstance().addCoverage(criterion.toString(),
 			                                           (double) covered
 			                                                   / (double) goals.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion+"Coverage", (double) covered
+                    / (double) goals.size());
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
 				SearchStatistics.getInstance().mutationScore((double) covered
 				                                                     / (double) goals.size());
+				ClientServices.getInstance().getClientNode().trackOutputVariable("MutationScore", (double) covered
+	                    / (double) goals.size());
 				if (oldCriterion == criterion)
 					SearchStatistics.getInstance().setCoveredGoals(covered);
 

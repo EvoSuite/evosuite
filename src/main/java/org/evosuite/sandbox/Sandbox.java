@@ -65,6 +65,11 @@ public class Sandbox {
 		}
 	}
 	
+	public static void addPriviligedThread(Thread t) {
+		if(manager != null)
+			manager.addPrivilegedThread(t);
+	}
+	
 	public static void resetDefaultSecurityManager() {
 		if(manager!=null){
 			manager.restoreDefaultManager();

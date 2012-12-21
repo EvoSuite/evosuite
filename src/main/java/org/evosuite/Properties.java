@@ -635,10 +635,6 @@ public class Properties {
 	@Parameter(key = "write_cfg", group = "Output", description = "Create CFG graphs")
 	public static boolean WRITE_CFG = false;
 
-	/** Constant <code>WRITE_EXCEL=false</code> */
-	@Parameter(key = "write_excel", group = "Output", description = "Create Excel workbook")
-	public static boolean WRITE_EXCEL = false;
-
 	/** Constant <code>SHUTDOWN_HOOK=true</code> */
 	@Parameter(key = "shutdown_hook", group = "Output", description = "Store test suite on Ctrl+C")
 	public static boolean SHUTDOWN_HOOK = true;
@@ -650,6 +646,16 @@ public class Properties {
 	/** Constant <code>SERIALIZE_RESULT=false</code> */
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
+	
+	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
+	public static boolean NEW_STATISTICS = false;
+	
+	public enum StatisticsBackend {
+		NONE, CONSOLE, CSV;
+	}
+	
+	@Parameter(key = "statistics_backend", group = "Output", description = "Which backend to use to collect data")
+	public static StatisticsBackend STATISTICS_BACKEND = StatisticsBackend.CSV;
 
 	/** Constant <code>TIMELINE_INTERVAL=60000</code> */
 	@Parameter(key = "timeline_interval", group = "Output", description = "Time interval in milliseconds for timeline statistics")

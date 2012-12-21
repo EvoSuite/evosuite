@@ -29,8 +29,12 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
+import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.TestSuiteWriter;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
+import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
@@ -87,14 +91,27 @@ public class TestSuiteMinimizer {
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 
+		ClientServices.getInstance().getClientNode().trackOutputVariable("full_size", suite.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("full_length", suite.totalLengthOfTestCases());
+
 		logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
 
 		if (Properties.MINIMIZE_OLD)
 			minimizeSuite(suite);
 		else
 			minimizeTests(suite);
+
+		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_size", suite.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_length", suite.totalLengthOfTestCases());
 	}
 
+	private void updateClientStatus(int progress) {
+		ClientState state = ClientState.MINIMIZATION;
+		ClientStateInformation information = new ClientStateInformation(state);
+		information.setProgress(progress);
+		ClientServices.getInstance().getClientNode().changeState(state, information);
+	}
+	
 	/**
 	 * Minimize test suite with respect to the isCovered Method of the goals
 	 * defined by the supplied TestFitnessFactory
@@ -117,6 +134,7 @@ public class TestSuiteMinimizer {
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(testFitnessFactory.getCoverageGoals());
 		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
 		int numCovered = 0;
+		int currentGoal = 0;
 		int numGoals = goals.size();
 
 		if (Properties.CRITERION != Properties.Criterion.BRANCH) {
@@ -130,7 +148,9 @@ public class TestSuiteMinimizer {
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
 		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
 				
-		for (TestFitnessFunction goal : goals) {			
+		for (TestFitnessFunction goal : goals) {
+			updateClientStatus(100 * currentGoal / numGoals);
+			currentGoal++;
 			if (isTimeoutReached()){
 				/*
 				 * FIXME: if timeout, this algorithm should be changed in a way that the modifications

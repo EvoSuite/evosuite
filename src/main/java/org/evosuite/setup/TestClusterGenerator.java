@@ -29,9 +29,7 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +45,8 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.BooleanTestabilityTransformation;
+import org.evosuite.javaagent.LinePool;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.testcase.GenericClass;
 import org.evosuite.utils.LoggingUtils;
@@ -201,8 +201,15 @@ public class TestClusterGenerator {
 			logger.debug(TestCluster.getInstance().toString());
 		}
 		dependencyCache.clear();
+		gatherStatistics();
 	}
 
+	private static void gatherStatistics() {
+		ClientServices.getInstance().getClientNode().trackOutputVariable("analyzed_classes", analyzedClasses.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("generators", TestCluster.getInstance().getGenerators().size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("modifiers", TestCluster.getInstance().getModifiers().size());
+	}
+	
 	private static void initBlackListWithPrimitives(Set<String> blackList) throws NullPointerException{
 		blackList.add("int");
 		blackList.add("short");

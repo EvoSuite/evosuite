@@ -50,11 +50,14 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	protected boolean solution = false;
 
 	/** Has this chromosome changed since its fitness was last evaluated? */
-	protected boolean changed = true;
+	private boolean changed = true;
 
 	protected double coverage = 0.0;
 
 	protected int numOfCoveredGoals = 0;
+	
+	/** Generation in which this chromosome was created */
+	protected int age = 0;
 
 	/**
 	 * Return current fitness value
@@ -241,5 +244,13 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 
 	public void setNumOfCoveredGoals(int numOfCoveredGoals) {
 		this.numOfCoveredGoals = numOfCoveredGoals;
+	}
+	
+	public void updateAge(int generation) {
+		this.age = generation;
+	}
+	
+	public int getAge() {
+		return age;
 	}
 }

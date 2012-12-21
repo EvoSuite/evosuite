@@ -10,9 +10,11 @@ import java.util.concurrent.TimeUnit;
 import org.evosuite.ClientProcess;
 import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -135,7 +137,28 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
 			logger.error("Cannot inform master of change of state",e);
 		}	
 	}
+	
+	@Override
+	public void updateStatistics(Chromosome individual) {
+		logger.info("Sending current best individual to master process");
+		
+		try {
+			masterNode.collectStatistics(clientRmiIdentifier, individual);
+		} catch (RemoteException e) {
+			logger.error("Cannot inform master of change of state",e);
+		}		
+	}
 
+	@Override
+	public void trackOutputVariable(String name, Object value) {
+		logger.info("Sending output variable to master process");
+		
+		try {
+			masterNode.collectStatistics(clientRmiIdentifier, name, value);
+		} catch (RemoteException e) {
+			logger.error("Cannot inform master of output variable",e);
+		}		
+	}
 
 	@Override
 	public boolean init() {

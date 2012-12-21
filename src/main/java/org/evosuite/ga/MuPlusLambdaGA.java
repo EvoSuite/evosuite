@@ -68,6 +68,14 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 			offspring1.mutate();
 			notifyMutation(offspring2);
 			offspring2.mutate();
+			
+			if(offspring1.isChanged()) {
+				offspring1.updateAge(currentIteration);
+			}
+			if(offspring2.isChanged()) {
+				offspring2.updateAge(currentIteration);
+			}
+
 
 		} catch (ConstructionFailedException e) {
 			logger.info("CrossOver/Mutation failed");

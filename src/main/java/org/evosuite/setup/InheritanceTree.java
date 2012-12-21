@@ -104,5 +104,9 @@ public class InheritanceTree {
 	public boolean hasClass(String className) {
 		return inheritanceGraph.containsVertex(className);
 	}
+	
+	public int getNumClasses() {
+		return inheritanceGraph.vertexSet().size();
+	}
 
 }

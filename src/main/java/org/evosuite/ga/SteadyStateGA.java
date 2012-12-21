@@ -108,6 +108,13 @@ public class SteadyStateGA extends GeneticAlgorithm {
 			notifyMutation(offspring2);
 			offspring2.mutate();
 
+			if(offspring1.isChanged()) {
+				offspring1.updateAge(currentIteration);
+			}
+			if(offspring2.isChanged()) {
+				offspring2.updateAge(currentIteration);
+			}
+
 			// The two offspring replace the parents if and only if one of
 			// the offspring is not worse than the best parent.
 

@@ -31,6 +31,7 @@ import org.evosuite.coverage.dataflow.analysis.AllUsesAnalysis;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
@@ -66,6 +67,7 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 	public static List<DefUseCoverageTestFitness> getDUGoals() {
 		if (!called)
 			computeGoals();
+
 		return duGoals;
 	}
 
@@ -130,6 +132,12 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 		goalComputationTime = end - start;
 		LoggingUtils.getEvoLogger().info("* Goal computation took: " + goalComputationTime
 				+ "ms");
+
+		ClientServices.getInstance().getClientNode().trackOutputVariable("intramethod_pairs", getIntraMethodGoalsCount());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("intermethod_pairs", getInterMethodGoalsCount());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("parameter_pairs", getParamGoalsCount());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("intraclass_pairs", getIntraClassGoalsCount());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("defuse_pairs", goals.size());
 	}
 
 	/**
