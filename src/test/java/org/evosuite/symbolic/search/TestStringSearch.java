@@ -277,6 +277,7 @@ public class TestStringSearch {
 				offset1, const2, offset2, len));
 	}
 
+	@Test
 	public void testRegionMatchesICFalseConstant() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		String var1 = "foTESTo";
@@ -310,5 +311,43 @@ public class TestStringSearch {
 		assertNotNull(result.get("test1"));
 		assertFalse((result.get("test1").toString()).regionMatches(ignore_case,
 				offset1, const2, offset2, len));
+	}
+	
+	@Test
+	public void testRegexMatchesTrue() {
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		String var1 = "test";
+		String const2 = "TEST";
+		StringVariable strVar = new StringVariable("test1", var1);
+		StringConstant strConst = new StringConstant(const2);
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.PATTERNMATCHES, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
+
+		ConstraintSolver skr = new ConstraintSolver();
+		Map<String, Object> result = skr.solve(constraints);
+		assertNotNull(result);
+		assertNotNull(result.get("test1"));
+		assertTrue(result.get("test1").toString().matches(const2));
+	}
+	
+	@Test
+	public void testRegexMatchesFalse() {
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		String var1 = "test";
+		String const2 = "TEST";
+		StringVariable strVar = new StringVariable("test1", var1);
+		StringConstant strConst = new StringConstant(const2);
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.PATTERNMATCHES, strConst, 0L);
+		constraints.add(new StringConstraint(strComp, Comparator.EQ,
+				new IntegerConstant(0)));
+
+		ConstraintSolver skr = new ConstraintSolver();
+		Map<String, Object> result = skr.solve(constraints);
+		assertNotNull(result);
+		assertNotNull(result.get("test1"));
+		assertFalse("Result should not match TEST: "+result.get("test1").toString(), result.get("test1").toString().matches(const2));
 	}
 }

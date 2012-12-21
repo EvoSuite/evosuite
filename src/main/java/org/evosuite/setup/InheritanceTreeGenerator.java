@@ -40,6 +40,7 @@ import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.rmi.ClientServices;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
@@ -89,6 +90,9 @@ public class InheritanceTreeGenerator {
 		return inheritanceTree;
 	}
 
+	public static void gatherStatistics(InheritanceTree inheritanceTree) {
+		ClientServices.getInstance().getClientNode().trackOutputVariable("classpath_classes", inheritanceTree.getNumClasses());
+	}
 	/**
 	 * 
 	 * @param inheritanceTree

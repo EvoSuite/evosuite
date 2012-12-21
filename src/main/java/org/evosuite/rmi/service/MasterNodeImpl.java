@@ -2,24 +2,30 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
-import org.evosuite.utils.LoggingUtils;
+import org.evosuite.ga.Chromosome;
+import org.evosuite.statistics.SearchStatistics;
+import org.evosuite.utils.Listener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 
+	private static final long serialVersionUID = -6329473514791197464L;
+
 	private static Logger logger = LoggerFactory.getLogger(MasterNodeImpl.class);
 	
 	private Registry registry;
 	private Set<ClientNodeRemote>  clients;
+	
+	protected final Collection<Listener<ClientStateInformation>> listeners = Collections.synchronizedList(new ArrayList<Listener<ClientStateInformation>>());
 	
 	/**
 	 * It is important to keep track of client states for debugging reasons.
@@ -67,6 +73,7 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 		// To be on the safe side
 		information.setState(state);
 		clientStateInformation.put(clientRmiIdentifier, information);
+		fireEvent(information);
 	}
 	
 	@Override
@@ -114,5 +121,37 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 			return Collections.unmodifiableSet(clients);
 		}
 	}
+	
+	@Override
+	public void collectStatistics(String clientRmiIdentifier,
+			Chromosome individual) {
+		SearchStatistics.getInstance().currentIndividual(clientRmiIdentifier, individual);		
+	}
+	
+	@Override
+	public void collectStatistics(String clientRmiIdentifier, String name,
+			Object value) throws RemoteException {
+		SearchStatistics.getInstance().setOutputVariable(name, value);
+	}
 
+	@Override
+	public void addListener(Listener<ClientStateInformation> listener) {
+		listeners.add(listener);		
+	}
+
+	@Override
+	public void deleteListener(Listener<ClientStateInformation> listener) {
+		listeners.remove(listener);
+	}
+	
+	/**
+	 * <p>fireEvent</p>
+	 *
+	 * @param event a T object.
+	 */
+	public void fireEvent(ClientStateInformation event) {
+		for (Listener<ClientStateInformation> listener : listeners) {
+			listener.receiveEvent(event);
+		}
+	}
 }

@@ -29,6 +29,14 @@ import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
+import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.dataflow.DefUsePool;
+import org.evosuite.coverage.lcsaj.LCSAJPool;
+import org.evosuite.coverage.mutation.MutationPool;
+import org.evosuite.coverage.path.PrimePathPool;
+import org.evosuite.graphs.cfg.CFGMethodAdapter;
+import org.evosuite.javaagent.LinePool;
+import org.evosuite.rmi.ClientServices;
 import org.junit.Test;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
@@ -69,6 +77,7 @@ public class DependencyAnalysis {
 
 		logger.debug("Calculate inheritance hierarchy");		
 		inheritanceTree = InheritanceTreeGenerator.analyze(classPath);
+		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
 
 		logger.debug("Calculate call tree");
 		callTree = CallTreeGenerator.analyze(className);
@@ -80,6 +89,8 @@ public class DependencyAnalysis {
 
 		logger.debug("Create test cluster");
 		TestClusterGenerator.generateCluster(className, inheritanceTree, callTree);
+		
+		gatherStatistics();
 	}
 
 	public static CallTree getCallTree() {
@@ -217,5 +228,38 @@ public class DependencyAnalysis {
 		ClassNode cn = new ClassNode();
 		reader.accept(cn, ClassReader.SKIP_FRAMES); // | ClassReader.SKIP_DEBUG);	
 		return cn;
+	}
+	
+	private static void gatherStatistics() {
+		ClientServices.getInstance().getClientNode().trackOutputVariable("predicates", BranchPool.getBranchCounter());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("branches", BranchPool.getBranchCounter() * 2);
+		ClientServices.getInstance().getClientNode().trackOutputVariable("branchless_methods", BranchPool.getBranchlessMethods().size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_methods", CFGMethodAdapter.getNumMethods());
+
+		ClientServices.getInstance().getClientNode().trackOutputVariable("lines", LinePool.getNumLines());
+
+		switch(Properties.CRITERION) {
+		case DEFUSE:
+		case ALLDEFS:
+			ClientServices.getInstance().getClientNode().trackOutputVariable("definitions", DefUsePool.getDefCounter());
+			ClientServices.getInstance().getClientNode().trackOutputVariable("uses", DefUsePool.getUseCounter());
+			break;
+
+		case LCSAJ:
+			ClientServices.getInstance().getClientNode().trackOutputVariable("lcsajs", LCSAJPool.getLCSAJsPerClass(Properties.TARGET_CLASS));
+			break;
+			
+		case WEAKMUTATION:
+		case STRONGMUTATION:
+		case MUTATION:
+			ClientServices.getInstance().getClientNode().trackOutputVariable("mutants", MutationPool.getMutantCounter());
+			break;
+
+		case PATH:
+			ClientServices.getInstance().getClientNode().trackOutputVariable("prime_paths", PrimePathPool.getSize());
+			break;
+		default:
+			break;
+		}
 	}
 }

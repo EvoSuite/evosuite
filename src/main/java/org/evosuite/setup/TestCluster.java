@@ -68,6 +68,7 @@ public class TestCluster {
 	private static TestCluster instance = null;
 
 	/** Set of all classes already analyzed */
+	@Deprecated
 	private final static Set<Class<?>> analyzedClasses = new LinkedHashSet<Class<?>>();
 
 	/** Methods we want to cover when testing */

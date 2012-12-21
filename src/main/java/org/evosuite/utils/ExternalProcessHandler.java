@@ -59,7 +59,6 @@ public class ExternalProcessHandler {
 	protected Thread output_printer;
 	protected Thread error_printer;
 	protected Thread message_handler;
-	protected Thread progress_printer;
 
 	protected Socket connection;
 	protected ObjectOutputStream out;
@@ -248,10 +247,6 @@ public class ExternalProcessHandler {
 			output_printer.interrupt();
 		output_printer = null;
 
-		if (progress_printer != null && progress_printer.isAlive())
-			progress_printer.interrupt();
-		progress_printer = null;
-
 		if (error_printer != null && error_printer.isAlive())
 			error_printer.interrupt();
 		error_printer = null;
@@ -397,11 +392,10 @@ public class ExternalProcessHandler {
 		}
 
 		if (Properties.SHOW_PROGRESS
-		        && (progress_printer == null || !progress_printer.isAlive())
 		        && !Properties.LOG_LEVEL.equals("info")
 		        && !Properties.LOG_LEVEL.equals("debug")
 		        && !Properties.LOG_LEVEL.equals("trace")) {
-			progress_printer = ConsoleProgressBar.startProgressBar();
+			ConsoleProgressBar.startProgressBar();
 		}
 
 	}

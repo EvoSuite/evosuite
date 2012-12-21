@@ -14,8 +14,7 @@ public class ClientStateInformation implements Serializable {
 	/** Achieved coverage 0-100 */
 	private int coverage = 0;
 	
-	/** Additional information to display to user about state */
-	private String description = "";
+	private int iteration = 0;
 	
 	public ClientStateInformation(ClientState state) {
 		this.state = state;
@@ -27,6 +26,11 @@ public class ClientStateInformation implements Serializable {
 	
 	public ClientState getState() {
 		return state;
+	}
+	
+	public int getOverallProgress() {
+		int delta = state.getEndProgress() - state.getStartProgress();
+		return state.getStartProgress() + (progress * delta) / 100;
 	}
 	
 	public int getProgress() {
@@ -44,13 +48,18 @@ public class ClientStateInformation implements Serializable {
 	public void setCoverage(int coverage) {
 		this.coverage = coverage;
 	}
+	
 
-	public String getDescription() {
-		return description;
+	public int getIteration() {
+		return iteration;
 	}
 
-	public void setDescription(String description) {
-		this.description = description;
-	}	
+	public void setIteration(int iteration) {
+		this.iteration = iteration;
+	}
 
+	@Override
+	public String toString() {
+		return state.toString() +" - " + iteration+", "+progress+", "+coverage;
+	}
 }

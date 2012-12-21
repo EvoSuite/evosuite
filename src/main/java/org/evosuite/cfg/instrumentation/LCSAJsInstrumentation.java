@@ -21,6 +21,7 @@
 package org.evosuite.cfg.instrumentation;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -36,6 +37,8 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -47,6 +50,7 @@ import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TableSwitchInsnNode;
 import org.objectweb.asm.tree.TryCatchBlockNode;
+import org.objectweb.asm.tree.analysis.Frame;
 
 /**
  * <p>
@@ -72,13 +76,40 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 
 		AbstractInsnNode start = mn.instructions.getFirst();
 		int startID = 0;
-		// This is ugly, but in the constructor the instrumentation has to come after the call to Object() 
+
+		// TODO: This should replace the hack below
+		if (methodName.startsWith("<init>")) {
+			Iterator<AbstractInsnNode> j = mn.instructions.iterator();
+			boolean constructorInvoked = false;
+			while (j.hasNext()) {
+				AbstractInsnNode in = j.next();
+				startID++;
+				if(!constructorInvoked) {
+					if (in.getOpcode() == Opcodes.INVOKESPECIAL) {
+						MethodInsnNode cn = (MethodInsnNode) in;
+						Collection<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
+						superClasses.add(className);
+						String classNameWithDots = cn.owner.replace('/', '.');
+						if (superClasses.contains(classNameWithDots)) {
+							constructorInvoked = true;
+							break;
+						}
+					} else {
+						continue;
+					}
+				}
+			}
+		}
+		
+		/*
 		if (methodName.startsWith("<init>")) {
 			if (mn.instructions.size() >= 4) {
 				start = mn.instructions.get(4);
 				startID = 4;
 			}
 		}
+		*/
+		
 		LCSAJ a = new LCSAJ(
 		        className,
 		        methodName,
@@ -261,4 +292,5 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 	public boolean executeOnMainMethod() {
 		return false;
 	}
+	
 }

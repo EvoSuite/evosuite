@@ -21,13 +21,13 @@ public enum ClientState {
 	MINIMIZATION("Minimizing", "Minimizing test cases", 6),
 	ASSERTION_GENERATION("Generating assertions", "Adding assertions to the test cases", 7),
 	WRITING_STATISTICS("Statistics", "Writing statistics to disk", 8),
-	DONE("Done", "EvoSuite is finished", 9);
+	WRITING_TESTS("JUnit", "Writing JUnit tests to disk", 9),
+	DONE("Done", "EvoSuite is finished", 10);
 
 	private String name;
 	private String description;
 	private int numPhase = 0;
 	private int progress = 0;
-	private int coverage = 0;
 	
 	private int startProgress = 0;
 	private int maxProgress = 0;
@@ -55,6 +55,14 @@ public enum ClientState {
 		return progress;
 	}
 	
+	public int getStartProgress() {
+		return startProgress;
+	}
+	
+	public int getEndProgress() {
+		return maxProgress;
+	}
+	
 	public int getPhaseProgress() {
 		int divisor = maxProgress - startProgress;
 		if(divisor == 0)
@@ -66,13 +74,6 @@ public enum ClientState {
 		this.progress = startProgress + (int)((maxProgress - startProgress) * progress);
 	}
 	
-	public void setCoverage(int coverage) {
-		this.coverage = coverage;
-	}
-	
-	public int getCoverage() {
-		return coverage;
-	}
 	
 	
 	private void setProgressBoundaries(int numPhase) {

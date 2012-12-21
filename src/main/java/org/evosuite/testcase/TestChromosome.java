@@ -424,7 +424,7 @@ public class TestChromosome extends ExecutableChromosome {
 			// logger.info("Old test");
 			// logger.info(test.toCode());
 			this.test = newTest;
-			this.changed = true;
+			this.setChanged(true);
 			this.lastExecutionResult = null;
 		} else {
 			logger.debug("CONCOLIC: Did not create new test");

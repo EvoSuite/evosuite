@@ -43,11 +43,13 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 
 		Chromosome parent = population.get(0);
 		Chromosome offspring = parent.clone();
+		offspring.updateAge(currentIteration);
 
 		notifyMutation(offspring);
 		do {
 			offspring.mutate();
-		} while (!offspring.changed);
+		} while (!offspring.isChanged());
+
 
 		fitnessFunction.getFitness(offspring);
 		notifyEvaluation(offspring);

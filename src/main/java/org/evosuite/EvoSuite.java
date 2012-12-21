@@ -53,6 +53,7 @@ import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
+import org.evosuite.statistics.SearchStatistics;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
@@ -577,7 +578,8 @@ public class EvoSuite {
 		}
 
 		logger.debug("Master process has finished to wait for client");
-
+		if(Properties.NEW_STATISTICS)
+			SearchStatistics.getInstance().writeStatistics();
 		return result;
 	}
 

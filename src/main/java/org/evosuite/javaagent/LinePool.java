@@ -94,4 +94,17 @@ public class LinePool {
 				lines.addAll(methodLines);
 		return lines;
 	}
+	
+	/**
+	 * Retrieve all lines in the pool
+	 *
+	 * @return a {@link java.util.Set} object.
+	 */
+	public static int getNumLines() {
+		int num = 0;
+		for (String className : lineMap.keySet())
+			num += lineMap.get(className).size();
+
+		return num;
+	}
 }

@@ -39,6 +39,7 @@ import org.evosuite.assertion.UnitAssertionGenerator;
 import org.evosuite.classcreation.ClassFactory;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
+import org.evosuite.coverage.CoverageAnalysis;
 import org.evosuite.coverage.FitnessLogger;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
@@ -240,7 +241,8 @@ public class TestSuiteGenerator {
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
 		statistics.writeReport();
-		statistics.writeStatistics();
+		if(!Properties.NEW_STATISTICS)
+			statistics.writeStatistics();
 		PermissionStatistics.getInstance().printStatistics();
 
 		LoggingUtils.getEvoLogger().info("* Done!");
@@ -361,6 +363,8 @@ public class TestSuiteGenerator {
 	 */
 	public static void writeJUnitTests(List<TestCase> tests) {
 		if (Properties.JUNIT_TESTS) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_TESTS);
+
 			TestSuiteWriter suite = new TestSuiteWriter();
 			if (Properties.STRUCTURED_TESTS)
 				suite.insertAllTests(tests);
@@ -647,6 +651,9 @@ public class TestSuiteGenerator {
 		TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory();
 		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals", goals.size());
+
+
 		TestSuiteChromosome best = new TestSuiteChromosome();
 		if (!goals.isEmpty()) {
 			// Perform search
@@ -701,7 +708,7 @@ public class TestSuiteGenerator {
 			minimizer.minimize(best, (TestSuiteFitnessFunction) fitness_function);
 			assert (fitness >= best.getFitness());
 		}
-		progressMonitor.updateStatus(33);
+		// progressMonitor.updateStatus(33);
 
 		if (Properties.INLINE) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
@@ -710,18 +717,18 @@ public class TestSuiteGenerator {
 			inliner.inline(best);
 			assert (fitness >= best.getFitness());
 		}
-		progressMonitor.updateStatus(66);
+		// progressMonitor.updateStatus(66);
 
 		if (Properties.MINIMIZE) {
-			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.MINIMIZATION);
+			LoggingUtils.getEvoLogger().info("* Minimizing result");
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
 		} else if (Properties.COVERAGE) {
 			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
 		}
-		progressMonitor.updateStatus(99);
+		// progressMonitor.updateStatus(99);
 
 		if (Properties.CRITERION == Criterion.MUTATION
 		        || Properties.CRITERION == Criterion.STRONGMUTATION) {
@@ -1002,6 +1009,11 @@ public class TestSuiteGenerator {
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		TestSuiteFitnessFunction fitnessFunction = getFitnessFunction();
 
+		TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory();
+		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
+		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals", goals.size());
+		
 		// The GA is not actually used, except to provide the same statistics as during search
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		// GeneticAlgorithm suiteGA = setup();
@@ -1089,6 +1101,8 @@ public class TestSuiteGenerator {
 			//LoggingUtils.getEvoLogger().info("* Shuffling goals");
 			Randomness.shuffle(goals);
 		}
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals", goals.size());
+
 
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
 
@@ -1702,6 +1716,9 @@ public class TestSuiteGenerator {
 
 		ChromosomeFactory<? extends Chromosome> factory = getDefaultChromosomeFactory();
 		GeneticAlgorithm ga = getGeneticAlgorithm(factory);
+		
+		if(Properties.NEW_STATISTICS)
+			ga.addListener(new org.evosuite.statistics.StatisticsListener());
 
 		// How to select candidates for reproduction
 		SelectionFunction selection_function = getSelectionFunction();
