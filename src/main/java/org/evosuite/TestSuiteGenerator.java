@@ -725,7 +725,13 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
-		} else if (Properties.COVERAGE) {
+		}  
+		
+		/*
+		 * FIXME: why was it as an "else" of previous condition???
+		 */
+		
+		if (Properties.COVERAGE) {
 			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
 		}
 		// progressMonitor.updateStatus(99);
