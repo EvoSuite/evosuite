@@ -271,6 +271,14 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		for (Class<?> observerClass : observerClasses) {
 			OutputTrace trace = mutant_result.getTrace(observerClass);
 			OutputTrace orig = orig_result.getTrace(observerClass);
+			
+			if(orig==null){
+				String msg = "No trace for "+observerClass+". Traces: ";
+				for(OutputTrace  t : orig_result.getTraces())
+					msg += " " + t.toString();
+				logger.error(msg);
+			}
+			
 			num += orig.numDiffer(trace);
 		}
 
