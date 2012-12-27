@@ -135,13 +135,14 @@ public class TestSuiteMinimizer {
 		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
 		int numCovered = 0;
 		int currentGoal = 0;
-		int numGoals = goals.size();
 
 		if (Properties.CRITERION != Properties.Criterion.BRANCH) {
 			BranchCoverageFactory branchFactory = new BranchCoverageFactory();
 			branchGoals.addAll(branchFactory.getCoverageGoals());
 			goals.addAll(branchGoals);
 		}
+
+		int numGoals = goals.size();
 
 		Collections.sort(goals);
 		Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
