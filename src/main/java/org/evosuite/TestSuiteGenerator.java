@@ -655,7 +655,7 @@ public class TestSuiteGenerator {
 
 
 		TestSuiteChromosome best = new TestSuiteChromosome();
-		if (!goals.isEmpty()) {
+		if (! (Properties.STOP_ZERO  && goals.isEmpty()) ) {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
