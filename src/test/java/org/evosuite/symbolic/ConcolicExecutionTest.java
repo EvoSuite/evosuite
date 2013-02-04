@@ -4,10 +4,13 @@ import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
@@ -1904,5 +1907,29 @@ public class ConcolicExecutionTest {
 		DefaultTestCase tc = buildTestCase92();
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(11, branch_conditions.size());
+	}
+	
+
+	private DefaultTestCase buildTestCase93() throws SecurityException,
+	        NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference string0 = tc.appendStringPrimitive("Togliere sta roba");
+		VariableReference string1 = tc.appendStringPrimitive("Togliere sta roba");
+		// VariableReference catchCount = tc.appendIntPrimitive(0);
+		Method method = TestCase93.class.getMethod("test", String.class, String.class);
+		tc.appendMethod(null, method, string0, string1);
+		return tc.getDefaultTestCase();
+	}
+
+	@Test
+	public void testCase93() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase93();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		for(BranchCondition bc : branch_conditions) {
+			variables.addAll(bc.getLocalConstraint().getVariables());
+		}
+		assertEquals(2, variables.size());
 	}
 }
