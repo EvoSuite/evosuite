@@ -14,12 +14,11 @@ import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote{
+public class ClientNodeImpl implements ClientNodeImplInterface {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientNodeImpl.class);
 	
