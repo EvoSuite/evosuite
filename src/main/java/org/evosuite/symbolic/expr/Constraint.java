@@ -21,6 +21,8 @@
 package org.evosuite.symbolic.expr;
 
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 public abstract class Constraint<T extends Object> implements Serializable {
 
 	private static final long serialVersionUID = 7547747352755232472L;
@@ -122,4 +124,11 @@ public abstract class Constraint<T extends Object> implements Serializable {
 		return x / (x + 1.0);
 	}
 	
+	public Set<Variable<?>> getVariables() {
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		variables.addAll(getLeftOperand().getVariables());
+		variables.addAll(getRightOperand().getVariables());
+		
+		return variables;
+	}
 }
