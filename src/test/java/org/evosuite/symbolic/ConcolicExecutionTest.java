@@ -1982,7 +1982,7 @@ public class ConcolicExecutionTest {
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(11, branch_conditions.size());
 	}
-	
+
 	@Test
 	public void testCase93() throws SecurityException, NoSuchMethodException {
 		final int old_length = Properties.DSE_CONSTRAINT_LENGTH;
@@ -1990,18 +1990,39 @@ public class ConcolicExecutionTest {
 
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(11, branch_conditions.size());
-	
-		Properties.DSE_CONSTRAINT_LENGTH =33;
+
+		Properties.DSE_CONSTRAINT_LENGTH = 33;
 		List<BranchCondition> branch_conditions1 = executeTest(tc);
 		assertEquals(10, branch_conditions1.size());
 
-		Properties.DSE_CONSTRAINT_LENGTH =5;
+		Properties.DSE_CONSTRAINT_LENGTH = 5;
 		List<BranchCondition> branch_conditions2 = executeTest(tc);
 		assertEquals(2, branch_conditions2.size());
 
 		Properties.DSE_CONSTRAINT_LENGTH = old_length;
 		List<BranchCondition> branch_conditions3 = executeTest(tc);
 		assertEquals(11, branch_conditions3.size());
+
+	}
+
+	private DefaultTestCase buildTestCase94() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference string0 = tc
+				.appendStringPrimitive("Togliere sta roba");
+		VariableReference string1 = tc
+				.appendStringPrimitive("Togliere sta roba");
+		Method method = TestCase94.class.getMethod("test", String.class,
+				String.class);
+		tc.appendMethod(null, method, string0, string1);
+		
+		return tc.getDefaultTestCase();
+	}
 	
+	@Test
+	public void testCase94() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase94();
+		List<BranchCondition> branch_conditions = executeTest(tc);
 	}
 }
