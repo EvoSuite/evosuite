@@ -105,6 +105,9 @@ public final class StringConstraint extends Constraint<String> {
 				return StrContains(first, second);
 			case PATTERNMATCHES:
 				return RegexMatches(second, first);
+			case APACHE_ORO_PATTERN_MATCHES:
+				return RegexMatches(second, first);				
+				
 			default:
 				log.warn("StringComparison: unimplemented operator!"
 				        + comparison.getOperator());
