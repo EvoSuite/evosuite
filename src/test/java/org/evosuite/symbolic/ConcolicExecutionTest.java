@@ -4,10 +4,13 @@ import static org.evosuite.symbolic.SymbolicObserverTest.printConstraints;
 import static org.junit.Assert.assertEquals;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
@@ -2024,5 +2027,10 @@ public class ConcolicExecutionTest {
 	public void testCase94() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase94();
 		List<BranchCondition> branch_conditions = executeTest(tc);
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
+		for (BranchCondition branchCondition : branch_conditions) {
+			variables.addAll(branchCondition.getLocalConstraint().getVariables());
+		}
+		assertEquals(2, variables.size());
 	}
 }

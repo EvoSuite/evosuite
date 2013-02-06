@@ -1172,8 +1172,18 @@ public class SymbolicObserver extends ExecutionObserver {
 				|| t.equals(Type.INT_TYPE);
 	}
 
+	/**
+	 * This method forbids using the same interning String in two separate
+	 * string primitive statements.
+	 * 
+	 * @param statement
+	 * @param scope
+	 */
 	private void before(StringPrimitiveStatement statement, Scope scope) {
-		/* do nothing */
+		String string_value = statement.getValue();
+		if (string_value != null) {
+			statement.setValue(new String(string_value));
+		}
 	}
 
 	private void before(IntPrimitiveStatement statement, Scope scope) {
