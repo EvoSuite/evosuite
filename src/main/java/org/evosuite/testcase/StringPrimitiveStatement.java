@@ -48,7 +48,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 	 *            a {@link java.lang.String} object.
 	 */
 	public StringPrimitiveStatement(TestCase tc, String value) {
-		super(tc, String.class, value);
+		super(tc, String.class, value==null ? null : new String(value));
 	}
 
 	/**
