@@ -56,6 +56,8 @@ public abstract class StringBuilder_Append extends SymbolicFunction {
 		StringBuilder conc_str_builder = (StringBuilder) this.getConcReceiver();
 		if (conc_str_builder != null) {
 			conc_str_builder_to_string_pre = conc_str_builder.toString();
+		} else {
+			conc_str_builder_to_string_pre = null;
 		}
 	}
 
