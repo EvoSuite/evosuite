@@ -22,7 +22,9 @@ package org.evosuite.symbolic.expr;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
+import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -94,6 +96,45 @@ public final class IntegerConstraint extends Constraint<Long> {
 		long left = (Long) this.getLeftOperand().execute();
 		long right = (Long) this.getRightOperand().execute();
 
+		// special integer constraint: string indexOf char != -1
+		if (this.getLeftOperand() instanceof StringBinaryToIntegerExpression
+				&& this.getComparator() == Comparator.NE
+				&& this.getRightOperand() instanceof IntegerConstant) {
+			IntegerConstant right_constant = (IntegerConstant) this
+					.getRightOperand();
+			StringBinaryToIntegerExpression left_string_expr = (StringBinaryToIntegerExpression) this
+					.getLeftOperand();
+			if (left_string_expr.getOperator() == Operator.INDEXOFC
+					&& right_constant.getConcreteValue() == -1L) {
+
+				Expression<?> theSymbolicString = left_string_expr.getLeftOperand();
+				Expression<?> theSymbolicChar = left_string_expr.getRightOperand();
+
+				// check theString.lenght>0
+				String theConcreteString = (String) theSymbolicString.execute();
+				if (theConcreteString.length()==0) {
+					// if the string is empty, then the branch distance is maximum since
+					// no char can be modified to satisfy the constraint
+					return Long.MAX_VALUE; 
+				} else {
+					char theConcreteChar = (char) ((Long) theSymbolicChar.execute()).longValue();
+					char[] charArray = theConcreteString.toCharArray();
+					int min_distance_to_char = Integer.MAX_VALUE;
+					for (char c : charArray) {
+						if (Math.abs(c - theConcreteChar) < min_distance_to_char) {
+							min_distance_to_char= Math.abs(c - theConcreteChar);
+						}
+
+					}
+					return min_distance_to_char;
+				}
+				
+				
+			}
+
+		}
+
+		// special case: regex
 		if (this.getLeftOperand() instanceof IntegerUnaryExpression) {
 			if (((IntegerUnaryExpression) this.getLeftOperand()).getOperator() == Operator.ISDIGIT) {
 				long left_operand = ((IntegerUnaryExpression) this
@@ -170,5 +211,4 @@ public final class IntegerConstraint extends Constraint<Long> {
 		}
 
 	}
-
 }
