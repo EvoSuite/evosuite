@@ -135,13 +135,17 @@ public class SteadyStateGA extends GeneticAlgorithm {
 				int rejected = 0;
 				if (isTooLong(offspring1) || offspring1.size() == 0) {
 					rejected++;
-				} else
+				} else {
+					// applyAdaptiveLocalSearch(offspring1);
 					newGeneration.add(offspring1);
+				}
 
 				if (isTooLong(offspring2) || offspring2.size() == 0) {
 					rejected++;
-				} else
+				} else {
+					// applyAdaptiveLocalSearch(offspring2);
 					newGeneration.add(offspring2);
+				}
 
 				if (rejected == 1)
 					newGeneration.add(Randomness.choice(parent1, parent2));
@@ -195,8 +199,10 @@ public class SteadyStateGA extends GeneticAlgorithm {
 				applyLocalSearch();
 
 			sortPopulation();
+			applyAdaptiveLocalSearch(getBestIndividual());
 			double newFitness = getBestIndividual().getFitness();
 
+			
 			if (fitnessFunction.isMaximizationFunction())
 				assert (newFitness >= bestFitness) : "Best fitness was: " + bestFitness
 				        + ", now best fitness is " + newFitness;

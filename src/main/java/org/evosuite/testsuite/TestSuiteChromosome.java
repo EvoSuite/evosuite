@@ -40,6 +40,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.TestMutationHistoryEntry;
 import org.evosuite.utils.Randomness;
 
 /**
@@ -181,6 +182,64 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 		LocalSearchBudget.individualImproved(this);
 		assert (fitnessBefore >= getFitness());  //FIXME doesn't it assume minimization?
+	}
+	
+	@Override
+	public void applyAdaptiveLocalSearch(LocalSearchObjective objective) {
+
+		if(!hasFitnessChanged()) {
+			logger.info("Fitness has not changed, so not applying local search");
+			return;
+		}
+		logger.info("Fitness has changed, applying local search");
+
+		/*
+		//List<TestChromosome> copies = new ArrayList<TestChromosome>();
+		for(int numTest = 0; numTest < tests.size(); numTest++) {
+//		for(TestChromosome test : tests) {
+			TestChromosome test = tests.get(numTest);
+			if(test.hasRelevantMutations()) {
+				TestCaseExpander expander = new TestCaseExpander();
+				TestChromosome clone = new TestChromosome();
+				clone.setTestCase(expander.expandTestCase(test.getTestCase()));
+				for(TestMutationHistoryEntry mutation : test.getMutationHistory()) {
+					StatementInterface s1 = mutation.getStatement();
+					for(StatementInterface s2 : clone.getTestCase()) {
+						if(s1.same(s2)) {
+							clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(s2, mutation.getMutationType()));
+							break;
+						}
+					}
+				}
+				addTest(clone);
+				TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
+				        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, tests.size() - 1);
+				logger.info("Applying DSE to test: "+clone.getTestCase().toCode());
+				clone.applyAdaptiveLocalSearch(testObjective);
+				// copies.add(clone);
+				
+			}
+		}
+		*/
+		
+		// apply local search to all tests where a mutation was applied
+		
+		int numTest = 0;
+		for(TestChromosome test : tests) {
+			TestSuiteLocalSearchObjective testObjective = new TestSuiteLocalSearchObjective(
+			        (TestSuiteFitnessFunction) objective.getFitnessFunction(), this, numTest);
+			numTest++;
+			
+			if (LocalSearchBudget.isFinished()) {
+				logger.debug("Local search budget used up");
+				break;
+			}
+			logger.debug("Checking local search on individual test");
+
+			test.applyAdaptiveLocalSearch(testObjective);
+		}
+		
+		
 	}
 
 	/**
