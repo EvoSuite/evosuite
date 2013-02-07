@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.MultipleExpression;
@@ -86,8 +87,10 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 		this.right = _right;
 		this.other_v = _other;
 
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException();
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+			DSEStats.reportConstraintTooLong(getSize());
+			throw new ConstraintTooLongException(getSize());
+		}
 	}
 
 	/**

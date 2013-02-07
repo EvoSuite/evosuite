@@ -1,4 +1,3 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
@@ -23,28 +22,36 @@ package org.evosuite.symbolic.expr;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
+
 public abstract class Constraint<T extends Object> implements Serializable {
 
 	private static final long serialVersionUID = 7547747352755232472L;
 
 	/**
-	 * <p>getComparator</p>
-	 *
-	 * @param <T> a T object.
+	 * <p>
+	 * getComparator
+	 * </p>
+	 * 
+	 * @param <T>
+	 *            a T object.
 	 * @return a {@link org.evosuite.symbolic.expr.Comparator} object.
 	 */
 	abstract public Comparator getComparator();
 
 	/**
-	 * <p>getLeftOperand</p>
-	 *
+	 * <p>
+	 * getLeftOperand
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	abstract public Expression<?> getLeftOperand();
 
 	/**
-	 * <p>getRightOperand</p>
-	 *
+	 * <p>
+	 * getRightOperand
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
 	abstract public Expression<?> getRightOperand();
@@ -58,7 +65,7 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 		} else {
 			hash = getLeftOperand().hashCode() + getComparator().hashCode()
-			        + getRightOperand().hashCode();
+					+ getRightOperand().hashCode();
 		}
 		return hash;
 	}
@@ -66,8 +73,10 @@ public abstract class Constraint<T extends Object> implements Serializable {
 	protected int size = 0;
 
 	/**
-	 * <p>Getter for the field <code>size</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>size</code>.
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getSize() {
@@ -89,9 +98,9 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 		Constraint<?> other = (Constraint<?>) obj;
 		if (this.getComparator().equals(other.getComparator())
-//		        && this.getSize() == other.getSize()
-		        && this.getLeftOperand().equals(other.getLeftOperand())
-		        && this.getRightOperand().equals(other.getRightOperand())) {
+				// && this.getSize() == other.getSize()
+				&& this.getLeftOperand().equals(other.getLeftOperand())
+				&& this.getRightOperand().equals(other.getRightOperand())) {
 			return true;
 		}
 		return false;
@@ -99,36 +108,36 @@ public abstract class Constraint<T extends Object> implements Serializable {
 
 	/**
 	 * Sound but not complete
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean isSolveable() {
 		if (getLeftOperand().equals(getRightOperand())) {
-			if (getComparator() == Comparator.LT || getComparator() == Comparator.GT
-			        || getComparator() == Comparator.NE) {
+			if (getComparator() == Comparator.LT
+					|| getComparator() == Comparator.GT
+					|| getComparator() == Comparator.NE) {
 				return false;
 			}
 		}
 		return true;
 	}
 
-	
 	public abstract Constraint<T> negate();
-	
+
 	/**
 	 * Returns x/(x+1)
+	 * 
 	 * @param x
 	 * @return a normalized double value
 	 */
 	protected static double normalize(double x) {
 		return x / (x + 1.0);
 	}
-	
+
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new HashSet<Variable<?>>();
-		variables.addAll(getLeftOperand().getVariables());
-		variables.addAll(getRightOperand().getVariables());
-		
-		return variables;
+		Set<Variable<?>> result = new HashSet<Variable<?>>();
+		result.addAll(this.getLeftOperand().getVariables());
+		result.addAll(this.getRightOperand().getVariables());
+		return result;
 	}
 }

@@ -295,6 +295,7 @@ public class TestSuiteDSE {
 				if (fitness.getFitness(expandedTests) < originalFitness) {
 					logger.info("New test improves fitness to {}",
 							expandedTests.getFitness());
+					DSEStats.reportNewTestUseful();
 					// expandedTests.addTest(newTestChromosome); // no need to
 					// clone so we
 					// can keep
@@ -307,7 +308,7 @@ public class TestSuiteDSE {
 					// ZeroFitness is a stopping condition
 				} else {
 					logger.info("New test does not improve fitness");
-					DSEStats.reportSolutionWithNoFitnessImprovement();
+					DSEStats.reportNewTestUnuseful();
 					expandedTests.deleteTest(newTest);
 				}
 				success++;
@@ -369,10 +370,15 @@ public class TestSuiteDSE {
 
 		logger.info("Applying local search");
 		ConstraintSolver skr = new ConstraintSolver();
+		DSEStats.reportNewConstraints(constraints);
+		
+		long startSolvingTime = System.currentTimeMillis();		
 		Map<String, Object> values = skr.solve(constraints);
+		long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
+		DSEStats.reportNewSolvingTime(estimatedSolvingTime);
 
 		if (values != null && !values.isEmpty()) {
-			DSEStats.reportSAT();
+			DSEStats.reportNewSAT();
 			
 			TestCase newTest = test.clone();
 
@@ -444,7 +450,7 @@ public class TestSuiteDSE {
 			return newTest;
 		} else {
 			logger.info("Found no solution");
-			DSEStats.reportUNSAT();
+			DSEStats.reportNewUNSAT();
 			return null;
 		}
 

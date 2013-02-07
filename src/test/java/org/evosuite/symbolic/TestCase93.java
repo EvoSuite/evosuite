@@ -2,70 +2,112 @@ package org.evosuite.symbolic;
 
 public class TestCase93 {
 
+	public static void test(String string0, int catchCount, boolean boolean0) {
 
-	public static class DateParse
-	{
-		public void Subject(String dayname , String monthname)  
+		try {
+			new StringBuffer((String) null);
+		} catch (NullPointerException ex) {
+			catchCount++;
+		}
+
+		Assertions.checkEquals(1, catchCount);
+
+		StringBuffer sb = new StringBuffer(string0);
+		String string1 = sb.toString();
+
+		int int0 = "Togliere sta roba".length();
+		int int1 = string1.length();
+
+		Assertions.checkEquals(int0, int1);
+
+		sb.append(true);
+		sb.append(false);
+		String string2 = sb.toString();
+
+		int int2 = "Togliere sta robatruefalse".length();
+		int int3 = string2.length();
+
+		Assertions.checkEquals(int2, int3);
+
+		StringBuffer stringBuffer1 = new StringBuffer(new String(
+				"Togliere sta roba"));
+		stringBuffer1.append(boolean0);
+		String string3 = stringBuffer1.toString();
+
+		int int4 = string3.length();
+		int int5 = "Togliere sta robatrue".length();
+
+		Assertions.checkEquals(int4, int5);
+
+		// append char
 		{
-			int result = 0;
-			//int month = -1;
-			dayname = dayname.toLowerCase();
-			monthname = monthname.toLowerCase();
+			char char0 = 'x';
+			stringBuffer1.append(char0);
+			String string4 = stringBuffer1.toString();
 
-			if ("mon".equals(dayname) || 
-					"tue".equals(dayname) || 
-					"wed".equals(dayname) || 
-					"thur".equals(dayname) || 
-					"fri".equals(dayname) || 
-					"sat".equals(dayname) || 
-					"sun".equals(dayname)) {
-				result = 1; 
-			}       
-			if ("jan".equals(monthname)) {
-				result += 1;
-			}
-			if ("feb".equals(monthname)) {
-				result += 2;
-			}
-			if ("mar".equals(monthname)) {
-				result += 3;
-			}
-			if ("apr".equals(monthname)) {
-				result += 4;
-			}
-			if ("may".equals(monthname)) {
-				result += 5;
-			}
-			if ("jun".equals(monthname)) {
-				result += 6;
-			}
-			if ("jul".equals(monthname)) {
-				result += 7;
-			}
-			if ("aug".equals(monthname)) {
-				result += 8;
-			}
-			if ("sep".equals(monthname)) {
-				result += 9;
-			}
-			if ("oct".equals(monthname)) {
-				result += 10;
-			}
-			if ("nov".equals(monthname)) {
-				result += 11;
-			}
-			if ("dec".equals(monthname)) {
-				result += 12;
-			}
+			int int6 = string4.length();
+			int int7 = "Togliere sta robatruex".length();
+			Assertions.checkEquals(int6, int7);
+		}
+		// append int
+		{
+			int myInt = 125;
+			stringBuffer1.append(myInt);
+			String string5 = stringBuffer1.toString();
+
+			int int8 = string5.length();
+			int int9 = "Togliere sta robatruex125".length();
+			Assertions.checkEquals(int8, int9);
+		}
+		// append long
+		{
+			long myLong = 999L;
+			stringBuffer1.append(myLong);
+			String string6 = stringBuffer1.toString();
+
+			int int10 = string6.length();
+			int int11 = "Togliere sta robatruex125999".length();
+			Assertions.checkEquals(int10, int11);
+		}
+		// append float
+		{
+			float myFloat = 1.0f;
+			stringBuffer1.append(myFloat);
+			String string7 = stringBuffer1.toString();
+
+			int int12 = string7.length();
+			int int13 = "Togliere sta robatruex1259991.0".length();
+			Assertions.checkEquals(int12, int13);
+		}
+		// append double
+		{
+			double myDouble = 2.0;
+			stringBuffer1.append(myDouble);
+			String string7 = stringBuffer1.toString();
+
+			int int14 = string7.length();
+			int int15 = "Togliere sta robatruex1259991.02.0".length();
+			Assertions.checkEquals(int14, int15);
+		}
+		// append null String
+		{
+			stringBuffer1.append((String) null);
+			String string8 = stringBuffer1.toString();
+
+			int int16 = string8.length();
+			int int17 = "Togliere sta robatruex1259991.02.0null".length();
+			Assertions.checkEquals(int16, int17);
+		}
+		// append non-null symbolic String
+		{
+			String string9 = stringBuffer1.toString();
+			String string10 = stringBuffer1.append(string9).toString();
+
+			int int18 = ("Togliere sta robatruex1259991.02.0null" + "Togliere sta robatruex1259991.02.0null").length();
+			int int19 = string10.length();
+			Assertions.checkEquals(int18, int19);
 		}
 
 	}
-	
-	public static void test(String string0, String string1) {
-		//String string0 = "Ou\u0016";
-		//String string1 = "Ou\u0016";
-		DateParse dateParse0 = new DateParse();
-		DateParse dateParse1 = new DateParse();
-		dateParse0.Subject(string0, string1);
-	}
+
 }

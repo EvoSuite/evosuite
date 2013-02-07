@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 import org.evosuite.symbolic.expr.fp.RealValue;
+import org.evosuite.symbolic.vm.apache.regex.Perl5Matcher_Matches;
 import org.evosuite.symbolic.vm.bigint.BigInteger_Ctor;
 import org.evosuite.symbolic.vm.bigint.BigInteger_DivideAndRemainder;
 import org.evosuite.symbolic.vm.bigint.BigInteger_IntValue;
@@ -315,6 +316,9 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		// java.util.regex.Matcher
 		addFunctionToTable(new Matcher_Matches(env));
 
+		// org.apache.oro.text.regex
+		addFunctionToTable(new Perl5Matcher_Matches(env));
+		
 		// java.math.BigInteger
 		addFunctionToTable(new BigInteger_Ctor(env));
 		addFunctionToTable(new BigInteger_IntValue(env));

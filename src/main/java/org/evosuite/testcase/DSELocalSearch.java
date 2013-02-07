@@ -98,7 +98,7 @@ public class DSELocalSearch extends LocalSearch {
 			Map<String, Object> values = skr.solve(constraints);
 			if (values != null && !values.isEmpty()) {
 				logger.info("Found solution");
-				DSEStats.reportSAT();
+//				DSEStats.reportSAT();
 				TestCase oldTest = expandedTest;
 				TestCase newTest = updateTest(oldTest, values);
 				logger.info("New test: "+newTest.toCode());
@@ -116,7 +116,7 @@ public class DSELocalSearch extends LocalSearch {
 				}
 			} else {
 				logger.info("Found no solution");
-				DSEStats.reportUNSAT();
+//				DSEStats.reportUNSAT();
 			}
 		}
 		
