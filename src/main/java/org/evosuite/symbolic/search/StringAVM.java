@@ -43,7 +43,9 @@ public final class StringAVM {
 		String oldString = strVar.getConcreteValue();
 		boolean improved = true;
 		while(improved) {
-			String newStr = oldString.substring(0, oldString.length() - 1);
+			String newStr = "";
+			if(!oldString.isEmpty())
+				newStr = oldString.substring(0, oldString.length() - 1);
 			strVar.setConcreteValue(newStr);
 			log.debug("Current attempt: " + newStr);
 			improved = false;
