@@ -176,7 +176,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
 						//logger.info("Adding array index " + index + " to array "
 						//       + value.getSimpleClassName() + " " + value.getName());
-						variables.add(new ArrayIndex(this, (ArrayReference) value, index));
+						if(((ArrayReference)value).isInitialized(index, position))
+							variables.add(new ArrayIndex(this, (ArrayReference) value, index));
 					}
 				}
 			} else if (value instanceof ArrayIndex) {

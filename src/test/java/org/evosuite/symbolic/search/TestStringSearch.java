@@ -28,10 +28,13 @@ import java.util.Map;
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
+import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringConstraint;
+import org.evosuite.symbolic.expr.bv.IntegerComparison;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
+import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
 import org.evosuite.symbolic.expr.str.StringVariable;
@@ -312,7 +315,7 @@ public class TestStringSearch {
 		assertFalse((result.get("test1").toString()).regionMatches(ignore_case,
 				offset1, const2, offset2, len));
 	}
-	
+
 	@Test
 	public void testRegexMatchesTrue() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
@@ -330,6 +333,33 @@ public class TestStringSearch {
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertTrue(result.get("test1").toString().matches(const2));
+	}
+
+	@Test
+	public void testIndexOfC() {
+		String var1value = "D<E\u001E";
+		StringVariable var1 = new StringVariable("var1", var1value);
+
+		IntegerConstant colon_code = new IntegerConstant(35);
+		IntegerConstant numeral_code = new IntegerConstant(58);
+		IntegerConstant minus_one = new IntegerConstant(-1);
+
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
+				var1, Operator.INDEXOFC, colon_code, -1L);
+		StringBinaryToIntegerExpression index_of_numeral = new StringBinaryToIntegerExpression(
+				var1, Operator.INDEXOFC, numeral_code, -1L);
+
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,Comparator.EQ, minus_one);
+		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral,Comparator.NE, minus_one);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(constr1);
+		constraints.add(constr2);
+
+		ConstraintSolver solver = new ConstraintSolver();
+		Map<String, Object> solution = solver.solve(constraints);
+		
+		assertNotNull(solution);
 	}
 	
 	@Test

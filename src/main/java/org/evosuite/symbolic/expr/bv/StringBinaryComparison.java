@@ -24,8 +24,13 @@ import gnu.trove.set.hash.THashSet;
 
 import java.util.Set;
 
+import org.apache.oro.text.regex.MalformedPatternException;
+import org.apache.oro.text.regex.Pattern;
+import org.apache.oro.text.regex.Perl5Compiler;
+import org.apache.oro.text.regex.Perl5Matcher;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
@@ -70,8 +75,10 @@ public final class StringBinaryComparison extends AbstractExpression<Long>
 		this.op = op;
 		this.right = right;
 
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException();
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+			DSEStats.reportConstraintTooLong(getSize());
+			throw new ConstraintTooLongException(getSize());
+		}
 	}
 
 	private final Expression<String> left;
@@ -155,6 +162,18 @@ public final class StringBinaryComparison extends AbstractExpression<Long>
 			return first.contains(second) ? 1L : 0L;
 		case PATTERNMATCHES:
 			return second.matches(first) ? 1L : 0L;
+		case APACHE_ORO_PATTERN_MATCHES: {
+			Perl5Matcher matcher = new Perl5Matcher();
+			Perl5Compiler compiler = new Perl5Compiler();
+			Pattern pattern;
+			try {
+				pattern = compiler.compile(first);
+			} catch (MalformedPatternException e) {
+				throw new RuntimeException(e);
+			}
+			return matcher.matches(second, pattern) ? 1L : 0L;
+			
+		}
 		default:
 			log.warn("StringComparison: unimplemented operator!" + op);
 			return null;

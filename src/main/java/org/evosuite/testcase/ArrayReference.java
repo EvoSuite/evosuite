@@ -209,4 +209,26 @@ public class ArrayReference extends VariableReferenceImpl {
 		}
 		return max;
 	}
+
+	public boolean isInitialized(int index) {
+		return isInitialized(index, testCase.size());
+	}
+	
+	public boolean isInitialized(int index, int position) {
+		int pos = 0;
+		for (StatementInterface s : testCase) {
+			if(pos++ >= position)
+				return false;
+			
+			if (s instanceof AssignmentStatement) {
+				VariableReference ret = s.getReturnValue();
+				if(ret instanceof ArrayIndex) {
+					ArrayIndex ai = (ArrayIndex)ret;
+					if(ai.getArray().equals(this) && ai.getArrayIndex() == index)
+						return true;
+				}
+			}
+		}
+		return false;
+	}
 }

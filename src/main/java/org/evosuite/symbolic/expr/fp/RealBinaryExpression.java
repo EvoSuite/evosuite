@@ -68,8 +68,7 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 		this.op = op2;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException("Constraint size: "
-					+ getSize());
+			throw new ConstraintTooLongException(getSize());
 	}
 
 	/** {@inheritDoc} */

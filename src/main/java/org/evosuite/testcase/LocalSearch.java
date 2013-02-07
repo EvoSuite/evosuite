@@ -71,21 +71,29 @@ public abstract class LocalSearch {
 
 			Class<?> type = statement.getReturnValue().getVariableClass();
 			if (type.equals(Integer.class) || type.equals(int.class)) {
-				search = new IntegerLocalSearch<Integer>();
+				//search = new IntegerLocalSearch<Integer>();
+				search = new DSELocalSearch();
 			} else if (type.equals(Byte.class) || type.equals(byte.class)) {
-				search = new IntegerLocalSearch<Byte>();
+				// search = new IntegerLocalSearch<Byte>();
+				search = new DSELocalSearch();
 			} else if (type.equals(Short.class) || type.equals(short.class)) {
-				search = new IntegerLocalSearch<Short>();
+				// search = new IntegerLocalSearch<Short>();
+				search = new DSELocalSearch();
 			} else if (type.equals(Long.class) || type.equals(long.class)) {
-				search = new IntegerLocalSearch<Long>();
+				// search = new IntegerLocalSearch<Long>();
+				search = new DSELocalSearch();
 			} else if (type.equals(Character.class) || type.equals(char.class)) {
-				search = new IntegerLocalSearch<Character>();
+				// search = new IntegerLocalSearch<Character>();
+				search = new DSELocalSearch();
 			} else if (type.equals(Float.class) || type.equals(float.class)) {
-				search = new FloatLocalSearch<Float>();
+				// search = new FloatLocalSearch<Float>();
+				search = new DSELocalSearch();
 			} else if (type.equals(Double.class) || type.equals(double.class)) {
-				search = new FloatLocalSearch<Double>();
+				// search = new FloatLocalSearch<Double>();
+				search = new DSELocalSearch();
 			} else if (type.equals(String.class)) {
-				search = new StringLocalSearch();
+				// search = new StringLocalSearch();
+				search = new DSELocalSearch();
 			} else if (type.equals(Boolean.class)) {
 				search = new BooleanLocalSearch();
 			} else if (statement instanceof EnumPrimitiveStatement) {

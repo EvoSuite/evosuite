@@ -34,27 +34,12 @@ public class ConstraintTooLongException extends StopVMException {
 	private static Logger logger = LoggerFactory
 			.getLogger(ConstraintTooLongException.class);
 
-	/**
-	 * <p>
-	 * Constructor for ConstraintTooLongException.
-	 * </p>
-	 */
-	public ConstraintTooLongException() {
-		super();
-		logger.debug("ConstraintTooLongException! Current DSE will be stopped");
+	private final int constraint_size;
+	public ConstraintTooLongException(int constraint_size) {
+		this.constraint_size = constraint_size;
 	}
 
-	/**
-	 * <p>
-	 * Constructor for ConstraintTooLongException.
-	 * </p>
-	 * 
-	 * @param msg
-	 *            a {@link java.lang.String} object.
-	 */
-	public ConstraintTooLongException(String msg) {
-		super(msg);
-		logger.debug("ConstraintTooLongException! Current DSE will be stopped");
+	public int getConstraintSize() {
+		return this.constraint_size;
 	}
-
 }

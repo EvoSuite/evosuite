@@ -812,7 +812,7 @@ class MSecurityManager extends SecurityManager {
 			        || library.equals("net") || library.equals("lcms")
 			        || library.equals("j2pkcs11") || library.equals("nio")
 			        || library.equals("laf") || library.endsWith("libmawt.so")
-			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib")) {
+			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib") || library.equals("cmm")) {
 				return true;
 			}
 
