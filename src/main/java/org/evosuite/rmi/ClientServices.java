@@ -8,7 +8,6 @@ import java.rmi.server.UnicastRemoteObject;
 
 import org.evosuite.Properties;
 import org.evosuite.rmi.service.ClientNodeImpl;
-import org.evosuite.rmi.service.ClientNodeImplInterface;
 import org.evosuite.rmi.service.ClientNodeLocal;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.rmi.service.DummyClientNodeImpl;
@@ -28,7 +27,7 @@ public class ClientServices {
 	
 	private static ClientServices instance = new ClientServices();
 	
-	private ClientNodeImplInterface clientNode = new DummyClientNodeImpl();
+	private ClientNodeImpl clientNode = new DummyClientNodeImpl();
 	
 	protected ClientServices(){		
 	}

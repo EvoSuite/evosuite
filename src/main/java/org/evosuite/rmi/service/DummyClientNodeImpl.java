@@ -1,10 +1,20 @@
 package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
+import java.rmi.registry.Registry;
 
 import org.evosuite.ga.Chromosome;
 
-public class DummyClientNodeImpl implements ClientNodeImplInterface {
+public class DummyClientNodeImpl extends ClientNodeImpl {
+
+	public DummyClientNodeImpl(){
+		
+	}
+	
+	public DummyClientNodeImpl(Registry registry) {
+		super(registry);
+		// TODO Auto-generated constructor stub
+	}
 
 	@Override
 	public boolean init() {
