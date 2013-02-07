@@ -117,6 +117,7 @@ public enum Operator {
 	STARTSWITH("startsWith", 3),
 	REGIONMATCHES("regionMatches", 6), 
 	PATTERNMATCHES("patternMatches", 2), 
+	APACHE_ORO_PATTERN_MATCHES("apacheOroPatternMatches", 2), 
 
 	// character operators
 	ISLETTER("isLetter",1),

@@ -42,10 +42,8 @@ public final class StringAVM {
 		// First chop characters from the back until distance doesn't improve
 		String oldString = strVar.getConcreteValue();
 		boolean improved = true;
-		while(improved) {
-			String newStr = "";
-			if(!oldString.isEmpty())
-				newStr = oldString.substring(0, oldString.length() - 1);
+		while(improved && oldString.length()>0) {
+			String newStr = oldString.substring(0, oldString.length() - 1);
 			strVar.setConcreteValue(newStr);
 			log.debug("Current attempt: " + newStr);
 			improved = false;

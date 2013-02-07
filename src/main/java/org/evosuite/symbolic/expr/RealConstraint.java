@@ -21,6 +21,7 @@ package org.evosuite.symbolic.expr;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
+import org.evosuite.symbolic.DSEStats;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,7 +29,6 @@ public final class RealConstraint extends Constraint<Double> {
 
 	static Logger log = LoggerFactory.getLogger(RealConstraint.class);
 
-	
 	private static final long serialVersionUID = 6021027178547577289L;
 
 	/**
@@ -49,8 +49,10 @@ public final class RealConstraint extends Constraint<Double> {
 		this.left = left;
 		this.cmp = cmp;
 		this.right = right;
-		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException();
+		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
+			DSEStats.reportConstraintTooLong(getSize());
+			throw new ConstraintTooLongException(getSize());
+		}
 	}
 
 	private final Expression<Double> left;
@@ -86,7 +88,6 @@ public final class RealConstraint extends Constraint<Double> {
 		return new RealConstraint(left, cmp.not(), right);
 	}
 
-	
 	public double getRealDist() {
 		double left = (Double) this.getLeftOperand().execute();
 		double right = (Double) this.getRightOperand().execute();
@@ -119,5 +120,5 @@ public final class RealConstraint extends Constraint<Double> {
 			return Double.MAX_VALUE;
 		}
 	}
-	
+
 }
