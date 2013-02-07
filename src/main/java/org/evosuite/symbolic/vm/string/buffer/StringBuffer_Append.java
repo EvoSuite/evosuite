@@ -25,7 +25,11 @@ public abstract class StringBuffer_Append extends SymbolicFunction {
 	@Override
 	public void beforeExecuteFunction() {
 		StringBuffer conc_str_buffer = (StringBuffer) this.getConcReceiver();
-		stringValBeforeExecution = conc_str_buffer.toString();
+		if (conc_str_buffer != null) {
+			stringValBeforeExecution = conc_str_buffer.toString();
+		} else {
+			stringValBeforeExecution = null;
+		}
 	}
 
 	public static class StringBufferAppend_B extends StringBuffer_Append {
