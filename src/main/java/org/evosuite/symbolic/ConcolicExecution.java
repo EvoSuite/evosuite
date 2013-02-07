@@ -74,7 +74,7 @@ public abstract class ConcolicExecution {
 		return executeConcolic(defaultTestCase);
 	}
 
-	protected static List<BranchCondition> executeConcolic(
+	public static List<BranchCondition> executeConcolic(
 			DefaultTestCase defaultTestCase) {
 
 		logger.debug("Preparing concolic execution");
