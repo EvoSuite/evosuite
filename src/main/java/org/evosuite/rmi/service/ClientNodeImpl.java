@@ -18,7 +18,7 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ClientNodeImpl implements ClientNodeImplInterface {
+public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientNodeImpl.class);
 	
@@ -29,6 +29,9 @@ public class ClientNodeImpl implements ClientNodeImplInterface {
 	protected Registry registry;
 	
 	protected final ExecutorService executor = Executors.newSingleThreadExecutor();
+	
+	//only for testing
+	protected ClientNodeImpl(){}
 	
 	public ClientNodeImpl(Registry registry){
 		this.registry = registry;
@@ -172,12 +175,13 @@ public class ClientNodeImpl implements ClientNodeImplInterface {
 		return true;
 	}
 
+	
 	public String getClientRmiIdentifier() {
 		return clientRmiIdentifier;
 	}
 
 	@Override
-	public void doCoverageAnalysis() {
+	public void doCoverageAnalysis() throws RemoteException{
 		if(!state.equals(ClientState.NOT_STARTED)){
 			throw new IllegalArgumentException("Search has already been started");
 		}
