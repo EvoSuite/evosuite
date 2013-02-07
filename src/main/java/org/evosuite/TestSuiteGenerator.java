@@ -111,6 +111,7 @@ import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
@@ -766,6 +767,10 @@ public class TestSuiteGenerator {
 		if (Properties.CRITERION == Criterion.DEFUSE && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
+		if (Properties.DSE_RATE>0) {
+			DSEStats.printStatistics();
+		}
+		
 		return best.getTests();
 	}
 

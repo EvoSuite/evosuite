@@ -3,7 +3,9 @@
  */
 package org.evosuite.testsuite;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.testcase.ArrayIndex;
@@ -22,6 +24,8 @@ public class TestCaseExpander {
 
 	private final Set<VariableReference> usedVariables = new HashSet<VariableReference>();
 
+	public Map<Integer, Set<VariableReference>> variableMapping = new HashMap<Integer, Set<VariableReference>>();
+	
 	private int currentPosition = 0;
 
 	public TestCase expandTestCase(TestCase test) {
@@ -45,7 +49,13 @@ public class TestCaseExpander {
 	private VariableReference duplicateStatement(TestCase test, VariableReference owner) {
 		StatementInterface statement = test.getStatement(owner.getStPosition());
 		currentPosition++;
-		return test.addStatement(statement.clone(test), owner.getStPosition() + 1);
+		VariableReference copy =  test.addStatement(statement.clone(test), owner.getStPosition() + 1);
+		if(!variableMapping.containsKey(owner.getStPosition())) {
+			variableMapping.put(owner.getStPosition(), new HashSet<VariableReference>());
+			variableMapping.get(owner.getStPosition()).add(owner);
+		}
+		variableMapping.get(owner.getStPosition()).add(copy);
+		return copy;
 	}
 
 	/*

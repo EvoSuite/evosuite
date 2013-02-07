@@ -68,7 +68,7 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long>
 		this.op = op2;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH)
-			throw new ConstraintTooLongException();
+			throw new ConstraintTooLongException(getSize());
 	}
 
 	/** {@inheritDoc} */

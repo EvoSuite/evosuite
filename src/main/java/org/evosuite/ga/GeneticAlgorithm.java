@@ -112,6 +112,21 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 
 		return (getAge() % Properties.LOCAL_SEARCH_RATE == 0);
 	}
+	
+	/**
+	 * Local search is applied to individuals if they improved fitness
+	 * 
+	 * @param individual
+	 */
+	protected void applyAdaptiveLocalSearch(Chromosome individual) {
+		
+		// TODO: For now we just use -10 as special key, but needs to be changed
+		
+		if (Properties.LOCAL_SEARCH_RATE != -10)
+			return;
+		
+		individual.applyAdaptiveLocalSearch(localObjective);
+	}
 
 	/**
 	 * Apply local search
