@@ -66,7 +66,7 @@ public class TestFactory {
 	 * @param call
 	 * @param position
 	 */
-	private void addCallFor(TestCase test, VariableReference callee,
+	private boolean addCallFor(TestCase test, VariableReference callee,
 	        AccessibleObject call, int position) {
 		logger.trace("addCallFor " + callee.getName());
 
@@ -78,6 +78,7 @@ public class TestFactory {
 			} else if (call instanceof Field) {
 				addFieldFor(test, callee, (Field) call, position);
 			}
+			return true;
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this!
 			logger.debug("Inserting call " + call + " has failed. Removing statements");
@@ -89,6 +90,7 @@ public class TestFactory {
 				        + test.getStatement(position + i).getCode());
 				test.remove(position + i);
 			}
+			return false;
 		}
 	}
 
@@ -1173,7 +1175,7 @@ public class TestFactory {
 	 * @param test
 	 * @param position
 	 */
-	public void insertRandomCall(TestCase test, int position) {
+	public boolean insertRandomCall(TestCase test, int position) {
 		int previousLength = test.size();
 		String name = "";
 		currentRecursion.clear();
@@ -1191,23 +1193,40 @@ public class TestFactory {
 				Method m = (Method) o;
 				//logger.info("Adding method call " + m.getName());
 				name = m.getName();
-				VariableReference callee = test.getRandomNonNullObject(Properties.getTargetClass(),
-				                                                       position);
-
-				// This may also be an inner class, in this case we can't use a SUT instance
-				if (!callee.isAssignableTo(m.getDeclaringClass())) {
-					callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
+				if(!Modifier.isStatic(m.getModifiers())) {
+					VariableReference callee = null;
+					if(!test.hasObject(Properties.getTargetClass(), position)) {
+						callee = createObject(test, Properties.getTargetClass(), position, 0);
+						position += test.size() - previousLength;
+						previousLength = test.size();
+					} else {
+						callee = test.getRandomNonNullObject(Properties.getTargetClass(),
+								position);
+						// This may also be an inner class, in this case we can't use a SUT instance
+						if (!callee.isAssignableTo(m.getDeclaringClass())) {
+							callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
+						}
+					}
+					addMethodFor(test, callee, m, position);
+				} else {
+					// We only use this for static methods to avoid using wrong constructors (?)
+					addMethod(test, m, position, 0);
 				}
-				addMethodFor(test, callee, m, position);
-				//addMethod(test, m, position, 0);
 			} else if (o instanceof Field) {
 				Field f = (Field) o;
-				//logger.info("Adding field assignment " + f.getName());
 				name = f.getName();
-				addFieldAssignment(test, f, position, 0);
+				if(Randomness.nextBoolean()) {
+					//logger.info("Adding field assignment " + f.getName());
+					addFieldAssignment(test, f, position, 0);
+				} else {
+					//logger.info("Adding field " + f.getName());
+					addField(test, f, position);
+				}
 			} else {
 				logger.error("Got type other than method or constructor!");
 			}
+			
+			return true;
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this! - TestCluster replaced
 			// TestCluster.getInstance().checkDependencies(o);
@@ -1221,6 +1240,7 @@ public class TestFactory {
 				        + test.getStatement(position + i).getCode());
 				test.remove(position + i);
 			}
+			return false;
 
 			// logger.info("Attempting search");
 			// test.chop(previous_length);
@@ -1234,7 +1254,7 @@ public class TestFactory {
 	 * @param test
 	 * @param position
 	 */
-	public void insertRandomCallOnObject(TestCase test, int position) {
+	public boolean insertRandomCallOnObject(TestCase test, int position) {
 		// Select a random variable
 		VariableReference var = selectVariableForCall(test, position);
 
@@ -1243,14 +1263,14 @@ public class TestFactory {
 			logger.debug("Inserting call at position " + position + ", chosen var: "
 			        + var.getName() + ", distance: " + var.getDistance() + ", class: "
 			        + var.getClassName());
-			insertRandomCallOnObjectAt(test, var, position);
+			return insertRandomCallOnObjectAt(test, var, position);
 		} else {
 			logger.debug("Adding new call on UUT");
-			insertRandomCall(test, position);
+			return insertRandomCall(test, position);
 		}
 	}
 
-	public void insertRandomCallOnObjectAt(TestCase test, VariableReference var,
+	public boolean insertRandomCallOnObjectAt(TestCase test, VariableReference var,
 	        int position) {
 		// Select a random variable
 		logger.debug("Chosen object: " + var.getName());
@@ -1276,6 +1296,7 @@ public class TestFactory {
 					// logger.info("Failed!");
 				}
 				*/
+				return true;
 			}
 		} else {
 			logger.debug("Getting calls for object " + var.toString());
@@ -1283,17 +1304,19 @@ public class TestFactory {
 			if (!calls.isEmpty()) {
 				AccessibleObject call = Randomness.choice(calls);
 				logger.debug("Chosen call " + call);
-				addCallFor(test, var, call, position);
-				logger.debug("Done adding call " + call);
+				return addCallFor(test, var, call, position);
+				// logger.debug("Done adding call " + call);
 			}
 
 		}
+		
+		return false;
 	}
 
 	/* (non-Javadoc)
 	 * @see de.unisb.cs.st.evosuite.testcase.AbstractTestFactory#insertRandomStatement(de.unisb.cs.st.evosuite.testcase.TestCase)
 	 */
-	public void insertRandomStatement(TestCase test) {
+	public int insertRandomStatement(TestCase test) {
 		final double P = Properties.INSERTION_SCORE_UUT
 		        + Properties.INSERTION_SCORE_OBJECT
 		        + Properties.INSERTION_SCORE_PARAMETER;
@@ -1309,17 +1332,22 @@ public class TestFactory {
 		}
 
 		//		if (r <= P_UUT) {
+		boolean success = false;
 		if (r <= 0.5) {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
-			insertRandomCall(test, position);
+			success = insertRandomCall(test, position);
 		} else { // if (r <= P_OBJECT) {
 			logger.debug("Adding new call on existing object");
-			insertRandomCallOnObject(test, position);
+			success = insertRandomCallOnObject(test, position);
 			//		} else {
 			//			logger.debug("Adding new call with existing object as parameter");
 			// insertRandomCallWithObject(test, position);
 		}
+		if(success)
+			return position;
+		else
+			return -1;
 	}
 
 	/**
