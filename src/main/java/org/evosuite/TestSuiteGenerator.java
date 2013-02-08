@@ -201,13 +201,13 @@ public class TestSuiteGenerator {
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath: ");
 
 		ClientServices.getInstance().getClientNode().changeState(ClientState.INITIALIZATION);
-		
+
 		Sandbox.goingToExecuteSUTCode();
 		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
 		try {
 			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
 			                           Arrays.asList(Properties.CP.split(File.pathSeparator)));
-			LoggingUtils.getEvoLogger().info("* Finished to analyze classpath");
+			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
 		} catch (Throwable e) {
 			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
 			                                          + (e.getMessage() != null ? e.getMessage()
@@ -242,7 +242,7 @@ public class TestSuiteGenerator {
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
 		statistics.writeReport();
-		if(!Properties.NEW_STATISTICS)
+		if (!Properties.NEW_STATISTICS)
 			statistics.writeStatistics();
 		PermissionStatistics.getInstance().printStatistics();
 
@@ -652,15 +652,15 @@ public class TestSuiteGenerator {
 		TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory();
 		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals", goals.size());
-
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals",
+		                                                                 goals.size());
 
 		TestSuiteChromosome best = new TestSuiteChromosome();
-		if (! (Properties.STOP_ZERO  && goals.isEmpty()) ) {
+		if (!(Properties.STOP_ZERO && goals.isEmpty())) {
 			// Perform search
 			LoggingUtils.getEvoLogger().info("* Starting evolution");
 			ClientServices.getInstance().getClientNode().changeState(ClientState.SEARCH);
-			
+
 			ga.generateSolution();
 			best = (TestSuiteChromosome) ga.getBestIndividual();
 			if (best == null) {
@@ -726,12 +726,12 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
-		}  
-		
+		}
+
 		/*
 		 * FIXME: why was it as an "else" of previous condition???
 		 */
-		
+
 		if (Properties.COVERAGE) {
 			CoverageAnalysis.analyzeCoverage(best, Properties.CRITERION);
 		}
@@ -742,8 +742,6 @@ public class TestSuiteGenerator {
 			SearchStatistics.getInstance().mutationScore(best.getCoverage());
 		}
 
-
-		
 		statistics.iteration(ga);
 		statistics.minimized(best);
 		LoggingUtils.getEvoLogger().info("* Generated " + best.size()
@@ -751,10 +749,10 @@ public class TestSuiteGenerator {
 		                                         + best.totalLengthOfTestCases());
 		// TODO: In the end we will only need one analysis technique
 		if (!Properties.ANALYSIS_CRITERIA.isEmpty()) {
-			SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(), best.getCoverage());
+			SearchStatistics.getInstance().addCoverage(Properties.CRITERION.toString(),
+			                                           best.getCoverage());
 			CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA);
 		}
-
 
 		if (analyzing)
 			CoverageStatistics.analyzeCoverage(best);
@@ -764,13 +762,14 @@ public class TestSuiteGenerator {
 		}
 
 		ga.printBudget();
-		if (Properties.CRITERION == Criterion.DEFUSE && Properties.ANALYSIS_CRITERIA.isEmpty())
+		if (Properties.CRITERION == Criterion.DEFUSE
+		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-		if (Properties.DSE_RATE>0) {
+		if (Properties.DSE_RATE > 0) {
 			DSEStats.printStatistics();
 		}
-		
+
 		return best.getTests();
 	}
 
@@ -1023,8 +1022,9 @@ public class TestSuiteGenerator {
 		TestFitnessFactory<? extends TestFitnessFunction> goalFactory = getFitnessFactory();
 		List<? extends TestFitnessFunction> goals = goalFactory.getCoverageGoals();
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals", goals.size());
-		
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals",
+		                                                                 goals.size());
+
 		// The GA is not actually used, except to provide the same statistics as during search
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		// GeneticAlgorithm suiteGA = setup();
@@ -1112,8 +1112,8 @@ public class TestSuiteGenerator {
 			//LoggingUtils.getEvoLogger().info("* Shuffling goals");
 			Randomness.shuffle(goals);
 		}
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals", goals.size());
-
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_goals",
+		                                                                 goals.size());
 
 		LoggingUtils.getEvoLogger().info("* Total number of test goals: " + goals.size());
 
@@ -1727,8 +1727,8 @@ public class TestSuiteGenerator {
 
 		ChromosomeFactory<? extends Chromosome> factory = getDefaultChromosomeFactory();
 		GeneticAlgorithm ga = getGeneticAlgorithm(factory);
-		
-		if(Properties.NEW_STATISTICS)
+
+		if (Properties.NEW_STATISTICS)
 			ga.addListener(new org.evosuite.statistics.StatisticsListener());
 
 		// How to select candidates for reproduction
