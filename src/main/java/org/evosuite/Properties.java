@@ -295,9 +295,13 @@ public class Properties {
 	/** Constant <code>LOCAL_SEARCH_RATE=-1</code> */
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")
 	public static int LOCAL_SEARCH_RATE = -1;
+
+	public enum AdaptiveLocalSearchTarget {
+	    OFF, BEST, ALL
+	}
 	
 	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
-	public static boolean ADAPTIVE_LOCAL_SEARCH = false;
+	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.ALL;
 	
 	/** Constant <code>LOCAL_SEARCH_BUDGET=100</code> */
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")

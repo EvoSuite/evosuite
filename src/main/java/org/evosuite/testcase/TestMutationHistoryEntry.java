@@ -4,34 +4,44 @@ import org.evosuite.ga.MutationHistoryEntry;
 
 public class TestMutationHistoryEntry implements MutationHistoryEntry {
 
-	private StatementInterface statement;
-	
-	private int originalNum = 0;
-	
-	protected enum TestMutation {
-		CHANGE,
-		INSERTION,
-		DELETION
-		};
-		
-	protected TestMutation mutationType;
-	
-	public TestMutationHistoryEntry(StatementInterface statement, TestMutation type) {
-		this.statement = statement;
-		this.mutationType = type;
-		originalNum = statement.getPosition();
-	}
-	
-	public StatementInterface getStatement() {
-		return statement;
-	}
-	
-	public int getStatementPosition() {
-		return originalNum;
-	}
+    protected enum TestMutation {
+	CHANGE, INSERTION, DELETION
+	    };
+    
+    protected TestMutation mutationType;
 
-	
-	public TestMutation getMutationType() {
-		return mutationType;
-	}
+    protected StatementInterface statement;
+
+    public TestMutationHistoryEntry(TestMutation type, StatementInterface statement) {
+	this.mutationType = type;
+	this.statement = statement;
+    }
+
+    public TestMutationHistoryEntry(TestMutation type) {
+	this.mutationType = type;
+	this.statement = null;
+    }
+    
+    public StatementInterface getStatement() {
+	return statement;
+    }
+    
+    public TestMutation getMutationType() {
+	return mutationType;
+    }
+
+    public TestMutationHistoryEntry clone(TestCase newTest) {
+	if(statement == null)
+	    return new TestMutationHistoryEntry(mutationType);
+
+	return new TestMutationHistoryEntry(mutationType, statement.clone(newTest));
+    }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+	public String toString() {
+	return mutationType + " at " + statement;
+    }
 }

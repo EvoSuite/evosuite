@@ -7,16 +7,16 @@ import java.util.List;
 
 public class MutationHistory<T extends MutationHistoryEntry> implements Iterable<T> {
 
-	private List<T> mutations = new ArrayList<T>();
-	
+	private final List<T> mutations = new ArrayList<T>();
+
 	public void clear() {
 		mutations.clear();
 	}
-	
+
 	public void addMutationEntry(T entry) {
 		mutations.add(entry);
 	}
-	
+
 	public List<T> getMutations() {
 		return Collections.unmodifiableList(mutations);
 	}
@@ -25,13 +25,28 @@ public class MutationHistory<T extends MutationHistoryEntry> implements Iterable
 	public Iterator<T> iterator() {
 		return mutations.iterator();
 	}
-	
+
 	public int size() {
 		return mutations.size();
 	}
-	
+
+	public boolean isEmpty() {
+	    return mutations.isEmpty();
+	}
+
 	public void set(MutationHistory<T> other) {
 		mutations.addAll(other.getMutations());
 	}
-	
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		String result = "";
+		for (T t : mutations)
+			result += t.toString() + "\n";
+
+		return result;
+	}
 }
