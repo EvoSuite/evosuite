@@ -1,5 +1,8 @@
 package org.evosuite.symbolic.expr;
 
+import java.util.StringTokenizer;
+import java.util.Vector;
+
 import org.evosuite.Properties;
 import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.DSEStats;
@@ -7,6 +10,9 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.bv.StringComparison;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
+import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
+import org.evosuite.symbolic.expr.token.TokenizerExpr;
 import org.evosuite.symbolic.search.RegexDistance;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,7 +66,7 @@ public final class StringConstraint extends Constraint<String> {
 	public Constraint<String> negate() {
 		return new StringConstraint(left, cmp.not(), right);
 	}
-	
+
 	public double getStringDist() {
 		Expression<?> exprLeft = this.getLeftOperand();
 		Comparator cmpr = this.getComparator();
@@ -74,19 +80,55 @@ public final class StringConstraint extends Constraint<String> {
 			StringMultipleComparison scTarget = (StringMultipleComparison) exprLeft;
 			distance = getStringDistance(scTarget);
 			log.debug("Calculating distance of constraint " + this);
+		} else if (exprLeft instanceof HasMoreTokensExpr) {
+			HasMoreTokensExpr hasMoreTokensExpr = (HasMoreTokensExpr) exprLeft;
+			distance = getStringDistance(hasMoreTokensExpr);
+			log.debug("Calculating distance of constraint " + this);
 		} else {
 			assert (false) : "Invalid string comparison";
 		}
-		assert (this.right.concreteValue.intValue()==0);
-		if (cmpr == Comparator.NE) { 
-			return distance; 
+		assert (this.right.concreteValue.intValue() == 0);
+		if (cmpr == Comparator.NE) {
+			return distance;
 		} else {
 			// if we don't want to satisfy return 0
 			// if not satisfied Long.MAX_VALUE else
 			return distance > 0 ? 0.0 : Double.MAX_VALUE;
 		}
 	}
-	
+
+	private static double getStringDistance(HasMoreTokensExpr hasMoreTokensExpr) {
+		TokenizerExpr tokenizerExpr = hasMoreTokensExpr.getTokenizerExpr();
+
+		StringValue string = tokenizerExpr.getString();
+		StringValue delimiter = tokenizerExpr.getDelimiter();
+		int nextTokenCount = tokenizerExpr.getNextTokenCount();
+
+		String concreteString = string.execute();
+		String concreteDelimiter = delimiter.execute();
+
+		if (concreteString.length() < concreteDelimiter.length()
+				* nextTokenCount) {
+			// not enough characters in original string to perform so many
+			// nextToken operations
+			return Double.MAX_VALUE;
+		}
+
+		StringTokenizer tokenizer = new StringTokenizer(concreteString,
+				concreteDelimiter);
+		Vector<String> tokens = new Vector<String>();
+		while (tokenizer.hasMoreTokens()) {
+			tokens.add(tokenizer.nextToken());
+		}
+
+		if (tokens.size() > nextTokenCount) {
+			// we already have enough tokens to make this true
+			return 0;
+		} else {
+			return StrEquals("", concreteDelimiter);
+		}
+	}
+
 	private static double getStringDistance(StringBinaryComparison comparison) {
 		try {
 			String first = comparison.getLeftOperand().execute();
@@ -96,8 +138,8 @@ public final class StringConstraint extends Constraint<String> {
 			case EQUALSIGNORECASE:
 				return StrEqualsIgnoreCase(first, second);
 			case EQUALS:
-				log.debug("Edit distance between " + first + " and " + second + " is: "
-				        + StrEquals(first, second));
+				log.debug("Edit distance between " + first + " and " + second
+						+ " is: " + StrEquals(first, second));
 				return StrEquals(first, second);
 			case ENDSWITH:
 				return StrEndsWith(first, second);
@@ -106,11 +148,11 @@ public final class StringConstraint extends Constraint<String> {
 			case PATTERNMATCHES:
 				return RegexMatches(second, first);
 			case APACHE_ORO_PATTERN_MATCHES:
-				return RegexMatches(second, first);				
-				
+				return RegexMatches(second, first);
+
 			default:
 				log.warn("StringComparison: unimplemented operator!"
-				        + comparison.getOperator());
+						+ comparison.getOperator());
 				return Double.MAX_VALUE;
 			}
 		} catch (Exception e) {
@@ -144,16 +186,16 @@ public final class StringConstraint extends Constraint<String> {
 		String val1 = value.substring(value.length() - len);
 		return StrEquals(val1, suffix);
 	}
-	
+
 	private static double avmDistance(String s, String t) {
 		double distance = Math.abs(s.length() - t.length());
 		int max = Math.min(s.length(), t.length());
-		for(int i = 0; i < max; i++) {
+		for (int i = 0; i < max; i++) {
 			distance += normalize(Math.abs(s.charAt(i) - t.charAt(i)));
 		}
 		return distance;
 	}
-	
+
 	private static double editDistance(String s, String t) {
 		int n = s.length(); // length of s
 		int m = t.length(); // length of t
@@ -189,7 +231,8 @@ public final class StringConstraint extends Constraint<String> {
 				cost = normalize(Math.abs(s.charAt(i - 1) - t_j));
 				// minimum of cell to the left+1, to the top+1, diagonally left
 				// and up +cost
-				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1] + cost);
+				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1]
+						+ cost);
 			}
 
 			// copy current distance counts to 'previous row' distance counts
@@ -202,7 +245,7 @@ public final class StringConstraint extends Constraint<String> {
 		// actually has the most recent cost counts
 		return p[n];
 	}
-	
+
 	private static double getStringDistance(StringMultipleComparison comparison) {
 		try {
 			String first = comparison.getLeftOperand().execute();
@@ -219,20 +262,19 @@ public final class StringConstraint extends Constraint<String> {
 				long ignoreCase = (Long) comparison.getOther().get(3).execute();
 
 				return StrRegionMatches(first, (int) frstStart, second,
-				                                          (int) secStart, (int) length,
-				                                          ignoreCase != 0);
+						(int) secStart, (int) length, ignoreCase != 0);
 			default:
 				log.warn("StringComparison: unimplemented operator!"
-				        + comparison.getOperator());
+						+ comparison.getOperator());
 				return Double.MAX_VALUE;
 			}
 		} catch (Exception e) {
 			return Double.MAX_VALUE;
 		}
 	}
-	
-	private static double StrRegionMatches(String value, int thisStart, String string,
-	        int start, int length, boolean ignoreCase) {
+
+	private static double StrRegionMatches(String value, int thisStart,
+			String string, int start, int length, boolean ignoreCase) {
 		if (value == null || string == null)
 			throw new NullPointerException();
 
@@ -255,13 +297,13 @@ public final class StringConstraint extends Constraint<String> {
 		}
 
 		return StrEquals(s1.substring(thisStart, length + thisStart),
-		                 s2.substring(start, length + start));
+				s2.substring(start, length + start));
 	}
-	
+
 	private static double StrEqualsIgnoreCase(String first, String second) {
 		return StrEquals(first.toLowerCase(), second.toLowerCase());
 	}
-	
+
 	private static double StrEquals(String first, Object second) {
 		if (first.equals(second))
 			return 0; // Identical
@@ -270,16 +312,15 @@ public final class StringConstraint extends Constraint<String> {
 			// return editDistance(first, second.toString());
 		}
 	}
-	
+
 	private static double StrStartsWith(String value, String prefix, int start) {
 		int len = Math.min(prefix.length(), value.length());
 		int end = (start + len > value.length()) ? value.length() : start + len;
 		return StrEquals(value.substring(start, end), prefix);
 	}
-	
+
 	private static double RegexMatches(String val, String regex) {
 		return RegexDistance.getDistance(val, regex);
 	}
-
 
 }

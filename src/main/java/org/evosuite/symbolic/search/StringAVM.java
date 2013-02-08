@@ -1,10 +1,19 @@
 package org.evosuite.symbolic.search;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Random;
+import java.util.Set;
+
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.expr.IntegerConstraint;
+import org.evosuite.symbolic.expr.StringConstraint;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 
 public final class StringAVM {
 
@@ -42,7 +51,7 @@ public final class StringAVM {
 		// First chop characters from the back until distance doesn't improve
 		String oldString = strVar.getConcreteValue();
 		boolean improved = true;
-		while(improved && oldString.length()>0) {
+		while (improved && oldString.length() > 0) {
 			String newStr = oldString.substring(0, oldString.length() - 1);
 			strVar.setConcreteValue(newStr);
 			log.debug("Current attempt: " + newStr);
@@ -83,9 +92,10 @@ public final class StringAVM {
 
 		// Finally add new characters at the end of the string
 		improved = true;
-		while(improved) {
+		while (improved) {
 			improved = false;
-			String newStr = oldString + '_';
+			char charToInsert = getRandomChar();
+			String newStr = oldString + charToInsert;
 			strVar.setConcreteValue(newStr);
 			double newDist = DistanceEstimator.getDistance(cnstr);
 			log.debug("Adding: " + newStr + ": " + newDist);
@@ -105,6 +115,38 @@ public final class StringAVM {
 				restoreVar();
 			}
 		}
+
+		// try to insert delimiters (if any)
+		Set<StringValue> delimiters = getTokenDelimiters(cnstr);
+		for (StringValue delimiter : delimiters) {
+			improved = true;
+			String delimiterStr = delimiter.execute();
+			while (improved) {
+				improved = false;
+				char charToInsert = getRandomChar();
+				String newStr = oldString + delimiterStr + charToInsert;
+				strVar.setConcreteValue(newStr);
+				double newDist = DistanceEstimator.getDistance(cnstr);
+				log.debug("Adding: " + newStr + ": " + newDist);
+				if (distImpr(newDist)) {
+					improvement = true;
+					improved = true;
+					checkpointVar(newDist);
+					if (checkpointDistance == 0.0) {
+						log.debug("Search seems successful, stopping at "
+								+ checkpointDistance + "/" + newDist);
+						return true;
+					}
+
+					doCharacterAVM(newStr.length() - 1);
+					oldString = strVar.getConcreteValue();
+				} else {
+					restoreVar();
+				}
+			}
+
+		}
+
 		return improvement;
 	}
 
@@ -251,5 +293,32 @@ public final class StringAVM {
 		log.debug("Final value of this iteration: " + oldString);
 
 		return improvement;
+	}
+
+	private static Set<StringValue> getTokenDelimiters(
+			Collection<Constraint<?>> constraints) {
+
+		Set<StringValue> delimiters = new HashSet<StringValue>();
+		for (Constraint<?> constraint : constraints) {
+			if (constraint instanceof StringConstraint) {
+				StringConstraint stringConstraint = (StringConstraint) constraint;
+
+				if (stringConstraint.getLeftOperand() instanceof HasMoreTokensExpr) {
+					HasMoreTokensExpr hasMoreTokensExpr = (HasMoreTokensExpr) stringConstraint
+							.getLeftOperand();
+					StringValue delimiter = hasMoreTokensExpr
+							.getTokenizerExpr().getDelimiter();
+					delimiters.add(delimiter);
+				}
+
+			}
+		}
+		return delimiters;
+	}
+
+	private static char getRandomChar() {
+		Random r = new Random();
+		char randomChar = (char) r.nextInt();
+		return randomChar;
 	}
 }
