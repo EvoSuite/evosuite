@@ -1323,6 +1323,7 @@ public class TestFactory {
 		final double P_UUT = Properties.INSERTION_SCORE_UUT / P;
 		final double P_OBJECT = P_UUT + Properties.INSERTION_SCORE_OBJECT / P;
 
+		int oldSize = test.size();
 		double r = Randomness.nextDouble();
 		int position = Randomness.nextInt(test.size() + 1);
 
@@ -1337,9 +1338,15 @@ public class TestFactory {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
 			success = insertRandomCall(test, position);
+			if(test.size() - oldSize > 1) {
+				position += (test.size() - oldSize - 1);
+			}
 		} else { // if (r <= P_OBJECT) {
 			logger.debug("Adding new call on existing object");
 			success = insertRandomCallOnObject(test, position);
+			if(test.size() - oldSize > 1) {
+				position += (test.size() - oldSize - 1);
+			}
 			//		} else {
 			//			logger.debug("Adding new call with existing object as parameter");
 			// insertRandomCallWithObject(test, position);

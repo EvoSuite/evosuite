@@ -4,7 +4,7 @@ import org.evosuite.ga.MutationHistoryEntry;
 
 public class TestMutationHistoryEntry implements MutationHistoryEntry {
 
-    protected enum TestMutation {
+    public enum TestMutation {
 	CHANGE, INSERTION, DELETION
 	    };
     
