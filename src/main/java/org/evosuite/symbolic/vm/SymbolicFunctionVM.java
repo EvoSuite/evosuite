@@ -77,6 +77,9 @@ import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Init;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_ToString;
+import org.evosuite.symbolic.vm.string.tokenizer.HasMoreTokens;
+import org.evosuite.symbolic.vm.string.tokenizer.NextToken;
+import org.evosuite.symbolic.vm.string.tokenizer.StringTokenizer_Init;
 import org.evosuite.symbolic.vm.wrappers.B_ByteValue;
 import org.evosuite.symbolic.vm.wrappers.B_Init;
 import org.evosuite.symbolic.vm.wrappers.B_ValueOf;
@@ -263,7 +266,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new ToRadians(env));
 		addFunctionToTable(new ULP.ULP_F(env));
 		addFunctionToTable(new ULP.ULP_D(env));
-		
+
 		// java.lang.String
 		addFunctionToTable(new CharAt(env));
 		addFunctionToTable(new CompareTo(env));
@@ -295,7 +298,6 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new ToUpperCase(env));
 		addFunctionToTable(new Trim(env));
 		addFunctionToTable(new ValueOf.ValueOf_O(env));
-		
 
 		// java.lang.StringBuilder
 		addFunctionToTable(new StringBuilder_Init(env));
@@ -309,6 +311,11 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new StringBuilder_Append.Append_S(env));
 		addFunctionToTable(new StringBuilder_ToString(env));
 
+		// java.util.StringTokenizer
+		addFunctionToTable(new StringTokenizer_Init(env));
+		addFunctionToTable(new HasMoreTokens(env));
+		addFunctionToTable(new NextToken(env));
+
 		// java.util.regex.Pattern
 		addFunctionToTable(new Pattern_Matches(env));
 		addFunctionToTable(new Pattern_Matcher(env));
@@ -318,7 +325,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 
 		// org.apache.oro.text.regex
 		addFunctionToTable(new Perl5Matcher_Matches(env));
-		
+
 		// java.math.BigInteger
 		addFunctionToTable(new BigInteger_Ctor(env));
 		addFunctionToTable(new BigInteger_IntValue(env));

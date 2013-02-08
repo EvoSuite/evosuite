@@ -6,6 +6,7 @@ import gnu.trove.set.hash.THashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.StringTokenizer;
 
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
@@ -24,7 +25,6 @@ public final class SymbolicHeap {
 
 	protected static Logger logger = LoggerFactory
 			.getLogger(SymbolicHeap.class);
-
 
 	private static final class FieldKey {
 		private String owner;
@@ -79,7 +79,7 @@ public final class SymbolicHeap {
 	 */
 	public NonNullReference newReference(Type objectType) {
 
-		if (objectType.getClassName()==null)
+		if (objectType.getClassName() == null)
 			throw new IllegalArgumentException();
 
 		return new NonNullReference(objectType, newInstanceCount++);
@@ -408,6 +408,8 @@ public final class SymbolicHeap {
 	public static String $STRING_BUFFER_CONTENTS = "$stringBuffer_contents";
 
 	public static String $BIG_INTEGER_CONTENTS = "$bigInteger_contents";
+
+	public static String $STRING_TOKENIZER_VALUE = "$stringTokenizerValue";
 
 	public static final String $MATCHER_INPUT = "$matcherInput";
 
