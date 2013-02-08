@@ -214,8 +214,8 @@ public class TestChromosome extends ExecutableChromosome {
 	public boolean hasRelevantMutations() {
 
 	    if(mutationHistory.isEmpty()) {
-		logger.info("Mutation history is empty");
-		return false;
+	    	logger.info("Mutation history is empty");
+	    	return false;
 	    }
 
 		// Only apply local search up to the point where an exception was thrown
@@ -225,9 +225,17 @@ public class TestChromosome extends ExecutableChromosome {
 			if (lastPos != null)
 				lastPosition = lastPos.intValue();
 		}
-		logger.info("Mutation history: " + mutationHistory.toString());
 
 		for (TestMutationHistoryEntry mutation : mutationHistory) {
+			logger.info("Considering: "+mutation.getMutationType());
+			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION) {
+				for(StatementInterface s : test) {
+					logger.info(s.toString());
+				}
+				logger.info("-> "+mutation.getStatement());
+				logger.info("=> "+mutation.getStatement().getPosition());
+			}
+
 			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION
 			    && mutation.getStatement().getPosition() <= lastPosition
 			    && mutation.getStatement() instanceof PrimitiveStatement<?>) {
@@ -270,6 +278,7 @@ public class TestChromosome extends ExecutableChromosome {
 				lastPosition = lastPos.intValue();
 		}
 
+		logger.info("Mutation history: " + mutationHistory.toString());
 		logger.info("Checking {} mutations", mutationHistory.size());
 		for (TestMutationHistoryEntry mutation : mutationHistory) {
 			if (LocalSearchBudget.isFinished())
@@ -479,9 +488,10 @@ public class TestChromosome extends ExecutableChromosome {
 						mutationHistory.addMutationEntry(new TestMutationHistoryEntry(TestMutationHistoryEntry.TestMutation.CHANGE, statement));
 						assert (test.isValid());
 					} else if (!statement.isAssignmentStatement()) {
+						int pos = statement.getPosition();
 						if (testFactory.changeRandomCall(test, statement)) {
 							changed = true;
-							mutationHistory.addMutationEntry(new TestMutationHistoryEntry(TestMutationHistoryEntry.TestMutation.CHANGE, statement));
+							mutationHistory.addMutationEntry(new TestMutationHistoryEntry(TestMutationHistoryEntry.TestMutation.CHANGE, test.getStatement(pos)));
 						}
 						assert (test.isValid());
 					}
