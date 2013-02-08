@@ -2019,18 +2019,41 @@ public class ConcolicExecutionTest {
 		Method method = TestCase94.class.getMethod("test", String.class,
 				String.class);
 		tc.appendMethod(null, method, string0, string1);
-		
+
 		return tc.getDefaultTestCase();
 	}
-	
+
+	private DefaultTestCase buildTestCase95() throws SecurityException,
+			NoSuchMethodException {
+		TestCaseBuilder tc = new TestCaseBuilder();
+
+		VariableReference string0 = tc
+				.appendStringPrimitive("Togliere_sta_roba");
+		VariableReference string1 = tc.appendStringPrimitive("_");
+		Method method = TestCase95.class.getMethod("test", String.class,
+				String.class);
+		tc.appendMethod(null, method, string0, string1);
+
+		return tc.getDefaultTestCase();
+	}
+
 	@Test
 	public void testCase94() throws SecurityException, NoSuchMethodException {
 		DefaultTestCase tc = buildTestCase94();
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		for (BranchCondition branchCondition : branch_conditions) {
-			variables.addAll(branchCondition.getLocalConstraint().getVariables());
+			variables.addAll(branchCondition.getLocalConstraint()
+					.getVariables());
 		}
 		assertEquals(2, variables.size());
+	}
+
+	@Test
+	public void testCase95() throws SecurityException, NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase95();
+		List<BranchCondition> branch_conditions = executeTest(tc);
+		assertEquals(7, branch_conditions.size());
+	
 	}
 }
