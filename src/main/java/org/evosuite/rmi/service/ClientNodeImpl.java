@@ -2,9 +2,12 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.ClientProcess;
@@ -28,7 +31,9 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	protected volatile CountDownLatch latch;
 	protected Registry registry;
 	
-	protected final ExecutorService executor = Executors.newSingleThreadExecutor();
+	protected final ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
+	
+	private final BlockingQueue<OutputVariable>  outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
 	
 	//only for testing
 	protected ClientNodeImpl(){}
@@ -43,6 +48,17 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		latch = new CountDownLatch(1);
 	}
 	
+	private static class OutputVariable{
+		public String name;
+		public Object value;
+		public OutputVariable(String name, Object value) {
+			super();
+			this.name = name;
+			this.value = value;
+		}		
+	}
+	
+	
 	@Override
 	public void startNewSearch() throws RemoteException, IllegalStateException {
 		if(!state.equals(ClientState.NOT_STARTED)){
@@ -53,7 +69,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 * Needs to be done on separated thread, otherwise the master will block on this
 		 * function call until end of the search, even if it is on remote process
 		 */
-		executor.submit(new Runnable(){
+		searchExecutor.submit(new Runnable(){
 			@Override
 			public void run() {				
 				changeState(ClientState.STARTED);
@@ -155,11 +171,20 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 	public void trackOutputVariable(String name, Object value) {
 		logger.info("Sending output variable to master process");
 		
+		/*
+		 * As this code might be called from unsafe blocks, we just put the values
+		 * on a queue, and have a privileged thread doing the RMI connection to master
+		 */
+		outputVariableQueue.offer(new OutputVariable(name,value));
+		
+		//TODO remove if queue solution works
+		/*
 		try {
 			masterNode.collectStatistics(clientRmiIdentifier, name, value);
 		} catch (RemoteException e) {
 			logger.error("Cannot inform master of output variable",e);
-		}		
+		}
+		*/		
 	}
 
 	@Override
@@ -168,6 +193,26 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			masterNode = (MasterNodeRemote) registry.lookup(MasterNodeRemote.RMI_SERVICE_NAME);
 			masterNode.registerClientNode(clientRmiIdentifier);
 			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state, new ClientStateInformation(state));
+			
+			Thread t = new Thread(){
+				@Override
+				public void run(){
+					while(!this.isInterrupted()){
+						try {
+							OutputVariable ov = outputVariableQueue.take();
+							masterNode.collectStatistics(clientRmiIdentifier, ov.name, ov.value);
+						} catch (InterruptedException e) {
+							break;
+						} catch(RemoteException e){
+							logger.error("Error when connecting to master via RMI",e);
+							break;
+						}
+					}
+				}
+			};
+			Sandbox.addPriviligedThread(t);
+			t.start();
+			
 		} catch (Exception e) {
 			logger.error("Error when connecting to master via RMI",e);
 			return false;
@@ -190,7 +235,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		 * Needs to be done on separated thread, otherwise the master will block on this
 		 * function call until end of the search, even if it is on remote process
 		 */
-		executor.submit(new Runnable(){
+		searchExecutor.submit(new Runnable(){
 			@Override
 			public void run() {				
 				changeState(ClientState.STARTED);
