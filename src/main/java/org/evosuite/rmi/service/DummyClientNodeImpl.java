@@ -80,8 +80,7 @@ public class DummyClientNodeImpl extends ClientNodeImpl {
 
 	@Override
 	public String getClientRmiIdentifier() {
-		// TODO Auto-generated method stub
-		return null;
+		return "dummy";
 	}
 
 

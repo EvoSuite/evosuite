@@ -392,11 +392,8 @@ public class TestCluster {
 				}
 			}
 		} else {
-
 			for (GenericClass generatorClazz : generators.keySet()) {
 				if (clazz.isAssignableFrom(generatorClazz)) {
-					//System.out.println(clazz.getTypeName() + " can be assigned from "
-					//        + generatorClazz.getTypeName());
 					targetGenerators.addAll(generators.get(generatorClazz));
 				}
 			}
@@ -452,9 +449,10 @@ public class TestCluster {
 		cacheGenerators(clazz);
 		Set<AccessibleObject> candidates = new LinkedHashSet<AccessibleObject>(
 		        generatorCache.get(clazz));
+		int before = candidates.size();
 		candidates.removeAll(excluded);
 		if (candidates.isEmpty())
-			throw new ConstructionFailedException("No generators left");
+			throw new ConstructionFailedException("No generators left for "+clazz+" - in total there are "+before);
 
 		return Randomness.choice(candidates);
 
@@ -586,6 +584,7 @@ public class TestCluster {
 			generators.put(target, new LinkedHashSet<AccessibleObject>());
 
 		// TODO: Need to add this call to all subclasses/superclasses?
+		logger.debug("Adding generator for class "+target+": "+call);
 		generators.get(target).add(call);
 	}
 
