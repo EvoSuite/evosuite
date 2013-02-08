@@ -9,6 +9,8 @@ import static org.objectweb.asm.Type.LONG_TYPE;
 import static org.objectweb.asm.Type.VOID_TYPE;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
+import java.util.StringTokenizer;
+
 import org.objectweb.asm.Type;
 
 public interface Types {
@@ -110,4 +112,14 @@ public interface Types {
 
 	static final String JAVA_LANG_STRING_BUILDER = StringBuilder.class
 			.getName().replace(".", "/");
+	
+	static final String JAVA_UTIL_STRING_TOKENIZER = StringTokenizer.class
+			.getName().replace(".", "/");
+
+	public static final String STR_STR_TO_VOID_DESCRIPTOR = getMethodDescriptor(
+			VOID_TYPE, STRING_TYPE, STRING_TYPE);
+	
+	public static final String TO_BOOLEAN_DESCRIPTOR = getMethodDescriptor(BOOLEAN_TYPE);
+
+
 }

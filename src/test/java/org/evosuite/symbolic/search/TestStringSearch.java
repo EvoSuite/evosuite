@@ -336,6 +336,56 @@ public class TestStringSearch {
 	}
 
 	@Test
+	public void testChopOffIndexOfC() {
+		String var1value = "D<E\u001Exqaa:saksajij1§n";
+		StringVariable var1 = new StringVariable("var1", var1value);
+
+		IntegerConstant colon_code = new IntegerConstant(58);
+		IntegerConstant minus_one = new IntegerConstant(-1);
+
+		int colon_int_code = (int)':';
+		int concrete_value = var1value.indexOf(colon_int_code);
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
+				var1, Operator.INDEXOFC, colon_code, (long) concrete_value);
+
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
+				Comparator.EQ, minus_one);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(constr1);
+
+		ConstraintSolver solver = new ConstraintSolver();
+		Map<String, Object> solution = solver.solve(constraints);
+
+		assertNotNull(solution);
+	}
+
+	@Test
+	public void testInsertIndexOfC() {
+		String var1value = "D<E\u001Exqaasaksajij1§n";
+		StringVariable var1 = new StringVariable("var1", var1value);
+
+		IntegerConstant colon_code = new IntegerConstant(58);
+		IntegerConstant minus_one= new IntegerConstant(-1);
+
+		int colon_int_code = (int)':';
+		int concrete_value = var1value.indexOf(colon_int_code);
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
+				var1, Operator.INDEXOFC, colon_code, (long) concrete_value);
+
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
+				Comparator.NE, minus_one);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(constr1);
+
+		ConstraintSolver solver = new ConstraintSolver();
+		Map<String, Object> solution = solver.solve(constraints);
+
+		assertNotNull(solution);
+	}
+	
+	@Test
 	public void testIndexOfC() {
 		String var1value = "D<E\u001E";
 		StringVariable var1 = new StringVariable("var1", var1value);
@@ -349,8 +399,10 @@ public class TestStringSearch {
 		StringBinaryToIntegerExpression index_of_numeral = new StringBinaryToIntegerExpression(
 				var1, Operator.INDEXOFC, numeral_code, -1L);
 
-		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,Comparator.EQ, minus_one);
-		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral,Comparator.NE, minus_one);
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
+				Comparator.EQ, minus_one);
+		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral,
+				Comparator.NE, minus_one);
 
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(constr1);
@@ -358,7 +410,7 @@ public class TestStringSearch {
 
 		ConstraintSolver solver = new ConstraintSolver();
 		Map<String, Object> solution = solver.solve(constraints);
-		
+
 		assertNotNull(solution);
 	}
 	
