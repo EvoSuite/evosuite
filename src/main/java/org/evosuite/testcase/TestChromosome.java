@@ -118,12 +118,14 @@ public class TestChromosome extends ExecutableChromosome {
 		c.solution = solution;
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());
-		for(TestMutationHistoryEntry mutation : mutationHistory) {
-			try {
-				TestMutationHistoryEntry mp = new TestMutationHistoryEntry(c.test.getStatement(mutation.getStatement().getPosition()), mutation.getMutationType());
-				c.mutationHistory.addMutationEntry(mp);
-			} catch(AssertionError e) {
-				
+		if(Properties.ADAPTIVE_LOCAL_SEARCH) {
+			for(TestMutationHistoryEntry mutation : mutationHistory) {
+				try {
+					TestMutationHistoryEntry mp = new TestMutationHistoryEntry(c.test.getStatement(mutation.getStatement().getPosition()), mutation.getMutationType());
+					c.mutationHistory.addMutationEntry(mp);
+				} catch(AssertionError e) {
+
+				}
 			}
 		}
 		// c.mutationHistory.set(mutationHistory);
@@ -376,7 +378,7 @@ public class TestChromosome extends ExecutableChromosome {
 	public void mutate() {
 		boolean changed = false;
 		mutationHistory.clear();
-		
+
 		logger.debug("Mutation: delete");
 		// Delete
 		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
@@ -400,6 +402,7 @@ public class TestChromosome extends ExecutableChromosome {
 		if (changed) {
 			setChanged(true);
 		}
+		
 	}
 
 	/**

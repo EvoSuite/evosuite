@@ -299,6 +299,7 @@ public class GenericClass implements Serializable {
 			return isAssignable(((TypeVariable<?>) lhsType).getBounds()[0], rhsType);
 		}
 		if (rhsType instanceof TypeVariable<?>) {
+
 			if (((TypeVariable<?>) rhsType).getBounds().length == 0)
 				return isAssignable(lhsType, Object.class);
 			return isAssignable(lhsType, ((TypeVariable<?>) rhsType).getBounds()[0]);
@@ -503,9 +504,9 @@ public class GenericClass implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + getTypeName().hashCode();
-		// result = prime * result + ((raw_class == null) ? 0 : raw_class.hashCode());
-		// result = prime * result + ((type == null) ? 0 : type.hashCode());
+		// result = prime * result + getTypeName().hashCode();
+		result = prime * result + ((raw_class == null) ? 0 : raw_class.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -521,7 +522,8 @@ public class GenericClass implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		GenericClass other = (GenericClass) obj;
-		return getTypeName().equals(other.getTypeName());
+		return type.equals(other.type);
+		// return getTypeName().equals(other.getTypeName());
 		/*
 		if (raw_class == null) {
 			if (other.raw_class != null)
