@@ -708,14 +708,14 @@ public class TestClusterGenerator {
 		if (c.getDeclaringClass().isAnonymousClass())
 			return false;
 
+		if (c.getDeclaringClass().isLocalClass()) {
+			logger.debug("Skipping constructor of local class " + c.getName());
+			return false;
+		}
+
 		if (c.getDeclaringClass().isMemberClass()
 		        && !Modifier.isPublic(c.getDeclaringClass().getModifiers()))
 			return false;
-
-		if (c.isSynthetic()) {
-			logger.debug("Skipping synthetic constructor " + c.getName());
-			return false;
-		}
 
 		if (!Properties.USE_DEPRECATED && c.getAnnotation(Deprecated.class) != null) {
 			logger.debug("Skipping deprecated constructor " + c.getName());
