@@ -689,6 +689,14 @@ public class Properties {
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
 	public static boolean SANDBOX = false;
 
+	public enum SandboxMode {
+		OFF, RECOMMENDED, IO
+	}
+
+	/** Constant <code>SANDBOX=false</code> */
+	@Parameter(key = "sandbox_mode", group = "Sandbox", description = "Mode in which the sandbox is applied")
+	public static SandboxMode SANDBOX_MODE = SandboxMode.RECOMMENDED;
+
 	/** Constant <code>MOCKS=false</code> */
 	@Parameter(key = "mocks", group = "Sandbox", description = "Usage of the mocks for the IO, Network etc")
 	public static boolean MOCKS = false;
