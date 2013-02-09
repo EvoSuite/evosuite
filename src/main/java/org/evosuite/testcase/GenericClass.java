@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.TestGenerationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -278,6 +279,7 @@ public class GenericClass implements Serializable {
 		if (lhsType.equals(rhsType)) {
 			return true;
 		}
+		
 
 		if (lhsType instanceof Class<?> && rhsType instanceof Class<?>) {
 			//if(ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType)) {
@@ -305,10 +307,25 @@ public class GenericClass implements Serializable {
 			return isAssignable(lhsType, ((TypeVariable<?>) rhsType).getBounds()[0]);
 		}
 		if (rhsType instanceof ParameterizedType) {
-			return isAssignable(lhsType, ((ParameterizedType) rhsType).getRawType());
+			try{
+				return TypeUtils.isAssignable(rhsType, lhsType);
+			} catch(IllegalStateException e) {
+				logger.debug("rhs is parameterized type "+rhsType +" and we got an illegal state");
+				return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
+			}
+
+			// return GenericTypeReflector.isSuperType(lhsType, rhsType);
+			// return isAssignable(lhsType, ((ParameterizedType) rhsType).getRawType());
 		}
 		if (lhsType instanceof ParameterizedType) {
-			return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
+			try {
+				return TypeUtils.isAssignable(rhsType, lhsType);
+			} catch(IllegalStateException e) {
+				logger.debug("lhs is parameterized type "+rhsType +" and we got an illegal state");
+				return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
+			}
+			// return GenericTypeReflector.isSuperType(lhsType, rhsType);
+			//return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
 		}
 		if (lhsType instanceof WildcardType) {
 			return isAssignable((WildcardType) lhsType, rhsType);
@@ -370,6 +387,7 @@ public class GenericClass implements Serializable {
 	}
 
 	private static boolean isAssignable(WildcardType lhsType, Type rhsType) {
+		return TypeUtils.isAssignable(rhsType, lhsType);
 		// TODO - what should go here?
 
 		/*
@@ -386,7 +404,7 @@ public class GenericClass implements Serializable {
 			}
 		}
 		*/
-		return true;
+		//return true;
 	}
 
 	transient Class<?> raw_class = null;
