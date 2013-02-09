@@ -41,6 +41,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
+import org.evosuite.Properties.SandboxMode;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.repair.JUnit4AssertionLogAdapter;
 import org.evosuite.sandbox.Sandbox;
@@ -356,6 +357,8 @@ public class TestSuiteWriter implements Opcodes {
 		if (wasSecurityException) {
 			//Add import info for EvoSuite classes used in the generated test suite
 			imports_sorted.add(Sandbox.class.getCanonicalName());
+			imports_sorted.add(Properties.class.getCanonicalName());
+			imports_sorted.add(Properties.SandboxMode.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.ExecutorService.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
@@ -584,8 +587,14 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(METHOD_SPACE);
 		bd.append("public static void initEvoSuiteFramework(){ \n");
+		
+		//need to setup the Sandbox mode
+		bd.append(BLOCK_SPACE);
+		bd.append("Properties.SANDBOX_MODE = SandboxMode."+Properties.SANDBOX_MODE+"; \n");
+		
 		bd.append(BLOCK_SPACE);
 		bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
+		
 		bd.append(BLOCK_SPACE);
 		bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
 		bd.append(METHOD_SPACE);
