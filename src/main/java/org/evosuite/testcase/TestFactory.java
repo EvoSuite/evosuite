@@ -1195,17 +1195,23 @@ public class TestFactory {
 				name = m.getName();
 				if(!Modifier.isStatic(m.getModifiers())) {
 					VariableReference callee = null;
-					if(!test.hasObject(Properties.getTargetClass(), position)) {
-						callee = createObject(test, Properties.getTargetClass(), position, 0);
+					Class<?> target = Properties.getTargetClass();
+					if(!m.getDeclaringClass().isAssignableFrom(Properties.getTargetClass())) {
+						// If this is an inner class, we cannot force to use the target class
+						target = m.getDeclaringClass();
+					} 
+
+					if(!test.hasObject(target, position)) {
+						callee = createObject(test, target, position, 0);
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {
-						callee = test.getRandomNonNullObject(Properties.getTargetClass(),
+						callee = test.getRandomNonNullObject(target,
 								position);
 						// This may also be an inner class, in this case we can't use a SUT instance
-						if (!callee.isAssignableTo(m.getDeclaringClass())) {
-							callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
-						}
+						//if (!callee.isAssignableTo(m.getDeclaringClass())) {
+						//	callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
+						//}
 					}
 					addMethodFor(test, callee, m, position);
 				} else {
