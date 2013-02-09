@@ -394,6 +394,7 @@ public class TestCluster {
 		} else {
 			for (GenericClass generatorClazz : generators.keySet()) {
 				if (clazz.isAssignableFrom(generatorClazz)) {
+					logger.debug("Adding subtype generator: "+clazz+" is assignable from "+generatorClazz);
 					targetGenerators.addAll(generators.get(generatorClazz));
 				}
 			}
