@@ -795,16 +795,16 @@ public class TestCodeVisitor extends TestVisitor {
 			Class<?> actualParamType = parameters.get(i).getVariableClass();
 			String name = getVariableName(parameters.get(i));
 			if (!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null")) {
-				if((!method.getParameterTypes()[i].equals(Object.class)
-				        && !method.getParameterTypes()[i].equals(Comparable.class)) ||
-				        (actualParamType.isPrimitive())) {
+				//if((!method.getParameterTypes()[i].equals(Object.class)
+				//        && !method.getParameterTypes()[i].equals(Comparable.class)) ||
+				//        (actualParamType.isPrimitive())) {
 					parameter_string += "(" + getClassName(method.getParameterTypes()[i])
 					        + ") ";
 					if (name.contains("(short"))
 						name = name.replace("(short)", "");
 					if (name.contains("(byte"))
 						name = name.replace("(byte)", "");
-				}
+				//}
 			}
 			        
 			parameter_string += name;
@@ -895,9 +895,9 @@ public class TestCodeVisitor extends TestVisitor {
 				String name = getVariableName(parameters.get(i));
 
 				if (!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null")) {
-					if((!constructor.getParameterTypes()[i].equals(Object.class)
-				        && !constructor.getParameterTypes()[i].equals(Comparable.class))  ||
-				        (actualParamType.isPrimitive())) {
+					//if((!constructor.getParameterTypes()[i].equals(Object.class)
+				    //    && !constructor.getParameterTypes()[i].equals(Comparable.class))  ||
+				    //    (actualParamType.isPrimitive())) {
 					// TODO: && !constructor.getParameterTypes()[i].isPrimitive?
 					parameter_string += "("
 					        + getClassName(constructor.getParameterTypes()[i]) + ") ";
@@ -905,7 +905,7 @@ public class TestCodeVisitor extends TestVisitor {
 						name = name.replace("(short)", "");
 					if (name.contains("(byte"))
 						name = name.replace("(byte)", "");
-					}
+					//}
 				}
 
 				parameter_string += name;
