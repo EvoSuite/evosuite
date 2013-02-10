@@ -323,7 +323,11 @@ public class TestSuiteGenerator {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.ASSERTION_GENERATION);
 			if (Properties.CRITERION == Criterion.MUTATION
 			        || Properties.CRITERION == Criterion.STRONGMUTATION) {
-				handleMutations(tests);
+				if (Properties.ASSERTION_STRATEGY == AssertionStrategy.MUTATION) {
+					handleMutations(tests);
+				} else {
+					addAssertions(tests);
+				}
 			} else {
 				// If we're not using mutation testing, we need to re-instrument
 				addAssertions(tests);
