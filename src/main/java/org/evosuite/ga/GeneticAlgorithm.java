@@ -785,7 +785,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 		} else {
 			return chromosome1.compareTo(chromosome2) <= 0;
 		}
-
+	}
+	
+	protected boolean isBetter(Chromosome chromosome1, Chromosome chromosome2) {
+		if (fitnessFunction.isMaximizationFunction()) {
+			return chromosome1.compareTo(chromosome2) > 0;
+		} else {
+			return chromosome1.compareTo(chromosome2) < 0;
+		}
 	}
 
 	/**
