@@ -22,51 +22,26 @@ public class DSELocalSearch extends LocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(DSELocalSearch.class);
 
-	@Override
-	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
-
+	public boolean doSearch(TestChromosome test, Set<Integer> statements, LocalSearchObjective objective) {
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
 		logger.info(test.getTestCase().toCode());
-
-		// Backup copy
-		TestChromosome clone = (TestChromosome) test.clone();
-		TestCaseExpander expander = new TestCaseExpander();
-		TestCase expandedTest = expander.expandTestCase(test.getTestCase());
-		Set<VariableReference> targets = new HashSet<VariableReference>();
-		Set<VariableReference> expandedTargets = expander.variableMapping.get(statement);
-		if (expandedTargets == null) {
-			targets.add(test.getTestCase().getStatement(statement).getReturnValue());
-			logger.info("Shit, was not expanded: "
-			        + test.getTestCase().getStatement(statement).getReturnValue().getName());
-		} else {
-			targets.addAll(expandedTargets);
-		}
-		logger.info("Expanded Test: \n" + expandedTest.toCode());
-		for (StatementInterface s : expandedTest) {
-			logger.info("Statement " + s.getPosition() + ": "
-			        + s.getReturnValue().getName());
-			if (s instanceof MethodStatement) {
-				MethodStatement ms = (MethodStatement) s;
-				for (VariableReference var : ms.getParameterReferences()) {
-					logger.info("      Parameter: " + var.getName());
-				}
-			}
-		}
-		logger.info("Targets for "
-		        + test.getTestCase().getStatement(statement).getReturnValue().getName()
-		        + ": " + targets.toString());
-
-		// For each path condition depending on the variable defined in statement
-		// Negate condition, if solution found check if result improved fitnes		
 		logger.info("Starting symbolic execution");
+		// Backup copy
+		test.getMutationHistory().clear();
+		TestChromosome clone = (TestChromosome) test.clone();
+
 		//List<BranchCondition> conditions = ConcolicExecution.getSymbolicPath(test);
-		List<BranchCondition> conditions = ConcolicExecution.executeConcolic((DefaultTestCase) expandedTest.clone());
+		List<BranchCondition> conditions = ConcolicExecution.executeConcolic((DefaultTestCase) test.getTestCase().clone());
 		logger.info("Done symbolic execution");
 		for (BranchCondition c : conditions) {
 			logger.info(" -> " + c.getLocalConstraint());
 		}
 
+		Set<VariableReference> targets = new HashSet<VariableReference>();
+		for(Integer position : statements) {
+			targets.add(test.getTestCase().getStatement(position).getReturnValue());
+		}
+		
 		logger.info("Checking {} conditions", conditions.size());
 		int num = 0;
 		for (BranchCondition condition : conditions) {
@@ -78,12 +53,10 @@ public class DSELocalSearch extends LocalSearch {
 
 			if (!isRelevant(currentConstraint, targets)) {
 				//			if(!isRelevant(currentConstraint, test.getTestCase(), statement)) {
-				logger.info("Is not relevant for "
-				        + test.getTestCase().getStatement(statement).getReturnValue().getName());
+				logger.info("Is not relevant for " + targets);
 				continue;
 			}
-			logger.info("Is relevant for "
-			        + test.getTestCase().getStatement(statement).getReturnValue().getName());
+			logger.info("Is relevant for " + targets);
 
 			List<Constraint<?>> constraints = new LinkedList<Constraint<?>>();
 			constraints.addAll(condition.getReachingConstraints());
@@ -105,7 +78,7 @@ public class DSELocalSearch extends LocalSearch {
 			if (values != null && !values.isEmpty()) {
 				logger.info("Found solution");
 				//				DSEStats.reportSAT();
-				TestCase oldTest = expandedTest;
+				TestCase oldTest = test.getTestCase();
 				TestCase newTest = updateTest(oldTest, values);
 				logger.info("New test: " + newTest.toCode());
 				test.setTestCase(newTest);
@@ -126,7 +99,15 @@ public class DSELocalSearch extends LocalSearch {
 			}
 		}
 
-		return false;
+		return false;		
+	}
+	
+	@Override
+	public boolean doSearch(TestChromosome test, int statement,
+	        LocalSearchObjective objective) {
+		Set<Integer> statements = new HashSet<Integer>();
+		statements.add(statement);
+		return doSearch(test, statements, objective);
 	}
 
 	private boolean isRelevant(Constraint<?> constraint, Set<VariableReference> targets) {

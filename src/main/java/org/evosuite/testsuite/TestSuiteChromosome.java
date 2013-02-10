@@ -198,27 +198,27 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		List<TestChromosome> candidates = new ArrayList<TestChromosome>();
 		for(TestChromosome test : tests) {
 			logger.info("Checking test with history entries: "+test.getMutationHistory().size()+": "+test.getMutationHistory());
-		    if(test.hasRelevantMutations()) {
-		    	TestCaseExpander expander = new TestCaseExpander();
-		    	TestChromosome clone = new TestChromosome();
-		    	clone.setTestCase(expander.expandTestCase(test.getTestCase()));
-		    	for (TestMutationHistoryEntry mutation : test.getMutationHistory()) {
-		    		if(mutation.getMutationType() == TestMutationHistoryEntry.TestMutation.DELETION) {
-		    			clone.getMutationHistory().addMutationEntry(mutation.clone(clone.getTestCase()));
-		    		} else {
-		    			StatementInterface s1 = mutation.getStatement();
-		    			if(expander.variableMapping.containsKey(s1.getPosition())) {
-		    				for(VariableReference var : expander.variableMapping.get(s1.getPosition())) {
-		    					clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(mutation.getMutationType(), clone.getTestCase().getStatement(var.getStPosition())));
-		    				}
-		    			} else {
-		    				clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(mutation.getMutationType(), clone.getTestCase().getStatement(s1.getPosition())));
-		    			}
-		    		}
+			if(test.hasRelevantMutations()) {
+				TestCaseExpander expander = new TestCaseExpander();
+				TestChromosome clone = new TestChromosome();
+				clone.setTestCase(expander.expandTestCase(test.getTestCase()));
+				for (TestMutationHistoryEntry mutation : test.getMutationHistory()) {
+					if(mutation.getMutationType() == TestMutationHistoryEntry.TestMutation.DELETION) {
+						clone.getMutationHistory().addMutationEntry(mutation.clone(clone.getTestCase()));
+					} else {
+						StatementInterface s1 = mutation.getStatement();
+						if(expander.variableMapping.containsKey(s1.getPosition())) {
+							for(VariableReference var : expander.variableMapping.get(s1.getPosition())) {
+								clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(mutation.getMutationType(), clone.getTestCase().getStatement(var.getStPosition())));
+							}
+						} else {
+							clone.getMutationHistory().addMutationEntry(new TestMutationHistoryEntry(mutation.getMutationType(), clone.getTestCase().getStatement(s1.getPosition())));
+						}
+					}
+				}
+				logger.info("Mutation history before expansion: "+test.getMutationHistory().size()+", after: "+clone.getMutationHistory().size());
+				candidates.add(clone);
 			}
-			logger.info("Mutation history before expansion: "+test.getMutationHistory().size()+", after: "+clone.getMutationHistory().size());
-			candidates.add(clone);
-		    }
 		}
 
 		for(TestChromosome clone : candidates) {
@@ -460,5 +460,11 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	 */
 	public static void removeSecondaryObjective(SecondaryObjective objective) {
 		secondaryObjectives.remove(objective);
+	}
+	
+	public void clearMutationHistory() {
+		for(TestChromosome test : tests) {
+			test.getMutationHistory().clear();
+		}
 	}
 }

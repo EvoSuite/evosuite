@@ -57,6 +57,9 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 
 		if (isBetterOrEqual(offspring, parent)) {
 			//logger.info("Replacing old population");
+			if(isBetter(offspring, parent))
+				applyAdaptiveLocalSearch(offspring);
+
 			population.set(0, offspring);
 		} else {
 			//logger.info("Keeping old population");

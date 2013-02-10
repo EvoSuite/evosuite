@@ -18,7 +18,9 @@
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.AdaptiveLocalSearchTarget;
@@ -93,6 +95,7 @@ public class TestChromosome extends ExecutableChromosome {
 		super.setChanged(changed);
 		if (changed)
 			clearCachedResults();
+		
 		CurrentChromosomeTracker.getInstance().changed(this);
 	}
 
@@ -120,7 +123,13 @@ public class TestChromosome extends ExecutableChromosome {
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());
 		if (Properties.ADAPTIVE_LOCAL_SEARCH != AdaptiveLocalSearchTarget.OFF) {
+			logger.info("Cloning mutation history of test "+test.toCode());
+			logger.info("Mutation entries: "+mutationHistory.size());
 			for (TestMutationHistoryEntry mutation : mutationHistory) {
+				logger.info("Mutation of type "+mutation.getMutationType());
+				logger.info(mutation.whatwasit);
+				if(mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION)
+					logger.debug("Cloning mutation entry for statement "+mutation.getStatement().getPosition());
 			    c.mutationHistory.addMutationEntry(mutation.clone(c.getTestCase()));
 			}
 		}
@@ -278,6 +287,8 @@ public class TestChromosome extends ExecutableChromosome {
 				lastPosition = lastPos.intValue();
 		}
 
+		Set<Integer> targetPositions = new HashSet<Integer>();
+		
 		logger.info("Mutation history: " + mutationHistory.toString());
 		logger.info("Checking {} mutations", mutationHistory.size());
 		for (TestMutationHistoryEntry mutation : mutationHistory) {
@@ -296,31 +307,18 @@ public class TestChromosome extends ExecutableChromosome {
 					continue;
 				}
 
-				int newPosition = -1;
-				for (int i = 0; i <= lastPosition; i++) {
-					if (test.getStatement(i) == mutation.getStatement()) {
-						newPosition = i;
-						break;
-					}
-				}
-
-				// Couldn't find statement, may have been deleted in other mutation?
-				assert (newPosition >= 0);
-				if (newPosition < 0) {
-					logger.info("Can't find statement, assertion would trigger if they were active");
-					continue;
-				}
-
-				logger.info("Yes, now applying the search at position {}!", newPosition);
-				LocalSearch search = LocalSearch.getLocalSearchFor(mutation.getStatement());
-				if (search != null) {
-					search.doSearch(this, newPosition, objective);
-					newPosition += search.getPositionDelta();
-				}
+				targetPositions.add(mutation.getStatement().getPosition());
 			} else {
 				logger.info("Unsuitable mutation");
 			}
 		}
+		
+		if(!targetPositions.isEmpty()) {
+			logger.info("Yes, now applying the search at positions {}!", targetPositions);
+			DSELocalSearch dse = new DSELocalSearch();
+			dse.doSearch(this, targetPositions, objective);
+		}
+		mutationHistory.clear();
 
 		LocalSearchBudget.individualImproved(this);
 

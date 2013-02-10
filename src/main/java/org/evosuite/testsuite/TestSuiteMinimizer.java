@@ -95,7 +95,8 @@ public class TestSuiteMinimizer {
 		ClientServices.getInstance().getClientNode().trackOutputVariable("full_length", suite.totalLengthOfTestCases());
 
 		logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
-
+		suite.clearMutationHistory();
+		
 		if (Properties.MINIMIZE_OLD)
 			minimizeSuite(suite);
 		else
