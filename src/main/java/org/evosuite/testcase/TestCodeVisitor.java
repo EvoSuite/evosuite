@@ -362,10 +362,10 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
 				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
-				        + "(float)" + getVariableName(source) + ", 0.01F);";
+				        + ", (float)" + getVariableName(source) + ", 0.01F);";
 			} else if (source.getVariableClass().equals(Double.class)) {
 				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
-				        + "(double)" + getVariableName(source) + ", 0.01D);";
+				        + ", (double)" + getVariableName(source) + ", 0.01D);";
 			} else if (value.getClass().isEnum()) {
 				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
 				        + ", " + getVariableName(source) + ");";
@@ -794,19 +794,20 @@ public class TestCodeVisitor extends TestVisitor {
 			Class<?> declaredParamType = method.getParameterTypes()[i];
 			Class<?> actualParamType = parameters.get(i).getVariableClass();
 			String name = getVariableName(parameters.get(i));
-			if (!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null")) {
+			if (!declaredParamType.isAssignableFrom(actualParamType)
+			        || name.equals("null")) {
 				//if((!method.getParameterTypes()[i].equals(Object.class)
 				//        && !method.getParameterTypes()[i].equals(Comparable.class)) ||
 				//        (actualParamType.isPrimitive())) {
-					parameter_string += "(" + getClassName(method.getParameterTypes()[i])
-					        + ") ";
-					if (name.contains("(short"))
-						name = name.replace("(short)", "");
-					if (name.contains("(byte"))
-						name = name.replace("(byte)", "");
+				parameter_string += "(" + getClassName(method.getParameterTypes()[i])
+				        + ") ";
+				if (name.contains("(short"))
+					name = name.replace("(short)", "");
+				if (name.contains("(byte"))
+					name = name.replace("(byte)", "");
 				//}
 			}
-			        
+
 			parameter_string += name;
 		}
 
@@ -894,10 +895,11 @@ public class TestCodeVisitor extends TestVisitor {
 				Class<?> actualParamType = parameters.get(i).getVariableClass();
 				String name = getVariableName(parameters.get(i));
 
-				if (!declaredParamType.isAssignableFrom(actualParamType) || name.equals("null")) {
+				if (!declaredParamType.isAssignableFrom(actualParamType)
+				        || name.equals("null")) {
 					//if((!constructor.getParameterTypes()[i].equals(Object.class)
-				    //    && !constructor.getParameterTypes()[i].equals(Comparable.class))  ||
-				    //    (actualParamType.isPrimitive())) {
+					//    && !constructor.getParameterTypes()[i].equals(Comparable.class))  ||
+					//    (actualParamType.isPrimitive())) {
 					// TODO: && !constructor.getParameterTypes()[i].isPrimitive?
 					parameter_string += "("
 					        + getClassName(constructor.getParameterTypes()[i]) + ") ";
