@@ -263,6 +263,10 @@ public class GenericClass implements Serializable {
 
 		return false;
 	}
+	
+	public boolean isParameterizedType() {
+		return type instanceof ParameterizedType;
+	}
 
 	/**
 	 * <p>
@@ -307,6 +311,7 @@ public class GenericClass implements Serializable {
 			return isAssignable(lhsType, ((TypeVariable<?>) rhsType).getBounds()[0]);
 		}
 		if (rhsType instanceof ParameterizedType) {
+			
 			try{
 				return TypeUtils.isAssignable(rhsType, lhsType);
 			} catch(IllegalStateException e) {

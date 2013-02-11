@@ -57,6 +57,7 @@ public class CodeUnderTestException extends Exception{
 	 * @throws java.lang.ExceptionInInitializerError if any.
 	 * @throws AssertionError if e wasn't one of listed for types
 	 */
+	@Deprecated
 	public static Error throwException(Throwable e) throws IllegalAccessException, IllegalArgumentException, NullPointerException, ExceptionInInitializerError{
 		if(e instanceof CodeUnderTestException){
 			e=e.getCause();

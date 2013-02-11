@@ -209,8 +209,13 @@ public class MethodStatement extends AbstractStatement {
 				        InstantiationException, CodeUnderTestException {
 					Object callee_object;
 					try {
+						java.lang.reflect.Type[] parameterTypes =  method.getGenericParameterTypes();
 						for (int i = 0; i < parameters.size(); i++) {
-							inputs[i] = parameters.get(i).getObject(scope);
+							VariableReference parameterVar = parameters.get(i);
+							if(!parameterVar.isAssignableTo(parameterTypes[i])) {
+								throw new CodeUnderTestException(new UncompilableCodeException());
+							}
+							inputs[i] = parameterVar.getObject(scope);
 						}
 
 						callee_object = (Modifier.isStatic(method.getModifiers())) ? null
