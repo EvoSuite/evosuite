@@ -15,9 +15,6 @@ public class GenericClassTest {
 
 	private static class A{}
 	
-	public Collection<A> fieldA = null;
-	public Stack<Object> fieldS = null;
-	
 	@Test
 	public void test01() throws Throwable{
 
@@ -54,12 +51,17 @@ public class GenericClassTest {
 		GenericClass objectStack = new GenericClass(col0.getClass());
 		Assert.assertTrue(objectStack.isAssignableTo(collection));
 		
-		Type t0 = col0.getClass().getGenericSuperclass();
-		Assert.assertEquals("java.util.Vector<E>", t0.toString());
-		Type t1 = col1.getClass().getGenericSuperclass();
-		Assert.assertEquals("java.util.Vector<E>", t1.toString());
+	
+		Type typeColA = new TypeToken<Collection<A>>(){}.getType();
+		Type typeStack = new TypeToken<Stack>(){}.getType();
+		Type typeObjectStack = new TypeToken<Stack<Object>>(){}.getType();
 		
-		System.out.println(this.getClass().getField("fieldA").getType());
+		GenericClass classColA = new GenericClass(typeColA);
+		GenericClass classStack = new GenericClass(typeStack);
+		GenericClass classObjectStack = new GenericClass(typeObjectStack);
+		
+		Assert.assertTrue(classStack.isAssignableTo(classColA));
+		Assert.assertFalse(classObjectStack.isAssignableTo(classColA));
 	}
 	
 	@Test
@@ -82,7 +84,7 @@ public class GenericClassTest {
 		GenericClass listOfStringClass = new GenericClass(listOfString);
 		GenericClass plainListClass = new GenericClass(plainList);
 		
-		// Assert.assertFalse(listOfStringClass.isAssignableFrom(plainListClass));
+		//Assert.assertFalse(listOfStringClass.isAssignableFrom(plainListClass));
 		Assert.assertTrue(listOfStringClass.isAssignableTo(plainListClass));
 	}
 	
