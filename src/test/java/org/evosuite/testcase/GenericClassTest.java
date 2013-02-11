@@ -2,11 +2,14 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.List;
 import java.util.Stack;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
+
+import com.googlecode.gentyref.TypeToken;
 
 public class GenericClassTest {
 
@@ -57,6 +60,30 @@ public class GenericClassTest {
 		Assert.assertEquals("java.util.Vector<E>", t1.toString());
 		
 		System.out.println(this.getClass().getField("fieldA").getType());
+	}
+	
+	@Test
+	public void test1() {
+		Type listOfString = new TypeToken<List<String>>(){}.getType();
+		Type listOfInteger = new TypeToken<List<Integer>>(){}.getType();
+		
+		GenericClass listOfStringClass = new GenericClass(listOfString);
+		GenericClass listOfIntegerClass = new GenericClass(listOfInteger);
+		
+		Assert.assertFalse(listOfStringClass.isAssignableFrom(listOfIntegerClass));
+		Assert.assertFalse(listOfStringClass.isAssignableTo(listOfIntegerClass));
+	}
+	
+	@Test
+	public void test2() {
+		Type listOfString = new TypeToken<List<String>>(){}.getType();
+		Type plainList = new TypeToken<List>(){}.getType();
+		
+		GenericClass listOfStringClass = new GenericClass(listOfString);
+		GenericClass plainListClass = new GenericClass(plainList);
+		
+		// Assert.assertFalse(listOfStringClass.isAssignableFrom(plainListClass));
+		Assert.assertTrue(listOfStringClass.isAssignableTo(plainListClass));
 	}
 	
 }
