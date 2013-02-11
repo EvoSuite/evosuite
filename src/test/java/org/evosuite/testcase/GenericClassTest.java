@@ -2,6 +2,7 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Type;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -62,6 +63,7 @@ public class GenericClassTest {
 		
 		Assert.assertTrue(classStack.isAssignableTo(classColA));
 		Assert.assertFalse(classObjectStack.isAssignableTo(classColA));
+		Assert.assertFalse(classColA.isAssignableFrom(classObjectStack));
 	}
 	
 	@Test
@@ -80,12 +82,24 @@ public class GenericClassTest {
 	public void test2() {
 		Type listOfString = new TypeToken<List<String>>(){}.getType();
 		Type plainList = new TypeToken<List>(){}.getType();
+		Type objectList = new TypeToken<List<Object>>(){}.getType();
 		
 		GenericClass listOfStringClass = new GenericClass(listOfString);
 		GenericClass plainListClass = new GenericClass(plainList);
+		GenericClass	 objectListClass = new GenericClass(objectList);
+
+		/*
+		 * Note:
+		 * 
+		 * 		List<String> l = new LinkedList<Object>();
+		 * 
+		 *  does not compile
+		 */
 		
-		//Assert.assertFalse(listOfStringClass.isAssignableFrom(plainListClass));
-		Assert.assertTrue(listOfStringClass.isAssignableTo(plainListClass));
+		Assert.assertFalse(listOfStringClass.isAssignableTo(objectListClass));
+
+		Assert.assertTrue(listOfStringClass.isAssignableFrom(plainListClass));
+		Assert.assertTrue(listOfStringClass.isAssignableTo(plainListClass));		
 	}
 	
 }
