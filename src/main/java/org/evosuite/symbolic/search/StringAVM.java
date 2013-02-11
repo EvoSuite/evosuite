@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import org.evosuite.symbolic.expr.str.StringValue;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
+import org.evosuite.utils.Randomness;
 
 public final class StringAVM {
 
@@ -94,7 +95,7 @@ public final class StringAVM {
 		improved = true;
 		while (improved) {
 			improved = false;
-			char charToInsert = getRandomChar();
+			char charToInsert = Randomness.nextChar();
 			String newStr = oldString + charToInsert;
 			strVar.setConcreteValue(newStr);
 			double newDist = DistanceEstimator.getDistance(cnstr);
@@ -123,7 +124,7 @@ public final class StringAVM {
 			String delimiterStr = delimiter.execute();
 			while (improved) {
 				improved = false;
-				char charToInsert = getRandomChar();
+				char charToInsert = Randomness.nextChar();
 				String newStr = oldString + delimiterStr + charToInsert;
 				strVar.setConcreteValue(newStr);
 				double newDist = DistanceEstimator.getDistance(cnstr);
@@ -314,11 +315,5 @@ public final class StringAVM {
 			}
 		}
 		return delimiters;
-	}
-
-	private static char getRandomChar() {
-		Random r = new Random();
-		char randomChar = (char) r.nextInt();
-		return randomChar;
 	}
 }
