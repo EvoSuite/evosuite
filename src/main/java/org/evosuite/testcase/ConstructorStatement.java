@@ -195,9 +195,14 @@ public class ConstructorStatement extends AbstractStatement {
 				        IllegalArgumentException, IllegalAccessException,
 				        InstantiationException, CodeUnderTestException {
 
+					java.lang.reflect.Type[] parameterTypes =  constructor.getGenericParameterTypes();
 					for (int i = 0; i < parameters.size(); i++) {
+						VariableReference parameterVar = parameters.get(i);
+						if(!parameterVar.isAssignableTo(parameterTypes[i])) {
+							throw new CodeUnderTestException(new UncompilableCodeException());
+						}
 						try {
-							inputs[i] = parameters.get(i).getObject(scope);
+							inputs[i] = parameterVar.getObject(scope);
 						} catch (CodeUnderTestException e) {
 							throw e;
 							//throw new CodeUnderTestException(e.getCause());
