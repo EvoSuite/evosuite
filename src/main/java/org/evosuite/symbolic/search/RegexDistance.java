@@ -157,9 +157,6 @@ public class RegexDistance {
 		Map<State, Integer> stateToIntMap = new HashMap<State, Integer>();
 		int numState = 0;
 
-		State finalState = new State();
-		ensureState(transitions, finalState, NUM_CHARS);
-
 		List<State> topologicalOrder = regexStateCache.get(regex);
 		for (State currentState : topologicalOrder) {
 			stateToIntMap.put(currentState, numState);
@@ -214,20 +211,13 @@ public class RegexDistance {
 				                                                         NUM_CHARS - row,
 				                                                         row,
 				                                                         currentState));
-				//				transitions.get(NUM_CHARS).get(intToStateMap.get(NUM_STATES - 1)).add(new GraphTransition(
-				//							                                                                              NUM_CHARS
-				//							                                                                                      - row,
-				//							                                                                              row,
-				//							                                                                              currentState));
 			}
-			//			if (NUM_CHARS > 0)
-			//				transitions.get(NUM_CHARS).get(currentState).add(new GraphTransition(1.0,
-			//				                                                         NUM_CHARS - 1,
-			//				                                                         currentState));
 			numState++;
 		}
 
 		// Add phi transitions from accepting states to final state
+		State finalState = new State();
+		ensureState(transitions, finalState, NUM_CHARS);
 		for (State s : automaton.getStates()) {
 			if (s.isAccept()) {
 				transitions.get(NUM_CHARS).get(finalState).add(new GraphTransition(0,
@@ -237,9 +227,13 @@ public class RegexDistance {
 		intToStateMap.put(numState, finalState);
 		stateToIntMap.put(finalState, numState);
 
-		// First column is costs of removing every single state from regex
+		// First column of matrix is costs of removing every single state from regex
 		for (int row = 0; row <= NUM_CHARS; row++) {
-			//			graph[row][0] = row;
+			//graph[row][0] = row;
+
+			// AVM change: 
+			// I am not really sure what goes here
+			// NUM_CHARS?
 			graph[row][0] = NUM_CHARS - row + 1;
 		}
 
@@ -261,11 +255,17 @@ public class RegexDistance {
 				min = Math.min(min, oldCost + t.cost);
 			}
 			if (min == Double.MAX_VALUE) {
+				// AVM change:
+				// Again, not sure
 				min = col - 1; //0.0;
 			}
 			graph[0][col] = min;
 		}
 
+		// For each other cell it is the  minimum of:
+		// incoming transitions in automaton
+		// incoming transitions from row-1
+		//
 		for (int row = 1; row <= NUM_CHARS; row++) {
 			for (int col = 1; col <= NUM_STATES + 1; col++) {
 				State state = intToStateMap.get(col - 1);
@@ -281,12 +281,10 @@ public class RegexDistance {
 				if (min == Double.MAX_VALUE) {
 					// min = 0.0;
 					// AVM change:
+					// Again, not sure what goes here. 
 					min = row;
-				}
 
-				// minimum of:
-				// incoming transitions in automaton
-				// incoming transitions from row-1
+				}
 
 				graph[row][col] = min;
 			}
