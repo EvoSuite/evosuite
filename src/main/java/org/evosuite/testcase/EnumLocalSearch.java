@@ -43,7 +43,7 @@ public class EnumLocalSearch extends LocalSearch {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		EnumPrimitiveStatement p = (EnumPrimitiveStatement) test.test.getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();
 		oldValue = p.getValue();

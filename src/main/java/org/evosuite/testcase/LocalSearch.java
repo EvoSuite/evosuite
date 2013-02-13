@@ -21,6 +21,7 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
+import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.LocalSearchObjective;
 
 /**
@@ -45,7 +46,7 @@ public abstract class LocalSearch {
 	 *            a {@link org.evosuite.ga.LocalSearchObjective} object.
 	 */
 	public abstract boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective);
+	        LocalSearchObjective<TestChromosome> objective);
 
 	/**
 	 * If the position of the statement on which the local search was performed

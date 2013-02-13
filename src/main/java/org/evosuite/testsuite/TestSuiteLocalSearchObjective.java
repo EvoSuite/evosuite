@@ -20,8 +20,9 @@
  */
 package org.evosuite.testsuite;
 
-import org.evosuite.ga.Chromosome;
-import org.evosuite.ga.FitnessFunction;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.evosuite.ga.LocalSearchBudget;
 import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.testcase.TestChromosome;
@@ -35,13 +36,15 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
+public class TestSuiteLocalSearchObjective implements LocalSearchObjective<TestChromosome> {
 
 	private static final Logger logger = LoggerFactory.getLogger(TestSuiteLocalSearchObjective.class);
 
 	private final TestSuiteFitnessFunction fitness;
 
 	private final TestSuiteChromosome suite;
+	
+	private Set<TestChromosome> partialSolutions = new HashSet<TestChromosome>();
 
 	private final int testIndex;
 
@@ -86,7 +89,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean hasImproved(Chromosome individual) {
+	public boolean hasImproved(TestChromosome individual) {
 		return hasChanged(individual) < 0;
 	}
 
@@ -95,7 +98,7 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean hasNotWorsened(Chromosome individual) {
+	public boolean hasNotWorsened(TestChromosome individual) {
 		return hasChanged(individual) < 1;
 	}
 
@@ -104,9 +107,9 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int hasChanged(Chromosome individual) {
+	public int hasChanged(TestChromosome individual) {
 		individual.setChanged(true);
-		suite.setTestChromosome(testIndex, (TestChromosome) individual);
+		suite.setTestChromosome(testIndex, individual);
 		LocalSearchBudget.evaluation();
 		double newFitness = fitness.getFitness(suite);
 		if (newFitness < lastFitness) { // TODO: Maximize
@@ -135,8 +138,17 @@ public class TestSuiteLocalSearchObjective implements LocalSearchObjective {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public FitnessFunction getFitnessFunction() {
+	public TestSuiteFitnessFunction getFitnessFunction() {
 		return fitness;
+	}
+
+	public Set<TestChromosome> getPartialSolutions() {
+		return partialSolutions;
+	}
+	
+	@Override
+	public void retainPartialSolution(TestChromosome individual) {
+		partialSolutions.add(individual);
 	}
 
 }

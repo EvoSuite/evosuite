@@ -27,18 +27,18 @@ import java.io.Serializable;
  *
  * @author Gordon Fraser
  */
-public class DefaultLocalSearchObjective implements LocalSearchObjective, Serializable {
+public class DefaultLocalSearchObjective<T extends Chromosome> implements LocalSearchObjective<T>, Serializable {
 
 	private static final long serialVersionUID = -8640106627078837108L;
 
-	private final FitnessFunction fitness;
+	private final FitnessFunction<? extends Chromosome> fitness;
 
 	/**
 	 * <p>Constructor for DefaultLocalSearchObjective.</p>
 	 *
 	 * @param fitness a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public DefaultLocalSearchObjective(FitnessFunction fitness) {
+	public DefaultLocalSearchObjective(FitnessFunction<? extends Chromosome> fitness) {
 		this.fitness = fitness;
 	}
 
@@ -47,7 +47,7 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean hasImproved(Chromosome individual) {
+	public boolean hasImproved(T individual) {
 		// TODO Auto-generated method stub
 		return false;
 	}
@@ -57,7 +57,7 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public FitnessFunction getFitnessFunction() {
+	public FitnessFunction<? extends Chromosome> getFitnessFunction() {
 		return fitness;
 	}
 
@@ -66,7 +66,7 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public int hasChanged(Chromosome individual) {
+	public int hasChanged(T individual) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
@@ -76,9 +76,14 @@ public class DefaultLocalSearchObjective implements LocalSearchObjective, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean hasNotWorsened(Chromosome individual) {
+	public boolean hasNotWorsened(T individual) {
 		// TODO Auto-generated method stub
 		return false;
+	}
+
+	@Override
+	public void retainPartialSolution(T individual) {
+		// Ignore		
 	}
 
 }

@@ -47,7 +47,7 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 
 		boolean improved = false;
 
@@ -73,8 +73,8 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 	}
 
 	@SuppressWarnings("unchecked")
-	private boolean roundPrecision(ExecutableChromosome test,
-	        LocalSearchObjective objective, int precision,
+	private boolean roundPrecision(TestChromosome test,
+	        LocalSearchObjective<TestChromosome> objective, int precision,
 	        NumericalPrimitiveStatement<T> p) {
 		double value = p.getValue().doubleValue();
 		if (Double.isInfinite(value) || Double.isNaN(value)) {
@@ -106,8 +106,8 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 
 	}
 
-	private boolean doSearch(ExecutableChromosome test, int statement,
-	        LocalSearchObjective objective, double initialDelta, double factor,
+	private boolean doSearch(TestChromosome test, int statement,
+	        LocalSearchObjective<TestChromosome> objective, double initialDelta, double factor,
 	        NumericalPrimitiveStatement<T> p) {
 
 		boolean changed = false;
@@ -158,8 +158,8 @@ public class FloatLocalSearch<T extends Number> extends LocalSearch {
 		return changed;
 	}
 
-	private boolean iterate(double delta, double factor, LocalSearchObjective objective,
-	        ExecutableChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
+	private boolean iterate(double delta, double factor, LocalSearchObjective<TestChromosome> objective,
+	        TestChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();
