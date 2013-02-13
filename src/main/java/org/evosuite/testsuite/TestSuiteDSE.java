@@ -258,6 +258,7 @@ public class TestSuiteDSE {
 	 * @param individual
 	 */
 	public void applyDSE(TestSuiteChromosome individual) {
+		logger.info("[DSE] Current test suite: "+individual.toString());
 		TestSuiteChromosome expandedTests = expandTestSuite(individual);
 		createPathConstraints(expandedTests);
 		fitness.getFitness(expandedTests);
@@ -289,27 +290,31 @@ public class TestSuiteDSE {
 				TestChromosome newTestChromosome = new TestChromosome();
 				newTestChromosome.setTestCase(newTest);
 				expandedTests.addTest(newTestChromosome);
-				// updatePathConstraints(newTestChromosome);
-				// calculateUncoveredBranches();
-
-				if (fitness.getFitness(expandedTests) < originalFitness) {
-					logger.info("New test improves fitness to {}",
-							expandedTests.getFitness());
-					DSEStats.reportNewTestUseful();
-					// expandedTests.addTest(newTestChromosome); // no need to
-					// clone so we
-					// can keep
-					// executionresult
+				
+				if(Properties.DSE_KEEP_ALL_TESTS) {
 					updatePathConstraints(newTestChromosome);
 					calculateUncoveredBranches();
-					individual.addTest(newTest);
-					originalFitness = expandedTests.getFitness();
-					// TODO: Cancel on fitness 0 - would need to know if
-					// ZeroFitness is a stopping condition
 				} else {
-					logger.info("New test does not improve fitness");
-					DSEStats.reportNewTestUnuseful();
-					expandedTests.deleteTest(newTest);
+
+					if (fitness.getFitness(expandedTests) < originalFitness) {
+						logger.info("New test improves fitness to {}",
+								expandedTests.getFitness());
+						DSEStats.reportNewTestUseful();
+						// expandedTests.addTest(newTestChromosome); // no need to
+						// clone so we
+						// can keep
+						// executionresult
+						updatePathConstraints(newTestChromosome);
+						calculateUncoveredBranches();
+						individual.addTest(newTest);
+						originalFitness = expandedTests.getFitness();
+						// TODO: Cancel on fitness 0 - would need to know if
+						// ZeroFitness is a stopping condition
+					} else {
+						logger.info("New test does not improve fitness");
+						DSEStats.reportNewTestUnuseful();
+						expandedTests.deleteTest(newTest);
+					}
 				}
 				success++;
 			} else {
@@ -318,6 +323,7 @@ public class TestSuiteDSE {
 				logger.info("Failed to find new test.");
 			}
 		}
+		logger.info("Finished DSE");
 		fitness.getFitness(individual);
 		DSEBudget.evaluation();
 

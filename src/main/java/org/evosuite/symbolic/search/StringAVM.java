@@ -60,8 +60,9 @@ public final class StringAVM {
 
 			double newDist = DistanceEstimator.getDistance(cnstr);
 
-			if (distImpr(newDist)) {
-				log.debug("Distance improved, keeping change");
+			//if (distImpr(newDist)) {
+			if(newDist <= checkpointDistance) {
+				log.debug("Distance improved or did not increase, keeping change");
 				checkpointVar(newDist);
 				improvement = true;
 				improved = true;

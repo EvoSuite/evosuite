@@ -22,6 +22,7 @@ package org.evosuite.symbolic.expr.bv;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -32,6 +33,7 @@ import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,6 +107,8 @@ public final class StringBinaryToIntegerExpression extends
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
+		if(op == Operator.INDEXOFC)
+			return "(" + left + op.toString() + "\'"+Character.toChars(((Long)right.execute()).intValue())[0] + "\')";
 		return "(" + left + op.toString() + right + ")";
 	}
 
