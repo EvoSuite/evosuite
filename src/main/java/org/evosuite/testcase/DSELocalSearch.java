@@ -90,7 +90,9 @@ public class DSELocalSearch extends LocalSearch {
 					return true;
 				} else {
 					test.setTestCase(oldTest);
-					test.setLastExecutionResult(clone.getLastExecutionResult());
+					// FIXXME: How can this be null?
+					if(clone.getLastExecutionResult() != null)
+						test.setLastExecutionResult(clone.getLastExecutionResult());
 					// TODO Mutation
 				}
 			} else {
