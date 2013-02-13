@@ -303,6 +303,9 @@ public class Properties {
 	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
 	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.OFF;
 	
+	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
+	public static boolean DSE_KEEP_ALL_TESTS = false;
+	
 	/** Constant <code>LOCAL_SEARCH_BUDGET=100</code> */
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 100;
