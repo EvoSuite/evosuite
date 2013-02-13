@@ -22,6 +22,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -33,12 +34,12 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.StringConstraint;
-import org.evosuite.symbolic.expr.bv.IntegerComparison;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.StringBinaryComparison;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringMultipleComparison;
 import org.evosuite.symbolic.expr.str.StringConstant;
+import org.evosuite.symbolic.expr.str.StringUnaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.junit.Test;
 
@@ -345,7 +346,7 @@ public class TestStringSearch {
 		IntegerConstant colon_code = new IntegerConstant(58);
 		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		int colon_int_code = (int)':';
+		int colon_int_code = (int) ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
 		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
 				var1, Operator.INDEXOFC, colon_code, (long) concrete_value);
@@ -368,9 +369,9 @@ public class TestStringSearch {
 		StringVariable var1 = new StringVariable("var1", var1value);
 
 		IntegerConstant colon_code = new IntegerConstant(58);
-		IntegerConstant minus_one= new IntegerConstant(-1);
+		IntegerConstant minus_one = new IntegerConstant(-1);
 
-		int colon_int_code = (int)':';
+		int colon_int_code = (int) ':';
 		int concrete_value = var1value.indexOf(colon_int_code);
 		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
 				var1, Operator.INDEXOFC, colon_code, (long) concrete_value);
@@ -386,7 +387,7 @@ public class TestStringSearch {
 
 		assertNotNull(solution);
 	}
-	
+
 	@Test
 	public void testIndexOfC() {
 		String var1value = "D<E\u001E";
@@ -415,7 +416,7 @@ public class TestStringSearch {
 
 		assertNotNull(solution);
 	}
-	
+
 	@Test
 	public void testRegexMatchesFalse() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
@@ -427,12 +428,35 @@ public class TestStringSearch {
 				Operator.PATTERNMATCHES, strConst, 0L);
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
-
 		ConstraintSolver skr = new ConstraintSolver();
 		Map<String, Object> result = skr.solve(constraints);
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
-		assertFalse("Result should not match TEST: "+result.get("test1").toString(), result.get("test1").toString().matches(const2));
+		assertFalse("Result should not match TEST: "
+				+ result.get("test1").toString(), result.get("test1")
+				.toString().matches(const2));
+	}
+
+	@Test
+	public void testEqualsToLowerCase() {
+		// (wed equals var1("f|").toLowerCase()) != 0
+		StringVariable var1 = new StringVariable("var1", "f|");
+
+		StringBinaryComparison cmp3 = new StringBinaryComparison(
+				new StringConstant("wed"), Operator.EQUALS,
+				new StringUnaryExpression(var1, Operator.TOLOWERCASE,
+						"f|".toLowerCase()), 0L);
+
+		StringConstraint constr3 = new StringConstraint(cmp3, Comparator.NE,
+				new IntegerConstant(0));
+
+		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(constr3);
+
+		ConstraintSolver solver = new ConstraintSolver();
+		Map<String, Object> solution = solver.solve(constraints);
+
+		assertNotNull(solution);
 	}
 	
 	

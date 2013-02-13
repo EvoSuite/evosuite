@@ -10,6 +10,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
+import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
@@ -73,12 +74,19 @@ public class DSELocalSearch extends LocalSearch {
 				logger.info("  " + c);
 			}
 
+			DSEStats.reportNewConstraints(constraints);
+			
 			// Get solution
 			ConstraintSolver skr = new ConstraintSolver();
+			
+			long startSolvingTime = System.currentTimeMillis();		
 			Map<String, Object> values = skr.solve(constraints);
+			long estimatedSolvingTime = System.currentTimeMillis() - startSolvingTime;
+			DSEStats.reportNewSolvingTime(estimatedSolvingTime);
+			
 			if (values != null && !values.isEmpty()) {
 				logger.info("Found solution");
-				//				DSEStats.reportSAT();
+				DSEStats.reportNewSAT();
 				TestCase oldTest = test.getTestCase();
 				TestCase newTest = updateTest(oldTest, values);
 				logger.info("New test: " + newTest.toCode());
@@ -87,9 +95,11 @@ public class DSELocalSearch extends LocalSearch {
 				test.clearCachedResults();
 
 				if (objective.hasImproved(test)) {
+					DSEStats.reportNewTestUseful();
 					logger.info("Solution improves fitness, finishing DSE");
 					return true;
 				} else {
+					DSEStats.reportNewTestUnuseful();
 					if(Properties.DSE_KEEP_ALL_TESTS) {
 						logger.info("Solution does not improve fitness, keeping solution");
 						objective.retainPartialSolution((TestChromosome)test.clone());
@@ -103,7 +113,7 @@ public class DSELocalSearch extends LocalSearch {
 				}
 			} else {
 				logger.info("Found no solution");
-				//				DSEStats.reportUNSAT();
+				DSEStats.reportNewUNSAT();
 			}
 		}
 
