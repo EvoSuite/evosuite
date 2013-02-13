@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.Properties.AdaptiveLocalSearchTarget;
 import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.Strategy;
@@ -770,7 +771,7 @@ public class TestSuiteGenerator {
 		        && Properties.ANALYSIS_CRITERIA.isEmpty())
 			DefUseCoverageSuiteFitness.printCoverage();
 
-		if (Properties.DSE_RATE > 0) {
+		if (Properties.DSE_RATE > 0 || Properties.ADAPTIVE_LOCAL_SEARCH!=AdaptiveLocalSearchTarget.OFF) {
 			DSEStats.printStatistics();
 		}
 
