@@ -44,7 +44,7 @@ public class IntegerLocalSearch<T> extends LocalSearch {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 
 		boolean improved = false;
 
@@ -92,8 +92,8 @@ public class IntegerLocalSearch<T> extends LocalSearch {
 		return improved;
 	}
 
-	private boolean iterate(long delta, LocalSearchObjective objective,
-	        ExecutableChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
+	private boolean iterate(long delta, LocalSearchObjective<TestChromosome> objective,
+	        TestChromosome test, NumericalPrimitiveStatement<T> p, int statement) {
 
 		boolean improvement = false;
 		T oldValue = p.getValue();

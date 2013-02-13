@@ -239,7 +239,7 @@ public abstract class AbstractTestSuiteChromosome<T extends ExecutableChromosome
 
 	/** {@inheritDoc} */
 	@Override
-	public abstract void localSearch(LocalSearchObjective objective);
+	public abstract void localSearch(LocalSearchObjective<? extends Chromosome> objective);
 
 	/** {@inheritDoc} */
 	@Override

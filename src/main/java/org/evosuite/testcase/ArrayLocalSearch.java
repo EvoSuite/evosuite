@@ -65,7 +65,7 @@ public class ArrayLocalSearch extends LocalSearch {
 	/** {@inheritDoc} */
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 
 		boolean hasImproved = false;
 		ArrayStatement p = (ArrayStatement) test.test.getStatement(statement);
@@ -98,7 +98,7 @@ public class ArrayLocalSearch extends LocalSearch {
 	}
 
 	private int stripAssignments(ArrayStatement statement, TestChromosome test,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		int difference = 0;
 		ArrayReference arrRef = (ArrayReference) statement.getReturnValue();
 		TestFactory factory = TestFactory.getInstance();
@@ -151,7 +151,7 @@ public class ArrayLocalSearch extends LocalSearch {
 	}
 
 	private boolean searchLength(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 
 		boolean hasImproved = false;
 

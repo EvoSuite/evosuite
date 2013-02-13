@@ -267,8 +267,9 @@ public class TestChromosome extends ExecutableChromosome {
 		return false;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public void applyAdaptiveLocalSearch(LocalSearchObjective objective) {
+	public void applyAdaptiveLocalSearch(LocalSearchObjective<? extends Chromosome> objective) {
 
 		double oldFitness = getFitness();
 		logger.info("Applying local search on test case");
@@ -310,7 +311,7 @@ public class TestChromosome extends ExecutableChromosome {
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
 			DSELocalSearch dse = new DSELocalSearch();
-			dse.doSearch(this, targetPositions, objective);
+			dse.doSearch(this, targetPositions, (LocalSearchObjective<TestChromosome>) objective);
 		}
 		mutationHistory.clear();
 
@@ -327,8 +328,9 @@ public class TestChromosome extends ExecutableChromosome {
 	 * @see org.evosuite.ga.Chromosome#localSearch()
 	 */
 	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
 	@Override
-	public void localSearch(LocalSearchObjective objective) {
+	public void localSearch(LocalSearchObjective<? extends Chromosome> objective) {
 		//logger.info("Test before local search: " + test.toCode());
 		double oldFitness = getFitness();
 
@@ -361,7 +363,7 @@ public class TestChromosome extends ExecutableChromosome {
 
 			LocalSearch search = LocalSearch.getLocalSearchFor(test.getStatement(i));
 			if (search != null) {
-				search.doSearch(this, i, objective);
+				search.doSearch(this, i, (LocalSearchObjective<TestChromosome>) objective);
 				i += search.getPositionDelta();
 			}
 		}
