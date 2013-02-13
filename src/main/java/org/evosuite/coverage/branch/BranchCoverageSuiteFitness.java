@@ -29,11 +29,14 @@ import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.LinePool;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
+import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -125,6 +128,34 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	/**
+	 * If there is an exception in a superconstructor, then the corresponding 
+	 * constructor might not be included in the execution trace
+	 *  
+	 * @param results
+	 * @param callCount
+	 */
+	private void handleConstructorExceptions(List<ExecutionResult> results, Map<String, Integer> callCount) {
+		
+		for (ExecutionResult result : results) {
+			if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
+				continue;
+			
+			Integer exceptionPosition = result.getFirstPositionOfThrownException();
+			StatementInterface statement = result.test.getStatement(exceptionPosition);
+			if(statement instanceof ConstructorStatement) {
+				ConstructorStatement c = (ConstructorStatement)statement;
+				String className = c.getConstructor().getName();
+				String methodName = "<init>"+Type.getConstructorDescriptor(c.getConstructor());
+				String name = className + "." + methodName;
+				if(!callCount.containsKey(name)) {
+					callCount.put(name, 1);
+				}
+			}
+			
+		}
+	}
+	
+	/**
 	 * Iterate over all execution results and summarize statistics
 	 * 
 	 * @param results
@@ -205,7 +236,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 * 
 	 * Execute all tests and count covered branches
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public double getFitness(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> suite) {
@@ -223,7 +253,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		boolean hasTimeoutOrTestException = analyzeTraces(results, predicateCount,
 		                                                  callCount, trueDistance,
 		                                                  falseDistance);
-
+		
+		// In case there were exceptions in a constructor
+		handleConstructorExceptions(results, callCount);
+		
 		// Add requirement on statements
 		if (Properties.BRANCH_STATEMENT) {
 			for (ExecutionResult result : results) {
