@@ -123,14 +123,7 @@ public class TestChromosome extends ExecutableChromosome {
 		c.copyCachedResults(this);
 		c.setChanged(isChanged());
 		if (Properties.ADAPTIVE_LOCAL_SEARCH != AdaptiveLocalSearchTarget.OFF) {
-			logger.info("Cloning mutation history of test " + test.toCode());
-			logger.info("Mutation entries: " + mutationHistory.size());
 			for (TestMutationHistoryEntry mutation : mutationHistory) {
-				logger.info("Mutation of type " + mutation.getMutationType());
-				logger.info(mutation.whatwasit);
-				if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION)
-					logger.debug("Cloning mutation entry for statement "
-					        + mutation.getStatement().getPosition());
 				c.mutationHistory.addMutationEntry(mutation.clone(c.getTestCase()));
 			}
 		}
