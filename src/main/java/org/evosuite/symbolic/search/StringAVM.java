@@ -2,19 +2,16 @@ package org.evosuite.symbolic.search;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.symbolic.expr.IntegerConstraint;
 import org.evosuite.symbolic.expr.StringConstraint;
-import org.evosuite.symbolic.expr.str.StringVariable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.evosuite.symbolic.expr.str.StringValue;
+import org.evosuite.symbolic.expr.str.StringVariable;
 import org.evosuite.symbolic.expr.token.HasMoreTokensExpr;
 import org.evosuite.utils.Randomness;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class StringAVM {
 
@@ -187,7 +184,7 @@ public final class StringAVM {
 			
 			// Try +1
 			char replacement = oldChar;
-			replacement++;
+			replacement = nextChar(replacement, 1);
 			characters[position] = replacement;
 			String newString = new String(characters);
 			strVar.setConcreteValue(newString);
@@ -203,9 +200,7 @@ public final class StringAVM {
 				hasImproved = true;
 				iterateCharacterAVM(position, 2);
 			} else {
-				
-				// Try -1
-				replacement -= 2;
+				replacement = nextChar(replacement, -2);
 				characters[position] = replacement;
 				newString = new String(characters);
 				strVar.setConcreteValue(newString);
@@ -306,7 +301,7 @@ public final class StringAVM {
 		char[] characters = oldString.toCharArray();
 		char replacement = oldChar;
 
-		replacement += delta;
+		replacement = nextChar(replacement, delta);
 		characters[position] = replacement;
 		String newString = new String(characters);
 		strVar.setConcreteValue(newString);
@@ -320,7 +315,8 @@ public final class StringAVM {
 			oldString = newString;
 			improvement = true;
 			delta = 2 * delta;
-			replacement += delta;
+			replacement = nextChar(replacement, delta);
+
 			log.info("Current delta: " + delta + " -> " + replacement);
 			characters[position] = replacement;
 			newString = new String(characters);
@@ -336,6 +332,27 @@ public final class StringAVM {
 		log.debug("Final value of this iteration: " + oldString);
 
 		return improvement;
+	}
+
+	/**
+	 * This method avoids overflow when computing the next char.
+	 * 
+	 * @param oldChar
+	 * @param delta
+	 * @return
+	 */
+	private char nextChar(char oldChar, int delta) {
+		char nextChar = (char) (oldChar + delta);
+		if (delta >= 0) {
+			if (nextChar < oldChar) {
+				nextChar = Character.MAX_VALUE;
+			}
+		} else {
+			if (nextChar > oldChar) {
+				nextChar = Character.MIN_VALUE;
+			}
+		}
+		return nextChar;
 	}
 
 	private static Set<StringValue> getTokenDelimiters(
@@ -358,4 +375,5 @@ public final class StringAVM {
 		}
 		return delimiters;
 	}
+
 }
