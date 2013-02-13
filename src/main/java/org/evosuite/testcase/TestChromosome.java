@@ -292,7 +292,7 @@ public class TestChromosome extends ExecutableChromosome {
 			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION
 			        && mutation.getStatement().getPosition() <= lastPosition
 			        && mutation.getStatement() instanceof PrimitiveStatement<?>) {
-				logger.info("Found suitable mutation");
+				logger.info("Found suitable mutation: "+mutation);
 
 				if (!test.hasReferences(mutation.getStatement().getReturnValue())
 				        && !mutation.getStatement().getReturnClass().equals(Properties.getTargetClass())) {
