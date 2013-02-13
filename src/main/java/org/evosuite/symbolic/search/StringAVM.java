@@ -184,6 +184,8 @@ public final class StringAVM {
 
 			char[] characters = origString.toCharArray();
 
+			
+			// Try +1
 			char replacement = oldChar;
 			replacement++;
 			characters[position] = replacement;
@@ -201,6 +203,8 @@ public final class StringAVM {
 				hasImproved = true;
 				iterateCharacterAVM(position, 2);
 			} else {
+				
+				// Try -1
 				replacement -= 2;
 				characters[position] = replacement;
 				newString = new String(characters);
@@ -219,7 +223,45 @@ public final class StringAVM {
 					hasImproved = true;
 					iterateCharacterAVM(position, -2);
 				} else {
-					restoreVar();
+					
+					
+					// Try +32
+					replacement = (char) (oldChar + 32);
+					characters[position] = replacement;
+					newString = new String(characters);
+					strVar.setConcreteValue(newString);
+					newDist = DistanceEstimator.getDistance(cnstr);
+					log.debug("Probing increment [32] " + position + ": " + newString
+							+ ": " + newDist + " replacement = "
+							+ (int) replacement);
+					if (distImpr(newDist)) {
+						checkpointVar(newDist);
+
+						done = false;
+						hasImproved = true;
+						// Now try +/-1 as usual
+						break;
+					} else {
+						// Try -32
+						replacement = (char) (oldChar + 32);
+						characters[position] = replacement;
+						newString = new String(characters);
+						strVar.setConcreteValue(newString);
+						newDist = DistanceEstimator.getDistance(cnstr);
+						log.debug("Probing increment [32] " + position + ": " + newString
+								+ ": " + newDist + " replacement = "
+								+ (int) replacement);
+						if (distImpr(newDist)) {
+							checkpointVar(newDist);
+
+							done = false;
+							hasImproved = true;
+							// Now try +/-1 as usual
+						} else {
+							restoreVar();
+						}
+					}
+
 					if (done)
 						log.debug("Search finished " + position + ": "
 								+ newString + ": " + newDist);
