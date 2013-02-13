@@ -6,12 +6,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.symbolic.Solver;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerVariable;
 import org.evosuite.symbolic.expr.fp.RealVariable;
 import org.evosuite.symbolic.expr.str.StringVariable;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,30 +41,42 @@ public final class ConstraintSolver implements Solver {
 
 		Set<Variable<?>> variables = getVariables(constraints);
 		Map<String, Object> initialValues = getConcreteValues(variables);
+		for(int attempt = 0; attempt <= Properties.DSE_VARIABLE_RESETS; attempt++) {
+			for (Variable<?> v : variables) {
+				log.debug("Variable: " + v + ", " + variables);
 
-		for (Variable<?> v : variables) {
-			log.debug("Variable: " + v + ", " + variables);
-
-			if (v instanceof IntegerVariable) {
-				IntegerVariable integerVariable = (IntegerVariable) v;
-				IntegerAVM avm = new IntegerAVM(integerVariable, constraints);
-				avm.applyAVM();
-			} else if (v instanceof RealVariable) {
-				RealVariable realVariable = (RealVariable) v;
-				RealAVM avm = new RealAVM(realVariable, constraints);
-				avm.applyAVM();
-			} else if (v instanceof StringVariable) {
-				StringVariable strVariable = (StringVariable) v;
-				StringAVM avm = new StringAVM(strVariable, constraints);
-				avm.applyAVM();
-			} else {
-				throw new RuntimeException("Unknown variable type "
-						+ v.getClass().getName());
+				if (v instanceof IntegerVariable) {
+					IntegerVariable integerVariable = (IntegerVariable) v;
+					IntegerAVM avm = new IntegerAVM(integerVariable, constraints);
+					avm.applyAVM();
+				} else if (v instanceof RealVariable) {
+					RealVariable realVariable = (RealVariable) v;
+					RealAVM avm = new RealAVM(realVariable, constraints);
+					avm.applyAVM();
+				} else if (v instanceof StringVariable) {
+					StringVariable strVariable = (StringVariable) v;
+					StringAVM avm = new StringAVM(strVariable, constraints);
+					avm.applyAVM();
+				} else {
+					throw new RuntimeException("Unknown variable type "
+							+ v.getClass().getName());
+				}
+				distance = DistanceEstimator.getDistance(constraints);
+				if (distance <= 0.0) {
+					log.info("Distance is 0, ending search");
+					break;
+				}
 			}
-
+			if (distance <= 0.0) {
+				log.info("Distance is 0, ending search");
+				break;
+			} else {
+				log.info("Randomizing variables");
+				randomizeValues(variables);
+			}
 		}
 
-		distance = DistanceEstimator.getDistance(constraints);
+		//distance = DistanceEstimator.getDistance(constraints);
 		if (distance <= 0) {
 			log.debug("Distance is " + distance + ", found solution");
 			Map<String, Object> new_model = getConcreteValues(variables);
@@ -81,6 +95,21 @@ public final class ConstraintSolver implements Solver {
 
 	}
 
+	private void randomizeValues(Set<Variable<?>> variables) {
+		for(Variable<?> v : variables) {
+			if(v instanceof StringVariable) {
+				StringVariable sv = (StringVariable)v;
+				sv.setConcreteValue(Randomness.nextString(Properties.STRING_LENGTH));
+			} else if(v instanceof IntegerVariable) {
+				IntegerVariable iv = (IntegerVariable)v;
+				iv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
+			} else if(v instanceof RealVariable) {
+				RealVariable rv = (RealVariable)v;
+				rv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);				
+			}
+		}
+	}
+	
 	/**
 	 * Restore all concrete values of the variables using the concrete_values
 	 * mapping.

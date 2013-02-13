@@ -290,7 +290,7 @@ public class Properties {
 
 	/** Constant <code>DSE_VARIABLE_RESETS=1</code> */
 	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
-	public static int DSE_VARIABLE_RESETS = 1;
+	public static int DSE_VARIABLE_RESETS = 2;
 
 	/** Constant <code>LOCAL_SEARCH_RATE=-1</code> */
 	@Parameter(key = "local_search_rate", group = "Search Algorithm", description = "Apply local search at every X generation")

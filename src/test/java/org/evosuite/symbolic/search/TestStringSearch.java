@@ -25,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import junit.framework.Assert;
+
 import org.evosuite.symbolic.expr.Comparator;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
@@ -431,5 +433,45 @@ public class TestStringSearch {
 		assertNotNull(result);
 		assertNotNull(result.get("test1"));
 		assertFalse("Result should not match TEST: "+result.get("test1").toString(), result.get("test1").toString().matches(const2));
+	}
+	
+	
+	@Test
+	public void testIndexOfC2() {
+		String var1value = ":cc]#0l";
+		StringVariable var1 = new StringVariable("var0", var1value);
+
+		IntegerConstant colon_code = new IntegerConstant(58);
+		IntegerConstant numeral_code = new IntegerConstant(35);
+		IntegerConstant minus_one = new IntegerConstant(-1);
+
+		StringBinaryToIntegerExpression index_of_colon = new StringBinaryToIntegerExpression(
+				var1, Operator.INDEXOFC, colon_code, -1L);
+		StringBinaryToIntegerExpression index_of_numeral = new StringBinaryToIntegerExpression(
+				var1, Operator.INDEXOFC, numeral_code, -1L);
+
+		IntegerConstraint constr1 = new IntegerConstraint(index_of_colon,
+				Comparator.NE, minus_one);
+		IntegerConstraint constr2 = new IntegerConstraint(index_of_numeral,
+				Comparator.NE, minus_one);
+		IntegerConstraint constr3 = new IntegerConstraint(index_of_numeral,
+				Comparator.LT, index_of_colon);
+
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.add(constr1);
+		constraints.add(constr2);
+		constraints.add(constr3);
+
+		ConstraintSolver solver = new ConstraintSolver();
+		Map<String, Object> solution = solver.solve(constraints);
+
+		assertNotNull(solution);
+		String result = solution.get("var0").toString();
+		int colonPos = result.indexOf(':');
+		int numeralPos = result.indexOf('#');
+		assertTrue("Colon not found in "+result, colonPos >= 0);
+		assertTrue("Numeral not found in "+result, numeralPos >= 0);
+		assertTrue(colonPos > numeralPos);
+
 	}
 }
