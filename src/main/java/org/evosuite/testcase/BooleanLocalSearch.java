@@ -40,7 +40,7 @@ public class BooleanLocalSearch extends LocalSearch {
 	@SuppressWarnings("unchecked")
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 
 		PrimitiveStatement<Boolean> p = (PrimitiveStatement<Boolean>) test.test.getStatement(statement);
 		ExecutionResult oldResult = test.getLastExecutionResult();

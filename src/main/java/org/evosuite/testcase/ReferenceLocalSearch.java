@@ -61,7 +61,7 @@ public class ReferenceLocalSearch extends LocalSearch {
 	 */
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 
 		boolean hasImproved = false;
 		int currentProbe = 0;

@@ -191,7 +191,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @param objective
 	 *            a {@link org.evosuite.ga.LocalSearchObjective} object.
 	 */
-	public abstract void localSearch(LocalSearchObjective objective);
+	public abstract void localSearch(LocalSearchObjective<? extends Chromosome> objective);
 
 	/**
 	 * Apply the local search
@@ -199,7 +199,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @param objective
 	 *            a {@link org.evosuite.ga.LocalSearchObjective} object.
 	 */
-	public void applyAdaptiveLocalSearch(LocalSearchObjective objective) {
+	public void applyAdaptiveLocalSearch(LocalSearchObjective<? extends Chromosome> objective) {
 		// No-op
 	}
 

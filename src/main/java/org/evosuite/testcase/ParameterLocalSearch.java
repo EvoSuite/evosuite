@@ -57,7 +57,7 @@ public class ParameterLocalSearch extends LocalSearch {
 	/** {@inheritDoc} */
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		StatementInterface stmt = test.getTestCase().getStatement(statement);
 		backup(test, stmt);
 		if (stmt instanceof MethodStatement) {
@@ -79,7 +79,7 @@ public class ParameterLocalSearch extends LocalSearch {
 	 * @param objective
 	 */
 	private boolean doSearch(TestChromosome test, MethodStatement statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		logger.info("Original test: " + test.getTestCase().toCode());
 
 		boolean hasImproved = false;
@@ -162,7 +162,7 @@ public class ParameterLocalSearch extends LocalSearch {
 	 * @param objective
 	 */
 	private boolean doSearch(TestChromosome test, ConstructorStatement statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		int numParameter = 0;
 		boolean hasImproved = false;
 
@@ -208,7 +208,7 @@ public class ParameterLocalSearch extends LocalSearch {
 	 * @param objective
 	 */
 	private boolean doSearch(TestChromosome test, FieldStatement statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		if (!statement.isStatic()) {
 			VariableReference source = statement.getSource();
 			List<VariableReference> objects = test.getTestCase().getObjects(source.getType(),

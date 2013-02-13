@@ -144,13 +144,8 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		}
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.Chromosome#localSearch()
-	 */
-	/** {@inheritDoc} */
 	@Override
-	public void localSearch(LocalSearchObjective objective) {
-
+	public void localSearch(LocalSearchObjective<? extends Chromosome> objective) {
 		/*
 		 * When we apply local search, due to budget constraints we might not be able
 		 * to evaluate all the test cases in a test suite. When we apply LS several times on
@@ -186,7 +181,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	}
 
 	@Override
-	public void applyAdaptiveLocalSearch(LocalSearchObjective objective) {
+	public void applyAdaptiveLocalSearch(LocalSearchObjective<? extends Chromosome> objective) {
 
 		if (!hasFitnessChanged()) {
 			logger.info("Fitness has not changed, so not applying local search");
@@ -228,9 +223,23 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		    logger.info("Applying DSE to test: " + clone.getTestCase().toCode());
 		    clone.applyAdaptiveLocalSearch(testObjective);
 		    if(getFitness() >= oldFitness) {
-			logger.info("Removing new test from suite again as local search was not successful");
-			tests.remove(clone);
+		    	logger.info("Removing new test from suite again as local search was not successful");
+		    	tests.remove(clone);
 		    }
+		    if(Properties.DSE_KEEP_ALL_TESTS) {
+		    	logger.info("Adding partial solutions: "+testObjective.getPartialSolutions().size()+" at fitness "+getFitness());
+		    	boolean added = false;
+		    	for(TestChromosome partialSolution : testObjective.getPartialSolutions()) {
+		    		addTest(partialSolution);
+		    		added = true;
+		    	}
+		    	if(added) {
+		    		// Recalculate test suite with new tests
+		    		testObjective.getFitnessFunction().getFitness(this);
+			    	logger.info("After adding partial solutions fitness = "+getFitness());
+		    	}
+		    }
+		    
 		    // copies.add(clone);
 		}
 

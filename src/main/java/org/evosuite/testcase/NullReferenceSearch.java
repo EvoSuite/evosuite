@@ -19,7 +19,7 @@ public class NullReferenceSearch extends LocalSearch {
 	 */
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		NullStatement nullStatement = (NullStatement) test.getTestCase().getStatement(statement);
 		TestCase newTest = test.getTestCase();
 		TestCase oldTest = newTest.clone();

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.LocalSearchObjective;
 import org.evosuite.symbolic.BranchCondition;
 import org.evosuite.symbolic.ConcolicExecution;
@@ -22,7 +23,7 @@ public class DSELocalSearch extends LocalSearch {
 
 	private static final Logger logger = LoggerFactory.getLogger(DSELocalSearch.class);
 
-	public boolean doSearch(TestChromosome test, Set<Integer> statements, LocalSearchObjective objective) {
+	public boolean doSearch(TestChromosome test, Set<Integer> statements, LocalSearchObjective<TestChromosome> objective) {
 		logger.info("APPLYING DSE EEEEEEEEEEEEEEEEEEEEEEE");
 		logger.info(test.getTestCase().toCode());
 		logger.info("Starting symbolic execution");
@@ -89,8 +90,15 @@ public class DSELocalSearch extends LocalSearch {
 					logger.info("Solution improves fitness, finishing DSE");
 					return true;
 				} else {
+					if(Properties.DSE_KEEP_ALL_TESTS) {
+						logger.info("Solution does not improve fitness, keeping solution");
+						objective.retainPartialSolution((TestChromosome)test.clone());
+					}
+					
 					test.setTestCase(oldTest);
-					test.setLastExecutionResult(clone.getLastExecutionResult());
+					// FIXXME: How can this be null?
+					if(clone.getLastExecutionResult() != null)
+						test.setLastExecutionResult(clone.getLastExecutionResult());
 					// TODO Mutation
 				}
 			} else {
@@ -104,7 +112,7 @@ public class DSELocalSearch extends LocalSearch {
 	
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		Set<Integer> statements = new HashSet<Integer>();
 		statements.add(statement);
 		return doSearch(test, statements, objective);

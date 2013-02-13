@@ -25,13 +25,13 @@ public class StringAVMLocalSearch extends LocalSearch {
 
 	private boolean oldChanged;
 
-	private void backup(ExecutableChromosome test, StringPrimitiveStatement p) {
+	private void backup(TestChromosome test, StringPrimitiveStatement p) {
 		oldValue = new String(p.getValue());
 		oldResult = test.getLastExecutionResult();
 		oldChanged = test.isChanged();
 	}
 
-	private void restore(ExecutableChromosome test, StringPrimitiveStatement p) {
+	private void restore(TestChromosome test, StringPrimitiveStatement p) {
 		p.setValue(new String(oldValue));
 		test.setLastExecutionResult(oldResult);
 		test.setChanged(oldChanged);
@@ -43,7 +43,7 @@ public class StringAVMLocalSearch extends LocalSearch {
 	/** {@inheritDoc} */
 	@Override
 	public boolean doSearch(TestChromosome test, int statement,
-	        LocalSearchObjective objective) {
+	        LocalSearchObjective<TestChromosome> objective) {
 		StringPrimitiveStatement p = (StringPrimitiveStatement) test.test.getStatement(statement);
 		backup(test, p);
 		// TODO: First apply 10 random mutations to determine if string influences _uncovered_ branch
@@ -102,8 +102,8 @@ public class StringAVMLocalSearch extends LocalSearch {
 		return false;
 	}
 
-	private boolean removeCharacters(LocalSearchObjective objective,
-	        ExecutableChromosome test, StringPrimitiveStatement p, int statement) {
+	private boolean removeCharacters(LocalSearchObjective<TestChromosome> objective,
+	        TestChromosome test, StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);
@@ -126,8 +126,8 @@ public class StringAVMLocalSearch extends LocalSearch {
 		return improvement;
 	}
 
-	private boolean replaceCharacters(LocalSearchObjective objective,
-	        ExecutableChromosome test, StringPrimitiveStatement p, int statement) {
+	private boolean replaceCharacters(LocalSearchObjective<TestChromosome> objective,
+	        TestChromosome test, StringPrimitiveStatement p, int statement) {
 
 		logger.info(" -> In replacement");
 		boolean improvement = false;
@@ -191,8 +191,8 @@ public class StringAVMLocalSearch extends LocalSearch {
 		return improvement;
 	}
 
-	private boolean iterate(long delta, LocalSearchObjective objective,
-	        ExecutableChromosome test, StringPrimitiveStatement p, int character,
+	private boolean iterate(long delta, LocalSearchObjective<TestChromosome> objective,
+	        TestChromosome test, StringPrimitiveStatement p, int character,
 	        int statement) {
 
 		boolean improvement = false;
@@ -233,8 +233,8 @@ public class StringAVMLocalSearch extends LocalSearch {
 
 	}
 
-	private boolean addCharacters(LocalSearchObjective objective,
-	        ExecutableChromosome test, StringPrimitiveStatement p, int statement) {
+	private boolean addCharacters(LocalSearchObjective<TestChromosome> objective,
+	        TestChromosome test, StringPrimitiveStatement p, int statement) {
 
 		boolean improvement = false;
 		backup(test, p);

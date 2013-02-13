@@ -25,7 +25,7 @@ package org.evosuite.ga;
  *
  * @author Gordon Fraser
  */
-public interface LocalSearchObjective {
+public interface LocalSearchObjective<T extends Chromosome> {
 
 	/**
 	 * <p>hasImproved</p>
@@ -33,7 +33,7 @@ public interface LocalSearchObjective {
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	public boolean hasImproved(Chromosome individual);
+	public boolean hasImproved(T individual);
 
 	/**
 	 * <p>hasNotWorsened</p>
@@ -41,7 +41,7 @@ public interface LocalSearchObjective {
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a boolean.
 	 */
-	public boolean hasNotWorsened(Chromosome individual);
+	public boolean hasNotWorsened(T individual);
 
 	/**
 	 * <p>hasChanged</p>
@@ -49,13 +49,21 @@ public interface LocalSearchObjective {
 	 * @param individual a {@link org.evosuite.ga.Chromosome} object.
 	 * @return a int.
 	 */
-	public int hasChanged(Chromosome individual);
+	public int hasChanged(T individual);
 
+	/**
+	 * Even if not successful, the local search might create some additional tests
+	 * as a side effect which we may want to keep
+	 * 
+	 * @param individual
+	 */
+	public void retainPartialSolution(T individual);
+	
 	/**
 	 * <p>getFitnessFunction</p>
 	 *
 	 * @return a {@link org.evosuite.ga.FitnessFunction} object.
 	 */
-	public FitnessFunction getFitnessFunction();
+	public FitnessFunction<? extends Chromosome> getFitnessFunction();
 
 }
