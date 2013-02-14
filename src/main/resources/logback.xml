@@ -91,14 +91,15 @@
 	</logger>
 
 
-	<logger name="org.evosuite" level="${log.level:-WARN}" />
+	<logger name="org.evosuite" level="${log.level:-WARN}">
+		<appender-ref ref="STDOUT_${evosuite.log.appender:-MASTER}" />
+		<appender-ref ref="STDERR_${evosuite.log.appender:-MASTER}" />
+	</logger>
 
 
 	<!-- main root logger. Note: it is turned OFF to avoid SUT using it-->
 
 	<root level="OFF">
-		<appender-ref ref="STDOUT_${evosuite.log.appender:-MASTER}" />
-		<appender-ref ref="STDERR_${evosuite.log.appender:-MASTER}" />
 	</root>
 
 
