@@ -112,6 +112,11 @@ public final class IntegerConstraint extends Constraint<Long> {
 		if (distance != -1)
 			return distance;
 
+		// special integer constraint: string indexOf char int == k (k>-1)
+		distance = getDistanceIndexOfCIEqualsK(leftVal, rightVal);
+		if (distance != -1)
+			return distance;
+
 		// special case: regex
 		distance = getDistanceRegex(leftVal, rightVal);
 		if (distance != -1)
@@ -322,6 +327,46 @@ public final class IntegerConstraint extends Constraint<Long> {
 
 					}
 					return min_distance_to_char;
+				}
+			}
+		}
+
+		return -1;
+	}
+
+	private long getDistanceIndexOfCIEqualsK(long leftVal, long rightVal) {
+		if (this.getLeftOperand() instanceof StringBinaryToIntegerExpression
+				&& this.getComparator() == Comparator.EQ
+				&& this.getRightOperand() instanceof IntegerConstant) {
+			IntegerConstant right_constant = (IntegerConstant) this
+					.getRightOperand();
+			StringMultipleToIntegerExpression left_string_expr = (StringMultipleToIntegerExpression) this
+					.getLeftOperand();
+
+			if (left_string_expr.getOperator() == Operator.INDEXOFCI) {
+
+				Expression<?> theSymbolicString = left_string_expr
+						.getLeftOperand();
+				Expression<?> theSymbolicChar = left_string_expr
+						.getRightOperand();
+				Expression<?> theSymbolicIndex = right_constant;
+
+				Expression<?> theOffset = left_string_expr.getOther().get(0);
+				Long theConcreteOffset = (Long) theOffset.execute();
+
+				// check theString.lenght>0
+				String theConcreteString = (String) theSymbolicString.execute();
+				Long theConcreteIndex = (Long) theSymbolicIndex.execute();
+				if (theConcreteIndex > theConcreteString.length()
+						- theConcreteOffset - 1) {
+					// there is no char at the index to modify
+					return Long.MAX_VALUE;
+				} else if (theConcreteIndex != -1) {
+					int theIndex = theConcreteIndex.intValue();
+					char theConcreteChar = (char) ((Long) theSymbolicChar
+							.execute()).longValue();
+					char theCurrentChar = theConcreteString.charAt(theIndex);
+					return Math.abs(theCurrentChar - theConcreteChar);
 				}
 			}
 		}
