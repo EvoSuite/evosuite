@@ -36,10 +36,13 @@ import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
+
+import com.googlecode.gentyref.GenericTypeReflector;
 
 public class MethodStatement extends AbstractStatement {
 
@@ -209,11 +212,20 @@ public class MethodStatement extends AbstractStatement {
 				        InstantiationException, CodeUnderTestException {
 					Object callee_object;
 					try {
+						java.lang.reflect.Type[] exactParameterTypes =  GenericTypeReflector.getExactParameterTypes(method, callee != null ? callee.getType() : method.getDeclaringClass());
 						java.lang.reflect.Type[] parameterTypes =  method.getGenericParameterTypes();
 						for (int i = 0; i < parameters.size(); i++) {
 							VariableReference parameterVar = parameters.get(i);
-							if(!parameterVar.isAssignableTo(parameterTypes[i])) {
-								throw new CodeUnderTestException(new UncompilableCodeException());
+							try {
+								// Try exact parameter types if known
+								if(!parameterVar.isAssignableTo(exactParameterTypes[i])) {
+									throw new CodeUnderTestException(new UncompilableCodeException());
+								}	
+							} catch(NullPointerException t) {
+								// GenericTypeReflector.getExactParameterTypes is buggy and may return null
+								if(!parameterVar.isAssignableTo(parameterTypes[i])) {
+									throw new CodeUnderTestException(new UncompilableCodeException());
+								}
 							}
 							inputs[i] = parameterVar.getObject(scope);
 						}

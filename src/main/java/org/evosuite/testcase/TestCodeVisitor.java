@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -791,10 +792,10 @@ public class TestCodeVisitor extends TestVisitor {
 			if (i > 0) {
 				parameter_string += ", ";
 			}
-			Class<?> declaredParamType = method.getParameterTypes()[i];
-			Class<?> actualParamType = parameters.get(i).getVariableClass();
+			Type declaredParamType = method.getGenericParameterTypes()[i];
+			Type actualParamType = parameters.get(i).getType();
 			String name = getVariableName(parameters.get(i));
-			if (!declaredParamType.isAssignableFrom(actualParamType)
+			if(!GenericClass.isAssignable(declaredParamType, actualParamType)
 			        || name.equals("null")) {
 				//if((!method.getParameterTypes()[i].equals(Object.class)
 				//        && !method.getParameterTypes()[i].equals(Comparable.class)) ||
@@ -850,7 +851,8 @@ public class TestCodeVisitor extends TestVisitor {
 				// result += "\n  fail(\"Undeclared exception: "
 				// + ClassUtils.getShortClassName(ex) + "\");\n";
 				result += "  /*\n";
-				for (String msg : exception.getMessage().split("\n")) {
+				String exceptionMessage = exception.getMessage().replace("*/", "*_/");
+				for (String msg : exceptionMessage.split("\n")) {
 					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
 				}
 				result += "   */\n";
