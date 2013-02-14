@@ -138,6 +138,39 @@ public final class IntegerConstraint extends Constraint<Long> {
 			}
 		}
 
+		// special integer constraint: string indexOf char == k (k>-1)
+		if (this.getLeftOperand() instanceof StringBinaryToIntegerExpression
+				&& this.getComparator() == Comparator.EQ
+				&& this.getRightOperand() instanceof IntegerConstant) {
+			IntegerConstant right_constant = (IntegerConstant) this
+					.getRightOperand();
+			StringBinaryToIntegerExpression left_string_expr = (StringBinaryToIntegerExpression) this
+					.getLeftOperand();
+
+			if (left_string_expr.getOperator() == Operator.INDEXOFC) {
+
+				Expression<?> theSymbolicString = left_string_expr
+						.getLeftOperand();
+				Expression<?> theSymbolicChar = left_string_expr
+						.getRightOperand();
+				Expression<?> theSymbolicIndex = right_constant;
+
+				// check theString.lenght>0
+				String theConcreteString = (String) theSymbolicString.execute();
+				Long theConcreteIndex = (Long) theSymbolicIndex.execute();
+				if (theConcreteIndex > theConcreteString.length() - 1) {
+					// there is no char at the index to modify
+					return Long.MAX_VALUE;
+				} else if (theConcreteIndex != -1) {
+					int theIndex = theConcreteIndex.intValue();
+					char theConcreteChar = (char) ((Long) theSymbolicChar
+							.execute()).longValue();
+					char theCurrentChar = theConcreteString.charAt(theIndex);
+					return Math.abs(theCurrentChar - theConcreteChar);
+				}
+			}
+		}
+
 		// special case: regex
 		if (this.getLeftOperand() instanceof IntegerUnaryExpression) {
 			if (((IntegerUnaryExpression) this.getLeftOperand()).getOperator() == Operator.ISDIGIT) {

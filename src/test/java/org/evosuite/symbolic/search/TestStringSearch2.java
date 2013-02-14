@@ -75,6 +75,12 @@ public class TestStringSearch2 {
 	}
 
 	@Test
+	public void testValidPathURN2() {
+		String pathURN = "u:path:/";
+		checkPathURN(pathURN);
+	}
+	
+	@Test
 	public void testInvalidPathURN() {
 		try {
 			String pathURN = "urn:paxth:/A/B/C/doc.html#gilada";
@@ -84,11 +90,10 @@ public class TestStringSearch2 {
 		}
 	}
 
-	private DefaultTestCase buildTestCase() throws SecurityException,
-			NoSuchMethodException {
+	private DefaultTestCase buildTestCase(String stringVal)
+			throws SecurityException, NoSuchMethodException {
 		TestCaseBuilder tc = new TestCaseBuilder();
-		VariableReference string0 = tc
-				.appendStringPrimitive("urn:pBth:/A/B/C/doc.html#gilada");
+		VariableReference string0 = tc.appendStringPrimitive(stringVal);
 		Method method = TestStringSearch2.class.getMethod("checkPathURN",
 				String.class);
 		tc.appendMethod(null, method, string0);
@@ -115,23 +120,24 @@ public class TestStringSearch2 {
 	@Test
 	public void testCreatePathConstraint() throws SecurityException,
 			NoSuchMethodException {
-		DefaultTestCase tc = buildTestCase();
+		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
 		List<BranchCondition> branch_conditions = executeTest(tc);
 		assertEquals(11, branch_conditions.size());
 	}
-	
+
 	@Test
 	public void testSolvePathConstraint() throws SecurityException,
 			NoSuchMethodException {
-		DefaultTestCase tc = buildTestCase();
+		DefaultTestCase tc = buildTestCase("urn:pBth:/A/B/C/doc.html#gilada");
 		List<BranchCondition> branch_conditions = executeTest(tc);
-		
-		BranchCondition last_branch = branch_conditions.get(branch_conditions.size()-1);
-		
+
+		BranchCondition last_branch = branch_conditions.get(branch_conditions
+				.size() - 1);
+
 		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.addAll(last_branch.getReachingConstraints());
 		constraints.add(last_branch.getLocalConstraint().negate());
-		
+
 		ConstraintSolver solver = new ConstraintSolver();
 		Map<String, Object> solution = solver.solve(constraints);
 
@@ -139,5 +145,23 @@ public class TestStringSearch2 {
 		System.out.println(solution);
 	}
 
-	
+	@Test
+	public void testSolveIndexOfConstant() throws SecurityException,
+			NoSuchMethodException {
+		DefaultTestCase tc = buildTestCase("V*X-:o%tp");
+		List<BranchCondition> branch_conditions = executeTest(tc);
+
+		BranchCondition last_branch = branch_conditions.get(branch_conditions
+				.size() - 2);
+
+		Collection<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		constraints.addAll(last_branch.getReachingConstraints());
+		constraints.add(last_branch.getLocalConstraint().negate());
+
+		ConstraintSolver solver = new ConstraintSolver();
+		Map<String, Object> solution = solver.solve(constraints);
+
+		assertNotNull(solution);
+		System.out.println(solution);
+	}
 }
