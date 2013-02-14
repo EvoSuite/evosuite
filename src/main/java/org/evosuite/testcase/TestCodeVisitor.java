@@ -917,7 +917,15 @@ public class TestCodeVisitor extends TestVisitor {
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+getVariableName(retval)+ " = null;\n";
 		if (exception != null) {
-			result = getClassName(retval) + " " + getVariableName(retval) + " = null;\n";
+			String className = getClassName(retval);
+
+			// FIXXME: Workaround for primitives:
+			// But really, this can't really add any coverage, so we shouldn't be printing this in the first place!
+			if (retval.isPrimitive()) {
+				className = retval.getGenericClass().getUnboxedType().getSimpleName();
+			}
+
+			result = className + " " + getVariableName(retval) + " = null;\n";
 			result += "try {\n  ";
 		} else {
 			result += getClassName(retval) + " ";
