@@ -48,7 +48,6 @@ import org.evosuite.javaagent.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.testcase.GenericClass;
-import org.evosuite.utils.LoggingUtils;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -307,15 +306,6 @@ public class TestClusterGenerator {
 
 		logger.info("Analyzing target class");
 		Class<?> targetClass = Properties.getTargetClass();
-		try {
-			targetClass = Class.forName(Properties.TARGET_CLASS, true,
-			                            TestGenerationContext.getClassLoader());
-			LoggingUtils.getEvoLogger().info("Target class initialized");
-		} catch (Throwable t) {
-			LoggingUtils.getEvoLogger().warn("Error during initialization of target class: "
-			                                         + t);
-			targetClass = null;
-		}
 
 		if (Properties.VIRTUAL_FS) {
 			EvoSuiteIO.disableVFS(); // disable it again until test case execution
