@@ -25,6 +25,7 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
+import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -104,34 +105,70 @@ public final class IntegerConstraint extends Constraint<Long> {
 					.getRightOperand();
 			StringBinaryToIntegerExpression left_string_expr = (StringBinaryToIntegerExpression) this
 					.getLeftOperand();
+
 			if (left_string_expr.getOperator() == Operator.INDEXOFC
 					&& right_constant.getConcreteValue() == -1L) {
 
-				Expression<?> theSymbolicString = left_string_expr.getLeftOperand();
-				Expression<?> theSymbolicChar = left_string_expr.getRightOperand();
+				Expression<?> theSymbolicString = left_string_expr
+						.getLeftOperand();
+				Expression<?> theSymbolicChar = left_string_expr
+						.getRightOperand();
 
 				// check theString.lenght>0
 				String theConcreteString = (String) theSymbolicString.execute();
-				if (theConcreteString.length()==0) {
-					// if the string is empty, then the branch distance is maximum since
+				if (theConcreteString.length() == 0) {
+					// if the string is empty, then the branch distance is
+					// maximum since
 					// no char can be modified to satisfy the constraint
-					return Long.MAX_VALUE; 
+					return Long.MAX_VALUE;
 				} else {
-					char theConcreteChar = (char) ((Long) theSymbolicChar.execute()).longValue();
+					char theConcreteChar = (char) ((Long) theSymbolicChar
+							.execute()).longValue();
 					char[] charArray = theConcreteString.toCharArray();
 					int min_distance_to_char = Integer.MAX_VALUE;
 					for (char c : charArray) {
 						if (Math.abs(c - theConcreteChar) < min_distance_to_char) {
-							min_distance_to_char= Math.abs(c - theConcreteChar);
+							min_distance_to_char = Math
+									.abs(c - theConcreteChar);
 						}
 
 					}
 					return min_distance_to_char;
 				}
-				
-				
 			}
+		}
 
+		// special integer constraint: string indexOf char == k (k>-1)
+		if (this.getLeftOperand() instanceof StringBinaryToIntegerExpression
+				&& this.getComparator() == Comparator.EQ
+				&& this.getRightOperand() instanceof IntegerConstant) {
+			IntegerConstant right_constant = (IntegerConstant) this
+					.getRightOperand();
+			StringBinaryToIntegerExpression left_string_expr = (StringBinaryToIntegerExpression) this
+					.getLeftOperand();
+
+			if (left_string_expr.getOperator() == Operator.INDEXOFC) {
+
+				Expression<?> theSymbolicString = left_string_expr
+						.getLeftOperand();
+				Expression<?> theSymbolicChar = left_string_expr
+						.getRightOperand();
+				Expression<?> theSymbolicIndex = right_constant;
+
+				// check theString.lenght>0
+				String theConcreteString = (String) theSymbolicString.execute();
+				Long theConcreteIndex = (Long) theSymbolicIndex.execute();
+				if (theConcreteIndex > theConcreteString.length() - 1) {
+					// there is no char at the index to modify
+					return Long.MAX_VALUE;
+				} else if (theConcreteIndex != -1) {
+					int theIndex = theConcreteIndex.intValue();
+					char theConcreteChar = (char) ((Long) theSymbolicChar
+							.execute()).longValue();
+					char theCurrentChar = theConcreteString.charAt(theIndex);
+					return Math.abs(theCurrentChar - theConcreteChar);
+				}
+			}
 		}
 
 		// special case: regex
@@ -177,6 +214,52 @@ public final class IntegerConstraint extends Constraint<Long> {
 					else
 						return Math.min(Math.abs('z' - theChar),
 								Math.abs(theChar - 'A'));
+				}
+			}
+		}
+
+		// special integer constraint: string indexOfCI char index != -1
+		if (this.getLeftOperand() instanceof StringMultipleToIntegerExpression
+				&& this.getComparator() == Comparator.NE
+				&& this.getRightOperand() instanceof IntegerConstant) {
+			IntegerConstant right_constant = (IntegerConstant) this
+					.getRightOperand();
+			StringMultipleToIntegerExpression left_string_expr = (StringMultipleToIntegerExpression) this
+					.getLeftOperand();
+
+			if (left_string_expr.getOperator() == Operator.INDEXOFCI
+					&& right_constant.getConcreteValue() == -1L) {
+
+				Expression<?> theSymbolicString = left_string_expr
+						.getLeftOperand();
+				Expression<?> theSymbolicChar = left_string_expr
+						.getRightOperand();
+				Expression<?> theOffset = left_string_expr.getOther().get(0);
+
+				// check theString.lenght>0
+				String theConcreteString = (String) theSymbolicString.execute();
+				Long theConcreteOffset = (Long) theOffset.execute();
+
+				if (theConcreteOffset > theConcreteString.length() - 1) {
+					// if the remaining string is empty, then the branch
+					// distance is maximum since no char can be modified to
+					// satisfy the constraint
+					return Long.MAX_VALUE;
+				} else {
+					char theConcreteChar = (char) ((Long) theSymbolicChar
+							.execute()).longValue();
+					char[] charArray = theConcreteString.substring(
+							theConcreteOffset.intValue(),
+							theConcreteString.length()).toCharArray();
+					int min_distance_to_char = Integer.MAX_VALUE;
+					for (char c : charArray) {
+						if (Math.abs(c - theConcreteChar) < min_distance_to_char) {
+							min_distance_to_char = Math
+									.abs(c - theConcreteChar);
+						}
+
+					}
+					return min_distance_to_char;
 				}
 			}
 		}
