@@ -61,6 +61,7 @@ import org.evosuite.symbolic.vm.string.LastIndexOf;
 import org.evosuite.symbolic.vm.string.Length;
 import org.evosuite.symbolic.vm.string.Matches;
 import org.evosuite.symbolic.vm.string.RegionMatches;
+import org.evosuite.symbolic.vm.string.RegionMatches5;
 import org.evosuite.symbolic.vm.string.Replace;
 import org.evosuite.symbolic.vm.string.ReplaceAll;
 import org.evosuite.symbolic.vm.string.ReplaceFirst;
@@ -287,6 +288,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new Length(env));
 		addFunctionToTable(new Matches(env));
 		addFunctionToTable(new RegionMatches(env));
+		addFunctionToTable(new RegionMatches5(env));
 		addFunctionToTable(new Replace.Replace_C(env));
 		addFunctionToTable(new Replace.Replace_CS(env));
 		addFunctionToTable(new ReplaceAll(env));

@@ -2,7 +2,6 @@ package org.evosuite.symbolic;
 
 import static org.junit.Assert.assertEquals;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -10,16 +9,14 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
-import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
 import org.junit.Test;
 
 public class SymbolicObserverTest {
 
-	static void printConstraints(List<BranchCondition> branch_conditions) {
+	public static void printConstraints(List<BranchCondition> branch_conditions) {
 		System.out.println("Constraints=");
 		for (BranchCondition branchCondition : branch_conditions) {
 
