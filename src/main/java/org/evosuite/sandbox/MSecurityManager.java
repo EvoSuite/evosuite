@@ -289,7 +289,7 @@ class MSecurityManager extends SecurityManager {
 	 */
 	@Override
 	public void checkPermission(Permission perm) throws SecurityException {
-		
+
 		// check access
 		if (!allowPermission(perm)) {
 			if (executingTestCase) {
@@ -341,11 +341,20 @@ class MSecurityManager extends SecurityManager {
 	 */
 	private boolean allowPermission(Permission perm) {
 
-		if(Properties.SANDBOX_MODE.equals(SandboxMode.OFF)){
+		if (Properties.SANDBOX_MODE.equals(SandboxMode.OFF)) {
 			return true;
 		}
-		
-		
+
+		if (Properties.SANDBOX_MODE.equals(SandboxMode.IO)) {
+			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+
+			if (perm instanceof FilePermission) {
+				return checkFilePermission((FilePermission) perm);
+			}
+
+			return true;
+		}
+
 		// first check if calling thread belongs to EvoSuite rather than the SUT
 		if (!ignorePrivileged && privilegedThreads.contains(Thread.currentThread())) {
 			if (defaultManager == null) {
@@ -383,14 +392,10 @@ class MSecurityManager extends SecurityManager {
 			return checkFilePermission((FilePermission) perm);
 		}
 
-		if(Properties.SANDBOX_MODE.equals(Properties.SandboxMode.IO)){
-			return true;
-		}
-		
 		/*
 		 * following are not checked if sandbox is in IO mode, in which only FilePermissions are checked
 		 */
-		
+
 		if (perm instanceof AllPermission) {
 			return checkAllPermission((AllPermission) perm);
 		}
@@ -826,7 +831,8 @@ class MSecurityManager extends SecurityManager {
 			        || library.equals("net") || library.equals("lcms")
 			        || library.equals("j2pkcs11") || library.equals("nio")
 			        || library.equals("laf") || library.endsWith("libmawt.so")
-			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib") || library.equals("cmm")) {
+			        || library.equals("jpeg") || library.endsWith("liblwawt.dylib")
+			        || library.equals("cmm")) {
 				return true;
 			}
 
