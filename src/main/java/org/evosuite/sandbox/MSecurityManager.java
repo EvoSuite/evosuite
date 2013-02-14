@@ -345,16 +345,6 @@ class MSecurityManager extends SecurityManager {
 			return true;
 		}
 
-		if (Properties.SANDBOX_MODE.equals(SandboxMode.IO)) {
-			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
-
-			if (perm instanceof FilePermission) {
-				return checkFilePermission((FilePermission) perm);
-			}
-
-			return true;
-		}
-
 		// first check if calling thread belongs to EvoSuite rather than the SUT
 		if (!ignorePrivileged && privilegedThreads.contains(Thread.currentThread())) {
 			if (defaultManager == null) {
@@ -367,6 +357,16 @@ class MSecurityManager extends SecurityManager {
 				}
 				return true;
 			}
+		}
+
+		if (Properties.SANDBOX_MODE.equals(SandboxMode.IO)) {
+			PermissionStatistics.getInstance().countThreads(Thread.currentThread().getThreadGroup().activeCount());
+
+			if (perm instanceof FilePermission) {
+				return checkFilePermission((FilePermission) perm);
+			}
+
+			return true;
 		}
 
 		if (!executingTestCase) {
