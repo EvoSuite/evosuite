@@ -18,7 +18,6 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +42,7 @@ public class TestGenerationContext {
 	 * used by all test code
 	 */
 	private static ClassLoader classLoader = new InstrumentingClassLoader();
-	
+
 	private static Logger logger = LoggerFactory.getLogger(TestGenerationContext.class);
 
 	public static ClassLoader getClassLoader() {
@@ -56,7 +55,6 @@ public class TestGenerationContext {
 
 		// A fresh context needs a fresh class loader to make sure we can re-instrument classes
 		classLoader = new InstrumentingClassLoader();
-
 
 		TestCaseExecutor.pullDown();
 
@@ -77,7 +75,7 @@ public class TestGenerationContext {
 
 		// TODO: After this, the test cluster is empty until DependencyAnalysis.analyse is called
 		TestCluster.reset();
-		
+
 		// This counts the current level of recursion during test generation
 		org.evosuite.testcase.TestFactory.getInstance().reset();
 
@@ -88,14 +86,16 @@ public class TestGenerationContext {
 		Properties.resetTargetClass();
 
 		TestCaseExecutor.initExecutor();
-		
+
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
 
-		if(Properties.CRITERION == Properties.Criterion.DEFUSE) {
+		if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 			DefUsePool.clear();
 			try {
-				TestClusterGenerator.generateCluster(Properties.TARGET_CLASS, DependencyAnalysis.getInheritanceTree(), DependencyAnalysis.getCallTree());
+				TestClusterGenerator.generateCluster(Properties.TARGET_CLASS,
+				                                     DependencyAnalysis.getInheritanceTree(),
+				                                     DependencyAnalysis.getCallTree());
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -104,7 +104,6 @@ public class TestGenerationContext {
 				e.printStackTrace();
 			}
 		}
-		//Properties.getTargetClass();
-}
+	}
 
 }

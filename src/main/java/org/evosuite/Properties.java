@@ -297,15 +297,15 @@ public class Properties {
 	public static int LOCAL_SEARCH_RATE = -1;
 
 	public enum AdaptiveLocalSearchTarget {
-	    OFF, BEST, ALL
+		OFF, BEST, ALL
 	}
-	
+
 	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
 	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.OFF;
-	
+
 	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;
-	
+
 	/** Constant <code>LOCAL_SEARCH_BUDGET=100</code> */
 	@Parameter(key = "local_search_budget", group = "Search Algorithm", description = "Maximum attempts at improving individuals per local search")
 	public static long LOCAL_SEARCH_BUDGET = 100;
@@ -656,14 +656,14 @@ public class Properties {
 	/** Constant <code>SERIALIZE_RESULT=false</code> */
 	@Parameter(key = "serialize_result", group = "Output", description = "Serialize result of search to main process")
 	public static boolean SERIALIZE_RESULT = false;
-	
+
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = false;
-	
+
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV;
 	}
-	
+
 	@Parameter(key = "statistics_backend", group = "Output", description = "Which backend to use to collect data")
 	public static StatisticsBackend STATISTICS_BACKEND = StatisticsBackend.CSV;
 
@@ -671,8 +671,6 @@ public class Properties {
 	@Parameter(key = "timeline_interval", group = "Output", description = "Time interval in milliseconds for timeline statistics")
 	public static long TIMELINE_INTERVAL = 60 * 1000;
 
-	
-	
 	public enum OutputGranularity {
 		MERGED, TESTCASE
 	}
@@ -1664,11 +1662,12 @@ public class Properties {
 		TARGET_CLASS_INSTANCE = null;
 
 		try {
-			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, false,
+			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
 			                                      TestGenerationContext.getClassLoader());
 
 		} catch (ClassNotFoundException e) {
-			LoggingUtils.getEvoLogger().info("* Could not find class under test: " +Properties.TARGET_CLASS+": "+ e);
+			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
+			                                         + Properties.TARGET_CLASS + ": " + e);
 			for (StackTraceElement s : e.getStackTrace()) {
 				LoggingUtils.getEvoLogger().info("   " + s.toString());
 			}
