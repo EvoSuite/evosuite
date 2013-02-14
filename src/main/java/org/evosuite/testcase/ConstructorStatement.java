@@ -43,6 +43,8 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
 
+import com.googlecode.gentyref.GenericTypeReflector;
+
 import edu.uta.cse.dsc.VM;
 
 /**
