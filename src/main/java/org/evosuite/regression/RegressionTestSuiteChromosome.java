@@ -77,8 +77,9 @@ public class RegressionTestSuiteChromosome extends
 	 * @see org.evosuite.ga.Chromosome#applyDSE(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void applyDSE(GeneticAlgorithm algorithm) {
+	public boolean applyDSE(GeneticAlgorithm algorithm) {
 		// ignore for now
+		return false;
 	}
 
 }
