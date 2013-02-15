@@ -848,6 +848,10 @@ public class TestClusterGenerator {
 			return;
 		}
 
+		// TODO: Shouldn't this be checked earlier?
+		if(!canUse(clazz.getRawClass()))
+			return;
+
 		if (!checkIfCanUse(clazz.getClassName()))
 			return;
 
