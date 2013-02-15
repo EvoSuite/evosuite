@@ -65,6 +65,12 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 
 			if (object.getClass().isPrimitive() || object.getClass().isEnum()
 			        || isWrapperType(object.getClass()) || object instanceof String) {
+				if(object instanceof String) {
+					// Check if there is a reference that would make the test fail
+					if(((String)object).matches(".*[\\w+\\.]+@[abcdef\\d]+.*")) {
+						return;
+					}
+				}
 				logger.debug("Observed value " + object + " for statement "
 				        + statement.getCode());
 				trace.addEntry(statement.getPosition(), var, new PrimitiveTraceEntry(var,
