@@ -20,6 +20,7 @@ package org.evosuite.utils;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -28,11 +29,16 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 
 /**
  * this class is used to get help on some customization of logging facility
@@ -260,7 +266,7 @@ public class LoggingUtils {
 		if (Properties.LOG_LEVEL.equals("WARN")) {
 			usingDefault = true;
 		}
-
+		
 		//No need to check/set for LOG_TARGET
 		/*
 		String logTarget = System.getProperty(LOG_TARGET);
