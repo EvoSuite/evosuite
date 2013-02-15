@@ -212,7 +212,12 @@ public class MethodStatement extends AbstractStatement {
 				        InstantiationException, CodeUnderTestException {
 					Object callee_object;
 					try {
-						java.lang.reflect.Type[] exactParameterTypes =  GenericTypeReflector.getExactParameterTypes(method, callee != null ? callee.getType() : method.getDeclaringClass());
+						java.lang.reflect.Type[] exactParameterTypes;
+						try {
+							exactParameterTypes = GenericTypeReflector.getExactParameterTypes(method, callee != null ? callee.getType() : method.getDeclaringClass());
+						} catch(Throwable t) {
+							exactParameterTypes = method.getGenericParameterTypes();
+						}
 						java.lang.reflect.Type[] parameterTypes =  method.getGenericParameterTypes();
 						for (int i = 0; i < parameters.size(); i++) {
 							VariableReference parameterVar = parameters.get(i);
