@@ -154,10 +154,10 @@ public class RegressionTestChromosome extends ExecutableChromosome {
 	 * @see org.evosuite.ga.Chromosome#applyDSE(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void applyDSE(GeneticAlgorithm algorithm) {
-		theTest.applyDSE(algorithm);
+	public boolean applyDSE(GeneticAlgorithm algorithm) {
+		boolean success = theTest.applyDSE(algorithm);
 		updateClassloader();
-
+		return success;
 	}
 
 	/* (non-Javadoc)

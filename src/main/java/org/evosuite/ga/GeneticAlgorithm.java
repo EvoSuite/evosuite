@@ -153,10 +153,14 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	 * @return a boolean.
 	 */
 	protected boolean shouldApplyDSE() {
-		if (Properties.DSE_RATE <= 0)
+		
+		if(Properties.DSE_ADAPTIVE_RATE > 0.0) {
+			return Randomness.nextDouble() < Properties.DSE_ADAPTIVE_PROBABILITY;
+		} else if (Properties.DSE_RATE > 0) {
+			return (getAge() % Properties.DSE_RATE == 0);
+		} else {
 			return false;
-
-		return (getAge() % Properties.DSE_RATE == 0);
+		}
 	}
 
 	/**
@@ -165,7 +169,9 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 	protected void applyDSE() {
 		logger.info("Applying DSE at generation " + currentIteration);
 		DSEBudget.DSEStarted();
-
+		
+		boolean success = false;
+		
 		for (Chromosome individual : population) {
 			if (isFinished())
 				break;
@@ -173,7 +179,18 @@ public abstract class GeneticAlgorithm implements SearchAlgorithm, Serializable 
 			if (DSEBudget.isFinished())
 				break;
 
-			individual.applyDSE(this);
+			boolean result = individual.applyDSE(this);
+			if(result)
+				success = true;
+		}
+		
+		if(Properties.DSE_ADAPTIVE_PROBABILITY > 0.0) {
+			if(success) {
+				Properties.DSE_ADAPTIVE_PROBABILITY *= Properties.DSE_ADAPTIVE_RATE;
+			} else {
+				Properties.DSE_ADAPTIVE_PROBABILITY /= Properties.DSE_ADAPTIVE_RATE;
+			}
+			logger.info("Updating DSE probability to "+Properties.DSE_ADAPTIVE_PROBABILITY);
 		}
 	}
 

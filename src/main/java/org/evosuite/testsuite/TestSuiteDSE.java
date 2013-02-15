@@ -252,8 +252,10 @@ public class TestSuiteDSE {
 	 * 
 	 * @param individual
 	 */
-	public void applyDSE(TestSuiteChromosome individual) {
+	public boolean applyDSE(TestSuiteChromosome individual) {
 		logger.info("[DSE] Current test suite: " + individual.toString());
+		
+		boolean wasSuccess = false;
 		TestSuiteChromosome expandedTests = expandTestSuite(individual);
 		createPathConstraints(expandedTests);
 		fitness.getFitness(expandedTests);
@@ -290,12 +292,14 @@ public class TestSuiteDSE {
 					updatePathConstraints(newTestChromosome);
 					calculateUncoveredBranches();
 					individual.addTest(newTest);
+					wasSuccess = true;
 				} else {
 
 					if (fitness.getFitness(expandedTests) < originalFitness) {
 						logger.info("New test improves fitness to {}",
 						            expandedTests.getFitness());
 						DSEStats.reportNewTestUseful();
+						wasSuccess = true;
 						// expandedTests.addTest(newTestChromosome); // no need to
 						// clone so we
 						// can keep
@@ -322,7 +326,8 @@ public class TestSuiteDSE {
 		logger.info("Finished DSE");
 		fitness.getFitness(individual);
 		DSEBudget.evaluation();
-
+		
+		return wasSuccess;
 	}
 
 	/**
