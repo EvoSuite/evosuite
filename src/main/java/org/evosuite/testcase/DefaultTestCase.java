@@ -699,7 +699,13 @@ public class DefaultTestCase implements TestCase, Serializable {
 		for (StatementInterface s : statements) {
 			s.removeAssertions();
 		}
-
+	}
+	
+	@Override
+	public void removeAssertion(Assertion assertion) {
+		for (StatementInterface s : statements) {
+			s.removeAssertion(assertion);
+		}		
 	}
 
 	/* (non-Javadoc)
