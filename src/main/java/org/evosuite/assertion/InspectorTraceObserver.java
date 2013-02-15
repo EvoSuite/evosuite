@@ -67,7 +67,7 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 
 					// We need no assertions that include the memory location
 					if (i.getMethodCall().equals("toString")) {
-						if (!value.toString().matches("@[abcdef\\d]+"))
+						if(value.toString().matches(".*[\\w+\\.]+@[abcdef\\d]+.*"))
 							continue;
 					}
 
