@@ -774,6 +774,20 @@ public class TestSuiteGenerator {
 		if (Properties.DSE_RATE > 0 || Properties.ADAPTIVE_LOCAL_SEARCH!=AdaptiveLocalSearchTarget.OFF) {
 			DSEStats.printStatistics();
 		}
+		
+		if(Properties.FILTER_SANDBOX_TESTS) {
+			for(TestChromosome test : best.getTestChromosomes()) {
+				// delete all statements leading to security exceptions
+				ExecutionResult result = test.getLastExecutionResult();
+				if(result == null) {
+					result = TestCaseExecutor.runTest(test.getTestCase());
+				}
+				if(result.hasSecurityException()) {
+					int position = result.getFirstPositionOfThrownException();
+					test.getTestCase().chop(position);
+				}
+			}
+		}
 
 		return best.getTests();
 	}
