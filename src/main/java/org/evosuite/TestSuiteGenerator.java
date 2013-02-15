@@ -784,7 +784,11 @@ public class TestSuiteGenerator {
 				}
 				if(result.hasSecurityException()) {
 					int position = result.getFirstPositionOfThrownException();
-					test.getTestCase().chop(position);
+					if(position > 0) {
+						test.getTestCase().chop(position);
+						result = TestCaseExecutor.runTest(test.getTestCase());
+						test.setLastExecutionResult(result);
+					}
 				}
 			}
 		}
