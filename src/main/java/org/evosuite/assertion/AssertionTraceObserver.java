@@ -122,8 +122,8 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	@Override
 	public synchronized void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
-		if(!checkThread())
-			return;
+		//if(checkThread())
+		//	return;
 		
 		//visitReturnValue(statement, scope);
 		visitDependencies(statement, scope);
@@ -143,8 +143,8 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
 	/** {@inheritDoc} */
 	@Override
 	public synchronized void clear() {
-		if(!checkThread())
-			return;
+		//if(!checkThread())
+		//	return;
 
 		trace.clear();
 	}
