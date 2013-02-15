@@ -133,8 +133,7 @@ public class InspectorManager {
 	private void determineInspectors(Class<?> clazz) {
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
-			if (!Modifier.isProtected(method.getModifiers())
-			        && !Modifier.isPrivate(method.getModifiers())
+			if (Modifier.isPublic(method.getModifiers())
 			        && (method.getReturnType().isPrimitive()
 			                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
 			        && !method.getReturnType().equals(void.class)
