@@ -20,6 +20,7 @@
 package org.evosuite.assertion;
 
 import java.lang.reflect.Modifier;
+import java.util.regex.Pattern;
 
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.PrimitiveStatement;
@@ -28,6 +29,8 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
 
 public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTraceEntry> {
+
+	private static Pattern addressPattern = Pattern.compile(".*[\\w+\\.]+@[abcdef\\d]+.*", Pattern.MULTILINE);
 
 	/** {@inheritDoc} */
 	@Override
@@ -67,7 +70,7 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 			        || isWrapperType(object.getClass()) || object instanceof String) {
 				if(object instanceof String) {
 					// Check if there is a reference that would make the test fail
-					if(((String)object).matches(".*[\\w+\\.]+@[abcdef\\d]+.*")) {
+					if(addressPattern.matcher((String)object).find()) {
 						return;
 					}
 				}
