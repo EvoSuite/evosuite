@@ -20,10 +20,14 @@
  */
 package org.evosuite.assertion;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,6 +110,23 @@ public abstract class AssertionGenerator {
 		}
 
 		return result;
+	}
+	
+	protected void filterFailingAssertion(TestCase test) {
+		ExecutionResult result = runTest(test);
+		Set<Assertion> invalidAssertions = new HashSet<Assertion>();
+		for(Assertion assertion : test.getAssertions()) {
+			for(OutputTrace<?> outputTrace : result.getTraces()) {
+				if(outputTrace.isDetectedBy(assertion)) {
+					invalidAssertions.add(assertion);
+					break;
+				}
+			}
+		}
+		logger.info("Removing {} nondeterministic assertions", invalidAssertions.size());
+		for(Assertion assertion : invalidAssertions) {
+			test.removeAssertion(assertion);
+		}
 	}
 
 }
