@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -143,6 +144,13 @@ public class InspectorManager {
 			        && !method.getName().equals("pop")) { // FIXXME
 				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
 				        + method.getName());
+				
+				// TODO:
+				// Locale gives weird results
+				if(clazz.equals(Locale.class)) {
+					if(method.getName().startsWith("getDisplay"))
+						continue;
+				}
 				inspectorList.add(new Inspector(clazz, method));
 			}
 		}
