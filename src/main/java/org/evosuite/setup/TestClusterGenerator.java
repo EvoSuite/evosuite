@@ -866,6 +866,9 @@ public class TestClusterGenerator {
 			             clazz.getClassName());
 			return false;
 		}
+		if(analyzedClasses.contains(clazz)) {
+			return true;
+		}
 
 		try {
 			TestCluster cluster = TestCluster.getInstance();
