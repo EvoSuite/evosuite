@@ -221,7 +221,9 @@ public class MethodStatement extends AbstractStatement {
 								if(!parameterVar.isAssignableTo(exactParameterTypes[i])) {
 									throw new CodeUnderTestException(new UncompilableCodeException());
 								}	
-							} catch(NullPointerException t) {
+							} catch(CodeUnderTestException e) {
+								throw e;
+							} catch(Throwable t) {
 								// GenericTypeReflector.getExactParameterTypes is buggy and may return null
 								if(!parameterVar.isAssignableTo(parameterTypes[i])) {
 									throw new CodeUnderTestException(new UncompilableCodeException());
