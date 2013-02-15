@@ -360,6 +360,9 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().isEnum()) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ");";
+			// Make sure the enum is imported in the JUnit test
+			getClassName(value.getClass());
+
 		} else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
 				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
@@ -411,6 +414,12 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().equals(String.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
+		} else if (value.getClass().isEnum()) {
+			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + getVariableName(source) + "." + field.getName() + ");";
+			// Make sure the enum is imported in the JUnit test
+			getClassName(value.getClass());
+
 		} else
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
@@ -452,6 +461,8 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().isEnum()) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + inspector.getMethodCall() + "());";
+			// Make sure the enum is imported in the JUnit test
+			getClassName(value.getClass());
 
 		} else
 			testCode += "assertEquals(" + value + ", " + getVariableName(source) + "."
