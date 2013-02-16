@@ -1,625 +1,626 @@
 <?xml version="1.0" encoding="ISO-8859-1"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+	 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.evosuite</groupId>
-	<artifactId>evosuite</artifactId>
-	<name>EvoSuite</name>
-	<description>n/a</description>
-	<version>0.1-SNAPSHOT</version>
-	<packaging>jar</packaging>
-	<url>http://www.evosuite.org/</url>
-	<inceptionYear>2010</inceptionYear>
+  <groupId>org.evosuite</groupId>
+  <artifactId>evosuite</artifactId>
+  <name>EvoSuite</name>
+  <description>n/a</description>
+  <version>0.1-SNAPSHOT</version>
+  <packaging>jar</packaging>
+  <url>http://www.evosuite.org/</url>
+  <inceptionYear>2010</inceptionYear>
 
-	<developers>
-		<developer>
-			<id>fraser</id>
-			<name>Gordon Fraser</name>
-			<email>Gordon.Fraser@sheffield.ac.uk</email>
-			<url>http://staffwww.dcs.shef.ac.uk/people/G.Fraser</url>
-			<organization>University of Sheffield</organization>
-			<organizationUrl>http://www.sheffield.ac.uk/dcs</organizationUrl>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>arcuri</id>
-			<name>Andrea Arcuri</name>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>fgross</id>
-			<name>Florian Gross</name>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>jroessler</id>
-			<name>Jeremias Roessler</name>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-		<developer>
-			<id>amis</id>
-			<name>Andre Mis</name>
-			<timezone>2</timezone>
-			<roles>
-				<role>Developer</role>
-			</roles>
-		</developer>
-	</developers>
+  <developers>
+    <developer>
+      <id>fraser</id>
+      <name>Gordon Fraser</name>
+      <email>Gordon.Fraser@sheffield.ac.uk</email>
+      <url>http://staffwww.dcs.shef.ac.uk/people/G.Fraser</url>
+      <organization>University of Sheffield</organization>
+      <organizationUrl>http://www.sheffield.ac.uk/dcs</organizationUrl>
+      <timezone>2</timezone>
+      <roles>
+	<role>Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>arcuri</id>
+      <name>Andrea Arcuri</name>
+      <timezone>2</timezone>
+      <roles>
+	<role>Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>fgross</id>
+      <name>Florian Gross</name>
+      <timezone>2</timezone>
+      <roles>
+	<role>Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>jroessler</id>
+      <name>Jeremias Roessler</name>
+      <timezone>2</timezone>
+      <roles>
+	<role>Developer</role>
+      </roles>
+    </developer>
+    <developer>
+      <id>amis</id>
+      <name>Andre Mis</name>
+      <timezone>2</timezone>
+      <roles>
+	<role>Developer</role>
+      </roles>
+    </developer>
+  </developers>
 
-	<scm>
-		<connection>scm:hg:http://projects.evosuite.org/hg/evosuite</connection>
-		<developerConnection>scm:hg:http://projects.evosuite.org/hg/evosuite</developerConnection>
-		<url>http://projects.evosuite.org/projects/evosuite</url>
-	</scm>
+  <scm>
+    <connection>scm:hg:http://projects.evosuite.org/hg/evosuite</connection>
+    <developerConnection>scm:hg:http://projects.evosuite.org/hg/evosuite</developerConnection>
+    <url>http://projects.evosuite.org/projects/evosuite</url>
+  </scm>
 
-	<organization>
-		<name>EvoSuite</name>
-		<url>http://www.evosuite.org/</url>
-	</organization>
+  <organization>
+    <name>EvoSuite</name>
+    <url>http://www.evosuite.org/</url>
+  </organization>
 
-	<prerequisites>
-	  <maven>2.2.1</maven>
-	</prerequisites>
+  <prerequisites>
+    <maven>2.2.1</maven>
+  </prerequisites>
 
-	<profiles>
-	 	<profile>
-	 	  <id>Java6</id>
-	  	  <activation>
-	  	  	<jdk>1.6</jdk>
-			<property>
-		 	<name>Java6</name>
-			</property>
-		  </activation>
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
-	 	</profile>
-		<profile>
-			<id>exsyst</id>
-			<activation>
-				<property>
-					<name>exsyst</name>
-				</property>
-			</activation>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.codehaus.mojo</groupId>
-						<artifactId>build-helper-maven-plugin</artifactId>
-						<version>1.7versions:display-dependency-updates</version>
-						<executions>
-							<execution>
-								<id>add-sources</id>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>add-source</goal>
-								</goals>
-								<configuration>
-									<sources>
-										<source>${basedir}/src/exsyst/java</source>
-									</sources>
-								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-assembly-plugin</artifactId>
-						<version>2.4</version>
-						<configuration>
-							<archive>
-								<manifest>
-									<mainClass>org.evosuite.EvoSuite</mainClass>
-								</manifest>
-							</archive>
-							<descriptors>
-								<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
-								<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
-								<descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
-								<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
-								<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
-								<descriptor>src/main/assembly/source.xml</descriptor>
-							</descriptors>
-						</configuration>
-						<executions>
-							<execution>
-								<id>make-assembly</id> <!-- this is used for inheritance merges -->
-								<phase>package</phase> <!-- append to the packaging phase. -->
-								<goals>
-									<goal>single</goal> <!-- goals == mojos -->
-								</goals>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-			<dependencies>
-				<dependency>
-					<groupId>emma</groupId>
-					<artifactId>emma</artifactId>
-					<version>2.1.5320</version>
-				</dependency>
+  <profiles>
+    <profile>
+      <id>Java6</id>
+      <activation>
+	<jdk>1.6</jdk>
+	<property>
+	  <name>Java6</name>
+	</property>
+      </activation>
+      <build>
+	<plugins>
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-compiler-plugin</artifactId>
+	    <version>3.0</version>
+	    <configuration>
+	      <source>1.6</source>
+	      <target>1.6</target>
+	      <encoding>${project.build.sourceEncoding}</encoding>
+	    </configuration>
+	  </plugin>
+	</plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>exsyst</id>
+      <activation>
+	<property>
+	  <name>exsyst</name>
+	</property>
+      </activation>
+      <build>
+	<plugins>
+	  <plugin>
+	    <groupId>org.codehaus.mojo</groupId>
+	    <artifactId>build-helper-maven-plugin</artifactId>
+	    <version>1.7versions:display-dependency-updates</version>
+	    <executions>
+	      <execution>
+		<id>add-sources</id>
+		<phase>generate-sources</phase>
+		<goals>
+		  <goal>add-source</goal>
+		</goals>
+		<configuration>
+		  <sources>
+		    <source>${basedir}/src/exsyst/java</source>
+		  </sources>
+		</configuration>
+	      </execution>
+	    </executions>
+	  </plugin>
+	  <plugin>
+	    <groupId>org.apache.maven.plugins</groupId>
+	    <artifactId>maven-assembly-plugin</artifactId>
+	    <version>2.4</version>
+	    <configuration>
+	      <archive>
+		<manifest>
+		  <mainClass>org.evosuite.EvoSuite</mainClass>
+		</manifest>
+	      </archive>
+	      <descriptors>
+		<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
+		<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
+		<descriptor>src/main/assembly/jar-exsyst.xml</descriptor>
+		<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
+		<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
+		<descriptor>src/main/assembly/source.xml</descriptor>
+	      </descriptors>
+	    </configuration>
+	    <executions>
+	      <execution>
+		<id>make-assembly</id> <!-- this is used for inheritance merges -->
+		<phase>package</phase> <!-- append to the packaging phase. -->
+		<goals>
+		  <goal>single</goal> <!-- goals == mojos -->
+		</goals>
+	      </execution>
+	    </executions>
+	  </plugin>
+	</plugins>
+      </build>
+      <dependencies>
+	<dependency>
+	  <groupId>emma</groupId>
+	  <artifactId>emma</artifactId>
+	  <version>2.1.5320</version>
+	</dependency>
 
-				<dependency>
-					<groupId>com.yworks</groupId>
-					<artifactId>yfiles</artifactId>
-					<version>2.8.0.3</version>
-				</dependency>
-				<dependency>
-					<groupId>fork.uispec4j</groupId>
-					<artifactId>uispec4j</artifactId>
-					<version>2.4.x</version>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
+	<dependency>
+	  <groupId>com.yworks</groupId>
+	  <artifactId>yfiles</artifactId>
+	  <version>2.8.0.3</version>
+	</dependency>
+	<dependency>
+	  <groupId>fork.uispec4j</groupId>
+	  <artifactId>uispec4j</artifactId>
+	  <version>2.4.x</version>
+	</dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 
-	<dependencyManagement />
+  <dependencyManagement />
 
-	<dependencies>
-		<dependency>
-			<groupId>org.evosuite</groupId>
-			<artifactId>dsc-evosuite</artifactId>
-			<version>0.3.15</version>
-		</dependency>
-		<dependency>
-			<groupId>dk.brics.automaton</groupId>
-			<artifactId>automaton</artifactId>
-			<version>1.11-8</version>
-		</dependency>
-		<!--
-		<dependency>
-			<groupId>com.googlecode.jmockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<version>0.999.16</version>
-		</dependency>
-		-->
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.7.2</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.0.9</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-all</artifactId>
-			<version>4.1</version>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.gentyref</groupId>
-			<artifactId>gentyref</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jgrapht</groupId>
-			<artifactId>jgrapht-jdk1.6</artifactId>
-			<version>0.8.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.panayotis</groupId>
-			<artifactId>JavaPlot</artifactId>
-			<version>0.4.0</version>
-		</dependency>
+  <dependencies>
+    <dependency>
+      <groupId>org.evosuite</groupId>
+      <artifactId>dsc-evosuite</artifactId>
+      <version>0.3.15</version>
+    </dependency>
+    <dependency>
+      <groupId>dk.brics.automaton</groupId>
+      <artifactId>automaton</artifactId>
+      <version>1.11-8</version>
+    </dependency>
+    <!--
+	<dependency>
+	<groupId>com.googlecode.jmockit</groupId>
+	<artifactId>jmockit</artifactId>
+	<version>0.999.16</version>
+	</dependency>
+    -->
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.2</version>
+    </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <version>1.0.9</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+    </dependency>
+    <dependency>
+      <groupId>org.ow2.asm</groupId>
+      <artifactId>asm-all</artifactId>
+      <version>4.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.googlecode.gentyref</groupId>
+      <artifactId>gentyref</artifactId>
+      <version>1.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.jgrapht</groupId>
+      <artifactId>jgrapht-jdk1.6</artifactId>
+      <version>0.8.3</version>
+    </dependency>
+    <dependency>
+      <groupId>com.panayotis</groupId>
+      <artifactId>JavaPlot</artifactId>
+      <version>0.4.0</version>
+    </dependency>
 
-		<dependency>
-			<groupId>com.thoughtworks.xstream</groupId>
-			<artifactId>xstream</artifactId>
-			<version>1.4.4</version>
-		</dependency>
+    <dependency>
+      <groupId>com.thoughtworks.xstream</groupId>
+      <artifactId>xstream</artifactId>
+      <version>1.4.4</version>
+    </dependency>
 
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-lang3</artifactId>
-			<version>3.1</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-io</groupId>
-			<artifactId>commons-io</artifactId>
-			<version>2.1</version>
-		</dependency>
-		<dependency>
-			<groupId>commons-cli</groupId>
-			<artifactId>commons-cli</artifactId>
-			<version>1.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.apache.commons</groupId>
-			<artifactId>commons-vfs2</artifactId>
-			<version>2.0</version>
-			<exclusions>
-				<exclusion>
-					<groupId>org.apache.maven.scm</groupId>
-					<artifactId>maven-scm-api</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.apache.maven.scm</groupId>
-					<artifactId>maven-scm-provider-svnexe</artifactId>
-				</exclusion>
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.equinox</groupId>
-			<artifactId>common</artifactId>
-			<version>3.6.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jdt</groupId>
-			<artifactId>core</artifactId>
-			<version>3.6.0</version>
-			<exclusions>
-				<!-- <exclusion> <groupId>org.eclipse</groupId> <artifactId>osgi</artifactId> 
-					</exclusion> <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>jobs</artifactId> 
-					</exclusion> -->
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-lang3</artifactId>
+      <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-io</groupId>
+      <artifactId>commons-io</artifactId>
+      <version>2.1</version>
+    </dependency>
+    <dependency>
+      <groupId>commons-cli</groupId>
+      <artifactId>commons-cli</artifactId>
+      <version>1.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.commons</groupId>
+      <artifactId>commons-vfs2</artifactId>
+      <version>2.0</version>
+      <exclusions>
+	<exclusion>
+	  <groupId>org.apache.maven.scm</groupId>
+	  <artifactId>maven-scm-api</artifactId>
+	</exclusion>
+	<exclusion>
+	  <groupId>org.apache.maven.scm</groupId>
+	  <artifactId>maven-scm-provider-svnexe</artifactId>
+	</exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.equinox</groupId>
+      <artifactId>common</artifactId>
+      <version>3.6.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jdt</groupId>
+      <artifactId>core</artifactId>
+      <version>3.6.0</version>
+      <exclusions>
+	<!-- <exclusion> <groupId>org.eclipse</groupId> <artifactId>osgi</artifactId> 
+	     </exclusion> <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>jobs</artifactId> 
+	     </exclusion> -->
 
-				<!-- *** <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>registry</artifactId> 
-					</exclusion> -->
+	<!-- *** <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>registry</artifactId> 
+	     </exclusion> -->
 
-				<!-- <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>preferences</artifactId> 
-					</exclusion> -->
+	<!-- <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>preferences</artifactId> 
+	     </exclusion> -->
 
-				<!-- *** <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>app</artifactId> 
-					</exclusion> -->
+	<!-- *** <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>app</artifactId> 
+	     </exclusion> -->
 
-				<!-- <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>contenttype</artifactId> 
-					</exclusion> -->
+	<!-- <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>contenttype</artifactId> 
+	     </exclusion> -->
 
-				<!-- *** <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>filesystem</artifactId> 
-					</exclusion> <exclusion> <groupId>org.eclipse</groupId> <artifactId>text</artifactId> 
-					</exclusion> -->
-			</exclusions>
-		</dependency>
-		<dependency>
-			<groupId>org.kohsuke</groupId>
-			<artifactId>graphviz-api</artifactId>
-			<version>1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>org.eclipse.jdt.compiler</groupId>
-			<artifactId>tool</artifactId>
-			<version>1.0.100</version>
-		</dependency>
-		<dependency>
-			<groupId>net.sf.trove4j</groupId>
-			<artifactId>trove4j</artifactId>
-			<version>3.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>fr.inria.gforge.spoon</groupId>
-			<artifactId>spoon-core</artifactId>
-			<version>1.4.2</version>
-		</dependency>
-		<dependency>
-			<groupId>org.evosuite</groupId>
-			<artifactId>evosuite-io</artifactId>
-			<version>0.5.3</version>
-		</dependency>
-		<dependency>
-      		<groupId>oro</groupId>
-      		<artifactId>oro</artifactId>
-      		<version>2.0.8</version>
-    	</dependency>
-	</dependencies>
-	<repositories>
-		<repository>
-			<releases>
-				<enabled>true</enabled>
-				<checksumPolicy>warn</checksumPolicy>
-			</releases>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>never</updatePolicy>
-				<checksumPolicy>fail</checksumPolicy>
-			</snapshots>
-			<id>titaniaPublic</id>
-			<name>Titania Public Repositories</name>
-			<url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
-			<layout>default</layout>
-		</repository>
+	<!-- *** <exclusion> <groupId>org.eclipse.core</groupId> <artifactId>filesystem</artifactId> 
+	     </exclusion> <exclusion> <groupId>org.eclipse</groupId> <artifactId>text</artifactId> 
+	     </exclusion> -->
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.kohsuke</groupId>
+      <artifactId>graphviz-api</artifactId>
+      <version>1.1</version>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jdt.compiler</groupId>
+      <artifactId>tool</artifactId>
+      <version>1.0.100</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+    <dependency>
+      <groupId>fr.inria.gforge.spoon</groupId>
+      <artifactId>spoon-core</artifactId>
+      <version>1.4.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.evosuite</groupId>
+      <artifactId>evosuite-io</artifactId>
+      <version>0.5.3</version>
+    </dependency>
+    <dependency>
+      <groupId>oro</groupId>
+      <artifactId>oro</artifactId>
+      <version>2.0.8</version>
+    </dependency>
+  </dependencies>
+  <repositories>
+    <repository>
+      <releases>
+	<enabled>true</enabled>
+	<checksumPolicy>warn</checksumPolicy>
+      </releases>
+      <snapshots>
+	<enabled>true</enabled>
+	<updatePolicy>never</updatePolicy>
+	<checksumPolicy>fail</checksumPolicy>
+      </snapshots>
+      <id>titaniaPublic</id>
+      <name>Titania Public Repositories</name>
+      <url>http://titania.fs.uni-saarland.de/nexus/content/groups/public/</url>
+      <layout>default</layout>
+    </repository>
 
-		<!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
-			</repository> -->
-	</repositories>
+    <!-- <repository> <id>choco.repo</id> <url>http://www.emn.fr/z-info/choco-solver/mvn/repository/</url> 
+	 </repository> -->
+  </repositories>
 
-	<build>
-		<plugins>
-			<!-- Generate startings scripts for different platforms -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.3</version>
-				<configuration>
-					<!-- Set the target configuration directory to be used in the bin scripts -->
-					<configurationDirectory>conf</configurationDirectory>
-					<!-- Copy the contents from "/src/main/config" to the target configuration 
-						directory in the assembled application -->
-					<copyConfigurationDirectory>false</copyConfigurationDirectory>
-					<!-- Include the target configuration directory in the beginning of 
-						the classpath declaration in the bin scripts -->
-					<includeConfigurationDirectoryInClasspath>false</includeConfigurationDirectoryInClasspath>
-					<!-- set alternative assemble directory -->
-					<assembleDirectory>${project.build.directory}</assembleDirectory>
-					<!-- Extra JVM arguments that will be included in the bin scripts -->
-					<extraJvmArguments>-Xms128m  -Xmx1024m  -Dlogback.configurationFile=logback.xml</extraJvmArguments>
-					<platforms>
-						<platform>windows</platform>
-						<platform>unix</platform>
-					</platforms>
-					<programs>
-						<program>
-							<mainClass>org.evosuite.EvoSuite</mainClass>
-							<name>EvoSuite</name>
-							<commandLineArguments>
-								<!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument> 
-									<commandLineArgument>arg2</commandLineArgument> -->
-							</commandLineArguments>
-						</program>
-					</programs>
-				</configuration>
-			</plugin>
+  <build>
+    <plugins>
+      <!-- Generate startings scripts for different platforms -->
+      <plugin>
+	<groupId>org.codehaus.mojo</groupId>
+	<artifactId>appassembler-maven-plugin</artifactId>
+	<version>1.3</version>
+	<configuration>
+	  <!-- Set the target configuration directory to be used in the bin scripts -->
+	  <configurationDirectory>conf</configurationDirectory>
+	  <!-- Copy the contents from "/src/main/config" to the target configuration 
+	       directory in the assembled application -->
+	  <copyConfigurationDirectory>false</copyConfigurationDirectory>
+	  <!-- Include the target configuration directory in the beginning of 
+	       the classpath declaration in the bin scripts -->
+	  <includeConfigurationDirectoryInClasspath>false</includeConfigurationDirectoryInClasspath>
+	  <!-- set alternative assemble directory -->
+	  <assembleDirectory>${project.build.directory}</assembleDirectory>
+	  <!-- Extra JVM arguments that will be included in the bin scripts -->
+	  <extraJvmArguments>-Xms128m  -Xmx1024m  -Dlogback.configurationFile=logback.xml</extraJvmArguments>
+	  <platforms>
+	    <platform>windows</platform>
+	    <platform>unix</platform>
+	  </platforms>
+	  <programs>
+	    <program>
+	      <mainClass>org.evosuite.EvoSuite</mainClass>
+	      <name>EvoSuite</name>
+	      <commandLineArguments>
+		<!-- Add two predefined command line arguments <commandLineArgument>arg1</commandLineArgument> 
+		     <commandLineArgument>arg2</commandLineArgument> -->
+	      </commandLineArguments>
+	    </program>
+	  </programs>
+	</configuration>
+      </plugin>
 
-			<!-- <plugin> -->
-			<!-- <groupId>com.mycila.maven-license-plugin</groupId> -->
-			<!-- <artifactId>maven-license-plugin</artifactId> -->
-			<!-- <version>1.9</version> -->
-			<!-- <configuration> -->
-			<!-- <header>src/etc/header.txt</header> -->
-			<!-- <excludes> -->
-			<!-- <exclude>LICENSE.txt</exclude> -->
-			<!-- </excludes> -->
-			<!-- </configuration> -->
-			<!-- </plugin> -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-eclipse-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<downloadSources>true</downloadSources>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.0</version>
-				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9</version>
-				<configuration>
-					<source>1.7</source>
-				</configuration>
-			</plugin>
-			<!-- TODO Update URL. -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-release-plugin</artifactId>
-				<version>2.4</version>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-resources-plugin</artifactId>
-				<version>2.6</version>
-				<configuration>
-					<encoding>${project.build.sourceEncoding}</encoding>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<configuration>
-					<archive>
-						<manifest>
-							<mainClass>org.evosuite.EvoSuite</mainClass>
-						</manifest>
-					</archive>
-					<descriptors>
-						<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
-						<descriptor>src/main/assembly/evosuite-io.xml</descriptor>
-						<!-- <descriptor>src/main/assembly/jar-exsyst.xml</descriptor> -->
-						<descriptor>src/main/assembly/jar-minimal.xml</descriptor>
-						<!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
-						<descriptor>src/main/assembly/source.xml</descriptor>
-					</descriptors>
-				</configuration>
-				<executions>
-					<execution>
-						<id>make-assembly</id> <!-- this is used for inheritance merges -->
-						<phase>package</phase> <!-- append to the packaging phase. -->
-						<goals>
-							<goal>single</goal> <!-- goals == mojos -->
-						</goals>
-					</execution>
-				</executions>				
-			</plugin>
-			<!--
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.5.1</version>
-				<executions>
-					<execution>
-						<id>copy</id>
-						<phase>compile</phase>
-						<goals>
-							<goal>copy</goal>
-						</goals>
-						<configuration>
-							<artifactItems>
-								<artifactItem>
-									<groupId>com.googlecode.jmockit</groupId>
-									<artifactId>jmockit</artifactId>
-									<version>0.999.16</version>
-									<overWrite>true</overWrite>
-									<outputDirectory>target/</outputDirectory>
-									<destFileName>jmockit.jar</destFileName>
-								</artifactItem>
-							</artifactItems>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-			-->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.13</version>
-				<configuration>
-					<skipTests>${skipTests}</skipTests>
-					<forkMode>once</forkMode>
-					<reportFormat>xml</reportFormat>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-source-plugin</artifactId>
-				<version>2.2.1</version>
-				<configuration>
-					<includePom>true</includePom>
-					<excludes>
-						<exclude>src/exsyst/java/**</exclude>
-					</excludes>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-jar-plugin</artifactId>
-				<version>2.4</version>
-				<inherited>true</inherited>
-				<configuration>
-					<archive>
-						<manifest>
-							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
-							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-						</manifest>
-					</archive>
-				</configuration>
-			</plugin>
-		</plugins>
+      <!-- <plugin> -->
+      <!-- <groupId>com.mycila.maven-license-plugin</groupId> -->
+      <!-- <artifactId>maven-license-plugin</artifactId> -->
+      <!-- <version>1.9</version> -->
+      <!-- <configuration> -->
+      <!-- <header>src/etc/header.txt</header> -->
+      <!-- <excludes> -->
+      <!-- <exclude>LICENSE.txt</exclude> -->
+      <!-- </excludes> -->
+      <!-- </configuration> -->
+      <!-- </plugin> -->
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-eclipse-plugin</artifactId>
+	<version>2.9</version>
+	<configuration>
+	  <downloadSources>true</downloadSources>
+	</configuration>
+      </plugin>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-compiler-plugin</artifactId>
+	<version>3.0</version>
+	<configuration>
+	  <source>1.7</source>
+	  <target>1.7</target>
+	  <encoding>${project.build.sourceEncoding}</encoding>
+	</configuration>
+      </plugin>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-javadoc-plugin</artifactId>
+	<version>2.9</version>
+	<configuration>
+	  <source>1.7</source>
+	</configuration>
+      </plugin>
+      <!-- TODO Update URL. -->
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-release-plugin</artifactId>
+	<version>2.4</version>
+      </plugin>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-resources-plugin</artifactId>
+	<version>2.6</version>
+	<configuration>
+	  <encoding>${project.build.sourceEncoding}</encoding>
+	</configuration>
+      </plugin>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-assembly-plugin</artifactId>
+	<version>2.4</version>
+	<configuration>
+	  <archive>
+	    <manifest>
+	      <mainClass>org.evosuite.EvoSuite</mainClass>
+	    </manifest>
+	  </archive>
+	  <descriptors>
+	    <!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
+	    <descriptor>src/main/assembly/evosuite-io.xml</descriptor>
+	    <!-- <descriptor>src/main/assembly/jar-exsyst.xml</descriptor> -->
+	    <descriptor>src/main/assembly/jar-minimal.xml</descriptor>
+	    <!-- <descriptor>src/main/assembly/bin.xml</descriptor> -->
+	    <descriptor>src/main/assembly/source.xml</descriptor>
+	  </descriptors>
+	</configuration>
+	<executions>
+	  <execution>
+	    <id>make-assembly</id> <!-- this is used for inheritance merges -->
+	    <phase>package</phase> <!-- append to the packaging phase. -->
+	    <goals>
+	      <goal>single</goal> <!-- goals == mojos -->
+	    </goals>
+	  </execution>
+	</executions>				
+      </plugin>
+      <!--
+	  <plugin>
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-dependency-plugin</artifactId>
+	  <version>2.5.1</version>
+	  <executions>
+	  <execution>
+	  <id>copy</id>
+	  <phase>compile</phase>
+	  <goals>
+	  <goal>copy</goal>
+	  </goals>
+	  <configuration>
+	  <artifactItems>
+	  <artifactItem>
+	  <groupId>com.googlecode.jmockit</groupId>
+	  <artifactId>jmockit</artifactId>
+	  <version>0.999.16</version>
+	  <overWrite>true</overWrite>
+	  <outputDirectory>target/</outputDirectory>
+	  <destFileName>jmockit.jar</destFileName>
+	  </artifactItem>
+	  </artifactItems>
+	  </configuration>
+	  </execution>
+	  </executions>
+	  </plugin>
+      -->
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-surefire-plugin</artifactId>
+	<version>2.13</version>
+	<configuration>
+	  <skipTests>${skipTests}</skipTests>
+	  <forkMode>once</forkMode>
+	  <reportFormat>xml</reportFormat>
+	</configuration>
+      </plugin>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-source-plugin</artifactId>
+	<version>2.2.1</version>
+	<configuration>
+	  <includePom>true</includePom>
+	  <excludes>
+	    <exclude>src/exsyst/java/**</exclude>
+	  </excludes>
+	</configuration>
+      </plugin>
+      <plugin>
+	<groupId>org.apache.maven.plugins</groupId>
+	<artifactId>maven-jar-plugin</artifactId>
+	<version>2.4</version>
+	<inherited>true</inherited>
+	<configuration>
+	  <archive>
+	    <manifest>
+	      <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
+	      <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
+	    </manifest>
+	  </archive>
+	</configuration>
+      </plugin>
+    </plugins>
 
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<!-- We still use Beta 5 because of various bugs: http://jira.codehaus.org/ 
-						- MSITE-262, MSITE-293, MSITE-297 -->
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-site-plugin</artifactId>
-					<version>3.2</version>
-					<configuration>
-						<reportPlugins>
-							<plugin>
-								<groupId>org.codehaus.mojo</groupId>
-								<artifactId>findbugs-maven-plugin</artifactId>
-								<version>2.5.2</version>
-								<configuration>
-									<xmlOutput>true</xmlOutput>
-								</configuration>
-							</plugin>
-							<!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
-								<version>2.9.1</version> </plugin> -->
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-pmd-plugin</artifactId>
-								<configuration>
-									<targetJdk>1.7</targetJdk>
-								</configuration>
-							</plugin>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-project-info-reports-plugin</artifactId>
-								<version>2.1.1</version>
-							</plugin>
-							<plugin>
-								<groupId>org.codehaus.mojo</groupId>
-								<artifactId>emma-maven-plugin</artifactId>
-								<version>1.0-alpha-3</version>
-								<configuration>
-									<skipTests>${skipTests}</skipTests>
-								</configuration>
-							</plugin>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-surefire-report-plugin</artifactId>
-							</plugin>
-							<plugin>
-								<groupId>org.apache.maven.plugins</groupId>
-								<artifactId>maven-jxr-plugin</artifactId>
-							</plugin>
-						</reportPlugins>
-					</configuration>
-				</plugin>
-				<!--This plugin's configuration is used to store Eclipse m2e settings 
-					only. It has no influence on the Maven build itself. -->
-				<plugin>
-					<groupId>org.eclipse.m2e</groupId>
-					<artifactId>lifecycle-mapping</artifactId>
-					<version>1.0.0</version>
-					<configuration>
-						<lifecycleMappingMetadata>
-							<pluginExecutions>
-								<pluginExecution>
-									<pluginExecutionFilter>
-										<groupId>
-											org.apache.maven.plugins
-										</groupId>
-										<artifactId>
-											maven-dependency-plugin
-										</artifactId>
-										<versionRange>
-											[2.1,)
-										</versionRange>
-										<goals>
-											<goal>copy</goal>
-										</goals>
-									</pluginExecutionFilter>
-									<action>
-										<execute></execute>
-									</action>
-								</pluginExecution>
-							</pluginExecutions>
-						</lifecycleMappingMetadata>
-					</configuration>
-				</plugin>
-			</plugins>
-		</pluginManagement>
+    <pluginManagement>
+      <plugins>
+	<plugin>
+	  <!-- We still use Beta 5 because of various bugs: http://jira.codehaus.org/ 
+	       - MSITE-262, MSITE-293, MSITE-297 -->
+	  <groupId>org.apache.maven.plugins</groupId>
+	  <artifactId>maven-site-plugin</artifactId>
+	  <version>3.2</version>
+	  <configuration>
+	    <reportPlugins>
+	      <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>findbugs-maven-plugin</artifactId>
+		<version>2.5.2</version>
+		<configuration>
+		  <xmlOutput>true</xmlOutput>
+		  <excludeFilterFile>findbugs-exclude.xml</excludeFilterFile>
+		</configuration>
+	      </plugin>
+	      <!-- <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-checkstyle-plugin</artifactId> 
+		   <version>2.9.1</version> </plugin> -->
+	      <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-pmd-plugin</artifactId>
+		<configuration>
+		  <targetJdk>1.7</targetJdk>
+		</configuration>
+	      </plugin>
+	      <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-project-info-reports-plugin</artifactId>
+		<version>2.1.1</version>
+	      </plugin>
+	      <plugin>
+		<groupId>org.codehaus.mojo</groupId>
+		<artifactId>emma-maven-plugin</artifactId>
+		<version>1.0-alpha-3</version>
+		<configuration>
+		  <skipTests>${skipTests}</skipTests>
+		</configuration>
+	      </plugin>
+	      <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-surefire-report-plugin</artifactId>
+	      </plugin>
+	      <plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-jxr-plugin</artifactId>
+	      </plugin>
+	    </reportPlugins>
+	  </configuration>
+	</plugin>
+	<!--This plugin's configuration is used to store Eclipse m2e settings 
+	    only. It has no influence on the Maven build itself. -->
+	<plugin>
+	  <groupId>org.eclipse.m2e</groupId>
+	  <artifactId>lifecycle-mapping</artifactId>
+	  <version>1.0.0</version>
+	  <configuration>
+	    <lifecycleMappingMetadata>
+	      <pluginExecutions>
+		<pluginExecution>
+		  <pluginExecutionFilter>
+		    <groupId>
+		      org.apache.maven.plugins
+		    </groupId>
+		    <artifactId>
+		      maven-dependency-plugin
+		    </artifactId>
+		    <versionRange>
+		      [2.1,)
+		    </versionRange>
+		    <goals>
+		      <goal>copy</goal>
+		    </goals>
+		  </pluginExecutionFilter>
+		  <action>
+		    <execute></execute>
+		  </action>
+		</pluginExecution>
+	      </pluginExecutions>
+	    </lifecycleMappingMetadata>
+	  </configuration>
+	</plugin>
+      </plugins>
+    </pluginManagement>
 	</build>
 
 	<!-- See: http://wiki.st.cs.uni-sb.de/wiki/Maven_Archiva -->
