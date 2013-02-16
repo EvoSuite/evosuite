@@ -25,6 +25,7 @@ import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testsuite.TestCallStatement;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -53,6 +53,7 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 		return variables;
 	}
 	
+	@SuppressWarnings("unchecked")
 	private T getTimeLineValue(String name) {
 		long interval = Properties.TIMELINE_INTERVAL;
 		

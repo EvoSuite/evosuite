@@ -41,6 +41,5 @@ public class CompleteAssertionGenerator extends AssertionGenerator {
 			trace.getAllAssertions(test);
 			trace.clear();
 		}
-		filterFailingAssertion(test);
 	}
 }

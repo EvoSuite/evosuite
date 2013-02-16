@@ -37,13 +37,12 @@ import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.objectweb.asm.commons.Method;
-
-import com.googlecode.gentyref.GenericTypeReflector;
 
 import edu.uta.cse.dsc.VM;
 

@@ -21,16 +21,11 @@
 package org.evosuite.setup;
 
 import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -42,7 +37,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.GenericClass;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceList;
 import org.junit.Test;

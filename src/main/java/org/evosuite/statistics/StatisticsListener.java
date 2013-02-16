@@ -44,20 +44,20 @@ public class StatisticsListener implements SearchListener {
 
 
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		// Enqueue current best individual
 		// individuals.offer(algorithm.getBestIndividual());
 	}
 
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		// If the search is finished, we may want to clear the queue and just send the final element?
 		//individuals.clear(); // TODO: Maybe have a check on size
 		done = true;
 	}
 
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		done = false;
 		if(algorithm.getFitnessFunction().isMaximizationFunction()) {
 			bestFitness = 0.0;

@@ -28,6 +28,8 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
  */
 public class Use extends DefUse {
 
+	private static final long serialVersionUID = -4951547090794898658L;
+
 	Use(BytecodeInstruction wrap) {
 		super(wrap);
 		if (!DefUsePool.isKnownAsUse(wrap))

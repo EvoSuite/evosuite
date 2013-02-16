@@ -27,7 +27,7 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class FitnessProportionateSelection extends SelectionFunction {
+public class FitnessProportionateSelection<T extends Chromosome> extends SelectionFunction<T> {
 
 	private static final long serialVersionUID = 5206421079815585026L;
 
@@ -39,7 +39,7 @@ public class FitnessProportionateSelection extends SelectionFunction {
 
 	/** {@inheritDoc} */
 	@Override
-	public int getIndex(List<Chromosome> population) {
+	public int getIndex(List<T> population) {
 		//special case
 		if (sumValue == 0d) {
 			//here does not matter whether maximize or not.
@@ -73,9 +73,9 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	 * 
 	 * @param population
 	 */
-	private void setSum(List<Chromosome> population) {
+	private void setSum(List<T> population) {
 		sumValue = 0;
-		for (Chromosome c : population) {
+		for (T c : population) {
 			double v = c.getFitness();
 			if (!maximize)
 				v = invert(v);
@@ -97,7 +97,7 @@ public class FitnessProportionateSelection extends SelectionFunction {
 	 * Return n parents
 	 */
 	@Override
-	public List<Chromosome> select(List<Chromosome> population, int number) {
+	public List<T> select(List<T> population, int number) {
 
 		setSum(population);
 		return super.select(population, number);

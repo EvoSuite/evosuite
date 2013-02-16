@@ -189,8 +189,6 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 			touchedMutants.addAll(trace.getTouchedMutants());
 			logger.debug("Tests touched " + touchedMutants.size() + " mutants");
 
-			boolean coversNewMutants = false;
-			//			for (TestFitnessFunction mutant : uncoveredMutants) {
 			for (TestFitnessFunction mutant : currentGoals) {
 
 				MutationTestFitness mutantFitness = (MutationTestFitness) mutant;
@@ -215,7 +213,6 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 						                              minMutantFitness.get(mutantFitness.getMutation())));
 						if (mutantFitnessValue == 0.0) {
 							MutationTestPool.addTest(mutantFitness.getMutation(), test);
-							coversNewMutants = true;
 							changed = true;
 							break;
 						}
@@ -354,7 +351,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		unchangedGenerations = 0;
 		remainingGoals.addAll(MutationTestPool.getUncoveredFitnessFunctions());
 		if (Properties.MAX_MUTANTS > 0)
@@ -367,7 +364,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		// Only need to check if we have a mutant limit
 		if (Properties.MAX_MUTANTS > 0) {
 			if (!changed) {
@@ -390,7 +387,7 @@ public class StrongMutationSuiteFitness extends MutationSuiteFitness implements
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

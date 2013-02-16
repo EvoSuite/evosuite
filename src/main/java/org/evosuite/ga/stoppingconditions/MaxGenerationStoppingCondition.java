@@ -57,7 +57,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 	 * Increase iteration counter
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		currentIteration++;
 	}
 
@@ -75,7 +75,7 @@ public class MaxGenerationStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		currentIteration = 0;
 	}
 

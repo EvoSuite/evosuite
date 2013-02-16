@@ -261,7 +261,6 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	public void addAssertions(TestCase test, Set<Integer> killed) {
 		addAssertions(test, killed, mutants);
-		filterFailingAssertion(test);
 	}
 
 	/**

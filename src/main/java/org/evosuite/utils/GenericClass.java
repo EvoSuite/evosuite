@@ -17,7 +17,7 @@
  * 
  * @author Gordon Fraser
  */
-package org.evosuite.testcase;
+package org.evosuite.utils;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -80,7 +80,7 @@ public class GenericClass implements Serializable {
 	 * </p>
 	 * 
 	 * @param lhsType
-	 *            a {@link org.evosuite.testcase.GenericClass} object.
+	 *            a {@link org.evosuite.utils.GenericClass} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableTo(GenericClass lhsType) {
@@ -93,7 +93,7 @@ public class GenericClass implements Serializable {
 	 * </p>
 	 * 
 	 * @param rhsType
-	 *            a {@link org.evosuite.testcase.GenericClass} object.
+	 *            a {@link org.evosuite.utils.GenericClass} object.
 	 * @return a boolean.
 	 */
 	public boolean isAssignableFrom(GenericClass rhsType) {

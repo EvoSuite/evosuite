@@ -22,6 +22,7 @@ package org.evosuite.testcase;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.PassiveChangeListener;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.commons.GeneratorAdapter;

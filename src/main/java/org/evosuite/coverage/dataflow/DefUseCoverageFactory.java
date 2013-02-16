@@ -32,13 +32,10 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.rmi.ClientServices;
-import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.PureMethodsList;
 import org.objectweb.asm.Type;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 /**

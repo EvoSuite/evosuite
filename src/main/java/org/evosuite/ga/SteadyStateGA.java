@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class SteadyStateGA extends GeneticAlgorithm {
+public class SteadyStateGA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 7846967347821123201L;
 
@@ -45,7 +45,7 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	 * @param factory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public SteadyStateGA(ChromosomeFactory<? extends Chromosome> factory) {
+	public SteadyStateGA(ChromosomeFactory<T> factory) {
 		super(factory);
 
 		setReplacementFunction(new FitnessReplacementFunction());
@@ -72,9 +72,10 @@ public class SteadyStateGA extends GeneticAlgorithm {
 	}
 
 	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
-		List<Chromosome> newGeneration = new ArrayList<Chromosome>();
+		List<T> newGeneration = new ArrayList<T>();
 
 		// Elitism
 		logger.debug("Elitism");
@@ -86,11 +87,11 @@ public class SteadyStateGA extends GeneticAlgorithm {
 		while (!isNextPopulationFull(newGeneration) && !isFinished()) {
 			logger.debug("Generating offspring");
 
-			Chromosome parent1 = selectionFunction.select(population);
-			Chromosome parent2 = selectionFunction.select(population);
+			T parent1 = selectionFunction.select(population);
+			T parent2 = selectionFunction.select(population);
 
-			Chromosome offspring1 = parent1.clone();
-			Chromosome offspring2 = parent2.clone();
+			T offspring1 = (T)parent1.clone();
+			T offspring2 = (T)parent2.clone();
 
 			try {
 				// Crossover

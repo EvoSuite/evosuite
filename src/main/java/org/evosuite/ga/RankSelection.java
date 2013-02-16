@@ -28,7 +28,7 @@ import org.evosuite.utils.Randomness;
 	 *
 	 * Select individual by rank
 	 */
-public class RankSelection extends SelectionFunction {
+public class RankSelection<T extends Chromosome> extends SelectionFunction<T> {
 
 	private static final long serialVersionUID = 7849303009915557682L;
 	@Override
@@ -37,7 +37,7 @@ public class RankSelection extends SelectionFunction {
 	 * 
 	 * Population has to be sorted!
 	 */
-	public int getIndex(List<Chromosome> population) {
+	public int getIndex(List<T> population) {
 		double r = Randomness.nextDouble();
 		double d = Properties.RANK_BIAS
 		        - Math.sqrt((Properties.RANK_BIAS * Properties.RANK_BIAS)

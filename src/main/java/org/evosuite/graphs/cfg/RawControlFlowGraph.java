@@ -460,10 +460,9 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 * @return a {@link java.util.Set} object.
 	 */
-	@SuppressWarnings("unchecked")
 	public Set<BytecodeInstruction> getLaterInstructionsInMethod(BytecodeInstruction v) {
 		Set<BytecodeInstruction> visited = new HashSet<BytecodeInstruction>();
-		Comparator<BytecodeInstruction> reverseComp = new ReverseComparator(
+		Comparator<BytecodeInstruction> reverseComp = new ReverseComparator<BytecodeInstruction>(
 		        new BytecodeInstructionIdComparator());
 		PriorityQueue<BytecodeInstruction> queue = new PriorityQueue<BytecodeInstruction>(
 		        graph.vertexSet().size(), reverseComp);

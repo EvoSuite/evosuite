@@ -61,7 +61,7 @@ public class MaxLengthStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		double avg = 0.0;
 		for (Chromosome c : algorithm.getPopulation()) {
 			avg += c.size();

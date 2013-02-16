@@ -151,7 +151,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 
 	}
 
@@ -160,7 +160,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 
 	}
 
@@ -169,7 +169,7 @@ public class MutationTestPool implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		TestSuiteChromosome solution = (TestSuiteChromosome) algorithm.getBestIndividual();
 
 		logger.info("Search finished with size " + solution.size());

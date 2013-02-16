@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**

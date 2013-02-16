@@ -36,7 +36,7 @@ import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
-import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;

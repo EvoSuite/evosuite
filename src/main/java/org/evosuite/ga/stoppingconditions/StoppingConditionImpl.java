@@ -43,7 +43,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 
 	}
 
@@ -60,7 +60,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -72,7 +72,7 @@ public abstract class StoppingConditionImpl implements StoppingCondition, Serial
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

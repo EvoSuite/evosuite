@@ -352,7 +352,7 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 
 	/** {@inheritDoc} */
 	@Override
-	public boolean applyDSE(GeneticAlgorithm ga) {
+	public boolean applyDSE(GeneticAlgorithm<?> ga) {
 		TestSuiteDSE dse = new TestSuiteDSE(
 		        (TestSuiteFitnessFunction) ga.getFitnessFunction());
 		return dse.applyDSE(this);

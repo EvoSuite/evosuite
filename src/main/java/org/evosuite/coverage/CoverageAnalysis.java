@@ -119,6 +119,7 @@ public class CoverageAnalysis {
 		}
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void analyzeCoverage(TestSuiteChromosome testSuite,
 	        Properties.Criterion criterion) {
 
