@@ -586,8 +586,9 @@ public class TestClusterGenerator {
 		if (isEvoSuiteClass(c))
 			return false;
 
-		if (Modifier.isPublic(c.getModifiers()))
+		if (Modifier.isPublic(c.getModifiers())) {
 			return true;
+		}
 
 		return false;
 	}
@@ -613,6 +614,10 @@ public class TestClusterGenerator {
 
 		if (f.getName().startsWith("ajc$")) {
 			logger.debug("Skipping AspectJ field " + f.getName());
+			return false;
+		}
+		
+		if(!f.getType().equals(String.class) && !canUse(f.getType())) {
 			return false;
 		}
 
@@ -647,6 +652,11 @@ public class TestClusterGenerator {
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
 			return false;
 		}
+		
+		if(!m.getReturnType().equals(String.class) && !canUse(m.getReturnType())) {
+			return false;
+		}
+
 
 		if (m.getDeclaringClass().isEnum()) {
 			if (m.getName().equals("valueOf") || m.getName().equals("values")
