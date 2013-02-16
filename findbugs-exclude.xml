@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<!--
+  This file contains some false positive bugs detected by findbugs. Their
+  false positive nature has been analyzed individually and they have been
+  put here to instruct findbugs it must ignore them.
+-->
+<FindBugsFilter>
+
+  <!-- Properties are static but not final == -->
+  <Match>
+    <Class name="org.evosuite.Properties" />
+    <Bug pattern="MS_SHOULD_BE_FINAL" />
+  </Match>
+</FindBugsFilter>
