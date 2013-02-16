@@ -335,7 +335,7 @@ public final class IntegerConstraint extends Constraint<Long> {
 	}
 
 	private long getDistanceIndexOfCIEqualsK(long leftVal, long rightVal) {
-		if (this.getLeftOperand() instanceof StringBinaryToIntegerExpression
+		if (this.getLeftOperand() instanceof StringMultipleToIntegerExpression
 				&& this.getComparator() == Comparator.EQ
 				&& this.getRightOperand() instanceof IntegerConstant) {
 			IntegerConstant right_constant = (IntegerConstant) this
