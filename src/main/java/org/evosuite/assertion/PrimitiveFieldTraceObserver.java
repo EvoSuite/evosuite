@@ -53,7 +53,9 @@ public class PrimitiveFieldTraceObserver extends
 					// TODO Check for wrapper types
 					if (Modifier.isPublic(field.getModifiers())
 					        && !field.getType().equals(void.class)
-					        && field.getType().isPrimitive()) {
+					        && field.getType().isPrimitive()
+					        && !Modifier.isFinal(field.getModifiers())
+					        && !field.isSynthetic()) {
 						try {
 							logger.debug("Keeping field " + field + " with value "
 							        + field.get(object));

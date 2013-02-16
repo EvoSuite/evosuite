@@ -71,9 +71,9 @@ public class Inspector implements Serializable {
 	        IllegalAccessException, InvocationTargetException {
 
 		Object ret = this.method.invoke(object);
-		if (ret instanceof String) {
-			ret = ((String) ret).replaceAll("@[abcdef\\d]+", "");
-		}
+		//if (ret instanceof String) {
+		//	ret = ((String) ret).replaceAll("@[abcdef\\d]+", "");
+		//}
 		return ret;
 	}
 

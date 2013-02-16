@@ -46,7 +46,7 @@ public class ResourceController implements SearchListener, StoppingCondition,
 
 	private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
 
-	private GeneticAlgorithm ga;
+	private GeneticAlgorithm<?> ga;
 	private boolean stopComputation;
 
 	private boolean hasExceededResources() {
@@ -83,20 +83,20 @@ public class ResourceController implements SearchListener, StoppingCondition,
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		ga = algorithm;
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

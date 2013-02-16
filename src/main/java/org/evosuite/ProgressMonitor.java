@@ -86,7 +86,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		stoppingCondition = TestSuiteGenerator.getStoppingCondition();
 		max = stoppingCondition.getLimit();
 	}
@@ -96,7 +96,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		long current = stoppingCondition.getCurrentValue();
 		currentCoverage = (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100);
 		updateStatus((int) (100 * current / max));
@@ -108,7 +108,7 @@ public class ProgressMonitor implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		currentCoverage = (int) Math.floor(((TestSuiteChromosome) algorithm.getBestIndividual()).getCoverage() * 100);
 		if(currentCoverage > lastCoverage) {
 			updateStatus((int) (100 * stoppingCondition.getCurrentValue() / max));

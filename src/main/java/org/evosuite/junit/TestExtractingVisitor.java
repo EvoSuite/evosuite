@@ -103,7 +103,6 @@ import org.evosuite.testcase.DoublePrimitiveStatement;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.FieldStatement;
 import org.evosuite.testcase.FloatPrimitiveStatement;
-import org.evosuite.testcase.GenericClass;
 import org.evosuite.testcase.IntPrimitiveStatement;
 import org.evosuite.testcase.LongPrimitiveStatement;
 import org.evosuite.testcase.MethodStatement;
@@ -117,6 +116,7 @@ import org.evosuite.testcase.StringPrimitiveStatement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.utils.GenericClass;
 
 /**
  * This class implements the Eclipse JDT Visitor to turn an existing test case

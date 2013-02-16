@@ -31,13 +31,13 @@ import java.util.Comparator;
  * @author Michael A. Smith
  * @see java.util.Collections#reverseOrder()
  */
-public class ReverseComparator implements Comparator, Serializable {
+public class ReverseComparator<T> implements Comparator<T>, Serializable {
 
 	/** Serialization version from Collections 2.0. */
 	private static final long serialVersionUID = 2858887242028539265L;
 
 	/** The comparator being decorated. */
-	private Comparator comparator;
+	private Comparator<T> comparator;
 
 	//-----------------------------------------------------------------------
 	/**
@@ -61,7 +61,7 @@ public class ReverseComparator implements Comparator, Serializable {
 	 * @param comparator
 	 *            Comparator to reverse
 	 */
-	public ReverseComparator(Comparator comparator) {
+	public ReverseComparator(Comparator<T> comparator) {
 		if (comparator != null) {
 			this.comparator = comparator;
 			//		} else {
@@ -76,7 +76,7 @@ public class ReverseComparator implements Comparator, Serializable {
 	 * Compares two objects in reverse order.
 	 */
 	@Override
-	public int compare(Object obj1, Object obj2) {
+	public int compare(T obj1, T obj2) {
 		return comparator.compare(obj2, obj1);
 	}
 
@@ -106,6 +106,7 @@ public class ReverseComparator implements Comparator, Serializable {
 	 * the {@link Comparator#equals(Object) equals} contract.
 	 * @since Commons Collections 3.0
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	public boolean equals(Object object) {
 		if (this == object) {
@@ -113,7 +114,7 @@ public class ReverseComparator implements Comparator, Serializable {
 		} else if (null == object) {
 			return false;
 		} else if (object.getClass().equals(this.getClass())) {
-			ReverseComparator thatrc = (ReverseComparator) object;
+			ReverseComparator<T> thatrc = (ReverseComparator<T>) object;
 			return comparator.equals(thatrc.comparator);
 		} else {
 			return false;

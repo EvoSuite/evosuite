@@ -31,14 +31,6 @@ import org.apache.commons.lang3.StringEscapeUtils;
  */
 public class NumberFormatter {
 
-	private static String addParenthesisToNegativeNumber(Number n) {
-		if (n.doubleValue() < 0) {
-			return "(" + n + ")";
-		} else {
-			return "" + n;
-		}
-	}
-
 	/**
 	 * <p>
 	 * getNumberString

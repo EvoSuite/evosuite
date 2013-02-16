@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public abstract class SelectionFunction implements Serializable {
+public abstract class SelectionFunction<T extends Chromosome> implements Serializable {
 
 	private static final long serialVersionUID = -2514933149542277609L;
 
@@ -48,7 +48,7 @@ public abstract class SelectionFunction implements Serializable {
 	 *            a {@link java.util.List} object.
 	 * @return a int.
 	 */
-	public abstract int getIndex(List<Chromosome> population);
+	public abstract int getIndex(List<T> population);
 
 	/**
 	 * Return two parents
@@ -57,7 +57,7 @@ public abstract class SelectionFunction implements Serializable {
 	 *            a {@link java.util.List} object.
 	 * @return a {@link org.evosuite.ga.Chromosome} object.
 	 */
-	public Chromosome select(List<Chromosome> population) {
+	public T select(List<T> population) {
 		return select(population, 1).get(0);
 	}
 
@@ -70,8 +70,8 @@ public abstract class SelectionFunction implements Serializable {
 	 *            n
 	 * @return a {@link java.util.List} object.
 	 */
-	public List<Chromosome> select(List<Chromosome> population, int number) {
-		List<Chromosome> offspring = new ArrayList<Chromosome>();
+	public List<T> select(List<T> population, int number) {
+		List<T> offspring = new ArrayList<T>();
 		for (int i = 0; i < number; i++) {
 			offspring.add(population.get(getIndex(population)));
 		}

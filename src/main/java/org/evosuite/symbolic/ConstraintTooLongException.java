@@ -19,9 +19,6 @@
  */
 package org.evosuite.symbolic;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import edu.uta.cse.dsc.StopVMException;
 
 public class ConstraintTooLongException extends StopVMException {
@@ -30,9 +27,6 @@ public class ConstraintTooLongException extends StopVMException {
 	 * 
 	 */
 	private static final long serialVersionUID = 4788691891779076515L;
-
-	private static Logger logger = LoggerFactory
-			.getLogger(ConstraintTooLongException.class);
 
 	private final int constraint_size;
 	public ConstraintTooLongException(int constraint_size) {

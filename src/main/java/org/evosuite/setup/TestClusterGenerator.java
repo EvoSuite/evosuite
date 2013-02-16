@@ -47,7 +47,7 @@ import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.javaagent.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.FileSystem;
-import org.evosuite.testcase.GenericClass;
+import org.evosuite.utils.GenericClass;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -748,17 +748,10 @@ public class TestClusterGenerator {
 			return recursion;
 		}
 
-		public void setRecursion(int recursion) {
-			this.recursion = recursion;
-		}
-
 		public GenericClass getDependencyClass() {
 			return dependencyClass;
 		}
 
-		public void setDependencyClass(java.lang.reflect.Type clazz) {
-			this.dependencyClass = new GenericClass(clazz);
-		}
 	};
 
 	private static Set<Pair> dependencies = new LinkedHashSet<Pair>();
@@ -848,6 +841,10 @@ public class TestClusterGenerator {
 			return;
 		}
 
+		// TODO: Shouldn't this be checked earlier?
+		if(!canUse(clazz.getRawClass()))
+			return;
+
 		if (!checkIfCanUse(clazz.getClassName()))
 			return;
 
@@ -865,6 +862,9 @@ public class TestClusterGenerator {
 			logger.debug("Maximum recursion level reached, not adding dependency {}",
 			             clazz.getClassName());
 			return false;
+		}
+		if(analyzedClasses.contains(clazz)) {
+			return true;
 		}
 
 		try {

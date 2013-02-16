@@ -28,7 +28,7 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class TournamentSelection extends SelectionFunction {
+public class TournamentSelection<T extends Chromosome> extends SelectionFunction<T> {
 
 	private static final long serialVersionUID = -7465418404056357932L;
 
@@ -38,7 +38,7 @@ public class TournamentSelection extends SelectionFunction {
 	 * Perform the tournament on the population, return one index
 	 */
 	@Override
-	public int getIndex(List<Chromosome> population) {
+	public int getIndex(List<T> population) {
 		int new_num = Randomness.nextInt(population.size());
 		int winner = new_num;
 

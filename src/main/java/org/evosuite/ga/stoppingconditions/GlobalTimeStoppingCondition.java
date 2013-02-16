@@ -46,7 +46,7 @@ public class GlobalTimeStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		if (startTime == 0)
 			reset();
 	}

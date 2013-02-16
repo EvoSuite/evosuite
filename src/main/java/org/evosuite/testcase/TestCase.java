@@ -330,6 +330,11 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 * Remove all assertions from test case
 	 */
 	public void removeAssertions();
+	
+	/**
+	 * Remove assertion from test case
+	 */
+	public void removeAssertion(Assertion assertion);
 
 	/**
 	 * Check if test case is valid (executable)

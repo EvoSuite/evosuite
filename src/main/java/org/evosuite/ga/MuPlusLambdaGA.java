@@ -26,7 +26,7 @@ import org.evosuite.utils.Randomness;
  *
  * @author Gordon Fraser
  */
-public class MuPlusLambdaGA extends SteadyStateGA {
+public class MuPlusLambdaGA<T extends Chromosome> extends SteadyStateGA<T> {
 
 	private static final long serialVersionUID = 7301010503732698233L;
 	
@@ -37,7 +37,7 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 	 *
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public MuPlusLambdaGA(ChromosomeFactory<? extends Chromosome> factory) {
+	public MuPlusLambdaGA(ChromosomeFactory<T> factory) {
 		super(factory);
 	}
 
@@ -46,16 +46,17 @@ public class MuPlusLambdaGA extends SteadyStateGA {
 	 *
 	 * Perform one iteration of the search
 	 */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
 		logger.debug("Generating offspring");
 		currentIteration++;
 
-		Chromosome parent1 = selectionFunction.select(population);
-		Chromosome parent2 = selectionFunction.select(population);
+		T parent1 = selectionFunction.select(population);
+		T parent2 = selectionFunction.select(population);
 		
-		Chromosome offspring1 = parent1.clone();
-		Chromosome offspring2 = parent2.clone();
+		T offspring1 = (T)parent1.clone();
+		T offspring2 = (T)parent2.clone();
 
 		try {
 			// Crossover

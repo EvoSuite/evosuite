@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.testsuite.AbstractFitnessFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -35,8 +33,6 @@ import org.slf4j.LoggerFactory;
  * @author fraser
  */
 public class MutationFactory extends AbstractFitnessFactory<MutationTestFitness> {
-
-	private static Logger logger = LoggerFactory.getLogger(MutationFactory.class);
 
 	private boolean strong = true;
 

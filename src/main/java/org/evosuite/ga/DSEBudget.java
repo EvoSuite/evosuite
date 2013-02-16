@@ -47,7 +47,7 @@ public class DSEBudget implements SearchListener, Serializable {
 	/** Constant <code>lastIndividualFinished=0L</code> */
 	protected static long lastIndividualFinished = 0L;
 
-	protected static GeneticAlgorithm ga = null;
+	protected static GeneticAlgorithm<?> ga = null;
 
 	/**
 	 * <p>
@@ -118,7 +118,7 @@ public class DSEBudget implements SearchListener, Serializable {
 	 * @see org.evosuite.ga.SearchListener#searchStarted(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		ga = algorithm;
 	}
 
@@ -126,7 +126,7 @@ public class DSEBudget implements SearchListener, Serializable {
 	 * @see org.evosuite.ga.SearchListener#iteration(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}
@@ -135,7 +135,7 @@ public class DSEBudget implements SearchListener, Serializable {
 	 * @see org.evosuite.ga.SearchListener#searchFinished(org.evosuite.ga.GeneticAlgorithm)
 	 */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		ga = null;
 	}
 

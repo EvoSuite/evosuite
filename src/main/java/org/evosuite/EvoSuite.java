@@ -65,6 +65,11 @@ import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
+
 /**
  * <p>
  * EvoSuite class.
@@ -74,8 +79,30 @@ import org.slf4j.LoggerFactory;
  */
 public class EvoSuite {
 
-	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	//private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
 
+	static {
+		LoggingUtils.checkAndSetLogLevel();
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		// Only overrule default configurations
+		// TODO: Find better way to allow external logback configuration
+		if(context.getName().equals("default")) {
+			try {
+				JoranConfigurator configurator = new JoranConfigurator();
+				configurator.setContext(context);
+				InputStream f = EvoSuite.class.getClassLoader().getResourceAsStream("logback-evosuite.xml");
+				if(f == null) {
+					System.err.println("logback-evosuite.xml not found on classpath");
+				}
+				context.reset();
+				configurator.doConfigure(f);
+			} catch (JoranException je) {
+				// StatusPrinter will handle this
+			}
+			StatusPrinter.printInCaseOfErrorsOrWarnings(context);
+		}
+
+	}
 	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
 	private static String separator = System.getProperty("file.separator");
@@ -378,7 +405,9 @@ public class EvoSuite {
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
 		cmdLine.add("-Djava.awt.headless=true");
-		cmdLine.add("-Dlogback.configurationFile=logback.xml");
+		cmdLine.add("-Dlogback.configurationFile=logback-evosuite.xml");
+		cmdLine.add("-Dlog.level="+Properties.LOG_LEVEL);
+		cmdLine.add("-Dlog.target="+Properties.LOG_TARGET);
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
 
@@ -615,7 +644,7 @@ public class EvoSuite {
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Djava.awt.headless=true");
-		cmdLine.add("-Dlogback.configurationFile=logback.xml");
+		cmdLine.add("-Dlogback.configurationFile=logback-evosuite.xml");
 		cmdLine.add("-Djava.library.path=lib");
 		cmdLine.add("-DCP=" + cp);
 		// cmdLine.add("-Dminimize_values=true");
@@ -1062,7 +1091,6 @@ public class EvoSuite {
 	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
-
 		try {
 			EvoSuite evosuite = new EvoSuite();
 			evosuite.parseCommandLine(args);

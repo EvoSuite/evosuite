@@ -16,7 +16,6 @@ import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
