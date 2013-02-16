@@ -39,7 +39,7 @@ public class IndividualPopulationLimit implements PopulationLimit {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean isPopulationFull(List<Chromosome> population) {
+	public boolean isPopulationFull(List<? extends Chromosome> population) {
 		return population.size() >= Properties.POPULATION;
 	}
 

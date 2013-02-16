@@ -37,7 +37,7 @@ public class MaxTimeStoppingCondition extends StoppingConditionImpl {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		startTime = System.currentTimeMillis();
 	}
 

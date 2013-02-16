@@ -21,6 +21,7 @@ package org.evosuite.assertion;
 
 import java.util.List;
 import java.util.concurrent.TimeoutException;
+import java.util.regex.Pattern;
 
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.Scope;
@@ -29,6 +30,8 @@ import org.evosuite.testcase.VariableReference;
 
 public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTraceEntry> {
 
+	private static Pattern addressPattern = Pattern.compile(".*[\\w+\\.]+@[abcdef\\d]+.*", Pattern.MULTILINE);
+	
 	private final InspectorManager manager = InspectorManager.getInstance();
 
 	/* (non-Javadoc)
@@ -66,8 +69,8 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 					logger.debug("Inspector " + i.getMethodCall() + " is: " + value);
 
 					// We need no assertions that include the memory location
-					if (i.getMethodCall().equals("toString")) {
-						if (!value.toString().matches("@[abcdef\\d]+"))
+					if (value instanceof String) {
+						if(addressPattern.matcher((String)value).find())
 							continue;
 					}
 

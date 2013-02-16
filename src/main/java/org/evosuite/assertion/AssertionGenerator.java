@@ -20,10 +20,18 @@
  */
 package org.evosuite.assertion;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.TestChromosome;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -107,5 +115,52 @@ public abstract class AssertionGenerator {
 
 		return result;
 	}
+	
+	protected void filterFailingAssertions(TestCase test) {
+		
+		// Make sure we are not keeping assertions influenced by static state
+		// TODO: Need to handle statically initialized classes
+		ExecutionResult result = runTest(test);
+		Set<Assertion> invalidAssertions = new HashSet<Assertion>();
+		for(Assertion assertion : test.getAssertions()) {
+			for(OutputTrace<?> outputTrace : result.getTraces()) {
+				if(outputTrace.isDetectedBy(assertion)) {
+					invalidAssertions.add(assertion);
+					break;
+				}
+			}
+		}
+		logger.info("Removing {} nondeterministic assertions", invalidAssertions.size());
+		for(Assertion assertion : invalidAssertions) {
+			test.removeAssertion(assertion);
+		}
+	}
 
+	public void filterFailingAssertions(List<TestCase> testCases) {
+		List<TestCase> tests = new ArrayList<TestCase>();
+		tests.addAll(testCases);
+		for(TestCase test : tests) {
+			filterFailingAssertions(test);
+		}
+		
+		// Execute again in different order 
+		Randomness.shuffle(tests);
+		for(TestCase test : tests) {
+			filterFailingAssertions(test);
+		}		
+	}
+	
+	public void filterFailingAssertions(TestSuiteChromosome testSuite) {
+		List<TestChromosome> tests = testSuite.getTestChromosomes();
+		for(TestChromosome test : tests) {
+			filterFailingAssertions(test.getTestCase());
+		}
+		
+		// Execute again in different order 
+		Randomness.shuffle(tests);
+		for(TestChromosome test : tests) {
+			filterFailingAssertions(test.getTestCase());
+		}
+	}
+	
 }

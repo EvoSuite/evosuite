@@ -1587,7 +1587,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		Chromosome best = algorithm.getBestIndividual();
 		entry.fitness_history.add(best.getFitness());

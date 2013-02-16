@@ -22,7 +22,7 @@ package org.evosuite.ga;
  *
  * @author Gordon Fraser
  */
-public class OnePlusOneEA extends GeneticAlgorithm {
+public class OnePlusOneEA<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 	private static final long serialVersionUID = 5229089847512798127L;
 
@@ -33,16 +33,17 @@ public class OnePlusOneEA extends GeneticAlgorithm {
 	 *
 	 * @param factory a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public OnePlusOneEA(ChromosomeFactory<? extends Chromosome> factory) {
+	public OnePlusOneEA(ChromosomeFactory<T> factory) {
 		super(factory);
 	}
 
 	/** {@inheritDoc} */
+	@SuppressWarnings("unchecked")
 	@Override
 	protected void evolve() {
 
-		Chromosome parent = population.get(0);
-		Chromosome offspring = parent.clone();
+		T parent = population.get(0);
+		T offspring = (T)parent.clone();
 		offspring.updateAge(currentIteration);
 
 		notifyMutation(offspring);

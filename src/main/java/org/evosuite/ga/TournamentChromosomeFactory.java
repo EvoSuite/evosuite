@@ -38,7 +38,7 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 
 	private static final Logger logger = LoggerFactory.getLogger(TournamentChromosomeFactory.class);
 
-	private final FitnessFunction fitnessFunction;
+	private final FitnessFunction<T> fitnessFunction;
 
 	private final ChromosomeFactory<T> factory;
 
@@ -56,7 +56,7 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 	 * @param <T>
 	 *            a T object.
 	 */
-	public TournamentChromosomeFactory(FitnessFunction fitness,
+	public TournamentChromosomeFactory(FitnessFunction<T> fitness,
 	        ChromosomeFactory<T> factory) {
 		this.fitnessFunction = fitness;
 		this.factory = factory;
@@ -68,13 +68,12 @@ public class TournamentChromosomeFactory<T extends Chromosome> implements
 	 * This factory produces <i>tournamentSize</i> individuals, and returns the
 	 * best one
 	 */
-	@SuppressWarnings("unchecked")
 	@Override
 	public T getChromosome() {
-		Chromosome bestIndividual = null;
+		T bestIndividual = null;
 		logger.debug("Starting random generation");
 		for (int i = 0; i < tournamentSize; i++) {
-			Chromosome candidate = factory.getChromosome();
+			T candidate = factory.getChromosome();
 			fitnessFunction.getFitness(candidate);
 			if (bestIndividual == null) {
 				bestIndividual = candidate;

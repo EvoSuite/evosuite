@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Scanner;
 import java.util.Set;
@@ -132,8 +133,7 @@ public class InspectorManager {
 	private void determineInspectors(Class<?> clazz) {
 		List<Inspector> inspectorList = new ArrayList<Inspector>();
 		for (Method method : clazz.getMethods()) {
-			if (!Modifier.isProtected(method.getModifiers())
-			        && !Modifier.isPrivate(method.getModifiers())
+			if (Modifier.isPublic(method.getModifiers())
 			        && (method.getReturnType().isPrimitive()
 			                || method.getReturnType().equals(String.class) || method.getReturnType().isEnum())
 			        && !method.getReturnType().equals(void.class)
@@ -143,6 +143,13 @@ public class InspectorManager {
 			        && !method.getName().equals("pop")) { // FIXXME
 				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
 				        + method.getName());
+				
+				// TODO:
+				// Locale gives weird results
+				if(clazz.equals(Locale.class)) {
+					if(method.getName().startsWith("getDisplay"))
+						continue;
+				}
 				inspectorList.add(new Inspector(clazz, method));
 			}
 		}

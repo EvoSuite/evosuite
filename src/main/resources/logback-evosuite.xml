@@ -96,6 +96,10 @@
 		<appender-ref ref="STDERR_${evosuite.log.appender:-MASTER}" />
 	</logger>
 
+	<!-- for a specific logger, enables all the logging. this is useful when 
+		we are debugging a particular class -->
+
+	<logger name="${log.target:-NOTHING}" level="ALL" />
 
 	<!-- main root logger. Note: it is turned OFF to avoid SUT using it-->
 
@@ -103,9 +107,5 @@
 	</root>
 
 
-	<!-- for a specific logger, enables all the logging. this is useful when 
-		we are debugging a particular class -->
-
-	<logger name="${log.target:-NOTHING}" level="ALL" />
 
 </configuration>

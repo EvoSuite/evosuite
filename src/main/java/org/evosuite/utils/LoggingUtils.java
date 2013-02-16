@@ -260,7 +260,7 @@ public class LoggingUtils {
 		if (Properties.LOG_LEVEL.equals("WARN")) {
 			usingDefault = true;
 		}
-
+		
 		//No need to check/set for LOG_TARGET
 		/*
 		String logTarget = System.getProperty(LOG_TARGET);

@@ -36,7 +36,9 @@ import org.evosuite.utils.LoggingUtils;
  */
 public class MasterProcess {
 
-	private static final boolean logLevelSet = LoggingUtils.checkAndSetLogLevel();
+	static { 
+		LoggingUtils.checkAndSetLogLevel(); 
+	}
 	
 	/**
 	 * <p>main</p>

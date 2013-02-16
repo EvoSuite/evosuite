@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -111,7 +112,7 @@ public interface VariableReference extends Comparable<VariableReference>, Serial
 	/**
 	 * <p>getGenericClass</p>
 	 *
-	 * @return a {@link org.evosuite.testcase.GenericClass} object.
+	 * @return a {@link org.evosuite.utils.GenericClass} object.
 	 */
 	public GenericClass getGenericClass();
 

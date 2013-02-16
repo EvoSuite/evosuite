@@ -308,6 +308,11 @@ public class DelegatingTestCase implements TestCase {
 	public void removeAssertions() {
 		delegate.removeAssertions();
 	}
+	
+	@Override
+	public void removeAssertion(Assertion assertion) {
+		delegate.removeAssertion(assertion);
+	}
 
 	/** {@inheritDoc} */
 	@Override

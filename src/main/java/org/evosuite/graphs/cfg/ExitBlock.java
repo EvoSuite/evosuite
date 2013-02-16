@@ -21,6 +21,8 @@
 package org.evosuite.graphs.cfg;
 public class ExitBlock extends BasicBlock {
 
+	private static final long serialVersionUID = 970110985248711972L;
+
 	/**
 	 * <p>Constructor for ExitBlock.</p>
 	 *

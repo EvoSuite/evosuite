@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class RandomSearch extends GeneticAlgorithm {
+public class RandomSearch<T extends Chromosome> extends GeneticAlgorithm<T> {
 
 	private static final Logger logger = LoggerFactory.getLogger(RandomSearch.class);
 
@@ -42,7 +42,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	 * @param factory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public RandomSearch(ChromosomeFactory<? extends Chromosome> factory) {
+	public RandomSearch(ChromosomeFactory<T> factory) {
 		super(factory);
 	}
 
@@ -54,7 +54,7 @@ public class RandomSearch extends GeneticAlgorithm {
 	/** {@inheritDoc} */
 	@Override
 	protected void evolve() {
-		Chromosome newChromosome = chromosomeFactory.getChromosome();
+		T newChromosome = chromosomeFactory.getChromosome();
 		fitnessFunction.getFitness(newChromosome);
 		notifyEvaluation(newChromosome);
 		if (newChromosome.compareTo(getBestIndividual()) <= 0) {

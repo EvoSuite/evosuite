@@ -21,6 +21,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,6 +43,7 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.NumberFormatter;
 
 /**
@@ -359,6 +361,9 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().isEnum()) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + ");";
+			// Make sure the enum is imported in the JUnit test
+			getClassName(value.getClass());
+
 		} else if (source.isWrapperType()) {
 			if (source.getVariableClass().equals(Float.class)) {
 				testCode += "assertEquals(" + NumberFormatter.getNumberString(value)
@@ -410,6 +415,12 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().equals(String.class)) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
+		} else if (value.getClass().isEnum()) {
+			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
+			        + getVariableName(source) + "." + field.getName() + ");";
+			// Make sure the enum is imported in the JUnit test
+			getClassName(value.getClass());
+
 		} else
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + field.getName() + ");";
@@ -451,6 +462,8 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (value.getClass().isEnum()) {
 			testCode += "assertEquals(" + NumberFormatter.getNumberString(value) + ", "
 			        + getVariableName(source) + "." + inspector.getMethodCall() + "());";
+			// Make sure the enum is imported in the JUnit test
+			getClassName(value.getClass());
 
 		} else
 			testCode += "assertEquals(" + value + ", " + getVariableName(source) + "."
@@ -601,7 +614,7 @@ public class TestCodeVisitor extends TestVisitor {
 			testCode += "\n";
 	}
 
-	private String getEnumValue(EnumPrimitiveStatement<?> statement) {
+	protected String getEnumValue(EnumPrimitiveStatement<?> statement) {
 		Object value = statement.getValue();
 		Class<?> clazz = statement.getEnumClass();
 		String className = getClassName(clazz);
@@ -791,10 +804,10 @@ public class TestCodeVisitor extends TestVisitor {
 			if (i > 0) {
 				parameter_string += ", ";
 			}
-			Class<?> declaredParamType = method.getParameterTypes()[i];
-			Class<?> actualParamType = parameters.get(i).getVariableClass();
+			Type declaredParamType = method.getGenericParameterTypes()[i];
+			Type actualParamType = parameters.get(i).getType();
 			String name = getVariableName(parameters.get(i));
-			if (!declaredParamType.isAssignableFrom(actualParamType)
+			if(!GenericClass.isAssignable(declaredParamType, actualParamType)
 			        || name.equals("null")) {
 				//if((!method.getParameterTypes()[i].equals(Object.class)
 				//        && !method.getParameterTypes()[i].equals(Comparable.class)) ||
@@ -850,7 +863,8 @@ public class TestCodeVisitor extends TestVisitor {
 				// result += "\n  fail(\"Undeclared exception: "
 				// + ClassUtils.getShortClassName(ex) + "\");\n";
 				result += "  /*\n";
-				for (String msg : exception.getMessage().split("\n")) {
+				String exceptionMessage = exception.getMessage().replace("*/", "*_/");
+				for (String msg : exceptionMessage.split("\n")) {
 					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
 				}
 				result += "   */\n";
@@ -917,7 +931,15 @@ public class TestCodeVisitor extends TestVisitor {
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+getVariableName(retval)+ " = null;\n";
 		if (exception != null) {
-			result = getClassName(retval) + " " + getVariableName(retval) + " = null;\n";
+			String className = getClassName(retval);
+
+			// FIXXME: Workaround for primitives:
+			// But really, this can't really add any coverage, so we shouldn't be printing this in the first place!
+			if (retval.isPrimitive()) {
+				className = retval.getGenericClass().getUnboxedType().getSimpleName();
+			}
+
+			result = className + " " + getVariableName(retval) + " = null;\n";
 			result += "try {\n  ";
 		} else {
 			result += getClassName(retval) + " ";

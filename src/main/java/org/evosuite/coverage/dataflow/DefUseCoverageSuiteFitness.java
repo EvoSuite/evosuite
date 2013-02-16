@@ -100,7 +100,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double getFitnessAlternative(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
-		List<ExecutionResult> results = runTestSuite(suite);
+		runTestSuite(suite);
 
 		Map<Definition, Set<TestChromosome>> passedDefinitions = new HashMap<Definition, Set<TestChromosome>>();
 		Map<Definition, Integer> passedDefinitionCount = new HashMap<Definition, Integer>();

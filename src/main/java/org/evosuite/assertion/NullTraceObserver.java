@@ -44,6 +44,7 @@ public class NullTraceObserver extends AssertionTraceObserver<NullTraceEntry> {
 		try {
 			if (var == null
 			        || var.isPrimitive()
+			        || var.isWrapperType() // TODO: Wrapper types might make sense but there were failing assertions...
 			        || var.isEnum()
 			        || currentTest.getStatement(var.getStPosition()) instanceof PrimitiveStatement)
 				return;

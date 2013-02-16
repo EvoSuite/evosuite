@@ -21,6 +21,8 @@ package org.evosuite.testcase;
 
 import java.util.List;
 
+import org.evosuite.utils.GenericClass;
+
 /**
  * @author Gordon Fraser
  * 
@@ -59,7 +61,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param clazz
-	 *            a {@link org.evosuite.testcase.GenericClass} object.
+	 *            a {@link org.evosuite.utils.GenericClass} object.
 	 * @param lengths
 	 *            an array of int.
 	 */
@@ -78,7 +80,7 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * @param tc
 	 *            a {@link org.evosuite.testcase.TestCase} object.
 	 * @param clazz
-	 *            a {@link org.evosuite.testcase.GenericClass} object.
+	 *            a {@link org.evosuite.utils.GenericClass} object.
 	 * @param array_length
 	 *            a int.
 	 */

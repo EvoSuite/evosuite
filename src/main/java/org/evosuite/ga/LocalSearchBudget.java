@@ -49,7 +49,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	/** Constant <code>endTime=0L</code> */
 	protected static long endTime = 0L;
 
-	protected static GeneticAlgorithm ga = null;
+	protected static GeneticAlgorithm<?> ga = null;
 
 	/**
 	 * <p>
@@ -108,7 +108,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		ga = algorithm;
 	}
 
@@ -117,7 +117,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		attempts = 0;
 	}
 
@@ -126,7 +126,7 @@ public class LocalSearchBudget implements SearchListener, Serializable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		ga = null;
 	}
 
