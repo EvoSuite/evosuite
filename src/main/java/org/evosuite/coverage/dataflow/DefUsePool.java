@@ -25,7 +25,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -35,5 +35,5 @@ public interface PopulationLimit extends Serializable {
 	 * @param population a {@link java.util.List} object.
 	 * @return a boolean.
 	 */
-	public boolean isPopulationFull(List<Chromosome> population);
+	public boolean isPopulationFull(List<? extends Chromosome> population);
 }

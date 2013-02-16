@@ -62,7 +62,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		evaluations = 0;
 		evaluations_history.clear();
 		statements_history.clear();
@@ -83,7 +83,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		if (algorithm.getPopulation().isEmpty())
 			return;
 
@@ -98,7 +98,7 @@ public class FitnessLogger implements SearchListener {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		if (name == null)
 			return;
 

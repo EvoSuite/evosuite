@@ -41,7 +41,7 @@ public class StatementsPopulationLimit implements PopulationLimit {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean isPopulationFull(List<Chromosome> population) {
+	public boolean isPopulationFull(List<? extends Chromosome> population) {
 		int numStatements = 0;
 		for (Chromosome chromosome : population) {
 			TestSuiteChromosome suite = (TestSuiteChromosome) chromosome;

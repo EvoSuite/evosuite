@@ -34,6 +34,7 @@ import org.evosuite.assertion.Assertion;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testsuite.TestCallStatement;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;

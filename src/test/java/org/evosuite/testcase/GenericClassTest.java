@@ -8,6 +8,7 @@ import java.util.Stack;
 
 import junit.framework.Assert;
 
+import org.evosuite.utils.GenericClass;
 import org.junit.Test;
 
 import com.googlecode.gentyref.TypeToken;

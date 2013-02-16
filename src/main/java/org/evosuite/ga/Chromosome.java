@@ -209,7 +209,7 @@ public abstract class Chromosome implements Comparable<Chromosome>, Serializable
 	 * @param algorithm
 	 *            a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
-	public abstract boolean applyDSE(GeneticAlgorithm algorithm);
+	public abstract boolean applyDSE(GeneticAlgorithm<?> algorithm);
 
 	/**
 	 * Return length of individual

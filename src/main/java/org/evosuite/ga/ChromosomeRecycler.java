@@ -102,7 +102,7 @@ public final class ChromosomeRecycler {
 	 *            a {@link org.evosuite.ga.FitnessFunction} object.
 	 * @return a {@link java.util.Set} object.
 	 */
-	public Set<Chromosome> getRecycableChromosomes(FitnessFunction fitnessFunction) {
+	public Set<Chromosome> getRecycableChromosomes(FitnessFunction<?> fitnessFunction) {
 
 		Set<Chromosome> r = new HashSet<Chromosome>();
 		TestFitnessFunction testFitnessFunction = null;

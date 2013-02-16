@@ -30,6 +30,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;

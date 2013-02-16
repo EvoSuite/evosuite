@@ -174,10 +174,6 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 	private final TestFitnessFunction goalDefinitionFitness;
 	private final TestFitnessFunction goalUseFitness;
 
-	private final int difficulty = -1;
-	/** Constant <code>difficulty_time=0l</code> */
-	public static long difficulty_time = 0l; // experiment 
-
 	// coverage information
 	private Integer coveringObjectId = -1;
 	private ExecutionTrace coveringTrace;

@@ -43,6 +43,7 @@ import org.evosuite.assertion.PrimitiveFieldAssertion;
 import org.evosuite.assertion.SameAssertion;
 import org.evosuite.parameterize.InputVariable;
 import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.NumberFormatter;
 
 /**
@@ -613,7 +614,7 @@ public class TestCodeVisitor extends TestVisitor {
 			testCode += "\n";
 	}
 
-	private String getEnumValue(EnumPrimitiveStatement<?> statement) {
+	protected String getEnumValue(EnumPrimitiveStatement<?> statement) {
 		Object value = statement.getValue();
 		Class<?> clazz = statement.getEnumClass();
 		String className = getClassName(clazz);

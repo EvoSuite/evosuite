@@ -629,7 +629,7 @@ public class TestChromosome extends ExecutableChromosome {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean applyDSE(GeneticAlgorithm ga) {
+	public boolean applyDSE(GeneticAlgorithm<?> ga) {
 		// TODO Auto-generated method stub
 		return false;
 	}

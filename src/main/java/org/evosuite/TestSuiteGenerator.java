@@ -497,6 +497,7 @@ public class TestSuiteGenerator {
 		for (TestCase test : tests) {
 			asserter.addAssertions(test);
 		}
+		asserter.filterFailingAssertions(tests);
 	}
 
 	private void handleMutations(List<TestCase> tests) {
@@ -999,7 +1000,7 @@ public class TestSuiteGenerator {
 		RandomLengthTestFactory factory = new RandomLengthTestFactory();
 		TestSuiteChromosome suite = new TestSuiteChromosome();
 		// The GA is not actually used, except to provide the same statistics as during search
-		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
+		GeneticAlgorithm<TestSuiteChromosome> suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		// GeneticAlgorithm suiteGA = setup();
 		stopping_condition = getStoppingCondition();
 		statistics.searchStarted(suiteGA);
@@ -1036,6 +1037,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return a {@link java.util.List} object.
 	 */
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public List<TestCase> generateRandomTests() {
 		LoggingUtils.getEvoLogger().info("* Using random test generation");
 
@@ -1101,6 +1103,7 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return a {@link java.util.List} object.
 	 */
+	@SuppressWarnings("unchecked")
 	public List<TestCase> generateIndividualTests() {
 		// Set up search algorithm
 		LoggingUtils.getEvoLogger().info("* Setting up search algorithm for individual test generation");
@@ -1527,8 +1530,9 @@ public class TestSuiteGenerator {
 	 *            a {@link org.evosuite.ga.FitnessFunction} object.
 	 * @return a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
+	@SuppressWarnings("unchecked")
 	protected static ChromosomeFactory<? extends Chromosome> getChromosomeFactory(
-	        FitnessFunction<?> fitness) {
+	        FitnessFunction<? extends Chromosome> fitness) {
 
 		switch (Properties.STRATEGY) {
 		case EVOSUITE:
@@ -1542,7 +1546,7 @@ public class TestSuiteGenerator {
 				return new TestSuiteChromosomeFactory(new RandomLengthTestFactory());
 			case TOURNAMENT:
 				logger.info("Using tournament chromosome factory");
-				return new TournamentChromosomeFactory<TestSuiteChromosome>(fitness,
+				return new TournamentChromosomeFactory<TestSuiteChromosome>((FitnessFunction<TestSuiteChromosome>) fitness,
 				        new TestSuiteChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
@@ -1565,7 +1569,7 @@ public class TestSuiteGenerator {
 				return new RandomLengthTestFactory();
 			case TOURNAMENT:
 				logger.info("Using tournament chromosome factory");
-				return new TournamentChromosomeFactory<TestChromosome>(fitness,
+				return new TournamentChromosomeFactory<TestChromosome>((FitnessFunction<TestChromosome>) fitness,
 				        new RandomLengthTestFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
@@ -1693,16 +1697,16 @@ public class TestSuiteGenerator {
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
-	public static GeneticAlgorithm getGeneticAlgorithm(
-	        ChromosomeFactory<? extends Chromosome> factory) {
+	public static <T extends Chromosome> GeneticAlgorithm<T> getGeneticAlgorithm(
+	        ChromosomeFactory<T> factory) {
 		switch (Properties.ALGORITHM) {
 		case ONEPLUSONEEA:
 			logger.info("Chosen search algorithm: (1+1)EA");
-			return new OnePlusOneEA(factory);
+			return new OnePlusOneEA<T>(factory);
 		case STEADYSTATEGA:
 			logger.info("Chosen search algorithm: SteadyStateGA");
 			{
-				SteadyStateGA ga = new SteadyStateGA(factory);
+				SteadyStateGA<T> ga = new SteadyStateGA<T>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					//user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -1718,7 +1722,7 @@ public class TestSuiteGenerator {
 		case MUPLUSLAMBDAGA:
 			logger.info("Chosen search algorithm: MuPlusLambdaGA");
 			{
-				MuPlusLambdaGA ga = new MuPlusLambdaGA(factory);
+				MuPlusLambdaGA<T> ga = new MuPlusLambdaGA<T>(factory);
 				if (Properties.REPLACEMENT_FUNCTION == TheReplacementFunction.FITNESSREPLACEMENT) {
 					//user has explicitly asked for this replacement function
 					ga.setReplacementFunction(new FitnessReplacementFunction());
@@ -1733,10 +1737,10 @@ public class TestSuiteGenerator {
 			}
 		case RANDOM:
 			logger.info("Chosen search algorithm: Random");
-			return new RandomSearch(factory);
+			return new RandomSearch<T>(factory);
 		default:
 			logger.info("Chosen search algorithm: StandardGA");
-			return new StandardGA(factory);
+			return new StandardGA<T>(factory);
 		}
 
 	}
@@ -1746,10 +1750,11 @@ public class TestSuiteGenerator {
 	 * 
 	 * @return a {@link org.evosuite.ga.GeneticAlgorithm} object.
 	 */
-	public GeneticAlgorithm setup() {
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public GeneticAlgorithm<?> setup() {
 
 		ChromosomeFactory<? extends Chromosome> factory = getDefaultChromosomeFactory();
-		GeneticAlgorithm ga = getGeneticAlgorithm(factory);
+		GeneticAlgorithm<?> ga = getGeneticAlgorithm(factory);
 
 		if (Properties.NEW_STATISTICS)
 			ga.addListener(new org.evosuite.statistics.StatisticsListener());
@@ -1757,7 +1762,7 @@ public class TestSuiteGenerator {
 		// How to select candidates for reproduction
 		SelectionFunction selection_function = getSelectionFunction();
 		selection_function.setMaximize(false);
-		ga.setSelectionFunction(selection_function);
+		ga.setSelectionFunction( selection_function);
 
 		// When to stop the search
 		stopping_condition = getStoppingCondition();
