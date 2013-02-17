@@ -31,7 +31,6 @@ import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.utils.ExternalProcessUtilities;
 import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceList;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;

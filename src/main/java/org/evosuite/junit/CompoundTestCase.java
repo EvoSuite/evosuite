@@ -20,7 +20,6 @@ package org.evosuite.junit;
 import java.io.PrintStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;

@@ -24,7 +24,6 @@ import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.thoughtworks.xstream.core.util.ThreadSafePropertyEditor;
 
 /**
  * Class which controls enabling and disabling sandbox.

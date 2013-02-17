@@ -137,7 +137,6 @@ import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.CoverageCrossOver;
-import org.evosuite.testsuite.CoverageStatistics;
 import org.evosuite.testsuite.FixedSizeTestSuiteChromosomeFactory;
 import org.evosuite.testsuite.MinimizeAverageLengthSecondaryObjective;
 import org.evosuite.testsuite.MinimizeExceptionsSecondaryObjective;
@@ -179,9 +178,8 @@ public class TestSuiteGenerator {
 
 	/** Constant <code>stopping_condition</code> */
 	public static StoppingCondition stopping_condition;
-	/** Constant <code>analyzing=false</code> */
-	public static boolean analyzing = false;
 
+	
 	private final ProgressMonitor progressMonitor = new ProgressMonitor();
 
 	/*
@@ -231,10 +229,7 @@ public class TestSuiteGenerator {
 		if (Properties.getTargetClass() == null)
 			return "";
 
-		if (Properties.CRITERION == Criterion.ANALYZE)
-			analyzeCriteria();
-		else
-			generateTests();
+		generateTests();
 
 		TestCaseExecutor.pullDown();
 		/*
@@ -267,23 +262,6 @@ public class TestSuiteGenerator {
 		return ga;
 	}
 
-	private void analyzeCriteria() {
-		analyzing = true;
-		for (Criterion criterion : CoverageStatistics.supportedCriteria) {
-			Properties.CRITERION = criterion;
-			LoggingUtils.getEvoLogger().info("* Analyzing Criterion: "
-			                                         + Properties.CRITERION);
-			generateTests();
-
-			// TODO reset method?
-			TestCaseExecutor.timeExecuted = 0l;
-			AbstractFitnessFactory.goalComputationTime = 0l;
-			GlobalTimeStoppingCondition.forceReset();
-		}
-		Properties.CRITERION = Criterion.ANALYZE;
-		CoverageStatistics.computeCombinedCoverages();
-		CoverageStatistics.writeCSV();
-	}
 
 	private List<TestCase> generateTests() {
 		List<TestCase> tests;
@@ -345,9 +323,6 @@ public class TestSuiteGenerator {
 
 		writeObjectPool(tests);
 
-		if (analyzing)
-			LoggingUtils.getEvoLogger().info("");
-
 		/*
 		PUTGeneralizer generalizer = new PUTGeneralizer();
 		for (TestCase test : tests) {
@@ -378,8 +353,6 @@ public class TestSuiteGenerator {
 				suite.insertTests(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
-			if (analyzing)
-				testDir = testDir + "/" + Properties.CRITERION;
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name, testDir);
 			// suite.writeTestSuiteMainFile(testDir);
@@ -404,8 +377,6 @@ public class TestSuiteGenerator {
 			suite.insertTests(tests);
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
-			if (analyzing)
-				testDir = testDir + "/" + Properties.CRITERION;
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
 			suite.writeTestSuite("Test" + name + tag, testDir);
 			// suite.writeTestSuiteMainFile(testDir);
@@ -760,12 +731,9 @@ public class TestSuiteGenerator {
 			CoverageAnalysis.analyzeCriteria(best, Properties.ANALYSIS_CRITERIA);
 		}
 
-		if (analyzing)
-			CoverageStatistics.analyzeCoverage(best);
-		else {
-			LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
+		LoggingUtils.getEvoLogger().info("* Resulting test suite's coverage: "
 			                                         + NumberFormat.getPercentInstance().format(best.getCoverage()));
-		}
+		
 
 		ga.printBudget();
 		if (Properties.CRITERION == Criterion.DEFUSE
@@ -817,9 +785,6 @@ public class TestSuiteGenerator {
 			break;
 		case STATEMENT:
 			LoggingUtils.getEvoLogger().info("* Test Criterion: Statement Coverage");
-			break;
-		case ANALYZE:
-			LoggingUtils.getEvoLogger().info("* Test Criterion: Analyzing");
 			break;
 		case ALLDEFS:
 			LoggingUtils.getEvoLogger().info("* Test Criterion: All Definitions");
@@ -877,8 +842,6 @@ public class TestSuiteGenerator {
 			return new AllDefsCoverageSuiteFitness();
 		case EXCEPTION:
 			return new ExceptionCoverageSuiteFitness();
-		case LOOP_INV_CANDIDATE_FALSE_BRANCH:
-			return new BranchCoverageSuiteFitness();
 		case REGRESSION:
 			return new RegressionSuiteFitness();
 		default:
@@ -1110,15 +1073,10 @@ public class TestSuiteGenerator {
 		ExecutionTracer.enableTraceCalls();
 		if (ga == null)
 			ga = setup();
-		if (analyzing)
-			ga.resetStoppingConditions();
 
 		GeneticAlgorithm suiteGA = getGeneticAlgorithm(new TestSuiteChromosomeFactory());
 		FitnessFunction<AbstractTestSuiteChromosome<? extends ExecutableChromosome>> suiteFitness = getFitnessFunction();
 		suiteGA.setFitnessFunction(suiteFitness);
-
-		if (analyzing)
-			suiteGA.resetStoppingConditions();
 
 		long start_time = System.currentTimeMillis() / 1000;
 		FitnessLogger fitnessLogger = new FitnessLogger();
@@ -1300,21 +1258,19 @@ public class TestSuiteGenerator {
 		suiteGA.addStoppingCondition(global_time);
 		suiteGA.printBudget();
 
-		if (!analyzing) {
-			int c = 0;
-			int uncovered_goals = total_goals - covered_goals;
-			if (uncovered_goals < 10)
-				for (TestFitnessFunction goal : goals) {
-					if (!covered.contains(c)) {
-						LoggingUtils.getEvoLogger().info("! Unable to cover goal " + c
-						                                         + " " + goal.toString());
-					}
-					c++;
+		int c = 0;
+		int uncovered_goals = total_goals - covered_goals;
+		if (uncovered_goals < 10)
+			for (TestFitnessFunction goal : goals) {
+				if (!covered.contains(c)) {
+					LoggingUtils.getEvoLogger().info("! Unable to cover goal " + c
+							+ " " + goal.toString());
 				}
-			else
-				LoggingUtils.getEvoLogger().info("! #Goals that were not covered: "
-				                                         + uncovered_goals);
-		}
+				c++;
+			}
+		else
+			LoggingUtils.getEvoLogger().info("! #Goals that were not covered: "
+					+ uncovered_goals);
 
 		if (Properties.CRITERION == Criterion.LCSAJ && Properties.WRITE_CFG) {
 			int d = 0;
@@ -1345,14 +1301,10 @@ public class TestSuiteGenerator {
 			CoverageAnalysis.analyzeCriteria(suite, Properties.ANALYSIS_CRITERIA);
 		}
 
-		if (!analyzing) {
-			LoggingUtils.getEvoLogger().info("* Covered " + covered_goals + "/"
-			                                         + goals.size() + " goals");
-			logger.info("Resulting test suite: " + suite.size() + " tests, length "
-			        + suite.totalLengthOfTestCases());
-		} else {
-			CoverageStatistics.analyzeCoverage(suite);
-		}
+		LoggingUtils.getEvoLogger().info("* Covered " + covered_goals + "/"
+				+ goals.size() + " goals");
+		logger.info("Resulting test suite: " + suite.size() + " tests, length "
+				+ suite.totalLengthOfTestCases());
 
 		if (Properties.INLINE) {
 			ConstantInliner inliner = new ConstantInliner();

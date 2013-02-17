@@ -29,7 +29,6 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
-import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
@@ -59,7 +58,7 @@ public class TestSuiteMinimizer {
 	/** Logger */
 	private final static Logger logger = LoggerFactory.getLogger(TestSuiteMinimizer.class);
 
-	private final TestFitnessFactory testFitnessFactory;
+	private final TestFitnessFactory<?> testFitnessFactory;
 
 	/** Assume the search has not started until startTime != 0 */
 	protected static long startTime = 0L;
@@ -72,7 +71,7 @@ public class TestSuiteMinimizer {
 	 * @param factory
 	 *            a {@link org.evosuite.coverage.TestFitnessFactory} object.
 	 */
-	public TestSuiteMinimizer(TestFitnessFactory factory) {
+	public TestSuiteMinimizer(TestFitnessFactory<?> factory) {
 		this.testFitnessFactory = factory;
 	}
 
