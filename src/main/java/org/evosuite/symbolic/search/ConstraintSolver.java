@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
  */
 public final class ConstraintSolver implements Solver {
 
+	private static HashSet<Collection<Constraint<?>>> unsat_constraints = new HashSet<Collection<Constraint<?>>>();
+
 	static Logger log = LoggerFactory.getLogger(ConstraintSolver.class);
 
 	/**
@@ -33,6 +35,11 @@ public final class ConstraintSolver implements Solver {
 	 */
 	@Override
 	public Map<String, Object> solve(Collection<Constraint<?>> constraints) {
+		
+		if (unsat_constraints.contains(constraints)) {
+			return null;
+		}
+		
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
 			log.info("Initial distance already is 0.0, skipping search");
@@ -41,13 +48,14 @@ public final class ConstraintSolver implements Solver {
 
 		Set<Variable<?>> variables = getVariables(constraints);
 		Map<String, Object> initialValues = getConcreteValues(variables);
-		for(int attempt = 0; attempt <= Properties.DSE_VARIABLE_RESETS; attempt++) {
+		for (int attempt = 0; attempt <= Properties.DSE_VARIABLE_RESETS; attempt++) {
 			for (Variable<?> v : variables) {
 				log.debug("Variable: " + v + ", " + variables);
 
 				if (v instanceof IntegerVariable) {
 					IntegerVariable integerVariable = (IntegerVariable) v;
-					IntegerAVM avm = new IntegerAVM(integerVariable, constraints);
+					IntegerAVM avm = new IntegerAVM(integerVariable,
+							constraints);
 					avm.applyAVM();
 				} else if (v instanceof RealVariable) {
 					RealVariable realVariable = (RealVariable) v;
@@ -76,7 +84,7 @@ public final class ConstraintSolver implements Solver {
 			}
 		}
 
-		//distance = DistanceEstimator.getDistance(constraints);
+		// distance = DistanceEstimator.getDistance(constraints);
 		if (distance <= 0) {
 			log.debug("Distance is " + distance + ", found solution");
 			Map<String, Object> new_model = getConcreteValues(variables);
@@ -85,6 +93,7 @@ public final class ConstraintSolver implements Solver {
 		} else {
 			restoreConcreteValues(variables, initialValues);
 			log.debug("Returning null, search was not successful");
+			unsat_constraints.add(constraints);
 			return null;
 		}
 
@@ -96,20 +105,23 @@ public final class ConstraintSolver implements Solver {
 	}
 
 	private void randomizeValues(Set<Variable<?>> variables) {
-		for(Variable<?> v : variables) {
-			if(v instanceof StringVariable) {
-				StringVariable sv = (StringVariable)v;
-				sv.setConcreteValue(Randomness.nextString(Properties.STRING_LENGTH));
-			} else if(v instanceof IntegerVariable) {
-				IntegerVariable iv = (IntegerVariable)v;
-				iv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
-			} else if(v instanceof RealVariable) {
-				RealVariable rv = (RealVariable)v;
-				rv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);				
+		for (Variable<?> v : variables) {
+			if (v instanceof StringVariable) {
+				StringVariable sv = (StringVariable) v;
+				sv.setConcreteValue(Randomness
+						.nextString(Properties.STRING_LENGTH));
+			} else if (v instanceof IntegerVariable) {
+				IntegerVariable iv = (IntegerVariable) v;
+				iv.setConcreteValue((long) Randomness
+						.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
+			} else if (v instanceof RealVariable) {
+				RealVariable rv = (RealVariable) v;
+				rv.setConcreteValue((long) Randomness
+						.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
 			}
 		}
 	}
-	
+
 	/**
 	 * Restore all concrete values of the variables using the concrete_values
 	 * mapping.
