@@ -634,6 +634,9 @@ public class Properties {
 	@Parameter(key = "assertion_strategy", group = "Output", description = "Which assertions to generate")
 	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.MUTATION;
 
+	@Parameter(key = "filter_assertions", group = "Output", description = "Filter flaky assertions")
+	public static boolean FILTER_ASSERTIONS = true; 
+	
 	@Parameter(key = "max_mutants_per_test", group = "Output", description = "How many mutants to use when trying to find assertions for a test")
 	public static int MAX_MUTANTS_PER_TEST = 100;
 

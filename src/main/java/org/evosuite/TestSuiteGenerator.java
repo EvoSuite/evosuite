@@ -468,7 +468,9 @@ public class TestSuiteGenerator {
 		for (TestCase test : tests) {
 			asserter.addAssertions(test);
 		}
-		asserter.filterFailingAssertions(tests);
+		
+		if(Properties.FILTER_ASSERTIONS)
+			asserter.filterFailingAssertions(tests);
 	}
 
 	private void handleMutations(List<TestCase> tests) {
