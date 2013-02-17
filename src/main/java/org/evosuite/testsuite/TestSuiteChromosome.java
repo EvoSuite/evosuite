@@ -201,9 +201,11 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 				}
 			}
 			if(hasRelevantTests) {
-				TestSuiteDSE dse = new TestSuiteDSE(
-						(TestSuiteFitnessFunction) objective.getFitnessFunction());
-				dse.applyDSE(this);
+				if(Randomness.nextDouble() < Properties.DSE_ADAPTIVE_PROBABILITY) {
+					TestSuiteDSE dse = new TestSuiteDSE(
+							(TestSuiteFitnessFunction) objective.getFitnessFunction());
+					dse.applyDSE(this);
+				}
 			}
 			return;
 		}
