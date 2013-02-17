@@ -76,6 +76,8 @@ public class DSEBudget implements SearchListener, Serializable {
 			return attempts >= Properties.DSE_BUDGET;
 		else if (Properties.DSE_BUDGET_TYPE == DSEBudgetType.TIME)
 			return System.currentTimeMillis() > endTime;
+		else if (Properties.DSE_BUDGET_TYPE == DSEBudgetType.BEST_TIME)
+			return attempts >= 1 || System.currentTimeMillis() > endTime;
 		else
 			throw new RuntimeException("Unknown budget type: "
 			        + Properties.DSE_BUDGET_TYPE);

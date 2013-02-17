@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.DSEBudgetType;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.GeneticAlgorithm;
@@ -190,6 +191,23 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 		logger.info("Fitness has changed, applying local search with fitness "
 		        + getFitness());
 
+		// Apply standard DSE on entire suite?
+		if(Properties.ADAPTIVE_LOCAL_SEARCH_DSE) {
+			boolean hasRelevantTests = false;
+			for(TestChromosome test : tests) {
+				if(test.hasRelevantMutations()) {
+					hasRelevantTests = true;
+					break;
+				}
+			}
+			if(hasRelevantTests) {
+				TestSuiteDSE dse = new TestSuiteDSE(
+						(TestSuiteFitnessFunction) objective.getFitnessFunction());
+				dse.applyDSE(this);
+			}
+			return;
+		}
+		
 		List<TestChromosome> candidates = new ArrayList<TestChromosome>();
 		for(TestChromosome test : tests) {
 			logger.info("Checking test with history entries: "+test.getMutationHistory().size()+": "+test.getMutationHistory());
