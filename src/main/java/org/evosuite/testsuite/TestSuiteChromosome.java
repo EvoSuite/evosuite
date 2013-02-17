@@ -30,6 +30,7 @@ import org.evosuite.Properties;
 import org.evosuite.Properties.DSEBudgetType;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.ChromosomeFactory;
+import org.evosuite.ga.DSEBudget;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.LocalSearchBudget;
 import org.evosuite.ga.LocalSearchObjective;
@@ -202,9 +203,19 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			}
 			if(hasRelevantTests) {
 				if(Randomness.nextDouble() < Properties.DSE_ADAPTIVE_PROBABILITY) {
+					DSEBudget.DSEStarted();
 					TestSuiteDSE dse = new TestSuiteDSE(
 							(TestSuiteFitnessFunction) objective.getFitnessFunction());
-					dse.applyDSE(this);
+					boolean success = dse.applyDSE(this);
+					
+					if(success) {
+						Properties.DSE_ADAPTIVE_PROBABILITY *= Properties.DSE_ADAPTIVE_RATE;
+						Properties.DSE_ADAPTIVE_PROBABILITY = Math.min(Properties.DSE_ADAPTIVE_PROBABILITY, 1.0);
+					} else {
+						Properties.DSE_ADAPTIVE_PROBABILITY /= Properties.DSE_ADAPTIVE_RATE;
+						Properties.DSE_ADAPTIVE_PROBABILITY = Math.max(Properties.DSE_ADAPTIVE_PROBABILITY, 0.0);
+					}
+
 				}
 			}
 			return;
