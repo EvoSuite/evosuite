@@ -29,6 +29,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.TransformerUtil;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -218,7 +219,12 @@ public class BytecodeInstrumentation {
 
 		TransformationStatistics.reset();
 
-		ClassWriter writer = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+		int asmFlags = ClassWriter.COMPUTE_MAXS;
+		//if(System.getProperty("java.version").startsWith("1.7")) {
+		//	LoggingUtils.getEvoLogger().info("Using COMPUTE_FRAMES because Java 7 was detected");
+		//	asmFlags |= ClassWriter.COMPUTE_FRAMES;
+		//}
+		ClassWriter writer = new ClassWriter(asmFlags);
 		        //| ClassWriter.COMPUTE_FRAMES);
 
 		ClassVisitor cv = writer;

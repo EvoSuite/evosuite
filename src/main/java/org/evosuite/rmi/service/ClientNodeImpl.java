@@ -2,7 +2,6 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -90,7 +89,7 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 					TestSuiteGenerator generator = new TestSuiteGenerator();
 					generator.generateTestSuite();
 
-					GeneticAlgorithm ga = generator.getEmployedGeneticAlgorithm();
+					GeneticAlgorithm<?> ga = generator.getEmployedGeneticAlgorithm();
 
 					if (Properties.CLIENT_ON_THREAD) {
 						/*
