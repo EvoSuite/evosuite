@@ -282,7 +282,7 @@ public class Properties {
 	public static int DSE_CONSTRAINT_LENGTH = 100000;
 
 	public enum DSEBudgetType {
-		INDIVIDUALS, TIME
+		INDIVIDUALS, TIME, BEST_TIME
 	}
 
 	/** Constant <code>DSE_BUDGET_TYPE</code> */
@@ -308,6 +308,9 @@ public class Properties {
 
 	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
 	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.OFF;
+	
+	@Parameter(key = "adaptive_local_search_dse", group = "Search Algorithm", description = "Use DSE on entire test suite in local search")
+	public static boolean ADAPTIVE_LOCAL_SEARCH_DSE = false;
 
 	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;
