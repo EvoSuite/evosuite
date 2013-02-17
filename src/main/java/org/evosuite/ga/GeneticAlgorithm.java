@@ -154,6 +154,10 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 */
 	protected boolean shouldApplyDSE() {
 		
+		// If we use DSE in adaptive local search then this is not the place to apply it
+		if(Properties.ADAPTIVE_LOCAL_SEARCH_DSE)
+			return false;
+		
 		if(Properties.DSE_ADAPTIVE_RATE > 0.0) {
 			return Randomness.nextDouble() < Properties.DSE_ADAPTIVE_PROBABILITY;
 		} else if (Properties.DSE_RATE > 0) {
