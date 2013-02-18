@@ -34,8 +34,9 @@ import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
-		implements IntegerValue, UnaryExpression<Double> {
+public final class RealUnaryToIntegerExpression extends
+		AbstractExpression<Long> implements IntegerValue,
+		UnaryExpression<Double> {
 
 	private static final long serialVersionUID = 9086637495150131445L;
 
@@ -58,7 +59,8 @@ public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
 	 * @param con
 	 *            a {@link java.lang.Double} object.
 	 */
-	public RealUnaryToIntegerExpression(Expression<Double> e, Operator op2, Long con) {
+	public RealUnaryToIntegerExpression(Expression<Double> e, Operator op2,
+			Long con) {
 		super(con, 1 + e.getSize(), e.containsSymbolicVariable());
 		this.expr = e;
 		this.op = op2;
@@ -121,6 +123,11 @@ public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.addAll(this.expr.getVariables());
 		return variables;
+	}
+
+	@Override
+	public int hashCode() {
+		return this.op.hashCode() + this.getSize() + this.expr.hashCode();
 	}
 
 }
