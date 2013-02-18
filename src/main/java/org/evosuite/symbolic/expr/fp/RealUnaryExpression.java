@@ -163,7 +163,7 @@ public final class RealUnaryExpression extends AbstractExpression<Double>
 			return null;
 		}
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -171,5 +171,9 @@ public final class RealUnaryExpression extends AbstractExpression<Double>
 		return variables;
 	}
 
+	@Override
+	public int hashCode() {
+		return this.op.hashCode() + this.getSize() + this.expr.hashCode();
+	}
 
 }
