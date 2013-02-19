@@ -2,6 +2,7 @@ package org.evosuite.symbolic.search;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -30,12 +31,13 @@ public class TestConstraintSolver2 {
 
 		StringConstant const0 = new StringConstant(EXPECTED_STRING);
 
-		StringBinaryComparison strEqual = new StringBinaryComparison(var0, Operator.EQUALS, const0,
-		        (long) 0);
+		StringBinaryComparison strEqual = new StringBinaryComparison(var0,
+				Operator.EQUALS, const0, (long) 0);
 
 		IntegerConstant const_zero = new IntegerConstant(0);
 
-		StringConstraint constr1 = new StringConstraint(strEqual, Comparator.NE, const_zero);
+		StringConstraint constr1 = new StringConstraint(strEqual,
+				Comparator.NE, const_zero);
 
 		return Arrays.<Constraint<?>> asList(constr1);
 	}
@@ -56,17 +58,22 @@ public class TestConstraintSolver2 {
 		System.out.println("Initial: " + INIT_STRING);
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.solve(constraints);
+		Map<String, Object> model;
+		try {
+			model = seeker.solve(constraints);
+			assertNotNull(model);
 
-		assertNotNull(model);
-		
-		Object var0 = model.get("var0");
-		System.out.println("Expected: " + EXPECTED_STRING);
-		System.out.println("Found: " + var0);
+			Object var0 = model.get("var0");
+			System.out.println("Expected: " + EXPECTED_STRING);
+			System.out.println("Found: " + var0);
 
-		assertEquals(EXPECTED_STRING, var0);
+			assertEquals(EXPECTED_STRING, var0);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
+
 	}
-	
+
 	public void test2() {
 		String l1 = "hello";
 		String l2 = "world";
@@ -74,5 +81,5 @@ public class TestConstraintSolver2 {
 			System.out.println("xx");
 		}
 	}
-	
+
 }

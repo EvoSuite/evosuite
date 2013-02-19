@@ -1,6 +1,7 @@
 package org.evosuite.symbolic.search;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -70,13 +71,18 @@ public class TestConstraintSolver1 {
 		}
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.solve(constraints);
-		System.out.println(model);
+		Map<String, Object> model;
+		try {
+			model = seeker.solve(constraints);
+			System.out.println(model);
 
-		Object var0 = model.get("var0");
-		System.out.println("Expected: " + EXPECTED_STRING);
-		System.out.println("Found: " + var0);
+			Object var0 = model.get("var0");
+			System.out.println("Expected: " + EXPECTED_STRING);
+			System.out.println("Found: " + var0);
 
-		assertEquals(EXPECTED_STRING, var0);
+			assertEquals(EXPECTED_STRING, var0);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 }
