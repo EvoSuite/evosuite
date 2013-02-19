@@ -42,18 +42,16 @@ import org.slf4j.LoggerFactory;
  * @author krusev
  */
 public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
-		StringComparison {
+        StringComparison {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 2154812241163764621L;
-	protected static Logger log = LoggerFactory
-			.getLogger(HasMoreTokensExpr.class);
+	protected static Logger log = LoggerFactory.getLogger(HasMoreTokensExpr.class);
 
 	public HasMoreTokensExpr(TokenizerExpr tokenizerExpr, Long con) {
-		super(con, 1 + tokenizerExpr.getSize(), tokenizerExpr
-				.containsSymbolicVariable());
+		super(con, 1 + tokenizerExpr.getSize(), tokenizerExpr.containsSymbolicVariable());
 		this.tokenizerExpr = tokenizerExpr;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
@@ -101,6 +99,11 @@ public final class HasMoreTokensExpr extends AbstractExpression<Long> implements
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.addAll(this.tokenizerExpr.getVariables());
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		return this.tokenizerExpr.getConstants();
 	}
 
 	public TokenizerExpr getTokenizerExpr() {

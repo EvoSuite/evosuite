@@ -26,9 +26,8 @@ import java.util.Set;
 import org.evosuite.symbolic.expr.AbstractExpression;
 import org.evosuite.symbolic.expr.Variable;
 
-
 public final class IntegerConstant extends AbstractExpression<Long> implements
-		IntegerValue {
+        IntegerValue {
 
 	private static final long serialVersionUID = 3770747666367222441L;
 
@@ -70,12 +69,11 @@ public final class IntegerConstant extends AbstractExpression<Long> implements
 	public int hashCode() {
 		return getConcreteValue().hashCode();
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		return variables;
 	}
-
 
 }

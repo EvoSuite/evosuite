@@ -34,13 +34,12 @@ import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class IntegerUnaryExpression extends AbstractExpression<Long>
-		implements IntegerValue, UnaryExpression<Long> {
+public final class IntegerUnaryExpression extends AbstractExpression<Long> implements
+        IntegerValue, UnaryExpression<Long> {
 
 	private static final long serialVersionUID = 1966395070897274841L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(IntegerUnaryExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(IntegerUnaryExpression.class);
 
 	private final Operator op;
 	private final Expression<Long> expr;
@@ -130,6 +129,11 @@ public final class IntegerUnaryExpression extends AbstractExpression<Long>
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.addAll(this.expr.getVariables());
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		return this.expr.getConstants();
 	}
 
 }

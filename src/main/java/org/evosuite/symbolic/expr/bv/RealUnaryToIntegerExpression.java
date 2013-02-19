@@ -34,14 +34,12 @@ import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RealUnaryToIntegerExpression extends
-		AbstractExpression<Long> implements IntegerValue,
-		UnaryExpression<Double> {
+public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
+        implements IntegerValue, UnaryExpression<Double> {
 
 	private static final long serialVersionUID = 9086637495150131445L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(RealUnaryToIntegerExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(RealUnaryToIntegerExpression.class);
 
 	private final Operator op;
 
@@ -59,8 +57,7 @@ public final class RealUnaryToIntegerExpression extends
 	 * @param con
 	 *            a {@link java.lang.Double} object.
 	 */
-	public RealUnaryToIntegerExpression(Expression<Double> e, Operator op2,
-			Long con) {
+	public RealUnaryToIntegerExpression(Expression<Double> e, Operator op2, Long con) {
 		super(con, 1 + e.getSize(), e.containsSymbolicVariable());
 		this.expr = e;
 		this.op = op2;
@@ -95,7 +92,7 @@ public final class RealUnaryToIntegerExpression extends
 		if (obj instanceof RealUnaryToIntegerExpression) {
 			RealUnaryToIntegerExpression v = (RealUnaryToIntegerExpression) obj;
 			return this.op.equals(v.op) && this.getSize() == v.getSize()
-					&& this.expr.equals(v.expr);
+			        && this.expr.equals(v.expr);
 		}
 		return false;
 	}
@@ -103,7 +100,7 @@ public final class RealUnaryToIntegerExpression extends
 	/** {@inheritDoc} */
 	@Override
 	public Long execute() {
-		double leftVal = (Double) expr.execute();
+		double leftVal = expr.execute();
 
 		switch (op) {
 
@@ -123,6 +120,11 @@ public final class RealUnaryToIntegerExpression extends
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.addAll(this.expr.getVariables());
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		return expr.getConstants();
 	}
 
 	@Override

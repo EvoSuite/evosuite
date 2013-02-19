@@ -33,13 +33,12 @@ import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class IntegerToStringCast extends AbstractExpression<String>
-		implements StringValue, Cast<Long> {
+public final class IntegerToStringCast extends AbstractExpression<String> implements
+        StringValue, Cast<Long> {
 
 	private static final long serialVersionUID = 2414222998301630838L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(IntegerToStringCast.class);
+	protected static Logger log = LoggerFactory.getLogger(IntegerToStringCast.class);
 
 	private final Expression<Long> expr;
 
@@ -90,7 +89,7 @@ public final class IntegerToStringCast extends AbstractExpression<String>
 	public Expression<Long> getArgument() {
 		return expr;
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -98,4 +97,8 @@ public final class IntegerToStringCast extends AbstractExpression<String>
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		return this.expr.getConstants();
+	}
 }

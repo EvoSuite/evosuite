@@ -22,6 +22,7 @@ package org.evosuite.symbolic.expr.str;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -42,13 +43,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringBinaryExpression extends AbstractExpression<String>
-		implements StringValue, BinaryExpression<String> {
+public final class StringBinaryExpression extends AbstractExpression<String> implements
+        StringValue, BinaryExpression<String> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringBinaryExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(StringBinaryExpression.class);
 
 	private final Expression<String> left;
 	private final Operator op;
@@ -69,10 +69,9 @@ public final class StringBinaryExpression extends AbstractExpression<String>
 	 *            a {@link java.lang.String} object.
 	 */
 	public StringBinaryExpression(Expression<String> left2, Operator op2,
-			Expression<?> right2, String con) {
-		super(con, 1 + left2.getSize() + right2.getSize(), left2
-				.containsSymbolicVariable()
-				|| right2.containsSymbolicVariable());
+	        Expression<?> right2, String con) {
+		super(con, 1 + left2.getSize() + right2.getSize(),
+		        left2.containsSymbolicVariable() || right2.containsSymbolicVariable());
 		this.left = left2;
 		this.op = op2;
 		this.right = right2;
@@ -119,7 +118,7 @@ public final class StringBinaryExpression extends AbstractExpression<String>
 		if (obj instanceof StringBinaryExpression) {
 			StringBinaryExpression other = (StringBinaryExpression) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			        && this.right.equals(other.right);
 		}
 
 		return false;
@@ -127,8 +126,7 @@ public final class StringBinaryExpression extends AbstractExpression<String>
 
 	@Override
 	public int hashCode() {
-		return this.left.hashCode() + this.op.hashCode()
-				+ this.right.hashCode();
+		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
 	}
 
 	/** {@inheritDoc} */
@@ -169,7 +167,7 @@ public final class StringBinaryExpression extends AbstractExpression<String>
 
 		default:
 			log.warn("StringBinaryExpression: unimplemented operator! Operator"
-					+ op.toString());
+			        + op.toString());
 			return null;
 		}
 
@@ -183,4 +181,11 @@ public final class StringBinaryExpression extends AbstractExpression<String>
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(this.left.getConstants());
+		result.addAll(this.right.getConstants());
+		return result;
+	}
 }

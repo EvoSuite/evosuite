@@ -23,6 +23,7 @@ package org.evosuite.symbolic.expr.bv;
 import gnu.trove.set.hash.THashSet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -43,13 +44,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringMultipleComparison extends AbstractExpression<Long>
-		implements StringComparison, MultipleExpression<String> {
+public final class StringMultipleComparison extends AbstractExpression<Long> implements
+        StringComparison, MultipleExpression<String> {
 
 	private static final long serialVersionUID = -3844726361666119758L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringMultipleComparison.class);
+	protected static Logger log = LoggerFactory.getLogger(StringMultipleComparison.class);
 
 	private final Operator op;
 
@@ -76,11 +76,10 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 	 *            a {@link java.lang.Long} object.
 	 */
 	public StringMultipleComparison(Expression<String> _left, Operator _op,
-			Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
+	        Expression<?> _right, ArrayList<Expression<?>> _other, Long con) {
 		super(con, 1 + _left.getSize() + _right.getSize() + countSizes(_other),
-				_left.containsSymbolicVariable()
-						|| _right.containsSymbolicVariable()
-						|| containsSymbolicVariable(_other));
+		        _left.containsSymbolicVariable() || _right.containsSymbolicVariable()
+		                || containsSymbolicVariable(_other));
 		this.op = _op;
 		this.left = _left;
 		this.right = _right;
@@ -100,8 +99,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 		return retVal;
 	}
 
-	private static boolean containsSymbolicVariable(
-			ArrayList<Expression<?>> list) {
+	private static boolean containsSymbolicVariable(ArrayList<Expression<?>> list) {
 
 		for (Expression<?> e : list) {
 			if (e.containsSymbolicVariable()) {
@@ -119,6 +117,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 	 * 
 	 * @return the other
 	 */
+	@Override
 	public ArrayList<Expression<?>> getOther() {
 		return other_v;
 	}
@@ -149,8 +148,8 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 			str_other_v += " " + this.other_v.get(i).toString();
 		}
 
-		return "(" + left + op.toString() + (right == null ? "" : right)
-				+ str_other_v + ")";
+		return "(" + left + op.toString() + (right == null ? "" : right) + str_other_v
+		        + ")";
 	}
 
 	/** {@inheritDoc} */
@@ -162,8 +161,8 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 		if (obj instanceof StringMultipleComparison) {
 			StringMultipleComparison other = (StringMultipleComparison) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-					&& this.right.equals(other.right)
-					&& this.other_v.equals(other.other_v);
+			        && this.right.equals(other.right)
+			        && this.other_v.equals(other.other_v);
 		}
 
 		return false;
@@ -171,8 +170,8 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 
 	@Override
 	public int hashCode() {
-		return this.op.hashCode() + this.left.hashCode()
-				+ this.right.hashCode() + this.other_v.hashCode();
+		return this.op.hashCode() + this.left.hashCode() + this.right.hashCode()
+		        + this.other_v.hashCode();
 	}
 
 	/** {@inheritDoc} */
@@ -193,8 +192,8 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 			long length = (Long) other_v.get(2).execute();
 			long ignoreCase = (Long) other_v.get(3).execute();
 
-			return first.regionMatches(ignoreCase != 0, (int) frstStart,
-					second, (int) secStart, (int) length) ? 1L : 0L;
+			return first.regionMatches(ignoreCase != 0, (int) frstStart, second,
+			                           (int) secStart, (int) length) ? 1L : 0L;
 		default:
 			log.warn("StringMultipleComparison: unimplemented operator!");
 			return null;
@@ -210,6 +209,17 @@ public final class StringMultipleComparison extends AbstractExpression<Long>
 			variables.addAll(other_e.getVariables());
 		}
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(this.left.getConstants());
+		result.addAll(this.right.getConstants());
+		for (Expression<?> other_e : this.other_v) {
+			result.addAll(other_e.getConstants());
+		}
+		return result;
 	}
 
 }
