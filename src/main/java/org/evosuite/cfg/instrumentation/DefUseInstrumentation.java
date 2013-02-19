@@ -72,8 +72,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 			for (BytecodeInstruction v : completeCFG.vertexSet()) {
 
 				if ((Properties.CRITERION == Criterion.DEFUSE
-				        || Properties.CRITERION == Criterion.ALLDEFS
-				        || Properties.CRITERION == Criterion.ANALYZE || TestSuiteGenerator.analyzing)
+				        || Properties.CRITERION == Criterion.ALLDEFS)
 				        && in.equals(v.getASMNode()) && v.isDefUse()) {
 
 					boolean isValidDU = false;

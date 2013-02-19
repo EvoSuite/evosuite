@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
-import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.dataflow.DefUse;
 import org.evosuite.coverage.dataflow.DefUsePool;
@@ -514,8 +513,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			MethodCall call = new MethodCall(className, methodName, methodId,
 			        callingObjectID, stack.size());
 			if (Properties.CRITERION == Criterion.DEFUSE
-			        || Properties.CRITERION == Criterion.ALLDEFS
-			        || TestSuiteGenerator.analyzing) {
+			        || Properties.CRITERION == Criterion.ALLDEFS) {
 				call.branchTrace.add(-1);
 				call.trueDistanceTrace.add(1.0);
 				call.falseDistanceTrace.add(0.0);
@@ -1289,8 +1287,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 			assert ((true_distance == 0.0) || (false_distance == 0.0));
 			// TODO line_trace ?
 			if (Properties.CRITERION == Criterion.DEFUSE
-			        || Properties.CRITERION == Criterion.ALLDEFS
-			        || TestSuiteGenerator.analyzing) {
+			        || Properties.CRITERION == Criterion.ALLDEFS) {
 				stack.peek().defuseCounterTrace.add(duCounter);
 			}
 		}

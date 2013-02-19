@@ -56,6 +56,7 @@ public class Branch implements Serializable, Comparable<Branch> {
 	// means this branch is the default: case of that switch
 	private Integer targetCaseValue = null;
 
+	// FIXME: Is not serializable!
 	private LabelNode targetLabel = null;
 
 	private final BytecodeInstruction instruction;
