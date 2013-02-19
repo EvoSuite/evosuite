@@ -2,6 +2,7 @@ package org.evosuite.symbolic.expr.token;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
 
@@ -10,7 +11,7 @@ import org.evosuite.symbolic.ConstraintTooLongException;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.str.StringValue;
 
-public final class NewTokenizerExpr extends TokenizerExpr{
+public final class NewTokenizerExpr extends TokenizerExpr {
 
 	/**
 	 * 
@@ -20,8 +21,8 @@ public final class NewTokenizerExpr extends TokenizerExpr{
 	private final StringValue delim;
 
 	public NewTokenizerExpr(StringValue string, StringValue delim) {
-		super(1 + string.getSize() + delim.getSize(), string
-				.containsSymbolicVariable() || delim.containsSymbolicVariable());
+		super(1 + string.getSize() + delim.getSize(), string.containsSymbolicVariable()
+		        || delim.containsSymbolicVariable());
 
 		this.string = string;
 		this.delim = delim;
@@ -56,8 +57,7 @@ public final class NewTokenizerExpr extends TokenizerExpr{
 
 		if (obj instanceof NewTokenizerExpr) {
 			NewTokenizerExpr that = (NewTokenizerExpr) obj;
-			return this.string.equals(that.string)
-					&& this.delim.equals(that.delim);
+			return this.string.equals(that.string) && this.delim.equals(that.delim);
 		}
 		return false;
 	}
@@ -70,7 +70,7 @@ public final class NewTokenizerExpr extends TokenizerExpr{
 	@Override
 	public String toString() {
 		String toString = String.format("TOKENIZE(%s, %s)", string.toString(),
-				delim.toString());
+		                                delim.toString());
 		return toString;
 	}
 
@@ -89,4 +89,11 @@ public final class NewTokenizerExpr extends TokenizerExpr{
 		return 0;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.add(delim.getConcreteValue());
+		result.add(string.getConcreteValue());
+		return result;
+	}
 }

@@ -21,6 +21,7 @@ package org.evosuite.symbolic.expr.fp;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -34,12 +35,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class RealBinaryExpression extends AbstractExpression<Double> implements
-		RealValue, BinaryExpression<Double> {
+        RealValue, BinaryExpression<Double> {
 
 	private static final long serialVersionUID = 3095108718393239244L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(RealBinaryExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(RealBinaryExpression.class);
 
 	private final Operator op;
 	private final Expression<Double> left;
@@ -60,9 +60,9 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 	 *            a {@link java.lang.Double} object.
 	 */
 	public RealBinaryExpression(Expression<Double> left, Operator op2,
-			Expression<?> right, Double con) {
-		super(con, 1 + left.getSize() + right.getSize(), left
-				.containsSymbolicVariable() || right.containsSymbolicVariable());
+	        Expression<?> right, Double con) {
+		super(con, 1 + left.getSize() + right.getSize(), left.containsSymbolicVariable()
+		        || right.containsSymbolicVariable());
 		this.left = left;
 		this.right = right;
 		this.op = op2;
@@ -104,7 +104,7 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 		if (obj instanceof RealBinaryExpression) {
 			RealBinaryExpression other = (RealBinaryExpression) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			        && this.right.equals(other.right);
 		}
 
 		return false;
@@ -112,8 +112,7 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 
 	@Override
 	public int hashCode() {
-		return this.left.hashCode() + this.op.hashCode()
-				+ this.right.hashCode();
+		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
 	}
 
 	/** {@inheritDoc} */
@@ -160,7 +159,7 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 		}
 
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -169,5 +168,12 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(left.getConstants());
+		result.addAll(right.getConstants());
+		return result;
+	}
 
 }

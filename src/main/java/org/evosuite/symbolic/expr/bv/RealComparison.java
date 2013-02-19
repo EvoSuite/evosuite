@@ -21,6 +21,7 @@ package org.evosuite.symbolic.expr.bv;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -33,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class RealComparison extends AbstractExpression<Long> implements
-		IntegerValue {
+        IntegerValue {
 	private static final long serialVersionUID = 1L;
 
 	protected static Logger log = LoggerFactory.getLogger(RealComparison.class);
@@ -50,10 +51,9 @@ public final class RealComparison extends AbstractExpression<Long> implements
 	 * @param con
 	 *            a {@link java.lang.Long} object.
 	 */
-	public RealComparison(Expression<Double> left, Expression<Double> right,
-			Long con) {
-		super(con, 1 + left.getSize() + right.getSize(), left
-				.containsSymbolicVariable() || right.containsSymbolicVariable());
+	public RealComparison(Expression<Double> left, Expression<Double> right, Long con) {
+		super(con, 1 + left.getSize() + right.getSize(), left.containsSymbolicVariable()
+		        || right.containsSymbolicVariable());
 		this.left = left;
 		this.right = right;
 
@@ -74,8 +74,7 @@ public final class RealComparison extends AbstractExpression<Long> implements
 		}
 		if (obj instanceof RealComparison) {
 			RealComparison other = (RealComparison) obj;
-			return this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			return this.left.equals(other.left) && this.right.equals(other.right);
 		}
 
 		return false;
@@ -120,7 +119,7 @@ public final class RealComparison extends AbstractExpression<Long> implements
 		log.warn("RealComparison.execute() invokation");
 		throw new IllegalStateException("This method should not be invoked");
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -129,4 +128,11 @@ public final class RealComparison extends AbstractExpression<Long> implements
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(left.getConstants());
+		result.addAll(right.getConstants());
+		return result;
+	}
 }

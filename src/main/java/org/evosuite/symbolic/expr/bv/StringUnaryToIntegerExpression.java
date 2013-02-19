@@ -42,14 +42,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringUnaryToIntegerExpression extends
-		AbstractExpression<Long> implements IntegerValue,
-		UnaryExpression<String> {
+public final class StringUnaryToIntegerExpression extends AbstractExpression<Long>
+        implements IntegerValue, UnaryExpression<String> {
 
 	private static final long serialVersionUID = -384874147850376188L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringUnaryToIntegerExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(StringUnaryToIntegerExpression.class);
 
 	// protected int conretIntValue;
 
@@ -69,8 +67,7 @@ public final class StringUnaryToIntegerExpression extends
 	 * @param con
 	 *            a {@link java.lang.String} object.
 	 */
-	public StringUnaryToIntegerExpression(Expression<String> param,
-			Operator op2, Long con) {
+	public StringUnaryToIntegerExpression(Expression<String> param, Operator op2, Long con) {
 		super(con, 1 + param.getSize(), param.containsSymbolicVariable());
 		this.expr = param;
 		this.op = op2;
@@ -141,4 +138,8 @@ public final class StringUnaryToIntegerExpression extends
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		return this.expr.getConstants();
+	}
 }

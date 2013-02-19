@@ -21,6 +21,7 @@ package org.evosuite.symbolic.expr.fp;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -34,13 +35,12 @@ import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RealUnaryExpression extends AbstractExpression<Double>
-		implements RealValue, UnaryExpression<Double> {
+public final class RealUnaryExpression extends AbstractExpression<Double> implements
+        RealValue, UnaryExpression<Double> {
 
 	private static final long serialVersionUID = 9086637495150131445L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(RealUnaryExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(RealUnaryExpression.class);
 
 	private final Operator op;
 
@@ -93,7 +93,7 @@ public final class RealUnaryExpression extends AbstractExpression<Double>
 		if (obj instanceof RealUnaryExpression) {
 			RealUnaryExpression v = (RealUnaryExpression) obj;
 			return this.op.equals(v.op) && this.getSize() == v.getSize()
-					&& this.expr.equals(v.expr);
+			        && this.expr.equals(v.expr);
 		}
 		return false;
 	}
@@ -101,7 +101,7 @@ public final class RealUnaryExpression extends AbstractExpression<Double>
 	/** {@inheritDoc} */
 	@Override
 	public Double execute() {
-		double leftVal = (Double) expr.execute();
+		double leftVal = expr.execute();
 
 		switch (op) {
 
@@ -176,4 +176,8 @@ public final class RealUnaryExpression extends AbstractExpression<Double>
 		return this.op.hashCode() + this.getSize() + this.expr.hashCode();
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		return expr.getConstants();
+	}
 }

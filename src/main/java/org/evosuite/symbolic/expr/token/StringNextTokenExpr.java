@@ -41,22 +41,20 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringNextTokenExpr extends AbstractExpression<String>
-		implements StringValue {
+public final class StringNextTokenExpr extends AbstractExpression<String> implements
+        StringValue {
 
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = -4594444543728364120L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringNextTokenExpr.class);
+	protected static Logger log = LoggerFactory.getLogger(StringNextTokenExpr.class);
 
 	private final TokenizerExpr tokenizerExpr;
 
 	public StringNextTokenExpr(TokenizerExpr tokenizerExpr, String con) {
-		super(con, 1 + tokenizerExpr.getSize(), tokenizerExpr
-				.containsSymbolicVariable());
+		super(con, 1 + tokenizerExpr.getSize(), tokenizerExpr.containsSymbolicVariable());
 		this.tokenizerExpr = tokenizerExpr;
 
 		if (getSize() > Properties.DSE_CONSTRAINT_LENGTH) {
@@ -110,6 +108,11 @@ public final class StringNextTokenExpr extends AbstractExpression<String>
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.addAll(this.tokenizerExpr.getVariables());
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		return tokenizerExpr.getConstants();
 	}
 
 }

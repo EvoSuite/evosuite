@@ -40,7 +40,7 @@ import org.evosuite.symbolic.expr.Variable;
  * @author krusev
  */
 public final class StringToIntegerCast extends AbstractExpression<Long> implements
-		IntegerValue, Cast<String> {
+        IntegerValue, Cast<String> {
 
 	private static final long serialVersionUID = 2214987345674527740L;
 
@@ -91,6 +91,7 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 		return false;
 	}
 
+	@Override
 	public int hashCode() {
 		return this.expr.hashCode();
 	}
@@ -105,7 +106,7 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 	public Expression<String> getParam() {
 		return this.expr;
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -113,4 +114,8 @@ public final class StringToIntegerCast extends AbstractExpression<Long> implemen
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		return this.expr.getConstants();
+	}
 }
