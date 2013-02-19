@@ -18,8 +18,6 @@ import org.evosuite.symbolic.expr.str.StringBinaryExpression;
 import org.evosuite.symbolic.expr.str.StringVariable;
 import org.junit.Test;
 
-import sun.tools.tree.IntegerExpression;
-
 public class TestStringSearch3 {
 
 	// (var3("<V6h") charAt 0) >= 0,
