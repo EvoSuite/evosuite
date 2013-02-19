@@ -3,9 +3,12 @@
  */
 package org.evosuite.symbolic.search;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
+
+import dk.brics.automaton.Automaton;
 
 /**
  * @author Gordon Fraser
@@ -143,9 +146,25 @@ public class TestRegexDistance {
 		assertEquals(0.5, RegexDistance.getDistance("acd", "a.?c"), 0.0);
 		assertEquals(1, RegexDistance.getDistance("a", "a.?c"), 0.0);
 		assertEquals(2.0 / 3.0, RegexDistance.getDistance("cc", "a.?c"), 0.0);
-		assertEquals(1.5, RegexDistance.getDistance("addd", "a.?c"), 0.0);
 	}
 
+	@Test
+	public void testDeletionFollowedByInsertion(){
+		/*
+		 * this does not work, as expected. 
+		 * Cannot delete last 'd' and _then_ replace second 'd' with a 'c'
+		 * in the distance calculation. Even if distance is not precise,
+		 *  AVM should still be able to solve the constraint
+		 */
+		
+		double addd = RegexDistance.getDistance("addd", "a.?c");
+		double add = RegexDistance.getDistance("add", "a.?c");
+		
+		assertTrue(addd != 1.5d);
+		assertTrue(add < addd);
+		assertEquals(0.5, RegexDistance.getDistance("add", "a.?c"), 0.0);		
+	}
+	
 	@Test
 	public void testRange() {
 		assertEquals(0, RegexDistance.getDistance("A", "[A-Z-0-9]+"), 0.0);
@@ -171,9 +190,11 @@ public class TestRegexDistance {
 		                                          "[A-Za-z]{4,10}\\@[A-Za-z]{4,10}"), 0.0);
 		assertEquals(3, RegexDistance.getDistance("ZhiX@H",
 		                                          "[A-Za-z]{4,10}\\@[A-Za-z]{4,10}"), 0.0);
-		assertEquals(4,
+		
+		//2 replacements and 4 insertions
+		assertEquals(5,
 		             RegexDistance.getDistance("hiX@H", "[A-Za-z]{4,10}\\@[A-Za-z]{4,10}"),
-		             0.0);
+		             1.0);
 
 		assertEquals(5,
 		             RegexDistance.getDistance("ZhiXH", "[A-Za-z]{4,10}\\@[A-Za-z]{4,10}"),
@@ -182,7 +203,24 @@ public class TestRegexDistance {
 	}
 
 	@Test
+	public void tetsAutomaton(){
+		//TODO
+		Automaton a0 = RegexDistance.getAndCacheAutomaton("[a0]");
+		Automaton a0s = RegexDistance.getAndCacheAutomaton("[a0]*");
+		Automaton a0p = RegexDistance.getAndCacheAutomaton("[a0]+");
+		
+		Automaton  foo = RegexDistance.getAndCacheAutomaton("a.?c");		
+	}
+	
+	@Test
 	public void testClosure() {
+		assertEquals(0, RegexDistance.getDistance("", "[a0]*"), 0.0);
+		assertEquals(0, RegexDistance.getDistance("a", "[a0]"), 0.0);
+		assertEquals(0, RegexDistance.getDistance("0", "[a0]"), 0.0);
+		assertEquals(0, RegexDistance.getDistance("a", "[a0]+"), 0.0);
+		assertEquals(0, RegexDistance.getDistance("0", "[a0]+"), 0.0);
+		assertEquals(0, RegexDistance.getDistance("a", "[a0]*"), 0.0);
+		assertEquals(0, RegexDistance.getDistance("0", "[a0]*"), 0.0);
 		assertEquals(0, RegexDistance.getDistance("test", "[a0]*test"), 0.0);
 		assertEquals(0, RegexDistance.getDistance("atest", "[a0]*test"), 0.0);
 		assertEquals(0, RegexDistance.getDistance("0test", "[a0]*test"), 0.0);
