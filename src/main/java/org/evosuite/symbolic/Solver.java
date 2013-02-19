@@ -21,11 +21,11 @@ import java.util.Collection;
 import java.util.Map;
 
 import org.evosuite.symbolic.expr.Constraint;
-
+import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
 
 /**
  * Interface for SMT solvers
- *
+ * 
  * @author Gordon Fraser
  */
 public interface Solver {
@@ -34,10 +34,12 @@ public interface Solver {
 
 	/**
 	 * Get concrete values for the parameters used in the path conditions.
-	 *
+	 * 
 	 * @return A {@link Map} where the name of the parameter is the key and the
 	 *         concrete value that the solver used is the object.
-	 * @param constraints a {@link java.util.Collection} object.
+	 * @param constraints
+	 *            a {@link java.util.Collection} object.
 	 */
-	Map<String, Object> solve(Collection<Constraint<?>> constraints);
+	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
+			throws ConstraintSolverTimeoutException;
 }

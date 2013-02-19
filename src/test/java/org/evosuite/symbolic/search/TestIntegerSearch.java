@@ -24,6 +24,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -57,10 +58,15 @@ public class TestIntegerSearch {
 						235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertEquals(235082, ((Number) result.get("test1")).intValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertEquals(235082, ((Number) result.get("test1")).intValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -74,10 +80,15 @@ public class TestIntegerSearch {
 				235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(235082 != ((Number) result.get("test1")).intValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(235082 != ((Number) result.get("test1")).intValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -91,10 +102,15 @@ public class TestIntegerSearch {
 				235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(235082 >= ((Number) result.get("test1")).intValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(235082 >= ((Number) result.get("test1")).intValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -108,10 +124,15 @@ public class TestIntegerSearch {
 				235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(235082 > ((Number) result.get("test1")).intValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(235082 > ((Number) result.get("test1")).intValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -126,10 +147,15 @@ public class TestIntegerSearch {
 						235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(235082 <= ((Number) result.get("test1")).intValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(235082 <= ((Number) result.get("test1")).intValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -144,10 +170,15 @@ public class TestIntegerSearch {
 						235082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(235082 < ((Number) result.get("test1")).intValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(235082 < ((Number) result.get("test1")).intValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -160,13 +191,18 @@ public class TestIntegerSearch {
 				"test2", var2, -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertEquals(var1, var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertEquals(var1, var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -179,13 +215,18 @@ public class TestIntegerSearch {
 				"test2", var2, -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertTrue(var1 != var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertTrue(var1 != var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -198,13 +239,18 @@ public class TestIntegerSearch {
 				"test2", var2, -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertTrue(var1 <= var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertTrue(var1 <= var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -217,13 +263,18 @@ public class TestIntegerSearch {
 				"test2", var2, -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertTrue(var1 < var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertTrue(var1 < var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -236,13 +287,18 @@ public class TestIntegerSearch {
 				"test2", var2, -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertTrue(var1 >= var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertTrue(var1 >= var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -255,13 +311,18 @@ public class TestIntegerSearch {
 				"test2", var2, -1000000, 1000000)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertTrue(var1 > var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertTrue(var1 > var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -279,15 +340,20 @@ public class TestIntegerSearch {
 						"test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> result = solver.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		if (result.containsKey("test3"))
-			var3 = ((Number) result.get("test3")).intValue();
-		assertTrue(var1 == var2 + var3);
+		Map<String, Object> result;
+		try {
+			result = solver.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			if (result.containsKey("test3"))
+				var3 = ((Number) result.get("test3")).intValue();
+			assertTrue(var1 == var2 + var3);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -305,15 +371,20 @@ public class TestIntegerSearch {
 						"test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		if (result.containsKey("test3"))
-			var3 = ((Number) result.get("test3")).intValue();
-		assertTrue(var1 != var2 + var3);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			if (result.containsKey("test3"))
+				var3 = ((Number) result.get("test3")).intValue();
+			assertTrue(var1 != var2 + var3);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -331,15 +402,20 @@ public class TestIntegerSearch {
 						"test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		if (result.containsKey("test3"))
-			var3 = ((Number) result.get("test3")).intValue();
-		assertTrue(var1 <= var2 + var3);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			if (result.containsKey("test3"))
+				var3 = ((Number) result.get("test3")).intValue();
+			assertTrue(var1 <= var2 + var3);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -357,15 +433,20 @@ public class TestIntegerSearch {
 						"test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		if (result.containsKey("test3"))
-			var3 = ((Number) result.get("test3")).intValue();
-		assertTrue(var1 < var2 + var3);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			if (result.containsKey("test3"))
+				var3 = ((Number) result.get("test3")).intValue();
+			assertTrue(var1 < var2 + var3);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -383,15 +464,20 @@ public class TestIntegerSearch {
 						"test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		if (result.containsKey("test3"))
-			var3 = ((Number) result.get("test3")).intValue();
-		assertTrue(var1 >= var2 + var3);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			if (result.containsKey("test3"))
+				var3 = ((Number) result.get("test3")).intValue();
+			assertTrue(var1 >= var2 + var3);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -409,15 +495,20 @@ public class TestIntegerSearch {
 						"test3", var3, -1000000, 1000000), 0L)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		if (result.containsKey("test3"))
-			var3 = ((Number) result.get("test3")).intValue();
-		assertTrue(var1 >= var2 + var3);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			if (result.containsKey("test3"))
+				var3 = ((Number) result.get("test3")).intValue();
+			assertTrue(var1 >= var2 + var3);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -439,14 +530,19 @@ public class TestIntegerSearch {
 						0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertEquals(0, var1);
-		assertTrue(var1 < var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertEquals(0, var1);
+			assertTrue(var1 < var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -468,14 +564,19 @@ public class TestIntegerSearch {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
 		constraints.add(new IntegerConstraint(mul, Comparator.EQ, iconst2));
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertFalse(result.isEmpty());
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).intValue();
-		assertTrue(var1 * (var2 - 6860) == 8275);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertFalse(result.isEmpty());
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).intValue();
+			assertTrue(var1 * (var2 - 6860) == 8275);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	private static IntegerValue mul(IntegerValue left, IntegerValue right) {
@@ -528,14 +629,18 @@ public class TestIntegerSearch {
 		List<Constraint<?>> constraints = Collections
 				.<Constraint<?>> singletonList(constr);
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			int v_24 = ((Number) result.get("var24")).intValue();
+			int v_10 = ((Number) result.get("var10")).intValue();
+			int v_14 = ((Number) result.get("var14")).intValue();
 
-		assertNotNull(result);
-		int v_24 = ((Number) result.get("var24")).intValue();
-		int v_10 = ((Number) result.get("var10")).intValue();
-		int v_14 = ((Number) result.get("var14")).intValue();
-
-		assertTrue((v_24 - (v_10 / v_14) * 19072) < 11060);
+			assertTrue((v_24 - (v_10 / v_14) * 19072) < 11060);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
 	}
 
@@ -564,14 +669,18 @@ public class TestIntegerSearch {
 		List<Constraint<?>> constraints = Collections
 				.<Constraint<?>> singletonList(constr);
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			int v_20 = ((Number) result.get("var20")).intValue();
+			int v_39 = ((Number) result.get("var39")).intValue();
+			int v_40 = ((Number) result.get("var40")).intValue();
 
-		assertNotNull(result);
-		int v_20 = ((Number) result.get("var20")).intValue();
-		int v_39 = ((Number) result.get("var39")).intValue();
-		int v_40 = ((Number) result.get("var40")).intValue();
-		
-		assertTrue((12089*v_40)-((v_39*14414)%v_20)>11060);
+			assertTrue((12089 * v_40) - ((v_39 * 14414) % v_20) > 11060);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
 	}
 
@@ -604,14 +713,19 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(ivar1, Comparator.EQ, iconst2));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertFalse(result.isEmpty());
 
-		assertNotNull(result);
-		assertFalse(result.isEmpty());
+			var1 = ((Number) result.get("test1")).intValue();
 
-		var1 = ((Number) result.get("test1")).intValue();
+			assertTrue(var1 == 108);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
-		assertTrue(var1 == 108);
 	}
 
 	@Test
@@ -644,15 +758,20 @@ public class TestIntegerSearch {
 		constraints.add(new IntegerConstraint(ivar2, Comparator.LE, ivar1));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertFalse(result.isEmpty());
-		if (result.containsKey("test1"))
-			x = ((Number) result.get("test1")).intValue();
-		if (result.containsKey("test2"))
-			y = ((Number) result.get("test2")).intValue();
-		assertTrue(y >= 0);
-		assertTrue(x <= 0);
-		assertTrue(y <= x);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertFalse(result.isEmpty());
+			if (result.containsKey("test1"))
+				x = ((Number) result.get("test1")).intValue();
+			if (result.containsKey("test2"))
+				y = ((Number) result.get("test2")).intValue();
+			assertTrue(y >= 0);
+			assertTrue(x <= 0);
+			assertTrue(y <= x);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 }

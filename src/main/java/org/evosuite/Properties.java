@@ -267,6 +267,14 @@ public class Properties {
 	@Parameter(key = "check_max_length", group = "Search Algorithm", description = "Check length against fixed maximum")
 	public static boolean CHECK_MAX_LENGTH = true;
 
+	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code>*/
+	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "Search Algorithm", description = "Maximum number of solving time for Constraint solver in milliseconds")
+	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0;
+
+	/** Constant <code>DSE_NEGATE_ALL_CONDITIONS=false</code>*/
+	@Parameter(key = "dse_negate_all_conditions", group = "Search Algorithm", description = "Negate all branch conditions in the path condition (covered or not)")
+	public static boolean DSE_NEGATE_ALL_CONDITIONS = false;
+	
 	/** Constant <code>DSE_RATE=-1</code> */
 	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
 	public static int DSE_RATE = -1;

@@ -20,6 +20,7 @@ package org.evosuite.symbolic.search;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,10 +44,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 == ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 == ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -57,10 +63,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 != ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 != ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -72,10 +83,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 >= ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 >= ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -86,10 +102,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 > ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 > ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -100,10 +121,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 <= ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 <= ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -114,10 +140,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -128,10 +159,15 @@ public class TestRealSearch {
 				new RealConstant(0.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(0.35082 == ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(0.35082 == ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -143,10 +179,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 >= ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 >= ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -157,10 +198,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 > ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 > ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -171,10 +217,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 <= ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 <= ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -185,10 +236,15 @@ public class TestRealSearch {
 				new RealConstant(2.35082)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(2.35082 < ((Number) result.get("test1")).doubleValue());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -201,14 +257,19 @@ public class TestRealSearch {
 				"test2", var2, -1000000.0, 1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		// assertTrue(var1 == var2);
-		assertEquals(var1, var2, 0.001);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			// assertTrue(var1 == var2);
+			assertEquals(var1, var2, 0.001);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -221,13 +282,18 @@ public class TestRealSearch {
 				"test2", var2, -1000000.0, 1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		assertTrue(var1 != var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			assertTrue(var1 != var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -240,13 +306,18 @@ public class TestRealSearch {
 				"test2", var2, -1000000.0, 1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		assertTrue(var1 <= var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			assertTrue(var1 <= var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -259,13 +330,18 @@ public class TestRealSearch {
 				"test2", var2, -1000000.0, 1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		assertTrue(var1 < var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			assertTrue(var1 < var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -278,13 +354,18 @@ public class TestRealSearch {
 				"test2", var2, -1000000.0, 1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		assertTrue(var1 >= var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			assertTrue(var1 >= var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -297,13 +378,18 @@ public class TestRealSearch {
 				"test2", var2, -1000000.0, 1000000.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		assertTrue(var1 > var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			assertTrue(var1 > var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -328,14 +414,19 @@ public class TestRealSearch {
 				new RealConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		assertEquals(0, var1, 0.0001);
-		assertTrue(var1 < var2);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			assertEquals(0, var1, 0.0001);
+			assertTrue(var1 < var2);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -354,11 +445,16 @@ public class TestRealSearch {
 				new RealConstant(0.0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		assertEquals(0, var1, 0.0001);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			assertEquals(0, var1, 0.0001);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	// @Test
@@ -381,13 +477,18 @@ public class TestRealSearch {
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		if (result.containsKey("test2"))
-			var2 = ((Number) result.get("test2")).doubleValue();
-		assertEquals(var1, var2, 0.0001);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			if (result.containsKey("test2"))
+				var2 = ((Number) result.get("test2")).doubleValue();
+			assertEquals(var1, var2, 0.0001);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
 	}
 
@@ -406,11 +507,16 @@ public class TestRealSearch {
 
 		assert (DistanceEstimator.getDistance(constraints) > 0);
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		if (result.containsKey("test1"))
-			var1 = ((Number) result.get("test1")).doubleValue();
-		// assertEquals(var1, var2, 0.0001);
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			if (result.containsKey("test1"))
+				var1 = ((Number) result.get("test1")).doubleValue();
+			// assertEquals(var1, var2, 0.0001);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
 	}
 }
