@@ -21,6 +21,7 @@ package org.evosuite.symbolic.expr.bv;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -33,13 +34,12 @@ import org.evosuite.symbolic.expr.Variable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class IntegerBinaryExpression extends AbstractExpression<Long>
-		implements IntegerValue, BinaryExpression<Long> {
+public final class IntegerBinaryExpression extends AbstractExpression<Long> implements
+        IntegerValue, BinaryExpression<Long> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(IntegerBinaryExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(IntegerBinaryExpression.class);
 
 	private final Expression<Long> left;
 	private final Operator op;
@@ -60,9 +60,9 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long>
 	 *            a {@link java.lang.Long} object.
 	 */
 	public IntegerBinaryExpression(Expression<Long> left, Operator op2,
-			Expression<Long> right, Long con) {
-		super(con, 1 + left.getSize() + right.getSize(), left
-				.containsSymbolicVariable() || right.containsSymbolicVariable());
+	        Expression<Long> right, Long con) {
+		super(con, 1 + left.getSize() + right.getSize(), left.containsSymbolicVariable()
+		        || right.containsSymbolicVariable());
 		this.left = left;
 		this.right = right;
 		this.op = op2;
@@ -107,7 +107,7 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long>
 		if (obj instanceof IntegerBinaryExpression) {
 			IntegerBinaryExpression other = (IntegerBinaryExpression) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			        && this.right.equals(other.right);
 		}
 
 		return false;
@@ -115,8 +115,7 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long>
 
 	@Override
 	public int hashCode() {
-		return this.left.hashCode() + this.op.hashCode()
-				+ this.right.hashCode();
+		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
 	}
 
 	/** {@inheritDoc} */
@@ -169,6 +168,14 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long>
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(this.left.getConstants());
+		result.addAll(this.right.getConstants());
+		return result;
 	}
 
 }

@@ -22,7 +22,7 @@ package org.evosuite.symbolic.expr.bv;
 
 import gnu.trove.set.hash.THashSet;
 
-import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -33,7 +33,6 @@ import org.evosuite.symbolic.expr.BinaryExpression;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Operator;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,14 +43,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringBinaryToIntegerExpression extends
-		AbstractExpression<Long> implements IntegerValue,
-		BinaryExpression<String> {
+public final class StringBinaryToIntegerExpression extends AbstractExpression<Long>
+        implements IntegerValue, BinaryExpression<String> {
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringBinaryToIntegerExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(StringBinaryToIntegerExpression.class);
 
 	private final Expression<String> left;
 	private final Operator op;
@@ -71,11 +68,10 @@ public final class StringBinaryToIntegerExpression extends
 	 * @param con
 	 *            a {@link java.lang.String} object.
 	 */
-	public StringBinaryToIntegerExpression(Expression<String> left2,
-			Operator op2, Expression<?> right2, Long con) {
-		super(con, 1 + left2.getSize() + right2.getSize(), left2
-				.containsSymbolicVariable()
-				|| right2.containsSymbolicVariable());
+	public StringBinaryToIntegerExpression(Expression<String> left2, Operator op2,
+	        Expression<?> right2, Long con) {
+		super(con, 1 + left2.getSize() + right2.getSize(),
+		        left2.containsSymbolicVariable() || right2.containsSymbolicVariable());
 		this.left = left2;
 		this.op = op2;
 		this.right = right2;
@@ -107,8 +103,9 @@ public final class StringBinaryToIntegerExpression extends
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		if(op == Operator.INDEXOFC)
-			return "(" + left + op.toString() + "\'"+Character.toChars(((Long)right.execute()).intValue())[0] + "\')";
+		if (op == Operator.INDEXOFC)
+			return "(" + left + op.toString() + "\'"
+			        + Character.toChars(((Long) right.execute()).intValue())[0] + "\')";
 		return "(" + left + op.toString() + right + ")";
 	}
 
@@ -124,7 +121,7 @@ public final class StringBinaryToIntegerExpression extends
 		if (obj instanceof StringBinaryToIntegerExpression) {
 			StringBinaryToIntegerExpression other = (StringBinaryToIntegerExpression) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			        && this.right.equals(other.right);
 		}
 
 		return false;
@@ -132,8 +129,7 @@ public final class StringBinaryToIntegerExpression extends
 
 	@Override
 	public int hashCode() {
-		return this.left.hashCode() + this.op.hashCode()
-				+ this.right.hashCode();
+		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
 	}
 
 	/** {@inheritDoc} */
@@ -175,18 +171,26 @@ public final class StringBinaryToIntegerExpression extends
 		}
 		default:
 			log.warn("StringBinaryToIntegerExpression: unimplemented operator! Operator"
-					+ op.toString());
+			        + op.toString());
 			return null;
 		}
 
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(this.left.getConstants());
+		result.addAll(this.right.getConstants());
+		return result;
 	}
 
 }

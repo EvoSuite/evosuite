@@ -278,7 +278,7 @@ public class Properties {
 	/** Constant <code>DSE_RATE=-1</code> */
 	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
 	public static int DSE_RATE = -1;
-	
+
 	@Parameter(key = "dse_adaptive_probability", group = "Search Algorithm", description = "Apply DSE with a certain, adaptive, probability")
 	public static double DSE_ADAPTIVE_PROBABILITY = 0.0;
 
@@ -288,6 +288,9 @@ public class Properties {
 	/** Constant <code>DSE_CONSTRAINT_LENGTH=100000</code> */
 	@Parameter(key = "dse_constraint_length", group = "Search Algorithm", description = "Maximal length of the constraints in DSE")
 	public static int DSE_CONSTRAINT_LENGTH = 100000;
+
+	@Parameter(key = "dse_constant_probability", group = "Search Algorithm", description = "Probability with which to use constants from the constraints when resetting variables during search")
+	public static double DSE_CONSTANT_PROBABILITY = 0.5;
 
 	public enum DSEBudgetType {
 		INDIVIDUALS, TIME, BEST_TIME
@@ -316,7 +319,7 @@ public class Properties {
 
 	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
 	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.OFF;
-	
+
 	@Parameter(key = "adaptive_local_search_dse", group = "Search Algorithm", description = "Use DSE on entire test suite in local search")
 	public static boolean ADAPTIVE_LOCAL_SEARCH_DSE = false;
 
@@ -646,8 +649,8 @@ public class Properties {
 	public static AssertionStrategy ASSERTION_STRATEGY = AssertionStrategy.MUTATION;
 
 	@Parameter(key = "filter_assertions", group = "Output", description = "Filter flaky assertions")
-	public static boolean FILTER_ASSERTIONS = true; 
-	
+	public static boolean FILTER_ASSERTIONS = true;
+
 	@Parameter(key = "max_mutants_per_test", group = "Output", description = "How many mutants to use when trying to find assertions for a test")
 	public static int MAX_MUTANTS_PER_TEST = 100;
 

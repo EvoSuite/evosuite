@@ -22,6 +22,7 @@ package org.evosuite.symbolic.expr.str;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.AbstractExpression;
@@ -35,7 +36,7 @@ import org.evosuite.symbolic.expr.Variable;
  * @author krusev
  */
 public final class StringVariable extends AbstractExpression<String> implements
-		StringValue, Variable<String> {
+        StringValue, Variable<String> {
 
 	private static final long serialVersionUID = 5925030390824261492L;
 
@@ -121,9 +122,8 @@ public final class StringVariable extends AbstractExpression<String> implements
 	@Override
 	public String toString() {
 		String asciiPrintableString = removeNonAsciiPrintable(concreteValue);
-		return name + "(\""
-				+ asciiPrintableString.replace("\n", "").replace(" ", "")
-				+ "\")";
+		return name + "(\"" + asciiPrintableString.replace("\n", "").replace(" ", "")
+		        + "\")";
 	}
 
 	/** {@inheritDoc} */
@@ -154,6 +154,15 @@ public final class StringVariable extends AbstractExpression<String> implements
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
 		variables.add(this);
 		return variables;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.symbolic.expr.AbstractExpression#getConstants()
+	 */
+	@Override
+	public Set<Object> getConstants() {
+		// Do not include original values?
+		return new HashSet<Object>();
 	}
 
 	/*

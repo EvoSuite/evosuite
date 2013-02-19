@@ -56,8 +56,7 @@ public final class ConstraintSolver implements Solver {
 
 				if (v instanceof IntegerVariable) {
 					IntegerVariable integerVariable = (IntegerVariable) v;
-					IntegerAVM avm = new IntegerAVM(integerVariable,
-							constraints);
+					IntegerAVM avm = new IntegerAVM(integerVariable, constraints);
 					avm.applyAVM();
 				} else if (v instanceof RealVariable) {
 					RealVariable realVariable = (RealVariable) v;
@@ -69,7 +68,7 @@ public final class ConstraintSolver implements Solver {
 					avm.applyAVM();
 				} else {
 					throw new RuntimeException("Unknown variable type "
-							+ v.getClass().getName());
+					        + v.getClass().getName());
 				}
 				distance = DistanceEstimator.getDistance(constraints);
 				if (distance <= 0.0) {
@@ -82,7 +81,7 @@ public final class ConstraintSolver implements Solver {
 				break;
 			} else {
 				log.info("Randomizing variables");
-				randomizeValues(variables);
+				randomizeValues(variables, getConstants(constraints));
 			}
 		}
 
@@ -105,20 +104,48 @@ public final class ConstraintSolver implements Solver {
 
 	}
 
-	private void randomizeValues(Set<Variable<?>> variables) {
+	private void randomizeValues(Set<Variable<?>> variables, Set<Object> constants) {
+		Set<String> stringConstants = new HashSet<String>();
+		Set<Long> longConstants = new HashSet<Long>();
+		Set<Double> realConstants = new HashSet<Double>();
+		for (Object o : constants) {
+			if (o instanceof String)
+				stringConstants.add((String) o);
+			else if (o instanceof Double)
+				realConstants.add((Double) o);
+			else if (o instanceof Long)
+				longConstants.add((Long) o);
+			else
+				assert (false) : "Unexpected constant type: " + o;
+		}
+
 		for (Variable<?> v : variables) {
 			if (v instanceof StringVariable) {
 				StringVariable sv = (StringVariable) v;
-				sv.setConcreteValue(Randomness
-						.nextString(Properties.STRING_LENGTH));
+				if (!stringConstants.isEmpty()
+				        && Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
+					sv.setConcreteValue(Randomness.choice(stringConstants));
+				} else {
+					sv.setConcreteValue(Randomness.nextString(Properties.STRING_LENGTH));
+				}
 			} else if (v instanceof IntegerVariable) {
 				IntegerVariable iv = (IntegerVariable) v;
-				iv.setConcreteValue((long) Randomness
-						.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
+				if (!longConstants.isEmpty()
+				        && Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
+					iv.setConcreteValue(Randomness.choice(longConstants));
+				} else {
+					iv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2)
+					        - Properties.MAX_INT);
+				}
 			} else if (v instanceof RealVariable) {
 				RealVariable rv = (RealVariable) v;
-				rv.setConcreteValue((long) Randomness
-						.nextInt(Properties.MAX_INT * 2) - Properties.MAX_INT);
+				if (!realConstants.isEmpty()
+				        && Randomness.nextDouble() < Properties.DSE_CONSTANT_PROBABILITY) {
+					rv.setConcreteValue(Randomness.choice(realConstants));
+				} else {
+					rv.setConcreteValue((long) Randomness.nextInt(Properties.MAX_INT * 2)
+					        - Properties.MAX_INT);
+				}
 			}
 		}
 	}
@@ -131,7 +158,7 @@ public final class ConstraintSolver implements Solver {
 	 * @param concrete_values
 	 */
 	private void restoreConcreteValues(Set<Variable<?>> variables,
-			Map<String, Object> concrete_values) {
+	        Map<String, Object> concrete_values) {
 		for (Variable<?> v : variables) {
 
 			String var_name = v.getName();
@@ -170,6 +197,14 @@ public final class ConstraintSolver implements Solver {
 			concrete_values.put(var_name, concrete_value);
 		}
 		return concrete_values;
+	}
+
+	private Set<Object> getConstants(Collection<Constraint<?>> constraints) {
+		Set<Object> constants = new HashSet<Object>();
+		for (Constraint<?> c : constraints) {
+			constants.addAll(c.getConstants());
+		}
+		return constants;
 	}
 
 	/**

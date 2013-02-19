@@ -1,24 +1,26 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr;
 
+import java.util.HashSet;
+import java.util.Set;
 
 public abstract class AbstractExpression<T> implements Expression<T> {
 
@@ -30,13 +32,13 @@ public abstract class AbstractExpression<T> implements Expression<T> {
 
 	private final int size;
 
-	public AbstractExpression(T concreteValue, int size,
-			boolean containsSymbolicVariable) {
+	public AbstractExpression(T concreteValue, int size, boolean containsSymbolicVariable) {
 		this.concreteValue = concreteValue;
 		this.size = size;
 		this.containsSymbolicVariable = containsSymbolicVariable;
 	}
 
+	@Override
 	public final int getSize() {
 		return size;
 	}
@@ -48,17 +50,20 @@ public abstract class AbstractExpression<T> implements Expression<T> {
 	 * 
 	 * @return a {@link org.evosuite.symbolic.expr.Expression} object.
 	 */
+	@Override
 	public final Expression<?> getParent() {
 		return this.parent;
 	}
 
 	/** {@inheritDoc} */
+	@Override
 	public final void setParent(Expression<?> expr) {
 		this.parent = expr;
 	}
 
 	private final boolean containsSymbolicVariable;
 
+	@Override
 	public final boolean containsSymbolicVariable() {
 		return containsSymbolicVariable;
 	}
@@ -67,6 +72,13 @@ public abstract class AbstractExpression<T> implements Expression<T> {
 	@Override
 	public final T getConcreteValue() {
 		return concreteValue;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.add(this.concreteValue);
+		return result;
 	}
 
 }

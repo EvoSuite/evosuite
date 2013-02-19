@@ -1,20 +1,20 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.symbolic.expr.fp;
@@ -32,8 +32,8 @@ import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.expr.bv.IntegerValue;
 
-public final class IntegerToRealCast extends AbstractExpression<Double>
-		implements RealValue, Cast<Long> {
+public final class IntegerToRealCast extends AbstractExpression<Double> implements
+        RealValue, Cast<Long> {
 	private static final long serialVersionUID = -3070453617714122236L;
 
 	private final IntegerValue expr;
@@ -96,7 +96,7 @@ public final class IntegerToRealCast extends AbstractExpression<Double>
 		Long exprVal = expr.execute();
 		return exprVal.doubleValue();
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -104,4 +104,8 @@ public final class IntegerToRealCast extends AbstractExpression<Double>
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		return this.expr.getConstants();
+	}
 }

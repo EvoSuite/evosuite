@@ -34,12 +34,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public final class RealToStringCast extends AbstractExpression<String> implements
-		StringValue, Cast<Double> {
+        StringValue, Cast<Double> {
 
 	private static final long serialVersionUID = -5322228289539145088L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(RealToStringCast.class);
+	protected static Logger log = LoggerFactory.getLogger(RealToStringCast.class);
 
 	private final Expression<Double> expr;
 
@@ -57,7 +56,7 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		return Double.toString((Double) expr.execute());
+		return Double.toString(expr.execute());
 	}
 
 	/** {@inheritDoc} */
@@ -90,7 +89,7 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 	public Expression<Double> getArgument() {
 		return expr;
 	}
-	
+
 	@Override
 	public Set<Variable<?>> getVariables() {
 		Set<Variable<?>> variables = new THashSet<Variable<?>>();
@@ -98,4 +97,8 @@ public final class RealToStringCast extends AbstractExpression<String> implement
 		return variables;
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		return this.expr.getConstants();
+	}
 }
