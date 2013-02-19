@@ -25,20 +25,16 @@ import org.slf4j.LoggerFactory;
  */
 public final class ConstraintSolver implements Solver {
 
-	private static HashSet<Collection<Constraint<?>>> unsat_constraints = new HashSet<Collection<Constraint<?>>>();
-
 	static Logger log = LoggerFactory.getLogger(ConstraintSolver.class);
 
 	/**
 	 * This method searches for a new model satisfying all constraints. If UNSAT
 	 * returns <code>null</code>.
 	 */
-	@Override
-	public Map<String, Object> solve(Collection<Constraint<?>> constraints) {
+	public Map<String, Object> solve(Collection<Constraint<?>> constraints)
+			throws ConstraintSolverTimeoutException {
 
-		if (unsat_constraints.contains(constraints)) {
-			return null;
-		}
+		long startTimeMillis = System.currentTimeMillis();
 
 		double distance = DistanceEstimator.getDistance(constraints);
 		if (distance == 0.0) {
@@ -50,6 +46,12 @@ public final class ConstraintSolver implements Solver {
 		Map<String, Object> initialValues = getConcreteValues(variables);
 		for (int attempt = 0; attempt <= Properties.DSE_VARIABLE_RESETS; attempt++) {
 			for (Variable<?> v : variables) {
+				long currentTimeMillis = System.currentTimeMillis();
+				if (Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS > 0
+						&& (currentTimeMillis - startTimeMillis > Properties.DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS)) {
+					throw new ConstraintSolverTimeoutException();
+				}
+
 				log.debug("Variable: " + v + ", " + variables);
 
 				if (v instanceof IntegerVariable) {
@@ -92,7 +94,6 @@ public final class ConstraintSolver implements Solver {
 		} else {
 			restoreConcreteValues(variables, initialValues);
 			log.debug("Returning null, search was not successful");
-			unsat_constraints.add(constraints);
 			return null;
 		}
 

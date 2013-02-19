@@ -2,6 +2,7 @@ package org.evosuite.symbolic;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Map;
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.search.ConstraintSolver;
+import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
 import org.evosuite.symbolic.search.TestInput1;
 import org.evosuite.symbolic.search.TestInput2;
 import org.evosuite.testcase.DefaultTestCase;
@@ -58,13 +60,19 @@ public class TestConstraintSolver {
 		assertEquals(2, branch_conditions.size());
 
 		// invoke seeker
-		Map<String, Object> model = executeSeeker(branch_conditions);
-		assertNotNull(model);
+		Map<String, Object> model;
+		try {
+			model = executeSeeker(branch_conditions);
+			assertNotNull(model);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
 	}
 
 	private Map<String, Object> executeSeeker(
-			List<BranchCondition> branch_conditions) {
+			List<BranchCondition> branch_conditions)
+			throws ConstraintSolverTimeoutException {
 
 		final int lastBranchIndex = branch_conditions.size() - 1;
 		BranchCondition last_branch = branch_conditions.get(lastBranchIndex);
@@ -101,11 +109,16 @@ public class TestConstraintSolver {
 	}
 
 	/**
-	 * @param int0==5
-	 * @param int1==16
-	 * @param int2==16
-	 * @param int3==22
-	 * @param int4==22
+	 * @param int0
+	 *            ==5
+	 * @param int1
+	 *            ==16
+	 * @param int2
+	 *            ==16
+	 * @param int3
+	 *            ==22
+	 * @param int4
+	 *            ==22
 	 * 
 	 */
 	private DefaultTestCase buildTestCase2() throws SecurityException,
@@ -134,10 +147,15 @@ public class TestConstraintSolver {
 		List<BranchCondition> sublist = new ArrayList<BranchCondition>();
 		sublist.add(branch_conditions.get(0));
 		sublist.add(branch_conditions.get(1));
-				
+
 		// invoke seeker
-		Map<String, Object> model = executeSeeker(sublist);
-		assertNotNull(model);
+		Map<String, Object> model;
+		try {
+			model = executeSeeker(sublist);
+			assertNotNull(model);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
 	}
 

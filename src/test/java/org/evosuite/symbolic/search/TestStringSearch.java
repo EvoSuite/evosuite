@@ -20,6 +20,7 @@ package org.evosuite.symbolic.search;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -58,10 +59,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(const2.equals(result.get("test1").toString()));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(const2.equals(result.get("test1").toString()));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -77,10 +83,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(!const2.equals(result.get("test1").toString()));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(!const2.equals(result.get("test1").toString()));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -96,10 +107,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(const2.equalsIgnoreCase(result.get("test1").toString()));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(const2.equalsIgnoreCase(result.get("test1").toString()));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -115,10 +131,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertFalse(const2.equalsIgnoreCase(result.get("test1").toString()));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertFalse(const2.equalsIgnoreCase(result.get("test1").toString()));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -138,10 +159,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue((result.get("test1").toString()).startsWith(const2, 2));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue((result.get("test1").toString()).startsWith(const2, 2));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -161,10 +187,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertFalse((result.get("test1").toString()).startsWith(const2, 3));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertFalse((result.get("test1").toString()).startsWith(const2, 3));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -181,10 +212,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue((result.get("test1").toString()).endsWith(const2));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue((result.get("test1").toString()).endsWith(const2));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -201,10 +237,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertFalse((result.get("test1").toString()).endsWith(const2));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertFalse((result.get("test1").toString()).endsWith(const2));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -221,10 +262,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue((result.get("test1").toString()).contains(const2));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue((result.get("test1").toString()).contains(const2));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -241,10 +287,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertFalse((result.get("test1").toString()).contains(const2));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertFalse((result.get("test1").toString()).contains(const2));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -276,11 +327,16 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue((result.get("test1").toString()).regionMatches(ignore_case,
-				offset1, const2, offset2, len));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue((result.get("test1").toString()).regionMatches(
+					ignore_case, offset1, const2, offset2, len));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -312,11 +368,16 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertFalse((result.get("test1").toString()).regionMatches(ignore_case,
-				offset1, const2, offset2, len));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertFalse((result.get("test1").toString()).regionMatches(
+					ignore_case, offset1, const2, offset2, len));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -332,10 +393,15 @@ public class TestStringSearch {
 				new IntegerConstant(0)));
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertTrue(result.get("test1").toString().matches(const2));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertTrue(result.get("test1").toString().matches(const2));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -358,9 +424,14 @@ public class TestStringSearch {
 		constraints.add(constr1);
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
+			assertNotNull(solution);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
-		assertNotNull(solution);
 	}
 
 	@Test
@@ -383,9 +454,14 @@ public class TestStringSearch {
 		constraints.add(constr1);
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
+			assertNotNull(solution);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
-		assertNotNull(solution);
 	}
 
 	@Test
@@ -412,9 +488,14 @@ public class TestStringSearch {
 		constraints.add(constr2);
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
+			assertNotNull(solution);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
-		assertNotNull(solution);
 	}
 
 	@Test
@@ -429,12 +510,17 @@ public class TestStringSearch {
 		constraints.add(new StringConstraint(strComp, Comparator.EQ,
 				new IntegerConstant(0)));
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> result = skr.solve(constraints);
-		assertNotNull(result);
-		assertNotNull(result.get("test1"));
-		assertFalse("Result should not match TEST: "
-				+ result.get("test1").toString(), result.get("test1")
-				.toString().matches(const2));
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get("test1"));
+			assertFalse("Result should not match TEST: "
+					+ result.get("test1").toString(), result.get("test1")
+					.toString().matches(const2));
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
 
 	@Test
@@ -454,12 +540,16 @@ public class TestStringSearch {
 		constraints.add(constr3);
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
 
-		assertNotNull(solution);
+			assertNotNull(solution);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 	}
-	
-	
+
 	@Test
 	public void testIndexOfC2() {
 		String var1value = ":cc]#0l";
@@ -487,15 +577,19 @@ public class TestStringSearch {
 		constraints.add(constr3);
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> solution = solver.solve(constraints);
-
-		assertNotNull(solution);
-		String result = solution.get("var0").toString();
-		int colonPos = result.indexOf(':');
-		int numeralPos = result.indexOf('#');
-		assertTrue("Colon not found in "+result, colonPos >= 0);
-		assertTrue("Numeral not found in "+result, numeralPos >= 0);
-		assertTrue(colonPos > numeralPos);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
+			assertNotNull(solution);
+			String result = solution.get("var0").toString();
+			int colonPos = result.indexOf(':');
+			int numeralPos = result.indexOf('#');
+			assertTrue("Colon not found in " + result, colonPos >= 0);
+			assertTrue("Numeral not found in " + result, numeralPos >= 0);
+			assertTrue(colonPos > numeralPos);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
 	}
 }

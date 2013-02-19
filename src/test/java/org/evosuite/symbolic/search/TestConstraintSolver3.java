@@ -27,12 +27,12 @@ public class TestConstraintSolver3 {
 		StringVariable var0 = new StringVariable("var0", INIT_STRING);
 
 		StringToIntegerCast castStr = new StringToIntegerCast(var0,
-		        (long) Integer.parseInt(INIT_STRING));
+				(long) Integer.parseInt(INIT_STRING));
 
 		IntegerConstant const126 = new IntegerConstant(EXPECTED_INTEGER);
 
-		IntegerConstraint constr1 = new IntegerConstraint(castStr, Comparator.EQ,
-		        const126);
+		IntegerConstraint constr1 = new IntegerConstraint(castStr,
+				Comparator.EQ, const126);
 
 		return Arrays.<Constraint<?>> asList(constr1);
 	}
@@ -53,16 +53,21 @@ public class TestConstraintSolver3 {
 		System.out.println("Initial: " + INIT_STRING);
 
 		ConstraintSolver seeker = new ConstraintSolver();
-		Map<String, Object> model = seeker.solve(constraints);
+		Map<String, Object> model;
+		try {
+			model = seeker.solve(constraints);
+			if (model == null) {
+				fail("search was unsuccessfull");
+			} else {
+				Object var0 = model.get("var0");
+				System.out.println("Expected: " + EXPECTED_INTEGER);
+				System.out.println("Found: " + var0);
 
-		if (model == null) {
-			fail("search was unsuccessfull");
-		} else {
-			Object var0 = model.get("var0");
-			System.out.println("Expected: " + EXPECTED_INTEGER);
-			System.out.println("Found: " + var0);
-
-			assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
+				assertEquals(String.valueOf(EXPECTED_INTEGER), var0);
+			}
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
 		}
+
 	}
 }
