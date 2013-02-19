@@ -23,14 +23,11 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
-import java.util.Stack;
-import java.util.TreeMap;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -43,10 +40,8 @@ import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
 import org.evosuite.symbolic.search.CachedConstraintSolver;
-import org.evosuite.symbolic.search.ConstraintSolver;
 import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
 import org.evosuite.testcase.DefaultTestCase;
-import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -440,7 +435,7 @@ public class TestSuiteDSE {
 		nrConstraints += nrCurrConstraints;
 
 		logger.info("Applying local search");
-		ConstraintSolver skr = new ConstraintSolver();
+		CachedConstraintSolver skr = new CachedConstraintSolver();
 		DSEStats.reportNewConstraints(constraints);
 
 		long startSolvingTime = System.currentTimeMillis();
