@@ -27,6 +27,19 @@ public class StringAVMTests {
 	}
 	
 	@Test
+	public void testIssueWithOptional(){
+		String name = "addd";
+		StringVariable var = new StringVariable(name, "");
+		
+		String format = "a.?c";
+		List<Constraint<?>> constraints = getPatternConstraint(var,format);
+				
+		StringAVM avm = new StringAVM(var,constraints);
+		boolean succeded = avm.applyAVM();
+		Assert.assertTrue(succeded);
+	}
+	
+	@Test
 	public void testSimpleRegexThreeDigits(){
 		String name = "foo";
 		StringVariable var = new StringVariable(name, "");
