@@ -22,6 +22,7 @@ package org.evosuite.symbolic.expr.bv;
 
 import gnu.trove.set.hash.THashSet;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import org.apache.oro.text.regex.MalformedPatternException;
@@ -45,13 +46,12 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringBinaryComparison extends AbstractExpression<Long>
-		implements StringComparison {
+public final class StringBinaryComparison extends AbstractExpression<Long> implements
+        StringComparison {
 
 	private static final long serialVersionUID = -2959676064390810341L;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringBinaryComparison.class);
+	protected static Logger log = LoggerFactory.getLogger(StringBinaryComparison.class);
 
 	/**
 	 * <p>
@@ -68,9 +68,9 @@ public final class StringBinaryComparison extends AbstractExpression<Long>
 	 *            a {@link java.lang.Long} object.
 	 */
 	public StringBinaryComparison(Expression<String> left, Operator op,
-			Expression<?> right, Long con) {
-		super(con, 1 + left.getSize() + right.getSize(), left
-				.containsSymbolicVariable() || right.containsSymbolicVariable());
+	        Expression<?> right, Long con) {
+		super(con, 1 + left.getSize() + right.getSize(), left.containsSymbolicVariable()
+		        || right.containsSymbolicVariable());
 		this.left = left;
 		this.op = op;
 		this.right = right;
@@ -94,7 +94,7 @@ public final class StringBinaryComparison extends AbstractExpression<Long>
 		if (obj instanceof StringBinaryComparison) {
 			StringBinaryComparison other = (StringBinaryComparison) obj;
 			return this.op.equals(other.op) && this.left.equals(other.left)
-					&& this.right.equals(other.right);
+			        && this.right.equals(other.right);
 		}
 
 		return false;
@@ -102,8 +102,7 @@ public final class StringBinaryComparison extends AbstractExpression<Long>
 
 	@Override
 	public int hashCode() {
-		return this.left.hashCode() + this.op.hashCode()
-				+ this.right.hashCode();
+		return this.left.hashCode() + this.op.hashCode() + this.right.hashCode();
 	}
 
 	/**
@@ -172,7 +171,7 @@ public final class StringBinaryComparison extends AbstractExpression<Long>
 				throw new RuntimeException(e);
 			}
 			return matcher.matches(second, pattern) ? 1L : 0L;
-			
+
 		}
 		default:
 			log.warn("StringComparison: unimplemented operator!" + op);
@@ -186,6 +185,14 @@ public final class StringBinaryComparison extends AbstractExpression<Long>
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(this.left.getConstants());
+		result.addAll(this.right.getConstants());
+		return result;
 	}
 
 }

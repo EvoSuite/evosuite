@@ -78,4 +78,6 @@ public abstract interface Expression<T extends Object> extends Serializable {
 	public boolean containsSymbolicVariable();
 
 	public Set<Variable<?>> getVariables();
+
+	public Set<Object> getConstants();
 }

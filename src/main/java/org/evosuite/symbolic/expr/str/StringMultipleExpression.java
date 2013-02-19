@@ -23,6 +23,7 @@ package org.evosuite.symbolic.expr.str;
 import gnu.trove.set.hash.THashSet;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -43,8 +44,8 @@ import org.slf4j.LoggerFactory;
  * 
  * @author krusev
  */
-public final class StringMultipleExpression extends AbstractExpression<String>
-		implements StringValue, MultipleExpression<String> {
+public final class StringMultipleExpression extends AbstractExpression<String> implements
+        StringValue, MultipleExpression<String> {
 
 	private static final long serialVersionUID = 7172041118401792672L;
 
@@ -56,8 +57,7 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 
 	private final Expression<?> right;
 
-	protected static Logger log = LoggerFactory
-			.getLogger(StringMultipleExpression.class);
+	protected static Logger log = LoggerFactory.getLogger(StringMultipleExpression.class);
 
 	/**
 	 * <p>
@@ -76,11 +76,10 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 	 *            a {@link java.lang.String} object.
 	 */
 	public StringMultipleExpression(Expression<String> _left, Operator _op,
-			Expression<?> _right, ArrayList<Expression<?>> _other, String con) {
+	        Expression<?> _right, ArrayList<Expression<?>> _other, String con) {
 		super(con, 1 + _left.getSize() + _right.getSize() + countSizes(_other),
-				_left.containsSymbolicVariable()
-						|| _right.containsSymbolicVariable()
-						|| containsSymbolicVariable(_other));
+		        _left.containsSymbolicVariable() || _right.containsSymbolicVariable()
+		                || containsSymbolicVariable(_other));
 
 		this.op = _op;
 		this.left = _left;
@@ -100,6 +99,7 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 	 * 
 	 * @return the other
 	 */
+	@Override
 	public ArrayList<Expression<?>> getOther() {
 		return other_v;
 	}
@@ -130,8 +130,8 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 			str_other_v += " " + this.other_v.get(i).toString();
 		}
 
-		return "(" + left + op.toString() + (right == null ? "" : right)
-				+ str_other_v + ")";
+		return "(" + left + op.toString() + (right == null ? "" : right) + str_other_v
+		        + ")";
 	}
 
 	/** {@inheritDoc} */
@@ -144,8 +144,8 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 			StringMultipleExpression other = (StringMultipleExpression) obj;
 
 			return this.op.equals(other.op) && this.left.equals(other.left)
-					&& this.right.equals(other.right)
-					&& this.other_v.equals(other.other_v);
+			        && this.right.equals(other.right)
+			        && this.other_v.equals(other.other_v);
 		}
 
 		return false;
@@ -153,14 +153,14 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 
 	@Override
 	public int hashCode() {
-		return this.op.hashCode() + this.left.hashCode()
-				+ this.right.hashCode() + this.other_v.hashCode();
+		return this.op.hashCode() + this.left.hashCode() + this.right.hashCode()
+		        + this.other_v.hashCode();
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String execute() {
-		String first = (String) left.execute();
+		String first = left.execute();
 		long secLong, thrdLong;
 		String secStr, thrdStr;
 
@@ -194,8 +194,7 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 		}
 	}
 
-	private static boolean containsSymbolicVariable(
-			ArrayList<Expression<?>> list) {
+	private static boolean containsSymbolicVariable(ArrayList<Expression<?>> list) {
 
 		for (Expression<?> e : list) {
 			if (e.containsSymbolicVariable()) {
@@ -223,6 +222,17 @@ public final class StringMultipleExpression extends AbstractExpression<String>
 			variables.addAll(other_e.getVariables());
 		}
 		return variables;
+	}
+
+	@Override
+	public Set<Object> getConstants() {
+		Set<Object> result = new HashSet<Object>();
+		result.addAll(this.left.getConstants());
+		result.addAll(this.right.getConstants());
+		for (Expression<?> other_e : this.other_v) {
+			result.addAll(other_e.getConstants());
+		}
+		return result;
 	}
 
 }

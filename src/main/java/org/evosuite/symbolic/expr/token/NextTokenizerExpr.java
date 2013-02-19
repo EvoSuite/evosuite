@@ -46,7 +46,7 @@ public final class NextTokenizerExpr extends TokenizerExpr {
 			return true;
 
 		if (obj instanceof NextTokenizerExpr) {
-			NextTokenizerExpr that = (NextTokenizerExpr) this;
+			NextTokenizerExpr that = this;
 			return this.tokenizerExpr.equals(that.tokenizerExpr);
 		} else
 			return false;
@@ -77,4 +77,8 @@ public final class NextTokenizerExpr extends TokenizerExpr {
 		return 1 + tokenizerExpr.getNextTokenCount();
 	}
 
+	@Override
+	public Set<Object> getConstants() {
+		return tokenizerExpr.getConstants();
+	}
 }
