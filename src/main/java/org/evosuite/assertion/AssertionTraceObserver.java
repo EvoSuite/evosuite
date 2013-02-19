@@ -40,7 +40,7 @@ public abstract class AssertionTraceObserver<T extends OutputTraceEntry> extends
         ExecutionObserver {
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(AssertionTraceObserver.class);
+	protected static final Logger logger = LoggerFactory.getLogger(AssertionTraceObserver.class);
 
 	protected OutputTrace<T> trace = new OutputTrace<T>();
 

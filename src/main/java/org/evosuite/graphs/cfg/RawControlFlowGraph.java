@@ -807,7 +807,6 @@ public class RawControlFlowGraph extends ControlFlowGraph<BytecodeInstruction> {
 	// TODO hack since RawControlFlowGraph is filled by CFGGenerator from the
 	// outside
 	/** {@inheritDoc} */
-	@Override
 	public boolean addVertex(BytecodeInstruction ins) {
 		return super.addVertex(ins);
 	}

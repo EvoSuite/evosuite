@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
 public class BranchInstrumentation implements MethodInstrumentation {
 
 	/** Constant <code>logger</code> */
-	protected static Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
+	protected static final Logger logger = LoggerFactory.getLogger(BranchInstrumentation.class);
 
 	/*
 	 * (non-Javadoc)

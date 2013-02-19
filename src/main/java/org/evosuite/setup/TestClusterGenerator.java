@@ -261,16 +261,18 @@ public class TestClusterGenerator {
 	 * Continue adding generators for classes that are needed
 	 */
 	private static void resolveDependencies(Set<String> blackList) {
-		dependencies.removeAll(analyzedClasses);
-
 		while (!dependencies.isEmpty()) {
 			logger.debug("Dependencies left: " + dependencies.size());
 
 			Iterator<Pair> iterator = dependencies.iterator();
 			Pair dependency = iterator.next();
 			iterator.remove();
-			String className = dependency.getDependencyClass().getClassName();
 
+			if(analyzedClasses.contains(dependency.getDependencyClass())) {
+				continue;
+			}
+			
+			String className = dependency.getDependencyClass().getClassName();
 			if (blackList.contains(className)) {
 				continue;
 			}
@@ -280,7 +282,6 @@ public class TestClusterGenerator {
 			if (!added) {
 				blackList.add(className);
 			}
-			dependencies.removeAll(analyzedClasses);
 		}
 
 	}
@@ -805,7 +806,7 @@ public class TestClusterGenerator {
 
 		for (java.lang.reflect.Type parameter : method.getGenericParameterTypes()) {
 			GenericClass parameterClass = new GenericClass(parameter);
-			if (parameterClass.isPrimitive() || parameterClass.equals(String.class))
+			if (parameterClass.isPrimitive() || parameterClass.isString())
 				continue;
 
 			logger.debug("Adding dependency " + parameterClass.getClassName());
@@ -837,26 +838,31 @@ public class TestClusterGenerator {
 	}
 
 	private static void addDependency(GenericClass clazz, int recursionLevel) {
-		if (analyzedClasses.contains(clazz) || dependencies.contains(clazz))
+		if (analyzedClasses.contains(clazz))
 			return;
 
 		if (clazz.isPrimitive())
 			return;
 
-		if (clazz.equals(String.class))
+		if (clazz.isString())
 			return;
-
+		
 		if (clazz.isArray()) {
 			addDependency(new GenericClass(clazz.getComponentType()), recursionLevel);
 			return;
 		}
 
-		// TODO: Shouldn't this be checked earlier?
 		if(!canUse(clazz.getRawClass()))
 			return;
 
 		if (!checkIfCanUse(clazz.getClassName()))
 			return;
+		
+		for(Pair pair : dependencies) {
+			if(pair.getDependencyClass().equals(clazz)) {
+				return;
+			}
+		}
 
 		logger.debug("Getting concrete classes for " + clazz.getClassName());
 		Set<Class<?>> actualClasses = getConcreteClasses(clazz.getRawClass());

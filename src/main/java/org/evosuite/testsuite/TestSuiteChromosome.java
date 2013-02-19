@@ -292,8 +292,9 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 			}
 		}
 
-		for (Integer branchId : covered.keySet()) {
-			int count = covered.get(branchId);
+		for(Entry<Integer, Integer> entry : covered.entrySet()) {
+			int branchId = entry.getKey();
+			int count = entry.getValue();
 			if (count == 1) {
 				TestChromosome duplicate = (TestChromosome) testMap.get(branchId).clone();
 				ExecutionResult result = duplicate.executeForFitnessFunction(objective);
