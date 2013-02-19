@@ -24,10 +24,9 @@ public class TestPatternSearch {
 	@Test
 	public void testMatcherMatches() {
 
-
 		String input = "random_value";
 		String format = "^(\\d+)-(\\d\\d)-(\\d)$";
-//		String format = "^(\\d+)-(\\d\\d)-(\\d)$";
+		// String format = "^(\\d+)-(\\d\\d)-(\\d)$";
 
 		StringVariable var0 = new StringVariable("var0", input);
 
@@ -43,18 +42,19 @@ public class TestPatternSearch {
 				.<Constraint<?>> singletonList(constraint);
 
 		ConstraintSolver skr = new ConstraintSolver();
-		Map<String, Object> solution = skr.solve(constraints);
-		
-		assertNotNull(solution);
-		String var0_value = (String) solution.get("var0");
+		Map<String, Object> solution;
+		try {
+			solution = skr.solve(constraints);
+			assertNotNull(solution);
+			String var0_value = (String) solution.get("var0");
 
-		Pattern pattern = Pattern.compile(format);
-		Matcher matcher = pattern.matcher(var0_value);
-		assertTrue(matcher.matches());
+			Pattern pattern = Pattern.compile(format);
+			Matcher matcher = pattern.matcher(var0_value);
+			assertTrue(matcher.matches());
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
-		
-		
-		
 	}
 
 }

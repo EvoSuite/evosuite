@@ -5,6 +5,7 @@ import java.util.Collection;
 
 import org.evosuite.Properties;
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.symbolic.search.ConstraintCache;
 import org.evosuite.utils.LoggingUtils;
 
 /**
@@ -17,6 +18,7 @@ public abstract class DSEStats {
 
 	private static long nrOfUNSATs = 0;
 	private static long nrOfSATs = 0;
+	private static long nrOfTimeouts = 0;
 	private static long nrOfSolutionWithNoImprovement = 0;
 	private static long nrOfNewTestFound = 0;
 
@@ -109,6 +111,41 @@ public abstract class DSEStats {
 
 		LoggingUtils.getEvoLogger().info("");
 		printTimeStatistics();
+
+		LoggingUtils.getEvoLogger().info("");
+		printCacheStatistics();
+		LoggingUtils.getEvoLogger().info("");
+
+	}
+
+	private static void printCacheStatistics() {
+		LoggingUtils.getEvoLogger().info("* DSE) Constraint Cache Statistics");
+		final int numberOfSATs = ConstraintCache.getInstance()
+				.getNumberOfSATs();
+		final int numberOfUNSATs = ConstraintCache.getInstance()
+				.getNumberOfUNSATs();
+
+		if (numberOfSATs == 0 || numberOfUNSATs == 0) {
+			LoggingUtils.getEvoLogger().info(
+					"* DSE)   Constraint Cache was not used.");
+
+		} else {
+
+			LoggingUtils.getEvoLogger().info(
+					String.format("* DSE)   Stored SAT constraints: %s",
+							numberOfSATs));
+
+			LoggingUtils.getEvoLogger().info(
+					String.format("* DSE)   Stored UNSAT constraints: %s",
+							numberOfUNSATs));
+
+			NumberFormat percentFormat = NumberFormat.getPercentInstance();
+			percentFormat.setMaximumFractionDigits(1);
+			String hit_rate_str = percentFormat.format(ConstraintCache
+					.getInstance().getHitRate());
+			LoggingUtils.getEvoLogger().info(
+					String.format("* DSE)   Cache hit rate: %s", hit_rate_str));
+		}
 	}
 
 	private static void printTimeStatistics() {
@@ -125,12 +162,13 @@ public abstract class DSEStats {
 
 	private static void printSolvingStatistics() {
 		long total_constraint_solvings = DSEStats.getSAT()
-				+ DSEStats.getUNSAT();
+				+ DSEStats.getUNSAT() + DSEStats.getTimeouts();
 
 		String SAT_ratio_str = "Nan";
 		String UNSAT_ratio_str = "Nan";
 		String useful_tests_ratio_str = "Nan";
 		String unuseful_tests_ratio_str = "Nan";
+		String timeout_ratio_str = "Nan";
 
 		if (total_constraint_solvings > 0) {
 			double SAT_ratio = (double) DSEStats.getSAT()
@@ -141,6 +179,9 @@ public abstract class DSEStats {
 					/ (double) total_constraint_solvings;
 			double unuseful_tests_ratio = (double) DSEStats.getUnusefulTests()
 					/ (double) total_constraint_solvings;
+			double timeout_ratio = (double) DSEStats.getTimeouts()
+					/ (double) total_constraint_solvings;
+
 			NumberFormat percentFormat = NumberFormat.getPercentInstance();
 			percentFormat.setMaximumFractionDigits(1);
 
@@ -149,6 +190,7 @@ public abstract class DSEStats {
 			useful_tests_ratio_str = percentFormat.format(useful_tests_ratio);
 			unuseful_tests_ratio_str = percentFormat
 					.format(unuseful_tests_ratio);
+			timeout_ratio_str = percentFormat.format(timeout_ratio);
 		}
 
 		LoggingUtils.getEvoLogger().info("* DSE) Solving statistics");
@@ -165,9 +207,14 @@ public abstract class DSEStats {
 				String.format("* DSE)   UNSAT: %s (%s)", DSEStats.getUNSAT(),
 						UNSAT_ratio_str));
 		LoggingUtils.getEvoLogger().info(
+				String.format("* DSE)   Timeouts: %s (%s)", timeout_ratio_str,
+						DSEStats.getTimeouts()));
+
+		LoggingUtils.getEvoLogger().info(
 				String.format("* DSE)   # Constraint solvings: %s (%s+%s)",
 						total_constraint_solvings, DSEStats.getSAT(),
 						DSEStats.getUNSAT()));
+
 	}
 
 	private static void printConstraintSizeStatistics() {
@@ -294,6 +341,14 @@ public abstract class DSEStats {
 
 	public static void reportConstraintTooLong(int size) {
 		constraintTooLongCounter++;
+	}
+
+	public static void reportNewTimeout() {
+		nrOfTimeouts++;
+	}
+
+	public static long getTimeouts() {
+		return nrOfTimeouts;
 	}
 
 }

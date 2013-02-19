@@ -79,7 +79,7 @@ public class TestStringSearch2 {
 		String pathURN = "u:path:/";
 		checkPathURN(pathURN);
 	}
-	
+
 	@Test
 	public void testInvalidPathURN() {
 		try {
@@ -139,10 +139,15 @@ public class TestStringSearch2 {
 		constraints.add(last_branch.getLocalConstraint().negate());
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
+			assertNotNull(solution);
+			System.out.println(solution);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
-		assertNotNull(solution);
-		System.out.println(solution);
 	}
 
 	@Test
@@ -159,9 +164,14 @@ public class TestStringSearch2 {
 		constraints.add(last_branch.getLocalConstraint().negate());
 
 		ConstraintSolver solver = new ConstraintSolver();
-		Map<String, Object> solution = solver.solve(constraints);
+		Map<String, Object> solution;
+		try {
+			solution = solver.solve(constraints);
+			assertNotNull(solution);
+			System.out.println(solution);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
 
-		assertNotNull(solution);
-		System.out.println(solution);
 	}
 }
