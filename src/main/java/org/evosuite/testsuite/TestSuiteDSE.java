@@ -23,11 +23,14 @@ package org.evosuite.testsuite;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TreeMap;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -87,13 +90,39 @@ public class TestSuiteDSE {
 
 	private final Map<String, Integer> solutionAttempts = new HashMap<String, Integer>();
 
-	private class TestBranchPair {
+	private class TestBranchPair implements Comparable<TestBranchPair> {
 		TestChromosome test;
 		BranchCondition branch;
 
-		TestBranchPair(TestChromosome test, BranchCondition branch) {
+		private final double ranking;
+
+		TestBranchPair(TestChromosome test, BranchCondition branchCondition) {
 			this.test = test;
-			this.branch = branch;
+			this.branch = branchCondition;
+			this.ranking = computeRanking(branchCondition);
+		}
+
+		public double getRanking() {
+			return ranking;
+		}
+
+		private double computeRanking(BranchCondition condition) {
+			int length = 1 + condition.getReachingConstraints().size();
+
+			int totalSize = 0;
+			for (Constraint<?> constraint : condition.getReachingConstraints()) {
+				totalSize += constraint.getSize();
+			}
+			double avg_size = (double) totalSize
+					/ (double) condition.getReachingConstraints().size();
+
+			double ranking = length * avg_size;
+			return ranking;
+		}
+
+		@Override
+		public int compareTo(TestBranchPair arg0) {
+			return Double.compare(this.ranking, arg0.ranking);
 		}
 
 	}
@@ -269,71 +298,80 @@ public class TestSuiteDSE {
 		TestSuiteChromosome expandedTests = expandTestSuite(individual);
 		double minimum_fitness = fitness.getFitness(expandedTests);
 
-		Stack<TestCase> test_cases = new Stack<TestCase>();
-		test_cases.addAll(expandedTests.getTests());
+		queue.clear();
+		for (TestCase test_case : expandedTests.getTests()) {
+			TestChromosome testChromosome = new TestChromosome();
+			testChromosome.setTestCase(test_case);
+			updateRankingQueue(testChromosome);
+		}
 
-		while (!test_cases.isEmpty()) {
-			TestCase testCase = test_cases.pop();
-			List<BranchCondition> path_condition = executeConcolically((DefaultTestCase) testCase);
-			((DefaultTestCase) testCase)
-					.changeClassLoader(TestGenerationContext.getClassLoader());
+		while (!queue.isEmpty()) {
 
-			for (BranchCondition condition : path_condition) {
-				HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
-				constraints.addAll(condition.getReachingConstraints());
-				constraints.add(condition.getLocalConstraint().negate());
+			TestBranchPair testBranchPair = queue.poll();
 
-				CachedConstraintSolver solver = new CachedConstraintSolver();
-				DSEStats.reportNewConstraints(constraints);
+			BranchCondition condition = testBranchPair.branch;
+			TestCase testCase = testBranchPair.test.getTestCase();
 
-				long startSolvingTime = System.currentTimeMillis();
-				Map<String, Object> solution;
-				try {
-					solution = solver.solve(constraints);
-					long estimatedSolvingTime = System.currentTimeMillis()
-							- startSolvingTime;
-					DSEStats.reportNewSolvingTime(estimatedSolvingTime);
-				} catch (ConstraintSolverTimeoutException e) {
-					solution = null;
-					DSEStats.reportNewTimeout();
-					break; // stop working on this path condition
-				}
+			HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
+			constraints.addAll(condition.getReachingConstraints());
+			constraints.add(condition.getLocalConstraint().negate());
+
+			CachedConstraintSolver solver = new CachedConstraintSolver();
+			DSEStats.reportNewConstraints(constraints);
+
+			long startSolvingTime = System.currentTimeMillis();
+			Map<String, Object> solution;
+			try {
+				solution = solver.solve(constraints);
 				long estimatedSolvingTime = System.currentTimeMillis()
 						- startSolvingTime;
 				DSEStats.reportNewSolvingTime(estimatedSolvingTime);
+				System.out.println("Ranking->" + testBranchPair.getRanking());
+				System.out.println("Solving time->"
+						+ (((double) estimatedSolvingTime / 1000)));
+			} catch (ConstraintSolverTimeoutException e) {
+				solution = null;
+				DSEStats.reportNewTimeout();
+				System.out.println("Ranking->" + testBranchPair.getRanking());
+				System.out.println("Solving TIMEOUT!");
+				break; // stop working on this test
+			}
+			long estimatedSolvingTime = System.currentTimeMillis()
+					- startSolvingTime;
+			DSEStats.reportNewSolvingTime(estimatedSolvingTime);
 
-				if (solution != null) {
-					DSEStats.reportNewSAT();
-					DefaultTestCase newTest = (DefaultTestCase) updateTest(
-							testCase, solution);
+			if (solution != null) {
+				DSEStats.reportNewSAT();
+				DefaultTestCase newTest = (DefaultTestCase) updateTest(
+						testCase, solution);
 
-					expandedTests.addTest(newTest);
+				expandedTests.addTest(newTest);
 
-					double newFitness = fitness.getFitness(expandedTests);
+				double newFitness = fitness.getFitness(expandedTests);
 
-					if (newFitness < minimum_fitness) {
-						System.out.println("new fitness->" + newFitness);
-						DSEStats.reportNewTestUseful();
-						minimum_fitness = newFitness;
-						test_cases.push(newTest);
-						individual.addTest(newTest);
-						wasSuccess = true;
-					} else {
-						DSEStats.reportNewTestUnuseful();
-						expandedTests.deleteTest(newTest);
-					}
-					success++;
+				if (newFitness < minimum_fitness) {
+					System.out.println("new fitness->" + newFitness);
+					DSEStats.reportNewTestUseful();
+					minimum_fitness = newFitness;
+					TestChromosome newTestChromosome = individual
+							.addTest(newTest);
+					updateRankingQueue(newTestChromosome);
+					wasSuccess = true;
 				} else {
-					// unsat
-					DSEStats.reportNewUNSAT();
-
-					failed++;
-					logger.info("Failed to find new test.");
+					DSEStats.reportNewTestUnuseful();
+					expandedTests.deleteTest(newTest);
 				}
+				success++;
+			} else {
+				// unsat
+				DSEStats.reportNewUNSAT();
 
+				failed++;
+				logger.info("Failed to find new test.");
 			}
 
 		}
+
 		logger.info("Finished DSE");
 		fitness.getFitness(individual);
 		DSEBudget.evaluation();
@@ -341,14 +379,19 @@ public class TestSuiteDSE {
 		return wasSuccess;
 	}
 
-	private List<BranchCondition> executeConcolically(DefaultTestCase testCase) {
+	private final PriorityQueue<TestBranchPair> queue = new PriorityQueue<TestBranchPair>();
 
-		TestChromosome testChromosome = new TestChromosome();
-		testChromosome.setTestCase(testCase);
+	private void updateRankingQueue(TestChromosome testChromosome) {
+
 		List<BranchCondition> path_condition = ConcolicExecution
 				.getSymbolicPath(testChromosome);
-
-		return path_condition;
+		DefaultTestCase defaultTestCase = (DefaultTestCase) testChromosome
+				.getTestCase();
+		defaultTestCase.changeClassLoader(TestGenerationContext
+				.getClassLoader());
+		for (BranchCondition branchCondition : path_condition) {
+			queue.add(new TestBranchPair(testChromosome, branchCondition));
+		}
 	}
 
 	/**
@@ -506,26 +549,6 @@ public class TestSuiteDSE {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Concrete execution
-	 * 
-	 * @param test
-	 * @return
-	 */
-	private ExecutionResult runTest(TestCase test) {
-
-		ExecutionResult result = new ExecutionResult(test, null);
-
-		try {
-			result = TestCaseExecutor.getInstance().execute(test);
-		} catch (Exception e) {
-			logger.error("", e);
-			throw new Error(e);
-		}
-
-		return result;
 	}
 
 	/**
