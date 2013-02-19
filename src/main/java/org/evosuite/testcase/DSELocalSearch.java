@@ -14,7 +14,7 @@ import org.evosuite.symbolic.DSEStats;
 import org.evosuite.symbolic.expr.Constraint;
 import org.evosuite.symbolic.expr.Expression;
 import org.evosuite.symbolic.expr.Variable;
-import org.evosuite.symbolic.search.ConstraintSolver;
+import org.evosuite.symbolic.search.CachedConstraintSolver;
 import org.evosuite.symbolic.search.ConstraintSolverTimeoutException;
 import org.evosuite.testsuite.TestCaseExpander;
 import org.evosuite.utils.Randomness;
@@ -86,7 +86,7 @@ public class DSELocalSearch extends LocalSearch {
 			DSEStats.reportNewConstraints(constraints);
 
 			// Get solution
-			ConstraintSolver skr = new ConstraintSolver();
+			CachedConstraintSolver skr = new CachedConstraintSolver();
 
 			long startSolvingTime = System.currentTimeMillis();
 			Map<String, Object> values;
