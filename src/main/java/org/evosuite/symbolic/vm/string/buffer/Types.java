@@ -42,4 +42,7 @@ public interface Types {
 	public static final String STR_TO_STRING_BUFFER = Type.getMethodDescriptor(
 			STRING_BUFFER_TYPE, STRING_TYPE);
 
+	public static final String INT_TO_VOID_DESCRIPTOR = Type.getMethodDescriptor(
+			Type.VOID_TYPE, Type.INT_TYPE);;
+
 }

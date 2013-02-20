@@ -73,6 +73,7 @@ import org.evosuite.symbolic.vm.string.ToUpperCase;
 import org.evosuite.symbolic.vm.string.Trim;
 import org.evosuite.symbolic.vm.string.ValueOf;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Init.StringBufferInit_S;
+import org.evosuite.symbolic.vm.string.buffer.StringBuffer_SetLength;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_ToString;
 import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
@@ -169,6 +170,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new StringBufferAppend_F(env));
 		addFunctionToTable(new StringBufferAppend_D(env));
 		addFunctionToTable(new StringBufferAppend_STR(env));
+		addFunctionToTable(new StringBuffer_SetLength(env));
 
 		// java.lang.Integer
 		addFunctionToTable(new I_Init(env));
