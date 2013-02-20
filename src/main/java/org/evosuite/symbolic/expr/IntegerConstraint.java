@@ -26,6 +26,8 @@ import org.evosuite.symbolic.expr.bv.IntegerConstant;
 import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
+import org.evosuite.symbolic.expr.reader.StringReaderExpr;
+import org.evosuite.symbolic.expr.str.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -122,6 +124,12 @@ public final class IntegerConstraint extends Constraint<Long> {
 		if (distance != -1)
 			return distance;
 
+		// special cases: reader.read()==-1
+		// special cases: reader.read()!=-1
+		distance = getDistanceStringReaderLength(leftVal, rightVal);
+		if (distance != -1)
+			return distance;
+
 		Comparator cmpr = this.getComparator();
 		log.debug("Calculating distance for " + leftVal + " " + cmpr + " "
 				+ rightVal);
@@ -152,6 +160,66 @@ public final class IntegerConstraint extends Constraint<Long> {
 			return Long.MAX_VALUE;
 		}
 
+	}
+
+	private long getDistanceStringReaderLength(long leftVal, long rightVal) {
+		if (left instanceof StringReaderExpr
+				&& right instanceof IntegerConstant) {
+			StringReaderExpr stringReaderExpr = (StringReaderExpr) left;
+			IntegerConstant intValue = (IntegerConstant) right;
+
+			String conc_string = stringReaderExpr.getString().execute();
+			int new_length = stringReaderExpr.getReaderPosition();
+			int conc_string_length = conc_string.length();
+
+			if ((intValue.getConcreteValue() == 0L)
+					&& this.getComparator().equals(Comparator.LT)) {
+
+				if (conc_string_length <= new_length)
+					return 0L;
+				else {
+					// return distance to length(string)<=new_length
+					return conc_string_length - new_length;
+				}
+			}
+
+			if ((intValue.getConcreteValue() == 0L)
+					&& this.getComparator().equals(Comparator.GE)) {
+
+				if (conc_string_length > new_length)
+					return 0L;
+				else {
+					// return distance to length(string)>new_length
+					return new_length - conc_string_length + 1;
+				}
+			}
+			
+
+			if ((intValue.getConcreteValue() == -1L)
+					&& (this.getComparator().equals(Comparator.EQ) || this
+							.getComparator().equals(Comparator.NE))) {
+
+				if (this.getComparator().equals(Comparator.EQ)) {
+					if (conc_string_length <= new_length)
+						return 0L;
+					else {
+						// return distance to length(string)<=new_length
+						return conc_string_length - new_length;
+					}
+
+				} else if (this.getComparator().equals(Comparator.NE)) {
+					if (conc_string_length > new_length)
+						return 0L;
+					else {
+						// return distance to length(string)>new_length
+						return new_length - conc_string_length + 1;
+					}
+				}
+			}
+
+		}
+		// TODO Auto-generated method stub
+		return -1L;
 	}
 
 	private long getDistanceIndexOfCIFound(long leftVal, long rightVal) {

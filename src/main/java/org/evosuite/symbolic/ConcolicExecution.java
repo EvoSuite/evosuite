@@ -114,13 +114,14 @@ public abstract class ConcolicExecution {
 
 		try {
 			logger.debug("Executing test");
-			
-			long startConcolicExecutionTime = System.currentTimeMillis();		
+
+			long startConcolicExecutionTime = System.currentTimeMillis();
 			result = TestCaseExecutor.getInstance().execute(defaultTestCase,
 					Properties.CONCOLIC_TIMEOUT);
-			long estimatedConcolicExecutionTime = System.currentTimeMillis() - startConcolicExecutionTime;
-			DSEStats.reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);			
-			
+			long estimatedConcolicExecutionTime = System.currentTimeMillis()
+					- startConcolicExecutionTime;
+			DSEStats.reportNewConcolicExecutionTime(estimatedConcolicExecutionTime);
+
 			MaxStatementsStoppingCondition.statementsExecuted(result
 					.getExecutedStatements());
 

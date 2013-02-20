@@ -411,6 +411,8 @@ public final class SymbolicHeap {
 
 	public static String $STRING_TOKENIZER_VALUE = "$stringTokenizerValue";
 
+	public static String $STRING_READER_VALUE = "$stringReaderValue";
+
 	public static final String $MATCHER_INPUT = "$matcherInput";
 
 	public static final String $BOOLEAN_VALUE = "$booleanValue";

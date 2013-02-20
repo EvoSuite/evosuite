@@ -321,14 +321,9 @@ public class TestSuiteDSE {
 				long estimatedSolvingTime = System.currentTimeMillis()
 						- startSolvingTime;
 				DSEStats.reportNewSolvingTime(estimatedSolvingTime);
-				System.out.println("Ranking->" + testBranchPair.getRanking());
-				System.out.println("Solving time->"
-						+ (((double) estimatedSolvingTime / 1000)));
 			} catch (ConstraintSolverTimeoutException e) {
 				solution = null;
 				DSEStats.reportNewTimeout();
-				System.out.println("Ranking->" + testBranchPair.getRanking());
-				System.out.println("Solving TIMEOUT!");
 				break; // stop working on this test
 			}
 			long estimatedSolvingTime = System.currentTimeMillis()
