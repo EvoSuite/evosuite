@@ -300,7 +300,7 @@ public class TestSuiteDSE {
 			updateRankingQueue(testChromosome);
 		}
 
-		while (!queue.isEmpty()) {
+		while (!queue.isEmpty() && !DSEBudget.isFinished()) {
 
 			TestBranchPair testBranchPair = queue.poll();
 
