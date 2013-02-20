@@ -79,6 +79,9 @@ import org.evosuite.symbolic.vm.string.buffer.StringBuffer_Append.*;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Append;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_Init;
 import org.evosuite.symbolic.vm.string.builder.StringBuilder_ToString;
+import org.evosuite.symbolic.vm.string.reader.Reader_Read;
+import org.evosuite.symbolic.vm.string.reader.StringReader_Init;
+import org.evosuite.symbolic.vm.string.reader.StringReader_Read;
 import org.evosuite.symbolic.vm.string.tokenizer.HasMoreTokens;
 import org.evosuite.symbolic.vm.string.tokenizer.NextToken;
 import org.evosuite.symbolic.vm.string.tokenizer.StringTokenizer_Init;
@@ -320,6 +323,13 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		addFunctionToTable(new HasMoreTokens(env));
 		addFunctionToTable(new NextToken(env));
 
+		// java.io.StringReader
+		addFunctionToTable(new StringReader_Init(env));
+		addFunctionToTable(new StringReader_Read(env));
+
+		// java.io.Reader
+		addFunctionToTable(new Reader_Read(env));
+		
 		// java.util.regex.Pattern
 		addFunctionToTable(new Pattern_Matches(env));
 		addFunctionToTable(new Pattern_Matcher(env));

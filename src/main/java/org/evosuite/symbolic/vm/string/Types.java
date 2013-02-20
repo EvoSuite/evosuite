@@ -9,6 +9,8 @@ import static org.objectweb.asm.Type.LONG_TYPE;
 import static org.objectweb.asm.Type.VOID_TYPE;
 import static org.objectweb.asm.Type.getMethodDescriptor;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.StringTokenizer;
 
 import org.objectweb.asm.Type;
@@ -124,4 +126,9 @@ public interface Types {
 	public static final String INT_STR_INT_INT_TO_BOOL_DESCRIPTOR = getMethodDescriptor(
 			BOOLEAN_TYPE, INT_TYPE, STRING_TYPE, INT_TYPE, INT_TYPE);
 
+	static final String JAVA_IO_STRING_READER = StringReader.class.getName()
+			.replace(".", "/");
+
+	public static final String JAVA_IO_READER = Reader.class.getName().replace(
+			".", "/");
 }
