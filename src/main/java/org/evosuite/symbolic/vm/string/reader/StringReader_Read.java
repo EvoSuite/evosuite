@@ -61,6 +61,6 @@ public final class StringReader_Read extends SymbolicFunction {
 			return stringReaderExpr;
 
 		}
-		return this.getSymbRetVal();
+		return this.getSymbIntegerRetVal();
 	}
 }
