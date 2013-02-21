@@ -21,6 +21,7 @@
 package org.evosuite.testsuite;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -79,11 +80,11 @@ public class TestSuiteDSE {
 
 	private final Map<TestChromosome, List<BranchCondition>> branchConditions = new HashMap<TestChromosome, List<BranchCondition>>();
 
-	private final List<TestBranchPair> unsolvedBranchConditions = new ArrayList<TestBranchPair>();
-
 	private final Set<BranchCondition> unsolvableBranchConditions = new HashSet<BranchCondition>();
 
 	private final Map<String, Integer> solutionAttempts = new HashMap<String, Integer>();
+
+	private final Collection<TestBranchPair> unsolvedBranchConditions;
 
 	private class TestBranchPair implements Comparable<TestBranchPair> {
 		TestChromosome test;
@@ -133,6 +134,12 @@ public class TestSuiteDSE {
 	 */
 	public TestSuiteDSE(TestSuiteFitnessFunction fitness) {
 		this.fitness = fitness;
+		if (Properties.DSE_RANK_BRANCH_CONDITIONS) {
+			this.unsolvedBranchConditions = new PriorityQueue<TestBranchPair>();
+		} else {
+			this.unsolvedBranchConditions = new ArrayList<TestBranchPair>();
+		}
+
 	}
 
 	/**
@@ -180,40 +187,58 @@ public class TestSuiteDSE {
 	 */
 	private void calculateUncoveredBranches() {
 		unsolvedBranchConditions.clear();
-		Map<String, Map<Comparator, Set<TestBranchPair>>> solvedConstraints = new HashMap<String, Map<Comparator, Set<TestBranchPair>>>();
 
-		for (TestChromosome test : branchConditions.keySet()) {
-			for (BranchCondition branch : branchConditions.get(test)) {
+		if (Properties.DSE_NEGATE_ALL_CONDITIONS == true) {
 
-				if (unsolvableBranchConditions.contains(branch))
-					continue;
+			for (TestChromosome testChromosome : branchConditions.keySet()) {
+				for (BranchCondition branchCondition : branchConditions
+						.get(testChromosome)) {
+					if (!unsolvableBranchConditions.contains(branchCondition)) {
+						unsolvedBranchConditions.add(new TestBranchPair(
+								testChromosome, branchCondition));
+					}
+				}
+			}
+		} else {
+			Map<String, Map<Comparator, Set<TestBranchPair>>> solvedConstraints = new HashMap<String, Map<Comparator, Set<TestBranchPair>>>();
+			for (TestChromosome test : branchConditions.keySet()) {
+				for (BranchCondition branch : branchConditions.get(test)) {
 
-				String index = getBranchIndex(branch);
-				if (!solvedConstraints.containsKey(index))
-					solvedConstraints.put(index,
-							new HashMap<Comparator, Set<TestBranchPair>>());
+					if (unsolvableBranchConditions.contains(branch))
+						continue;
 
-				Constraint<?> c = branch.getLocalConstraint();
-				if (!solvedConstraints.get(index)
-						.containsKey(c.getComparator()))
-					solvedConstraints.get(index).put(c.getComparator(),
-							new HashSet<TestBranchPair>());
-				solvedConstraints.get(index).get(c.getComparator())
-						.add(new TestBranchPair(test, branch));
+					String index = getBranchIndex(branch);
+					if (!solvedConstraints.containsKey(index))
+						solvedConstraints.put(index,
+								new HashMap<Comparator, Set<TestBranchPair>>());
+
+					Constraint<?> c = branch.getLocalConstraint();
+
+					if (!solvedConstraints.get(index).containsKey(
+							c.getComparator()))
+						solvedConstraints.get(index).put(c.getComparator(),
+								new HashSet<TestBranchPair>());
+
+					solvedConstraints.get(index).get(c.getComparator())
+							.add(new TestBranchPair(test, branch));
+				}
+			}
+
+			for (String index : solvedConstraints.keySet()) {
+				if (solvedConstraints.get(index).size() == 1) {
+					Set<TestBranchPair> branches = solvedConstraints.get(index)
+							.values().iterator().next();
+					unsolvedBranchConditions.addAll(branches);
+				}
+			}
+			logger.info("Update set of unsolved branch conditions to "
+					+ unsolvedBranchConditions.size());
+
+			if (Properties.DSE_RANK_BRANCH_CONDITIONS == false) {
+				Randomness
+						.shuffle((ArrayList<TestBranchPair>) unsolvedBranchConditions);
 			}
 		}
-
-		for (String index : solvedConstraints.keySet()) {
-			if (solvedConstraints.get(index).size() == 1) {
-				Set<TestBranchPair> branches = solvedConstraints.get(index)
-						.values().iterator().next();
-				unsolvedBranchConditions.addAll(branches);
-			}
-		}
-		logger.info("Update set of unsolved branch conditions to "
-				+ unsolvedBranchConditions.size());
-
-		Randomness.shuffle(unsolvedBranchConditions);
 	}
 
 	/**
@@ -233,6 +258,7 @@ public class TestSuiteDSE {
 	 * @param testSuite
 	 */
 	private void createPathConstraints(TestSuiteChromosome testSuite) {
+
 		for (TestChromosome test : testSuite.getTestChromosomes()) {
 			updatePathConstraints(test);
 		}
@@ -249,7 +275,12 @@ public class TestSuiteDSE {
 	 * @return
 	 */
 	private TestBranchPair getNextBranchCondition() {
-		TestBranchPair pair = unsolvedBranchConditions.remove(0);
+		TestBranchPair pair;
+		pair = getNextTestBranchPair();
+
+		if (Properties.DSE_NEGATE_ALL_CONDITIONS == true) {
+			return pair;
+		}
 
 		String index = getBranchIndex(pair.branch);
 		if (!unsolvedBranchConditions.isEmpty()) {
@@ -258,7 +289,7 @@ public class TestSuiteDSE {
 					&& !unsolvedBranchConditions.isEmpty()) {
 				logger.info("Reached maximum number of attempts for branch "
 						+ index);
-				pair = unsolvedBranchConditions.remove(0);
+				pair = getNextTestBranchPair();
 				index = getBranchIndex(pair.branch);
 			}
 		}
@@ -271,6 +302,18 @@ public class TestSuiteDSE {
 		return pair;
 	}
 
+	private TestBranchPair getNextTestBranchPair() {
+		TestBranchPair pair;
+		if (Properties.DSE_RANK_BRANCH_CONDITIONS) {
+			pair = ((PriorityQueue<TestBranchPair>) unsolvedBranchConditions)
+					.poll();
+		} else {
+			pair = ((ArrayList<TestBranchPair>) unsolvedBranchConditions)
+					.remove(0);
+		}
+		return pair;
+	}
+
 	/**
 	 * Check if there are further candidates for negation
 	 * 
@@ -278,110 +321,6 @@ public class TestSuiteDSE {
 	 */
 	private boolean hasNextBranchCondition() {
 		return !unsolvedBranchConditions.isEmpty();
-	}
-
-	/**
-	 * Attempt to negate individual branches until budget is used up, or there
-	 * are no further branches to negate
-	 * 
-	 * @param individual
-	 */
-	private boolean applyNegateAllConditionsDSE(TestSuiteChromosome individual) {
-		logger.info("[DSE] Current test suite: " + individual.toString());
-
-		boolean wasSuccess = false;
-		TestSuiteChromosome expandedTests = expandTestSuite(individual);
-		double minimum_fitness = fitness.getFitness(expandedTests);
-
-		queue.clear();
-		for (TestCase test_case : expandedTests.getTests()) {
-			TestChromosome testChromosome = new TestChromosome();
-			testChromosome.setTestCase(test_case);
-			updateRankingQueue(testChromosome);
-		}
-
-		while (!queue.isEmpty() && !DSEBudget.isFinished()) {
-
-			TestBranchPair testBranchPair = queue.poll();
-
-			BranchCondition condition = testBranchPair.branch;
-			TestCase testCase = testBranchPair.test.getTestCase();
-
-			HashSet<Constraint<?>> constraints = new HashSet<Constraint<?>>();
-			constraints.addAll(condition.getReachingConstraints());
-			constraints.add(condition.getLocalConstraint().negate());
-
-			CachedConstraintSolver solver = new CachedConstraintSolver();
-			DSEStats.reportNewConstraints(constraints);
-
-			long startSolvingTime = System.currentTimeMillis();
-			Map<String, Object> solution;
-			try {
-				solution = solver.solve(constraints);
-				long estimatedSolvingTime = System.currentTimeMillis()
-						- startSolvingTime;
-				DSEStats.reportNewSolvingTime(estimatedSolvingTime);
-			} catch (ConstraintSolverTimeoutException e) {
-				solution = null;
-				DSEStats.reportNewTimeout();
-				break; // stop working on this test
-			}
-			long estimatedSolvingTime = System.currentTimeMillis()
-					- startSolvingTime;
-			DSEStats.reportNewSolvingTime(estimatedSolvingTime);
-
-			if (solution != null) {
-				DSEStats.reportNewSAT();
-				DefaultTestCase newTest = (DefaultTestCase) updateTest(
-						testCase, solution);
-
-				expandedTests.addTest(newTest);
-
-				double newFitness = fitness.getFitness(expandedTests);
-
-				if (newFitness < minimum_fitness) {
-					System.out.println("new fitness->" + newFitness);
-					DSEStats.reportNewTestUseful();
-					minimum_fitness = newFitness;
-					TestChromosome newTestChromosome = individual
-							.addTest(newTest);
-					updateRankingQueue(newTestChromosome);
-					wasSuccess = true;
-				} else {
-					DSEStats.reportNewTestUnuseful();
-					expandedTests.deleteTest(newTest);
-				}
-				success++;
-			} else {
-				// unsat
-				DSEStats.reportNewUNSAT();
-
-				failed++;
-				logger.info("Failed to find new test.");
-			}
-
-		}
-
-		logger.info("Finished DSE");
-		fitness.getFitness(individual);
-		DSEBudget.evaluation();
-
-		return wasSuccess;
-	}
-
-	private final PriorityQueue<TestBranchPair> queue = new PriorityQueue<TestBranchPair>();
-
-	private void updateRankingQueue(TestChromosome testChromosome) {
-
-		List<BranchCondition> path_condition = ConcolicExecution
-				.getSymbolicPath(testChromosome);
-		DefaultTestCase defaultTestCase = (DefaultTestCase) testChromosome
-				.getTestCase();
-		defaultTestCase.changeClassLoader(TestGenerationContext
-				.getClassLoader());
-		for (BranchCondition branchCondition : path_condition) {
-			queue.add(new TestBranchPair(testChromosome, branchCondition));
-		}
 	}
 
 	/**
@@ -681,11 +620,6 @@ public class TestSuiteDSE {
 	 * @param individual
 	 */
 	public boolean applyDSE(TestSuiteChromosome individual) {
-
-		if (Properties.DSE_NEGATE_ALL_CONDITIONS == true) {
-			return applyNegateAllConditionsDSE(individual);
-		}
-
 		logger.info("[DSE] Current test suite: " + individual.toString());
 
 		boolean wasSuccess = false;
@@ -699,24 +633,15 @@ public class TestSuiteDSE {
 			logger.info("DSE time remaining: " + DSEBudget.getTimeRemaining());
 			logger.info("Branches remaining: "
 					+ unsolvedBranchConditions.size());
-			/*
-			 * for (TestBranchPair b : unsolvedBranchConditions) {
-			 * logger.info(b.branch.getFullName() + " : " +
-			 * b.branch.getInstructionIndex() + ", " +
-			 * b.branch.getReachingConstraints().size()); }
-			 */
+
 			TestBranchPair next = getNextBranchCondition();
 			BranchCondition branch = next.branch;
-			// logger.info("Chosen branch condition: " + branch);
-			// logger.info(branch.getReachingConstraints().toString());
 
 			TestCase newTest = negateCondition(branch.getReachingConstraints(),
 					branch.getLocalConstraint(), next.test.getTestCase());
 
 			if (newTest != null) {
 				logger.info("Found new test: " + newTest.toCode());
-				// TestChromosome newTestChromosome =
-				// expandedTests.addTest(newTest);
 				TestChromosome newTestChromosome = new TestChromosome();
 				newTestChromosome.setTestCase(newTest);
 				expandedTests.addTest(newTestChromosome);
@@ -729,17 +654,16 @@ public class TestSuiteDSE {
 				} else {
 
 					if (fitness.getFitness(expandedTests) < originalFitness) {
+						System.out.println("new fitness->"
+								+ expandedTests.getFitness());
 						logger.info("New test improves fitness to {}",
 								expandedTests.getFitness());
 						DSEStats.reportNewTestUseful();
 						wasSuccess = true;
-						// expandedTests.addTest(newTestChromosome); // no need
-						// to
-						// clone so we
-						// can keep
-						// executionresult
+
+						// no need to clone so we can keep executionresult
 						updatePathConstraints(newTestChromosome);
-						calculateUncoveredBranches();
+						calculateUncoveredBranches(newTestChromosome);
 						individual.addTest(newTest);
 						originalFitness = expandedTests.getFitness();
 						// TODO: Cancel on fitness 0 - would need to know if
@@ -764,4 +688,18 @@ public class TestSuiteDSE {
 		return wasSuccess;
 	}
 
+	private void calculateUncoveredBranches(TestChromosome newTestChromosome) {
+
+		if (Properties.DSE_NEGATE_ALL_CONDITIONS == true) {
+			for (BranchCondition branchCondition : branchConditions
+					.get(newTestChromosome)) {
+				if (!unsolvableBranchConditions.contains(branchCondition)) {
+					unsolvedBranchConditions.add(new TestBranchPair(
+							newTestChromosome, branchCondition));
+				}
+			}
+		} else {
+			calculateUncoveredBranches();
+		}
+	}
 }
