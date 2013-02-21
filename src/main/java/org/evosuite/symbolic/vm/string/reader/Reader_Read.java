@@ -69,6 +69,6 @@ public final class Reader_Read extends SymbolicFunction {
 
 		}
 
-		return this.getSymbRetVal();
+		return this.getSymbIntegerRetVal();
 	}
 }
