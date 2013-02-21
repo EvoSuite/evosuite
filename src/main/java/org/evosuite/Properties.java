@@ -270,6 +270,10 @@ public class Properties {
 	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code>*/
 	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "Search Algorithm", description = "Maximum number of solving time for Constraint solver in milliseconds")
 	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0;
+	
+	/** Constant <code>DSE_RANK_BRANCH_CONDITIONS=false</code>*/
+	@Parameter(key = "dse_rank_branch_conditions", group = "Search Algorithm", description = "Rank branch conditions")
+	public static boolean DSE_RANK_BRANCH_CONDITIONS=false;
 
 	/** Constant <code>DSE_NEGATE_ALL_CONDITIONS=false</code>*/
 	@Parameter(key = "dse_negate_all_conditions", group = "Search Algorithm", description = "Negate all branch conditions in the path condition (covered or not)")
