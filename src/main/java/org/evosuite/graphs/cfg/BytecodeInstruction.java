@@ -66,7 +66,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	protected String className;
 	protected String methodName;
 	protected int instructionId;
-	protected int jpfId;
+	protected int bytecodeOffset;
 
 	// auxiliary information
 	private int lineNumber = -1;
@@ -87,13 +87,13 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 *            a {@link java.lang.String} object.
 	 * @param instructionId
 	 *            a int.
-	 * @param jpfId
+	 * @param bytecodeOffset
 	 *            a int.
 	 * @param asmNode
 	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
 	 */
 	public BytecodeInstruction(ClassLoader classLoader, String className,
-	        String methodName, int instructionId, int jpfId, AbstractInsnNode asmNode) {
+	        String methodName, int instructionId, int bytecodeOffset, AbstractInsnNode asmNode) {
 
 		if (className == null || methodName == null || asmNode == null)
 			throw new IllegalArgumentException("null given");
@@ -102,7 +102,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 					"expect instructionId to be positive, not " + instructionId);
 
 		this.instructionId = instructionId;
-		this.jpfId = jpfId;
+		this.bytecodeOffset = bytecodeOffset;
 		this.asmNode = asmNode;
 
 		this.classLoader = classLoader;
@@ -120,7 +120,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.classLoader, wrap.className, wrap.methodName, wrap.instructionId,
-		        wrap.jpfId, wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
+		        wrap.bytecodeOffset, wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
 		this.forcedBranch = wrap.forcedBranch;
 		this.frame = wrap.frame;
 	}
@@ -136,7 +136,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 *            a {@link java.lang.String} object.
 	 * @param instructionId
 	 *            a int.
-	 * @param jpfId
+	 * @param bytecodeOffset
 	 *            a int.
 	 * @param asmNode
 	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
@@ -146,10 +146,10 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 *            a {@link org.evosuite.graphs.cfg.BasicBlock} object.
 	 */
 	public BytecodeInstruction(ClassLoader classLoader, String className,
-	        String methodName, int instructionId, int jpfId, AbstractInsnNode asmNode,
+	        String methodName, int instructionId, int bytecodeOffset, AbstractInsnNode asmNode,
 	        int lineNumber, BasicBlock basicBlock) {
 
-		this(classLoader, className, methodName, instructionId, jpfId, asmNode,
+		this(classLoader, className, methodName, instructionId, bytecodeOffset, asmNode,
 		        lineNumber);
 
 		this.basicBlock = basicBlock;
@@ -166,7 +166,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 *            a {@link java.lang.String} object.
 	 * @param instructionId
 	 *            a int.
-	 * @param jpfId
+	 * @param bytecodeOffset
 	 *            a int.
 	 * @param asmNode
 	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
@@ -174,10 +174,10 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	 *            a int.
 	 */
 	public BytecodeInstruction(ClassLoader classLoader, String className,
-	        String methodName, int instructionId, int jpfId, AbstractInsnNode asmNode,
+	        String methodName, int instructionId, int bytecodeOffset, AbstractInsnNode asmNode,
 	        int lineNumber) {
 
-		this(classLoader, className, methodName, instructionId, jpfId, asmNode);
+		this(classLoader, className, methodName, instructionId, bytecodeOffset, asmNode);
 
 		if (lineNumber != -1)
 			setLineNumber(lineNumber);
@@ -221,13 +221,13 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 
 	/**
 	 * <p>
-	 * getJPFId
+	 * getBytecodeOffset
 	 * </p>
 	 * 
 	 * @return a int.
 	 */
-	public int getJPFId() {
-		return jpfId;
+	public int getBytecodeOffset() {
+		return bytecodeOffset;
 	}
 
 	/** {@inheritDoc} */
@@ -841,6 +841,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 
 		String r = "I" + instructionId;
 
+		r += " (" + + bytecodeOffset +  ")";
 		r += " " + explain();
 
 		if (hasLineNumberSet() && !isLineNumber())

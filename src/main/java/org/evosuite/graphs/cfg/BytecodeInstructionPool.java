@@ -29,6 +29,7 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.VarInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -91,7 +92,7 @@ public class BytecodeInstructionPool {
 		registerMethodNode(node);
 
 		int lastLineNumber = -1;
-		int jpfId = 0;
+		int bytecodeOffset = 0;
 
 		for (int instructionId = 0; instructionId < node.instructions.size(); instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
@@ -100,7 +101,7 @@ public class BytecodeInstructionPool {
 			                                                                                       className,
 			                                                                                       methodName,
 			                                                                                       instructionId,
-			                                                                                       jpfId,
+			                                                                                       bytecodeOffset,
 			                                                                                       instructionNode);
 
 			if (instruction.isLineNumber())
@@ -108,9 +109,11 @@ public class BytecodeInstructionPool {
 			else if (lastLineNumber != -1)
 				instruction.setLineNumber(lastLineNumber);
 
+			bytecodeOffset += getBytecodeIncrement(instructionNode);
+			
 			if (!instruction.isLabel() && !instruction.isLineNumber()
 			        && !instruction.isFrame()) {
-				jpfId++;
+				bytecodeOffset++;
 			}
 
 			registerInstruction(instruction);
@@ -124,6 +127,85 @@ public class BytecodeInstructionPool {
 			                + methodName);
 
 		return r;
+	}
+	
+	/**
+	 * Determine how many bytes the current instruction occupies together with its operands
+	 * 
+	 * @return
+	 */
+	private int getBytecodeIncrement(AbstractInsnNode instructionNode) {
+		int opcode = instructionNode.getOpcode();
+		switch(opcode) {
+		case Opcodes.ALOAD: // index
+		case Opcodes.ASTORE: // index
+		case Opcodes.DLOAD:
+		case Opcodes.DSTORE:
+		case Opcodes.FLOAD:
+		case Opcodes.FSTORE:
+		case Opcodes.ILOAD:
+		case Opcodes.ISTORE:
+		case Opcodes.LLOAD:
+		case Opcodes.LSTORE:
+			VarInsnNode varNode = (VarInsnNode)instructionNode;
+			if(varNode.var > 3)
+				return 1;
+			else
+				return 0;
+		case Opcodes.BIPUSH: // byte
+		case Opcodes.LDC:
+		case Opcodes.NEWARRAY:
+		case Opcodes.RET:
+			return 1;
+		case Opcodes.ANEWARRAY: // indexbyte1, indexbyte2
+		case Opcodes.CHECKCAST: // indexbyte1, indexbyte2
+		case Opcodes.GETFIELD:
+		case Opcodes.GETSTATIC:
+		case Opcodes.GOTO:
+		case Opcodes.IF_ACMPEQ:
+		case Opcodes.IF_ACMPNE:
+		case Opcodes.IF_ICMPEQ:
+		case Opcodes.IF_ICMPNE:
+		case Opcodes.IF_ICMPGE:
+		case Opcodes.IF_ICMPGT:
+		case Opcodes.IF_ICMPLE:
+		case Opcodes.IF_ICMPLT:
+		case Opcodes.IFLE:
+		case Opcodes.IFLT:
+		case Opcodes.IFGE:
+		case Opcodes.IFGT:
+		case Opcodes.IFNE:
+		case Opcodes.IFEQ:
+		case Opcodes.IFNONNULL:
+		case Opcodes.IFNULL:
+		case Opcodes.IINC:
+		case Opcodes.INSTANCEOF:
+		case Opcodes.INVOKESPECIAL:
+		case Opcodes.INVOKESTATIC:
+		case Opcodes.INVOKEVIRTUAL:
+		case Opcodes.JSR:
+		case Opcodes.NEW:
+		case Opcodes.PUTFIELD:
+		case Opcodes.PUTSTATIC:
+		case Opcodes.SIPUSH:
+		// case Opcodes.LDC_W
+			// case Opcodes.LDC2_W
+			
+			return 2;
+		case Opcodes.MULTIANEWARRAY:
+			return 3;
+		case Opcodes.INVOKEDYNAMIC:
+		case Opcodes.INVOKEINTERFACE:
+			return 4;
+			
+		case Opcodes.LOOKUPSWITCH:
+		case Opcodes.TABLESWITCH:
+			// TODO: Could be more
+			return 4;
+		// case Opcodes.GOTO_W 
+		// case Opcodes.JSR_W
+		}
+		return 0;
 	}
 
 	private void registerMethodNode(MethodNode node) {

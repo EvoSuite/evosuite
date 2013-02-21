@@ -34,18 +34,18 @@ public class BytecodeInstructionFactory {
 	 *            a {@link java.lang.String} object.
 	 * @param instructionId
 	 *            a int.
-	 * @param jpfId
+	 * @param bytecodeOffset
 	 *            a int.
 	 * @param node
 	 *            a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
 	 * @return a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
 	 */
 	public static BytecodeInstruction createBytecodeInstruction(ClassLoader classLoader,
-	        String className, String methodName, int instructionId, int jpfId,
+	        String className, String methodName, int instructionId, int bytecodeOffset,
 	        AbstractInsnNode node) {
 
 		BytecodeInstruction instruction = new BytecodeInstruction(classLoader, className,
-		        methodName, instructionId, jpfId, node);
+		        methodName, instructionId, bytecodeOffset, node);
 
 		return instruction;
 	}
