@@ -841,6 +841,7 @@ public final class CallVM extends AbstractVM {
 	 * number of local variables.
 	 */
 	private final static class MemberInfo {
+		@SuppressWarnings("unused")
 		final int maxStack, maxLocals;
 
 		MemberInfo(int maxStack, int maxLocals) {

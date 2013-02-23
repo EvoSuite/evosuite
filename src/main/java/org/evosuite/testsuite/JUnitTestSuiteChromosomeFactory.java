@@ -55,9 +55,11 @@ public class JUnitTestSuiteChromosomeFactory implements
 	/** {@inheritDoc} */
 	@Override
 	public TestSuiteChromosome getChromosome() {
+		/*
 		double P_delta = 0.1d;
 		double P_clone = 0.1d;
 		int MAX_CHANGES = 10;
+		*/
 
 		TestSuiteChromosome chromosome = new TestSuiteChromosome(
 		        new RandomLengthTestFactory());

@@ -2,7 +2,6 @@ package org.evosuite.testcarver.codegen;
 
 import gnu.trove.list.array.TIntArrayList;
 
-import java.lang.reflect.Modifier;
 import java.util.HashSet;
 
 import org.evosuite.testcarver.capture.CaptureLog;

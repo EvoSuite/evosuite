@@ -196,56 +196,6 @@ public final class StringConstraint extends Constraint<String> {
 		return distance;
 	}
 
-	private static double editDistance(String s, String t) {
-		int n = s.length(); // length of s
-		int m = t.length(); // length of t
-
-		if (n == 0) {
-			return m;
-		} else if (m == 0) {
-			return n;
-		}
-
-		double p[] = new double[n + 1]; // 'previous' cost array, horizontally
-		double d[] = new double[n + 1]; // cost array, horizontally
-		double _d[]; // placeholder to assist in swapping p and d
-
-		// indexes into strings s and t
-		int i; // iterates through s
-		int j; // iterates through t
-
-		char t_j; // jth character of t
-
-		double cost; // cost
-
-		for (i = 0; i <= n; i++) {
-			p[i] = i;
-		}
-
-		for (j = 1; j <= m; j++) {
-			t_j = t.charAt(j - 1);
-			d[0] = j;
-
-			for (i = 1; i <= n; i++) {
-				// cost = s.charAt(i - 1) == t_j ? 0 : 1;
-				cost = normalize(Math.abs(s.charAt(i - 1) - t_j));
-				// minimum of cell to the left+1, to the top+1, diagonally left
-				// and up +cost
-				d[i] = Math.min(Math.min(d[i - 1] + 1, p[i] + 1), p[i - 1]
-						+ cost);
-			}
-
-			// copy current distance counts to 'previous row' distance counts
-			_d = p;
-			p = d;
-			d = _d;
-		}
-
-		// our last action in the above loop was to switch d and p, so p now
-		// actually has the most recent cost counts
-		return p[n];
-	}
-
 	private static double getStringDistance(StringMultipleComparison comparison) {
 		try {
 			String first = comparison.getLeftOperand().execute();

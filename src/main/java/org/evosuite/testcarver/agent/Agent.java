@@ -1,8 +1,6 @@
 package org.evosuite.testcarver.agent;
 
 import java.lang.instrument.Instrumentation;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.configuration.Configuration;

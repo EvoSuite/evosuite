@@ -1571,7 +1571,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		StatisticEntry entry = new StatisticEntry();
 		entry.className = Properties.TARGET_CLASS;
 		entry.id = getNumber(entry.className);

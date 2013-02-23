@@ -1147,6 +1147,7 @@ public final class HeapVM extends AbstractVM {
 	@Override
 	public void AASTORE(Object conc_array, int conc_index) {
 		// pop arguments
+		@SuppressWarnings("unused")
 		Reference value_ref = env.topFrame().operandStack.popRef();
 		IntegerValue symb_index = env.topFrame().operandStack.popBv32();
 		Reference array_ref = env.topFrame().operandStack.popRef();

@@ -18,6 +18,7 @@
 package org.evosuite.junit;
 
 import java.io.PrintStream;
+import java.io.Serializable;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  *
  * @author roessler
  */
-public class CompoundTestCase {
+public class CompoundTestCase implements Serializable {
 	public static class MethodDef {
 		private final String name;
 		private final List<VariableReference> params = new ArrayList<VariableReference>();
@@ -310,6 +311,8 @@ public class CompoundTestCase {
 			break;
 		case CONSTRUCTOR:
 			constructors.add(currentMethod);
+			break;
+		default:
 			break;
 		}
 		currentScope = TestScope.FIELDS;

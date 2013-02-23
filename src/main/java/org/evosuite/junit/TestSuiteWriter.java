@@ -903,7 +903,11 @@ public class TestSuiteWriter implements Opcodes {
 		byte[] bytecode = getBytecode(name);
 		try {
 			FileOutputStream stream = new FileOutputStream(file);
-			stream.write(bytecode);
+			try {
+				stream.write(bytecode);
+			} finally {
+				stream.close();
+			}
 		} catch (FileNotFoundException e) {
 		} catch (IOException e) {
 		}

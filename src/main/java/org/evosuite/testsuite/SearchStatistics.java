@@ -32,7 +32,6 @@ import org.evosuite.Properties;
 import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
-import org.evosuite.coverage.branch.BranchCoverageSuiteFitness;
 import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
@@ -521,7 +520,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.covered_branches = num_covered; // + covered branchless methods?
 		entry.covered_methods = covered_methods.size();
 		entry.covered_branchless_methods = coveredBranchlessMethods;
-		BranchCoverageSuiteFitness f = new BranchCoverageSuiteFitness();
+		//BranchCoverageSuiteFitness f = new BranchCoverageSuiteFitness();
 
 		/*
 		if (Properties.CRITERION == Properties.Criterion.DEFUSE
@@ -611,7 +610,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		Chromosome result = algorithm.getBestIndividual();
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
@@ -634,7 +633,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public void searchStarted(GeneticAlgorithm algorithm) {
+	public void searchStarted(GeneticAlgorithm<?> algorithm) {
 		super.searchStarted(algorithm);
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 
@@ -679,7 +678,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 	/** {@inheritDoc} */
 	@Override
-	public void iteration(GeneticAlgorithm algorithm) {
+	public void iteration(GeneticAlgorithm<?> algorithm) {
 		super.iteration(algorithm);
 
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
