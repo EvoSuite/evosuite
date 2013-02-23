@@ -51,7 +51,7 @@ public final class StringBinaryComparison extends AbstractExpression<Long> imple
 
 	private static final long serialVersionUID = -2959676064390810341L;
 
-	protected static Logger log = LoggerFactory.getLogger(StringBinaryComparison.class);
+	protected static final Logger log = LoggerFactory.getLogger(StringBinaryComparison.class);
 
 	/**
 	 * <p>

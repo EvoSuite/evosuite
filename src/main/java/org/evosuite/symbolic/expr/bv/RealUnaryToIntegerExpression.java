@@ -39,7 +39,7 @@ public final class RealUnaryToIntegerExpression extends AbstractExpression<Long>
 
 	private static final long serialVersionUID = 9086637495150131445L;
 
-	protected static Logger log = LoggerFactory.getLogger(RealUnaryToIntegerExpression.class);
+	protected static final Logger log = LoggerFactory.getLogger(RealUnaryToIntegerExpression.class);
 
 	private final Operator op;
 

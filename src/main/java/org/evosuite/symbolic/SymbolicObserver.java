@@ -838,7 +838,7 @@ public class SymbolicObserver extends ExecutionObserver {
 					VM.CALLER_STACK_PARAM(param_object, i, calleeLocalsIndex);
 				}
 			} catch (CodeUnderTestException e) {
-				new RuntimeException(e);
+				throw new RuntimeException(e);
 			}
 		}
 	}

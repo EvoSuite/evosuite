@@ -415,10 +415,10 @@ public class BytecodeInstructionPool {
 		List<BytecodeInstruction> instructions = getInstructionsIn(className, methodName);
 		if (instructions == null) {
 			logger.debug("..unknown method");
-		}
-
-		for (BytecodeInstruction instruction : instructions) {
-			logger.debug("\t" + instruction);
+		} else {
+			for (BytecodeInstruction instruction : instructions) {
+				logger.debug("\t" + instruction);
+			}
 		}
 
 	}

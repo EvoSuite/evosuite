@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  */
 public final class SymbolicHeap {
 
-	protected static Logger logger = LoggerFactory
+	protected static final Logger logger = LoggerFactory
 			.getLogger(SymbolicHeap.class);
 
 	private static final class FieldKey {
@@ -404,13 +404,13 @@ public final class SymbolicHeap {
 
 	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
-	public static String $STRING_BUFFER_CONTENTS = "$stringBuffer_contents";
+	public static final String $STRING_BUFFER_CONTENTS = "$stringBuffer_contents";
 
-	public static String $BIG_INTEGER_CONTENTS = "$bigInteger_contents";
+	public static final String $BIG_INTEGER_CONTENTS = "$bigInteger_contents";
 
-	public static String $STRING_TOKENIZER_VALUE = "$stringTokenizerValue";
+	public static final String $STRING_TOKENIZER_VALUE = "$stringTokenizerValue";
 
-	public static String $STRING_READER_VALUE = "$stringReaderValue";
+	public static final String $STRING_READER_VALUE = "$stringReaderValue";
 
 	public static final String $MATCHER_INPUT = "$matcherInput";
 

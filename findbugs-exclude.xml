@@ -11,4 +11,11 @@
     <Class name="org.evosuite.Properties" />
     <Bug pattern="MS_SHOULD_BE_FINAL" />
   </Match>
+
+
+  <!-- We use the GC on purpose -->
+  <Match>
+    <Class name="org.evosuite.utils.ResourceController" />
+    <Bug pattern="DM_GC" />
+  </Match>
 </FindBugsFilter>

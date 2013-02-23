@@ -47,7 +47,7 @@ public final class StringUnaryExpression extends AbstractExpression<String> impl
 
 	private static final long serialVersionUID = -384874147850376188L;
 
-	protected static Logger log = LoggerFactory.getLogger(StringUnaryExpression.class);
+	protected static final Logger log = LoggerFactory.getLogger(StringUnaryExpression.class);
 
 	// protected int conretIntValue;
 

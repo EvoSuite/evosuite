@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.LoggingUtils;
@@ -425,7 +426,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * 
 	 * @return an array of int.
 	 */
-	public int[] getLengths() {
-		return lengths;
+	public List<Integer> getLengths() {		
+		return Arrays.asList(ArrayUtils.toObject(lengths));
 	}
 }

@@ -57,7 +57,7 @@ public final class StringMultipleToIntegerExpression extends AbstractExpression<
 
 	private final Expression<?> right;
 
-	protected static Logger log = LoggerFactory.getLogger(StringMultipleToIntegerExpression.class);
+	protected static final Logger log = LoggerFactory.getLogger(StringMultipleToIntegerExpression.class);
 
 	/**
 	 * <p>
