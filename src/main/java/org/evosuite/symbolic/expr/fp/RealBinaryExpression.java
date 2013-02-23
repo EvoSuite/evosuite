@@ -39,7 +39,7 @@ public final class RealBinaryExpression extends AbstractExpression<Double> imple
 
 	private static final long serialVersionUID = 3095108718393239244L;
 
-	protected static Logger log = LoggerFactory.getLogger(RealBinaryExpression.class);
+	protected static final Logger log = LoggerFactory.getLogger(RealBinaryExpression.class);
 
 	private final Operator op;
 	private final Expression<Double> left;

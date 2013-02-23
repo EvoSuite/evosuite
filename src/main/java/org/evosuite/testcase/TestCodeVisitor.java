@@ -1000,13 +1000,13 @@ public class TestCodeVisitor extends TestVisitor {
 	@Override
 	public void visitArrayStatement(ArrayStatement statement) {
 		VariableReference retval = statement.getReturnValue();
-		int[] lengths = statement.getLengths();
+		List<Integer> lengths = statement.getLengths();
 
 		String type = getClassName(retval);
 		String multiDimensions = "";
-		if (lengths.length == 1) {
+		if (lengths.size() == 1) {
 			type = type.replaceFirst("\\[\\]", "");
-			multiDimensions = "[" + lengths[0] + "]";
+			multiDimensions = "[" + lengths.get(0) + "]";
 			while (type.contains("[]")) {
 				multiDimensions += "[]";
 				type = type.replaceFirst("\\[\\]", "");

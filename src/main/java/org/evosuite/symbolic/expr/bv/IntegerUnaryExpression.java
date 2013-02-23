@@ -39,7 +39,7 @@ public final class IntegerUnaryExpression extends AbstractExpression<Long> imple
 
 	private static final long serialVersionUID = 1966395070897274841L;
 
-	protected static Logger log = LoggerFactory.getLogger(IntegerUnaryExpression.class);
+	protected static final Logger log = LoggerFactory.getLogger(IntegerUnaryExpression.class);
 
 	private final Operator op;
 	private final Expression<Long> expr;

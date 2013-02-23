@@ -37,7 +37,7 @@ public final class RealComparison extends AbstractExpression<Long> implements
         IntegerValue {
 	private static final long serialVersionUID = 1L;
 
-	protected static Logger log = LoggerFactory.getLogger(RealComparison.class);
+	protected static final Logger log = LoggerFactory.getLogger(RealComparison.class);
 
 	/**
 	 * <p>

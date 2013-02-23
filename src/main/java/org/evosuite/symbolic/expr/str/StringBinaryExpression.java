@@ -48,7 +48,7 @@ public final class StringBinaryExpression extends AbstractExpression<String> imp
 
 	private static final long serialVersionUID = -986689442489666986L;
 
-	protected static Logger log = LoggerFactory.getLogger(StringBinaryExpression.class);
+	protected static final Logger log = LoggerFactory.getLogger(StringBinaryExpression.class);
 
 	private final Expression<String> left;
 	private final Operator op;

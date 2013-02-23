@@ -277,9 +277,9 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 				for(OutputTrace  t : orig_result.getTraces())
 					msg += " " + t.toString();
 				logger.error(msg);
+			} else {
+				num += orig.numDiffer(trace);
 			}
-			
-			num += orig.numDiffer(trace);
 		}
 
 		logger.debug("Found " + num + " assertions!");

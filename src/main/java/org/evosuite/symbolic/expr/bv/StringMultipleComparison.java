@@ -49,7 +49,7 @@ public final class StringMultipleComparison extends AbstractExpression<Long> imp
 
 	private static final long serialVersionUID = -3844726361666119758L;
 
-	protected static Logger log = LoggerFactory.getLogger(StringMultipleComparison.class);
+	protected static final Logger log = LoggerFactory.getLogger(StringMultipleComparison.class);
 
 	private final Operator op;
 

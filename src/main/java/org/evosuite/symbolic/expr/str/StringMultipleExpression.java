@@ -57,7 +57,7 @@ public final class StringMultipleExpression extends AbstractExpression<String> i
 
 	private final Expression<?> right;
 
-	protected static Logger log = LoggerFactory.getLogger(StringMultipleExpression.class);
+	protected static final Logger log = LoggerFactory.getLogger(StringMultipleExpression.class);
 
 	/**
 	 * <p>

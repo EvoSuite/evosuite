@@ -19,8 +19,10 @@
  */
 package org.evosuite.testcase;
 
+import java.util.Arrays;
 import java.util.List;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.utils.GenericClass;
 
 /**
@@ -121,8 +123,8 @@ public class ArrayReference extends VariableReferenceImpl {
 	 * 
 	 * @return an array of int.
 	 */
-	public int[] getLengths() {
-		return lengths;
+	public List<Integer> getLengths() {
+		return Arrays.asList(ArrayUtils.toObject(lengths));
 	}
 
 	/**
