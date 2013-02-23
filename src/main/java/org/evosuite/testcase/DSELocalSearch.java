@@ -159,16 +159,6 @@ public class DSELocalSearch extends LocalSearch {
 		return false;
 	}
 
-	private boolean isRelevant(Constraint<?> constraint, TestCase test,
-			int statement) {
-		Set<Variable<?>> variables = constraint.getVariables();
-		String target = test.getStatement(statement).getReturnValue().getName();
-		for (Variable<?> var : variables) {
-			if (var.getName().equals(target))
-				return true;
-		}
-		return false;
-	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private TestCase updateTest(TestCase test, Map<String, Object> values) {
@@ -319,8 +309,4 @@ public class DSELocalSearch extends LocalSearch {
 		variables.addAll(expr.getVariables());
 	}
 
-	private TestCase expandTestCase(TestCase test) {
-		TestCaseExpander expander = new TestCaseExpander();
-		return expander.expandTestCase(test);
-	}
 }

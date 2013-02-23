@@ -21,7 +21,6 @@ package org.evosuite.symbolic.expr.fp;
 
 import gnu.trove.set.hash.THashSet;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;

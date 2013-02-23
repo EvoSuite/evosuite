@@ -471,6 +471,7 @@ public class TestExtractingVisitor extends ASTVisitor {
 		List<VariableReference> params = convertParams(methodInvocation.arguments(),
 		                                               paramTypes);
 		Method method = retrieveMethod(methodInvocation, methodBinding, params);
+		/*
 		Class<?> declaringClass = method.getDeclaringClass();
 		if (false) {
 			// TODO Methods can be declared in an order such that the called
@@ -484,6 +485,7 @@ public class TestExtractingVisitor extends ASTVisitor {
 				return;
 			}
 		}
+		*/
 		VariableReference callee = null;
 		if (!Modifier.isStatic(method.getModifiers())) {
 			callee = retrieveCalleeReference(methodInvocation);

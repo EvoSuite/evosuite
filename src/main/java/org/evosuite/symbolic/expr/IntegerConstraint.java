@@ -27,7 +27,6 @@ import org.evosuite.symbolic.expr.bv.IntegerUnaryExpression;
 import org.evosuite.symbolic.expr.bv.StringBinaryToIntegerExpression;
 import org.evosuite.symbolic.expr.bv.StringMultipleToIntegerExpression;
 import org.evosuite.symbolic.expr.reader.StringReaderExpr;
-import org.evosuite.symbolic.expr.str.StringValue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

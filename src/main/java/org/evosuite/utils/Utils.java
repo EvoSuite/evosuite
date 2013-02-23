@@ -212,9 +212,13 @@ public class Utils {
 		List<String> content = new LinkedList<String>();
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(fileName));
-			String str;
-			while ((str = in.readLine()) != null) {
-				content.add(str);
+			try {
+				String str;
+				while ((str = in.readLine()) != null) {
+					content.add(str);
+				}
+			} finally {
+				in.close();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -235,9 +239,13 @@ public class Utils {
 		List<String> content = new LinkedList<String>();
 		try {
 			BufferedReader in = new BufferedReader(new FileReader(file));
-			String str;
-			while ((str = in.readLine()) != null) {
-				content.add(str);
+			try {
+				String str;
+				while ((str = in.readLine()) != null) {
+					content.add(str);
+				}
+			} finally {
+				in.close();
 			}
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
@@ -279,10 +287,9 @@ public class Utils {
 		}
 	}
 
-	private static void writeFile(InputStream in, File dest) {
+	public static void writeFile(InputStream in, File dest) {
 		try {
 			dest.deleteOnExit();
-			System.out.println("Creating file: " + dest.getPath());
 			if (!dest.exists()) {
 				OutputStream out = new FileOutputStream(dest);
 				byte[] buf = new byte[1024];

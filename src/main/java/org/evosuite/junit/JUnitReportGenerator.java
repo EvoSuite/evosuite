@@ -158,7 +158,7 @@ public class JUnitReportGenerator extends ReportGenerator {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void searchFinished(GeneticAlgorithm algorithm) {
+	public void searchFinished(GeneticAlgorithm<?> algorithm) {
 		// TODO Auto-generated method stub
 
 	}

@@ -22,6 +22,7 @@ public final class Pattern_Matcher extends SymbolicFunction {
 	public Object executeFunction() {
 
 		// receiver
+		@SuppressWarnings("unused")
 		NonNullReference symb_receiver = this.getSymbReceiver();
 
 		// argument

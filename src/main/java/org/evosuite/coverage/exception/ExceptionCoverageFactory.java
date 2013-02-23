@@ -25,7 +25,7 @@ import java.util.List;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
-public class ExceptionCoverageFactory extends AbstractFitnessFactory {
+public class ExceptionCoverageFactory extends AbstractFitnessFactory<TestFitnessFunction> {
 
 	/** {@inheritDoc} */
 	@Override

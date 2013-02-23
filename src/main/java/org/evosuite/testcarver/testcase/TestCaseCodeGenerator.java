@@ -246,7 +246,6 @@ public class TestCaseCodeGenerator {
 		}
 	}
 
-	@SuppressWarnings("unchecked")
 	private void createMethodCallStmt(final int logRecNo, final TestCase testCase) {
 		// assumption: all necessary statements are created and there is one variable for reach referenced object
 		final int oid = this.log.objectIds.get(logRecNo);
@@ -256,13 +255,13 @@ public class TestCaseCodeGenerator {
 		final String methodDesc = this.log.descList.get(logRecNo);
 		final org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
 
-		final Class[] methodParamTypeClasses = new Class[methodParamTypes.length];
+		final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
 		for (int i = 0; i < methodParamTypes.length; i++) {
 			methodParamTypeClasses[i] = getClassFromType(methodParamTypes[i]);
 		}
 
 		final String typeName = this.log.oidClassNames.get(this.log.oidRecMapping.get(oid));
-		Class type;
+		Class<?> type;
 		try {
 			type = getClassForName(typeName);// Class.forName(typeName, true, StaticTestCluster.classLoader);
 
@@ -319,7 +318,7 @@ public class TestCaseCodeGenerator {
 
 	private final TIntObjectHashMap<VariableReference> oidToVarRefMap = new TIntObjectHashMap<VariableReference>();
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createPlainInitStmt(final int logRecNo, final TestCase testCase) {
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
@@ -359,7 +358,7 @@ public class TestCaseCodeGenerator {
 
 	private VariableReference xStreamRef;
 
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void createUnobservedInitStmt(final int logRecNo, final TestCase testCase) {
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
