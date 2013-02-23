@@ -29,7 +29,7 @@ import java.util.Set;
 public abstract class ExecutionObserver {
 
 	/** The test case being monitored and executed */
-	static TestCase currentTest = null;
+	protected static TestCase currentTest = null;
 
 	/** Constant <code>WRAPPER_TYPES</code> */
 	@SuppressWarnings("unchecked")
