@@ -212,8 +212,9 @@ public class SymbolicObserver extends ExecutionObserver {
 				}
 			} else {
 				// push dimensions
+				List<Integer> dimensions = arrayRef.getLengths();
 				for (int i = 0; i < arrayRef.getArrayDimensions(); i++) {
-					int length = arrayRef.getLengths()[i];
+					int length = dimensions.get(i);
 					IntegerConstant lengthExpr = ExpressionFactory
 							.buildNewIntegerConstant(length);
 					env.topFrame().operandStack.pushBv32(lengthExpr);
