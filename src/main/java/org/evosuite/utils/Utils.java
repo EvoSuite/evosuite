@@ -19,12 +19,16 @@ package org.evosuite.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -211,7 +215,9 @@ public class Utils {
 	public static List<String> readFile(String fileName) {
 		List<String> content = new LinkedList<String>();
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			Reader reader = new InputStreamReader(
+					new FileInputStream(fileName), "utf-8");
+			BufferedReader in = new BufferedReader(reader);
 			try {
 				String str;
 				while ((str = in.readLine()) != null) {
@@ -238,7 +244,9 @@ public class Utils {
 	public static List<String> readFile(File file) {
 		List<String> content = new LinkedList<String>();
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(file));
+			Reader reader = new InputStreamReader(
+					new FileInputStream(file), "utf-8");
+			BufferedReader in = new BufferedReader(reader);
 			try {
 				String str;
 				while ((str = in.readLine()) != null) {
@@ -333,10 +341,15 @@ public class Utils {
 	public static <T> T readXML(String fileName) {
 		XStream xstream = new XStream();
 		try {
-			BufferedReader in = new BufferedReader(new FileReader(fileName));
+			Reader reader = new InputStreamReader(
+					new FileInputStream(fileName), "utf-8");
+			BufferedReader in = new BufferedReader(reader);
 			return (T) xstream.fromXML(in);
 
 		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+			return null;
+		} catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 			return null;
 		}
