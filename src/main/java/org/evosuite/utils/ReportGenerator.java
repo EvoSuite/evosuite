@@ -745,6 +745,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + coveredIntraClassPairs;
 			case CoveredParameterPairs:
 				return "" + coveredParameterPairs;
+			default:
+				break;
 
 			}
 
@@ -1255,7 +1257,6 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 *            object.
 	 */
 	protected void writeResultTable(StringBuffer buffer, StatisticEntry entry) {
-		SimpleDateFormat sdf = new SimpleDateFormat(DATE_FORMAT_NOW);
 
 		//buffer.append("<h2>Statistics</h2>\n");
 		buffer.append("<ul>\n");
