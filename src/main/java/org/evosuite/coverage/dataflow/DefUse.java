@@ -63,14 +63,16 @@ public class DefUse extends BytecodeInstruction {
 		if (!DefUsePool.isKnown(wrap))
 			throw new IllegalArgumentException(
 			        "only instructions known by the DefUsePool are accepted");
+
+		this.defuseId = DefUsePool.getRegisteredDefUseId(wrap);
 		if (defuseId < 0)
 			throw new IllegalArgumentException("expect defUseId to be positive");
+
+		this.defId = DefUsePool.getRegisteredDefId(wrap);
+		this.useId = DefUsePool.getRegisteredUseId(wrap);
 		if (defId < 0 && useId < 0)
 			throw new IllegalArgumentException("expect either defId or useId to be set");
 
-		this.defuseId = DefUsePool.getRegisteredDefUseId(wrap);
-		this.defId = DefUsePool.getRegisteredDefId(wrap);
-		this.useId = DefUsePool.getRegisteredUseId(wrap);
 		this.isParameterUse = DefUsePool.isKnownAsParameterUse(wrap);
 		this.isFieldMethodCall = DefUsePool.isKnownAsFieldMethodCall(wrap);
 		if (this.isFieldMethodCall) {
