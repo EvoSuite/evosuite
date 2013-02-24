@@ -19,23 +19,14 @@
  */
 package org.evosuite.assertion;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Scanner;
-import java.util.Set;
 
-import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
