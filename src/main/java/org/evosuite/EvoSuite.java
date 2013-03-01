@@ -86,12 +86,12 @@ public class EvoSuite {
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		// Only overrule default configurations
 		// TODO: Find better way to allow external logback configuration
-		if(context.getName().equals("default")) {
+		if (context.getName().equals("default")) {
 			try {
 				JoranConfigurator configurator = new JoranConfigurator();
 				configurator.setContext(context);
 				InputStream f = EvoSuite.class.getClassLoader().getResourceAsStream("logback-evosuite.xml");
-				if(f == null) {
+				if (f == null) {
 					System.err.println("logback-evosuite.xml not found on classpath");
 				}
 				context.reset();
@@ -109,13 +109,16 @@ public class EvoSuite {
 	private static String javaHome = System.getProperty("java.home");
 	private static String evosuiteJar = "";
 	/**
-	 * Constant <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
+	 * Constant
+	 * <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
 	 */
-	public final static String JAVA_CMD = javaHome + separator + "bin" + separator + "java";
+	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
+	        + "java";
 
 	private static String base_dir_path = System.getProperty("user.dir");
 
-	private static void setup(String target, String[] args, List<String> javaArgs, boolean doInheritance) {
+	private static void setup(String target, String[] args, List<String> javaArgs,
+	        boolean doInheritance) {
 
 		Properties.CP = "";
 
@@ -143,7 +146,8 @@ public class EvoSuite {
 				Properties.CP += File.pathSeparator;
 				Properties.CP += pathName;
 			} else {
-				LoggingUtils.getEvoLogger().info("Failed to set up classpath for " + target);
+				LoggingUtils.getEvoLogger().info("Failed to set up classpath for "
+				                                         + target);
 				return;
 			}
 		}
@@ -151,27 +155,40 @@ public class EvoSuite {
 		if (doInheritance) {
 			try {
 				String fileName = generateInheritanceTree(Properties.CP);
-				FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR + separator + "inheritance.xml.gz"));
-				Properties.getInstance().setValue("inheritance_file", Properties.OUTPUT_DIR + separator + "inheritance.xml.gz");
+				FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR
+				        + separator + "inheritance.xml.gz"));
+				Properties.getInstance().setValue("inheritance_file",
+				                                  Properties.OUTPUT_DIR + separator
+				                                          + "inheritance.xml.gz");
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: " + e.getMessage());
+				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
+				                                          + e.getMessage());
 			} catch (IllegalArgumentException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: " + e.getMessage());
+				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
+				                                          + e.getMessage());
 			} catch (NoSuchParameterException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: " + e.getMessage());
+				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
+				                                          + e.getMessage());
 			} catch (IllegalAccessException e) {
-				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: " + e.getMessage());
+				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
+				                                          + e.getMessage());
 			}
 		}
 
-		LoggingUtils.getEvoLogger().info("* Creating new evosuite.properties in " + base_dir_path + separator + Properties.OUTPUT_DIR);
+		LoggingUtils.getEvoLogger().info("* Creating new evosuite.properties in "
+		                                         + base_dir_path + separator
+		                                         + Properties.OUTPUT_DIR);
 		LoggingUtils.getEvoLogger().info("* Classpath: " + Properties.CP);
-		Properties.getInstance().writeConfiguration(base_dir_path + separator + Properties.OUTPUT_DIR + separator + "evosuite.properties");
+		Properties.getInstance().writeConfiguration(base_dir_path + separator
+		                                                    + Properties.OUTPUT_DIR
+		                                                    + separator
+		                                                    + "evosuite.properties");
 	}
 
 	private static boolean isInterface(String resource) throws IOException {
 
-		ClassReader reader = new ClassReader(EvoSuite.class.getClassLoader().getResourceAsStream(resource));
+		ClassReader reader = new ClassReader(
+		        EvoSuite.class.getClassLoader().getResourceAsStream(resource));
 		ClassNode cn = new ClassNode();
 		reader.accept(cn, ClassReader.SKIP_FRAMES);
 		return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
@@ -179,7 +196,7 @@ public class EvoSuite {
 
 	private static void listClassesPrefix(String prefix, String cp) {
 		Pattern pattern = Pattern.compile(prefix.replace("\\.", "/") // FIXME replace "/" by File.separator? (not sure)
-				+ "[^\\$]*.class");
+		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
 			resources.addAll(ResourceList.getResources(pattern, classPathElement));
@@ -198,7 +215,8 @@ public class EvoSuite {
 				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(resource.replace(".class", "").replace('/', '.'));
+			LoggingUtils.getEvoLogger().info(resource.replace(".class", "").replace('/',
+			                                                                        '.'));
 		}
 	}
 
@@ -212,9 +230,11 @@ public class EvoSuite {
 		return outputFile.getAbsolutePath();
 	}
 
-	private static void generateTestsPrefix(Properties.Strategy strategy, String prefix, List<String> args, String cp) {
+	private static void generateTestsPrefix(Properties.Strategy strategy, String prefix,
+	        List<String> args, String cp) {
 
-		Pattern pattern = Pattern.compile(prefix.replace("\\.", File.separator) + "[^\\$]*.class");
+		Pattern pattern = Pattern.compile(prefix.replace("\\.", File.separator)
+		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
 			resources.addAll(ResourceList.getResources(pattern, classPathElement));
@@ -233,19 +253,28 @@ public class EvoSuite {
 			LoggingUtils.getEvoLogger().info("* Error while traversing classpath: " + e);
 			return;
 		}
-		LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " matching classes for prefix " + prefix);
+		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
+		                                         + " matching classes for prefix "
+		                                         + prefix);
 		for (String resource : resources) {
 			try {
 				if (isInterface(resource)) {
-					LoggingUtils.getEvoLogger().info("* Skipping interface: " + resource.replace(".class", "").replace(File.separatorChar, '.'));
+					LoggingUtils.getEvoLogger().info("* Skipping interface: "
+					                                         + resource.replace(".class",
+					                                                            "").replace(File.separatorChar,
+					                                                                        '.'));
 					continue;
 				}
 			} catch (IOException e) {
 				LoggingUtils.getEvoLogger().info("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info("* Current class: " + resource.replace(".class", "").replace(File.separatorChar, '.'));
-			generateTests(Strategy.EVOSUITE, resource.replace(".class", "").replace(File.separatorChar, '.'), args, cp);
+			LoggingUtils.getEvoLogger().info("* Current class: "
+			                                         + resource.replace(".class", "").replace(File.separatorChar,
+			                                                                                  '.'));
+			generateTests(Strategy.EVOSUITE,
+			              resource.replace(".class", "").replace(File.separatorChar, '.'),
+			              args, cp);
 		}
 
 	}
@@ -267,15 +296,19 @@ public class EvoSuite {
 				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(resource.replace(".class", "").replace('/', '.'));
+			LoggingUtils.getEvoLogger().info(resource.replace(".class", "").replace('/',
+			                                                                        '.'));
 		}
 	}
 
-	private static void generateTestsTarget(Properties.Strategy strategy, String target, List<String> args, String cp) {
+	private static void generateTestsTarget(Properties.Strategy strategy, String target,
+	        List<String> args, String cp) {
 
 		Pattern pattern = Pattern.compile("[^\\$]*.class");
 		Collection<String> resources = ResourceList.getResources(pattern, target);
-		LoggingUtils.getEvoLogger().info("* Found " + resources.size() + " matching classes in target " + target);
+		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
+		                                         + " matching classes in target "
+		                                         + target);
 		try {
 			ClassPathHacker.addFile(target);
 		} catch (IOException e) {
@@ -294,15 +327,22 @@ public class EvoSuite {
 		for (String resource : resources) {
 			try {
 				if (isInterface(resource)) {
-					LoggingUtils.getEvoLogger().info("* Skipping interface: " + resource.replace(".class", "").replace(File.separatorChar, '.'));
+					LoggingUtils.getEvoLogger().info("* Skipping interface: "
+					                                         + resource.replace(".class",
+					                                                            "").replace(File.separatorChar,
+					                                                                        '.'));
 					continue;
 				}
 			} catch (IOException e) {
 				LoggingUtils.getEvoLogger().info("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info("* Current class: " + resource.replace(".class", "").replace(File.separatorChar, '.'));
-			generateTests(Strategy.EVOSUITE, resource.replace(".class", "").replace(File.separatorChar, '.'), args, cp);
+			LoggingUtils.getEvoLogger().info("* Current class: "
+			                                         + resource.replace(".class", "").replace(File.separatorChar,
+			                                                                                  '.'));
+			generateTests(Strategy.EVOSUITE,
+			              resource.replace(".class", "").replace(File.separatorChar, '.'),
+			              args, cp);
 		}
 	}
 
@@ -314,8 +354,11 @@ public class EvoSuite {
 		}
 	}
 
-	private static void generateTestsLegacy(Properties.Strategy strategy, List<String> args, String cp) {
-		LoggingUtils.getEvoLogger().info("* Using .task files in " + Properties.OUTPUT_DIR + " [deprecated]");
+	private static void generateTestsLegacy(Properties.Strategy strategy,
+	        List<String> args, String cp) {
+		LoggingUtils.getEvoLogger().info("* Using .task files in "
+		                                         + Properties.OUTPUT_DIR
+		                                         + " [deprecated]");
 		File directory = new File(Properties.OUTPUT_DIR);
 		String[] extensions = { "task" };
 		for (File file : FileUtils.listFiles(directory, extensions, false)) {
@@ -334,22 +377,26 @@ public class EvoSuite {
 		String oldCP = Properties.CP;
 
 		Properties.CP = cp;
-		if (Properties.CP != null && !Properties.CP.isEmpty() && ResourceList.hasClass(target)) {
+		if (Properties.CP != null && !Properties.CP.isEmpty()
+		        && ResourceList.hasClass(target)) {
 			return true;
 		}
 
 		Properties.CP = oldCP;
-		if (Properties.CP != null && !Properties.CP.isEmpty() && ResourceList.hasClass(target)) {
+		if (Properties.CP != null && !Properties.CP.isEmpty()
+		        && ResourceList.hasClass(target)) {
 			return true;
 		}
 
 		Properties.CP = System.getProperty("java.class.path");
-		if (Properties.CP != null && !Properties.CP.isEmpty() && ResourceList.hasClass(target)) {
+		if (Properties.CP != null && !Properties.CP.isEmpty()
+		        && ResourceList.hasClass(target)) {
 			return true;
 		}
 
 		Properties.CP = System.getenv("CLASSPATH");
-		if (Properties.CP != null && !Properties.CP.isEmpty() && ResourceList.hasClass(target)) {
+		if (Properties.CP != null && !Properties.CP.isEmpty()
+		        && ResourceList.hasClass(target)) {
 			return true;
 		}
 
@@ -358,7 +405,8 @@ public class EvoSuite {
 		return false;
 	}
 
-	private static Object generateTests(Properties.Strategy strategy, String target, List<String> args, String cp) {
+	private static Object generateTests(Properties.Strategy strategy, String target,
+	        List<String> args, String cp) {
 		String classPath = System.getProperty("java.class.path");
 		if (!evosuiteJar.equals("")) {
 			classPath += File.pathSeparator + evosuiteJar;
@@ -373,8 +421,10 @@ public class EvoSuite {
 		classPath += Properties.CP;
 
 		if (!InstrumentingClassLoader.checkIfCanInstrument(target)) {
-			throw new IllegalArgumentException("Cannot consider " + target
-					+ " because it belongs to one of the packages EvoSuite cannot currently handle");
+			throw new IllegalArgumentException(
+			        "Cannot consider "
+			                + target
+			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
 
 		ExternalProcessHandler handler = new ExternalProcessHandler();
@@ -397,7 +447,8 @@ public class EvoSuite {
 			LoggingUtils.getEvoLogger().info("* Setting up virtual FS for testing");
 			String stringToBePrependedToBootclasspath = locateEvoSuiteIOClasses();
 			if (stringToBePrependedToBootclasspath == null)
-				throw new IllegalStateException("Could not prepend needed classes for VFS functionality to bootclasspath of client!");
+				throw new IllegalStateException(
+				        "Could not prepend needed classes for VFS functionality to bootclasspath of client!");
 			cmdLine.add("-Xbootclasspath/p:" + stringToBePrependedToBootclasspath);
 			cmdLine.add("-Dvirtual_fs=true");
 		}
@@ -406,8 +457,8 @@ public class EvoSuite {
 		cmdLine.add("-Dinline=true");
 		cmdLine.add("-Djava.awt.headless=true");
 		cmdLine.add("-Dlogback.configurationFile=logback-evosuite.xml");
-		cmdLine.add("-Dlog.level="+Properties.LOG_LEVEL);
-		cmdLine.add("-Dlog.target="+Properties.LOG_TARGET);
+		cmdLine.add("-Dlog.level=" + Properties.LOG_LEVEL);
+		cmdLine.add("-Dlog.target=" + Properties.LOG_TARGET);
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
 
@@ -415,8 +466,10 @@ public class EvoSuite {
 			// enabling debugging mode to e.g. connect the eclipse remote debugger to the given port
 			cmdLine.add("-Ddebug=true");
 			cmdLine.add("-Xdebug");
-			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address=" + Properties.PORT);
-			LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port " + Properties.PORT + "..."); // TODO find the right
+			cmdLine.add("-Xrunjdwp:transport=dt_socket,server=y,suspend=y,address="
+			        + Properties.PORT);
+			LoggingUtils.getEvoLogger().info("* Waiting for remote debugger to connect on port "
+			                                         + Properties.PORT + "..."); // TODO find the right
 			// place for this
 		}
 
@@ -546,7 +599,8 @@ public class EvoSuite {
 			try {
 				ClassPathHacker.addFile(entry);
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: " + entry);
+				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
+				                                         + entry);
 			}
 		}
 
@@ -559,18 +613,18 @@ public class EvoSuite {
 				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
 			} catch (InterruptedException e) {
 			}
-			if(clients==null){
+			if (clients == null) {
 				logger.error("Not possible to access to clients");
 			} else {
 				/*
 				 * The clients have started, and connected back to Master.
 				 * So now we just need to tell them to start a search
 				 */
-				for(ClientNodeRemote client : clients){
+				for (ClientNodeRemote client : clients) {
 					try {
 						client.startNewSearch();
 					} catch (RemoteException e) {
-						logger.error("Error in starting clients",e);						
+						logger.error("Error in starting clients", e);
 					}
 				}
 
@@ -604,7 +658,7 @@ public class EvoSuite {
 		}
 
 		logger.debug("Master process has finished to wait for client");
-		if(Properties.NEW_STATISTICS)
+		if (Properties.NEW_STATISTICS)
 			SearchStatistics.getInstance().writeStatistics();
 		return result;
 	}
@@ -625,10 +679,136 @@ public class EvoSuite {
 		return time;
 	}
 
-	private static void measureCoverage(String targetClass, String junitPrefix, List<String> args, String cp) {
+	private static void printStats(String targetClass, List<String> args, String cp) {
 		if (!InstrumentingClassLoader.checkIfCanInstrument(targetClass)) {
-			throw new IllegalArgumentException("Cannot consider " + targetClass
-					+ " because it belongs to one of the packages EvoSuite cannot currently handle");
+			throw new IllegalArgumentException(
+			        "Cannot consider "
+			                + targetClass
+			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
+		}
+		String classPath = System.getProperty("java.class.path");
+		if (!evosuiteJar.equals("")) {
+			classPath += File.pathSeparator + evosuiteJar;
+		}
+
+		classPath += File.pathSeparator + cp;
+		ExternalProcessHandler handler = new ExternalProcessHandler();
+		int port = handler.openServer();
+		List<String> cmdLine = new ArrayList<String>();
+		cmdLine.add(JAVA_CMD);
+		cmdLine.add("-cp");
+		cmdLine.add(classPath);
+		cmdLine.add("-Dprocess_communication_port=" + port);
+		cmdLine.add("-Djava.awt.headless=true");
+		cmdLine.add("-Dlogback.configurationFile=logback-evosuite.xml");
+		cmdLine.add("-Djava.library.path=lib");
+		cmdLine.add("-DCP=" + cp);
+		// cmdLine.add("-Dminimize_values=true");
+
+		for (String arg : args) {
+			if (!arg.startsWith("-DCP=")) {
+				cmdLine.add(arg);
+			}
+		}
+
+		cmdLine.add("-DTARGET_CLASS=" + targetClass);
+		if (Properties.PROJECT_PREFIX != null) {
+			cmdLine.add("-DPROJECT_PREFIX=" + Properties.PROJECT_PREFIX);
+		}
+
+		cmdLine.add("-Dclassloader=true");
+		cmdLine.add("org.evosuite.ClientProcess");
+
+		/*
+		 * TODO: here we start the client with several properties that are set through -D. These properties are not visible to the master process (ie
+		 * this process), when we access the Properties file. At the moment, we only need few parameters, so we can hack them
+		 */
+		Properties.getInstance();// should force the load, just to be sure
+		Properties.TARGET_CLASS = targetClass;
+		Properties.PROCESS_COMMUNICATION_PORT = port;
+
+		LoggingUtils logUtils = new LoggingUtils();
+
+		if (!Properties.CLIENT_ON_THREAD) {
+			/*
+			 * We want to completely mute the SUT. So, we block all outputs from client, and use a remote logging
+			 */
+			boolean logServerStarted = logUtils.startLogServer();
+			if (!logServerStarted) {
+				logger.error("Cannot start the log server");
+				return;
+			}
+			int logPort = logUtils.getLogServerPort(); //
+			cmdLine.add(1, "-Dmaster_log_port=" + logPort);
+			cmdLine.add(1, "-Devosuite.log.appender=CLIENT");
+		}
+
+		String[] newArgs = cmdLine.toArray(new String[cmdLine.size()]);
+		for (String entry : Properties.CP.split(File.pathSeparator)) {
+			try {
+				ClassPathHacker.addFile(entry);
+			} catch (IOException e) {
+				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
+				                                         + entry);
+			}
+		}
+
+		handler.setBaseDir(base_dir_path);
+		if (handler.startProcess(newArgs)) {
+			Set<ClientNodeRemote> clients = null;
+			try {
+				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
+			} catch (InterruptedException e) {
+			}
+			if (clients == null) {
+				logger.error("Not possible to access to clients");
+			} else {
+				/*
+				 * The clients have started, and connected back to Master.
+				 * So now we just need to tell them to start a search
+				 */
+				for (ClientNodeRemote client : clients) {
+					try {
+						client.printClassStatistics();
+					} catch (RemoteException e) {
+						logger.error("Error in starting clients", e);
+					}
+				}
+
+				handler.waitForResult((Properties.GLOBAL_TIMEOUT
+				        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search
+			}
+			// timeout plus
+			// 100 seconds?
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+
+			handler.killProcess();
+		} else {
+			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
+		}
+
+		handler.closeServer();
+
+		if (!Properties.CLIENT_ON_THREAD) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+			}
+			logUtils.closeLogServer();
+		}
+
+	}
+
+	private static void measureCoverage(String targetClass, String junitPrefix,
+	        List<String> args, String cp) {
+		if (!InstrumentingClassLoader.checkIfCanInstrument(targetClass)) {
+			throw new IllegalArgumentException(
+			        "Cannot consider "
+			                + targetClass
+			                + " because it belongs to one of the packages EvoSuite cannot currently handle");
 		}
 		String classPath = System.getProperty("java.class.path");
 		if (!evosuiteJar.equals("")) {
@@ -693,7 +873,8 @@ public class EvoSuite {
 			try {
 				ClassPathHacker.addFile(entry);
 			} catch (IOException e) {
-				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: " + entry);
+				LoggingUtils.getEvoLogger().info("* Error while adding classpath entry: "
+				                                         + entry);
 			}
 		}
 
@@ -704,22 +885,23 @@ public class EvoSuite {
 				clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(10000);
 			} catch (InterruptedException e) {
 			}
-			if(clients==null){
+			if (clients == null) {
 				logger.error("Not possible to access to clients");
 			} else {
 				/*
 				 * The clients have started, and connected back to Master.
 				 * So now we just need to tell them to start a search
 				 */
-				for(ClientNodeRemote client : clients){
+				for (ClientNodeRemote client : clients) {
 					try {
 						client.doCoverageAnalysis();
 					} catch (RemoteException e) {
-						logger.error("Error in starting clients",e);						
+						logger.error("Error in starting clients", e);
 					}
 				}
 
-				handler.waitForResult((Properties.GLOBAL_TIMEOUT + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search
+				handler.waitForResult((Properties.GLOBAL_TIMEOUT
+				        + Properties.MINIMIZATION_TIMEOUT + Properties.EXTRA_TIMEOUT) * 1000); // FIXXME: search
 			}
 			// timeout plus
 			// 100 seconds?
@@ -745,11 +927,14 @@ public class EvoSuite {
 	}
 
 	/**
-	 * Locates the resources that have to be prepended to bootclasspath in order to have all classes in the Client JVM that are needed for VFS
+	 * Locates the resources that have to be prepended to bootclasspath in order
+	 * to have all classes in the Client JVM that are needed for VFS
 	 * functionality. Extracts and creates it if necessary.
 	 * 
-	 * @return a string denoting one or more with the system's pathSeparator separated pathes to one or more jars containing evosuite-io, commons-vfs2
-	 *         and commons-logging; <code>null</code> if one or more resources could not be found or accessed
+	 * @return a string denoting one or more with the system's pathSeparator
+	 *         separated pathes to one or more jars containing evosuite-io,
+	 *         commons-vfs2 and commons-logging; <code>null</code> if one or
+	 *         more resources could not be found or accessed
 	 */
 	private static String locateEvoSuiteIOClasses() {
 		String stringToBePrependedToBootclasspath = null;
@@ -765,7 +950,8 @@ public class EvoSuite {
 		// dependencies
 		if (evosuiteIOjarInputStream != null) {
 			// extract evosuite-io.jar into the system-default temporary directory
-			String tmpFilePath = System.getProperty("java.io.tmpdir") + File.separator + "evosuite-io.jar";
+			String tmpFilePath = System.getProperty("java.io.tmpdir") + File.separator
+			        + "evosuite-io.jar";
 			File tmpFile = new File(tmpFilePath);
 			tmpFile.deleteOnExit();
 
@@ -773,19 +959,21 @@ public class EvoSuite {
 				IOUtils.copy(evosuiteIOjarInputStream, new FileOutputStream(tmpFile));
 				stringToBePrependedToBootclasspath = tmpFilePath;
 			} catch (IOException e) {
-				throw new IllegalStateException("Error while extracing the evosuite-io JAR file!", e);
+				throw new IllegalStateException(
+				        "Error while extracing the evosuite-io JAR file!", e);
 			}
 		} else {
 			// if not found try to locate all needed jars in classpath
 			logger.info("\"evosuite-io.jar\" could not be found by EvoSuite.class.getClassLoader().getResource. "
-					+ "EvoSuite is likely not executing out of an executable jar file at the moment. "
-					+ "Now trying to locate all needed jars for VFS functionality in classpath instead...");
+			        + "EvoSuite is likely not executing out of an executable jar file at the moment. "
+			        + "Now trying to locate all needed jars for VFS functionality in classpath instead...");
 			URL[] urls = ((URLClassLoader) ClassLoader.getSystemClassLoader()).getURLs();
 			URL evosuiteIOjar = null;
 			URL commonsVFSjar = null;
 			URL commonsLoggingjar = null;
 			for (URL url : urls) {
-				if (evosuiteIOjar != null && commonsVFSjar != null && commonsLoggingjar != null)
+				if (evosuiteIOjar != null && commonsVFSjar != null
+				        && commonsLoggingjar != null)
 					break;
 
 				if (url.getPath().matches(".*evosuite-io.*\\.jar")) {
@@ -806,14 +994,17 @@ public class EvoSuite {
 
 			if (evosuiteIOjar == null || !(new File(evosuiteIOjar.getPath())).canRead()) {
 				throw new IllegalStateException("The evosuite-io JAR cannot be read!");
-			} else if (commonsVFSjar == null || !(new File(commonsVFSjar.getPath())).canRead()) {
+			} else if (commonsVFSjar == null
+			        || !(new File(commonsVFSjar.getPath())).canRead()) {
 				throw new IllegalStateException("The commons-vfs2 JAR cannot be read!");
-			} else if (commonsLoggingjar == null || !(new File(commonsLoggingjar.getPath())).canRead()) {
+			} else if (commonsLoggingjar == null
+			        || !(new File(commonsLoggingjar.getPath())).canRead()) {
 				throw new IllegalStateException("The commons-logging JAR cannot be read!");
 			} else {
 				logger.info("All needed jars for VFS functionality are in classpath and readable!");
-				stringToBePrependedToBootclasspath = evosuiteIOjar.getPath() + File.pathSeparator + commonsVFSjar.getPath() + File.pathSeparator
-						+ commonsLoggingjar.getPath();
+				stringToBePrependedToBootclasspath = evosuiteIOjar.getPath()
+				        + File.pathSeparator + commonsVFSjar.getPath()
+				        + File.pathSeparator + commonsLoggingjar.getPath();
 			}
 		}
 
@@ -824,7 +1015,10 @@ public class EvoSuite {
 		if (base_dir_path.equals("")) {
 			Properties.getInstanceSilent();
 		} else {
-			Properties.getInstanceSilent().loadProperties(base_dir_path + separator + Properties.PROPERTIES_FILE, true);
+			Properties.getInstanceSilent().loadProperties(base_dir_path
+			                                                      + separator
+			                                                      + Properties.PROPERTIES_FILE,
+			                                              true);
 		}
 	}
 
@@ -843,39 +1037,43 @@ public class EvoSuite {
 
 		Option help = new Option("help", "print this message");
 		Option generateSuite = new Option("generateSuite", "use whole suite generation");
-		Option generateTests = new Option("generateTests", "use individual test generation");
-		Option measureCoverage = new Option("measureCoverage", "measure coverage on existing test cases");
-		Option listClasses = new Option("listClasses", "list the testable classes found in the specified classpath/prefix");
+		Option generateTests = new Option("generateTests",
+		        "use individual test generation");
+		Option measureCoverage = new Option("measureCoverage",
+		        "measure coverage on existing test cases");
+		Option listClasses = new Option("listClasses",
+		        "list the testable classes found in the specified classpath/prefix");
+		Option printStats = new Option("printStats",
+		        "print class information (coverable goals)");
 		Option setup = OptionBuilder.withArgName("target").hasArg().withDescription("Create evosuite-files with property file").create("setup");
 		Option generateRandom = new Option("generateRandom", "use random test generation");
-		Option generateFixedRandom = OptionBuilder.withArgName("generateNumRandom").hasArg().withDescription("generate fixed number of random tests")
-				.create("generateNumRandom");
-		Option generateRegressionSuite = new Option("regressionSuite", "generate a regression test suite");
+		Option generateFixedRandom = OptionBuilder.withArgName("generateNumRandom").hasArg().withDescription("generate fixed number of random tests").create("generateNumRandom");
+		Option generateRegressionSuite = new Option("regressionSuite",
+		        "generate a regression test suite");
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
 		Option targetPrefix = OptionBuilder.withArgName("prefix").hasArg().withDescription("target prefix for test generation").create("prefix");
 		Option targetCP = OptionBuilder.withArgName("target").hasArg().withDescription("target classpath for test generation").create("target");
-		Option classPath = OptionBuilder.withArgName("cp").hasArg().withDescription("classpath of the project under test").withValueSeparator(':')
-				.create("cp");
+		Option classPath = OptionBuilder.withArgName("cp").hasArg().withDescription("classpath of the project under test").withValueSeparator(':').create("cp");
 		Option junitPrefix = OptionBuilder.withArgName("junit").hasArg().withDescription("junit prefix").create("junit");
-		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation")
-				.create("criterion");
+		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
 		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
 		Option mem = OptionBuilder.withArgName("mem").hasArg().withDescription("heap size for client process (in megabytes)").create("mem");
-		Option jar = OptionBuilder.withArgName("jar").hasArg().withDescription("location of EvoSuite jar file to use in client process")
-				.create("jar");
+		Option jar = OptionBuilder.withArgName("jar").hasArg().withDescription("location of EvoSuite jar file to use in client process").create("jar");
 
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
 		Option mocks = new Option("mocks", "Use mock classes");
 		Option stubs = new Option("stubs", "Use stubs");
 		Option assertions = new Option("assertions", "Add assertions");
-		Option signature = new Option("signature", "Allow manual tweaking of method signatures");
-		Option inheritance = new Option("inheritanceTree", "Cache inheritance tree during setup");
-		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
+		Option signature = new Option("signature",
+		        "Allow manual tweaking of method signatures");
+		Option inheritance = new Option("inheritanceTree",
+		        "Cache inheritance tree during setup");
+		Option heapDump = new Option("heapdump",
+		        "Create heap dump on client VM out of memory error");
 
 		Option base_dir = OptionBuilder.withArgName("base_dir").hasArg().withDescription("Working directory").create("base_dir");
 
-		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property")
-				.create("D");
+		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
 
 		options.addOption(help);
 		options.addOption(generateSuite);
@@ -885,6 +1083,7 @@ public class EvoSuite {
 		options.addOption(generateRegressionSuite);
 		options.addOption(measureCoverage);
 		options.addOption(listClasses);
+		options.addOption(printStats);
 		options.addOption(setup);
 		options.addOption(targetClass);
 		options.addOption(targetPrefix);
@@ -913,7 +1112,7 @@ public class EvoSuite {
 		if (version == null)
 			version = "";
 		LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
-		
+
 		// create the parser
 		CommandLineParser parser = new GnuParser();
 		try {
@@ -928,8 +1127,9 @@ public class EvoSuite {
 			java.util.Properties properties = line.getOptionProperties("D");
 			Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
 			for (String propertyName : properties.stringPropertyNames()) {
-				if (!propertyNames.contains(propertyName)) {					
-					LoggingUtils.getEvoLogger().error("* Unknown property: " + propertyName);
+				if (!propertyNames.contains(propertyName)) {
+					LoggingUtils.getEvoLogger().error("* Unknown property: "
+					                                          + propertyName);
 					throw new Error("Unknown property: " + propertyName);
 				}
 				String propertyValue = properties.getProperty(propertyName);
@@ -970,11 +1170,13 @@ public class EvoSuite {
 				base_dir_path = line.getOptionValue("base_dir");
 				File baseDir = new File(base_dir_path);
 				if (!baseDir.exists()) {
-					LoggingUtils.getEvoLogger().error("Base directory does not exist: " + base_dir_path);
+					LoggingUtils.getEvoLogger().error("Base directory does not exist: "
+					                                          + base_dir_path);
 					return null;
 				}
 				if (!baseDir.isDirectory()) {
-					LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: " + base_dir_path);
+					LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: "
+					                                          + base_dir_path);
 					return null;
 				}
 			}
@@ -1007,10 +1209,12 @@ public class EvoSuite {
 				formatter.printHelp("EvoSuite", options);
 			} else if (line.hasOption("setup")) {
 				boolean inheritanceTree = line.hasOption("inheritanceTree");
-				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts, inheritanceTree);
+				setup(line.getOptionValue("setup"), line.getArgs(), javaOpts,
+				      inheritanceTree);
 			} else if (line.hasOption("measureCoverage")) {
 				if (line.hasOption("class"))
-					measureCoverage(line.getOptionValue("class"), line.getOptionValue("junit"), javaOpts, cp);
+					measureCoverage(line.getOptionValue("class"),
+					                line.getOptionValue("junit"), javaOpts, cp);
 				else {
 					LoggingUtils.getEvoLogger().error("Please specify target class");
 					HelpFormatter formatter = new HelpFormatter();
@@ -1028,6 +1232,23 @@ public class EvoSuite {
 					HelpFormatter formatter = new HelpFormatter();
 					formatter.printHelp("EvoSuite", options);
 				}
+			} else if (line.hasOption("printStats")) {
+				// TODO
+				if (line.hasOption("class"))
+					printStats(line.getOptionValue("class"), javaOpts, cp);
+				/*
+				else if (line.hasOption("prefix"))
+					printStatsPrefix(line.getOptionValue("prefix"), cp);
+				else if (line.hasOption("target"))
+					printStatsTarget(line.getOptionValue("target"));
+				else if (hasLegacyTargets())
+					printStatsLegacy();
+					*/
+				else {
+					LoggingUtils.getEvoLogger().error("Please specify target class to list class statistics");
+					HelpFormatter formatter = new HelpFormatter();
+					formatter.printHelp("EvoSuite", options);
+				}
 			} else {
 				Strategy strategy = null;
 				if (line.hasOption("generateTests")) {
@@ -1040,7 +1261,8 @@ public class EvoSuite {
 					strategy = Strategy.REGRESSION;
 				} else if (line.hasOption("generateNumRandom")) {
 					strategy = Strategy.RANDOM_FIXED;
-					javaOpts.add("-Dnum_random_tests=" + line.getOptionValue("generateNumRandom"));
+					javaOpts.add("-Dnum_random_tests="
+					        + line.getOptionValue("generateNumRandom"));
 				}
 				if (strategy == null) {
 					LoggingUtils.getEvoLogger().error("Please specify strategy: -generateSuite, -generateTests, -generateRandom");
@@ -1048,21 +1270,20 @@ public class EvoSuite {
 					formatter.printHelp("EvoSuite", options);
 				} else {
 					if (line.hasOption("class"))
-						result = generateTests(strategy, line.getOptionValue("class"), javaOpts, cp);
+						result = generateTests(strategy, line.getOptionValue("class"),
+						                       javaOpts, cp);
 					else if (line.hasOption("prefix"))
 						generateTestsPrefix(strategy, line.getOptionValue("prefix"),
-								javaOpts, cp);
+						                    javaOpts, cp);
 					else if (line.hasOption("target")) {
-						String target =line.getOptionValue("target");
-						if(cp.isEmpty()) {
+						String target = line.getOptionValue("target");
+						if (cp.isEmpty()) {
 							cp = target;
-						} else if(!cp.contains(target)) {
+						} else if (!cp.contains(target)) {
 							cp = cp + File.pathSeparator + target;
 						}
-						generateTestsTarget(strategy, target,
-								javaOpts, cp);
-					}
-					else if (hasLegacyTargets())
+						generateTestsTarget(strategy, target, javaOpts, cp);
+					} else if (hasLegacyTargets())
 						generateTestsLegacy(strategy, javaOpts, cp);
 					else {
 						LoggingUtils.getEvoLogger().error("Please specify target class, prefix, or classpath entry");
@@ -1095,8 +1316,9 @@ public class EvoSuite {
 			EvoSuite evosuite = new EvoSuite();
 			evosuite.parseCommandLine(args);
 		} catch (Throwable t) {
-			logger.error("Fatal crash on main EvoSuite process. Class " + Properties.TARGET_CLASS + " using seed " + Randomness.getSeed()
-					+ ". Configuration id : " + Properties.CONFIGURATION_ID, t);
+			logger.error("Fatal crash on main EvoSuite process. Class "
+			        + Properties.TARGET_CLASS + " using seed " + Randomness.getSeed()
+			        + ". Configuration id : " + Properties.CONFIGURATION_ID, t);
 			System.exit(-1);
 		}
 
