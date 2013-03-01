@@ -24,7 +24,6 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
-import org.evosuite.utils.LoggingUtils;
 
 public class TestCaseExpander {
 
@@ -36,11 +35,8 @@ public class TestCaseExpander {
 
 	public TestCase expandTestCase(TestCase test) {
 		TestCase expandedTest = test.clone();
-		LoggingUtils.getEvoLogger().info("Test before expanding primitives: "
-		                                         + expandedTest.toCode());
-		createConcretePrimitives(expandedTest);
-		LoggingUtils.getEvoLogger().info("Test after expanding primitives: "
-		                                         + expandedTest.toCode());
+		// Deactivated for now - only needed in NL branch
+		// createConcretePrimitives(expandedTest);
 		while (currentPosition < expandedTest.size()) {
 			StatementInterface statement = expandedTest.getStatement(currentPosition);
 			if (statement instanceof MethodStatement) {
@@ -57,7 +53,7 @@ public class TestCaseExpander {
 		return expandedTest;
 	}
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
 	private void createConcretePrimitives(TestCase test) {
 
 		// Execute test to collect concrete values
