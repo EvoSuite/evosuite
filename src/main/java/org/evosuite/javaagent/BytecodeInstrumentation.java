@@ -218,8 +218,8 @@ public class BytecodeInstrumentation {
 
 		TransformationStatistics.reset();
 
-		int asmFlags = ClassWriter.COMPUTE_FRAMES;
-		//		int asmFlags = ClassWriter.COMPUTE_MAXS;
+		//int asmFlags = ClassWriter.COMPUTE_FRAMES;
+		int asmFlags = ClassWriter.COMPUTE_MAXS;
 		//if(System.getProperty("java.version").startsWith("1.7")) {
 		//	LoggingUtils.getEvoLogger().info("Using COMPUTE_FRAMES because Java 7 was detected");
 		//	asmFlags |= ClassWriter.COMPUTE_FRAMES;
