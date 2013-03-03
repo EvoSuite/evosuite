@@ -323,6 +323,13 @@ public class TestClusterGenerator {
 			logger.info("Adding declared class " + c);
 			targetClasses.add(c);
 		}
+		if (Modifier.isAbstract(targetClass.getModifiers())) {
+			logger.info("SUT is an abstract class");
+			Set<Class<?>> subclasses = getConcreteClasses(targetClass);
+			logger.info("Found "+subclasses.size()+" concrete subclasses");
+			targetClasses.addAll(subclasses);
+		}
+
 
 		// To make sure we also have anonymous inner classes double check inner classes using ASM
 		ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);
