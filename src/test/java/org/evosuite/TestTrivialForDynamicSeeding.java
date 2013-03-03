@@ -67,7 +67,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 0.0;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
 
 		Object result = evosuite.parseCommandLine(command);
 
