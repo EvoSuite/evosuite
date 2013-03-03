@@ -209,20 +209,51 @@ public class InheritanceTreeGenerator {
 	 * During runtime, we do not want to consider standard classes to safe some
 	 * time, so we perform this analysis only once.
 	 */
-	public static void generateJDKCluster() {
+	public static void generateJDKCluster(String... filters) {
 		Collection<String> list = getAllResources();
 		InheritanceTree inheritanceTree = new InheritanceTree();
-
+		List<InheritanceTree> others = new ArrayList<InheritanceTree>();
+		
+		/*
+		 * Filtering against other inheritance trees is necessary to remove any
+		 * version specific classes. For example, first generate an inheritance tree
+		 * with JDK6 and then one with JDK7, filtering against JDK6, to keep only
+		 * the intersection of classes. 
+		 */
+		for(String filterFile : filters) {
+			logger.info("Trying to load "+filterFile);
+			try {
+				InheritanceTree tree = readUncompressedInheritanceTree(filterFile);
+				others.add(tree);
+			} catch (IOException e) {
+				logger.info("Error: "+e);
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
 		EXCEPTION: for (String name : list) {
 			// We do not consider sun.* and apple.* and com.* 
 			for (String exception : classExceptions) {
-				if (name.startsWith(exception))
+				if (name.startsWith(exception)) {
+					logger.info("Skipping excluded class "+name);
 					continue EXCEPTION;
+				}
+				for(InheritanceTree other : others) {
+					if(!other.hasClass(name.replace('/', '.').replace(".class", ""))) {
+						logger.info("Skipping "+name+" because it is not in other inheritance tree");
+						continue EXCEPTION;
+					} else {
+						logger.info("Not skipping "+name+" because it is in other inheritance tree");
+					}
+				}
 			}
 			InputStream stream = TestGenerationContext.getClassLoader().getResourceAsStream(name);
 			analyzeClassStream(inheritanceTree, stream);
 		}
 
+		logger.info("Finished checking classes, writing data");
+		
 		// Write data to XML file
 		try {
 			FileOutputStream stream = new FileOutputStream(
@@ -237,7 +268,8 @@ public class InheritanceTreeGenerator {
 
 	public static InheritanceTree readJDKData() {
 		XStream xstream = new XStream();
-		InputStream inheritance = InheritanceTreeGenerator.class.getResourceAsStream("/JDK_inheritance.xml");
+		String fileName = "/JDK_inheritance.xml";
+		InputStream inheritance = InheritanceTreeGenerator.class.getResourceAsStream(fileName);
 		if (inheritance != null)
 			return (InheritanceTree) xstream.fromXML(inheritance);
 		else
@@ -249,6 +281,12 @@ public class InheritanceTreeGenerator {
 		// InputStream inheritance = new FileInputStream(new File(fileName));
 		GZIPInputStream inheritance = new GZIPInputStream(new FileInputStream(new File(
 		        fileName)));
+		return (InheritanceTree) xstream.fromXML(inheritance);
+	}
+
+	public static InheritanceTree readUncompressedInheritanceTree(String fileName) throws IOException {
+		XStream xstream = new XStream();
+		InputStream inheritance = new FileInputStream(new File(fileName));
 		return (InheritanceTree) xstream.fromXML(inheritance);
 	}
 
@@ -293,7 +331,7 @@ public class InheritanceTreeGenerator {
 	}
 
 	public static void main(String[] args) {
-		generateJDKCluster();
+		generateJDKCluster(args);
 	}
 
 }
