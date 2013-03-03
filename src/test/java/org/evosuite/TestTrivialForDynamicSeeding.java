@@ -18,6 +18,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -66,6 +67,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 0.0;
+		ConstantPoolManager.getInstance().reset();
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
 
