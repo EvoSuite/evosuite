@@ -1,7 +1,5 @@
 package org.evosuite;
 
-import static org.junit.Assert.*;
-
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
