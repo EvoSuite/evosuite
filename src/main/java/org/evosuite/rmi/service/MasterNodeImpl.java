@@ -123,6 +123,17 @@ public class MasterNodeImpl implements MasterNodeRemote, MasterNodeLocal {
 	}
 	
 	@Override
+	public void cancelAllClients() {
+		for(ClientNodeRemote client : clients) {
+			try {
+				client.cancelCurrentSearch();
+			} catch (RemoteException e) {
+				logger.warn("Error while trying to cancel client: "+e);
+			}
+		}
+	}
+	
+	@Override
 	public void collectStatistics(String clientRmiIdentifier,
 			Chromosome individual) {
 		SearchStatistics.getInstance().currentIndividual(clientRmiIdentifier, individual);		
