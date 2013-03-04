@@ -549,7 +549,7 @@ public class Properties {
 	// ---------------------------------------------------------------
 	// Output
 	public enum OutputFormat {
-		JUNIT3, JUNIT4, JUNIT4_LOG, TESTNG
+		JUNIT3, JUNIT4, TESTNG
 	}
 
 	/** Constant <code>TEST_FORMAT</code> */

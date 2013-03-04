@@ -431,8 +431,6 @@ public class TestSuiteWriter implements Opcodes {
 			return new JUnit3TestAdapter();
 		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4)
 			return new JUnit4TestAdapter();
-		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4_LOG)
-			return new JUnit4AssertionLogAdapter();
 		else
 			throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
 	}
