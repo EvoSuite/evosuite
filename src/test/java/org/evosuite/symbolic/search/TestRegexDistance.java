@@ -4,7 +4,6 @@
 package org.evosuite.symbolic.search;
 
 import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
@@ -205,11 +204,11 @@ public class TestRegexDistance {
 	@Test
 	public void tetsAutomaton(){
 		//TODO
-		Automaton a0 = RegexDistance.getAndCacheAutomaton("[a0]");
-		Automaton a0s = RegexDistance.getAndCacheAutomaton("[a0]*");
-		Automaton a0p = RegexDistance.getAndCacheAutomaton("[a0]+");
+		RegexDistance.getAndCacheAutomaton("[a0]");
+		RegexDistance.getAndCacheAutomaton("[a0]*");
+		RegexDistance.getAndCacheAutomaton("[a0]+");
 		
-		Automaton  foo = RegexDistance.getAndCacheAutomaton("a.?c");		
+		RegexDistance.getAndCacheAutomaton("a.?c");		
 	}
 	
 	@Test

@@ -323,6 +323,9 @@ public class ArrayIndex extends VariableReferenceImpl {
 			if (arrayObject == null) {
 				throw new CodeUnderTestException(new NullPointerException());
 			}
+			if(value == null && arrayObject.getClass().getComponentType().isPrimitive()) {
+				throw new CodeUnderTestException(new NullPointerException());
+			}
 			if (arrayObject.getClass().getComponentType().equals(int.class))
 				Array.setInt(arrayObject, indices.get(indices.size() - 1), getIntValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(boolean.class))

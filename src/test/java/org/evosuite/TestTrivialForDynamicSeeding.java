@@ -18,6 +18,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
@@ -51,7 +52,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Assert.assertTrue("Invalid result type :" + result.getClass(),
 		                  result instanceof GeneticAlgorithm);
 
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
@@ -66,8 +67,9 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 0.0;
+		ConstantPoolManager.getInstance().reset();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -75,7 +77,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Assert.assertTrue("Invalid result type :" + result.getClass(),
 		                  result instanceof GeneticAlgorithm);
 
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 

@@ -218,14 +218,13 @@ public class BytecodeInstrumentation {
 
 		TransformationStatistics.reset();
 
-		//int asmFlags = ClassWriter.COMPUTE_FRAMES;
-		int asmFlags = ClassWriter.COMPUTE_MAXS;
-		//if(System.getProperty("java.version").startsWith("1.7")) {
-		//	LoggingUtils.getEvoLogger().info("Using COMPUTE_FRAMES because Java 7 was detected");
-		//	asmFlags |= ClassWriter.COMPUTE_FRAMES;
-		//}
+		/*
+		 *  To use COMPUTE_FRAMES we need to remove JSR commands.
+		 *  Therefore, we have a JSRInlinerAdapter in NonTargetClassAdapter
+		 *  as well as CFGAdapter.
+		 */
+		int asmFlags = ClassWriter.COMPUTE_FRAMES;
 		ClassWriter writer = new ClassWriter(asmFlags);
-		//| ClassWriter.COMPUTE_FRAMES);
 
 		ClassVisitor cv = writer;
 		if (logger.isDebugEnabled()) {

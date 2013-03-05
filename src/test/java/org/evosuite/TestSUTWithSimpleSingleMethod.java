@@ -18,7 +18,6 @@
 package org.evosuite;
 
 import org.evosuite.EvoSuite;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.*;
@@ -61,7 +60,7 @@ public class TestSUTWithSimpleSingleMethod extends SystemTest{
 		Assert.assertTrue(result != null);
 		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
 		
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		Assert.assertEquals("Wrong number of test cases: ",1 , best.size());

@@ -17,8 +17,6 @@
  */
 package org.evosuite;
 
-import static org.junit.Assert.*;
-
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.ga.GeneticAlgorithm;
@@ -28,7 +26,6 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.ArrayLimit;
-import com.examples.with.different.packagename.DivisionByZero;
 
 
 
@@ -62,7 +59,7 @@ public class TestSUTArrayLimit extends SystemTest{
 		Assert.assertTrue(result != null);
 		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
 		
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n"+best);
 
@@ -88,7 +85,7 @@ public class TestSUTArrayLimit extends SystemTest{
 		Assert.assertTrue(result != null);
 		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
 		
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n"+best);
 

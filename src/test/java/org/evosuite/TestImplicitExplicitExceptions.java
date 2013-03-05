@@ -55,7 +55,7 @@ public class TestImplicitExplicitExceptions  extends SystemTest {
 		Assert.assertTrue("Invalid result type :" + result.getClass(),
 		                  result instanceof GeneticAlgorithm);
 
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
