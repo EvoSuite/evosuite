@@ -80,7 +80,7 @@ public class ClientServices {
 			} catch (NoSuchObjectException e) {
 				logger.warn("Failed to delete ClientNode RMI instance",e);
 			}
-			clientNode = null;
+			clientNode = new DummyClientNodeImpl();
 		}
 	}
 }

@@ -19,13 +19,11 @@ package org.evosuite;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.*;
 
 import com.examples.with.different.packagename.HighConstant;
-import com.examples.with.different.packagename.SingleMethod;
 
 
 /**
@@ -61,7 +59,7 @@ public class TestSUTHighConstant extends SystemTest{
 		Assert.assertTrue(result != null);
 		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
 		
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 
 		/*
@@ -98,7 +96,7 @@ public class TestSUTHighConstant extends SystemTest{
 		Assert.assertTrue(result != null);
 		Assert.assertTrue("Invalid result type :"+result.getClass(), result instanceof GeneticAlgorithm);
 		
-		GeneticAlgorithm ga = (GeneticAlgorithm) result;
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		Assert.assertEquals("Wrong number of generations: ", 0, ga.getAge());
 		TestSuiteChromosome best = (TestSuiteChromosome)ga.getBestIndividual();
 		//Assert.assertEquals("Wrong number of test cases: ",2 , best.size());

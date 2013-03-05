@@ -10,7 +10,7 @@ public class TestSuiteWriterTest {
 		String result = writer.getBeforeAndAfterMethods(true);
 		System.out.println(result);
 		//This is just for regression. If changes in the code, check output manually if it makes sense 
-		Assert.assertEquals(588, result.length());
+		Assert.assertEquals(601, result.length());
 	}
 	
 }

@@ -25,7 +25,7 @@ public class TestPatternSearch {
 	public void testMatcherMatches() {
 
 		String input = "random_value";
-		String format = "^(\\d+)-(\\d\\d)-(\\d)$";
+		String format = "(\\d+)-(\\d\\d)-(\\d)";
 		// String format = "^(\\d+)-(\\d\\d)-(\\d)$";
 
 		StringVariable var0 = new StringVariable("var0", input);

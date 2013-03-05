@@ -17,7 +17,6 @@
  */
 package org.evosuite;
 
-import static org.junit.Assert.fail;
 import junit.framework.Assert;
 
 import org.evosuite.EvoSuite;

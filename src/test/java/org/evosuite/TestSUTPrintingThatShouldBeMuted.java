@@ -23,9 +23,6 @@ import java.io.PrintStream;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.utils.LoggingUtils;
 import org.junit.*;
 
 import com.examples.with.different.packagename.InfiniteLoops;
@@ -72,7 +69,7 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 				"-Dprint_to_system=true"
 		};
 		
-		Object result = evosuite.parseCommandLine(command);
+		evosuite.parseCommandLine(command);
 			
 		String printed = byteStream.toString();
 		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting client"));
@@ -87,7 +84,7 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 		};
 		
 		byteStream.reset();
-		result = evosuite.parseCommandLine(command);
+		evosuite.parseCommandLine(command);
 			
 		printed = byteStream.toString();
 		Assert.assertTrue("PRINTED:\n"+printed,printed.contains("Starting client"));

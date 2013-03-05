@@ -21,6 +21,7 @@ import org.evosuite.Properties;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,6 +81,8 @@ public class CFGClassAdapter extends ClassVisitor {
 
 		MethodVisitor mv = super.visitMethod(methodAccess, name, descriptor, signature,
 		                                     exceptions);
+		mv = new JSRInlinerAdapter(mv, methodAccess, name, descriptor, signature, exceptions);
+
 
 		if ((methodAccess & Opcodes.ACC_SYNTHETIC) != 0
 		        || (methodAccess & Opcodes.ACC_BRIDGE) != 0) {

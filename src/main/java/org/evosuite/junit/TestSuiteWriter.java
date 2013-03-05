@@ -42,7 +42,6 @@ import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
-import org.evosuite.repair.JUnit4AssertionLogAdapter;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ExecutionResult;
@@ -431,8 +430,6 @@ public class TestSuiteWriter implements Opcodes {
 			return new JUnit3TestAdapter();
 		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4)
 			return new JUnit4TestAdapter();
-		else if (Properties.TEST_FORMAT == OutputFormat.JUNIT4_LOG)
-			return new JUnit4AssertionLogAdapter();
 		else
 			throw new RuntimeException("Unknown output format: " + Properties.TEST_FORMAT);
 	}

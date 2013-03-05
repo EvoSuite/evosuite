@@ -5,7 +5,6 @@ package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -37,7 +36,7 @@ import com.examples.with.different.packagename.ExampleInheritedClass;
  */
 public class TestRegression extends SystemTest {
 
-	private GeneticAlgorithm runTest(String targetClass) {
+	private GeneticAlgorithm<?> runTest(String targetClass) {
 		EvoSuite evosuite = new EvoSuite();
 
 		//Properties.CLIENT_ON_THREAD = true;
@@ -55,11 +54,11 @@ public class TestRegression extends SystemTest {
 		Assert.assertTrue("Invalid result type :" + result.getClass(),
 		                  result instanceof GeneticAlgorithm);
 
-		return (GeneticAlgorithm) result;
+		return (GeneticAlgorithm<?>) result;
 	}
 
 	private void testCovered(String targetClass, int numGoals) {
-		GeneticAlgorithm ga = runTest(targetClass);
+		GeneticAlgorithm<?> ga = runTest(targetClass);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		// TODO: Need to fix the check, some reset is not working
 		Assert.assertEquals("Wrong number of target goals", numGoals,best.getNumOfCoveredGoals());
@@ -81,6 +80,7 @@ public class TestRegression extends SystemTest {
 	// TODO: This test fails if primitive_reuse_probability is too high/low. 
 	@Test
 	public void testAssignment() {
+		Properties.PRIMITIVE_REUSE_PROBABILITY = 0.5;
 		testCovered(AssignmentTest.class.getCanonicalName(), 30);
 	}
 
