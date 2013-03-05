@@ -1038,7 +1038,7 @@ public class EvoSuite {
 		Option help = new Option("help", "print this message");
 		Option generateSuite = new Option("generateSuite", "use whole suite generation");
 		Option generateTests = new Option("generateTests",
-		        "use individual test generation");
+		        "use individual test generation (old approach for reference purposes)");
 		Option measureCoverage = new Option("measureCoverage",
 		        "measure coverage on existing test cases");
 		Option listClasses = new Option("listClasses",
@@ -1053,30 +1053,30 @@ public class EvoSuite {
 		Option targetClass = OptionBuilder.withArgName("class").hasArg().withDescription("target class for test generation").create("class");
 		Option targetPrefix = OptionBuilder.withArgName("prefix").hasArg().withDescription("target prefix for test generation").create("prefix");
 		Option targetCP = OptionBuilder.withArgName("target").hasArg().withDescription("target classpath for test generation").create("target");
-		Option classPath = OptionBuilder.withArgName("cp").hasArg().withDescription("classpath of the project under test").withValueSeparator(':').create("cp");
+		Option classPath = OptionBuilder.withArgName("cp").hasArg().withDescription("classpath of the project under test and dependencies").withValueSeparator(':').create("cp");
 		Option junitPrefix = OptionBuilder.withArgName("junit").hasArg().withDescription("junit prefix").create("junit");
 		Option criterion = OptionBuilder.withArgName("criterion").hasArg().withDescription("target criterion for test generation").create("criterion");
 		Option seed = OptionBuilder.withArgName("seed").hasArg().withDescription("seed for random number generator").create("seed");
 		Option mem = OptionBuilder.withArgName("mem").hasArg().withDescription("heap size for client process (in megabytes)").create("mem");
 		Option jar = OptionBuilder.withArgName("jar").hasArg().withDescription("location of EvoSuite jar file to use in client process").create("jar");
+		Option extendSuite = OptionBuilder.withArgName("extend").hasArg().withDescription("extend an existing test suite").create("extend");
 
 		Option sandbox = new Option("sandbox", "Run tests in sandbox");
-		Option mocks = new Option("mocks", "Use mock classes");
-		Option stubs = new Option("stubs", "Use stubs");
+		//Option mocks = new Option("mocks", "Use mock classes");
+		//Option stubs = new Option("stubs", "Use stubs");
 		Option assertions = new Option("assertions", "Add assertions");
-		Option signature = new Option("signature",
-		        "Allow manual tweaking of method signatures");
 		Option inheritance = new Option("inheritanceTree",
 		        "Cache inheritance tree during setup");
 		Option heapDump = new Option("heapdump",
 		        "Create heap dump on client VM out of memory error");
 
-		Option base_dir = OptionBuilder.withArgName("base_dir").hasArg().withDescription("Working directory").create("base_dir");
+		Option base_dir = OptionBuilder.withArgName("base_dir").hasArg().withDescription("Working directory in which tests and reports will be placed").create("base_dir");
 
 		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
 
 		options.addOption(help);
 		options.addOption(generateSuite);
+		options.addOption(extendSuite);
 		options.addOption(generateTests);
 		options.addOption(generateRandom);
 		options.addOption(generateFixedRandom);
@@ -1094,7 +1094,6 @@ public class EvoSuite {
 		options.addOption(mem);
 		options.addOption(jar);
 		options.addOption(assertions);
-		options.addOption(signature);
 		options.addOption(inheritance);
 		options.addOption(base_dir);
 		options.addOption(property);
@@ -1102,8 +1101,8 @@ public class EvoSuite {
 		options.addOption(heapDump);
 
 		options.addOption(sandbox);
-		options.addOption(mocks);
-		options.addOption(stubs);
+		//options.addOption(mocks);
+		//options.addOption(stubs);
 
 		List<String> javaOpts = new ArrayList<String>();
 
@@ -1156,16 +1155,16 @@ public class EvoSuite {
 			}
 			if (line.hasOption("sandbox"))
 				javaOpts.add("-Dsandbox=true");
+			/*
 			if (line.hasOption("mocks"))
 				javaOpts.add("-Dmocks=true");
 			if (line.hasOption("stubs"))
 				javaOpts.add("-Dstubs=true");
+				*/
 			if (line.hasOption("seed"))
 				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
 			if (line.hasOption("assertions"))
 				javaOpts.add("-Dassertions=true");
-			if (line.hasOption("signature"))
-				javaOpts.add("-Dgenerate_objects=true");
 			if (line.hasOption("base_dir")) {
 				base_dir_path = line.getOptionValue("base_dir");
 				File baseDir = new File(base_dir_path);
@@ -1265,14 +1264,18 @@ public class EvoSuite {
 					        + line.getOptionValue("generateNumRandom"));
 				}
 				if (strategy == null) {
-					LoggingUtils.getEvoLogger().error("Please specify strategy: -generateSuite, -generateTests, -generateRandom");
+					LoggingUtils.getEvoLogger().error("Please specify strategy: -generateSuite, -generateTests, -generateRandom, or generateNumRandom");
 					HelpFormatter formatter = new HelpFormatter();
 					formatter.printHelp("EvoSuite", options);
 				} else {
-					if (line.hasOption("class"))
+					if (line.hasOption("class")) {
+						if (line.hasOption("extend")) {
+							javaOpts.add("-Djunit_extend="
+							        + line.getOptionValue("extend"));
+						}
 						result = generateTests(strategy, line.getOptionValue("class"),
 						                       javaOpts, cp);
-					else if (line.hasOption("prefix"))
+					} else if (line.hasOption("prefix"))
 						generateTestsPrefix(strategy, line.getOptionValue("prefix"),
 						                    javaOpts, cp);
 					else if (line.hasOption("target")) {

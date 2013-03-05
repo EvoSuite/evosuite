@@ -217,15 +217,6 @@ public class Properties {
 	@Parameter(key = "use_deprecated", group = "Test Creation", description = "Include deprecated methods in tests")
 	public static boolean USE_DEPRECATED = false;
 
-	/** Constant <code>GENERATOR_TOURNAMENT=3</code> */
-	@Parameter(key = "generator_tournament", group = "Test Creation", description = "Size of tournament when choosing a generator")
-	@Deprecated
-	public static int GENERATOR_TOURNAMENT = 3;
-
-	/** Constant <code>GENERATE_OBJECTS=false</code> */
-	@Parameter(key = "generate_objects", group = "Test Creation", description = "Generate .object files that allow adapting method signatures")
-	public static boolean GENERATE_OBJECTS = false;
-
 	/** Constant <code>INSERTION_SCORE_UUT=1</code> */
 	@Parameter(key = "insertion_score_uut", group = "Test Creation", description = "Score for selection of insertion of UUT calls")
 	public static int INSERTION_SCORE_UUT = 1;
@@ -267,18 +258,18 @@ public class Properties {
 	@Parameter(key = "check_max_length", group = "Search Algorithm", description = "Check length against fixed maximum")
 	public static boolean CHECK_MAX_LENGTH = true;
 
-	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code>*/
+	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code> */
 	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "Search Algorithm", description = "Maximum number of solving time for Constraint solver in milliseconds")
-	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0;
-	
-	/** Constant <code>DSE_RANK_BRANCH_CONDITIONS=false</code>*/
-	@Parameter(key = "dse_rank_branch_conditions", group = "Search Algorithm", description = "Rank branch conditions")
-	public static boolean DSE_RANK_BRANCH_CONDITIONS=false;
+	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = 0;
 
-	/** Constant <code>DSE_NEGATE_ALL_CONDITIONS=false</code>*/
+	/** Constant <code>DSE_RANK_BRANCH_CONDITIONS=false</code> */
+	@Parameter(key = "dse_rank_branch_conditions", group = "Search Algorithm", description = "Rank branch conditions")
+	public static boolean DSE_RANK_BRANCH_CONDITIONS = false;
+
+	/** Constant <code>DSE_NEGATE_ALL_CONDITIONS=false</code> */
 	@Parameter(key = "dse_negate_all_conditions", group = "Search Algorithm", description = "Negate all branch conditions in the path condition (covered or not)")
 	public static boolean DSE_NEGATE_ALL_CONDITIONS = false;
-	
+
 	/** Constant <code>DSE_RATE=-1</code> */
 	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
 	public static int DSE_RATE = -1;
@@ -577,6 +568,9 @@ public class Properties {
 	/** Constant <code>JUNIT_TESTS=true</code> */
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
+
+	@Parameter(key = "junit_extend", group = "Output", description = "Extend existing JUnit test suite")
+	public static String JUNIT_EXTEND = "";
 
 	/** Constant <code>JUNIT_PREFIX=""</code> */
 	@Parameter(key = "junit_prefix", group = "Experimental", description = "Prefix of JUnit tests to execute")
