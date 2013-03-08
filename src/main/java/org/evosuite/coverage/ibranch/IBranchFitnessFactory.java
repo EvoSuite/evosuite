@@ -12,6 +12,8 @@ import org.evosuite.setup.CallContext;
 import org.evosuite.setup.CallTree;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testsuite.AbstractFitnessFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -19,6 +21,8 @@ import org.evosuite.testsuite.AbstractFitnessFactory;
  */
 public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFitness> {
 
+	private static Logger logger = LoggerFactory.getLogger(IBranchFitnessFactory.class);
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
@@ -35,6 +39,7 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 
 		// try to find all occurrences of this branch in the call tree
 		for (BranchCoverageTestFitness branchGoal : branchGoals) {
+			logger.info("Adding context branches for "+branchGoal.toString());
 			for (CallContext context : callTree.getAllContexts(branchGoal.getClassName(),
 			                                                   branchGoal.getMethod())) {
 				goals.add(new IBranchTestFitness(branchGoal.getBranch(), context));

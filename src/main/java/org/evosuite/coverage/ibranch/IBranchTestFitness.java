@@ -67,5 +67,10 @@ public class IBranchTestFitness extends TestFitnessFunction {
 	public String getTargetMethod() {
 		return branch.getMethodName();
 	}
+	
+	@Override
+	public String toString() {		
+		return "Branch "+branch.toString()+" in context: "+context.toString();
+	}
 
 }

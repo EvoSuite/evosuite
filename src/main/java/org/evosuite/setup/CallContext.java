@@ -87,6 +87,23 @@ public class CallContext {
 			return true;
 		}
 		
+		public boolean matches(StackTraceElement element) {
+			if(!element.getClassName().equals(className))
+				return false;
+			
+			// The stacktraceelement does not contain the signature
+			// so we just look if the name matches
+			// TODO: Could consider line number?
+			if(methodName.startsWith(element.getMethodName()))
+				return true;
+			
+			return false;
+		}
+		
+		@Override
+		public String toString() {
+			return className +":"+methodName;
+		}
 		
 	}
 
@@ -112,7 +129,7 @@ public class CallContext {
 	 */
 	public boolean matches(StackTraceElement[] stackTrace) {
 		// TODO: Implement
-		return false;
+		return true;
 	}
 
 	/**
@@ -139,9 +156,12 @@ public class CallContext {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
-		String result = "";
-
-		return result;
+		StringBuilder builder = new StringBuilder();
+		for(Call call : context) {
+			builder.append(call.toString());
+			builder.append("\n");
+		}
+		return builder.toString();
 	}
 
 	@Override

@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.utils.LoggingUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
@@ -35,6 +37,8 @@ import org.evosuite.utils.LoggingUtils;
  */
 public class CallTree implements Iterable<CallTreeEntry> {
 
+	private static final Logger logger = LoggerFactory.getLogger(CallTree.class);
+	
 	private final String className;
 
 	private final Set<CallTreeEntry> calls = new LinkedHashSet<CallTreeEntry>();
@@ -53,6 +57,7 @@ public class CallTree implements Iterable<CallTreeEntry> {
 	        String targetMethod) {
 		CallTreeEntry call = new CallTreeEntry(owner, methodName, targetClass,
 		        targetMethod);
+		logger.info("Adding new call: "+call.toString());
 		calls.add(call);
 		if (owner.equals(className))
 			rootCalls.add(call);
@@ -102,6 +107,11 @@ public class CallTree implements Iterable<CallTreeEntry> {
 	public Set<CallContext> getAllContexts(String className, String methodName) {
 		Set<CallContext> contexts = new HashSet<CallContext>();
 		// TODO: implement
+		// TODO: A rootCall only exists for methods which call other methods
+		//       we also need methods that don't call other methods!
+		for(CallTreeEntry entry : rootCalls) {
+			logger.info("Root call: "+entry.toString());
+		}
 		return contexts;
 	}
 

@@ -53,6 +53,8 @@ import org.evosuite.coverage.dataflow.DefUseCoverageSuiteFitness;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.coverage.dataflow.DefUseFitnessCalculator;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
+import org.evosuite.coverage.ibranch.IBranchFitnessFactory;
+import org.evosuite.coverage.ibranch.IBranchSuiteFitness;
 import org.evosuite.coverage.lcsaj.LCSAJ;
 import org.evosuite.coverage.lcsaj.LCSAJCoverageFactory;
 import org.evosuite.coverage.lcsaj.LCSAJCoverageSuiteFitness;
@@ -884,6 +886,8 @@ public class TestSuiteGenerator {
 			return new PrimePathSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
+		case IBRANCH:
+			return new IBranchSuiteFitness();
 		case STATEMENT:
 			return new StatementCoverageSuiteFitness();
 		case ALLDEFS:
@@ -936,6 +940,8 @@ public class TestSuiteGenerator {
 			return new PrimePathCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
+		case IBRANCH:
+			return new IBranchFitnessFactory();
 		case STATEMENT:
 			return new StatementCoverageFactory();
 		case ALLDEFS:
