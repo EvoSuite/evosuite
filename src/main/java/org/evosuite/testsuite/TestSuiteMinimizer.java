@@ -90,19 +90,23 @@ public class TestSuiteMinimizer {
 		if (strategy.contains(":"))
 			strategy = strategy.substring(0, strategy.indexOf(':'));
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable("full_size", suite.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("full_length", suite.totalLengthOfTestCases());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("full_size",
+		                                                                 suite.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("full_length",
+		                                                                 suite.totalLengthOfTestCases());
 
 		logger.info("Minimization Strategy: " + strategy + ", " + suite.size() + " tests");
 		suite.clearMutationHistory();
-		
+
 		if (Properties.MINIMIZE_OLD)
 			minimizeSuite(suite);
 		else
 			minimizeTests(suite);
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_size", suite.size());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_length", suite.totalLengthOfTestCases());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_size",
+		                                                                 suite.size());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("minimized_length",
+		                                                                 suite.totalLengthOfTestCases());
 	}
 
 	private void updateClientStatus(int progress) {
@@ -111,7 +115,7 @@ public class TestSuiteMinimizer {
 		information.setProgress(progress);
 		ClientServices.getInstance().getClientNode().changeState(state, information);
 	}
-	
+
 	/**
 	 * Minimize test suite with respect to the isCovered Method of the goals
 	 * defined by the supplied TestFitnessFactory
@@ -131,12 +135,14 @@ public class TestSuiteMinimizer {
 			test.clearCachedResults();
 		}
 
-		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(testFitnessFactory.getCoverageGoals());
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(
+		        testFitnessFactory.getCoverageGoals());
 		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
 		int numCovered = 0;
 		int currentGoal = 0;
 
-		if (Properties.CRITERION != Properties.Criterion.BRANCH) {
+		if (Properties.CRITERION != Properties.Criterion.BRANCH
+		        && Properties.CRITERION != Properties.Criterion.IBRANCH) {
 			BranchCoverageFactory branchFactory = new BranchCoverageFactory();
 			branchGoals.addAll(branchFactory.getCoverageGoals());
 			goals.addAll(branchGoals);
@@ -148,11 +154,11 @@ public class TestSuiteMinimizer {
 		Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
 		List<TestChromosome> minimizedTests = new ArrayList<TestChromosome>();
 		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
-				
+
 		for (TestFitnessFunction goal : goals) {
 			updateClientStatus(100 * currentGoal / numGoals);
 			currentGoal++;
-			if (isTimeoutReached()){
+			if (isTimeoutReached()) {
 				/*
 				 * FIXME: if timeout, this algorithm should be changed in a way that the modifications
 				 * done so far are not lost
@@ -161,8 +167,8 @@ public class TestSuiteMinimizer {
 				return;
 			}
 			logger.info("Considering goal: " + goal);
-			for (TestChromosome test : minimizedTests) {	
-				if (isTimeoutReached()){
+			for (TestChromosome test : minimizedTests) {
+				if (isTimeoutReached()) {
 					logger.warn("Minimization timeout. Roll back to original test suite");
 					return;
 				}

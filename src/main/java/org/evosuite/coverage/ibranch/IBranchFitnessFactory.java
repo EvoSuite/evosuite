@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
 public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFitness> {
 
 	private static Logger logger = LoggerFactory.getLogger(IBranchFitnessFactory.class);
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.coverage.TestFitnessFactory#getCoverageGoals()
 	 */
@@ -39,12 +39,13 @@ public class IBranchFitnessFactory extends AbstractFitnessFactory<IBranchTestFit
 
 		// try to find all occurrences of this branch in the call tree
 		for (BranchCoverageTestFitness branchGoal : branchGoals) {
-			logger.info("Adding context branches for "+branchGoal.toString());
+			logger.info("Adding context branches for " + branchGoal.toString());
 			for (CallContext context : callTree.getAllContexts(branchGoal.getClassName(),
 			                                                   branchGoal.getMethod())) {
-				goals.add(new IBranchTestFitness(branchGoal.getBranch(), context));
+				goals.add(new IBranchTestFitness(branchGoal.getBranchGoal(), context));
 			}
 		}
+		logger.info("Created " + goals.size() + " goals");
 		return goals;
 	}
 }

@@ -138,13 +138,23 @@ public class CallTreeGenerator {
 	 */
 	@SuppressWarnings("unchecked")
 	public static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn) {
+		handlePublicMethodNode(callTree, cn, mn);
+
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
+
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
 				handleMethodInsnNode(callTree, cn, mn, (MethodInsnNode) insn);
 			}
+		}
+	}
+
+	private static void handlePublicMethodNode(CallTree callTree, ClassNode cn,
+	        MethodNode mn) {
+		if ((mn.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
+			callTree.addPublicMethod(cn.name, mn.name + mn.desc);
 		}
 	}
 
@@ -161,7 +171,7 @@ public class CallTreeGenerator {
 		// Only build calltree for instrumentable classes
 		if (InstrumentingClassLoader.checkIfCanInstrument(methodCall.owner.replaceAll("/",
 		                                                                              "."))) {
-			logger.debug("Handling method: "+methodCall.name);
+			logger.debug("Handling method: " + methodCall.name);
 			if (!callTree.hasCall(cn.name, mn.name + mn.desc, methodCall.owner,
 			                      methodCall.name + methodCall.desc)) {
 
@@ -189,20 +199,21 @@ public class CallTreeGenerator {
 		for (CallTreeEntry call : callTree) {
 			String targetClass = call.getTargetClass();
 			String targetMethod = call.getTargetMethod();
-			
+
 			// Ignore constructors
 			if (targetMethod.startsWith("<init>"))
 				continue;
-			
+
 			// Ignore calls to Array (e.g. clone())
-			if(targetClass.startsWith("["))
+			if (targetClass.startsWith("["))
 				continue;
-			
-			if(!inheritanceTree.hasClass(targetClass)) {
-				LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath", targetClass);
+
+			if (!inheritanceTree.hasClass(targetClass)) {
+				LoggingUtils.getEvoLogger().warn("Inheritance tree does not contain {}, please check classpath",
+				                                 targetClass);
 				continue;
 			}
-			
+
 			for (String subclass : inheritanceTree.getSubclasses(targetClass)) {
 				if (inheritanceTree.isMethodDefined(subclass, targetMethod)) {
 					subclassCalls.add(new CallTreeEntry(call.getSourceClass(),

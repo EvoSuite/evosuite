@@ -34,8 +34,7 @@ import org.evosuite.testcase.ExecutionResult;
  * 
  * @author Gordon Fraser, Andre Mis
  */
-public class BranchCoverageGoal implements Serializable,
-        Comparable<BranchCoverageGoal> {
+public class BranchCoverageGoal implements Serializable, Comparable<BranchCoverageGoal> {
 
 	private static final long serialVersionUID = 2962922303111452419L;
 	transient Branch branch;
@@ -127,6 +126,41 @@ public class BranchCoverageGoal implements Serializable,
 		//		lineNumber = BranchPool.getBranchlessMethodLineNumber(className, methodName);
 		lineNumber = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getFirstLineNumberOfMethod(className,
 		                                                                                                                    methodName);
+	}
+
+	/**
+	 * @return the branch
+	 */
+	public Branch getBranch() {
+		return branch;
+	}
+
+	/**
+	 * @return the value
+	 */
+	public boolean getValue() {
+		return value;
+	}
+
+	/**
+	 * @return the className
+	 */
+	public String getClassName() {
+		return className;
+	}
+
+	/**
+	 * @return the methodName
+	 */
+	public String getMethodName() {
+		return methodName;
+	}
+
+	/**
+	 * @return the lineNumber
+	 */
+	public int getLineNumber() {
+		return lineNumber;
 	}
 
 	/**

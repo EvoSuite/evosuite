@@ -148,6 +148,13 @@ public interface ExecutionTrace {
 	public Map<Integer, Map<CallContext, Double>> getFalseDistancesContext();
 
 	/**
+	 * Retrieve map of all context method counts
+	 * 
+	 * @return a {@link java.util.Map} object.
+	 */
+	public Map<String, Map<CallContext, Integer>> getMethodContextCount();
+
+	/**
 	 * Retrieve number of predicate executions
 	 * 
 	 * @return a {@link java.util.Map} object.
