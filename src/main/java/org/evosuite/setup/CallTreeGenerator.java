@@ -161,6 +161,7 @@ public class CallTreeGenerator {
 		// Only build calltree for instrumentable classes
 		if (InstrumentingClassLoader.checkIfCanInstrument(methodCall.owner.replaceAll("/",
 		                                                                              "."))) {
+			logger.debug("Handling method: "+methodCall.name);
 			if (!callTree.hasCall(cn.name, mn.name + mn.desc, methodCall.owner,
 			                      methodCall.name + methodCall.desc)) {
 

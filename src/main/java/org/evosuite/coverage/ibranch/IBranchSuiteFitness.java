@@ -32,6 +32,9 @@ public class IBranchSuiteFitness extends TestSuiteFitnessFunction {
 	public IBranchSuiteFitness() {
 		IBranchFitnessFactory factory = new IBranchFitnessFactory();
 		branchGoals = factory.getCoverageGoals();
+		for(IBranchTestFitness goal : branchGoals) {
+			logger.info("Context goal: "+goal.toString());
+		}
 	}
 
 	private Map<IBranchTestFitness, Double> getDefaultDistanceMap() {
