@@ -3,8 +3,11 @@
  */
 package org.evosuite.testsuite;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -12,12 +15,14 @@ import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.ArrayStatement;
 import org.evosuite.testcase.AssignmentStatement;
+import org.evosuite.testcase.ConcreteValueObserver;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
 
 public class TestCaseExpander {
@@ -25,11 +30,13 @@ public class TestCaseExpander {
 	private final Set<VariableReference> usedVariables = new HashSet<VariableReference>();
 
 	public Map<Integer, Set<VariableReference>> variableMapping = new HashMap<Integer, Set<VariableReference>>();
-	
+
 	private int currentPosition = 0;
 
 	public TestCase expandTestCase(TestCase test) {
 		TestCase expandedTest = test.clone();
+		// Deactivated for now - only needed in NL branch
+		// createConcretePrimitives(expandedTest);
 		while (currentPosition < expandedTest.size()) {
 			StatementInterface statement = expandedTest.getStatement(currentPosition);
 			if (statement instanceof MethodStatement) {
@@ -46,25 +53,53 @@ public class TestCaseExpander {
 		return expandedTest;
 	}
 
+	@SuppressWarnings({ "rawtypes", "unchecked", "unused" })
+	private void createConcretePrimitives(TestCase test) {
+
+		// Execute test to collect concrete values
+		TestCaseExecutor executor = TestCaseExecutor.getInstance();
+		ConcreteValueObserver observer = new ConcreteValueObserver();
+		executor.addObserver(observer);
+		executor.execute(test);
+		executor.removeObserver(observer);
+
+		// Now replace references to concrete values with new primitive statements
+		Map<Integer, Object> concreteValues = observer.getConcreteValues();
+		List<Integer> positions = new ArrayList<Integer>(concreteValues.keySet());
+		Collections.sort(positions, Collections.reverseOrder());
+
+		for (Integer position : positions) {
+			Object value = concreteValues.get(position);
+			StatementInterface statement = test.getStatement(position);
+
+			PrimitiveStatement primitive = PrimitiveStatement.getPrimitiveStatement(test,
+			                                                                        value.getClass());
+			primitive.setValue(value);
+			VariableReference replacement = test.addStatement(primitive, position);
+			test.replace(statement.getReturnValue(), replacement);
+		}
+	}
+
 	private VariableReference duplicateStatement(TestCase test, VariableReference owner) {
 		StatementInterface statement = test.getStatement(owner.getStPosition());
 		currentPosition++;
-		VariableReference copy =  test.addStatement(statement.clone(test), owner.getStPosition() + 1);
-		if(!variableMapping.containsKey(owner.getStPosition())) {
+		VariableReference copy = test.addStatement(statement.clone(test),
+		                                           owner.getStPosition() + 1);
+		if (!variableMapping.containsKey(owner.getStPosition())) {
 			variableMapping.put(owner.getStPosition(), new HashSet<VariableReference>());
 			// variableMapping.get(owner.getStPosition()).add(owner);
 		}
 		variableMapping.get(owner.getStPosition()).add(copy);
 		return copy;
 	}
-	
+
 	private void addUnchangedMapping(TestCase test, VariableReference var) {
-		VariableReference copy =  test.getStatement(var.getStPosition()).getReturnValue();
-		if(!variableMapping.containsKey(var.getStPosition())) {
+		VariableReference copy = test.getStatement(var.getStPosition()).getReturnValue();
+		if (!variableMapping.containsKey(var.getStPosition())) {
 			variableMapping.put(var.getStPosition(), new HashSet<VariableReference>());
 			variableMapping.get(var.getStPosition()).add(var);
 		}
-		variableMapping.get(var.getStPosition()).add(copy);		
+		variableMapping.get(var.getStPosition()).add(copy);
 	}
 
 	/*
@@ -180,7 +215,6 @@ public class TestCaseExpander {
 			usedVariables.add(var);
 		}
 		addUnchangedMapping(test, statement.getReturnValue());
-
 
 	}
 
