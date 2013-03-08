@@ -530,4 +530,12 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public Map<Integer, Map<CallContext, Integer>> getPredicateContextExecutionCount() {
 		return trace.getPredicateContextExecutionCount();
 	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getMethodContextCount()
+	 */
+	@Override
+	public Map<String, Map<CallContext, Integer>> getMethodContextCount() {
+		return trace.getMethodContextCount();
+	}
 }

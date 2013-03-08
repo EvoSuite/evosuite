@@ -125,7 +125,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public static void enableTraceCalls() {
 		traceCalls = true;
 	}
-	
+
 	public static boolean isTraceCallsEnabled() {
 		return traceCalls;
 	}
@@ -201,6 +201,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<Integer, Map<CallContext, Double>> coveredFalseContext = Collections.synchronizedMap(new HashMap<Integer, Map<CallContext, Double>>());
 
 	public Map<Integer, Map<CallContext, Integer>> coveredPredicateContext = Collections.synchronizedMap(new HashMap<Integer, Map<CallContext, Integer>>());
+
+	public Map<String, Map<CallContext, Integer>> coveredMethodContext = Collections.synchronizedMap(new HashMap<String, Map<CallContext, Integer>>());
 
 	// number of seen Definitions and uses for indexing purposes
 	private int duCounter = 0;
@@ -521,6 +523,31 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				// TODO line_trace ?
 			}
 			stack.push(call);
+		}
+
+		if (Properties.CRITERION == Criterion.IBRANCH) {
+			updateMethodContextMaps(className, methodName, caller);
+		}
+
+	}
+
+	/**
+	 * @param branch
+	 * @param true_distance
+	 * @param false_distance
+	 */
+	private void updateMethodContextMaps(String className, String methodName,
+	        Object caller) {
+		String id = className + "." + methodName;
+		if (!coveredMethodContext.containsKey(id)) {
+			coveredMethodContext.put(id, new HashMap<CallContext, Integer>());
+		}
+		CallContext context = new CallContext(Thread.currentThread().getStackTrace());
+		if (!coveredMethodContext.get(id).containsKey(context)) {
+			coveredMethodContext.get(id).put(context, 1);
+		} else {
+			coveredMethodContext.get(id).put(context,
+			                                 coveredMethodContext.get(id).get(context) + 1);
 		}
 	}
 
@@ -1410,6 +1437,14 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Map<Integer, Map<CallContext, Integer>> getPredicateContextExecutionCount() {
 		return coveredPredicateContext;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.ExecutionTrace#getMethodContextCount()
+	 */
+	@Override
+	public Map<String, Map<CallContext, Integer>> getMethodContextCount() {
+		return coveredMethodContext;
 	}
 
 }

@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
 public class CallTree implements Iterable<CallTreeEntry> {
 
 	private static final Logger logger = LoggerFactory.getLogger(CallTree.class);
-	
+
 	private final String className;
 
 	private final Set<CallTreeEntry> calls = new LinkedHashSet<CallTreeEntry>();
@@ -49,15 +49,21 @@ public class CallTree implements Iterable<CallTreeEntry> {
 
 	private final Set<String> callTreeClasses = new LinkedHashSet<String>();
 
+	private final Set<CallContext> publicMethods = new LinkedHashSet<CallContext>();
+
 	public CallTree(String className) {
 		this.className = className;
+	}
+
+	public void addPublicMethod(String className, String methodName) {
+		publicMethods.add(new CallContext(className.replace('/', '.'), methodName));
 	}
 
 	public void addCall(String owner, String methodName, String targetClass,
 	        String targetMethod) {
 		CallTreeEntry call = new CallTreeEntry(owner, methodName, targetClass,
 		        targetMethod);
-		logger.info("Adding new call: "+call.toString());
+		logger.info("Adding new call: " + call.toString());
 		calls.add(call);
 		if (owner.equals(className))
 			rootCalls.add(call);
@@ -99,18 +105,53 @@ public class CallTree implements Iterable<CallTreeEntry> {
 	public Set<CallTreeEntry> getCallsFrom(CallTreeEntry call) {
 		Set<CallTreeEntry> callSet = new LinkedHashSet<CallTreeEntry>();
 		for (CallTreeEntry otherCall : rootCalls) {
-
+			// TODO
 		}
 		return callSet;
 	}
 
-	public Set<CallContext> getAllContexts(String className, String methodName) {
+	public Set<CallContext> getPublicContext(String className, String methodName) {
 		Set<CallContext> contexts = new HashSet<CallContext>();
-		// TODO: implement
-		// TODO: A rootCall only exists for methods which call other methods
-		//       we also need methods that don't call other methods!
-		for(CallTreeEntry entry : rootCalls) {
-			logger.info("Root call: "+entry.toString());
+
+		// Check if this method can be called directly
+		for (CallContext context : publicMethods) {
+			if (context.getRootClassName().equals(className)) {
+				if (context.getRootMethodName().equals(methodName)) {
+					contexts.add(context);
+					break;
+				}
+			}
+		}
+
+		return contexts;
+	}
+
+	// TODO: Right now, this only works up to depth 2. Need to add recursion to generalize this.
+	public Set<CallContext> getAllContexts(String className, String methodName) {
+		Set<CallContext> contexts = getPublicContext(className, methodName);
+
+		// Check if the method can also be called indirectly
+		for (CallTreeEntry entry : calls) {
+			if (entry.getTargetClass().equals(className)
+			        && entry.getTargetMethod().equals(methodName)) {
+				CallContext targetContext = new CallContext(className, methodName);
+				contexts.addAll(getDirectCallingContext(targetContext));
+			}
+		}
+		return contexts;
+	}
+
+	private Set<CallContext> getDirectCallingContext(CallContext context) {
+		Set<CallContext> contexts = new LinkedHashSet<CallContext>();
+
+		// Check if the method can also be called indirectly
+		for (CallTreeEntry entry : calls) {
+			if (entry.getTargetClass().equals(context.getRootClassName())
+			        && entry.getTargetMethod().equals(context.getRootMethodName())) {
+				CallContext superContext = context.getSuperContext(entry.getSourceClass(),
+				                                                   entry.getSourceMethod());
+				contexts.add(superContext);
+			}
 		}
 		return contexts;
 	}

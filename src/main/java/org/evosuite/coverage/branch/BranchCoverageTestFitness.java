@@ -60,6 +60,14 @@ public class BranchCoverageTestFitness extends TestFitnessFunction {
 		return goal.branch;
 	}
 
+	public boolean getValue() {
+		return goal.value;
+	}
+
+	public BranchCoverageGoal getBranchGoal() {
+		return goal;
+	}
+
 	/**
 	 * <p>
 	 * getClassName

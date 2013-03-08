@@ -3,7 +3,12 @@
  */
 package org.evosuite.coverage.ibranch;
 
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.evosuite.coverage.branch.Branch;
+import org.evosuite.coverage.branch.BranchCoverageGoal;
+import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.setup.CallContext;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.TestChromosome;
@@ -17,21 +22,56 @@ public class IBranchTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = -1399396770125054561L;
 
-	private final Branch branch;
+	private final BranchCoverageGoal branchGoal;
 
 	private final CallContext context;
 
-	public IBranchTestFitness(Branch branch, CallContext context) {
-		this.branch = branch;
+	public IBranchTestFitness(BranchCoverageGoal branch, CallContext context) {
+		this.branchGoal = branch;
 		this.context = context;
 	}
 
 	public Branch getBranch() {
-		return branch;
+		return branchGoal.getBranch();
+	}
+
+	public boolean getValue() {
+		return branchGoal.getValue();
 	}
 
 	public CallContext getContext() {
 		return context;
+	}
+
+	private double getMethodCallDistance(ExecutionResult result) {
+		String key = branchGoal.getClassName() + "." + branchGoal.getMethodName();
+		if (!result.getTrace().getMethodContextCount().containsKey(key)) {
+			return Double.MAX_VALUE;
+		}
+		for (Entry<CallContext, Integer> value : result.getTrace().getMethodContextCount().get(key).entrySet()) {
+
+			if (context.matches(value.getKey())) {
+				return value.getValue() > 0 ? 0.0 : 1.0;
+			}
+		}
+		return Double.MAX_VALUE;
+	}
+
+	private double getPredicateDistance(Map<Integer, Map<CallContext, Double>> distanceMap) {
+
+		if (!distanceMap.containsKey(branchGoal.getBranch().getActualBranchId())) {
+			return Double.MAX_VALUE;
+		}
+
+		Map<CallContext, Double> distances = distanceMap.get(branchGoal.getBranch().getActualBranchId());
+
+		for (Entry<CallContext, Double> value : distances.entrySet()) {
+			if (context.matches(value.getKey())) {
+				return value.getValue();
+			}
+		}
+
+		return Double.MAX_VALUE;
 	}
 
 	/* (non-Javadoc)
@@ -39,8 +79,18 @@ public class IBranchTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		// TODO Auto-generated method stub
-		return 0;
+		double fitness = 0.0;
+
+		if (branchGoal.getBranch() == null) {
+			fitness = getMethodCallDistance(result);
+		} else if (branchGoal.getValue()) {
+			fitness = getPredicateDistance(result.getTrace().getTrueDistancesContext());
+		} else {
+			fitness = getPredicateDistance(result.getTrace().getFalseDistancesContext());
+		}
+
+		updateIndividual(individual, fitness);
+		return fitness;
 	}
 
 	/* (non-Javadoc)
@@ -48,7 +98,13 @@ public class IBranchTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public int compareTo(TestFitnessFunction other) {
-		// TODO Auto-generated method stub
+		if (other instanceof BranchCoverageTestFitness) {
+			IBranchTestFitness otherBranchFitness = (IBranchTestFitness) other;
+			return branchGoal.compareTo(otherBranchFitness.branchGoal);
+		} else if (other instanceof BranchCoverageTestFitness) {
+			BranchCoverageTestFitness otherBranchFitness = (BranchCoverageTestFitness) other;
+			return branchGoal.compareTo(otherBranchFitness.getBranchGoal());
+		}
 		return 0;
 	}
 
@@ -57,7 +113,7 @@ public class IBranchTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public String getTargetClass() {
-		return branch.getClassName();
+		return branchGoal.getClassName();
 	}
 
 	/* (non-Javadoc)
@@ -65,12 +121,49 @@ public class IBranchTestFitness extends TestFitnessFunction {
 	 */
 	@Override
 	public String getTargetMethod() {
-		return branch.getMethodName();
+		return branchGoal.getMethodName();
 	}
-	
+
 	@Override
-	public String toString() {		
-		return "Branch "+branch.toString()+" in context: "+context.toString();
+	public String toString() {
+		return "Branch " + branchGoal + " in context: " + context.toString();
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((branchGoal == null) ? 0 : branchGoal.hashCode());
+		result = prime * result + ((context == null) ? 0 : context.hashCode());
+		return result;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		IBranchTestFitness other = (IBranchTestFitness) obj;
+		if (branchGoal == null) {
+			if (other.branchGoal != null)
+				return false;
+		} else if (!branchGoal.equals(other.branchGoal))
+			return false;
+		if (context == null) {
+			if (other.context != null)
+				return false;
+		} else if (!context.equals(other.context))
+			return false;
+		return true;
 	}
 
 }
