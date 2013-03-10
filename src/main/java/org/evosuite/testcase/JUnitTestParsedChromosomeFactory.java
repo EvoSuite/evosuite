@@ -46,11 +46,11 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Gordon Fraser
  */
-public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromosome> {
+public class JUnitTestParsedChromosomeFactory implements ChromosomeFactory<TestChromosome> {
 
 	private static final long serialVersionUID = 2760642997019090252L;
 
-	private static final Logger logger = LoggerFactory.getLogger(JUnitTestChromosomeFactory.class);
+	private static final Logger logger = LoggerFactory.getLogger(JUnitTestParsedChromosomeFactory.class);
 
 	private final static Set<TestCase> userTests = new LinkedHashSet<TestCase>();
 
@@ -62,7 +62,7 @@ public class JUnitTestChromosomeFactory implements ChromosomeFactory<TestChromos
 	 * @param defaultFactory
 	 *            a {@link org.evosuite.ga.ChromosomeFactory} object.
 	 */
-	public JUnitTestChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory) {
+	public JUnitTestParsedChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory) {
 		this.defaultFactory = defaultFactory;
 		if (userTests.isEmpty())
 			userTests.addAll(filter(readTestCases()));
