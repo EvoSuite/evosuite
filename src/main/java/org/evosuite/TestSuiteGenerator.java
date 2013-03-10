@@ -127,6 +127,7 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.testcase.JUnitTestCarvedChromosomeFactory;
 import org.evosuite.testcase.JUnitTestParsedChromosomeFactory;
 import org.evosuite.testcase.RandomLengthTestFactory;
 import org.evosuite.testcase.TestCase;
@@ -1598,7 +1599,7 @@ public class TestSuiteGenerator {
 						new TestSuiteChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				JUnitTestParsedChromosomeFactory factory = new JUnitTestParsedChromosomeFactory(
+				JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
 						new RandomLengthTestFactory());
 				return new TestSuiteChromosomeFactory(factory);
 			default:
