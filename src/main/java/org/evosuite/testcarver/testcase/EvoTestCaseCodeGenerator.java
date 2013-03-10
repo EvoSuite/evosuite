@@ -2,16 +2,26 @@ package org.evosuite.testcarver.testcase;
 
 import gnu.trove.map.hash.TIntObjectHashMap;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
 import org.evosuite.testcarver.codegen.ICodeGenerator;
+import org.evosuite.testcase.ArrayIndex;
+import org.evosuite.testcase.ArrayReference;
+import org.evosuite.testcase.ArrayStatement;
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
@@ -365,10 +375,48 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 	}
 
 	@Override
-	public void before(CaptureLog log) {
-		this.testCase = new DefaultTestCase();
-	}
+	public void createArrayInitStmt(final CaptureLog log, final int logRecNo) {
+		final int  oid  = log.objectIds.get(logRecNo);
+		
+		
+		final Object[] params      = log.params.get(logRecNo);
+		final String   arrTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final Class<?> arrType     = getClassForName(arrTypeName);
+		
+		// --- create array instance creation e.g. int[] var = new int[10];
+		
+		final ArrayReference arrRef;
+	@Override
+	public void createCollectionInitStmt(final CaptureLog log, final int logRecNo) 
+	{
+		try
+		{
+			final int      oid          = log.objectIds.get(logRecNo);
+			final Object[] params       = log.params.get(logRecNo);
+			String         collTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+			final Class<?> collType     = getClassForName(collTypeName);
 
+			// -- determine if an alternative collection must be used for code generation
+			final boolean isPrivate = java.lang.reflect.Modifier.isPrivate(collType.getModifiers());
+			if(isPrivate || ! hasDefaultConstructor(collType))
+			{
+				if(Set.class.isAssignableFrom(collType))
+				{
+					collTypeName = HashSet.class.getName();
+				}
+				else if (List.class.isAssignableFrom(collType))
+				{
+					collTypeName = ArrayList.class.getName();
+				}
+				else if(Queue.class.isAssignableFrom(collType))
+				{
+					collTypeName = ArrayDeque.class.getName();
+				}
+				else
+				{
+					throw new RuntimeException("Collection " + collType + " is not supported");
+				}
+			}
 	@Override
 	public void after(CaptureLog log) {
 	}
@@ -384,4 +432,6 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		this.xStreamRef = null;
 		this.oidToVarRefMap.clear();
 	}
+
+
 }

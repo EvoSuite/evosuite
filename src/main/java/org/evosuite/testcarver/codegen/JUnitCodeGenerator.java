@@ -4,15 +4,24 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ArrayAccess;
 import org.eclipse.jdt.core.dom.ArrayCreation;
 import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
 import org.eclipse.jdt.core.dom.Assignment;
 import org.eclipse.jdt.core.dom.Assignment.Operator;
 import org.eclipse.jdt.core.dom.Block;
@@ -35,6 +44,7 @@ import org.eclipse.jdt.core.dom.PackageDeclaration;
 import org.eclipse.jdt.core.dom.PrimitiveType;
 import org.eclipse.jdt.core.dom.QualifiedType;
 import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
 import org.eclipse.jdt.core.dom.SimpleType;
 import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
 import org.eclipse.jdt.core.dom.Statement;
@@ -312,35 +322,36 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			
 			if(type.contains("[I")) // int[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("int")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.INT), arrayDim);
 			}
 			else if(type.contains("[B")) // byte[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("byte")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.BYTE), arrayDim);
 			}
 			else if(type.contains("[C")) // char[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("char")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.CHAR), arrayDim);
+
 			}
 			else if(type.contains("[D")) // double[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("double")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.DOUBLE), arrayDim);
 			}
 			else if(type.contains("[Z")) // boolean[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("boolean")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.BOOLEAN), arrayDim);
 			}
 			else if(type.contains("[F")) // float[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("float")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.FLOAT), arrayDim);
 			}
 			else if(type.contains("[S")) // short[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("short")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.SHORT), arrayDim);
 			}
 			else if(type.contains("[J")) // long[]
 			{
-				return ast.newArrayType(ast.newSimpleType(ast.newSimpleName("long")), arrayDim);
+				return ast.newArrayType(ast.newPrimitiveType(PrimitiveType.LONG), arrayDim);
 			}
 			else
 			{
@@ -985,7 +996,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 						}
 						else
 						{
-							cast.setType(ast.newSimpleType(ast.newSimpleName(methodParamType.getName())));
+							cast.setType(createAstType(methodParamType.getName(), ast));
 						}
 					}
 					
@@ -1317,18 +1328,212 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 	}	
 	
 	
+
+	@Override
+	public void createArrayInitStmt(final CaptureLog log, final int logRecNo) {
+		final int  oid  = log.objectIds.get(logRecNo);
+		
+		
+		final Object[] params      = log.params.get(logRecNo);
+		final String   arrTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final Class<?> arrType     = getClassForName(arrTypeName);
+		
+		// --- create array instance creation e.g. int[] var = new int[10];
+		
+		final ArrayType     arrAstType      = (ArrayType) createAstArrayType(arrTypeName, ast);
+		final ArrayCreation arrCreationExpr = ast.newArrayCreation();
+		arrCreationExpr.setType(arrAstType);
+		arrCreationExpr.dimensions().add(ast.newNumberLiteral(String.valueOf(params.length)));
+			
+		final String 					  arrVarName = this.createNewVarName(oid, arrTypeName);
+		final VariableDeclarationFragment vd         = ast.newVariableDeclarationFragment();
+		final SimpleName arrVarNameExpr = ast.newSimpleName(arrVarName); 
+		vd.setName(arrVarNameExpr);	
+		vd.setInitializer(arrCreationExpr);
+		
+		final VariableDeclarationStatement varDeclStmt = ast.newVariableDeclarationStatement(vd);
+		varDeclStmt.setType(this.createAstType(arrTypeName, ast));
+		
+		methodBlock.statements().add(varDeclStmt);	
+		
+		// create array access statements var[0] = var1;
+		Integer paramOID;
+		Assignment assign;
+		ArrayAccess arrAccessExpr;
+		
+		for(int i = 0; i < params.length; i++)
+		{
+			assign       = ast.newAssignment();
+			arrAccessExpr = ast.newArrayAccess();
+			arrAccessExpr.setIndex(ast.newNumberLiteral(String.valueOf(i)));
+			arrAccessExpr.setArray(arrVarNameExpr);
+			
+			assign.setLeftHandSide(arrAccessExpr);
+			
+			paramOID = (Integer) params[i];
+			if(paramOID == null)
+			{
+			   assign.setRightHandSide(ast.newNullLiteral());
+			}
+			else
+			{
+				assign.setRightHandSide(ast.newSimpleName(this.oidToVarMapping.get(paramOID)));
+			}
+			
+			methodBlock.statements().add(assign);	
+		}
+	}
+
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public void createCollectionInitStmt(final CaptureLog log, final int logRecNo) 
+	{
+		final int      oid          = log.objectIds.get(logRecNo);
+		final Object[] params       = log.params.get(logRecNo);
+		String         collTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final Class<?> collType     = getClassForName(collTypeName);
+
+
+		final String varName;
+		
+		// -- determine if an alternative collection must be used for code generation
+		final boolean isPrivate = java.lang.reflect.Modifier.isPrivate(collType.getModifiers());
+		if(isPrivate || ! hasDefaultConstructor(collType))
+		{
+			if(Set.class.isAssignableFrom(collType))
+			{
+				collTypeName = HashSet.class.getName();
+			}
+			else if (List.class.isAssignableFrom(collType))
+			{
+				collTypeName = ArrayList.class.getName();
+			}
+			else if(Queue.class.isAssignableFrom(collType))
+			{
+				collTypeName = ArrayDeque.class.getName();
+			}
+			else
+			{
+				throw new RuntimeException("Collection " + collType + " is not supported");
+			}
+		}
+
+		// -- create code for instantiating collection
+		varName = this.createNewVarName(oid, collTypeName);
+		
+		final VariableDeclarationFragment vd = ast.newVariableDeclarationFragment();
+		final SimpleName varNameExpr = ast.newSimpleName(varName); 
+		vd.setName(varNameExpr);	
+		
+		final ClassInstanceCreation ci = ast.newClassInstanceCreation();
+ 	    ci.setType(this.createAstType(collTypeName, ast));
+ 	    vd.setInitializer(ci);
+		
+		final VariableDeclarationStatement stmt = ast.newVariableDeclarationStatement(vd);
+		stmt.setType(this.createAstType(collTypeName, ast));
+		
+		methodBlock.statements().add(stmt);	
+
+		// --- create code for filling the collection
+		Integer paramOID;
+		MethodInvocation mi;
+		for(int i = 0; i < params.length; i++)
+		{
+			mi = ast.newMethodInvocation();
+			mi.setName(ast.newSimpleName("add"));
+			
+			paramOID = (Integer) params[i];
+			if(paramOID == null)
+			{
+				mi.arguments().add(ast.newNullLiteral());
+			}
+			else
+			{
+				mi.arguments().add(ast.newSimpleName(this.oidToVarMapping.get(paramOID)));
+			}
+			
+			methodBlock.statements().add(mi);	
+		}
+	}
+
+	private boolean hasDefaultConstructor(final Class<?> clazz)
+	{
+		for(final Constructor<?> c : clazz.getConstructors())
+		{
+			if(c.getParameterTypes().length == 0)
+			{
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	@Override
+	public void createMapInitStmt(final CaptureLog log, final int logRecNo) {
+		final int      oid          = log.objectIds.get(logRecNo);
+		final Object[] params       = log.params.get(logRecNo);
+		String         collTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final Class<?> collType     = getClassForName(collTypeName);
+
+
+		final String varName;
+		
+		// -- determine if an alternative collection must be used for code generation
+		final boolean isPrivate = java.lang.reflect.Modifier.isPrivate(collType.getModifiers());
+		if(isPrivate || ! hasDefaultConstructor(collType))
+		{
+			collTypeName = HashMap.class.getName();
+		}
+
+		// -- create code for instantiating collection
+		varName = this.createNewVarName(oid, collTypeName);
+		
+		final VariableDeclarationFragment vd = ast.newVariableDeclarationFragment();
+		final SimpleName varNameExpr = ast.newSimpleName(varName); 
+		vd.setName(varNameExpr);	
+		
+		final ClassInstanceCreation ci = ast.newClassInstanceCreation();
+ 	    ci.setType(this.createAstType(collTypeName, ast));
+ 	    vd.setInitializer(ci);
+		
+		final VariableDeclarationStatement stmt = ast.newVariableDeclarationStatement(vd);
+		stmt.setType(this.createAstType(collTypeName, ast));
+		
+		methodBlock.statements().add(stmt);	
+
+		// --- create code for filling the collection
+		Integer valueOID;
+		Integer keyOID;
+		
+		MethodInvocation mi;
+		for(int i = 0; i + 1< params.length; i+=2)
+		{
+			mi = ast.newMethodInvocation();
+			mi.setName(ast.newSimpleName("put"));
+			
+			keyOID = (Integer) params[i];
+		    mi.arguments().add(ast.newSimpleName(this.oidToVarMapping.get(keyOID)));
+			
+			valueOID = (Integer) params[i + 1];
+			if(valueOID == null)
+			{
+				mi.arguments().add(ast.newNullLiteral());
+			}
+			else
+			{
+				mi.arguments().add(ast.newSimpleName(this.oidToVarMapping.get(valueOID)));
+			}
+			
+			methodBlock.statements().add(mi);	
+		}
+	}
+	
+	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	private void createSetFieldMethod(final TypeDeclaration td, final CompilationUnit cu, final AST ast)
 	{
-//		public static void setField(final String clazzName, final String fieldName, final Object receiver, final Object value) throws Exception
-//		{
-//			final Class<?> clazz = Class.forName(clazzName);
-//			final Field    f     = clazz.getDeclaredField(fieldName);
-//			f.setAccessible(true);
-//			f.set(receiver, value);
-//		}
-		
-		
 		//-- add necessary import statements
 		List imports = cu.imports();
 		ImportDeclaration id = ast.newImportDeclaration();
@@ -1866,7 +2071,52 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			if(type.endsWith("[]"))
 			{
 				type = type.replace("[]", "");
-				return Class.forName("[L" + type + ";");
+				final Class<?> baseClass = getClassForName(type);
+				if(baseClass.isPrimitive())
+				{
+					if(int.class.equals(baseClass))
+					{
+						return int[].class;
+					}
+					else if(byte.class.equals(baseClass))
+					{
+						return byte[].class;
+					}
+					else if(char.class.equals(baseClass))
+					{
+						return char[].class;
+					}
+					else if(double.class.equals(baseClass))
+					{
+						return double[].class;
+					}
+					else if(boolean.class.equals(baseClass))
+					{
+						return boolean[].class;
+					}
+					else if(float.class.equals(baseClass))
+					{
+						return float[].class;
+					}
+					else if(short.class.equals(baseClass))
+					{
+						return short[].class;
+					}
+					else
+					{
+						return long[].class;
+					}
+				}
+				else if(baseClass.isArray()) 
+				{
+					return Class.forName("[" + type);
+				}
+				else
+				{
+					return Class.forName("[L" + type + ";");
+				}
+				
+				
 			}
 			else
 			{
@@ -1880,16 +2130,5 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 	}
 	
 	
-	
-	public static void main(String[] args)
-	{
-		Object[] methodArgs = new Object[]{1, 2, 3};
 
-		final int index = Arrays.binarySearch(methodArgs, Integer.valueOf(1));
-		
-		final Object[] newArgs = new Object[methodArgs.length - 1];
-		System.arraycopy(methodArgs, 0,         newArgs, 0,     index);
-		System.arraycopy(methodArgs, index + 1, newArgs, index, methodArgs.length - index - 1);
-		methodArgs = newArgs;
-	}
 }

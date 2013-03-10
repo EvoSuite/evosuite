@@ -4,20 +4,19 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntIntHashMap;
 import gnu.trove.map.hash.TIntObjectHashMap;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Map;
 
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.xerial.snappy.SnappyOutputStream;
 
 import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.converters.ConversionException;
 
 
 public final class CaptureLog implements Cloneable
@@ -60,6 +59,10 @@ public final class CaptureLog implements Cloneable
 	public static final Object[] NO_ARGS           = new Object[0];
 	public static final String   OBSERVED_INIT     = "<init>";
 	public static final String   PLAIN_INIT        = CaptureLog.class.getName() + ".PLAIN";
+	public static final String   COLLECTION_INIT = CaptureLog.class.getName() + ".COLLECTION";
+	public static final String   MAP_INIT = CaptureLog.class.getName() + ".MAP";
+	public static final String   ARRAY_INIT = CaptureLog.class.getName() + ".ARRAY";
+
 	public static final String   NOT_OBSERVED_INIT = CaptureLog.class.getName() + ".XINIT";
 
 	public static final String END_CAPTURE_PSEUDO_METHOD =  CaptureLog.class.getName() + ".END_CAPTURE";
@@ -387,6 +390,7 @@ public final class CaptureLog implements Cloneable
 		
 	}
 	
+	
 	public void log(final int captureId, final Object receiver, final String methodName, final String methodDesc, Object...methodParams)
 	{
 		// TODO find nicer way
@@ -434,6 +438,8 @@ public final class CaptureLog implements Cloneable
 		}
 
 		
+		
+		
 		//--- handle method params
 		Object param;
 		int paramOID;
@@ -460,50 +466,7 @@ public final class CaptureLog implements Cloneable
 					return;
 				}
 				
-				if(this.updateInfoTable(paramOID, param, false))
-				{
-					this.objectIds.add(paramOID);
-					
-					if(isPlain(param) || param instanceof Class)
-					{
-						// exemplary output in test code: Integer number = 123;
-						this.methodNames.add(PLAIN_INIT);
-						this.params.add(new Object[]{ param});
-					}
-					else
-					{
-						// create new serialization record for first emersion
-						// exemplary output in test code: Person newJoe = (Person) xstream.fromXML(xml); 
-						
-						this.checkIfInstanceFromInnerInstanceClass(param);
-						this.methodNames.add(NOT_OBSERVED_INIT);
-
-						try
-						{
-//							this.xstream.toXML(param, sout);
-//							this.sout.flush();
-//							
-//							this.params.add(new Object[]{ this.bout.toByteArray() });
-//							
-//							this.bout.reset();
-							// FIXME
-							this.params.add(new Object[]{ "XSTREAM"});// this.xstream.toXML(param) });
-						}
-						catch(final Exception e)
-						{
-							LOG.warn("an error occurred while serializing param '{}' -> adding null as param instead", param, e);
-							
-							// param can not be serialized -> add null as param
-							this.params.add(new Object[]{ null });
-						}
-					}
-					
-					this.descList.add(EMPTY_DESC);
-					this.returnValues.add(RETURN_TYPE_VOID);
-					this.captureIds.add(PSEUDO_CAPTURE_ID);
-					this.isStaticCallList.add(Boolean.FALSE);
-					this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);
-				}
+				createInitLogEntries(param);
 			
 			
 				 // method param  has been created before so we link to it
@@ -527,6 +490,166 @@ public final class CaptureLog implements Cloneable
 		
 		this.checkIfInstanceFromInnerInstanceClass(receiver);
 	}
+	
+	
+	
+	
+	
+	@SuppressWarnings("rawtypes")
+	private void createInitLogEntries(final Object param)
+	{
+		if (param == null)
+		{
+			return;
+		}
+			
+			
+		final int     paramOID     = System.identityHashCode(param);
+		final boolean isArray      = param.getClass().isArray();
+		final boolean isMap        = param instanceof Map;
+		final boolean isCollection = param instanceof Collection;
+		
+		if(this.updateInfoTable(paramOID, param, false) || isArray || isMap || isCollection)
+		{
+			
+			
+			if(isPlain(param) || param instanceof Class)
+			{
+				this.objectIds.add(paramOID);
+				// exemplary output in test code: Integer number = 123;
+				this.methodNames.add(PLAIN_INIT);
+				this.params.add(new Object[]{ param});
+			}
+			else if(isCollection)
+			{
+
+				final Collection c = (Collection) param;
+				
+				final Object[] valArray = new Object[c.size()];
+				int index = 0;
+				for(Object o : c)
+				{
+					if(o != null)
+					{
+						createInitLogEntries(o);
+						valArray[index] = System.identityHashCode(o);
+					}
+					
+					index++;
+				}
+				
+				if(! this.oidRecMapping.containsKey(paramOID))
+				{
+					this.updateInfoTable(paramOID, param, true);
+				}
+				
+				this.objectIds.add(paramOID);
+				this.methodNames.add(COLLECTION_INIT);
+				System.err.println("COLLECTION -> valArray = " + Arrays.toString(valArray)+ "\norig: " + param);
+				this.params.add(valArray);
+			}
+			else if(isMap)
+			{
+				final Map m = (Map) param;
+				final Object[] valArray = new Object[m.size() * 2];
+				
+				Map.Entry entry;
+				Object v, k;
+				int index = 0;
+				for(Object oe :  m.entrySet())
+				{
+					 entry = (Map.Entry) oe;
+					 k = entry.getKey();
+ 					 createInitLogEntries(k);
+					 
+					 valArray[index++] = System.identityHashCode(k);
+					 
+					 v = entry.getValue();
+					 if(v == null)
+					 {
+						 valArray[index++] = null;
+					 }
+					 else
+					 {
+						 createInitLogEntries(v);
+						 
+						 valArray[index++] = System.identityHashCode(v);
+					 }
+				}
+				
+				if(! this.oidRecMapping.containsKey(paramOID))
+				{
+					this.updateInfoTable(paramOID, param, true);
+				}
+				
+				this.objectIds.add(paramOID);
+				this.methodNames.add(MAP_INIT);
+				this.params.add(valArray);
+			}
+			else if(isArray)
+			{
+				// we use Array to handle primitive and Object arrays in the same way
+				final int arraySize = Array.getLength(param);
+				
+				final Object[] valArray = new Object[arraySize];
+				
+				Object o;
+				for(int index = 0; index < arraySize; index++)
+				{
+					o = Array.get(param, index);
+					if(o != null)
+					{
+						createInitLogEntries(o);
+						valArray[index] = System.identityHashCode(o);
+					}
+				}
+				
+				if(! this.oidRecMapping.containsKey(paramOID))
+				{
+					this.updateInfoTable(paramOID, param, true);
+				}
+				
+				this.objectIds.add(paramOID);
+				this.methodNames.add(ARRAY_INIT);
+				this.params.add(valArray);
+			}
+			else
+			{
+				this.objectIds.add(paramOID);
+				// create new serialization record for first emersion
+				// exemplary output in test code: Person newJoe = (Person) xstream.fromXML(xml); 
+				
+				this.checkIfInstanceFromInnerInstanceClass(param);
+				this.methodNames.add(NOT_OBSERVED_INIT);
+
+				try
+				{
+//					this.xstream.toXML(param, sout);
+//					this.sout.flush();
+//					
+//					this.params.add(new Object[]{ this.bout.toByteArray() });
+//					
+//					this.bout.reset();
+					// FIXME
+					this.params.add(new Object[]{ this.xstream.toXML(param) });
+				}
+				catch(final Exception e)
+				{
+					LOG.warn("an error occurred while serializing param '{}' -> adding null as param instead", param, e);
+					
+					// param can not be serialized -> add null as param
+					this.params.add(new Object[]{ null });
+				}
+			}
+			
+			this.descList.add(EMPTY_DESC);
+			this.returnValues.add(RETURN_TYPE_VOID);
+			this.captureIds.add(PSEUDO_CAPTURE_ID);
+			this.isStaticCallList.add(Boolean.FALSE);
+			this.logEnd(PSEUDO_CAPTURE_ID, param, RETURN_TYPE_VOID);
+		}
+	}
+	
 	
 	@Override
 	public String toString()

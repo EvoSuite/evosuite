@@ -243,6 +243,22 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		return record;
     }
 	
+    @SuppressWarnings({ "rawtypes" })
+    private void restoreArgs(final Object[] args, final int currentRecord, final CaptureLog log, final ICodeGenerator generator, final Set<Class<?>> blackList)
+    {
+    	Integer oid;
+		for(int i = 0; i < args.length; i++)
+		{
+			// there can only be OIDs or null
+			oid = (Integer) args[i];
+			
+			if(oid != null)
+			{
+				this.restorceCodeFromLastPosTo(log, generator, oid, currentRecord, blackList);
+			}
+		}
+    }
+    
     
 	@SuppressWarnings({ "rawtypes" })
 	private int[] restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList)
@@ -298,6 +314,30 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 				if(CaptureLog.PLAIN_INIT.equals(methodName)) // e.g. String var = "Hello World";
 				{
 					generator.createPlainInitStmt(log, currentRecord);
+					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+					this.updateInitRec(log, currentOID, currentRecord);
+				}
+				else if(CaptureLog.COLLECTION_INIT.equals(methodName))
+				{
+					methodArgs = log.params.get(currentRecord);
+					restoreArgs(methodArgs, currentRecord, log, generator, blackList);
+					generator.createCollectionInitStmt(log, currentRecord);
+					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+					this.updateInitRec(log, currentOID, currentRecord);
+				}
+				else if(CaptureLog.MAP_INIT.equals(methodName))
+				{
+					methodArgs = log.params.get(currentRecord);
+					restoreArgs(methodArgs, currentRecord, log, generator, blackList);
+					generator.createMapInitStmt(log, currentRecord);
+					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+					this.updateInitRec(log, currentOID, currentRecord);
+				}
+				else if(CaptureLog.ARRAY_INIT.equals(methodName))
+				{
+					methodArgs = log.params.get(currentRecord);
+					restoreArgs(methodArgs, currentRecord, log, generator, blackList);
+					generator.createArrayInitStmt(log, currentRecord);
 					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
 					this.updateInitRec(log, currentOID, currentRecord);
 				}

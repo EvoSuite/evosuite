@@ -599,7 +599,9 @@ public class TestSuiteGenerator {
 			carvedTestCase = codeGen.getCode();
 			codeGen.clear();
 
-			logger.debug("Carved Test:\n{}", carvedTestCase);
+			
+			
+			logger.info("Carved Test:\n{}", carvedTestCase);
 			result.add(carvedTestCase);
 
 			// reuse helper data structures

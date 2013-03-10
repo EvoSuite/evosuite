@@ -106,10 +106,15 @@ public class TimeoutHandler<T> {
 	        long timeout) throws InterruptedException, ExecutionException,
 	        TimeoutException {
 		task = new FutureTask<T>(testcase);
-//		executor.execute(task);
-		Future futureResult = executor.submit(task);
-//		T result = task.get(timeout, TimeUnit.MILLISECONDS);
-		T result = (T) futureResult.get(timeout, TimeUnit.MILLISECONDS);
+
+////		executor.execute(task);
+//		Future futureResult = executor.submit(task);
+////		T result = task.get(timeout, TimeUnit.MILLISECONDS);
+//		T result = (T) futureResult.get(timeout, TimeUnit.MILLISECONDS);
+		
+		// TODO (BF) why does the approach above not work? (null as result)
+		executor.execute(task);
+		T result = task.get(timeout, TimeUnit.MILLISECONDS);
 		
 		return result;
 	}
