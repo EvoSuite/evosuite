@@ -127,7 +127,7 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.JUnitTestChromosomeFactory;
+import org.evosuite.testcase.JUnitTestParsedChromosomeFactory;
 import org.evosuite.testcase.RandomLengthTestFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
@@ -1598,7 +1598,7 @@ public class TestSuiteGenerator {
 						new TestSuiteChromosomeFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				JUnitTestChromosomeFactory factory = new JUnitTestChromosomeFactory(
+				JUnitTestParsedChromosomeFactory factory = new JUnitTestParsedChromosomeFactory(
 						new RandomLengthTestFactory());
 				return new TestSuiteChromosomeFactory(factory);
 			default:
@@ -1622,7 +1622,7 @@ public class TestSuiteGenerator {
 						new RandomLengthTestFactory());
 			case JUNIT:
 				logger.info("Using seeding chromosome factory");
-				return new JUnitTestChromosomeFactory(
+				return new JUnitTestParsedChromosomeFactory(
 						new RandomLengthTestFactory());
 			default:
 				throw new RuntimeException("Unsupported test factory: "
