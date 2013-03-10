@@ -4,10 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.Capturer;
 import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
 import org.evosuite.testcarver.testcase.EvoTestCaseCodeGenerator;
+import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
@@ -50,7 +52,9 @@ public class CarvingRunListener extends RunListener {
 		final EvoTestCaseCodeGenerator codeGen  = new EvoTestCaseCodeGenerator();
 		analyzer.analyze(log, codeGen, this.targetClasses);
 		
-		TestCase test = codeGen.getCode();
+		DefaultTestCase test = (DefaultTestCase)codeGen.getCode();
+		test.changeClassLoader(TestGenerationContext.getClassLoader());
+		
 		carvedTests.add(test);
 		codeGen.clear();
 	}

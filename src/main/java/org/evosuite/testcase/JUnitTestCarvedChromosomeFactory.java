@@ -36,16 +36,20 @@ public class JUnitTestCarvedChromosomeFactory implements
 		JUnitCore runner = new JUnitCore();
 		CarvingRunListener listener = new CarvingRunListener();
 		runner.addListener(listener);
-		Pattern pattern = Pattern.compile(Properties.JUNIT_PREFIX.replace('.', File.separatorChar)+"*.class");
+		Pattern pattern = Pattern.compile(Properties.JUNIT_PREFIX+".*.class");
 		Collection<String> junitTestNames = ResourceList.getResources(pattern);
+		logger.info("Found "+junitTestNames.size()+" candidate junit classes for pattern "+pattern);
+
 		List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
+		org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader(); 
 		for(String className : junitTestNames) {
 			
+			String classNameWithDots = className.replace(".class", "").replace('/', '.');
 			try {
-				Class<?> junitClass = TestGenerationContext.getClassLoader().loadClass(className);
+				Class<?> junitClass = classLoader.loadClass(classNameWithDots);
 				junitTestClasses.add(junitClass);
 			} catch (ClassNotFoundException e) {
-				logger.warn("Error trying to load JUnit test class "+className);
+				logger.warn("Error trying to load JUnit test class "+classNameWithDots+": "+e);
 			}
 		}
 		
@@ -53,20 +57,23 @@ public class JUnitTestCarvedChromosomeFactory implements
 		junitTestClasses.toArray(classes);
 		runner.run(classes);
 		junitTests.addAll(listener.getTestCases());
+		logger.info("Carved "+junitTests.size()+" tests");
 	}
 	
 	@Override
 	public TestChromosome getChromosome() {
-		int N_mutations = Properties.SEED_MUTATIONS;
-		double P_clone = Properties.SEED_CLONE;
+		final int N_mutations = Properties.SEED_MUTATIONS;
+		final double P_clone = Properties.SEED_CLONE;
 
-		if (Randomness.nextDouble() >= P_clone || junitTests.isEmpty()) {
-			logger.info("Using random test");
+		double r = Randomness.nextDouble(); 
+		
+		if (r >= P_clone || junitTests.isEmpty()) {
+			logger.debug("Using random test");
 			return defaultFactory.getChromosome();
 		}
 
 		// Cloning
-		logger.debug("Cloning user test");
+		logger.info("Cloning user test");
 		TestCase test = Randomness.choice(junitTests);
 		TestChromosome chromosome = new TestChromosome();
 		chromosome.setTestCase(test.clone());
