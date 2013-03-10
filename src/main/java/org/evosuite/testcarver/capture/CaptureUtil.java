@@ -27,35 +27,35 @@ public final class CaptureUtil
 		final Type type = Type.getType(desc);
 		if(type.equals(Type.BOOLEAN_TYPE))
 		{
-			return Boolean.class;
+			return boolean.class;
 		}
 		else if(type.equals(Type.BYTE_TYPE))
 		{
-			return Byte.class;
+			return byte.class;
 		}
 		else if(type.equals(Type.CHAR_TYPE))
 		{
-			return Character.class;
+			return char.class;
 		}
 		else if(type.equals(Type.DOUBLE_TYPE))
 		{
-			return Double.class;
+			return double.class;
 		}
 		else if(type.equals(Type.FLOAT_TYPE))
 		{
-			return Float.class;
+			return float.class;
 		}
 		else if(type.equals(Type.INT_TYPE))
 		{
-			return Integer.class;
+			return int.class;
 		}
 		else if(type.equals(Type.LONG_TYPE))
 		{
-			return Long.class;
+			return long.class;
 		}
 		else if(type.equals(Type.SHORT_TYPE))
 		{
-			return Short.class;
+			return short.class;
 		}
 		
 		try 

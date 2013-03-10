@@ -58,7 +58,7 @@ public class TransformerUtil {
 				   className.startsWith("java") ||
 				   className.startsWith("java/lang") ||
 				   className.startsWith("$Proxy") || // ignore all dynamic proxies (http://docs.oracle.com/javase/1.3/docs/guide/reflection/proxy.html)
-				   className.startsWith("org/evosuite/testcarver")
+				   className.startsWith("org/evosuite/testcarver") 
 				   );
 	}
 	

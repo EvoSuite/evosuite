@@ -15,6 +15,11 @@ public interface ICodeGenerator<T> {
 	public void createPlainInitStmt(final CaptureLog log, final int currentLogRecNo);
 	public void createUnobservedInitStmt(final CaptureLog log, final int currentLogRecNo);
 
+	public void createArrayInitStmt(final CaptureLog log, final int currentLogRecNo);
+	public void createCollectionInitStmt(final CaptureLog log, final int currentLogRecNo);
+	public void createMapInitStmt(final CaptureLog log, final int currentLogRecNo);
+
+	
 	public void after(final CaptureLog log);
 	
 	public T getCode();
