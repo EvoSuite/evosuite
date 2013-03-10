@@ -98,17 +98,13 @@ public class InstrumentingClassLoader extends ClassLoader {
 		//temporary solution, TODO allow the user to specify 
 		//packages that should not be instrumented
 		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "org.exsyst",
-		        "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite", "org.uispec4j",
-		        "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-		        "testing.generation.evosuite",
-		        "com.yourkit", "daikon.",
-		return new String[] { "java.", "javax.", "sun.", "org.evosuite", "de.unisb.cs.st.testcarver",
-		        "de.unisb.cs.st.evosuite", "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
-		        "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.",
-		        // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
-		        "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
-		        "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc",
-		        "corina.cross.Single" // I really don't know what is wrong with this class, but we need to exclude it 
+					          "de.unisb.cs.st.testcarver", "de.unisb.cs.st.evosuite",  "org.uispec4j", 
+					          "de.unisb.cs.st.specmate", "org.xml", "org.w3c",
+					          "testing.generation.evosuite", "com.yourkit", "com.vladium.emma.", "daikon.",
+					          // Need to have these in here to avoid trouble with UnsatisfiedLinkErrors on Mac OS X and Java/Swing apps
+					          "apple.", "com.apple.", "com.sun", "org.junit", "junit.framework",
+					          "org.apache.xerces.dom3", "de.unisl.cs.st.bugex", "edu.uta.cse.dsc",
+					          "corina.cross.Single" // I really don't know what is wrong with this class, but we need to exclude it 
 		};
 	}
 
