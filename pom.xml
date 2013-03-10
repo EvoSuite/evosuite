@@ -182,6 +182,11 @@
 
   <dependencies>
     <dependency>
+      <groupId>org.xerial.snappy</groupId>
+      <artifactId>snappy-java</artifactId>
+      <version>1.0.4.1</version>
+    </dependency>
+    <dependency>
       <groupId>org.evosuite</groupId>
       <artifactId>dsc-evosuite</artifactId>
       <version>0.3.16</version>
@@ -289,90 +294,6 @@
 
 	<!-- <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>preferences</artifactId> 
 	     </exclusion> -->
-	<dependencies>
-	<dependency>
-	<groupId>org.xerial.snappy</groupId>
-	<artifactId>snappy-java</artifactId>
-	<version>1.0.4.1</version>
-</dependency>
-            
-					<dependency>
-					<groupId>emma</groupId>
-					<artifactId>emma</artifactId>
-					<version>2.1.5320</version>
-				</dependency>
-		<dependency>
-			<groupId>cvc3</groupId>
-			<artifactId>cvc3</artifactId>
-			<version>2.1.1</version>
-		</dependency>
-		<dependency>
-			<groupId>mockit</groupId>
-			<artifactId>jmockit</artifactId>
-			<version>0.999.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>1.6.4</version>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>1.0.3</version>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>4.10</version>
-		</dependency>
-		<dependency>
-			<groupId>org.ow2.asm</groupId>
-			<artifactId>asm-all</artifactId>
-			<version>4.0</version>
-		</dependency>
-		<dependency>
-			<groupId>bcel</groupId>
-			<artifactId>bcel</artifactId>
-			<version>5.2</version>
-		</dependency>
-		<dependency>
-			<groupId>jpf</groupId>
-			<artifactId>jpf-core</artifactId>
-			<version>5.0pre2-EvoSuite-3</version>
-		</dependency>
-		<dependency>
-			<groupId>jpf</groupId>
-			<artifactId>jpf-annotations</artifactId>
-			<version>5.0pre2-EvoSuite-3</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>jpf</groupId>
-			<artifactId>jpf-classes</artifactId>
-			<version>5.0pre2-EvoSuite-3</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>com.google.code.findbugs</groupId>
-			<artifactId>jsr305</artifactId>
-			<version>1.3.9</version>
-		</dependency>
-		<dependency>
-			<groupId>com.googlecode.gentyref</groupId>
-			<artifactId>gentyref</artifactId>
-			<version>1.1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>org.jgrapht</groupId>
-			<artifactId>jgrapht-jdk1.6</artifactId>
-			<version>0.8.3</version>
-		</dependency>
-		<dependency>
-			<groupId>com.panayotis</groupId>
-			<artifactId>JavaPlot</artifactId>
-			<version>0.4.0</version>
-		</dependency>
 
 	<!-- *** <exclusion> <groupId>org.eclipse.equinox</groupId> <artifactId>app</artifactId> 
 	     </exclusion> -->

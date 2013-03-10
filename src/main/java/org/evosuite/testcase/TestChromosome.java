@@ -107,16 +107,7 @@ public class TestChromosome extends ExecutableChromosome {
 	@Override
 	public Chromosome clone() {
 		TestChromosome c = new TestChromosome();
-		
-		if(test.isEmpty())
-		{
-			c.test = new DefaultTestCase();
-		}
-		else
-		{
-			c.test = test.clone();
-		}
-		
+		c.test = test.clone();
 		//assert (test.toCode().equals(c.test.toCode()));
 		/*
 		assert (test.isValid());
