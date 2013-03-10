@@ -545,7 +545,6 @@ public final class CaptureLog implements Cloneable
 				
 				this.objectIds.add(paramOID);
 				this.methodNames.add(COLLECTION_INIT);
-				System.err.println("COLLECTION -> valArray = " + Arrays.toString(valArray)+ "\norig: " + param);
 				this.params.add(valArray);
 			}
 			else if(isMap)
@@ -654,8 +653,6 @@ public final class CaptureLog implements Cloneable
 	@Override
 	public String toString()
 	{
-		
-		
 		final String delimiter = "\t|\t";
 		
 		final StringBuilder builder = new StringBuilder(1000);
