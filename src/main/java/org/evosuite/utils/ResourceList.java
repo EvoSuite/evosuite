@@ -99,19 +99,7 @@ public class ResourceList {
 	 */
 	public static Collection<String> getAllResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		
-		String[] classPathElements;
-		
-		final String os = System.getProperty("os.name").toLowerCase();
-		if(os.contains("win"))
-		{
-			 classPathElements = System.getProperty("java.class.path", ".").split(";");
-		}
-		else
-		{
-			 classPathElements = System.getProperty("java.class.path", ".").split(":");
-		}
-		
+		String[] classPathElements = System.getProperty("java.class.path", ".").split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}

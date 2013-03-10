@@ -42,7 +42,6 @@ public class SimpleCondition {
 		this.condition.awaitUninterruptibly();
 		this.lock.unlock();
 	}
-
 	
 	/**
 	 * <p>signal</p>
