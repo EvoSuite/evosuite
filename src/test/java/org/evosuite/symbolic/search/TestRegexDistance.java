@@ -18,9 +18,9 @@ public class TestRegexDistance {
 	@Test
 	public void testEmptyRegex() {
 		assertEquals(0.0, RegexDistance.getDistance("", ""), 0.0);
-		assertEquals(3.0, RegexDistance.getDistance("abc", ""), 0.0);
 		assertEquals(1.0, RegexDistance.getDistance("a", ""), 0.0);
 		assertEquals(2.0, RegexDistance.getDistance("ab", ""), 0.0);
+		assertEquals(3.0, RegexDistance.getDistance("abc", ""), 0.0);
 	}
 
 	@Test
