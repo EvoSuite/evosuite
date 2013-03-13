@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.evosuite.javaagent.BytecodeInstrumentation;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
+import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
@@ -58,10 +59,13 @@ public class DetermineSUT {
 			return "";
 		}
 
+		if(candidateClasses.isEmpty())
+			return "<UNKNOWN>";
+		
 		List<String> sortedNames = new ArrayList<String>(candidateClasses);
 		Collections.sort(sortedNames, new TargetClassSorter(fullyQualifiedTargetClass));
 
-		System.out.println("Sorted candidate classes: " + sortedNames);
+		//System.out.println("Sorted candidate classes: " + sortedNames);
 		return sortedNames.get(0);
 	}
 
@@ -80,7 +84,9 @@ public class DetermineSUT {
 			ClassReader reader = new ClassReader(is);
 			ClassNode classNode = new ClassNode();
 			reader.accept(classNode, ClassReader.SKIP_FRAMES);
-			handleClassNode(calledClasses, classNode);
+			if(isJUnitTest(classNode)) {
+				handleClassNode(calledClasses, classNode);
+			}
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -101,6 +107,9 @@ public class DetermineSUT {
 
 	private boolean isValidClass(String name) {
 		if (BytecodeInstrumentation.isJavaClass(name))
+			return false;
+		
+		if(name.startsWith("junit"))
 			return false;
 
 		if (name.startsWith(targetName))
@@ -123,6 +132,25 @@ public class DetermineSUT {
 			}
 		}
 	}
+	
+	@SuppressWarnings("unchecked")
+	private boolean isJUnitTest(ClassNode cn) {
+		if(cn.superName.equals("junit/framework/TestCase"))
+			return true;
+		
+		List<MethodNode> methods = cn.methods;
+		for (MethodNode mn : methods) {
+			List<AnnotationNode> annotations = mn.visibleAnnotations;
+			if(annotations != null) {
+				for(AnnotationNode an : annotations) {
+					if(an.desc.equals("Lorg/junit/Test;"))
+						return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * @param args
@@ -130,7 +158,7 @@ public class DetermineSUT {
 	public static void main(String[] args) {
 		DetermineSUT det = new DetermineSUT();
 		for (String className : args) {
-			System.out.println(className + ": " + det.getSUTName(className));
+			System.out.println(det.getSUTName(className));
 		}
 
 	}
