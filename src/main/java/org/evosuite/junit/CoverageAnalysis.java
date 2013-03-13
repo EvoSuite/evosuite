@@ -70,6 +70,22 @@ public class CoverageAnalysis {
 		printReport(result, junitTests, startTime);
 	}
 
+	public static double getCoverage() {
+		TestCluster.getInstance();
+
+		List<Class<?>> junitTests = getClasses();
+		LoggingUtils.getEvoLogger().info("* Found " + junitTests.size()
+		                                         + " unit test classes");
+		if (junitTests.isEmpty())
+			return 0.0;
+
+		Class<?>[] classes = new Class<?>[junitTests.size()];
+		junitTests.toArray(classes);
+		LoggingUtils.getEvoLogger().info("* Executing tests");
+		Result result = executeTests(classes);
+		return getCoverage(result);
+	}
+
 	private static List<Class<?>> getClassesFromClasspath() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		Pattern pattern = Pattern.compile(Properties.JUNIT_PREFIX + ".*.class");
@@ -113,6 +129,7 @@ public class CoverageAnalysis {
 				                                    TestGenerationContext.getClassLoader());
 				classes.add(junitClass);
 			} catch (ClassNotFoundException e) {
+				System.out.println("NOT FOUND: " + e + " with " + Properties.JUNIT_PREFIX);
 				// Second, try if the target name is a package name
 				classes.addAll(getClassesFromClasspath());
 			}
@@ -286,6 +303,26 @@ public class CoverageAnalysis {
 		}
 		return classes;
 
+	}
+
+	private static double getCoverage(Result result) {
+		LoggingUtils.getEvoLogger().info("* Executed " + result.getRunCount() + " tests");
+		ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
+
+		List<? extends TestFitnessFunction> goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals();
+		TestChromosome dummy = new TestChromosome();
+		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+		executionResult.setTrace(trace);
+		dummy.setLastExecutionResult(executionResult);
+		dummy.setChanged(false);
+
+		int covered = 0;
+		for (TestFitnessFunction goal : goals) {
+			if (goal.isCovered(dummy))
+				covered++;
+		}
+
+		return (double) covered / (double) goals.size();
 	}
 
 	private static void printReport(Result result, List<Class<?>> classes, long startTime) {
