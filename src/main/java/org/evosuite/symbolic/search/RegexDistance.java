@@ -526,9 +526,11 @@ public class RegexDistance {
 				for (GraphTransition t :  graph.getIncomingTransitions(FIRST_ROW, col)) {
 					
 					/*
-					 * on first row, there can be only insertions coming from the same row
+					 * on first row, there can be only insertions coming from the same row,
+					 * apart from last node that can have a phantom transition to sink state
 					 */
-					assert t.type.equals(GraphTransition.TransitionType.INSERTION);
+					assert t.type.equals(GraphTransition.TransitionType.INSERTION) ||
+						t.type.equals(GraphTransition.TransitionType.PHANTOM);
 					assert t.fromRow == 0;
 					
 					int otherCol = graph.getColumn(t.fromState);
@@ -538,13 +540,11 @@ public class RegexDistance {
 						continue;
 					}
 					
-					double otherCost = matrix[0][otherCol][2];
+					double otherCost = matrix[FIRST_ROW][otherCol][2];
 
 					min = Math.min(min, getSubPathCost(otherCost, t.cost));
 				}
 				
-				assert min < Double.MAX_VALUE;
-
 				/*
 				 * as there can be only insertions, the delete and replace paths cannot be followed, and 
 				 * so maximum distance
