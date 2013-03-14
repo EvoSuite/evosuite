@@ -241,7 +241,7 @@ public class TestSuiteGenerator {
 		 */
 		ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_STATISTICS);
 		statistics.writeReport();
-		if (!Properties.NEW_STATISTICS)
+		if (!Properties.NEW_STATISTICS && Properties.OLD_STATISTICS)
 			statistics.writeStatistics();
 		PermissionStatistics.getInstance().printStatistics();
 
