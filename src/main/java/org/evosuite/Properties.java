@@ -681,6 +681,9 @@ public class Properties {
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = false;
 
+	@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
+	public static boolean OLD_STATISTICS = false;
+
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV;
 	}
