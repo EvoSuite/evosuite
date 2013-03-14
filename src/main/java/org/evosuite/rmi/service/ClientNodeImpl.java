@@ -15,6 +15,7 @@ import org.evosuite.TestSuiteGenerator;
 import org.evosuite.coverage.ClassStatisticsPrinter;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.ga.stoppingconditions.RMIStoppingCondition;
 import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.utils.Randomness;
@@ -120,7 +121,10 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	@Override
 	public void cancelCurrentSearch() throws RemoteException {
-		System.exit(1);
+		//LoggingUtils.getEvoLogger().info("Cancelling client");
+		//System.out.println("Cancelling client...");
+		RMIStoppingCondition.getInstance().stop();
+		//System.exit(1);
 	}
 
 	@Override
