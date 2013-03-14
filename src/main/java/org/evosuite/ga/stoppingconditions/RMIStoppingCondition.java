@@ -28,7 +28,7 @@ public class RMIStoppingCondition implements StoppingCondition {
 	}
 
 	public void stop() {
-		isStopped = false;
+		isStopped = true;
 	}
 
 	/* (non-Javadoc)
