@@ -714,7 +714,8 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append("Future<?> future = " + EXECUTOR_SERVICE
 			        + ".submit(new Runnable(){ \n");
 			builder.append(INNER_BLOCK_SPACE);
-			builder.append("@Override \n");
+			// Doesn't seem to need override?
+			// builder.append("@Override \n");
 			builder.append(INNER_BLOCK_SPACE);
 			builder.append("public void run() { \n");
 			Set<Class<?>> exceptions = test.getDeclaredExceptions();
