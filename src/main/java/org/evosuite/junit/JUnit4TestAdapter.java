@@ -27,8 +27,10 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCodeVisitor;
 
 /**
- * <p>JUnit4TestAdapter class.</p>
- *
+ * <p>
+ * JUnit4TestAdapter class.
+ * </p>
+ * 
  * @author fraser
  */
 public class JUnit4TestAdapter implements UnitTestAdapter {
@@ -41,7 +43,8 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	public String getImports() {
 		//		return "import org.junit.Before;\n" + "import org.junit.Ignore;\n"
 		//		        + "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n";
-		return "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n";
+		return "import org.junit.Test;\nimport org.junit.runner.RunWith;\nimport org.evosuite.junit.EvoSuiteRunner;\n"
+		        + "import static org.junit.Assert.*;\n";
 	}
 
 	/* (non-Javadoc)
@@ -50,7 +53,7 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getClassDefinition(String testName) {
-		return "public class " + testName;
+		return "@RunWith(EvoSuiteRunner.class)\npublic class " + testName;
 	}
 
 	/* (non-Javadoc)
