@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.testsuite.TestSuiteChromosome;
 
 /**
@@ -133,16 +134,25 @@ public class ConstantInliner extends ExecutionObserver {
 				if (var.equals(statement.getReturnValue())
 				        || var.equals(statement.getReturnValue().getAdditionalVariableReference()))
 					continue;
-				if (var.isPrimitive() || var.isString()) {
+				Object object = var.getObject(scope);
+
+				if (var.isPrimitive()) {
 					ConstantValue value = new ConstantValue(test, var.getGenericClass());
-					value.setValue(var.getObject(scope));
+					value.setValue(object);
 					// logger.info("Statement before inlining: " + statement.getCode());
 					statement.replace(var, value);
 					// logger.info("Statement after inlining: " + statement.getCode());
+				} else if (var.isString() && object != null) {
+					ConstantValue value = new ConstantValue(test, var.getGenericClass());
+					String val = StringEscapeUtils.unescapeJava(object.toString());
+					value.setValue(val);
+					// logger.info("Statement before inlining: " + statement.getCode());
+					statement.replace(var, value);
+					// logger.info("Statement after inlining: " + statement.getCode());
+
 				} else {
 					// TODO: Ignoring exceptions during getObject, but keeping the assertion for now
 					try {
-						Object object = var.getObject(scope);
 						if (object == null) {
 							ConstantValue value = new ConstantValue(test,
 							        var.getGenericClass());
