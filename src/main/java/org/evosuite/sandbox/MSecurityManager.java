@@ -342,9 +342,25 @@ class MSecurityManager extends SecurityManager {
 	private boolean allowPermission(Permission perm) {
 
 		if (Properties.SANDBOX_MODE.equals(SandboxMode.OFF)) {
+			/*
+			 * allow everything
+			 */
 			return true;
 		}
 
+		/*
+		 * We should always allow to check the stack trace,
+		 * as we use it for debugging (ie when logging)
+		 */
+		if (perm instanceof RuntimePermission && 
+				"getStackTrace".equals(perm.getName().trim())) {
+			return true;
+		}
+		
+		if(checkIfEvoSuiteRMI(perm)){
+			return true;
+		}
+		
 		// first check if calling thread belongs to EvoSuite rather than the SUT
 		if (!ignorePrivileged && privilegedThreads.contains(Thread.currentThread())) {
 			if (defaultManager == null) {
@@ -519,6 +535,51 @@ class MSecurityManager extends SecurityManager {
 			 */
 			logger.debug("Allowing permission defined by the SUT: " + canonicalName);
 			return true;
+		}
+	}
+
+	/**
+	 * <p>This is tricky. Client publishes RMI objects that the Master
+	 * will try to access. The RMI objects will wait on a TCP socket.
+	 * When we export the RMI object, the running threads will be
+	 * marked as privileged. Problem here is that RMI code can spawn
+	 * new threads, which would be very difficult to identify and
+	 * make privileged.</p> 
+	 * 
+	 * <p> The solution here is to analyze the stack trace, and
+	 * allow only what the EvoSuite client actually requests.
+	 * It is not bullet-proof, but should be fine for now.
+	 * </p>
+	 * @param perm
+	 * @return
+	 */
+	private boolean checkIfEvoSuiteRMI(Permission perm) {
+		
+		final String pattern = "sun.rmi.";
+		boolean found = false;
+		
+		//first check if there is any reference to RMI in the stack trace
+		for(StackTraceElement element : Thread.currentThread().getStackTrace()){
+			if(element.toString().startsWith(pattern)){
+				found = true;
+				break;
+			}
+		}
+		
+		if(!found){
+			//found no reference to RMI
+			return false;
+		}
+		
+		String name = perm.getName().trim();
+		
+		if(perm instanceof java.net.SocketPermission){
+			return "accept,resolve".equals(perm.getActions());
+		} else {
+			return "readFileDescriptor".equals(name) ||
+					"writeFileDescriptor".equals(name) ||
+					"setContextClassLoader".equals(name) ||
+					"enableSubstitution".equals(name);
 		}
 	}
 
