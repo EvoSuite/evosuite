@@ -361,11 +361,11 @@ public class TestSuiteWriter implements Opcodes {
 			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
+			imports_sorted.add(org.junit.Before.class.getCanonicalName());
+			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+			imports_sorted.add(org.junit.After.class.getCanonicalName());
+			imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 		}
-		imports_sorted.add(org.junit.Before.class.getCanonicalName());
-		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
-		imports_sorted.add(org.junit.After.class.getCanonicalName());
-		imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 
 		Collections.sort(imports_sorted);
 		for (String imp : imports_sorted) {
@@ -583,14 +583,15 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(METHOD_SPACE);
 		bd.append("public static void initEvoSuiteFramework(){ \n");
-		
+
 		//need to setup the Sandbox mode
 		bd.append(BLOCK_SPACE);
-		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."+Properties.SANDBOX_MODE+"; \n");
-		
+		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
+		        + Properties.SANDBOX_MODE + "; \n");
+
 		bd.append(BLOCK_SPACE);
 		bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
-		
+
 		bd.append(BLOCK_SPACE);
 		bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
 		bd.append(METHOD_SPACE);

@@ -1,11 +1,15 @@
 package org.evosuite.ga;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-public class MutationHistory<T extends MutationHistoryEntry> implements Iterable<T> {
+public class MutationHistory<T extends MutationHistoryEntry> implements Iterable<T>,
+        Serializable {
+
+	private static final long serialVersionUID = -8543180637106924913L;
 
 	private final List<T> mutations = new ArrayList<T>();
 
@@ -31,7 +35,7 @@ public class MutationHistory<T extends MutationHistoryEntry> implements Iterable
 	}
 
 	public boolean isEmpty() {
-	    return mutations.isEmpty();
+		return mutations.isEmpty();
 	}
 
 	public void set(MutationHistory<T> other) {
