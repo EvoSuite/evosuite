@@ -112,6 +112,9 @@ public class ContractViolation {
 			changed = false;
 
 			for (int i = test.size() - 1; i >= 0; i--) {
+				// TODO - why??
+				if (i >= test.size())
+					continue;
 				try {
 					testFactory.deleteStatementGracefully(test, i);
 					if (!contract.fails(test)) {
