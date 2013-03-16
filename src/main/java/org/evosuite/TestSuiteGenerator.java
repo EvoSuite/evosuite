@@ -318,11 +318,6 @@ public class TestSuiteGenerator {
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		writeJUnitTests(tests);
 
-		if (Properties.CHECK_CONTRACTS) {
-			LoggingUtils.getEvoLogger().info("* Writing failing test cases");
-			FailingTestSet.writeJUnitTestSuite();
-		}
-
 		writeObjectPool(tests);
 
 		/*
@@ -351,6 +346,14 @@ public class TestSuiteGenerator {
 				suite.insertAllTests(tests);
 			else
 				suite.insertTests(tests);
+
+			if (Properties.CHECK_CONTRACTS) {
+				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
+				//FailingTestSet.writeJUnitTestSuite();
+				//tests.addAll(FailingTestSet.getFailingTests());
+				FailingTestSet.writeJUnitTestSuite(suite);
+			}
+
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);

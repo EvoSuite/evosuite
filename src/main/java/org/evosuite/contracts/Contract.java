@@ -185,7 +185,6 @@ public abstract class Contract {
 	protected boolean isTargetStatement(StatementInterface statement) {
 		//if (statement.getReturnClass().equals(Properties.getTargetClass()))
 		//	return true;
-
 		if (statement instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) statement;
 			if (Properties.getTargetClass().equals(ms.getMethod().getDeclaringClass()))

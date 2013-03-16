@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.junit.TestSuiteWriter;
+import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
@@ -124,25 +125,52 @@ public class FailingTestSet {
 		return violations.size();
 	}
 
+	public static List<TestCase> getFailingTests() {
+		List<TestCase> tests = new ArrayList<TestCase>();
+		ContractChecker.setActive(false);
+		TestCaseExecutor.getInstance().newObservers();
+
+		for (int i = 0; i < violations.size(); i++) {
+			logger.debug("Writing test {}/{}", i, violations.size());
+			ContractViolation violation = violations.get(i);
+			violation.minimizeTest();
+			tests.add(violation.getTestCase());
+		}
+		return tests;
+	}
+
 	/**
 	 * Output the failing tests in a JUnit test suite
 	 */
 	public static void writeJUnitTestSuite() {
 		logger.info("Writing {} failing tests", violations.size());
 		TestSuiteWriter writer = new TestSuiteWriter();
+		writeJUnitTestSuite(writer);
+		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+		String testDir = Properties.TEST_DIR;
+		writer.writeTestSuite("Failures" + name, testDir);
+	}
+
+	/**
+	 * Output the failing tests in a JUnit test suite
+	 */
+	public static void writeJUnitTestSuite(TestSuiteWriter writer) {
+		logger.info("Writing {} failing tests", violations.size());
 		ContractChecker.setActive(false);
 		TestCaseExecutor.getInstance().newObservers();
 		for (int i = 0; i < violations.size(); i++) {
 			logger.debug("Writing test {}/{}", i, violations.size());
 			ContractViolation violation = violations.get(i);
 			violation.minimizeTest();
+			TestCase test = violation.getTestCase();
+			if (Properties.INLINE) {
+				ConstantInliner inliner = new ConstantInliner();
+				inliner.inline(test);
+			}
 			// TODO: Add comment about contract violation
-			writer.insertTest(violation.getTestCase(), " Contract violation: "
+			writer.insertTest(test, " Contract violation: "
 			        + violation.getContract().toString());
 		}
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-		String testDir = Properties.TEST_DIR;
-		writer.writeTestSuite("Failures" + name, testDir);
 	}
 
 	/**
