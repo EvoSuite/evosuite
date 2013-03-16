@@ -147,7 +147,6 @@ public class ContractChecker extends ExecutionObserver {
 				continue;
 
 			try {
-				logger.info("Checking contract " + contract);
 				if (!contract.check(statement, scope, exception)) {
 					logger.debug("Contract failed: {} {}", contract, statement.getCode());
 					FailingTestSet.addFailingTest(currentTest, contract, statement,

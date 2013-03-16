@@ -664,7 +664,7 @@ public class TestSuiteWriter implements Opcodes {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
-		if (Properties.TEST_COMMENTS) {
+		if (Properties.TEST_COMMENTS || testComment.containsKey(id)) {
 			builder.append(METHOD_SPACE);
 			builder.append("//");
 			builder.append(getInformation(id));
