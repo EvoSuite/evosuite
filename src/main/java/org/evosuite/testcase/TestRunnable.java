@@ -57,7 +57,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 	protected boolean runFinished;
 
 	/**
-	 * Map a thrown exception ('value') with the the position ('key') in the test sequence in which it was thrown from.
+	 * Map a thrown exception ('value') with the the position ('key') in the
+	 * test sequence in which it was thrown from.
 	 */
 	protected Map<Integer, Throwable> exceptionsThrown = new HashMap<Integer, Throwable>();
 
@@ -88,12 +89,14 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 	/**
 	 * <p>
-	 * After the test case is executed, if any SUT thread is still running, we will wait for their termination. 
-	 * To identify which thread belong to
-	 * SUT, before test case execution we should check which are the threads that are running.
+	 * After the test case is executed, if any SUT thread is still running, we
+	 * will wait for their termination. To identify which thread belong to SUT,
+	 * before test case execution we should check which are the threads that are
+	 * running.
 	 * </p>
 	 * <p>
-	 * WARNING: The sandbox might prevent accessing thread informations, so best to call this method from outside this class
+	 * WARNING: The sandbox might prevent accessing thread informations, so best
+	 * to call this method from outside this class
 	 * </p>
 	 */
 	public void storeCurrentThreads() {
@@ -112,22 +115,23 @@ public class TestRunnable implements InterfaceTestRunnable {
 	}
 
 	/**
-	 * Try to kill (and then join) the SUT threads.
-	 * Killing the SUT threads is important, because some spawn threads could just wait on objects/locks,
+	 * Try to kill (and then join) the SUT threads. Killing the SUT threads is
+	 * important, because some spawn threads could just wait on objects/locks,
 	 * and so make the test case executions always last TIMEOUT ms.
 	 */
-	public void killAndJoinClientThreads() throws IllegalStateException{
-		
-		if(currentRunningThreads==null){
-			throw new IllegalStateException("The current threads are not set. You need to call storeCurrentThreads() first");
+	public void killAndJoinClientThreads() throws IllegalStateException {
+
+		if (currentRunningThreads == null) {
+			throw new IllegalStateException(
+			        "The current threads are not set. You need to call storeCurrentThreads() first");
 		}
-		
+
 		/*
 		 * First we set the kill switch in the instrumented bytecode, this
 		 * to prevent issues with code that do not handle interrupt 
 		 */
 		ExecutionTracer.setKillSwitch(true);
-		
+
 		Map<Thread, StackTraceElement[]> threadMap = Thread.getAllStackTraces();
 
 		/*
@@ -139,24 +143,24 @@ public class TestRunnable implements InterfaceTestRunnable {
 			 * But we don't want to stop/join them, as they just execute Runnable objects, and
 			 * stay in a pool in an execution service.  
 			 */
-			if(t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)){
+			if (t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)) {
 				continue;
 			}
-			
+
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
 				t.interrupt();
 			}
 		}
-		
+
 		/*
 		 * now, join up to a total of TIMEOUT ms. 
 		 * 
 		 */
 		for (Thread t : threadMap.keySet()) {
-			if(t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)){
+			if (t.getName().startsWith(TestCaseExecutor.TEST_EXECUTION_THREAD)) {
 				continue;
 			}
-			
+
 			if (t.isAlive() && !currentRunningThreads.contains(t)) {
 
 				logger.info("Thread " + t + ". This looks like the new thread");
@@ -167,7 +171,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 					long delta = System.currentTimeMillis() - startTime;
 					long waitingTime = Properties.TIMEOUT - delta;
 					if (waitingTime > 0) {
-						t.join(waitingTime); 
+						t.join(waitingTime);
 					}
 				} catch (InterruptedException e) {
 					// What can we do?
@@ -178,13 +182,13 @@ public class TestRunnable implements InterfaceTestRunnable {
 				}
 			}
 		}
-		
+
 		/*
 		 * we need it, otherwise issue during search in which accessing enum in SUT would call toString,
 		 * and so throw a TimeoutExceeded exception 
 		 */
 		ExecutionTracer.setKillSwitch(false);
-		
+
 		/*
 		 * important. this is used to later check if current threads are set
 		 */
@@ -192,8 +196,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 	}
 
 	/**
-	 * Going to join SUT threads if active threads are more than numThreads. In other words, we are trying to join till all SUT threads are done
-	 * within the defined time threshold
+	 * Going to join SUT threads if active threads are more than numThreads. In
+	 * other words, we are trying to join till all SUT threads are done within
+	 * the defined time threshold
 	 * 
 	 * @param numThreads
 	 */
@@ -231,7 +236,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 	 * @param s
 	 *            the executed statement
 	 * @param exceptionThrown
-	 *            the exception thrown when executing the statement, if any (can be null)
+	 *            the exception thrown when executing the statement, if any (can
+	 *            be null)
 	 */
 	protected void informObservers_after(StatementInterface s, Throwable exceptionThrown) {
 		ExecutionTracer.disable();
@@ -256,7 +262,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		Runtime.resetRuntime();
 		ExecutionTracer.enable();
 
-		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(byteStream));
+		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
+		        byteStream));
 		byteStream.reset();
 
 		if (!Properties.PRINT_TO_SYSTEM) {
@@ -270,7 +277,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 			for (StatementInterface s : test) {
 
 				if (Thread.currentThread().isInterrupted() || Thread.interrupted()) {
-					logger.info("Thread interrupted at statement " + num + ": " + s.getCode());
+					logger.info("Thread interrupted at statement " + num + ": "
+					        + s.getCode());
 					throw new TimeoutException();
 				}
 
@@ -287,7 +295,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 				Throwable exceptionThrown = s.execute(scope, out);
 
 				if (exceptionThrown != null) {
-					// if internal error, than throw exception
+					// if internal error, then throw exception
 					// -------------------------------------------------------
 					if (exceptionThrown instanceof VMError) {
 						throw (VMError) exceptionThrown;
@@ -323,14 +331,16 @@ public class TestRunnable implements InterfaceTestRunnable {
 					// --------------------------------------------------------
 
 					if (logger.isDebugEnabled()) {
-						logger.debug("Exception thrown in statement: " + s.getCode() + " - " + exceptionThrown.getClass().getName() + " - "
-								+ exceptionThrown.getMessage());
+						logger.debug("Exception thrown in statement: " + s.getCode()
+						        + " - " + exceptionThrown.getClass().getName() + " - "
+						        + exceptionThrown.getMessage());
 						for (StackTraceElement elem : exceptionThrown.getStackTrace()) {
 							logger.debug(elem.toString());
 						}
 						if (exceptionThrown.getCause() != null) {
-							logger.debug("Cause: " + exceptionThrown.getCause().getClass().getName() + " - "
-									+ exceptionThrown.getCause().getMessage());
+							logger.debug("Cause: "
+							        + exceptionThrown.getCause().getClass().getName()
+							        + " - " + exceptionThrown.getCause().getMessage());
 							for (StackTraceElement elem : exceptionThrown.getCause().getStackTrace()) {
 								logger.debug(elem.toString());
 							}
@@ -344,7 +354,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 					 * If an exception is thrown, we stop the execution of the test case, because the internal state could be corrupted, and not
 					 * possible to verify the behavior of any following function call. Predicate should be true by default
 					 */
-					if (Properties.BREAK_ON_EXCEPTION || exceptionThrown instanceof SystemExitException) {
+					if (Properties.BREAK_ON_EXCEPTION
+					        || exceptionThrown instanceof SystemExitException) {
+						informObservers_after(s, exceptionThrown);
 						break;
 					}
 				}
@@ -381,15 +393,18 @@ public class TestRunnable implements InterfaceTestRunnable {
 				logger.info("Cause: " + e.getCause().toString(), e);
 				e = e.getCause();
 			}
-			if (e instanceof AssertionError && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
-				logger.error("Assertion Error in evosuitecode, for statement \n" + test.getStatement(num).getCode() + " \n which is number: " + num
-						+ " testcase \n" + test.toCode(), e);
+			if (e instanceof AssertionError
+			        && e.getStackTrace()[0].getClassName().contains("org.evosuite")) {
+				logger.error("Assertion Error in evosuitecode, for statement \n"
+				        + test.getStatement(num).getCode() + " \n which is number: "
+				        + num + " testcase \n" + test.toCode(), e);
 				throw (AssertionError) e;
 			}
 			// FIXME: why this "clear()"?
 			// ExecutionTracer.getExecutionTracer().clear();
 
-			logger.error("Suppressed/ignored exception during test case execution on class "+Properties.TARGET_CLASS+": " + e.getMessage(), e);
+			logger.error("Suppressed/ignored exception during test case execution on class "
+			                     + Properties.TARGET_CLASS + ": " + e.getMessage(), e);
 		} finally {
 			if (!Properties.PRINT_TO_SYSTEM) {
 				LoggingUtils.restorePreviousOutAndErrStream();
@@ -408,7 +423,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		if (Sandbox.canUseFileContentGeneration()) {
 			try {
 				logger.debug("Enabling file handling");
-				Method m = Sandbox.class.getMethod("generateFileContent", EvosuiteFile.class, String.class);
+				Method m = Sandbox.class.getMethod("generateFileContent",
+				                                   EvosuiteFile.class, String.class);
 				// TODO: Re-insert!
 				// if (!TestCluster.getInstance().test_methods.contains(m))
 				// TestCluster.getInstance().test_methods.add(m);

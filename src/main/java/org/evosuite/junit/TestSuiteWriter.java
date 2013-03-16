@@ -386,8 +386,12 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String getInformation(int num) {
 
-		if (testComment.containsKey(num))
-			return testComment.get(num);
+		if (testComment.containsKey(num)) {
+			String comment = testComment.get(num);
+			if (!comment.endsWith("\n"))
+				comment = comment + "\n";
+			return comment;
+		}
 
 		TestCase test = testCases.get(num);
 		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
@@ -419,7 +423,7 @@ public class TestSuiteWriter implements Opcodes {
 				nr++;
 			}
 
-			builder.append("\n   */");
+			builder.append("\n   */\n");
 		}
 
 		return builder.toString();
