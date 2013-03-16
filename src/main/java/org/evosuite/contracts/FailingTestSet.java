@@ -25,7 +25,6 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.junit.TestSuiteWriter;
-import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
@@ -163,10 +162,6 @@ public class FailingTestSet {
 			ContractViolation violation = violations.get(i);
 			violation.minimizeTest();
 			TestCase test = violation.getTestCase();
-			if (Properties.INLINE) {
-				ConstantInliner inliner = new ConstantInliner();
-				inliner.inline(test);
-			}
 			// TODO: Add comment about contract violation
 			writer.insertTest(test, " Contract violation: "
 			        + violation.getContract().toString());
