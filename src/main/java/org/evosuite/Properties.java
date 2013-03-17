@@ -636,7 +636,7 @@ public class Properties {
 
 	/** Constant <code>ASSERTIONS=false</code> */
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
-	public static boolean ASSERTIONS = false;
+	public static boolean ASSERTIONS = true;
 
 	public enum AssertionStrategy {
 		ALL, MUTATION, UNIT
@@ -709,10 +709,9 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Sandbox
-	//FIXME: once we are happy with the sandbox, we should turn it on by default
 	/** Constant <code>SANDBOX=false</code> */
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
-	public static boolean SANDBOX = false;
+	public static boolean SANDBOX = true;
 
 	public enum SandboxMode {
 		OFF, RECOMMENDED, IO
