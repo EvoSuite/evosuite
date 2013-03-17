@@ -898,10 +898,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
+		// plot.set("size", "1, 0.5");
 		plot.set("xlabel", "\"Generation\"");
 		plot.set("ylabel", "\"" + title + "\"");
-		// plot.set("xrange", "[0:100]");
+		// plot.set("xrange", "[0:]");
 		// plot.set("yrange", "[0:]");
+		plot.set("autoscale", "ymax");
 
 		int[][] data = new int[values.size()][2];
 		for (int i = 0; i < values.size(); i++) {
@@ -932,17 +934,20 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeDoubleChart(List<Double> values, String className, String title) {
+
 		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_"
 		        + title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
+		//plot.set("size", "1, 0.8");
 
 		plot.set("xlabel", "\"Generation\"");
 		plot.set("ylabel", "\"" + title + "\"");
-		// plot.set("xrange", "[0:100]");
+		// plot.set("xrange", "[0:]");
 		// plot.set("yrange", "[0:]");
+		plot.set("autoscale", "ymax");
 
 		double[][] data = new double[values.size()][2];
 		for (int i = 0; i < values.size(); i++) {
@@ -1388,7 +1393,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		for (StatisticEntry entry : statistics) {
 			buffer.append("<tr>");
-			buffer.append("<td>" + entry.id + "</td>");
+			// buffer.append("<td>" + entry.id + "</td>");
 			buffer.append("<td>");
 			buffer.append(sdf.format(new Date(entry.start_time)));
 			buffer.append("</td>");
@@ -1405,13 +1410,15 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			buffer.append(filename);
 			buffer.append("\">");
 			buffer.append(entry.className);
-			buffer.append("</a></td>");
-			buffer.append("<td><a href=\"");
-			buffer.append(entry.getCSVFileName());
-			buffer.append("\">CSV</a></td>");
+			// buffer.append("</a></td>");
+			// buffer.append("<td><a href=\"");
+			// buffer.append(entry.getCSVFileName());
+			// buffer.append("\">CSV</a></td>");
 			buffer.append("</tr>\n");
 		}
+		//  
 		buffer.append("<!-- EVOSUITE INSERTION POINT -->\n");
+		buffer.append("<tr class=\"top\"><td colspan=\"3\">&nbsp;<td></tr>\n");
 		buffer.append("</table>");
 	}
 
@@ -1505,6 +1512,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		if (statistics.isEmpty())
 			return;
 
+		new File(getReportDir().getAbsolutePath() + "/img").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/html/files/").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/data/").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/files/").mkdirs();
@@ -1554,14 +1562,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			report.append("<div id=\"post\">");
 			report.append("<h2 class=\"title\">Test generation runs:</h2>\n");
 			report.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
-			report.append("<table border=1 cellspacing=0 cellpadding=3>");
-			report.append("<tr>");
-			report.append("<td>Run</td>");
+			report.append("<table cellspacing=0>"); // border=0 cellspacing=0 cellpadding=3>");
+			report.append("<tr class=\"top bottom\">");
+			// report.append("<td>Run</td>");
 			report.append("<td>Date</td>");
 			report.append("<td>Time</td>");
 			report.append("<td>Coverage</td>");
 			report.append("<td>Class</td>");
-			report.append("<td></td>");
+			// report.append("<td></td>");
 			report.append("</tr>\n");
 		}
 		writeRunTable(report);
