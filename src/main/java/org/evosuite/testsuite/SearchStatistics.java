@@ -108,14 +108,22 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		StringBuffer sb = new StringBuffer();
 		writeHTMLHeader(sb, run.className);
 
+		/*
 		sb.append("<div id=\"header\"><div id=\"logo\">");
-		sb.append("<h2>");
+		sb.append("<h2>Target class: ");
 		sb.append(run.className);
 		sb.append(": ");
 		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
 		sb.append("</h2></div></div>\n");
-		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
+		*/
+		sb.append("<p><br><a href=\"../report-generation.html\">Back to Overview</a></p>\n");
+		sb.append("<h2 class=title>Summary</h2>\n");
+		sb.append("<ul><li>Target class: ");
+		sb.append(run.className);
+		sb.append(": ");
+		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
+		sb.append("%</ul>");
 
 		writeResultTable(sb, run);
 		// writeMutationTable(sb);
@@ -304,6 +312,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	public boolean hasCoverage(String criterion) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		return entry.coverageMap.containsKey(criterion);
+	}
+
+	public double getCoverage(String criterion) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		return entry.coverageMap.get(criterion);
 	}
 
 	public void setCoveredGoals(int num) {
