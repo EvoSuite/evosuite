@@ -50,6 +50,7 @@ import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
+import org.evosuite.executionmode.ListParameters;
 import org.evosuite.executionmode.MeasureCoverage;
 import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
@@ -258,6 +259,10 @@ public class EvoSuite {
 				return PrintStats.execute(options, javaOpts, line, cp);
 			} 
 
+			if (line.hasOption(ListParameters.NAME)) {
+				return ListParameters.execute();
+			} 
+
 		
 			return TestGeneration.executeTestGeneration(options, javaOpts, line, cp);
 
@@ -337,7 +342,8 @@ public class EvoSuite {
 		Option measureCoverage = MeasureCoverage.getOption();
 		Option listClasses = ListClasses.getOption();
 		Option printStats = PrintStats.getOption();
-
+		Option listParameters = ListParameters.getOption();
+		
 		Option[] generateOptions = TestGeneration.getOptions();
 				
 		Option targetClass = new Option("class",true, "target class for test generation");
@@ -363,6 +369,7 @@ public class EvoSuite {
 			options.addOption(option);
 		}
 		
+		options.addOption(listParameters);
 		options.addOption(help);
 		options.addOption(extendSuite);
 		options.addOption(measureCoverage);
