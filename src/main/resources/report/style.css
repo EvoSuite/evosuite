@@ -38,11 +38,11 @@ h1, h2, h3 {
 }
 
 h1 {
-	font-size: 2em;
+	font-size: 1.8em;
 }
 
 h2 {
-	font-size: 1.8em;
+	font-size: 1.6em;
 }
 
 h3 {
@@ -403,3 +403,8 @@ a:hover {
 #footer a {
 	color: #5389E0;
 }
+
+tr.top td { border-top: thin solid black; }
+tr.bottom td { border-bottom: thin solid black; }
+tr.row td:first-child { border-left: thin solid black; }
+tr.row td:last-child { border-right: thin solid black; }
