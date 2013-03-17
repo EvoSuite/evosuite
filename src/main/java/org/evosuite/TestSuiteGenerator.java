@@ -111,6 +111,7 @@ import org.evosuite.regression.RegressionTestChromosomeFactory;
 import org.evosuite.regression.RegressionTestSuiteChromosomeFactory;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
+import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.DependencyAnalysis;
@@ -432,7 +433,14 @@ public class TestSuiteGenerator {
 						}
 						// Set<Integer> killed = new HashSet<Integer>();
 						sasserter.addAssertions(test);
-						progressMonitor.updateStatus((100 * numTest++) / tests.size());
+						ClientState state = ClientState.ASSERTION_GENERATION;
+						ClientStateInformation information = new ClientStateInformation(
+						        state);
+						information.setProgress((100 * numTest++) / tests.size());
+						ClientServices.getInstance().getClientNode().changeState(state,
+						                                                         information);
+
+						// progressMonitor.updateStatus((100 * numTest++) / tests.size());
 						// tkilled.addAll(killed);
 					}
 				} else {
@@ -483,7 +491,13 @@ public class TestSuiteGenerator {
 			Set<Integer> tkilled = new HashSet<Integer>();
 			int num = 0;
 			for (TestCase test : tests) {
-				progressMonitor.updateStatus((100 * num++) / tests.size());
+				ClientState state = ClientState.ASSERTION_GENERATION;
+				ClientStateInformation information = new ClientStateInformation(state);
+				information.setProgress((100 * num++) / tests.size());
+				ClientServices.getInstance().getClientNode().changeState(state,
+				                                                         information);
+
+				// progressMonitor.updateStatus((100 * num++) / tests.size());
 
 				// Set<Integer> killed = new HashSet<Integer>();
 				asserter.addAssertions(test, tkilled);
