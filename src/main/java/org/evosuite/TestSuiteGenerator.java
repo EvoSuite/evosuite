@@ -455,7 +455,14 @@ public class TestSuiteGenerator {
 						}
 						// Set<Integer> killed = new HashSet<Integer>();
 						masserter.addAssertions(test, tkilled);
-						progressMonitor.updateStatus((100 * numTest++) / tests.size());
+						//progressMonitor.updateStatus((100 * numTest++) / tests.size());
+						ClientState state = ClientState.ASSERTION_GENERATION;
+						ClientStateInformation information = new ClientStateInformation(
+						        state);
+						information.setProgress((100 * numTest++) / tests.size());
+						ClientServices.getInstance().getClientNode().changeState(state,
+						                                                         information);
+
 						// tkilled.addAll(killed);
 					}
 					Properties.CRITERION = oldCriterion;
