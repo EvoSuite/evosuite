@@ -828,10 +828,18 @@ class MSecurityManager extends SecurityManager {
 		}
 
 		/*
-		 * For the moment, we don't allow it. but we might once we address Networking
+		 * This is tricky.
+		 * This permission is called only by static methods in Socket/URL classes,
+		 * and the factory can be set only once.
+		 * So, if EvoSuite already set a factory, then the SUT cannot change it.
+		 * On the other hand, if the SUT set a factory, it will have potential
+		 * impact on EvoSuite code (eg, if EvoSuite will use new Socket/URLs after
+		 * test case execution). But such impact would only be inside the JVM,
+		 * so not a major problem.
+		 * In summary, as it seems pretty common, we do allow it for the time being.
 		 */
 		if (name.equals("setFactory")) {
-			return false;
+			return true;
 		}
 
 		/*
