@@ -404,6 +404,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
 			logger.info("Last statement has no assertions: " + test.toCode());
+			logger.info("Assertions to choose from: " + assertions.size());
 
 			if (test.getStatement(test.size() - 1).getAssertions().isEmpty()) {
 				logger.debug("Last statement: "
@@ -427,7 +428,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 			if (!haveAssertion) {
+				logger.info("Could not find a primitive assertion, continuing search");
+
 				for (Assertion assertion : assertions) {
+					if (assertion instanceof NullAssertion)
+						continue;
+
 					if (assertion.getStatement().equals(test.getStatement(test.size() - 1))) {
 						logger.info("Adding an assertion: " + assertion);
 						test.getStatement(test.size() - 1).addAssertion(assertion);
@@ -437,7 +443,9 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				}
 			}
 
-			if (!test.hasAssertions()) {
+			//if (!test.hasAssertions()) {
+			if (!haveAssertion) {
+				logger.info("After second round we still have no assertion");
 				Method inspectorMethod = null;
 				if (test.getStatement(test.size() - 1) instanceof MethodStatement) {
 					MethodStatement methodStatement = (MethodStatement) test.getStatement(test.size() - 1);
@@ -516,7 +524,10 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					}
 
 				}
+				logger.info("1. Done with assertions");
+
 			}
+			logger.info("2. Done with assertions");
 		}
 
 		if (!origResult.noThrownExceptions()) {
