@@ -500,6 +500,9 @@ public class ReplaceVariable implements MutationOperator {
 			                               ReplaceVariable.class.getClassLoader());
 
 			for (Field field : TestClusterGenerator.getFields(clazz)) {
+				if (!TestClusterGenerator.canUse(field))
+					continue;
+
 				Type type = Type.getType(field.getType());
 				logger.info("Checking replacement field variable " + field.getName());
 

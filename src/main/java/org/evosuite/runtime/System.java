@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -20,9 +20,12 @@
  */
 package org.evosuite.runtime;
 
+
 /**
- * <p>System class.</p>
- *
+ * <p>
+ * System class.
+ * </p>
+ * 
  * @author fraser
  */
 public class System {
@@ -30,28 +33,34 @@ public class System {
 	private static boolean wasAccessed = false;
 
 	/**
-	 * <p >This exception tells the test execution that it should stop at this point </p>
+	 * <p >
+	 * This exception tells the test execution that it should stop at this point
+	 * </p>
 	 * 
-	 * <p>Note that it extends {@code Error}, as we need something that is unchecked </p>
+	 * <p>
+	 * Note that it extends {@code Error}, as we need something that is
+	 * unchecked
+	 * </p>
 	 */
 	public static class SystemExitException extends Error {
 
 		private static final long serialVersionUID = 1L;
-	
+
 	}
 
 	/**
 	 * Replacement function for System.exit
-	 *
-	 * @param status a int.
+	 * 
+	 * @param status
+	 *            a int.
 	 */
 	public static void exit(int status) {
 		wasAccessed = true;
-		
+
 		/*
 		 * TODO: Here we could handle the calls to the JVM shutdown hooks, if any is present
 		 */
-		
+
 		throw new SystemExitException();
 	}
 
@@ -60,18 +69,19 @@ public class System {
 
 	/**
 	 * Replacement function for System.currentTimeMillis
-	 *
+	 * 
 	 * @return a long.
 	 */
 	public static long currentTimeMillis() {
 		wasAccessed = true;
-		return currentTime++;
+		return currentTime; //++;
 	}
 
 	/**
 	 * Allow setting the time
-	 *
-	 * @param time a long.
+	 * 
+	 * @param time
+	 *            a long.
 	 */
 	public static void setCurrentTimeMillis(long time) {
 		currentTime = time;
@@ -88,7 +98,7 @@ public class System {
 	/**
 	 * Getter to check whether this runtime replacement was accessed during test
 	 * execution
-	 *
+	 * 
 	 * @return a boolean.
 	 */
 	public static boolean wasAccessed() {

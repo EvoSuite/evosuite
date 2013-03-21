@@ -268,10 +268,10 @@ public class TestClusterGenerator {
 			Pair dependency = iterator.next();
 			iterator.remove();
 
-			if(analyzedClasses.contains(dependency.getDependencyClass())) {
+			if (analyzedClasses.contains(dependency.getDependencyClass())) {
 				continue;
 			}
-			
+
 			String className = dependency.getDependencyClass().getClassName();
 			if (blackList.contains(className)) {
 				continue;
@@ -326,10 +326,9 @@ public class TestClusterGenerator {
 		if (Modifier.isAbstract(targetClass.getModifiers())) {
 			logger.info("SUT is an abstract class");
 			Set<Class<?>> subclasses = getConcreteClasses(targetClass);
-			logger.info("Found "+subclasses.size()+" concrete subclasses");
+			logger.info("Found " + subclasses.size() + " concrete subclasses");
 			targetClasses.addAll(subclasses);
 		}
-
 
 		// To make sure we also have anonymous inner classes double check inner classes using ASM
 		ClassNode targetClassNode = DependencyAnalysis.getClassNode(Properties.TARGET_CLASS);
@@ -601,7 +600,7 @@ public class TestClusterGenerator {
 		return false;
 	}
 
-	private static boolean canUse(Field f) {
+	public static boolean canUse(Field f) {
 
 		// TODO we could enable some methods from Object, like getClass
 		if (f.getDeclaringClass().equals(java.lang.Object.class))
@@ -624,8 +623,8 @@ public class TestClusterGenerator {
 			logger.debug("Skipping AspectJ field " + f.getName());
 			return false;
 		}
-		
-		if(!f.getType().equals(String.class) && !canUse(f.getType())) {
+
+		if (!f.getType().equals(String.class) && !canUse(f.getType())) {
 			return false;
 		}
 
@@ -660,11 +659,10 @@ public class TestClusterGenerator {
 		if (m.getDeclaringClass().equals(java.lang.Object.class)) {
 			return false;
 		}
-		
-		if(!m.getReturnType().equals(String.class) && !canUse(m.getReturnType())) {
+
+		if (!m.getReturnType().equals(String.class) && !canUse(m.getReturnType())) {
 			return false;
 		}
-
 
 		if (m.getDeclaringClass().isEnum()) {
 			if (m.getName().equals("valueOf") || m.getName().equals("values")
@@ -754,8 +752,8 @@ public class TestClusterGenerator {
 	private static Set<GenericClass> analyzedClasses = new LinkedHashSet<GenericClass>();
 
 	private static class Pair {
-		private int recursion;
-		private GenericClass dependencyClass;
+		private final int recursion;
+		private final GenericClass dependencyClass;
 
 		public Pair(int recursion, java.lang.reflect.Type dependencyClass) {
 			this.recursion = recursion;
@@ -853,20 +851,20 @@ public class TestClusterGenerator {
 
 		if (clazz.isString())
 			return;
-		
+
 		if (clazz.isArray()) {
 			addDependency(new GenericClass(clazz.getComponentType()), recursionLevel);
 			return;
 		}
 
-		if(!canUse(clazz.getRawClass()))
+		if (!canUse(clazz.getRawClass()))
 			return;
 
 		if (!checkIfCanUse(clazz.getClassName()))
 			return;
-		
-		for(Pair pair : dependencies) {
-			if(pair.getDependencyClass().equals(clazz)) {
+
+		for (Pair pair : dependencies) {
+			if (pair.getDependencyClass().equals(clazz)) {
 				return;
 			}
 		}
@@ -886,7 +884,7 @@ public class TestClusterGenerator {
 			             clazz.getClassName());
 			return false;
 		}
-		if(analyzedClasses.contains(clazz)) {
+		if (analyzedClasses.contains(clazz)) {
 			return true;
 		}
 
@@ -1026,6 +1024,8 @@ public class TestClusterGenerator {
 						} catch (ClassNotFoundException e) {
 							logger.error("Problem for " + Properties.TARGET_CLASS
 							        + ". Class not found: " + subClass, e);
+							logger.error("Removing class from inheritance tree");
+							inheritanceTree.removeClass(subClass);
 						}
 					}
 				}
