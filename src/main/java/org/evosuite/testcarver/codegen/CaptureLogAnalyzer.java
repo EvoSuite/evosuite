@@ -94,8 +94,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					}
 				}
 
-				System.err.println("EXCHANGE: " + origClass + " with " + destClass );
-				System.err.println("NEW ARGS: " + Arrays.toString(observedClasses));
 				generator.clear();
 				this.analyze(originalLog, generator, blackList, observedClasses);
 			}
