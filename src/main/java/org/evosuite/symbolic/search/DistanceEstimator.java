@@ -95,9 +95,6 @@ public abstract class DistanceEstimator {
 			return Math.abs(result);
 			
 		} catch (Exception e) {
-			// log.warn(e.toString());
-			// System.err.println(e.getClass().getName());
-			// e.printStackTrace();
 			return Double.MAX_VALUE;
 		}
 	}
