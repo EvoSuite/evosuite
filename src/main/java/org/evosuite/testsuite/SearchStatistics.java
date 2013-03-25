@@ -108,14 +108,21 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		StringBuffer sb = new StringBuffer();
 		writeHTMLHeader(sb, run.className);
 
+		/*
 		sb.append("<div id=\"header\"><div id=\"logo\">");
-		sb.append("<h2>");
+		sb.append("<h2>Target class: ");
 		sb.append(run.className);
 		sb.append(": ");
 		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
 		sb.append("%");
 		sb.append("</h2></div></div>\n");
-		sb.append("<p><a href=\"../report-generation.html\">Overview</a></p>\n");
+		*/
+		sb.append("<br><br><h2 class=title>Summary</h2>\n");
+		sb.append("<ul><li>Target class: ");
+		sb.append(run.className);
+		sb.append(": ");
+		sb.append(String.format("%.2f", 100.0 * run.covered_goals / run.total_goals));
+		sb.append("%</ul>");
 
 		writeResultTable(sb, run);
 		// writeMutationTable(sb);
@@ -183,49 +190,52 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		// Chart of fitness
 		if (Properties.PLOT) {
+			sb.append("<h2 class=title id=tests>Statistics</h2>\n<div class=tests>\n");
+
 			if (run.fitness_history.isEmpty()) {
-				sb.append("<h2>No fitness history</h2>\n");
+				sb.append("<h3>No fitness history</h3>\n");
 			} else {
 				String filename = writeDoubleChart(run.fitness_history, run.className
 				        + "-" + run.id, "Fitness");
-				sb.append("<h2>Fitness</h2>\n");
+				sb.append("<h3>Fitness</h3>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
 				sb.append(filename);
-				sb.append("\">");
+				sb.append("\" height=\"250\">");
 				sb.append("</p>\n");
 			}
 
 			// Chart of size
 			if (run.size_history.isEmpty()) {
-				sb.append("<h2>No size history</h2>\n");
+				sb.append("<h3>No size history</h3>\n");
 			} else {
 				String filename = writeIntegerChart(run.size_history, run.className + "-"
 				        + run.id, "Size");
-				sb.append("<h2>Size</h2>\n");
+				sb.append("<h3>Size</h3>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
 				sb.append(filename);
-				sb.append("\">");
+				sb.append("\" height=\"250\">");
 				sb.append("</p>\n");
 			}
 
 			// Chart of length
 			if (run.length_history.isEmpty()) {
-				sb.append("<h2>No length history</h2>\n");
+				sb.append("<h3>No length history</h3>\n");
 			} else {
 				String filename = writeIntegerChart(run.length_history, run.className
 				        + "-" + run.id, "Length");
-				sb.append("<h2>Length</h2>\n");
+				sb.append("<h3>Length</h3>\n");
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
 				sb.append(filename);
-				sb.append("\">");
+				sb.append("\" height=\"250\">");
 				sb.append("</p>\n");
 			}
 
-			// Chart of average length
-			if (run.average_length_history.isEmpty()) {
+			// Chart of average number of tests
+			/*
+			if (run.size_history.isEmpty()) {
 				sb.append("<h2>No average length history</h2>\n");
 			} else {
 				String filename = writeDoubleChart(run.average_length_history,
@@ -234,9 +244,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 				sb.append("<p>");
 				sb.append("<img src=\"../img/");
 				sb.append(filename);
-				sb.append("\">");
+				sb.append("\" height=\"200\">");
 				sb.append("</p>\n");
 			}
+			*/
+			sb.append("</div>");
 		}
 		sb.append("</div>");
 		sb.append("<div id=\"post\">");
@@ -273,6 +285,7 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		writeParameterTable(sb, run);
 		sb.append("</div>");
+		sb.append("<p><br><a href=\"../report-generation.html\">Back to Overview</a></p>\n");
 
 		writeHTMLFooter(sb);
 
@@ -304,6 +317,11 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 	public boolean hasCoverage(String criterion) {
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
 		return entry.coverageMap.containsKey(criterion);
+	}
+
+	public double getCoverage(String criterion) {
+		StatisticEntry entry = statistics.get(statistics.size() - 1);
+		return entry.coverageMap.get(criterion);
 	}
 
 	public void setCoveredGoals(int num) {

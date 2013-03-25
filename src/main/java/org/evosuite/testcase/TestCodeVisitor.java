@@ -281,16 +281,19 @@ public class TestCodeVisitor extends TestVisitor {
 			// if (otherVar.getVariableClass().equals(var.getVariableClass()))
 			// num++;
 			// }
-
 			String variableName = className.substring(0, 1).toLowerCase()
 			        + className.substring(1);
-			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
-				variableName += "_";
-
 			if (variableName.contains("[]")) {
 				variableName = variableName.replace("[]", "Array");
 			}
 			variableName = variableName.replace(".", "_");
+
+			// Need a way to check for exact types, not assignable
+			// int numObjectsOfType = test != null ? test.getObjects(var.getType(),
+			//                                                      test.size()).size() : 2;
+			// if (numObjectsOfType > 1 || className.equals(variableName)) {
+			if (CharUtils.isAsciiNumeric(variableName.charAt(variableName.length() - 1)))
+				variableName += "_";
 
 			if (!nextIndices.containsKey(variableName)) {
 				nextIndices.put(variableName, 0);
@@ -300,6 +303,7 @@ public class TestCodeVisitor extends TestVisitor {
 			nextIndices.put(variableName, index + 1);
 
 			variableName += index;
+			// }
 
 			variableNames.put(var, variableName);
 		}
@@ -807,7 +811,7 @@ public class TestCodeVisitor extends TestVisitor {
 			Type declaredParamType = method.getGenericParameterTypes()[i];
 			Type actualParamType = parameters.get(i).getType();
 			String name = getVariableName(parameters.get(i));
-			if(!GenericClass.isAssignable(declaredParamType, actualParamType)
+			if (!GenericClass.isAssignable(declaredParamType, actualParamType)
 			        || name.equals("null")) {
 				//if((!method.getParameterTypes()[i].equals(Object.class)
 				//        && !method.getParameterTypes()[i].equals(Comparable.class)) ||

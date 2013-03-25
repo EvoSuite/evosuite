@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.net.URL;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -112,22 +113,98 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		/** The class under test */
 		Class,
 		/** Number of predicates */
-		Predicates, Total_Branches, Covered_Branches, Total_Methods, Branchless_Methods, Covered_Methods, Covered_Branchless_Methods, Total_Goals, Covered_Goals, Statements_Executed,
+		Predicates,
+		Total_Branches,
+		Covered_Branches,
+		Total_Methods,
+		Branchless_Methods,
+		Covered_Methods,
+		Covered_Branchless_Methods,
+		Total_Goals,
+		Covered_Goals,
+		Statements_Executed,
 		/** Obtained coverage of the chosen testing criterion */
 		Coverage,
 		/**
-		 * Obtained coverage at different points in time 
+		 * Obtained coverage at different points in time
 		 */
 		CoverageTimeline,
 		/**
 		 * Not only the covered branches ratio, but also including the
 		 * branchless methods
 		 */
-		BranchCoverage, DefUseCoverage, WeakMutationScore, Creation_Time, Minimization_Time, Total_Time, Test_Execution_Time, Goal_Computation_Time, Result_Size, Result_Length, Minimized_Size, Minimized_Length, Chromosome_Length, Population_Size, Random_Seed, Budget, AllPermission, SecurityPermission, UnresolvedPermission, AWTPermission, FilePermission, SerializablePermission, ReflectPermission, RuntimePermission, NetPermission, SocketPermission, SQLPermission, PropertyPermission, LoggingPermission, SSLPermission, AuthPermission, AudioPermission, OtherPermission, Threads, JUnitTests, Branches, MutationScore, Explicit_MethodExceptions, Explicit_TypeExceptions, Implicit_MethodExceptions, Implicit_TypeExceptions, Error_Predicates, Error_Branches_Covered, Error_Branchless_Methods, Error_Branchless_Methods_Covered, AssertionContract, EqualsContract, EqualsHashcodeContract, EqualsNullContract, EqualsSymmetricContract, HashCodeReturnsNormallyContract, JCrasherExceptionContract, NullPointerExceptionContract, ToStringReturnsNormallyContract, UndeclaredExceptionContract, Contract_Violations, Unique_Violations, Data_File,
+		BranchCoverage,
+		DefUseCoverage,
+		WeakMutationScore,
+		Creation_Time,
+		Minimization_Time,
+		Total_Time,
+		Test_Execution_Time,
+		Goal_Computation_Time,
+		Result_Size,
+		Result_Length,
+		Minimized_Size,
+		Minimized_Length,
+		Chromosome_Length,
+		Population_Size,
+		Random_Seed,
+		Budget,
+		AllPermission,
+		SecurityPermission,
+		UnresolvedPermission,
+		AWTPermission,
+		FilePermission,
+		SerializablePermission,
+		ReflectPermission,
+		RuntimePermission,
+		NetPermission,
+		SocketPermission,
+		SQLPermission,
+		PropertyPermission,
+		LoggingPermission,
+		SSLPermission,
+		AuthPermission,
+		AudioPermission,
+		OtherPermission,
+		Threads,
+		JUnitTests,
+		Branches,
+		MutationScore,
+		Explicit_MethodExceptions,
+		Explicit_TypeExceptions,
+		Implicit_MethodExceptions,
+		Implicit_TypeExceptions,
+		Error_Predicates,
+		Error_Branches_Covered,
+		Error_Branchless_Methods,
+		Error_Branchless_Methods_Covered,
+		AssertionContract,
+		EqualsContract,
+		EqualsHashcodeContract,
+		EqualsNullContract,
+		EqualsSymmetricContract,
+		HashCodeReturnsNormallyContract,
+		JCrasherExceptionContract,
+		NullPointerExceptionContract,
+		ToStringReturnsNormallyContract,
+		UndeclaredExceptionContract,
+		Contract_Violations,
+		Unique_Violations,
+		Data_File,
 		/**
 		 * Dataflow stuff
 		 */
-		Definitions, Uses, DefUsePairs, IntraMethodPairs, InterMethodPairs, IntraClassPairs, ParameterPairs, CoveredIntraMethodPairs, CoveredInterMethodPairs, CoveredIntraClassPairs, CoveredParameterPairs
+		Definitions,
+		Uses,
+		DefUsePairs,
+		IntraMethodPairs,
+		InterMethodPairs,
+		IntraClassPairs,
+		ParameterPairs,
+		CoveredIntraMethodPairs,
+		CoveredInterMethodPairs,
+		CoveredIntraClassPairs,
+		CoveredParameterPairs
 	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
@@ -285,21 +362,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		public Map<String, Set<Class<?>>> explicitExceptions;
 
 		//--------------------------------------------------
-		
-		
-		private String[] getTimelineHeaderSuffixes(){
+
+		private String[] getTimelineHeaderSuffixes() {
 			int numberOfIntervals = calculateNumberOfIntervals();
-			String[] suffixes = new String[numberOfIntervals]; 
-			for(int i=0; i<suffixes.length; i++){
+			String[] suffixes = new String[numberOfIntervals];
+			for (int i = 0; i < suffixes.length; i++) {
 				/*
 				 * NOTE: we start from T1 and not T0 because, by definition, coverage
 				 * at T0 is equal to T0, and no point in showing it in a graph
 				 */
-				suffixes[i] = "_T"+(i+1);
+				suffixes[i] = "_T" + (i + 1);
 			}
 			return suffixes;
 		}
-
 
 		private int calculateNumberOfIntervals() {
 			long interval = Properties.TIMELINE_INTERVAL;
@@ -313,12 +388,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			 * have finished earlier, eg if 100% coverage
 			 */
 			long totalTime = Properties.GLOBAL_TIMEOUT * 1000l;
-			
+
 			int numberOfIntervals = (int) (totalTime / interval);
 			return numberOfIntervals;
 		}
-		
-		
+
 		/**
 		 * Return array of variables to dump in CSV files, based on what defined
 		 * in {@code Properties.OUTPUT_VARIABLES}
@@ -332,7 +406,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			for (RuntimeVariable var : RuntimeVariable.values()) {
 				runtimeList.add(var.toString());
 			}
-			
+
 			//no choice define, just dump all runtime variables
 			if (property == null) {
 				handleTimelineVariableHeaders(runtimeList);
@@ -363,20 +437,19 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			}
 
 			handleTimelineVariableHeaders(usedList);
-			String[] usedArray = usedList.toArray(new String[usedList.size()]);			
+			String[] usedArray = usedList.toArray(new String[usedList.size()]);
 			return usedArray;
 		}
-
 
 		private void handleTimelineVariableHeaders(List<String> usedList) {
 			/*
 			 * now, handle timeline variables. For now, it is just coverage
 			 */
 			String covTimeline = RuntimeVariable.CoverageTimeline.toString();
-			if(usedList.contains(covTimeline)){
+			if (usedList.contains(covTimeline)) {
 				usedList.remove(covTimeline);
-				for(String suf : getTimelineHeaderSuffixes()){
-					usedList.add(covTimeline+suf);
+				for (String suf : getTimelineHeaderSuffixes()) {
+					usedList.add(covTimeline + suf);
 				}
 			}
 		}
@@ -404,11 +477,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 					                + e.getMessage());
 				}
 			}
-			
-			if(isTimelineVariable(name)){
+
+			if (isTimelineVariable(name)) {
 				return timeLineValue(name);
 			}
-			
+
 			//check if it is a runtime property of the search, e.g. coverage
 			RuntimeVariable var = null;
 			try {
@@ -423,74 +496,74 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		}
 
 		private String timeLineValue(String name) {
-			
+
 			long interval = Properties.TIMELINE_INTERVAL;
-			
-			int index = Integer.parseInt( (name.split("_T"))[1] );
+
+			int index = Integer.parseInt((name.split("_T"))[1]);
 			long preferredTime = interval * index;
-			
+
 			assert this.timeStamps.size() == this.coverage_history.size();
 
 			/*
 			 * No data. Is it even possible? Maybe if population is too large,
 			 * and budget was not enough to get even first generation
 			 */
-			if(timeStamps.size() == 0){
+			if (timeStamps.size() == 0) {
 				return "" + 0;
 			}
-			
-			for(int i=0; i<timeStamps.size(); i++){
+
+			for (int i = 0; i < timeStamps.size(); i++) {
 				/*
 				 * find the first stamp that is after the time we would like to
 				 * get coverage from
 				 */
 				long stamp = timeStamps.get(i);
-				if(stamp < preferredTime){
+				if (stamp < preferredTime) {
 					continue;
 				}
-				
-				if(i==0){
+
+				if (i == 0) {
 					/*
 					 * it is the first element, so not much to do, we just use it as value
 					 */
 					return "" + coverage_history.get(i);
 				}
-				
+
 				/*
 				 * Now we interpolate the coverage, as usually we don't have the value for exact time we want
 				 */
-				long timeDelta = timeStamps.get(i) - timeStamps.get(i-1);
-				
-				if(timeDelta > 0 ){
-					double covDelta = coverage_history.get(i) - coverage_history.get(i-1);
+				long timeDelta = timeStamps.get(i) - timeStamps.get(i - 1);
+
+				if (timeDelta > 0) {
+					double covDelta = coverage_history.get(i)
+					        - coverage_history.get(i - 1);
 					double ratio = covDelta / timeDelta;
-					
-					long diff = preferredTime - timeStamps.get(i-1);
-					double cov = coverage_history.get(i-1) +  (diff * ratio);
+
+					long diff = preferredTime - timeStamps.get(i - 1);
+					double cov = coverage_history.get(i - 1) + (diff * ratio);
 					return "" + cov;
 				}
 			}
-			
+
 			/*
 			 * No time stamp was higher. This might happen if coverage is 100% and we stop search.
 			 * So just return last value seen
 			 */
-			
-			return "" + coverage_history.get(coverage_history.size()-1);
+
+			return "" + coverage_history.get(coverage_history.size() - 1);
 		}
 
-
-		private boolean isTimelineVariable(String name){
-			if(name==null || name.isEmpty()){
+		private boolean isTimelineVariable(String name) {
+			if (name == null || name.isEmpty()) {
 				return false;
 			}
-			if(name.startsWith(RuntimeVariable.CoverageTimeline.toString())){
+			if (name.startsWith(RuntimeVariable.CoverageTimeline.toString())) {
 				return true;
 			} else {
 				return false;
 			}
 		}
-		
+
 		public String getCSVHeader() {
 			StringBuilder r = new StringBuilder();
 
@@ -571,12 +644,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				}
 				return "" + cov;
 			case DefUseCoverage:
-				if(coverageMap.containsKey("DEFUSE"))
+				if (coverageMap.containsKey("DEFUSE"))
 					return "" + coverageMap.get("DEFUSE");
 				else
 					return "";
 			case WeakMutationScore:
-				if(coverageMap.containsKey("WEAKMUTATION"))
+				if (coverageMap.containsKey("WEAKMUTATION"))
 					return "" + coverageMap.get("WEAKMUTATION");
 				else
 					return "";
@@ -703,37 +776,44 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case Statements_Executed:
 				return "" + result_statements_executed;
 			case Definitions:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUsePool.getDefCounter();
 				else
 					return "";
 			case Uses:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUsePool.getUseCounter();
 				else
 					return "";
 			case DefUsePairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getDUGoals().size();
 				else
 					return "";
 			case IntraMethodPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
 				else
 					return "";
 			case InterMethodPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
 				else
 					return "";
 			case IntraClassPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
 				else
 					return "";
 			case ParameterPairs:
-				if(Properties.CRITERION == Properties.Criterion.DEFUSE || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
 					return "" + DefUseCoverageFactory.getParamGoalsCount();
 				else
 					return "";
@@ -818,10 +898,12 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
 
+		// plot.set("size", "1, 0.5");
 		plot.set("xlabel", "\"Generation\"");
 		plot.set("ylabel", "\"" + title + "\"");
-		// plot.set("xrange", "[0:100]");
+		// plot.set("xrange", "[0:]");
 		// plot.set("yrange", "[0:]");
+		plot.set("autoscale", "ymax");
 
 		int[][] data = new int[values.size()][2];
 		for (int i = 0; i < values.size(); i++) {
@@ -852,17 +934,20 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String writeDoubleChart(List<Double> values, String className, String title) {
+
 		File file = new File(getReportDir().getAbsolutePath() + "/img/statistics_"
 		        + title + "_" + className + ".png");
 		JavaPlot plot = new JavaPlot();
 		GNUPlotTerminal terminal = new FileTerminal("png", getReportDir()
 		        + "/img/statistics_" + title + "_" + className + ".png");
 		plot.setTerminal(terminal);
+		//plot.set("size", "1, 0.8");
 
 		plot.set("xlabel", "\"Generation\"");
 		plot.set("ylabel", "\"" + title + "\"");
-		// plot.set("xrange", "[0:100]");
+		// plot.set("xrange", "[0:]");
 		// plot.set("yrange", "[0:]");
+		plot.set("autoscale", "ymax");
 
 		double[][] data = new double[values.size()][2];
 		for (int i = 0; i < values.size(); i++) {
@@ -915,6 +1000,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		buffer.append("</head>\n");
 		buffer.append("<body onload=\"prettyPrint()\">\n");
 		buffer.append("<div id=\"wrapper\">\n");
+		buffer.append("<img src=\"files/evosuite.png\" height=\"40\"/>\n");
 	}
 
 	/**
@@ -1290,11 +1376,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		        + (2 * entry.total_branches) + " branches, ");
 		buffer.append(entry.covered_methods + "/" + entry.total_methods + " methods, ");
 		buffer.append(entry.covered_goals + "/" + entry.total_goals + " total goals\n");
-
-		// buffer.append("<li>Elite: "+System.getProperty("GA.elite")+"\n");
-		// buffer.append("<li>Mutation rate: "+System.getProperty("GA.mutation_rate")+"\n");
-		// buffer.append("<li>Crossover: "+System.getProperty("GA.crossover_rate")+"\n");
-		// buffer.append("<li>Kin Compensation: "+System.getProperty("GA.kincompensation")+"\n");
+		buffer.append("<li>Mutation score: "
+		        + NumberFormat.getPercentInstance().format(entry.mutationScore) + "\n");
 
 		buffer.append("</ul>\n");
 	}
@@ -1310,7 +1393,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		for (StatisticEntry entry : statistics) {
 			buffer.append("<tr>");
-			buffer.append("<td>" + entry.id + "</td>");
+			// buffer.append("<td>" + entry.id + "</td>");
 			buffer.append("<td>");
 			buffer.append(sdf.format(new Date(entry.start_time)));
 			buffer.append("</td>");
@@ -1327,13 +1410,15 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			buffer.append(filename);
 			buffer.append("\">");
 			buffer.append(entry.className);
-			buffer.append("</a></td>");
-			buffer.append("<td><a href=\"");
-			buffer.append(entry.getCSVFileName());
-			buffer.append("\">CSV</a></td>");
+			// buffer.append("</a></td>");
+			// buffer.append("<td><a href=\"");
+			// buffer.append(entry.getCSVFileName());
+			// buffer.append("\">CSV</a></td>");
 			buffer.append("</tr>\n");
 		}
+		//  
 		buffer.append("<!-- EVOSUITE INSERTION POINT -->\n");
+		buffer.append("<tr class=\"top\"><td colspan=\"3\">&nbsp;<td></tr>\n");
 		buffer.append("</table>");
 	}
 
@@ -1427,6 +1512,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		if (statistics.isEmpty())
 			return;
 
+		new File(getReportDir().getAbsolutePath() + "/img").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/html/files/").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/data/").mkdirs();
 		new File(getReportDir().getAbsolutePath() + "/files/").mkdirs();
@@ -1443,6 +1529,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		copyFile("img02.jpg");
 		copyFile("img03.jpg");
 		copyFile("img04.png");
+		copyFile("evosuite.png");
 		File file = new File(getReportDir(), "report-generation.html");
 		StringBuffer report = new StringBuffer();
 
@@ -1458,9 +1545,13 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 			writeHTMLHeader(report, Properties.PROJECT_PREFIX);
 			report.append("<div id=\"header\"><div id=\"logo\">");
-			report.append("<h1 class=title>EvoSuite: " + Properties.PROJECT_PREFIX
-			        + "</h1>\n");
-			report.append("</div></div>");
+			/*
+			if (!Properties.PROJECT_PREFIX.isEmpty()) {
+				report.append("<h1 class=title>EvoSuite: " + Properties.PROJECT_PREFIX
+				        + "</h1>\n");
+			}
+			*/
+			report.append("</div><br></div>");
 			try {
 				report.append("Run on "
 				        + java.net.InetAddress.getLocalHost().getHostName() + "\n");
@@ -1471,14 +1562,14 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			report.append("<div id=\"post\">");
 			report.append("<h2 class=\"title\">Test generation runs:</h2>\n");
 			report.append("<div style=\"clear: both;\">&nbsp;</div><div class=\"entry\">");
-			report.append("<table border=1 cellspacing=0 cellpadding=3>");
-			report.append("<tr>");
-			report.append("<td>Run</td>");
+			report.append("<table cellspacing=0>"); // border=0 cellspacing=0 cellpadding=3>");
+			report.append("<tr class=\"top bottom\">");
+			// report.append("<td>Run</td>");
 			report.append("<td>Date</td>");
 			report.append("<td>Time</td>");
 			report.append("<td>Coverage</td>");
 			report.append("<td>Class</td>");
-			report.append("<td></td>");
+			// report.append("<td></td>");
 			report.append("</tr>\n");
 		}
 		writeRunTable(report);

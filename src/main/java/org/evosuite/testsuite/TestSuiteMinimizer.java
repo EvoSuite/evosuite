@@ -254,6 +254,12 @@ public class TestSuiteMinimizer {
 		else
 			suite.setCoverage((double) numCovered / (double) numGoals);
 
+		ClientState state = ClientState.MINIMIZATION;
+		ClientStateInformation information = new ClientStateInformation(state);
+		information.setProgress(100);
+		information.setCoverage((int) (Math.round(suite.getCoverage() * 100)));
+		ClientServices.getInstance().getClientNode().changeState(state, information);
+
 		SearchStatistics.getInstance().setCoveredGoals(numCovered);
 
 		for (TestFitnessFunction goal : goals) {

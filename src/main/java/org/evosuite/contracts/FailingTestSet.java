@@ -124,25 +124,48 @@ public class FailingTestSet {
 		return violations.size();
 	}
 
+	public static List<TestCase> getFailingTests() {
+		List<TestCase> tests = new ArrayList<TestCase>();
+		ContractChecker.setActive(false);
+		TestCaseExecutor.getInstance().newObservers();
+
+		for (int i = 0; i < violations.size(); i++) {
+			logger.debug("Writing test {}/{}", i, violations.size());
+			ContractViolation violation = violations.get(i);
+			violation.minimizeTest();
+			tests.add(violation.getTestCase());
+		}
+		return tests;
+	}
+
 	/**
 	 * Output the failing tests in a JUnit test suite
 	 */
 	public static void writeJUnitTestSuite() {
 		logger.info("Writing {} failing tests", violations.size());
 		TestSuiteWriter writer = new TestSuiteWriter();
+		writeJUnitTestSuite(writer);
+		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
+		String testDir = Properties.TEST_DIR;
+		writer.writeTestSuite("Failures" + name, testDir);
+	}
+
+	/**
+	 * Output the failing tests in a JUnit test suite
+	 */
+	public static void writeJUnitTestSuite(TestSuiteWriter writer) {
+		logger.info("Writing {} failing tests", violations.size());
 		ContractChecker.setActive(false);
 		TestCaseExecutor.getInstance().newObservers();
 		for (int i = 0; i < violations.size(); i++) {
 			logger.debug("Writing test {}/{}", i, violations.size());
 			ContractViolation violation = violations.get(i);
 			violation.minimizeTest();
+			TestCase test = violation.getTestCase();
 			// TODO: Add comment about contract violation
-			writer.insertTest(violation.getTestCase(), " Contract violation: "
+			writer.insertTest(test, " Contract violation: "
 			        + violation.getContract().toString());
 		}
-		String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-		String testDir = Properties.TEST_DIR;
-		writer.writeTestSuite("Failures" + name, testDir);
 	}
 
 	/**
