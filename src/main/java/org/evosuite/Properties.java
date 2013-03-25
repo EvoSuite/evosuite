@@ -114,7 +114,9 @@ public class Properties {
 	@Parameter(key = "static_hack", group = "Test Creation", description = "Call static constructors after each test execution")
 	public static boolean STATIC_HACK = false;
 
-	/** Constant <code>TEST_CARVING=false</code> */
+	/**
+	 * TODO: this option is off by default because still experimental and not fully tested
+	 */
 	@Parameter(key = "test_carving", group = "Test Creation", description = "Enable test carving")
 	public static boolean TEST_CARVING = false;
 
@@ -569,6 +571,9 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
+	/**
+	 * TODO: this functionality is not implemented yet
+	 */
 	@Parameter(key = "junit_extend", group = "Output", description = "Extend existing JUnit test suite")
 	public static String JUNIT_EXTEND = "";
 
