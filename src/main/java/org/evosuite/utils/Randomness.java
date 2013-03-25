@@ -133,7 +133,7 @@ public class Randomness implements Serializable {
 	 * @return a char.
 	 */
 	public static char nextChar() {
-		return (char) (nextInt(9, 128));
+		return (char) (nextInt(32, 128));
 		//return random.nextChar();
 	}
 

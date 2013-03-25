@@ -198,7 +198,8 @@ public class TestSuiteWriter implements Opcodes {
 		int id = insertTest(test);
 		if (testComment.containsKey(id)) {
 			if (!testComment.get(id).contains(comment))
-				testComment.put(id, testComment.get(id) + "\n   //" + comment);
+				testComment.put(id, testComment.get(id) + "\n" + METHOD_SPACE + "//"
+				        + comment);
 		} else
 			testComment.put(id, comment);
 		return id;
@@ -361,11 +362,11 @@ public class TestSuiteWriter implements Opcodes {
 			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
+			imports_sorted.add(org.junit.Before.class.getCanonicalName());
+			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+			imports_sorted.add(org.junit.After.class.getCanonicalName());
+			imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 		}
-		imports_sorted.add(org.junit.Before.class.getCanonicalName());
-		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
-		imports_sorted.add(org.junit.After.class.getCanonicalName());
-		imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 
 		Collections.sort(imports_sorted);
 		for (String imp : imports_sorted) {
@@ -386,8 +387,12 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String getInformation(int num) {
 
-		if (testComment.containsKey(num))
-			return testComment.get(num);
+		if (testComment.containsKey(num)) {
+			String comment = testComment.get(num);
+			if (!comment.endsWith("\n"))
+				comment = comment + "\n";
+			return comment;
+		}
 
 		TestCase test = testCases.get(num);
 		Set<TestFitnessFunction> coveredGoals = test.getCoveredGoals();
@@ -419,7 +424,7 @@ public class TestSuiteWriter implements Opcodes {
 				nr++;
 			}
 
-			builder.append("\n   */");
+			builder.append("\n   */\n");
 		}
 
 		return builder.toString();
@@ -583,14 +588,15 @@ public class TestSuiteWriter implements Opcodes {
 
 		bd.append(METHOD_SPACE);
 		bd.append("public static void initEvoSuiteFramework(){ \n");
-		
+
 		//need to setup the Sandbox mode
 		bd.append(BLOCK_SPACE);
-		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."+Properties.SANDBOX_MODE+"; \n");
-		
+		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
+		        + Properties.SANDBOX_MODE + "; \n");
+
 		bd.append(BLOCK_SPACE);
 		bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
-		
+
 		bd.append(BLOCK_SPACE);
 		bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
 		bd.append(METHOD_SPACE);
@@ -659,7 +665,7 @@ public class TestSuiteWriter implements Opcodes {
 
 		StringBuilder builder = new StringBuilder();
 		builder.append("\n");
-		if (Properties.TEST_COMMENTS) {
+		if (Properties.TEST_COMMENTS || testComment.containsKey(id)) {
 			builder.append(METHOD_SPACE);
 			builder.append("//");
 			builder.append(getInformation(id));
@@ -713,7 +719,8 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append("Future<?> future = " + EXECUTOR_SERVICE
 			        + ".submit(new Runnable(){ \n");
 			builder.append(INNER_BLOCK_SPACE);
-			builder.append("@Override \n");
+			// Doesn't seem to need override?
+			// builder.append("@Override \n");
 			builder.append(INNER_BLOCK_SPACE);
 			builder.append("public void run() { \n");
 			Set<Class<?>> exceptions = test.getDeclaredExceptions();

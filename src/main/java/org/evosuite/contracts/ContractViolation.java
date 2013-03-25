@@ -20,8 +20,10 @@
  */
 package org.evosuite.contracts;
 
+import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.AssignmentStatement;
+import org.evosuite.testcase.ConstantInliner;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.MethodStatement;
@@ -100,12 +102,19 @@ public class ContractViolation {
 		TestFactory testFactory = TestFactory.getInstance();
 
 		TestCase origTest = test.clone();
+		if (Properties.INLINE) {
+			ConstantInliner inliner = new ConstantInliner();
+			inliner.inline(origTest);
+		}
 
 		boolean changed = true;
 		while (changed) {
 			changed = false;
 
 			for (int i = test.size() - 1; i >= 0; i--) {
+				// TODO - why??
+				if (i >= test.size())
+					continue;
 				try {
 					testFactory.deleteStatementGracefully(test, i);
 					if (!contract.fails(test)) {

@@ -40,7 +40,8 @@ public class InheritanceTree {
 
 	private final Map<String, Set<String>> subclassCache = new LinkedHashMap<String, Set<String>>();
 
-	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(DefaultEdge.class);
+	private DirectedMultigraph<String, DefaultEdge> inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
+	        DefaultEdge.class);
 
 	public boolean isMethodDefined(String className, String methodName) {
 		return false;
@@ -50,10 +51,11 @@ public class InheritanceTree {
 		String classNameWithDots = className.replace('/', '.');
 		String superNameWithDots = superName.replace('/', '.');
 
-		if(inheritanceGraph == null) {
-			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(DefaultEdge.class);
+		if (inheritanceGraph == null) {
+			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
+			        DefaultEdge.class);
 		}
-		
+
 		inheritanceGraph.addVertex(classNameWithDots);
 		inheritanceGraph.addVertex(superNameWithDots);
 		inheritanceGraph.addEdge(superNameWithDots, classNameWithDots);
@@ -70,39 +72,46 @@ public class InheritanceTree {
 
 	public Set<String> getSubclasses(String className) {
 		String classNameWithDots = className.replace('/', '.');
-		
+
 		if (subclassCache.containsKey(classNameWithDots))
 			return subclassCache.get(classNameWithDots);
 
-		if(!inheritanceGraph.containsVertex(classNameWithDots)) {
-			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "+classNameWithDots);
+		if (!inheritanceGraph.containsVertex(classNameWithDots)) {
+			LoggingUtils.getEvoLogger().warn("Class not in inheritance graph: "
+			                                         + classNameWithDots);
 		}
 		Set<String> result = new LinkedHashSet<String>();
-		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(inheritanceGraph, classNameWithDots);
-		while(bfi.hasNext()) {
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
+		        inheritanceGraph, classNameWithDots);
+		while (bfi.hasNext()) {
 			result.add(bfi.next());
 		}
 		subclassCache.put(classNameWithDots, result);
 		return result;
 	}
 
-
 	public Collection<String> getSuperclasses(String className) {
 		String classNameWithDots = className.replace('/', '.');
 
-		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(inheritanceGraph);
+		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
+		        inheritanceGraph);
 		Set<String> result = new LinkedHashSet<String>();
-		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(reverseGraph, classNameWithDots);
-		while(bfi.hasNext()) {
+		BreadthFirstIterator<String, DefaultEdge> bfi = new BreadthFirstIterator<String, DefaultEdge>(
+		        reverseGraph, classNameWithDots);
+		while (bfi.hasNext()) {
 			result.add(bfi.next());
 		}
 		return result;
 	}
-	
+
+	public void removeClass(String className) {
+		inheritanceGraph.removeVertex(className);
+	}
+
 	public boolean hasClass(String className) {
 		return inheritanceGraph.containsVertex(className);
 	}
-	
+
 	public int getNumClasses() {
 		return inheritanceGraph.vertexSet().size();
 	}

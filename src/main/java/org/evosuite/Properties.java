@@ -141,7 +141,7 @@ public class Properties {
 	/** Constant <code>DYNAMIC_POOL=0.5</code> */
 	@Parameter(key = "dynamic_pool", group = "Test Creation", description = "Probability to use a primitive from the dynamic pool rather than a random value")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double DYNAMIC_POOL = 1d / 3d;
+	public static double DYNAMIC_POOL = 0.5; //1d / 3d;
 
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
@@ -636,7 +636,7 @@ public class Properties {
 
 	/** Constant <code>ASSERTIONS=false</code> */
 	@Parameter(key = "assertions", group = "Output", description = "Create assertions")
-	public static boolean ASSERTIONS = false;
+	public static boolean ASSERTIONS = true;
 
 	public enum AssertionStrategy {
 		ALL, MUTATION, UNIT
@@ -681,6 +681,9 @@ public class Properties {
 	@Parameter(key = "new_statistics", group = "Output", description = "Use the new statistics backend on the master")
 	public static boolean NEW_STATISTICS = false;
 
+	@Parameter(key = "old_statistics", group = "Output", description = "Use the old statistics backend on the master")
+	public static boolean OLD_STATISTICS = true;
+
 	public enum StatisticsBackend {
 		NONE, CONSOLE, CSV;
 	}
@@ -706,10 +709,9 @@ public class Properties {
 
 	// ---------------------------------------------------------------
 	// Sandbox
-	//FIXME: once we are happy with the sandbox, we should turn it on by default
 	/** Constant <code>SANDBOX=false</code> */
 	@Parameter(key = "sandbox", group = "Sandbox", description = "Execute tests in a sandbox environment")
-	public static boolean SANDBOX = false;
+	public static boolean SANDBOX = true;
 
 	public enum SandboxMode {
 		OFF, RECOMMENDED, IO
@@ -984,7 +986,21 @@ public class Properties {
 	// Runtime parameters
 
 	public enum Criterion {
-		EXCEPTION, LCSAJ, DEFUSE, ALLDEFS, PATH, BRANCH, STRONGMUTATION, WEAKMUTATION, MUTATION, COMP_LCSAJ_BRANCH, STATEMENT, DATA, BEHAVIORAL, IBRANCH, REGRESSION
+		EXCEPTION,
+		LCSAJ,
+		DEFUSE,
+		ALLDEFS,
+		PATH,
+		BRANCH,
+		STRONGMUTATION,
+		WEAKMUTATION,
+		MUTATION,
+		COMP_LCSAJ_BRANCH,
+		STATEMENT,
+		DATA,
+		BEHAVIORAL,
+		IBRANCH,
+		REGRESSION
 	}
 
 	/** Cache target class */

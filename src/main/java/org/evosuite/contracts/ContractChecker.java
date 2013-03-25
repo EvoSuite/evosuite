@@ -50,7 +50,9 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	//private static final boolean checkAtEnd = Properties.CHECK_CONTRACTS_END;
 
-	private static boolean valid = true;
+	private static Set<Contract> invalid = new HashSet<Contract>();
+
+	//private static boolean valid = true;
 
 	private static boolean active = true;
 
@@ -107,7 +109,8 @@ public class ContractChecker extends ExecutionObserver {
 	 */
 	public static void currentTest(TestCase test) {
 		currentTest = test;
-		ContractChecker.valid = true;
+		//ContractChecker.valid = true;
+		ContractChecker.invalid.clear();
 		// TODO: Keep track of objects that raised an exception, and exclude them from contract checking
 	}
 
@@ -119,17 +122,17 @@ public class ContractChecker extends ExecutionObserver {
 	public void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
 
-		if (!ContractChecker.valid) {
-			/*
-			 * once we get a contract that is violated, no point in checking the following statements,
-			 * because the internal state of the SUT is corrupted.
-			 * 
-			 * TODO: at this point, for the fitness function we still consider the coverage given by the 
-			 * following statements. Maybe that should be changed? At the moment, we only stop if exceptions 
-			 */
-			logger.debug("Not checking contracts for invalid test");
-			return;
-		}
+		//if (!ContractChecker.valid) {
+		/*
+		 * once we get a contract that is violated, no point in checking the following statements,
+		 * because the internal state of the SUT is corrupted.
+		 * 
+		 * TODO: at this point, for the fitness function we still consider the coverage given by the 
+		 * following statements. Maybe that should be changed? At the moment, we only stop if exceptions 
+		 */
+		//	logger.debug("Not checking contracts for invalid test");
+		//	return;
+		//}
 
 		if (!ContractChecker.active) {
 			return;
@@ -140,13 +143,16 @@ public class ContractChecker extends ExecutionObserver {
 			return;
 
 		for (Contract contract : contracts) {
-			try {
+			if (invalid.contains(contract))
+				continue;
 
+			try {
 				if (!contract.check(statement, scope, exception)) {
 					logger.debug("Contract failed: {} {}", contract, statement.getCode());
 					FailingTestSet.addFailingTest(currentTest, contract, statement,
 					                              exception);
-					ContractChecker.valid = false;
+					//ContractChecker.valid = false;
+					invalid.add(contract);
 					//break;
 				}
 			} catch (Throwable t) {
@@ -169,7 +175,8 @@ public class ContractChecker extends ExecutionObserver {
 	/** {@inheritDoc} */
 	@Override
 	public void clear() {
-		ContractChecker.valid = true;
+		ContractChecker.invalid.clear();
+		// ContractChecker.valid = true;
 	}
 
 }
