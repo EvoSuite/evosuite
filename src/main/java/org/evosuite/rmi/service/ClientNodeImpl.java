@@ -124,7 +124,6 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		if (this.state == ClientState.INITIALIZATION)
 			System.exit(1);
 		//LoggingUtils.getEvoLogger().info("Cancelling client");
-		//System.out.println("Cancelling client...");
 		RMIStoppingCondition.getInstance().stop();
 
 	}

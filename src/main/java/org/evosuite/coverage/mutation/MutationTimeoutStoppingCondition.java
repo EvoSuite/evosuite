@@ -77,7 +77,7 @@ public class MutationTimeoutStoppingCondition extends StoppingConditionImpl {
 		        + MAX_TIMEOUTS);
 
 		if (timeouts >= MAX_TIMEOUTS) {
-			System.out.println("Mutation timed out, stopping search");
+			logger.debug("Mutation timed out, stopping search");
 		}
 		return timeouts >= MAX_TIMEOUTS || hasException;
 	}

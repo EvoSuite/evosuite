@@ -262,7 +262,6 @@ public class InheritanceTreeGenerator {
 			xstream.toXML(inheritanceTree, stream);
 		} catch (FileNotFoundException e) {
 			logger.error("", e);
-			System.out.println("EEEEE " + e);
 		}
 	}
 

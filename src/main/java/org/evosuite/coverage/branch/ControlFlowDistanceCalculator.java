@@ -207,7 +207,6 @@ public class ControlFlowDistanceCalculator {
 			//			if(r== null)
 			return worstPossibleDistanceForMethod(branch);
 			//			else {
-			//				System.out.println("reused distance for branch: "+branch.toString());
 			//				return r;
 			//			}
 		}
