@@ -3,11 +3,6 @@
  */
 package org.evosuite.testcase;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -25,7 +20,11 @@ import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testsuite.TestCallStatement;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.GenericField;
+import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,7 +40,7 @@ public class TestFactory {
 	/**
 	 * Keep track of objects we are already trying to generate to avoid cycles
 	 */
-	private transient Set<AccessibleObject> currentRecursion = new HashSet<AccessibleObject>();
+	private transient Set<GenericAccessibleObject> currentRecursion = new HashSet<GenericAccessibleObject>();
 
 	private static TestFactory instance = null;
 
@@ -68,16 +67,16 @@ public class TestFactory {
 	 * @param position
 	 */
 	private boolean addCallFor(TestCase test, VariableReference callee,
-	        AccessibleObject call, int position) {
+	        GenericAccessibleObject call, int position) {
 		logger.trace("addCallFor " + callee.getName());
 
 		int previousLength = test.size();
 		currentRecursion.clear();
 		try {
-			if (call instanceof Method) {
-				addMethodFor(test, callee, (Method) call, position);
-			} else if (call instanceof Field) {
-				addFieldFor(test, callee, (Field) call, position);
+			if (call.isMethod()) {
+				addMethodFor(test, callee, (GenericMethod) call, position);
+			} else if (call.isField()) {
+				addFieldFor(test, callee, (GenericField) call, position);
 			}
 			return true;
 		} catch (ConstructionFailedException e) {
@@ -95,6 +94,12 @@ public class TestFactory {
 		}
 	}
 
+	public VariableReference addConstructor(TestCase test,
+	        GenericConstructor constructor, int position, int recursionDepth)
+	        throws ConstructionFailedException {
+		return addConstructor(test, constructor, null, position, recursionDepth);
+	}
+
 	/**
 	 * Add constructor at given position if max recursion depth has not been
 	 * reached
@@ -105,25 +110,26 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference addConstructor(TestCase test, Constructor<?> constructor,
-	        int position, int recursionDepth) throws ConstructionFailedException {
+	public VariableReference addConstructor(TestCase test,
+	        GenericConstructor constructor, Type exactType, int position,
+	        int recursionDepth) throws ConstructionFailedException {
 		if (recursionDepth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
-		logger.debug("Adding constructor " + constructor.toGenericString());
+		logger.debug("Adding constructor " + constructor);
 
 		int length = test.size();
+
 		List<VariableReference> parameters = satisfyParameters(test,
 		                                                       null,
-		                                                       Arrays.asList(constructor.getGenericParameterTypes()),
+		                                                       Arrays.asList(constructor.getParameterTypes()),
 		                                                       position,
 		                                                       recursionDepth + 1);
 		int newLength = test.size();
 		position += (newLength - length);
 
-		StatementInterface st = new ConstructorStatement(test, constructor,
-		        constructor.getDeclaringClass(), parameters);
+		StatementInterface st = new ConstructorStatement(test, constructor, parameters);
 		return test.addStatement(st, position);
 	}
 
@@ -136,28 +142,25 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference addField(TestCase test, Field field, int position)
+	public VariableReference addField(TestCase test, GenericField field, int position)
 	        throws ConstructionFailedException {
-		logger.debug("Adding field " + field.toGenericString());
+		logger.debug("Adding field " + field);
 
 		VariableReference callee = null;
 		int length = test.size();
 
-		if (!Modifier.isStatic(field.getModifiers())) {
+		if (!field.isStatic()) {
 			try {
-				callee = test.getRandomNonNullObject(field.getDeclaringClass(), position);
+				callee = test.getRandomNonNullObject(field.getOwnerType(), position);
 			} catch (ConstructionFailedException e) {
-				logger.debug("No callee of type " + field.getDeclaringClass().getName()
-				        + " found");
-				callee = attemptGeneration(test, field.getDeclaringClass(), position, 0,
-				                           false);
+				logger.debug("No callee of type " + field.getOwnerType() + " found");
+				callee = attemptGeneration(test, field.getOwnerType(), position, 0, false);
 				position += test.size() - length;
 				length = test.size();
 			}
 		}
 
-		StatementInterface st = new FieldStatement(test, field, callee,
-		        field.getGenericType());
+		StatementInterface st = new FieldStatement(test, field, callee);
 
 		return test.addStatement(st, position);
 	}
@@ -172,35 +175,33 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference addFieldAssignment(TestCase test, Field field, int position,
-	        int recursionDepth) throws ConstructionFailedException {
+	public VariableReference addFieldAssignment(TestCase test, GenericField field,
+	        int position, int recursionDepth) throws ConstructionFailedException {
 		logger.debug("Recursion depth: " + recursionDepth);
 		if (recursionDepth > Properties.MAX_RECURSION) {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
-		logger.debug("Adding field " + field.toGenericString());
+		logger.debug("Adding field " + field);
 
 		int length = test.size();
 		VariableReference callee = null;
-		if (!Modifier.isStatic(field.getModifiers())) { // TODO: Consider reuse
-			                                            // probability here?
+		if (!field.isStatic()) { // TODO: Consider reuse
+			                     // probability here?
 			try {
 				// TODO: Would casting be an option here?
-				callee = test.getRandomNonNullObject(field.getDeclaringClass(), position);
-				logger.debug("Found callee of type "
-				        + field.getDeclaringClass().getName());
+				callee = test.getRandomNonNullObject(field.getOwnerType(), position);
+				logger.debug("Found callee of type " + field.getOwnerType());
 			} catch (ConstructionFailedException e) {
-				logger.debug("No callee of type " + field.getDeclaringClass().getName()
-				        + " found");
-				callee = attemptGeneration(test, field.getDeclaringClass(), position,
+				logger.debug("No callee of type " + field.getOwnerType() + " found");
+				callee = attemptGeneration(test, field.getOwnerType(), position,
 				                           recursionDepth, false);
 				position += test.size() - length;
 				length = test.size();
 			}
 		}
 
-		VariableReference var = createOrReuseVariable(test, field.getGenericType(),
+		VariableReference var = createOrReuseVariable(test, field.getFieldType(),
 		                                              position, recursionDepth, callee);
 		int newLength = test.size();
 		position += (newLength - length);
@@ -227,9 +228,8 @@ public class TestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	public VariableReference addFieldFor(TestCase test, VariableReference callee,
-	        Field field, int position) throws ConstructionFailedException {
-		logger.debug("Adding field " + field.toGenericString() + " for variable "
-		        + callee);
+	        GenericField field, int position) throws ConstructionFailedException {
+		logger.debug("Adding field " + field + " for variable " + callee);
 		currentRecursion.clear();
 
 		FieldReference fieldVar = new FieldReference(test, field, callee);
@@ -259,7 +259,7 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	public VariableReference addMethod(TestCase test, Method method, int position,
+	public VariableReference addMethod(TestCase test, GenericMethod method, int position,
 	        int recursionDepth) throws ConstructionFailedException {
 
 		logger.debug("Recursion depth: " + recursionDepth);
@@ -267,35 +267,33 @@ public class TestFactory {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
-		logger.debug("Adding method " + method.toGenericString());
+		logger.debug("Adding method " + method);
 		int length = test.size();
 		VariableReference callee = null;
 		List<VariableReference> parameters = null;
 		try {
-			if (!Modifier.isStatic(method.getModifiers())) { // TODO: Consider reuse
-				                                             // probability here?
+			if (!method.isStatic()) { // TODO: Consider reuse
+				                      // probability here?
 				try {
 					// TODO: Would casting be an option here?
-					callee = test.getRandomNonNullNonPrimitiveObject(method.getDeclaringClass(),
+					callee = test.getRandomNonNullNonPrimitiveObject(method.getOwnerType(),
 					                                                 position);
-					logger.debug("Found callee of type "
-					        + method.getDeclaringClass().getName() + ": "
+					logger.debug("Found callee of type " + method.getOwnerType() + ": "
 					        + callee.getName());
 				} catch (ConstructionFailedException e) {
-					logger.debug("No callee of type "
-					        + method.getDeclaringClass().getName() + " found");
-					Set<AccessibleObject> recursion = new HashSet<AccessibleObject>(
+					logger.debug("No callee of type " + method.getOwnerType() + " found");
+					Set<GenericAccessibleObject> recursion = new HashSet<GenericAccessibleObject>(
 					        currentRecursion);
-					callee = attemptGeneration(test, method.getDeclaringClass(),
-					                           position, recursionDepth, false);
+					callee = attemptGeneration(test, method.getOwnerType(), position,
+					                           recursionDepth, false);
 					currentRecursion = recursion;
 					position += test.size() - length;
 					length = test.size();
 				}
 			}
-			parameters = satisfyParameters(test,
-			                               callee,
-			                               Arrays.asList(method.getGenericParameterTypes()),
+
+			parameters = satisfyParameters(test, callee,
+			                               Arrays.asList(method.getParameterTypes()),
 			                               position, recursionDepth + 1);
 
 		} catch (ConstructionFailedException e) {
@@ -307,10 +305,7 @@ public class TestFactory {
 		int newLength = test.size();
 		position += (newLength - length);
 
-		Type retValType = method.getGenericReturnType();
-
-		StatementInterface st = new MethodStatement(test, method, callee, retValType,
-		        parameters);
+		StatementInterface st = new MethodStatement(test, method, callee, parameters);
 		VariableReference ret = test.addStatement(st, position);
 		if (callee != null)
 			ret.setDistance(callee.getDistance() + 1);
@@ -328,22 +323,21 @@ public class TestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
-	        Method method, int position) throws ConstructionFailedException {
-		logger.debug("Adding method " + method.toGenericString());
+	        GenericMethod method, int position) throws ConstructionFailedException {
+		logger.debug("Adding method " + method);
 		currentRecursion.clear();
 		int length = test.size();
 		List<VariableReference> parameters = null;
 		parameters = satisfyParameters(test, callee,
-		                               Arrays.asList(method.getGenericParameterTypes()),
+		                               Arrays.asList(method.getParameterTypes()),
 		                               position, 1);
+
 		int newLength = test.size();
 		position += (newLength - length);
 		// VariableReference ret_val = new
 		// VariableReference(method.getGenericReturnType(), position);
 
-		Type retVal = method.getGenericReturnType();
-		StatementInterface st = new MethodStatement(test, method, callee, retVal,
-		        parameters);
+		StatementInterface st = new MethodStatement(test, method, callee, parameters);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(callee.getDistance() + 1);
 		logger.debug("Success: Adding method " + method);
@@ -382,12 +376,13 @@ public class TestFactory {
 			addConstructor(test, ((ConstructorStatement) statement).getConstructor(),
 			               test.size(), 0);
 		} else if (statement instanceof MethodStatement) {
-			addMethod(test, ((MethodStatement) statement).getMethod(), test.size(), 0);
+			GenericMethod method = ((MethodStatement) statement).getMethod();
+			addMethod(test, method, test.size(), 0);
 		} else if (statement instanceof PrimitiveStatement<?>) {
 			addPrimitive(test, (PrimitiveStatement<?>) statement, test.size());
 			// test.statements.add((PrimitiveStatement) statement);
 		} else if (statement instanceof FieldStatement) {
-			addField(test, ((FieldStatement) statement).field, test.size());
+			addField(test, ((FieldStatement) statement).getField(), test.size());
 		}
 	}
 
@@ -553,7 +548,7 @@ public class TestFactory {
 			return createNull(test, Object.class, position, recursionDepth);
 		}
 
-		AccessibleObject o = TestCluster.getInstance().getRandomObjectGenerator();
+		GenericAccessibleObject o = TestCluster.getInstance().getRandomObjectGenerator();
 		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
 
 		currentRecursion.add(o);
@@ -562,25 +557,25 @@ public class TestFactory {
 				logger.debug("We have no generator for Object.class ");
 			}
 			throw new ConstructionFailedException("Generator is null");
-		} else if (o instanceof Field) {
+		} else if (o.isField()) {
 			logger.debug("Attempting generating of Object.class via field of type Object.class");
-			VariableReference ret = addField(test, (Field) o, position);
+			VariableReference ret = addField(test, (GenericField) o, position);
 			ret.setDistance(recursionDepth + 1);
 			logger.debug("Success in generating type Object.class");
 			return ret;
-		} else if (o instanceof Method) {
-			logger.debug("Attempting generating of Object.class via method "
-			        + ((Method) o).getName() + " of type Object.class");
-			VariableReference ret = addMethod(test, (Method) o, position,
+		} else if (o.isMethod()) {
+			logger.debug("Attempting generating of Object.class via method " + (o)
+			        + " of type Object.class");
+			VariableReference ret = addMethod(test, (GenericMethod) o, position,
 			                                  recursionDepth + 1);
 			logger.debug("Success in generating type Object.class");
 			ret.setDistance(recursionDepth + 1);
 			return ret;
-		} else if (o instanceof Constructor<?>) {
-			logger.debug("Attempting generating of Object.class via constructor "
-			        + ((Constructor<?>) o).getName() + " of type Object.class");
-			VariableReference ret = addConstructor(test, (Constructor<?>) o, position,
-			                                       recursionDepth + 1);
+		} else if (o.isConstructor()) {
+			logger.debug("Attempting generating of Object.class via constructor " + (o)
+			        + " of type Object.class");
+			VariableReference ret = addConstructor(test, (GenericConstructor) o,
+			                                       position, recursionDepth + 1);
 			logger.debug("Success in generating Object.class");
 			ret.setDistance(recursionDepth + 1);
 
@@ -601,55 +596,54 @@ public class TestFactory {
 	 * @throws ConstructionFailedException
 	 */
 	public void changeCall(TestCase test, StatementInterface statement,
-	        AccessibleObject call) throws ConstructionFailedException {
+	        GenericAccessibleObject call) throws ConstructionFailedException {
 		int position = statement.getReturnValue().getStPosition();
 
 		logger.debug("Changing call " + test.getStatement(position) + " with " + call);
 
-		if (call instanceof Method) {
-			Method method = (Method) call;
+		if (call.isMethod()) {
+			GenericMethod method = (GenericMethod) call;
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
-			if (!Modifier.isStatic(method.getModifiers()))
-				callee = test.getRandomNonNullNonPrimitiveObject(method.getDeclaringClass(),
+			if (!method.isStatic())
+				callee = test.getRandomNonNullNonPrimitiveObject(method.getOwnerType(),
 				                                                 position);
 			List<VariableReference> parameters = new ArrayList<VariableReference>();
 			for (Type type : method.getParameterTypes()) {
 				parameters.add(test.getRandomObject(type, position));
 			}
-			MethodStatement m = new MethodStatement(test, method, callee, retval,
-			        parameters);
+			MethodStatement m = new MethodStatement(test, method, callee, parameters);
+			test.setStatement(m, position);
+			m.setRetval(retval);
 			logger.debug("Using method " + m.getCode());
 
-			test.setStatement(m, position);
+		} else if (call.isConstructor()) {
 
-		} else if (call instanceof Constructor<?>) {
-
-			Constructor<?> constructor = (Constructor<?>) call;
+			GenericConstructor constructor = (GenericConstructor) call;
 			VariableReference retval = statement.getReturnValue();
 			List<VariableReference> parameters = new ArrayList<VariableReference>();
-			for (Type type : constructor.getGenericParameterTypes()) {
+			for (Type type : constructor.getParameterTypes()) {
 				parameters.add(test.getRandomObject(type, position));
 			}
 			ConstructorStatement c = new ConstructorStatement(test, constructor, retval,
 			        parameters);
-			logger.debug("Using constructor " + c.getCode());
 
 			test.setStatement(c, position);
+			logger.debug("Using constructor " + c.getCode());
 
-		} else if (call instanceof Field) {
-			Field field = (Field) call;
+		} else if (call.isField()) {
+			GenericField field = (GenericField) call;
 			VariableReference retval = statement.getReturnValue();
 			VariableReference source = null;
-			if (!Modifier.isStatic(field.getModifiers()))
-				source = test.getRandomNonNullNonPrimitiveObject(field.getDeclaringClass(),
+			if (!field.isStatic())
+				source = test.getRandomNonNullNonPrimitiveObject(field.getOwnerType(),
 				                                                 position);
 
 			try {
 				FieldStatement f = new FieldStatement(test, field, source, retval);
-				logger.debug("Using field " + f.getCode());
 
 				test.setStatement(f, position);
+				logger.debug("Using field " + f.getCode());
 			} catch (Throwable e) {
 				logger.error("Error: " + e + " , Field: " + field + " , Test: " + test);
 				throw new Error(e);
@@ -666,16 +660,19 @@ public class TestFactory {
 		List<VariableReference> objects = test.getObjects(statement.getReturnValue().getStPosition());
 		objects.remove(statement.getReturnValue());
 		// TODO: replacing void calls with other void calls might not be the best idea
-		List<AccessibleObject> calls = getPossibleCalls(statement.getReturnType(),
-		                                                objects);
+		List<GenericAccessibleObject> calls = getPossibleCalls(statement.getReturnType(),
+		                                                       objects);
 
-		AccessibleObject ao = statement.getAccessibleObject();
+		GenericAccessibleObject ao = statement.getAccessibleObject();
 		if (ao != null)
 			calls.remove(ao);
 
 		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
 		        + " objects");
-		AccessibleObject call = Randomness.choice(calls);
+		if (calls.isEmpty())
+			return false;
+
+		GenericAccessibleObject call = Randomness.choice(calls);
 		try {
 			if (statement instanceof TestCallStatement)
 				logger.info("Changing testcall statement");
@@ -786,8 +783,8 @@ public class TestFactory {
 	public VariableReference createObject(TestCase test, Type type, int position,
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
-		AccessibleObject o = TestCluster.getInstance().getRandomGenerator(clazz,
-		                                                                  currentRecursion);
+		GenericAccessibleObject o = TestCluster.getInstance().getRandomGenerator(clazz,
+		                                                                         currentRecursion);
 
 		currentRecursion.add(o);
 		if (o == null) {
@@ -795,26 +792,37 @@ public class TestFactory {
 				logger.debug("We have no generator for class " + type);
 			}
 			throw new ConstructionFailedException("Generator is null");
-		} else if (o instanceof Field) {
+		} else if (o.isField()) {
 			logger.debug("Attempting generating of " + type + " via field of type "
 			        + type);
-			VariableReference ret = addField(test, (Field) o, position);
+			VariableReference ret = addField(test, (GenericField) o, position);
 			ret.setDistance(recursionDepth + 1);
 			logger.debug("Success in generating type " + type);
 			return ret;
-		} else if (o instanceof Method) {
-			logger.debug("Attempting generating of " + type + " via method "
-			        + ((Method) o).getName() + " of type " + type);
-			VariableReference ret = addMethod(test, (Method) o, position,
+		} else if (o.isMethod()) {
+			logger.debug("Attempting generating of " + type + " via method " + (o)
+			        + " of type " + type);
+			VariableReference ret = addMethod(test, (GenericMethod) o, position,
 			                                  recursionDepth + 1);
+			if (o.isStatic()) {
+				MethodStatement statement = (MethodStatement) test.getStatement(ret.getStPosition());
+
+				logger.info("Method " + o + " generates type "
+				        + ((GenericMethod) o).getReturnType());
+				//ret.setType(GenericTypeReflector.getExactReturnType((Method) o,
+				//                                                    statement.getCallee().getType()));
+				ret.setType(type);
+				logger.info("Method " + o + " generates type "
+				        + ((GenericMethod) o).getReturnType() + ", converting to " + ret);
+			}
 			logger.debug("Success in generating type " + type);
 			ret.setDistance(recursionDepth + 1);
 			return ret;
-		} else if (o instanceof Constructor<?>) {
-			logger.debug("Attempting generating of " + type + " via constructor "
-			        + ((Constructor<?>) o).getName() + " of type " + type);
-			VariableReference ret = addConstructor(test, (Constructor<?>) o, position,
-			                                       recursionDepth + 1);
+		} else if (o.isConstructor()) {
+			logger.debug("Attempting generating of " + type + " via constructor " + (o)
+			        + " of type " + type);
+			VariableReference ret = addConstructor(test, (GenericConstructor) o, type,
+			                                       position, recursionDepth + 1);
 			logger.debug("Success in generating type " + type);
 			ret.setDistance(recursionDepth + 1);
 
@@ -1083,9 +1091,9 @@ public class TestFactory {
 	 * @param constructor
 	 * @return
 	 */
-	private static Set<Type> getDependencies(Constructor<?> constructor) {
+	private static Set<Type> getDependencies(GenericConstructor constructor) {
 		Set<Type> dependencies = new LinkedHashSet<Type>();
-		for (Type type : constructor.getGenericParameterTypes()) {
+		for (Type type : constructor.getParameterTypes()) {
 			dependencies.add(type);
 		}
 
@@ -1098,10 +1106,10 @@ public class TestFactory {
 	 * @param field
 	 * @return
 	 */
-	private static Set<Type> getDependencies(Field field) {
+	private static Set<Type> getDependencies(GenericField field) {
 		Set<Type> dependencies = new LinkedHashSet<Type>();
-		if (!Modifier.isStatic(field.getModifiers())) {
-			dependencies.add(field.getDeclaringClass());
+		if (!field.isStatic()) {
+			dependencies.add(field.getOwnerType());
 		}
 
 		return dependencies;
@@ -1113,12 +1121,12 @@ public class TestFactory {
 	 * @param method
 	 * @return
 	 */
-	private static Set<Type> getDependencies(Method method) {
+	private static Set<Type> getDependencies(GenericMethod method) {
 		Set<Type> dependencies = new LinkedHashSet<Type>();
-		if (!Modifier.isStatic(method.getModifiers())) {
-			dependencies.add(method.getDeclaringClass());
+		if (!method.isStatic()) {
+			dependencies.add(method.getOwnerType());
 		}
-		for (Type type : method.getGenericParameterTypes()) {
+		for (Type type : method.getParameterTypes()) {
 			dependencies.add(type);
 		}
 
@@ -1133,10 +1141,10 @@ public class TestFactory {
 	 * @param objects
 	 * @return
 	 */
-	private List<AccessibleObject> getPossibleCalls(Type returnType,
+	private List<GenericAccessibleObject> getPossibleCalls(Type returnType,
 	        List<VariableReference> objects) {
-		List<AccessibleObject> calls = new ArrayList<AccessibleObject>();
-		Set<AccessibleObject> allCalls;
+		List<GenericAccessibleObject> calls = new ArrayList<GenericAccessibleObject>();
+		Set<GenericAccessibleObject> allCalls;
 
 		try {
 			allCalls = TestCluster.getInstance().getGenerators(new GenericClass(
@@ -1145,18 +1153,18 @@ public class TestFactory {
 			return calls;
 		}
 
-		for (AccessibleObject call : allCalls) {
+		for (GenericAccessibleObject call : allCalls) {
 			Set<Type> dependencies = null;
-			if (call instanceof Method) {
-				if (!((Method) call).getReturnType().equals(returnType))
+			if (call.isMethod()) {
+				if (!((GenericMethod) call).getReturnType().equals(returnType))
 					continue;
-				dependencies = getDependencies((Method) call);
-			} else if (call instanceof Constructor<?>) {
-				dependencies = getDependencies((Constructor<?>) call);
-			} else if (call instanceof Field) {
-				if (!((Field) call).getType().equals(returnType))
+				dependencies = getDependencies((GenericMethod) call);
+			} else if (call.isConstructor()) {
+				dependencies = getDependencies((GenericConstructor) call);
+			} else if (call.isField()) {
+				if (!((GenericField) call).getFieldType().equals(returnType))
 					continue;
-				dependencies = getDependencies((Field) call);
+				dependencies = getDependencies((GenericField) call);
 			} else {
 				assert (false);
 			}
@@ -1181,34 +1189,35 @@ public class TestFactory {
 		String name = "";
 		currentRecursion.clear();
 		logger.debug("Inserting random call at position " + position);
-		AccessibleObject o = TestCluster.getInstance().getRandomTestCall();
+		GenericAccessibleObject o = TestCluster.getInstance().getRandomTestCall();
 		try {
 			if (o == null) {
 				logger.warn("Have no target methods to test");
-			} else if (o instanceof Constructor<?>) {
-				Constructor<?> c = (Constructor<?>) o;
+			} else if (o.isConstructor()) {
+				GenericConstructor c = (GenericConstructor) o;
 				//logger.info("Adding constructor call " + c.getName());
 				name = c.getName();
 				addConstructor(test, c, position, 0);
-			} else if (o instanceof Method) {
-				Method m = (Method) o;
+			} else if (o.isMethod()) {
+				GenericMethod m = (GenericMethod) o;
 				//logger.info("Adding method call " + m.getName());
 				name = m.getName();
-				if(!Modifier.isStatic(m.getModifiers())) {
+				if (!m.isStatic()) {
 					VariableReference callee = null;
-					Class<?> target = Properties.getTargetClass();
-					if(!m.getDeclaringClass().isAssignableFrom(Properties.getTargetClass())) {
-						// If this is an inner class, we cannot force to use the target class
-						target = m.getDeclaringClass();
-					} 
+					Type target = m.getOwnerType();
+					// Class<?> target = Properties.getTargetClass();
+					//if (!m.getMethod().getDeclaringClass().isAssignableFrom(Properties.getTargetClass())) {
+					// If this is an inner class, we cannot force to use the target class
+					// FIXXME - generic
+					//target = m.getDeclaringClass();
+					//}
 
-					if(!test.hasObject(target, position)) {
+					if (!test.hasObject(target, position)) {
 						callee = createObject(test, target, position, 0);
 						position += test.size() - previousLength;
 						previousLength = test.size();
 					} else {
-						callee = test.getRandomNonNullObject(target,
-								position);
+						callee = test.getRandomNonNullObject(target, position);
 						// This may also be an inner class, in this case we can't use a SUT instance
 						//if (!callee.isAssignableTo(m.getDeclaringClass())) {
 						//	callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
@@ -1219,10 +1228,10 @@ public class TestFactory {
 					// We only use this for static methods to avoid using wrong constructors (?)
 					addMethod(test, m, position, 0);
 				}
-			} else if (o instanceof Field) {
-				Field f = (Field) o;
+			} else if (o.isField()) {
+				GenericField f = (GenericField) o;
 				name = f.getName();
-				if(Randomness.nextBoolean()) {
+				if (Randomness.nextBoolean()) {
 					//logger.info("Adding field assignment " + f.getName());
 					addFieldAssignment(test, f, position, 0);
 				} else {
@@ -1232,7 +1241,7 @@ public class TestFactory {
 			} else {
 				logger.error("Got type other than method or constructor!");
 			}
-			
+
 			return true;
 		} catch (ConstructionFailedException e) {
 			// TODO: Check this! - TestCluster replaced
@@ -1307,16 +1316,16 @@ public class TestFactory {
 			}
 		} else {
 			logger.debug("Getting calls for object " + var.toString());
-			Set<AccessibleObject> calls = TestCluster.getInstance().getCallsFor(var.getVariableClass());
+			Set<GenericAccessibleObject> calls = TestCluster.getInstance().getCallsFor(var.getGenericClass());
 			if (!calls.isEmpty()) {
-				AccessibleObject call = Randomness.choice(calls);
+				GenericAccessibleObject call = Randomness.choice(calls);
 				logger.debug("Chosen call " + call);
 				return addCallFor(test, var, call, position);
 				// logger.debug("Done adding call " + call);
 			}
 
 		}
-		
+
 		return false;
 	}
 
@@ -1345,20 +1354,20 @@ public class TestFactory {
 			// add new call of the UUT - only declared in UUT!
 			logger.debug("Adding new call on UUT");
 			success = insertRandomCall(test, position);
-			if(test.size() - oldSize > 1) {
+			if (test.size() - oldSize > 1) {
 				position += (test.size() - oldSize - 1);
 			}
 		} else { // if (r <= P_OBJECT) {
 			logger.debug("Adding new call on existing object");
 			success = insertRandomCallOnObject(test, position);
-			if(test.size() - oldSize > 1) {
+			if (test.size() - oldSize > 1) {
 				position += (test.size() - oldSize - 1);
 			}
 			//		} else {
 			//			logger.debug("Adding new call with existing object as parameter");
 			// insertRandomCallWithObject(test, position);
 		}
-		if(success)
+		if (success)
 			return position;
 		else
 			return -1;

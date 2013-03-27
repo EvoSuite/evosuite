@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.utils.Randomness;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
@@ -53,60 +54,67 @@ public class RegexDistance {
 	private static Map<String, Automaton> regexAutomatonCache = new HashMap<String, Automaton>();
 
 	public static Automaton getRegexAutomaton(String regex) {
-		if(!regexAutomatonCache.containsKey(regex)) {
+		if (!regexAutomatonCache.containsKey(regex)) {
 			cacheRegex(regex);
 		}
 		return regexAutomatonCache.get(regex);
 	}
-	
+
 	public static String getRegexInstance(String regex) {
-		if(!regexAutomatonCache.containsKey(regex)) {
+		if (!regexAutomatonCache.containsKey(regex)) {
 			cacheRegex(regex);
 		}
 		Automaton automaton = regexAutomatonCache.get(regex);
-		
+
 		State currentState = automaton.getInitialState();
 		String instance = "";
-		
-		while(!currentState.isAccept()) {
+		int length = 0;
+		while (!currentState.isAccept()) {
 			Set<Transition> transitions = currentState.getTransitions();
 			Transition t = Randomness.choice(transitions);
 			char max = t.getMax();
 			char min = t.getMin();
-			instance += (char)Randomness.nextInt(min, max);
+			instance += (char) Randomness.nextInt(min, max);
 			currentState = t.getDest();
+			if (++length > Properties.STRING_LENGTH)
+				break;
 		}
-		
+
 		return instance;
 	}
-	
+
 	public static String getNonMatchingRegexInstance(String regex) {
-		if(!regexAutomatonCache.containsKey(regex)) {
+		if (!regexAutomatonCache.containsKey(regex)) {
 			cacheRegex(regex);
 		}
 		Automaton automaton = regexAutomatonCache.get(regex);
-		
+
 		State currentState = automaton.getInitialState();
 		String instance = "";
-		
-		while(!currentState.isAccept()) {
+
+		int length = 0;
+
+		while (!currentState.isAccept()) {
 			Set<Transition> transitions = currentState.getTransitions();
 			Transition t = Randomness.choice(transitions);
 			char max = t.getMax();
 			char min = t.getMin();
-			if(max < Character.MAX_VALUE) {
+			if (max < Character.MAX_VALUE) {
 				instance += max + 1;
-			} else if(min > 0) {
+			} else if (min > 0) {
 				instance += min - 1;
 			} else {
 				return instance;
 			}
 			currentState = t.getDest();
+			if (++length > Properties.STRING_LENGTH)
+				break;
+
 		}
-		
+
 		return instance;
 	}
-	
+
 	/**
 	 * Java regular expressions contain predefined character classes which the
 	 * regex parser cannot handle

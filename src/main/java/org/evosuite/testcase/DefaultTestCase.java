@@ -35,6 +35,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericField;
 import org.evosuite.utils.ListenableList;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
@@ -139,7 +140,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 					// Ignore
 					fieldType = field.getType();
 				}
-				FieldReference f = new FieldReference(this, field, fieldType, var);
+				FieldReference f = new FieldReference(this, new GenericField(field,
+				        var.getGenericClass()), fieldType, var);
 				if (f.getDepth() <= 2) {
 					if (type != null) {
 						if (f.isAssignableTo(type) && !variables.contains(f)) {
@@ -177,8 +179,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
 						//logger.info("Adding array index " + index + " to array "
 						//       + value.getSimpleClassName() + " " + value.getName());
-						if(((ArrayReference)value).isInitialized(index, position))
-							variables.add(new ArrayIndex(this, (ArrayReference) value, index));
+						if (((ArrayReference) value).isInitialized(index, position))
+							variables.add(new ArrayIndex(this, (ArrayReference) value,
+							        index));
 					}
 				}
 			} else if (value instanceof ArrayIndex) {
@@ -289,7 +292,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		return Randomness.choice(variables);
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)
 	 */
@@ -304,9 +307,9 @@ public class DefaultTestCase implements TestCase, Serializable {
 			VariableReference var = iterator.next();
 			if (var instanceof NullReference)
 				iterator.remove();
-			else if(getStatement(var.getStPosition()) instanceof PrimitiveStatement)
+			else if (getStatement(var.getStPosition()) instanceof PrimitiveStatement)
 				iterator.remove();
-			else if(var.isPrimitive() || var.isWrapperType())
+			else if (var.isPrimitive() || var.isWrapperType())
 				iterator.remove();
 		}
 		if (variables.isEmpty())
@@ -632,19 +635,19 @@ public class DefaultTestCase implements TestCase, Serializable {
 			}
 			if (s instanceof MethodStatement) {
 				MethodStatement ms = (MethodStatement) s;
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getExceptionTypes()));
-				accessed_classes.add(ms.getMethod().getDeclaringClass());
-				accessed_classes.add(ms.getMethod().getReturnType());
-				accessed_classes.addAll(Arrays.asList(ms.getMethod().getParameterTypes()));
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getExceptionTypes()));
+				accessed_classes.add(ms.getMethod().getMethod().getDeclaringClass());
+				accessed_classes.add(ms.getMethod().getMethod().getReturnType());
+				accessed_classes.addAll(Arrays.asList(ms.getMethod().getMethod().getParameterTypes()));
 			} else if (s instanceof FieldStatement) {
 				FieldStatement fs = (FieldStatement) s;
-				accessed_classes.add(fs.getField().getDeclaringClass());
-				accessed_classes.add(fs.getField().getType());
+				accessed_classes.add(fs.getField().getField().getDeclaringClass());
+				accessed_classes.add(fs.getField().getField().getType());
 			} else if (s instanceof ConstructorStatement) {
 				ConstructorStatement cs = (ConstructorStatement) s;
-				accessed_classes.add(cs.getConstructor().getDeclaringClass());
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getExceptionTypes()));
-				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getParameterTypes()));
+				accessed_classes.add(cs.getConstructor().getConstructor().getDeclaringClass());
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getExceptionTypes()));
+				accessed_classes.addAll(Arrays.asList(cs.getConstructor().getConstructor().getParameterTypes()));
 			}
 		}
 		return accessed_classes;
@@ -701,12 +704,12 @@ public class DefaultTestCase implements TestCase, Serializable {
 			s.removeAssertions();
 		}
 	}
-	
+
 	@Override
 	public void removeAssertion(Assertion assertion) {
 		for (StatementInterface s : statements) {
 			s.removeAssertion(assertion);
-		}		
+		}
 	}
 
 	/* (non-Javadoc)

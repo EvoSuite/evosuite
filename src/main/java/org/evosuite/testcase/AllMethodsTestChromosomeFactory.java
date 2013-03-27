@@ -20,9 +20,6 @@
  */
 package org.evosuite.testcase;
 
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -32,6 +29,9 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.utils.GenericAccessibleObject;
+import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,13 +51,13 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 	protected static final Logger logger = LoggerFactory.getLogger(AllMethodsTestChromosomeFactory.class);
 
 	/** Methods we have already seen */
-	private static Set<AccessibleObject> attemptedMethods = new LinkedHashSet<AccessibleObject>();
+	private static Set<GenericAccessibleObject> attemptedMethods = new LinkedHashSet<GenericAccessibleObject>();
 
 	/** Methods we have not already seen */
-	private static Set<AccessibleObject> remainingMethods = new LinkedHashSet<AccessibleObject>();
+	private static Set<GenericAccessibleObject> remainingMethods = new LinkedHashSet<GenericAccessibleObject>();
 
 	/** Methods we have to cover */
-	private static List<AccessibleObject> allMethods = new LinkedList<AccessibleObject>();
+	private static List<GenericAccessibleObject> allMethods = new LinkedList<GenericAccessibleObject>();
 
 	/**
 	 * Create a list of all methods
@@ -93,18 +93,18 @@ public class AllMethodsTestChromosomeFactory implements ChromosomeFactory<TestCh
 			if (remainingMethods.size() == 0) {
 				reset();
 			}
-			AccessibleObject call = Randomness.choice(remainingMethods);
+			GenericAccessibleObject call = Randomness.choice(remainingMethods);
 			attemptedMethods.add(call);
 			remainingMethods.remove(call);
 
 			try {
 				TestFactory testFactory = TestFactory.getInstance();
 
-				if (call instanceof Method) {
-					testFactory.addMethod(test, (Method) call, test.size(), 0);
-				} else if (call instanceof Constructor<?>) {
-					testFactory.addConstructor(test, (Constructor<?>) call, test.size(),
-					                           0);
+				if (call.isMethod()) {
+					testFactory.addMethod(test, (GenericMethod) call, test.size(), 0);
+				} else if (call.isConstructor()) {
+					testFactory.addConstructor(test, (GenericConstructor) call,
+					                           test.size(), 0);
 				} else {
 					assert (false) : "Found test call that is neither method nor constructor";
 				}

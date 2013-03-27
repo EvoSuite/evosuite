@@ -1,33 +1,32 @@
-
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- *
+ * 
  * @author Gordon Fraser
  */
 package org.evosuite.testcase;
 
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 // TODO-JRO Implement methods of PrimitiveExpression as needed
@@ -81,16 +80,25 @@ public class PrimitiveExpression extends AbstractStatement {
 	private VariableReference rightOperand;
 
 	/**
-	 * <p>Constructor for PrimitiveExpression.</p>
-	 *
-	 * @param testCase a {@link org.evosuite.testcase.TestCase} object.
-	 * @param reference a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param leftOperand a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param operator a {@link org.evosuite.testcase.PrimitiveExpression.Operator} object.
-	 * @param rightOperand a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * Constructor for PrimitiveExpression.
+	 * </p>
+	 * 
+	 * @param testCase
+	 *            a {@link org.evosuite.testcase.TestCase} object.
+	 * @param reference
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param leftOperand
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param operator
+	 *            a {@link org.evosuite.testcase.PrimitiveExpression.Operator}
+	 *            object.
+	 * @param rightOperand
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	public PrimitiveExpression(TestCase testCase, VariableReference reference, VariableReference leftOperand,
-			Operator operator, VariableReference rightOperand) {
+	public PrimitiveExpression(TestCase testCase, VariableReference reference,
+	        VariableReference leftOperand, Operator operator,
+	        VariableReference rightOperand) {
 		super(testCase, reference);
 		this.leftOperand = leftOperand;
 		this.operator = operator;
@@ -113,43 +121,51 @@ public class PrimitiveExpression extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
-		VariableReference newRetVal = new VariableReferenceImpl(newTestCase, retval.getType());
+		VariableReference newRetVal = new VariableReferenceImpl(newTestCase,
+		        retval.getType());
 		VariableReference newLeftOperand = newTestCase.getStatement(leftOperand.getStPosition()).getReturnValue();
 		VariableReference newRightOperand = newTestCase.getStatement(rightOperand.getStPosition()).getReturnValue();
-		return new PrimitiveExpression(newTestCase, newRetVal, newLeftOperand, operator, newRightOperand);
-//		return new PrimitiveExpression(newTestCase, retval, leftOperand, operator, rightOperand);
+		return new PrimitiveExpression(newTestCase, newRetVal, newLeftOperand, operator,
+		        newRightOperand);
+		//		return new PrimitiveExpression(newTestCase, retval, leftOperand, operator, rightOperand);
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException, IllegalArgumentException,
+	public Throwable execute(Scope scope, PrintStream out)
+	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 		throw new UnsupportedOperationException("Method execute not implemented!");
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public AccessibleObject getAccessibleObject() {
-		throw new UnsupportedOperationException("Method getAccessibleObject not implemented!");
+	public GenericAccessibleObject getAccessibleObject() {
+		throw new UnsupportedOperationException(
+		        "Method getAccessibleObject not implemented!");
 	}
 
 	/** {@inheritDoc} */
 	@Override
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+	        Throwable exception) {
 		throw new UnsupportedOperationException("Method getBytecode not implemented!");
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public String getCode() {
-		String code = ((Class<?>) retval.getType()).getSimpleName() + " " + retval.getName() + " = "
-				+ leftOperand.getName() + " " + operator.toCode() + " " + rightOperand.getName() + ";";
+		String code = ((Class<?>) retval.getType()).getSimpleName() + " "
+		        + retval.getName() + " = " + leftOperand.getName() + " "
+		        + operator.toCode() + " " + rightOperand.getName() + ";";
 		return code;
 	}
 
 	/**
-	 * <p>Getter for the field <code>leftOperand</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>leftOperand</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getLeftOperand() {
@@ -157,17 +173,22 @@ public class PrimitiveExpression extends AbstractStatement {
 	}
 
 	/**
-	 * <p>Getter for the field <code>operator</code>.</p>
-	 *
-	 * @return a {@link org.evosuite.testcase.PrimitiveExpression.Operator} object.
+	 * <p>
+	 * Getter for the field <code>operator</code>.
+	 * </p>
+	 * 
+	 * @return a {@link org.evosuite.testcase.PrimitiveExpression.Operator}
+	 *         object.
 	 */
 	public Operator getOperator() {
 		return operator;
 	}
 
 	/**
-	 * <p>Getter for the field <code>rightOperand</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>rightOperand</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getRightOperand() {
@@ -177,7 +198,8 @@ public class PrimitiveExpression extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public List<VariableReference> getUniqueVariableReferences() {
-		throw new UnsupportedOperationException("Method getUniqueVariableReferences not implemented!");
+		throw new UnsupportedOperationException(
+		        "Method getUniqueVariableReferences not implemented!");
 	}
 
 	/** {@inheritDoc} */
@@ -193,7 +215,8 @@ public class PrimitiveExpression extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean isAssignmentStatement() {
-		throw new UnsupportedOperationException("Method isAssignmentStatement not implemented!");
+		throw new UnsupportedOperationException(
+		        "Method isAssignmentStatement not implemented!");
 	}
 
 	/** {@inheritDoc} */

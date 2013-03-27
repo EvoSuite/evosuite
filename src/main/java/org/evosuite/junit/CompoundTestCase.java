@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -19,7 +19,6 @@ package org.evosuite.junit;
 
 import java.io.PrintStream;
 import java.io.Serializable;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,8 +37,8 @@ import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
-
 
 /**
  * A compound test case is a test case that is read from an existing JUnit test
@@ -48,7 +47,7 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * methods and possibly a class hierarchy. A CompoundTestCase is used to gather
  * all those statements to eventually combine them into a normal
  * {@link TestCase} when {@link #finalizeTestCase()} is called.
- *
+ * 
  * @author roessler
  */
 public class CompoundTestCase implements Serializable {
@@ -76,9 +75,9 @@ public class CompoundTestCase implements Serializable {
 
 		public List<VariableReference> getParams() {
 			return params;
-	}
+		}
 
-	@Override
+		@Override
 		public String toString() {
 			return name;
 		}
@@ -91,60 +90,73 @@ public class CompoundTestCase implements Serializable {
 		protected ReturnStatementPlaceholder(TestCase tc, VariableReference returnValue) {
 			super(tc, returnValue.getType());
 			retval = returnValue;
-	}
+		}
 
-	@Override
+		@Override
 		public StatementInterface copy(TestCase newTestCase, int offset) {
 			throw new UnsupportedOperationException("Method copy not implemented!");
-	}
+		}
 
-	@Override
-		public Throwable execute(Scope scope, PrintStream out) throws InvocationTargetException,
-				IllegalArgumentException, IllegalAccessException, InstantiationException {
+		@Override
+		public Throwable execute(Scope scope, PrintStream out)
+		        throws InvocationTargetException, IllegalArgumentException,
+		        IllegalAccessException, InstantiationException {
 			throw new UnsupportedOperationException("Method execute not implemented!");
-	}
+		}
 
-	@Override
-		public AccessibleObject getAccessibleObject() {
-			throw new UnsupportedOperationException("Method getAccessibleObject not implemented!");
-	}
+		@Override
+		public GenericAccessibleObject getAccessibleObject() {
+			throw new UnsupportedOperationException(
+			        "Method getAccessibleObject not implemented!");
+		}
 
-	@Override
-		public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals, Throwable exception) {
+		@Override
+		public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+		        Throwable exception) {
 			throw new UnsupportedOperationException("Method getBytecode not implemented!");
 		}
 
-	@Override
+		@Override
 		public List<VariableReference> getUniqueVariableReferences() {
-			throw new UnsupportedOperationException("Method getUniqueVariableReferences not implemented!");
-	}
+			throw new UnsupportedOperationException(
+			        "Method getUniqueVariableReferences not implemented!");
+		}
 
-	@Override
+		@Override
 		public Set<VariableReference> getVariableReferences() {
-			throw new UnsupportedOperationException("Method getVariableReferences not implemented!");
-	}
+			throw new UnsupportedOperationException(
+			        "Method getVariableReferences not implemented!");
+		}
 
-	@Override
+		@Override
 		public boolean isAssignmentStatement() {
 			return false;
-	}
+		}
 
 		@Override
 		public void replace(VariableReference oldVar, VariableReference newVar) {
 			if (retval.equals(oldVar)) {
 				retval = newVar;
+			}
 		}
-	}
 
-	@Override
+		@Override
 		public boolean same(StatementInterface s) {
 			throw new UnsupportedOperationException("Method same not implemented!");
-	}
+		}
 
 	}
 
 	public static enum TestScope {
-		BEFORE_CLASS, STATIC, STATICFIELDS, BEFORE, FIELDS, CONSTRUCTOR, AFTER, AFTER_CLASS, METHOD;
+		BEFORE_CLASS,
+		STATIC,
+		STATICFIELDS,
+		BEFORE,
+		FIELDS,
+		CONSTRUCTOR,
+		AFTER,
+		AFTER_CLASS,
+		METHOD;
 	}
 
 	/** Constant <code>STATIC_BLOCK_METHODNAME="<static block>"</code> */
@@ -176,10 +188,14 @@ public class CompoundTestCase implements Serializable {
 	private final DelegatingTestCase delegate;
 
 	/**
-	 * <p>Constructor for CompoundTestCase.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param child a {@link org.evosuite.junit.CompoundTestCase} object.
+	 * <p>
+	 * Constructor for CompoundTestCase.
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param child
+	 *            a {@link org.evosuite.junit.CompoundTestCase} object.
 	 */
 	public CompoundTestCase(String className, CompoundTestCase child) {
 		child.parent = this;
@@ -190,10 +206,14 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>Constructor for CompoundTestCase.</p>
-	 *
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for CompoundTestCase.
+	 * </p>
+	 * 
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
 	 */
 	public CompoundTestCase(String className, String methodName) {
 		this.testMethod = methodName;
@@ -203,18 +223,24 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>addParameter</p>
-	 *
-	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * addParameter
+	 * </p>
+	 * 
+	 * @param varRef
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public void addParameter(VariableReference varRef) {
 		currentMethod.getParams().add(varRef);
 	}
 
 	/**
-	 * <p>addStatement</p>
-	 *
-	 * @param statement a {@link org.evosuite.testcase.StatementInterface} object.
+	 * <p>
+	 * addStatement
+	 * </p>
+	 * 
+	 * @param statement
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
 	public void addStatement(StatementInterface statement) {
 		if (currentScope == TestScope.FIELDS) {
@@ -233,13 +259,18 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>addVariable</p>
-	 *
-	 * @param varBinding a {@link org.eclipse.jdt.core.dom.IVariableBinding} object.
-	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * addVariable
+	 * </p>
+	 * 
+	 * @param varBinding
+	 *            a {@link org.eclipse.jdt.core.dom.IVariableBinding} object.
+	 * @param varRef
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public void addVariable(IVariableBinding varBinding, VariableReference varRef) {
-		if ((currentScope == TestScope.FIELDS) || (currentScope == TestScope.STATICFIELDS)) {
+		if ((currentScope == TestScope.FIELDS)
+		        || (currentScope == TestScope.STATICFIELDS)) {
 			fieldVars.put(varBinding.toString(), varRef);
 			return;
 		}
@@ -247,13 +278,20 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>convertMethod</p>
-	 *
-	 * @param methodDef a {@link org.evosuite.junit.CompoundTestCase.MethodDef} object.
-	 * @param params a {@link java.util.List} object.
-	 * @param retVal a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * convertMethod
+	 * </p>
+	 * 
+	 * @param methodDef
+	 *            a {@link org.evosuite.junit.CompoundTestCase.MethodDef}
+	 *            object.
+	 * @param params
+	 *            a {@link java.util.List} object.
+	 * @param retVal
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	public void convertMethod(MethodDef methodDef, List<VariableReference> params, VariableReference retVal) {
+	public void convertMethod(MethodDef methodDef, List<VariableReference> params,
+	        VariableReference retVal) {
 		assert methodDef.getParams().size() == params.size();
 		Map<VariableReference, VariableReference> methodVarsMap = new HashMap<VariableReference, VariableReference>();
 		for (StatementInterface statement : methodDef.getCode()) {
@@ -265,7 +303,8 @@ public class CompoundTestCase implements Serializable {
 				if (resultVal == null) {
 					throw new IllegalStateException();
 				}
-				AssignmentStatement assignmentStatement = new AssignmentStatement(delegate, retVal, resultVal);
+				AssignmentStatement assignmentStatement = new AssignmentStatement(
+				        delegate, retVal, resultVal);
 				addStatement(assignmentStatement);
 				return;
 			}
@@ -282,7 +321,9 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>discardMethod</p>
+	 * <p>
+	 * discardMethod
+	 * </p>
 	 */
 	public void discardMethod() {
 		currentScope = TestScope.FIELDS;
@@ -291,7 +332,9 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>finalizeMethod</p>
+	 * <p>
+	 * finalizeMethod
+	 * </p>
 	 */
 	public void finalizeMethod() {
 		String currentMethodName = currentMethod.getName();
@@ -321,8 +364,10 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>finalizeTestCase</p>
-	 *
+	 * <p>
+	 * finalizeTestCase
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase finalizeTestCase() {
@@ -345,8 +390,10 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>className</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>className</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getClassName() {
@@ -354,8 +401,10 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>currentMethod</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>currentMethod</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public Object getCurrentMethod() {
@@ -363,8 +412,10 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>currentScope</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>currentScope</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.junit.CompoundTestCase.TestScope} object.
 	 */
 	public TestScope getCurrentScope() {
@@ -372,8 +423,10 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>getLastStatement</p>
-	 *
+	 * <p>
+	 * getLastStatement
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
 	public StatementInterface getLastStatement() {
@@ -382,9 +435,12 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>getMethod</p>
-	 *
-	 * @param name a {@link java.lang.String} object.
+	 * <p>
+	 * getMethod
+	 * </p>
+	 * 
+	 * @param name
+	 *            a {@link java.lang.String} object.
 	 * @return a {@link org.evosuite.junit.CompoundTestCase.MethodDef} object.
 	 */
 	public MethodDef getMethod(String name) {
@@ -395,8 +451,10 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>Getter for the field <code>parent</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>parent</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.junit.CompoundTestCase} object.
 	 */
 	public CompoundTestCase getParent() {
@@ -404,8 +462,10 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>getReference</p>
-	 *
+	 * <p>
+	 * getReference
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.junit.DelegatingTestCase} object.
 	 */
 	public DelegatingTestCase getReference() {
@@ -413,9 +473,12 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>getVariableReference</p>
-	 *
-	 * @param varBinding a {@link org.eclipse.jdt.core.dom.IVariableBinding} object.
+	 * <p>
+	 * getVariableReference
+	 * </p>
+	 * 
+	 * @param varBinding
+	 *            a {@link org.eclipse.jdt.core.dom.IVariableBinding} object.
 	 * @return a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public VariableReference getVariableReference(IVariableBinding varBinding) {
@@ -426,9 +489,12 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>isDescendantOf</p>
-	 *
-	 * @param declaringClass a {@link java.lang.Class} object.
+	 * <p>
+	 * isDescendantOf
+	 * </p>
+	 * 
+	 * @param declaringClass
+	 *            a {@link java.lang.Class} object.
 	 * @return a boolean.
 	 */
 	public boolean isDescendantOf(Class<?> declaringClass) {
@@ -442,9 +508,12 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>newMethod</p>
-	 *
-	 * @param methodName a {@link java.lang.String} object.
+	 * <p>
+	 * newMethod
+	 * </p>
+	 * 
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
 	 */
 	public void newMethod(String methodName) {
 		assert (currentMethod == null) || currentMethod.getCode().isEmpty();
@@ -454,9 +523,13 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>Setter for the field <code>currentScope</code>.</p>
-	 *
-	 * @param scope a {@link org.evosuite.junit.CompoundTestCase.TestScope} object.
+	 * <p>
+	 * Setter for the field <code>currentScope</code>.
+	 * </p>
+	 * 
+	 * @param scope
+	 *            a {@link org.evosuite.junit.CompoundTestCase.TestScope}
+	 *            object.
 	 */
 	public void setCurrentScope(TestScope scope) {
 		this.currentScope = scope;
@@ -469,12 +542,17 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	/**
-	 * <p>variableAssignment</p>
-	 *
-	 * @param varRef a {@link org.evosuite.testcase.VariableReference} object.
-	 * @param newAssignment a {@link org.evosuite.testcase.VariableReference} object.
+	 * <p>
+	 * variableAssignment
+	 * </p>
+	 * 
+	 * @param varRef
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
+	 * @param newAssignment
+	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	public void variableAssignment(VariableReference varRef, VariableReference newAssignment) {
+	public void variableAssignment(VariableReference varRef,
+	        VariableReference newAssignment) {
 		for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
 			if (entry.getValue() == varRef) {
 				currentMethodVars.put(entry.getKey(), newAssignment);
@@ -498,7 +576,8 @@ public class CompoundTestCase implements Serializable {
 		throw new RuntimeException("Assignment " + varRef + " not found!");
 	}
 
-	private void addReplacementVariable(VariableReference oldValue, VariableReference newValue) {
+	private void addReplacementVariable(VariableReference oldValue,
+	        VariableReference newValue) {
 		String variable = getVariableFromCurrentScope(oldValue);
 		fieldVars.put(variable, newValue);
 	}
@@ -526,12 +605,12 @@ public class CompoundTestCase implements Serializable {
 		for (MethodDef methodDef : afterMethods) {
 			if (!overridenMethods.contains(methodDef.getName())) {
 				result.addAll(methodDef.getCode());
-	}
-	}
+			}
+		}
 		if (parent != null) {
 			// parent: @After
 			result.addAll(parent.getAfterMethods(methodDefs.keySet()));
-	}
+		}
 		return result;
 	}
 
@@ -539,7 +618,7 @@ public class CompoundTestCase implements Serializable {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
 			result.addAll(parent.getBeforeMethods(methodDefs.keySet()));
-	}
+		}
 		// @Before IF NOT OVERRIDEN
 		// According to Kent Beck, there is no defined order
 		// in which methods of the same leve within one class are called:
@@ -547,8 +626,8 @@ public class CompoundTestCase implements Serializable {
 		for (MethodDef methodDef : beforeMethods) {
 			if (!overridenMethods.contains(methodDef.getName())) {
 				result.addAll(methodDef.getCode());
-	}
-	}
+			}
+		}
 		return result;
 	}
 
@@ -556,7 +635,7 @@ public class CompoundTestCase implements Serializable {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
 			result.addAll(parent.getInitializationCode());
-	}
+		}
 		// initialization
 		result.addAll(fields);
 		// constructor
@@ -568,7 +647,7 @@ public class CompoundTestCase implements Serializable {
 		MethodDef result = methodDefs.get(name);
 		if (result != null) {
 			return result;
-	}
+		}
 		if (parent != null) {
 			return parent.getMethodInternally(name);
 		}
@@ -579,15 +658,17 @@ public class CompoundTestCase implements Serializable {
 		for (MethodDef constructor : constructors) {
 			if (constructor.getParams().isEmpty()) {
 				return constructor.getCode();
-	}
-	}
+			}
+		}
 		if (constructors.size() > 1) {
-			throw new RuntimeException("Found " + constructors.size() + " constructors, but on no-args constructor!");
+			throw new RuntimeException("Found " + constructors.size()
+			        + " constructors, but on no-args constructor!");
 		}
 		return Collections.emptyList();
 	}
 
-	private List<StatementInterface> getStaticInitializationBeforeClassMethods(Set<String> overridenMethods) {
+	private List<StatementInterface> getStaticInitializationBeforeClassMethods(
+	        Set<String> overridenMethods) {
 		List<StatementInterface> result = new ArrayList<StatementInterface>();
 		if (parent != null) {
 			// @BeforeClass IF NOT OVERRIDEN
@@ -610,7 +691,8 @@ public class CompoundTestCase implements Serializable {
 	}
 
 	private String getVariableFromCurrentScope(VariableReference varRef) {
-		if ((currentScope != TestScope.FIELDS) && (currentScope != TestScope.STATICFIELDS)) {
+		if ((currentScope != TestScope.FIELDS)
+		        && (currentScope != TestScope.STATICFIELDS)) {
 			for (Map.Entry<String, VariableReference> entry : currentMethodVars.entrySet()) {
 				if (entry.getValue().equals(varRef)) {
 					return entry.getKey();

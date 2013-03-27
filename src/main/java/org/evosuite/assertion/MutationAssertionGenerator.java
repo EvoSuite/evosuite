@@ -152,7 +152,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 *            assertion
 	 */
 	private void minimize(TestCase test, List<Mutation> mutants,
-	        List<Assertion> assertions, Map<Integer, Set<Integer>> killMap) {
+	        final List<Assertion> assertions, Map<Integer, Set<Integer>> killMap) {
 
 		class Pair implements Comparable<Object> {
 			Integer assertion;
@@ -166,8 +166,18 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			@Override
 			public int compareTo(Object o) {
 				Pair other = (Pair) o;
-				if (num_killed.equals(other.num_killed))
-					return assertion.compareTo(other.assertion);
+				if (num_killed.equals(other.num_killed)) {
+					Assertion first = assertions.get(assertion);
+					Assertion second = assertions.get(other.assertion);
+					if (first instanceof PrimitiveAssertion) {
+						return 1;
+					} else if (second instanceof PrimitiveAssertion) {
+						return -1;
+					} else {
+						return assertion.compareTo(other.assertion);
+					}
+				}
+				// return assertion.compareTo(other.assertion);
 				//				return other.assertion.compareTo(assertion);
 				else
 					return num_killed.compareTo(other.num_killed);
@@ -403,6 +413,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		// IF there are no mutant killing assertions on the last statement, still assert something
 		if (test.getStatement(test.size() - 1).getAssertions().isEmpty()
 		        || justNullAssertion(test.getStatement(test.size() - 1))) {
+			// || primitiveWithoutAssertion(test.getStatement(test.size() - 1))) {
 			logger.info("Last statement has no assertions: " + test.toCode());
 			logger.info("Assertions to choose from: " + assertions.size());
 
@@ -449,7 +460,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 				Method inspectorMethod = null;
 				if (test.getStatement(test.size() - 1) instanceof MethodStatement) {
 					MethodStatement methodStatement = (MethodStatement) test.getStatement(test.size() - 1);
-					Method method = methodStatement.getMethod();
+					Method method = methodStatement.getMethod().getMethod();
 					if (method.getParameterTypes().length == 0) {
 						if (method.getReturnType().isPrimitive()
 						        && !method.getReturnType().equals(void.class)) {
@@ -528,6 +539,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 			}
 			logger.info("2. Done with assertions");
+			filterInspectorPrimitiveDuplication(test.getStatement(test.size() - 1));
 		}
 
 		if (!origResult.noThrownExceptions()) {
@@ -595,6 +607,61 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			}
 
 			return just;
+		}
+	}
+
+	private boolean primitiveWithoutAssertion(StatementInterface statement) {
+		if (!statement.getReturnValue().isPrimitive())
+			return false;
+
+		Set<Assertion> assertions = statement.getAssertions();
+		if (assertions.isEmpty())
+			return false;
+
+		Iterator<Assertion> iterator = assertions.iterator();
+		boolean hasPrimitive = false;
+		while (iterator.hasNext()) {
+			Assertion ass = iterator.next();
+			if (ass instanceof PrimitiveAssertion) {
+				if (ass.getStatement().equals(statement)) {
+					hasPrimitive = true;
+					break;
+				}
+			}
+		}
+
+		return !hasPrimitive;
+	}
+
+	private void filterInspectorPrimitiveDuplication(StatementInterface statement) {
+		Set<Assertion> assertions = new HashSet<Assertion>(statement.getAssertions());
+		if (assertions.size() < 2)
+			return;
+
+		if (!(statement instanceof MethodStatement))
+			return;
+
+		MethodStatement methodStatement = (MethodStatement) statement;
+
+		boolean hasPrimitive = false;
+		for (Assertion assertion : assertions) {
+			if (assertion instanceof PrimitiveAssertion) {
+				if (assertion.getStatement().equals(statement)) {
+					hasPrimitive = true;
+				}
+			}
+		}
+
+		if (hasPrimitive) {
+			for (Assertion assertion : assertions) {
+				if (assertion instanceof InspectorAssertion) {
+					InspectorAssertion ia = (InspectorAssertion) assertion;
+					if (ia.getInspector().getMethod().equals(methodStatement.getMethod())) {
+						statement.removeAssertion(assertion);
+						return;
+					}
+				}
+			}
 		}
 	}
 

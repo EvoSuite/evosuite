@@ -28,25 +28,28 @@ import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.ShortPrimitiveStatement;
 import org.evosuite.testcase.StringPrimitiveStatement;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.GenericField;
+import org.evosuite.utils.GenericMethod;
 
 public class TestCaseBuilder {
 
-	private DefaultTestCase tc = new DefaultTestCase();
+	private final DefaultTestCase tc = new DefaultTestCase();
 
 	public VariableReference appendConstructor(Constructor<?> constructor,
-			VariableReference... parameters) {
+	        VariableReference... parameters) {
 
 		List<VariableReference> parameter_list = Arrays.asList(parameters);
 		ConstructorStatement constructorStmt = new ConstructorStatement(tc,
-				constructor, constructor.getDeclaringClass(), parameter_list);
+		        new GenericConstructor(constructor, constructor.getDeclaringClass()),
+		        parameter_list);
 		tc.addStatement(constructorStmt);
 
 		return constructorStmt.getReturnValue();
 	}
 
 	public VariableReference appendIntPrimitive(int intValue) {
-		IntPrimitiveStatement primitiveStmt = new IntPrimitiveStatement(tc,
-				intValue);
+		IntPrimitiveStatement primitiveStmt = new IntPrimitiveStatement(tc, intValue);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
@@ -63,11 +66,11 @@ public class TestCaseBuilder {
 	 * @param parameters
 	 * @return <code>void reference</code> for void methods
 	 */
-	public VariableReference appendMethod(VariableReference callee,
-			Method method, VariableReference... parameters) {
+	public VariableReference appendMethod(VariableReference callee, Method method,
+	        VariableReference... parameters) {
 		List<VariableReference> parameter_list = Arrays.asList(parameters);
-		MethodStatement methodStmt = new MethodStatement(tc, method, callee,
-				method.getReturnType(), parameter_list);
+		MethodStatement methodStmt = new MethodStatement(tc, new GenericMethod(method,
+		        callee.getType()), callee, parameter_list);
 		tc.addStatement(methodStmt);
 		return methodStmt.getReturnValue();
 	}
@@ -77,44 +80,41 @@ public class TestCaseBuilder {
 	}
 
 	public VariableReference appendStringPrimitive(String string) {
-		StringPrimitiveStatement primitiveStmt = new StringPrimitiveStatement(
-				tc, string);
+		StringPrimitiveStatement primitiveStmt = new StringPrimitiveStatement(tc, string);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendBooleanPrimitive(boolean b) {
-		BooleanPrimitiveStatement primitiveStmt = new BooleanPrimitiveStatement(
-				tc, b);
+		BooleanPrimitiveStatement primitiveStmt = new BooleanPrimitiveStatement(tc, b);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendDoublePrimitive(double d) {
-		DoublePrimitiveStatement primitiveStmt = new DoublePrimitiveStatement(
-				tc, d);
+		DoublePrimitiveStatement primitiveStmt = new DoublePrimitiveStatement(tc, d);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public void appendAssignment(VariableReference receiver, Field field,
-			VariableReference value) {
+	        VariableReference value) {
 		FieldReference fieldReference;
 
 		if (receiver == null) {
-			fieldReference = new FieldReference(tc, field);
+			fieldReference = new FieldReference(tc, new GenericField(field,
+			        field.getDeclaringClass()));
 		} else {
-			fieldReference = new FieldReference(tc, field, receiver);
+			fieldReference = new FieldReference(tc, new GenericField(field,
+			        receiver.getType()), receiver);
 		}
-		AssignmentStatement stmt = new AssignmentStatement(tc, fieldReference,
-				value);
+		AssignmentStatement stmt = new AssignmentStatement(tc, fieldReference, value);
 		tc.addStatement(stmt);
 	}
 
-	public VariableReference appendFieldStmt(VariableReference receiver,
-			Field field) {
-		FieldStatement stmt = new FieldStatement(tc, field, receiver,
-				field.getGenericType());
+	public VariableReference appendFieldStmt(VariableReference receiver, Field field) {
+		FieldStatement stmt = new FieldStatement(tc, new GenericField(field,
+		        receiver.getType()), receiver);
 		tc.addStatement(stmt);
 		return stmt.getReturnValue();
 	}
@@ -126,8 +126,7 @@ public class TestCaseBuilder {
 	}
 
 	public VariableReference appendEnumPrimitive(Enum<?> value) {
-		EnumPrimitiveStatement primitiveStmt = new EnumPrimitiveStatement(tc,
-				value);
+		EnumPrimitiveStatement primitiveStmt = new EnumPrimitiveStatement(tc, value);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
@@ -145,8 +144,7 @@ public class TestCaseBuilder {
 	 * @param index
 	 * @param var
 	 */
-	public void appendAssignment(ArrayReference array, int index,
-			VariableReference var) {
+	public void appendAssignment(ArrayReference array, int index, VariableReference var) {
 
 		ArrayIndex arrayIndex = new ArrayIndex(tc, array, index);
 		AssignmentStatement stmt = new AssignmentStatement(tc, arrayIndex, var);
@@ -160,8 +158,7 @@ public class TestCaseBuilder {
 	 * @param array
 	 * @param index
 	 */
-	public void appendAssignment(VariableReference var, ArrayReference array,
-			int index) {
+	public void appendAssignment(VariableReference var, ArrayReference array, int index) {
 		ArrayIndex arrayIndex = new ArrayIndex(tc, array, index);
 		AssignmentStatement stmt = new AssignmentStatement(tc, var, arrayIndex);
 		tc.addStatement(stmt);
@@ -174,15 +171,13 @@ public class TestCaseBuilder {
 	}
 
 	public VariableReference appendFloatPrimitive(float f) {
-		FloatPrimitiveStatement primitiveStmt = new FloatPrimitiveStatement(tc,
-				f);
+		FloatPrimitiveStatement primitiveStmt = new FloatPrimitiveStatement(tc, f);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}
 
 	public VariableReference appendShortPrimitive(short s) {
-		ShortPrimitiveStatement primitiveStmt = new ShortPrimitiveStatement(tc,
-				s);
+		ShortPrimitiveStatement primitiveStmt = new ShortPrimitiveStatement(tc, s);
 		tc.addStatement(primitiveStmt);
 		return primitiveStmt.getReturnValue();
 	}

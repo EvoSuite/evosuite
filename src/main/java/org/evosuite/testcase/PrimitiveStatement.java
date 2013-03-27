@@ -18,7 +18,6 @@
 package org.evosuite.testcase;
 
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -30,6 +29,7 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -334,7 +334,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 					List<VariableReference> parameters = ms.getParameterReferences();
 					int index = parameters.indexOf(retval);
 					if (index >= 0) {
-						Method m = ms.getMethod();
+						Method m = ms.getMethod().getMethod();
 						org.objectweb.asm.Type[] types = org.objectweb.asm.Type.getArgumentTypes(m);
 						if (types[index].equals(org.objectweb.asm.Type.BOOLEAN_TYPE)) {
 							logger.warn("MUTATING");
@@ -386,7 +386,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public AccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject getAccessibleObject() {
 		return null;
 	}
 

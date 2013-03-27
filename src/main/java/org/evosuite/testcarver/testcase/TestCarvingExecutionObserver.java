@@ -1,7 +1,5 @@
 package org.evosuite.testcarver.testcase;
 
-import java.lang.reflect.Field;
-
 import org.evosuite.testcarver.capture.FieldRegistry;
 import org.evosuite.testcase.AssignmentStatement;
 import org.evosuite.testcase.ExecutionObserver;
@@ -9,6 +7,7 @@ import org.evosuite.testcase.FieldReference;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.utils.GenericField;
 import org.objectweb.asm.Type;
 
 public final class TestCarvingExecutionObserver extends ExecutionObserver {
@@ -42,12 +41,12 @@ public final class TestCarvingExecutionObserver extends ExecutionObserver {
 
 			if (left instanceof FieldReference) {
 				final FieldReference fieldRef = (FieldReference) left;
-				final Field field = fieldRef.getField();
+				final GenericField field = fieldRef.getField();
 
 				FieldRegistry.notifyModification(this.captureId,
 				                                 Type.getInternalName(field.getDeclaringClass()),
 				                                 field.getName(),
-				                                 Type.getDescriptor(field.getType()));
+				                                 Type.getDescriptor(field.getField().getType()));
 				//PUTFIELDRegistry creates PUTXXX as well as corresponding GETXXX statements
 				this.captureId -= 2;
 			}

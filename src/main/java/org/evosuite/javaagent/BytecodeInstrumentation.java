@@ -239,10 +239,11 @@ public class BytecodeInstrumentation {
 			if (!Properties.TEST_CARVING || Properties.MAKE_ACCESSIBLE) {
 				cv = new AccessibleClassAdapter(cv, className);
 			}
-			
+
 			for (ClassAdapterFactory factory : externalPostVisitors) {
 				cv = factory.getVisitor(cv, className);
 			}
+
 			cv = new ExecutionPathClassAdapter(cv, className);
 			cv = new CFGClassAdapter(classLoader, cv, className);
 
@@ -303,13 +304,13 @@ public class BytecodeInstrumentation {
 			if (isTargetClassName(classNameWithDots)
 			        || shouldTransform(classNameWithDots)) {
 				cn = cmp.transform();
+				ContainerTransformation ct = new ContainerTransformation(cn);
+				//if (isTargetClassName(classNameWithDots))
+				cn = ct.transform();
 			}
 
 			if (shouldTransform(classNameWithDots)) {
 				logger.info("Testability Transforming " + className);
-				ContainerTransformation ct = new ContainerTransformation(cn);
-				//if (isTargetClassName(classNameWithDots))
-				cn = ct.transform();
 
 				//TestabilityTransformation tt = new TestabilityTransformation(cn);
 				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(

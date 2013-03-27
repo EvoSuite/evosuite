@@ -18,7 +18,6 @@
 package org.evosuite.testcase;
 
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -30,7 +29,9 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericField;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
@@ -133,7 +134,8 @@ public class AssignmentStatement extends AbstractStatement {
 					        + parameter.getSimpleClassName() + " defined at statement "
 					        + tc.getStatement(parameter.getStPosition()).getCode()
 					        + ", assignment statement: "
-					        + tc.getStatement(retval.getStPosition()).getCode()+"; SUT="+Properties.TARGET_CLASS);
+					        + tc.getStatement(retval.getStPosition()).getCode()
+					        + "; SUT=" + Properties.TARGET_CLASS);
 
 					// FIXXME: IllegalArgumentException may happen when we only have generators
 					// for an abstract supertype and not the concrete type that we need!
@@ -329,7 +331,8 @@ public class AssignmentStatement extends AbstractStatement {
 				if (!value.isPrimitive() && !(value instanceof NullReference)) {
 					// add fields of this object to list
 					for (Field field : TestClusterGenerator.getAccessibleFields(value.getVariableClass())) {
-						FieldReference f = new FieldReference(tc, field, value);
+						FieldReference f = new FieldReference(tc, new GenericField(field,
+						        value.getGenericClass()), value);
 						if (f.getDepth() <= 2) {
 							if (f.isAssignableFrom(parameter.getType())) {
 								variables.add(f);
@@ -381,7 +384,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public AccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject getAccessibleObject() {
 		return null;
 	}
 

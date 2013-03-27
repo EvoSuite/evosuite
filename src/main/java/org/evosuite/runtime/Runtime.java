@@ -20,6 +20,7 @@
  */
 package org.evosuite.runtime;
 
+import java.io.EvoSuiteIO;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,10 +30,10 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.EvoSuiteIO;
 
 /**
  * <p>
@@ -45,19 +46,22 @@ import java.io.EvoSuiteIO;
 public class Runtime {
 
 	/**
-	 * maps from the name of a FileSystem method to a class array containing its parameter types
+	 * maps from the name of a FileSystem method to a class array containing its
+	 * parameter types
 	 */
 	private static Map<String, Class<?>[]> fileOperations;
 
 	/**
-	 * the set of file operation selectors that shall be used to select FileSystem methods
+	 * the set of file operation selectors that shall be used to select
+	 * FileSystem methods
 	 */
 	private static Set<FileOperationSelector> fileOperationSelectors;
 
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
 	/**
-	 * Resets all simulated classes to an initial default state (so that it seems they have never been used by previous test case executions)
+	 * Resets all simulated classes to an initial default state (so that it
+	 * seems they have never been used by previous test case executions)
 	 * <p>
 	 * (Idea by Gordon, JavaDoc written by Daniel)
 	 */
@@ -78,8 +82,10 @@ public class Runtime {
 	/**
 	 * 
 	 * <p>
-	 * If access to certain classes was observed at runtime, this method adds test calls to the test cluster which may lead to covering more branches.
-	 * For example, if file access was observed, statements will be introduced that perform mutations on the accessed files like content modifiation.
+	 * If access to certain classes was observed at runtime, this method adds
+	 * test calls to the test cluster which may lead to covering more branches.
+	 * For example, if file access was observed, statements will be introduced
+	 * that perform mutations on the accessed files like content modifiation.
 	 * 
 	 * <p>
 	 * (Idea by Gordon, JavaDoc written by Daniel)
@@ -94,9 +100,11 @@ public class Runtime {
 
 			if (Random.wasAccessed()) {
 				try {
-					TestCluster.getInstance().addTestCall(
-							Random.class.getMethod("setNextRandom",
-									new Class<?>[] { int.class }));
+					TestCluster.getInstance().addTestCall(new GenericMethod(
+					                                              Random.class.getMethod("setNextRandom",
+					                                                                     new Class<?>[] { int.class }),
+					                                              new GenericClass(
+					                                                      Random.class)));
 				} catch (SecurityException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -107,9 +115,11 @@ public class Runtime {
 			}
 			if (System.wasAccessed()) {
 				try {
-					TestCluster.getInstance().addTestCall(
-							System.class.getMethod("setCurrentTimeMillis",
-									new Class<?>[] { long.class }));
+					TestCluster.getInstance().addTestCall(new GenericMethod(
+					                                              System.class.getMethod("setCurrentTimeMillis",
+					                                                                     new Class<?>[] { long.class }),
+					                                              new GenericClass(
+					                                                      System.class)));
 				} catch (SecurityException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -122,8 +132,8 @@ public class Runtime {
 
 		if (Properties.VIRTUAL_FS) {
 			EvoSuiteIO.disableVFS();
-			test.setAccessedFiles(new ArrayList<String>(EvoSuiteIO
-					.getFilesAccessedByCUT()));
+			test.setAccessedFiles(new ArrayList<String>(
+			        EvoSuiteIO.getFilesAccessedByCUT()));
 
 			if (EvoSuiteIO.filesWereAccessedByCUT()) {
 				logger.info("Adding EvoSuiteFile calls to cluster");
@@ -131,48 +141,45 @@ public class Runtime {
 				if (fileOperations == null) {
 					fileOperations = new HashMap<String, Class<?>[]>();
 					fileOperations.put("setFileContent", new Class<?>[] {
-							EvoSuiteFile.class, String.class });
+					        EvoSuiteFile.class, String.class });
 					fileOperations.put("setReadPermission", new Class<?>[] {
-							EvoSuiteFile.class, boolean.class });
+					        EvoSuiteFile.class, boolean.class });
 					fileOperations.put("setWritePermission", new Class<?>[] {
-							EvoSuiteFile.class, boolean.class });
+					        EvoSuiteFile.class, boolean.class });
 					fileOperations.put("setExecutePermission", new Class<?>[] {
-							EvoSuiteFile.class, boolean.class });
+					        EvoSuiteFile.class, boolean.class });
 					fileOperations.put("deepDelete",
-							new Class<?>[] { EvoSuiteFile.class });
+					                   new Class<?>[] { EvoSuiteFile.class });
 					fileOperations.put("createFile",
-							new Class<?>[] { EvoSuiteFile.class });
+					                   new Class<?>[] { EvoSuiteFile.class });
 					fileOperations.put("createDirectory",
-							new Class<?>[] { EvoSuiteFile.class });
+					                   new Class<?>[] { EvoSuiteFile.class });
 					fileOperations.put("createAndFillDirectory",
-							new Class<?>[] { EvoSuiteFile.class });
+					                   new Class<?>[] { EvoSuiteFile.class });
 					fileOperations.put("createParent",
-							new Class<?>[] { EvoSuiteFile.class });
+					                   new Class<?>[] { EvoSuiteFile.class });
 					fileOperations.put("deepDeleteParent",
-							new Class<?>[] { EvoSuiteFile.class });
+					                   new Class<?>[] { EvoSuiteFile.class });
 				}
 
 				if (fileOperationSelectors == null) {
 					fileOperationSelectors = new HashSet<FileOperationSelector>();
-					fileOperationSelectors
-							.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
-					fileOperationSelectors
-							.add(FileOperationSelectors.CREATION_AND_DELETION);
-					fileOperationSelectors
-							.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
-					fileOperationSelectors
-							.add(FileOperationSelectors.PERMISSION_MODIFICATION);
-					fileOperationSelectors
-							.add(FileOperationSelectors.DIRECTORY_CONTENT_MODIFICATION);
+					fileOperationSelectors.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
+					fileOperationSelectors.add(FileOperationSelectors.CREATION_AND_DELETION);
+					fileOperationSelectors.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
+					fileOperationSelectors.add(FileOperationSelectors.PERMISSION_MODIFICATION);
+					fileOperationSelectors.add(FileOperationSelectors.DIRECTORY_CONTENT_MODIFICATION);
 				}
 
 				try {
 					for (String method : fileOperations.keySet()) {
 						for (FileOperationSelector fileOperationSelector : fileOperationSelectors) {
 							if (fileOperationSelector.select(method)) {
-								TestCluster.getInstance().addTestCall(
-										FileSystem.class.getMethod(method,
-												fileOperations.get(method)));
+								TestCluster.getInstance().addTestCall(new GenericMethod(
+								                                              FileSystem.class.getMethod(method,
+								                                                                         fileOperations.get(method)),
+								                                              new GenericClass(
+								                                                      FileSystem.class)));
 								break;
 							}
 						}

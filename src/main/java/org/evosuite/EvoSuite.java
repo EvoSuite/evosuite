@@ -21,33 +21,22 @@
 package org.evosuite;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.GnuParser;
-import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.evosuite.Properties.NoSuchParameterException;
-import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.Properties.Strategy;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
 import org.evosuite.executionmode.ListParameters;
@@ -55,17 +44,10 @@ import org.evosuite.executionmode.MeasureCoverage;
 import org.evosuite.executionmode.PrintStats;
 import org.evosuite.executionmode.Setup;
 import org.evosuite.executionmode.TestGeneration;
-import org.evosuite.javaagent.InstrumentingClassLoader;
-import org.evosuite.rmi.MasterServices;
-import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.setup.InheritanceTree;
 import org.evosuite.setup.InheritanceTreeGenerator;
-import org.evosuite.statistics.SearchStatistics;
-import org.evosuite.utils.ClassPathHacker;
-import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.ResourceList;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
@@ -108,15 +90,14 @@ public class EvoSuite {
 		}
 
 	}
-	
+
 	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
 
 	private static String separator = System.getProperty("file.separator");
 	private static String javaHome = System.getProperty("java.home");
-	
-	public  static String evosuiteJar = "";
-	
-	
+
+	public static String evosuiteJar = "";
+
 	/**
 	 * Constant
 	 * <code>JAVA_CMD="javaHome + separator + bin + separatorj"{trunked}</code>
@@ -124,10 +105,7 @@ public class EvoSuite {
 	public final static String JAVA_CMD = javaHome + separator + "bin" + separator
 	        + "java";
 
-	
 	public static String base_dir_path = System.getProperty("user.dir");
-
-	
 
 	public static boolean isInterface(String resource) throws IOException {
 
@@ -138,9 +116,7 @@ public class EvoSuite {
 		return (cn.access & Opcodes.ACC_INTERFACE) == Opcodes.ACC_INTERFACE;
 	}
 
-
-
-	public  static String generateInheritanceTree(String cp) throws IOException {
+	public static String generateInheritanceTree(String cp) throws IOException {
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath");
 		List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
 		InheritanceTree tree = InheritanceTreeGenerator.analyze(cpList);
@@ -149,7 +125,6 @@ public class EvoSuite {
 		InheritanceTreeGenerator.writeInheritanceTree(tree, outputFile);
 		return outputFile.getAbsolutePath();
 	}
-	
 
 	private void setupProperties() {
 		if (base_dir_path.equals("")) {
@@ -177,7 +152,7 @@ public class EvoSuite {
 		List<String> javaOpts = new ArrayList<String>();
 
 		String version = EvoSuite.class.getPackage().getImplementationVersion();
-		if (version == null){
+		if (version == null) {
 			version = "";
 		}
 		LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
@@ -195,40 +170,41 @@ public class EvoSuite {
 			/*
 			 * NOTE: JVM arguments will not be passed over from the master to the client. So for -Xmx, we need to use "mem"
 			 */
-			if (line.hasOption("mem")){
+			if (line.hasOption("mem")) {
 				javaOpts.add("-Xmx" + line.getOptionValue("mem") + "M");
 			}
-			
-			if (line.hasOption("heapdump")){
+
+			if (line.hasOption("heapdump")) {
 				javaOpts.add("-XX:+HeapDumpOnOutOfMemoryError");
 			}
-			
-			if (line.hasOption("jar")){
+
+			if (line.hasOption("jar")) {
 				evosuiteJar = line.getOptionValue("jar");
 			}
-			
+
 			if (!line.hasOption("regressionSuite")) {
-				if (line.hasOption("criterion")){
+				if (line.hasOption("criterion")) {
 					javaOpts.add("-Dcriterion=" + line.getOptionValue("criterion"));
 				}
 			} else {
 				javaOpts.add("-Dcriterion=regression");
 			}
-			
-			
-			if (line.hasOption("seed")){
+
+			if (line.hasOption("seed")) {
 				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
 			}
-			
+
 			if (line.hasOption("base_dir")) {
 				base_dir_path = line.getOptionValue("base_dir");
 				File baseDir = new File(base_dir_path);
 				if (!baseDir.exists()) {
-					LoggingUtils.getEvoLogger().error("Base directory does not exist: " + base_dir_path);					                                          
+					LoggingUtils.getEvoLogger().error("Base directory does not exist: "
+					                                          + base_dir_path);
 					return null;
 				}
 				if (!baseDir.isDirectory()) {
-					LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: " + base_dir_path);					                                         
+					LoggingUtils.getEvoLogger().error("Specified base directory is not a directory: "
+					                                          + base_dir_path);
 					return null;
 				}
 			}
@@ -236,34 +212,33 @@ public class EvoSuite {
 			/*
 			 * Following "options" are the actual (mutually exclusive) execution modes of EvoSuite
 			 */
-			
+
 			String cp = getClassPath(line);
 
 			if (line.hasOption(Help.NAME)) {
 				return Help.execute(options);
-			} 
-						
+			}
+
 			if (line.hasOption(Setup.NAME)) {
 				return Setup.execute(javaOpts, line);
-			} 
-						
+			}
+
 			if (line.hasOption(MeasureCoverage.NAME)) {
 				return MeasureCoverage.execute(options, javaOpts, line, cp);
-			} 
-			
+			}
+
 			if (line.hasOption(ListClasses.NAME)) {
 				return ListClasses.execute(options, line, cp);
-			} 
-			
+			}
+
 			if (line.hasOption(PrintStats.NAME)) {
 				return PrintStats.execute(options, javaOpts, line, cp);
-			} 
+			}
 
 			if (line.hasOption(ListParameters.NAME)) {
 				return ListParameters.execute();
-			} 
+			}
 
-		
 			return TestGeneration.executeTestGeneration(options, javaOpts, line, cp);
 
 		} catch (ParseException exp) {
@@ -276,13 +251,11 @@ public class EvoSuite {
 		return null;
 	}
 
-
 	public static boolean hasLegacyTargets() {
 		File directory = new File(Properties.OUTPUT_DIR);
 		String[] extensions = { "task" };
 		return !FileUtils.listFiles(directory, extensions, false).isEmpty();
 	}
-	
 
 	/**
 	 * Add all the properties that were set with -D
@@ -291,14 +264,12 @@ public class EvoSuite {
 	 * @param line
 	 * @throws Error
 	 */
-	private void addJavaDOptions(List<String> javaOpts, CommandLine line)
-			throws Error {
+	private void addJavaDOptions(List<String> javaOpts, CommandLine line) throws Error {
 		java.util.Properties properties = line.getOptionProperties("D");
 		Set<String> propertyNames = new HashSet<String>(Properties.getParameters());
 		for (String propertyName : properties.stringPropertyNames()) {
 			if (!propertyNames.contains(propertyName)) {
-				LoggingUtils.getEvoLogger().error("* Unknown property: "
-				                                          + propertyName);
+				LoggingUtils.getEvoLogger().error("* Unknown property: " + propertyName);
 				throw new Error("Unknown property: " + propertyName);
 			}
 			String propertyValue = properties.getProperty(propertyName);
@@ -333,7 +304,6 @@ public class EvoSuite {
 		return cp;
 	}
 
-	
 	private Options getCommandLineOptions() {
 		Options options = new Options();
 
@@ -343,32 +313,41 @@ public class EvoSuite {
 		Option listClasses = ListClasses.getOption();
 		Option printStats = PrintStats.getOption();
 		Option listParameters = ListParameters.getOption();
-		
+
 		Option[] generateOptions = TestGeneration.getOptions();
-				
-		Option targetClass = new Option("class",true, "target class for test generation");
-		Option targetPrefix = new Option("prefix",true,"target prefix for test generation");
-		Option targetCP = new Option("target",true,"target classpath for test generation");		
-		Option classPath = new Option("cp",true,"classpath of the project under test and dependencies");
+
+		Option targetClass = new Option("class", true, "target class for test generation");
+		Option targetPrefix = new Option("prefix", true,
+		        "target prefix for test generation");
+		Option targetCP = new Option("target", true,
+		        "target classpath for test generation");
+		Option classPath = new Option("cp", true,
+		        "classpath of the project under test and dependencies");
 		classPath.setValueSeparator(':');
-		Option junitPrefix = new Option("junit",true,"junit prefix");
-		Option criterion = new Option("criterion",true,"target criterion for test generation");
-		Option seed = new Option("seed",true,"seed for random number generator");
-		Option mem = new Option("mem",true,"heap size for client process (in megabytes)");
-		Option jar = new Option("jar",true,"location of EvoSuite jar file to use in client process");
-		Option extendSuite = new Option("extend",true,"extend an existing test suite");
+		Option junitPrefix = new Option("junit", true, "junit prefix");
+		Option criterion = new Option("criterion", true,
+		        "target criterion for test generation");
+		Option seed = new Option("seed", true, "seed for random number generator");
+		Option mem = new Option("mem", true,
+		        "heap size for client process (in megabytes)");
+		Option jar = new Option("jar", true,
+		        "location of EvoSuite jar file to use in client process");
+		Option extendSuite = new Option("extend", true, "extend an existing test suite");
 
-		Option inheritance = new Option("inheritanceTree", "Cache inheritance tree during setup");
-		Option heapDump = new Option("heapdump", "Create heap dump on client VM out of memory error");
+		Option inheritance = new Option("inheritanceTree",
+		        "Cache inheritance tree during setup");
+		Option heapDump = new Option("heapdump",
+		        "Create heap dump on client VM out of memory error");
 
-		Option base_dir = new Option("base_dir",true,"Working directory in which tests and reports will be placed");
+		Option base_dir = new Option("base_dir", true,
+		        "Working directory in which tests and reports will be placed");
 
 		Option property = OptionBuilder.withArgName("property=value").hasArgs(2).withValueSeparator().withDescription("use value for given property").create("D");
 
-		for(Option option : generateOptions){
+		for (Option option : generateOptions) {
 			options.addOption(option);
 		}
-		
+
 		options.addOption(listParameters);
 		options.addOption(help);
 		options.addOption(extendSuite);
@@ -389,7 +368,7 @@ public class EvoSuite {
 		options.addOption(property);
 		options.addOption(classPath);
 		options.addOption(heapDump);
-		
+
 		return options;
 	}
 

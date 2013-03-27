@@ -117,6 +117,9 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.GenericField;
+import org.evosuite.utils.GenericMethod;
 
 /**
  * This class implements the Eclipse JDT Visitor to turn an existing test case
@@ -183,12 +186,13 @@ public class TestExtractingVisitor extends ASTVisitor {
 
 		public ValidConstructorStatement(TestCase tc, Constructor<?> constructor,
 		        java.lang.reflect.Type type, List<VariableReference> parameters) {
-			super(tc, constructor, type, parameters);
+			super(tc, new GenericConstructor(constructor, type), parameters);
 		}
 
 		public ValidConstructorStatement(TestCase tc, Constructor<?> constructor,
 		        VariableReference retVal, List<VariableReference> parameters) {
-			super(tc, constructor, retVal, parameters, false);
+			super(tc, new GenericConstructor(constructor, retVal.getType()), retVal,
+			        parameters, false);
 		}
 
 		@Override
@@ -202,12 +206,13 @@ public class TestExtractingVisitor extends ASTVisitor {
 
 		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee,
 		        java.lang.reflect.Type type, List<VariableReference> parameters) {
-			super(tc, method, callee, type, parameters);
+			super(tc, new GenericMethod(method, callee.getType()), callee, parameters);
 		}
 
 		public ValidMethodStatement(TestCase tc, Method method, VariableReference callee,
 		        VariableReference retVal, List<VariableReference> parameters) {
-			super(tc, method, callee, retVal, parameters);
+			super(tc, new GenericMethod(method, callee.getType()), callee, retVal,
+			        parameters);
 		}
 
 		@Override
@@ -217,15 +222,14 @@ public class TestExtractingVisitor extends ASTVisitor {
 			for (VariableReference r : parameters) {
 				new_params.add(r.copy(newTestCase, offset));
 			}
-			if (Modifier.isStatic(method.getModifiers())) {
+			if (method.isStatic()) {
 				// TODO: If callee is an array index, this will return an
 				// invalid copy of the cloned variable!
-				return new ValidMethodStatement(newTestCase, method, null,
+				return new ValidMethodStatement(newTestCase, method.getMethod(), null,
 				        retval.getType(), new_params);
 			}
 			VariableReference newCallee = callee.copy(newTestCase, offset);
-			return new MethodStatement(newTestCase, method, newCallee, retval.getType(),
-			        new_params);
+			return new MethodStatement(newTestCase, method, newCallee, new_params);
 		}
 
 		@Override
@@ -1770,10 +1774,10 @@ public class TestExtractingVisitor extends ASTVisitor {
 			Class<?> referencedClass = retrieveTypeClass(qualifiedName.getQualifier().resolveTypeBinding());
 			Field field = referencedClass.getField(qualifiedName.getName().getIdentifier());
 			FieldReference fieldReference = new FieldReference(testCase.getReference(),
-			        field);
+			        new GenericField(field, referencedClass));
 			Class<?> resultClass = retrieveTypeClass(qualifiedName.resolveTypeBinding());
 			FieldStatement fieldStatement = new FieldStatement(testCase.getReference(),
-			        field, fieldReference, resultClass);
+			        new GenericField(field, resultClass), fieldReference);
 			testCase.addStatement(fieldStatement);
 			return fieldStatement.getReturnValue();
 		} catch (Exception exc) {

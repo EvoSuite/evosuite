@@ -269,7 +269,8 @@ public class TestChromosome extends ExecutableChromosome {
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void applyAdaptiveLocalSearch(LocalSearchObjective<? extends Chromosome> objective) {
+	public void applyAdaptiveLocalSearch(
+	        LocalSearchObjective<? extends Chromosome> objective) {
 
 		double oldFitness = getFitness();
 		logger.info("Applying local search on test case");
@@ -293,7 +294,7 @@ public class TestChromosome extends ExecutableChromosome {
 			if (mutation.getMutationType() != TestMutationHistoryEntry.TestMutation.DELETION
 			        && mutation.getStatement().getPosition() <= lastPosition
 			        && mutation.getStatement() instanceof PrimitiveStatement<?>) {
-				logger.info("Found suitable mutation: "+mutation);
+				logger.info("Found suitable mutation: " + mutation);
 
 				if (!test.hasReferences(mutation.getStatement().getReturnValue())
 				        && !mutation.getStatement().getReturnClass().equals(Properties.getTargetClass())) {
@@ -311,7 +312,8 @@ public class TestChromosome extends ExecutableChromosome {
 		if (!targetPositions.isEmpty()) {
 			logger.info("Yes, now applying the search at positions {}!", targetPositions);
 			DSELocalSearch dse = new DSELocalSearch();
-			dse.doSearch(this, targetPositions, (LocalSearchObjective<TestChromosome>) objective);
+			dse.doSearch(this, targetPositions,
+			             (LocalSearchObjective<TestChromosome>) objective);
 		}
 		mutationHistory.clear();
 
@@ -387,22 +389,22 @@ public class TestChromosome extends ExecutableChromosome {
 		boolean changed = false;
 		mutationHistory.clear();
 
-		logger.debug("Mutation: delete");
 		// Delete
 		if (Randomness.nextDouble() <= Properties.P_TEST_DELETE) {
+			logger.debug("Mutation: delete");
 			changed = mutationDelete();
 		}
 
-		logger.debug("Mutation: change");
 		// Change
 		if (Randomness.nextDouble() <= Properties.P_TEST_CHANGE) {
+			logger.debug("Mutation: change");
 			if (mutationChange())
 				changed = true;
 		}
 
-		logger.debug("Mutation: insert");
 		// Insert
 		if (Randomness.nextDouble() <= Properties.P_TEST_INSERT) {
+			logger.debug("Mutation: insert");
 			if (mutationInsert())
 				changed = true;
 		}
@@ -410,7 +412,9 @@ public class TestChromosome extends ExecutableChromosome {
 		if (changed) {
 			setChanged(true);
 		}
-
+		for (StatementInterface s : test) {
+			s.isValid();
+		}
 	}
 
 	/**

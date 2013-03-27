@@ -109,13 +109,13 @@ public class ExceptionCoverageSuiteFitness extends TestSuiteFitnessFunction {
 				boolean sutException = false;
 				if (result.test.getStatement(i) instanceof MethodStatement) {
 					MethodStatement ms = (MethodStatement) result.test.getStatement(i);
-					Method method = ms.getMethod();
+					Method method = ms.getMethod().getMethod();
 					methodName = method.getName() + Type.getMethodDescriptor(method);
 					if (method.getDeclaringClass().equals(Properties.getTargetClass()))
 						sutException = true;
 				} else if (result.test.getStatement(i) instanceof ConstructorStatement) {
 					ConstructorStatement cs = (ConstructorStatement) result.test.getStatement(i);
-					Constructor<?> constructor = cs.getConstructor();
+					Constructor<?> constructor = cs.getConstructor().getConstructor();
 					methodName = "<init>" + Type.getConstructorDescriptor(constructor);
 					if (constructor.getDeclaringClass().equals(Properties.getTargetClass()))
 						sutException = true;
