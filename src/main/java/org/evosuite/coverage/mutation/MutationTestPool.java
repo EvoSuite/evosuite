@@ -142,8 +142,7 @@ public class MutationTestPool implements SearchListener {
 	 *            a {@link org.evosuite.testcase.TestChromosome} object.
 	 */
 	public static void addTest(Mutation mutation, TestChromosome test) {
-		testMap.put(mutation, test);
-		//System.out.println("Covered mutants: " + testMap.size());
+		testMap.put(mutation, test);		
 	}
 
 	/* (non-Javadoc)

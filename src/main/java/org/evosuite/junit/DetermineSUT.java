@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.evosuite.Properties;
 import org.evosuite.javaagent.BytecodeInstrumentation;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -22,6 +23,8 @@ import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * For a given JUnit test class, determine which class it seems to be testing.
@@ -31,6 +34,8 @@ import org.objectweb.asm.tree.MethodNode;
  */
 public class DetermineSUT {
 
+	private final static Logger logger = LoggerFactory.getLogger(DetermineSUT.class);
+	
 	private String targetName = "";
 	
 	private Set<String> superClasses = new HashSet<String>();
@@ -57,7 +62,7 @@ public class DetermineSUT {
 			candidateClasses.addAll(determineCalledClasses(fullyQualifiedTargetClass));
 		} catch (ClassNotFoundException e) {
 			// Ignore, the set will be empty?
-			System.err.println("Class not found: " + e);
+			logger.error("Class not found: " + e,e);
 			return "";
 		}
 

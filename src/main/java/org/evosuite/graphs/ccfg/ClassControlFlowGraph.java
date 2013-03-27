@@ -232,7 +232,6 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 						newParams = newParams.substring(1, newParams.length());
 					}
 					toAnalyze=fieldCall.getClassName() + "." + fieldCall.getOnlyMethodName()+"("+newParams+")";
-					//System.out.println(toAnalyze);
 					
 					return PureMethodsList.instance.checkPurity(toAnalyze);
 				}
@@ -388,9 +387,6 @@ public class ClassControlFlowGraph extends EvoSuiteGraph<CCFGNode, CCFGEdge> {
 				// are static
 				if (!(call.isCallToStaticMethod() || call
 						.isMethodCallOnSameObject())) {
-					// System.out.println("excluded method call: "
-					// + call.toString());
-					// System.out.println("DESC: "+call.getCalledMethodsArgumentCount());
 					// call.printFrameInformation();
 					continue;
 				}

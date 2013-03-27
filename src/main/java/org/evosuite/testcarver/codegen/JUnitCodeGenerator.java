@@ -4,7 +4,6 @@ import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.set.hash.TIntHashSet;
 
-import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -55,14 +54,17 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeLiteral;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
-import org.eclipse.jdt.internal.core.search.matching.MethodPattern;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
 public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 {
+	private static final Logger logger = LoggerFactory.getLogger(JUnitCodeGenerator.class);
+	
 	//--- source generation
 	private final TIntObjectHashMap<String>   oidToVarMapping;
 	private final TIntObjectHashMap<Class<?>> oidToTypeMapping;
@@ -750,7 +752,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					
 					if(index > -1)
 					{
-						System.out.println(varName + " xxxx3 " + index);
+						logger.debug(varName + " xxxx3 " + index);
 						
 						final Object[] newArgs = new Object[methodArgs.length - 1];
 						System.arraycopy(methodArgs, 0,         newArgs, 0,     index);
@@ -857,17 +859,18 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					}
 					catch(final IllegalArgumentException ex)
 					{
-						System.err.println("--recno-- " + logRecNo);
-						System.err.println("--oid-- " + oid);
-						System.err.println("--method-- " + methodName);
-						System.err.println("--varName-- " + varName);
-						System.err.println("--oidToVarMap-- " +  this.oidToVarMapping);
+
+						String msg = "";
+
+						msg += "--recno-- " + logRecNo + "\n";
+						msg += "--oid-- " + oid + "\n";
+						msg += "--method-- " + methodName + "\n";
+						msg += "--varName-- " + varName + "\n";
+						msg += "--oidToVarMap-- " +  this.oidToVarMapping + "\n";										
+						msg += (log) + "\n";
 						
-						
-						ex.printStackTrace();
-						System.out.println(log);
-						System.err.println("------------------BYE------------");
-						System.exit(-1);
+						logger.error(msg);
+						throw new RuntimeException(msg);
 					}
 				}
 				

@@ -699,6 +699,13 @@ public class TestSuiteGenerator {
 
 		// TODO also consider time for test carving in end_time?
 		if (Properties.TEST_CARVING) {
+			/*
+			 * If the SUT is class X,
+			 * then we might get tests that call methods from Y which indirectly call X.
+			 * A unit test that only calls Y is useless
+             * but one could use the test carver to produce a test on X out of it.
+			 */
+			
 			// execute all tests to carve them
 			final List<TestCase> carvedTests = this.carveTests(best.getTests());
 

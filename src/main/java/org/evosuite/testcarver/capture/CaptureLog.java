@@ -377,12 +377,9 @@ public final class CaptureLog implements Cloneable
 			            final int initRecNo = this.oidRecMapping.get(receiverOID);
 			            this.dependencies.set(initRecNo, System.identityHashCode(outerInstance));
 			        } 
-			        catch (final Exception e) 
-			        {
-			        	System.err.println("ARGH!!");
-			        	System.out.println("FIELDS: " + Arrays.toString(receiverClass.getDeclaredFields()));
-			        	e.printStackTrace();
-			            LOG.warn("An error occurred while obtaining the enclosing object of an inner non-static class instance", e);
+			        catch (final Exception e) {
+			            LOG.warn("An error occurred while obtaining the enclosing object of an inner non-static class instance. "+
+			            		"FIELDS: " + Arrays.toString(receiverClass.getDeclaredFields()), e);
 			        } 
 				}
 			}
@@ -461,7 +458,7 @@ public final class CaptureLog implements Cloneable
 				
 				if(paramOID == oid)
 				{
-					System.err.println("PARAM is 'this' reference -> ignore");
+					LOG.error("PARAM is 'this' reference -> ignore");
 					// TODO remove meta inf entries
 					return;
 				}
