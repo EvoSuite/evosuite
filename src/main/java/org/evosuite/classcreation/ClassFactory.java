@@ -27,7 +27,10 @@ import javax.tools.ToolProvider;
 
 import org.apache.commons.io.output.NullOutputStream;
 import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.evosuite.EvoSuite;
 import org.evosuite.utils.Utils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -37,6 +40,8 @@ import org.evosuite.utils.Utils;
  */
 public class ClassFactory {
 
+	private static Logger logger = LoggerFactory.getLogger(ClassFactory.class);
+	
 	/** Abstract class, for which stub should be generated */
 	private Class<?> clazz;
 
@@ -161,7 +166,7 @@ public class ClassFactory {
 			out.write(unit.toString());
 			out.close();
 		} catch (IOException e) {
-			System.out.println("IOException: " + e);
+			logger.error("Cannot create source file" + e,e);
 		}
 
 		return sourceFileName;

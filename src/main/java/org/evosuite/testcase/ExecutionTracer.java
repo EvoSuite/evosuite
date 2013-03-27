@@ -192,10 +192,11 @@ public class ExecutionTracer {
 			logger.info("CurrentThread has not been set!");
 			Map<Thread, StackTraceElement[]> map = Thread.getAllStackTraces();
 			for (Thread t : map.keySet()) {
-				System.err.println("Thread: " + t);
+				String msg = "Thread: " + t+"\n";
 				for (StackTraceElement e : map.get(t)) {
-					System.err.println(" -> " + e);
+					msg += " -> " + e + "\n";
 				}
+				logger.error(msg);
 			}
 			currentThread = Thread.currentThread();
 		}

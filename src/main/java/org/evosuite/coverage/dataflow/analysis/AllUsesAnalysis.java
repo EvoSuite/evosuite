@@ -203,8 +203,6 @@ public class AllUsesAnalysis {
 
 		for (String method : determinedFreeUses.keySet()) {
 			if (!ccfg.isPublicMethod(method)) {
-				// System.out.println("Skipping free uses in non-public method "
-				// + method);
 				continue;
 			}
 			for (BytecodeInstruction freeUse : determinedFreeUses.get(method))
@@ -221,8 +219,6 @@ public class AllUsesAnalysis {
 		Set<DefUseCoverageTestFitness> r = new HashSet<DefUseCoverageTestFitness>();
 		for (String method : determinedActiveDefs.keySet()) {
 			if (!ccfg.isPublicMethod(method)) {
-				// System.out.println("Skipping activeDefs in non-public method "
-				// + method);
 				continue;
 			}
 			Set<Map<String, BytecodeInstruction>> activeDefss = determinedActiveDefs

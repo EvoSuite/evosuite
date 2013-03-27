@@ -19,13 +19,17 @@ import org.evosuite.testcarver.exception.CapturerException;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
 import gnu.trove.list.array.TIntArrayList;
 
-public final class PostProcessor 
-{
+public final class PostProcessor {
+	
+	private static final Logger logger = LoggerFactory.getLogger(PostProcessor.class);
+	
 	private static TIntArrayList failedRecords;
 	
 	private static int recentLogRecNo;
@@ -181,7 +185,7 @@ public final class PostProcessor
 			log = logs.get(i);
 			
 			long s = System.currentTimeMillis();
-			System.out.println(">>>> (postprocess) start test create ");
+			logger.debug(">>>> (postprocess) start test create ");
 			
 			targetFile = new File(tempDir, targetFolder);
 			targetFile.mkdirs();
@@ -192,7 +196,7 @@ public final class PostProcessor
 			// write out test files containing post-processing statements
 			writeTest(log, packageName, testClassName, classes, targetFile, true);
 			
-			System.out.println(">>>> (postprocess) end test creation -> " + (System.currentTimeMillis() - s) / 1000);
+			logger.debug(">>>> (postprocess) end test creation -> " + (System.currentTimeMillis() - s) / 1000);
 			
 			//=============== compile generated post-processing test ================================================
 			
@@ -211,7 +215,8 @@ public final class PostProcessor
 			
 			if(! wasCompilationSuccess)
 			{
-				System.err.println("Compilation was not not successful for " + targetFile);
+				
+				logger.error("Compilation was not not successful for " + targetFile);
 				fileManager.close();
 				continue;
 			}
