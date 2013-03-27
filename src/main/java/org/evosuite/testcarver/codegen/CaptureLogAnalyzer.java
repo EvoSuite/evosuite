@@ -2,16 +2,19 @@ package org.evosuite.testcarver.codegen;
 
 import gnu.trove.list.array.TIntArrayList;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.testcarver.capture.CaptureLog;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
 public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 {
+	private static Logger logger = LoggerFactory.getLogger(CaptureLogAnalyzer.class);
+	
 	@SuppressWarnings("rawtypes")
 	@Override
 	public void analyze(final CaptureLog originalLog, final ICodeGenerator generator, final Class<?>... observedClasses) 
@@ -63,7 +66,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 				oidExchange = this.restorceCodeFromLastPosTo(log, generator, currentOID, currentRecord, blackList);
 				if(oidExchange != null)
 				{
-					System.out.println("XXX BREAK XXXX");
 					break;
 				}
 				
@@ -454,7 +456,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						}
 						else if(methodArgOID != null && isBlackListed(methodArgOID, blackList, log))//blackList.contains(this.getClassFromOID(log, methodArgOID)))
 						{
-							System.out.println("arg in blacklist >>>> " + blackList.contains(this.getClassFromOID(log, methodArgOID)));
+							logger.debug("arg in blacklist >>>> " + blackList.contains(this.getClassFromOID(log, methodArgOID)));
 						
 							return getExchange(log, currentRecord, oid, blackList); //new int[]{oid, callerOID};
 						}
@@ -487,7 +489,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					// TODO in arbeit
 					if(isBlackListed(currentOID, blackList, log))
 					{
-						System.out.println("-> is blacklisted... " + blackList + " oid: " + currentOID + " class: " + getClassFromOID(log, currentOID));
+						logger.debug("-> is blacklisted... " + blackList + " oid: " + currentOID + " class: " + getClassFromOID(log, currentOID));
 						
 						// we can not resolve all dependencies because they rely on other unresolvable object
 						blackList.add(this.getClassFromOID(log, oid));

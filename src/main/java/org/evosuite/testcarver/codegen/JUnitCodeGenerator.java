@@ -752,7 +752,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					
 					if(index > -1)
 					{
-						System.out.println(varName + " xxxx3 " + index);
+						logger.debug(varName + " xxxx3 " + index);
 						
 						final Object[] newArgs = new Object[methodArgs.length - 1];
 						System.arraycopy(methodArgs, 0,         newArgs, 0,     index);

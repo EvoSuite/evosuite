@@ -31,7 +31,7 @@ public final class FieldRegistry
 	private static final HashSet<Class<?>> CLASSES = new HashSet<Class<?>>();
 	
 	
-	private static final Logger LOG = LoggerFactory.getLogger(FieldRegistry.class);
+	private static final Logger logger = LoggerFactory.getLogger(FieldRegistry.class);
 
 	private static int captureId = Integer.MAX_VALUE;
 	
@@ -73,7 +73,7 @@ public final class FieldRegistry
 
 			if(observedFields.isEmpty())
 			{
-				LOG.debug("Class {} has no observable fields", clazz);
+				logger.debug("Class {} has no observable fields", clazz);
 				classFieldsMapping.put(internalClassName, Collections.EMPTY_MAP);
 			}
 			else
@@ -143,12 +143,12 @@ public final class FieldRegistry
 				} 
 				catch (final Exception e) 
 				{
-					LOG.error("class={} field={} fieldOwner={} instance={}", new Object[]{ internalClassName, 
+					logger.error("class={} field={} fieldOwner={} instance={}", new Object[]{ internalClassName, 
 																			   entry.getKey(), 
 																			   entry.getValue().getDeclaringClass().getName(),
 																			   instance});
 					
-					LOG.error("an error occurred while determining current field values", e);
+					logger.error("an error occurred while determining current field values", e);
 					throw new RuntimeException(e); // TODO better exception type
 				}
 			}
@@ -243,7 +243,7 @@ public final class FieldRegistry
 			final Map<String, Field> fields = classFieldsMapping.get(internalClassName);
 			if(fields == null)
 			{
-				LOG.error("Fields map for class {} should not be null", internalClassName);
+				logger.error("Fields map for class {} should not be null", internalClassName);
 				throw new IllegalStateException("Fields map for class " + internalClassName + " should not be null");
 			}
 			
@@ -253,14 +253,14 @@ public final class FieldRegistry
 				if(targetField == null)
 				{
 					// happens if field is private
-					LOG.debug("Could not find field {} for class {}", fieldName, internalClassName);
+					logger.debug("Could not find field {} for class {}", fieldName, internalClassName);
 				}
 				else
 				{
 					List<MyWeakRef<?>> instances = classInstanceMapping.get(internalClassName);
 					if(instances == null)
 					{
-						LOG.error("List of instances for class {} should not be null", internalClassName);
+						logger.error("List of instances for class {} should not be null", internalClassName);
 						return;
 //						throw new IllegalStateException("List of instances for class " + internalClassName + " should not be null");
 					}
@@ -272,17 +272,15 @@ public final class FieldRegistry
 						instance          = r.get();
 						if(instance == null)
 						{
-							System.out.println("notify: garbagge collected?");
+							logger.debug("notify: garbagge collected?");
 							continue;
 						}
-						
-//						System.out.println(" ---------> " + System.identityHashCode(instance) + "    " + instance);
-						
+												
 						recentFieldValues = instanceRecentFieldValuesMapping.get(System.identityHashCode(instance));
 						
 						if(recentFieldValues == null)
 						{
-							LOG.error("map of recent field values (instance={} class={}) should not be null", instance, internalClassName);
+							logger.error("map of recent field values (instance={} class={}) should not be null", instance, internalClassName);
 							throw new IllegalStateException("map of recent field values (instance=" + instance +" class=" + internalClassName + ") should not be null");
 						}
 						else
@@ -345,7 +343,7 @@ public final class FieldRegistry
 							}
 							catch(final Exception e)
 							{
-								LOG.error("an error occurred while comparing field values for class {}", internalClassName, e);
+								logger.error("an error occurred while comparing field values for class {}", internalClassName, e);
    							    e.printStackTrace();
 								throw new RuntimeException(e); // TODO better exception type
 							}
@@ -357,7 +355,7 @@ public final class FieldRegistry
 		}
 		else
 		{
-			LOG.debug("No observed fields for class {}", internalClassName);
+			logger.debug("No observed fields for class {}", internalClassName);
 		}
 	}
 	
@@ -380,7 +378,7 @@ public final class FieldRegistry
 			final Map<String, Field> fields = classFieldsMapping.get(internalClassName);
 			if(fields == null)
 			{
-				LOG.error("Fields map for class {} should not be null", internalClassName);
+				logger.error("Fields map for class {} should not be null", internalClassName);
 				throw new IllegalStateException("Fields map for class " + internalClassName + " should not be null");
 			}
 			
@@ -390,14 +388,14 @@ public final class FieldRegistry
 				if(targetField == null)
 				{
 					// happens if field is private
-					LOG.debug("Could not find field {} for class {}", fieldName, internalClassName);
+					logger.debug("Could not find field {} for class {}", fieldName, internalClassName);
 				}
 				else
 				{
 					List<MyWeakRef<?>> instances = classInstanceMapping.get(internalClassName);
 					if(instances == null)
 					{
-						LOG.error("List of instances for class {} should not be null", internalClassName);
+						logger.error("List of instances for class {} should not be null", internalClassName);
 						throw new IllegalStateException("List of instances for class " + internalClassName + " should not be null");
 					}
 					
@@ -408,7 +406,7 @@ public final class FieldRegistry
 						instance          = r.get();
 						if(instance == null)
 						{
-							System.out.println("notifyRead: garbagge collected?");
+							logger.debug("notifyRead: garbagge collected?");
 							continue;
 						}
 						
@@ -416,7 +414,7 @@ public final class FieldRegistry
 						
 						if(recentFieldValues == null)
 						{
-							LOG.error("map of recent field values (instance={} class={}) should not be null", instance, internalClassName);
+							logger.error("map of recent field values (instance={} class={}) should not be null", instance, internalClassName);
 							throw new IllegalStateException("map of recent field values (instance=" + instance +" class=" + internalClassName + ") should not be null");
 						}
 						else
@@ -458,7 +456,7 @@ public final class FieldRegistry
 							}
 							catch(final Exception e)
 							{
-								LOG.error("an error occurred while comparing field values for class {}", internalClassName, e);
+								logger.error("an error occurred while comparing field values for class {}", internalClassName, e);
 								throw new RuntimeException(e); // TODO better exception type
 							}
 
@@ -469,7 +467,7 @@ public final class FieldRegistry
 		}
 		else
 		{
-			LOG.debug("No observed fields for class {}", internalClassName);
+			logger.debug("No observed fields for class {}", internalClassName);
 		}
 	}
 	

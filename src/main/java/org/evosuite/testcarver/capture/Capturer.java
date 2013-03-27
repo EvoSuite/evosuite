@@ -29,7 +29,7 @@ public final class Capturer
 	
 	private static final ArrayList<String[]> classesToBeObserved = new ArrayList<String[]>();
 	
-	private static final transient Logger LOG = LoggerFactory.getLogger(Capturer.class);
+	private static final transient Logger logger = LoggerFactory.getLogger(Capturer.class);
 
 
 	/*
@@ -43,10 +43,10 @@ public final class Capturer
 			@Override
 			public void run() 
 			{
-				LOG.info("shutting down...");
+				logger.info("shutting down...");
 				Capturer.stopCapture();
 				Capturer.postProcess();
-				LOG.info("shut down");
+				logger.info("shut down");
 			}
 		}));
 	}
@@ -96,7 +96,7 @@ public final class Capturer
 				}
 				catch(final Exception e)
 				{
-					LOG.error("an error occurred while post proccessin", e);
+					logger.error("an error occurred while post proccessin", e);
 				}
 			}
 		}
@@ -141,7 +141,7 @@ public final class Capturer
 	synchronized
 	public static void startCapture()
 	{
-		LOG.info("Starting Capturer...");
+		logger.info("Starting Capturer...");
 		
 		if(isCaptureStarted)
 		{
@@ -153,7 +153,7 @@ public final class Capturer
 		
 		FieldRegistry.restoreForegoingGETSTATIC();
 		
-		LOG.info("Capturer has been started successfully");
+		logger.info("Capturer has been started successfully");
 
 	}
 	
@@ -163,7 +163,7 @@ public final class Capturer
 		if(classesToBeObservedString == null)
 		{
 			final String msg = "no arguments specified";
-			LOG.error(msg);
+			logger.error(msg);
 			throw new CapturerException(msg);
 		}
 		
@@ -171,7 +171,7 @@ public final class Capturer
 		if(args.isEmpty())
 		{
 			final String msg = "no class to be observed specified";
-			LOG.error(msg);
+			logger.error(msg);
 			throw new CapturerException(msg);
 		}
 		
@@ -184,7 +184,7 @@ public final class Capturer
 	synchronized
 	public static void startCapture(final List<String> classesToBeObserved)
 	{
-		LOG.info("Starting Capturer...");
+		logger.info("Starting Capturer...");
 	
 		if(isCaptureStarted)
 		{
@@ -214,13 +214,13 @@ public final class Capturer
 		
 		FieldRegistry.restoreForegoingGETSTATIC();
 		
-		LOG.info("Capturer has been started successfully");
+		logger.info("Capturer has been started successfully");
 	}
 	
 	synchronized
 	public static CaptureLog stopCapture()
 	{
-		LOG.info("Stopping Capturer...");
+		logger.info("Stopping Capturer...");
 		
 		if(isCaptureStarted)
 		{
@@ -231,7 +231,7 @@ public final class Capturer
 			final CaptureLog log = currentLog;
 			currentLog = null;
 			
-			LOG.info("Capturer has been stopped successfully");
+			logger.info("Capturer has been stopped successfully");
 			
 			FieldRegistry.clear();
 			
@@ -261,7 +261,7 @@ public final class Capturer
 		{
 			if(receiver != null && receiver.getClass().getName().contains("Ekit"))
 			{
-				System.out.println("INIT OID: " + System.identityHashCode(receiver) + " isCapturing: " + isCapturing());
+				logger.debug("INIT OID: " + System.identityHashCode(receiver) + " isCapturing: " + isCapturing());
 			}
 		}
 		
@@ -276,9 +276,9 @@ public final class Capturer
 //						{
 							setCapturing(false);
 							
-							if(LOG.isDebugEnabled())
+							if(logger.isDebugEnabled())
 							{
-								LOG.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} " + Arrays.toString(methodParams), 
+								logger.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} " + Arrays.toString(methodParams), 
 																									  new Object[]{ captureId, 
 																									 System.identityHashCode(receiver), 
 																									 receiver.getClass().getName(), 
@@ -325,9 +325,9 @@ public final class Capturer
 //						{
 						   setCapturing(false);
 
-						   if(LOG.isDebugEnabled())
+						   if(logger.isDebugEnabled())
 						   {
-							  LOG.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}", new Object[]{ captureId, System.identityHashCode(receiver), returnValue, System.identityHashCode(returnValue)});
+							  logger.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}", new Object[]{ captureId, System.identityHashCode(receiver), returnValue, System.identityHashCode(returnValue)});
 						   }
 							
 						   currentLog.logEnd(captureId, receiver, returnValue);

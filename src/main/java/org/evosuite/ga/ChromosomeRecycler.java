@@ -84,7 +84,6 @@ public final class ChromosomeRecycler {
 	public void testIsInterestingForGoal(TestChromosome test,
 	        TestFitnessFunction fitnessFunction) {
 
-		//		System.out.println("Found interesting test for "+fitnessFunction.toString());
 		if (chromosomePool.get(fitnessFunction) == null)
 			chromosomePool.put(fitnessFunction, new HashSet<TestChromosome>());
 		chromosomePool.get(fitnessFunction).add(test);
@@ -115,7 +114,6 @@ public final class ChromosomeRecycler {
 			if (goal.isSimilarTo(testFitnessFunction))
 				r.addAll(chromosomePool.get(goal));
 		}
-		//		System.out.println("returned "+r.size());//+" recycables for "+fitnessFunction.toString());
 		return r;
 	}
 }

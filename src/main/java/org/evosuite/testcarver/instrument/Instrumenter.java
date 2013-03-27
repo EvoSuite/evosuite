@@ -83,11 +83,7 @@ public final class Instrumenter
 		try
 		{
 			this.transformClassNode(cn, className);
-
-//			final TraceClassVisitor traceVisitor = new TraceClassVisitor(
-//					 new PrintWriter(System.out));
-			
-			
+		
 			cn.accept(cw);
 
 			return cw.toByteArray();
