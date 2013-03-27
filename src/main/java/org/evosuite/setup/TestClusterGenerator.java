@@ -29,6 +29,7 @@ import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -39,6 +40,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -108,6 +110,14 @@ public class TestClusterGenerator {
 
 	private static Set<GenericClass> genericCastClasses = new LinkedHashSet<GenericClass>();
 
+	private static Set<Class<?>> concreteCastClasses = new LinkedHashSet<Class<?>>();
+
+	private static Set<Class<?>> containerClasses = new LinkedHashSet<Class<?>>();
+	
+	private static Class<?> COLLECTION_CLASS = null;
+	
+	private static Class<?> MAP_CLASS = null;
+
 	@SuppressWarnings("unchecked")
 	public static void generateCluster(String targetClass,
 	        InheritanceTree inheritanceTree, CallTree callTree) throws RuntimeException,
@@ -115,7 +125,6 @@ public class TestClusterGenerator {
 
 		TestClusterGenerator.inheritanceTree = inheritanceTree;
 		TestCluster.setInheritanceTree(inheritanceTree);
-		initializeTargetMethods();
 
 		if (Properties.INSTRUMENT_CONTEXT || Properties.CRITERION == Criterion.DEFUSE) {
 			for (String callTreeClass : DependencyAnalysis.getCallTree().getClasses()) {
@@ -132,6 +141,8 @@ public class TestClusterGenerator {
 		Set<Type> callTreeClasses = new LinkedHashSet<Type>();
 		Set<Type> invokedClasses = new LinkedHashSet<Type>();
 		Set<Type> subClasses = new LinkedHashSet<Type>();
+		COLLECTION_CLASS = TestGenerationContext.getClassLoader().loadClass("java.util.Collection");
+		MAP_CLASS = TestGenerationContext.getClassLoader().loadClass("java.util.Map");
 
 		for (ClassNode classNode : DependencyAnalysis.getAllClassNodes()) {
 			if (classNode == null)
@@ -210,6 +221,8 @@ public class TestClusterGenerator {
 		logger.info("Handling cast classes");
 		addCastClasses(classNames, blackList);
 
+		initializeTargetMethods();
+
 		logger.info("Resolving dependencies");
 		resolveDependencies(blackList);
 
@@ -260,6 +273,7 @@ public class TestClusterGenerator {
 
 				boolean added = addDependencyClass(new GenericClass(clazz), 1);
 				genericCastClasses.add(new GenericClass(clazz));
+				concreteCastClasses.add(clazz);
 				if (!added) {
 					blackList.add(className);
 				}
@@ -271,6 +285,34 @@ public class TestClusterGenerator {
 		}
 		logger.info("Generic cast classes: " + genericCastClasses);
 
+	}
+	
+	/**
+	 * Update 
+	 * @param clazz
+	 */
+	public static void addCastClassForContainer(Class<?> clazz) {
+		if(concreteCastClasses.contains(clazz))
+			return ;
+		
+		concreteCastClasses.add(clazz);
+		// TODO: What if this is generic again?
+		genericCastClasses.add(new GenericClass(clazz));
+		
+		
+		for(Class<?> containerClass : containerClasses) {
+			GenericClass genericContainer  = new GenericClass(containerClass);
+			logger.info("Clearing generators for "+genericContainer.getTypeName());
+			TestCluster.getInstance().clearGeneratorCache(genericContainer);
+			for (List<GenericClass> parameterTypes : getAssignableTypes(genericContainer)) {
+				GenericClass copy = new GenericClass(containerClass);
+				copy.setParameterTypes(parameterTypes);
+				LoggingUtils.getEvoLogger().info("Adding concrete type: "
+				                                         + copy.getTypeName());
+				addDependencyClass(copy, 0);
+			}
+		}
+		resolveDependencies(new LinkedHashSet<String>());
 	}
 
 	/**
@@ -307,22 +349,12 @@ public class TestClusterGenerator {
 			if (blackList.contains(className)) {
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info("Current class: " + className);
-			//for (GenericClass instantiatedType : getParameterizedTypes(dependency.getDependencyClass())) {
-			//LoggingUtils.getEvoLogger().info("Cast classes: " + genericCastClasses.toString());
-			LoggingUtils.getEvoLogger().info("Tuples for "
-			                                         + className
-			                                         + ": "
-			                                         + getAssignableTypes(
-			                                                              dependency.getDependencyClass()).toString());
 			boolean added = false;
 			if (dependency.getDependencyClass().isParameterizedType()) {
 				for (List<GenericClass> parameterTypes : getAssignableTypes(dependency.getDependencyClass())) {
 					GenericClass copy = new GenericClass(
 					        dependency.getDependencyClass().getType());
 					copy.setParameterTypes(parameterTypes);
-					LoggingUtils.getEvoLogger().info("Adding concrete type: "
-					                                         + copy.getTypeName());
 					boolean success = addDependencyClass(copy, dependency.getRecursion());
 					if (success)
 						added = true;
@@ -340,11 +372,11 @@ public class TestClusterGenerator {
 
 	public static List<List<GenericClass>> getAssignableTypes(GenericClass clazz) {
 		List<List<GenericClass>> tuples = new ArrayList<List<GenericClass>>();
-		logger.info("Parameters of " + clazz.getSimpleName() + ": "
-		        + clazz.getNumParameters());
+		//logger.info("Parameters of " + clazz.getSimpleName() + ": "
+		//        + clazz.getNumParameters());
 		boolean first = true;
 		for (java.lang.reflect.Type parameterType : clazz.getParameterTypes()) {
-			logger.info("Current parameter: " + parameterType);
+			//logger.info("Current parameter: " + parameterType);
 			List<GenericClass> assignableClasses = getAssignableTypes(parameterType);
 			List<List<GenericClass>> newTuples = new ArrayList<List<GenericClass>>();
 
@@ -371,10 +403,8 @@ public class TestClusterGenerator {
 		List<GenericClass> types = new ArrayList<GenericClass>();
 		for (GenericClass clazz : genericCastClasses) {
 			if (clazz.isAssignableTo(type)) {
-				logger.info(clazz + " is assignable to " + type);
+				logger.debug(clazz + " is assignable to " + type);
 				types.add(clazz);
-			} else {
-				logger.info(clazz + " is not assignable to " + type);
 			}
 		}
 		return types;
@@ -1030,6 +1060,13 @@ public class TestClusterGenerator {
 		if (analyzedClasses.contains(clazz)) {
 			return true;
 		}
+		
+		// We keep track of generic containers in case we find other concrete generic components during runtime
+		if(clazz.isAssignableTo(COLLECTION_CLASS) || clazz.isAssignableTo(MAP_CLASS)) {
+			if(clazz.getNumParameters() > 0) {
+				containerClasses.add(clazz.getRawClass());
+			}
+		}
 
 		try {
 			TestCluster cluster = TestCluster.getInstance();
@@ -1041,7 +1078,7 @@ public class TestClusterGenerator {
 				logger.info("*** Cannot use class: " + clazz.getClassName());
 				return false;
 			}
-
+			
 			// Add all constructors
 			for (Constructor<?> constructor : getConstructors(clazz.getRawClass())) {
 				String name = "<init>"
@@ -1092,7 +1129,7 @@ public class TestClusterGenerator {
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
 					if (method.getTypeParameters().length > 0) {
-						logger.warn("Type parameters in methods are not handled yet, skipping "
+						logger.info("Type parameters in methods are not handled yet, skipping "
 						        + method);
 						continue;
 					}
@@ -1105,18 +1142,7 @@ public class TestClusterGenerator {
 
 					if (!retClass.isPrimitive() && !retClass.isVoid()
 					        && !retClass.isObject()) {
-						// for every known generic type that is an instantiation of this class
-						// add the method with exact parameters
-						//if (retClass.isParameterizedType()) {
 						cluster.addGenerator(retClass, genericMethod);
-
-						//	for (List<GenericClass> parameters : getAssignableTypes(retClass)) {
-						//		cluster.addGenerator(retClass.getWithParameterTypes(parameters),
-						//		                     method);
-						//	}
-						//} else {
-						//	cluster.addGenerator(retClass, new GenericMethod(method, retClass.getType()));
-						//}
 					}
 				} else {
 					logger.debug("Method cannot be used: " + method);

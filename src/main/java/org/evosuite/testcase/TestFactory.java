@@ -118,7 +118,7 @@ public class TestFactory {
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
 		logger.debug("Adding constructor " + constructor);
-
+		logger.debug("Parameter types: "+Arrays.asList(constructor.getParameterTypes()));
 		int length = test.size();
 
 		List<VariableReference> parameters = satisfyParameters(test,
@@ -805,22 +805,14 @@ public class TestFactory {
 			VariableReference ret = addMethod(test, (GenericMethod) o, position,
 			                                  recursionDepth + 1);
 			if (o.isStatic()) {
-				MethodStatement statement = (MethodStatement) test.getStatement(ret.getStPosition());
-
-				logger.info("Method " + o + " generates type "
-				        + ((GenericMethod) o).getReturnType());
-				//ret.setType(GenericTypeReflector.getExactReturnType((Method) o,
-				//                                                    statement.getCallee().getType()));
 				ret.setType(type);
-				logger.info("Method " + o + " generates type "
-				        + ((GenericMethod) o).getReturnType() + ", converting to " + ret);
 			}
 			logger.debug("Success in generating type " + type);
 			ret.setDistance(recursionDepth + 1);
 			return ret;
 		} else if (o.isConstructor()) {
 			logger.debug("Attempting generating of " + type + " via constructor " + (o)
-			        + " of type " + type);
+			        + " of type " + type+", with constructor type "+o.getOwnerType());
 			VariableReference ret = addConstructor(test, (GenericConstructor) o, type,
 			                                       position, recursionDepth + 1);
 			logger.debug("Success in generating type " + type);

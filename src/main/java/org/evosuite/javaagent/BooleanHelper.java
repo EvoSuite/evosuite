@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
 import org.evosuite.primitives.ConstantPoolManager;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 
@@ -93,6 +94,8 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int collectionContains(Collection<?> c, Object o1) {
+		if(o1 != null)
+			TestClusterGenerator.addCastClassForContainer(o1.getClass());
 		int matching = 0;
 		double min_distance = Double.MAX_VALUE;
 		for (Object o2 : c) {
@@ -139,7 +142,7 @@ public class BooleanHelper {
 	public static int collectionContainsAll(Collection<?> c, Collection<?> c2) {
 		int mismatch = 0;
 		for (Object o : c2) {
-			if (c.contains(o))
+			if (!c.contains(o))
 				mismatch++;
 		}
 		return mismatch > 0 ? -mismatch : c2.size();
@@ -155,6 +158,9 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int mapContainsKey(Map<?, ?> m, Object o1) {
+		if(o1 != null)
+			TestClusterGenerator.addCastClassForContainer(o1.getClass());
+
 		return collectionContains(m.keySet(), o1);
 	}
 
@@ -168,6 +174,9 @@ public class BooleanHelper {
 	 * @return a int.
 	 */
 	public static int mapContainsValue(Map<?, ?> m, Object o1) {
+		if(o1 != null)
+			TestClusterGenerator.addCastClassForContainer(o1.getClass());
+
 		return collectionContains(m.values(), o1);
 	}
 

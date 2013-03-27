@@ -133,14 +133,14 @@ public class GenericConstructor extends GenericAccessibleObject {
 	 * parameter that is used in one of the parameters, or <tt>type</tt> is a
 	 * raw type.
 	 */
-	public static Type[] getExactParameterTypes(Constructor<?> m, Type type) {
+	public static Type[] getExactParameterTypes(Constructor<?> m, Type exactDeclaringType) {
 		Type[] parameterTypes = m.getGenericParameterTypes();
-		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
-		                                                                 m.getDeclaringClass());
-		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
-			throw new IllegalArgumentException("The constructor " + m
-			        + " is not a member of type " + type);
-		}
+//		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
+//		                                                                 m.getDeclaringClass());
+//		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
+//			throw new IllegalArgumentException("The constructor " + m
+//			        + " is not a member of type " + type);
+//		}
 
 		Type[] result = new Type[parameterTypes.length];
 		for (int i = 0; i < parameterTypes.length; i++) {

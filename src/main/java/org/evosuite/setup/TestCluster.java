@@ -377,7 +377,6 @@ public class TestCluster {
 		if (generatorCache.containsKey(clazz))
 			return;
 		Set<GenericAccessibleObject> targetGenerators = new LinkedHashSet<GenericAccessibleObject>();
-
 		if (clazz.isObject()) {
 			for (GenericClass generatorClazz : generators.keySet()) {
 				if (generatorClazz.isObject()) {
@@ -390,7 +389,19 @@ public class TestCluster {
 			for (GenericClass generatorClazz : generators.keySet()) {
 				if (clazz.isAssignableFrom(generatorClazz)) {
 					logger.debug("Adding subtype generator: " + clazz
-					        + " is assignable from " + generatorClazz);
+					        + " is assignable from " + generatorClazz.getTypeName());
+					targetGenerators.addAll(generators.get(generatorClazz));
+				}
+			}
+		}
+		// There is a bit of a problem in resolving some generics
+		// For example, ArrayList(Collection<? extends E>) is not resolved
+		// by Java, and there is no generator for Collection<? extends E> in the end
+		// Therefore, we try to add everything that fits on the raw type
+		if(targetGenerators.isEmpty() && clazz.getNumParameters() > 0) {
+			logger.debug("Have no suitable generic generators, so using raw class");
+			for (GenericClass generatorClazz : generators.keySet()) {
+				if(clazz.getRawClass().isAssignableFrom(generatorClazz.getRawClass())) {
 					targetGenerators.addAll(generators.get(generatorClazz));
 				}
 			}
@@ -444,6 +455,7 @@ public class TestCluster {
 	public GenericAccessibleObject getRandomGenerator(GenericClass clazz,
 	        Set<GenericAccessibleObject> excluded) throws ConstructionFailedException {
 		cacheGenerators(clazz);
+
 		Set<GenericAccessibleObject> candidates = new LinkedHashSet<GenericAccessibleObject>(
 		        generatorCache.get(clazz));
 		int before = candidates.size();
@@ -584,6 +596,10 @@ public class TestCluster {
 		// TODO: Need to add this call to all subclasses/superclasses?
 		logger.debug("Adding generator for class " + target + ": " + call);
 		generators.get(target).add(call);
+	}
+	
+	public void clearGeneratorCache(GenericClass target) {
+		generatorCache.clear();
 	}
 
 	/**
