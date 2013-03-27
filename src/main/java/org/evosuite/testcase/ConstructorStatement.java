@@ -17,12 +17,7 @@
  */
 package org.evosuite.testcase;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -35,9 +30,9 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
-import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericConstructor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -55,7 +50,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = -3035570485633271957L;
 
-	private transient Constructor<?> constructor;
+	private GenericConstructor constructor;
 
 	public List<VariableReference> parameters;
 
@@ -78,9 +73,9 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param parameters
 	 *            a {@link java.util.List} object.
 	 */
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
-	        java.lang.reflect.Type type, List<VariableReference> parameters) {
-		super(tc, new VariableReferenceImpl(tc, type));
+	public ConstructorStatement(TestCase tc, GenericConstructor constructor,
+	        List<VariableReference> parameters) {
+		super(tc, new VariableReferenceImpl(tc, constructor.getOwnerClass()));
 		this.constructor = constructor;
 		// this.return_type = constructor.getDeclaringClass();
 		this.parameters = parameters;
@@ -101,7 +96,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param parameters
 	 *            a {@link java.util.List} object.
 	 */
-	public ConstructorStatement(TestCase tc, Constructor<?> constructor,
+	public ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
 		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
@@ -126,7 +121,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param check
 	 *            a boolean.
 	 */
-	protected ConstructorStatement(TestCase tc, Constructor<?> constructor,
+	protected ConstructorStatement(TestCase tc, GenericConstructor constructor,
 	        VariableReference retvar, List<VariableReference> parameters, boolean check) {
 		super(tc, retvar);
 		assert check == false;
@@ -141,7 +136,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * 
 	 * @return a {@link java.lang.reflect.Constructor} object.
 	 */
-	public Constructor<?> getConstructor() {
+	public GenericConstructor getConstructor() {
 		return constructor;
 	}
 
@@ -153,7 +148,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 * @param constructor
 	 *            a {@link java.lang.reflect.Constructor} object.
 	 */
-	public void setConstructor(Constructor<?> constructor) {
+	public void setConstructor(GenericConstructor constructor) {
 		this.constructor = constructor;
 	}
 
@@ -196,11 +191,12 @@ public class ConstructorStatement extends AbstractStatement {
 				        IllegalArgumentException, IllegalAccessException,
 				        InstantiationException, CodeUnderTestException {
 
-					java.lang.reflect.Type[] parameterTypes =  constructor.getGenericParameterTypes();
+					java.lang.reflect.Type[] parameterTypes = constructor.getParameterTypes();
 					for (int i = 0; i < parameters.size(); i++) {
 						VariableReference parameterVar = parameters.get(i);
-						if(!parameterVar.isAssignableTo(parameterTypes[i])) {
-							throw new CodeUnderTestException(new UncompilableCodeException());
+						if (!parameterVar.isAssignableTo(parameterTypes[i])) {
+							throw new CodeUnderTestException(
+							        new UncompilableCodeException());
 						}
 						try {
 							inputs[i] = parameterVar.getObject(scope);
@@ -218,15 +214,15 @@ public class ConstructorStatement extends AbstractStatement {
 					}
 
 					// If this is a non-static member class, the first parameter must not be null
-					if (constructor.getDeclaringClass().isMemberClass()
-					        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
+					if (constructor.getConstructor().getDeclaringClass().isMemberClass()
+					        && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers())) {
 						if (inputs[0] == null) {
 							// throw new NullPointerException();
 							throw new CodeUnderTestException(new NullPointerException());
 						}
 					}
 
-					Object ret = constructor.newInstance(inputs);
+					Object ret = constructor.getConstructor().newInstance(inputs);
 
 					try {
 						// assert(retval.getVariableClass().isAssignableFrom(ret.getClass())) :"we want an " + retval.getVariableClass() + " but got an " + ret.getClass();
@@ -250,10 +246,15 @@ public class ConstructorStatement extends AbstractStatement {
 		} catch (InvocationTargetException e) {
 			VM.setIgnoreCallBack(true);
 			exceptionThrown = e.getCause();
-			if(logger.isDebugEnabled()){
-				try{ logger.debug("Exception thrown in constructor: " + e.getCause());}
+			if (logger.isDebugEnabled()) {
+				try {
+					logger.debug("Exception thrown in constructor: " + e.getCause());
+				}
 				//this can happen if SUT throws exception on toString
-				catch(Exception ex){logger.debug("Exception thrown in constructor and SUT gives issue when calling e.getCause()",ex);}
+				catch (Exception ex) {
+					logger.debug("Exception thrown in constructor and SUT gives issue when calling e.getCause()",
+					             ex);
+				}
 			}
 		}
 		return exceptionThrown;
@@ -268,7 +269,7 @@ public class ConstructorStatement extends AbstractStatement {
 		}
 
 		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
-		        retval.getType(), new_params);
+		        new_params);
 		// copy.assertions = copyAssertions(newTestCase, offset);
 
 		return copy;
@@ -401,7 +402,7 @@ public class ConstructorStatement extends AbstractStatement {
 		int num = 0;
 		for (VariableReference parameter : parameters) {
 			parameter.loadBytecode(mg, locals);
-			if (constructor.getParameterTypes()[num].isPrimitive()) {
+			if (constructor.getConstructor().getParameterTypes()[num].isPrimitive()) {
 				if (parameter.getGenericClass().isWrapperType()) {
 					mg.unbox(Type.getType(parameter.getGenericClass().getUnboxedType()));
 				} else if (!parameter.getGenericClass().isPrimitive()) {
@@ -409,15 +410,16 @@ public class ConstructorStatement extends AbstractStatement {
 					        constructor.getParameterTypes()[num]).getBoxedType();
 					Type parameterType = Type.getType(parameterClass);
 					mg.checkCast(parameterType);
-					mg.unbox(Type.getType(constructor.getParameterTypes()[num]));
+					mg.unbox(Type.getType(constructor.getConstructor().getParameterTypes()[num]));
 				}
 
 				if (!constructor.getParameterTypes()[num].equals(parameter.getVariableClass())) {
 					logger.debug("Types don't match - casting "
-					        + parameter.getVariableClass().getName() + " to "
-					        + constructor.getParameterTypes()[num].getName());
+					        + parameter.getVariableClass().getName()
+					        + " to "
+					        + constructor.getConstructor().getParameterTypes()[num].getName());
 					mg.cast(Type.getType(parameter.getVariableClass()),
-					        Type.getType(constructor.getParameterTypes()[num]));
+					        Type.getType(constructor.getConstructor().getParameterTypes()[num]));
 				}
 			} else if (parameter.getVariableClass().isPrimitive()) {
 				mg.box(Type.getType(parameter.getVariableClass()));
@@ -425,7 +427,7 @@ public class ConstructorStatement extends AbstractStatement {
 			num++;
 		}
 		mg.invokeConstructor(Type.getType(retval.getVariableClass()),
-		                     Method.getMethod(constructor));
+		                     Method.getMethod(constructor.getConstructor()));
 		logger.debug("Storing result");
 		retval.storeBytecode(mg, locals);
 
@@ -476,7 +478,7 @@ public class ConstructorStatement extends AbstractStatement {
 	@Override
 	public Set<Class<?>> getDeclaredExceptions() {
 		Set<Class<?>> ex = super.getDeclaredExceptions();
-		ex.addAll(Arrays.asList(constructor.getExceptionTypes()));
+		ex.addAll(Arrays.asList(constructor.getConstructor().getExceptionTypes()));
 		return ex;
 	}
 
@@ -540,7 +542,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public AccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject getAccessibleObject() {
 		return constructor;
 	}
 
@@ -550,62 +552,13 @@ public class ConstructorStatement extends AbstractStatement {
 		return false;
 	}
 
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-		// Write/save additional fields
-		oos.writeObject(constructor.getDeclaringClass().getName());
-		oos.writeObject(Type.getConstructorDescriptor(constructor));
-	}
-
-	// assumes "static java.util.Date aDate;" declared
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
-		ois.defaultReadObject();
-
-		// Read/initialize additional fields
-		Class<?> constructorClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
-		String constructorDesc = (String) ois.readObject();
-		for (Constructor<?> constructor : constructorClass.getDeclaredConstructors()) {
-			if (Type.getConstructorDescriptor(constructor).equals(constructorDesc)) {
-				this.constructor = constructor;
-				return;
-			}
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.StatementInterface#changeClassLoader(java.lang.ClassLoader)
 	 */
 	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
-		try {
-			Class<?> oldClass = constructor.getDeclaringClass();
-			Class<?> newClass = loader.loadClass(oldClass.getName());
-			for (Constructor<?> newConstructor : TestClusterGenerator.getConstructors(newClass)) {
-				boolean equals = true;
-				Class<?>[] oldParameters = this.constructor.getParameterTypes();
-				Class<?>[] newParameters = newConstructor.getParameterTypes();
-				if (oldParameters.length != newParameters.length)
-					continue;
-
-				for (int i = 0; i < newParameters.length; i++) {
-					if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
-						equals = false;
-						break;
-					}
-				}
-				if (equals) {
-					this.constructor = newConstructor;
-					this.constructor.setAccessible(true);
-					break;
-				}
-			}
-		} catch (ClassNotFoundException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
-		} catch (SecurityException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
-		}
+		constructor.changeClassLoader(loader);
 		super.changeClassLoader(loader);
 	}
 }

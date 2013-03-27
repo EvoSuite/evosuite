@@ -21,7 +21,6 @@
 package org.evosuite.testcase;
 
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -29,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.assertion.Assertion;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -354,7 +354,7 @@ public interface StatementInterface {
 	 * 
 	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
-	public AccessibleObject getAccessibleObject();
+	public GenericAccessibleObject getAccessibleObject();
 
 	/**
 	 * Returns true if this statement should be handled as an

@@ -23,6 +23,9 @@ import org.evosuite.testcase.PrimitiveStatement;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.GenericField;
+import org.evosuite.utils.GenericMethod;
 
 @Deprecated
 public class TestCaseCodeGenerator {
@@ -281,8 +284,11 @@ public class TestCaseCodeGenerator {
 			if (CaptureLog.OBSERVED_INIT.equals(methodName)) {
 				// Person var0 = new Person();
 
-				final ConstructorStatement constStmt = new ConstructorStatement(testCase,
-				        type.getDeclaredConstructor(methodParamTypeClasses), type, args);
+				final ConstructorStatement constStmt = new ConstructorStatement(
+				        testCase,
+				        new GenericConstructor(
+				                type.getDeclaredConstructor(methodParamTypeClasses), type),
+				        args);
 
 				this.oidToVarRefMap.put(oid, testCase.addStatement(constStmt));
 			} else //------------------ handling for ordinary method calls e.g. var1 = var0.doSth();
@@ -291,10 +297,12 @@ public class TestCaseCodeGenerator {
 				if (CaptureLog.RETURN_TYPE_VOID.equals(returnValue)) {
 					final MethodStatement m = new MethodStatement(
 					        testCase,
-					        this.getDeclaredMethod(type, methodName,
-					                               methodParamTypeClasses),
+					        new GenericMethod(
+					                this.getDeclaredMethod(type, methodName,
+					                                       methodParamTypeClasses),
+					                type.getMethod(methodName, methodParamTypeClasses).getReturnType()),
 					        this.oidToVarRefMap.get(oid),
-					        type.getMethod(methodName, methodParamTypeClasses).getReturnType(),
+
 					        args);
 					testCase.addStatement(m);
 				} else {
@@ -302,10 +310,11 @@ public class TestCaseCodeGenerator {
 
 					// Person var0 = var.getPerson();
 					final MethodStatement m = new MethodStatement(testCase,
-					        this.getDeclaredMethod(type, methodName,
-					                               methodParamTypeClasses),
-					        this.oidToVarRefMap.get(oid), getClassFromType(returnType),
-					        args);
+					        new GenericMethod(
+					                this.getDeclaredMethod(type, methodName,
+					                                       methodParamTypeClasses),
+					                getClassFromType(returnType)),
+					        this.oidToVarRefMap.get(oid), args);
 
 					final Integer returnValueOID = (Integer) returnValue;
 					this.oidToVarRefMap.put(returnValueOID, testCase.addStatement(m));
@@ -374,8 +383,10 @@ public class TestCaseCodeGenerator {
 			final Object value = this.log.params.get(logRecNo)[0];
 
 			if (xStreamRef == null) {
-				final ConstructorStatement constr = new ConstructorStatement(testCase,
-				        xStreamType.getConstructor(new Class<?>[0]), xStreamType,
+				final ConstructorStatement constr = new ConstructorStatement(
+				        testCase,
+				        new GenericConstructor(
+				                xStreamType.getConstructor(new Class<?>[0]), xStreamType),
 				        Collections.EMPTY_LIST);
 				xStreamRef = testCase.addStatement(constr);
 			}
@@ -387,8 +398,8 @@ public class TestCaseCodeGenerator {
 			stringRep.setValue(value);
 			final VariableReference stringRepRef = testCase.addStatement(stringRep);
 
-			final MethodStatement m = new MethodStatement(testCase,
-			        xStreamType.getMethod("fromXML", stringType), xStreamRef, typeClass,
+			final MethodStatement m = new MethodStatement(testCase, new GenericMethod(
+			        xStreamType.getMethod("fromXML", stringType), typeClass), xStreamRef,
 			        Arrays.asList(stringRepRef));
 
 			this.oidToVarRefMap.put(oid, testCase.addStatement(m));
@@ -414,7 +425,7 @@ public class TestCaseCodeGenerator {
 			final Class<?> fieldType = CaptureUtil.getClassFromDesc(fieldDesc);
 
 			final FieldReference targetFieldRef = new FieldReference(testCase,
-			        this.getDeclaredField(type, fieldName));
+			        new GenericField(this.getDeclaredField(type, fieldName), type));
 
 			final AssignmentStatement assignment;
 
@@ -458,7 +469,7 @@ public class TestCaseCodeGenerator {
 				final Class<?> type = getClassForName(typeName);// Class.forName(typeName, true, StaticTestCluster.classLoader);
 
 				final FieldReference valueRef = new FieldReference(testCase,
-				        type.getField(fieldName));
+				        new GenericField(type.getField(fieldName), type));
 				final VariableReference targetVar = new VariableReferenceImpl(testCase,
 				        fieldType);
 

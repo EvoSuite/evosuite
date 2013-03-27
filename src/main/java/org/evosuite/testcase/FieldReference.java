@@ -20,16 +20,11 @@
  */
 package org.evosuite.testcase;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
+import org.evosuite.utils.GenericField;
 import org.objectweb.asm.commons.GeneratorAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +42,7 @@ public class FieldReference extends VariableReferenceImpl {
 
 	private final Logger logger = LoggerFactory.getLogger(FieldReference.class);
 
-	private transient Field field;
+	private final GenericField field;
 
 	private VariableReference source;
 
@@ -63,14 +58,11 @@ public class FieldReference extends VariableReferenceImpl {
 	 * @param source
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	public FieldReference(TestCase testCase, Field field, VariableReference source) {
-		super(testCase, field.getGenericType());
-		assert (source != null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
+	public FieldReference(TestCase testCase, GenericField field, VariableReference source) {
+		super(testCase, field.getFieldType());
+		assert (source != null || field.isStatic()) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
 		this.field = field;
 		this.source = source;
-		//		logger.info("Creating new field assignment for field " + field + " of object "
-		//		        + source);
-
 	}
 
 	/**
@@ -87,14 +79,14 @@ public class FieldReference extends VariableReferenceImpl {
 	 * @param source
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
-	public FieldReference(TestCase testCase, Field field, Type fieldType,
+	public FieldReference(TestCase testCase, GenericField field, Type fieldType,
 	        VariableReference source) {
 		super(testCase, fieldType);
 		assert (field != null);
-		assert (source != null || Modifier.isStatic(field.getModifiers())) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
+		assert (source != null || field.isStatic()) : "No source object was supplied, therefore we assumed the field to be static. However asking the field if it was static, returned false";
 		this.field = field;
 		this.source = source;
-		assert(source == null || field.getDeclaringClass().isAssignableFrom(source.getVariableClass()));
+		assert (source == null || field.getField().getDeclaringClass().isAssignableFrom(source.getVariableClass()));
 		//		logger.info("Creating new field assignment for field " + field + " of object "
 		//		        + source);
 
@@ -110,8 +102,8 @@ public class FieldReference extends VariableReferenceImpl {
 	 * @param field
 	 *            a {@link java.lang.reflect.Field} object.
 	 */
-	public FieldReference(TestCase testCase, Field field) {
-		super(testCase, field.getGenericType());
+	public FieldReference(TestCase testCase, GenericField field) {
+		super(testCase, field.getFieldType());
 		this.field = field;
 		this.source = null;
 	}
@@ -128,7 +120,7 @@ public class FieldReference extends VariableReferenceImpl {
 	 * @param field
 	 *            a {@link java.lang.reflect.Field} object.
 	 */
-	public FieldReference(TestCase testCase, Field field, Type type) {
+	public FieldReference(TestCase testCase, GenericField field, Type type) {
 		super(testCase, type);
 		this.field = field;
 		this.source = null;
@@ -139,7 +131,7 @@ public class FieldReference extends VariableReferenceImpl {
 	 * 
 	 * @return a {@link java.lang.reflect.Field} object.
 	 */
-	public Field getField() {
+	public GenericField getField() {
 		return field;
 	}
 
@@ -161,14 +153,14 @@ public class FieldReference extends VariableReferenceImpl {
 	public Object getObject(Scope scope) throws CodeUnderTestException {
 
 		Object s;
-		if (Modifier.isStatic(field.getModifiers())) {
+		if (field.isStatic()) {
 			s = null;
 		} else {
 			s = source.getObject(scope);
 		}
 
 		try {
-			return field.get(s);
+			return field.getField().get(s);
 		} catch (IllegalArgumentException e) {
 			logger.debug("Error accessing field " + field + " of object " + source + ": "
 			        + e, e);
@@ -251,33 +243,35 @@ public class FieldReference extends VariableReferenceImpl {
 					 */
 					return;
 				}
-				
+
 				// TODO: It seems this is unavoidable based on the search operators
 				//       but maybe there is a better solution 
-				if(!field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
-					throw new CodeUnderTestException(new IllegalArgumentException("Cannot assignable: " + value + " of class "
-					        + value.getClass() + " to field " + field + " of variable "
-					        + source));					
+				if (!field.getField().getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
+					throw new CodeUnderTestException(new IllegalArgumentException(
+					        "Cannot assignable: " + value + " of class "
+					                + value.getClass() + " to field " + field
+					                + " of variable " + source));
 				}
 			}
-			if (field.getType().equals(int.class))
-				field.setInt(sourceObject, getIntValue(value));
-			else if (field.getType().equals(boolean.class))
-				field.setBoolean(sourceObject, (Boolean) value);
-			else if (field.getType().equals(byte.class))
-				field.setByte(sourceObject, (byte) getIntValue(value));
-			else if (field.getType().equals(char.class)) {
-				field.setChar(sourceObject, getCharValue(value));
-			} else if (field.getType().equals(double.class))
-				field.setDouble(sourceObject, getDoubleValue(value));
-			else if (field.getType().equals(float.class))
-				field.setFloat(sourceObject, getFloatValue(value));
-			else if (field.getType().equals(long.class))
-				field.setLong(sourceObject, getLongValue(value));
-			else if (field.getType().equals(short.class))
-				field.setShort(sourceObject, (short) getIntValue(value));
+			if (field.getField().getType().equals(int.class))
+				field.getField().setInt(sourceObject, getIntValue(value));
+			else if (field.getField().getType().equals(boolean.class))
+				field.getField().setBoolean(sourceObject, (Boolean) value);
+			else if (field.getField().getType().equals(byte.class))
+				field.getField().setByte(sourceObject, (byte) getIntValue(value));
+			else if (field.getField().getType().equals(char.class)) {
+				field.getField().setChar(sourceObject, getCharValue(value));
+			} else if (field.getField().getType().equals(double.class))
+				field.getField().setDouble(sourceObject, getDoubleValue(value));
+			else if (field.getField().getType().equals(float.class))
+				field.getField().setFloat(sourceObject, getFloatValue(value));
+			else if (field.getField().getType().equals(long.class))
+				field.getField().setLong(sourceObject, getLongValue(value));
+			else if (field.getField().getType().equals(short.class))
+				field.getField().setShort(sourceObject, (short) getIntValue(value));
 			else {
-				if (value != null && !field.getType().isAssignableFrom(value.getClass())) {
+				if (value != null
+				        && !field.getField().getType().isAssignableFrom(value.getClass())) {
 					logger.error("Not assignable: " + value + " of class "
 					        + value.getClass() + " to field " + field + " of variable "
 					        + source);
@@ -285,10 +279,10 @@ public class FieldReference extends VariableReferenceImpl {
 				// FIXXME: isAssignableFrom does not work with autoboxing
 				// assert (value==null || field.getType().isAssignableFrom(value.getClass()));
 				if (sourceObject != null
-				        && !field.getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
+				        && !field.getField().getDeclaringClass().isAssignableFrom(sourceObject.getClass())) {
 
 					String msg = "Field " + field + " defined in class "
-					        + field.getDeclaringClass() + ". Source object "
+					        + field.getField().getDeclaringClass() + ". Source object "
 					        + sourceObject + " has class " + sourceObject.getClass()
 					        + ". Value object " + value + " has class "
 					        + value.getClass();
@@ -296,7 +290,7 @@ public class FieldReference extends VariableReferenceImpl {
 					//FIXME: is it correct to throw an exception here? if yes, which kind?						
 				}
 				//assert (field.getDeclaringClass().isAssignableFrom(sourceObject.getClass()));
-				field.set(sourceObject, value);
+				field.getField().set(sourceObject, value);
 			}
 		} catch (IllegalArgumentException e) {
 			logger.error("Error while assigning field: " + getName() + " with value "
@@ -333,8 +327,9 @@ public class FieldReference extends VariableReferenceImpl {
 	@Override
 	public void setAdditionalVariableReference(VariableReference var) {
 		if (source != null
-		        && !field.getDeclaringClass().isAssignableFrom(var.getVariableClass())) {
-			logger.info("Not assignable: " + field.getDeclaringClass() + " and " + var);
+		        && !field.getField().getDeclaringClass().isAssignableFrom(var.getVariableClass())) {
+			logger.info("Not assignable: " + field.getField().getDeclaringClass()
+			        + " and " + var);
 			assert (false);
 		}
 		source = var;
@@ -388,7 +383,7 @@ public class FieldReference extends VariableReferenceImpl {
 		if (source != null)
 			return source.getName() + "." + field.getName();
 		else
-			return field.getDeclaringClass().getSimpleName() + "." + field.getName();
+			return field.getOwnerClass().getSimpleName() + "." + field.getName();
 	}
 
 	/**
@@ -398,13 +393,7 @@ public class FieldReference extends VariableReferenceImpl {
 	 */
 	@Override
 	public VariableReference copy(TestCase newTestCase, int offset) {
-		Type fieldType = field.getType();
-		try {
-			fieldType = field.getGenericType();
-		} catch (java.lang.reflect.GenericSignatureFormatError e) {
-			// Ignore
-			fieldType = field.getType();
-		}
+		Type fieldType = field.getFieldType();
 		if (source != null) {
 			//			VariableReference otherSource = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 			VariableReference otherSource = source.copy(newTestCase, offset);
@@ -468,7 +457,7 @@ public class FieldReference extends VariableReferenceImpl {
 	}
 
 	private boolean isStatic() {
-		return Modifier.isStatic(field.getModifiers());
+		return field.isStatic();
 	}
 
 	/* (non-Javadoc)
@@ -512,47 +501,7 @@ public class FieldReference extends VariableReferenceImpl {
 	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
-		try {
-			Class<?> oldClass = field.getDeclaringClass();
-			Class<?> newClass = loader.loadClass(oldClass.getName());
-			// this.field = newClass.getField(field.getName());
-			this.field = newClass.getDeclaredField(field.getName());
-			this.field.setAccessible(true);
-		} catch (ClassNotFoundException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
-		} catch (SecurityException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
-		} catch (NoSuchFieldException e) {
-			logger.warn("Field " + field.getName() + " not found in class "
-			        + field.getDeclaringClass());
-
-		}
+		field.changeClassLoader(loader);
 	}
 
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.defaultWriteObject();
-		// Write/save additional fields
-		oos.writeObject(field.getDeclaringClass().getName());
-		oos.writeObject(field.getName());
-	}
-
-	// assumes "static java.util.Date aDate;" declared
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
-		ois.defaultReadObject();
-
-		// Read/initialize additional fields
-		Class<?> fieldClass = TestGenerationContext.getClassLoader().loadClass((String) ois.readObject());
-		String fieldName = (String) ois.readObject();
-
-		try {
-			field = fieldClass.getDeclaredField(fieldName);
-		} catch (SecurityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (NoSuchFieldException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
 }

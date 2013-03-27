@@ -29,6 +29,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -40,6 +41,7 @@ import org.evosuite.TestGenerationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 public class GenericClass implements Serializable {
@@ -263,9 +265,49 @@ public class GenericClass implements Serializable {
 
 		return false;
 	}
-	
+
 	public boolean isParameterizedType() {
 		return type instanceof ParameterizedType;
+	}
+
+	public boolean isRawClass() {
+		return type instanceof Class<?>;
+	}
+
+	public GenericClass addWildcardTypes() {
+		return new GenericClass(GenericTypeReflector.addWildcardParameters(raw_class));
+	}
+
+	public List<Type> getParameterTypes() {
+		if (type instanceof ParameterizedType) {
+			return Arrays.asList(((ParameterizedType) type).getActualTypeArguments());
+		}
+		return new ArrayList<Type>();
+	}
+
+	public int getNumParameters() {
+		if (type instanceof ParameterizedType) {
+			return Arrays.asList(((ParameterizedType) type).getActualTypeArguments()).size();
+		}
+		return 0;
+	}
+
+	public void setParameterTypes(List<GenericClass> parameters) {
+		Type[] typeArray = new Type[parameters.size()];
+		for (int i = 0; i < parameters.size(); i++) {
+			typeArray[i] = parameters.get(i).getType();
+		}
+		this.type = new ParameterizedTypeImpl(raw_class, typeArray, null);
+		assert (this.type != null);
+
+	}
+
+	public GenericClass getWithParameterTypes(List<GenericClass> parameters) {
+		Type[] typeArray = new Type[parameters.size()];
+		for (int i = 0; i < parameters.size(); i++) {
+			typeArray[i] = parameters.get(i).getType();
+		}
+		return new GenericClass(new ParameterizedTypeImpl(raw_class, typeArray, null));
 	}
 
 	/**
@@ -283,7 +325,6 @@ public class GenericClass implements Serializable {
 		if (lhsType.equals(rhsType)) {
 			return true;
 		}
-		
 
 		if (lhsType instanceof Class<?> && rhsType instanceof Class<?>) {
 			//if(ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType)) {
@@ -311,12 +352,19 @@ public class GenericClass implements Serializable {
 			return isAssignable(lhsType, ((TypeVariable<?>) rhsType).getBounds()[0]);
 		}
 		if (rhsType instanceof ParameterizedType) {
-			
-			try{
+
+			try {
 				return TypeUtils.isAssignable(rhsType, lhsType);
-			} catch(IllegalStateException e) {
-				logger.debug("rhs is parameterized type "+rhsType +" and we got an illegal state");
-				return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
+			} catch (IllegalStateException e) {
+				logger.debug("rhs is parameterized type " + rhsType
+				        + " and we got an illegal state");
+				if (lhsType instanceof ParameterizedType)
+					return isAssignable(((ParameterizedType) lhsType).getRawType(),
+					                    rhsType);
+				else if (lhsType instanceof CaptureType)
+					return isAssignable(Object.class, rhsType);
+				else
+					return TypeUtils.isAssignable(rhsType, lhsType);
 			}
 
 			// return GenericTypeReflector.isSuperType(lhsType, rhsType);
@@ -325,8 +373,9 @@ public class GenericClass implements Serializable {
 		if (lhsType instanceof ParameterizedType) {
 			try {
 				return TypeUtils.isAssignable(rhsType, lhsType);
-			} catch(IllegalStateException e) {
-				logger.debug("lhs is parameterized type "+rhsType +" and we got an illegal state");
+			} catch (IllegalStateException e) {
+				logger.debug("lhs is parameterized type " + rhsType
+				        + " and we got an illegal state");
 				return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
 			}
 			// return GenericTypeReflector.isSuperType(lhsType, rhsType);
@@ -422,8 +471,25 @@ public class GenericClass implements Serializable {
 	 *            a {@link java.lang.reflect.Type} object.
 	 */
 	public GenericClass(Type type) {
-		this.type = type;
-		this.raw_class = GenericTypeReflector.erase(type);
+		if (type instanceof Class<?>) {
+			this.type = GenericTypeReflector.addWildcardParameters((Class<?>) type);
+			this.raw_class = (Class<?>) type;
+		} else {
+			if (!handleGenericArraySpecialCase(type)) {
+				this.type = type;
+				this.raw_class = GenericTypeReflector.erase(type);
+			}
+		}
+		assert (type != null);
+		assert (raw_class != null);
+		if (type == null) {
+			LoggingUtils.getEvoLogger().info("1. Type is null for raw class " + raw_class);
+			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+				LoggingUtils.getEvoLogger().info(elem.toString());
+			}
+			assert (false);
+		}
+
 	}
 
 	/**
@@ -436,6 +502,45 @@ public class GenericClass implements Serializable {
 	public GenericClass(Class<?> clazz) {
 		this.type = GenericTypeReflector.addWildcardParameters(clazz);
 		this.raw_class = clazz;
+		assert (type != null);
+		assert (raw_class != null);
+		if (type == null) {
+			LoggingUtils.getEvoLogger().info("2. Type is null for raw class " + raw_class);
+			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+				LoggingUtils.getEvoLogger().info(elem.toString());
+			}
+			assert (false);
+		}
+
+	}
+
+	public GenericClass(Type type, Class<?> clazz) {
+		this.type = type;
+		this.raw_class = clazz;
+		assert (type != null);
+		assert (raw_class != null);
+		if (type == null) {
+			LoggingUtils.getEvoLogger().info("3. Type is null for raw class " + raw_class);
+			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+				LoggingUtils.getEvoLogger().info(elem.toString());
+			}
+			assert (false);
+		}
+		handleGenericArraySpecialCase(type);
+	}
+
+	private boolean handleGenericArraySpecialCase(Type type) {
+		if (type instanceof GenericArrayType) {
+			// There is some weird problem with generic methods and the component type can be null
+			Type componentType = ((GenericArrayType) type).getGenericComponentType();
+			if (componentType == null) {
+				this.raw_class = Object[].class;
+				this.type = this.raw_class;
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -517,6 +622,13 @@ public class GenericClass implements Serializable {
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {
+		if (type == null) {
+			LoggingUtils.getEvoLogger().info("Type is null for raw class " + raw_class);
+			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
+				LoggingUtils.getEvoLogger().info(elem.toString());
+			}
+			assert (false);
+		}
 		return type.toString();
 	}
 
@@ -564,10 +676,6 @@ public class GenericClass implements Serializable {
 		// return true;
 	}
 
-	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(raw_class.getName());
-	}
-
 	private static Class<?> getClass(String name) throws ClassNotFoundException {
 		if (name.equals("void"))
 			return void.class;
@@ -601,13 +709,42 @@ public class GenericClass implements Serializable {
 			return TestGenerationContext.getClassLoader().loadClass(name);
 	}
 
+	private void writeObject(ObjectOutputStream oos) throws IOException {
+		oos.writeObject(raw_class.getName());
+		if (type instanceof ParameterizedType) {
+			oos.writeObject(Boolean.TRUE);
+			ParameterizedType pt = (ParameterizedType) type;
+			oos.writeObject(new GenericClass(pt.getRawType()));
+			oos.writeObject(new GenericClass(pt.getOwnerType()));
+			List<GenericClass> parameterClasses = new ArrayList<GenericClass>();
+			for (Type parameterType : pt.getActualTypeArguments()) {
+				parameterClasses.add(new GenericClass(parameterType));
+			}
+			oos.writeObject(parameterClasses);
+		} else {
+			oos.writeObject(Boolean.FALSE);
+		}
+	}
+
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		String name = (String) ois.readObject();
 		this.raw_class = getClass(name);
-		// TODO: Currently, type information gets lost by serialization
-		this.type = raw_class;
 
+		Boolean isParameterized = (Boolean) ois.readObject();
+		if (isParameterized) {
+			// GenericClass rawType = (GenericClass) ois.readObject();
+			GenericClass ownerType = (GenericClass) ois.readObject();
+			@SuppressWarnings("unchecked")
+			List<GenericClass> parameterClasses = (List<GenericClass>) ois.readObject();
+			Type[] parameterTypes = new Type[parameterClasses.size()];
+			for (int i = 0; i < parameterClasses.size(); i++)
+				parameterTypes[i] = parameterClasses.get(i).getType();
+			this.type = new ParameterizedTypeImpl(raw_class, parameterTypes,
+			        ownerType.getType());
+		} else {
+			this.type = GenericTypeReflector.addWildcardParameters(raw_class);
+		}
 	}
 
 	/**
@@ -621,7 +758,41 @@ public class GenericClass implements Serializable {
 	public void changeClassLoader(ClassLoader loader) {
 		try {
 			raw_class = getClass(raw_class.getName());
-			this.type = raw_class;
+			if (type instanceof ParameterizedType) {
+				logger.info("Before changing classloader: " + toString());
+				ParameterizedType pt = (ParameterizedType) type;
+				// GenericClass rawType = new GenericClass(pt.getRawType());
+				// rawType.changeClassLoader(loader);
+				GenericClass ownerType = null;
+				if (pt.getOwnerType() != null) {
+					ownerType = new GenericClass(pt.getOwnerType());
+					ownerType.changeClassLoader(loader);
+				}
+				List<GenericClass> parameterClasses = new ArrayList<GenericClass>();
+				boolean hasWildcard = false;
+				for (Type parameterType : pt.getActualTypeArguments()) {
+					if (parameterType instanceof WildcardType) {
+						hasWildcard = true;
+						break;
+					}
+					GenericClass parameter = new GenericClass(parameterType);
+					parameter.changeClassLoader(loader);
+					parameterClasses.add(parameter);
+				}
+				if (hasWildcard) {
+					this.type = GenericTypeReflector.addWildcardParameters(raw_class);
+				} else {
+					Type[] parameterTypes = new Type[parameterClasses.size()];
+					for (int i = 0; i < parameterClasses.size(); i++)
+						parameterTypes[i] = parameterClasses.get(i).getType();
+					this.type = new ParameterizedTypeImpl(raw_class, parameterTypes,
+					        ownerType != null ? ownerType.getType() : null);
+				}
+				logger.info("After changing classloader: " + toString());
+
+			} else {
+				this.type = GenericTypeReflector.addWildcardParameters(raw_class);
+			}
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {

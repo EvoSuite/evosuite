@@ -96,7 +96,8 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		logger.info("Total methods: " + totalMethods + ": " + methods);
 
 		determineCoverageGoals();
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_branchgoals", totalGoals);
+		ClientServices.getInstance().getClientNode().trackOutputVariable("total_branchgoals",
+		                                                                 totalGoals);
 	}
 
 	// Some stuff for debug output
@@ -128,33 +129,36 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	}
 
 	/**
-	 * If there is an exception in a superconstructor, then the corresponding 
+	 * If there is an exception in a superconstructor, then the corresponding
 	 * constructor might not be included in the execution trace
-	 *  
+	 * 
 	 * @param results
 	 * @param callCount
 	 */
-	private void handleConstructorExceptions(List<ExecutionResult> results, Map<String, Integer> callCount) {
-		
+	private void handleConstructorExceptions(List<ExecutionResult> results,
+	        Map<String, Integer> callCount) {
+
 		for (ExecutionResult result : results) {
-			if (result.hasTimeout() || result.hasTestException() || result.noThrownExceptions())
+			if (result.hasTimeout() || result.hasTestException()
+			        || result.noThrownExceptions())
 				continue;
-			
+
 			Integer exceptionPosition = result.getFirstPositionOfThrownException();
 			StatementInterface statement = result.test.getStatement(exceptionPosition);
-			if(statement instanceof ConstructorStatement) {
-				ConstructorStatement c = (ConstructorStatement)statement;
+			if (statement instanceof ConstructorStatement) {
+				ConstructorStatement c = (ConstructorStatement) statement;
 				String className = c.getConstructor().getName();
-				String methodName = "<init>"+Type.getConstructorDescriptor(c.getConstructor());
+				String methodName = "<init>"
+				        + Type.getConstructorDescriptor(c.getConstructor().getConstructor());
 				String name = className + "." + methodName;
-				if(!callCount.containsKey(name)) {
+				if (!callCount.containsKey(name)) {
 					callCount.put(name, 1);
 				}
 			}
-			
+
 		}
 	}
-	
+
 	/**
 	 * Iterate over all execution results and summarize statistics
 	 * 
@@ -253,10 +257,10 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		boolean hasTimeoutOrTestException = analyzeTraces(results, predicateCount,
 		                                                  callCount, trueDistance,
 		                                                  falseDistance);
-		
+
 		// In case there were exceptions in a constructor
 		handleConstructorExceptions(results, callCount);
-		
+
 		// Add requirement on statements
 		if (Properties.BRANCH_STATEMENT) {
 			for (ExecutionResult result : results) {
@@ -326,7 +330,6 @@ public class BranchCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			suite.setCoverage((double) coverage / (double) totalGoals);
 
 		suite.setNumOfCoveredGoals(coverage);
-		
 
 		if (hasTimeoutOrTestException) {
 			logger.info("Test suite has timed out, setting fitness to max value "

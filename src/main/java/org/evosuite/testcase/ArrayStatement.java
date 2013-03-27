@@ -19,7 +19,6 @@
 package org.evosuite.testcase;
 
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -31,6 +30,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.evosuite.Properties;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
@@ -393,7 +393,7 @@ public class ArrayStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public AccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject getAccessibleObject() {
 		return null;
 	}
 
@@ -426,7 +426,7 @@ public class ArrayStatement extends AbstractStatement {
 	 * 
 	 * @return an array of int.
 	 */
-	public List<Integer> getLengths() {		
+	public List<Integer> getLengths() {
 		return Arrays.asList(ArrayUtils.toObject(lengths));
 	}
 }

@@ -21,7 +21,6 @@
 package org.evosuite.testsuite;
 
 import java.io.PrintStream;
-import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.utils.GenericAccessibleObject;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 /**
@@ -53,7 +53,6 @@ import org.objectweb.asm.commons.GeneratorAdapter;
 public class TestCallStatement extends AbstractStatement {
 
 	private static final long serialVersionUID = -7886618899521718039L;
-
 
 	private final TestCallObject testCall;
 
@@ -106,7 +105,7 @@ public class TestCallStatement extends AbstractStatement {
 			}
 
 		} catch (Exception e) {
-			logger.error("TestCallStatement: Exception caught",e);
+			logger.error("TestCallStatement: Exception caught", e);
 			throw new Error(e);
 		}
 
@@ -303,7 +302,7 @@ public class TestCallStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public AccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject getAccessibleObject() {
 		assert (false); //not supposed to be called
 		return null;
 	}
