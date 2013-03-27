@@ -11,8 +11,8 @@ import java.util.Map;
  */
 public class GenericParameters3 {
 
-	public boolean testMe(Map<String, String> stringMap) {
-		if (stringMap.containsKey("test"))
+	public boolean testMe(Map<String, String> stringMap, String key) {
+		if (stringMap.containsKey(key))
 			return true;
 		else
 			return false;
