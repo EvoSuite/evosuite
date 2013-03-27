@@ -48,6 +48,8 @@ public abstract class GenericAccessibleObject {
 	@Override
 	public abstract String toString();
 
-	public abstract void changeClassLoader(ClassLoader loader);
+	public void changeClassLoader(ClassLoader loader) {
+		owner.changeClassLoader(loader);
+	}
 
 }
