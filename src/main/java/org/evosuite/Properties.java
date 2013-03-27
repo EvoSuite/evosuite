@@ -822,6 +822,9 @@ public class Properties {
 	@Parameter(key = "test_factory", description = "Which factory creates tests")
 	public static TestFactory TEST_FACTORY = TestFactory.RANDOM;
 
+	@Parameter(key = "selected_junit", description = "List of fully qualified class names (separated by ':') indicating which JUnit test suites the user has selected (e.g., for seeding)")
+	public static String SELECTED_JUNIT = null;
+	
 	/** Constant <code>JUNIT_STRICT=false</code> */
 	@Parameter(key = "junit_strict", description = "Only include test files containing the target classname")
 	public static boolean JUNIT_STRICT = false;

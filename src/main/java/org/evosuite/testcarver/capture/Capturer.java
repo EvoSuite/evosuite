@@ -1,17 +1,11 @@
 package org.evosuite.testcarver.capture;
 
-import java.awt.EventQueue;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.SwingUtilities;
 
 import org.evosuite.testcarver.codegen.PostProcessor;
 import org.evosuite.testcarver.exception.CapturerException;
@@ -38,6 +32,10 @@ public final class Capturer
 	private static final transient Logger LOG = LoggerFactory.getLogger(Capturer.class);
 
 
+	/*
+	 * TODO this needs refactoring. 
+	 */
+	@Deprecated
 	private static void initShutdownHook()
 	{
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() 
@@ -193,12 +191,15 @@ public final class Capturer
 			throw new IllegalStateException("Capture has already been started");
 		}
 		
+		/*
+		 * TODO need refactoring
+		 * 
 		if(! isShutdownHookAdded)
 		{
 			initShutdownHook();
 			isShutdownHookAdded = true;
 		}
-
+	*/
 		currentLog       = new CaptureLog();
 		isCaptureStarted = true;
 		

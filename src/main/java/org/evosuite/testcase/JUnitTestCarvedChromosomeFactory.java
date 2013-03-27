@@ -1,13 +1,12 @@
 package org.evosuite.testcase;
 
-import java.io.File;
-import java.util.Collection;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.setup.ResourceList;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
@@ -27,18 +26,25 @@ public class JUnitTestCarvedChromosomeFactory implements
 	
 	private final ChromosomeFactory<TestChromosome> defaultFactory;
 
-	public JUnitTestCarvedChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory) {
+	/**
+	 * The carved test cases are used only with a certain probability P.
+	 * So, with probability 1-P the 'default' factory is rather used.
+	 * 
+	 * @param defaultFactory
+	 * @throws IllegalStateException  if Properties are not properly set
+	 */
+	public JUnitTestCarvedChromosomeFactory(ChromosomeFactory<TestChromosome> defaultFactory) throws IllegalStateException{
 		this.defaultFactory = defaultFactory;
 		readTestCases();
 	}
 	
-	private void readTestCases() {
+	private void readTestCases() throws IllegalStateException{
+		
 		JUnitCore runner = new JUnitCore();
 		CarvingRunListener listener = new CarvingRunListener();
 		runner.addListener(listener);
-		Pattern pattern = Pattern.compile(Properties.JUNIT_PREFIX+".*.class");
-		Collection<String> junitTestNames = ResourceList.getResources(pattern);
-		logger.info("Found "+junitTestNames.size()+" candidate junit classes for pattern "+pattern);
+		
+		Collection<String> junitTestNames = getListOfJUnitClassNames();
 
 		List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
 		org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader(); 
@@ -58,6 +64,27 @@ public class JUnitTestCarvedChromosomeFactory implements
 		runner.run(classes);
 		junitTests.addAll(listener.getTestCases());
 		logger.info("Carved "+junitTests.size()+" tests");
+	}
+
+	private Collection<String> getListOfJUnitClassNames() throws IllegalStateException{
+
+		String prop = Properties.SELECTED_JUNIT;
+		if(prop==null || prop.trim().isEmpty()){
+			throw new IllegalStateException("Trying to use a test carver factory, but empty Properties.SELECTED_JUNIT");
+		}
+		
+		String[] paths = prop.split(":");
+		Collection<String> junitTestNames = new HashSet<String>();
+		for(String s : paths){
+			junitTestNames.add(s.trim());
+		}
+		
+		/* 
+		Pattern pattern = Pattern.compile(Properties.JUNIT_PREFIX+".*.class");
+		Collection<String> junitTestNames = ResourceList.getResources(pattern);		
+		logger.info("Found "+junitTestNames.size()+" candidate junit classes for pattern "+pattern);
+		*/
+		return junitTestNames;
 	}
 	
 	@Override
