@@ -60,7 +60,7 @@ public class ObjectSignatureAdapter extends ClassVisitor {
 	public ObjectSignatureAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
 
-		this.className = className.replace('/', '.');
+		this.className = Utils.getClassNameFromResourcePath(className);
 
 		if (!(this.className.startsWith(Properties.PROJECT_PREFIX))
 		        && !(this.className.startsWith(Properties.TARGET_CLASS_PREFIX))) {

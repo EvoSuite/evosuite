@@ -35,6 +35,7 @@ import org.evosuite.testcase.VariableReferenceImpl;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.Utils;
 
 public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> {
 	//--- source generation
@@ -349,7 +350,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				return Class.forName("[L" + type + ";", true,
 				                     TestGenerationContext.getClassLoader());
 			} else {
-				return Class.forName(type.replace('/', '.'), true,
+				return Class.forName(Utils.getClassNameFromResourcePath(type), true,
 				                     TestGenerationContext.getClassLoader());
 			}
 		} catch (final ClassNotFoundException e) {

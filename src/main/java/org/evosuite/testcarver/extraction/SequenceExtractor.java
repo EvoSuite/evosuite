@@ -8,6 +8,7 @@ import java.util.regex.Pattern;
 
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.ResourceList;
+import org.evosuite.utils.Utils;
 import org.junit.runner.notification.RunNotifier;
 import org.junit.runners.model.InitializationError;
 import org.slf4j.Logger;
@@ -104,7 +105,7 @@ public final class SequenceExtractor
 		{
 			try 
 			{
-				clazz = Class.forName(className.replace(".class", "").replace('/', '.'));
+				clazz = Class.forName(Utils.getClassNameFromResourcePath(className));
 //				clazz = Class.forName(className.replace(".class", "").replace('/', '.'), true, StaticTestCluster.classLoader);
 				
 				if (isJUnitTestClass(clazz)) 

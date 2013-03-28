@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.symbolic.expr.Constraint;
+import org.evosuite.utils.Utils;
 
 /**
  * <p>
@@ -61,7 +62,7 @@ public class BranchCondition {
 	        String methodName, int branchIndex, Constraint<?> localConstraint,
 	        List<Constraint<?>> supportingConstraints) {
 
-		this.className = className.replace('/', '.');
+		this.className = Utils.getClassNameFromResourcePath(className);
 		this.methodName = methodName;
 		this.branchIndex = branchIndex;
 
