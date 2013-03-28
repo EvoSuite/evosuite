@@ -253,6 +253,9 @@ public class EvoSuite {
 
 	public static boolean hasLegacyTargets() {
 		File directory = new File(Properties.OUTPUT_DIR);
+		if(!directory.exists()){
+			return false;
+		}
 		String[] extensions = { "task" };
 		return !FileUtils.listFiles(directory, extensions, false).isEmpty();
 	}
