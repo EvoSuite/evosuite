@@ -111,6 +111,7 @@ public class BooleanHelper {
 							                        Math.abs(n1.doubleValue()
 							                                - n2.doubleValue()));
 						} else if (o2 instanceof String) {
+							ConstantPoolManager.getInstance().addDynamicConstant(o1);
 							min_distance = Math.min(min_distance,
 							                        editDistance((String) o1, (String) o2));
 						}
