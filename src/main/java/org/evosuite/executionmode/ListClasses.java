@@ -16,6 +16,7 @@ import org.evosuite.Properties;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
+import org.evosuite.utils.Utils;
 
 public class ListClasses {
 
@@ -57,8 +58,7 @@ public class ListClasses {
 				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(resource.replace(".class", "").replace('/',
-			                                                                        '.'));
+			LoggingUtils.getEvoLogger().info(Utils.getClassNameFromResourcePath(resource));
 		}
 	}
 	private static void listClassesLegacy() {
@@ -90,8 +90,7 @@ public class ListClasses {
 				LoggingUtils.getEvoLogger().error("Could not load class: " + resource);
 				continue;
 			}
-			LoggingUtils.getEvoLogger().info(resource.replace(".class", "").replace('/',
-			                                                                        '.'));
+			LoggingUtils.getEvoLogger().info(Utils.getClassNameFromResourcePath(resource));
 		}
 	}
 }

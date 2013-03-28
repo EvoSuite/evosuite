@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class CallTree implements Iterable<CallTreeEntry> {
 	}
 
 	public void addPublicMethod(String className, String methodName) {
-		publicMethods.add(new CallContext(className.replace('/', '.'), methodName));
+		publicMethods.add(new CallContext(Utils.getClassNameFromResourcePath(className), methodName));
 	}
 
 	public void addCall(String owner, String methodName, String targetClass,

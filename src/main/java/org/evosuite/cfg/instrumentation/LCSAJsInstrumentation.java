@@ -38,6 +38,7 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
@@ -87,7 +88,7 @@ public class LCSAJsInstrumentation implements MethodInstrumentation {
 						MethodInsnNode cn = (MethodInsnNode) in;
 						Collection<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
 						superClasses.add(className);
-						String classNameWithDots = cn.owner.replace('/', '.');
+						String classNameWithDots = Utils.getClassNameFromResourcePath(cn.owner);
 						if (superClasses.contains(classNameWithDots)) {
 							constructorInvoked = true;
 							break;

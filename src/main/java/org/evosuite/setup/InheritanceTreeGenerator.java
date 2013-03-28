@@ -42,6 +42,7 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
@@ -240,7 +241,7 @@ public class InheritanceTreeGenerator {
 					continue EXCEPTION;
 				}
 				for(InheritanceTree other : others) {
-					if(!other.hasClass(name.replace('/', '.').replace(".class", ""))) {
+					if(!other.hasClass(Utils.getClassNameFromResourcePath(name))) {
 						logger.info("Skipping "+name+" because it is not in other inheritance tree");
 						continue EXCEPTION;
 					} else {

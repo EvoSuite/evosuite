@@ -1,5 +1,6 @@
 package org.evosuite.testcarver.capture;
 
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.Type;
 
 
@@ -9,7 +10,7 @@ public final class CaptureUtil
 	
 	public static Class<?> loadClass(final String internalClassName)
 	{
-		final String className = internalClassName.replace('/', '.');
+		final String className = Utils.getClassNameFromResourcePath(internalClassName);
 		
 		try 
 		{
@@ -60,7 +61,7 @@ public final class CaptureUtil
 		
 		try 
 		{
-			return Class.forName(type.getInternalName().replace('/', '.'));
+			return Class.forName(Utils.getClassNameFromResourcePath(type.getInternalName()));
 		} 
 		catch (final ClassNotFoundException e) 
 		{

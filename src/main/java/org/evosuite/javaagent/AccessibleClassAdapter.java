@@ -18,6 +18,7 @@
 package org.evosuite.javaagent;
 
 import org.evosuite.Properties;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -43,7 +44,7 @@ public class AccessibleClassAdapter extends ClassVisitor {
 	 */
 	public AccessibleClassAdapter(ClassVisitor cv, String className) {
 		super(Opcodes.ASM4, cv);
-		className = className.replace('/', '.');
+		className = Utils.getClassNameFromResourcePath(className); 
 		String packageName = "";
 		if (className.contains("."))
 			packageName = className.substring(0, className.lastIndexOf('.'));
