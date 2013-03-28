@@ -51,6 +51,38 @@ import com.thoughtworks.xstream.XStream;
 public class Utils {
 
 	/**
+	 * <p>
+	 * Given a resource path, eg foo/Foo.class, return the class name, eg foo.Foo
+	 * </p>
+	 * 
+	 * <p>
+	 * This method is able to handle different operating systems (Unix/Windows) and whether
+	 * the resource is in a folder or inside a jar file ('/' separator independent of operating system).  
+	 * </p>
+	 */
+	public static String getClassNameFromResourcePath(String resource){
+		if(resource==null || resource.isEmpty()){
+			return resource;
+		}
+
+		 // check file ending
+		final String CLASS = ".class";		 
+		if(resource.endsWith(CLASS)){
+			resource = resource.substring(0, resource.length() - CLASS.length());
+		}
+		
+		//in Jar it is always '/'
+		resource = resource.replace('/', '.');
+		
+		if(File.separatorChar != '/'){
+			//this would happen on a Windows machine for example
+			resource = resource.replace(File.separatorChar, '.');
+		}
+		
+		return resource;
+	}
+	
+	/**
 	 * Sleeps at least until the specified time point has passed.
 	 *
 	 * (Thread.sleep() does something similar, but can stop sleeping before

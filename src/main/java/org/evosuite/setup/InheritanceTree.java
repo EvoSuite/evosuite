@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DirectedMultigraph;
 import org.jgrapht.graph.EdgeReversedGraph;
@@ -48,8 +49,8 @@ public class InheritanceTree {
 	}
 
 	public void addSuperclass(String className, String superName, int access) {
-		String classNameWithDots = className.replace('/', '.');
-		String superNameWithDots = superName.replace('/', '.');
+		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+		String superNameWithDots = Utils.getClassNameFromResourcePath(superName);
 
 		if (inheritanceGraph == null) {
 			inheritanceGraph = new DirectedMultigraph<String, DefaultEdge>(
@@ -62,8 +63,8 @@ public class InheritanceTree {
 	}
 
 	public void addInterface(String className, String interfaceName) {
-		String classNameWithDots = className.replace('/', '.');
-		String interfaceNameWithDots = interfaceName.replace('/', '.');
+		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
+		String interfaceNameWithDots = Utils.getClassNameFromResourcePath(interfaceName);
 
 		inheritanceGraph.addVertex(classNameWithDots);
 		inheritanceGraph.addVertex(interfaceNameWithDots);
@@ -71,7 +72,7 @@ public class InheritanceTree {
 	}
 
 	public Set<String> getSubclasses(String className) {
-		String classNameWithDots = className.replace('/', '.');
+		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 
 		if (subclassCache.containsKey(classNameWithDots))
 			return subclassCache.get(classNameWithDots);
@@ -91,7 +92,7 @@ public class InheritanceTree {
 	}
 
 	public Collection<String> getSuperclasses(String className) {
-		String classNameWithDots = className.replace('/', '.');
+		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
 		        inheritanceGraph);

@@ -44,6 +44,7 @@ import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.evosuite.javaagent.BooleanValueInterpreter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testcase.ExecutionTracer;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -152,7 +153,7 @@ public class MutationInstrumentation implements MethodInstrumentation {
 					MethodInsnNode cn = (MethodInsnNode) in;
 					Collection<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
 					superClasses.add(className);
-					String classNameWithDots = cn.owner.replace('/', '.');
+					String classNameWithDots = Utils.getClassNameFromResourcePath(cn.owner);
 					if (superClasses.contains(classNameWithDots)) {
 						constructorInvoked = true;
 					}

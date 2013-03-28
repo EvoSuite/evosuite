@@ -16,6 +16,7 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
 import org.evosuite.javaagent.BytecodeInstrumentation;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
@@ -144,7 +145,7 @@ public class DetermineSUT {
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
-				String name = ((MethodInsnNode) insn).owner.replace('/', '.');
+				String name = Utils.getClassNameFromResourcePath(((MethodInsnNode) insn).owner);
 				if (isValidClass(name))
 					calledClasses.add(name);
 			}
@@ -174,7 +175,7 @@ public class DetermineSUT {
 		Set<String> superClasses = new HashSet<String>();
 		String currentSuper = cn.superName;
 		while(!currentSuper.equals("java/lang/Object")) {
-			superClasses.add(currentSuper.replace('/', '.'));
+			superClasses.add(Utils.getClassNameFromResourcePath(currentSuper));
 			ClassNode superNode = loadClassNode(currentSuper);
 			currentSuper = superNode.superName;
 		}

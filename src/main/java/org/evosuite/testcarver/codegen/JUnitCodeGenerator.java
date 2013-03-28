@@ -56,6 +56,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.evosuite.testcarver.capture.CaptureLog;
 import org.evosuite.testcarver.capture.CaptureUtil;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -2123,7 +2124,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			}
 			else
 			{
-				return Class.forName(type.replace('/', '.'));
+				return Class.forName(Utils.getClassNameFromResourcePath(type));
 			}
 		} 
 		catch (final ClassNotFoundException e) 

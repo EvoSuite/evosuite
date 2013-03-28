@@ -56,6 +56,7 @@ import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.Utils;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -485,7 +486,7 @@ public class TestClusterGenerator {
 			try {
 				logger.debug("Loading inner class: " + icn.innerName + ", " + icn.name
 				        + "," + icn.outerName);
-				String innerClassName = icn.name.replace('/', '.');
+				String innerClassName = Utils.getClassNameFromResourcePath(icn.name);
 				Class<?> innerClass = TestGenerationContext.getClassLoader().loadClass(innerClassName);
 				if (!targetClasses.contains(innerClass)) {
 					logger.info("Adding inner class " + innerClassName);

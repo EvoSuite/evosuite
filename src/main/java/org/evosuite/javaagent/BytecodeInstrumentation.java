@@ -29,6 +29,7 @@ import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;
 import org.evosuite.testcarver.instrument.TransformerUtil;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.ClassWriter;
@@ -209,7 +210,7 @@ public class BytecodeInstrumentation {
 		if (Properties.INSTRUMENTATION_SKIP_DEBUG)
 			readFlags |= ClassReader.SKIP_DEBUG;
 
-		String classNameWithDots = className.replace('/', '.');
+		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 
 		if (isSharedClass(classNameWithDots)) {
 			throw new RuntimeException("Should not transform a shared class ("

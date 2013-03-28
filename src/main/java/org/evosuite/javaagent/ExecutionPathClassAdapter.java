@@ -20,6 +20,7 @@ package org.evosuite.javaagent;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -56,7 +57,7 @@ public class ExecutionPathClassAdapter extends ClassVisitor {
 	 */
 	public ExecutionPathClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
-		this.className = className.replace('/', '.');
+		this.className = Utils.getClassNameFromResourcePath(className);
 	}
 
 	/*

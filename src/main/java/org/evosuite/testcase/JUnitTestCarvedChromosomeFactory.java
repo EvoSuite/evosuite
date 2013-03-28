@@ -11,6 +11,7 @@ import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.setup.ResourceList;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.Utils;
 import org.junit.runner.JUnitCore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,7 +51,7 @@ public class JUnitTestCarvedChromosomeFactory implements
 		org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader(); 
 		for(String className : junitTestNames) {
 			
-			String classNameWithDots = className.replace(".class", "").replace('/', '.');
+			String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 			try {
 				Class<?> junitClass = classLoader.loadClass(classNameWithDots);
 				junitTestClasses.add(junitClass);
