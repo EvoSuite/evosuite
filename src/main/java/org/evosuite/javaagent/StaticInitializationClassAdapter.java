@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.setup.TestCluster;
+import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -97,7 +98,7 @@ public class StaticInitializationClassAdapter extends ClassVisitor {
 			                                  | Opcodes.ACC_STATIC, "__STATIC_RESET",
 			                          descriptor,
 			                          signature, exceptions), finalFields);
-			static_classes.add(className.replace('/', '.'));
+			static_classes.add(Utils.getClassNameFromResourcePath(className));
 			TestCluster.registerStaticInitializer(className.replace("/", "."));
 			return new MultiMethodVisitor(mv2, mv);
 		}

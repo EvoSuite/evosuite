@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.testcarver.capture.CaptureLog;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -170,7 +171,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 			}
 			else
 			{
-				return Class.forName(type.replace('/', '.'));
+				return Class.forName(Utils.getClassNameFromResourcePath(type));
 			}
 		} 
 		catch (final ClassNotFoundException e) 

@@ -33,6 +33,7 @@ import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ExternalProcessHandler;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
+import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -145,9 +146,7 @@ public class TestGeneration {
 			try {
 				if (EvoSuite.isInterface(resource)) {
 					LoggingUtils.getEvoLogger().info("* Skipping interface: "
-					                                         + resource.replace(".class",
-					                                                            "").replace(File.separatorChar,
-					                                                                        '.'));
+					                                         + Utils.getClassNameFromResourcePath(resource));
 					continue;
 				}
 			} catch (IOException e) {
@@ -155,10 +154,9 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "
-			                                         + resource.replace(".class", "").replace(File.separatorChar,
-			                                                                                  '.'));
+			                                         + Utils.getClassNameFromResourcePath(resource));
 			generateTests(Strategy.EVOSUITE,
-			              resource.replace(".class", "").replace(File.separatorChar, '.'),
+						Utils.getClassNameFromResourcePath(resource),
 			              args, cp);
 		}
 
@@ -583,9 +581,7 @@ public class TestGeneration {
 			try {
 				if (EvoSuite.isInterface(resource)) {
 					LoggingUtils.getEvoLogger().info("* Skipping interface: "
-					                                         + resource.replace(".class",
-					                                                            "").replace(File.separatorChar,
-					                                                                        '.'));
+					                                         + Utils.getClassNameFromResourcePath(resource));
 					continue;
 				}
 			} catch (IOException e) {
@@ -593,10 +589,9 @@ public class TestGeneration {
 				continue;
 			}
 			LoggingUtils.getEvoLogger().info("* Current class: "
-			                                         + resource.replace(".class", "").replace(File.separatorChar,
-			                                                                                  '.'));
+			                                         + Utils.getClassNameFromResourcePath(resource));
 			generateTests(Strategy.EVOSUITE,
-			              resource.replace(".class", "").replace(File.separatorChar, '.'),
+						Utils.getClassNameFromResourcePath(resource),
 			              args, cp);
 		}
 	}
