@@ -11,7 +11,7 @@ import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
 import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
-import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;

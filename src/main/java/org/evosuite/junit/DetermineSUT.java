@@ -15,7 +15,7 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
-import org.evosuite.javaagent.BytecodeInstrumentation;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.tree.AbstractInsnNode;

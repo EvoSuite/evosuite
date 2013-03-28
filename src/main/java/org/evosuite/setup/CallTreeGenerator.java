@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;

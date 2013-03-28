@@ -35,7 +35,7 @@ import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.coverage.path.PrimePathPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
-import org.evosuite.javaagent.LinePool;
+import org.evosuite.instrumentation.LinePool;
 import org.evosuite.rmi.ClientServices;
 import org.junit.Test;
 import org.junit.runners.Suite;

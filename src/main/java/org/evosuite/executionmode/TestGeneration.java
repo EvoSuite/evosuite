@@ -24,7 +24,7 @@ import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.Properties.Strategy;
-import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
 import org.evosuite.statistics.SearchStatistics;

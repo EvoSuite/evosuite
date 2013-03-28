@@ -27,7 +27,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
-import org.evosuite.javaagent.LinePool;
+import org.evosuite.instrumentation.LinePool;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutableChromosome;

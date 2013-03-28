@@ -22,7 +22,7 @@ package org.evosuite.cfg.instrumentation.mutation;
 
 import static org.junit.Assert.assertEquals;
 
-import org.evosuite.cfg.instrumentation.mutation.ReplaceBitwiseOperator;
+import org.evosuite.instrumentation.mutation.ReplaceBitwiseOperator;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
 

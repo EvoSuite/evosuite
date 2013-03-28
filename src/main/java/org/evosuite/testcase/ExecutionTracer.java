@@ -22,7 +22,7 @@ import java.util.Map;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.dataflow.Definition;
 import org.evosuite.coverage.dataflow.Use;
-import org.evosuite.javaagent.BooleanHelper;
+import org.evosuite.instrumentation.BooleanHelper;
 import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

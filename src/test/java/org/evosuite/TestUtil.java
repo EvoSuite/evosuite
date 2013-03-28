@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.evosuite.Properties;
-import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 
 import junit.framework.Assert;
 
