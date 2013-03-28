@@ -1,8 +1,12 @@
 package org.evosuite.testcase;
 
+import java.io.Serializable;
+
 import org.evosuite.ga.MutationHistoryEntry;
 
-public class TestMutationHistoryEntry implements MutationHistoryEntry {
+public class TestMutationHistoryEntry implements MutationHistoryEntry, Serializable {
+
+	private static final long serialVersionUID = -4278409687247714553L;
 
 	public enum TestMutation {
 		CHANGE, INSERTION, DELETION
