@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
-import org.evosuite.Properties;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
@@ -120,6 +119,9 @@ public class DetermineSUT {
 			return false;
 		
 		if(name.startsWith("junit"))
+			return false;
+
+		if(name.startsWith("org.junit"))
 			return false;
 
 		if (name.startsWith(targetName))
