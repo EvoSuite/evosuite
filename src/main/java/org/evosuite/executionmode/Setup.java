@@ -2,7 +2,6 @@ package org.evosuite.executionmode;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.cli.CommandLine;
@@ -11,8 +10,6 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.Properties.NoSuchParameterException;
-import org.evosuite.setup.InheritanceTree;
-import org.evosuite.setup.InheritanceTreeGenerator;
 import org.evosuite.utils.LoggingUtils;
 
 public class Setup {
