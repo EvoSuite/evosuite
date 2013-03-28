@@ -174,7 +174,7 @@ public class DescriptorMapping {
 	}
 
 	private boolean isStringReplacement(String className, String methodName) {
-		if (className.equals("org/evosuite/javaagent/TestabilityTransformation")) {
+		if (className.equals("org/evosuite/instrumentation/TestabilityTransformation")) {
 			if (methodName.equals("StringEquals")
 			        || methodName.equals("StringEqualsIgnoreCase")
 			        || methodName.equals("StringIsEmpty")

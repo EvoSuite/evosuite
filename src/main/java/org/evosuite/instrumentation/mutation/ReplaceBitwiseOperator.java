@@ -157,7 +157,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
 			        "getInfectionDistanceInt", "(IIII)D"));
 		} else if (opcodesIntShift.contains(opcodeOrig)) {
 			distance.add(new InsnNode(Opcodes.DUP2));
@@ -165,7 +165,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
 			        "getInfectionDistanceInt", "(IIII)D"));
 		} else if (opcodesLong.contains(opcodeOrig)) {
 
@@ -177,7 +177,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
 			        "getInfectionDistanceLong", "(JJII)D"));
 			numVariable += 2;
 
@@ -190,7 +190,7 @@ public class ReplaceBitwiseOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceBitwiseOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceBitwiseOperator",
 			        "getInfectionDistanceLong", "(JIII)D"));
 			numVariable += 1;
 		}
