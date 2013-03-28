@@ -236,7 +236,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceInt", "(IIII)D"));
 		} else if (opcodesLong.contains(opcodeOrig)) {
 			distance.add(new VarInsnNode(Opcodes.LSTORE, numVariable));
@@ -247,7 +247,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceLong", "(JJII)D"));
 			numVariable += 2;
 		} else if (opcodesFloat.contains(opcodeOrig)) {
@@ -256,7 +256,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceFloat", "(FFII)D"));
 		} else if (opcodesDouble.contains(opcodeOrig)) {
 			distance.add(new VarInsnNode(Opcodes.DSTORE, numVariable));
@@ -267,7 +267,7 @@ public class ReplaceArithmeticOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceArithmeticOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceArithmeticOperator",
 			        "getInfectionDistanceDouble", "(DDII)D"));
 			numVariable += 2;
 		}

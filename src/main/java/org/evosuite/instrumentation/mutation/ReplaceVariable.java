@@ -199,7 +199,7 @@ public class ReplaceVariable implements MutationOperator {
 		distance.add(copy(mutant));
 		distance.add(cast(type, Type.DOUBLE_TYPE));
 		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
+		        "org/evosuite/instrumentation/mutation/ReplaceVariable",
 		        "getDistance", "(DD)D"));
 	}
 
@@ -219,7 +219,7 @@ public class ReplaceVariable implements MutationOperator {
 	        InsnList mutant) {
 		distance.add(copy(mutant));
 		distance.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-		        "org/evosuite/cfg/instrumentation/mutation/ReplaceVariable",
+		        "org/evosuite/instrumentation/mutation/ReplaceVariable",
 		        "getDistance", "(Ljava/lang/Object;Ljava/lang/Object;)D"));
 	}
 

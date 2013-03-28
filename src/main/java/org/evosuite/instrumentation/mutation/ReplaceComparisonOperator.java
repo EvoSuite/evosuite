@@ -188,7 +188,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceComparisonOperator",
 			        "getInfectionDistance", "(IIII)D"));
 			break;
 
@@ -203,7 +203,7 @@ public class ReplaceComparisonOperator implements MutationOperator {
 			distance.add(new LdcInsnNode(opcodeNew));
 			distance.add(new MethodInsnNode(
 			        Opcodes.INVOKESTATIC,
-			        "org/evosuite/cfg/instrumentation/mutation/ReplaceComparisonOperator",
+			        "org/evosuite/instrumentation/mutation/ReplaceComparisonOperator",
 			        "getInfectionDistance", "(III)D"));
 			break;
 
