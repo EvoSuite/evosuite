@@ -3,13 +3,17 @@
  */
 package org.evosuite.utils;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 
 /**
  * @author Gordon Fraser
  * 
  */
-public abstract class GenericAccessibleObject {
+public abstract class GenericAccessibleObject implements Serializable {
+
+	
+	private static final long serialVersionUID = 7069749492563662621L;
 
 	protected GenericClass owner;
 
