@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.ExecutionTracer;
 
 

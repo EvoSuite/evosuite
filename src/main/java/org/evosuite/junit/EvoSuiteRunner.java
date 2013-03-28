@@ -4,7 +4,7 @@ import java.io.InputStream;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
-import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.junit.runners.BlockJUnit4ClassRunner;
 import org.junit.runners.model.InitializationError;
 import org.slf4j.LoggerFactory;

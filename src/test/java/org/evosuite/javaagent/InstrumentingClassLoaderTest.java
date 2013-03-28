@@ -22,7 +22,7 @@ import junit.framework.Assert;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestUtil;
-import org.evosuite.javaagent.InstrumentingClassLoader;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
 import org.junit.Ignore;

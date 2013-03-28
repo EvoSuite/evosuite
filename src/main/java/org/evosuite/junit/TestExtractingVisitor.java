@@ -86,7 +86,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
 import org.eclipse.jdt.core.dom.WhileStatement;
 import org.evosuite.TestGenerationContext;
-import org.evosuite.javaagent.BytecodeInstrumentation;
+import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.junit.CompoundTestCase.MethodDef;
 import org.evosuite.junit.CompoundTestCase.ReturnStatementPlaceholder;
 import org.evosuite.junit.CompoundTestCase.TestScope;

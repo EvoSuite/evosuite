@@ -47,7 +47,7 @@ import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
-import org.evosuite.javaagent.BooleanTestabilityTransformation;
+import org.evosuite.instrumentation.BooleanTestabilityTransformation;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.utils.GenericAccessibleObject;
