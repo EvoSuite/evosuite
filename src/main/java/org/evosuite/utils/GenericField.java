@@ -120,6 +120,8 @@ public class GenericField extends GenericAccessibleObject {
 
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
+		super.changeClassLoader(loader);
+
 		try {
 			Class<?> oldClass = field.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
