@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.cfg.instrumentation.mutation;
+package org.evosuite.instrumentation.mutation;
 
 import static org.junit.Assert.assertEquals;
 
