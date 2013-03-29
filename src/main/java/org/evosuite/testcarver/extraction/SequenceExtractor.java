@@ -72,7 +72,7 @@ public final class SequenceExtractor
 			pattern = Pattern.compile(packageToBeConsidered.trim().replace('.', '/') + "/.*\\.class");
 		}
 		
-		return ResourceList.getAllResources(pattern);
+		return ResourceList.getResources(pattern);
 	}
 	
 	/**

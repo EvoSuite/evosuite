@@ -363,7 +363,7 @@ public class TestCluster {
 	public Collection<String> getMatchingClasses(String name) {
 		Pattern pattern = Pattern.compile(".*" + name + ".class");
 		// Pattern pattern = Pattern.compile(".*");
-		Collection<String> resources = ResourceList.getAllResources(pattern);
+		Collection<String> resources = ResourceList.getResources(pattern);
 		resources.addAll(ResourceList.getBootResources(pattern));
 
 		Set<String> classes = new LinkedHashSet<String>();
