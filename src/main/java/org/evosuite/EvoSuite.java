@@ -296,7 +296,7 @@ public class EvoSuite {
 					if (first) {
 						first = false;
 					} else {
-						cp += ":";
+						cp += File.pathSeparator;
 					}
 					cp += entry;
 				}

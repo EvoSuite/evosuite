@@ -153,7 +153,7 @@ public class ResourceList {
 				retval.addAll(getResourcesFromDirectory(file, pattern, dirName));
 			} else {
 				try {
-					final String fileName = file.getCanonicalPath().replace(dirName + "/",
+					final String fileName = file.getCanonicalPath().replace(dirName + File.separator,
 					                                                        "");
 					final boolean accept = pattern.matcher(fileName).matches();
 					if (accept) {
