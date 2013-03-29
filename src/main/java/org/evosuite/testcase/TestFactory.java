@@ -547,8 +547,14 @@ public class TestFactory {
 			logger.debug("Using a null reference to satisfy the type: " + Object.class);
 			return createNull(test, Object.class, position, recursionDepth);
 		}
-
 		GenericAccessibleObject o = TestCluster.getInstance().getRandomObjectGenerator();
+		if(TestCluster.getCastClasses().contains("java.lang.String")) {
+			Set<GenericAccessibleObject> generators = TestCluster.getInstance().getObjectGenerators();
+			if(Randomness.nextInt(generators.size() + 1) >= generators.size()) {
+				return createOrReuseVariable(test, String.class, position, recursionDepth, null);
+			}
+		}
+
 		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
 
 		currentRecursion.add(o);
@@ -840,7 +846,7 @@ public class TestFactory {
 	        int position, int recursionDepth, VariableReference exclude)
 	        throws ConstructionFailedException {
 
-		if (parameterType.equals(Object.class)) {
+		if (Properties.SEED_TYPES && parameterType.equals(Object.class)) {
 			return createOrReuseObjectVariable(test, position, recursionDepth, exclude);
 		}
 

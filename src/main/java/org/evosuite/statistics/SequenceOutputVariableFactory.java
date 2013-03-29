@@ -89,7 +89,6 @@ public abstract class SequenceOutputVariableFactory<T extends Number> {
 			 * Now we interpolate the coverage, as usually we don't have the value for exact time we want
 			 */
 			long timeDelta = timeStamps.get(i) - timeStamps.get(i-1);
-			LoggingUtils.getEvoLogger().info("Time delta: "+timeDelta);
 
 			if(timeDelta > 0 ){
 				double covDelta = values.get(i).doubleValue() - values.get(i-1).doubleValue();

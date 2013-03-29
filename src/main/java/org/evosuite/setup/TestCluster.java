@@ -38,6 +38,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceList;
 import org.junit.Test;
