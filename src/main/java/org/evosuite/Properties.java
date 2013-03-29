@@ -153,6 +153,9 @@ public class Properties {
 	@Parameter(key = "object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double OBJECT_POOL = 0.0;
+	
+	@Parameter(key = "seed_types", group = "Test Creation", description = "Use type information gathered from casts to instantiate generics")
+	public static boolean SEED_TYPES = true;
 
 	/** Constant <code>STRING_LENGTH=20</code> */
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")

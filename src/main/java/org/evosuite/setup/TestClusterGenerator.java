@@ -25,11 +25,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.TypeVariable;
-import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -40,7 +37,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -119,7 +115,6 @@ public class TestClusterGenerator {
 	
 	private static Class<?> MAP_CLASS = null;
 
-	@SuppressWarnings("unchecked")
 	public static void generateCluster(String targetClass,
 	        InheritanceTree inheritanceTree, CallTree callTree) throws RuntimeException,
 	        ClassNotFoundException {
@@ -145,6 +140,51 @@ public class TestClusterGenerator {
 		COLLECTION_CLASS = TestGenerationContext.getClassLoader().loadClass("java.util.Collection");
 		MAP_CLASS = TestGenerationContext.getClassLoader().loadClass("java.util.Map");
 
+		// If we include type seeding, then we analyze classes to find types in instanceof and cast instructions
+		if(Properties.SEED_TYPES) {
+			determineCastClasses(inheritanceTree, castClasses, parameterClasses,
+				callTreeClasses, invokedClasses, subClasses);
+		}
+
+		// Other classes might have further dependencies which we might need to resolve
+		parameterClasses.removeAll(callTreeClasses);
+
+		// TODO: Maybe java.lang.Object should only be assigned one of the castClasses?
+		Set<String> classNames = new LinkedHashSet<String>();
+		classNames.add("java.lang.Object");
+		for (Type type : castClasses) {
+			classNames.add(type.getClassName());
+		}
+
+		/*
+		 * If we fail to load a class, we skip it, and avoid to try
+		 * to load it again (which would result in extra unnecessary logging)
+		 */
+		Set<String> blackList = new LinkedHashSet<String>();
+		initBlackListWithPrimitives(blackList);
+
+		// If SEED_TYPES is false, only Object is a cast class
+		TestCluster.setCastClasses(classNames);
+		logger.info("Handling cast classes");
+		addCastClasses(classNames, blackList);
+
+		initializeTargetMethods();
+
+		logger.info("Resolving dependencies");
+		resolveDependencies(blackList);
+
+		if (logger.isDebugEnabled()) {
+			logger.debug(TestCluster.getInstance().toString());
+		}
+		dependencyCache.clear();
+		gatherStatistics();
+	}
+
+	@SuppressWarnings("unchecked")
+	private static void determineCastClasses(InheritanceTree inheritanceTree,
+			Set<Type> castClasses, Set<Type> parameterClasses,
+			Set<Type> callTreeClasses, Set<Type> invokedClasses,
+			Set<Type> subClasses) {
 		for (ClassNode classNode : DependencyAnalysis.getAllClassNodes()) {
 			if (classNode == null)
 				continue;
@@ -200,38 +240,6 @@ public class TestClusterGenerator {
 				}
 			}
 		}
-
-		// Other classes might have further dependencies which we might need to resolve
-		parameterClasses.removeAll(callTreeClasses);
-
-		// TODO: Maybe java.lang.Object should only be assigned one of the castClasses?
-		Set<String> classNames = new LinkedHashSet<String>();
-		classNames.add("java.lang.Object");
-		for (Type type : castClasses) {
-			classNames.add(type.getClassName());
-		}
-
-		/*
-		 * If we fail to load a class, we skip it, and avoid to try
-		 * to load it again (which would result in extra unnecessary logging)
-		 */
-		Set<String> blackList = new LinkedHashSet<String>();
-		initBlackListWithPrimitives(blackList);
-
-		TestCluster.setCastClasses(classNames);
-		logger.info("Handling cast classes");
-		addCastClasses(classNames, blackList);
-
-		initializeTargetMethods();
-
-		logger.info("Resolving dependencies");
-		resolveDependencies(blackList);
-
-		if (logger.isDebugEnabled()) {
-			logger.debug(TestCluster.getInstance().toString());
-		}
-		dependencyCache.clear();
-		gatherStatistics();
 	}
 
 	private static void gatherStatistics() {
@@ -409,28 +417,6 @@ public class TestClusterGenerator {
 			}
 		}
 		return types;
-	}
-
-	public static List<GenericClass> getParameterizedTypes(GenericClass clazz) {
-		List<GenericClass> parameterTypes = new ArrayList<GenericClass>();
-		for (java.lang.reflect.Type type : clazz.getParameterTypes()) {
-			if (type instanceof TypeVariable) {
-				TypeVariable typeVariable = (TypeVariable) type;
-				boolean isAssignable = true;
-				for (java.lang.reflect.Type boundType : typeVariable.getBounds()) {
-					if (!GenericClass.isAssignable(boundType, String.class)) {
-						isAssignable = false;
-						break;
-					}
-				}
-				if (isAssignable)
-					parameterTypes.add(new GenericClass(String.class));
-			} else if (type instanceof WildcardType) {
-				WildcardType wildcardType = (WildcardType) type;
-				parameterTypes.add(new GenericClass(String.class));
-			}
-		}
-		return parameterTypes;
 	}
 
 	/**

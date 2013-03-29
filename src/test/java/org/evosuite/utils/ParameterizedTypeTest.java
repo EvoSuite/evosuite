@@ -32,31 +32,6 @@ public class ParameterizedTypeTest {
 		Assert.assertEquals(pType, listOfString);
 	}
 
-	@Test
-	public void testSimple2() {
-		Type type = GenericTypeReflector.addWildcardParameters(List.class);
-		Type[] types = ((ParameterizedType) type).getActualTypeArguments();
-	}
-
-	@Test
-	public void testSimple3() {
-		GenericClass listClass = new GenericClass(List.class);
-		List<GenericClass> parameterTypes = TestClusterGenerator.getParameterizedTypes(listClass);
-
-		Assert.assertEquals(parameterTypes.toString(), 1, parameterTypes.size());
-		Assert.assertTrue(parameterTypes.get(0).isString());
-
-	}
-
-	@Test
-	public void testSimple4() {
-		GenericClass mapClass = new GenericClass(Map.class);
-		List<GenericClass> parameterTypes = TestClusterGenerator.getParameterizedTypes(mapClass);
-
-		Assert.assertEquals(parameterTypes.toString(), 2, parameterTypes.size());
-		Assert.assertTrue(parameterTypes.get(0).isString());
-		Assert.assertTrue(parameterTypes.get(1).isString());
-	}
 
 	@Test
 	public void testSimple5() {
