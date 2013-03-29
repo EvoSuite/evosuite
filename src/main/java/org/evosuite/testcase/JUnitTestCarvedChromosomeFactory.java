@@ -4,11 +4,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
-import org.evosuite.setup.ResourceList;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.Utils;

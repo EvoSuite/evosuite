@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
-import org.evosuite.setup.ResourceList;
+import org.evosuite.utils.ResourceList;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
