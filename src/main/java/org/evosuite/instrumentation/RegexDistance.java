@@ -10,6 +10,7 @@ import java.util.Queue;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
@@ -65,22 +66,7 @@ public class RegexDistance {
 			cacheRegex(regex);
 		}
 		Automaton automaton = regexAutomatonCache.get(regex);
-
-		State currentState = automaton.getInitialState();
-		String instance = "";
-		int length = 0;
-		while (!currentState.isAccept()) {
-			Set<Transition> transitions = currentState.getTransitions();
-			Transition t = Randomness.choice(transitions);
-			char max = t.getMax();
-			char min = t.getMin();
-			instance += (char) Randomness.nextInt(min, max);
-			currentState = t.getDest();
-			if (++length > Properties.STRING_LENGTH)
-				break;
-		}
-
-		return instance;
+		return automaton.getShortestExample(true);
 	}
 
 	public static String getNonMatchingRegexInstance(String regex) {
@@ -88,31 +74,7 @@ public class RegexDistance {
 			cacheRegex(regex);
 		}
 		Automaton automaton = regexAutomatonCache.get(regex);
-
-		State currentState = automaton.getInitialState();
-		String instance = "";
-
-		int length = 0;
-
-		while (!currentState.isAccept()) {
-			Set<Transition> transitions = currentState.getTransitions();
-			Transition t = Randomness.choice(transitions);
-			char max = t.getMax();
-			char min = t.getMin();
-			if (max < Character.MAX_VALUE) {
-				instance += max + 1;
-			} else if (min > 0) {
-				instance += min - 1;
-			} else {
-				return instance;
-			}
-			currentState = t.getDest();
-			if (++length > Properties.STRING_LENGTH)
-				break;
-
-		}
-
-		return instance;
+		return automaton.getShortestExample(false);
 	}
 
 	/**
@@ -142,7 +104,48 @@ public class RegexDistance {
 		// \W	A non-word character: [^\w]
 		newRegex = newRegex.replaceAll("\\\\W", "[^a-zA-Z_0-9]");
 
+		if(newRegex.startsWith("^"))
+			newRegex = newRegex.substring(1);
+		
+		if(newRegex.endsWith("$"))
+			newRegex = newRegex.substring(0, newRegex.length() - 1);
+		
+		// TODO: Some of these should be handled, not just ignored!
+		newRegex = removeFlagExpressions(newRegex);
+		
+		newRegex = removeReluctantOperators(newRegex);
+		
 		return newRegex;
+	}
+	
+	protected static String removeFlagExpressions(String regex) {
+		// Case insensitive
+		regex = regex.replaceAll("\\(\\?i\\)", "");
+
+		// Unix lines mode
+		regex = regex.replaceAll("\\(\\?d\\)", "");
+
+		// Permit comments and whitespace in pattern
+		regex = regex.replaceAll("\\(\\?x\\)", "");
+
+		// Multiline mode
+		regex = regex.replaceAll("\\(\\?m\\)", "");
+
+		// Dotall
+		regex = regex.replaceAll("\\(\\?s\\)", "");
+
+		// Unicode case
+		regex = regex.replaceAll("\\(\\?u\\)", "");
+
+		return regex;
+	}
+	
+	protected static String removeReluctantOperators(String regex) {
+		regex = regex.replaceAll("\\+\\?", "\\+");
+		regex = regex.replaceAll("\\*\\?", "\\*");
+		regex = regex.replaceAll("\\?\\?", "\\?");
+		
+		return regex;
 	}
 
 	private static void ensureState(
@@ -158,7 +161,7 @@ public class RegexDistance {
 
 	private static void cacheRegex(String regex) {
 		String r = expandRegex(regex);
-		Automaton automaton = new RegExp(r, RegExp.NONE).toAutomaton();
+		Automaton automaton = new RegExp(r, RegExp.COMPLEMENT).toAutomaton();
 		automaton.expandSingleton();
 
 		// We convert this to a graph without self-loops in order to determine the topological order

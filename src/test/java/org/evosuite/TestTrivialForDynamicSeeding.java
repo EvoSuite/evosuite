@@ -26,6 +26,7 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.TrivialForDynamicSeeding;
 import com.examples.with.different.packagename.TrivialForDynamicSeedingEndsWith;
+import com.examples.with.different.packagename.TrivialForDynamicSeedingRegex;
 import com.examples.with.different.packagename.TrivialForDynamicSeedingRegionMatches;
 import com.examples.with.different.packagename.TrivialForDynamicSeedingRegionMatchesCase;
 import com.examples.with.different.packagename.TrivialForDynamicSeedingStartsWith;
@@ -264,6 +265,55 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = TrivialForDynamicSeedingRegionMatchesCase.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.DYNAMIC_POOL = 0.0;
+		ConstantPoolManager.getInstance().reset();
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		Assert.assertEquals("Unexpected coverage: ", 2d / 3d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testRegexStringMatches() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = TrivialForDynamicSeedingRegex.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.DYNAMIC_POOL = 1d / 3d;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testRegexStringMatchesWithoutSeeding() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = TrivialForDynamicSeedingRegex.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 0.0;
