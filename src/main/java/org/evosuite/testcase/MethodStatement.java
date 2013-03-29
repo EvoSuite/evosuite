@@ -76,6 +76,12 @@ public class MethodStatement extends AbstractStatement {
 			this.callee = callee;
 		this.parameters = parameters;
 	}
+	
+	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
+	        List<VariableReference> parameters, VariableReference retVal) {
+		this(tc, method, callee, parameters);
+		this.retval = retVal;
+	}
 
 	/**
 	 * <p>
