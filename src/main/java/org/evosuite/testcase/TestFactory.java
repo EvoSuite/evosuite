@@ -618,9 +618,8 @@ public class TestFactory {
 			for (Type type : method.getParameterTypes()) {
 				parameters.add(test.getRandomObject(type, position));
 			}
-			MethodStatement m = new MethodStatement(test, method, callee, parameters);
+			MethodStatement m = new MethodStatement(test, method, callee, parameters, retval);
 			test.setStatement(m, position);
-			m.setRetval(retval);
 			logger.debug("Using method " + m.getCode());
 
 		} else if (call.isConstructor()) {
