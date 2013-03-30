@@ -55,8 +55,12 @@ public class ResourceList {
 		
 		final String[] classPathElements = Properties.CP.split(File.pathSeparator);
 		for (final String element : classPathElements) {
-			if (!getResources(element, pattern).isEmpty())
+			if(element==null || element.isEmpty()){
+				continue;
+			}
+			if (!getResources(element, pattern).isEmpty()){
 				return true;
+			}
 		}
 		
 		if(File.separatorChar != '/'){
@@ -66,8 +70,12 @@ public class ResourceList {
 			 */
 			pattern = Pattern.compile(className.replace(".", "\\\\")+".class");
 			for (final String element : classPathElements) {
-				if (!getResources(element, pattern).isEmpty())
+				if(element==null || element.isEmpty()){
+					continue;
+				}
+				if (!getResources(element, pattern).isEmpty()){
 					return true;
+				}
 			}
 		}
 		
