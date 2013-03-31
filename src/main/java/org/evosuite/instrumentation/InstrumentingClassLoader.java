@@ -19,10 +19,14 @@ package org.evosuite.instrumentation;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.jar.Manifest;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
@@ -69,7 +73,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 		classLoader = InstrumentingClassLoader.class.getClassLoader();
 		this.instrumentation = instrumentation;
 	}
-
+	
 	/**
 	 * Check if we can instrument the given class
 	 * 
@@ -205,6 +209,7 @@ public class InstrumentingClassLoader extends ClassLoader {
 			}
 			byte[] byteBuffer = instrumentation.transformBytes(this, className,
 			                                                   new ClassReader(is));
+			createPackageDefinition(fullyQualifiedTargetClass);
 			Class<?> result = defineClass(fullyQualifiedTargetClass, byteBuffer, 0,
 			                              byteBuffer.length);
 			classes.put(fullyQualifiedTargetClass, result);
@@ -213,5 +218,22 @@ public class InstrumentingClassLoader extends ClassLoader {
 		} catch (Throwable t) {
 			throw new ClassNotFoundException(t.getMessage(), t);
 		}
+	}
+	
+	/**
+	 * Before a new class is defined, we need to create a package definition for it
+	 * 
+	 * @param className
+	 */
+	private void createPackageDefinition(String className){
+		int i = className.lastIndexOf('.');
+		if (i != -1) {
+		    String pkgname = className.substring(0, i);
+		    // Check if package already loaded.
+		    Package pkg = getPackage(pkgname);
+		    if(pkg==null){
+		    		definePackage(pkgname, null, null, null, null, null, null, null);
+		    }
+	    }
 	}
 }

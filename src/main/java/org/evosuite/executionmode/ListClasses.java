@@ -43,7 +43,7 @@ public class ListClasses {
 
 	private static void listClassesTarget(String target) {
 		Pattern pattern = Pattern.compile("[^\\$]*.class");
-		Collection<String> resources = ResourceList.getResources(pattern, target);
+		Collection<String> resources = ResourceList.getResources(target, pattern);
 		try {
 			ClassPathHacker.addFile(target);
 		} catch (IOException e) {
@@ -74,7 +74,7 @@ public class ListClasses {
 		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			resources.addAll(ResourceList.getResources(pattern, classPathElement));
+			resources.addAll(ResourceList.getResources(classPathElement, pattern));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
