@@ -22,7 +22,7 @@ import junit.framework.Assert;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestUtil;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
 import org.junit.Ignore;
@@ -33,7 +33,7 @@ public class InstrumentingClassLoaderTest {
 
 	@Test
 	public void testClassWithStaticInitializationCallingGetPackage() throws ClassNotFoundException{
-		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
+		TestabilityTransformationClassLoader instrumentingClassLoader = new TestabilityTransformationClassLoader();
 		Class<?> stat = Class.forName("com.examples.with.different.packagename.StatInitIssue", true,
 				instrumentingClassLoader);
 	}
@@ -49,7 +49,7 @@ public class InstrumentingClassLoaderTest {
 		Properties.TARGET_CLASS = originalClass.getName();
 		Properties.PROJECT_PREFIX = originalClass.getPackage().getName();
 		Properties.TARGET_CLASS_PREFIX = Properties.PROJECT_PREFIX;
-		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
+		TestabilityTransformationClassLoader instrumentingClassLoader = new TestabilityTransformationClassLoader();
 		Class<?> changedClass = instrumentingClassLoader.loadClass(ClassLoaderTestSubject.class.getName());
 		Assert.assertEquals(instrumentingClassLoader, changedClass.getClassLoader());
 		Object changed = changedClass.getConstructor().newInstance();
@@ -77,7 +77,7 @@ public class InstrumentingClassLoaderTest {
 		Assert.assertTrue(execTrace.getTrueDistances().isEmpty());
 		Assert.assertTrue(execTrace.getFalseDistances().isEmpty());
 
-		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
+		TestabilityTransformationClassLoader instrumentingClassLoader = new TestabilityTransformationClassLoader();
 		Class<?> changedClass = instrumentingClassLoader.loadClass(ClassLoaderTestSubject.class.getName());
 		Assert.assertEquals(instrumentingClassLoader, changedClass.getClassLoader());
 		Assert.assertTrue(changedClass.hashCode() != originalClass.hashCode());
@@ -105,7 +105,7 @@ public class InstrumentingClassLoaderTest {
 
 		Properties.TARGET_CLASS = originalClass.getName();
 		Properties.PROJECT_PREFIX = originalClass.getPackage().getName();
-		InstrumentingClassLoader instrumentingClassLoader = new InstrumentingClassLoader();
+		TestabilityTransformationClassLoader instrumentingClassLoader = new TestabilityTransformationClassLoader();
 
 		Class<?> changedClass = instrumentingClassLoader.loadClass(InnerClassesTestSubject.class.getName());
 

@@ -20,20 +20,26 @@
  */
 package org.evosuite.setup;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
+import org.objectweb.asm.tree.TypeInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,7 +56,7 @@ public class CallTreeGenerator {
 
 		CallTree callTree = new CallTree(className);
 		if (targetClass != null)
-			handle(callTree, targetClass);
+			handle(callTree, targetClass, 0);
 		if (Properties.INSTRUMENT_PARENT) {
 			handleSuperClasses(callTree, targetClass);
 		}
@@ -96,7 +102,7 @@ public class CallTreeGenerator {
 			// Do not handle classes if they are overridden by the subclass
 			if ((mn.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
 				if (!isOverridden(mn.name + mn.desc)) {
-					handleMethodNode(callTree, superClass, mn);
+					handleMethodNode(callTree, superClass, mn, 0);
 				}
 			}
 		}
@@ -105,30 +111,34 @@ public class CallTreeGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void handle(CallTree callTree, ClassNode targetClass) {
+	public static void handle(CallTree callTree, ClassNode targetClass, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			logger.debug("Method: " + mn.name);
-			handleMethodNode(callTree, targetClass, mn);
+			handleMethodNode(callTree, targetClass, mn, depth);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void handle(CallTree callTree, ClassNode targetClass, String methodName) {
+	public static void handle(CallTree callTree, ClassNode targetClass, String methodName, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			if (methodName.equals(mn.name + mn.desc))
-				handleMethodNode(callTree, targetClass, mn);
+				handleMethodNode(callTree, targetClass, mn, depth);
 		}
 	}
 
-	public static void handle(CallTree callTree, String className, String methodName) {
+	public static void handle(CallTree callTree, String className, String methodName, int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
 			return;
 
-		handle(callTree, cn, methodName);
+		handle(callTree, cn, methodName, depth);
 	}
+	
+	public static Set<Type> castClasses = new HashSet<Type>();
+
+	public static Map<Type, Integer> castClassMap = new HashMap<Type, Integer>();
 
 	/**
 	 * Add all possible calls for a given method
@@ -137,16 +147,46 @@ public class CallTreeGenerator {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	public static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn) {
+	public static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn, int depth) {
 		handlePublicMethodNode(callTree, cn, mn);
 
+		if (mn.signature != null) {
+			logger.debug("Visiting signature: " + mn.signature);
+			CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor();
+			new SignatureReader(mn.signature).accept(visitor);
+			castClasses.addAll(visitor.getClasses());
+			for(Type castType : visitor.getClasses()) {
+				if(!castClassMap.containsKey(castType))
+					castClassMap.put(castType, depth);
+			}
+		}
+		
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
 
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
-				handleMethodInsnNode(callTree, cn, mn, (MethodInsnNode) insn);
+				handleMethodInsnNode(callTree, cn, mn, (MethodInsnNode) insn, depth + 1);
+			}
+			else if (insn.getOpcode() == Opcodes.CHECKCAST) {
+				TypeInsnNode typeNode = (TypeInsnNode) insn;
+				Type castType = Type.getObjectType(typeNode.desc);
+				while (castType.getSort() == Type.ARRAY) {
+					castType = castType.getElementType();
+				}
+				castClasses.add(castType);
+				if(!castClassMap.containsKey(castType))
+					castClassMap.put(castType, depth);
+			} else if (insn.getOpcode() == Opcodes.INSTANCEOF) {
+				TypeInsnNode typeNode = (TypeInsnNode) insn;
+				Type castType = Type.getObjectType(typeNode.desc);
+				while (castType.getSort() == Type.ARRAY) {
+					castType = castType.getElementType();
+				}
+				if(!castClassMap.containsKey(castType))
+					castClassMap.put(castType, depth);
+				castClasses.add(castType);
 			}
 		}
 	}
@@ -166,7 +206,7 @@ public class CallTreeGenerator {
 	 * @param methodCall
 	 */
 	public static void handleMethodInsnNode(CallTree callTree, ClassNode cn,
-	        MethodNode mn, MethodInsnNode methodCall) {
+	        MethodNode mn, MethodInsnNode methodCall, int depth) {
 
 		// Only build calltree for instrumentable classes
 		if (InstrumentingClassLoader.checkIfCanInstrument(methodCall.owner.replaceAll("/",
@@ -179,7 +219,7 @@ public class CallTreeGenerator {
 				callTree.addCall(cn.name, mn.name + mn.desc, methodCall.owner,
 				                 methodCall.name + methodCall.desc);
 
-				handle(callTree, methodCall.owner, methodCall.name + methodCall.desc);
+				handle(callTree, methodCall.owner, methodCall.name + methodCall.desc, depth);
 			}
 		}
 	}

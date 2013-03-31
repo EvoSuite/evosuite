@@ -18,7 +18,6 @@
 package org.evosuite.primitives;
 
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;

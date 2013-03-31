@@ -18,6 +18,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.setup.CastClassManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -117,8 +118,7 @@ public class TestFactory {
 			logger.debug("Max recursion depth reached");
 			throw new ConstructionFailedException("Max recursion depth reached");
 		}
-		logger.debug("Adding constructor " + constructor);
-		logger.debug("Parameter types: "+Arrays.asList(constructor.getParameterTypes()));
+
 		int length = test.size();
 
 		List<VariableReference> parameters = satisfyParameters(test,
@@ -548,7 +548,7 @@ public class TestFactory {
 			return createNull(test, Object.class, position, recursionDepth);
 		}
 		GenericAccessibleObject o = TestCluster.getInstance().getRandomObjectGenerator();
-		if(TestCluster.getCastClasses().contains("java.lang.String")) {
+		if(CastClassManager.getInstance().hasClass("java.lang.String")) {
 			Set<GenericAccessibleObject> generators = TestCluster.getInstance().getObjectGenerators();
 			if(Randomness.nextInt(generators.size() + 1) >= generators.size()) {
 				return createOrReuseVariable(test, String.class, position, recursionDepth, null);
@@ -1278,7 +1278,7 @@ public class TestFactory {
 			        + var.getClassName());
 			return insertRandomCallOnObjectAt(test, var, position);
 		} else {
-			logger.debug("Adding new call on UUT");
+			logger.debug("Adding new call on UUT because var was null");
 			return insertRandomCall(test, position);
 		}
 	}

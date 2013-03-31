@@ -254,7 +254,12 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public boolean isAssignableTo(Type other) {
-		return type.isAssignableTo(other);
+		if(type.hasWildcardTypes()) {
+			GenericClass rawClass = new GenericClass(other);
+			return GenericClass.isAssignable(rawClass.getRawClass(), type.getRawClass());
+		} else {
+			return type.isAssignableTo(other);
+		}
 	}
 
 	/**

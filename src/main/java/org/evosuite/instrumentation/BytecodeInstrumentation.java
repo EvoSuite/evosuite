@@ -315,7 +315,7 @@ public class BytecodeInstrumentation {
 
 				//TestabilityTransformation tt = new TestabilityTransformation(cn);
 				BooleanTestabilityTransformation tt = new BooleanTestabilityTransformation(
-				        cn);
+				        cn, classLoader);
 				// cv = new TraceClassVisitor(writer, new
 				// PrintWriter(System.out));
 				//cv = new TraceClassVisitor(cv, new PrintWriter(System.out));

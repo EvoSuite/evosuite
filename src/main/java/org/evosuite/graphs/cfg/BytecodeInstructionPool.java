@@ -93,7 +93,7 @@ public class BytecodeInstructionPool {
 
 		int lastLineNumber = -1;
 		int bytecodeOffset = 0;
-
+		
 		for (int instructionId = 0; instructionId < node.instructions.size(); instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 
@@ -374,6 +374,13 @@ public class BytecodeInstructionPool {
 			r.addAll(instructionMap.get(className).keySet());
 
 		return r;
+	}
+	
+	public boolean hasMethod(String className, String methodName) {
+		if (instructionMap.get(className) != null)
+			return instructionMap.get(className).containsKey(methodName);
+
+		return false;
 	}
 
 	/**

@@ -148,6 +148,9 @@ public class Properties {
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
 	public static int DYNAMIC_POOL_SIZE = 50;
+	
+	@Parameter(key = "p_special_type_call", group = "Test Creation", description = "Probability of using a non-standard call on a special case (collection/numeric)")
+	public static double P_SPECIAL_TYPE_CALL = 0.05;
 
 	/** Constant <code>OBJECT_POOL=0.0</code> */
 	@Parameter(key = "object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")

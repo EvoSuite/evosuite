@@ -17,7 +17,7 @@ import java.util.Map;
  * @author Wouter Coekaerts <wouter@coekaerts.be>
  */
 class VarMap {
-	private final Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
+	public final Map<TypeVariable<?>, Type> map = new HashMap<TypeVariable<?>, Type>();
 
 	/**
 	 * Creates an empty VarMap
@@ -54,9 +54,9 @@ class VarMap {
 			                : map(pType.getOwnerType()));
 		} else if (type instanceof WildcardType) {
 			WildcardType wType = (WildcardType) type;
-			return wType;
+			return new WildcardTypeImpl(map(wType.getUpperBounds()), map(wType.getLowerBounds()));
 		} else if (type instanceof GenericArrayType) {
-			return type;
+            return GenericArrayTypeImpl.createArrayType(map(((GenericArrayType)type).getGenericComponentType()));
 		} else {
 			throw new RuntimeException("not implemented: mapping " + type.getClass()
 			        + " (" + type + ")");

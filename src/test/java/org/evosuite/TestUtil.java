@@ -22,7 +22,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
 
 import junit.framework.Assert;
 
@@ -77,7 +77,7 @@ public class TestUtil {
 			Properties.TARGET_CLASS = className;
 			Properties.PROJECT_PREFIX = getPrefix(className);
 			Properties.TARGET_CLASS_PREFIX = Properties.PROJECT_PREFIX;
-			InstrumentingClassLoader classLoader = new InstrumentingClassLoader();
+			TestabilityTransformationClassLoader classLoader = new TestabilityTransformationClassLoader();
 			Class<?> factsComparatorClass = classLoader.loadClass(className);
 			Class<?>[] argClasses = getArgClasses(constructorArgs);
 			Constructor<?> factsComparatorConstructor = factsComparatorClass.getConstructor(argClasses);
