@@ -122,7 +122,7 @@ public class TestGeneration {
 		        + "[^\\$]*.class");
 		Set<String> resources = new HashSet<String>();
 		for (String classPathElement : cp.split(File.pathSeparator)) {
-			resources.addAll(ResourceList.getResources(pattern, classPathElement));
+			resources.addAll(ResourceList.getResources(classPathElement, pattern));
 			try {
 				ClassPathHacker.addFile(classPathElement);
 			} catch (IOException e) {
@@ -224,8 +224,10 @@ public class TestGeneration {
 
 		List<String> cmdLine = new ArrayList<String>();
 		cmdLine.add(EvoSuite.JAVA_CMD);
+		
 		cmdLine.add("-cp");
 		cmdLine.add(classPath);
+		
 		if (cp.isEmpty()) {
 			cmdLine.add("-DCP=" + classPath);
 		} else {
@@ -557,7 +559,7 @@ public class TestGeneration {
 	        List<String> args, String cp) {
 
 		Pattern pattern = Pattern.compile("[^\\$]*.class");
-		Collection<String> resources = ResourceList.getResources(pattern, target);
+		Collection<String> resources = ResourceList.getResources(target,pattern);
 		LoggingUtils.getEvoLogger().info("* Found " + resources.size()
 		                                         + " matching classes in target "
 		                                         + target);
