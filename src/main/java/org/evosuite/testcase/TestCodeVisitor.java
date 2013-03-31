@@ -49,6 +49,7 @@ import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.NumberFormatter;
 
 /**
@@ -997,7 +998,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += getClassName(retval) + " ";
 		}
 		if (constructor.getConstructor().getDeclaringClass().isMemberClass()
-		        && !constructor.isStatic()) {
+		        && !constructor.isStatic() && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers())) {
 			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
 			        // + new GenericClass(

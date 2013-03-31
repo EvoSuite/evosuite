@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
@@ -21,6 +22,8 @@ import com.googlecode.gentyref.GenericTypeReflector;
  */
 public class GenericConstructor extends GenericAccessibleObject {
 
+	private static final long serialVersionUID = 1361882947700615341L;
+	
 	private transient Constructor<?> constructor;
 
 	public GenericConstructor(Constructor<?> constructor, GenericClass owner) {
@@ -54,6 +57,25 @@ public class GenericConstructor extends GenericAccessibleObject {
 		return getExactParameterTypes(constructor, owner.getType());
 	}
 
+	public Type[] getGenericParameterTypes() {
+		return constructor.getGenericParameterTypes();
+	}
+
+	public Type[] getRawParameterTypes() {
+		return constructor.getParameterTypes();
+	}
+
+	@Override
+	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
+		return new GenericConstructor(constructor, newOwner);
+	}
+	
+	@Override
+	public GenericAccessibleObject copyWithOwnerFromReturnType(
+			ParameterizedType returnType) {
+		return new GenericConstructor(constructor, new GenericClass(returnType));
+	}
+
 	public Type getReturnType() {
 		return owner.getType();
 	}
@@ -64,6 +86,11 @@ public class GenericConstructor extends GenericAccessibleObject {
 	@Override
 	public boolean isConstructor() {
 		return true;
+	}
+	
+	@Override
+	public int getNumParameters() {
+		return constructor.getGenericParameterTypes().length;
 	}
 
 	/* (non-Javadoc)
@@ -82,50 +109,11 @@ public class GenericConstructor extends GenericAccessibleObject {
 		return constructor.toGenericString();
 	}
 
-	/**
-	 * Maps type parameters in a type to their values.
-	 * 
-	 * @param toMapType
-	 *            Type possibly containing type arguments
-	 * @param typeAndParams
-	 *            must be either ParameterizedType, or (in case there are no
-	 *            type arguments, or it's a raw type) Class
-	 * @return toMapType, but with type parameters from typeAndParams replaced.
-	 */
-	private static Type mapTypeParameters(Type toMapType, Type typeAndParams) {
-		if (isMissingTypeParameters(typeAndParams)) {
-			return GenericTypeReflector.erase(toMapType);
-		} else {
-			VarMap varMap = new VarMap();
-			Type handlingTypeAndParams = typeAndParams;
-			while (handlingTypeAndParams instanceof ParameterizedType) {
-				ParameterizedType pType = (ParameterizedType) handlingTypeAndParams;
-				Class<?> clazz = (Class<?>) pType.getRawType(); // getRawType should always be Class
-				varMap.addAll(clazz.getTypeParameters(), pType.getActualTypeArguments());
-				handlingTypeAndParams = pType.getOwnerType();
-			}
-			return varMap.map(toMapType);
-		}
+	@Override
+	public boolean isStatic() {
+		return Modifier.isStatic(constructor.getModifiers());
 	}
-
-	/**
-	 * Checks if the given type is a class that is supposed to have type
-	 * parameters, but doesn't. In other words, if it's a really raw type.
-	 */
-	private static boolean isMissingTypeParameters(Type type) {
-		if (type instanceof Class) {
-			for (Class<?> clazz = (Class<?>) type; clazz != null; clazz = clazz.getEnclosingClass()) {
-				if (clazz.getTypeParameters().length != 0)
-					return true;
-			}
-			return false;
-		} else if (type instanceof ParameterizedType) {
-			return false;
-		} else {
-			throw new AssertionError("Unexpected type " + type.getClass());
-		}
-	}
-
+	
 	/**
 	 * Returns the exact parameter types of the given method in the given type.
 	 * This may be different from <tt>m.getGenericParameterTypes()</tt> when the
@@ -133,14 +121,14 @@ public class GenericConstructor extends GenericAccessibleObject {
 	 * parameter that is used in one of the parameters, or <tt>type</tt> is a
 	 * raw type.
 	 */
-	public static Type[] getExactParameterTypes(Constructor<?> m, Type exactDeclaringType) {
+	public static Type[] getExactParameterTypes(Constructor<?> m, Type type) {
 		Type[] parameterTypes = m.getGenericParameterTypes();
-//		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
-//		                                                                 m.getDeclaringClass());
-//		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
-//			throw new IllegalArgumentException("The constructor " + m
-//			        + " is not a member of type " + type);
-//		}
+		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
+		                                                                 m.getDeclaringClass());
+		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
+			throw new IllegalArgumentException("The constructor " + m
+			        + " is not a member of type " + type);
+		}
 
 		Type[] result = new Type[parameterTypes.length];
 		for (int i = 0; i < parameterTypes.length; i++) {

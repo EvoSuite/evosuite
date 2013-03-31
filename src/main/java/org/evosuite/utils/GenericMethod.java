@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.evosuite.TestGenerationContext;
@@ -21,6 +22,8 @@ import com.googlecode.gentyref.GenericTypeReflector;
  */
 public class GenericMethod extends GenericAccessibleObject {
 
+	private static final long serialVersionUID = 6091851133071150237L;
+	
 	private transient Method method;
 
 	public GenericMethod(Method method, GenericClass type) {
@@ -38,6 +41,18 @@ public class GenericMethod extends GenericAccessibleObject {
 		this.method = method;
 	}
 
+	@Override
+	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
+		GenericMethod gm = new GenericMethod(method, newOwner);
+		gm.getParameterTypes();
+		return gm;
+	}
+	
+	public GenericMethod copyWithOwnerFromReturnType(ParameterizedType returnType) {
+		GenericClass newOwner = new GenericClass(getTypeFromExactReturnType(returnType, (ParameterizedType)getOwnerType()));
+		return new GenericMethod(method, newOwner);
+	}
+	
 	public Method getMethod() {
 		return method;
 	}
@@ -52,6 +67,14 @@ public class GenericMethod extends GenericAccessibleObject {
 
 	public Type[] getParameterTypes() {
 		return GenericTypeReflector.getExactParameterTypes(method, owner.getType());
+	}
+
+	public Type[] getGenericParameterTypes() {
+		return method.getGenericParameterTypes();
+	}
+
+	public Type[] getRawParameterTypes() {
+		return method.getParameterTypes();
 	}
 
 	public Type getReturnType() {
@@ -85,6 +108,11 @@ public class GenericMethod extends GenericAccessibleObject {
 		return Modifier.isStatic(method.getModifiers());
 	}
 
+	@Override
+	public int getNumParameters() {
+		return method.getGenericParameterTypes().length;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#getName()
 	 */

@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.instrumentation.TestabilityTransformationClassLoader;
 import org.evosuite.testcase.ExecutionTracer;
 
 
@@ -50,7 +50,7 @@ public class ClassTransformer {
 			Properties.TARGET_CLASS = fullyQualifiedTargetClass;
 			Properties.PROJECT_PREFIX = fullyQualifiedTargetClass;
 			ExecutionTracer.enable();
-			ClassLoader classLoader = new InstrumentingClassLoader();
+			ClassLoader classLoader = new TestabilityTransformationClassLoader();
 			result = classLoader.loadClass(fullyQualifiedTargetClass);
 			instrumentedClasses.put(fullyQualifiedTargetClass, result);
 			return result;

@@ -22,6 +22,8 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 
 	private final Set<Type> classes = new LinkedHashSet<Type>();
 
+	private boolean topLevel = true;
+	
 	public Set<Type> getClasses() {
 		return classes;
 	}
@@ -35,36 +37,37 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 
 	@Override
 	public void visitFormalTypeParameter(String name) {
-		logger.info("  visitFormalTypeParameter(" + name + ")");
+		logger.debug("  visitFormalTypeParameter(" + name + ")");
 	}
 
 	@Override
 	public SignatureVisitor visitClassBound() {
-		logger.info("  visitClassBound()");
+		logger.debug("  visitClassBound()");
 		return this;
 	}
 
 	@Override
 	public SignatureVisitor visitInterfaceBound() {
-		logger.info("  visitInterfaceBound()");
+		logger.debug("  visitInterfaceBound()");
 		return this;
 	}
 
 	@Override
 	public SignatureVisitor visitSuperclass() {
-		logger.info("  visitSuperclass()");
+		logger.debug("  visitSuperclass()");
 		return this;
 	}
 
 	@Override
 	public SignatureVisitor visitInterface() {
-		logger.info("  visitInterface()");
+		logger.debug("  visitInterface()");
 		return this;
 	}
 
 	@Override
 	public SignatureVisitor visitParameterType() {
-		logger.info("  visitParameterType()");
+		logger.debug("  visitParameterType()");
+		topLevel = true;
 		return this;
 	}
 
@@ -73,8 +76,13 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	 */
 	@Override
 	public void visitClassType(String name) {
-		logger.info("  visitClassType(" + name + ")");
-		classes.add(Type.getObjectType(name));
+		logger.debug("  visitClassType(" + name + ")");
+
+		if(topLevel)
+			topLevel = false;
+		else
+			classes.add(Type.getObjectType(name));
+		
 		super.visitClassType(name);
 	}
 
@@ -83,7 +91,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	 */
 	@Override
 	public void visitTypeVariable(String name) {
-		logger.info("  visitTypeVariable(" + name + ")");
+		logger.debug("  visitTypeVariable(" + name + ")");
 
 		super.visitTypeVariable(name);
 	}
@@ -93,7 +101,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	 */
 	@Override
 	public void visitTypeArgument() {
-		logger.info("  visitTypeArgument");
+		logger.debug("  visitTypeArgument");
 		super.visitTypeArgument();
 	}
 }

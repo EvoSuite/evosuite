@@ -8,6 +8,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.evosuite.TestGenerationContext;
@@ -19,6 +20,8 @@ import com.googlecode.gentyref.GenericTypeReflector;
  * 
  */
 public class GenericField extends GenericAccessibleObject {
+
+	private static final long serialVersionUID = -2344346234923642901L;
 
 	private transient Field field;
 
@@ -37,6 +40,20 @@ public class GenericField extends GenericAccessibleObject {
 		this.field = field;
 	}
 
+	@Override
+	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
+		return new GenericField(field, newOwner);
+	}
+	
+	@Override
+	public GenericAccessibleObject copyWithOwnerFromReturnType(
+			ParameterizedType returnType) {
+		GenericClass newOwner = new GenericClass(getTypeFromExactReturnType(returnType, (ParameterizedType)getOwnerType()));
+		return new GenericField(field, newOwner);
+	}
+	
+
+	
 	public Field getField() {
 		return field;
 	}

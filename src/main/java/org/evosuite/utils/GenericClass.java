@@ -269,6 +269,24 @@ public class GenericClass implements Serializable {
 	public boolean isParameterizedType() {
 		return type instanceof ParameterizedType;
 	}
+	
+	public boolean hasWildcardTypes() {
+		for(Type type : getParameterTypes()) {
+			if(type instanceof WildcardType)
+				return true;
+		}
+		
+		return false;
+	}
+	
+	public boolean hasTypeVariables() {
+		for(Type type : getParameterTypes()) {
+			if(type instanceof TypeVariable)
+				return true;
+		}
+		
+		return false;
+	}
 
 	public boolean isRawClass() {
 		return type instanceof Class<?>;
@@ -302,12 +320,28 @@ public class GenericClass implements Serializable {
 
 	}
 
-	public GenericClass getWithParameterTypes(List<GenericClass> parameters) {
+	public GenericClass getWithGenericParameterTypes(List<GenericClass> parameters) {
 		Type[] typeArray = new Type[parameters.size()];
 		for (int i = 0; i < parameters.size(); i++) {
 			typeArray[i] = parameters.get(i).getType();
 		}
 		return new GenericClass(new ParameterizedTypeImpl(raw_class, typeArray, null));
+	}
+
+	public GenericClass getWithParameterTypes(List<Type> parameters) {
+		Type[] typeArray = new Type[parameters.size()];
+		for (int i = 0; i < parameters.size(); i++) {
+			typeArray[i] = parameters.get(i);
+		}
+		return new GenericClass(new ParameterizedTypeImpl(raw_class, typeArray, null));
+	}
+
+	public GenericClass getWithParameterTypes(Type[] parameters) {
+		return new GenericClass(new ParameterizedTypeImpl(raw_class, parameters, null));
+	}
+
+	public GenericClass getRawGenericClass() {
+		return new GenericClass(raw_class);
 	}
 
 	/**
@@ -383,6 +417,9 @@ public class GenericClass implements Serializable {
 		}
 		if (lhsType instanceof WildcardType) {
 			return isAssignable((WildcardType) lhsType, rhsType);
+		}
+		if(rhsType instanceof WildcardType) {
+			return TypeUtils.isAssignable(rhsType, lhsType);
 		}
 		//if(rhsType instanceof WildcardType) {
 		//	return isAssignable(lhsType, (WildcardType) rhsType);

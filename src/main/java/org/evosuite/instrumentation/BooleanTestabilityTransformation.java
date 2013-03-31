@@ -38,7 +38,6 @@ import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionFactory;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
-import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -88,6 +87,8 @@ public class BooleanTestabilityTransformation {
 
 	private MethodNode currentMethodNode = null;
 
+	private ClassLoader classLoader;
+	
 	/**
 	 * <p>
 	 * Constructor for BooleanTestabilityTransformation.
@@ -96,9 +97,10 @@ public class BooleanTestabilityTransformation {
 	 * @param cn
 	 *            a {@link org.objectweb.asm.tree.ClassNode} object.
 	 */
-	public BooleanTestabilityTransformation(ClassNode cn) {
+	public BooleanTestabilityTransformation(ClassNode cn, ClassLoader classLoader) {
 		this.cn = cn;
 		this.className = cn.name.replace("/", ".");
+		this.classLoader = classLoader;
 	}
 
 	/**
@@ -118,6 +120,7 @@ public class BooleanTestabilityTransformation {
 		return cn;
 	}
 
+	@SuppressWarnings("unchecked")
 	private void clearIntermediateResults() {
 		List<MethodNode> methodNodes = cn.methods;
 		for (MethodNode mn : methodNodes) {
@@ -132,6 +135,7 @@ public class BooleanTestabilityTransformation {
 	/**
 	 * Handle transformation of fields defined in this class
 	 */
+	@SuppressWarnings("unchecked")
 	private void processFields() {
 		List<FieldNode> fields = cn.fields;
 		for (FieldNode field : fields) {
@@ -151,6 +155,7 @@ public class BooleanTestabilityTransformation {
 	/**
 	 * Handle transformation of methods defined in this class
 	 */
+	@SuppressWarnings("unchecked")
 	private void processMethods() {
 		List<MethodNode> methodNodes = cn.methods;
 		for (MethodNode mn : methodNodes) {
@@ -323,7 +328,7 @@ public class BooleanTestabilityTransformation {
 
 	private BytecodeInstruction getBytecodeInstruction(MethodNode mn,
 	        AbstractInsnNode node) {
-		return BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstruction(className,
+		return BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
 		                                                                                                  mn.name
 		                                                                                                          + mn.desc,
 		                                                                                                  node); // TODO: Adapt for classloaders
@@ -618,17 +623,20 @@ public class BooleanTestabilityTransformation {
 	}
 
 	private void generateCDG(MethodNode mn) {
-		BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).registerMethodNode(mn,
-		                                                                                               className,
-		                                                                                               mn.name
-		                                                                                                       + mn.desc); // TODO: Adapt for multiple classLoaders
+		if(BytecodeInstructionPool.getInstance(classLoader).hasMethod(className, mn.name + mn.desc))
+			return;
+		
+		BytecodeInstructionPool.getInstance(classLoader).registerMethodNode(mn,
+				className,
+				mn.name
+				+ mn.desc); // TODO: Adapt for multiple classLoaders
 
 		BytecodeAnalyzer bytecodeAnalyzer = new BytecodeAnalyzer();
 		logger.info("Generating initial CFG for method " + mn.name);
 
 		try {
 
-			bytecodeAnalyzer.analyze(TestGenerationContext.getClassLoader(), className,
+			bytecodeAnalyzer.analyze(classLoader, className,
 			                         mn.name + mn.desc, mn); // TODO
 		} catch (AnalyzerException e) {
 			logger.error("Analyzer exception while analyzing " + className + "."
@@ -1039,6 +1047,7 @@ public class BooleanTestabilityTransformation {
 		/*** Keep track of inserted PUTFIELDs */
 		private final Set<AbstractInsnNode> addedInsns = new HashSet<AbstractInsnNode>();
 
+		@SuppressWarnings("unchecked")
 		private boolean isDefinedBefore(MethodNode mn, VarInsnNode var,
 		        AbstractInsnNode position) {
 			// TODO: Iterate over local variables and check if local is defined here
@@ -1219,11 +1228,11 @@ public class BooleanTestabilityTransformation {
 
 		private void registerInstruction(MethodNode mn, AbstractInsnNode oldValue,
 		        AbstractInsnNode newValue) {
-			BytecodeInstruction oldInstruction = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstruction(className,
+			BytecodeInstruction oldInstruction = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
 			                                                                                                                                mn.name
 			                                                                                                                                        + mn.desc,
 			                                                                                                                                oldValue);
-			BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(TestGenerationContext.getClassLoader(),
+			BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(classLoader,
 			                                                                                       className,
 			                                                                                       mn.name
 			                                                                                               + mn.desc,
@@ -1231,7 +1240,7 @@ public class BooleanTestabilityTransformation {
 			                                                                                       0,
 			                                                                                       newValue);
 			instruction.setBasicBlock(oldInstruction.getBasicBlock());
-			BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).registerInstruction(instruction);
+			BytecodeInstructionPool.getInstance(classLoader).registerInstruction(instruction);
 		}
 
 		private void handleDependency(ControlDependency dependency,
@@ -1326,6 +1335,7 @@ public class BooleanTestabilityTransformation {
 		/* (non-Javadoc)
 		 * @see org.evosuite.instrumentation.MethodNodeTransformer#transformFieldInsnNode(org.objectweb.asm.tree.MethodNode, org.objectweb.asm.tree.FieldInsnNode)
 		 */
+		@SuppressWarnings("unchecked")
 		@Override
 		protected AbstractInsnNode transformFieldInsnNode(MethodNode mn,
 		        FieldInsnNode fieldNode) {
@@ -1359,7 +1369,7 @@ public class BooleanTestabilityTransformation {
 				logger.info("Handling PUTFIELD case!");
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
-				ControlDependenceGraph cdg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCDG(className.replace("/",
+				ControlDependenceGraph cdg = GraphPool.getInstance(classLoader).getCDG(className.replace("/",
 				                                                                                                                    "."),
 				                                                                                                  mn.name
 				                                                                                                          + mn.desc);
@@ -1367,20 +1377,20 @@ public class BooleanTestabilityTransformation {
 				logger.info("Getting bytecode instruction for " + fieldNode.name + "/"
 				        + ((FieldInsnNode) mn.instructions.get(index)).name);
 				InsnList nodes = mn.instructions;
-				ListIterator it = nodes.iterator();
+				ListIterator<AbstractInsnNode> it = nodes.iterator();
 				while (it.hasNext()) {
 					BytecodeInstruction in = new BytecodeInstruction(
-					        TestGenerationContext.getClassLoader(), className, mn.name,
-					        0, 0, (AbstractInsnNode) it.next());
+					        classLoader, className, mn.name,
+					        0, 0, it.next());
 					logger.info(in.toString());
 				}
-				BytecodeInstruction insn = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstruction(className.replace("/",
+				BytecodeInstruction insn = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className.replace("/",
 				                                                                                                                                        "."),
 				                                                                                                                      mn.name
 				                                                                                                                              + mn.desc,
 				                                                                                                                      index);
 				if (insn == null)
-					insn = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstruction(className.replace("/",
+					insn = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className.replace("/",
 					                                                                                                                    "."),
 					                                                                                                  mn.name
 					                                                                                                          + mn.desc,
@@ -1393,7 +1403,7 @@ public class BooleanTestabilityTransformation {
 				}
 				if (insn.getASMNode().getOpcode() != fieldNode.getOpcode()) {
 					logger.info("Found wrong bytecode instruction at this index!");
-					BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstruction(className,
+					BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
 					                                                                                           mn.name
 					                                                                                                   + mn.desc,
 					                                                                                           fieldNode);
@@ -1423,12 +1433,12 @@ public class BooleanTestabilityTransformation {
 			        && isBooleanVariable(varNode.var, mn)) {
 
 				// Check if ICONST_0 or ICONST_1 are on the stack
-				ControlDependenceGraph cdg = GraphPool.getInstance(TestGenerationContext.getClassLoader()).getCDG(className.replace("/",
+				ControlDependenceGraph cdg = GraphPool.getInstance(classLoader).getCDG(className.replace("/",
 				                                                                                                                    "."),
 				                                                                                                  mn.name
 				                                                                                                          + mn.desc);
 				int index = mn.instructions.indexOf(varNode);
-				BytecodeInstruction insn = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstruction(className.replace("/",
+				BytecodeInstruction insn = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className.replace("/",
 				                                                                                                                                        "."),
 				                                                                                                                      mn.name
 				                                                                                                                              + mn.desc,
@@ -1441,7 +1451,7 @@ public class BooleanTestabilityTransformation {
 				}
 				if (insn.getASMNode().getOpcode() != varNode.getOpcode()) {
 					logger.info("Found wrong bytecode instruction at this index!");
-					insn = BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstruction(className,
+					insn = BytecodeInstructionPool.getInstance(classLoader).getInstruction(className,
 					                                                                                                  mn.name
 					                                                                                                          + mn.desc,
 					                                                                                                  varNode);
@@ -1495,7 +1505,7 @@ public class BooleanTestabilityTransformation {
 
 				// Depending on the class version we need a String or a Class
 				// TODO: This needs to be class version of the class that's loaded, not cn!
-				ClassReader reader;
+				//ClassReader reader;
 				int version = 48;
 				/*
 				String name = typeNode.desc.replace("/", ".");
