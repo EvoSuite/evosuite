@@ -325,7 +325,11 @@ public class InheritanceTreeGenerator {
 				continue;
 			if (element.contains("evosuite"))
 				continue;
-			retval.addAll(ResourceList.getResources(element, pattern));
+			try {
+				retval.addAll(ResourceList.getResources(element, pattern));
+			} catch(IllegalArgumentException e) {
+				System.err.println("Does not exist: "+element);
+			}
 		}
 
 		return retval;
