@@ -519,9 +519,11 @@ public class TestCluster {
 		}
 
 		else if (clazz.isAssignableTo(Number.class)) {
-			for(GenericAccessibleObject call : modifiers.get(clazz)) {
-				if(Randomness.nextDouble() < Properties.P_SPECIAL_TYPE_CALL) {
-					calls.add(call);
+			if(modifiers.containsKey(clazz)) {
+				for(GenericAccessibleObject call : modifiers.get(clazz)) {
+					if(Randomness.nextDouble() < Properties.P_SPECIAL_TYPE_CALL) {
+						calls.add(call);
+					}
 				}
 			}
 			return calls;
@@ -845,7 +847,11 @@ public class TestCluster {
 			throw new ConstructionFailedException("No generators left for "
 					+ clazz + " - in total there are " + before);
 
-		return Randomness.choice(candidates);
+		GenericAccessibleObject generator = Randomness.choice(candidates);
+		if(generator.getOwnerClass().hasWildcardTypes() || generator.getOwnerClass().hasTypeVariables()) {
+			return generator.copyWithNewOwner(getGenericInstantiation(generator.getOwnerClass()));
+		}
+		return generator;
 
 	}
 
