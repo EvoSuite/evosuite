@@ -764,6 +764,14 @@ public class TestClusterGenerator {
 			return false;
 		}
 
+		if(m.getTypeParameters().length > 0) {
+			logger.debug("Cannot handle generic methods at this point");
+			if(m.getDeclaringClass().equals(Properties.getTargetClass())) {
+				LoggingUtils.getEvoLogger().info("* Skipping method "+m.getName()+": generic methods are not handled yet");
+			}
+			return false;
+		}
+		
 		// If default or
 		if (Modifier.isPublic(m.getModifiers()))
 			return true;
