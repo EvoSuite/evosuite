@@ -164,6 +164,7 @@ public class BooleanValueInterpreter extends BasicInterpreter {
 	/* (non-Javadoc)
 	 * @see org.objectweb.asm.tree.analysis.BasicInterpreter#naryOperation(org.objectweb.asm.tree.AbstractInsnNode, java.util.List)
 	 */
+	@SuppressWarnings("rawtypes")
 	/** {@inheritDoc} */
 	@Override
 	public BasicValue naryOperation(AbstractInsnNode insn, List values)

@@ -17,7 +17,7 @@ public class TestTestabilityTransformation {
 	private static final ClassLoader instrumentingClassloader = new TestabilityTransformationClassLoader(); 
 	
 	// TODO: Not yet working
-	@Ignore
+	
 	@Test
 	public void testSimpleFlag() throws ClassNotFoundException, InstantiationException, IllegalAccessException, SecurityException, NoSuchMethodException, IllegalArgumentException, InvocationTargetException {
 		
