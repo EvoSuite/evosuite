@@ -99,20 +99,20 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					        new GenericMethod(
 					                this.getDeclaredMethod(type, methodName,
 					                                       methodParamTypeClasses),
-					                type.getMethod(methodName, methodParamTypeClasses).getReturnType()),
+					                type),
 					        this.oidToVarRefMap.get(oid),
 
 					        args);
 					testCase.addStatement(m);
 				} else {
-					final org.objectweb.asm.Type returnType = org.objectweb.asm.Type.getReturnType(methodDesc);
+					// final org.objectweb.asm.Type returnType = org.objectweb.asm.Type.getReturnType(methodDesc);
 
 					// Person var0 = var.getPerson();
 					final MethodStatement m = new MethodStatement(testCase,
 					        new GenericMethod(
 					                this.getDeclaredMethod(type, methodName,
 					                                       methodParamTypeClasses),
-					                getClassFromType(returnType)),
+					                type),
 					        this.oidToVarRefMap.get(oid), args);
 
 					final Integer returnValueOID = (Integer) returnValue;
@@ -183,7 +183,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			final VariableReference stringRepRef = testCase.addStatement(stringRep);
 
 			final MethodStatement m = new MethodStatement(testCase, new GenericMethod(
-			        xStreamType.getMethod("fromXML", stringType), typeClass), xStreamRef,
+			        xStreamType.getMethod("fromXML", stringType), xStreamType), xStreamRef,
+//			        xStreamType.getMethod("fromXML", stringType), typeClass), xStreamRef,
 			        Arrays.asList(stringRepRef));
 
 			this.oidToVarRefMap.put(oid, testCase.addStatement(m));
