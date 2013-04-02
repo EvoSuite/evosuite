@@ -188,10 +188,6 @@ public class BytecodeInstrumentation {
 		return TestCluster.isTargetClassName(className);
 	}
 
-	static {
-		logger.info("Loading bytecode transformer for " + Properties.PROJECT_PREFIX);
-	}
-
 	/**
 	 * <p>
 	 * transformBytes
