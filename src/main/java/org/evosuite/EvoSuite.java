@@ -119,6 +119,8 @@ public class EvoSuite {
 	public static String generateInheritanceTree(String cp) throws IOException {
 		LoggingUtils.getEvoLogger().info("* Analyzing classpath");
 		List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
+		// Clear current inheritance file to make sure a new one is generated
+		Properties.INHERITANCE_FILE = "";
 		InheritanceTree tree = InheritanceTreeGenerator.analyze(cpList);
 		File outputFile = File.createTempFile("ES_inheritancetree", ".xml.gz");
 		outputFile.deleteOnExit();
