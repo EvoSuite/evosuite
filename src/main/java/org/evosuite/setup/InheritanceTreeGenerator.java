@@ -45,6 +45,7 @@ import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.ClassNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -186,6 +187,10 @@ public class InheritanceTreeGenerator {
 			        | ClassReader.SKIP_CODE);
 			logger.debug("Analyzing class " + cn.name);
 
+			if((cn.access & Opcodes.ACC_PUBLIC) == 0) {
+				return;
+			}
+
 			if (cn.superName != null)
 				inheritanceTree.addSuperclass(cn.name, cn.superName, cn.access);
 
@@ -241,14 +246,18 @@ public class InheritanceTreeGenerator {
 					logger.info("Skipping excluded class "+name);
 					continue EXCEPTION;
 				}
-				for(InheritanceTree other : others) {
-					if(!other.hasClass(Utils.getClassNameFromResourcePath(name))) {
-						logger.info("Skipping "+name+" because it is not in other inheritance tree");
-						continue EXCEPTION;
-					} else {
-						logger.info("Not skipping "+name+" because it is in other inheritance tree");
-					}
+			}
+			for(InheritanceTree other : others) {
+				if(!other.hasClass(Utils.getClassNameFromResourcePath(name))) {
+					logger.info("Skipping "+name+" because it is not in other inheritance tree");
+					continue EXCEPTION;
+				} else {
+					logger.info("Not skipping "+name+" because it is in other inheritance tree");
 				}
+			}
+			if(name.matches(".*\\$\\d+$")) {
+				logger.info("Skipping anonymous class");
+				continue;
 			}
 			InputStream stream = TestGenerationContext.getClassLoader().getResourceAsStream(name);
 			analyzeClassStream(inheritanceTree, stream);
