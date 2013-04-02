@@ -239,21 +239,6 @@ public class TestClusterGenerator {
 	}
 
 	/**
-	 * Sort the list of classes by their distance to the target class in terms
-	 * of package
-	 * 
-	 * @param targetClass
-	 * @param subClasses
-	 * @return
-	 */
-	private static List<String> filterSubclasses(String targetClass,
-	        Set<String> subClasses) {
-		List<String> subs = new ArrayList<String>();
-		subs.addAll(subClasses);
-		return subs;
-	}
-
-	/**
 	 * Continue adding generators for classes that are needed
 	 */
 	private static void resolveDependencies(Set<String> blackList) {
@@ -688,8 +673,14 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		if (Modifier.isPublic(f.getModifiers()))
+		if (Modifier.isPublic(f.getModifiers())) {
+			// It may still be the case that the field is defined in a non-visible superclass of the class
+			// we already know we can use. In that case, the compiler would be fine with accessing the 
+			// field, but reflection would start complaining about IllegalAccess!
+			// Therefore, we set the field accessible to be on the safe side
+			f.setAccessible(true);
 			return true;
+		}
 
 		return false;
 	}
@@ -952,7 +943,7 @@ public class TestClusterGenerator {
 		logger.debug("Concrete classes for " + clazz.getClassName() + ": "
 		        + actualClasses.size());
 		//dependencies.add(new Pair(recursionLevel, Randomness.choice(actualClasses)));
-		int num = 0;
+		
 		for (Class<?> targetClass : actualClasses) {
 			logger.debug("Adding concrete class: "+targetClass);
 			dependencies.add(new Pair(recursionLevel, targetClass));
