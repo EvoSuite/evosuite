@@ -9,9 +9,6 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
-import org.evosuite.Properties;
-import org.evosuite.utils.LoggingUtils;
-import org.evosuite.utils.Randomness;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
