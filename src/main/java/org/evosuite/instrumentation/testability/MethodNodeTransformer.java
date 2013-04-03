@@ -20,9 +20,16 @@
  */
 package org.evosuite.instrumentation.testability;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
+import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
+import org.objectweb.asm.commons.LocalVariablesSorter;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.FieldInsnNode;
 import org.objectweb.asm.tree.InsnNode;
@@ -42,6 +49,33 @@ import org.objectweb.asm.tree.VarInsnNode;
  */
 public class MethodNodeTransformer {
 
+    /**
+     * Mapping from old to new local variable indexes. A local variable at index
+     * i of size 1 is remapped to 'mapping[2*i]', while a local variable at
+     * index i of size 2 is remapped to 'mapping[2*i+1]'.
+     */
+    protected int[] mapping = new int[40];
+
+    /**
+     * Array used to store stack map local variable types after remapping.
+     */
+    protected Object[] newLocals = new Object[20];
+
+    /**
+     * Index of the first local variable, after formal parameters.
+     */
+    protected int firstLocal;
+
+    /**
+     * Index of the next local variable to be created by {@link #newLocal}.
+     */
+    protected int nextLocal;
+    
+    /**
+     * Types of the local variables of the method visited by this adapter.
+     */
+    protected final List<Type> localTypes = new ArrayList<Type>();
+    
 	/**
 	 * <p>transform</p>
 	 *
@@ -49,6 +83,8 @@ public class MethodNodeTransformer {
 	 */
 	public void transform(MethodNode mn) {
 
+		setupLocals(mn);
+		
 		Set<AbstractInsnNode> originalNodes = new HashSet<AbstractInsnNode>();
 		AbstractInsnNode node = mn.instructions.getFirst();
 		while (node != mn.instructions.getLast()) {
@@ -205,4 +241,168 @@ public class MethodNodeTransformer {
 	        MultiANewArrayInsnNode arrayInsnNode) {
 		return arrayInsnNode;
 	}
+	
+	protected void setupLocals(MethodNode mn) {
+        Type[] args = Type.getArgumentTypes(mn.desc);
+        nextLocal = (Opcodes.ACC_STATIC & mn.access) == 0 ? 1 : 0;
+        for (int i = 0; i < args.length; i++) {
+            nextLocal += args[i].getSize();
+        }
+        firstLocal = nextLocal;
+	}
+	
+	
+	// TODO: Everything from here on needs to be finished, it is just copy&paste for now
+	
+    /**
+     * Generates the instruction to store the top stack value in the given local
+     * variable.
+     * 
+     * @param local
+     *            a local variable identifier, as returned by
+     *            {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
+     */
+    public void storeLocal(final int local) {
+        storeInsn(getLocalType(local), local);
+    }
+    
+    /**
+     * Generates the instruction to load the given local variable on the stack.
+     * 
+     * @param local
+     *            a local variable identifier, as returned by
+     *            {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
+     */
+    public void loadLocal(final int local) {
+        loadInsn(getLocalType(local), local);
+    }
+    
+
+    /**
+     * Returns the type of the given local variable.
+     * 
+     * @param local
+     *            a local variable identifier, as returned by
+     *            {@link LocalVariablesSorter#newLocal(Type) newLocal()}.
+     * @return the type of the given local variable.
+     */
+    public Type getLocalType(final int local) {
+        return localTypes.get(local - firstLocal);
+    }
+    
+    /**
+     * Creates a new local variable of the given type.
+     * 
+     * @param type
+     *            the type of the local variable to be created.
+     * @return the identifier of the newly created local variable.
+     */
+    public int newLocal(final Type type) {
+        Object t;
+        switch (type.getSort()) {
+        case Type.BOOLEAN:
+        case Type.CHAR:
+        case Type.BYTE:
+        case Type.SHORT:
+        case Type.INT:
+            t = Opcodes.INTEGER;
+            break;
+        case Type.FLOAT:
+            t = Opcodes.FLOAT;
+            break;
+        case Type.LONG:
+            t = Opcodes.LONG;
+            break;
+        case Type.DOUBLE:
+            t = Opcodes.DOUBLE;
+            break;
+        case Type.ARRAY:
+            t = type.getDescriptor();
+            break;
+        // case Type.OBJECT:
+        default:
+            t = type.getInternalName();
+            break;
+        }
+        int local = newLocalMapping(type);
+        setLocalType(local, type);
+        setFrameLocal(local, t);
+        return local;
+    }
+    
+    protected int newLocalMapping(final Type type) {
+        int local = nextLocal;
+        nextLocal += type.getSize();
+        return local;
+    }
+    
+    private void setFrameLocal(final int local, final Object type) {
+        int l = newLocals.length;
+        if (local >= l) {
+            Object[] a = new Object[Math.max(2 * l, local + 1)];
+            System.arraycopy(newLocals, 0, a, 0, l);
+            newLocals = a;
+        }
+        newLocals[local] = type;
+    }
+    
+    /**
+     * Notifies subclasses that a local variable has been added or remapped. The
+     * default implementation of this method does nothing.
+     * 
+     * @param local
+     *            a local variable identifier, as returned by {@link #newLocal
+     *            newLocal()}.
+     * @param type
+     *            the type of the value being stored in the local variable.
+     */
+    protected void setLocalType(final int local, final Type type) {
+    }
+    
+    /**
+     * Generates the instruction to store the top stack value in a local
+     * variable.
+     * 
+     * @param type
+     *            the type of the local variable to be stored.
+     * @param index
+     *            an index in the frame's local variables array.
+     */
+    private void storeInsn(final Type type, final int index) {
+    	// TODO: Insert the following
+    	// new VarInsnNode(type.getOpcode(Opcodes.ISTORE), index);        
+    }
+    
+    /**
+     * Generates the instruction to push a local variable on the stack.
+     * 
+     * @param type
+     *            the type of the local variable to be loaded.
+     * @param index
+     *            an index in the frame's local variables array.
+     */
+    private void loadInsn(final Type type, final int index) {
+    	// TODO: Insert the following
+    	// new VarInsnNode(type.getOpcode(Opcodes.ILOAD), index);
+    }
+
+    protected Map<Integer, Integer> parameterToLocalMap = new HashMap<Integer, Integer>();
+
+    protected void popParametersToLocals(MethodNode mn) {
+    	Type[] args = Type.getArgumentTypes(mn.desc);
+		for (int i = args.length - 1; i >= 0; i--) {
+			int loc = newLocal(args[i]);
+			storeLocal(loc);
+			parameterToLocalMap.put(i, loc);
+		}
+    }
+    
+    protected void pushParametersToLocals(MethodNode mn) {
+    	Type[] args = Type.getArgumentTypes(mn.desc);
+		for (int i = 0; i < args.length; i++) {
+			loadLocal(parameterToLocalMap.get(i));
+		}
+		parameterToLocalMap.clear();
+    }
+
 }

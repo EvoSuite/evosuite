@@ -353,6 +353,8 @@ public class ImplicitElseTransformer extends MethodNodeTransformer {
 				return fieldNode;
 
 			// Can only handle cases where the field owner is loaded directly before the field
+			// TODO: We could pop the top of the stack and DUP the owner, but would need to take care
+			// whether we need to pop one or two words
 			if (fieldNode.getOpcode() == Opcodes.PUTFIELD) {
 				AbstractInsnNode previous = fieldNode.getPrevious();
 				while (previous instanceof LineNumberNode
