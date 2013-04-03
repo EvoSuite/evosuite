@@ -18,16 +18,13 @@
 
 package org.evosuite.utils;
 
-
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
@@ -40,51 +37,51 @@ import org.slf4j.LoggerFactory;
  * </p>
  * 
  * <p>
- * <code>Properties.CP</code> needs to be set
- * </>
+ * <code>Properties.CP</code> needs to be set </>
  * 
  * @author Gordon Fraser
  */
 public class ResourceList {
 
 	private static Logger logger = LoggerFactory.getLogger(ResourceList.class);
-	
+
 	public static boolean hasClass(String className) {
-				
-		Pattern pattern = Pattern.compile(className.replace('.', '/')+".class");
-		
+
+		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
+
 		final String[] classPathElements = Properties.CP.split(File.pathSeparator);
 		for (final String element : classPathElements) {
-			if(element==null || element.isEmpty()){
+			if (element == null || element.isEmpty()) {
 				continue;
 			}
-			if (!getResources(element, pattern).isEmpty()){
+			if (!getResources(element, pattern).isEmpty()) {
 				return true;
 			}
 		}
-		
-		if(File.separatorChar != '/'){
+
+		if (File.separatorChar != '/') {
 			/*
 			 * This can happen for example in Windows.
 			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
 			 */
-			pattern = Pattern.compile(className.replace(".", "\\\\")+".class");
+			pattern = Pattern.compile(className.replace(".", "\\\\") + ".class");
 			for (final String element : classPathElements) {
-				if(element==null || element.isEmpty()){
+				if (element == null || element.isEmpty()) {
 					continue;
 				}
-				if (!getResources(element, pattern).isEmpty()){
+				if (!getResources(element, pattern).isEmpty()) {
 					return true;
 				}
 			}
 		}
-		
+
 		return false;
 	}
 
 	/**
 	 * <p>
-	 * for all elements of <code>java.class.path</code> and <code>Properties.CP</code> get a Collection of resources Pattern
+	 * for all elements of <code>java.class.path</code> and
+	 * <code>Properties.CP</code> get a Collection of resources Pattern
 	 * </p>
 	 * 
 	 * <p>
@@ -97,20 +94,19 @@ public class ResourceList {
 	 */
 	public static Collection<String> getResources(final Pattern pattern) {
 		final ArrayList<String> retval = new ArrayList<String>();
-		
+
 		String[] classPathElements = Properties.CP.split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
-		
+
 		classPathElements = System.getProperty("java.class.path", ".").split(File.pathSeparator);
 		for (final String element : classPathElements) {
 			retval.addAll(getResources(element, pattern));
 		}
-		
+
 		return retval;
 	}
-
 
 	/**
 	 * for all elements of java.class.path get a Collection of resources Pattern
@@ -140,44 +136,44 @@ public class ResourceList {
 	 */
 	public static Collection<String> getResources(final String classPathElement,
 	        final Pattern pattern) throws IllegalArgumentException {
-		
+
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File file = new File(classPathElement);
-		
-		if(!file.exists()){
-			throw new IllegalArgumentException("The class path resource "+file.getAbsolutePath()+" does not exist");
+
+		if (!file.exists()) {
+			throw new IllegalArgumentException("The class path resource "
+			        + file.getAbsolutePath() + " does not exist");
 		}
-		
+
 		if (file.isDirectory()) {
 			try {
 				retval.addAll(getResourcesFromDirectory(file, pattern,
 				                                        file.getCanonicalPath()));
 			} catch (IOException e) {
-				logger.error("Error in getting resources",e);
+				logger.error("Error in getting resources", e);
 				throw new RuntimeException(e);
 			}
 		} else if (file.getName().endsWith(".jar")) {
 			retval.addAll(getResourcesFromJarFile(file, pattern));
 		} else {
-			throw new IllegalArgumentException("The class path resource "+file.getAbsolutePath()+" is not valid");
+			throw new IllegalArgumentException("The class path resource "
+			        + file.getAbsolutePath() + " is not valid");
 		}
-		
+
 		return retval;
 	}
 
-	
-	
 	private static Collection<String> getResourcesFromJarFile(final File file,
 	        final Pattern pattern) {
-		
+
 		final ArrayList<String> retval = new ArrayList<String>();
 		ZipFile zf;
 		try {
 			zf = new ZipFile(file);
 		} catch (final Exception e) {
 			throw new Error(e);
-		} 
-		
+		}
+
 		final Enumeration<?> e = zf.entries();
 		while (e.hasMoreElements()) {
 			final ZipEntry ze = (ZipEntry) e.nextElement();
@@ -195,32 +191,33 @@ public class ResourceList {
 		return retval;
 	}
 
-	
 	private static Collection<String> getResourcesFromDirectory(final File directory,
 	        final Pattern pattern, final String classPathFolder) {
-		
+
 		final ArrayList<String> retval = new ArrayList<String>();
 		final File[] fileList = directory.listFiles();
-		
+
 		for (final File file : fileList) {
 			if (file.isDirectory()) {
 				//recursion till we get to a file that is not a folder
 				retval.addAll(getResourcesFromDirectory(file, pattern, classPathFolder));
 			} else {
 				try {
-					
-					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder + File.separator,"");
+
+					final String relativeFilePath = file.getCanonicalPath().replace(classPathFolder
+					                                                                        + File.separator,
+					                                                                "");
 					final boolean accept = pattern.matcher(relativeFilePath).matches();
-					
+
 					if (accept) {
 						retval.add(relativeFilePath);
-					}					
+					}
 				} catch (final IOException e) {
 					throw new Error(e);
 				}
 			}
 		}
-		
+
 		return retval;
 	}
 
