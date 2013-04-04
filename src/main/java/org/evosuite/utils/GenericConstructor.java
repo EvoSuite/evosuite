@@ -54,7 +54,21 @@ public class GenericConstructor extends GenericAccessibleObject {
 	}
 
 	public Type[] getParameterTypes() {
-		return getExactParameterTypes(constructor, owner.getType());
+		Type[] types = getExactParameterTypes(constructor, owner.getType());
+		Type[] rawTypes = constructor.getParameterTypes();
+		
+		// Generic member classes should have the enclosing instance as a parameter
+		// but don't for some reason
+		if(rawTypes.length != types.length) {
+			Type[] actualTypes = new Type[rawTypes.length];
+			actualTypes[0] = rawTypes[0];
+			int pos = 1;
+			for(Type parameterType : types) {
+				actualTypes[pos++] = parameterType;
+			}
+			return actualTypes;
+		}
+		return types;
 	}
 
 	public Type[] getGenericParameterTypes() {
