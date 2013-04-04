@@ -11,7 +11,7 @@ public class TransformerUtil {
 		access &= ~ Opcodes.ACC_PROTECTED;
 		access &= ~ Opcodes.ACC_PUBLIC;
 		
-		return access|= targetAccess; 
+		return access |= targetAccess; 
 	}
 	
 	public static boolean isStatic(final int access)

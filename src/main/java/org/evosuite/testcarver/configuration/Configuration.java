@@ -20,8 +20,7 @@ public final class Configuration extends Properties
 	{
 		// some configuration params might be passed via system properties
 		super(System.getProperties());
-		
-		
+				
 		// FIXME does not work properly
 		this.putIfAbsent(MODIFIED_BIN_LOC, DEF_MODIFIED_BIN_LOC);
 		this.putIfAbsent(GEN_TESTS_LOC,    DEF_GEN_TESTS_LOC);
@@ -36,6 +35,12 @@ public final class Configuration extends Properties
 		}
 	}
 	
+	/**
+	 *  FIXME: logger should not be set in the code!!!
+	 *  If really needed, should go to pom.xml file in
+	 *  the starting script generation
+	 */
+	@Deprecated
 	public void initLogger()
 	{
 		// init log4j
