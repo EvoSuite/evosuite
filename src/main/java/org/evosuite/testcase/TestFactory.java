@@ -1220,7 +1220,7 @@ public class TestFactory {
 						//	callee = test.getRandomNonNullObject(m.getDeclaringClass(), position);
 						//}
 					}
-					addMethodFor(test, callee, m, position);
+					addMethodFor(test, callee, (GenericMethod) m.copyWithNewOwner(callee.getGenericClass()), position);
 				} else {
 					// We only use this for static methods to avoid using wrong constructors (?)
 					addMethod(test, m, position, 0);
