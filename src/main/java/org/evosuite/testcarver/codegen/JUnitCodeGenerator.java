@@ -694,13 +694,14 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			vd.setInitializer(ast.newNullLiteral());
 			methodBlock.statements().add(stmt);	
 			
+			//FIXME this does not make any sense
 			try
 			{
 				this.getConstructorModifiers(type,methodParamTypeClasses);
 			}
 			catch(Exception e)
 			{
-				e.printStackTrace();
+				logger.error(""+e,e);
 			}
 			
 			final int     constructorTypeModifiers = this.getConstructorModifiers(type,methodParamTypeClasses);
@@ -728,8 +729,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			{
 				// e.g. var0 = new Person();
 				final ClassInstanceCreation ci = ast.newClassInstanceCreation();
-				
-				
+								
 				final int recNo         = log.oidRecMapping.get(oid);
 				final int dependencyOID = log.dependencies.getQuick(recNo);
 				
@@ -747,8 +747,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					 */
 					ci.setType(this.createAstType(typeName.substring(typeName.indexOf('$') + 1), ast));
 					ci.setExpression(ast.newSimpleName(oidToVarMapping.get(dependencyOID)));
-					
-					
+										
 					final int index = Arrays.binarySearch(methodArgs, dependencyOID);
 					
 					if(index > -1)
@@ -896,10 +895,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 			}
 		}
 		
-		
-		
-		
-		
 		if(postprocessing)
 		{
 			final TryStatement tryStmt = this.createTryStatementForPostProcessing(ast, finalStmt, logRecNo);
@@ -941,7 +936,7 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					// TODO: Warten was Florian und Gordon dazu sagen. Siehe Mail 04.08.2012
 					if(argType == null)
 					{
-						System.err.println("########################## Call within constructor needs instance of enclosing object as parameter -> ignored: " + arg);
+						logger.error("Call within constructor needs instance of enclosing object as parameter -> ignored: " + arg);
 						methodBlock.statements().remove(methodBlock.statements().size() - 1);
 						return;
 					}
@@ -1245,8 +1240,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		final int      oid        = log.objectIds.get(logRecNo);
 		final int      captureId  = log.captureIds.get(logRecNo);
 		
-		
-		
 		String returnVarName = null;
 		
 		final Object returnValue = log.returnValues.get(logRecNo);
@@ -1295,8 +1288,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 					getFieldCall.arguments().add(ast.newSimpleName(receiverVarName)); // receiver
 				}
 				
-				
-				
 				// cast from object to field type
 				final CastExpression cast = ast.newCastExpression();
 				cast.setType(ast.newSimpleType(ast.newName(fieldTypeName)));
@@ -1321,9 +1312,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 				vd.setInitializer(fa);
 			}
 			
-
-
-			
 			VariableDeclarationStatement stmt = ast.newVariableDeclarationStatement(vd);
 			stmt.setType(this.createAstType(fieldTypeName, ast));
 			
@@ -1331,12 +1319,10 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		}
 	}	
 	
-	
 
 	@Override
 	public void createArrayInitStmt(final CaptureLog log, final int logRecNo) {
 		final int  oid  = log.objectIds.get(logRecNo);
-		
 		
 		final Object[] params      = log.params.get(logRecNo);
 		final String   arrTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
@@ -1397,7 +1383,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		final Object[] params       = log.params.get(logRecNo);
 		String         collTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
 		final Class<?> collType     = getClassForName(collTypeName);
-
 
 		final String varName;
 		
@@ -1640,7 +1625,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 //			f.set(receiver, value);
 //		}
 		
-		
 		//-- add necessary import statements
 		List imports = cu.imports();
 		ImportDeclaration id = ast.newImportDeclaration();
@@ -1727,8 +1711,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		returnStmt.setExpression(minv);
 		methodStmts.add(returnStmt);
 	}	
-	
-	
 	
 	
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -1948,8 +1930,6 @@ public final class JUnitCodeGenerator implements ICodeGenerator<CompilationUnit>
 		methodStmts.add(returnStmt);
 	}	
 		
-	
-	
 	
 	private int getFieldModifiers(final Class<?> clazz, final String fieldName)
 	{

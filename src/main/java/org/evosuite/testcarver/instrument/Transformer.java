@@ -20,11 +20,11 @@ public class Transformer implements ClassFileTransformer
 	
 	private final Instrumenter  instrumenter;
 	
-	private static final Logger LOG = LoggerFactory.getLogger(Transformer.class);
+	private static final Logger logger = LoggerFactory.getLogger(Transformer.class);
 	
 	public Transformer(final String[] namesOfClassesToBeObserved)
 	{
-		LOG.debug("initialized transformer with namesOfClassesToBeObserved={}", new Object[]{ Arrays.toString(namesOfClassesToBeObserved)});
+		logger.debug("initialized transformer with namesOfClassesToBeObserved={}", new Object[]{ Arrays.toString(namesOfClassesToBeObserved)});
 		if(namesOfClassesToBeObserved == null)
 		{
 			throw new NullPointerException("Given array of names of classes to be observed must not be null");
@@ -50,17 +50,17 @@ public class Transformer implements ClassFileTransformer
 							final byte[]           classFileBuffer) 
 	throws IllegalClassFormatException 
 	{
-		LOG.debug("transforming {}", className);
+		logger.debug("transforming {}", className);
 		
 		if(! Capturer.isCapturing())
 		{
-			LOG.debug("class {} has not been transformed because Capturer is not active", className);
+			logger.debug("class {} has not been transformed because Capturer is not active", className);
 			return classFileBuffer;
 		}
 		
 		if(! TransformerUtil.isClassConsideredForInstrumenetation(className))
 		{
-			LOG.debug("class {} has not been instrumented because its name is on the blacklist", className);
+			logger.debug("class {} has not been instrumented because its name is on the blacklist", className);
 			return classFileBuffer;
 		}
 		
