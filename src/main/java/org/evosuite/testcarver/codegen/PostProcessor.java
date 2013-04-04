@@ -237,11 +237,8 @@ public final class PostProcessor {
 			} 
 			catch (InitializationError e) 
 			{
-				e.printStackTrace();
+				logger.error(""+e,e);
 			}
-	
-			
-			
 			
 			//============== generate final test file ================================================================
 			

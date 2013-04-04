@@ -466,13 +466,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						
 						//====================================================
 						
-						
-						
-						
-						
-						
-						
-						
 						if(methodArgOID != null && methodArgOID != oid)
 						{
 							int[] exchange = this.restorceCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
@@ -485,8 +478,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						}
 					}
 					
-//					System.out.println("BLACKLIST BEFORE CRASH; " + blackList);
-					
+				
 					// TODO in arbeit
 					if(isBlackListed(currentOID, blackList, log))
 					{
@@ -499,12 +491,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					
 					generator.createMethodCallStmt(log, currentRecord);
 					
-					
-					
-					
-					
-					
-					
+				
 					// forward to end of method call sequence
 					
 					currentRecord = findEndOfMethod(log, currentRecord, currentOID);

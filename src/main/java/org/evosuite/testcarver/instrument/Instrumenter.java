@@ -35,7 +35,7 @@ public final class Instrumenter
 	
 	public static final String WRAP_NAME_PREFIX = "_sw_prototype_original_";
 
-	private static final Logger LOG = LoggerFactory.getLogger(Instrumenter.class);
+	private static final Logger logger = LoggerFactory.getLogger(Instrumenter.class);
 	
 	public Instrumenter()
 	{
@@ -47,7 +47,7 @@ public final class Instrumenter
 	{
 		if(! TransformerUtil.isClassConsideredForInstrumenetation(className))
 		{
-			LOG.debug("class {} has not been instrumented because its name is on the blacklist", className);
+			logger.debug("class {} has not been instrumented because its name is on the blacklist", className);
 			return;
 		}
 		
@@ -57,26 +57,24 @@ public final class Instrumenter
 		}
 		catch(final Throwable t)
 		{
-			LOG.error("An errorn occurred while instrumenting class {} -> returning unmodified version", className, t);
+			logger.error("An errorn occurred while instrumenting class {} -> returning unmodified version", className, t);
 		}	
 			
 	}
 
 	public byte[] instrument(final String className, final byte[] classfileBuffer) throws IllegalClassFormatException 
 	{
-		LOG.debug("start instrumenting class {}", className);
+		logger.debug("start instrumenting class {}", className);
 		
 		
 		final ClassReader 		cr 			  = new ClassReader(classfileBuffer);
 		final ClassWriter 		cw 			  = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		final ClassNode 		cn 			  = new ClassNode();
 		cr.accept(cn, ClassReader.SKIP_DEBUG);
-		
-		
 
 		if(! TransformerUtil.isClassConsideredForInstrumenetation(className))
 		{
-			LOG.debug("class {} has not been instrumented because its name is on the blacklist", className);
+			logger.debug("class {} has not been instrumented because its name is on the blacklist", className);
 			return classfileBuffer;
 		}
 		
@@ -91,7 +89,7 @@ public final class Instrumenter
 		}
 		catch(final Throwable t)
 		{
-			LOG.error("An errorn occurred while instrumenting class {} -> returning unmodified version", className, t);
+			logger.error("An errorn occurred while instrumenting class {} -> returning unmodified version", className, t);
 			return classfileBuffer;
 		}
 	}
@@ -144,8 +142,6 @@ public final class Instrumenter
 								  "org/evosuite/testcarver/capture/FieldRegistry", 
 								  "register", 
 								  "(Ljava/lang/Object;)V"));
-
-		
 		
 		 methodNode.instructions.insert(ins, instructions);
 	}
@@ -155,7 +151,7 @@ public final class Instrumenter
 	{
 		if(! TransformerUtil.isClassConsideredForInstrumenetation(internalClassName))
 		{
-			LOG.debug("class {} has not been instrumented because its name is on the blacklist", internalClassName);
+			logger.debug("class {} has not been instrumented because its name is on the blacklist", internalClassName);
 			return;
 		}
 		
@@ -195,14 +191,12 @@ public final class Instrumenter
 			}
 		}
 		
-		
 		final int numWM = wrappedMethods.size();
 		for(int i = 0; i < numWM; i++)
 		{
 			cn.methods.add(wrappedMethods.get(i));
 		}
 	}
-	
 	
 	
 	private void instrumentGETXXXFieldAccesses(final ClassNode cn, final String internalClassName, final MethodNode methodNode)
@@ -252,17 +246,6 @@ public final class Instrumenter
 			}
 		}
 	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	
 	
 	private void instrumentPUTXXXFieldAccesses(final ClassNode cn, final String internalClassName, final MethodNode methodNode)
@@ -594,8 +577,6 @@ public final class Instrumenter
 			wInstructions.add(new VarInsnNode(Opcodes.ASTORE, varReturnValue));
 		}
 		
-		
-		
 		int var = 0;
 		
 		// --- L0
@@ -603,11 +584,7 @@ public final class Instrumenter
 		
 		wInstructions.add(this.addCaptureCall(TransformerUtil.isStatic(methodNode.access), className, wrappingMethodNode.name, wrappingMethodNode.desc, Type.getArgumentTypes(methodNode.desc)));
 		
-		
-		
-		
 		// --- construct call to wrapped methode
-		
 		
 		if( ! TransformerUtil.isStatic(methodNode.access))
 		{
@@ -629,13 +606,6 @@ public final class Instrumenter
 			}
 		}
 		
-
-		
-		
-		
-		
-		
-		
 		
 		if(TransformerUtil.isStatic(methodNode.access))
 		{
@@ -651,8 +621,6 @@ public final class Instrumenter
 							 methodNode.name, 
 							 methodNode.desc));
 		}
-
-
 
 		var++;
 		
@@ -683,11 +651,6 @@ public final class Instrumenter
 			this.addCaptureEnableStatement(className, methodNode, wInstructions, -1);
 			
 			wInstructions.add(new InsnNode(Opcodes.RETURN));
-			
-
-			
-			
-
 		}
 		else
 		{
@@ -703,14 +666,11 @@ public final class Instrumenter
 			final int  storeOpcode = returnType.getOpcode(Opcodes.ISTORE);
 			wInstructions.add(new VarInsnNode(storeOpcode, ++var)); // might be only var
 			
-			
-			
 			// --- L1
 			
 			wInstructions.add(l1);
 			
 			this.addCaptureEnableStatement(className, methodNode, wInstructions, varReturnValue);
-
 			
 			// construct load of the wrapped method call's result
 			int loadOpcode = returnType.getOpcode(Opcodes.ILOAD);
@@ -776,7 +736,6 @@ public final class Instrumenter
 			il.add(new InsnNode(Opcodes.ARETURN));
 		}
 	}
-	
 	
 	private void addLoadInsn(final InsnList il, final Type type, final int argLocation) 
 	{
