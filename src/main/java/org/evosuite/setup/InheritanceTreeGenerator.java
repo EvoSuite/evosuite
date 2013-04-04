@@ -149,7 +149,7 @@ public class InheritanceTreeGenerator {
 				continue;
 
 			try {
-				analyzeClassStream(inheritanceTree, zf.getInputStream(ze));
+				analyzeClassStream(inheritanceTree, zf.getInputStream(ze), false);
 			} catch (IOException e1) {
 				logger.error("", e1);
 			}
@@ -169,7 +169,7 @@ public class InheritanceTreeGenerator {
 
 	private static void analyzeClassFile(InheritanceTree inheritanceTree, File classFile) {
 		try {
-			analyzeClassStream(inheritanceTree, new FileInputStream(classFile));
+			analyzeClassStream(inheritanceTree, new FileInputStream(classFile), false);
 		} catch (FileNotFoundException e) {
 			logger.error("", e);
 		}
@@ -177,7 +177,7 @@ public class InheritanceTreeGenerator {
 
 	@SuppressWarnings("unchecked")
 	private static void analyzeClassStream(InheritanceTree inheritanceTree,
-	        InputStream inputStream) {
+	        InputStream inputStream, boolean onlyPublic) {
 		try {
 			ClassReader reader = new ClassReader(inputStream);
 			inputStream.close();
@@ -187,8 +187,10 @@ public class InheritanceTreeGenerator {
 			        | ClassReader.SKIP_CODE);
 			logger.debug("Analyzing class " + cn.name);
 
-			if((cn.access & Opcodes.ACC_PUBLIC) == 0) {
-				return;
+			if (onlyPublic) {
+				if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
+					return;
+				}
 			}
 
 			if (cn.superName != null)
@@ -220,51 +222,53 @@ public class InheritanceTreeGenerator {
 		Collection<String> list = getAllResources();
 		InheritanceTree inheritanceTree = new InheritanceTree();
 		List<InheritanceTree> others = new ArrayList<InheritanceTree>();
-		
+
 		/*
 		 * Filtering against other inheritance trees is necessary to remove any
 		 * version specific classes. For example, first generate an inheritance tree
 		 * with JDK6 and then one with JDK7, filtering against JDK6, to keep only
 		 * the intersection of classes. 
 		 */
-		for(String filterFile : filters) {
-			logger.info("Trying to load "+filterFile);
+		for (String filterFile : filters) {
+			logger.info("Trying to load " + filterFile);
 			try {
 				InheritanceTree tree = readUncompressedInheritanceTree(filterFile);
 				others.add(tree);
 			} catch (IOException e) {
-				logger.info("Error: "+e);
+				logger.info("Error: " + e);
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}
-		
+
 		EXCEPTION: for (String name : list) {
 			// We do not consider sun.* and apple.* and com.* 
 			for (String exception : classExceptions) {
 				if (name.startsWith(exception)) {
-					logger.info("Skipping excluded class "+name);
+					logger.info("Skipping excluded class " + name);
 					continue EXCEPTION;
 				}
 			}
-			for(InheritanceTree other : others) {
-				if(!other.hasClass(Utils.getClassNameFromResourcePath(name))) {
-					logger.info("Skipping "+name+" because it is not in other inheritance tree");
+			for (InheritanceTree other : others) {
+				if (!other.hasClass(Utils.getClassNameFromResourcePath(name))) {
+					logger.info("Skipping " + name
+					        + " because it is not in other inheritance tree");
 					continue EXCEPTION;
 				} else {
-					logger.info("Not skipping "+name+" because it is in other inheritance tree");
+					logger.info("Not skipping " + name
+					        + " because it is in other inheritance tree");
 				}
 			}
-			if(name.matches(".*\\$\\d+$")) {
+			if (name.matches(".*\\$\\d+$")) {
 				logger.info("Skipping anonymous class");
 				continue;
 			}
 			InputStream stream = TestGenerationContext.getClassLoader().getResourceAsStream(name);
-			analyzeClassStream(inheritanceTree, stream);
+			analyzeClassStream(inheritanceTree, stream, true);
 		}
 
 		logger.info("Finished checking classes, writing data");
-		
+
 		// Write data to XML file
 		try {
 			FileOutputStream stream = new FileOutputStream(
@@ -294,7 +298,8 @@ public class InheritanceTreeGenerator {
 		return (InheritanceTree) xstream.fromXML(inheritance);
 	}
 
-	public static InheritanceTree readUncompressedInheritanceTree(String fileName) throws IOException {
+	public static InheritanceTree readUncompressedInheritanceTree(String fileName)
+	        throws IOException {
 		XStream xstream = new XStream();
 		InputStream inheritance = new FileInputStream(new File(fileName));
 		return (InheritanceTree) xstream.fromXML(inheritance);
@@ -336,8 +341,8 @@ public class InheritanceTreeGenerator {
 				continue;
 			try {
 				retval.addAll(ResourceList.getResources(element, pattern));
-			} catch(IllegalArgumentException e) {
-				System.err.println("Does not exist: "+element);
+			} catch (IllegalArgumentException e) {
+				System.err.println("Does not exist: " + element);
 			}
 		}
 
