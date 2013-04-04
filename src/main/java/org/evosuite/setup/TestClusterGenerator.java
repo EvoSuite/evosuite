@@ -159,6 +159,7 @@ public class TestClusterGenerator {
 			initBlackListWithPrimitives(blackList);
 
 			Set<String> classNames = new LinkedHashSet<String>();
+			classNames.add("java.lang.Object");
 
 			for(Entry<Type, Integer> castEntry : CallTreeGenerator.castClassMap.entrySet()) {
 				CastClassManager.getInstance().addCastClass(castEntry.getKey().getClassName(), castEntry.getValue());
