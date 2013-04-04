@@ -280,6 +280,17 @@ public class GenericClass implements Serializable {
 		else
 			return false;
 	}
+	
+	public GenericClass getWithOwnerType(Type ownerType) {
+		if (type instanceof ParameterizedType) {
+			ParameterizedType currentType = (ParameterizedType) type;
+			return new GenericClass(new ParameterizedTypeImpl(raw_class,
+		        currentType.getActualTypeArguments(), ownerType));
+		}
+		
+		return new GenericClass(type);
+	}
+
 
 	public void setOwnerType(GenericClass clazz) {
 		ParameterizedType currentType = (ParameterizedType) type;
@@ -294,7 +305,7 @@ public class GenericClass implements Serializable {
 			return true;
 
 		if (hasOwnerType()) {
-			return getDeclaringClass().hasWildcardOrTypeVariables();
+			return getOwnerType().hasWildcardOrTypeVariables();
 		}
 
 		return false;
