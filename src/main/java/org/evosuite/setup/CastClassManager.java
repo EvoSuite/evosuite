@@ -150,6 +150,8 @@ public class CastClassManager {
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			if(!entry.getKey().isAssignableTo(targetType))
 				continue;
+			if(entry.getKey().equals(targetType))
+				continue;
 
 			int depth = entry.getValue();
 			double v = depth == 0 ? 0.0 : 1.0/depth;
