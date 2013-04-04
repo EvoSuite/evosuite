@@ -282,7 +282,6 @@ public class TestCluster {
 			}
 		} else {
 			for (GenericClass generatorClazz : generators.keySet()) {
-				logger.debug("Considering "+generatorClazz);
 				if(generatorClazz == clazz)
 					continue;
 				
@@ -692,7 +691,6 @@ public class TestCluster {
 			return clazz;
 
 		List<Type> parameterTypes = new ArrayList<Type>();
-
 		for (java.lang.reflect.Type parameterType : clazz.getParameterTypes()) {
 			if (parameterType instanceof WildcardType) {
 				parameterTypes.add(getRandomCastClass(parameterType).getType());
@@ -789,7 +787,11 @@ public class TestCluster {
 	 * @return
 	 */
 	private GenericClass getRandomCastClass(Type targetType) {
-		return CastClassManager.getInstance().selectCastClass(targetType);
+		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType);
+		if(castClass.hasWildcardOrTypeVariables()) {
+			return getGenericInstantiation(castClass);
+		}
+		return castClass;
 		
 		// TODO: Use probabilities based on distance to SUT
 		/*
@@ -853,9 +855,7 @@ public class TestCluster {
 		
 		// Instantiate generics
 		if (clazz.hasWildcardOrTypeVariables()) {
-			logger.debug("Getting generic instantiation for "+clazz);
 			GenericClass concreteClass = getGenericInstantiation(clazz);
-			logger.debug("Generic instantiation is "+concreteClass);
 			return getRandomGenerator(concreteClass, excluded);
 		}
 
