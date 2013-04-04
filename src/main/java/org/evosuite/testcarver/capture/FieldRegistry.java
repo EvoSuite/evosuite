@@ -343,8 +343,7 @@ public final class FieldRegistry
 							}
 							catch(final Exception e)
 							{
-								logger.error("an error occurred while comparing field values for class {}", internalClassName, e);
-   							    e.printStackTrace();
+								logger.error("an error occurred while comparing field values for class {}", internalClassName, e);   							   
 								throw new RuntimeException(e); // TODO better exception type
 							}
 

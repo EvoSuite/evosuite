@@ -128,13 +128,13 @@ public final class SequenceExtractor
 					} 
 					catch (final InitializationError e) 
 					{
-						logger.warn("An error occurred while initializing CarvingTestRunner for test class " + className, e);
+						logger.error("An error occurred while initializing CarvingTestRunner for test class " + className, e);
 					}
 				}
 			} 
 			catch(final Throwable e)
 			{
-				logger.warn("Couldn't get class instance of class " + className, e);
+				logger.error("Couldn't get class instance of class " + className, e);
 			}
 		}
 

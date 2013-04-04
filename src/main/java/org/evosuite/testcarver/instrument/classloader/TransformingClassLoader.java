@@ -14,7 +14,7 @@ public class TransformingClassLoader extends ClassLoader
 {
 	private final Instrumenter instrumenter;
 	
-	private static final Logger LOG = LoggerFactory.getLogger(TransformingClassLoader.class);
+	private static final Logger logger = LoggerFactory.getLogger(TransformingClassLoader.class);
 	
 	public TransformingClassLoader(final ClassLoader classLoader)
 	{
@@ -27,7 +27,7 @@ public class TransformingClassLoader extends ClassLoader
 	@Override
     public Class<?> loadClass(final String name) 
     {
-    	LOG.debug("start loading and transforming class {}", name);
+    	logger.debug("start loading and transforming class {}", name);
     	
     	try
     	{
@@ -44,7 +44,7 @@ public class TransformingClassLoader extends ClassLoader
     		final InputStream in= ClassLoader.getSystemClassLoader().getResourceAsStream(classAsPath);
         	if(in == null)
         	{
-        		LOG.warn("Could not find resource {} in classpath -> no instrumentation applied", classAsPath);
+        		logger.warn("Could not find resource {} in classpath -> no instrumentation applied", classAsPath);
         		return super.loadClass(className);
         	}
     		
@@ -60,7 +60,7 @@ public class TransformingClassLoader extends ClassLoader
             byte[] classBytes = bout.toByteArray();
             
             classBytes = this.instrumenter.instrument(className, classBytes);
-            LOG.debug("instrumentation of {} has been successful", name);
+            logger.debug("instrumentation of {} has been successful", name);
             
             
             final Class<?> c = defineClass(name, classBytes , 0, classBytes.length);
@@ -74,7 +74,7 @@ public class TransformingClassLoader extends ClassLoader
     	}
     	catch(final Exception e)
     	{
-    		LOG.error("an error occurred while loading and transforming {} -> returning null", new Object[]{name, e} );
+    		logger.error("an error occurred while loading and transforming {} -> returning null", new Object[]{name, e} );
     		return null;
     	}
     }
