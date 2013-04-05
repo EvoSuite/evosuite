@@ -572,21 +572,46 @@ public class GenericClass implements Serializable {
 		} else {
 			if (!handleGenericArraySpecialCase(type)) {
 				this.type = type;
-				this.raw_class = GenericTypeReflector.erase(type);
+				try {
+					this.raw_class = erase(type);
+				} catch(RuntimeException e) {
+					// If there is an unresolved capture type in here
+					// we delete it and replace with a wildcard
+					
+				}
 			}
 		}
-		assert (type != null);
-		assert (raw_class != null);
-		if (type == null) {
-			LoggingUtils.getEvoLogger().info("1. Type is null for raw class " + raw_class);
-			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
-				LoggingUtils.getEvoLogger().info(elem.toString());
-			}
-			assert (false);
-		}
-
 	}
 
+	/**
+	 * Returns the erasure of the given type.
+	 */
+	private static Class<?> erase(Type type) {
+		if (type instanceof Class) {
+			return (Class<?>)type;
+		} else if (type instanceof ParameterizedType) {
+			return (Class<?>)((ParameterizedType) type).getRawType();
+		} else if (type instanceof TypeVariable) {
+			TypeVariable<?> tv = (TypeVariable<?>)type;
+			if (tv.getBounds().length == 0)
+				return Object.class;
+			else
+				return erase(tv.getBounds()[0]);
+		} else if (type instanceof GenericArrayType) {
+			GenericArrayType aType = (GenericArrayType) type;
+			return GenericArrayTypeImpl.createArrayType(erase(aType.getGenericComponentType()));
+		} else if ( type instanceof CaptureType) {
+			CaptureType captureType = (CaptureType)type;
+			if(captureType.getUpperBounds().length == 0)
+				return Object.class;
+			else
+				return erase(captureType.getUpperBounds()[0]);
+		} else {
+			// TODO at least support CaptureType here
+			throw new RuntimeException("not supported: " + type.getClass());
+		}
+	}
+	
 	/**
 	 * Generate a generic class by setting all generic parameters to the unbound
 	 * wildcard ("?")
@@ -597,30 +622,11 @@ public class GenericClass implements Serializable {
 	public GenericClass(Class<?> clazz) {
 		this.type = GenericTypeReflector.addWildcardParameters(clazz);
 		this.raw_class = clazz;
-		assert (type != null);
-		assert (raw_class != null);
-		if (type == null) {
-			LoggingUtils.getEvoLogger().info("2. Type is null for raw class " + raw_class);
-			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
-				LoggingUtils.getEvoLogger().info(elem.toString());
-			}
-			assert (false);
-		}
-
 	}
 
 	public GenericClass(Type type, Class<?> clazz) {
 		this.type = type;
 		this.raw_class = clazz;
-		assert (type != null);
-		assert (raw_class != null);
-		if (type == null) {
-			LoggingUtils.getEvoLogger().info("3. Type is null for raw class " + raw_class);
-			for (StackTraceElement elem : Thread.currentThread().getStackTrace()) {
-				LoggingUtils.getEvoLogger().info(elem.toString());
-			}
-			assert (false);
-		}
 		handleGenericArraySpecialCase(type);
 	}
 
