@@ -298,11 +298,7 @@ public class TestCluster {
 						logger.debug("Adding subtype generator: " + clazz
 								+ " is assignable from "
 								+ generatorClazz.getTypeName());
-						try {
-							targetGenerators.addAll(getGenerators(generatorClazz));
-						} catch(ConstructionFailedException e) {
-							logger.debug("Error adding generators for "+generatorClazz+": "+e);
-						}
+						targetGenerators.addAll(generators.get(generatorClazz));
 					} else {
 						
 						// If the types are not assignable, we need to check the generic type parameters
