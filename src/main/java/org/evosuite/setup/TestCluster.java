@@ -285,6 +285,7 @@ public class TestCluster {
 			for (GenericClass generatorClazz : generators.keySet()) {
 				if(generatorClazz == clazz)
 					continue;
+				logger.debug("Considering original generator: "+generatorClazz);
 				
 				// First check if the raw classes are assignable
 				if (clazz.getRawClass().isAssignableFrom(
@@ -350,7 +351,6 @@ public class TestCluster {
 							
 							// "newOwner" is the instantiated type of the return value
 							// but we need the declaring class of the method!
-							
 							for (GenericAccessibleObject generator : generators
 									.get(generatorClazz)) {
 								logger.debug("Candidate generator: "+generator);
@@ -696,7 +696,7 @@ public class TestCluster {
 			GenericClass componentClass = clazz.getComponentClass();
 			if(componentClass.hasWildcardOrTypeVariables()) {
 				componentClass = getGenericInstantiation(componentClass, recursionLevel);
-				clazz.setComponentClass(componentClass);
+				return clazz.getWithComponentClass(componentClass);
 			}
 			return clazz;
 			
@@ -719,7 +719,7 @@ public class TestCluster {
 		}
 		
 		if(clazz.hasOwnerType()) {
-			clazz.setOwnerType(getGenericInstantiation(clazz.getOwnerType()));
+			clazz = clazz.getWithOwnerType(getGenericInstantiation(clazz.getOwnerType()));
 		}
 		
 		return clazz.getWithParameterTypes(parameterTypes);

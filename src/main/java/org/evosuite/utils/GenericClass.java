@@ -186,9 +186,11 @@ public class GenericClass implements Serializable {
 		}
 	}
 	
-	public void setComponentClass(GenericClass componentClass) {
+	public GenericClass getWithComponentClass(GenericClass componentClass) {
 		if(type instanceof GenericArrayType) {
-			this.type = GenericArrayTypeImpl.createArrayType(componentClass.getType());
+			return new GenericClass(GenericArrayTypeImpl.createArrayType(componentClass.getType()), raw_class);			
+		} else {
+			return new GenericClass(type, raw_class);
 		}
 	}
 
@@ -307,12 +309,15 @@ public class GenericClass implements Serializable {
 		
 		return new GenericClass(type);
 	}
-
-
-	public void setOwnerType(GenericClass clazz) {
-		ParameterizedType currentType = (ParameterizedType) type;
-		this.type = new ParameterizedTypeImpl(raw_class,
-		        currentType.getActualTypeArguments(), clazz.getType());
+	
+	public GenericClass getWithOwnerType(GenericClass ownerClass) {
+		if (type instanceof ParameterizedType) {
+			ParameterizedType currentType = (ParameterizedType) type;
+			return new GenericClass(new ParameterizedTypeImpl(raw_class,
+		        currentType.getActualTypeArguments(), ownerClass.getType()));
+		}
+		
+		return new GenericClass(type);
 	}
 
 	public boolean hasWildcardOrTypeVariables() {
@@ -372,16 +377,6 @@ public class GenericClass implements Serializable {
 			return Arrays.asList(((ParameterizedType) type).getActualTypeArguments()).size();
 		}
 		return 0;
-	}
-
-	public void setParameterTypes(List<GenericClass> parameters) {
-		Type[] typeArray = new Type[parameters.size()];
-		for (int i = 0; i < parameters.size(); i++) {
-			typeArray[i] = parameters.get(i).getType();
-		}
-		this.type = new ParameterizedTypeImpl(raw_class, typeArray, null);
-		assert (this.type != null);
-
 	}
 
 	public GenericClass getWithGenericParameterTypes(List<GenericClass> parameters) {
@@ -741,9 +736,9 @@ public class GenericClass implements Serializable {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		// result = prime * result + getTypeName().hashCode();
-		result = prime * result + ((raw_class == null) ? 0 : raw_class.hashCode());
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + getTypeName().hashCode();
+		//result = prime * result + ((raw_class == null) ? 0 : raw_class.hashCode());
+		//result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -759,8 +754,8 @@ public class GenericClass implements Serializable {
 		if (getClass() != obj.getClass())
 			return false;
 		GenericClass other = (GenericClass) obj;
-		return type.equals(other.type);
-		// return getTypeName().equals(other.getTypeName());
+		//return type.equals(other.type);
+		return getTypeName().equals(other.getTypeName());
 		/*
 		if (raw_class == null) {
 			if (other.raw_class != null)
