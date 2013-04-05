@@ -420,9 +420,6 @@ public class GenericClass implements Serializable {
 		}
 
 		if (lhsType instanceof Class<?> && rhsType instanceof Class<?>) {
-			//if(ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType)) {
-			//	logger.info("Classes are assignable: "+lhsType+" / "+rhsType);
-			//}
 			// Only allow void to void assignments
 			if (((Class<?>) rhsType).equals(void.class)
 			        || ((Class<?>) lhsType).equals(void.class))
@@ -430,22 +427,40 @@ public class GenericClass implements Serializable {
 			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
 		}
 
-		//	if(lhsType instanceof ParameterizedType && rhsType instanceof ParameterizedType) {
-		//		return isAssignable((ParameterizedType) lhsType, (ParameterizedType) rhsType);
-		//	}
 		if (lhsType instanceof TypeVariable<?>) {
 			if (((TypeVariable<?>) lhsType).getBounds().length == 0)
 				return isAssignable(Object.class, rhsType);
 			return isAssignable(((TypeVariable<?>) lhsType).getBounds()[0], rhsType);
 		}
 		if (rhsType instanceof TypeVariable<?>) {
-
 			if (((TypeVariable<?>) rhsType).getBounds().length == 0)
 				return isAssignable(lhsType, Object.class);
 			return isAssignable(lhsType, ((TypeVariable<?>) rhsType).getBounds()[0]);
 		}
-		if (rhsType instanceof ParameterizedType) {
+		if(lhsType instanceof GenericArrayType || rhsType instanceof GenericArrayType) {
+			Type lhsComponentType = GenericTypeReflector.getArrayComponentType(lhsType);
+			Type rhsComponentType = GenericTypeReflector.getArrayComponentType(rhsType);
+			if(lhsComponentType == null || rhsComponentType == null)
+				return false;
+			else
+				return isAssignable(lhsComponentType, rhsComponentType);
+		}
+		
+		if (lhsType instanceof Class<?> && ((Class<?>) lhsType).isArray()
+		        && rhsType instanceof GenericArrayType) {
 
+			//logger.warn("Checking generic array 2 "+lhsType+"/"+rhsType);
+			return isAssignable(((Class<?>) lhsType).getComponentType(),
+			                    ((GenericArrayType) rhsType).getGenericComponentType());
+		}
+		if (rhsType instanceof Class<?> && ((Class<?>) rhsType).isArray()
+		        && lhsType instanceof GenericArrayType) {
+
+			//logger.warn("Checking generic array 3 "+lhsType+"/"+rhsType);
+			return isAssignable(((GenericArrayType) lhsType).getGenericComponentType(),
+			                    ((Class<?>) rhsType).getComponentType());
+		}
+		if (rhsType instanceof ParameterizedType) {
 			try {
 				return TypeUtils.isAssignable(rhsType, lhsType);
 			} catch (IllegalStateException e) {
@@ -484,23 +499,6 @@ public class GenericClass implements Serializable {
 		//if(rhsType instanceof WildcardType) {
 		//	return isAssignable(lhsType, (WildcardType) rhsType);
 		//}
-		if (lhsType instanceof GenericArrayType && rhsType instanceof GenericArrayType) {
-			//logger.warn("Checking generic array 1 "+lhsType+"/"+rhsType);
-			return isAssignable(((GenericArrayType) lhsType).getGenericComponentType(),
-			                    ((GenericArrayType) rhsType).getGenericComponentType());
-		}
-		if (lhsType instanceof Class<?> && ((Class<?>) lhsType).isArray()
-		        && rhsType instanceof GenericArrayType) {
-			//logger.warn("Checking generic array 2 "+lhsType+"/"+rhsType);
-			return isAssignable(((Class<?>) lhsType).getComponentType(),
-			                    ((GenericArrayType) rhsType).getGenericComponentType());
-		}
-		if (rhsType instanceof Class<?> && ((Class<?>) rhsType).isArray()
-		        && lhsType instanceof GenericArrayType) {
-			//logger.warn("Checking generic array 3 "+lhsType+"/"+rhsType);
-			return isAssignable(((GenericArrayType) lhsType).getGenericComponentType(),
-			                    ((Class<?>) rhsType).getComponentType());
-		}
 		/*
 		String message = "Not assignable: ";
 		if (lhsType instanceof Class<?>)

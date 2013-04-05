@@ -430,11 +430,12 @@ public class TestFactory {
 			// Assign an existing value
 			// TODO:
 			// Do we need a special "[Array]AssignmentStatement"?
-			logger.debug("Reusing value");
+			VariableReference choice = Randomness.choice(objects);
+			logger.debug("Reusing value: "+choice);
 
 			ArrayIndex index = new ArrayIndex(test, arrRef, arrayIndex);
 			StatementInterface st = new AssignmentStatement(test, index,
-			        Randomness.choice(objects));
+			        choice);
 			test.addStatement(st, position);
 		} else {
 			// Assign a new value
