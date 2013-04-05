@@ -36,8 +36,7 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 	public void testSimpleTest(){
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.SimpleTest.class.getCanonicalName();
 		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.Simple.class.getCanonicalName();
-		
-		
+				
 		Properties.SEED_MUTATIONS = 1;
 		Properties.SEED_CLONE = 1;
 		
@@ -45,6 +44,24 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		TestChromosome carved = factory.getChromosome();
 		
 		Assert.assertNotNull(carved);
-		Assert.assertEquals("Shouble be constructor, method, 2 variables, method, 1 variable, method", 7 , carved.test.size());
+		Assert.assertEquals("Shouble be: constructor, method, 2 variables, method, 1 variable, method", 
+				7 , carved.test.size());
+	}
+	
+	@Test
+	public void testObjectWrapper(){
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ObjectWrapperTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ObjectWrapper.class.getCanonicalName();
+				
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+		
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+		
+		Assert.assertNotNull(carved);
+		//Assert.assertEquals("Shouble be: TODO", 
+		//		-1 , carved.test.size());
 	}
 }
