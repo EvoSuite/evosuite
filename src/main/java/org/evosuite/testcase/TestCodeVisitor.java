@@ -51,6 +51,8 @@ import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.NumberFormatter;
 
+import com.googlecode.gentyref.CaptureType;
+
 /**
  * The TestCodeVisitor is a visitor that produces a String representation of a
  * test case. This is the preferred way to produce executable code from EvoSuite
@@ -218,6 +220,12 @@ public class TestCodeVisitor extends TestVisitor {
 			return "?";
 		} else if (type instanceof TypeVariable) {
 			return "?";
+		} else if (type instanceof CaptureType) {
+			CaptureType captureType = (CaptureType)type;
+			if(captureType.getLowerBounds().length == 0)
+				return "?";
+			else
+				return getTypeName(captureType.getLowerBounds()[0]);
 		} else if (type instanceof GenericArrayType) {
 			return getTypeName(((GenericArrayType)type).getGenericComponentType()) + "[]";
 		} else {
