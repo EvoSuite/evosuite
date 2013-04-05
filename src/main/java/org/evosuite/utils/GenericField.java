@@ -75,6 +75,10 @@ public class GenericField extends GenericAccessibleObject {
 		// fieldType = field.getType();
 		// }
 	}
+	
+	public Type getGenericFieldType() {
+		return field.getGenericType();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#isField()

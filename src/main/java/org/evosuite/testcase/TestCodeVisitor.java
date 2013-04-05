@@ -219,7 +219,7 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (type instanceof TypeVariable) {
 			return "?";
 		} else if (type instanceof GenericArrayType) {
-			return "?";
+			return getTypeName(((GenericArrayType)type).getGenericComponentType()) + "[]";
 		} else {
 			throw new RuntimeException("Unsupported type:" + type + ", class"
 			        + type.getClass());

@@ -93,11 +93,14 @@ public class CastClassManager {
 		changed = false;
 	}
 	
-	private int getSum(Type type) {
+	private int getSum(Type type, boolean allowRecursion) {
 		int sum = 0;
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			if(!entry.getKey().isAssignableTo(type))
 				continue;
+			
+			if(!allowRecursion && entry.getKey().hasWildcardOrTypeVariables())
+					continue;
 			
 			int depth = entry.getValue();
 			double v = depth == 0 ? 0.0 : 1.0/depth;
@@ -136,9 +139,9 @@ public class CastClassManager {
 		return Randomness.choice(classMap.keySet());
 	}
 
-	public GenericClass selectCastClass(Type targetType) {
+	public GenericClass selectCastClass(Type targetType, boolean allowRecursion) {
 		
-		int sum = getSum(targetType);
+		int sum = getSum(targetType, allowRecursion);
 		
 		//special case
 		if (sum == 0d) {
@@ -150,7 +153,8 @@ public class CastClassManager {
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			if(!entry.getKey().isAssignableTo(targetType))
 				continue;
-			if(entry.getKey().equals(targetType))
+			
+			if(!allowRecursion && entry.getKey().hasWildcardOrTypeVariables())
 				continue;
 
 			int depth = entry.getValue();

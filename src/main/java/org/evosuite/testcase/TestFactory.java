@@ -707,11 +707,19 @@ public class TestFactory {
 	        int recursionDepth) throws ConstructionFailedException {
 
 		logger.debug("Creating array of type " + type);
+		GenericClass arrayClass = new GenericClass(type);
+		if(arrayClass.hasWildcardOrTypeVariables()) {
+			GenericClass genericArray = TestCluster.getInstance().getGenericInstantiation(arrayClass);
+			type = genericArray.getType();
+			logger.debug("Setting generic array to type " + type);
+			
+		}
 		// Create array with random size
 		ArrayStatement statement = new ArrayStatement(test, type);
 		VariableReference reference = test.addStatement(statement, position);
 		position++;
 		logger.debug("Array length: " + statement.size());
+		logger.debug("Array component type: " + reference.getComponentType());
 
 		// For each value of array, call attemptGeneration
 		List<VariableReference> objects = test.getObjects(reference.getComponentType(),
@@ -768,6 +776,10 @@ public class TestFactory {
 	 */
 	private VariableReference createNull(TestCase test, Type type, int position,
 	        int recursionDepth) {
+		GenericClass genericType = new GenericClass(type);
+		if(genericType.hasWildcardOrTypeVariables()) {
+			type = TestCluster.getInstance().getGenericInstantiation(genericType).getType();
+		}
 		StatementInterface st = new NullStatement(test, type);
 		test.addStatement(st, position);
 		VariableReference ret = test.getStatement(position).getReturnValue();
