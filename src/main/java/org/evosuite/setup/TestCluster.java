@@ -719,7 +719,7 @@ public class TestCluster {
 		}
 		
 		if(clazz.hasOwnerType()) {
-			clazz = clazz.getWithOwnerType(getGenericInstantiation(clazz.getOwnerType()));
+			clazz = clazz.getWithOwnerType(getGenericInstantiation(clazz.getOwnerType(), recursionLevel));
 		}
 		
 		return clazz.getWithParameterTypes(parameterTypes);
@@ -804,7 +804,8 @@ public class TestCluster {
 	 * @return
 	 */
 	private GenericClass getRandomCastClass(Type targetType, int recursionLevel) {
-		boolean allowRecursion = recursionLevel > Properties.MAX_GENERIC_DEPTH;
+		boolean allowRecursion = recursionLevel <= Properties.MAX_GENERIC_DEPTH;
+		
 		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType, allowRecursion);
 		if(castClass.hasWildcardOrTypeVariables()) {
 			return getGenericInstantiation(castClass, recursionLevel + 1);
