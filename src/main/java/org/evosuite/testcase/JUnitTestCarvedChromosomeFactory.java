@@ -1,6 +1,7 @@
 package org.evosuite.testcase;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +12,8 @@ import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.Utils;
 import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
+import org.junit.runner.notification.Failure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +63,26 @@ public class JUnitTestCarvedChromosomeFactory implements
 		
 		Class<?>[] classes = new Class<?>[junitTestClasses.size()];
 		junitTestClasses.toArray(classes);
-		runner.run(classes);
+		Result result = runner.run(classes);
 		junitTests.addAll(listener.getTestCases());
-		logger.info("Carved "+junitTests.size()+" tests");
+		
+		if(junitTests.size()>0){
+			logger.info("Carved "+junitTests.size()+" tests");
+		} else {
+			String outcome = "";
+			for(Failure failure : result.getFailures()){
+				outcome += "("+failure.getDescription()+", "+failure.getTrace()+") ";
+			}
+			logger.warn("It was not possible to carve any test case from: " +
+					Arrays.toString(junitTestNames.toArray()) + 
+					". Test execution results: "+outcome);
+		}
 	}
 
+	public boolean hasCarvedTestCases(){
+		return junitTests.size() > 0 ;
+	}
+	
 	private Collection<String> getListOfJUnitClassNames() throws IllegalStateException{
 
 		String prop = Properties.SELECTED_JUNIT;
