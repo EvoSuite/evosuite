@@ -20,6 +20,7 @@
  */
 package org.evosuite.setup;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -680,22 +681,38 @@ public class TestCluster {
 		return calls;
 	}
 
+	public GenericClass getGenericInstantiation(GenericClass clazz) {
+		return getGenericInstantiation(clazz, 0);
+	}
+	
 	/**
 	 * Instantiate type parameters for a parameterized type
 	 * 
 	 * @param clazz
 	 * @return
 	 */
-	public GenericClass getGenericInstantiation(GenericClass clazz) {
-		if (!clazz.isParameterizedType())
+	public GenericClass getGenericInstantiation(GenericClass clazz, int recursionLevel) {
+		if(clazz.isArray()) {
+			GenericClass componentClass = clazz.getComponentClass();
+			if(componentClass.hasWildcardOrTypeVariables()) {
+				componentClass = getGenericInstantiation(componentClass, recursionLevel);
+				clazz.setComponentClass(componentClass);
+			}
+			return clazz;
+			
+		}
+		else if (!clazz.isParameterizedType())
 			return clazz;
 
 		List<Type> parameterTypes = new ArrayList<Type>();
 		for (java.lang.reflect.Type parameterType : clazz.getParameterTypes()) {
 			if (parameterType instanceof WildcardType) {
-				parameterTypes.add(getRandomCastClass(parameterType).getType());
+				parameterTypes.add(getRandomCastClass(parameterType, recursionLevel).getType());
 			} else if (parameterType instanceof TypeVariable) {
-				parameterTypes.add(getRandomCastClass(parameterType).getType());
+				parameterTypes.add(getRandomCastClass(parameterType, recursionLevel).getType());
+			} else if(parameterType instanceof GenericArrayType) {
+				logger.debug("ADDING GENERIC ARRAY PARAMETER: "+parameterType);
+				parameterTypes.add(parameterType);
 			} else {
 				parameterTypes.add(parameterType);
 			}
@@ -786,10 +803,11 @@ public class TestCluster {
 	 * @param targetType
 	 * @return
 	 */
-	private GenericClass getRandomCastClass(Type targetType) {
-		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType);
+	private GenericClass getRandomCastClass(Type targetType, int recursionLevel) {
+		boolean allowRecursion = recursionLevel > Properties.MAX_GENERIC_DEPTH;
+		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType, allowRecursion);
 		if(castClass.hasWildcardOrTypeVariables()) {
-			return getGenericInstantiation(castClass);
+			return getGenericInstantiation(castClass, recursionLevel + 1);
 		}
 		return castClass;
 		
@@ -851,11 +869,13 @@ public class TestCluster {
 			Set<GenericAccessibleObject> excluded)
 			throws ConstructionFailedException {
 
-		logger.debug("getting random generator for "+clazz);
+		logger.debug("Getting random generator for "+clazz);
 		
 		// Instantiate generics
 		if (clazz.hasWildcardOrTypeVariables()) {
+			logger.debug("Target class is generic: "+clazz);
 			GenericClass concreteClass = getGenericInstantiation(clazz);
+			logger.debug("Target class is generic: "+clazz+", getting instantiation "+concreteClass);
 			return getRandomGenerator(concreteClass, excluded);
 		}
 

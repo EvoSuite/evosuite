@@ -687,7 +687,7 @@ public class TestClusterGenerator {
 	}
 
 	private static boolean canUse(Method m) {
-
+		
 		if (m.isBridge()) {
 			logger.debug("Excluding bridge method: " + m.toString());
 			return false;
@@ -901,7 +901,7 @@ public class TestClusterGenerator {
 		dependencyCache.add(field);
 
 		logger.debug("Adding dependency " + field.getName());
-		addDependency(new GenericClass(field.getFieldType()), recursionLevel);
+		addDependency(new GenericClass(field.getGenericFieldType()), recursionLevel);
 
 	}
 

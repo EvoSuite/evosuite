@@ -161,7 +161,7 @@ public class GenericClass implements Serializable {
 	 * @return a {@link java.lang.reflect.Type} object.
 	 */
 	public Type getComponentType() {
-		return raw_class.getComponentType();
+		return GenericTypeReflector.getArrayComponentType(type);
 	}
 
 	/**
@@ -171,8 +171,25 @@ public class GenericClass implements Serializable {
 	 * 
 	 * @return a {@link java.lang.reflect.Type} object.
 	 */
-	public Type getComponentClass() {
+	public Type getRawComponentClass() {
 		return GenericTypeReflector.erase(raw_class.getComponentType());
+	}
+	
+	public GenericClass getComponentClass() {
+		if(type instanceof GenericArrayType) {
+			GenericArrayType arrayType = (GenericArrayType)type;
+			Type componentType = arrayType.getGenericComponentType();
+			Class<?> rawComponentType = raw_class.getComponentType();
+			return new GenericClass(componentType, rawComponentType);
+		} else {
+			return new GenericClass(raw_class.getComponentType());
+		}
+	}
+	
+	public void setComponentClass(GenericClass componentClass) {
+		if(type instanceof GenericArrayType) {
+			this.type = GenericArrayTypeImpl.createArrayType(componentClass.getType());
+		}
 	}
 
 	/**
@@ -305,8 +322,14 @@ public class GenericClass implements Serializable {
 			return true;
 
 		if (hasOwnerType()) {
-			return getOwnerType().hasWildcardOrTypeVariables();
+			if(getOwnerType().hasWildcardOrTypeVariables())
+				return true;
 		}
+		
+		if(type instanceof GenericArrayType) {
+			if(getComponentClass().hasWildcardOrTypeVariables())
+				return true;
+		}		
 
 		return false;
 	}
@@ -332,7 +355,7 @@ public class GenericClass implements Serializable {
 	public boolean isRawClass() {
 		return type instanceof Class<?>;
 	}
-
+	
 	public GenericClass addWildcardTypes() {
 		return new GenericClass(GenericTypeReflector.addWildcardParameters(raw_class));
 	}
@@ -838,7 +861,6 @@ public class GenericClass implements Serializable {
 		try {
 			raw_class = getClass(raw_class.getName());
 			if (type instanceof ParameterizedType) {
-				logger.info("Before changing classloader: " + toString());
 				ParameterizedType pt = (ParameterizedType) type;
 				// GenericClass rawType = new GenericClass(pt.getRawType());
 				// rawType.changeClassLoader(loader);
@@ -867,8 +889,10 @@ public class GenericClass implements Serializable {
 					this.type = new ParameterizedTypeImpl(raw_class, parameterTypes,
 					        ownerType != null ? ownerType.getType() : null);
 				}
-				logger.info("After changing classloader: " + toString());
-
+			} else if(type instanceof GenericArrayType) {
+				GenericClass componentClass = getComponentClass();
+				componentClass.changeClassLoader(loader);
+				this.type = GenericArrayTypeImpl.createArrayType(componentClass.getType());
 			} else {
 				this.type = GenericTypeReflector.addWildcardParameters(raw_class);
 			}

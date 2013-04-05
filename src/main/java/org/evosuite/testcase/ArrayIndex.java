@@ -27,6 +27,8 @@ import java.util.Map;
 import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
+import com.googlecode.gentyref.GenericTypeReflector;
+
 /**
  * This class defines an reference to an array element. E.g. foo[3]
  * 
@@ -81,9 +83,11 @@ public class ArrayIndex extends VariableReferenceImpl {
 
 	private static Type getReturnType(ArrayReference array, int indicesCnt) {
 		assert indicesCnt >= 1;
-		Class<?> result = (Class<?>) array.getComponentType();
+		Type result = array.getComponentType();
+		// Class<?> result = (Class<?>) array.getComponentType();
 		for (int idx = 1; idx < indicesCnt; idx++) {
-			result = result.getComponentType();
+			result = GenericTypeReflector.getArrayComponentType(result);
+			//result = result.getComponentType();
 		}
 		return result;
 	}
