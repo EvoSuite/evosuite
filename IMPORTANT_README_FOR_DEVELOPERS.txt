@@ -98,6 +98,7 @@ PRE and POST CONDITIONS
 
 - Pre-conditions of 'public' methods should throw exceptions explicitly (eg, IllegalArgumentException and IllegalStateException).
   Whenever possible, it is worth to write pre-conditions to public methods.
+  If exceptions are thrown with 'throw new ...', then recall to add "throws ..." to the method signature.
 - Pre-conditions of 'private' methods and post-conditions (both public and private methods) should use the keyword 'assert'.
   Post-conditions are good, but often are difficult to write.
   Note: a post-condition does not to be complete to be useful (ie find bugs). For example, if we have 'A && B', but the writing
