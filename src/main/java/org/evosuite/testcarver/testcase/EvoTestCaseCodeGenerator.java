@@ -94,14 +94,13 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			{
 				final Object returnValue = log.returnValues.get(logRecNo);
 				if (CaptureLog.RETURN_TYPE_VOID.equals(returnValue)) {
-					final MethodStatement m = new MethodStatement(
+					
+					GenericMethod geneticMethod = new GenericMethod(this.getDeclaredMethod(type, methodName,methodParamTypeClasses),type);
+					
+					MethodStatement m = new MethodStatement(
 					        testCase,
-					        new GenericMethod(
-					                this.getDeclaredMethod(type, methodName,
-					                                       methodParamTypeClasses),
-					                type),
+					        geneticMethod,
 					        this.oidToVarRefMap.get(oid),
-
 					        args);
 					testCase.addStatement(m);
 				} else {
