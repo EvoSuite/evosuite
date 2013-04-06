@@ -37,7 +37,7 @@ Furthermore, System.exit becomes problematic when unit testing EvoSuite.
 
 
 ---------------------------------------------
-STATIC VARIABLES ARE YOUR ENEMIES
+STATIC VARIABLES ARE YOUR ENEMY
 
 Static variables should be either constant or representing transient data (eg cache information whose presence/missing
 has only effect on performance, not on functionality).
@@ -91,4 +91,14 @@ IF CANNOT AVOID EXTERNAL SIDE-EFFECTS, DO DOCUMENT IT!!!
 
 If a call on a object has side-effects outside the class itself (eg writing to disk, add a system hook thread),
 then this needs to be documented (see point on how to write comments).  
-   
+
+
+---------------------------------------------
+PRE and POST CONDITIONS
+
+- Pre-conditions of 'public' methods should throw exceptions explicitly (eg, IllegalArgumentException and IllegalStateException).
+  Whenever possible, it is worth to write pre-conditions to public methods.
+- Pre-conditions of 'private' methods and post-conditions (both public and private methods) should use the keyword 'assert'.
+  Post-conditions are good, but often are difficult to write.
+  Note: a post-condition does not to be complete to be useful (ie find bugs). For example, if we have 'A && B', but the writing
+  of 'B' is too difficult (or time consuming), still having just 'A' as post-condition can help  
