@@ -300,21 +300,11 @@ public class GenericClass implements Serializable {
 			return false;
 	}
 	
-	public GenericClass getWithOwnerType(Type ownerType) {
-		if (type instanceof ParameterizedType) {
-			ParameterizedType currentType = (ParameterizedType) type;
-			return new GenericClass(new ParameterizedTypeImpl(raw_class,
-		        currentType.getActualTypeArguments(), ownerType));
-		}
-		
-		return new GenericClass(type);
-	}
-	
 	public GenericClass getWithOwnerType(GenericClass ownerClass) {
 		if (type instanceof ParameterizedType) {
 			ParameterizedType currentType = (ParameterizedType) type;
 			return new GenericClass(new ParameterizedTypeImpl(raw_class,
-		        currentType.getActualTypeArguments(), ownerClass.getType()));
+					currentType.getActualTypeArguments(), ownerClass.getType()));
 		}
 		
 		return new GenericClass(type);
@@ -384,7 +374,12 @@ public class GenericClass implements Serializable {
 		for (int i = 0; i < parameters.size(); i++) {
 			typeArray[i] = parameters.get(i).getType();
 		}
-		return new GenericClass(new ParameterizedTypeImpl(raw_class, typeArray, null));
+		Type ownerType = null;
+		if(type instanceof ParameterizedType) {
+			ownerType = ((ParameterizedType) type).getOwnerType();
+		}
+
+		return new GenericClass(new ParameterizedTypeImpl(raw_class, typeArray, ownerType));
 	}
 
 	public GenericClass getWithParameterTypes(List<Type> parameters) {
@@ -392,11 +387,19 @@ public class GenericClass implements Serializable {
 		for (int i = 0; i < parameters.size(); i++) {
 			typeArray[i] = parameters.get(i);
 		}
-		return new GenericClass(new ParameterizedTypeImpl(raw_class, typeArray, null));
+		Type ownerType = null;
+		if(type instanceof ParameterizedType) {
+			ownerType = ((ParameterizedType) type).getOwnerType();
+		}
+		return new GenericClass(new ParameterizedTypeImpl(raw_class, typeArray, ownerType));
 	}
 
 	public GenericClass getWithParameterTypes(Type[] parameters) {
-		return new GenericClass(new ParameterizedTypeImpl(raw_class, parameters, null));
+		Type ownerType = null;
+		if(type instanceof ParameterizedType) {
+			ownerType = ((ParameterizedType) type).getOwnerType();
+		}
+		return new GenericClass(new ParameterizedTypeImpl(raw_class, parameters, ownerType));
 	}
 
 	public GenericClass getRawGenericClass() {

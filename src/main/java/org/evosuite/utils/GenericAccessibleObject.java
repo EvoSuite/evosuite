@@ -7,9 +7,12 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
@@ -21,6 +24,8 @@ public abstract class GenericAccessibleObject implements Serializable {
 
 	
 	private static final long serialVersionUID = 7069749492563662621L;
+
+	protected static final Logger logger = LoggerFactory.getLogger(GenericConstructor.class);
 
 	protected GenericClass owner;
 
@@ -83,7 +88,7 @@ public abstract class GenericAccessibleObject implements Serializable {
 	 */
 	protected static Type mapTypeParameters(Type toMapType, Type typeAndParams) {
 		if (isMissingTypeParameters(typeAndParams)) {
-			LoggingUtils.getEvoLogger().info("Is missing type parameters, so erasing types");
+			logger.debug("Is missing type parameters, so erasing types");
 			return GenericTypeReflector.erase(toMapType);
 		} else {
 			VarMap varMap = new VarMap();
