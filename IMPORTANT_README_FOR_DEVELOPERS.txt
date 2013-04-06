@@ -102,3 +102,11 @@ PRE and POST CONDITIONS
   Post-conditions are good, but often are difficult to write.
   Note: a post-condition does not to be complete to be useful (ie find bugs). For example, if we have 'A && B', but the writing
   of 'B' is too difficult (or time consuming), still having just 'A' as post-condition can help  
+  
+  
+---------------------------------------------
+FIELDS/CONSTRUCTORS/METHODS ORDER IN A CLASS 
+
+when writing a new class (or re-factoring a current one), fields should come first, followed by class constructors and then the other methods.
+
+  
