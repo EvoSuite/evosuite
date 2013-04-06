@@ -100,6 +100,7 @@ PRE and POST CONDITIONS
   Whenever possible, it is worth to write pre-conditions to public methods.
   If exceptions are thrown with 'throw new ...', then recall to add "throws ..." to the method signature.
 - Pre-conditions of 'private' methods and post-conditions (both public and private methods) should use the keyword 'assert'.
+  (An exception is when the validation of inputs of a public method is delegated/moved to a private method: in this case use 'throw'.)
   Post-conditions are good, but often are difficult to write.
   Note: a post-condition does not to be complete to be useful (ie find bugs). For example, if we have 'A && B', but the writing
   of 'B' is too difficult (or time consuming), still having just 'A' as post-condition can help  
