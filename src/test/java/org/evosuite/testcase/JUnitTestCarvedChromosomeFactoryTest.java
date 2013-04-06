@@ -49,8 +49,8 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 	}
 	
 	@Test
-	public void testObjectWrapper(){
-		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ObjectWrapperTest.class.getCanonicalName();
+	public void testObjectSetWrapper(){
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ObjectWrapperSetTest.class.getCanonicalName();
 		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ObjectWrapper.class.getCanonicalName();
 				
 		Properties.SEED_MUTATIONS = 1;
@@ -63,5 +63,37 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		Assert.assertNotNull(carved);
 		//Assert.assertEquals("Shouble be: TODO", 
 		//		-1 , carved.test.size());
+	}
+	
+	@Test
+	public void testObjectWrapperSequence(){
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ObjectWrapperSequenceTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ObjectWrapper.class.getCanonicalName();
+				
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+		
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+		
+		Assert.assertNotNull(carved);
+		Assert.assertEquals("", 6, carved.test.size());
+	}
+	
+	@Test
+	public void testObjectWrapperArray(){
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ObjectWrapperArrayTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ObjectWrapper.class.getCanonicalName();
+				
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+		
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+		
+		Assert.assertNotNull(carved);
+		Assert.assertEquals("", 6, carved.test.size());
 	}
 }
