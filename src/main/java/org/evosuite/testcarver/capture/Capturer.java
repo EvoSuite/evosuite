@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.testcarver.codegen.PostProcessor;
 import org.evosuite.testcarver.exception.CapturerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,8 +50,10 @@ public final class Capturer
 		}));
 	}
 	
+	@Deprecated
 	public static void postProcess()
 	{
+		/*
 		if(! Capturer.isCapturing())
 		{
 			if(! logs.isEmpty())
@@ -100,6 +101,7 @@ public final class Capturer
 				}
 			}
 		}
+		*/
 	}
 	
 	
