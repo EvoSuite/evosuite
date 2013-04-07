@@ -26,64 +26,25 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	@SuppressWarnings("rawtypes")
 	public void analyze(final CaptureLog originalLog, final ICodeGenerator generator, final Set<Class<?>> blackList, final Class<?>... observedClasses) 
 	{
-		final CaptureLog log = originalLog.clone();
+		CaptureLog log = originalLog.clone();
 		
-		//--- 1. step: extract class names
-		final HashSet<String> observedClassNames = new HashSet<String>();
-		for(int i = 0; i < observedClasses.length; i++)
-		{
-			observedClassNames.add(observedClasses[i].getName());
-		}
+		HashSet<String> observedClassNames = extracObservedClassNames(observedClasses);
 			
-		//--- 2. step: get all oids of the instances of the observed classes
-		//    NOTE: They are implicitly sorted by INIT_REC_NO because of the natural object creation order captured by the 
-		//    instrumentation
-		final TIntArrayList targetOIDs = new TIntArrayList();
-		final int numInfoRecs = log.oidClassNames.size();
-		for(int i = 0; i < numInfoRecs; i++)
-		{
-			if(observedClassNames.contains(log.oidClassNames.get(i)))
-			{
-				targetOIDs.add(log.oids.getQuick(i));
-			}
-		}
-		
-		
-		//--- 3. step: analyze log
-		
-		generator.before(log);
-		
-		final int numLogRecords = log.objectIds.size();
-		int currentOID          = targetOIDs.getQuick(0);
-		int[] oidExchange       = null;
-		
-		// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
-		for(int currentRecord = log.oidRecMapping.get(currentOID); currentRecord < numLogRecords; currentRecord++)
-		{
-			currentOID = log.objectIds.getQuick(currentRecord);
-			
-			if(targetOIDs.contains(currentOID) && ! blackList.contains(getClassFromOID(log, currentOID)))
-			{
-				oidExchange = this.restorceCodeFromLastPosTo(log, generator, currentOID, currentRecord, blackList);
-				if(oidExchange != null)
-				{
-					break;
-				}
+		TIntArrayList targetOIDs = getTargetOIDs(log, observedClassNames);
 				
-				// forward to end of method call sequence
-				currentRecord = findEndOfMethod(log, currentRecord, currentOID);
-				
-				// each method call is considered as object state modification -> so save last object modification
-				log.oidInitRecNo.setQuick(log.oidRecMapping.get(currentOID), currentRecord);
-			}
-		}		
+		int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);		
 		
-		if(oidExchange == null)
-		{
+		postProcessLog(originalLog, generator, blackList, log, oidExchange, observedClasses);
+	}
+
+	private void postProcessLog(final CaptureLog originalLog,
+			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			CaptureLog log, int[] oidExchange,
+			final Class<?>... observedClasses) throws RuntimeException {
+		
+		if(oidExchange == null){
 			generator.after(log);
-		}
-		else
-		{
+		} else {
 			try
 			{
 				final Class<?> origClass = this.getClassFromOID(log, oidExchange[0]);
@@ -105,6 +66,68 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 				throw new RuntimeException(e);
 			}
 		}
+	}
+
+	private int[] analyzeLog(final ICodeGenerator generator,
+			final Set<Class<?>> blackList, CaptureLog log,
+			TIntArrayList targetOIDs) {
+		//--- 3. step: analyze log
+		
+		generator.before(log);
+		
+		final int numLogRecords = log.objectIds.size();
+		int currentOID          = targetOIDs.getQuick(0);
+		int[] oidExchange       = null;
+		
+		// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
+		for(int currentRecord = log.oidRecMapping.get(currentOID); currentRecord < numLogRecords; currentRecord++)
+		{
+			currentOID = log.objectIds.getQuick(currentRecord);
+			
+			if(targetOIDs.contains(currentOID) && ! blackList.contains(getClassFromOID(log, currentOID)))
+			{
+				logger.debug("Analyzing record in position "+currentRecord);
+				
+				oidExchange = this.restorceCodeFromLastPosTo(log, generator, currentOID, currentRecord, blackList);
+				if(oidExchange != null){
+					break;
+				}
+				
+				// forward to end of method call sequence
+				currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+				
+				// each method call is considered as object state modification -> so save last object modification
+				log.oidInitRecNo.setQuick(log.oidRecMapping.get(currentOID), currentRecord);
+			} else {
+				logger.debug("Skipping record in position "+currentRecord);
+			}
+		}
+		return oidExchange;
+	}
+
+	private TIntArrayList getTargetOIDs(final CaptureLog log,
+			final HashSet<String> observedClassNames) {
+		//--- 2. step: get all oids of the instances of the observed classes
+		//    NOTE: They are implicitly sorted by INIT_REC_NO because of the natural object creation order captured by the 
+		//    instrumentation
+		final TIntArrayList targetOIDs = new TIntArrayList();
+		final int numInfoRecs = log.oidClassNames.size();
+		for(int i = 0; i < numInfoRecs; i++) {
+			if(observedClassNames.contains(log.oidClassNames.get(i))){
+				targetOIDs.add(log.oids.getQuick(i));
+			}
+		}
+		return targetOIDs;
+	}
+
+	private HashSet<String> extracObservedClassNames(
+			final Class<?>... observedClasses) {
+		//--- 1. step: extract class names
+		final HashSet<String> observedClassNames = new HashSet<String>();
+		for(int i = 0; i < observedClasses.length; i++){
+			observedClassNames.add(observedClasses[i].getName());
+		}
+		return observedClassNames;
 	}
 	
 	
@@ -262,21 +285,18 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
     
     
 	@SuppressWarnings({ "rawtypes" })
-	private int[] restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList)
-	{
+	private int[] restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList){
+		
 		final int oidInfoRecNo  = log.oidRecMapping.get(oid);
 		final int dependencyOID = log.dependencies.getQuick(oidInfoRecNo);
 		
 		// start from last OID modification point
 		int currentRecord = log.oidInitRecNo.getQuick(oidInfoRecNo);
-		if(currentRecord > 0)
-		{
+		if(currentRecord > 0){
 			// last modification of object happened here
 			// -> we start looking for interesting records after retrieved record
 			currentRecord++;				
-		}
-		else
-		{
+		} else {
 			// object new instance statement
 			// -> retrieved loc record no is included
    		    currentRecord = -currentRecord;
@@ -290,14 +310,12 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		Integer returnValue;
 		Object returnValueObj;
 		
-		for(; currentRecord <= end; currentRecord++)
-		{
+		for(; currentRecord <= end; currentRecord++) {
 			currentOID     = log.objectIds.getQuick(currentRecord);
 			returnValueObj = log.returnValues.get(currentRecord);
 			returnValue    = returnValueObj.equals(CaptureLog.RETURN_TYPE_VOID) ? -1 : (Integer) returnValueObj;
 			
-			if(oid == currentOID ||	returnValue == oid)
-			{
+			if(oid == currentOID ||	returnValue == oid) {
 //				// TODO in arbeit
 //				if(isBlackListed(currentOID, blackList, log))
 //				{
@@ -305,45 +323,22 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 //					return getExchange(log, currentRecord, currentOID, blackList);
 //				}
 				
-				
-				
-				
-				
-				
 				methodName = log.methodNames.get(currentRecord);
 				
-				if(CaptureLog.PLAIN_INIT.equals(methodName)) // e.g. String var = "Hello World";
-				{
-					generator.createPlainInitStmt(log, currentRecord);
-					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
-					this.updateInitRec(log, currentOID, currentRecord);
+				if(CaptureLog.PLAIN_INIT.equals(methodName)) {
+					currentRecord = handlePlainInit(log, generator, currentRecord, currentOID);
 				}
-				else if(CaptureLog.COLLECTION_INIT.equals(methodName))
-				{
-					methodArgs = log.params.get(currentRecord);
-					restoreArgs(methodArgs, currentRecord, log, generator, blackList);
-					generator.createCollectionInitStmt(log, currentRecord);
-					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
-					this.updateInitRec(log, currentOID, currentRecord);
+				else if(CaptureLog.COLLECTION_INIT.equals(methodName)){
+					currentRecord = handleCollectionInit(log, generator, blackList, currentRecord, currentOID);
 				}
-				else if(CaptureLog.MAP_INIT.equals(methodName))
-				{
-					methodArgs = log.params.get(currentRecord);
-					restoreArgs(methodArgs, currentRecord, log, generator, blackList);
-					generator.createMapInitStmt(log, currentRecord);
-					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
-					this.updateInitRec(log, currentOID, currentRecord);
+				else if(CaptureLog.MAP_INIT.equals(methodName)){
+					currentRecord = handleMapInit(log, generator, blackList, currentRecord, currentOID);
 				}
-				else if(CaptureLog.ARRAY_INIT.equals(methodName))
-				{
-					methodArgs = log.params.get(currentRecord);
-					restoreArgs(methodArgs, currentRecord, log, generator, blackList);
-					generator.createArrayInitStmt(log, currentRecord);
-					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
-					this.updateInitRec(log, currentOID, currentRecord);
+				else if(CaptureLog.ARRAY_INIT.equals(methodName)){
+					currentRecord = handleArrayInit(log, generator, blackList, currentRecord, currentOID);
 				}
-				else if(CaptureLog.NOT_OBSERVED_INIT.equals(methodName)) // e.g. Person var = (Person) XSTREAM.fromXML("<xml/>");
-				{
+				else if(CaptureLog.NOT_OBSERVED_INIT.equals(methodName)) {
+					// e.g. Person var = (Person) XSTREAM.fromXML("<xml/>");
 					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
 					{
 						final int[] exchange = this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
@@ -374,8 +369,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 							return exchange;
 						}
 					}
-					
-					
+				
 					if(CaptureLog.PUTFIELD.equals(methodName) || CaptureLog.PUTSTATIC.equals(methodName))
 					{
 						// a field assignment has always one argument
@@ -385,20 +379,16 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						{
 							// create history of assigned value
 							int[] exchange = this.restorceCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
-							if(exchange != null)
-							{
+							if(exchange != null) {
 								return exchange;
 							}
 						}
 
 						generator.createFieldWriteAccessStmt(log, currentRecord);
 
-					}
-					else
-					{
+					} else {
 						generator.createFieldReadAccessStmt(log, currentRecord);
 					}
-					
 					
 					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
 					
@@ -407,14 +397,15 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						// GETFIELD and GETSTATIC should only happen, if we obtain an instance whose creation has not been observed
 						this.updateInitRec(log, currentOID, currentRecord);
 						
-						if(returnValue != -1)
-						{
+						if(returnValue != -1) {
 							this.updateInitRec(log, returnValue, currentRecord);
 						}
 					}
-				}
-				else // var0.call(someArg) or Person var0 = new Person()
-				{
+				} else {
+					
+					//the rest
+					
+					// var0.call(someArg) or Person var0 = new Person()
 					if(dependencyOID != CaptureLog.NO_DEPENDENCY)
 					{
 						int[] exchange = this.restorceCodeFromLastPosTo(log, generator, dependencyOID, currentRecord, blackList);
@@ -423,8 +414,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 							return exchange;
 						}
 					}
-					
-					
+				
 					// TODO in arbeit
 					int callerOID = this.findCaller(log, currentRecord);
 					
@@ -434,19 +424,13 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					{
 						// there can only be OIDs or null
 						methodArgOID = (Integer) methodArgs[i];
-						
-						
-						
+					
 						//====================================================
 						
 						// TODO in arbeit
-						if(methodArgOID != null && (methodArgOID == callerOID ))
-						{
-
-							
+						if(methodArgOID != null && (methodArgOID == callerOID )) {
 							int r = currentRecord;
-							while(isBlackListed(callerOID, blackList, log))//blackList.contains(this.getClassFromOID(log, callerOID)))
-							{
+							while(isBlackListed(callerOID, blackList, log)){
 								callerOID = this.findCaller(log, ++r);
 							}
 							
@@ -455,22 +439,16 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 							
 							return new int[]{oid, callerOID};
 						}
-						else if(methodArgOID != null && isBlackListed(methodArgOID, blackList, log))//blackList.contains(this.getClassFromOID(log, methodArgOID)))
-						{
+						else if(methodArgOID != null && isBlackListed(methodArgOID, blackList, log)){
 							logger.debug("arg in blacklist >>>> " + blackList.contains(this.getClassFromOID(log, methodArgOID)));
 						
 							return getExchange(log, currentRecord, oid, blackList); //new int[]{oid, callerOID};
 						}
-						
-						
-						
 						//====================================================
 						
-						if(methodArgOID != null && methodArgOID != oid)
-						{
+						if(methodArgOID != null && methodArgOID != oid) {
 							int[] exchange = this.restorceCodeFromLastPosTo(log, generator, methodArgOID, currentRecord, blackList);
-							if(exchange != null)
-							{
+							if(exchange != null) {
 								// we can not resolve all dependencies because they rely on other unresolvable object
 								blackList.add(this.getClassFromOID(log, oid));
 								return exchange;
@@ -478,10 +456,8 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 						}
 					}
 					
-				
 					// TODO in arbeit
-					if(isBlackListed(currentOID, blackList, log))
-					{
+					if(isBlackListed(currentOID, blackList, log)) {
 						logger.debug("-> is blacklisted... " + blackList + " oid: " + currentOID + " class: " + getClassFromOID(log, currentOID));
 						
 						// we can not resolve all dependencies because they rely on other unresolvable object
@@ -491,7 +467,6 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					
 					generator.createMethodCallStmt(log, currentRecord);
 					
-				
 					// forward to end of method call sequence
 					
 					currentRecord = findEndOfMethod(log, currentRecord, currentOID);
@@ -499,8 +474,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 					// each method call is considered as object state modification -> so save last object modification
 					this.updateInitRec(log, currentOID, currentRecord);
 					
-					if(returnValue != -1)
-					{
+					if(returnValue != -1){
 						// if returnValue has not type VOID, mark current log record as record where the return value instance was created
 						// --> if an object is created within an observed method, it would not be semantically correct
 						//     (and impossible to handle properly) to create an extra instance of the return value type outside this method
@@ -510,13 +484,11 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 					
 					// consider each passed argument as being modified at the end of the method call sequence
-					for(int i = 0; i < methodArgs.length; i++)
-					{
+					for(int i = 0; i < methodArgs.length; i++){
 						// there can only be OIDs or null
 						methodArgOID = (Integer) methodArgs[i];
 						
-						if(methodArgOID != null && methodArgOID != oid) 
-						{
+						if(methodArgOID != null && methodArgOID != oid) {
 							this.updateInitRec(log, methodArgOID, currentRecord);
 						}
 					}
@@ -525,6 +497,51 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 		
 		return null;
+	}
+
+	private int handleArrayInit(final CaptureLog log,
+			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			int currentRecord, int currentOID) {
+		Object[] methodArgs;
+		methodArgs = log.params.get(currentRecord);
+		restoreArgs(methodArgs, currentRecord, log, generator, blackList);
+		generator.createArrayInitStmt(log, currentRecord);
+		currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+		this.updateInitRec(log, currentOID, currentRecord);
+		return currentRecord;
+	}
+
+	private int handleMapInit(final CaptureLog log,
+			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			int currentRecord, int currentOID) {
+		Object[] methodArgs;
+		methodArgs = log.params.get(currentRecord);
+		restoreArgs(methodArgs, currentRecord, log, generator, blackList);
+		generator.createMapInitStmt(log, currentRecord);
+		currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+		this.updateInitRec(log, currentOID, currentRecord);
+		return currentRecord;
+	}
+
+	private int handleCollectionInit(final CaptureLog log,
+			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			int currentRecord, int currentOID) {
+		Object[] methodArgs;
+		methodArgs = log.params.get(currentRecord);
+		restoreArgs(methodArgs, currentRecord, log, generator, blackList);
+		generator.createCollectionInitStmt(log, currentRecord);
+		currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+		this.updateInitRec(log, currentOID, currentRecord);
+		return currentRecord;
+	}
+
+	private int handlePlainInit(final CaptureLog log,
+			final ICodeGenerator generator, int currentRecord, int currentOID) {
+		// e.g. String var = "Hello World";
+		generator.createPlainInitStmt(log, currentRecord);
+		currentRecord = findEndOfMethod(log, currentRecord, currentOID);
+		this.updateInitRec(log, currentOID, currentRecord);
+		return currentRecord;
 	}
 	
 	
