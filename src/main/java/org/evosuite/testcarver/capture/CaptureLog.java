@@ -80,7 +80,7 @@ public final class CaptureLog implements Cloneable {
 	/**
 	 *  oid -> index ==> oidInitReco.get(index) + oidClassNames.get(index)
 	 */
-	public final TIntIntHashMap    oidRecMapping; 
+	private final TIntIntHashMap    oidRecMapping; 
 	
 	/*
 	 * NOTE: this is just a start of refactoring. same thing should be done for other fields
@@ -88,7 +88,9 @@ public final class CaptureLog implements Cloneable {
 	private final TIntArrayList 	   oidInitRecNo;
 
 	public final ArrayList<String> oidClassNames;
-	public final TIntArrayList 	   oids;
+	
+	private final TIntArrayList 	   oids;
+	
 	public final TIntArrayList     firstInits;
 	public final TIntArrayList  dependencies;
 
@@ -124,14 +126,52 @@ public final class CaptureLog implements Cloneable {
 		this.xstream = new XStream();
 	}
 
-	//TODO checks and invariants
+	public int getRecordIndex(int oid){
+		return oidRecMapping.get(oid);
+	}
 	
-	public int getRecordIndexOfWhereObjectWasInitializedFirst(int oid){
+	public int getOID(int recordIndex){
+		if(recordIndex<0 || recordIndex>=oids.size()){
+			throw new IllegalArgumentException("index "+recordIndex+" is invalid as there are "+oids.size()+" OIDs");
+		}
+		return oids.get(recordIndex);
+	}
+	
+	public int getRecordIndexOfWhereObjectWasInitializedFirst(int oid) throws IllegalArgumentException{
+		if(!oidRecMapping.contains(oid)){
+			throw new IllegalArgumentException("OID "+oid+" is not recognized");
+		}
+		
 		int pos = oidRecMapping.get(oid);
 		return oidInitRecNo.get(pos);
 	}
 	
-	public void updateWhereObjectWasInitializedFirst(int oid, int recordIndex){
+	/**
+	 * FIXME: this does not make sense... it seems like oidInitRecNo contains
+	 * integers that have different meaning depending on whether their are positive or not...
+	 * 
+	 * @param currentRecord
+	 */
+	private void addNewInitRec(int currentRecord) {
+		// negative log rec no indicates obj construction
+		this.oidInitRecNo.add(-currentRecord);
+		logger.debug("InitRecNo added "+(-currentRecord));
+	}
+	
+	public void updateWhereObjectWasInitializedFirst(int oid, int recordIndex) throws IllegalArgumentException{
+		if(!oidRecMapping.contains(oid)){
+			throw new IllegalArgumentException("OID "+oid+" is not recognized");
+		}
+		int nRec = objectIds.size();
+		/*
+		 * FIXME: it seems negative indexes have special meaning...
+		 */
+		if(recordIndex<= -nRec || recordIndex >= nRec){
+			throw new IllegalArgumentException("New record index "+recordIndex+" is invalid, as there are only "+nRec+" records");
+		}
+		
+		logger.debug("Updating init of OID "+oid+" from pos="+getRecordIndexOfWhereObjectWasInitializedFirst(oid)+" to pos="+recordIndex);
+		
 		oidInitRecNo.setQuick(oidRecMapping.get(oid), recordIndex);
 	}
 	
@@ -185,29 +225,21 @@ public final class CaptureLog implements Cloneable {
 	{
 		// update oid info table, if necessary
 		// -> we assume that USUALLY the first record belonging to an object belongs to its instanciation
-		if(this.oidRecMapping.containsKey(oid))
-		{
-			if(replace)
-			{
-				final int infoRecNo = this.oidRecMapping.get(oid);
+		if(this.oidRecMapping.containsKey(oid)){
+			if(replace){
 				final int logRecNo  = this.objectIds.size();
-				//FIXME
-				this.oidInitRecNo.set(infoRecNo, -logRecNo);
-
+				updateWhereObjectWasInitializedFirst(oid,-logRecNo);
 				return true;
-			}
-			else
-			{
+			} else {
 				return false;
 			}
-		}
-		else
-		{
+		} else {
 			final int logRecNo  = this.objectIds.size();
 			final int infoRecNo = this.oidInitRecNo.size();
+			
+			logger.debug("Adding mapping oid->index "+oid+"->"+infoRecNo);
 			this.oidRecMapping.put(oid, infoRecNo);
-			// negative log rec no indicates obj construction
-			this.oidInitRecNo.add(-logRecNo);
+			addNewInitRec(logRecNo);
 
 			firstInits.add(logRecNo);
 
@@ -308,15 +340,14 @@ public final class CaptureLog implements Cloneable {
 
 					if(this.oidRecMapping.containsKey(returnValueOID))
 					{
-						final int infoRecNo = this.oidRecMapping.get(returnValueOID);
-						final int initRecNo = this.oidInitRecNo.getQuick(infoRecNo);
+						final int infoRecNo = this.oidRecMapping.get(returnValueOID);						
+						final int initRecNo = getRecordIndexOfWhereObjectWasInitializedFirst(returnValueOID);
 						final String method = this.methodNames.get(Math.abs(initRecNo));
 
 						if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT.equals(method))
 						{
 							this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
-							//FIXME
-							this.oidInitRecNo.set(infoRecNo, -currentRecord);
+							updateWhereObjectWasInitializedFirst(returnValueOID, -currentRecord);							
 							this.firstInits.set(infoRecNo, currentRecord);
 						}
 					}
@@ -324,8 +355,7 @@ public final class CaptureLog implements Cloneable {
 					{
 						final int infoRecNo = this.oidInitRecNo.size();
 						this.oidRecMapping.put(returnValueOID, infoRecNo);
-						// negative log rec no indicates obj construction
-						this.oidInitRecNo.add(-currentRecord);
+						addNewInitRec(currentRecord);
 						this.firstInits.add(currentRecord);
 
 						this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
@@ -347,6 +377,8 @@ public final class CaptureLog implements Cloneable {
 		this.returnValues.add(RETURN_TYPE_VOID);
 		this.isStaticCallList.add(Boolean.FALSE);
 	}
+
+	
 
 
 	/**

@@ -80,7 +80,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		int[] oidExchange       = null;
 
 		// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
-		for(int currentRecord = log.oidRecMapping.get(currentOID); currentRecord < numLogRecords; currentRecord++)
+		for(int currentRecord = log.getRecordIndex(currentOID); currentRecord < numLogRecords; currentRecord++)
 		{
 			currentOID = log.objectIds.getQuick(currentRecord);
 
@@ -118,7 +118,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		final int numInfoRecs = log.oidClassNames.size();
 		for(int i = 0; i < numInfoRecs; i++) {
 			if(observedClassNames.contains(log.oidClassNames.get(i))){
-				targetOIDs.add(log.oids.getQuick(i));
+				targetOIDs.add(log.getOID(i));
 			}
 		}
 		return targetOIDs;
@@ -139,7 +139,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	{
 		try
 		{
-			final int rec = log.oidRecMapping.get(oid);
+			final int rec = log.getRecordIndex(oid);
 			return this.getClassForName(log.oidClassNames.get(rec));
 		}
 		catch(final Exception e)
@@ -289,7 +289,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	@SuppressWarnings({ "rawtypes" })
 	private int[] restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList){
 
-		final int oidInfoRecNo  = log.oidRecMapping.get(oid);
+		final int oidInfoRecNo  = log.getRecordIndex(oid);
 		final int dependencyOID = log.dependencies.getQuick(oidInfoRecNo);
 
 		// start from last OID modification point
