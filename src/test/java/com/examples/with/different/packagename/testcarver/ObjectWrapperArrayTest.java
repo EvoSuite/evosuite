@@ -16,7 +16,7 @@ public class ObjectWrapperArrayTest {
 		Assert.assertNull(wrapper.get());
 				
 		Long[] someArray = new Long[]{1l,47l};
-				
+		
 		wrapper.set(someArray);
 		Assert.assertNotNull(wrapper.get());	
 		
