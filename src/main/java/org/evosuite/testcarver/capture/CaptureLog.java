@@ -19,38 +19,11 @@ import org.slf4j.LoggerFactory;
 import com.thoughtworks.xstream.XStream;
 
 
-public final class CaptureLog implements Cloneable
-{
-	//--- LOG Table
-	// REC_NO | OID | METHOD | PARAMS
+public final class CaptureLog implements Cloneable {
 
-	// rec_no is implied by index
-	public final TIntArrayList       objectIds;
-	public final TIntArrayList       captureIds;
-	public final ArrayList<String>   methodNames;
-	/**
-	 * FIXME: this seems always containing Integer objects, representing either null
-	 * or an object identifier (oid)
-	 */
-	public final ArrayList<Object[]> params;
-	public final ArrayList<Object>   returnValues;
-	public final ArrayList<Boolean>  isStaticCallList;
-	public final ArrayList<String>   descList;
-
-
-	//--- OID Info Table
-	// OID | INIT_REC_NO | CLASS
-
-	public final TIntIntHashMap    oidRecMapping; // oid -> index ==> oidInitReco.get(index) + oidClassNames.get(index)
-	public final TIntArrayList 	   oidInitRecNo;
-	public final ArrayList<String> oidClassNames;
-	public final TIntArrayList 	   oids;
-	public final TIntArrayList     firstInits;
-	public final TIntArrayList  dependencies;
-
-	public final TIntObjectHashMap<String> namesOfAccessedFields; // captureId -> field name
-
-	private final XStream xstream;
+	//=============   static, final fields ===================================================
+	
+	private static final Logger logger = LoggerFactory.getLogger(CaptureLog.class);
 
 	public static final Object[] NO_ARGS           = new Object[0];
 	public static final String   OBSERVED_INIT     = "<init>";
@@ -64,10 +37,8 @@ public final class CaptureLog implements Cloneable
 	public static final String END_CAPTURE_PSEUDO_METHOD =  CaptureLog.class.getName() + ".END_CAPTURE";
 	public static final int    PSEUDO_CAPTURE_ID		 = Integer.MAX_VALUE; // for internally created statement (PLAIN_INIT and NOT_OBSERVED_INIT)
 
-
-	private static final String EMPTY_DESC = Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{});
+	public static final String EMPTY_DESC = Type.getMethodDescriptor(Type.VOID_TYPE, new Type[]{});
 	public static final int  NO_DEPENDENCY = -1;
-
 
 	public static final String PUTFIELD  = "PUTFIELD";
 	public static final String PUTSTATIC = "PUTSTATIC";
@@ -76,23 +47,61 @@ public final class CaptureLog implements Cloneable
 
 	public static final Object RETURN_TYPE_VOID = CaptureLog.class.getName() + ".RETURN_VOID";
 
+	//=============   local, object fields ===================================================
 
-	private static final Logger logger = LoggerFactory.getLogger(CaptureLog.class);
+	/*
+	 * FIXME: the design of this class breaks OO encapsulation. 
+	 * Fields are declared 'final', but their content can be accessed/changed from outside.
+	 * Need refactoring.
+	 * 
+	 * For example, are these lists supposed to have same length? (ie invariant)
+	 */
+	
+	//--- LOG Table
+	// REC_NO | OID | METHOD | PARAMS
 
-	//	private  final ByteArrayOutputStream bout;
-	//	private final SnappyOutputStream sout;
+	// rec_no is implied by index
+	public final TIntArrayList       objectIds;
+	public final TIntArrayList       captureIds;
+	public final ArrayList<String>   methodNames;
+	/**
+	 * FIXME: this seems always containing Integer objects, representing either null
+	 * or an object identifier (oid). should it be <Integer[]> ?
+	 */
+	public final ArrayList<Object[]> params;
+	public final ArrayList<Object>   returnValues;
+	public final ArrayList<Boolean>  isStaticCallList;
+	public final ArrayList<String>   descList;
 
-	public CaptureLog()
-	{	
-		//		bout = new ByteArrayOutputStream(1024 * 1024);
-		//		try {
-		//			sout = new SnappyOutputStream(bout);
-		//		} catch (IOException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//			throw new RuntimeException(e);
-		//		}
-		//		
+
+	//--- OID Info Table
+	// OID | INIT_REC_NO | CLASS
+
+	/**
+	 *  oid -> index ==> oidInitReco.get(index) + oidClassNames.get(index)
+	 */
+	public final TIntIntHashMap    oidRecMapping; 
+	
+	/*
+	 * NOTE: this is just a start of refactoring. same thing should be done for other fields
+	 */
+	private final TIntArrayList 	   oidInitRecNo;
+
+	public final ArrayList<String> oidClassNames;
+	public final TIntArrayList 	   oids;
+	public final TIntArrayList     firstInits;
+	public final TIntArrayList  dependencies;
+
+	public final TIntObjectHashMap<String> namesOfAccessedFields; // captureId -> field name
+
+	private final XStream xstream;
+
+
+
+	/**
+	 * Main constructor
+	 */
+	public CaptureLog(){	
 		this.objectIds      = new TIntArrayList();
 		this.methodNames    = new ArrayList<String>();
 		this.params         = new ArrayList<Object[]>();
@@ -115,6 +124,17 @@ public final class CaptureLog implements Cloneable
 		this.xstream = new XStream();
 	}
 
+	//TODO checks and invariants
+	
+	public int getRecordIndexOfWhereObjectWasInitializedFirst(int oid){
+		int pos = oidRecMapping.get(oid);
+		return oidInitRecNo.get(pos);
+	}
+	
+	public void updateWhereObjectWasInitializedFirst(int oid, int recordIndex){
+		oidInitRecNo.setQuick(oidRecMapping.get(oid), recordIndex);
+	}
+	
 	@Override
 	public CaptureLog clone()
 	{
@@ -171,6 +191,7 @@ public final class CaptureLog implements Cloneable
 			{
 				final int infoRecNo = this.oidRecMapping.get(oid);
 				final int logRecNo  = this.objectIds.size();
+				//FIXME
 				this.oidInitRecNo.set(infoRecNo, -logRecNo);
 
 				return true;
@@ -294,6 +315,7 @@ public final class CaptureLog implements Cloneable
 						if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT.equals(method))
 						{
 							this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
+							//FIXME
 							this.oidInitRecNo.set(infoRecNo, -currentRecord);
 							this.firstInits.set(infoRecNo, currentRecord);
 						}
