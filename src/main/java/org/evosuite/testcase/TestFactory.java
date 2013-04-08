@@ -555,7 +555,6 @@ public class TestFactory {
 				return createOrReuseVariable(test, String.class, position, recursionDepth, null);
 			}
 		}
-
 		// LoggingUtils.getEvoLogger().info("Generator for Object: " + o);
 
 		currentRecursion.add(o);
@@ -1166,6 +1165,10 @@ public class TestFactory {
 		for (GenericAccessibleObject call : allCalls) {
 			Set<Type> dependencies = null;
 			if (call.isMethod()) {
+				GenericMethod method = (GenericMethod)call;
+				if(method.hasTypeParameters()) {
+					call = TestCluster.getInstance().getGenericInstantiation(method);
+				}
 				if (!((GenericMethod) call).getReturnType().equals(returnType))
 					continue;
 				dependencies = getDependencies((GenericMethod) call);
@@ -1326,14 +1329,13 @@ public class TestFactory {
 			}
 		} else {
 			logger.debug("Getting calls for object " + var.toString());
-			Set<GenericAccessibleObject> calls = TestCluster.getInstance().getCallsFor(var.getGenericClass());
-			if (!calls.isEmpty()) {
-				GenericAccessibleObject call = Randomness.choice(calls);
+			try {
+				GenericAccessibleObject call = TestCluster.getInstance().getRandomCallFor(var.getGenericClass());
 				logger.debug("Chosen call " + call);
 				return addCallFor(test, var, call, position);
-				// logger.debug("Done adding call " + call);
+			} catch(ConstructionFailedException e) {
+				logger.debug("Found no modifier: "+e);
 			}
-
 		}
 
 		return false;

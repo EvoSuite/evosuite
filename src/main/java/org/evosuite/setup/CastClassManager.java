@@ -1,6 +1,7 @@
 package org.evosuite.setup;
 
 import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -30,6 +31,7 @@ public class CastClassManager {
 	
 	private CastClassManager() {
 			classMap.put(new GenericClass(Object.class), 2);
+			classMap.put(new GenericClass(String.class), 2);
 	}
 	
 	public static CastClassManager getInstance() {
@@ -111,6 +113,31 @@ public class CastClassManager {
 		return sum;
 	}
 
+	private double getSum(TypeVariable<?> typeVariable, boolean allowRecursion) {
+		double sum = 0d;
+		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
+			boolean isAssignable = true;
+			for(Type type : typeVariable.getBounds()) {
+				if(!entry.getKey().isAssignableTo(type)) {
+					logger.debug("Not assignable: Bound "+entry.getKey()+" to type "+type);
+					isAssignable = false;
+					break;
+				}
+			}
+			if(!isAssignable) {
+				continue;
+			}
+			
+			if(!allowRecursion && entry.getKey().hasWildcardOrTypeVariables()) {
+				continue;
+			}
+			
+			int depth = entry.getValue();
+			double v = depth == 0 ? 0.0 : 1.0/depth;
+			sum += v;
+		}
+		return sum;
+	}
 	
 	public GenericClass selectCastClass() {
 		
@@ -155,6 +182,47 @@ public class CastClassManager {
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			if(!entry.getKey().isAssignableTo(targetType))
 				continue;
+			
+			if(!allowRecursion && entry.getKey().hasWildcardOrTypeVariables())
+				continue;
+
+			int depth = entry.getValue();
+			double v = depth == 0 ? 0.0 : 1.0/depth;
+
+			if(v >= rnd)
+				return entry.getKey();
+			else
+				rnd = rnd - v;
+		}
+
+		//now this should never happens, but possible issues with rounding errors in for example "rnd = rnd - fit"
+		//in such a case, we just return a random index and we log it
+
+		logger.debug("ATTENTION: Possible issue in CastClassManager");
+		return Randomness.choice(classMap.keySet());
+	}
+	
+	public GenericClass selectCastClass(TypeVariable<?> typeVariable, boolean allowRecursion) {
+		double sum = getSum(typeVariable, allowRecursion);
+		
+		//special case
+		if (sum == 0d) {
+			return Randomness.choice(classMap.keySet());
+		}
+
+		double rnd = Randomness.nextDouble() * sum;
+		logger.debug("Choice: "+classMap);
+		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
+			boolean isAssignable = true;
+			for(Type type : typeVariable.getBounds()) {
+				if(!entry.getKey().isAssignableTo(type)) {
+					isAssignable = false;
+					break;
+				}
+			}
+			if(!isAssignable) {
+				continue;
+			}
 			
 			if(!allowRecursion && entry.getKey().hasWildcardOrTypeVariables())
 				continue;

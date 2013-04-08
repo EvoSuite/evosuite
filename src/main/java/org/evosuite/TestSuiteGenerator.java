@@ -271,7 +271,7 @@ public class TestSuiteGenerator {
 		// Make sure target class is loaded at this point
 		TestCluster.getInstance();
 
-		if (TestCluster.getInstance().getTestCalls().isEmpty()) {
+		if (TestCluster.getInstance().getNumTestCalls() == 0) {
 			LoggingUtils.getEvoLogger().info("* Found no testable methods in the target class "
 			                                         + Properties.TARGET_CLASS);
 			return new ArrayList<TestCase>();

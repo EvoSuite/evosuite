@@ -160,6 +160,7 @@ public class TestClusterGenerator {
 
 			Set<String> classNames = new LinkedHashSet<String>();
 			classNames.add("java.lang.Object");
+			classNames.add("java.lang.String");
 
 			for(Entry<Type, Integer> castEntry : CallTreeGenerator.castClassMap.entrySet()) {
 				CastClassManager.getInstance().addCastClass(castEntry.getKey().getClassName(), castEntry.getValue());
@@ -756,6 +757,7 @@ public class TestClusterGenerator {
 			return false;
 		}
 
+		/*
 		if(m.getTypeParameters().length > 0) {
 			logger.debug("Cannot handle generic methods at this point");
 			if(m.getDeclaringClass().equals(Properties.getTargetClass())) {
@@ -763,6 +765,7 @@ public class TestClusterGenerator {
 			}
 			return false;
 		}
+		*/
 		
 		// If default or
 		if (Modifier.isPublic(m.getModifiers()))
