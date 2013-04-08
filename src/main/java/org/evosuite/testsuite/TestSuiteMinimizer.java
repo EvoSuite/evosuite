@@ -254,6 +254,8 @@ public class TestSuiteMinimizer {
 		else
 			suite.setCoverage((double) numCovered / (double) numGoals);
 
+		removeRedundantTestCases(suite);
+
 		ClientState state = ClientState.MINIMIZATION;
 		ClientStateInformation information = new ClientStateInformation(state);
 		information.setProgress(100);
@@ -479,6 +481,7 @@ public class TestSuiteMinimizer {
 		}
 		// suite.coverage = coverage;
 		removeEmptyTestCases(suite);
+		removeRedundantTestCases(suite);
 
 		//assert (checkFitness(suite) == fitness);
 	}
@@ -492,6 +495,40 @@ public class TestSuiteMinimizer {
 				it.remove();
 			}
 		}
+	}
+	
+	private void removeRedundantTestCases(TestSuiteChromosome suite) {
+		// Subsuming tests are inserted in the back, so we start inserting the final tests from there
+		List<TestChromosome> tests = suite.getTestChromosomes();
+		logger.debug("Before removing redundant tests: " + tests.size());
+
+		Collections.reverse(tests);
+		List<TestChromosome> finalTests = new ArrayList<TestChromosome>();
+		Set<TestFitnessFunction> coveredGoals = new HashSet<TestFitnessFunction>();
+		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(
+		        testFitnessFactory.getCoverageGoals());
+		
+		for(TestChromosome test : tests) {
+			boolean addsNewGoals = false;
+			for (TestFitnessFunction goal : goals) {
+				
+				if(!coveredGoals.contains(goal)) {
+					if(goal.isCovered(test)) {
+						addsNewGoals = true;
+						coveredGoals.add(goal);
+					}
+				}
+			}
+			if(addsNewGoals) {
+				coveredGoals.addAll(test.getTestCase().getCoveredGoals());
+				finalTests.add(test);
+			}
+		}
+		Collections.reverse(finalTests);
+		suite.getTestChromosomes().clear();
+		suite.getTestChromosomes().addAll(finalTests);
+		logger.debug("After removing redundant tests: " + tests.size());
+
 	}
 
 }
