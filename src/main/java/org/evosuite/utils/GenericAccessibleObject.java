@@ -7,7 +7,9 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -25,11 +27,11 @@ public abstract class GenericAccessibleObject implements Serializable {
 	
 	private static final long serialVersionUID = 7069749492563662621L;
 
-	protected static final Logger logger = LoggerFactory.getLogger(GenericConstructor.class);
+	protected static final Logger logger = LoggerFactory.getLogger(GenericAccessibleObject.class);
 
 	protected GenericClass owner;
 	
-	protected Map<TypeVariable<?>, GenericClass> typeVariables = new HashMap<TypeVariable<?>, GenericClass>();
+	protected List<GenericClass> typeVariables = new ArrayList<GenericClass>();
 
 	public GenericAccessibleObject(GenericClass owner) {
 		this.owner = owner;
@@ -103,11 +105,23 @@ public abstract class GenericAccessibleObject implements Serializable {
 				varMap.addAll(clazz.getTypeParameters(), pType.getActualTypeArguments());
 				handlingTypeAndParams = pType.getOwnerType();
 			}
-			varMap.addAll(typeVariables);
+			varMap.addAll(getTypeVariableMap());
 			return varMap.map(toMapType);
 		}
 	}
 
+	protected Map<TypeVariable<?>, GenericClass> getTypeVariableMap() {
+		Map<TypeVariable<?>, GenericClass> typeMap = new HashMap<TypeVariable<?>, GenericClass>();
+		int pos = 0;
+		for(TypeVariable<?> variable : getTypeParameters()) {
+			if(typeVariables.size() <= pos)
+				break;
+			typeMap.put(variable, typeVariables.get(pos));
+			pos++;
+		}
+		return typeMap;
+	}
+	
 	/**
 	 * Checks if the given type is a class that is supposed to have type
 	 * parameters, but doesn't. In other words, if it's a really raw type.
@@ -167,8 +181,9 @@ public abstract class GenericAccessibleObject implements Serializable {
     	return new TypeVariable<?>[] {};
     }
     
-    public void setTypeParameter(TypeVariable<?> variable, GenericClass type) {
-    	typeVariables.put(variable, type);
+    public void setTypeParameters(List<GenericClass> parameterTypes) {
+    	typeVariables.clear();
+    	typeVariables.addAll(parameterTypes);
     }
     
     public boolean hasTypeParameters() {

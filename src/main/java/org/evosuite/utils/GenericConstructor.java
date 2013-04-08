@@ -82,18 +82,24 @@ public class GenericConstructor extends GenericAccessibleObject {
 
 	@Override
 	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
-		return new GenericConstructor(constructor, newOwner);
+		GenericConstructor copy = new GenericConstructor(constructor, newOwner);
+		copy.typeVariables.addAll(typeVariables);
+		return copy;
 	}
 	
 	@Override
 	public GenericAccessibleObject copyWithOwnerFromReturnType(
 			ParameterizedType returnType) {
-		return new GenericConstructor(constructor, new GenericClass(returnType));
+		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(returnType));
+		copy.typeVariables.addAll(typeVariables);
+		return copy;
 	}
 	
 	@Override
 	public GenericAccessibleObject copy() {
-		return new GenericConstructor(constructor, new GenericClass(owner));
+		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(owner));
+		copy.typeVariables.addAll(typeVariables);
+		return copy;
 	}
 
 	public Type getReturnType() {

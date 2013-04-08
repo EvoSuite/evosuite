@@ -52,7 +52,8 @@ class VarMap {
 		if (type instanceof Class) {
 			return type;
 		} else if (type instanceof TypeVariable) {
-			assert map.containsKey(type);
+			// TypeVariables may also come from generic methods!
+			// assert map.containsKey(type);
 			return map.get(type);
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType pType = (ParameterizedType) type;

@@ -13,6 +13,7 @@ import com.examples.with.different.packagename.GenericArrayWithGenericType;
 import com.examples.with.different.packagename.GenericArrayWithGenericTypeVariable;
 import com.examples.with.different.packagename.GenericGenericParameter;
 import com.examples.with.different.packagename.GenericMemberclass;
+import com.examples.with.different.packagename.GenericMethod;
 import com.examples.with.different.packagename.GenericParameters1;
 import com.examples.with.different.packagename.GenericParameters2;
 import com.examples.with.different.packagename.GenericParameters3;
@@ -473,6 +474,31 @@ public class TestGenerics extends SystemTest {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = GenericSuperclassOmittingTypeParameters.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testGenericMethod() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericMethod.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 

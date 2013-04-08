@@ -44,19 +44,24 @@ public class GenericMethod extends GenericAccessibleObject {
 
 	@Override
 	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
-		GenericMethod gm = new GenericMethod(method, newOwner);
-		gm.getParameterTypes();
-		return gm;
+		GenericMethod copy = new GenericMethod(method, newOwner);
+		copy.getParameterTypes();
+		copy.typeVariables.addAll(typeVariables);
+		return copy;
 	}
 	
 	public GenericMethod copyWithOwnerFromReturnType(ParameterizedType returnType) {
 		GenericClass newOwner = new GenericClass(getTypeFromExactReturnType(returnType, (ParameterizedType)getOwnerType()));
-		return new GenericMethod(method, newOwner);
+		GenericMethod copy = new GenericMethod(method, newOwner);
+		copy.typeVariables.addAll(typeVariables);
+		return copy;
 	}
 	
 	@Override
 	public GenericAccessibleObject copy() {
-		return new GenericMethod(method, new GenericClass(owner));
+		GenericMethod copy = new GenericMethod(method, new GenericClass(owner));
+		copy.typeVariables.addAll(typeVariables);
+		return copy;
 	}
 	
 	public Method getMethod() {
@@ -72,7 +77,7 @@ public class GenericMethod extends GenericAccessibleObject {
 	}
 
 	public Type[] getParameterTypes() {
-		return GenericTypeReflector.getExactParameterTypes(method, owner.getType());
+		return getExactParameterTypes(method, owner.getType());
 	}
 
 	public Type[] getGenericParameterTypes() {
@@ -84,7 +89,7 @@ public class GenericMethod extends GenericAccessibleObject {
 	}
 
 	public Type getReturnType() {
-		Type returnType = GenericTypeReflector.getExactReturnType(method, owner.getType());
+		Type returnType = getExactReturnType(method, owner.getType());
 		if (returnType == null) {
 			LoggingUtils.getEvoLogger().info("Exact return type is null for " + method
 			                                         + " with owner " + owner);
