@@ -36,6 +36,7 @@ import org.evosuite.ConsoleProgressBar;
 import org.evosuite.Properties;
 import org.evosuite.rmi.MasterServices;
 import org.evosuite.rmi.service.ClientNodeRemote;
+import org.evosuite.rmi.service.ClientState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -356,8 +357,19 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process. "
-						        + e.getMessage());
+						boolean finished = true;
+						for(ClientState state : MasterServices.getInstance().getMasterNode().getCurrentState())  {
+							if(state != ClientState.DONE) {
+								finished = false;
+								break;
+							}
+						}
+						if(!finished)
+							logger.error("Exception while reading output of client process. "
+									+ e.getMessage());
+						else
+							logger.debug("Exception while reading output of client process. "
+									+ e.getMessage());
 					}
 				}
 			};
@@ -382,8 +394,19 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
-						logger.error("Exception while reading output of client process. "
-						        + e.getMessage());
+						boolean finished = true;
+						for(ClientState state : MasterServices.getInstance().getMasterNode().getCurrentState())  {
+							if(state != ClientState.DONE) {
+								finished = false;
+								break;
+							}
+						}
+						if(!finished)
+							logger.error("Exception while reading output of client process. "
+									+ e.getMessage());
+						else
+							logger.debug("Exception while reading output of client process. "
+									+ e.getMessage());
 					}
 				}
 			};
