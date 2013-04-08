@@ -632,6 +632,11 @@ public class GenericClass implements Serializable {
 		this.raw_class = clazz;
 		handleGenericArraySpecialCase(type);
 	}
+	
+	public GenericClass(GenericClass copy) {
+		this.type = copy.type;
+		this.raw_class = copy.raw_class;
+	}
 
 	private boolean handleGenericArraySpecialCase(Type type) {
 		if (type instanceof GenericArrayType) {
