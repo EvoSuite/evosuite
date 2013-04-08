@@ -96,8 +96,9 @@ public class TestCaseCodeGenerator {
 				}
 
 				// each method call is considered as object state modification -> so save last object modification
-				this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID),
-				                               currentRecord);
+				
+				log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);		
+				
 			}
 		}
 
@@ -108,7 +109,8 @@ public class TestCaseCodeGenerator {
 		final int oidInfoRecNo = this.log.oidRecMapping.get(oid);
 
 		// start from last OID modification point
-		int currentRecord = this.log.oidInitRecNo.get(oidInfoRecNo);
+		int currentRecord = log.getRecordIndexOfWhereObjectWasInitializedFirst(oid);
+		
 		if (currentRecord > 0) {
 			// last modification of object happened here
 			// -> we start looking for interesting records after retrieved record
@@ -191,12 +193,12 @@ public class TestCaseCodeGenerator {
 					if (CaptureLog.GETFIELD.equals(methodName)
 					        || CaptureLog.GETSTATIC.equals(methodName)) {
 						// GETFIELD and GETSTATIC should only happen, if we obtain an instance whose creation has not been observed
-						this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID),
-						                               currentRecord);
+						log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);		
+						
 
 						if (returnValue != -1) {
-							this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(returnValue),
-							                               currentRecord);
+							log.updateWhereObjectWasInitializedFirst(returnValue, currentRecord);		
+							
 						}
 					}
 				} else // var0.call(someArg) or Person var0 = new Person()
@@ -224,15 +226,15 @@ public class TestCaseCodeGenerator {
 					}
 
 					// each method call is considered as object state modification -> so save last object modification
-					this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID),
-					                               currentRecord);
+					log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);		
+					
 
 					if (returnValue != -1) {
 						// if returnValue has not type VOID, mark current log record as record where the return value instance was created
 						// --> if an object is created within an observed method, it would not be semantically correct
 						//     (and impossible to handle properly) to create an extra instance of the return value type outside this method
-						this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(returnValue),
-						                               currentRecord);
+						log.updateWhereObjectWasInitializedFirst(returnValue, currentRecord);		
+						
 					}
 
 					// consider each passed argument as being modified at the end of the method call sequence
@@ -240,8 +242,7 @@ public class TestCaseCodeGenerator {
 						// there can only be OIDs or null
 						methodArgOID = (Integer) methodArgs[i];
 						if (methodArgOID != null && methodArgOID != oid) {
-							this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(methodArgOID),
-							                               currentRecord);
+							log.updateWhereObjectWasInitializedFirst(methodArgOID, currentRecord);									
 						}
 					}
 				}

@@ -6,8 +6,9 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ObjectWrapperTest {
+public class ObjectWrapperSetTest {
 
+	
 	@Test
 	public void test01(){
 		ObjectWrapper wrapper = new ObjectWrapper();
