@@ -58,7 +58,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
 		final ArrayList<VariableReference> args = getArguments(methodArgs, methodParamTypeClasses);
 		
-		final String typeName = log.oidClassNames.get(log.getRecordIndex(oid));
+		final String typeName = log.getTypeName(oid);
 		Class<?> type;
 		try {
 			type = getClassForName(typeName);
@@ -153,7 +153,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			return;
 		}
 
-		final String type = log.oidClassNames.get(log.getRecordIndex(oid));
+		final String type = log.getTypeName(oid);
 		final Object value = log.params.get(logRecNo)[0];
 
 		if (!(value instanceof Class)) // Class is a plain type according to log
@@ -173,7 +173,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
 		final int oid = log.objectIds.get(logRecNo);
-		final String type = log.oidClassNames.get(log.getRecordIndex(oid));
+		final String type = log.getTypeName(oid);
 
 		try {
 
@@ -218,8 +218,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final int oid = log.objectIds.get(logRecNo);
 		final int captureId = log.captureIds.get(logRecNo);
 
-		final String fieldName = log.namesOfAccessedFields.get(captureId);
-		final String typeName = log.oidClassNames.get(log.getRecordIndex(oid));
+		final String fieldName = log.getNameOfAccessedFields(captureId);
+		final String typeName = log.getTypeName(oid);
 
 		try {
 			final Class<?> type = getClassForName(typeName);
@@ -265,8 +265,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			Integer returnValueOID = (Integer) returnValue;
 			final String descriptor = log.descList.get(logRecNo);
 			final org.objectweb.asm.Type fieldTypeType = org.objectweb.asm.Type.getType(descriptor);
-			final String typeName = log.oidClassNames.get(log.getRecordIndex(oid));
-			final String fieldName = log.namesOfAccessedFields.get(captureId);
+			final String typeName = log.getTypeName(oid);
+			final String fieldName = log.getNameOfAccessedFields(captureId);
 
 			try {
 				final Class<?> fieldType = getClassFromType(fieldTypeType); //Class.forName(fieldTypeName, true, StaticTestCluster.classLoader);
@@ -412,7 +412,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final int oid = log.objectIds.get(logRecNo);
 
 		final Object[] params = log.params.get(logRecNo);
-		final String arrTypeName = log.oidClassNames.get(log.getRecordIndex(oid));
+		final String arrTypeName = log.getTypeName(oid);
 		final Class<?> arrType = getClassForName(arrTypeName);
 
 		// --- create array instance creation e.g. int[] var = new int[10];
@@ -487,7 +487,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		try {
 			final int oid = log.objectIds.get(logRecNo);
 			final Object[] params = log.params.get(logRecNo);
-			String collTypeName = log.oidClassNames.get(log.getRecordIndex(oid));
+			String collTypeName = log.getTypeName(oid);
 			final Class<?> collType = getClassForName(collTypeName);
 
 			// -- determine if an alternative collection must be used for code generation
@@ -550,7 +550,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		try {
 			final int oid = log.objectIds.get(logRecNo);
 			final Object[] params = log.params.get(logRecNo);
-			String collTypeName = log.oidClassNames.get(log.getRecordIndex(oid));
+			String collTypeName = log.getTypeName(oid);
 			Class<?> collType = getClassForName(collTypeName);
 
 			// -- determine if an alternative collection must be used for code generation
