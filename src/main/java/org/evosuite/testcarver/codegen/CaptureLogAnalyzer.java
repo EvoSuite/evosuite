@@ -30,7 +30,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 		HashSet<String> observedClassNames = extracObservedClassNames(observedClasses);
 
-		TIntArrayList targetOIDs = getTargetOIDs(log, observedClassNames);
+		TIntArrayList targetOIDs = log.getTargetOIDs(observedClassNames);
 
 		int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);		
 
@@ -109,20 +109,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		return oidExchange;
 	}
 
-	private TIntArrayList getTargetOIDs(final CaptureLog log,
-			final HashSet<String> observedClassNames) {
-		//--- 2. step: get all oids of the instances of the observed classes
-		//    NOTE: They are implicitly sorted by INIT_REC_NO because of the natural object creation order captured by the 
-		//    instrumentation
-		final TIntArrayList targetOIDs = new TIntArrayList();
-		final int numInfoRecs = log.oidClassNames.size();
-		for(int i = 0; i < numInfoRecs; i++) {
-			if(observedClassNames.contains(log.oidClassNames.get(i))){
-				targetOIDs.add(log.getOID(i));
-			}
-		}
-		return targetOIDs;
-	}
+	
 
 	private HashSet<String> extracObservedClassNames(
 			final Class<?>... observedClasses) {
@@ -135,15 +122,10 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	}
 
 
-	private Class<?> getClassFromOID(final CaptureLog log,  final int oid)
-	{
-		try
-		{
-			final int rec = log.getRecordIndex(oid);
-			return this.getClassForName(log.oidClassNames.get(rec));
-		}
-		catch(final Exception e)
-		{
+	private Class<?> getClassFromOID(final CaptureLog log,  final int oid) {
+		try {
+			return this.getClassForName(log.getTypeName(oid));
+		} catch(final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -289,8 +271,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	@SuppressWarnings({ "rawtypes" })
 	private int[] restorceCodeFromLastPosTo(final CaptureLog log, final ICodeGenerator generator,final int oid, final int end, final Set<Class<?>> blackList){
 
-		final int oidInfoRecNo  = log.getRecordIndex(oid);
-		final int dependencyOID = log.dependencies.getQuick(oidInfoRecNo);
+		final int dependencyOID = log.getDependencyOID(oid);
 
 		// start from last OID modification point
 		int currentRecord = log.getRecordIndexOfWhereObjectWasInitializedFirst(oid);
