@@ -55,31 +55,14 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final Object[] methodArgs = log.params.get(logRecNo);
 		final String methodName = log.methodNames.get(logRecNo);
 
-		final String methodDesc = log.descList.get(logRecNo);
-		final org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
-
-		final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
-		for (int i = 0; i < methodParamTypes.length; i++) {
-			methodParamTypeClasses[i] = getClassFromType(methodParamTypes[i]);
-		}
-
-		final String typeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(log, logRecNo);
+		final ArrayList<VariableReference> args = getArguments(methodArgs, methodParamTypeClasses);
+		
+		final String typeName = log.getTypeName(oid);
 		Class<?> type;
 		try {
 			type = getClassForName(typeName);
-			final ArrayList<VariableReference> args = new ArrayList<VariableReference>();
-
-			Integer argOID; // is either an oid or null
-			for (int i = 0; i < methodArgs.length; i++) {
-				argOID = (Integer) methodArgs[i];
-				if (argOID == null) {
-					args.add(testCase.addStatement(new NullStatement(testCase,
-					        methodParamTypeClasses[i])));
-				} else {
-					args.add(this.oidToVarRefMap.get(argOID));
-				}
-			}
-
+			
 			if (CaptureLog.OBSERVED_INIT.equals(methodName)) {
 				// Person var0 = new Person();
 
@@ -90,19 +73,20 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				        args);
 
 				this.oidToVarRefMap.put(oid, testCase.addStatement(constStmt));
-			} else //------------------ handling for ordinary method calls e.g. var1 = var0.doSth();
-			{
+			} else  {
+				//------------------ handling for ordinary method calls e.g. var1 = var0.doSth();
 				final Object returnValue = log.returnValues.get(logRecNo);
+				
 				if (CaptureLog.RETURN_TYPE_VOID.equals(returnValue)) {
-					final MethodStatement m = new MethodStatement(
+					
+					GenericMethod geneticMethod = new GenericMethod(this.getDeclaredMethod(type, methodName,methodParamTypeClasses),type);
+					
+					MethodStatement m = new MethodStatement(
 					        testCase,
-					        new GenericMethod(
-					                this.getDeclaredMethod(type, methodName,
-					                                       methodParamTypeClasses),
-					                type),
+					        geneticMethod,
 					        this.oidToVarRefMap.get(oid),
-
 					        args);
+					
 					testCase.addStatement(m);
 				} else {
 					// final org.objectweb.asm.Type returnType = org.objectweb.asm.Type.getReturnType(methodDesc);
@@ -124,6 +108,39 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		}
 	}
 
+	private Class<?>[] getMethodParamTypeClasses(CaptureLog log, int logRecNo) {
+		final String methodDesc = log.descList.get(logRecNo);
+		final org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
+
+		final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
+		for (int i = 0; i < methodParamTypes.length; i++) {
+			methodParamTypeClasses[i] = getClassFromType(methodParamTypes[i]);
+		}
+		return methodParamTypeClasses;
+	}
+
+	
+	private ArrayList<VariableReference> getArguments(
+			final Object[] methodArgs, final Class<?>[] methodParamTypeClasses) throws IllegalArgumentException{
+		
+		ArrayList<VariableReference> args = new ArrayList<VariableReference>();
+
+		Integer argOID; // is either an oid or null
+		for (int i = 0; i < methodArgs.length; i++) {
+			argOID = (Integer) methodArgs[i];
+			if (argOID == null) {
+				args.add(testCase.addStatement(new NullStatement(testCase, methodParamTypeClasses[i])));
+			} else {
+				VariableReference ref = this.oidToVarRefMap.get(argOID);
+				if(ref == null){
+					
+				}
+				args.add(ref);
+			}
+		}
+		return args;
+	}
+
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public void createPlainInitStmt(CaptureLog log, int logRecNo) {
@@ -136,7 +153,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			return;
 		}
 
-		final String type = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final String type = log.getTypeName(oid);
 		final Object value = log.params.get(logRecNo)[0];
 
 		if (!(value instanceof Class)) // Class is a plain type according to log
@@ -156,7 +173,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
 		final int oid = log.objectIds.get(logRecNo);
-		final String type = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final String type = log.getTypeName(oid);
 
 		try {
 
@@ -201,8 +218,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final int oid = log.objectIds.get(logRecNo);
 		final int captureId = log.captureIds.get(logRecNo);
 
-		final String fieldName = log.namesOfAccessedFields.get(captureId);
-		final String typeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final String fieldName = log.getNameOfAccessedFields(captureId);
+		final String typeName = log.getTypeName(oid);
 
 		try {
 			final Class<?> type = getClassForName(typeName);
@@ -248,8 +265,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			Integer returnValueOID = (Integer) returnValue;
 			final String descriptor = log.descList.get(logRecNo);
 			final org.objectweb.asm.Type fieldTypeType = org.objectweb.asm.Type.getType(descriptor);
-			final String typeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
-			final String fieldName = log.namesOfAccessedFields.get(captureId);
+			final String typeName = log.getTypeName(oid);
+			final String fieldName = log.getNameOfAccessedFields(captureId);
 
 			try {
 				final Class<?> fieldType = getClassFromType(fieldTypeType); //Class.forName(fieldTypeName, true, StaticTestCluster.classLoader);
@@ -395,7 +412,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final int oid = log.objectIds.get(logRecNo);
 
 		final Object[] params = log.params.get(logRecNo);
-		final String arrTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+		final String arrTypeName = log.getTypeName(oid);
 		final Class<?> arrType = getClassForName(arrTypeName);
 
 		// --- create array instance creation e.g. int[] var = new int[10];
@@ -470,7 +487,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		try {
 			final int oid = log.objectIds.get(logRecNo);
 			final Object[] params = log.params.get(logRecNo);
-			String collTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+			String collTypeName = log.getTypeName(oid);
 			final Class<?> collType = getClassForName(collTypeName);
 
 			// -- determine if an alternative collection must be used for code generation
@@ -500,13 +517,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			// --- fill collection
 
-			final String methodDesc = log.descList.get(logRecNo);
-			final org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
-
-			final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
-			for (int i = 0; i < methodParamTypes.length; i++) {
-				methodParamTypeClasses[i] = getClassFromType(methodParamTypes[i]);
-			}
+			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(
+					log, logRecNo);
 
 			MethodStatement methodStmt;
 			VariableReference valueRef;
@@ -538,7 +550,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		try {
 			final int oid = log.objectIds.get(logRecNo);
 			final Object[] params = log.params.get(logRecNo);
-			String collTypeName = log.oidClassNames.get(log.oidRecMapping.get(oid));
+			String collTypeName = log.getTypeName(oid);
 			Class<?> collType = getClassForName(collTypeName);
 
 			// -- determine if an alternative collection must be used for code generation
@@ -559,13 +571,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			// --- fill collection
 
-			final String methodDesc = log.descList.get(logRecNo);
-			final org.objectweb.asm.Type[] methodParamTypes = org.objectweb.asm.Type.getArgumentTypes(methodDesc);
-
-			final Class<?>[] methodParamTypeClasses = new Class[methodParamTypes.length];
-			for (int i = 0; i < methodParamTypes.length; i++) {
-				methodParamTypeClasses[i] = getClassFromType(methodParamTypes[i]);
-			}
+			final Class<?>[] methodParamTypeClasses = getMethodParamTypeClasses(
+					log, logRecNo);
 
 			MethodStatement methodStmt;
 			Integer argOID; // is either an oid or null

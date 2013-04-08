@@ -63,35 +63,18 @@ public class MethodStatement extends AbstractStatement {
 	 *            a {@link java.util.List} object.
 	 */
 	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
-	        List<VariableReference> parameters) {
+	        List<VariableReference> parameters) throws IllegalArgumentException{
 		super(tc, method.getReturnType());
-		assert (method.isStatic() || callee != null);
-		assert (parameters != null);
-		assert (method.getParameterTypes().length == parameters.size()) : method.getParameterTypes().length
-		        + " != " + parameters.size();
-		this.method = method;
-		if (isStatic())
-			this.callee = null;
-		else
-			this.callee = callee;
-		this.parameters = parameters;
-	}
-	
-	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
-	        List<VariableReference> parameters, VariableReference retVal) {
-		this(tc, method, callee, parameters);
-		this.retval = retVal;
+		
+		init(method, callee, parameters);
 	}
 
-	/**
-	 * <p>
-	 * Getter for the field <code>parameters</code>.
-	 * </p>
-	 * 
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<VariableReference> getParameters() {
-		return this.parameters;
+
+	
+	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
+	        List<VariableReference> parameters, VariableReference retVal) throws IllegalArgumentException{
+		this(tc, method, callee, parameters);
+		this.retval = retVal;
 	}
 
 	/**
@@ -114,16 +97,53 @@ public class MethodStatement extends AbstractStatement {
 	public MethodStatement(TestCase tc, GenericMethod method, VariableReference callee,
 	        VariableReference retvar, List<VariableReference> parameters) {
 		super(tc, retvar);
-		assert (tc.size() > retvar.getStPosition()); //as an old statement should be replaced by this statement
-		assert (method.isStatic() || callee != null);
-		assert (parameters != null);
-		assert (method.getParameterTypes().length == parameters.size());
+		
+		if(retvar.getStPosition() >= tc.size()){
+			//as an old statement should be replaced by this statement
+			throw new IllegalArgumentException("Cannot replace in position "+retvar.getStPosition()+" when the test case has only "+tc.size()+" elements");
+		}
+		
+		init(method, callee, parameters);
+	}
+
+	
+	private void init(GenericMethod method, VariableReference callee,
+			List<VariableReference> parameters) throws IllegalArgumentException {
+		if(callee==null && !method.isStatic()){
+			throw new IllegalArgumentException("A null callee cannot call a non-static method");
+		}
+		if(parameters == null){
+			throw new IllegalArgumentException("Parameter list cannot be null");
+		}
+		for(VariableReference var : parameters){
+			if(var==null){
+				//recall that 'null' would be mapped to a NullReference
+				throw new IllegalArgumentException("Parameter list cannot have null parameters (this is different from a NullReference)");
+			}
+		}
+		if(method.getParameterTypes().length != parameters.size()){
+			throw new IllegalArgumentException("Parameters list mismatch from the types declared in the method: " + 
+					method.getParameterTypes().length + " != " + parameters.size());
+		}
+
 		this.method = method;
 		if (isStatic())
 			this.callee = null;
 		else
 			this.callee = callee;
 		this.parameters = parameters;
+	}
+	
+	
+	/**
+	 * <p>
+	 * Getter for the field <code>parameters</code>.
+	 * </p>
+	 * 
+	 * @return a {@link java.util.List} object.
+	 */
+	public List<VariableReference> getParameters() {
+		return this.parameters;
 	}
 
 	/**
@@ -254,8 +274,7 @@ public class MethodStatement extends AbstractStatement {
 					} catch (CodeUnderTestException e) {
 						throw e;
 						// throw CodeUnderTestException.throwException(e);
-					} catch (Throwable e) {
-						e.printStackTrace();
+					} catch (Throwable e) {						
 						throw new EvosuiteError(e);
 					}
 				}
@@ -270,13 +289,8 @@ public class MethodStatement extends AbstractStatement {
 
 		} catch (InvocationTargetException e) {
 			exceptionThrown = e.getCause();
-			//System.setOut(old_out);
-			//System.setErr(old_err);
 			logger.debug("Exception thrown in method {}: {}", method.getName(),
 			             exceptionThrown);
-			//} finally {
-			//	System.setOut(old_out);
-			//	System.setErr(old_err);
 		}
 		return exceptionThrown;
 	}

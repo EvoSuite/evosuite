@@ -214,7 +214,8 @@ public class CodeGenerator
 					currentRecord = findEndOfMethod(currentRecord, currentOID);
 					
 					// each method call is considered as object state modification -> so save last object modification
-					this.log.oidInitRecNo.setQuick(this.log.oidRecMapping.get(currentOID), currentRecord);
+					log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);		
+					
 				}
 			}		
 			
@@ -281,15 +282,16 @@ public class CodeGenerator
 	}
 	
 	
-    private void updateInitRec(final int currentOID, final int currentRecord)
-    {
-    	final int infoRec = this.log.oidRecMapping.get(currentOID); 
-    	if(currentRecord > this.log.oidInitRecNo.getQuick(infoRec))
-    	{
-    		this.log.oidInitRecNo.setQuick(infoRec, currentRecord);
-    	}
-    }
-	
+	private void updateInitRec(final int currentOID, final int currentRecord)
+	{
+		
+		if(currentRecord > log.getRecordIndexOfWhereObjectWasInitializedFirst(currentOID))
+		{
+			log.updateWhereObjectWasInitializedFirst(currentOID, currentRecord);		
+
+		}
+	}
+
     
     private int findEndOfMethod(final int currentRecord, final int currentOID)
     {
@@ -312,7 +314,8 @@ public class CodeGenerator
 		final int oidInfoRecNo = this.log.oidRecMapping.get(oid);
 		
 		// start from last OID modification point
-		int currentRecord = this.log.oidInitRecNo.get(oidInfoRecNo);
+		
+		int currentRecord = log.getRecordIndexOfWhereObjectWasInitializedFirst(oid);
 		if(currentRecord > 0)
 		{
 			// last modification of object happened here
