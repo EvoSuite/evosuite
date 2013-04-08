@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.AnnotationNode;
 import org.objectweb.asm.tree.ClassNode;
@@ -134,8 +135,7 @@ public class DetermineSUT {
 		if(isJUnitTest(sutNode)) {
 			return false;
 		}
-
-
+		
 		return true;
 	}
 
@@ -156,6 +156,10 @@ public class DetermineSUT {
 	
 	@SuppressWarnings("unchecked")
 	private boolean isJUnitTest(ClassNode cn) throws IOException {
+		// We do not consider abstract classes
+		if((cn.access & Opcodes.ACC_ABSTRACT) == Opcodes.ACC_ABSTRACT)
+			return false;
+		
 		if(hasJUnitSuperclass(cn))
 			return true;
 		
