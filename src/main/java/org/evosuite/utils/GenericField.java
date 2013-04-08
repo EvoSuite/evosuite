@@ -51,8 +51,11 @@ public class GenericField extends GenericAccessibleObject {
 		GenericClass newOwner = new GenericClass(getTypeFromExactReturnType(returnType, (ParameterizedType)getOwnerType()));
 		return new GenericField(field, newOwner);
 	}
-	
 
+	@Override
+	public GenericAccessibleObject copy() {
+		return new GenericField(field, new GenericClass(owner));
+	}
 	
 	public Field getField() {
 		return field;

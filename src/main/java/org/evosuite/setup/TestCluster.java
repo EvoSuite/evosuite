@@ -433,10 +433,15 @@ public class TestCluster {
 								.getWithParameterTypes(actualParameters);
 						for (GenericAccessibleObject modifier : entry
 								.getValue()) {
-							if(modifier.getOwnerClass().getNumParameters() == 0) {
-								logger.debug("Owner class has no parameters, so we can only assume it would work");
+							if(!modifier.getOwnerClass().isParameterizedType()) {
+								logger.debug("Owner class has no parameters, so we can only assume it would work: "+modifier);
 								genericModifiers.add(modifier);
 							} else {
+								// TODO: FIXXME
+								if(modifier.getOwnerClass().getNumParameters() == 0) {
+									logger.info("Skipping potentially problematic case of parameterized type without parameters (owner likely has types)");
+									continue;
+								}
 								GenericAccessibleObject newModifier = modifier.copyWithOwnerFromReturnType((ParameterizedType)newOwner.getType());
 								if(newModifier.getOwnerClass().hasWildcardOrTypeVariables()) {
 									GenericClass concreteClass = getGenericInstantiation(newModifier.getOwnerClass());
@@ -720,6 +725,16 @@ public class TestCluster {
 		
 		return clazz.getWithParameterTypes(parameterTypes);
 	}
+	
+	public GenericAccessibleObject getGenericInstantiation(GenericAccessibleObject accessibleObject) {
+		GenericAccessibleObject copy = accessibleObject.copy();
+		for(TypeVariable<?> parameter : accessibleObject.getTypeParameters()) {
+			GenericClass concreteType = getRandomCastClass(parameter, 0);
+			copy.setTypeParameter(parameter, concreteType);
+		}
+		
+		return copy;
+	}
 
 	/**
 	 * Retrieve all classes that match the given postfix
@@ -852,7 +867,11 @@ public class TestCluster {
 			return Randomness.choice(getGeneratorsForSpecialCase(clazz));
 		}
 
-		return Randomness.choice(generatorCache.get(clazz));
+		GenericAccessibleObject generator = Randomness.choice(generatorCache.get(clazz));
+		if(generator.hasTypeParameters()) {
+			
+		}
+		return generator;
 	}
 
 	/**

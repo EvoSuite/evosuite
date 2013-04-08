@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
@@ -28,6 +28,8 @@ public abstract class GenericAccessibleObject implements Serializable {
 	protected static final Logger logger = LoggerFactory.getLogger(GenericConstructor.class);
 
 	protected GenericClass owner;
+	
+	protected Map<TypeVariable<?>, GenericClass> typeVariables = new HashMap<TypeVariable<?>, GenericClass>();
 
 	public GenericAccessibleObject(GenericClass owner) {
 		this.owner = owner;
@@ -44,6 +46,8 @@ public abstract class GenericAccessibleObject implements Serializable {
 	public abstract GenericAccessibleObject copyWithNewOwner(GenericClass newOwner);
 	
 	public abstract GenericAccessibleObject copyWithOwnerFromReturnType(ParameterizedType returnType);
+	
+	public abstract GenericAccessibleObject copy();
 	
 	public abstract Class<?> getDeclaringClass();
 
@@ -86,7 +90,7 @@ public abstract class GenericAccessibleObject implements Serializable {
 	 *            type arguments, or it's a raw type) Class
 	 * @return toMapType, but with type parameters from typeAndParams replaced.
 	 */
-	protected static Type mapTypeParameters(Type toMapType, Type typeAndParams) {
+	protected Type mapTypeParameters(Type toMapType, Type typeAndParams) {
 		if (isMissingTypeParameters(typeAndParams)) {
 			logger.debug("Is missing type parameters, so erasing types");
 			return GenericTypeReflector.erase(toMapType);
@@ -99,6 +103,7 @@ public abstract class GenericAccessibleObject implements Serializable {
 				varMap.addAll(clazz.getTypeParameters(), pType.getActualTypeArguments());
 				handlingTypeAndParams = pType.getOwnerType();
 			}
+			varMap.addAll(typeVariables);
 			return varMap.map(toMapType);
 		}
 	}
@@ -156,5 +161,17 @@ public abstract class GenericAccessibleObject implements Serializable {
     	}
     	
     	return new ParameterizedTypeImpl((Class<?>)type.getRawType(), actualParameters, null);
+    }
+    
+    public TypeVariable<?>[] getTypeParameters() {
+    	return new TypeVariable<?>[] {};
+    }
+    
+    public void setTypeParameter(TypeVariable<?> variable, GenericClass type) {
+    	typeVariables.put(variable, type);
+    }
+    
+    public boolean hasTypeParameters() {
+    	return getTypeParameters().length != 0;
     }
 }
