@@ -173,13 +173,10 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		// NOTE: PLAIN INIT: has always one non-null param
 		// TODO: use primitives
 		final int oid = log.objectIds.get(logRecNo);
-		final String type = log.getTypeName(oid);
 
 		try {
 
 			final Class<?> xStreamType = getClassForName("com.thoughtworks.xstream.XStream");//Class.forName("com.thoughtworks.xstream.XStream", true, StaticTestCluster.classLoader);
-
-			final Class<?> typeClass = getClassForName(type);//Class.forName(type, true, StaticTestCluster.classLoader);
 
 			final Object value = log.params.get(logRecNo)[0];
 
@@ -471,17 +468,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		return false;
 	}
 
-	private Class<?> getTypeFromArrayElements(final Object[] params) {
-		for (Object o : params) {
-			if (o != null) {
-				return o.getClass();
-			}
-		}
 
-		return Object.class;
-	}
-
-	@SuppressWarnings("unchecked")
 	@Override
 	public void createCollectionInitStmt(final CaptureLog log, final int logRecNo) {
 		try {
@@ -521,7 +508,6 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 					log, logRecNo);
 
 			MethodStatement methodStmt;
-			VariableReference valueRef;
 			Integer argOID; // is either an oid or null
 			ArrayList<VariableReference> paramList;
 			Method method;
