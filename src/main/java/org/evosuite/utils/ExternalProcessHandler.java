@@ -357,6 +357,9 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
+						if(MasterServices.getInstance().getMasterNode() == null)
+							return;
+
 						boolean finished = true;
 						for(ClientState state : MasterServices.getInstance().getMasterNode().getCurrentState())  {
 							if(state != ClientState.DONE) {
@@ -394,6 +397,9 @@ public class ExternalProcessHandler {
 						}
 
 					} catch (Exception e) {
+						if(MasterServices.getInstance().getMasterNode() == null)
+							return;
+						
 						boolean finished = true;
 						for(ClientState state : MasterServices.getInstance().getMasterNode().getCurrentState())  {
 							if(state != ClientState.DONE) {
