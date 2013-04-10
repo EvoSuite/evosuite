@@ -10,8 +10,10 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
@@ -48,6 +50,16 @@ public final class CaptureLog implements Cloneable {
 
 	public static final Object RETURN_TYPE_VOID = CaptureLog.class.getName() + ".RETURN_VOID";
 
+	private static final Set<String>  NOT_OBSERVED_INIT_METHODS = Collections.synchronizedSet(new HashSet<String>());
+	static
+	{
+		NOT_OBSERVED_INIT_METHODS.add(NOT_OBSERVED_INIT);
+		NOT_OBSERVED_INIT_METHODS.add(COLLECTION_INIT);
+		NOT_OBSERVED_INIT_METHODS.add(MAP_INIT);
+		NOT_OBSERVED_INIT_METHODS.add(ARRAY_INIT);
+	}
+	
+	
 	//=============   local, object fields ===================================================
 
 	/*
@@ -180,7 +192,7 @@ public final class CaptureLog implements Cloneable {
 		if(!oidRecMapping.contains(oid)){
 			throw new IllegalArgumentException("OID "+oid+" is not recognized");
 		}
-		
+
 		int pos = oidRecMapping.get(oid);
 		return oidInitRecNo.get(pos);
 	}
@@ -339,10 +351,9 @@ public final class CaptureLog implements Cloneable {
 			final int firstInitRecNo = this.oidFirstInits.get(this.oidRecMapping.get(returnValueOID));
 
 			// was an accessible constructor call belonging to this object logged before?
-			boolean conditionA = ! this.oidRecMapping.containsKey(returnValueOID);
-			
-			boolean conditionB = (! methodNames.get(firstInitRecNo).equals(OBSERVED_INIT) )&&
-							(! methodNames.get(firstInitRecNo).equals(NOT_OBSERVED_INIT) ) &&
+			final boolean conditionA = ! this.oidRecMapping.containsKey(returnValueOID);
+			final boolean conditionB = (! methodNames.get(firstInitRecNo).equals(OBSERVED_INIT) )&&
+							(!    NOT_OBSERVED_INIT_METHODS.contains(methodNames.get(firstInitRecNo)) ) &&
 								RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo));
 			
 			if(conditionA || conditionB){
@@ -374,7 +385,8 @@ public final class CaptureLog implements Cloneable {
 						final int initRecNo = getRecordIndexOfWhereObjectWasInitializedFirst(returnValueOID);
 						final String method = this.methodNames.get(Math.abs(initRecNo));
 
-						if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT.equals(method)){
+						if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT_METHODS.contains(method))
+						{
 							this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
 							updateWhereObjectWasInitializedFirst(returnValueOID, -currentRecord);							
 							this.oidFirstInits.set(infoRecNo, currentRecord);
@@ -565,7 +577,7 @@ public final class CaptureLog implements Cloneable {
 		final boolean isMap        = param instanceof Map;
 		final boolean isCollection = param instanceof Collection;
 
-		if(this.updateInfoTable(paramOID, param, false) || isArray || isMap || isCollection) {
+		if(isArray || isMap || isCollection || this.updateInfoTable(paramOID, param, false)) {
 
 			if(isPlain(param) || param instanceof Class) {
 				this.objectIds.add(paramOID);

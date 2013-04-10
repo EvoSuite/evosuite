@@ -94,6 +94,6 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		TestChromosome carved = factory.getChromosome();
 		
 		Assert.assertNotNull(carved);
-		Assert.assertEquals("", 6, carved.test.size());
+		Assert.assertEquals("", 13, carved.test.size());
 	}
 }
