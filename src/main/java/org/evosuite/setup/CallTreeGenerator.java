@@ -120,7 +120,8 @@ public class CallTreeGenerator {
 	}
 
 	@SuppressWarnings("unchecked")
-	public static void handle(CallTree callTree, ClassNode targetClass, String methodName, int depth) {
+	public static void handle(CallTree callTree, ClassNode targetClass,
+	        String methodName, int depth) {
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			if (methodName.equals(mn.name + mn.desc))
@@ -128,14 +129,15 @@ public class CallTreeGenerator {
 		}
 	}
 
-	public static void handle(CallTree callTree, String className, String methodName, int depth) {
+	public static void handle(CallTree callTree, String className, String methodName,
+	        int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
 			return;
 
 		handle(callTree, cn, methodName, depth);
 	}
-	
+
 	public static Set<Type> castClasses = new HashSet<Type>();
 
 	public static Map<Type, Integer> castClassMap = new HashMap<Type, Integer>();
@@ -147,20 +149,25 @@ public class CallTreeGenerator {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	public static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn, int depth) {
+	public static void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn,
+	        int depth) {
 		handlePublicMethodNode(callTree, cn, mn);
 
 		if (mn.signature != null) {
 			logger.debug("Visiting signature: " + mn.signature);
-			CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor();
+			CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor(
+			        cn.name);
 			new SignatureReader(mn.signature).accept(visitor);
 			castClasses.addAll(visitor.getClasses());
-			for(Type castType : visitor.getClasses()) {
-				if(!castClassMap.containsKey(castType))
+			for (Type castType : visitor.getClasses()) {
+				if (!castClassMap.containsKey(castType)) {
+					logger.debug("Adding new cast class from signature visitor: "
+					        + castType);
 					castClassMap.put(castType, depth);
+				}
 			}
 		}
-		
+
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
 
@@ -168,15 +175,15 @@ public class CallTreeGenerator {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
 				handleMethodInsnNode(callTree, cn, mn, (MethodInsnNode) insn, depth + 1);
-			}
-			else if (insn.getOpcode() == Opcodes.CHECKCAST) {
+			} else if (insn.getOpcode() == Opcodes.CHECKCAST) {
 				TypeInsnNode typeNode = (TypeInsnNode) insn;
 				Type castType = Type.getObjectType(typeNode.desc);
 				while (castType.getSort() == Type.ARRAY) {
 					castType = castType.getElementType();
 				}
+				logger.debug("Adding new cast class from cast: " + castType);
 				castClasses.add(castType);
-				if(!castClassMap.containsKey(castType))
+				if (!castClassMap.containsKey(castType))
 					castClassMap.put(castType, depth);
 			} else if (insn.getOpcode() == Opcodes.INSTANCEOF) {
 				TypeInsnNode typeNode = (TypeInsnNode) insn;
@@ -184,7 +191,8 @@ public class CallTreeGenerator {
 				while (castType.getSort() == Type.ARRAY) {
 					castType = castType.getElementType();
 				}
-				if(!castClassMap.containsKey(castType))
+				logger.debug("Adding new cast class from instanceof: " + castType);
+				if (!castClassMap.containsKey(castType))
 					castClassMap.put(castType, depth);
 				castClasses.add(castType);
 			}
@@ -219,7 +227,8 @@ public class CallTreeGenerator {
 				callTree.addCall(cn.name, mn.name + mn.desc, methodCall.owner,
 				                 methodCall.name + methodCall.desc);
 
-				handle(callTree, methodCall.owner, methodCall.name + methodCall.desc, depth);
+				handle(callTree, methodCall.owner, methodCall.name + methodCall.desc,
+				       depth);
 			}
 		}
 	}
