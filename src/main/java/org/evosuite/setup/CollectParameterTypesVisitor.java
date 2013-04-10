@@ -22,8 +22,10 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 
 	private final Set<Type> classes = new LinkedHashSet<Type>();
 
+	private final String className;
+
 	private boolean topLevel = true;
-	
+
 	public Set<Type> getClasses() {
 		return classes;
 	}
@@ -31,8 +33,10 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	/**
 	 * @param api
 	 */
-	public CollectParameterTypesVisitor() {
+	public CollectParameterTypesVisitor(String className) {
 		super(Opcodes.ASM4);
+		this.className = className;
+		logger.debug("Target class name: " + className);
 	}
 
 	@Override
@@ -49,6 +53,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	@Override
 	public SignatureVisitor visitInterfaceBound() {
 		logger.debug("  visitInterfaceBound()");
+		topLevel = false;
 		return this;
 	}
 
@@ -78,11 +83,11 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	public void visitClassType(String name) {
 		logger.debug("  visitClassType(" + name + ")");
 
-		if(topLevel)
+		if (topLevel)
 			topLevel = false;
-		else
+		else if (!name.equals(className))
 			classes.add(Type.getObjectType(name));
-		
+
 		super.visitClassType(name);
 	}
 
