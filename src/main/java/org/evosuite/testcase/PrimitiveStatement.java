@@ -103,6 +103,10 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		this.value = val;
 	}
 
+	public boolean hasMoreThanOneValue() {
+		return true;
+	}
+
 	/**
 	 * Generate a primitive statement for given type initialized with default
 	 * value (0)
@@ -359,10 +363,15 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public boolean mutate(TestCase test, TestFactory factory) {
+		if (!hasMoreThanOneValue())
+			return false;
+
 		T oldVal = value;
 
 		while (value == oldVal && value != null) {
 			if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
+				// When using TT, then an integer may represent a boolean,
+				// and we would lose "negation" as a mutation 
 				if (Properties.TT && getClass().equals(IntPrimitiveStatement.class)) {
 					if (Randomness.nextDouble() <= Properties.RANDOM_PERTURBATION) {
 						// mutateTransformedBoolean(test);
