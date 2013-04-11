@@ -48,7 +48,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/**
 	 * The value
 	 */
-	T value;
+	protected T value;
 
 	/**
 	 * <p>
@@ -144,6 +144,9 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			// TODO: Ensure that files were accessed in the first place
 			statement = new FileNamePrimitiveStatement(tc, new EvoSuiteFile(
 			        Randomness.choice(tc.getAccessedFiles())));
+		} else if(clazz.equals(Class.class)) {
+			statement = new ClassPrimitiveStatement(tc);
+			
 		} else {
 			throw new RuntimeException("Getting unknown type: " + clazz + " / "
 			        + clazz.getClass());
@@ -164,8 +167,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 *            a int.
 	 * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
-	public static PrimitiveStatement<?> getRandomStatement(TestCase tc, Type type,
-	        int position, Type clazz) {
+	public static PrimitiveStatement<?> getRandomStatement(TestCase tc, Class<?> clazz,
+	        int position) {
 
 		PrimitiveStatement<?> statement = getPrimitiveStatement(tc, clazz);
 		statement.randomize();
@@ -178,7 +181,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
-		                                                                            retval.getType());
+		                                                                            retval.getVariableClass());
 		clone.setValue(value);
 		// clone.assertions = copyAssertions(newTestCase, offset);
 		return clone;

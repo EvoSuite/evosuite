@@ -6,6 +6,7 @@ package org.evosuite.primitives;
 import org.evosuite.Properties;
 import org.evosuite.utils.DefaultRandomAccessQueue;
 import org.evosuite.utils.RandomAccessQueue;
+import org.objectweb.asm.Type;
 
 /**
  * @author Gordon Fraser
@@ -14,6 +15,8 @@ import org.evosuite.utils.RandomAccessQueue;
 public class DynamicConstantPool implements ConstantPool {
 
 	private final RandomAccessQueue<String> stringPool = new DefaultRandomAccessQueue<String>();
+
+	private final RandomAccessQueue<Type> typePool = new DefaultRandomAccessQueue<Type>();
 
 	private final RandomAccessQueue<Integer> intPool = new DefaultRandomAccessQueue<Integer>();
 
@@ -27,8 +30,8 @@ public class DynamicConstantPool implements ConstantPool {
 		/*
 		 * all pools HAVE to be non-empty 
 		 */
-
 		stringPool.restrictedAdd("");
+		typePool.restrictedAdd(Type.getObjectType(Properties.TARGET_CLASS));
 		intPool.restrictedAdd(0);
 		longPool.restrictedAdd(0L);
 		floatPool.restrictedAdd(0.0f);
@@ -41,6 +44,11 @@ public class DynamicConstantPool implements ConstantPool {
 	@Override
 	public String getRandomString() {
 		return stringPool.getRandomValue();
+	}
+	
+	@Override
+	public Type getRandomType() {
+		return typePool.getRandomValue();
 	}
 
 	/* (non-Javadoc)
@@ -86,7 +94,10 @@ public class DynamicConstantPool implements ConstantPool {
 
 		if (object instanceof String) {
 			stringPool.restrictedAdd((String) object);
+		} else if(object instanceof Type) {
+			typePool.restrictedAdd((Type)object);
 		}
+
 
 		else if (object instanceof Integer) {
 			if (Properties.RESTRICT_POOL) {

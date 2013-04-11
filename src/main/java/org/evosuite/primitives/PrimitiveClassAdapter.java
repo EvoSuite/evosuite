@@ -22,6 +22,7 @@ import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 
 /**
  * <p>
@@ -67,6 +68,7 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 		if (!"serialVersionUID".equals(name)) {
 			if (DependencyAnalysis.isTargetClassName(className)) {
 				poolManager.addSUTConstant(value);
+				poolManager.addSUTConstant(Type.getType(desc));
 			} else {
 				poolManager.addNonSUTConstant(value);
 			}
@@ -96,6 +98,11 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 			mv = new StringReplacementMethodAdapter(methodAccess, descriptor, mv);
 		}
 		*/
+		if (DependencyAnalysis.isTargetClassName(className)) {
+			for(Type argumentType : Type.getArgumentTypes(descriptor)) {
+				poolManager.addSUTConstant(argumentType);
+			}
+		}
 		mv = new PrimitivePoolMethodAdapter(mv, className);
 
 		return mv;
