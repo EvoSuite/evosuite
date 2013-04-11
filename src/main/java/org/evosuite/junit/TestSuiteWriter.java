@@ -811,20 +811,24 @@ public class TestSuiteWriter implements Opcodes {
 	 * @param directory
 	 *            Output directory
 	 */
-	public void writeTestSuite(String name, String directory) {
+	public List<File> writeTestSuite(String name, String directory) {
+		List<File> generated = new ArrayList<File>();
 		String dir = makeDirectory(directory);
 
 		if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
 			File file = new File(dir + "/" + name + ".java");
 			executor.newObservers();
 			Utils.writeFile(getUnitTest(name), file);
+			generated.add(file);
 		} else {
 			for (int i = 0; i < testCases.size(); i++) {
 				File file = new File(dir + "/" + name + "_" + i + ".java");
 				executor.newObservers();
 				Utils.writeFile(getUnitTest(name, i), file);
+				generated.add(file);
 			}
 		}
+		return generated;
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,
