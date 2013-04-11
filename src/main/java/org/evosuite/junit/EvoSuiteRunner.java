@@ -44,11 +44,9 @@ public class EvoSuiteRunner extends BlockJUnit4ClassRunner {
 	
 	private static Class<?> getFromEvoSuiteClassloader(Class<?> clazz) throws InitializationError {
 	    try {
-	    	// TODO: Is the default configuration at runtime any different? 
-	    	Properties.REPLACE_CALLS = true;
-
-	    	// TODO: Do we need to know the target class or not?
-	    	//Properties.TARGET_CLASS = TimeOperation.class.getName();
+	    	/*
+	    	 *  properties like REPLACE_CALLS will be set directly in the JUnit files
+	    	 */
 
 	    	setLogLevel();
 	    	InstrumentingClassLoader classLoader = new InstrumentingClassLoader();
