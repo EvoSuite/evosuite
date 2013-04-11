@@ -18,6 +18,7 @@
 package org.evosuite.coverage.dataflow;
 
 import org.evosuite.graphs.cfg.BytecodeInstruction;
+import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,17 +31,22 @@ public class DefUse extends BytecodeInstruction {
 
 	private static final long serialVersionUID = -2643584238269671760L;
 
-	private static Logger logger = LoggerFactory.getLogger(DefUse.class);
+	private final static Logger logger = LoggerFactory.getLogger(DefUse.class);
 
-	int defuseId;
-	int defId;
-	int useId;
-	boolean isParameterUse;
-	boolean isFieldMethodCall;
-	boolean isFieldMethodCallDefinition;
-	boolean isFieldMethodCallUse;
+	protected int defuseId;
+	protected int defId;
+	protected int useId;
+	protected boolean isParameterUse;
+	protected boolean isFieldMethodCall;
+	protected boolean isFieldMethodCallDefinition;
+	protected boolean isFieldMethodCallUse;
 
-	String varName;
+	// We store this information locally to avoid that toString tries to access
+	// the CFG, which would make the DefUse node dependent on the current state
+	// of EvoSuite
+	protected boolean isInStaticMethod;
+
+	protected String varName;
 
 	/**
 	 * <p>
@@ -89,6 +95,8 @@ public class DefUse extends BytecodeInstruction {
 		if (this.varName == null)
 			throw new IllegalStateException(
 			        "expect defUses to have non-null varaible names");
+
+		this.isInStaticMethod = getRawCFG().isStaticMethod();
 	}
 
 	@Override
@@ -249,6 +257,24 @@ public class DefUse extends BytecodeInstruction {
 			        + (getControlDependentBranchExpressionValue() ? "t" : "f"));
 		r.append(" Line " + getLineNumber());
 		return r.toString();
+	}
+
+	/**
+	 * Determines whether this is the special ALOAD that pushes 'this' onto the
+	 * stack
+	 * 
+	 * In non static methods the variable slot 0 holds the reference to "this".
+	 * Loading this reference is not seen as a Use for defuse purposes. This
+	 * method checks if this is the case
+	 * 
+	 * @return a boolean.
+	 */
+	@Override
+	public boolean loadsReferenceToThis() {
+		if (isInStaticMethod)
+			return false;
+
+		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
 	}
 
 	/* (non-Javadoc)

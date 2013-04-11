@@ -66,6 +66,7 @@ public class TestGenerationContext {
 
 		// TODO: Clear only pool of current classloader?
 		GraphPool.clearAll();
+		DefUsePool.clear();
 
 		// TODO: This is not nice
 		CFGMethodAdapter.methods.clear();
@@ -91,7 +92,6 @@ public class TestGenerationContext {
 		ConstantPoolManager.getInstance().reset();
 
 		if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
-			DefUsePool.clear();
 			try {
 				TestClusterGenerator.generateCluster(Properties.TARGET_CLASS,
 				                                     DependencyAnalysis.getInheritanceTree(),
