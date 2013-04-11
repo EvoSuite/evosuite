@@ -8,7 +8,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
+import org.objectweb.asm.Type;
 
 /**
  * @author Gordon Fraser
@@ -17,6 +19,8 @@ import org.evosuite.utils.Randomness;
 public class StaticConstantPool implements ConstantPool {
 
 	private final Set<String> stringPool = Collections.synchronizedSet(new LinkedHashSet<String>());
+
+	private final Set<Type> typePool = Collections.synchronizedSet(new LinkedHashSet<Type>());
 
 	private final Set<Integer> intPool = Collections.synchronizedSet(new LinkedHashSet<Integer>());
 
@@ -32,7 +36,9 @@ public class StaticConstantPool implements ConstantPool {
 		 */
 
 		stringPool.add("");
-
+		
+		typePool.add(Type.getObjectType(Properties.TARGET_CLASS));
+		
 		intPool.add(0);
 		intPool.add(1);
 		intPool.add(-1);
@@ -60,6 +66,11 @@ public class StaticConstantPool implements ConstantPool {
 	@Override
 	public String getRandomString() {
 		return Randomness.choice(stringPool);
+	}
+	
+	@Override
+	public Type getRandomType() {
+		return Randomness.choice(typePool);
 	}
 
 	/**
@@ -127,6 +138,8 @@ public class StaticConstantPool implements ConstantPool {
 
 		if (object instanceof String) {
 			stringPool.add((String) object);
+		} else if(object instanceof Type) {
+			typePool.add((Type)object);
 		}
 
 		else if (object instanceof Integer) {
@@ -165,6 +178,8 @@ public class StaticConstantPool implements ConstantPool {
 			} else {
 				doublePool.add((Double) object);
 			}
+		} else {
+			LoggingUtils.getEvoLogger().info("Constant of unknown type: "+object.getClass());
 		}
 	}
 

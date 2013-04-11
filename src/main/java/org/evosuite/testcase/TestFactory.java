@@ -492,15 +492,15 @@ public class TestFactory {
 	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		if (clazz.isPrimitive() || clazz.isEnum()
+		if (clazz.isPrimitive() || clazz.isEnum() || clazz.isClass()
 		        || clazz.getRawClass().equals(EvoSuiteFile.class)) {
-			return createPrimitive(test, type, position, recursionDepth);
+			return createPrimitive(test, clazz, position, recursionDepth);
 		} else if (clazz.isString()) {
 			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using a null reference to satisfy the type: " + type);
 				return createNull(test, type, position, recursionDepth);
 			} else {
-				return createPrimitive(test, type, position, recursionDepth);
+				return createPrimitive(test, clazz, position, recursionDepth);
 			}
 		} else if (clazz.isArray()) {
 			return createArray(test, type, position, recursionDepth);
@@ -756,10 +756,10 @@ public class TestFactory {
 	 * @param recursionDepth
 	 * @return
 	 */
-	private VariableReference createPrimitive(TestCase test, Type type, int position,
+	private VariableReference createPrimitive(TestCase test, GenericClass clazz, int position,
 	        int recursionDepth) {
-		StatementInterface st = PrimitiveStatement.getRandomStatement(test, type,
-		                                                              position, type);
+		StatementInterface st = PrimitiveStatement.getRandomStatement(test, clazz.getRawClass(),
+		                                                              position);
 		VariableReference ret = test.addStatement(st, position);
 		ret.setDistance(recursionDepth);
 		return ret;

@@ -741,7 +741,16 @@ public class TestCodeVisitor extends TestVisitor {
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 				        + getVariableName(retval) + " = null;\n";
 			}
+		} else if(statement instanceof ClassPrimitiveStatement) {
+			StringBuilder builder = new StringBuilder();
 
+			builder.append(getClassName(retval));
+			builder.append(" ");
+			builder.append(getVariableName(retval));
+			builder.append(" = ");
+			builder.append(getClassName(((Class<?>)value)));
+			builder.append(".class;\n");
+			testCode += builder.toString();
 		} else {
 			testCode += getClassName(retval) + " " + getVariableName(retval) + " = "
 			        + NumberFormatter.getNumberString(value) + ";\n";

@@ -46,6 +46,7 @@ import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.BooleanTestabilityTransformation;
+import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.runtime.FileSystem;
 import org.evosuite.utils.GenericAccessibleObject;
@@ -53,7 +54,6 @@ import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.junit.Test;
 import org.objectweb.asm.Type;
@@ -197,6 +197,7 @@ public class TestClusterGenerator {
 		blackList.add("long");
 		blackList.add("java.lang.Enum");
 		blackList.add("java.lang.String");
+		blackList.add("java.lang.Class");
 	}
 
 	private static void addCastClasses(Set<String> castClasses, Set<String> blackList) {
@@ -942,6 +943,7 @@ public class TestClusterGenerator {
 		}
 
 		logger.debug("Getting concrete classes for " + clazz.getClassName());
+		ConstantPoolManager.getInstance().addNonSUTConstant(Type.getType(clazz.getRawClass()));
 		List<Class<?>> actualClasses = new ArrayList<Class<?>>(getConcreteClasses(clazz.getRawClass()));
 		// Randomness.shuffle(actualClasses);
 		logger.debug("Concrete classes for " + clazz.getClassName() + ": "
