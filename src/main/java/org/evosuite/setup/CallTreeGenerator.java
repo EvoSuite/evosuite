@@ -37,6 +37,7 @@ import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
+import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.TypeInsnNode;
@@ -171,6 +172,7 @@ public class CallTreeGenerator {
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
 
+		// TODO: This really shouldn't be here but in its own class
 		while (iterator.hasNext()) {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
@@ -195,6 +197,18 @@ public class CallTreeGenerator {
 				if (!castClassMap.containsKey(castType))
 					castClassMap.put(castType, depth);
 				castClasses.add(castType);
+			} else if (insn.getOpcode() == Opcodes.LDC) {
+				LdcInsnNode ldcNode = (LdcInsnNode) insn;
+				if (ldcNode.cst instanceof Type) {
+					Type type = (Type) ldcNode.cst;
+					while (type.getSort() == Type.ARRAY) {
+						type = type.getElementType();
+					}
+					if (!castClassMap.containsKey(type))
+						castClassMap.put(type, depth);
+					castClasses.add(type);
+				}
+
 			}
 		}
 	}
