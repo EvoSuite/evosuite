@@ -61,8 +61,8 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		TestChromosome carved = factory.getChromosome();
 		
 		Assert.assertNotNull(carved);
-		//Assert.assertEquals("Shouble be: TODO", 
-		//		-1 , carved.test.size());
+		Assert.assertEquals("", 
+				13 , carved.test.size());
 	}
 	
 	@Test
@@ -96,4 +96,55 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		Assert.assertNotNull(carved);
 		Assert.assertEquals("", 13, carved.test.size());
 	}
+	
+	@Test
+	public void testGenerics(){
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.GenericTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ObjectWrapper.class.getCanonicalName();
+				
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+		
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+		
+		Assert.assertNotNull(carved);
+		Assert.assertEquals("", 5, carved.test.size());
+		
+		for(int i=0; i<carved.test.size(); i++){
+			StatementInterface stmt = carved.test.getStatement(i);
+			boolean valid = stmt.isValid();
+			Assert.assertTrue("Invalid stmt at position "+i, valid);
+		}
+		
+		String code = carved.toString();
+		String setLong = "HashSet<Long>";
+		Assert.assertTrue(
+				"generated code does not contain "+setLong+"\n"+code,
+				code.contains(setLong));
+	}
+	
+	@Test
+	public void testPrimitives(){
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.PrimitivesTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ObjectWrapper.class.getCanonicalName();
+				
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+		
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+		Assert.assertNotNull(carved);
+		
+		String code = carved.toString();
+
+		Assert.assertEquals(code, 19, carved.test.size());
+
+		String concatenated = "0123.04.0567";
+		Assert.assertTrue(
+				"generated code does not contain "+concatenated+"\n"+code,
+				code.contains(concatenated));
+	}	
 }
