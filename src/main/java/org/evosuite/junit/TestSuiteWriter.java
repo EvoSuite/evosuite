@@ -353,6 +353,9 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 
+		// BeforeClass is always added due to REPLACE_CALLS
+		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+
 		if (wasSecurityException) {
 			//Add import info for EvoSuite classes used in the generated test suite
 			imports_sorted.add(Sandbox.class.getCanonicalName());
@@ -363,7 +366,6 @@ public class TestSuiteWriter implements Opcodes {
 			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
 			imports_sorted.add(org.junit.Before.class.getCanonicalName());
-			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 			imports_sorted.add(org.junit.After.class.getCanonicalName());
 			imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 		}
@@ -551,44 +553,103 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String getBeforeAndAfterMethods(boolean wasSecurityException) {
 
+		StringBuilder bd = new StringBuilder("");
+		bd.append("\n");
+
 		if (!wasSecurityException) {
 			/*
-			 * For the moment, the code generated in this method is only
-			 * used there is a need for a security manager
+			 * If no security manager, we still need to setup REPLACE_CALLS
 			 */
-			return "";
+			
+			bd.append(METHOD_SPACE);
+			bd.append("@BeforeClass \n");
+
+			bd.append(METHOD_SPACE);
+			bd.append("public static void initEvoSuiteFramework(){ \n");
+
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.Properties.REPLACE_CALLS = "
+			        + Properties.REPLACE_CALLS + "; \n");
+			
+			bd.append(METHOD_SPACE);
+			bd.append("} \n");
+			
+			bd.append("\n");
+			
+			return bd.toString();
 		}
 
 		/*
-		 * TODO: for now we only have code for sandbox.
-		 * But, in the future, we should also handle the instrumenting classloader
-		 */
-
-		/*
-		 * Note: the result of this method is always a constant.
-		 * But we don't code it as a constant just for ease of maintenance.
-		 * Furthermore, because this method is perhaps called only once per SUT,
+		 * Because this method is perhaps called only once per SUT,
 		 * not much of the point to try to optimize it 
 		 */
-		StringBuilder bd = new StringBuilder("");
 
-		bd.append("\n");
+		generateFields(bd);
 
-		//-------- Fields       ---------------------------------------------		
+		generateBeforeClass(bd);
 
+		generateAfterClass(bd);
+
+		generateBefore(bd);
+
+		generateAfter(bd);
+
+		return bd.toString();
+	}
+
+	private void generateAfter(StringBuilder bd) {
 		bd.append(METHOD_SPACE);
-		bd.append("private static ExecutorService " + EXECUTOR_SERVICE + "; \n");
+		bd.append("@After \n");
+		bd.append(METHOD_SPACE);
+		bd.append("public void doneWithTestCase(){ \n");
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
+		
+		bd.append("\n");
+	}
+
+	private void generateBefore(StringBuilder bd) {
+		bd.append(METHOD_SPACE);
+		bd.append("@Before \n");
+		bd.append(METHOD_SPACE);
+		bd.append("public void initTestCase(){ \n");
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.goingToExecuteSUTCode(); \n");
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
 
 		bd.append("\n");
+	}
 
-		//-------- BeforeClass  ---------------------------------------------
+	private void generateAfterClass(StringBuilder bd) {
+		bd.append(METHOD_SPACE);
+		bd.append("@AfterClass \n");
+		bd.append(METHOD_SPACE);
+		bd.append("public static void clearEvoSuiteFramework(){ \n");
+		bd.append(BLOCK_SPACE);
+		bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");
+		bd.append(BLOCK_SPACE);
+		bd.append("Sandbox.resetDefaultSecurityManager(); \n");
+		bd.append(METHOD_SPACE);
+		bd.append("} \n");
 
+		bd.append("\n");
+	}
+
+	private void generateBeforeClass(StringBuilder bd) {
 		bd.append(METHOD_SPACE);
 		bd.append("@BeforeClass \n");
 
 		bd.append(METHOD_SPACE);
 		bd.append("public static void initEvoSuiteFramework(){ \n");
 
+		//need to setup REPLACE_CALLS
+		bd.append(BLOCK_SPACE);
+		bd.append("org.evosuite.Properties.REPLACE_CALLS = "
+		        + Properties.REPLACE_CALLS + "; \n");
+		
 		//need to setup the Sandbox mode
 		bd.append(BLOCK_SPACE);
 		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
@@ -603,49 +664,13 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("} \n");
 
 		bd.append("\n");
+	}
 
-		//-------- AfterClass  ---------------------------------------------
-
+	private void generateFields(StringBuilder bd) {
 		bd.append(METHOD_SPACE);
-		bd.append("@AfterClass \n");
-		bd.append(METHOD_SPACE);
-		bd.append("public static void clearEvoSuiteFramework(){ \n");
-		bd.append(BLOCK_SPACE);
-		bd.append(EXECUTOR_SERVICE + ".shutdownNow(); \n");
-		bd.append(BLOCK_SPACE);
-		bd.append("Sandbox.resetDefaultSecurityManager(); \n");
-		bd.append(METHOD_SPACE);
-		bd.append("} \n");
+		bd.append("private static ExecutorService " + EXECUTOR_SERVICE + "; \n");
 
 		bd.append("\n");
-
-		//-------- Before  --------------------------------------------------
-
-		bd.append(METHOD_SPACE);
-		bd.append("@Before \n");
-		bd.append(METHOD_SPACE);
-		bd.append("public void initTestCase(){ \n");
-		bd.append(BLOCK_SPACE);
-		bd.append("Sandbox.goingToExecuteSUTCode(); \n");
-		bd.append(METHOD_SPACE);
-		bd.append("} \n");
-
-		bd.append("\n");
-
-		//-------- After   --------------------------------------------------
-
-		bd.append(METHOD_SPACE);
-		bd.append("@After \n");
-		bd.append(METHOD_SPACE);
-		bd.append("public void doneWithTestCase(){ \n");
-		bd.append(BLOCK_SPACE);
-		bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
-		bd.append(METHOD_SPACE);
-		bd.append("} \n");
-
-		bd.append("\n");
-
-		return bd.toString();
 	}
 
 	private final Map<String, Integer> testMethodNumber = new HashMap<String, Integer>();
@@ -811,20 +836,24 @@ public class TestSuiteWriter implements Opcodes {
 	 * @param directory
 	 *            Output directory
 	 */
-	public void writeTestSuite(String name, String directory) {
+	public List<File> writeTestSuite(String name, String directory) {
+		List<File> generated = new ArrayList<File>();
 		String dir = makeDirectory(directory);
 
 		if (Properties.OUTPUT_GRANULARITY == OutputGranularity.MERGED) {
 			File file = new File(dir + "/" + name + ".java");
 			executor.newObservers();
 			Utils.writeFile(getUnitTest(name), file);
+			generated.add(file);
 		} else {
 			for (int i = 0; i < testCases.size(); i++) {
 				File file = new File(dir + "/" + name + "_" + i + ".java");
 				executor.newObservers();
 				Utils.writeFile(getUnitTest(name, i), file);
+				generated.add(file);
 			}
 		}
+		return generated;
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,
