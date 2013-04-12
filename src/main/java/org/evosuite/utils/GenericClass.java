@@ -130,6 +130,10 @@ public class GenericClass implements Serializable {
 	public boolean isString() {
 		return raw_class.equals(String.class);
 	}
+	
+	public boolean isClass() {
+		return raw_class.equals(Class.class);
+	}
 
 	/**
 	 * Return true if variable is void

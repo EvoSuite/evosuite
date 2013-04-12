@@ -3,6 +3,8 @@
  */
 package org.evosuite.primitives;
 
+import org.objectweb.asm.Type;
+
 /**
  * @author Gordon Fraser
  * 
@@ -17,7 +19,16 @@ public interface ConstantPool {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getRandomString();
-
+	
+	/**
+	 * <p>
+	 * getRandomType
+	 * </p>
+	 * 
+	 * @return a {@link org.objectweb.asm.Type} object.
+	 */
+	public Type getRandomType();
+	
 	/**
 	 * <p>
 	 * getRandomInt
