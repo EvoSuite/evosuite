@@ -36,7 +36,7 @@ private boolean replaceCalls = Properties.REPLACE_CALLS;
 		Properties.TARGET_CLASS = targetClass;
 		Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-assertions" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Dassertions=true" };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
