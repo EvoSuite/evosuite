@@ -31,7 +31,9 @@ public class DynamicConstantPool implements ConstantPool {
 		 * all pools HAVE to be non-empty 
 		 */
 		stringPool.restrictedAdd("");
-		typePool.restrictedAdd(Type.getObjectType(Properties.TARGET_CLASS));
+		if(Properties.TARGET_CLASS!=null && !Properties.TARGET_CLASS.isEmpty()){
+			typePool.restrictedAdd(Type.getObjectType(Properties.TARGET_CLASS));
+		}
 		intPool.restrictedAdd(0);
 		longPool.restrictedAdd(0L);
 		floatPool.restrictedAdd(0.0f);
