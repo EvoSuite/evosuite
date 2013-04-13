@@ -68,6 +68,21 @@ public class GenericField extends GenericAccessibleObject {
 	public Class<?> getDeclaringClass() {
 		return field.getDeclaringClass();
 	}
+	
+	@Override
+	public Type getGeneratedType() {
+		return getFieldType();
+	}
+	
+	@Override
+	public Class<?> getRawGeneratedType() {
+		return field.getType();
+	}
+	
+	@Override
+	public Type getGenericGeneratedType() {
+		return field.getGenericType();
+	}
 
 	public Type getFieldType() {
 		return GenericTypeReflector.getExactFieldType(field, owner.getType());

@@ -29,123 +29,12 @@ public abstract class GenericAccessibleObject implements Serializable {
 
 	protected static final Logger logger = LoggerFactory.getLogger(GenericAccessibleObject.class);
 
-	protected GenericClass owner;
-	
-	protected List<GenericClass> typeVariables = new ArrayList<GenericClass>();
-
-	public GenericAccessibleObject(GenericClass owner) {
-		this.owner = owner;
-	}
-
-	public Type getOwnerType() {
-		return owner.getType();
-	}
-
-	public GenericClass getOwnerClass() {
-		return owner;
-	}
-	
-	public abstract GenericAccessibleObject copyWithNewOwner(GenericClass newOwner);
-	
-	public abstract GenericAccessibleObject copyWithOwnerFromReturnType(ParameterizedType returnType);
-	
-	public abstract GenericAccessibleObject copy();
-	
-	public abstract Class<?> getDeclaringClass();
-
-	public boolean isMethod() {
-		return false;
-	}
-
-	public boolean isConstructor() {
-		return false;
-	}
-
-	public boolean isField() {
-		return false;
-	}
-
-	public boolean isStatic() {
-		return false;
-	}
-	
-	public int getNumParameters() {
-		return 0;
-	}
-
-	public abstract String getName();
-
-	@Override
-	public abstract String toString();
-
-	public void changeClassLoader(ClassLoader loader) {
-		owner.changeClassLoader(loader);
-	}
-
-	/**
-	 * Maps type parameters in a type to their values.
-	 * 
-	 * @param toMapType
-	 *            Type possibly containing type arguments
-	 * @param typeAndParams
-	 *            must be either ParameterizedType, or (in case there are no
-	 *            type arguments, or it's a raw type) Class
-	 * @return toMapType, but with type parameters from typeAndParams replaced.
-	 */
-	protected Type mapTypeParameters(Type toMapType, Type typeAndParams) {
-		if (isMissingTypeParameters(typeAndParams)) {
-			logger.debug("Is missing type parameters, so erasing types");
-			return GenericTypeReflector.erase(toMapType);
-		} else {
-			VarMap varMap = new VarMap();
-			Type handlingTypeAndParams = typeAndParams;
-			while (handlingTypeAndParams instanceof ParameterizedType) {
-				ParameterizedType pType = (ParameterizedType) handlingTypeAndParams;
-				Class<?> clazz = (Class<?>) pType.getRawType(); // getRawType should always be Class
-				varMap.addAll(clazz.getTypeParameters(), pType.getActualTypeArguments());
-				handlingTypeAndParams = pType.getOwnerType();
-			}
-			varMap.addAll(getTypeVariableMap());
-			return varMap.map(toMapType);
-		}
-	}
-
-	protected Map<TypeVariable<?>, GenericClass> getTypeVariableMap() {
-		Map<TypeVariable<?>, GenericClass> typeMap = new HashMap<TypeVariable<?>, GenericClass>();
-		int pos = 0;
-		for(TypeVariable<?> variable : getTypeParameters()) {
-			if(typeVariables.size() <= pos)
-				break;
-			typeMap.put(variable, typeVariables.get(pos));
-			pos++;
-		}
-		return typeMap;
-	}
-	
-	/**
-	 * Checks if the given type is a class that is supposed to have type
-	 * parameters, but doesn't. In other words, if it's a really raw type.
-	 */
-	protected static boolean isMissingTypeParameters(Type type) {
-		if (type instanceof Class) {
-			for (Class<?> clazz = (Class<?>) type; clazz != null; clazz = clazz.getEnclosingClass()) {
-				if (clazz.getTypeParameters().length != 0)
-					return true;
-			}
-			return false;
-		} else if (type instanceof ParameterizedType) {
-			return false;
-		} else {
-			throw new AssertionError("Unexpected type " + type.getClass());
-		}
-	}
-	
 	/**
      * Returns the exact return type of the given method in the given type.
      * This may be different from <tt>m.getGenericReturnType()</tt> when the method was declared in a superclass,
      * or <tt>type</tt> has a type parameter that is used in the return type, or <tt>type</tt> is a raw type.
      */
-    public static Type getTypeFromExactReturnType(ParameterizedType returnType, ParameterizedType type) {
+    protected static Type getTypeFromExactReturnType(ParameterizedType returnType, ParameterizedType type) {
     	Map<TypeVariable<?>, Type> typeMap = TypeUtils.getTypeArguments(returnType);
     	Type[] actualParameters = new Type[type.getActualTypeArguments().length];
     	int num = 0;
@@ -176,17 +65,134 @@ public abstract class GenericAccessibleObject implements Serializable {
     	
     	return new ParameterizedTypeImpl((Class<?>)type.getRawType(), actualParameters, null);
     }
-    
-    public TypeVariable<?>[] getTypeParameters() {
+	
+	/**
+	 * Checks if the given type is a class that is supposed to have type
+	 * parameters, but doesn't. In other words, if it's a really raw type.
+	 */
+	protected static boolean isMissingTypeParameters(Type type) {
+		if (type instanceof Class) {
+			for (Class<?> clazz = (Class<?>) type; clazz != null; clazz = clazz.getEnclosingClass()) {
+				if (clazz.getTypeParameters().length != 0)
+					return true;
+			}
+			return false;
+		} else if (type instanceof ParameterizedType) {
+			return false;
+		} else {
+			throw new AssertionError("Unexpected type " + type.getClass());
+		}
+	}
+
+	protected GenericClass owner;
+
+	protected List<GenericClass> typeVariables = new ArrayList<GenericClass>();
+
+	public GenericAccessibleObject(GenericClass owner) {
+		this.owner = owner;
+	}
+	
+	public void changeClassLoader(ClassLoader loader) {
+		owner.changeClassLoader(loader);
+	}
+	
+	public abstract GenericAccessibleObject copy();
+	
+	public abstract GenericAccessibleObject copyWithNewOwner(GenericClass newOwner);
+	
+	public abstract GenericAccessibleObject copyWithOwnerFromReturnType(ParameterizedType returnType);
+
+	public abstract Class<?> getDeclaringClass();
+	
+	public abstract Type getGeneratedType();
+
+	public abstract Class<?> getRawGeneratedType();
+
+	public abstract Type getGenericGeneratedType();
+
+	public abstract String getName();
+
+	public int getNumParameters() {
+		return 0;
+	}
+
+	public GenericClass getOwnerClass() {
+		return owner;
+	}
+	
+	public Type getOwnerType() {
+		return owner.getType();
+	}
+
+	public TypeVariable<?>[] getTypeParameters() {
     	return new TypeVariable<?>[] {};
     }
+
+	protected Map<TypeVariable<?>, GenericClass> getTypeVariableMap() {
+		Map<TypeVariable<?>, GenericClass> typeMap = new HashMap<TypeVariable<?>, GenericClass>();
+		int pos = 0;
+		for(TypeVariable<?> variable : getTypeParameters()) {
+			if(typeVariables.size() <= pos)
+				break;
+			typeMap.put(variable, typeVariables.get(pos));
+			pos++;
+		}
+		return typeMap;
+	}
+
+	public boolean hasTypeParameters() {
+    	return getTypeParameters().length != 0;
+    }
+
+	public boolean isConstructor() {
+		return false;
+	}
+
+	public boolean isField() {
+		return false;
+	}
+	
+	public boolean isMethod() {
+		return false;
+	}
+	
+	public boolean isStatic() {
+		return false;
+	}
+    
+    /**
+	 * Maps type parameters in a type to their values.
+	 * 
+	 * @param toMapType
+	 *            Type possibly containing type arguments
+	 * @param typeAndParams
+	 *            must be either ParameterizedType, or (in case there are no
+	 *            type arguments, or it's a raw type) Class
+	 * @return toMapType, but with type parameters from typeAndParams replaced.
+	 */
+	protected Type mapTypeParameters(Type toMapType, Type typeAndParams) {
+		if (isMissingTypeParameters(typeAndParams)) {
+			logger.debug("Is missing type parameters, so erasing types");
+			return GenericTypeReflector.erase(toMapType);
+		} else {
+			VarMap varMap = new VarMap();
+			Type handlingTypeAndParams = typeAndParams;
+			while (handlingTypeAndParams instanceof ParameterizedType) {
+				ParameterizedType pType = (ParameterizedType) handlingTypeAndParams;
+				Class<?> clazz = (Class<?>) pType.getRawType(); // getRawType should always be Class
+				varMap.addAll(clazz.getTypeParameters(), pType.getActualTypeArguments());
+				handlingTypeAndParams = pType.getOwnerType();
+			}
+			varMap.addAll(getTypeVariableMap());
+			return varMap.map(toMapType);
+		}
+	}
     
     public void setTypeParameters(List<GenericClass> parameterTypes) {
     	typeVariables.clear();
     	typeVariables.addAll(parameterTypes);
     }
     
-    public boolean hasTypeParameters() {
-    	return getTypeParameters().length != 0;
-    }
+    @Override
+	public abstract String toString();
 }
