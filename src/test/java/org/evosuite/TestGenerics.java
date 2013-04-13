@@ -8,25 +8,27 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.examples.with.different.packagename.GenericArray;
-import com.examples.with.different.packagename.GenericArrayWithGenericType;
-import com.examples.with.different.packagename.GenericArrayWithGenericTypeVariable;
-import com.examples.with.different.packagename.GenericGenericParameter;
-import com.examples.with.different.packagename.GenericMemberclass;
-import com.examples.with.different.packagename.GenericMethod;
-import com.examples.with.different.packagename.GenericParameters1;
-import com.examples.with.different.packagename.GenericParameters2;
-import com.examples.with.different.packagename.GenericParameters3;
-import com.examples.with.different.packagename.GenericParameters4;
-import com.examples.with.different.packagename.GenericParameters5;
-import com.examples.with.different.packagename.GenericParameters6;
-import com.examples.with.different.packagename.GenericParameters7;
-import com.examples.with.different.packagename.GenericParameters8;
-import com.examples.with.different.packagename.GenericSUT;
-import com.examples.with.different.packagename.GenericSUTString;
-import com.examples.with.different.packagename.GenericSUTTwoParameters;
-import com.examples.with.different.packagename.GenericSuperclassOmittingTypeParameters;
-import com.examples.with.different.packagename.GenericTwoDimensionalArray;
+import com.examples.with.different.packagename.generic.GenericArray;
+import com.examples.with.different.packagename.generic.GenericArrayWithGenericType;
+import com.examples.with.different.packagename.generic.GenericArrayWithGenericTypeVariable;
+import com.examples.with.different.packagename.generic.GenericGenericParameter;
+import com.examples.with.different.packagename.generic.GenericMemberclass;
+import com.examples.with.different.packagename.generic.GenericMethod;
+import com.examples.with.different.packagename.generic.GenericParameterWithBound;
+import com.examples.with.different.packagename.generic.GenericParameterWithGenericBound;
+import com.examples.with.different.packagename.generic.GenericParameters1;
+import com.examples.with.different.packagename.generic.GenericParameters2;
+import com.examples.with.different.packagename.generic.GenericParameters3;
+import com.examples.with.different.packagename.generic.GenericParameters4;
+import com.examples.with.different.packagename.generic.GenericParameters5;
+import com.examples.with.different.packagename.generic.GenericParameters6;
+import com.examples.with.different.packagename.generic.GenericParameters7;
+import com.examples.with.different.packagename.generic.GenericParameters8;
+import com.examples.with.different.packagename.generic.GenericSUT;
+import com.examples.with.different.packagename.generic.GenericSUTString;
+import com.examples.with.different.packagename.generic.GenericSUTTwoParameters;
+import com.examples.with.different.packagename.generic.GenericSuperclassOmittingTypeParameters;
+import com.examples.with.different.packagename.generic.GenericTwoDimensionalArray;
 
 /**
  * @author Gordon Fraser
@@ -450,6 +452,7 @@ public class TestGenerics extends SystemTest {
 		String targetClass = GenericGenericParameter.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+		Properties.SEARCH_BUDGET = 80000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -468,6 +471,55 @@ public class TestGenerics extends SystemTest {
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
+	@Test
+	public void testGenericParameterWithBounds() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericParameterWithBound.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testGenericParameterWithGenericBound() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GenericParameterWithGenericBound.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
 	
 	@Test
 	public void testGenericSuperclassOmittingTypeParameter() {

@@ -182,11 +182,16 @@ public class CastClassManager {
 		double rnd = Randomness.nextDouble() * sum;
 
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
-			if (!entry.getKey().isAssignableTo(targetType))
+			logger.debug("Candidate cast class: "+entry.getKey());
+			if (!entry.getKey().isAssignableTo(targetType)) {
+				logger.debug("Is not assignable to "+targetType);
 				continue;
+			}
 
-			if (!allowRecursion && entry.getKey().hasWildcardOrTypeVariables())
+			if (!allowRecursion && entry.getKey().hasWildcardOrTypeVariables()) {
+				logger.debug("Would lead to forbidden type recursion");
 				continue;
+			}
 
 			int depth = entry.getValue();
 			double v = depth == 0 ? 0.0 : 1.0 / depth;

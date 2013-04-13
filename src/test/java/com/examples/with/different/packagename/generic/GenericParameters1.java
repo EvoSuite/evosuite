@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.generic;
 
 import java.util.List;
 

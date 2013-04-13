@@ -405,9 +405,9 @@ public class GenericClass implements Serializable {
 				this.type = GenericTypeReflector.addWildcardParameters(raw_class);
 			}
 		} catch (ClassNotFoundException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
+			logger.warn("Class not found: "+raw_class+" - keeping old class loader ", e);
 		} catch (SecurityException e) {
-			logger.warn("Class not found - keeping old class loader ", e);
+			logger.warn("Class not found: "+raw_class+" - keeping old class loader ", e);
 		}
 	}
 

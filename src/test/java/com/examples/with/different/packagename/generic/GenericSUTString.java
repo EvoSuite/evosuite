@@ -1,4 +1,4 @@
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.generic;
 
 public class GenericSUTString<T> {
 
