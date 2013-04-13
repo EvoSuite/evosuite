@@ -37,12 +37,12 @@ public class TestCaseBuilder {
 	private final DefaultTestCase tc = new DefaultTestCase();
 
 	public VariableReference appendConstructor(Constructor<?> constructor,
-	        VariableReference... parameters) {
+			VariableReference... parameters) {
 
 		List<VariableReference> parameter_list = Arrays.asList(parameters);
 		ConstructorStatement constructorStmt = new ConstructorStatement(tc,
-		        new GenericConstructor(constructor, constructor.getDeclaringClass()),
-		        parameter_list);
+				new GenericConstructor(constructor, constructor.getDeclaringClass()),
+				parameter_list);
 		tc.addStatement(constructorStmt);
 
 		return constructorStmt.getReturnValue();
@@ -67,10 +67,16 @@ public class TestCaseBuilder {
 	 * @return <code>void reference</code> for void methods
 	 */
 	public VariableReference appendMethod(VariableReference callee, Method method,
-	        VariableReference... parameters) {
+			VariableReference... parameters) {
 		List<VariableReference> parameter_list = Arrays.asList(parameters);
-		MethodStatement methodStmt = new MethodStatement(tc, new GenericMethod(method,
-		        callee.getType()), callee, parameter_list);
+		MethodStatement methodStmt = null;
+		if(callee == null){			
+			methodStmt = new MethodStatement(tc, new GenericMethod(method,
+					method.getDeclaringClass()), callee, parameter_list);
+		} else {
+			methodStmt = new MethodStatement(tc, new GenericMethod(method,
+					callee.getType()), callee, parameter_list);
+		}
 		tc.addStatement(methodStmt);
 		return methodStmt.getReturnValue();
 	}
@@ -98,15 +104,15 @@ public class TestCaseBuilder {
 	}
 
 	public void appendAssignment(VariableReference receiver, Field field,
-	        VariableReference value) {
+			VariableReference value) {
 		FieldReference fieldReference;
 
 		if (receiver == null) {
 			fieldReference = new FieldReference(tc, new GenericField(field,
-			        field.getDeclaringClass()));
+					field.getDeclaringClass()));
 		} else {
 			fieldReference = new FieldReference(tc, new GenericField(field,
-			        receiver.getType()), receiver);
+					receiver.getType()), receiver);
 		}
 		AssignmentStatement stmt = new AssignmentStatement(tc, fieldReference, value);
 		tc.addStatement(stmt);
@@ -114,7 +120,7 @@ public class TestCaseBuilder {
 
 	public VariableReference appendFieldStmt(VariableReference receiver, Field field) {
 		FieldStatement stmt = new FieldStatement(tc, new GenericField(field,
-		        receiver.getType()), receiver);
+				receiver.getType()), receiver);
 		tc.addStatement(stmt);
 		return stmt.getReturnValue();
 	}
