@@ -87,6 +87,11 @@ public class GenericMethod extends GenericAccessibleObject {
 	public Type[] getRawParameterTypes() {
 		return method.getParameterTypes();
 	}
+	
+	@Override
+	public Type getGeneratedType() {
+		return getReturnType();
+	}
 
 	public Type getReturnType() {
 		Type returnType = getExactReturnType(method, owner.getType());
@@ -101,6 +106,16 @@ public class GenericMethod extends GenericAccessibleObject {
 			returnType = method.getGenericReturnType();
 		}
 		return returnType;
+	}
+	
+	@Override
+	public Type getGenericGeneratedType() {
+		return method.getGenericReturnType();
+	}
+	
+	@Override
+	public Class<?> getRawGeneratedType() {
+		return method.getReturnType();
 	}
 	
 	/**
