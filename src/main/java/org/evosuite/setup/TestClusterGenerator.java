@@ -164,7 +164,11 @@ public class TestClusterGenerator {
 			classNames.add("java.lang.Integer");
 
 			for (Entry<Type, Integer> castEntry : CallTreeGenerator.castClassMap.entrySet()) {
-				CastClassManager.getInstance().addCastClass(castEntry.getKey().getClassName(),
+				String className = castEntry.getKey().getClassName();
+				if(blackList.contains(className))
+					continue;
+				
+				CastClassManager.getInstance().addCastClass(className,
 				                                            castEntry.getValue());
 				classNames.add(castEntry.getKey().getClassName());
 			}
