@@ -1,15 +1,8 @@
-/**
- * 
- */
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.generic;
 
 import java.util.List;
 
-/**
- * @author Gordon Fraser
- * 
- */
-public class GenericGenericParameter<T> {
+public class GenericParameterWithBound<T extends List<?>> {
 
 	public boolean testMe(T t, Integer x) {
 		if (t instanceof List) {

@@ -950,6 +950,7 @@ public class TestCluster {
 	private GenericClass getRandomCastClass(Type targetType, int recursionLevel) {
 		boolean allowRecursion = recursionLevel <= Properties.MAX_GENERIC_DEPTH;
 		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType, allowRecursion);
+		logger.debug("Got cast class "+castClass+", recursion allowed: "+allowRecursion);
 		if(castClass.hasWildcardOrTypeVariables()) {
 			return getGenericInstantiation(castClass, recursionLevel + 1);
 		}

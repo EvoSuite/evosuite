@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.examples.with.different.packagename;
+package com.examples.with.different.packagename.generic;
 
 import java.util.List;
 
@@ -9,13 +9,12 @@ import java.util.List;
  * @author Gordon Fraser
  * 
  */
-public class GenericParameters5 {
+public class GenericParameters6 {
 
 	public boolean testMe(List<?> aList) {
-		if (aList.isEmpty())
+		if (aList.contains("test"))
 			return true;
 		else
 			return false;
 	}
-
 }

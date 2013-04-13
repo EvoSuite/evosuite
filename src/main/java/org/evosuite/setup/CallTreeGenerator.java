@@ -164,7 +164,7 @@ public class CallTreeGenerator {
 				if (!castClassMap.containsKey(castType)) {
 					logger.debug("Adding new cast class from signature visitor: "
 					        + castType);
-					castClassMap.put(castType, depth);
+					castClassMap.put(castType, depth + 1);
 				}
 			}
 		}
@@ -186,7 +186,7 @@ public class CallTreeGenerator {
 				logger.debug("Adding new cast class from cast: " + castType);
 				castClasses.add(castType);
 				if (!castClassMap.containsKey(castType))
-					castClassMap.put(castType, depth);
+					castClassMap.put(castType, depth+1);
 			} else if (insn.getOpcode() == Opcodes.INSTANCEOF) {
 				TypeInsnNode typeNode = (TypeInsnNode) insn;
 				Type castType = Type.getObjectType(typeNode.desc);
@@ -195,7 +195,7 @@ public class CallTreeGenerator {
 				}
 				logger.debug("Adding new cast class from instanceof: " + castType);
 				if (!castClassMap.containsKey(castType))
-					castClassMap.put(castType, depth);
+					castClassMap.put(castType, depth+1);
 				castClasses.add(castType);
 			} else if (insn.getOpcode() == Opcodes.LDC) {
 				LdcInsnNode ldcNode = (LdcInsnNode) insn;
@@ -205,7 +205,7 @@ public class CallTreeGenerator {
 						type = type.getElementType();
 					}
 					if (!castClassMap.containsKey(type))
-						castClassMap.put(type, depth);
+						castClassMap.put(type, depth+1);
 					castClasses.add(type);
 				}
 
