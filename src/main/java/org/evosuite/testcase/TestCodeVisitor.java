@@ -32,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.CharUtils;
+import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
@@ -52,6 +53,7 @@ import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.NumberFormatter;
 
 import com.googlecode.gentyref.CaptureType;
+import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * The TestCodeVisitor is a visitor that produces a String representation of a
@@ -833,6 +835,57 @@ public class TestCodeVisitor extends TestVisitor {
 		addAssertions(statement);
 	}
 
+	private String getPrimitiveNullCast(Class<?> declaredParamType) {
+		String castString = "";
+		castString += "(" + getTypeName(declaredParamType)
+        + ") ";
+		castString += "(" + getTypeName(ClassUtils.primitiveToWrapper(declaredParamType))
+		        + ") ";
+		
+		return castString;
+	}
+	
+	private String getParameterString(Type[] parameterTypes, List<VariableReference> parameters, boolean isGenericMethod, int startPos) {
+		String parameterString = "";
+		
+		for (int i = startPos; i < parameters.size(); i++) {
+			if (i > startPos) {
+				parameterString += ", ";
+			}
+			Type declaredParamType = parameterTypes[i];
+			Type actualParamType = parameters.get(i).getType();
+			String name = getVariableName(parameters.get(i));
+			Class<?> rawParamClass = GenericTypeReflector.erase(declaredParamType); 
+			if(rawParamClass.isPrimitive() && name.equals("null")) {
+				parameterString += getPrimitiveNullCast(rawParamClass);
+			}
+			else if(isGenericMethod) {
+				if(!declaredParamType.equals(actualParamType) || name.equals("null")) {
+					parameterString += "(" + getTypeName(declaredParamType)
+					        + ") ";
+					if (name.contains("(short"))
+						name = name.replace("(short)", "");
+					if (name.contains("(byte"))
+						name = name.replace("(byte)", "");
+
+				}
+			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)
+			        || name.equals("null")) {
+				parameterString += "(" + getTypeName(declaredParamType)
+				        + ") ";
+				if (name.contains("(short"))
+					name = name.replace("(short)", "");
+				if (name.contains("(byte"))
+					name = name.replace("(byte)", "");
+				//}
+			}
+
+			parameterString += name;
+		}
+		
+		return parameterString;
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -846,6 +899,8 @@ public class TestCodeVisitor extends TestVisitor {
 		GenericMethod method = statement.getMethod();
 		Throwable exception = getException(statement);
 		List<VariableReference> parameters = statement.getParameterReferences();
+		boolean isGenericMethod = method.hasTypeParameters();
+		
 
 		if (exception != null && !statement.isDeclaredException(exception)) {
 			result += "// Undeclared exception!\n";
@@ -868,30 +923,7 @@ public class TestCodeVisitor extends TestVisitor {
 		if (exception != null)
 			result += "try {\n  ";
 
-		String parameter_string = "";
-		for (int i = 0; i < parameters.size(); i++) {
-			if (i > 0) {
-				parameter_string += ", ";
-			}
-			Type declaredParamType = method.getParameterTypes()[i];
-			Type actualParamType = parameters.get(i).getType();
-			String name = getVariableName(parameters.get(i));
-			if (!GenericClass.isAssignable(declaredParamType, actualParamType)
-			        || name.equals("null")) {
-				//if((!method.getParameterTypes()[i].equals(Object.class)
-				//        && !method.getParameterTypes()[i].equals(Comparable.class)) ||
-				//        (actualParamType.isPrimitive())) {
-				parameter_string += "(" + getTypeName(method.getParameterTypes()[i])
-				        + ") ";
-				if (name.contains("(short"))
-					name = name.replace("(short)", "");
-				if (name.contains("(byte"))
-					name = name.replace("(byte)", "");
-				//}
-			}
-
-			parameter_string += name;
-		}
+		String parameter_string = getParameterString(method.getParameterTypes(), parameters, isGenericMethod, 0);
 
 		String callee_str = "";
 		if (!retval.isAssignableFrom(method.getReturnType())
@@ -953,50 +985,20 @@ public class TestCodeVisitor extends TestVisitor {
 	/** {@inheritDoc} */
 	@Override
 	public void visitConstructorStatement(ConstructorStatement statement) {
-		String parameter_string = "";
 		String result = "";
 		GenericConstructor constructor = statement.getConstructor();
 		VariableReference retval = statement.getReturnValue();
 		Throwable exception = getException(statement);
+		boolean isGenericMethod = constructor.hasTypeParameters();
 
 		List<VariableReference> parameters = statement.getParameterReferences();
-		if (!parameters.isEmpty()) {
-			for (int i = 0; i < parameters.size(); i++) {
-				if (constructor.getConstructor().getDeclaringClass().isMemberClass()
-				        && !constructor.isStatic()) {
-					if (i > 1)
-						parameter_string += ", ";
-					else if (i < 1)
-						continue;
-				} else {
-					if (i > 0) {
-						parameter_string += ", ";
-					}
-				}
-
-				Class<?> declaredParamType = constructor.getConstructor().getParameterTypes()[i];
-				Class<?> actualParamType = parameters.get(i).getVariableClass();
-				String name = getVariableName(parameters.get(i));
-
-				if (!declaredParamType.isAssignableFrom(actualParamType)
-				        || name.equals("null")) {
-					//if((!constructor.getParameterTypes()[i].equals(Object.class)
-					//    && !constructor.getParameterTypes()[i].equals(Comparable.class))  ||
-					//    (actualParamType.isPrimitive())) {
-					// TODO: && !constructor.getParameterTypes()[i].isPrimitive?
-					parameter_string += "("
-					        + getTypeName(constructor.getParameterTypes()[i]) + ") ";
-					if (name.contains("(short"))
-						name = name.replace("(short)", "");
-					if (name.contains("(byte"))
-						name = name.replace("(byte)", "");
-					//}
-				}
-
-				parameter_string += name;
-			}
-
+		int startPos = 0;
+		if (constructor.getConstructor().getDeclaringClass().isMemberClass()
+		        && !constructor.isStatic()) {
+			startPos = 1;
 		}
+		String parameter_string = getParameterString(constructor.getParameterTypes(), parameters, isGenericMethod, startPos);
+		
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+getVariableName(retval)+ " = null;\n";
 		if (exception != null) {
