@@ -324,7 +324,7 @@ public class TestFactory {
 	 */
 	public VariableReference addMethodFor(TestCase test, VariableReference callee,
 	        GenericMethod method, int position) throws ConstructionFailedException {
-		logger.debug("Adding method " + method);
+		logger.debug("Adding method " + method +" for "+callee);
 		currentRecursion.clear();
 		int length = test.size();
 		List<VariableReference> parameters = null;
@@ -528,7 +528,7 @@ public class TestFactory {
 
 			return createObject(test, type, position, recursionDepth);
 		}
-	}
+	}	
 
 	/**
 	 * Try to generate an object suitable for Object.class
@@ -1167,7 +1167,7 @@ public class TestFactory {
 			if (call.isMethod()) {
 				GenericMethod method = (GenericMethod)call;
 				if(method.hasTypeParameters()) {
-					call = TestCluster.getInstance().getGenericInstantiation(method);
+					call = TestCluster.getInstance().getGenericGeneratorInstantiation(method, new GenericClass(returnType));
 				}
 				if (!((GenericMethod) call).getReturnType().equals(returnType))
 					continue;
@@ -1208,12 +1208,12 @@ public class TestFactory {
 				logger.warn("Have no target methods to test");
 			} else if (o.isConstructor()) {
 				GenericConstructor c = (GenericConstructor) o;
-				//logger.info("Adding constructor call " + c.getName());
+				logger.debug("Adding constructor call " + c.getName());
 				name = c.getName();
 				addConstructor(test, c, position, 0);
 			} else if (o.isMethod()) {
 				GenericMethod m = (GenericMethod) o;
-				//logger.info("Adding method call " + m.getName());
+				logger.debug("Adding method call " + m.getName());
 				name = m.getName();
 				if (!m.isStatic()) {
 					VariableReference callee = null;
@@ -1244,11 +1244,11 @@ public class TestFactory {
 			} else if (o.isField()) {
 				GenericField f = (GenericField) o;
 				name = f.getName();
+				logger.debug("Adding field " + f.getName());
 				if (Randomness.nextBoolean()) {
 					//logger.info("Adding field assignment " + f.getName());
 					addFieldAssignment(test, f, position, 0);
 				} else {
-					//logger.info("Adding field " + f.getName());
 					addField(test, f, position);
 				}
 			} else {
@@ -1402,6 +1402,7 @@ public class TestFactory {
 		List<VariableReference> parameters = new ArrayList<VariableReference>();
 		logger.debug("Trying to satisfy " + parameterTypes.size() + " parameters");
 		for (Type parameterType : parameterTypes) {
+			logger.debug("Current parameter type: " + parameterType);
 			int previousLength = test.size();
 
 			VariableReference var = createOrReuseVariable(test, parameterType, position,
