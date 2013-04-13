@@ -37,7 +37,9 @@ public class StaticConstantPool implements ConstantPool {
 
 		stringPool.add("");
 		
-		typePool.add(Type.getObjectType(Properties.TARGET_CLASS));
+		if(Properties.TARGET_CLASS!=null && !Properties.TARGET_CLASS.isEmpty()){
+			typePool.add(Type.getObjectType(Properties.TARGET_CLASS));
+		}
 		
 		intPool.add(0);
 		intPool.add(1);
