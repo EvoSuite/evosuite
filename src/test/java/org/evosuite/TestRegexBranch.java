@@ -27,7 +27,7 @@ public class TestRegexBranch extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 1d / 3d;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass , "-Dprint_to_system=true"};
+		String[] command = new String[] { "-generateSuite", "-class", targetClass }; // , "-Dprint_to_system=true"
 
 		Object result = evosuite.parseCommandLine(command);
 
