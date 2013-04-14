@@ -48,7 +48,8 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 1d / 3d;
-
+		ConstantPoolManager.getInstance().reset();
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -74,7 +75,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_POOL = 0.0;
 		ConstantPoolManager.getInstance().reset();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Ddynamic_pool=0.0"
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -97,7 +98,8 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 1d / 3d;
-
+		ConstantPoolManager.getInstance().reset();
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -123,7 +125,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_POOL = 0.0;
 		ConstantPoolManager.getInstance().reset();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass}; //, "-Ddynamic_pool=0.0" 
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -146,7 +148,8 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 1d / 3d;
-
+		ConstantPoolManager.getInstance().reset();
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -172,7 +175,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_POOL = 0.0;
 		ConstantPoolManager.getInstance().reset();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Ddynamic_pool=0.0"
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -195,7 +198,8 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 1d / 3d;
-
+		ConstantPoolManager.getInstance().reset();
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -221,7 +225,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_POOL = 0.0;
 		ConstantPoolManager.getInstance().reset();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass}; //, "-Ddynamic_pool=0.0" 
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -244,8 +248,9 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 1d / 3d;
-
-		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+		ConstantPoolManager.getInstance().reset();
+		
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };//, "-Ddynamic_pool=0.333"
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -270,7 +275,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_POOL = 0.0;
 		ConstantPoolManager.getInstance().reset();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Ddynamic_pool=0.0"
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -293,7 +298,8 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.DYNAMIC_POOL = 1d / 3d;
-
+		ConstantPoolManager.getInstance().reset();
+		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
@@ -319,7 +325,7 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		Properties.DYNAMIC_POOL = 0.0;
 		ConstantPoolManager.getInstance().reset();
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Ddynamic_pool=0.0" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass }; //, "-Ddynamic_pool=0.0"
 
 		Object result = evosuite.parseCommandLine(command);
 
