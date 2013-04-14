@@ -30,9 +30,13 @@ public class CastClassManager {
 	private double sumValue = 0d;
 
 	private CastClassManager() {
+		initDefaultClasses();
+	}
+	
+	private void initDefaultClasses() {
 		classMap.put(new GenericClass(Object.class), 2);
 		classMap.put(new GenericClass(String.class), 2);
-		classMap.put(new GenericClass(Integer.class), 2);
+		classMap.put(new GenericClass(Integer.class), 2);		
 	}
 
 	public static CastClassManager getInstance() {
@@ -258,6 +262,7 @@ public class CastClassManager {
 		}
 		return false;
 	}
+	
 
 	public Set<GenericClass> getCastClasses() {
 		return classMap.keySet();
@@ -265,7 +270,7 @@ public class CastClassManager {
 
 	public void clear() {
 		classMap.clear();
-		classMap.put(new GenericClass(Object.class), 2);
+		initDefaultClasses();
 		changed = true;
 	}
 
