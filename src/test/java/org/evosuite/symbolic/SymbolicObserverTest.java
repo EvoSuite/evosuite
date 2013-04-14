@@ -14,6 +14,8 @@ import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.VariableReference;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.concolic.TestCase86;
+
 public class SymbolicObserverTest {
 
 	public static void printConstraints(List<BranchCondition> branch_conditions) {
