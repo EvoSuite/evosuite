@@ -94,6 +94,9 @@ public abstract class GenericAccessibleObject implements Serializable {
 	
 	public void changeClassLoader(ClassLoader loader) {
 		owner.changeClassLoader(loader);
+		for(GenericClass typeVariable : typeVariables) {
+			typeVariable.changeClassLoader(loader);
+		}
 	}
 	
 	public abstract GenericAccessibleObject copy();

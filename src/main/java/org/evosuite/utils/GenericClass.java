@@ -96,6 +96,10 @@ public class GenericClass implements Serializable {
 	}
 
 	private static Class<?> getClass(String name) throws ClassNotFoundException {
+		return getClass(name, TestGenerationContext.getClassLoader());	
+	}
+	
+	private static Class<?> getClass(String name, ClassLoader loader) throws ClassNotFoundException {
 		if (name.equals("void"))
 			return void.class;
 		else if (name.equals("int") || name.equals("I"))
@@ -115,17 +119,17 @@ public class GenericClass implements Serializable {
 		else if (name.equals("char") || name.equals("C"))
 			return char.class;
 		else if (name.startsWith("[")) {
-			Class<?> componentType = getClass(name.substring(1, name.length()));
+			Class<?> componentType = getClass(name.substring(1, name.length()), loader);
 			Object array = Array.newInstance(componentType, 0);
 			return array.getClass();
 		} else if (name.startsWith("L")) {
-			return getClass(name.substring(1));
+			return getClass(name.substring(1), loader);
 		} else if (name.endsWith(";")) {
-			return getClass(name.substring(0, name.length() - 1));
+			return getClass(name.substring(0, name.length() - 1), loader);
 		} else if (name.endsWith(".class")) {
-			return getClass(name.replace(".class", ""));
+			return getClass(name.replace(".class", ""), loader);
 		} else
-			return TestGenerationContext.getClassLoader().loadClass(name);
+			return loader.loadClass(name);
 	}
 
 	/**
@@ -367,7 +371,7 @@ public class GenericClass implements Serializable {
 	 */
 	public void changeClassLoader(ClassLoader loader) {
 		try {
-			raw_class = getClass(raw_class.getName());
+			raw_class = getClass(raw_class.getName(), loader);
 			if (type instanceof ParameterizedType) {
 				ParameterizedType pt = (ParameterizedType) type;
 				// GenericClass rawType = new GenericClass(pt.getRawType());
