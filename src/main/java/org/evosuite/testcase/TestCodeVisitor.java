@@ -976,6 +976,16 @@ public class TestCodeVisitor extends TestVisitor {
 		testCode += result + "\n";
 		addAssertions(statement);
 	}
+	
+	private String getSimpleTypeName(Type type) {
+		String typeName = getTypeName(type);
+		int dotIndex = typeName.lastIndexOf(".");
+		if(dotIndex >= 0 && (dotIndex + 1) < typeName.length()) {
+			typeName = typeName.substring(dotIndex + 1);
+		}
+		
+		return typeName;
+	}
 
 	/*
 	 * (non-Javadoc)
@@ -1018,13 +1028,15 @@ public class TestCodeVisitor extends TestVisitor {
 		if (constructor.getConstructor().getDeclaringClass().isMemberClass()
 		        && !constructor.isStatic()
 		        && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers())) {
+			
 			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
 			        // + new GenericClass(
 			        // constructor.getDeclaringClass().getEnclosingClass()).getSimpleName()
 			        + ".new "
 			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-			        + getTypeName(constructor.getOwnerType()) + "("
+			        // + getTypeName(constructor.getOwnerType()) + "("
+			        + getSimpleTypeName(constructor.getOwnerType()) + "("
 			        // + getClassName(constructor.getDeclaringClass()) + "("
 			        + parameter_string + ");";
 
