@@ -2,14 +2,20 @@ package org.evosuite;
 
 import static org.junit.Assert.*;
 
-import java.util.regex.Pattern;
-
 import org.evosuite.instrumentation.RegexDistance;
 import org.junit.Ignore;
 import org.junit.Test;
 
 public class TestRegexInstantiation {
 
+	@Test
+	public void testFailingSeedingRegex() {
+		String FAILING_PATTERN = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+		String matchingInstance = RegexDistance.getRegexInstance(FAILING_PATTERN);
+		String nonMatchingInstance = RegexDistance.getNonMatchingRegexInstance(FAILING_PATTERN);
+		assertTrue("String does not match regex: "+matchingInstance, matchingInstance.matches(FAILING_PATTERN));
+		assertFalse("String matches regex but shouldn't: "+nonMatchingInstance, nonMatchingInstance.matches(FAILING_PATTERN));
+	}
 
 		
 	@Test
