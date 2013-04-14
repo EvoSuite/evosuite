@@ -20,27 +20,20 @@
  */
 package org.evosuite.setup;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.Type;
-import org.objectweb.asm.signature.SignatureReader;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.ClassNode;
 import org.objectweb.asm.tree.InsnList;
-import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.TypeInsnNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -111,27 +104,8 @@ public class CallTreeGenerator {
 
 	}
 	
-	private static void handleClassSignature(ClassNode cn) {
-		CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor(
-				cn.name);
-		if(cn.signature != null) {
-			new SignatureReader(cn.signature).accept(visitor);
-			castClasses.addAll(visitor.getClasses());
-			for (Type castType : visitor.getClasses()) {
-				if (!castClassMap.containsKey(castType)) {
-					logger.debug("Adding new cast class from signature visitor: "
-							+ castType);
-					castClassMap.put(castType, 1);
-				}
-			}
-		}
-
-	}
-
 	@SuppressWarnings("unchecked")
 	public static void handle(CallTree callTree, ClassNode targetClass, int depth) {
-		handleClassSignature(targetClass);
-
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			logger.debug("Method: " + mn.name);
@@ -142,7 +116,6 @@ public class CallTreeGenerator {
 	@SuppressWarnings("unchecked")
 	public static void handle(CallTree callTree, ClassNode targetClass,
 	        String methodName, int depth) {
-		handleClassSignature(targetClass);
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			if (methodName.equals(mn.name + mn.desc))
@@ -159,10 +132,6 @@ public class CallTreeGenerator {
 		handle(callTree, cn, methodName, depth);
 	}
 
-	public static Set<Type> castClasses = new HashSet<Type>();
-
-	public static Map<Type, Integer> castClassMap = new HashMap<Type, Integer>();
-
 	/**
 	 * Add all possible calls for a given method
 	 * 
@@ -174,21 +143,6 @@ public class CallTreeGenerator {
 	        int depth) {
 		handlePublicMethodNode(callTree, cn, mn);
 
-		if (mn.signature != null) {
-			logger.debug("Visiting signature: " + mn.signature);
-			CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor(
-			        cn.name);
-			new SignatureReader(mn.signature).accept(visitor);
-			castClasses.addAll(visitor.getClasses());
-			for (Type castType : visitor.getClasses()) {
-				if (!castClassMap.containsKey(castType)) {
-					logger.debug("Adding new cast class from signature visitor: "
-					        + castType);
-					castClassMap.put(castType, depth + 1);
-				}
-			}
-		}
-
 		InsnList instructions = mn.instructions;
 		Iterator<AbstractInsnNode> iterator = instructions.iterator();
 
@@ -197,38 +151,6 @@ public class CallTreeGenerator {
 			AbstractInsnNode insn = iterator.next();
 			if (insn instanceof MethodInsnNode) {
 				handleMethodInsnNode(callTree, cn, mn, (MethodInsnNode) insn, depth + 1);
-			} else if (insn.getOpcode() == Opcodes.CHECKCAST) {
-				TypeInsnNode typeNode = (TypeInsnNode) insn;
-				Type castType = Type.getObjectType(typeNode.desc);
-				while (castType.getSort() == Type.ARRAY) {
-					castType = castType.getElementType();
-				}
-				logger.debug("Adding new cast class from cast: " + castType);
-				castClasses.add(castType);
-				if (!castClassMap.containsKey(castType))
-					castClassMap.put(castType, depth+1);
-			} else if (insn.getOpcode() == Opcodes.INSTANCEOF) {
-				TypeInsnNode typeNode = (TypeInsnNode) insn;
-				Type castType = Type.getObjectType(typeNode.desc);
-				while (castType.getSort() == Type.ARRAY) {
-					castType = castType.getElementType();
-				}
-				logger.debug("Adding new cast class from instanceof: " + castType);
-				if (!castClassMap.containsKey(castType))
-					castClassMap.put(castType, depth+1);
-				castClasses.add(castType);
-			} else if (insn.getOpcode() == Opcodes.LDC) {
-				LdcInsnNode ldcNode = (LdcInsnNode) insn;
-				if (ldcNode.cst instanceof Type) {
-					Type type = (Type) ldcNode.cst;
-					while (type.getSort() == Type.ARRAY) {
-						type = type.getElementType();
-					}
-					if (!castClassMap.containsKey(type))
-						castClassMap.put(type, depth+1);
-					castClasses.add(type);
-				}
-
 			}
 		}
 	}

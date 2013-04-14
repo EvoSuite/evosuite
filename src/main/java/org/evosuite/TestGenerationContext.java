@@ -13,6 +13,8 @@ import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.primitives.ConstantPoolManager;
+import org.evosuite.setup.CallTreeGenerator;
+import org.evosuite.setup.CastClassManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
@@ -76,6 +78,7 @@ public class TestGenerationContext {
 
 		// TODO: After this, the test cluster is empty until DependencyAnalysis.analyse is called
 		TestCluster.reset();
+		CastClassManager.getInstance().clear();
 
 		// This counts the current level of recursion during test generation
 		org.evosuite.testcase.TestFactory.getInstance().reset();
