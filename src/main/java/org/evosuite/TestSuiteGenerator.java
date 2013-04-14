@@ -479,7 +479,13 @@ public class TestSuiteGenerator {
 	private static Class<?>[] getClassesFromFiles(List<File> files){
 		List<Class<?>> classes = new ArrayList<Class<?>>();
 		for(File file : files){
-			String packagePrefix = Properties.TARGET_CLASS.substring(0,Properties.TARGET_CLASS.lastIndexOf(".")+1);
+			
+			//String packagePrefix = Properties.TARGET_CLASS.substring(0,Properties.TARGET_CLASS.lastIndexOf(".")+1);
+			String packagePrefix = Properties.CLASS_PREFIX;
+			if(!packagePrefix.isEmpty() && !packagePrefix.endsWith(".")){
+				packagePrefix += ".";
+			}
+			
 			final String JAVA = ".java";
 			String name = file.getName();
 			name = name.substring(0, name.length() - JAVA.length());
@@ -487,7 +493,7 @@ public class TestSuiteGenerator {
 			
 			Class<?> testClass = null;
 			try {
-				testClass = Class.forName(className);
+				testClass = Class.forName(className);				
 			} catch (ClassNotFoundException e) {
 				logger.error("Failed to load test case "+className+": "+e,e);
 				return null;
