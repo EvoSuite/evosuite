@@ -110,9 +110,28 @@ public class CallTreeGenerator {
 		handleSuperClasses(callTree, superClass);
 
 	}
+	
+	private static void handleClassSignature(ClassNode cn) {
+		CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor(
+				cn.name);
+		if(cn.signature != null) {
+			new SignatureReader(cn.signature).accept(visitor);
+			castClasses.addAll(visitor.getClasses());
+			for (Type castType : visitor.getClasses()) {
+				if (!castClassMap.containsKey(castType)) {
+					logger.debug("Adding new cast class from signature visitor: "
+							+ castType);
+					castClassMap.put(castType, 1);
+				}
+			}
+		}
+
+	}
 
 	@SuppressWarnings("unchecked")
 	public static void handle(CallTree callTree, ClassNode targetClass, int depth) {
+		handleClassSignature(targetClass);
+
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			logger.debug("Method: " + mn.name);
@@ -123,6 +142,7 @@ public class CallTreeGenerator {
 	@SuppressWarnings("unchecked")
 	public static void handle(CallTree callTree, ClassNode targetClass,
 	        String methodName, int depth) {
+		handleClassSignature(targetClass);
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			if (methodName.equals(mn.name + mn.desc))
