@@ -141,7 +141,7 @@ public class GenericMethod extends GenericAccessibleObject {
 		Type[] parameterTypes = m.getGenericParameterTypes();
 		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type), m.getDeclaringClass());
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
-			throw new IllegalArgumentException("The method " + m + " is not a member of type " + type);
+			throw new IllegalArgumentException("The method " + m + " is not a member of type " + type.hashCode()+": "+m.getDeclaringClass().hashCode());
 		}
 
 		Type[] result = new Type[parameterTypes.length];
@@ -249,10 +249,11 @@ public class GenericMethod extends GenericAccessibleObject {
 					if (equals) {
 						this.method = newMethod;
 						this.method.setAccessible(true);
-						break;
+						return;
 					}
 				}
 			}
+			LoggingUtils.getEvoLogger().info("Method not found - keeping old class loader ");
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
 			                                 e);
