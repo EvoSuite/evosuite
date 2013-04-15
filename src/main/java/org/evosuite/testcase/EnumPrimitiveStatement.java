@@ -226,7 +226,8 @@ public class EnumPrimitiveStatement<T extends Enum<T>> extends PrimitiveStatemen
 
 			enumClass = (Class<T>) loader.loadClass(enumClass.getName());
 			constants = enumClass.getEnumConstants();
-			value = constants[pos];
+			if(constants.length > 0)
+				value = constants[pos];
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found - keeping old class loader ", e);
 		} catch (SecurityException e) {
