@@ -1004,7 +1004,7 @@ public class TestCodeVisitor extends TestVisitor {
 		List<VariableReference> parameters = statement.getParameterReferences();
 		int startPos = 0;
 		if (constructor.getConstructor().getDeclaringClass().isMemberClass()
-		        && !constructor.isStatic()) {
+		        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
 			startPos = 1;
 		}
 		String parameter_string = getParameterString(constructor.getParameterTypes(), parameters, isGenericMethod, startPos);
