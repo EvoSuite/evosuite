@@ -108,20 +108,29 @@ public class NumberFormatter {
 				return "(" + value + ")";
 			else
 				return "" + val;
-		} else if (value.getClass().isEnum()) {
+		} else if (value.getClass().isEnum() || value instanceof Enum) {
+			// java.util.concurrent.TimeUnit is an example where the enum
+			// elements are anonymous inner classes, and then isEnum does
+			// not return true apparently? So we check using instanceof as well.
+			
 			Class<?> clazz = value.getClass();
 			String className = clazz.getSimpleName();
 			while (clazz.getEnclosingClass() != null) {
-				className = clazz.getEnclosingClass().getSimpleName() + "." + className;
+				String enclosingName = clazz.getEnclosingClass().getSimpleName();
+				className = enclosingName + "." + className;
 				clazz = clazz.getEnclosingClass();
 			}
+			
+			// We have to do this here to avoid a double colon in the TimeUnit example
+			if(!className.endsWith("."))
+				className += ".";
 			try {
 				if (value.getClass().getField(value.toString()) != null)
-					return className + "." + value;
+					return className  + value;
 				else
-					return className + ".valueOf(\"" + value + "\")";
+					return className + "valueOf(\"" + value + "\")";
 			} catch (Exception e) {
-				return className + ".valueOf(\"" + value + "\")";
+				return className + "valueOf(\"" + value + "\")";
 			}
 		} else if (value.getClass().equals(String.class)) {
 			return StringEscapeUtils.unescapeJava(value.toString());
