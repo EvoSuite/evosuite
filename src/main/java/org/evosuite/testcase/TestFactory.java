@@ -1355,9 +1355,11 @@ public class TestFactory {
 		double r = Randomness.nextDouble();
 		int position = Randomness.nextInt(test.size() + 1);
 
-		for (int i = 0; i < test.size(); i++) {
-			logger.debug(test.getStatement(i).getCode() + ": Distance = "
-			        + test.getStatement(i).getReturnValue().getDistance());
+		if(logger.isDebugEnabled()) {
+			for (int i = 0; i < test.size(); i++) {
+				logger.debug(test.getStatement(i).getCode() + ": Distance = "
+						+ test.getStatement(i).getReturnValue().getDistance());
+			}
 		}
 
 		//		if (r <= P_UUT) {
@@ -1431,8 +1433,10 @@ public class TestFactory {
 		double sum = 0.0;
 		for (int i = 0; i < position; i++) {
 			sum += 1d / (10 * test.getStatement(i).getReturnValue().getDistance() + 1d);
-			logger.debug(test.getStatement(i).getCode() + ": Distance = "
-			        + test.getStatement(i).getReturnValue().getDistance());
+			if(logger.isDebugEnabled()) {
+				logger.debug(test.getStatement(i).getCode() + ": Distance = "
+						+ test.getStatement(i).getReturnValue().getDistance());
+			}
 		}
 
 		double rnd = Randomness.nextDouble() * sum;
