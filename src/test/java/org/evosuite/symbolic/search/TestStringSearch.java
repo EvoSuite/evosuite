@@ -501,8 +501,8 @@ public class TestStringSearch {
 	@Test
 	public void testRegexMatchesFalse() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		String var1 = "test";
-		String const2 = "TEST";
+		String var1 = "testsomestring";
+		String const2 = "testsomestring";
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
