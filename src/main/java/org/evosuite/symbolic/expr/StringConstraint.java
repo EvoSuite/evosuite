@@ -146,9 +146,9 @@ public final class StringConstraint extends Constraint<String> {
 			case CONTAINS:
 				return StrContains(first, second);
 			case PATTERNMATCHES:
-				return RegexMatches(second, first);
+				return RegexMatches(second,first); //FIXME shouldn't be inverted?
 			case APACHE_ORO_PATTERN_MATCHES:
-				return RegexMatches(second, first);
+				return RegexMatches(second, first); //FIXME shouldn't be inverted?
 
 			default:
 				log.warn("StringComparison: unimplemented operator!"
