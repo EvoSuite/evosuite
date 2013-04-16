@@ -57,9 +57,6 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	private static final Logger logger = LoggerFactory.getLogger(MaxStatementsStoppingCondition.class);
 
 	/** Maximum number of iterations */
-	protected static long maxStatements = Properties.SEARCH_BUDGET;
-
-	/** Maximum number of iterations */
 	protected static long currentStatement = 0;
 
 	/**
@@ -81,7 +78,7 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 	public boolean isFinished() {
 		// logger.info("Current number of statements executed: " + current_statement + "/"
 		//        + max_statements);
-		return currentStatement >= maxStatements;
+		return currentStatement >= Properties.SEARCH_BUDGET;
 	}
 
 	/**
@@ -116,16 +113,6 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 		currentStatement = value;
 	}
 
-	/**
-	 * Set new upper limit
-	 * 
-	 * @param max
-	 *            a int.
-	 */
-	public static void setMaxExecutedStatements(int max) {
-		maxStatements = max;
-	}
-
 	/* (non-Javadoc)
 	 * @see org.evosuite.ga.StoppingCondition#getCurrentValue()
 	 */
@@ -135,25 +122,22 @@ public class MaxStatementsStoppingCondition extends StoppingConditionImpl {
 		return currentStatement;
 	}
 
-	/* (non-Javadoc)
-	 * @see org.evosuite.ga.StoppingCondition#setLimit(int)
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public void setLimit(long limit) {
-		maxStatements = limit;
-	}
-
 	/** {@inheritDoc} */
 	@Override
 	public long getLimit() {
-		return maxStatements;
+		return Properties.SEARCH_BUDGET;
 	}
 
 	/** {@inheritDoc} */
 	@Override
 	public void forceCurrentValue(long value) {
 		currentStatement = value;
+	}
+
+	@Override
+	public void setLimit(long limit) {
+		// No-op?
+		// The limit should be set by setting Properties.SEARCH_BUDGET
 	}
 
 }
