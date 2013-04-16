@@ -127,10 +127,16 @@ public class NumberFormatter {
 			try {
 				if (value.getClass().getField(value.toString()) != null)
 					return className  + value;
+				else if (((Enum<?>)value).name() != null)
+					return className  + ((Enum<?>)value).name();
 				else
-					return className + "valueOf(\"" + value + "\")";
+					return "Enum.valueOf("+className + "class, \"" + value + "\")";
 			} catch (Exception e) {
-				return className + "valueOf(\"" + value + "\")";
+				if (((Enum<?>)value).name() != null)
+					return className  + ((Enum<?>)value).name();
+				else
+					return "Enum.valueOf("+className + "class /* "+e+" */, \"" + value + "\")";
+				// return className + "valueOf(\"" + value + "\")";
 			}
 		} else if (value.getClass().equals(String.class)) {
 			return StringEscapeUtils.unescapeJava(value.toString());

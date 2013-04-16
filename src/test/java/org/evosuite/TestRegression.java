@@ -65,6 +65,7 @@ public class TestRegression extends SystemTest {
 		Assert.assertEquals("Wrong fitness: ", 0.0, best.getFitness(), 0.00);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 		Assert.assertTrue("Wrong number of statements: ", best.size() > 0);
+		System.out.println(best.toString());
 	}
 
 	@Test
