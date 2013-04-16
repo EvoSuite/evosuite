@@ -13,7 +13,6 @@ import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.primitives.ConstantPoolManager;
-import org.evosuite.setup.CallTreeGenerator;
 import org.evosuite.setup.CastClassManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
@@ -96,9 +95,10 @@ public class TestGenerationContext {
 
 		if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 			try {
-				TestClusterGenerator.generateCluster(Properties.TARGET_CLASS,
-				                                     DependencyAnalysis.getInheritanceTree(),
-				                                     DependencyAnalysis.getCallTree());
+				TestClusterGenerator clusterGenerator = new TestClusterGenerator();
+				clusterGenerator.generateCluster(Properties.TARGET_CLASS,
+						DependencyAnalysis.getInheritanceTree(),
+						DependencyAnalysis.getCallTree());
 			} catch (RuntimeException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();

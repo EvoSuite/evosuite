@@ -93,7 +93,8 @@ public class DependencyAnalysis {
 		CallTreeGenerator.update(callTree, inheritanceTree);
 
 		logger.debug("Create test cluster");
-		TestClusterGenerator.generateCluster(className, inheritanceTree, callTree);
+		TestClusterGenerator clusterGenerator = new TestClusterGenerator();
+		clusterGenerator.generateCluster(className, inheritanceTree, callTree);
 		
 		gatherStatistics();
 	}

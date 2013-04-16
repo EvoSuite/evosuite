@@ -264,6 +264,11 @@ public class TestCluster {
 	public void addTestCall(GenericAccessibleObject call) {
 		testMethods.add(call);
 	}
+	
+	public void addCastClassForContainer(Class<?> clazz) {
+		CastClassManager.getInstance().addCastClass(clazz, 1);
+		clearGeneratorCache(new GenericClass(clazz));
+	}
 
 	
 	/**
