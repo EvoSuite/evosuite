@@ -65,6 +65,6 @@ public class TestSUTDivisionByZero extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 6, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 5d / 6d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 }
