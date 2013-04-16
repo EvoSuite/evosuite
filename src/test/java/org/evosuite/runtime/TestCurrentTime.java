@@ -37,7 +37,7 @@ public class TestCurrentTime extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.REPLACE_CALLS = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-assertions" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
