@@ -17,8 +17,10 @@
  */
 package org.evosuite.symbolic.search;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
@@ -380,6 +382,71 @@ public class TestStringSearch {
 		}
 	}
 
+	
+	@Test
+	public void testInversionOfRegex() {
+		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
+		
+		String var = "a+";
+		String regex = "aaa";
+		
+		//so we need to solve it
+		assertFalse(var.matches(regex));
+		
+		String variableName = "test1";
+		
+		StringVariable strVar = new StringVariable(variableName, var);
+		StringConstant strConst = new StringConstant(regex);
+		
+		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
+				Operator.PATTERNMATCHES, strConst, 0L);
+		
+		//the constraint should evaluate to true
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
+
+		ConstraintSolver skr = new ConstraintSolver();
+		Map<String, Object> result;
+		try {
+			result = skr.solve(constraints);
+			assertNotNull(result);
+			assertNotNull(result.get(variableName));
+			String solution = result.get(variableName).toString();
+			assertTrue(solution.matches(regex));
+			/*
+			 * as the regex defines only one possible matching string,
+			 * then the solution has to be equal to the regex 
+			 */
+			assertEquals(regex,solution);
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
+		
+		//now let's invert them
+		strVar = new StringVariable(variableName, regex);
+		strConst = new StringConstant(var);
+		
+		//the inversion should match immediately
+		assertTrue(regex.matches(var));
+		
+		//recreate the same type of constraint
+		strComp = new StringBinaryComparison(strVar,Operator.PATTERNMATCHES, strConst, 0L);
+		constraints.clear();
+		constraints.add(new StringConstraint(strComp, Comparator.NE,
+				new IntegerConstant(0)));
+		
+		try {
+			result = skr.solve(constraints);
+			/*
+			 * as "aaa" should already match "a+", then the solver
+			 * should return null
+			 */
+			assertNull(result);			
+		} catch (ConstraintSolverTimeoutException e) {
+			fail();
+		}
+	}
+	
 	@Test
 	public void testRegexMatchesTrue() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
