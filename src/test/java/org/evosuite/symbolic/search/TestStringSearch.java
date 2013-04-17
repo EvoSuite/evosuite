@@ -398,8 +398,8 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable(variableName, var);
 		StringConstant strConst = new StringConstant(regex);
 		
-		StringBinaryComparison strComp = new StringBinaryComparison(strVar,
-				Operator.PATTERNMATCHES, strConst, 0L);
+		StringBinaryComparison strComp = new StringBinaryComparison(strConst,
+				Operator.PATTERNMATCHES, strVar, 0L);
 		
 		//the constraint should evaluate to true
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
@@ -430,7 +430,7 @@ public class TestStringSearch {
 		assertTrue(regex.matches(var));
 		
 		//recreate the same type of constraint
-		strComp = new StringBinaryComparison(strVar,Operator.PATTERNMATCHES, strConst, 0L);
+		strComp = new StringBinaryComparison(strConst,Operator.PATTERNMATCHES, strVar, 0L);
 		constraints.clear();
 		constraints.add(new StringConstraint(strComp, Comparator.NE,
 				new IntegerConstant(0)));
