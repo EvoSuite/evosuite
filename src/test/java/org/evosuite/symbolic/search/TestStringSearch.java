@@ -303,7 +303,7 @@ public class TestStringSearch {
 	@Test
 	public void testRegionMatchesICTrueConstant() {
 		List<Constraint<?>> constraints = new ArrayList<Constraint<?>>();
-		String var1 = "fotesto";
+		String var1 = "teXto";
 		String const2 = "rtestooo";
 		boolean ignore_case = true;
 		int offset1 = 0;
@@ -313,8 +313,8 @@ public class TestStringSearch {
 		StringVariable strVar = new StringVariable("test1", var1);
 		StringConstant strConst = new StringConstant(const2);
 		IntegerConstant len_expr = new IntegerConstant(len);
-		IntegerConstant offs_two = new IntegerConstant(offset2);
 		IntegerConstant offs_one = new IntegerConstant(offset1);
+		IntegerConstant offs_two = new IntegerConstant(offset2);
 		IntegerConstant ign_case = new IntegerConstant(ignore_case ? 1 : 0);
 
 		ArrayList<Expression<?>> other = new ArrayList<Expression<?>>();
