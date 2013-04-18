@@ -471,7 +471,7 @@ public class SymbolicObserverTest {
 
 		tc.appendAssignment(null, string_field, string0);
 
-		VariableReference string1 = tc.appendFieldStmt(null, string_field);
+		VariableReference string1 = tc.appendStaticFieldStmt(string_field);
 
 		VariableReference boolean0 = tc.appendMethod(null, equals, string0,
 				string1);
@@ -952,7 +952,7 @@ public class SymbolicObserverTest {
 
 		TestCaseBuilder tc = new TestCaseBuilder();
 
-		VariableReference fraction0 = tc.appendFieldStmt(null, one_fifth);
+		VariableReference fraction0 = tc.appendStaticFieldStmt(one_fifth);
 		return tc.getDefaultTestCase();
 	}
 
