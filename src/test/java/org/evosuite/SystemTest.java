@@ -75,6 +75,7 @@ public class SystemTest {
 
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.SANDBOX = false;
+		Properties.ERROR_BRANCHES = false;
 	}
 
 	/*
