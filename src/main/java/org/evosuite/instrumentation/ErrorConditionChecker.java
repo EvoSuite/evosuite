@@ -20,7 +20,11 @@
  */
 package org.evosuite.instrumentation;
 
+import java.math.BigDecimal;
+
 import org.objectweb.asm.Opcodes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -31,6 +35,8 @@ import org.objectweb.asm.Opcodes;
  */
 public class ErrorConditionChecker {
 
+	private static final Logger logger = LoggerFactory.getLogger(ErrorConditionChecker.class);
+	
 	/**
 	 * <p>
 	 * scale
@@ -91,7 +97,9 @@ public class ErrorConditionChecker {
 		switch (opcode) {
 
 		case Opcodes.IADD:
-			return overflowDistanceAdd(op1, op2);
+			int result = overflowDistanceAdd(op1, op2);
+			logger.debug("O: "+op1+" + "+op2+" = "+(op1+op2)+" -> "+result);
+			return result;
 
 		case Opcodes.ISUB:
 			return overflowDistanceSub(op1, op2);
@@ -105,14 +113,21 @@ public class ErrorConditionChecker {
 		return Integer.MAX_VALUE;
 	}
 
-	private final static int HALFWAY = Integer.MAX_VALUE / 2;
+	protected final static int HALFWAY = Integer.MAX_VALUE / 2;
 
-	private static int overflowDistanceAdd(int op1, int op2) {
+	protected static int overflowDistanceAdd(int op1, int op2) {
 		int result = op1 + op2;
 		if (op1 > 0 && op2 > 0) {
 			// result has to be < 0 for overflow
-			return result < 0 ? result : HALFWAY - scaleTo(result, HALFWAY);
-
+			if(result < 0)
+				return result;
+			else {
+				int retVal = HALFWAY - scaleTo(result, HALFWAY);
+				if(retVal != 0)
+					return retVal;
+				else 
+					return 1;
+			}
 		} else if (op1 < 0 && op2 < 0) {
 			// if both are negative then both need to be increased
 			return HALFWAY
@@ -129,12 +144,16 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceAdd(int op1, int op2) {
+	protected static int underflowDistanceAdd(int op1, int op2) {
 		int result = op1 + op2;
 		if (op1 <= 0 && op2 <= 0) {
-			// result has to be < 0 for overflow
-			return result > 0 ? -result : HALFWAY
-			        - scaleTo(Math.abs((long) result), HALFWAY) + 1;
+			if(op1 == Integer.MIN_VALUE && op2 == Integer.MIN_VALUE) {
+				return Integer.MIN_VALUE;
+			} else {
+				// result has to be < 0 for overflow
+				return result > 0 ? -result : HALFWAY
+						- scaleTo(Math.abs((long) result), HALFWAY) + 1;
+			}
 		} else if (op1 > 0 && op2 > 0) {
 			// if both are positive then both need to be decreased
 			return HALFWAY
@@ -149,7 +168,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceSub(int op1, int op2) {
+	protected static int overflowDistanceSub(int op1, int op2) {
 		int result = op1 - op2;
 		if (op1 >= 0 && op2 <= 0) {
 			// result has to be < 0 for overflow
@@ -169,7 +188,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceSub(int op1, int op2) {
+	protected static int underflowDistanceSub(int op1, int op2) {
 		int result = op1 - op2;
 		if (op1 <= 0 && op2 >= 0) {
 			return result > 0 ? -result : HALFWAY + 1 - scaleTo(result, HALFWAY);
@@ -187,11 +206,28 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceMul(int op1, int op2) {
+	protected static int overflowDistanceMul(int op1, int op2) {
 		int result = op1 * op2;
 		if (op1 > 0 && op2 > 0) {
 			// result has to be < 0 for overflow
-			return result <= 0 ? result : HALFWAY - scaleTo(result, HALFWAY);
+			// the result can be so large that it overflows so much to be positive again
+			// so we need to use longs to check this
+			long longResult = (long)op1 * (long)(op2);
+			if(longResult > Integer.MAX_VALUE) {
+				if(result <= 0)
+					return result;
+				else
+					return Integer.MIN_VALUE;
+			}
+			else {
+				int retval = HALFWAY - scaleTo(result, HALFWAY);
+				if(retval > 0)
+					return retval;
+				else
+					return 1;
+			}
+			//System.out.println(op1+" * "+op2 +" -> "+result +" -> "+(HALFWAY - scaleTo(result, HALFWAY)));
+			//return result <= 0 ? result : HALFWAY - scaleTo(result, HALFWAY);
 		} else if (op1 < 0 && op2 < 0) {
 			return result <= 0 ? result : HALFWAY - scaleTo(result, HALFWAY);
 		} else if (op1 > 0 && op2 < 0) {
@@ -205,7 +241,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceMul(int op1, int op2) {
+	protected static int underflowDistanceMul(int op1, int op2) {
 		int result = op1 * op2;
 		if (op1 > 0 && op2 < 0) {
 			return result >= 0 ? -result : HALFWAY - scaleTo(result, HALFWAY);
@@ -221,20 +257,27 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceDiv(int op1, int op2) {
+	protected static int overflowDistanceDiv(int op1, int op2) {
 		if (op1 == Integer.MIN_VALUE && op2 == -1)
 			return -1;
-		else
+		else {
+			// If op2 is MAX_VALUE then -1 -op2 will give us an overflow
+			if(op2 == Integer.MAX_VALUE)
+				return Integer.MAX_VALUE;
+			
 			// TODO There may be an overflow here
 			return scaleTo(Math.abs(Integer.MIN_VALUE - op1), HALFWAY)
 			        + scaleTo(Math.abs(-1 - op2), HALFWAY);
+		}
 	}
 
 	public static int underflowDistance(int op1, int op2, int opcode) {
 		switch (opcode) {
 
 		case Opcodes.IADD:
-			return underflowDistanceAdd(op1, op2);
+			int result = underflowDistanceAdd(op1, op2);
+			logger.debug("U: "+op1+" + "+op2+" = "+(op1+op2)+" -> "+result);
+			return result;
 
 		case Opcodes.ISUB:
 			return underflowDistanceSub(op1, op2);
@@ -280,7 +323,7 @@ public class ErrorConditionChecker {
 		return Integer.MAX_VALUE;
 	}
 
-	private static int overflowDistanceAdd(float op1, float op2) {
+	protected static int overflowDistanceAdd(float op1, float op2) {
 		float result = op1 + op2;
 		if (op1 > 0 && op2 > 0) {
 			// result has to be < 0 for overflow
@@ -303,7 +346,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceAdd(float op1, float op2) {
+	protected static int underflowDistanceAdd(float op1, float op2) {
 		float result = op1 + op2;
 		if (op1 <= 0 && op2 <= 0) {
 			// result has to be < 0 for overflow
@@ -323,7 +366,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceSub(float op1, float op2) {
+	protected static int overflowDistanceSub(float op1, float op2) {
 		float result = op1 - op2;
 		if (op1 >= 0 && op2 <= 0) {
 			// result has to be < 0 for overflow
@@ -344,7 +387,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceSub(float op1, float op2) {
+	protected static int underflowDistanceSub(float op1, float op2) {
 		float result = op1 - op2;
 		if (op1 <= 0 && op2 >= 0) {
 			return result == Float.NEGATIVE_INFINITY ? -1 : HALFWAY + 1
@@ -363,7 +406,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceMul(float op1, float op2) {
+	protected static int overflowDistanceMul(float op1, float op2) {
 		float result = op1 * op2;
 		if (op1 > 0 && op2 > 0) {
 			// result has to be < 0 for overflow
@@ -385,7 +428,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceMul(float op1, float op2) {
+	protected static int underflowDistanceMul(float op1, float op2) {
 		float result = op1 * op2;
 		if (op1 > 0 && op2 < 0) {
 			return result == Float.NEGATIVE_INFINITY ? -1 : HALFWAY
@@ -405,7 +448,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceDiv(float op1, float op2) {
+	protected static int overflowDistanceDiv(float op1, float op2) {
 		if (op1 == -Float.MAX_VALUE && op2 == -1.0)
 			return -1;
 		else
@@ -448,7 +491,7 @@ public class ErrorConditionChecker {
 		return Integer.MAX_VALUE;
 	}
 
-	private static int overflowDistanceAdd(double op1, double op2) {
+	protected static int overflowDistanceAdd(double op1, double op2) {
 		double result = op1 + op2;
 		if (op1 > 0 && op2 > 0) {
 			// result has to be < 0 for overflow
@@ -470,7 +513,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceAdd(double op1, double op2) {
+	protected static int underflowDistanceAdd(double op1, double op2) {
 		double result = op1 + op2;
 		if (op1 <= 0 && op2 <= 0) {
 			// result has to be < 0 for overflow
@@ -490,7 +533,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceSub(double op1, double op2) {
+	protected static int overflowDistanceSub(double op1, double op2) {
 		double result = op1 - op2;
 		if (op1 >= 0 && op2 <= 0) {
 			// result has to be < 0 for overflow
@@ -511,7 +554,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceSub(double op1, double op2) {
+	protected static int underflowDistanceSub(double op1, double op2) {
 		double result = op1 - op2;
 		if (op1 <= 0 && op2 >= 0) {
 			return result == Double.NEGATIVE_INFINITY ? -1 : HALFWAY + 1
@@ -530,7 +573,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceMul(double op1, double op2) {
+	protected static int overflowDistanceMul(double op1, double op2) {
 		double result = op1 * op2;
 		if (op1 > 0 && op2 > 0) {
 			// result has to be < 0 for overflow
@@ -552,7 +595,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceMul(double op1, double op2) {
+	protected static int underflowDistanceMul(double op1, double op2) {
 		double result = op1 * op2;
 		if (op1 > 0 && op2 < 0) {
 			return result == Double.NEGATIVE_INFINITY ? -1 : HALFWAY
@@ -572,7 +615,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceDiv(double op1, double op2) {
+	protected static int overflowDistanceDiv(double op1, double op2) {
 		if (op1 == -Double.MAX_VALUE && op2 == -1.0)
 			return -1;
 		else
@@ -615,7 +658,7 @@ public class ErrorConditionChecker {
 		return Integer.MAX_VALUE;
 	}
 
-	private static int overflowDistanceAdd(long op1, long op2) {
+	protected static int overflowDistanceAdd(long op1, long op2) {
 		long result = op1 + op2;
 		if (op1 > 0 && op2 > 0) {
 			// result has to be < 0 for overflow
@@ -637,12 +680,31 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceAdd(long op1, long op2) {
+	protected static int underflowDistanceAdd(long op1, long op2) {
 		long result = op1 + op2;
-		if (op1 <= 0 && op2 <= 0) {
-			// result has to be < 0 for overflow
-			return result > 0 ? -scaleTo(result, HALFWAY) : HALFWAY
-			        - scaleTo(Math.abs(result), HALFWAY) + 1;
+		if (op1 <= 0L && op2 <= 0L) {
+			// result has to be < 0 for underflow
+			if(result > 0) {
+				int retval = -scaleTo(result, HALFWAY);
+				if(retval < 0)
+					return retval;
+				else
+					return -1;
+			} else if(result == 0L) {
+				if(op1 != 0 && op2 != 0) {
+					return -1;					
+				} else {
+					return HALFWAY
+					        - scaleTo(Math.abs(result), HALFWAY);
+				}
+			} else {
+				int intResult = HALFWAY
+				        - scaleTo(Math.abs(result), HALFWAY);
+				if(intResult == 0)
+					return 1;
+				else
+					return intResult;
+			}
 		} else if (op1 > 0 && op2 > 0) {
 			// if both are positive then both need to be decreased
 			return result < 0 ? Integer.MAX_VALUE : HALFWAY
@@ -657,7 +719,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int overflowDistanceSub(long op1, long op2) {
+	protected static int overflowDistanceSub(long op1, long op2) {
 		long result = op1 - op2;
 		if (op1 >= 0 && op2 <= 0) {
 			// result has to be < 0 for overflow
@@ -678,7 +740,7 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceSub(long op1, long op2) {
+	protected static int underflowDistanceSub(long op1, long op2) {
 		long result = op1 - op2;
 		if (op1 <= 0 && op2 >= 0) {
 			return result > 0 ? -scaleTo(result, HALFWAY) : HALFWAY + 1
@@ -690,22 +752,34 @@ public class ErrorConditionChecker {
 			// In this case we can't have an overflow yet
 			return HALFWAY + scaleTo(Math.abs(op1), HALFWAY);
 		} else if (op1 < 0 && op2 <= 0) {
-			return HALFWAY + scaleTo(Math.abs(op2), HALFWAY);
+			return 1 + HALFWAY + scaleTo(Math.abs(op2), HALFWAY);
 		} else {
 			// Not sure if this can be reached
 			return 1 + HALFWAY - scaleTo(result, HALFWAY);
 		}
 	}
 
-	private static int overflowDistanceMul(long op1, long op2) {
+	protected static int overflowDistanceMul(long op1, long op2) {
 		long result = op1 * op2;
-		if (op1 > 0 && op2 > 0) {
+		if ((op1 > 0 && op2 > 0) || (op1 < 0 && op2 < 0)) {
+			BigDecimal bigDecimal = new BigDecimal(op1).multiply(new BigDecimal(op2));
+			BigDecimal maxResult = new BigDecimal(Long.MAX_VALUE);
+			
+			if(bigDecimal.compareTo(maxResult) > 0) {
+				int intResult = -scaleTo(Math.abs(result), HALFWAY); 
+				if(result <= 0)
+					return intResult;
+				else
+					return Integer.MIN_VALUE;
+			}
+			else {
+				int retval = HALFWAY - scaleTo(result, HALFWAY);
+				if(retval > 0)
+					return retval;
+				else
+					return 1;
+			}
 			// result has to be < 0 for overflow
-			return result < 0 ? -scaleTo(Math.abs(result), HALFWAY) : HALFWAY
-			        - scaleTo(result, HALFWAY);
-		} else if (op1 < 0 && op2 < 0) {
-			return result < 0 ? -scaleTo(Math.abs(result), HALFWAY) : HALFWAY
-			        - scaleTo(result, HALFWAY) + 1;
 		} else if (op1 > 0 && op2 < 0) {
 			// In this case we can't have an overflow yet
 			return result > 0 ? Integer.MAX_VALUE : HALFWAY
@@ -719,27 +793,28 @@ public class ErrorConditionChecker {
 		}
 	}
 
-	private static int underflowDistanceMul(long op1, long op2) {
+	protected static int underflowDistanceMul(long op1, long op2) {
 		long result = op1 * op2;
-		if (op1 > 0 && op2 < 0) {
-			return result > 0 ? -scaleTo(result, HALFWAY) : HALFWAY
-			        - scaleTo(result, HALFWAY);
-		} else if (op1 < 0 && op2 > 0) {
-			return result > 0 ? -scaleTo(result, HALFWAY) : HALFWAY
-			        - scaleTo(result, HALFWAY);
-		} else if (op1 > 0 && op2 > 0) {
-			return result < 0 ? Integer.MAX_VALUE : HALFWAY
-			        + scaleTo(Math.min(op1, op2), HALFWAY);
-		} else if (op1 < 0 && op2 < 0) {
-			return result < 0 ? Integer.MAX_VALUE : HALFWAY
-			        + scaleTo(Math.abs(Math.max(op1, op2)), HALFWAY);
-		} else {
-			// One of them is zero
-			return HALFWAY;
+		BigDecimal bigDecimal = new BigDecimal(op1).multiply(new BigDecimal(op2));
+		BigDecimal minResult = new BigDecimal(Long.MIN_VALUE);
+
+		if(bigDecimal.compareTo(minResult) < 0) {
+			int intResult = -scaleTo(Math.abs(result), HALFWAY); 
+			if(result <= 0)
+				return intResult;
+			else
+				return Integer.MIN_VALUE;
 		}
+		else {
+			int retval = HALFWAY - scaleTo(result, HALFWAY);
+			if(retval > 0)
+				return retval;
+			else
+				return 1;
+		}		
 	}
 
-	private static int overflowDistanceDiv(long op1, long op2) {
+	protected static int overflowDistanceDiv(long op1, long op2) {
 		if (op1 == Long.MIN_VALUE && op2 == -1L)
 			return -1;
 		else
