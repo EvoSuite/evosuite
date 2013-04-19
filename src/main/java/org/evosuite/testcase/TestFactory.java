@@ -403,8 +403,14 @@ public class TestFactory {
 		// Remove assignments from the same array
 		while (iterator.hasNext()) {
 			VariableReference var = iterator.next();
-			if (var instanceof ArrayIndex && ((ArrayIndex) var).getArray().equals(array))
-				iterator.remove();
+			if (var instanceof ArrayIndex) {
+				if(((ArrayIndex) var).getArray().equals(array))
+					iterator.remove();
+				// Do not assign values of same type as array to elements
+				// This may e.g. happen if we have Object[], we could otherwise assign Object[] as values
+				else if(((ArrayIndex) var).getArray().getType().equals(array.getType()))
+					iterator.remove();
+			}
 		}
 		assignArray(test, array, arrayIndex, position, objects);
 	}
@@ -733,6 +739,11 @@ public class TestFactory {
 				ArrayIndex index = (ArrayIndex) current;
 				if (index.getArray().equals(statement.retval))
 					iterator.remove();
+				// Do not assign values of same type as array to elements
+				// This may e.g. happen if we have Object[], we could otherwise assign Object[] as values
+				else if(index.getArray().getType().equals(type))
+					iterator.remove();
+
 			}
 		}
 		objects.remove(statement.retval);

@@ -792,8 +792,7 @@ public class TestCluster {
 	public GenericAccessibleObject getGenericInstantiationWithCallee(GenericAccessibleObject accessibleObject, GenericClass calleeType) {
 		logger.debug("Getting generic instantiation for callee "+calleeType+" of method: "+accessibleObject+" for callee "+calleeType);
 		GenericAccessibleObject copy = accessibleObject.copy();
-		Type returnType = copy.getGeneratedType();
-		Class<?> rawClass = GenericTypeReflector.erase(returnType);
+		Class<?> rawClass = copy.getRawGeneratedType();
 
 		TypeVariable<?>[] returnVariables = rawClass.getTypeParameters();
 		
@@ -837,8 +836,13 @@ public class TestCluster {
 			for(Type t : pType.getActualTypeArguments()) {
 				if(t instanceof TypeVariable<?>) {
 					TypeVariable<?> var = (TypeVariable<?>)t;
-					Type actualType = generatedType.getParameterTypes().get(pos);
-					concreteTypes.put(var, actualType);
+					if(generatedType.getParameterTypes().size() > pos) {
+						Type actualType = generatedType.getParameterTypes().get(pos);
+						concreteTypes.put(var, actualType);
+					} else {
+						GenericClass castClass = getRandomCastClass(var, 1);
+						concreteTypes.put(var, castClass.getType());
+					}
 				}
 				pos++;
 			}
@@ -1051,7 +1055,7 @@ public class TestCluster {
 			logger.debug("Chosen generator: "+generator);
 		}
 		if(generator.getOwnerClass().hasWildcardOrTypeVariables()) {
-			logger.debug("Owner class has a wildcard: "+clazz);
+			logger.debug("Owner class has a wildcard: "+clazz.getTypeName());
 			generator = generator.copyWithNewOwner(getGenericInstantiation(generator.getOwnerClass()));
 		}
 		if(generator.hasTypeParameters()) {
