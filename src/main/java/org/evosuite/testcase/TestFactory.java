@@ -714,7 +714,7 @@ public class TestFactory {
 
 		logger.debug("Creating array of type " + type);
 		GenericClass arrayClass = new GenericClass(type);
-		if(arrayClass.hasWildcardOrTypeVariables()) {
+		if(arrayClass.hasWildcardOrTypeVariables() && arrayClass.getRawClass().equals(Class.class)) {
 			GenericClass genericArray = TestCluster.getInstance().getGenericInstantiation(arrayClass);
 			type = genericArray.getType();
 			logger.debug("Setting generic array to type " + type);
