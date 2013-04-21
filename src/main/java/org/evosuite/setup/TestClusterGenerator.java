@@ -375,7 +375,12 @@ public class TestClusterGenerator {
 				        + "," + icn.outerName);
 				String innerClassName = Utils.getClassNameFromResourcePath(icn.name);
 				Class<?> innerClass = TestGenerationContext.getClassLoader().loadClass(innerClassName);
-				if (!targetClasses.contains(innerClass)) {
+				if(!canUse(innerClass))
+					continue;
+				
+				// Sometimes strange things appear such as Map$Entry
+				if (!targetClasses.contains(innerClass) && innerClassName.matches(".*\\$\\d+$")) {
+
 					logger.info("Adding inner class " + innerClassName);
 					targetClasses.add(innerClass);
 					ClassNode innerClassNode = DependencyAnalysis.getClassNode(innerClassName);
@@ -392,6 +397,11 @@ public class TestClusterGenerator {
 		for (Class<?> clazz : targetClasses) {
 			logger.info("Current SUT class: " + clazz);
 
+			if(!canUse(clazz)) {
+				logger.info("Cannot access SUT class: " + clazz);
+				continue;
+			}
+			
 			// Add all constructors
 			for (Constructor<?> constructor : getConstructors(clazz)) {
 				logger.info("Checking target constructor " + constructor);
