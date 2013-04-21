@@ -54,9 +54,10 @@ HOW TO WRITE JUNIT TEST CASES
 Until EvoSuite will not be applicable to itself, there is the need to write manual test cases.
 They should be put in the "src/test/java" folder, following the same package structure as EvoSuite code.
 A unit test suite for SUT org.evosuite.somepackage.Foo should be called org.evosuite.somepackage.FooTest.
-This is for 3 reasons:
+This is useful for several reasons:
+- Need to know what class the test case is supposed to unit test by just looking at its name
+- Should be easy to identify if a class has a test suite for it
 - If in same package, then the test suite can access package/protected fields/methods
-- Easy to identify if a class has a test suite for it
 - Having "Test" as postfix (instead of a prefix) is useful for when searching for classes by name (eg CTRL-SHIFT-t in Eclipse)
 
 
