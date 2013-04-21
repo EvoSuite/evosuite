@@ -17,6 +17,7 @@
  */
 package org.evosuite.testcase;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Modifier;
@@ -34,6 +35,7 @@ import java.util.Set;
 import org.apache.commons.lang3.CharUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.CompareAssertion;
@@ -871,8 +873,27 @@ public class TestCodeVisitor extends TestVisitor {
 				}
 			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)
 			        || name.equals("null")) {
-				parameterString += "(" + getTypeName(declaredParamType)
-				        + ") ";
+				if(TypeUtils.isArrayType(declaredParamType) && TypeUtils.isArrayType(actualParamType)) {
+					Class<?> componentClass = GenericTypeReflector.erase(declaredParamType).getComponentType();
+					if(componentClass.equals(Object.class)) {
+						GenericClass genericComponentClass = new GenericClass(componentClass);
+						if(genericComponentClass.hasWildcardOrTypeVariables()) {
+							// If we are assigning a generic array, then we don't need to cast
+							
+						} else {
+							// If we are assigning a non-generic array, then we do need to cast
+							parameterString += "(" + getTypeName(declaredParamType)
+							        + ") ";
+						}
+					}
+					else { //if (!GenericClass.isAssignable(GenericTypeReflector.getArrayComponentType(declaredParamType), GenericTypeReflector.getArrayComponentType(actualParamType))) {
+						parameterString += "(" + getTypeName(declaredParamType)
+						        + ") ";
+					}
+				} else {
+					parameterString += "(" + getTypeName(declaredParamType)
+							+ ") ";
+				}
 				if (name.contains("(short"))
 					name = name.replace("(short)", "");
 				if (name.contains("(byte"))
@@ -1101,8 +1122,25 @@ public class TestCodeVisitor extends TestVisitor {
 				multiDimensions += "[" + length + "]";
 			}
 		}
-		testCode += getClassName(retval) + " " + getVariableName(retval) + " = new "
-		        + type + multiDimensions + ";\n";
+		
+		if(retval.getGenericClass().isGenericArray()) {
+			if(lengths.size() > 1) {
+				multiDimensions = "new int[] {"+lengths.get(0);
+				for(int dim : lengths) 
+					multiDimensions += ", "+dim;
+				multiDimensions += "}";
+			} else {
+				multiDimensions = ""+lengths.get(0);
+			}
+			
+			testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("+getClassName(retval)+") "+getClassName(Array.class)+".newInstance("
+					+ getClassName(retval.getComponentClass()) + ".class, "+multiDimensions + ");\n";
+			
+			
+		} else {
+			testCode += getClassName(retval) + " " + getVariableName(retval) + " = new "
+					+ type + multiDimensions + ";\n";
+		}
 		addAssertions(statement);
 	}
 
