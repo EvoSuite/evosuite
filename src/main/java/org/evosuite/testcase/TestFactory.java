@@ -615,6 +615,9 @@ public class TestFactory {
 
 		if (call.isMethod()) {
 			GenericMethod method = (GenericMethod) call;
+			if(method.hasTypeParameters())
+				throw new ConstructionFailedException("Cannot handle generic methods properly");
+			
 			VariableReference retval = statement.getReturnValue();
 			VariableReference callee = null;
 			if (!method.isStatic())
@@ -680,9 +683,9 @@ public class TestFactory {
 
 		logger.debug("Got " + calls.size() + " possible calls for " + objects.size()
 		        + " objects");
+		calls.clear();
 		if (calls.isEmpty())
 			return false;
-
 		GenericAccessibleObject call = Randomness.choice(calls);
 		try {
 			if (statement instanceof TestCallStatement)
@@ -748,7 +751,10 @@ public class TestFactory {
 		}
 		objects.remove(statement.retval);
 		logger.debug("Found assignable objects: " + objects.size());
+		Set<GenericAccessibleObject> currentArrayRecursion = new HashSet<GenericAccessibleObject>(currentRecursion);
 		for (int i = 0; i < statement.size(); i++) {
+			currentRecursion.clear();
+			currentRecursion.addAll(currentArrayRecursion);
 			logger.debug("Assigning array index " + i);
 			int oldLength = test.size();
 			assignArray(test, reference, i, position, objects);
@@ -1012,13 +1018,13 @@ public class TestFactory {
 		// Remove invalid classes if this is an Object.class reference
 		if (test.getStatement(position) instanceof MethodStatement) {
 			MethodStatement ms = (MethodStatement) test.getStatement(position);
-			if (ms.getReturnClass().equals(Object.class)) {
+			if (ms.getReturnType().equals(Object.class)) {
 				//				filterVariablesByClass(alternatives, var.getVariableClass());
 				filterVariablesByClass(alternatives, Object.class);
 			}
 		} else if (test.getStatement(position) instanceof ConstructorStatement) {
 			ConstructorStatement cs = (ConstructorStatement) test.getStatement(position);
-			if (cs.getReturnClass().equals(Object.class)) {
+			if (cs.getReturnType().equals(Object.class)) {
 				filterVariablesByClass(alternatives, Object.class);
 			}
 		}
@@ -1178,7 +1184,11 @@ public class TestFactory {
 			if (call.isMethod()) {
 				GenericMethod method = (GenericMethod)call;
 				if(method.hasTypeParameters()) {
-					call = TestCluster.getInstance().getGenericGeneratorInstantiation(method, new GenericClass(returnType));
+					try {
+						call = TestCluster.getInstance().getGenericGeneratorInstantiation(method, new GenericClass(returnType));
+					} catch(ConstructionFailedException e) {
+						continue;
+					}
 				}
 				if (!((GenericMethod) call).getReturnType().equals(returnType))
 					continue;
