@@ -268,6 +268,11 @@ public class MethodStatement extends AbstractStatement {
 					}
 
 					Object ret = method.getMethod().invoke(callee_object, inputs);
+					// Try exact return type
+					if (ret != null && !retval.isAssignableFrom(method.getReturnType())) {
+						throw new CodeUnderTestException(
+						        new UncompilableCodeException());
+					}
 
 					try {
 						retval.setObject(scope, ret);
