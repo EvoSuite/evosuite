@@ -777,6 +777,11 @@ public class GenericClass implements Serializable {
 	public boolean isArray() {
 		return raw_class.isArray();
 	}
+	
+	public boolean isGenericArray() {
+		GenericClass componentClass = new GenericClass(raw_class.getComponentType());
+		return componentClass.hasWildcardOrTypeVariables();
+	}
 
 	/**
 	 * <p>
@@ -828,6 +833,14 @@ public class GenericClass implements Serializable {
 	 */
 	public boolean isAssignableTo(Type lhsType) {
 		return isAssignable(lhsType, type);
+	}
+	
+	public boolean isGenericSuperTypeOf(Type subType) {
+		return GenericTypeReflector.isSuperType(type, subType);
+	}
+
+	public boolean hasGenericSuperType(Type superType) {
+		return GenericTypeReflector.isSuperType(superType, type);
 	}
 
 	public boolean isClass() {
