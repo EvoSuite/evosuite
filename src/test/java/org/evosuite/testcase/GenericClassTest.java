@@ -1,5 +1,6 @@
 package org.evosuite.testcase;
 
+import java.io.Serializable;
 import java.lang.reflect.Type;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -103,4 +104,21 @@ public class GenericClassTest {
 		Assert.assertTrue(listOfStringClass.isAssignableTo(plainListClass));		
 	}
 	
+	
+
+	@Test
+	public void test3() {
+		Type listOfInteger = new TypeToken<List<Integer>>(){}.getType();
+		Type listOfSerializable = new TypeToken<List<Serializable>>(){}.getType();
+		
+		GenericClass listOfIntegerClass = new GenericClass(listOfInteger);
+		GenericClass listOfSerializableClass = new GenericClass(listOfSerializable);
+		
+		Assert.assertFalse(listOfIntegerClass.isAssignableFrom(listOfSerializableClass));
+		Assert.assertFalse(listOfSerializableClass.isAssignableFrom(listOfIntegerClass));
+
+		Assert.assertTrue(listOfIntegerClass.isAssignableFrom(listOfIntegerClass));
+		Assert.assertTrue(listOfSerializableClass.isAssignableFrom(listOfSerializableClass));
+
+	}
 }
