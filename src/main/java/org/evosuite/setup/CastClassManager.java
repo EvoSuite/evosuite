@@ -13,6 +13,7 @@ import java.util.Set;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.GenericUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -117,15 +118,14 @@ public class CastClassManager {
 		}
 		return sum;
 	}
-
+	
 	private double getSum(TypeVariable<?> typeVariable, boolean allowRecursion) {
 		double sum = 0d;
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			boolean isAssignable = true;
-			for (Type type : typeVariable.getBounds()) {
-				if (!entry.getKey().isAssignableTo(type)) {
-					logger.debug("Not assignable: Bound " + entry.getKey() + " to type "
-					        + type);
+			for (Type theType : typeVariable.getBounds()) {
+				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable, entry.getKey().getType());
+				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
 					isAssignable = false;
 					break;
 				}
@@ -184,6 +184,7 @@ public class CastClassManager {
 		}
 
 		double rnd = Randomness.nextDouble() * sum;
+		logger.debug("Getting cast class for type "+targetType);
 
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			logger.debug("Candidate cast class: "+entry.getKey());
@@ -196,6 +197,7 @@ public class CastClassManager {
 				logger.debug("Would lead to forbidden type recursion");
 				continue;
 			}
+			logger.debug("Is assignable to "+targetType);
 
 			int depth = entry.getValue();
 			double v = depth == 0 ? 0.0 : 1.0 / depth;
@@ -219,15 +221,16 @@ public class CastClassManager {
 
 		//special case
 		if (sum == 0d) {
+			logger.debug("Making random choice because nothing is assignable");
 			return Randomness.choice(classMap.keySet());
 		}
 
 		double rnd = Randomness.nextDouble() * sum;
-		logger.debug("Choice: " + classMap);
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			boolean isAssignable = true;
-			for (Type type : typeVariable.getBounds()) {
-				if (!entry.getKey().isAssignableTo(type)) {
+			for (Type theType : typeVariable.getBounds()) {
+				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable, entry.getKey().getType());
+				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
 					isAssignable = false;
 					break;
 				}
