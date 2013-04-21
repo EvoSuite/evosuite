@@ -417,8 +417,15 @@ public class TestSuiteGenerator {
 			
 			if(!compiled){
 				logger.error("Compilation failed");
-				for(Diagnostic diagnostic : diagnostics.getDiagnostics()){
+				for(Diagnostic<?> diagnostic : diagnostics.getDiagnostics()){
 					logger.error("Diagnostic: "+diagnostic.getMessage(null));
+				}
+				for(JavaFileObject sourceFile : compilationUnits) {
+					List<String> lines = FileUtils.readLines(new File(sourceFile.toUri().getPath()));
+					logger.error(compilationUnits.iterator().next().toString());
+					for(int i = 0; i < lines.size(); i++) {
+						logger.error((i+1)+": "+lines.get(i));
+					}
 				}
 				return false;
 			}
