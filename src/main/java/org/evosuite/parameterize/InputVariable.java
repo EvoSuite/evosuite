@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -30,10 +30,11 @@ import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
- * <p>InputVariable class.</p>
- *
+ * <p>
+ * InputVariable class.
+ * </p>
+ * 
  * @author fraser
  */
 public class InputVariable implements VariableReference {
@@ -47,10 +48,14 @@ public class InputVariable implements VariableReference {
 	protected GenericClass type;
 
 	/**
-	 * <p>Constructor for InputVariable.</p>
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
-	 * @param num a int.
+	 * <p>
+	 * Constructor for InputVariable.
+	 * </p>
+	 * 
+	 * @param clazz
+	 *            a {@link java.lang.reflect.Type} object.
+	 * @param num
+	 *            a int.
 	 */
 	public InputVariable(Type clazz, int num) {
 		numInput = num;
@@ -98,7 +103,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Create a copy of the current variable
 	 */
 	@Override
@@ -118,7 +123,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return class name
 	 */
 	@Override
@@ -138,9 +143,17 @@ public class InputVariable implements VariableReference {
 		return type.getComponentType();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.VariableReference#isArray()
+	 */
+	@Override
+	public boolean isArray() {
+		return type.isArray();
+	}
+
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if variable is an enumeration
 	 */
 	@Override
@@ -150,7 +163,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if variable is a primitive type
 	 */
 	@Override
@@ -160,7 +173,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if variable is void
 	 */
 	@Override
@@ -170,7 +183,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if variable is a string
 	 */
 	@Override
@@ -180,7 +193,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if type of variable is a primitive wrapper
 	 */
 	@Override
@@ -190,7 +203,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if other type can be assigned to this variable
 	 */
 	@Override
@@ -200,7 +213,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if this variable can by assigned to a variable of other type
 	 */
 	@Override
@@ -210,7 +223,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if other type can be assigned to this variable
 	 */
 	@Override
@@ -220,7 +233,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return true if this variable can by assigned to a variable of other type
 	 */
 	@Override
@@ -230,7 +243,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return type of this variable
 	 */
 	@Override
@@ -240,7 +253,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Set type of this variable
 	 */
 	@Override
@@ -250,7 +263,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return raw class of this variable
 	 */
 	@Override
@@ -260,7 +273,7 @@ public class InputVariable implements VariableReference {
 
 	/**
 	 * {@inheritDoc}
-	 *
+	 * 
 	 * Return raw class of this variable's component
 	 */
 	@Override
@@ -421,15 +434,19 @@ public class InputVariable implements VariableReference {
 	}
 
 	/**
-	 * <p>Getter for the field <code>originalCode</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>originalCode</code>.
+	 * </p>
+	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
+	@Override
 	public String getOriginalCode() {
 		return originalCode;
 	}
 
 	/** {@inheritDoc} */
+	@Override
 	public void setOriginalCode(String originalCode) {
 		this.originalCode = originalCode;
 	}

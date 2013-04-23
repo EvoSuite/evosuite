@@ -26,8 +26,6 @@ import java.util.Map;
 
 import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
@@ -310,7 +308,7 @@ public class ArrayIndex extends VariableReferenceImpl {
 		} else
 			return '0';
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -329,43 +327,58 @@ public class ArrayIndex extends VariableReferenceImpl {
 			if (arrayObject == null) {
 				throw new CodeUnderTestException(new NullPointerException());
 			}
-			if(value == null && arrayObject.getClass().getComponentType().isPrimitive()) {
+			if (value == null && arrayObject.getClass().getComponentType().isPrimitive()) {
 				throw new CodeUnderTestException(new NullPointerException());
 			}
 			if (arrayObject.getClass().getComponentType().equals(int.class))
-				Array.setInt(arrayObject, indices.get(indices.size() - 1), getIntValue(value));
+				Array.setInt(arrayObject, indices.get(indices.size() - 1),
+				             getIntValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(boolean.class))
-				Array.setBoolean(arrayObject, indices.get(indices.size() - 1), (Boolean)value);
+				Array.setBoolean(arrayObject, indices.get(indices.size() - 1),
+				                 (Boolean) value);
 			else if (arrayObject.getClass().getComponentType().equals(char.class)) {
-				Array.setChar(arrayObject, indices.get(indices.size() - 1), getCharValue(value));
+				Array.setChar(arrayObject, indices.get(indices.size() - 1),
+				              getCharValue(value));
 			} else if (arrayObject.getClass().getComponentType().equals(double.class))
-				Array.setDouble(arrayObject, indices.get(indices.size() - 1), getDoubleValue(value));
+				Array.setDouble(arrayObject, indices.get(indices.size() - 1),
+				                getDoubleValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(float.class))
-				Array.setFloat(arrayObject, indices.get(indices.size() - 1), getFloatValue(value));
+				Array.setFloat(arrayObject, indices.get(indices.size() - 1),
+				               getFloatValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(long.class))
-				Array.setLong(arrayObject, indices.get(indices.size() - 1), getLongValue(value));
+				Array.setLong(arrayObject, indices.get(indices.size() - 1),
+				              getLongValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(short.class))
-				Array.setShort(arrayObject, indices.get(indices.size() - 1), (short)getIntValue(value));
+				Array.setShort(arrayObject, indices.get(indices.size() - 1),
+				               (short) getIntValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(byte.class))
-				Array.setByte(arrayObject, indices.get(indices.size() - 1), (byte)getIntValue(value));
+				Array.setByte(arrayObject, indices.get(indices.size() - 1),
+				              (byte) getIntValue(value));
 			// We also need to check if we are assigning to a wrapper type, because autoboxing 
 			// only seems to work from int -> Integer, but e.g. not from byte -> Integer 
 			else if (arrayObject.getClass().getComponentType().equals(Integer.class))
-				Array.set(arrayObject, indices.get(indices.size() - 1), getIntValue(value));
+				Array.set(arrayObject, indices.get(indices.size() - 1),
+				          getIntValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(Boolean.class))
-				Array.set(arrayObject, indices.get(indices.size() - 1), (Boolean)value);
+				Array.set(arrayObject, indices.get(indices.size() - 1), value);
 			else if (arrayObject.getClass().getComponentType().equals(Character.class)) {
-				Array.set(arrayObject, indices.get(indices.size() - 1), getCharValue(value));
+				Array.set(arrayObject, indices.get(indices.size() - 1),
+				          getCharValue(value));
 			} else if (arrayObject.getClass().getComponentType().equals(Double.class))
-				Array.set(arrayObject, indices.get(indices.size() - 1), getDoubleValue(value));
+				Array.set(arrayObject, indices.get(indices.size() - 1),
+				          getDoubleValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(Float.class))
-				Array.set(arrayObject, indices.get(indices.size() - 1), getFloatValue(value));
+				Array.set(arrayObject, indices.get(indices.size() - 1),
+				          getFloatValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(Long.class))
-				Array.set(arrayObject, indices.get(indices.size() - 1), getLongValue(value));
+				Array.set(arrayObject, indices.get(indices.size() - 1),
+				          getLongValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(Short.class))
-				Array.set(arrayObject, indices.get(indices.size() - 1), (short)getIntValue(value));
+				Array.set(arrayObject, indices.get(indices.size() - 1),
+				          (short) getIntValue(value));
 			else if (arrayObject.getClass().getComponentType().equals(Byte.class))
-				Array.set(arrayObject, indices.get(indices.size() - 1), (byte)getIntValue(value));
+				Array.set(arrayObject, indices.get(indices.size() - 1),
+				          (byte) getIntValue(value));
 			else {
 				Array.set(arrayObject, indices.get(indices.size() - 1), value);
 			}

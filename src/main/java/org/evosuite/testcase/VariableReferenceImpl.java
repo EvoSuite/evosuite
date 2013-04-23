@@ -197,6 +197,14 @@ public class VariableReferenceImpl implements VariableReference {
 		return type.isEnum();
 	}
 
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.VariableReference#isArray()
+	 */
+	@Override
+	public boolean isArray() {
+		return type.isArray();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 * 
@@ -254,7 +262,7 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public boolean isAssignableTo(Type other) {
-		if(type.hasWildcardTypes()) {
+		if (type.hasWildcardTypes()) {
 			GenericClass rawClass = new GenericClass(other);
 			return GenericClass.isAssignable(rawClass.getRawClass(), type.getRawClass());
 		} else {
