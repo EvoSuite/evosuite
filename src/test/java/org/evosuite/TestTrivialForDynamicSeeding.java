@@ -292,12 +292,17 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 	
 	@Test
 	public void testRegexStringMatches() {
+		
+		//first check whether the regex is feasible 
+		final String example = "-@0.AA"; 
+		Assert.assertTrue(example.matches(TrivialForDynamicSeedingRegex.REGEX));
+		
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = TrivialForDynamicSeedingRegex.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.DYNAMIC_POOL = 1d / 3d;
+		Properties.DYNAMIC_POOL = 0.99d;//1d / 3d;
 		ConstantPoolManager.getInstance().reset();
 		
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
@@ -312,6 +317,8 @@ public class TestTrivialForDynamicSeeding extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 		System.out.println("EvolvedTestSuite:\n" + best);
 
+		ConstantPoolManager foo = ConstantPoolManager.getInstance();
+		
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 

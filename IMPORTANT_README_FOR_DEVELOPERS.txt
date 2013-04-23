@@ -60,6 +60,8 @@ This is useful for several reasons:
 - If in same package, then the test suite can access package/protected fields/methods
 - Having "Test" as postfix (instead of a prefix) is useful for when searching for classes by name (eg CTRL-SHIFT-t in Eclipse)
 
+If for testing there is the need to create additional, support classes used as data input for EvoSuite,
+then those will need to be put in the com.examples.with.different.packagename package.
 
 ---------------------------------------------
 AVOID TOO LONG METHODS
@@ -74,7 +76,7 @@ WRITE COMMENTS
 
 In the ideal world, each class/method/field would have nice, detailed, appropriate code comments.
 But even in such a beautiful world, everything would go to hell at the first code change, as that might
-require changing most of the code comments.
+require manually changing most of the code comments.
 
 Cannot really quantify how much comments one should write, but at least it would be good to have:
 - brief (1-2 sentences) description of what the class is useful for (just before the class declaration) 

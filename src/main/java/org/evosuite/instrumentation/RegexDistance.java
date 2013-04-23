@@ -203,6 +203,9 @@ public class RegexDistance {
 	}
 
 	public static int getDistance(String arg, String regex) {
+		
+		
+		
 		if (!regexAutomatonCache.containsKey(regex)) {
 			cacheRegex(regex);
 		}

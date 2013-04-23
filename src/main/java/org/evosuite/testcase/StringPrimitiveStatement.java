@@ -183,6 +183,7 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 			ConstantPool constantPool = ConstantPoolManager.getInstance().getConstantPool();
 			value = constantPool.getRandomString();
 		}
+		value = value;//FIXME
 	}
 
 }
