@@ -168,7 +168,19 @@ public class DefaultTestCase implements TestCase, Serializable {
 			if (value == null)
 				continue;
 			if (value instanceof ArrayReference) {
-				if (value.isAssignableTo(type)) {
+
+				// For some reason, TypeUtils/ClassUtils sometimes claims
+				// that an array is assignable to its component type
+				// TODO: Fix
+				boolean isClassUtilsBug = false;
+				if (value.isArray()) {
+					if (value.getComponentType().equals(type))
+						isClassUtilsBug = true;
+				}
+
+				if (value.isAssignableTo(type) && !isClassUtilsBug) {
+					logger.debug("Array is assignable: " + value.getType() + " to "
+					        + type);
 					variables.add(value);
 				} else if (GenericClass.isAssignable(type, value.getComponentType())) {
 					/*

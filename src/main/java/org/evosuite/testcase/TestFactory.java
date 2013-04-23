@@ -414,6 +414,7 @@ public class TestFactory {
 					iterator.remove();
 			}
 		}
+		logger.debug("Reusable objects: " + objects);
 		assignArray(test, array, arrayIndex, position, objects);
 	}
 
@@ -1345,6 +1346,7 @@ public class TestFactory {
 			ArrayReference array = (ArrayReference) var;
 			if (array.getArrayLength() > 0) {
 				for (int i = 0; i < array.getArrayLength(); i++) {
+					logger.debug("Assigning array index " + i);
 					int old_len = test.size();
 					try {
 						assignArray(test, array, i, position);
