@@ -225,13 +225,14 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (type instanceof TypeVariable) {
 			return "?";
 		} else if (type instanceof CaptureType) {
-			CaptureType captureType = (CaptureType)type;
-			if(captureType.getLowerBounds().length == 0)
+			CaptureType captureType = (CaptureType) type;
+			if (captureType.getLowerBounds().length == 0)
 				return "?";
 			else
 				return getTypeName(captureType.getLowerBounds()[0]);
 		} else if (type instanceof GenericArrayType) {
-			return getTypeName(((GenericArrayType)type).getGenericComponentType()) + "[]";
+			return getTypeName(((GenericArrayType) type).getGenericComponentType())
+			        + "[]";
 		} else {
 			throw new RuntimeException("Unsupported type:" + type + ", class"
 			        + type.getClass());
@@ -745,14 +746,14 @@ public class TestCodeVisitor extends TestVisitor {
 				testCode += ((Class<?>) retval.getType()).getSimpleName() + " "
 				        + getVariableName(retval) + " = null;\n";
 			}
-		} else if(statement instanceof ClassPrimitiveStatement) {
+		} else if (statement instanceof ClassPrimitiveStatement) {
 			StringBuilder builder = new StringBuilder();
 
 			builder.append(getClassName(retval));
 			builder.append(" ");
 			builder.append(getVariableName(retval));
 			builder.append(" = ");
-			builder.append(getClassName(((Class<?>)value)));
+			builder.append(getClassName(((Class<?>) value)));
 			builder.append(".class;\n");
 			testCode += builder.toString();
 		} else {
@@ -839,17 +840,17 @@ public class TestCodeVisitor extends TestVisitor {
 
 	private String getPrimitiveNullCast(Class<?> declaredParamType) {
 		String castString = "";
-		castString += "(" + getTypeName(declaredParamType)
-        + ") ";
+		castString += "(" + getTypeName(declaredParamType) + ") ";
 		castString += "(" + getTypeName(ClassUtils.primitiveToWrapper(declaredParamType))
 		        + ") ";
-		
+
 		return castString;
 	}
-	
-	private String getParameterString(Type[] parameterTypes, List<VariableReference> parameters, boolean isGenericMethod, int startPos) {
+
+	private String getParameterString(Type[] parameterTypes,
+	        List<VariableReference> parameters, boolean isGenericMethod, int startPos) {
 		String parameterString = "";
-		
+
 		for (int i = startPos; i < parameters.size(); i++) {
 			if (i > startPos) {
 				parameterString += ", ";
@@ -857,14 +858,12 @@ public class TestCodeVisitor extends TestVisitor {
 			Type declaredParamType = parameterTypes[i];
 			Type actualParamType = parameters.get(i).getType();
 			String name = getVariableName(parameters.get(i));
-			Class<?> rawParamClass = GenericTypeReflector.erase(declaredParamType); 
-			if(rawParamClass.isPrimitive() && name.equals("null")) {
+			Class<?> rawParamClass = GenericTypeReflector.erase(declaredParamType);
+			if (rawParamClass.isPrimitive() && name.equals("null")) {
 				parameterString += getPrimitiveNullCast(rawParamClass);
-			}
-			else if(isGenericMethod) {
-				if(!declaredParamType.equals(actualParamType) || name.equals("null")) {
-					parameterString += "(" + getTypeName(declaredParamType)
-					        + ") ";
+			} else if (isGenericMethod) {
+				if (!declaredParamType.equals(actualParamType) || name.equals("null")) {
+					parameterString += "(" + getTypeName(declaredParamType) + ") ";
 					if (name.contains("(short"))
 						name = name.replace("(short)", "");
 					if (name.contains("(byte"))
@@ -873,40 +872,50 @@ public class TestCodeVisitor extends TestVisitor {
 				}
 			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)
 			        || name.equals("null")) {
-				if(TypeUtils.isArrayType(declaredParamType) && TypeUtils.isArrayType(actualParamType)) {
+				if (TypeUtils.isArrayType(declaredParamType)
+				        && TypeUtils.isArrayType(actualParamType)) {
 					Class<?> componentClass = GenericTypeReflector.erase(declaredParamType).getComponentType();
-					if(componentClass.equals(Object.class)) {
-						GenericClass genericComponentClass = new GenericClass(componentClass);
-						if(genericComponentClass.hasWildcardOrTypeVariables()) {
+					if (componentClass.equals(Object.class)) {
+						GenericClass genericComponentClass = new GenericClass(
+						        componentClass);
+						if (genericComponentClass.hasWildcardOrTypeVariables()) {
 							// If we are assigning a generic array, then we don't need to cast
-							
+
 						} else {
 							// If we are assigning a non-generic array, then we do need to cast
 							parameterString += "(" + getTypeName(declaredParamType)
 							        + ") ";
 						}
-					}
-					else { //if (!GenericClass.isAssignable(GenericTypeReflector.getArrayComponentType(declaredParamType), GenericTypeReflector.getArrayComponentType(actualParamType))) {
-						parameterString += "(" + getTypeName(declaredParamType)
-						        + ") ";
+					} else { //if (!GenericClass.isAssignable(GenericTypeReflector.getArrayComponentType(declaredParamType), GenericTypeReflector.getArrayComponentType(actualParamType))) {
+						parameterString += "(" + getTypeName(declaredParamType) + ") ";
 					}
 				} else {
-					parameterString += "(" + getTypeName(declaredParamType)
-							+ ") ";
+					parameterString += "(" + getTypeName(declaredParamType) + ") ";
 				}
 				if (name.contains("(short"))
 					name = name.replace("(short)", "");
 				if (name.contains("(byte"))
 					name = name.replace("(byte)", "");
 				//}
+			} else {
+				// We have to cast between wrappers and primitives in case there
+				// are overloaded signatures. This could be optimized by checking
+				// if there actually is a problem of overloaded signatures
+				GenericClass parameterClass = new GenericClass(declaredParamType);
+				if (parameterClass.isWrapperType() && parameters.get(i).isPrimitive()) {
+					parameterString += "(" + getTypeName(declaredParamType) + ") ";
+				} else if (parameterClass.isPrimitive()
+				        && parameters.get(i).isWrapperType()) {
+					parameterString += "(" + getTypeName(declaredParamType) + ") ";
+				}
 			}
 
 			parameterString += name;
 		}
-		
+
 		return parameterString;
 	}
-	
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -921,7 +930,6 @@ public class TestCodeVisitor extends TestVisitor {
 		Throwable exception = getException(statement);
 		List<VariableReference> parameters = statement.getParameterReferences();
 		boolean isGenericMethod = method.hasTypeParameters();
-		
 
 		if (exception != null && !statement.isDeclaredException(exception)) {
 			result += "// Undeclared exception!\n";
@@ -944,7 +952,8 @@ public class TestCodeVisitor extends TestVisitor {
 		if (exception != null)
 			result += "try {\n  ";
 
-		String parameter_string = getParameterString(method.getParameterTypes(), parameters, isGenericMethod, 0);
+		String parameter_string = getParameterString(method.getParameterTypes(),
+		                                             parameters, isGenericMethod, 0);
 
 		String callee_str = "";
 		if (!retval.isAssignableFrom(method.getReturnType())
@@ -997,14 +1006,14 @@ public class TestCodeVisitor extends TestVisitor {
 		testCode += result + "\n";
 		addAssertions(statement);
 	}
-	
+
 	private String getSimpleTypeName(Type type) {
 		String typeName = getTypeName(type);
 		int dotIndex = typeName.lastIndexOf(".");
-		if(dotIndex >= 0 && (dotIndex + 1) < typeName.length()) {
+		if (dotIndex >= 0 && (dotIndex + 1) < typeName.length()) {
 			typeName = typeName.substring(dotIndex + 1);
 		}
-		
+
 		return typeName;
 	}
 
@@ -1028,8 +1037,10 @@ public class TestCodeVisitor extends TestVisitor {
 		        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
 			startPos = 1;
 		}
-		String parameter_string = getParameterString(constructor.getParameterTypes(), parameters, isGenericMethod, startPos);
-		
+		String parameter_string = getParameterString(constructor.getParameterTypes(),
+		                                             parameters, isGenericMethod,
+		                                             startPos);
+
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+getVariableName(retval)+ " = null;\n";
 		if (exception != null) {
@@ -1049,7 +1060,7 @@ public class TestCodeVisitor extends TestVisitor {
 		if (constructor.getConstructor().getDeclaringClass().isMemberClass()
 		        && !constructor.isStatic()
 		        && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers())) {
-			
+
 			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
 			        // + new GenericClass(
@@ -1122,24 +1133,25 @@ public class TestCodeVisitor extends TestVisitor {
 				multiDimensions += "[" + length + "]";
 			}
 		}
-		
-		if(retval.getGenericClass().isGenericArray()) {
-			if(lengths.size() > 1) {
-				multiDimensions = "new int[] {"+lengths.get(0);
-				for(int dim : lengths) 
-					multiDimensions += ", "+dim;
+
+		if (retval.getGenericClass().isGenericArray()) {
+			if (lengths.size() > 1) {
+				multiDimensions = "new int[] {" + lengths.get(0);
+				for (int dim : lengths)
+					multiDimensions += ", " + dim;
 				multiDimensions += "}";
 			} else {
-				multiDimensions = ""+lengths.get(0);
+				multiDimensions = "" + lengths.get(0);
 			}
-			
-			testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("+getClassName(retval)+") "+getClassName(Array.class)+".newInstance("
-					+ getClassName(retval.getComponentClass()) + ".class, "+multiDimensions + ");\n";
-			
-			
+
+			testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("
+			        + getClassName(retval) + ") " + getClassName(Array.class)
+			        + ".newInstance(" + getClassName(retval.getComponentClass())
+			        + ".class, " + multiDimensions + ");\n";
+
 		} else {
 			testCode += getClassName(retval) + " " + getVariableName(retval) + " = new "
-					+ type + multiDimensions + ";\n";
+			        + type + multiDimensions + ";\n";
 		}
 		addAssertions(statement);
 	}

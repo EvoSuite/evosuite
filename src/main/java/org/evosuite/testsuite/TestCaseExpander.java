@@ -24,6 +24,7 @@ import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.VariableReference;
+import org.evosuite.utils.GenericClass;
 
 public class TestCaseExpander {
 
@@ -73,7 +74,8 @@ public class TestCaseExpander {
 			StatementInterface statement = test.getStatement(position);
 
 			PrimitiveStatement primitive = PrimitiveStatement.getPrimitiveStatement(test,
-			                                                                        value.getClass());
+			                                                                        new GenericClass(
+			                                                                                value.getClass()));
 			primitive.setValue(value);
 			VariableReference replacement = test.addStatement(primitive, position);
 			test.replace(statement.getReturnValue(), replacement);
@@ -189,7 +191,7 @@ public class TestCaseExpander {
 			VariableReference retVal = null;
 			if (index.isPrimitive()) {
 				PrimitiveStatement<?> primitive = PrimitiveStatement.getPrimitiveStatement(test,
-				                                                                           index.getVariableClass());
+				                                                                           index.getGenericClass());
 				retVal = test.addStatement(primitive, position++);
 			} else {
 				NullStatement nullStatement = new NullStatement(test, index.getType());

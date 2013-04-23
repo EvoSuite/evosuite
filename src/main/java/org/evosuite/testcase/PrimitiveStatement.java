@@ -30,6 +30,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.utils.GenericAccessibleObject;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
@@ -107,6 +108,10 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		return true;
 	}
 
+	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Class<?> clazz) {
+		return getPrimitiveStatement(tc, new GenericClass(clazz));
+	}
+
 	/**
 	 * Generate a primitive statement for given type initialized with default
 	 * value (0)
@@ -118,10 +123,12 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc, Type clazz) {
+	public static PrimitiveStatement<?> getPrimitiveStatement(TestCase tc,
+	        GenericClass genericClass) {
 		// TODO This kills the benefit of inheritance. 
 		// Let each class implement the clone method instead
 
+		Class<?> clazz = genericClass.getRawClass();
 		PrimitiveStatement<?> statement;
 
 		if (clazz == boolean.class) {
@@ -148,9 +155,14 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			// TODO: Ensure that files were accessed in the first place
 			statement = new FileNamePrimitiveStatement(tc, new EvoSuiteFile(
 			        Randomness.choice(tc.getAccessedFiles())));
-		} else if(clazz.equals(Class.class)) {
-			statement = new ClassPrimitiveStatement(tc);
-			
+		} else if (clazz.equals(Class.class)) {
+			Type typeParameter = genericClass.getParameterTypes().get(0);
+			if (typeParameter instanceof Class<?>) {
+				statement = new ClassPrimitiveStatement(tc, (Class<?>) typeParameter);
+			} else {
+				statement = new ClassPrimitiveStatement(tc);
+			}
+
 		} else {
 			throw new RuntimeException("Getting unknown type: " + clazz + " / "
 			        + clazz.getClass());
@@ -171,8 +183,8 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	 *            a int.
 	 * @return a {@link org.evosuite.testcase.PrimitiveStatement} object.
 	 */
-	public static PrimitiveStatement<?> getRandomStatement(TestCase tc, Class<?> clazz,
-	        int position) {
+	public static PrimitiveStatement<?> getRandomStatement(TestCase tc,
+	        GenericClass clazz, int position) {
 
 		PrimitiveStatement<?> statement = getPrimitiveStatement(tc, clazz);
 		statement.randomize();
@@ -185,7 +197,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		@SuppressWarnings("unchecked")
 		PrimitiveStatement<T> clone = (PrimitiveStatement<T>) getPrimitiveStatement(newTestCase,
-		                                                                            retval.getVariableClass());
+		                                                                            retval.getGenericClass());
 		clone.setValue(value);
 		// clone.assertions = copyAssertions(newTestCase, offset);
 		return clone;

@@ -96,10 +96,11 @@ public class GenericClass implements Serializable {
 	}
 
 	private static Class<?> getClass(String name) throws ClassNotFoundException {
-		return getClass(name, TestGenerationContext.getClassLoader());	
+		return getClass(name, TestGenerationContext.getClassLoader());
 	}
-	
-	private static Class<?> getClass(String name, ClassLoader loader) throws ClassNotFoundException {
+
+	private static Class<?> getClass(String name, ClassLoader loader)
+	        throws ClassNotFoundException {
 		if (name.equals("void"))
 			return void.class;
 		else if (name.equals("int") || name.equals("I"))
@@ -144,145 +145,12 @@ public class GenericClass implements Serializable {
 	 * @return a boolean.
 	 */
 	public static boolean isAssignable(Type lhsType, Type rhsType) {
-		if (lhsType.equals(rhsType)) {
-			return true;
-		}
-
-		if (lhsType instanceof Class<?> && rhsType instanceof Class<?>) {
-			// Only allow void to void assignments
-			if (((Class<?>) rhsType).equals(void.class)
-			        || ((Class<?>) lhsType).equals(void.class))
-				return false;
-			return ClassUtils.isAssignable((Class<?>) rhsType, (Class<?>) lhsType);
-		}
-
-		if (lhsType instanceof TypeVariable<?>) {
-			if (((TypeVariable<?>) lhsType).getBounds().length == 0)
-				return isAssignable(Object.class, rhsType);
-			return isAssignable(((TypeVariable<?>) lhsType).getBounds()[0], rhsType);
-		}
-		if (rhsType instanceof TypeVariable<?>) {
-			if (((TypeVariable<?>) rhsType).getBounds().length == 0)
-				return isAssignable(lhsType, Object.class);
-			return isAssignable(lhsType, ((TypeVariable<?>) rhsType).getBounds()[0]);
-		}
-		if (lhsType instanceof GenericArrayType || rhsType instanceof GenericArrayType) {
-			Type lhsComponentType = GenericTypeReflector.getArrayComponentType(lhsType);
-			Type rhsComponentType = GenericTypeReflector.getArrayComponentType(rhsType);
-			if (lhsComponentType == null || rhsComponentType == null)
-				return false;
-			else
-				return isAssignable(lhsComponentType, rhsComponentType);
-		}
-
-		if (lhsType instanceof Class<?> && ((Class<?>) lhsType).isArray()
-		        && rhsType instanceof GenericArrayType) {
-
-			//logger.warn("Checking generic array 2 "+lhsType+"/"+rhsType);
-			return isAssignable(((Class<?>) lhsType).getComponentType(),
-			                    ((GenericArrayType) rhsType).getGenericComponentType());
-		}
-		if (rhsType instanceof Class<?> && ((Class<?>) rhsType).isArray()
-		        && lhsType instanceof GenericArrayType) {
-
-			//logger.warn("Checking generic array 3 "+lhsType+"/"+rhsType);
-			return isAssignable(((GenericArrayType) lhsType).getGenericComponentType(),
-			                    ((Class<?>) rhsType).getComponentType());
-		}
-		if (rhsType instanceof ParameterizedType) {
-			try {
-				return TypeUtils.isAssignable(rhsType, lhsType);
-			} catch (IllegalStateException e) {
-				logger.debug("rhs is parameterized type " + rhsType
-				        + " and we got an illegal state");
-				logger.debug("lhs is: " + lhsType);
-				if (lhsType instanceof ParameterizedType)
-					return isAssignable(((ParameterizedType) lhsType).getRawType(),
-					                    rhsType);
-				else if (lhsType instanceof CaptureType)
-					return isAssignable(Object.class, rhsType);
-				else
-					return TypeUtils.isAssignable(rhsType, lhsType);
-			}
-
-			// return GenericTypeReflector.isSuperType(lhsType, rhsType);
-			// return isAssignable(lhsType, ((ParameterizedType) rhsType).getRawType());
-		}
-		if (lhsType instanceof ParameterizedType) {
-			try {
-				return TypeUtils.isAssignable(rhsType, lhsType);
-			} catch (IllegalStateException e) {
-				logger.debug("lhs is parameterized type " + rhsType
-				        + " and we got an illegal state");
-				return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
-			}
-			// return GenericTypeReflector.isSuperType(lhsType, rhsType);
-			//return isAssignable(((ParameterizedType) lhsType).getRawType(), rhsType);
-		}
-		if (lhsType instanceof WildcardType) {
-			return isAssignable((WildcardType) lhsType, rhsType);
-		}
-		if (rhsType instanceof WildcardType) {
+		try {
 			return TypeUtils.isAssignable(rhsType, lhsType);
+		} catch (IllegalStateException e) {
+			logger.debug("Found unassignable type: " + e);
+			return false;
 		}
-		//if(rhsType instanceof WildcardType) {
-		//	return isAssignable(lhsType, (WildcardType) rhsType);
-		//}
-		/*
-		String message = "Not assignable: ";
-		if (lhsType instanceof Class<?>)
-			message += "Class ";
-		else if (lhsType instanceof ParameterizedType)
-			message += "ParameterizedType ";
-		else if (lhsType instanceof WildcardType)
-			message += "WildcardType ";
-		else if (lhsType instanceof GenericArrayType)
-			message += "GenericArrayType ";
-		else if (lhsType instanceof TypeVariable<?>)
-			message += "TypeVariable ";
-		else
-			message += "Unknown type ";
-		message += lhsType;
-		message += " / ";
-		if (rhsType instanceof Class<?>)
-			message += "Class ";
-		else if (rhsType instanceof ParameterizedType)
-			message += "ParameterizedType ";
-		else if (rhsType instanceof WildcardType)
-			message += "WildcardType ";
-		else if (rhsType instanceof GenericArrayType)
-			message += "GenericArrayType ";
-		else if (rhsType instanceof TypeVariable<?>)
-			message += "TypeVariable ";
-		else
-			message += "Unknown type ";
-		message += rhsType;
-		logger.warn(message);
-		 */
-
-		//Thread.dumpStack();
-		return false;
-	}
-
-	private static boolean isAssignable(WildcardType lhsType, Type rhsType) {
-		return TypeUtils.isAssignable(rhsType, lhsType);
-		// TODO - what should go here?
-
-		/*
-		Type[] upperBounds = lhsType.getUpperBounds();
-		Type[] lowerBounds = lhsType.getLowerBounds();
-		for (int size = upperBounds.length, i = 0; i < size; ++i) {
-			if (!isAssignable(upperBounds[i], rhsType)) {
-				return false;
-			}
-		}
-		for (int size = lowerBounds.length, i = 0; i < size; ++i) {
-			if (!isAssignable(rhsType, lowerBounds[i])) {
-				return false;
-			}
-		}
-		*/
-		//return true;
 	}
 
 	/**
@@ -409,9 +277,11 @@ public class GenericClass implements Serializable {
 				this.type = GenericTypeReflector.addWildcardParameters(raw_class);
 			}
 		} catch (ClassNotFoundException e) {
-			logger.warn("Class not found: "+raw_class+" - keeping old class loader ", e);
+			logger.warn("Class not found: " + raw_class + " - keeping old class loader ",
+			            e);
 		} catch (SecurityException e) {
-			logger.warn("Class not found: "+raw_class+" - keeping old class loader ", e);
+			logger.warn("Class not found: " + raw_class + " - keeping old class loader ",
+			            e);
 		}
 	}
 
@@ -602,12 +472,12 @@ public class GenericClass implements Serializable {
 		List<TypeVariable<?>> typeVariables = getTypeVariables();
 		List<Type> types = getParameterTypes();
 		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
-		for(int i = 0; i < typeVariables.size(); i++) {
+		for (int i = 0; i < typeVariables.size(); i++) {
 			typeMap.put(typeVariables.get(i), types.get(i));
 		}
 		return typeMap;
 	}
-	
+
 	public List<TypeVariable<?>> getTypeVariables() {
 		if (type instanceof ParameterizedType) {
 			List<TypeVariable<?>> typeVariables = new ArrayList<TypeVariable<?>>();
@@ -725,6 +595,7 @@ public class GenericClass implements Serializable {
 		//result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
+
 	public boolean hasOwnerType() {
 		if (type instanceof ParameterizedType)
 			return ((ParameterizedType) type).getOwnerType() != null;
@@ -777,7 +648,7 @@ public class GenericClass implements Serializable {
 	public boolean isArray() {
 		return raw_class.isArray();
 	}
-	
+
 	public boolean isGenericArray() {
 		GenericClass componentClass = new GenericClass(raw_class.getComponentType());
 		return componentClass.hasWildcardOrTypeVariables();
@@ -834,7 +705,7 @@ public class GenericClass implements Serializable {
 	public boolean isAssignableTo(Type lhsType) {
 		return isAssignable(lhsType, type);
 	}
-	
+
 	public boolean isGenericSuperTypeOf(Type subType) {
 		return GenericTypeReflector.isSuperType(type, subType);
 	}
