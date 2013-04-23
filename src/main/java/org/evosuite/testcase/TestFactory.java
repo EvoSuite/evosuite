@@ -77,9 +77,15 @@ public class TestFactory {
 		currentRecursion.clear();
 		try {
 			if (call.isMethod()) {
-				addMethodFor(test, callee, (GenericMethod) call, position);
+				addMethodFor(test,
+				             callee,
+				             (GenericMethod) call.copyWithNewOwner(callee.getGenericClass()),
+				             position);
 			} else if (call.isField()) {
-				addFieldFor(test, callee, (GenericField) call, position);
+				addFieldFor(test,
+				            callee,
+				            (GenericField) call.copyWithNewOwner(callee.getGenericClass()),
+				            position);
 			}
 			return true;
 		} catch (ConstructionFailedException e) {
