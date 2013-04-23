@@ -3,11 +3,11 @@
  */
 package org.evosuite.symbolic.search;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import org.junit.Assert;
 import org.junit.Test;
-
-import dk.brics.automaton.Automaton;
 
 /**
  * @author Gordon Fraser
@@ -15,6 +15,15 @@ import dk.brics.automaton.Automaton;
  */
 public class TestRegexDistance {
 
+	@Test
+	public void testLongRegex(){
+		final String example = "-@0.AA"; 
+		final String REGEX = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+		Assert.assertTrue(example.matches(REGEX));
+		
+		assertEquals(0.0, RegexDistance.getDistance(example, REGEX), 0.0);
+	}
+	
 	@Test
 	public void testEmptyRegex() {
 		assertEquals(0.0, RegexDistance.getDistance("", ""), 0.0);
