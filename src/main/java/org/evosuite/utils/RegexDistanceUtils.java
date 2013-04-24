@@ -1,4 +1,4 @@
-package org.evosuite.symbolic.search;
+package org.evosuite.utils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
+import org.evosuite.symbolic.search.StringAVM;
 import org.jgrapht.DirectedGraph;
 import org.jgrapht.alg.CycleDetector;
 import org.jgrapht.graph.DefaultDirectedGraph;
@@ -23,7 +24,7 @@ import dk.brics.automaton.Transition;
 /**
  *  Class used to define the distance between a string and a regex
  */
-public class RegexDistance {
+public class RegexDistanceUtils {
 
 	/*
 	 * Automatons for regex can be expensive to build. So we cache them,
@@ -32,6 +33,28 @@ public class RegexDistance {
 	private static Map<String, List<State>> regexStateCache = new HashMap<String, List<State>>();
 	private static Map<String, Automaton> regexAutomatonCache = new HashMap<String, Automaton>();
 
+	public static Automaton getRegexAutomaton(String regex) {
+		if (!regexAutomatonCache.containsKey(regex)) {
+			cacheRegex(regex);
+		}
+		return regexAutomatonCache.get(regex);
+	}
+
+	public static String getRegexInstance(String regex) {
+		if (!regexAutomatonCache.containsKey(regex)) {
+			cacheRegex(regex);
+		}
+		Automaton automaton = regexAutomatonCache.get(regex);
+		return automaton.getShortestExample(true);
+	}
+
+	public static String getNonMatchingRegexInstance(String regex) {
+		if (!regexAutomatonCache.containsKey(regex)) {
+			cacheRegex(regex);
+		}
+		Automaton automaton = regexAutomatonCache.get(regex);
+		return automaton.getShortestExample(false);
+	}
 
 	private static class GraphTransition {
 				
@@ -199,25 +222,36 @@ public class RegexDistance {
 		regexAutomatonCache.put(regex, automaton);
 	}
 
+	/**
+	 * <p>
+	 * Get the distance between the arg and the given regex.
+	 * All operations (insertion/deletion/replacement) cost 1.
+	 * There is no assumption on where and how the operations
+	 * can be done (ie all sequences are valid). 
+	 * </p>
+	 */
+	public static int getStandardDistance(String arg, String regex){
+		RegexGraph graph = new RegexGraph(arg,regex);		
+		CostMatrix matrix = new CostMatrix();
+		return matrix.calculateStandardCost(graph);		
+	}
 
 	/**
 	 * <p>Get the distance between the arg and the given regex.
 	 * Insertion/deletion cost 1, whereas replacement is in [0,1] depending
 	 * on the actual character values. </p>
 	 * 
-	 * <p> Note: the distance is tailored for the {@link StringAVM} algorithm</p>
+	 * <p> Note: the distance is tailored for the {@link StringAVM} algorithm,
+	 * in which characters are only inserted/appended at the end.</p>
 	 * 
 	 * @param arg
 	 * @param regex
 	 * @return
 	 */
-	public static double getDistance(String arg, String regex) {
-
+	public static double getDistanceTailoredForStringAVM(String arg, String regex) {
 		RegexGraph graph = new RegexGraph(arg,regex);		
 		CostMatrix matrix = new CostMatrix();
-		matrix.buildCostMatrix(graph);		
-		
-		return matrix.getLatestDistance();
+		return matrix.calculateCostForStringAVM(graph);		
 	}
 	
 	protected static Automaton getAndCacheAutomaton(String regex){
@@ -392,9 +426,7 @@ public class RegexDistance {
 	}
 
 	/**
-	 * Class used to calculate the cost, ie the actual distance, based on a RegexGraph.
-	 * Note: this is different from normal matching algorithms, as we enforce an order
-	 * among the operators: delete, replace and then insert. 
+	 * Class used to calculate the cost, ie the actual distance, based on a RegexGraph.	
 	 * 
 	 * @author arcuri
 	 */
@@ -404,14 +436,82 @@ public class RegexDistance {
 		private final int REP = 1;
 		private final int INS = 2;
 		
-		private transient Double latestDistance;
-				
 		public CostMatrix() {
 			super();			
-			latestDistance = null;
 		}
 
-		public void buildCostMatrix(RegexGraph graph){
+		public int calculateStandardCost(RegexGraph graph){
+			final int ROWS = graph.getNumberOfRows();
+			final int COLUMNS = graph.getNumberOfColumns();
+			
+			final double[][] matrix = new double[ROWS][COLUMNS]; 
+			
+			// First row is cost of matching empty sequence on regex
+			final int FIRST_ROW = 0;
+			
+			/*
+			 * init first starting state with 0 costs
+			 */
+			matrix[FIRST_ROW][0] = 0;
+			
+			//look at first row (which is special)
+			for (int col = 1; col < graph.getNumberOfColumns(); col++) {
+
+				double min = Double.MAX_VALUE;
+				
+				for (GraphTransition t :  graph.getIncomingTransitions(FIRST_ROW, col)) {
+
+					int otherCol = graph.getColumn(t.fromState);
+
+					//self transition
+					if (col == otherCol){
+						continue;
+					}
+					
+					double otherCost = matrix[FIRST_ROW][otherCol];
+
+					min = Math.min(min, getSubPathCost(otherCost, Math.ceil(t.cost)));
+				}
+				
+				matrix[FIRST_ROW][col] = min;
+			}
+		
+			//then look at the other rows
+			for(int i=1; i<ROWS; i++){
+				
+				for (int col = 0; col < COLUMNS; col++) {
+					
+					matrix[i][col] = Double.MAX_VALUE;
+					
+					for (GraphTransition t : graph.getIncomingTransitions(i, col)) {
+						
+						int otherCol = graph.getColumn(t.fromState);
+						int otherRow = t.fromRow;
+						
+						if(! t.type.equals(GraphTransition.TransitionType.PHANTOM)){														
+							matrix[i][col] = Math.min(matrix[i][col], getSubPathCost(matrix[otherRow][otherCol],Math.ceil(t.cost)));							
+						} else {
+							/*
+							 * artificial transition to final/sink state, so just take same values as previous state
+							 */
+							matrix[i][col] = Math.min(matrix[i][col], matrix[otherRow][otherCol]);
+							
+						}
+					}
+				}
+			}
+			
+			double min = matrix[ROWS-1][COLUMNS-1];			
+			return (int)Math.round(min);
+		}
+		
+		/**
+		 * Note: this is different from normal matching algorithms, as we enforce an order
+		 * among the operators: delete, replace and then insert. 
+		 * @param graph
+		 * @return
+		 */
+		public double calculateCostForStringAVM(RegexGraph graph){
 			
 			final int ROWS = graph.getNumberOfRows();
 			final int COLUMNS = graph.getNumberOfColumns();
@@ -505,7 +605,7 @@ public class RegexDistance {
 				}
 			}
 			
-			latestDistance = min;
+			return min;
 		}
 
 		/**
@@ -593,19 +693,6 @@ public class RegexDistance {
 				matrix[FIRST_ROW][col][1] = Double.MAX_VALUE;				
 				matrix[FIRST_ROW][col][2] = min;
 			}
-		}
-		
-		/**
-		 * Return the distance of the latest calculated cost matrix
-		 * 
-		 * @return
-		 * @throws IllegalStateException
-		 */
-		public double getLatestDistance() throws IllegalStateException{
-			if(latestDistance==null){
-				throw new IllegalStateException("Cost matrix has not been built yet");
-			}
-			return latestDistance.doubleValue();
-		}
+		}		
 	}
 }
