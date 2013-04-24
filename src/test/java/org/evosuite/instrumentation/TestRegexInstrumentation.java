@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.lang.reflect.Method;
 
 import org.evosuite.Properties;
-import org.evosuite.symbolic.search.RegexDistance;
+import org.evosuite.utils.RegexDistanceUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -20,9 +20,7 @@ public class TestRegexInstrumentation {
 		Assert.assertTrue(TrivialForDynamicSeedingRegex.foo(matching));
 		
 		//now check the distance being 0
-		Assert.assertEquals(0.0, org.evosuite.symbolic.search.RegexDistance.getDistance(matching, TrivialForDynamicSeedingRegex.REGEX), 0.0);
-		//FIXME: is it safe to remove this distance algorithm? (ie replace with one above)
-		// do we really need 2 implementations of RegexDistance?
+		Assert.assertEquals(0.0, org.evosuite.utils.RegexDistanceUtils.getDistanceTailoredForStringAVM(matching, TrivialForDynamicSeedingRegex.REGEX), 0.0);
 		Assert.assertEquals(0.0, org.evosuite.instrumentation.RegexDistance.getDistance(matching, TrivialForDynamicSeedingRegex.REGEX), 0.0);
 		
 		//now check that what done in the instrumentation return a positive value
