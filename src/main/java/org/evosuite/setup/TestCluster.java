@@ -39,7 +39,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
@@ -326,7 +325,9 @@ public class TestCluster {
 							        + generatorParameters.get(i));
 							Type generatorType = generatorParameters.get(i);
 							Type targetType = targetParameters.get(i);
-							if (!TypeUtils.isAssignable(targetType, generatorType)) {
+							// FIXME: Which one is the lhs and the rhs?
+							// if (!TypeUtils.isAssignable(targetType, generatorType)) {
+							if (!GenericClass.isAssignable(targetType, generatorType)) {
 								compatibleParameters = false;
 								logger.debug("Incompatible parameter: " + targetType
 								        + " vs. " + generatorType);
@@ -409,11 +410,13 @@ public class TestCluster {
 					boolean compatibleParameters = true;
 					for (int i = 0; i < targetParameters.size(); i++) {
 						logger.debug("Comparing target parameter "
-						        + targetParameters.get(i) + " with generator parameter "
+						        + targetParameters.get(i) + " with modifier parameter "
 						        + modifierParameters.get(i));
 						Type modifierType = modifierParameters.get(i);
 						Type targetType = targetParameters.get(i);
-						if (!TypeUtils.isAssignable(targetType, modifierType)) {
+						// FIXME: Which one is the lhs and the rhs?
+						// if (!TypeUtils.isAssignable(targetType, modifierType)) {
+						if (!GenericClass.isAssignable(targetType, modifierType)) {
 							compatibleParameters = false;
 							logger.debug("Incompatible parameter: " + targetType
 							        + " vs. " + modifierType);
