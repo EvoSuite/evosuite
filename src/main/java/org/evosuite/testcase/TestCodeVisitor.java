@@ -975,7 +975,12 @@ public class TestCodeVisitor extends TestVisitor {
 			callee_str += getClassName(method.getMethod().getDeclaringClass());
 		} else {
 			VariableReference callee = statement.getCallee();
-			callee_str += getVariableName(callee);
+			if (callee instanceof ConstantValue) {
+				callee_str += "((" + getClassName(method.getMethod().getDeclaringClass())
+				        + ")" + getVariableName(callee) + ")";
+			} else {
+				callee_str += getVariableName(callee);
+			}
 		}
 
 		if (retval.getType() == Void.TYPE) {
