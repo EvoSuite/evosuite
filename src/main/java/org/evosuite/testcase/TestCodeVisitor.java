@@ -848,7 +848,8 @@ public class TestCodeVisitor extends TestVisitor {
 	}
 
 	private String getParameterString(Type[] parameterTypes,
-	        List<VariableReference> parameters, boolean isGenericMethod, int startPos) {
+	        List<VariableReference> parameters, boolean isGenericMethod,
+	        boolean isOverloaded, int startPos) {
 		String parameterString = "";
 
 		for (int i = startPos; i < parameters.size(); i++) {
@@ -907,6 +908,11 @@ public class TestCodeVisitor extends TestVisitor {
 				} else if (parameterClass.isPrimitive()
 				        && parameters.get(i).isWrapperType()) {
 					parameterString += "(" + getTypeName(declaredParamType) + ") ";
+				} else if (isOverloaded) {
+					// If there is an overloaded method, we need to cast to make sure we use the right version
+					if (!declaredParamType.equals(actualParamType)) {
+						parameterString += "(" + getTypeName(declaredParamType) + ") ";
+					}
 				}
 			}
 
@@ -953,7 +959,8 @@ public class TestCodeVisitor extends TestVisitor {
 			result += "try {\n  ";
 
 		String parameter_string = getParameterString(method.getParameterTypes(),
-		                                             parameters, isGenericMethod, 0);
+		                                             parameters, isGenericMethod,
+		                                             method.isOverloaded(parameters), 0);
 
 		String callee_str = "";
 		if (!retval.isAssignableFrom(method.getReturnType())
@@ -1038,7 +1045,9 @@ public class TestCodeVisitor extends TestVisitor {
 			startPos = 1;
 		}
 		String parameter_string = getParameterString(constructor.getParameterTypes(),
-		                                             parameters, isGenericMethod,
+		                                             parameters,
+		                                             isGenericMethod,
+		                                             constructor.isOverloaded(parameters),
 		                                             startPos);
 
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
