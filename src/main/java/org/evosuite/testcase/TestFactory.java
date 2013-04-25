@@ -727,10 +727,13 @@ public class TestFactory {
 	        int position, int recursionDepth) throws ConstructionFailedException {
 
 		logger.debug("Creating array of type " + arrayClass.getTypeName());
-		if (arrayClass.hasWildcardOrTypeVariables() && !arrayClass.isClass()) {
-			arrayClass = TestCluster.getInstance().getGenericInstantiation(arrayClass);
-			logger.debug("Setting generic array to type " + arrayClass.getTypeName());
-
+		if (arrayClass.hasWildcardOrTypeVariables()) {
+			if (arrayClass.getComponentClass().isClass()) {
+				arrayClass = arrayClass.getWithWildcardTypes();
+			} else {
+				arrayClass = TestCluster.getInstance().getGenericInstantiation(arrayClass);
+				logger.debug("Setting generic array to type " + arrayClass.getTypeName());
+			}
 		}
 		// Create array with random size
 		ArrayStatement statement = new ArrayStatement(test, arrayClass.getType());

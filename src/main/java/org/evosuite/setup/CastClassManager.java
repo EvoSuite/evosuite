@@ -71,7 +71,7 @@ public class CastClassManager {
 		try {
 			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 			GenericClass castClazz = new GenericClass(clazz);
-			addCastClass(castClazz, depth);
+			addCastClass(castClazz.getWithWildcardTypes(), depth);
 		} catch (ClassNotFoundException e) {
 			// Ignore
 			logger.debug("Error including cast class " + className + " because: " + e);
@@ -80,7 +80,7 @@ public class CastClassManager {
 
 	public void addCastClass(Type type, int depth) {
 		GenericClass castClazz = new GenericClass(type);
-		addCastClass(castClazz, depth);
+		addCastClass(castClazz.getWithWildcardTypes(), depth);
 	}
 
 	public void addCastClass(GenericClass clazz, int depth) {
@@ -128,6 +128,7 @@ public class CastClassManager {
 	private boolean addAssignableClass(TypeVariable<?> typeVariable) {
 		Set<Class<?>> classes = TestCluster.getInstance().getAnalyzedClasses();
 		Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+
 		for (Class<?> clazz : classes) {
 			boolean isAssignable = true;
 			for (Type bound : typeVariable.getBounds()) {
@@ -143,7 +144,7 @@ public class CastClassManager {
 		}
 		logger.debug("Found assignable classes for type variable " + typeVariable + ": "
 		        + assignableClasses.size());
-		if (assignableClasses.isEmpty()) {
+		if (!assignableClasses.isEmpty()) {
 			Class<?> clazz = Randomness.choice(assignableClasses);
 			GenericClass castClass = new GenericClass(clazz);
 			logger.debug("Adding cast class " + castClass);
@@ -153,11 +154,6 @@ public class CastClassManager {
 		}
 
 		return false;
-	}
-
-	private Type getGenericInstantiation(GenericClass type, Type[] bounds) {
-		// find instance of parameterized type matching bounds
-		return null;
 	}
 
 	private double getSum(TypeVariable<?> typeVariable, boolean allowRecursion) {
@@ -178,41 +174,13 @@ public class CastClassManager {
 			for (Type theType : typeVariable.getBounds()) {
 				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable,
 				                                             entry.getKey().getType());
-				logger.debug("Resulting type: " + type);
-
 				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
-					logger.debug("Not assignable: " + entry.getKey().getTypeName()
-					        + " to bound " + type + " of " + typeVariable);
-					logger.debug(entry.getKey().getType().getClass() + " vs "
-					        + type.getClass());
-					logger.debug("isSuperType: "
-					        + GenericTypeReflector.isSuperType(entry.getKey().getType(),
-					                                           type));
-					logger.debug("isSuperType2: "
-					        + GenericTypeReflector.isSuperType(type,
-					                                           entry.getKey().getType()));
-					logger.debug("isGenericSuperType: "
-					        + entry.getKey().isGenericSuperTypeOf(type));
-					logger.debug("hasGenericSuperType: "
-					        + entry.getKey().hasGenericSuperType(type));
-					logger.debug("2isGenericSuperType: "
-					        + entry.getKey().isGenericSuperTypeOf(typeVariable));
-					logger.debug("3isGenericSuperType: "
-					        + GenericTypeReflector.isSuperType(type,
-					                                           entry.getKey().getType()));
-					//logger.debug("2hasGenericSuperType: "
-					//        + entry.getKey().hasGenericSuperType(typeVariable));
-					logger.debug("Bound equals target type: "
-					        + entry.getKey().getRawClass().equals(GenericTypeReflector.erase(type)));
-
 					if (GenericTypeReflector.erase(type).isAssignableFrom(entry.getKey().getRawClass())) {
 						logger.debug("Raw types are assignable, checking if we can get a generic type instance");
 
 						Type instanceType = GenericTypeReflector.getExactSuperType(type,
 						                                                           entry.getKey().getRawClass());
-						logger.debug("Instance type is: " + instanceType);
 						if (GenericClass.isAssignable(type, instanceType)) {
-							logger.debug("Yes, this is assignable!");
 							continue;
 						}
 					}

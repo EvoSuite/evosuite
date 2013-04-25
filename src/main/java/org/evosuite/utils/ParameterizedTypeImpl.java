@@ -23,6 +23,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.Arrays;
 
+import com.googlecode.gentyref.CaptureType;
 import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
@@ -120,7 +121,15 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 				Type arg = actualTypeArguments[i];
 				if (i != 0)
 					sb.append(", ");
-				sb.append(GenericTypeReflector.getTypeName(arg));
+				if (arg instanceof CaptureType) {
+					CaptureType captureType = (CaptureType) arg;
+					if (captureType.getLowerBounds().length == 0)
+						sb.append("?");
+					else
+						sb.append(captureType.getLowerBounds()[0].toString());
+				} else {
+					sb.append(GenericTypeReflector.getTypeName(arg));
+				}
 			}
 			sb.append('>');
 		}
