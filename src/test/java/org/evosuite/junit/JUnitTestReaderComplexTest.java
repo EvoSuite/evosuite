@@ -7,6 +7,10 @@ import org.evosuite.testcase.TestCase;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.testreader.InheritanceExample;
+import com.examples.with.different.packagename.testreader.ParentTestExample;
+import com.examples.with.different.packagename.testreader.TestExample;
+
 public class JUnitTestReaderComplexTest {
 	private static final String SRCDIR = "src/test/java/";
 

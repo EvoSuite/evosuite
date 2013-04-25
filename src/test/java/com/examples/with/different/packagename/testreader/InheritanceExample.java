@@ -1,4 +1,4 @@
-package org.evosuite.junit;
+package com.examples.with.different.packagename.testreader;
 
 import org.junit.BeforeClass;
 import org.junit.Test;

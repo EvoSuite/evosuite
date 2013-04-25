@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.junit;
+package com.examples.with.different.packagename.testreader;
 
 import java.awt.image.BufferedImage;
 
@@ -41,10 +41,12 @@ public class TestExample extends ParentTestExample {
 			return this;
 		}
 
-		public void executeCmd(int x) {
+		public boolean executeCmd(int x) {
 			if (song.equals("killSelf") && (x > 7)) {
-				throw new RuntimeException("It's a sin to kill a mockingbird.");
+				System.out.println("It's a sin to kill a mockingbird.");
+				return true;
 			}
+			return false;
 		}
 
 		public void thisIsIt(String... args) {
