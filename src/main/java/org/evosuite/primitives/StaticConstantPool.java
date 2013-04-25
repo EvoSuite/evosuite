@@ -36,11 +36,11 @@ public class StaticConstantPool implements ConstantPool {
 		 */
 
 		stringPool.add("");
-		
-		if(Properties.TARGET_CLASS!=null && !Properties.TARGET_CLASS.isEmpty()){
+
+		if (Properties.TARGET_CLASS != null && !Properties.TARGET_CLASS.isEmpty()) {
 			typePool.add(Type.getObjectType(Properties.TARGET_CLASS));
 		}
-		
+
 		intPool.add(0);
 		intPool.add(1);
 		intPool.add(-1);
@@ -69,7 +69,7 @@ public class StaticConstantPool implements ConstantPool {
 	public String getRandomString() {
 		return Randomness.choice(stringPool);
 	}
-	
+
 	@Override
 	public Type getRandomType() {
 		return Randomness.choice(typePool);
@@ -139,9 +139,14 @@ public class StaticConstantPool implements ConstantPool {
 			return;
 
 		if (object instanceof String) {
-			stringPool.add((String) object);
-		} else if(object instanceof Type) {
-			typePool.add((Type)object);
+			String string = (String) object;
+			// String literals are constrained to 65535 bytes 
+			// as they are stored in the constant pool
+			if (string.length() > 65535)
+				return;
+			stringPool.add(string);
+		} else if (object instanceof Type) {
+			typePool.add((Type) object);
 		}
 
 		else if (object instanceof Integer) {
@@ -181,7 +186,8 @@ public class StaticConstantPool implements ConstantPool {
 				doublePool.add((Double) object);
 			}
 		} else {
-			LoggingUtils.getEvoLogger().info("Constant of unknown type: "+object.getClass());
+			LoggingUtils.getEvoLogger().info("Constant of unknown type: "
+			                                         + object.getClass());
 		}
 	}
 
