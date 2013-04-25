@@ -115,7 +115,8 @@ public class Properties {
 	public static boolean STATIC_HACK = false;
 
 	/**
-	 * TODO: this option is off by default because still experimental and not fully tested
+	 * TODO: this option is off by default because still experimental and not
+	 * fully tested
 	 */
 	@Parameter(key = "test_carving", group = "Test Creation", description = "Enable test carving")
 	public static boolean TEST_CARVING = false;
@@ -148,7 +149,7 @@ public class Properties {
 	/** Constant <code>DYNAMIC_POOL_SIZE=50</code> */
 	@Parameter(key = "dynamic_pool_size", group = "Test Creation", description = "Number of dynamic constants to keep")
 	public static int DYNAMIC_POOL_SIZE = 50;
-	
+
 	@Parameter(key = "p_special_type_call", group = "Test Creation", description = "Probability of using a non-standard call on a special case (collection/numeric)")
 	public static double P_SPECIAL_TYPE_CALL = 0.05;
 
@@ -156,12 +157,12 @@ public class Properties {
 	@Parameter(key = "object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double OBJECT_POOL = 0.0;
-	
+
 	@Parameter(key = "seed_types", group = "Test Creation", description = "Use type information gathered from casts to instantiate generics")
 	public static boolean SEED_TYPES = true;
-	
-	@Parameter(key = "max_generic_depth", group = "Test Creation", description ="Maximum level of nesting for generic types")
-	public static int MAX_GENERIC_DEPTH = 2;
+
+	@Parameter(key = "max_generic_depth", group = "Test Creation", description = "Maximum level of nesting for generic types")
+	public static int MAX_GENERIC_DEPTH = 1;
 
 	/** Constant <code>STRING_LENGTH=20</code> */
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")
@@ -833,7 +834,7 @@ public class Properties {
 
 	@Parameter(key = "selected_junit", description = "List of fully qualified class names (separated by ':') indicating which JUnit test suites the user has selected (e.g., for seeding)")
 	public static String SELECTED_JUNIT = null;
-	
+
 	/** Constant <code>JUNIT_STRICT=false</code> */
 	@Parameter(key = "junit_strict", description = "Only include test files containing the target classname")
 	public static boolean JUNIT_STRICT = false;

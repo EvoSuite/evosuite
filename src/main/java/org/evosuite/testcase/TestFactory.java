@@ -517,7 +517,7 @@ public class TestFactory {
 				return createPrimitive(test, clazz, position, recursionDepth);
 			}
 		} else if (clazz.isArray()) {
-			return createArray(test, type, position, recursionDepth);
+			return createArray(test, clazz, position, recursionDepth);
 		} else {
 			if (allowNull && Randomness.nextDouble() <= Properties.NULL_PROBABILITY) {
 				logger.debug("Using a null reference to satisfy the type: " + type);
@@ -723,20 +723,20 @@ public class TestFactory {
 	 * @return
 	 * @throws ConstructionFailedException
 	 */
-	private VariableReference createArray(TestCase test, Type type, int position,
-	        int recursionDepth) throws ConstructionFailedException {
+	private VariableReference createArray(TestCase test, GenericClass arrayClass,
+	        int position, int recursionDepth) throws ConstructionFailedException {
 
-		logger.debug("Creating array of type " + type);
-		GenericClass arrayClass = new GenericClass(type);
-		if (arrayClass.hasWildcardOrTypeVariables()
-		        && arrayClass.getRawClass().equals(Class.class)) {
-			GenericClass genericArray = TestCluster.getInstance().getGenericInstantiation(arrayClass);
-			type = genericArray.getType();
-			logger.debug("Setting generic array to type " + type);
-
+		logger.debug("Creating array of type " + arrayClass.getTypeName());
+		if (arrayClass.hasWildcardOrTypeVariables()) {
+			if (arrayClass.getComponentClass().isClass()) {
+				arrayClass = arrayClass.getWithWildcardTypes();
+			} else {
+				arrayClass = TestCluster.getInstance().getGenericInstantiation(arrayClass);
+				logger.debug("Setting generic array to type " + arrayClass.getTypeName());
+			}
 		}
 		// Create array with random size
-		ArrayStatement statement = new ArrayStatement(test, type);
+		ArrayStatement statement = new ArrayStatement(test, arrayClass.getType());
 		VariableReference reference = test.addStatement(statement, position);
 		position++;
 		logger.debug("Array length: " + statement.size());
@@ -756,7 +756,7 @@ public class TestFactory {
 					iterator.remove();
 				// Do not assign values of same type as array to elements
 				// This may e.g. happen if we have Object[], we could otherwise assign Object[] as values
-				else if (index.getArray().getType().equals(type))
+				else if (index.getArray().getType().equals(arrayClass.getType()))
 					iterator.remove();
 
 			}
