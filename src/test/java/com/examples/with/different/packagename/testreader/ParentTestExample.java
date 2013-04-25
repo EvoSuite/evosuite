@@ -15,19 +15,53 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.junit;
+package com.examples.with.different.packagename.testreader;
 
-import org.evosuite.junit.TestExample.MockingBird;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.testreader.TestExample.MockingBird;
 
-public class SimpleTestExample02 {
 
-	@Ignore
+public class ParentTestExample {
+	protected static Integer value = 0;
+
+	static {
+		value = 5;
+	}
+
+	@BeforeClass
+	public static void initializeOtherValue() {
+		value = Integer.MAX_VALUE;
+	}
+	
+	@BeforeClass
+	public static void someInitialization() {
+		value = 7;
+	}
+	
+	protected String needed = null;
+	
+	public ParentTestExample(){
+		needed = "break free!";
+	}
+
+	@Before
+	public void otherSetup() {
+		value = 3;
+	}
+
+	@Before
+	public void setupNeeded() {
+		needed = "escape";
+	}
+
+//	@Ignore
 	@Test
-	public void test() {
-		MockingBird bird = MockingBird.create("killSelf");
-		bird.executeCmd(10);
+	public void test01() {
+		MockingBird bird = MockingBird.create(needed);
+		bird.executeCmd(value);
 	}
 }

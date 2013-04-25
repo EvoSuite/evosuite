@@ -15,19 +15,18 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.junit;
+package com.examples.with.different.packagename.testreader;
 
-import org.evosuite.junit.TestExample.MockingBird;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.testreader.TestExample.MockingBird;
 
-public class SimpleTestExample01 {
 
-	@Ignore
+public class SimpleTestExample04 {
+
 	@Test
 	public void test() {
-		MockingBird bird = new MockingBird("killSelf");
-		bird.executeCmd(10);
+		MockingBird bird = new MockingBird(new String("killSelf"));
+		bird.doIt(new String("You")).doIt("Me").doIt("Them").doIt("Everybody!");
 	}
 }

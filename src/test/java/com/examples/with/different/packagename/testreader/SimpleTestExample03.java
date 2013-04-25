@@ -15,17 +15,24 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.junit;
+package com.examples.with.different.packagename.testreader;
 
-import org.evosuite.junit.TestExample.MockingBird;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import org.junit.Test;
 
-
-public class SimpleTestExample04 {
+public class SimpleTestExample03 {
 
 	@Test
-	public void test() {
-		MockingBird bird = new MockingBird(new String("killSelf"));
-		bird.doIt(new String("You")).doIt("Me").doIt("Them").doIt("Everybody!");
+	public void test() throws ParseException {
+		SimpleDateFormat formatter = new SimpleDateFormat("dd.MMM.yyyy", Locale.FRENCH);
+		System.out.println(formatter.format(System.currentTimeMillis()));
+		String date = "11.sept..2007";
+		System.out.println(date);
+		Date result = formatter.parse(date);
+		// Assert.assertNotNull(result);
 	}
 }
