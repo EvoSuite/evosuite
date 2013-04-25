@@ -300,7 +300,7 @@ public class ControlFlowDistanceCalculator {
 			assert (nextDistance != null);
 			r.add(nextDistance);
 		}
-		
+
 		if (r.isEmpty()) {
 			// instruction only dependent on root branch
 			// since this method is called by getNonRootDistance(MethodCall)
@@ -320,7 +320,6 @@ public class ControlFlowDistanceCalculator {
 		Set<Integer> r = new HashSet<Integer>();
 		List<Integer> path = call.branchTrace;
 		for (int pos = 0; pos < path.size(); pos++) {
-			logger.debug(pos + ": " + path.get(pos));
 			if (path.get(pos) == branch.getActualBranchId()) { //.getActualBranchId()); {
 				r.add(pos);
 			}
