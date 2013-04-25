@@ -1151,8 +1151,8 @@ public class TestCodeVisitor extends TestVisitor {
 		if (retval.getGenericClass().isGenericArray()) {
 			if (lengths.size() > 1) {
 				multiDimensions = "new int[] {" + lengths.get(0);
-				for (int dim : lengths)
-					multiDimensions += ", " + dim;
+				for (int i = 1; i < lengths.size(); i++)
+					multiDimensions += ", " + lengths.get(i);
 				multiDimensions += "}";
 			} else {
 				multiDimensions = "" + lengths.get(0);
@@ -1160,7 +1160,7 @@ public class TestCodeVisitor extends TestVisitor {
 
 			testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("
 			        + getClassName(retval) + ") " + getClassName(Array.class)
-			        + ".newInstance(" + getClassName(retval.getComponentClass())
+			        + ".newInstance(" + getClassName(retval.getComponentClass()).replaceAll("\\[\\]", "")
 			        + ".class, " + multiDimensions + ");\n";
 
 		} else {
