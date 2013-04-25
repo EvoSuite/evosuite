@@ -214,7 +214,6 @@ public class GenericConstructor extends GenericAccessibleObject {
 	}
 
 	public boolean isOverloaded(List<VariableReference> parameters) {
-		String methodName = getName();
 		Class<?> declaringClass = constructor.getDeclaringClass();
 		Class<?>[] parameterTypes = constructor.getParameterTypes();
 		boolean isExact = true;
@@ -229,9 +228,8 @@ public class GenericConstructor extends GenericAccessibleObject {
 		if (isExact)
 			return false;
 		try {
-			java.lang.reflect.Method otherMethod = declaringClass.getMethod(methodName,
-			                                                                parameterTypes);
-			if (otherMethod != null)
+			Constructor<?> otherConstructor = declaringClass.getConstructor(parameterTypes);
+			if (otherConstructor != null)
 				return true;
 		} catch (SecurityException e) {
 		} catch (NoSuchMethodException e) {
