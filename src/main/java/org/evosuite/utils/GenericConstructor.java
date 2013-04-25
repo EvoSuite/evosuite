@@ -11,9 +11,11 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.List;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.testcase.VariableReference;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
@@ -24,7 +26,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
 public class GenericConstructor extends GenericAccessibleObject {
 
 	private static final long serialVersionUID = 1361882947700615341L;
-	
+
 	private transient Constructor<?> constructor;
 
 	public GenericConstructor(Constructor<?> constructor, Class<?> clazz) {
@@ -78,7 +80,8 @@ public class GenericConstructor extends GenericAccessibleObject {
 
 	@Override
 	public GenericAccessibleObject copy() {
-		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(owner));
+		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(
+		        owner));
 		copy.typeVariables.addAll(typeVariables);
 		return copy;
 	}
@@ -92,8 +95,9 @@ public class GenericConstructor extends GenericAccessibleObject {
 
 	@Override
 	public GenericAccessibleObject copyWithOwnerFromReturnType(
-			ParameterizedType returnType) {
-		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(returnType));
+	        ParameterizedType returnType) {
+		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(
+		        returnType));
 		copy.typeVariables.addAll(typeVariables);
 		return copy;
 	}
@@ -109,7 +113,7 @@ public class GenericConstructor extends GenericAccessibleObject {
 	public Class<?> getDeclaringClass() {
 		return constructor.getDeclaringClass();
 	}
-	
+
 	/**
 	 * Returns the exact parameter types of the given method in the given type.
 	 * This may be different from <tt>m.getGenericParameterTypes()</tt> when the
@@ -132,11 +136,11 @@ public class GenericConstructor extends GenericAccessibleObject {
 		}
 		return result;
 	}
-	
+
 	public Type[] getGenericParameterTypes() {
 		return constructor.getGenericParameterTypes();
 	}
-	
+
 	@Override
 	public Type getGeneratedType() {
 		return getReturnType();
@@ -146,12 +150,12 @@ public class GenericConstructor extends GenericAccessibleObject {
 	public Class<?> getRawGeneratedType() {
 		return constructor.getDeclaringClass();
 	}
-	
+
 	@Override
 	public Type getGenericGeneratedType() {
 		return getRawGeneratedType();
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#getName()
 	 */
@@ -159,7 +163,7 @@ public class GenericConstructor extends GenericAccessibleObject {
 	public String getName() {
 		return constructor.getName();
 	}
-	
+
 	@Override
 	public int getNumParameters() {
 		return constructor.getGenericParameterTypes().length;
@@ -168,21 +172,21 @@ public class GenericConstructor extends GenericAccessibleObject {
 	public Type[] getParameterTypes() {
 		Type[] types = getExactParameterTypes(constructor, owner.getType());
 		Type[] rawTypes = constructor.getParameterTypes();
-		
+
 		// Generic member classes should have the enclosing instance as a parameter
 		// but don't for some reason
-		if(rawTypes.length != types.length) {
+		if (rawTypes.length != types.length) {
 			Type[] actualTypes = new Type[rawTypes.length];
 			actualTypes[0] = rawTypes[0];
 			int pos = 1;
-			for(Type parameterType : types) {
+			for (Type parameterType : types) {
 				actualTypes[pos++] = parameterType;
 			}
 			return actualTypes;
 		}
 		return types;
 	}
-	
+
 	public Type[] getRawParameterTypes() {
 		return constructor.getParameterTypes();
 	}
@@ -203,10 +207,37 @@ public class GenericConstructor extends GenericAccessibleObject {
 	public boolean isConstructor() {
 		return true;
 	}
-	
+
 	@Override
 	public boolean isStatic() {
 		return Modifier.isStatic(constructor.getModifiers());
+	}
+
+	public boolean isOverloaded(List<VariableReference> parameters) {
+		String methodName = getName();
+		Class<?> declaringClass = constructor.getDeclaringClass();
+		Class<?>[] parameterTypes = constructor.getParameterTypes();
+		boolean isExact = true;
+		Class<?>[] parameterClasses = new Class<?>[parameters.size()];
+		int num = 0;
+		for (VariableReference parameter : parameters) {
+			parameterClasses[num] = parameter.getVariableClass();
+			if (!parameterClasses[num].equals(parameterTypes[num])) {
+				isExact = false;
+			}
+		}
+		if (isExact)
+			return false;
+		try {
+			java.lang.reflect.Method otherMethod = declaringClass.getMethod(methodName,
+			                                                                parameterTypes);
+			if (otherMethod != null)
+				return true;
+		} catch (SecurityException e) {
+		} catch (NoSuchMethodException e) {
+		}
+
+		return false;
 	}
 
 	// assumes "static java.util.Date aDate;" declared

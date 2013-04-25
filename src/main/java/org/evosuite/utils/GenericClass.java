@@ -186,7 +186,7 @@ public class GenericClass implements Serializable {
 	 *            a {@link java.lang.Class} object.
 	 */
 	public GenericClass(Class<?> clazz) {
-		this.type = GenericTypeReflector.addWildcardParameters(clazz);
+		this.type = addTypeParameters(clazz); //GenericTypeReflector.addWildcardParameters(clazz);
 		this.raw_class = clazz;
 	}
 
@@ -203,7 +203,7 @@ public class GenericClass implements Serializable {
 	 */
 	public GenericClass(Type type) {
 		if (type instanceof Class<?>) {
-			this.type = GenericTypeReflector.addWildcardParameters((Class<?>) type);
+			this.type = addTypeParameters((Class<?>) type); //GenericTypeReflector.addWildcardParameters((Class<?>) type);
 			this.raw_class = (Class<?>) type;
 		} else {
 			if (!handleGenericArraySpecialCase(type)) {
@@ -225,8 +225,33 @@ public class GenericClass implements Serializable {
 		handleGenericArraySpecialCase(type);
 	}
 
-	public GenericClass addWildcardTypes() {
-		return new GenericClass(GenericTypeReflector.addWildcardParameters(raw_class));
+	public static Type addTypeParameters(Class<?> clazz) {
+		if (clazz.isArray()) {
+			return GenericArrayTypeImpl.createArrayType(addTypeParameters(clazz.getComponentType()));
+		} else if (isMissingTypeParameters(clazz)) {
+			TypeVariable<?>[] vars = clazz.getTypeParameters();
+			// Type[] arguments = new Type[vars.length];
+			// Arrays.fill(arguments, UNBOUND_WILDCARD);
+			Type owner = clazz.getDeclaringClass() == null ? null
+			        : addTypeParameters(clazz.getDeclaringClass());
+			return new ParameterizedTypeImpl(clazz, vars, owner);
+		} else {
+			return clazz;
+		}
+	}
+
+	private static boolean isMissingTypeParameters(Type type) {
+		if (type instanceof Class) {
+			for (Class<?> clazz = (Class<?>) type; clazz != null; clazz = clazz.getEnclosingClass()) {
+				if (clazz.getTypeParameters().length != 0)
+					return true;
+			}
+			return false;
+		} else if (type instanceof ParameterizedType) {
+			return false;
+		} else {
+			throw new AssertionError("Unexpected type " + type.getClass());
+		}
 	}
 
 	/**
@@ -261,7 +286,7 @@ public class GenericClass implements Serializable {
 					parameterClasses.add(parameter);
 				}
 				if (hasWildcard) {
-					this.type = GenericTypeReflector.addWildcardParameters(raw_class);
+					this.type = addTypeParameters(raw_class); //GenericTypeReflector.addWildcardParameters(raw_class);
 				} else {
 					Type[] parameterTypes = new Type[parameterClasses.size()];
 					for (int i = 0; i < parameterClasses.size(); i++)
@@ -274,7 +299,7 @@ public class GenericClass implements Serializable {
 				componentClass.changeClassLoader(loader);
 				this.type = GenericArrayTypeImpl.createArrayType(componentClass.getType());
 			} else {
-				this.type = GenericTypeReflector.addWildcardParameters(raw_class);
+				this.type = addTypeParameters(raw_class); //GenericTypeReflector.addWildcardParameters(raw_class);
 			}
 		} catch (ClassNotFoundException e) {
 			logger.warn("Class not found: " + raw_class + " - keeping old class loader ",
@@ -569,6 +594,11 @@ public class GenericClass implements Serializable {
 		        ownerType));
 	}
 
+	public GenericClass getWithWildcardTypes() {
+		Type ownerType = GenericTypeReflector.addWildcardParameters(raw_class);
+		return new GenericClass(ownerType);
+	}
+
 	private boolean handleGenericArraySpecialCase(Type type) {
 		if (type instanceof GenericArrayType) {
 			// There is some weird problem with generic methods and the component type can be null
@@ -794,7 +824,7 @@ public class GenericClass implements Serializable {
 			this.type = new ParameterizedTypeImpl(raw_class, parameterTypes,
 			        ownerType.getType());
 		} else {
-			this.type = GenericTypeReflector.addWildcardParameters(raw_class);
+			this.type = addTypeParameters(raw_class); //GenericTypeReflector.addWildcardParameters(raw_class);
 		}
 	}
 

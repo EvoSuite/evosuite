@@ -31,7 +31,7 @@ public class DynamicConstantPool implements ConstantPool {
 		 * all pools HAVE to be non-empty 
 		 */
 		stringPool.restrictedAdd("");
-		if(Properties.TARGET_CLASS!=null && !Properties.TARGET_CLASS.isEmpty()){
+		if (Properties.TARGET_CLASS != null && !Properties.TARGET_CLASS.isEmpty()) {
 			typePool.restrictedAdd(Type.getObjectType(Properties.TARGET_CLASS));
 		}
 		intPool.restrictedAdd(0);
@@ -47,7 +47,7 @@ public class DynamicConstantPool implements ConstantPool {
 	public String getRandomString() {
 		return stringPool.getRandomValue();
 	}
-	
+
 	@Override
 	public Type getRandomType() {
 		return typePool.getRandomValue();
@@ -95,11 +95,15 @@ public class DynamicConstantPool implements ConstantPool {
 			return;
 
 		if (object instanceof String) {
-			stringPool.restrictedAdd((String) object);
-		} else if(object instanceof Type) {
-			typePool.restrictedAdd((Type)object);
+			String string = (String) object;
+			// String literals are constrained to 65535 bytes 
+			// as they are stored in the constant pool
+			if (string.length() > 65535)
+				return;
+			stringPool.restrictedAdd(string);
+		} else if (object instanceof Type) {
+			typePool.restrictedAdd((Type) object);
 		}
-
 
 		else if (object instanceof Integer) {
 			if (Properties.RESTRICT_POOL) {

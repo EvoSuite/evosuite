@@ -2,7 +2,9 @@ package org.evosuite.setup;
 
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
@@ -12,12 +14,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericUtils;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.googlecode.gentyref.GenericTypeReflector;
 
 public class CastClassManager {
 
@@ -66,7 +71,7 @@ public class CastClassManager {
 		try {
 			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 			GenericClass castClazz = new GenericClass(clazz);
-			addCastClass(castClazz, depth);
+			addCastClass(castClazz.getWithWildcardTypes(), depth);
 		} catch (ClassNotFoundException e) {
 			// Ignore
 			logger.debug("Error including cast class " + className + " because: " + e);
@@ -75,7 +80,7 @@ public class CastClassManager {
 
 	public void addCastClass(Type type, int depth) {
 		GenericClass castClazz = new GenericClass(type);
-		addCastClass(castClazz, depth);
+		addCastClass(castClazz.getWithWildcardTypes(), depth);
 	}
 
 	public void addCastClass(GenericClass clazz, int depth) {
@@ -123,6 +128,7 @@ public class CastClassManager {
 	private boolean addAssignableClass(TypeVariable<?> typeVariable) {
 		Set<Class<?>> classes = TestCluster.getInstance().getAnalyzedClasses();
 		Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+
 		for (Class<?> clazz : classes) {
 			boolean isAssignable = true;
 			for (Type bound : typeVariable.getBounds()) {
@@ -138,7 +144,7 @@ public class CastClassManager {
 		}
 		logger.debug("Found assignable classes for type variable " + typeVariable + ": "
 		        + assignableClasses.size());
-		if (assignableClasses.isEmpty()) {
+		if (!assignableClasses.isEmpty()) {
 			Class<?> clazz = Randomness.choice(assignableClasses);
 			GenericClass castClass = new GenericClass(clazz);
 			logger.debug("Adding cast class " + castClass);
@@ -152,17 +158,41 @@ public class CastClassManager {
 
 	private double getSum(TypeVariable<?> typeVariable, boolean allowRecursion) {
 		double sum = 0d;
+
+		/**
+		 * Maybe need to do this recursively: - Try to find class that is
+		 * assignable to all bounds - If it is assignable, then the chosen cast
+		 * class is a generic subclass of the bound -
+		 * 
+		 */
+
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
+
 			boolean isAssignable = true;
+			logger.debug("Getting instance for type variable with bounds "
+			        + Arrays.asList(TypeUtils.getImplicitBounds(typeVariable)));
 			for (Type theType : typeVariable.getBounds()) {
 				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable,
 				                                             entry.getKey().getType());
 				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
-					logger.debug("Not assignable: " + entry.getKey().getTypeName()
-					        + " to bound " + type);
+					if (GenericTypeReflector.erase(type).isAssignableFrom(entry.getKey().getRawClass())) {
+						logger.debug("Raw types are assignable, checking if we can get a generic type instance");
+
+						Type instanceType = GenericTypeReflector.getExactSuperType(type,
+						                                                           entry.getKey().getRawClass());
+						if (GenericClass.isAssignable(type, instanceType)) {
+							continue;
+						}
+					}
+
 					isAssignable = false;
 					break;
 				}
+
+				/*
+				 * Problem: If entry.getKey() has type parameters
+				 * then strictly speaking we would need to try to find a valid instantiation of these parameters in turn!
+				 */
 			}
 			if (!isAssignable) {
 				continue;
@@ -211,6 +241,7 @@ public class CastClassManager {
 
 	public GenericClass selectCastClass(Type targetType, boolean allowRecursion) {
 
+		// TODO: Need to check bounds on wildcard types!
 		double sum = getSum(targetType, allowRecursion);
 
 		//special case
@@ -223,6 +254,12 @@ public class CastClassManager {
 
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
 			logger.debug("Candidate cast class: " + entry.getKey());
+			if (targetType instanceof WildcardType) {
+				WildcardType wc = (WildcardType) targetType;
+				logger.debug("Bounds of wildcardtype: "
+				        + Arrays.asList(wc.getLowerBounds()) + " / "
+				        + Arrays.asList(wc.getUpperBounds()));
+			}
 			if (!entry.getKey().isAssignableTo(targetType)) {
 				logger.debug("Is not assignable to " + targetType);
 				continue;
@@ -256,6 +293,7 @@ public class CastClassManager {
 
 		//special case
 		if (sum == 0d) {
+			logger.debug("Trying to add new cast class");
 			if (addAssignableClass(typeVariable)) {
 				return selectCastClass(typeVariable, allowRecursion);
 			}
@@ -266,11 +304,27 @@ public class CastClassManager {
 
 		double rnd = Randomness.nextDouble() * sum;
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
+			GenericClass key = entry.getKey();
 			boolean isAssignable = true;
 			for (Type theType : typeVariable.getBounds()) {
 				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable,
 				                                             entry.getKey().getType());
 				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
+					logger.debug("Not assignable: " + entry.getKey() + " to bound "
+					        + type + " of " + typeVariable);
+					if (GenericTypeReflector.erase(type).isAssignableFrom(entry.getKey().getRawClass())) {
+						logger.debug("Raw types are assignable, checking if we can get a generic type instance");
+
+						Type instanceType = GenericTypeReflector.getExactSuperType(type,
+						                                                           entry.getKey().getRawClass());
+						logger.debug("Instance type is: " + instanceType);
+						if (GenericClass.isAssignable(type, instanceType)) {
+							logger.debug("Found assignable generic exact type: "
+							        + instanceType);
+							key = new GenericClass(instanceType);
+							continue;
+						}
+					}
 					isAssignable = false;
 					break;
 				}
@@ -278,15 +332,16 @@ public class CastClassManager {
 			if (!isAssignable) {
 				continue;
 			}
+			logger.debug("Is assignable: " + entry.getKey() + " to " + typeVariable);
 
-			if (!allowRecursion && entry.getKey().hasWildcardOrTypeVariables())
+			if (!allowRecursion && key.hasWildcardOrTypeVariables())
 				continue;
 
 			int depth = entry.getValue();
 			double v = depth == 0 ? 0.0 : 1.0 / depth;
 
 			if (v >= rnd)
-				return entry.getKey();
+				return key;
 			else
 				rnd = rnd - v;
 		}
