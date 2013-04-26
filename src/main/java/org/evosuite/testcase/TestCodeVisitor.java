@@ -1041,19 +1041,22 @@ public class TestCodeVisitor extends TestVisitor {
 		GenericConstructor constructor = statement.getConstructor();
 		VariableReference retval = statement.getReturnValue();
 		Throwable exception = getException(statement);
-		boolean isGenericMethod = constructor.hasTypeParameters();
+		boolean isGenericConstructor = constructor.hasTypeParameters();
+		boolean isNonStaticMemberClass = constructor.getConstructor().getDeclaringClass().isMemberClass()
+		        && !constructor.isStatic()
+		        && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers());
 
 		List<VariableReference> parameters = statement.getParameterReferences();
 		int startPos = 0;
-		if (constructor.getConstructor().getDeclaringClass().isMemberClass()
-		        && !Modifier.isStatic(constructor.getDeclaringClass().getModifiers())) {
+		if (isNonStaticMemberClass) {
 			startPos = 1;
 		}
-		String parameter_string = getParameterString(constructor.getParameterTypes(),
-		                                             parameters,
-		                                             isGenericMethod,
-		                                             constructor.isOverloaded(parameters),
-		                                             startPos);
+		Type[] parameterTypes = constructor.getParameterTypes();
+		String parameterString = getParameterString(parameterTypes,
+				parameters,
+				isGenericConstructor,
+				constructor.isOverloaded(parameters),
+				startPos);
 
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+getVariableName(retval)+ " = null;\n";
@@ -1071,9 +1074,7 @@ public class TestCodeVisitor extends TestVisitor {
 		} else {
 			result += getClassName(retval) + " ";
 		}
-		if (constructor.getConstructor().getDeclaringClass().isMemberClass()
-		        && !constructor.isStatic()
-		        && !Modifier.isStatic(constructor.getConstructor().getDeclaringClass().getModifiers())) {
+		if (isNonStaticMemberClass) {
 
 			result += getVariableName(retval) + " = "
 			        + getVariableName(parameters.get(0))
@@ -1084,14 +1085,14 @@ public class TestCodeVisitor extends TestVisitor {
 			        // + getTypeName(constructor.getOwnerType()) + "("
 			        + getSimpleTypeName(constructor.getOwnerType()) + "("
 			        // + getClassName(constructor.getDeclaringClass()) + "("
-			        + parameter_string + ");";
+			        + parameterString + ");";
 
 		} else {
 
 			result += getVariableName(retval) + " = new "
 			        + getTypeName(constructor.getOwnerType())
 			        // + ConstructorStatement.getReturnType(constructor.getDeclaringClass())
-			        + "(" + parameter_string + ");";
+			        + "(" + parameterString + ");";
 		}
 
 		if (exception != null) {

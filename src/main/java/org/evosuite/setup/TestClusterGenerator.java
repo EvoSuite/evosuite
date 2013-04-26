@@ -146,9 +146,9 @@ public class TestClusterGenerator {
 			initBlackListWithPrimitives(blackList);
 
 			Set<String> classNames = new LinkedHashSet<String>();
-			classNames.add("java.lang.Object");
-			classNames.add("java.lang.String");
-			classNames.add("java.lang.Integer");
+			//classNames.add("java.lang.Object");
+			//classNames.add("java.lang.String");
+			//classNames.add("java.lang.Integer");
 
 			CastClassAnalyzer analyzer = new CastClassAnalyzer();
 			Map<Type, Integer> castMap = analyzer.analyze(Properties.TARGET_CLASS);
@@ -168,7 +168,7 @@ public class TestClusterGenerator {
 			// If SEED_TYPES is false, only Object is a cast class
 			// logger.info("Handling cast classes");
 			// addCastClasses(classNames, blackList);
-
+			logger.debug("Cast classes used: "+classNames);
 		}
 
 	}
@@ -211,13 +211,17 @@ public class TestClusterGenerator {
 
 	private boolean addCastClassDependencyIfAccessible(String className,
 	        Set<String> blackList) {
-		if (blackList.contains(className) && !className.equals("java.lang.String")) {
+		if(className.equals("java.lang.String"))
+			return true;
+		
+		if (blackList.contains(className)) {
 			logger.info("Cast class in blacklist: " + className);
 			return false;
 		}
 		try {
 			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 			if (!canUse(clazz)) {
+				logger.debug("Cannot use cast class: "+className);
 				return false;
 			}
 			// boolean added = 
