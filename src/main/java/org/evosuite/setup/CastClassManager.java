@@ -84,9 +84,6 @@ public class CastClassManager {
 	}
 
 	public void addCastClass(GenericClass clazz, int depth) {
-		if (classMap.containsKey(clazz))
-			return;
-
 		classMap.put(clazz, depth);
 		sortClassMap();
 		changed = true;
@@ -167,39 +164,44 @@ public class CastClassManager {
 		 */
 
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
-
+			logger.debug("Entry "+entry.getKey().getTypeName()+" at depth "+entry.getValue());
 			boolean isAssignable = true;
 			logger.debug("Getting instance for type variable with bounds "
 			        + Arrays.asList(TypeUtils.getImplicitBounds(typeVariable)));
+			GenericClass key = entry.getKey();
+
 			for (Type theType : typeVariable.getBounds()) {
 				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable,
 				                                             entry.getKey().getType());
 				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
+					logger.debug("Not assignable: " + entry.getKey() + " to bound "
+					        + type + " of " + typeVariable);
 					if (GenericTypeReflector.erase(type).isAssignableFrom(entry.getKey().getRawClass())) {
 						logger.debug("Raw types are assignable, checking if we can get a generic type instance");
 
 						Type instanceType = GenericTypeReflector.getExactSuperType(type,
 						                                                           entry.getKey().getRawClass());
+						logger.debug("Instance type is: " + instanceType);
+						type = GenericUtils.replaceTypeVariable(theType, typeVariable,
+                                instanceType);
 						if (GenericClass.isAssignable(type, instanceType)) {
+							logger.debug("Found assignable generic exact type: "
+							        + instanceType);
+							key = new GenericClass(instanceType);
 							continue;
 						}
 					}
-
 					isAssignable = false;
 					break;
 				}
-
-				/*
-				 * Problem: If entry.getKey() has type parameters
-				 * then strictly speaking we would need to try to find a valid instantiation of these parameters in turn!
-				 */
 			}
+			
 			if (!isAssignable) {
 				continue;
 			}
-			logger.debug("assignable: " + entry.getKey().getTypeName());
+			logger.debug("assignable: " + key.getTypeName());
 
-			if (!allowRecursion && entry.getKey().hasWildcardOrTypeVariables()) {
+			if (!allowRecursion && key.hasWildcardOrTypeVariables()) {
 				continue;
 			}
 
@@ -318,6 +320,8 @@ public class CastClassManager {
 						Type instanceType = GenericTypeReflector.getExactSuperType(type,
 						                                                           entry.getKey().getRawClass());
 						logger.debug("Instance type is: " + instanceType);
+						type = GenericUtils.replaceTypeVariable(theType, typeVariable,
+                                instanceType);
 						if (GenericClass.isAssignable(type, instanceType)) {
 							logger.debug("Found assignable generic exact type: "
 							        + instanceType);
