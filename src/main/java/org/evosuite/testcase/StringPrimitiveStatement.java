@@ -20,6 +20,9 @@
  */
 package org.evosuite.testcase;
 
+import java.io.PrintStream;
+import java.lang.reflect.InvocationTargetException;
+
 import org.evosuite.Properties;
 import org.evosuite.primitives.ConstantPool;
 import org.evosuite.primitives.ConstantPoolManager;
@@ -185,4 +188,21 @@ public class StringPrimitiveStatement extends PrimitiveStatement<String> {
 		}
 	}
 
+	@Override
+	public Throwable execute(Scope scope, PrintStream out)
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException {
+
+		try {
+			// In the JUnit code we produce, strings are generated as
+			// String foo = "bar";
+			// That means any reference comparison will behave different
+			// as internally value is created as String foo = new String("bar").
+			// Therefore we have to use the string object in the constant pool
+			retval.setObject(scope, value.intern());
+		} catch (CodeUnderTestException e) {
+			exceptionThrown = e;
+		}
+		return exceptionThrown;
+	}
 }
