@@ -304,62 +304,25 @@ public class TestCluster {
 						// If the types are not assignable, we need to check the generic type parameters
 						logger.debug(clazz + " is not assignable from "
 						        + generatorClazz.getTypeName());
+						
+						// generatorClazz can only be a subclass of clazz
+						GenericClass newOwner = generatorClazz.getWithParametersFromSuperclass(clazz);
 
-						// Type parameters for the class of the generator
-						List<Type> parameters = new ArrayList<Type>();
-
-						// Type parameters of the target type
-						List<Type> targetParameters = clazz.getParameterTypes();
-
-						// Type parameters of the type that is generated
-						List<Type> generatorParameters = generatorClazz.getParameterTypes();
-						if (targetParameters.size() != generatorParameters.size()) {
-							continue;
-						}
-
-						boolean compatibleParameters = true;
-						for (int i = 0; i < targetParameters.size(); i++) {
-							logger.debug("Comparing target parameter "
-							        + targetParameters.get(i)
-							        + " with generator parameter "
-							        + generatorParameters.get(i));
-							Type generatorType = generatorParameters.get(i);
-							Type targetType = targetParameters.get(i);
-							// FIXME: Which one is the lhs and the rhs?
-							// if (!TypeUtils.isAssignable(targetType, generatorType)) {
-							//							if (!GenericClass.isAssignable(targetType, generatorType)) {
-							if (!GenericClass.isAssignable(generatorType, targetType)) {
-								compatibleParameters = false;
-								logger.debug("Incompatible parameter: " + targetType
-								        + " vs. " + generatorType);
-								break;
-							}
-							parameters.add(targetType);
-						}
-						if (compatibleParameters) {
-							logger.debug("Parameter are compatible, trying to construct class");
-
-							Type[] actualParameters = new Type[parameters.size()];
-							parameters.toArray(actualParameters);
-							GenericClass newOwner = generatorClazz.getWithParameterTypes(actualParameters);
-							logger.debug("New owner is: " + newOwner);
-
-							// "newOwner" is the instantiated type of the return value
-							// but we need the declaring class of the method!
-							for (GenericAccessibleObject generator : generators.get(generatorClazz)) {
-								logger.debug("Candidate generator: " + generator);
-								if (generator.getOwnerClass().getNumParameters() == 0) {
-									// logger.debug("Owner class has no parameters, so we can only assume it would work: "+generator.getName());
-									targetGenerators.add(generator);
+						// "newOwner" is the instantiated type of the return value
+						// but we need the declaring class of the method!
+						for (GenericAccessibleObject generator : generators.get(generatorClazz)) {
+							logger.debug("Candidate generator: " + generator);
+							if (generator.getOwnerClass().getNumParameters() == 0) {
+								// logger.debug("Owner class has no parameters, so we can only assume it would work: "+generator.getName());
+								targetGenerators.add(generator);
+							} else {
+								GenericAccessibleObject newGenerator = generator.copyWithOwnerFromReturnType((ParameterizedType) newOwner.getType());
+								// logger.debug("Instantiated generator: "+newGenerator.getName());
+								if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
+									GenericClass concreteClass = getGenericInstantiation(newGenerator.getOwnerClass());
+									targetGenerators.add(newGenerator.copyWithNewOwner(concreteClass));
 								} else {
-									GenericAccessibleObject newGenerator = generator.copyWithOwnerFromReturnType((ParameterizedType) newOwner.getType());
-									// logger.debug("Instantiated generator: "+newGenerator.getName());
-									if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
-										GenericClass concreteClass = getGenericInstantiation(newGenerator.getOwnerClass());
-										targetGenerators.add(newGenerator.copyWithNewOwner(concreteClass));
-									} else {
-										targetGenerators.add(newGenerator);
-									}
+									targetGenerators.add(newGenerator);
 								}
 							}
 						}
@@ -1181,6 +1144,7 @@ public class TestCluster {
 			logger.debug("Type variables: " + choice.getOwnerClass().getTypeVariableMap());
 			logger.debug(Arrays.asList(choice.getTypeParameters()).toString());
 			logger.debug("Chosen call with generic parameter set: " + choice);
+			logger.debug("Call owner type: "+choice.getOwnerClass().getTypeName());
 		}
 		if (choice.hasTypeParameters()) {
 			choice = getGenericInstantiation(choice);
