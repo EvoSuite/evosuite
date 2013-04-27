@@ -177,7 +177,7 @@ public class GenericConstructor extends GenericAccessibleObject {
 		// but don't for some reason
 		if (rawTypes.length != types.length) {
 			Type[] actualTypes = new Type[rawTypes.length];
-			actualTypes[0] = rawTypes[0];
+			actualTypes[0] = owner.getOwnerType().getType();
 			int pos = 1;
 			for (Type parameterType : types) {
 				actualTypes[pos++] = parameterType;
