@@ -7,6 +7,7 @@ import java.io.ObjectOutputStream;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.primitives.ConstantPoolManager;
+import org.evosuite.utils.GenericClass;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
@@ -14,11 +15,11 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	private static final long serialVersionUID = -2728777640255424791L;
 
 	public ClassPrimitiveStatement(TestCase tc, Class<?> value) {
-		super(tc, Class.class, value);
+		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
 	}
 
 	public ClassPrimitiveStatement(TestCase tc) {
-		super(tc, Class.class, Properties.getTargetClass());
+		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), Properties.getTargetClass());
 	}
 
 	@Override
