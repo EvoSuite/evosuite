@@ -871,8 +871,10 @@ public class TestCodeVisitor extends TestVisitor {
 						name = name.replace("(byte)", "");
 
 				}
-			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)
-			        || name.equals("null")) {
+			} else if(name.equals("null")) {
+				parameterString += "(" + getTypeName(declaredParamType) + ") ";
+			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)) {
+				
 				if (TypeUtils.isArrayType(declaredParamType)
 				        && TypeUtils.isArrayType(actualParamType)) {
 					Class<?> componentClass = GenericTypeReflector.erase(declaredParamType).getComponentType();
@@ -890,7 +892,7 @@ public class TestCodeVisitor extends TestVisitor {
 					} else { //if (!GenericClass.isAssignable(GenericTypeReflector.getArrayComponentType(declaredParamType), GenericTypeReflector.getArrayComponentType(actualParamType))) {
 						parameterString += "(" + getTypeName(declaredParamType) + ") ";
 					}
-				} else {
+				} else if(!(actualParamType instanceof ParameterizedType)) {
 					parameterString += "(" + getTypeName(declaredParamType) + ") ";
 				}
 				if (name.contains("(short"))
