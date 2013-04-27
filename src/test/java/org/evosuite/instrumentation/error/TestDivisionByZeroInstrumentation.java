@@ -77,8 +77,9 @@ public class TestDivisionByZeroInstrumentation extends SystemTest {
 		String targetClass = FloatDivisionByZero.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+		Properties.ERROR_BRANCHES = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Derror_branches=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass  };
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -103,8 +104,9 @@ public class TestDivisionByZeroInstrumentation extends SystemTest {
 		String targetClass = DoubleDivisionByZero.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+		Properties.ERROR_BRANCHES = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Derror_branches=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass  };
 
 		Object result = evosuite.parseCommandLine(command);
 
@@ -129,8 +131,9 @@ public class TestDivisionByZeroInstrumentation extends SystemTest {
 		String targetClass = LongDivisionByZero.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+		Properties.ERROR_BRANCHES = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass, "-Derror_branches=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 
