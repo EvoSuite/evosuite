@@ -35,6 +35,8 @@ public class SystemTest {
 
 	public static final String ALREADY_SETUP = "systemtest.alreadysetup";
 
+	private static java.util.Properties currentProperties;
+	
 	static {
 		String s = System.getProperty(ALREADY_SETUP);
 		if (s == null) {
@@ -46,6 +48,7 @@ public class SystemTest {
 	@After
 	public void resetStaticVariables() {
 		TestGenerationContext.getInstance().resetContext();
+		System.setProperties(currentProperties); 
 	}
 
 	@Before
@@ -69,6 +72,8 @@ public class SystemTest {
 		
 		TestGenerationContext.getInstance().resetContext();
 		Randomness.setSeed(42);
+		
+		currentProperties = (java.util.Properties) System.getProperties().clone();
 	}
 
 	/*
