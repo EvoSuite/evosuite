@@ -85,6 +85,10 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		this.value = value;
 	}
 
+	public PrimitiveStatement(TestCase tc, GenericClass clazz, T value) {
+		super(tc, new VariableReferenceImpl(tc, clazz));
+		this.value = value;
+	}
 	/**
 	 * Access the value
 	 * 
@@ -209,8 +213,6 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	        throws InvocationTargetException, IllegalArgumentException,
 	        IllegalAccessException, InstantiationException {
 
-		//		assert (retval.isPrimitive() || retval.getVariableClass().isAssignableFrom(value.getClass())) : "we want an "
-		//		        + retval.getVariableClass() + " but got an "; // + value.getClass();
 		try {
 			retval.setObject(scope, value);
 		} catch (CodeUnderTestException e) {
