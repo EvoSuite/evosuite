@@ -5,9 +5,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
+import org.evosuite.Properties;
 import org.junit.*;
 
-public class SanboxFromJUnitTest {
+public class SandboxFromJUnitTest {
 
 	private static ExecutorService executor;
 	
@@ -15,8 +16,10 @@ public class SanboxFromJUnitTest {
 	public static void initEvoSuiteFramework(){
 		Assert.assertNull(System.getSecurityManager());
 		
+		Properties.getInstance();
 		Sandbox.initializeSecurityManagerForSUT();
 		executor = Executors.newCachedThreadPool();
+
 	}
 	
 	@AfterClass
