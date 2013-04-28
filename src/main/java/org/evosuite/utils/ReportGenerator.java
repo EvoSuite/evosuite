@@ -62,7 +62,6 @@ import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
 import org.evosuite.testcase.ExecutionTracer;
-import org.evosuite.testcase.JUnitTestParsedChromosomeFactory;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestChromosome;
@@ -715,8 +714,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + pstats.getNumOtherPermission();
 			case Threads:
 				return "" + pstats.getMaxThreads();
-			case JUnitTests:
-				return "" + JUnitTestParsedChromosomeFactory.getNumTests();
+			//case JUnitTests:
+			//	return "" + JUnitTestParsedChromosomeFactory.getNumTests();
 			case Branches:
 				//FIXME: this name seem kind of confusing
 				return "" + goalCoverage;
