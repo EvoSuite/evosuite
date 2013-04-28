@@ -323,7 +323,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 		} catch (ThreadDeath t) {
 			logger.warn("Caught ThreadDeath during test execution");
-			Sandbox.tearDownEverything();
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.setThrownExceptions(callable.getExceptionsThrown());
 			result.setTrace(ExecutionTracer.getExecutionTracer().getTrace());
@@ -331,7 +330,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			return result;
 
 		} catch (InterruptedException e1) {
-			Sandbox.tearDownEverything();
 			logger.info("InterruptedException");
 			ExecutionResult result = new ExecutionResult(tc, null);
 			result.setThrownExceptions(callable.getExceptionsThrown());
@@ -342,7 +340,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			/*
 			 * An ExecutionException at this point, is most likely an error in evosuite. As exceptions from the tested code are caught before this.
 			 */
-			Sandbox.tearDownEverything();
 			System.setOut(systemOut);
 			System.setErr(systemErr);
 
@@ -359,7 +356,6 @@ public class TestCaseExecutor implements ThreadFactory {
 			}
 			return result; //FIXME: is this reachable?
 		} catch (TimeoutException e1) {
-			Sandbox.tearDownEverything();
 			//System.setOut(systemOut);
 			//System.setErr(systemErr);
 
