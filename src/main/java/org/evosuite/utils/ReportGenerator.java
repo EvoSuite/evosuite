@@ -166,7 +166,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		AudioPermission,
 		OtherPermission,
 		Threads,
-		JUnitTests,
+//		JUnitTests,
 		Branches,
 		MutationScore,
 		Explicit_MethodExceptions,
