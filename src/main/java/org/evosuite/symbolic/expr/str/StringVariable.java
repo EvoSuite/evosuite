@@ -20,8 +20,6 @@
  */
 package org.evosuite.symbolic.expr.str;
 
-import gnu.trove.set.hash.THashSet;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -151,7 +149,7 @@ public final class StringVariable extends AbstractExpression<String> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		variables.add(this);
 		return variables;
 	}

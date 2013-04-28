@@ -1,5 +1,6 @@
 package org.evosuite.symbolic.vm;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -115,7 +116,6 @@ import org.evosuite.symbolic.vm.wrappers.Z_ValueOf;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.AbstractVM;
-import gnu.trove.map.hash.THashMap;
 
 /**
  * 
@@ -414,7 +414,7 @@ public final class SymbolicFunctionVM extends AbstractVM {
 		return op.getReference();
 	}
 
-	private final Map<FunctionKey, SymbolicFunction> functionsTable = new THashMap<FunctionKey, SymbolicFunction>();
+	private final Map<FunctionKey, SymbolicFunction> functionsTable = new HashMap<FunctionKey, SymbolicFunction>();
 
 	private SymbolicFunction getFunction(String owner, String name, String desc) {
 		FunctionKey k = new FunctionKey(owner, name, desc);

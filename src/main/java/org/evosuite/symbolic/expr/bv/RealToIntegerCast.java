@@ -19,8 +19,7 @@
  */
 package org.evosuite.symbolic.expr.bv;
 
-import gnu.trove.set.hash.THashSet;
-
+import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -98,7 +97,7 @@ public final class RealToIntegerCast extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		variables.addAll(this.expr.getVariables());
 		return variables;
 	}

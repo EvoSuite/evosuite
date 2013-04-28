@@ -1,8 +1,7 @@
 package org.evosuite.symbolic.vm;
 
-import gnu.trove.map.hash.THashMap;
-import gnu.trove.set.hash.THashSet;
-
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -90,19 +89,19 @@ public final class SymbolicHeap {
 	 * mapping is used.
 	 * 
 	 */
-	private final Map<Integer, NonNullReference> nonNullRefs = new THashMap<Integer, NonNullReference>();
+	private final Map<Integer, NonNullReference> nonNullRefs = new HashMap<Integer, NonNullReference>();
 
 	/**
 	 * Stores a mapping between NonNullReferences and their symbolic values. The
 	 * Expression<?> contains at least one symbolic variable.
 	 */
-	private final Map<FieldKey, Map<NonNullReference, Expression<?>>> symb_fields = new THashMap<FieldKey, Map<NonNullReference, Expression<?>>>();
+	private final Map<FieldKey, Map<NonNullReference, Expression<?>>> symb_fields = new HashMap<FieldKey, Map<NonNullReference, Expression<?>>>();
 
 	/**
 	 * Mapping between for symbolic values stored in static fields. The
 	 * Expression<?> contains at least one symbolic variable.
 	 */
-	private final Map<FieldKey, Expression<?>> symb_static_fields = new THashMap<FieldKey, Expression<?>>();
+	private final Map<FieldKey, Expression<?>> symb_static_fields = new HashMap<FieldKey, Expression<?>>();
 
 	/**
 	 * This counter is used to count the number of operations before GC() is
@@ -151,7 +150,7 @@ public final class SymbolicHeap {
 		FieldKey k = new FieldKey(owner, name);
 		Map<NonNullReference, Expression<?>> symb_field = symb_fields.get(k);
 		if (symb_field == null) {
-			symb_field = new THashMap<NonNullReference, Expression<?>>();
+			symb_field = new HashMap<NonNullReference, Expression<?>>();
 			symb_fields.put(k, symb_field);
 		}
 
@@ -192,14 +191,14 @@ public final class SymbolicHeap {
 
 		logger.debug("DSE: starting symbolic heap garbage collection");
 
-		Set<NonNullReference> collected_refs = new THashSet<NonNullReference>();
+		Set<NonNullReference> collected_refs = new HashSet<NonNullReference>();
 		// field reys
 		for (Entry<FieldKey, Map<NonNullReference, Expression<?>>> symb_field_entry : symb_fields
 				.entrySet()) {
 
 			Map<NonNullReference, Expression<?>> symb_field = symb_field_entry
 					.getValue();
-			Set<NonNullReference> keySet = new THashSet<NonNullReference>(
+			Set<NonNullReference> keySet = new HashSet<NonNullReference>(
 					symb_field.keySet());
 			for (NonNullReference non_null_ref : keySet) {
 				if (non_null_ref.isCollectable()) {
@@ -210,7 +209,7 @@ public final class SymbolicHeap {
 		}
 
 		// array refs
-		Set<NonNullReference> keySet = new THashSet<NonNullReference>(
+		Set<NonNullReference> keySet = new HashSet<NonNullReference>(
 				this.symb_arrays.keySet());
 		for (NonNullReference array_ref : keySet) {
 			if (array_ref.isCollectable()) {
@@ -220,7 +219,7 @@ public final class SymbolicHeap {
 		}
 
 		// stored null refs
-		Set<Entry<Integer, NonNullReference>> entry_set = new THashSet<Entry<Integer, NonNullReference>>(
+		Set<Entry<Integer, NonNullReference>> entry_set = new HashSet<Entry<Integer, NonNullReference>>(
 				this.nonNullRefs.entrySet());
 		for (Entry<Integer, NonNullReference> entry : entry_set) {
 			if (entry.getValue().isCollectable()) {
@@ -400,7 +399,7 @@ public final class SymbolicHeap {
 		monitor_gc();
 	}
 
-	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new THashMap<NonNullReference, Map<Integer, Expression<?>>>();
+	private final Map<NonNullReference, Map<Integer, Expression<?>>> symb_arrays = new HashMap<NonNullReference, Map<Integer, Expression<?>>>();
 
 	public static final String $STRING_BUILDER_CONTENTS = "$stringBuilder_contents";
 
@@ -438,7 +437,7 @@ public final class SymbolicHeap {
 		Map<Integer, Expression<?>> symb_array_contents = symb_arrays
 				.get(symb_array_ref);
 		if (symb_array_contents == null) {
-			symb_array_contents = new THashMap<Integer, Expression<?>>();
+			symb_array_contents = new HashMap<Integer, Expression<?>>();
 			symb_arrays.put(symb_array_ref, symb_array_contents);
 		}
 

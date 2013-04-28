@@ -1,7 +1,5 @@
 package org.evosuite.symbolic.expr.reader;
 
-import gnu.trove.set.hash.THashSet;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -51,7 +49,7 @@ public final class StringReaderExpr extends AbstractExpression<Long> implements
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		variables.addAll(this.string.getVariables());
 		return variables;
 	}

@@ -3,6 +3,7 @@ package org.evosuite.symbolic;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,7 +52,6 @@ import org.evosuite.testcase.VariableReference;
 import org.objectweb.asm.Type;
 
 import edu.uta.cse.dsc.VM;
-import gnu.trove.map.hash.THashMap;
 
 public class SymbolicObserver extends ExecutionObserver {
 
@@ -1617,11 +1617,11 @@ public class SymbolicObserver extends ExecutionObserver {
 		return stringRef;
 	}
 
-	private final Map<String, Expression<?>> symb_expressions = new THashMap<String, Expression<?>>();
-	private final Map<String, Reference> symb_references = new THashMap<String, Reference>();
-	private final Map<String, IntegerVariable> integerVariables = new THashMap<String, IntegerVariable>();
-	private final Map<String, RealVariable> realVariables = new THashMap<String, RealVariable>();
-	private final Map<String, StringVariable> stringVariables = new THashMap<String, StringVariable>();
+	private final Map<String, Expression<?>> symb_expressions = new HashMap<String, Expression<?>>();
+	private final Map<String, Reference> symb_references = new HashMap<String, Reference>();
+	private final Map<String, IntegerVariable> integerVariables = new HashMap<String, IntegerVariable>();
+	private final Map<String, RealVariable> realVariables = new HashMap<String, RealVariable>();
+	private final Map<String, StringVariable> stringVariables = new HashMap<String, StringVariable>();
 
 	private void after(IntPrimitiveStatement statement, Scope scope) {
 		int valueOf = statement.getValue();
