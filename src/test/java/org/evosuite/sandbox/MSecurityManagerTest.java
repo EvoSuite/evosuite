@@ -17,6 +17,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.evosuite.Properties;
 import  org.junit.*;
 
 public class MSecurityManagerTest {
@@ -28,6 +29,7 @@ public class MSecurityManagerTest {
 	public static void initClass(){
 		executor = Executors.newCachedThreadPool();
 		securityManager = new MSecurityManager();
+		Properties.getInstance();
 	}
 	
 	@AfterClass
