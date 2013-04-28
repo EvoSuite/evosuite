@@ -2,12 +2,12 @@ package org.evosuite.symbolic.vm;
 
 import edu.uta.cse.dsc.MainConfig;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
-import gnu.trove.set.hash.THashSet;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Deque;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
 
@@ -35,7 +35,7 @@ public final class SymbolicEnvironment {
 	 * Classes whose static fields have been set to the default zero value or a
 	 * dummy value.
 	 */
-	private final Set<Class<?>> preparedClasses = new THashSet<Class<?>>();
+	private final Set<Class<?>> preparedClasses = new HashSet<Class<?>>();
 
 	private final DscInstrumentingClassLoader classLoader;
 

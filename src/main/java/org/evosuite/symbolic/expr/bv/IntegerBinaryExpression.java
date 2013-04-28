@@ -19,8 +19,6 @@
  */
 package org.evosuite.symbolic.expr.bv;
 
-import gnu.trove.set.hash.THashSet;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -164,7 +162,7 @@ public final class IntegerBinaryExpression extends AbstractExpression<Long> impl
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		variables.addAll(this.left.getVariables());
 		variables.addAll(this.right.getVariables());
 		return variables;

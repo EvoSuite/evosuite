@@ -5,6 +5,7 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Deque;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 
@@ -15,7 +16,6 @@ import org.objectweb.asm.Type;
 import edu.uta.cse.dsc.AbstractVM;
 import edu.uta.cse.dsc.instrument.DscInstrumentingClassLoader;
 import edu.uta.cse.dsc.instrument.DscMethodAdapter;
-import gnu.trove.map.hash.THashMap;
 
 /**
  * Explicit inter-procedural control transfer: InvokeXXX, Return, etc.
@@ -147,7 +147,7 @@ public final class CallVM extends AbstractVM {
 		return discardFramesClassInitializer(className, methName);
 	}
 
-	private final THashMap<Member, MemberInfo> memberInfos = new THashMap<Member, MemberInfo>();
+	private final HashMap<Member, MemberInfo> memberInfos = new HashMap<Member, MemberInfo>();
 	private final DscInstrumentingClassLoader classLoader;
 
 	/**
@@ -168,7 +168,7 @@ public final class CallVM extends AbstractVM {
 		if (member == null)
 			return; // TODO: could not resolve method or constructor
 
-		if (memberInfos.contains(member))
+		if (memberInfos.containsKey(member))
 			return;
 
 		memberInfos.put(member, new MemberInfo(maxStack, maxLocals));

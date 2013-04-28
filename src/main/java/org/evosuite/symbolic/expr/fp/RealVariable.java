@@ -19,8 +19,6 @@
  */
 package org.evosuite.symbolic.expr.fp;
 
-import gnu.trove.set.hash.THashSet;
-
 import java.util.HashSet;
 import java.util.Set;
 
@@ -116,7 +114,7 @@ public final class RealVariable extends AbstractExpression<Double> implements Re
 
 	@Override
 	public Set<Variable<?>> getVariables() {
-		Set<Variable<?>> variables = new THashSet<Variable<?>>();
+		Set<Variable<?>> variables = new HashSet<Variable<?>>();
 		variables.add(this);
 		return variables;
 	}

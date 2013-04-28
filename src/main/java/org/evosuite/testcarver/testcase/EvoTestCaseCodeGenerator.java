@@ -1,7 +1,5 @@
 package org.evosuite.testcarver.testcase;
 
-import gnu.trove.map.hash.TIntObjectHashMap;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -12,6 +10,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -42,10 +41,10 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 	private TestCase testCase;
 	private VariableReference xStreamRef;
 
-	private final TIntObjectHashMap<VariableReference> oidToVarRefMap;
+	private final Map<Integer, VariableReference> oidToVarRefMap;
 
 	public EvoTestCaseCodeGenerator() {
-		this.oidToVarRefMap = new TIntObjectHashMap<VariableReference>();
+		this.oidToVarRefMap = new HashMap<Integer, VariableReference>();
 	}
 
 	@Override

@@ -73,7 +73,7 @@ public class TransformerUtil {
 				   className.startsWith("java") ||
 				   className.startsWith("com/thoughtworks/xstream") ||
 				   className.startsWith("org/xmlpull") ||
-				   className.startsWith("gnu/trove") ||
+//				   className.startsWith("gnu/trove") ||
 				   className.startsWith("org/eclipse/jdt") ||
 				   className.startsWith("org/slf4j"));
 	}	

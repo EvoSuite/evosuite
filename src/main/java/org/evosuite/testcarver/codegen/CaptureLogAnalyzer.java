@@ -1,8 +1,7 @@
 package org.evosuite.testcarver.codegen;
 
-import gnu.trove.list.array.TIntArrayList;
-
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.evosuite.testcarver.capture.CaptureLog;
@@ -30,7 +29,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 		HashSet<String> observedClassNames = extracObservedClassNames(observedClasses);
 
-		TIntArrayList targetOIDs = log.getTargetOIDs(observedClassNames);
+		List<Integer> targetOIDs = log.getTargetOIDs(observedClassNames);
 
 		int[] oidExchange = analyzeLog(generator, blackList, log, targetOIDs);		
 
@@ -38,7 +37,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	}
 
 	private void postProcessLog(final CaptureLog originalLog,
-			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			final ICodeGenerator<?> generator, final Set<Class<?>> blackList,
 			CaptureLog log, int[] oidExchange,
 			final Class<?>... observedClasses) throws RuntimeException {
 
@@ -68,21 +67,21 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		}
 	}
 
-	private int[] analyzeLog(final ICodeGenerator generator,
+	private int[] analyzeLog(final ICodeGenerator<?> generator,
 			final Set<Class<?>> blackList, CaptureLog log,
-			TIntArrayList targetOIDs) {
+			List<Integer> targetOIDs) {
 		//--- 3. step: analyze log
 
 		generator.before(log);
 
 		final int numLogRecords = log.objectIds.size();
-		int currentOID          = targetOIDs.getQuick(0);
+		int currentOID          = targetOIDs.get(0);
 		int[] oidExchange       = null;
 
 		// TODO knowing last logRecNo for termination criterion belonging to an observed instance would prevent processing unnecessary statements
 		for(int currentRecord = log.getRecordIndex(currentOID); currentRecord < numLogRecords; currentRecord++)
 		{
-			currentOID = log.objectIds.getQuick(currentRecord);
+			currentOID = log.objectIds.get(currentRecord);
 
 			if(targetOIDs.contains(currentOID) && ! blackList.contains(getClassFromOID(log, currentOID)))
 			{
@@ -204,7 +203,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		int record = currentRecord;
 		do
 		{
-			record = this.findEndOfMethod(log, record, log.objectIds.getQuick(record));
+			record = this.findEndOfMethod(log, record, log.objectIds.get(record));
 			record++;
 		}
 		while(  record < numRecords &&
@@ -220,7 +219,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		else
 		{
 			// found caller
-			return log.objectIds.getQuick(record);
+			return log.objectIds.get(record);
 		}
 	}
 
@@ -239,10 +238,10 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 
 		int record = currentRecord;
 
-		final int captureId = log.captureIds.getQuick(currentRecord);
+		final int captureId = log.captureIds.get(currentRecord);
 		while(   record < numRecords &&
-				! (log.objectIds.getQuick(record) == currentOID &&
-				log.captureIds.getQuick(record) == captureId && 
+				! (log.objectIds.get(record) == currentOID &&
+				log.captureIds.get(record) == captureId && 
 				log.methodNames.get(record).equals(CaptureLog.END_CAPTURE_PSEUDO_METHOD)))
 		{
 			record++;
@@ -294,7 +293,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 		Object returnValueObj;
 
 		for(; currentRecord <= end; currentRecord++) {
-			currentOID     = log.objectIds.getQuick(currentRecord);
+			currentOID     = log.objectIds.get(currentRecord);
 			returnValueObj = log.returnValues.get(currentRecord);
 			returnValue    = returnValueObj.equals(CaptureLog.RETURN_TYPE_VOID) ? -1 : (Integer) returnValueObj;
 
@@ -483,7 +482,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	}
 
 	private int handleArrayInit(final CaptureLog log,
-			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			final ICodeGenerator<?> generator, final Set<Class<?>> blackList,
 			int currentRecord, int currentOID) {
 		Object[] methodArgs;
 		methodArgs = log.params.get(currentRecord);
@@ -495,7 +494,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	}
 
 	private int handleMapInit(final CaptureLog log,
-			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			final ICodeGenerator<?> generator, final Set<Class<?>> blackList,
 			int currentRecord, int currentOID) {
 		Object[] methodArgs;
 		methodArgs = log.params.get(currentRecord);
@@ -507,7 +506,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	}
 
 	private int handleCollectionInit(final CaptureLog log,
-			final ICodeGenerator generator, final Set<Class<?>> blackList,
+			final ICodeGenerator<?> generator, final Set<Class<?>> blackList,
 			int currentRecord, int currentOID) {
 		Object[] methodArgs;
 		methodArgs = log.params.get(currentRecord);
@@ -519,7 +518,7 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	}
 
 	private int handlePlainInit(final CaptureLog log,
-			final ICodeGenerator generator, int currentRecord, int currentOID) {
+			final ICodeGenerator<?> generator, int currentRecord, int currentOID) {
 		// e.g. String var = "Hello World";
 		generator.createPlainInitStmt(log, currentRecord);
 		currentRecord = findEndOfMethod(log, currentRecord, currentOID);
