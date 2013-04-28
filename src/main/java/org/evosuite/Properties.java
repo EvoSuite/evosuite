@@ -739,10 +739,6 @@ public class Properties {
 	@Parameter(key = "filter_sandbox_tests", group = "Sandbox", description = "Drop tests that require the sandbox")
 	public static boolean FILTER_SANDBOX_TESTS = false;
 
-	/** Constant <code>MOCKS=false</code> */
-	@Parameter(key = "mocks", group = "Sandbox", description = "Usage of the mocks for the IO, Network etc")
-	public static boolean MOCKS = false;
-
 	/** Constant <code>VIRTUAL_FS=false</code> */
 	@Parameter(key = "virtual_fs", group = "Sandbox", description = "Usage of ram fs")
 	public static boolean VIRTUAL_FS = false;
@@ -750,10 +746,6 @@ public class Properties {
 	/** Constant <code>READ_ONLY_FROM_SANDBOX_FOLDER = false;</code> */
 	@Parameter(key = "restricted_read", group = "Sandbox", description = "Determines if the VFS shall only be allowed to read files from the sandbox read folder")
 	public static boolean READ_ONLY_FROM_SANDBOX_FOLDER = false;
-
-	/** Constant <code>MOCK_STRATEGIES="{  }"</code> */
-	@Parameter(key = "mock_strategies", group = "Sandbox", description = "Which mocking strategy should be applied")
-	public static String[] MOCK_STRATEGIES = { "" };
 
 	/** Constant <code>SANDBOX_FOLDER="evosuite-sandbox"</code> */
 	@Parameter(key = "sandbox_folder", group = "Sandbox", description = "Folder used for IO, when mocks are enabled")
