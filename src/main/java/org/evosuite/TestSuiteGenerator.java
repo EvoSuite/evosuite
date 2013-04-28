@@ -49,7 +49,6 @@ import org.evosuite.assertion.CompleteAssertionGenerator;
 import org.evosuite.assertion.MutationAssertionGenerator;
 import org.evosuite.assertion.StructuredAssertionGenerator;
 import org.evosuite.assertion.UnitAssertionGenerator;
-import org.evosuite.classcreation.ClassFactory;
 import org.evosuite.contracts.ContractChecker;
 import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.CoverageAnalysis;
@@ -239,8 +238,6 @@ public class TestSuiteGenerator {
 		}
 
 		TestCaseExecutor.initExecutor();
-
-		Utils.addURL(ClassFactory.getStubDir() + "/classes/");
 
 		LoggingUtils.getEvoLogger().info("* Generating tests for class "
 		                                         + Properties.TARGET_CLASS);
