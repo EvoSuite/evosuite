@@ -16,6 +16,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.logging.LogManager;
 
 import org.evosuite.Properties;
 import  org.junit.*;
@@ -295,6 +296,14 @@ public class MSecurityManagerTest {
 	
 	@Test
 	public void testCanLoadSwingStuff() throws InterruptedException, ExecutionException, TimeoutException{
+		
+		/*
+		 * This is needed, as it sets a hook, which will be called in the static
+		 * initializer of several swing components. So we need to call it 
+		 * here on the main thread
+		 */
+		LogManager.getLogManager();
+		
 		/*
 		 * Note: this test is not particularly robust. Eg, one thing it tests is whether SUT can load
 		 * the gui native code but that "could" be already loaded (shouldn't be though)
