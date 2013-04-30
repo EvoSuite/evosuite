@@ -61,7 +61,7 @@ public class TestArrayInstrumentation extends SystemTest {
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
-		Assert.assertEquals("Wrong number of goals: ", 6, goals);
+		Assert.assertEquals("Wrong number of goals: ", 8, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
 	
