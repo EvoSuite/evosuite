@@ -16,7 +16,7 @@ public class TestArrayInstrumentation extends SystemTest {
 
 	@Test
 	public void testArrayAccessWithoutErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = ArrayAccess.class.getCanonicalName();
@@ -38,10 +38,10 @@ public class TestArrayInstrumentation extends SystemTest {
 		Assert.assertEquals("Wrong number of goals: ", 2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testArrayAccessWithErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = ArrayAccess.class.getCanonicalName();
@@ -62,12 +62,13 @@ public class TestArrayInstrumentation extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 8, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		// One infeasible error branch
+		Assert.assertEquals("Non-optimal coverage: ", 7d / 8d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testArrayCreationWithoutErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = ArrayCreation.class.getCanonicalName();
@@ -89,10 +90,10 @@ public class TestArrayInstrumentation extends SystemTest {
 		Assert.assertEquals("Wrong number of goals: ", 2, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testArrayCreationWithErrorBranches() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = ArrayCreation.class.getCanonicalName();
@@ -100,7 +101,7 @@ public class TestArrayInstrumentation extends SystemTest {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass  };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 
