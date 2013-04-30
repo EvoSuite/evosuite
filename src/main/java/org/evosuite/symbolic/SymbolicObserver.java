@@ -1129,10 +1129,8 @@ public class SymbolicObserver extends ExecutionObserver {
 	 * @param scope
 	 */
 	private void before(StringPrimitiveStatement statement, Scope scope) {
-		String string_value = statement.getValue();
-		if (string_value != null) {
-			statement.setValue(new String(string_value));
-		}
+		/* do nothing */ 
+
 	}
 
 	private void before(IntPrimitiveStatement statement, Scope scope) {
@@ -1602,7 +1600,9 @@ public class SymbolicObserver extends ExecutionObserver {
 
 		String string_instance;
 		try {
-			string_instance = (String) varRef.getObject(scope);
+			String string_interned = (String) varRef.getObject(scope);
+			string_instance =new String(string_interned);
+			scope.setObject(varRef, string_instance);
 		} catch (CodeUnderTestException e) {
 			throw new EvosuiteError(e);
 		}
