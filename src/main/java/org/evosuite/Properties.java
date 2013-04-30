@@ -751,15 +751,8 @@ public class Properties {
 	@Parameter(key = "sandbox_folder", group = "Sandbox", description = "Folder used for IO, when mocks are enabled")
 	public static String SANDBOX_FOLDER = "evosuite-sandbox";
 
-	/** Constant <code>STUBS=false</code> */
-	@Parameter(key = "stubs", group = "Sandbox", description = "Stub generation for abstract classes")
-	public static boolean STUBS = false;
-
 	// ---------------------------------------------------------------
 	// Experimental
-	/** Constant <code>CALCULATE_CLUSTER=false</code> */
-	@Parameter(key = "calculate_cluster", description = "Automatically calculate test cluster during setup")
-	public static boolean CALCULATE_CLUSTER = false;
 
 	@Parameter(key = "cluster_recursion", description = "The maximum level of recursion when calculating the dependencies in the test cluster")
 	public static int CLUSTER_RECURSION = 10;
