@@ -148,7 +148,7 @@ public class TestSuiteMinimizer {
 			goals.addAll(branchGoals);
 		}
 
-		int numGoals = goals.size();
+		int numGoals = goals.size() - branchGoals.size();
 
 		Collections.sort(goals);
 		Set<TestFitnessFunction> covered = new LinkedHashSet<TestFitnessFunction>();
@@ -198,6 +198,8 @@ public class TestSuiteMinimizer {
 			}
 			if (covered.contains(goal)) {
 				logger.info("Already covered: " + goal);
+				logger.info("Now the suite covers " + covered.size() + "/"
+				        + goals.size() + " goals");
 				continue;
 			}
 
@@ -245,6 +247,7 @@ public class TestSuiteMinimizer {
 
 		logger.info("Minimized suite covers " + covered.size() + "/" + goals.size()
 		        + " goals");
+		logger.info("Setting coverage to: "+((double) numCovered / (double) numGoals));
 		suite.tests.clear();
 		for (TestCase test : minimizedSuite.getTestCases()) {
 			suite.addTest(test);
