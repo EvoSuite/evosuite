@@ -652,8 +652,6 @@ public class TestSuiteDSE {
 				} else {
 
 					if (fitness.getFitness(expandedTests) < originalFitness) {
-						System.out.println("new fitness->"
-								+ expandedTests.getFitness());
 						logger.info("New test improves fitness to {}",
 								expandedTests.getFitness());
 						DSEStats.reportNewTestUseful();
