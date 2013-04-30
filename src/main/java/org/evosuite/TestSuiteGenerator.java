@@ -169,7 +169,6 @@ import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
-import org.evosuite.utils.Utils;
 import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runner.notification.Failure;
