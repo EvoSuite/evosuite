@@ -2,6 +2,7 @@ package org.evosuite.rmi.service;
 
 import java.rmi.RemoteException;
 import java.rmi.registry.Registry;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -36,6 +37,8 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 
 	private final BlockingQueue<OutputVariable> outputVariableQueue = new LinkedBlockingQueue<OutputVariable>();
 
+	private Thread statisticsThread; 
+	
 	//only for testing
 	protected ClientNodeImpl() {
 	}
@@ -196,6 +199,18 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 		*/
 	}
 
+	public void stop(){
+		if(statisticsThread!=null){
+			statisticsThread.interrupt();
+			try {
+				statisticsThread.join(3000);
+			} catch (InterruptedException e) {
+				logger.error("Failed to stop statisticsThread in time");
+			}
+			statisticsThread = null;
+		}
+	}
+	
 	@Override
 	public boolean init() {
 		try {
@@ -204,25 +219,26 @@ public class ClientNodeImpl implements ClientNodeLocal, ClientNodeRemote {
 			masterNode.informChangeOfStateInClient(clientRmiIdentifier, state,
 			                                       new ClientStateInformation(state));
 
-			Thread t = new Thread() {
+			statisticsThread = new Thread() {
 				@Override
 				public void run() {
 					while (!this.isInterrupted()) {
+						OutputVariable ov = null;
 						try {
-							OutputVariable ov = outputVariableQueue.take();
+							ov = outputVariableQueue.take();
 							masterNode.collectStatistics(clientRmiIdentifier, ov.name,
 							                             ov.value);
 						} catch (InterruptedException e) {
 							break;
 						} catch (RemoteException e) {
-							logger.error("Error when connecting to master via RMI", e);
+							logger.error("Error when exporting statistics: "+ov.name+"="+ov.value, e);
 							break;
 						}
 					}
 				}
 			};
-			Sandbox.addPriviligedThread(t);
-			t.start();
+			Sandbox.addPriviligedThread(statisticsThread);
+			statisticsThread.start();
 
 		} catch (Exception e) {
 			logger.error("Error when connecting to master via RMI", e);

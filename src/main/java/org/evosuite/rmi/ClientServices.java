@@ -57,6 +57,7 @@ public class ClientServices {
 	
 	public void stopServices(){
 		if(clientNode!=null){
+			clientNode.stop();
 			int i = 0;
 			final int tries = 10;
 			boolean done = false;
