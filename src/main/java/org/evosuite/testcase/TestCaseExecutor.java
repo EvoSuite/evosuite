@@ -64,7 +64,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * Name used to define the threads spawn by this factory
 	 */
 	public static final String TEST_EXECUTION_THREAD = "TEST_EXECUTION_THREAD";
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TestCaseExecutor.class);
 
 	private static final PrintStream systemOut = System.out;
@@ -94,7 +94,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 * Used when we spawn a new thread to give a unique name
 	 */
 	public volatile int threadCounter;
-	
+
 	/**
 	 * <p>
 	 * Getter for the field <code>instance</code>.
@@ -160,7 +160,7 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public static void pullDown() {
 		if (instance != null) {
-			if(instance.executor!=null){
+			if (instance.executor != null) {
 				instance.executor.shutdownNow();
 				instance.executor = null;
 			}
@@ -297,16 +297,18 @@ public class TestCaseExecutor implements ThreadFactory {
 
 		try {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
-			
+
 			ExecutionResult result;
 			Sandbox.goingToExecuteSUTCode();
-			try{ 
-				result = handler.execute(callable, executor, timeout, Properties.CPU_TIMEOUT);
+			try {
+				result = handler.execute(callable, executor, timeout,
+				                         Properties.CPU_TIMEOUT);
 			} finally {
 				Sandbox.doneWithExecutingSUTCode();
 			}
-			
+
 			PermissionStatistics.getInstance().countThreads(threadGroup.activeCount());
+			result.setSecurityException(PermissionStatistics.getInstance().getAndResetExceptionInfo());
 			/*
 			 * TODO: this will need proper care when we ll start to handle threads in the search.
 			 */
@@ -367,7 +369,7 @@ public class TestCaseExecutor implements ThreadFactory {
 			try {
 				handler.getLastTask().get(Properties.SHUTDOWN_TIMEOUT,
 				                          TimeUnit.MILLISECONDS);
-			} catch (InterruptedException e2) {				
+			} catch (InterruptedException e2) {
 			} catch (ExecutionException e2) {
 			} catch (TimeoutException e2) {
 			}
@@ -408,7 +410,7 @@ public class TestCaseExecutor implements ThreadFactory {
 						logger.info("Throwable: " + t);
 					}
 					ExecutionTracer.disable();
-					executor = Executors.newSingleThreadExecutor(this);					
+					executor = Executors.newSingleThreadExecutor(this);
 				}
 			} else {
 				logger.info("Run is finished - " + currentThread.isAlive() + ": "
@@ -468,7 +470,7 @@ public class TestCaseExecutor implements ThreadFactory {
 		}
 		threadGroup = new ThreadGroup(TEST_EXECUTION_THREAD_GROUP);
 		currentThread = new Thread(threadGroup, r);
-		currentThread.setName(TEST_EXECUTION_THREAD+"_"+threadCounter);
+		currentThread.setName(TEST_EXECUTION_THREAD + "_" + threadCounter);
 		threadCounter++;
 		currentThread.setContextClassLoader(TestGenerationContext.getClassLoader());
 		ExecutionTracer.setThread(currentThread);

@@ -907,14 +907,15 @@ public class TestFactory {
 		}
 
 		GenericClass clazz = new GenericClass(parameterType);
-		if ((clazz.isPrimitive() || clazz.isEnum()) && !objects.isEmpty()
-		        && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
+		if ((clazz.isPrimitive() || clazz.isEnum() || clazz.isClass())
+		        && !objects.isEmpty() && reuse <= Properties.PRIMITIVE_REUSE_PROBABILITY) {
 			logger.debug(" Looking for existing object of type " + parameterType);
 			VariableReference reference = Randomness.choice(objects);
 			return reference;
 
 		} else if (!clazz.isPrimitive()
 		        && !clazz.isEnum()
+		        && !clazz.isClass()
 		        && !objects.isEmpty()
 		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !TestCluster.getInstance().hasGenerator(parameterType))) {
 
