@@ -50,6 +50,9 @@ public class ExecutionResult implements Cloneable {
 	/** Number of statements executed */
 	protected int executedStatements = 0;
 
+	/** Was there a permission denied during execution? */
+	protected boolean hasSecurityException = false;
+
 	/**
 	 * @return the executedStatements
 	 */
@@ -340,23 +343,19 @@ public class ExecutionResult implements Cloneable {
 		return false;
 	}
 
-
 	/**
 	 * check if the test case threw any security exception
- 	 * 
-	 * @return 
+	 * 
+	 * @return
 	 */
-	public boolean hasSecurityException(){
-		for(Throwable t : exceptions.values()){
-			if(t instanceof SecurityException){
-				return true;
-			}
-		}
-		return false;
+	public boolean hasSecurityException() {
+		return hasSecurityException;
 	}
-	
-	
-	
+
+	public void setSecurityException(boolean value) {
+		hasSecurityException = value;
+	}
+
 	/**
 	 * @return the executionTime
 	 */

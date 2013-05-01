@@ -12,6 +12,9 @@ import org.apache.commons.io.FileUtils;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.SystemTest;
+import org.evosuite.ga.GeneticAlgorithm;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.Assert;
 import org.junit.Assume;
 import org.junit.Test;
 
@@ -120,7 +123,15 @@ public class DeleteFileTest extends SystemTest {
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
-		evosuite.parseCommandLine(command);
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
 
 		assertTrue("File has been deleted: " + toDelete.getAbsolutePath(),
 		           toDelete.exists());
