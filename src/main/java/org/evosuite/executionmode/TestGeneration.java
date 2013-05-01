@@ -247,9 +247,15 @@ public class TestGeneration {
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Dinline=true");
 		cmdLine.add("-Djava.awt.headless=true");
-		cmdLine.add("-Dlogback.configurationFile=logback-evosuite.xml");
-		cmdLine.add("-Dlog.level=" + Properties.LOG_LEVEL);
-		cmdLine.add("-Dlog.target=" + Properties.LOG_TARGET);
+		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
+		
+		if(Properties.LOG_LEVEL!=null){
+			cmdLine.add("-Dlog.level=" + Properties.LOG_LEVEL);
+		}
+		if(Properties.LOG_TARGET!=null){
+			cmdLine.add("-Dlog.target=" + Properties.LOG_TARGET);
+		}
+		
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
 

@@ -37,10 +37,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ClientProcess {
 
-	static {
-		LoggingUtils.checkAndSetLogLevel();
-	}
-
 	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
 
 	/** Constant <code>geneticAlgorithmStatus</code> */

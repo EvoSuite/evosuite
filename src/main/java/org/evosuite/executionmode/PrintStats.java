@@ -63,7 +63,7 @@ public class PrintStats {
 		cmdLine.add(classPath);
 		cmdLine.add("-Dprocess_communication_port=" + port);
 		cmdLine.add("-Djava.awt.headless=true");
-		cmdLine.add("-Dlogback.configurationFile=logback-evosuite.xml");
+		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
 		cmdLine.add("-Djava.library.path=lib");
 		cmdLine.add("-DCP=" + cp);
 		// cmdLine.add("-Dminimize_values=true");
