@@ -23,7 +23,7 @@ import com.thoughtworks.xstream.XStream;
 public final class CaptureLog implements Cloneable {
 
 	//=============   static, final fields ===================================================
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(CaptureLog.class);
 
 	public static final Object[] NO_ARGS           = new Object[0];
@@ -56,8 +56,8 @@ public final class CaptureLog implements Cloneable {
 		NOT_OBSERVED_INIT_METHODS.add(MAP_INIT);
 		NOT_OBSERVED_INIT_METHODS.add(ARRAY_INIT);
 	}
-	
-	
+
+
 	//=============   local, object fields ===================================================
 
 	/*
@@ -67,14 +67,14 @@ public final class CaptureLog implements Cloneable {
 	 * 
 	 * For example, are these lists supposed to have same length? (ie invariant)
 	 */
-	
+
 	//--- LOG Table
 	// REC_NO | OID | METHOD | PARAMS
 
 	/*
 	 * FIXME: following lists seem to be aligned
 	 */
-	
+
 	// rec_no is implied by index
 	public final List<Integer>       objectIds;
 	public final List<Integer>       captureIds;
@@ -98,13 +98,13 @@ public final class CaptureLog implements Cloneable {
 	 * containing the different fields
 	 */	
 	private final List<Integer> 	   oids;
-	
+
 	private final List<Integer> 	   oidInitRecNo;
 
 	private final ArrayList<String> oidClassNames;
-		
+
 	private final List<Integer>     oidFirstInits;
-	
+
 	private final List<Integer>  oidDependencies;
 
 	/**
@@ -116,8 +116,8 @@ public final class CaptureLog implements Cloneable {
 	 *  oid -> index ==> oidInitReco.get(index) + oidClassNames.get(index)
 	 */
 	private final Map<Integer, Integer>    oidRecMapping; 
-	
-	
+
+
 	private final XStream xstream;
 
 
@@ -151,12 +151,12 @@ public final class CaptureLog implements Cloneable {
 	public String getNameOfAccessedFields(int captureId){
 		return oidNamesOfAccessedFields.get(captureId);
 	}
-	
+
 	public int getDependencyOID(int oid){
 		int index = getRecordIndex(oid);
 		return oidDependencies.get(index);
 	}
-	
+
 	public List<Integer> getTargetOIDs(final HashSet<String> observedClassNames) {
 		final List<Integer> targetOIDs = new ArrayList<Integer>();
 		final int numInfoRecs = oidClassNames.size();
@@ -167,25 +167,25 @@ public final class CaptureLog implements Cloneable {
 		}
 		return targetOIDs;
 	}
-	
+
 	public String getTypeName(int oid) throws IllegalArgumentException{
 		if(! oidRecMapping.containsKey(oid)){
 			throw new IllegalArgumentException("OID "+oid+" is not recognized");
 		}
 		return oidClassNames.get(getRecordIndex(oid));
 	}
-	
+
 	public int getRecordIndex(int oid){
 		return oidRecMapping.get(oid);
 	}
-	
+
 	public int getOID(int recordIndex){
 		if(recordIndex<0 || recordIndex>=oids.size()){
 			throw new IllegalArgumentException("index "+recordIndex+" is invalid as there are "+oids.size()+" OIDs");
 		}
 		return oids.get(recordIndex);
 	}
-	
+
 	public int getRecordIndexOfWhereObjectWasInitializedFirst(int oid) throws IllegalArgumentException{
 		if(!oidRecMapping.containsKey(oid)){
 			throw new IllegalArgumentException("OID "+oid+" is not recognized");
@@ -194,7 +194,7 @@ public final class CaptureLog implements Cloneable {
 		int pos = oidRecMapping.get(oid);
 		return oidInitRecNo.get(pos);
 	}
-	
+
 	/**
 	 * FIXME: this does not make sense... it seems like oidInitRecNo contains
 	 * integers that have different meaning depending on whether their are positive or not...
@@ -206,7 +206,7 @@ public final class CaptureLog implements Cloneable {
 		this.oidInitRecNo.add(-currentRecord);
 		logger.debug("InitRecNo added "+(-currentRecord));
 	}
-	
+
 	public void updateWhereObjectWasInitializedFirst(int oid, int recordIndex) throws IllegalArgumentException{
 		if(!oidRecMapping.containsKey(oid)){
 			throw new IllegalArgumentException("OID "+oid+" is not recognized");
@@ -218,12 +218,12 @@ public final class CaptureLog implements Cloneable {
 		if(recordIndex<= -nRec || recordIndex >= nRec){
 			throw new IllegalArgumentException("New record index "+recordIndex+" is invalid, as there are only "+nRec+" records");
 		}
-		
+
 		logger.debug("Updating init of OID "+oid+" from pos="+getRecordIndexOfWhereObjectWasInitializedFirst(oid)+" to pos="+recordIndex);
-		
+
 		oidInitRecNo.set(oidRecMapping.get(oid), recordIndex);
 	}
-	
+
 	@Override
 	public CaptureLog clone()
 	{
@@ -285,7 +285,7 @@ public final class CaptureLog implements Cloneable {
 		} else {
 			final int logRecNo  = this.objectIds.size();
 			final int infoRecNo = this.oidInitRecNo.size();
-			
+
 			logger.debug("Adding mapping oid->index "+oid+"->"+infoRecNo);
 			this.oidRecMapping.put(oid, infoRecNo);
 			addNewInitRec(logRecNo);
@@ -342,67 +342,8 @@ public final class CaptureLog implements Cloneable {
 	 */
 	public void logEnd(final int captureId, final Object receiver, final Object returnValue)
 	{
-		// 
-
-		if(returnValue != null && returnValue != RETURN_TYPE_VOID) { 
-			final int returnValueOID = System.identityHashCode(returnValue);
-			final int firstInitRecNo = this.oidFirstInits.get(this.oidRecMapping.get(returnValueOID));
-
-			// was an accessible constructor call belonging to this object logged before?
-			final boolean conditionA = ! this.oidRecMapping.containsKey(returnValueOID);
-			final boolean conditionB = (! methodNames.get(firstInitRecNo).equals(OBSERVED_INIT) )&&
-							(!    NOT_OBSERVED_INIT_METHODS.contains(methodNames.get(firstInitRecNo)) ) &&
-								RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo));
-			
-			if(conditionA || conditionB){
-				if(! isPlain(returnValue) && ! (returnValue instanceof Class)) {
-					final int oid = System.identityHashCode(receiver);
-
-					int currentRecord = captureIds.size() - 1;
-
-					int nestedCalls = 0;
-					while(true){
-						if(this.captureIds.get(currentRecord) == captureId &&
-								this.objectIds.get(currentRecord)  == oid){
-							if(this.methodNames.get(currentRecord).equals(END_CAPTURE_PSEUDO_METHOD)){
-								nestedCalls++;
-							} else{
-								if(nestedCalls == 0){
-									break;
-								} else {
-									nestedCalls--;
-								}
-							}
-						}
-						currentRecord--;
-					}
-
-
-					if(this.oidRecMapping.containsKey(returnValueOID)){
-						final int infoRecNo = this.oidRecMapping.get(returnValueOID);						
-						final int initRecNo = getRecordIndexOfWhereObjectWasInitializedFirst(returnValueOID);
-						final String method = this.methodNames.get(Math.abs(initRecNo));
-
-						if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT_METHODS.contains(method))
-						{
-							this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
-							updateWhereObjectWasInitializedFirst(returnValueOID, -currentRecord);							
-							this.oidFirstInits.set(infoRecNo, currentRecord);
-						}
-					} else {
-						final int infoRecNo = this.oidInitRecNo.size();
-						this.oidRecMapping.put(returnValueOID, infoRecNo);
-						addNewInitRec(currentRecord);
-						this.oidFirstInits.add(currentRecord);
-
-						this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
-
-						this.oidClassNames.add(returnValue.getClass().getName());
-						this.oids.add(returnValueOID);
-						this.oidDependencies.add(NO_DEPENDENCY);
-					}
-				}
-			}
+		if(returnValue != null && returnValue != RETURN_TYPE_VOID) { 			
+			handleReturnValue(captureId, receiver, returnValue);
 		}
 
 		this.captureIds.add(captureId);
@@ -412,6 +353,72 @@ public final class CaptureLog implements Cloneable {
 		this.params.add(NO_ARGS);
 		this.returnValues.add(RETURN_TYPE_VOID);
 		this.isStaticCallList.add(Boolean.FALSE);
+	}
+
+	private void handleReturnValue(final int captureId, final Object receiver,
+			final Object returnValue) {
+		final int returnValueOID = System.identityHashCode(returnValue);
+
+		boolean condition = ! this.oidRecMapping.containsKey(returnValueOID);
+
+		if(!condition){		
+			final int firstInitRecNo = this.oidFirstInits.get(this.oidRecMapping.get(returnValueOID));
+
+			// was an accessible constructor call belonging to this object logged before?		
+			condition = (! methodNames.get(firstInitRecNo).equals(OBSERVED_INIT) )&&
+					(!    NOT_OBSERVED_INIT_METHODS.contains(methodNames.get(firstInitRecNo)) ) &&
+					RETURN_TYPE_VOID .equals(returnValues.get(firstInitRecNo));
+		}
+
+		if(condition){
+			if(! isPlain(returnValue) && ! (returnValue instanceof Class)) {
+				final int oid = System.identityHashCode(receiver);
+
+				int currentRecord = captureIds.size() - 1;
+
+				int nestedCalls = 0;
+				while(true){
+					if(this.captureIds.get(currentRecord) == captureId &&
+							this.objectIds.get(currentRecord)  == oid){
+						if(this.methodNames.get(currentRecord).equals(END_CAPTURE_PSEUDO_METHOD)){
+							nestedCalls++;
+						} else{
+							if(nestedCalls == 0){
+								break;
+							} else {
+								nestedCalls--;
+							}
+						}
+					}
+					currentRecord--;
+				}
+
+
+				if(this.oidRecMapping.containsKey(returnValueOID)){
+					final int infoRecNo = this.oidRecMapping.get(returnValueOID);						
+					final int initRecNo = getRecordIndexOfWhereObjectWasInitializedFirst(returnValueOID);
+					final String method = this.methodNames.get(Math.abs(initRecNo));
+
+					if(! OBSERVED_INIT.equals(method) && ! NOT_OBSERVED_INIT_METHODS.contains(method))
+					{
+						this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
+						updateWhereObjectWasInitializedFirst(returnValueOID, -currentRecord);							
+						this.oidFirstInits.set(infoRecNo, currentRecord);
+					}
+				} else {
+					final int infoRecNo = this.oidInitRecNo.size();
+					this.oidRecMapping.put(returnValueOID, infoRecNo);
+					addNewInitRec(currentRecord);
+					this.oidFirstInits.add(currentRecord);
+
+					this.returnValues.set(currentRecord, returnValueOID); // oid as integer works here as we exclude plain values
+
+					this.oidClassNames.add(returnValue.getClass().getName());
+					this.oids.add(returnValueOID);
+					this.oidDependencies.add(NO_DEPENDENCY);
+				}
+			}
+		}
 	}
 
 
@@ -582,9 +589,9 @@ public final class CaptureLog implements Cloneable {
 				// exemplary output in test code: Integer number = 123;
 				this.methodNames.add(PLAIN_INIT);
 				this.params.add(new Object[]{ param});
-				
+
 			} else if(isCollection) {
-				
+
 				final Collection c = (Collection) param;
 
 				final Object[] valArray = new Object[c.size()];
@@ -608,9 +615,9 @@ public final class CaptureLog implements Cloneable {
 				this.objectIds.add(paramOID);
 				this.methodNames.add(COLLECTION_INIT);
 				this.params.add(valArray);
-				
+
 			} else if(isMap) {
-				
+
 				final Map m = (Map) param;
 				final Object[] valArray = new Object[m.size() * 2];
 
