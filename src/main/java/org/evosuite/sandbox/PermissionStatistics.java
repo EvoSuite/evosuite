@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -32,16 +32,21 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.utils.LoggingUtils;
 
-
 /**
- * <p>PermissionStatistics class.</p>
- *
- *
+ * <p>
+ * PermissionStatistics class.
+ * </p>
  * 
- * <p> FIXME: This class seem directly used by the SUT, when its methods check the security manager. This can lead to concurrency issues when the
- * SUT is multi-threaded. Some re-factoring might be needed, but that would need some discussions first regarding its use/goals<p> 
- *
- *
+ * 
+ * 
+ * <p>
+ * FIXME: This class seem directly used by the SUT, when its methods check the
+ * security manager. This can lead to concurrency issues when the SUT is
+ * multi-threaded. Some re-factoring might be needed, but that would need some
+ * discussions first regarding its use/goals
+ * <p>
+ * 
+ * 
  * @author Gordon Fraser
  */
 public class PermissionStatistics {
@@ -49,18 +54,18 @@ public class PermissionStatistics {
 	private static PermissionStatistics instance = new PermissionStatistics();
 
 	private final Map<String, Map<String, Integer>> allowedCount;
-	
+
 	/**
-	 * Keep track of the denied exceptions. 
-	 * Key -> name of the permission class
+	 * Keep track of the denied exceptions. Key -> name of the permission class
 	 * Value -> a map from type (name+action) to counter of times it was thrown
 	 */
 	private final Map<String, Map<String, Integer>> deniedCount;
-	
+
 	private final Map<Class<?>, Integer> deniedClassCount;
 	private final Set<String> recentAccess;
 	private int maxThreads;
 
+	private boolean hasNewExceptions = false;
 
 	// Private constructor
 	private PermissionStatistics() {
@@ -72,8 +77,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>Getter for the field <code>instance</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>instance</code>.
+	 * </p>
+	 * 
 	 * @return a {@link org.evosuite.sandbox.PermissionStatistics} object.
 	 */
 	public static PermissionStatistics getInstance() {
@@ -81,8 +88,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getRecentFileReadPermissions</p>
-	 *
+	 * <p>
+	 * getRecentFileReadPermissions
+	 * </p>
+	 * 
 	 * @return an array of {@link java.lang.String} objects.
 	 */
 	public String[] getRecentFileReadPermissions() {
@@ -90,7 +99,9 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>resetRecentStatistic</p>
+	 * <p>
+	 * resetRecentStatistic
+	 * </p>
 	 */
 	public void resetRecentStatistic() {
 		recentAccess.clear();
@@ -108,9 +119,12 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>permissionAllowed</p>
-	 *
-	 * @param permission a {@link java.security.Permission} object.
+	 * <p>
+	 * permissionAllowed
+	 * </p>
+	 * 
+	 * @param permission
+	 *            a {@link java.security.Permission} object.
 	 */
 	public void permissionAllowed(Permission permission) {
 		rememberRecentReadFilePermissions(permission);
@@ -138,46 +152,52 @@ public class PermissionStatistics {
 		deniedClassCount.put(permissionClass, getCurrentCount(permissionClass) + 1);
 	}
 
-	private String getPermissionType(Permission permission){
+	private String getPermissionType(Permission permission) {
 		String name = permission.getName();
 		String actions = permission.getActions();
 		String type = "";
-		if(actions!=null && !actions.isEmpty()){
-			type += actions+" ";
+		if (actions != null && !actions.isEmpty()) {
+			type += actions + " ";
 		}
-		if(name!=null && !name.isEmpty()){
+		if (name != null && !name.isEmpty()) {
 			type += name;
 		}
 		return type;
 	}
-	
+
 	/**
-	 * <p>permissionDenied</p>
-	 *
-	 * @param permission a {@link java.security.Permission} object.
+	 * <p>
+	 * permissionDenied
+	 * </p>
+	 * 
+	 * @param permission
+	 *            a {@link java.security.Permission} object.
 	 */
 	public void permissionDenied(Permission permission) {
 		incCurrentCount(permission.getClass());
 		rememberRecentReadFilePermissions(permission);
-		
-		String permissionClassName = permission.getClass().getName();		
+
+		String permissionClassName = permission.getClass().getName();
 		String type = getPermissionType(permission);
-		
+
 		if (!deniedCount.containsKey(permissionClassName)) {
 			deniedCount.put(permissionClassName, new HashMap<String, Integer>());
 		}
 
 		if (deniedCount.get(permissionClassName).containsKey(type)) {
-			deniedCount.get(permissionClassName).put(type, deniedCount.get(permissionClassName).get(type) + 1);
+			deniedCount.get(permissionClassName).put(type,
+			                                         deniedCount.get(permissionClassName).get(type) + 1);
 		} else {
 			deniedCount.get(permissionClassName).put(type, 1);
 		}
+		hasNewExceptions = true;
 	}
 
 	/**
 	 * Retrieve the number of times a particular permission was denied
-	 *
-	 * @param permission a {@link java.security.Permission} object.
+	 * 
+	 * @param permission
+	 *            a {@link java.security.Permission} object.
 	 * @return a int.
 	 */
 	public int getPermissionDeniedCount(Permission permission) {
@@ -192,8 +212,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumAllPermission</p>
-	 *
+	 * <p>
+	 * getNumAllPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumAllPermission() {
@@ -201,8 +223,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumSecurityPermission</p>
-	 *
+	 * <p>
+	 * getNumSecurityPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumSecurityPermission() {
@@ -210,8 +234,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumUnresolvedPermission</p>
-	 *
+	 * <p>
+	 * getNumUnresolvedPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumUnresolvedPermission() {
@@ -219,8 +245,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumAWTPermission</p>
-	 *
+	 * <p>
+	 * getNumAWTPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumAWTPermission() {
@@ -228,8 +256,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumFilePermission</p>
-	 *
+	 * <p>
+	 * getNumFilePermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumFilePermission() {
@@ -237,8 +267,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumSerializablePermission</p>
-	 *
+	 * <p>
+	 * getNumSerializablePermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumSerializablePermission() {
@@ -246,8 +278,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumReflectPermission</p>
-	 *
+	 * <p>
+	 * getNumReflectPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumReflectPermission() {
@@ -255,8 +289,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumRuntimePermission</p>
-	 *
+	 * <p>
+	 * getNumRuntimePermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumRuntimePermission() {
@@ -264,8 +300,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumNetPermission</p>
-	 *
+	 * <p>
+	 * getNumNetPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumNetPermission() {
@@ -273,8 +311,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumSocketPermission</p>
-	 *
+	 * <p>
+	 * getNumSocketPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumSocketPermission() {
@@ -282,8 +322,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumSQLPermission</p>
-	 *
+	 * <p>
+	 * getNumSQLPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumSQLPermission() {
@@ -291,8 +333,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumPropertyPermission</p>
-	 *
+	 * <p>
+	 * getNumPropertyPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumPropertyPermission() {
@@ -300,8 +344,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumLoggingPermission</p>
-	 *
+	 * <p>
+	 * getNumLoggingPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumLoggingPermission() {
@@ -309,8 +355,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumSSLPermission</p>
-	 *
+	 * <p>
+	 * getNumSSLPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumSSLPermission() {
@@ -318,8 +366,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumAuthPermission</p>
-	 *
+	 * <p>
+	 * getNumAuthPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumAuthPermission() {
@@ -330,8 +380,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumAudioPermission</p>
-	 *
+	 * <p>
+	 * getNumAudioPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumAudioPermission() {
@@ -339,8 +391,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>getNumOtherPermission</p>
-	 *
+	 * <p>
+	 * getNumOtherPermission
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getNumOtherPermission() {
@@ -361,8 +415,10 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>hasDeniedPermissions</p>
-	 *
+	 * <p>
+	 * hasDeniedPermissions
+	 * </p>
+	 * 
 	 * @return a boolean.
 	 */
 	public boolean hasDeniedPermissions() {
@@ -370,7 +426,9 @@ public class PermissionStatistics {
 	}
 
 	/**
-	 * <p>printStatistics</p>
+	 * <p>
+	 * printStatistics
+	 * </p>
 	 */
 	public void printStatistics() {
 		gatherStatistics();
@@ -378,71 +436,104 @@ public class PermissionStatistics {
 			LoggingUtils.getEvoLogger().info("* Permissions denied during test execution: ");
 			for (String name : deniedCount.keySet()) {
 				LoggingUtils.getEvoLogger().info("  - " + name + ": ");
-				
+
 				/*
 				 * We don't want to print all the exceptions if they are too many
-				 */				
+				 */
 				final int MAX_TO_PRINT = 4;
 				int counter = 0;
 				int total = deniedCount.get(name).keySet().size();
-				boolean printAll = (total <= MAX_TO_PRINT); 
+				boolean printAll = (total <= MAX_TO_PRINT);
 				for (String type : deniedCount.get(name).keySet()) {
-					LoggingUtils.getEvoLogger().info("         " + type + ": "
-						        + deniedCount.get(name).get(type));
+					LoggingUtils.getEvoLogger().info("         "
+					                                         + type
+					                                         + ": "
+					                                         + deniedCount.get(name).get(type));
 					counter++;
-					if(!printAll && counter>=(MAX_TO_PRINT-1)){
+					if (!printAll && counter >= (MAX_TO_PRINT - 1)) {
 						break;
-					} 
+					}
 				}
 				int remaining = total - counter;
-				if(remaining > 1){
-					LoggingUtils.getEvoLogger().info("         and other "+
-							remaining +" cases of action/name for this exception class");
-				} 
+				if (remaining > 1) {
+					LoggingUtils.getEvoLogger().info("         and other "
+					                                         + remaining
+					                                         + " cases of action/name for this exception class");
+				}
 			}
 		}
 	}
-	
+
 	public void gatherStatistics() {
 
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AllPermission", getNumAllPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SecurityPermission", getNumSecurityPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("UnresolvedPermission", getNumUnresolvedPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AWTPermission", getNumAWTPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("FilePermission", getNumFilePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SerializablePermission", getNumSerializablePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("ReflectPermission", getNumReflectPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("RuntimePermission", getNumRuntimePermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("NetPermission", getNumNetPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SocketPermission", getNumSocketPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SQLPermission", getNumSQLPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("PropertyPermission", getNumPropertyPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("LoggingPermission", getNumLoggingPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("SSLPermission", getNumSSLPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AuthPermission", getNumAuthPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("AudioPermission", getNumAudioPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("OtherPermission", getNumOtherPermission());
-		ClientServices.getInstance().getClientNode().trackOutputVariable("Threads", getMaxThreads());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("AllPermission",
+		                                                                 getNumAllPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("SecurityPermission",
+		                                                                 getNumSecurityPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("UnresolvedPermission",
+		                                                                 getNumUnresolvedPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("AWTPermission",
+		                                                                 getNumAWTPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("FilePermission",
+		                                                                 getNumFilePermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("SerializablePermission",
+		                                                                 getNumSerializablePermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("ReflectPermission",
+		                                                                 getNumReflectPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("RuntimePermission",
+		                                                                 getNumRuntimePermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("NetPermission",
+		                                                                 getNumNetPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("SocketPermission",
+		                                                                 getNumSocketPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("SQLPermission",
+		                                                                 getNumSQLPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("PropertyPermission",
+		                                                                 getNumPropertyPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("LoggingPermission",
+		                                                                 getNumLoggingPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("SSLPermission",
+		                                                                 getNumSSLPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("AuthPermission",
+		                                                                 getNumAuthPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("AudioPermission",
+		                                                                 getNumAudioPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("OtherPermission",
+		                                                                 getNumOtherPermission());
+		ClientServices.getInstance().getClientNode().trackOutputVariable("Threads",
+		                                                                 getMaxThreads());
 	}
 
 	/**
-	 * Check how many threads are active, and store the maximum value seen so far.
-	 * Note: this is used to check if the SUT is multi-threading, but it is not a 100% bullet-proof solution,
-	 * as this method is only called any now and then.
-	 *
-	 * @param numThreads a int.
+	 * Check how many threads are active, and store the maximum value seen so
+	 * far. Note: this is used to check if the SUT is multi-threading, but it is
+	 * not a 100% bullet-proof solution, as this method is only called any now
+	 * and then.
+	 * 
+	 * @param numThreads
+	 *            a int.
 	 */
 	public void countThreads(int numThreads) {
 		maxThreads = Math.max(maxThreads, numThreads);
 	}
 
 	/**
-	 * <p>Getter for the field <code>maxThreads</code>.</p>
-	 *
+	 * <p>
+	 * Getter for the field <code>maxThreads</code>.
+	 * </p>
+	 * 
 	 * @return a int.
 	 */
 	public int getMaxThreads() {
 		return maxThreads;
+	}
+
+	public boolean getAndResetExceptionInfo() {
+		if (hasNewExceptions) {
+			hasNewExceptions = false;
+			return true;
+		}
+		return false;
 	}
 
 }
