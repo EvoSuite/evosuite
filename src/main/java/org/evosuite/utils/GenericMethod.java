@@ -53,12 +53,26 @@ public class GenericMethod extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericMethod copyWithOwnerFromReturnType(ParameterizedType returnType) {
-		GenericClass newOwner = new GenericClass(
-		        getTypeFromExactReturnType(returnType, (ParameterizedType) getOwnerType()));
-		GenericMethod copy = new GenericMethod(method, newOwner);
-		copy.typeVariables.addAll(typeVariables);
-		return copy;
+	public GenericMethod copyWithOwnerFromReturnType(GenericClass returnType) {
+		if (returnType.isParameterizedType()) {
+			GenericClass newOwner = new GenericClass(
+			        getTypeFromExactReturnType((ParameterizedType) returnType.getType(),
+			                                   (ParameterizedType) getOwnerType()));
+			GenericMethod copy = new GenericMethod(method, newOwner);
+			copy.typeVariables.addAll(typeVariables);
+			return copy;
+		} else if (returnType.isArray()) {
+			GenericClass newOwner = new GenericClass(
+			        getTypeFromExactReturnType((ParameterizedType) returnType.getComponentType(),
+			                                   (ParameterizedType) getOwnerType()));
+			GenericMethod copy = new GenericMethod(method, newOwner);
+			copy.typeVariables.addAll(typeVariables);
+			return copy;
+		} else {
+			throw new RuntimeException("Invalid type: " + returnType.getType()
+			        + " of type " + returnType.getType().getClass() + " with owner type "
+			        + getOwnerClass().getTypeName());
+		}
 	}
 
 	@Override

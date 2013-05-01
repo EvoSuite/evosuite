@@ -44,19 +44,29 @@ public class GenericField extends GenericAccessibleObject {
 	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
 		return new GenericField(field, newOwner);
 	}
-	
+
 	@Override
-	public GenericAccessibleObject copyWithOwnerFromReturnType(
-			ParameterizedType returnType) {
-		GenericClass newOwner = new GenericClass(getTypeFromExactReturnType(returnType, (ParameterizedType)getOwnerType()));
-		return new GenericField(field, newOwner);
+	public GenericAccessibleObject copyWithOwnerFromReturnType(GenericClass returnType) {
+		if (returnType.isParameterizedType()) {
+			GenericClass newOwner = new GenericClass(
+			        getTypeFromExactReturnType((ParameterizedType) returnType.getType(),
+			                                   (ParameterizedType) getOwnerType()));
+			return new GenericField(field, newOwner);
+		} else if (returnType.isArray()) {
+			GenericClass newOwner = new GenericClass(
+			        getTypeFromExactReturnType((ParameterizedType) returnType.getComponentType(),
+			                                   (ParameterizedType) getOwnerType()));
+			return new GenericField(field, newOwner);
+		} else {
+			throw new RuntimeException("Invalid type: " + returnType.getClass());
+		}
 	}
 
 	@Override
 	public GenericAccessibleObject copy() {
 		return new GenericField(field, new GenericClass(owner));
 	}
-	
+
 	public Field getField() {
 		return field;
 	}
@@ -68,17 +78,17 @@ public class GenericField extends GenericAccessibleObject {
 	public Class<?> getDeclaringClass() {
 		return field.getDeclaringClass();
 	}
-	
+
 	@Override
 	public Type getGeneratedType() {
 		return getFieldType();
 	}
-	
+
 	@Override
 	public Class<?> getRawGeneratedType() {
 		return field.getType();
 	}
-	
+
 	@Override
 	public Type getGenericGeneratedType() {
 		return field.getGenericType();
@@ -93,7 +103,7 @@ public class GenericField extends GenericAccessibleObject {
 		// fieldType = field.getType();
 		// }
 	}
-	
+
 	public Type getGenericFieldType() {
 		return field.getGenericType();
 	}
