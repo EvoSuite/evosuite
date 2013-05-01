@@ -20,6 +20,7 @@ package org.evosuite;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.security.Permission;
 
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
@@ -97,7 +98,7 @@ public class TestSUTPrintingThatShouldBeMuted extends SystemTest{
 	
 	
 	@Test
-	public void testBase() throws IOException{		
+	public void testBase() throws IOException{	
 		checkIfMuted(PrintingThatShouldBeMuted.class.getCanonicalName(),"Greater");
 	}
 

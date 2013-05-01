@@ -43,8 +43,6 @@ public class ClientProcess {
 
 	private static Logger logger = LoggerFactory.getLogger(ClientProcess.class);
 
-	//private final ExternalProcessUtilities util = new ExternalProcessUtilities();
-
 	/** Constant <code>geneticAlgorithmStatus</code> */
 	public static GeneticAlgorithm<?> geneticAlgorithmStatus;
 
@@ -60,7 +58,6 @@ public class ClientProcess {
 	
 		boolean registered = ClientServices.getInstance().registerServices();
 	
-		//if (!util.connectToMainProcess()) {
 		if (!registered) {
 			throw new RuntimeException("Could not connect to master process on port "
                     + Properties.PROCESS_COMMUNICATION_PORT);
@@ -84,11 +81,19 @@ public class ClientProcess {
 	 *            an array of {@link java.lang.String} objects.
 	 */
 	public static void main(String[] args) {
+		
+		/*
+		 * important to have it in a variable, otherwise 
+		 * might be issues with following System.exit if successive
+		 * threads change it if this thread is still running
+		 */
+		boolean onThread = Properties.CLIENT_ON_THREAD; 
+		
 		try {
 			LoggingUtils.getEvoLogger().info("* Starting client");
 			ClientProcess process = new ClientProcess();
 			process.run();
-			if (!Properties.CLIENT_ON_THREAD) {
+			if (!onThread) {
 				/*
 				 * If we we are in debug mode in which we run client on separated thread,
 				 * then do not kill the JVM
@@ -106,7 +111,7 @@ public class ClientProcess {
 			} catch (InterruptedException e) {
 			}
 
-			if (!Properties.CLIENT_ON_THREAD) {
+			if (!onThread) {
 				System.exit(1);
 			}
 		}

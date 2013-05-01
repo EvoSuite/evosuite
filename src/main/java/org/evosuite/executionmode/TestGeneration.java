@@ -426,6 +426,11 @@ public class TestGeneration {
 				} catch (InterruptedException e) {
 				}
 			}
+			
+			if (Properties.CLIENT_ON_THREAD) {
+				handler.stopAndWaitForClientOnThread(10000);
+			}
+			
 			handler.killProcess();
 		} else {
 			LoggingUtils.getEvoLogger().info("* Could not connect to client process");
@@ -438,9 +443,8 @@ public class TestGeneration {
 			 * FIXME: this is done only to avoid current problems with serialization
 			 */
 			result = ClientProcess.geneticAlgorithmStatus;
-		}
-
-		if (!Properties.CLIENT_ON_THREAD) {
+			handler.stopAndWaitForClientOnThread(10000);
+		} else {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {

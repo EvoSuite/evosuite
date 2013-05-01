@@ -87,6 +87,35 @@ public class ExternalProcessHandler {
 	}
 
 	/**
+	 * Only for debug reasons.
+	 * @param ms
+	 */
+	public void stopAndWaitForClientOnThread(long ms){
+		
+		if(clientRunningOnThread != null && clientRunningOnThread.isAlive()){
+			clientRunningOnThread.interrupt();
+		}
+		
+		long start = System.currentTimeMillis();
+		while( (System.currentTimeMillis() - start)  <  ms) { //to avoid miss it in case of interrupt
+			if(clientRunningOnThread != null && clientRunningOnThread.isAlive()){
+				try {
+					clientRunningOnThread.join(ms - (System.currentTimeMillis() - start));
+					break;
+				} catch (InterruptedException e) {					
+				}
+			} else {
+				break;
+			}
+		}
+
+		if( clientRunningOnThread != null && clientRunningOnThread.isAlive()) {
+			throw new AssertionError( "clientRunningOnThread is alive even after waiting "+ms+"ms");
+		}
+	}
+	
+	
+	/**
 	 * <p>
 	 * setBaseDir
 	 * </p>
@@ -180,38 +209,6 @@ public class ExternalProcessHandler {
 			clientRunningOnThread.setName("client");
 			clientRunningOnThread.start();
 		}
-		//wait for connection from external process
-
-		
-		
-		
-		/*
-		 * TODO remove once RMI is stable
-		 * 
-		try {
-			connection = server.accept();
-			out = new ObjectOutputStream(connection.getOutputStream());
-			in = new ObjectInputStream(connection.getInputStream());
-
-			if (population_data == null) {
-				//tell the external process to start search from scratch
-				out.writeObject(Messages.NEW_SEARCH);
-				out.flush();
-			} else {
-				out.writeObject(Messages.CONTINUE_SEARCH);
-				out.flush();
-				out.writeObject(population_data);
-				out.flush();
-			}
-		} catch (Exception e) {
-			logger.error("Class " + Properties.TARGET_CLASS
-			        + ". Error while waiting for connection from external process ");
-			return false;
-		}
-
-		startExternalProcessMessageHandler();
-		*/
-		
 		
 		startSignalHandler();
 		last_command = command;
@@ -320,17 +317,6 @@ public class ExternalProcessHandler {
 	 */
 	public void closeServer() {
 		MasterServices.getInstance().stopServices();
-		/*
-		if (server != null) {
-			try {
-				server.close();
-			} catch (IOException e) {
-				logger.error("Error in closing the TCP server", e);
-			}
-
-			server = null;
-		}
-		*/
 	}
 
 	/**

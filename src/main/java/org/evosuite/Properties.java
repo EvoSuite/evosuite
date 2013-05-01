@@ -1077,7 +1077,7 @@ public class Properties {
 
 	/** Constant <code>CLIENT_ON_THREAD=false</code> */
 	@Parameter(key = "client_on_thread", group = "Runtime", description = "Run client process on same JVM of master in separate thread. To be used only for debugging purposes")
-	public static boolean CLIENT_ON_THREAD = false;
+	public static volatile boolean CLIENT_ON_THREAD = false;
 
 	// ---------------------------------------------------------------
 	// Seeding test cases
