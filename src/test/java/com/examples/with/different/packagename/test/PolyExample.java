@@ -1,4 +1,4 @@
-package test;
+package com.examples.with.different.packagename.test;
 
 public class PolyExample {
 	public void testMe(Object o) {

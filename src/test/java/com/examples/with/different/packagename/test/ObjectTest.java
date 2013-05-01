@@ -1,4 +1,4 @@
-package test;
+package com.examples.with.different.packagename.test;
 
 public class ObjectTest {
   private Object x = null;
