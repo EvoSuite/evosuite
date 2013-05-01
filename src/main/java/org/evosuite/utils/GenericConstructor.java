@@ -8,7 +8,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.List;
@@ -94,10 +93,8 @@ public class GenericConstructor extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericAccessibleObject copyWithOwnerFromReturnType(
-	        ParameterizedType returnType) {
-		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(
-		        returnType));
+	public GenericAccessibleObject copyWithOwnerFromReturnType(GenericClass returnType) {
+		GenericConstructor copy = new GenericConstructor(constructor, returnType);
 		copy.typeVariables.addAll(typeVariables);
 		return copy;
 	}

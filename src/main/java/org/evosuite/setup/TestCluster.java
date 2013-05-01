@@ -304,7 +304,7 @@ public class TestCluster {
 						// If the types are not assignable, we need to check the generic type parameters
 						logger.debug(clazz + " is not assignable from "
 						        + generatorClazz.getTypeName());
-						
+
 						// generatorClazz can only be a subclass of clazz
 						GenericClass newOwner = generatorClazz.getWithParametersFromSuperclass(clazz);
 
@@ -316,7 +316,7 @@ public class TestCluster {
 								// logger.debug("Owner class has no parameters, so we can only assume it would work: "+generator.getName());
 								targetGenerators.add(generator);
 							} else {
-								GenericAccessibleObject newGenerator = generator.copyWithOwnerFromReturnType((ParameterizedType) newOwner.getType());
+								GenericAccessibleObject newGenerator = generator.copyWithOwnerFromReturnType(newOwner);
 								// logger.debug("Instantiated generator: "+newGenerator.getName());
 								if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
 									GenericClass concreteClass = getGenericInstantiation(newGenerator.getOwnerClass());
@@ -404,7 +404,7 @@ public class TestCluster {
 								//	logger.info("Skipping potentially problematic case of parameterized type without parameters (owner likely has types)");
 								//	continue;
 								//}
-								GenericAccessibleObject newModifier = modifier.copyWithOwnerFromReturnType((ParameterizedType) newOwner.getType());
+								GenericAccessibleObject newModifier = modifier.copyWithOwnerFromReturnType(newOwner);
 								if (newModifier.getOwnerClass().hasWildcardOrTypeVariables()) {
 									GenericClass concreteClass = getGenericInstantiation(newModifier.getOwnerClass());
 									genericModifiers.add(newModifier.copyWithNewOwner(concreteClass));
@@ -1144,7 +1144,7 @@ public class TestCluster {
 			logger.debug("Type variables: " + choice.getOwnerClass().getTypeVariableMap());
 			logger.debug(Arrays.asList(choice.getTypeParameters()).toString());
 			logger.debug("Chosen call with generic parameter set: " + choice);
-			logger.debug("Call owner type: "+choice.getOwnerClass().getTypeName());
+			logger.debug("Call owner type: " + choice.getOwnerClass().getTypeName());
 		}
 		if (choice.hasTypeParameters()) {
 			choice = getGenericInstantiation(choice);
