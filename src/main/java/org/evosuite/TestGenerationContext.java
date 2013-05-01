@@ -3,7 +3,6 @@
  */
 package org.evosuite;
 
-import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
