@@ -78,11 +78,10 @@ public class TestRegression extends SystemTest {
 		testCovered(ArrayTest.class.getCanonicalName(), 11);
 	}
 
-	// TODO: This test fails if primitive_reuse_probability is too high/low. 
 	@Test
 	public void testAssignment() {
-		// Properties.PRIMITIVE_REUSE_PROBABILITY = 0.5;
-		testCovered(AssignmentTest.class.getCanonicalName(), 30);
+		Properties.CLASS_PREFIX = AssignmentTest.class.getCanonicalName().substring(0, AssignmentTest.class.getCanonicalName().lastIndexOf('.'));
+		testCovered(AssignmentTest.class.getCanonicalName(), 12);
 	}
 
 	@Test

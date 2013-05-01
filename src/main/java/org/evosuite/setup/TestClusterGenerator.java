@@ -674,7 +674,7 @@ public class TestClusterGenerator {
 		if (Modifier.isPublic(c.getModifiers())) {
 			return true;
 		}
-
+		logger.debug("Not public");
 		return false;
 	}
 

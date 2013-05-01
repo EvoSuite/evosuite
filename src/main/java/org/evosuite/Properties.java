@@ -1676,6 +1676,10 @@ public class Properties {
 		reflectMap();
 		if (loadProperties)
 			loadProperties(silent);
+		setClassPrefix();
+	}
+	
+	private static void setClassPrefix() {
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			if (TARGET_CLASS.contains(".")) {
 				CLASS_PREFIX = TARGET_CLASS.substring(0, TARGET_CLASS.lastIndexOf('.'));
@@ -1689,7 +1693,7 @@ public class Properties {
 				// LoggingUtils.getEvoLogger().info("* Using project prefix: "
 				// + PROJECT_PREFIX);
 			}
-		}
+		}		
 	}
 
 	/**
@@ -1707,6 +1711,7 @@ public class Properties {
 		try {
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
 			                                      TestGenerationContext.getClassLoader());
+			setClassPrefix();
 
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
