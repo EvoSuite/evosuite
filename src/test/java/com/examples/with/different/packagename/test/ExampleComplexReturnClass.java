@@ -1,7 +1,7 @@
 /**
  * 
  */
-package test;
+package com.examples.with.different.packagename.test;
 
 /**
  * @author fraser

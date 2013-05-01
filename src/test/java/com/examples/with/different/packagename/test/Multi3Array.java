@@ -1,4 +1,4 @@
-package test;
+package com.examples.with.different.packagename.test;
 
 public class Multi3Array {
   public void testMe(int[][][] x) {

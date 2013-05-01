@@ -1,4 +1,4 @@
-package test;
+package com.examples.with.different.packagename.test;
 
 import com.examples.with.different.packagename.Dummy;
 
