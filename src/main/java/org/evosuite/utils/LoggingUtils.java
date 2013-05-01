@@ -20,6 +20,7 @@ package org.evosuite.utils;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.PrintStream;
 import java.net.ServerSocket;
@@ -28,11 +29,16 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.joran.spi.JoranException;
+import ch.qos.logback.core.util.StatusPrinter;
 
 /**
  * this class is used to get help on some customization of logging facility
@@ -239,38 +245,35 @@ public class LoggingUtils {
 		System.setErr(DEFAULT_ERR);
 	}
 
+
 	/**
-	 * In logback.xml we use properties like ${log.level}. But before doing any
-	 * logging, we need to be sure they have been set. If not, we put them to
-	 * default values
-	 * 
-	 * NOTE: this functionality might be deprecated now, as one can set default
-	 * values in the log xml files by using ":-"
-	 * 
-	 * @return a boolean.
+	 * Load the EvoSuite xml configuration file for Logback, unless a non-default one is already in use.
+	 * The file has to be on the classpath.
 	 */
-	public static boolean checkAndSetLogLevel() {
-
-		boolean usingDefault = false;
-
-		System.setProperty(LOG_LEVEL, Properties.LOG_LEVEL);
-		if (Properties.LOG_TARGET != null)
-			System.setProperty(LOG_TARGET, Properties.LOG_TARGET);
-
-		if (Properties.LOG_LEVEL.equals("WARN")) {
-			usingDefault = true;
+	public static void loadLogbackForEvoSuite(){
+		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
+		// Only overrule default configurations
+		// TODO: Find better way to allow external logback configuration
+		if (context.getName().equals("default")) {
+			try {
+				JoranConfigurator configurator = new JoranConfigurator();
+				configurator.setContext(context);
+				final String xmlFileName = getLogbackFileName();
+				InputStream f = EvoSuite.class.getClassLoader().getResourceAsStream(xmlFileName);
+				if (f == null) {
+					System.err.println(xmlFileName+" not found on classpath");
+				}
+				context.reset();
+				configurator.doConfigure(f);
+			} catch (JoranException je) {
+				// StatusPrinter will handle this
+			}
+			StatusPrinter.printInCaseOfErrorsOrWarnings(context);
 		}
-		
-		//No need to check/set for LOG_TARGET
-		/*
-		String logTarget = System.getProperty(LOG_TARGET);
-		if(logTarget==null || logTarget.trim().equals("")){
-			System.setProperty(LOG_TARGET,"");
-			usingDefault = true;
-		}
-		*/
-
-		return usingDefault;
 	}
-
+	
+	public static String getLogbackFileName(){
+		return "logback-evosuite.xml";
+	}
+	
 }

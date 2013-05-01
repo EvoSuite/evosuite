@@ -91,8 +91,6 @@ public class SystemTest {
 			return;
 		}
 
-		LoggingUtils.checkAndSetLogLevel();
-
 		deleteEvoDirs();
 
 		System.out.println("*** SystemTest: runSetup() ***");

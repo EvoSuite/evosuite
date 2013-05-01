@@ -596,7 +596,7 @@ public class Properties {
 	public static boolean LOG_GOALS = false;
 
 	@Parameter(key = "log.level", group = "Output", description = "Verbosity level of logger")
-	public static String LOG_LEVEL = "warn";
+	public static String LOG_LEVEL = null;
 
 	@Parameter(key = "log.target", group = "Output", description = "Target logger - all logging if not set")
 	public static String LOG_TARGET = null;
@@ -1835,7 +1835,4 @@ public class Properties {
 		}
 	}
 
-	static {
-		LoggingUtils.checkAndSetLogLevel();
-	}
 }

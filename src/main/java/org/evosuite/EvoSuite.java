@@ -69,26 +69,7 @@ import ch.qos.logback.core.util.StatusPrinter;
 public class EvoSuite {
 
 	static {
-		LoggingUtils.checkAndSetLogLevel();
-		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
-		// Only overrule default configurations
-		// TODO: Find better way to allow external logback configuration
-		if (context.getName().equals("default")) {
-			try {
-				JoranConfigurator configurator = new JoranConfigurator();
-				configurator.setContext(context);
-				InputStream f = EvoSuite.class.getClassLoader().getResourceAsStream("logback-evosuite.xml");
-				if (f == null) {
-					System.err.println("logback-evosuite.xml not found on classpath");
-				}
-				context.reset();
-				configurator.doConfigure(f);
-			} catch (JoranException je) {
-				// StatusPrinter will handle this
-			}
-			StatusPrinter.printInCaseOfErrorsOrWarnings(context);
-		}
-
+		LoggingUtils.loadLogbackForEvoSuite();
 	}
 
 	private static Logger logger = LoggerFactory.getLogger(EvoSuite.class);
