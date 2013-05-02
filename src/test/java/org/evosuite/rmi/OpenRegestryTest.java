@@ -8,7 +8,7 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
@@ -18,7 +18,16 @@ public class OpenRegestryTest {
 	public void openTest() throws RemoteException, NotBoundException{
 		int port = 2000;
 		
-		LocateRegistry.createRegistry(port);		
+		for(int i=0; i<10000; i++){
+			try{
+				LocateRegistry.createRegistry(port);	
+				break;
+			} catch(java.rmi.server.ExportException e){
+				//it could happen that the port is already in use
+				port++;
+			}
+		}
+		
 		Registry registry = LocateRegistry.getRegistry(port);
 		Assert.assertNotNull(registry);
 
