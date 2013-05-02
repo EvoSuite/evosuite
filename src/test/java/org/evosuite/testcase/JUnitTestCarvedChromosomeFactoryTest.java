@@ -146,10 +146,6 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		Assert.assertNotNull(carved);
 		Assert.assertEquals("", 13, carved.test.size());
 
-		GenericTypeInference inference = new GenericTypeInference();
-		carved.test.accept(inference);
-		inference.inferTypes();
-
 		for (int i = 0; i < carved.test.size(); i++) {
 			StatementInterface stmt = carved.test.getStatement(i);
 			boolean valid = stmt.isValid();
@@ -225,7 +221,7 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		}
 
 		String code = carved.toString();
-		String setLong = "HashSet<Long>";
+		String setLong = "GenericObjectWrapper<Long[]>";
 		Assert.assertTrue("generated code does not contain " + setLong + "\n" + code,
 		                  code.contains(setLong));
 	}
