@@ -384,7 +384,7 @@ public class AssignmentStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject<?> getAccessibleObject() {
 		return null;
 	}
 

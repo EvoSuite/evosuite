@@ -140,7 +140,7 @@ public class PrimitiveExpression extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject<?> getAccessibleObject() {
 		throw new UnsupportedOperationException(
 		        "Method getAccessibleObject not implemented!");
 	}

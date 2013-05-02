@@ -22,7 +22,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
  * @author Gordon Fraser
  * 
  */
-public class GenericConstructor extends GenericAccessibleObject {
+public class GenericConstructor extends GenericAccessibleObject<GenericConstructor> {
 
 	private static final long serialVersionUID = 1361882947700615341L;
 
@@ -78,7 +78,7 @@ public class GenericConstructor extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericAccessibleObject copy() {
+	public GenericConstructor copy() {
 		GenericConstructor copy = new GenericConstructor(constructor, new GenericClass(
 		        owner));
 		copy.typeVariables.addAll(typeVariables);
@@ -86,14 +86,14 @@ public class GenericConstructor extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
+	public GenericConstructor copyWithNewOwner(GenericClass newOwner) {
 		GenericConstructor copy = new GenericConstructor(constructor, newOwner);
 		copy.typeVariables.addAll(typeVariables);
 		return copy;
 	}
 
 	@Override
-	public GenericAccessibleObject copyWithOwnerFromReturnType(GenericClass returnType) {
+	public GenericConstructor copyWithOwnerFromReturnType(GenericClass returnType) {
 		GenericConstructor copy = new GenericConstructor(constructor, returnType);
 		copy.typeVariables.addAll(typeVariables);
 		return copy;

@@ -28,7 +28,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericMethod;
 import org.objectweb.asm.Label;
@@ -136,17 +135,6 @@ public class MethodStatement extends AbstractStatement {
 		else
 			this.callee = callee;
 		this.parameters = parameters;
-	}
-
-	/**
-	 * <p>
-	 * Getter for the field <code>parameters</code>.
-	 * </p>
-	 * 
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<VariableReference> getParameters() {
-		return this.parameters;
 	}
 
 	/**
@@ -692,7 +680,7 @@ public class MethodStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject getAccessibleObject() {
+	public GenericMethod getAccessibleObject() {
 		return method;
 	}
 

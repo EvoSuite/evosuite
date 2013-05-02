@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericField;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
@@ -405,7 +404,7 @@ public class FieldStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject getAccessibleObject() {
+	public GenericField getAccessibleObject() {
 		return field;
 	}
 

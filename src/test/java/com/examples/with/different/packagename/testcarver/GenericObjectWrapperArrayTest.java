@@ -1,13 +1,19 @@
+/**
+ * 
+ */
 package com.examples.with.different.packagename.testcarver;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ObjectWrapperArrayTest {
-
+/**
+ * @author Gordon Fraser
+ * 
+ */
+public class GenericObjectWrapperArrayTest {
 	@Test
 	public void test() {
-		ObjectWrapper wrapper = new ObjectWrapper();
+		GenericObjectWrapper<Long[]> wrapper = new GenericObjectWrapper<>();
 		Assert.assertNull(wrapper.get());
 
 		Long[] someArray = new Long[] { 1l, 47l };
@@ -15,12 +21,11 @@ public class ObjectWrapperArrayTest {
 		wrapper.set(someArray);
 		Assert.assertNotNull(wrapper.get());
 
-		ObjectWrapper fortySeven = new ObjectWrapper();
+		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
 		fortySeven.set(47l);
 
-		Long[] foo = (Long[]) wrapper.get();
+		Long[] foo = wrapper.get();
 
 		Assert.assertTrue(foo[1].equals(fortySeven.get()));
 	}
-
 }

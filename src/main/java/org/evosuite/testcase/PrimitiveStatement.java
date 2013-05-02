@@ -89,6 +89,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 		super(tc, new VariableReferenceImpl(tc, clazz));
 		this.value = value;
 	}
+
 	/**
 	 * Access the value
 	 * 
@@ -412,7 +413,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject<?> getAccessibleObject() {
 		return null;
 	}
 

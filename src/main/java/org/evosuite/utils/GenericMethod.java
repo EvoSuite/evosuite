@@ -23,7 +23,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
  * @author Gordon Fraser
  * 
  */
-public class GenericMethod extends GenericAccessibleObject {
+public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
 	private static final long serialVersionUID = 6091851133071150237L;
 
@@ -45,7 +45,7 @@ public class GenericMethod extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
+	public GenericMethod copyWithNewOwner(GenericClass newOwner) {
 		GenericMethod copy = new GenericMethod(method, newOwner);
 		copy.getParameterTypes();
 		copy.typeVariables.addAll(typeVariables);
@@ -76,7 +76,7 @@ public class GenericMethod extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericAccessibleObject copy() {
+	public GenericMethod copy() {
 		GenericMethod copy = new GenericMethod(method, new GenericClass(owner));
 		copy.typeVariables.addAll(typeVariables);
 		return copy;

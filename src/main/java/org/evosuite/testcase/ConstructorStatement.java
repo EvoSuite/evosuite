@@ -30,7 +30,6 @@ import java.util.Set;
 
 import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
-import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.objectweb.asm.Label;
@@ -150,6 +149,7 @@ public class ConstructorStatement extends AbstractStatement {
 	 */
 	public void setConstructor(GenericConstructor constructor) {
 		this.constructor = constructor;
+		retval.setType(constructor.getReturnType());
 	}
 
 	/**
@@ -542,7 +542,7 @@ public class ConstructorStatement extends AbstractStatement {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject getAccessibleObject() {
+	public GenericConstructor getAccessibleObject() {
 		return constructor;
 	}
 

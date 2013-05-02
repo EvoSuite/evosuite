@@ -55,7 +55,6 @@ public class GenericClass implements Serializable {
 	/**
 	 * Set of wrapper classes
 	 */
-	@SuppressWarnings("unchecked")
 	private static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(
 	        Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
 	                      Integer.class, Long.class, Float.class, Double.class,
@@ -179,7 +178,7 @@ public class GenericClass implements Serializable {
 	transient Type type = null;
 
 	/**
-	 * Generate a generic class by setting all generic parameters to their 
+	 * Generate a generic class by setting all generic parameters to their
 	 * parameter types
 	 * 
 	 * @param clazz
@@ -224,7 +223,7 @@ public class GenericClass implements Serializable {
 		this.rawClass = clazz;
 		handleGenericArraySpecialCase(type);
 	}
-	
+
 	public static Type addTypeParameters(Class<?> clazz) {
 		if (clazz.isArray()) {
 			return GenericArrayTypeImpl.createArrayType(addTypeParameters(clazz.getComponentType()));
@@ -288,7 +287,7 @@ public class GenericClass implements Serializable {
 					parameterClasses.add(parameter);
 				}
 				if (hasWildcard) {
-//					this.type = addTypeParameters(raw_class); //GenericTypeReflector.addWildcardParameters(raw_class);
+					//					this.type = addTypeParameters(raw_class); //GenericTypeReflector.addWildcardParameters(raw_class);
 					this.type = GenericTypeReflector.addWildcardParameters(rawClass);
 				} else {
 					Type[] parameterTypes = new Type[parameterClasses.size()];
@@ -561,8 +560,7 @@ public class GenericClass implements Serializable {
 			ownerType = ((ParameterizedType) type).getOwnerType();
 		}
 
-		return new GenericClass(
-		        new ParameterizedTypeImpl(rawClass, typeArray, ownerType));
+		return new GenericClass(new ParameterizedTypeImpl(rawClass, typeArray, ownerType));
 	}
 
 	public GenericClass getWithOwnerType(GenericClass ownerClass) {
@@ -584,8 +582,7 @@ public class GenericClass implements Serializable {
 		if (type instanceof ParameterizedType) {
 			ownerType = ((ParameterizedType) type).getOwnerType();
 		}
-		return new GenericClass(
-		        new ParameterizedTypeImpl(rawClass, typeArray, ownerType));
+		return new GenericClass(new ParameterizedTypeImpl(rawClass, typeArray, ownerType));
 	}
 
 	public GenericClass getWithParameterTypes(Type[] parameters) {
@@ -593,44 +590,46 @@ public class GenericClass implements Serializable {
 		if (type instanceof ParameterizedType) {
 			ownerType = ((ParameterizedType) type).getOwnerType();
 		}
-		return new GenericClass(new ParameterizedTypeImpl(rawClass, parameters,
-		        ownerType));
+		return new GenericClass(
+		        new ParameterizedTypeImpl(rawClass, parameters, ownerType));
 	}
 
 	public GenericClass getWithWildcardTypes() {
 		Type ownerType = GenericTypeReflector.addWildcardParameters(rawClass);
 		return new GenericClass(ownerType);
 	}
-	
+
 	/**
-	 * If this is a LinkedList<?> and the super class is a List<Integer>
-	 * then this returns a LinkedList<Integer> 
+	 * If this is a LinkedList<?> and the super class is a List<Integer> then
+	 * this returns a LinkedList<Integer>
 	 * 
 	 * @param superClass
 	 * @return
 	 */
 	public GenericClass getWithParametersFromSuperclass(GenericClass superClass) {
 		GenericClass exactClass = new GenericClass(type);
-		if(!(type instanceof ParameterizedType)) {
+		if (!(type instanceof ParameterizedType)) {
 			exactClass.type = type;
 			return exactClass;
 		}
-		ParameterizedType pType = (ParameterizedType)type;
+		ParameterizedType pType = (ParameterizedType) type;
 
 		Type[] parameterTypes = new Type[superClass.getNumParameters()];
 		superClass.getParameterTypes().toArray(parameterTypes);
-		
+
 		Class<?> targetClass = superClass.getRawClass();
 		Class<?> currentClass = rawClass;
-				
-		if(targetClass.equals(currentClass)) {		
-			exactClass.type =  new ParameterizedTypeImpl(currentClass, parameterTypes, pType.getOwnerType());
+
+		if (targetClass.equals(currentClass)) {
+			exactClass.type = new ParameterizedTypeImpl(currentClass, parameterTypes,
+			        pType.getOwnerType());
 		} else {
 			Type ownerType = pType.getOwnerType();
 			GenericClass ownerClass = new GenericClass(ownerType).getWithParametersFromSuperclass(superClass);
-			exactClass.type = new ParameterizedTypeImpl(currentClass, parameterTypes, ownerClass.getType());
+			exactClass.type = new ParameterizedTypeImpl(currentClass, parameterTypes,
+			        ownerClass.getType());
 		}
-				
+
 		return exactClass;
 	}
 

@@ -22,7 +22,8 @@ import com.googlecode.gentyref.GenericTypeReflector;
  * @author Gordon Fraser
  * 
  */
-public abstract class GenericAccessibleObject implements Serializable {
+public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<?>>
+        implements Serializable {
 
 	private static final long serialVersionUID = 7069749492563662621L;
 
@@ -101,12 +102,11 @@ public abstract class GenericAccessibleObject implements Serializable {
 		}
 	}
 
-	public abstract GenericAccessibleObject copy();
+	public abstract T copy();
 
-	public abstract GenericAccessibleObject copyWithNewOwner(GenericClass newOwner);
+	public abstract T copyWithNewOwner(GenericClass newOwner);
 
-	public abstract GenericAccessibleObject copyWithOwnerFromReturnType(
-	        GenericClass returnType);
+	public abstract T copyWithOwnerFromReturnType(GenericClass returnType);
 
 	public abstract Class<?> getDeclaringClass();
 

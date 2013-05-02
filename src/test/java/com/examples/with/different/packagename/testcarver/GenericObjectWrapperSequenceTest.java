@@ -1,9 +1,16 @@
+/**
+ * 
+ */
 package com.examples.with.different.packagename.testcarver;
 
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ObjectWrapperSequenceTest {
+/**
+ * @author Gordon Fraser
+ * 
+ */
+public class GenericObjectWrapperSequenceTest {
 
 	public static class Foo {
 		private int x = 0;
@@ -23,9 +30,9 @@ public class ObjectWrapperSequenceTest {
 		Foo foo = new Foo();
 		foo.setX(x);
 
-		ObjectWrapper wrapper = new ObjectWrapper();
+		GenericObjectWrapper<Foo> wrapper = new GenericObjectWrapper<>();
 		wrapper.set(foo);
-		Assert.assertEquals(42, ((Foo) wrapper.get()).getX());
+		Assert.assertEquals(42, wrapper.get().getX());
 	}
 
 }

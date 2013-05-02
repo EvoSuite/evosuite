@@ -16,45 +16,45 @@ import org.junit.runner.notification.RunListener;
 
 public class CarvingRunListener extends RunListener {
 
-	private List<TestCase> carvedTests = new ArrayList<TestCase>();
-	
+	private final List<TestCase> carvedTests = new ArrayList<TestCase>();
+
 	private final Class<?>[] targetClasses;
-	
+
 	public CarvingRunListener() {
 		targetClasses = new Class<?>[1];
 		targetClasses[0] = Properties.getTargetClass();
 	}
-	
+
 	public List<TestCase> getTestCases() {
 		return carvedTests;
 	}
-	
+
 	@Override
 	public void testStarted(Description description) throws Exception {
 		Capturer.startCapture();
 	}
-	
+
 	@Override
 	public void testFinished(Description description) throws Exception {
 		final CaptureLog log = Capturer.stopCapture();
 		this.processLog(log);
-		Capturer.clear();	
+		Capturer.clear();
 	}
-		
+
 	/**
 	 * Creates TestCase out of the captured log
 	 * 
-	 * @param log  log captured from test execution
+	 * @param log
+	 *            log captured from test execution
 	 */
-	private void processLog(final CaptureLog log)
-	{
-		final CaptureLogAnalyzer       analyzer = new CaptureLogAnalyzer();
-		final EvoTestCaseCodeGenerator codeGen  = new EvoTestCaseCodeGenerator();
+	private void processLog(final CaptureLog log) {
+		final CaptureLogAnalyzer analyzer = new CaptureLogAnalyzer();
+		final EvoTestCaseCodeGenerator codeGen = new EvoTestCaseCodeGenerator();
 		analyzer.analyze(log, codeGen, this.targetClasses);
-		
-		DefaultTestCase test = (DefaultTestCase)codeGen.getCode();
+
+		DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
 		test.changeClassLoader(TestGenerationContext.getClassLoader());
-		
+
 		carvedTests.add(test);
 		codeGen.clear();
 	}

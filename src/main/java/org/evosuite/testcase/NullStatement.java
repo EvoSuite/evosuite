@@ -136,7 +136,7 @@ public class NullStatement extends PrimitiveStatement<Void> {
 
 	/** {@inheritDoc} */
 	@Override
-	public GenericAccessibleObject getAccessibleObject() {
+	public GenericAccessibleObject<?> getAccessibleObject() {
 		return null;
 	}
 

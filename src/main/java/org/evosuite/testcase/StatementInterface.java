@@ -354,7 +354,7 @@ public interface StatementInterface {
 	 * 
 	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
-	public GenericAccessibleObject getAccessibleObject();
+	public GenericAccessibleObject<?> getAccessibleObject();
 
 	/**
 	 * Returns true if this statement should be handled as an

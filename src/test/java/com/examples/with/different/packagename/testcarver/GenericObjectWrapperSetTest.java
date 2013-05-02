@@ -1,3 +1,6 @@
+/**
+ * 
+ */
 package com.examples.with.different.packagename.testcarver;
 
 import java.util.HashSet;
@@ -6,11 +9,14 @@ import java.util.Set;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class ObjectWrapperSetTest {
-
+/**
+ * @author Gordon Fraser
+ * 
+ */
+public class GenericObjectWrapperSetTest {
 	@Test
 	public void test01() {
-		ObjectWrapper wrapper = new ObjectWrapper();
+		GenericObjectWrapper<Set<Long>> wrapper = new GenericObjectWrapper<>();
 		Assert.assertNull(wrapper.get());
 
 		Set<Long> someSet = new HashSet<Long>();
@@ -22,10 +28,10 @@ public class ObjectWrapperSetTest {
 		wrapper.set(someSet);
 		Assert.assertNotNull(wrapper.get());
 
-		ObjectWrapper fortySeven = new ObjectWrapper();
+		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
 		fortySeven.set(47l);
 
-		Set<?> foo = (Set<?>) wrapper.get();
+		Set<Long> foo = wrapper.get();
 
 		Assert.assertTrue(foo.contains(fortySeven.get()));
 	}
