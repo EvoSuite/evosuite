@@ -48,8 +48,15 @@ public class GenericTypeInference extends TestVisitor {
 
 	private TestCase test;
 
-	public void inferTypes() {
-		calculateExactTypes();
+	public void inferTypes(TestCase test) {
+		this.test = test;
+		// calculateExactTypes();
+		for(int i = test.size() - 1; i >= 0; i--) {
+			StatementInterface statement = test.getStatement(i);
+			if(statement instanceof ConstructorStatement) {
+				determineExactType((ConstructorStatement) statement);
+			}
+		}
 	}
 
 	private void addVariable(StatementInterface statement) {

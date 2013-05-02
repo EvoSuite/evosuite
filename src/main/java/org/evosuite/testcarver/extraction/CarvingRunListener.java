@@ -11,6 +11,7 @@ import org.evosuite.testcarver.codegen.CaptureLogAnalyzer;
 import org.evosuite.testcarver.testcase.EvoTestCaseCodeGenerator;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.utils.GenericTypeInference;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
 
@@ -54,6 +55,9 @@ public class CarvingRunListener extends RunListener {
 
 		DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
 		test.changeClassLoader(TestGenerationContext.getClassLoader());
+		GenericTypeInference inference = new GenericTypeInference();
+		//test.accept(inference);
+		inference.inferTypes(test);
 
 		carvedTests.add(test);
 		codeGen.clear();
