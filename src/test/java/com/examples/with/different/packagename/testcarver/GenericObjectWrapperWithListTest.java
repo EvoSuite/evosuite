@@ -29,6 +29,6 @@ public class GenericObjectWrapperWithListTest {
 		List<Foo> list = wrapper.getList();
 		// list.clear();
 		wrapper.setList(list);
-		Assert.assertTrue(wrapper.getList().isEmpty());
+		Assert.assertFalse(wrapper.getList().isEmpty());
 	}
 }
