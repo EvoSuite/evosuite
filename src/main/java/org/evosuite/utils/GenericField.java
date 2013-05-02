@@ -19,7 +19,7 @@ import com.googlecode.gentyref.GenericTypeReflector;
  * @author Gordon Fraser
  * 
  */
-public class GenericField extends GenericAccessibleObject {
+public class GenericField extends GenericAccessibleObject<GenericField> {
 
 	private static final long serialVersionUID = -2344346234923642901L;
 
@@ -41,12 +41,12 @@ public class GenericField extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericAccessibleObject copyWithNewOwner(GenericClass newOwner) {
+	public GenericField copyWithNewOwner(GenericClass newOwner) {
 		return new GenericField(field, newOwner);
 	}
 
 	@Override
-	public GenericAccessibleObject copyWithOwnerFromReturnType(GenericClass returnType) {
+	public GenericField copyWithOwnerFromReturnType(GenericClass returnType) {
 		if (returnType.isParameterizedType()) {
 			GenericClass newOwner = new GenericClass(
 			        getTypeFromExactReturnType((ParameterizedType) returnType.getType(),
@@ -63,7 +63,7 @@ public class GenericField extends GenericAccessibleObject {
 	}
 
 	@Override
-	public GenericAccessibleObject copy() {
+	public GenericField copy() {
 		return new GenericField(field, new GenericClass(owner));
 	}
 
