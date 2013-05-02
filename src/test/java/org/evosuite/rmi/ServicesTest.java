@@ -1,12 +1,12 @@
 package org.evosuite.rmi;
 
-import junit.framework.Assert;
 
 import org.evosuite.Properties;
 import org.evosuite.rmi.service.ClientNodeLocal;
 import org.evosuite.rmi.service.ClientState;
 import org.evosuite.rmi.service.MasterNodeLocal;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 

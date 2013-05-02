@@ -1,7 +1,6 @@
 package org.evosuite.testcase;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.GenericTypeInference;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -226,6 +225,65 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		                  code.contains(setLong));
 	}
 
+	@Test
+	public void testGenericClassList() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.GenericObjectWrapperWithListTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.GenericObjectWrapperWithList.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+
+		Assert.assertNotNull(carved);
+		Assert.assertEquals("", 10, carved.test.size());
+
+		for (int i = 0; i < carved.test.size(); i++) {
+			StatementInterface stmt = carved.test.getStatement(i);
+			boolean valid = stmt.isValid();
+			Assert.assertTrue("Invalid stmt at position " + i, valid);
+		}
+
+		String code = carved.toString();
+		String setLong = "GenericObjectWrapperWithList<GenericObjectWrapperWithListTest.Foo>";
+		Assert.assertTrue("generated code does not contain " + setLong + "\n" + code,
+		                  code.contains(setLong));
+	}
+
+
+	@Test
+	public void testGenericClassTwoParameter() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.GenericObjectWrapperTwoParameterTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.GenericObjectWrapperTwoParameter.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+
+		Assert.assertNotNull(carved);
+		Assert.assertEquals("", 8, carved.test.size());
+
+		for (int i = 0; i < carved.test.size(); i++) {
+			StatementInterface stmt = carved.test.getStatement(i);
+			boolean valid = stmt.isValid();
+			Assert.assertTrue("Invalid stmt at position " + i, valid);
+		}
+
+		String code = carved.toString();
+		String setLong = "GenericObjectWrapperTwoParameter<String, String>";
+		Assert.assertTrue("generated code does not contain " + setLong + "\n" + code,
+		                  code.contains(setLong));
+	}
+	
+	
+	
 	@Test
 	public void testPrimitives() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.PrimitivesTest.class.getCanonicalName();

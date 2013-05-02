@@ -12,7 +12,7 @@ import java.util.List;
  */
 public class GenericObjectWrapperWithList<T> {
 
-	private final List<T> list = new ArrayList<T>();
+	private List<T> list = new ArrayList<T>();
 
 	public void add(T obj) {
 		list.add(obj);
@@ -20,5 +20,9 @@ public class GenericObjectWrapperWithList<T> {
 
 	public List<T> getList() {
 		return list;
+	}
+	
+	public void setList(List<T> list) {
+		this.list = list;
 	}
 }
