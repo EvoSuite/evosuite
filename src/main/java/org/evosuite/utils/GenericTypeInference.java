@@ -3,6 +3,7 @@
  */
 package org.evosuite.utils;
 
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -41,9 +42,9 @@ public class GenericTypeInference extends TestVisitor {
 
 	private static Logger logger = LoggerFactory.getLogger(GenericTypeInference.class);
 
-	private final Map<VariableReference, Set<Type>> variableMap = new LinkedHashMap<>();
+	private final Map<VariableReference, Set<Type>> variableMap = new LinkedHashMap<VariableReference, Set<Type>>();
 
-	private final Map<Type, Set<VariableReference>> typeMap = new LinkedHashMap<>();
+	private final Map<Type, Set<VariableReference>> typeMap = new LinkedHashMap<Type, Set<VariableReference>>();
 
 	private TestCase test;
 
@@ -75,6 +76,8 @@ public class GenericTypeInference extends TestVisitor {
 				calculateExactType((WildcardType) type);
 			else if (type instanceof TypeVariable<?>)
 				calculateExactType((TypeVariable<?>) type);
+			else if (type instanceof GenericArrayType)
+				calculateExactType((GenericArrayType) type);
 
 		}
 	}
@@ -98,6 +101,11 @@ public class GenericTypeInference extends TestVisitor {
 
 	private void calculateExactType(WildcardType type) {
 		logger.info("Calculating exact tyep for wildcard type " + type);
+
+	}
+
+	private void calculateExactType(GenericArrayType type) {
+		logger.info("Calculating exact tyep for generic array type " + type);
 
 	}
 
@@ -140,11 +148,38 @@ public class GenericTypeInference extends TestVisitor {
 	}
 
 	private Map<TypeVariable<?>, Type> getParameterType(Type parameterType, Type valueType) {
-		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<>();
+		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<TypeVariable<?>, Type>();
 		addToMap(parameterType, valueType, typeMap);
 		return typeMap;
 	}
 
+	private void determineVariableFromParameter(VariableReference parameter, Type parameterType, Map<TypeVariable<?>, Type> typeMap) {
+		Map<TypeVariable<?>, Type> parameterTypeMap = getParameterType(parameterType,
+                parameter.getType());
+		logger.info("Resulting map: " + parameterTypeMap);
+		for (TypeVariable<?> typeVar : parameterTypeMap.keySet()) {
+			Type actualType = parameterTypeMap.get(typeVar);
+			if (typeMap.containsKey(typeVar)) {
+				logger.info("Variable is in map: " + typeVar);
+				Type currentType = typeMap.get(typeVar);
+				if (TypeUtils.isAssignable(actualType, currentType)) {
+					typeMap.put(typeVar, actualType);
+				} else {
+					logger.info("Not assignable: " + typeVar + " from "
+							+ currentType);
+				}
+			}
+		}
+	}
+	
+	private void determineVariablesFromParameters(List<VariableReference> parameters, Type[] parameterTypes, Map<TypeVariable<?>, Type> parameterTypeMap) {
+		for (int i = 0; i < parameterTypes.length; i++) {
+			Type parameterType = parameterTypes[i];
+			VariableReference parameter = parameters.get(i);
+			determineVariableFromParameter(parameter, parameterType, parameterTypeMap);
+		}
+	}
+	
 	private void determineExactType(ConstructorStatement constructorStatement) {
 		GenericConstructor constructor = constructorStatement.getConstructor();
 		Map<TypeVariable<?>, Type> typeMap = constructor.getOwnerClass().getTypeVariableMap();
@@ -152,28 +187,7 @@ public class GenericTypeInference extends TestVisitor {
 			logger.info("Has types: " + constructor.getOwnerClass());
 			Type[] parameterTypes = constructor.getGenericParameterTypes(); //.getParameterTypes();
 			List<VariableReference> parameterValues = constructorStatement.getParameterReferences();
-			for (int i = 0; i < parameterTypes.length; i++) {
-				Type parameterType = parameterTypes[i];
-				VariableReference parameter = parameterValues.get(i);
-				logger.info("Checking type " + parameterType + " against value "
-				        + parameter);
-				Map<TypeVariable<?>, Type> parameterTypeMap = getParameterType(parameterType,
-				                                                               parameter.getType());
-				logger.info("Resulting map: " + parameterTypeMap);
-				for (TypeVariable<?> typeVar : parameterTypeMap.keySet()) {
-					Type actualType = parameterTypeMap.get(typeVar);
-					if (typeMap.containsKey(typeVar)) {
-						logger.info("Variable is in map: " + typeVar);
-						Type currentType = typeMap.get(typeVar);
-						if (TypeUtils.isAssignable(actualType, currentType)) {
-							typeMap.put(typeVar, actualType);
-						} else {
-							logger.info("Not assignable: " + typeVar + " from "
-							        + currentType);
-						}
-					}
-				}
-			}
+			determineVariablesFromParameters(parameterValues, parameterTypes, typeMap);
 
 			for (int pos = constructorStatement.getPosition() + 1; pos < test.size(); pos++) {
 				if (test.getStatement(pos) instanceof MethodStatement) {
@@ -186,29 +200,7 @@ public class GenericTypeInference extends TestVisitor {
 					logger.info("Found relevant statement: " + ms.getCode());
 					parameterTypes = ms.getMethod().getGenericParameterTypes();
 					parameterValues = ms.getParameterReferences();
-					for (int i = 0; i < parameterTypes.length; i++) {
-						Type parameterType = parameterTypes[i];
-						VariableReference parameter = parameterValues.get(i);
-						logger.info("Checking type " + parameterType + " against value "
-						        + parameter);
-						Map<TypeVariable<?>, Type> parameterTypeMap = getParameterType(parameterType,
-						                                                               parameter.getType());
-						logger.info("Resulting map: " + parameterTypeMap);
-
-						for (TypeVariable<?> typeVar : parameterTypeMap.keySet()) {
-							Type actualType = parameterTypeMap.get(typeVar);
-							if (typeMap.containsKey(typeVar)) {
-								logger.info("Variable is in map: " + typeVar);
-								Type currentType = typeMap.get(typeVar);
-								if (TypeUtils.isAssignable(actualType, currentType)) {
-									typeMap.put(typeVar, actualType);
-								} else {
-									logger.info("Not assignable: " + typeVar + " from "
-									        + currentType);
-								}
-							}
-						}
-					}
+					determineVariablesFromParameters(parameterValues, parameterTypes, typeMap);
 				}
 			}
 			logger.info("Setting types based on map: " + typeMap);
