@@ -16,7 +16,7 @@ import org.junit.Test;
 public class GenericObjectWrapperSetTest {
 	@Test
 	public void test01() {
-		GenericObjectWrapper<Set<Long>> wrapper = new GenericObjectWrapper<>();
+		GenericObjectWrapper<Set<Long>> wrapper = new GenericObjectWrapper<Set<Long>>();
 		Assert.assertNull(wrapper.get());
 
 		Set<Long> someSet = new HashSet<Long>();
@@ -28,7 +28,7 @@ public class GenericObjectWrapperSetTest {
 		wrapper.set(someSet);
 		Assert.assertNotNull(wrapper.get());
 
-		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<>();
+		GenericObjectWrapper<Long> fortySeven = new GenericObjectWrapper<Long>();
 		fortySeven.set(47l);
 
 		Set<Long> foo = wrapper.get();
