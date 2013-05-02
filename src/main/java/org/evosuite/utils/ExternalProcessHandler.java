@@ -68,7 +68,7 @@ public class ExternalProcessHandler {
 	protected Object final_result;
 	/** Constant <code>WAITING_FOR_DATA</code> */
 	protected static final Object WAITING_FOR_DATA = "waiting_for_data_"
-	        + System.currentTimeMillis();
+			+ System.currentTimeMillis();
 
 	protected Thread processKillHook;
 	protected Thread clientRunningOnThread;
@@ -91,11 +91,11 @@ public class ExternalProcessHandler {
 	 * @param ms
 	 */
 	public void stopAndWaitForClientOnThread(long ms){
-		
+
 		if(clientRunningOnThread != null && clientRunningOnThread.isAlive()){
 			clientRunningOnThread.interrupt();
 		}
-		
+
 		long start = System.currentTimeMillis();
 		while( (System.currentTimeMillis() - start)  <  ms) { //to avoid miss it in case of interrupt
 			if(clientRunningOnThread != null && clientRunningOnThread.isAlive()){
@@ -113,8 +113,8 @@ public class ExternalProcessHandler {
 			throw new AssertionError( "clientRunningOnThread is alive even after waiting "+ms+"ms");
 		}
 	}
-	
-	
+
+
 	/**
 	 * <p>
 	 * setBaseDir
@@ -159,8 +159,8 @@ public class ExternalProcessHandler {
 
 		latch = new CountDownLatch(1);
 		final_result = WAITING_FOR_DATA;
-	
-		
+
+
 		//the following thread is important to make sure that the external process is killed
 		//when current process ends
 
@@ -174,7 +174,7 @@ public class ExternalProcessHandler {
 
 		Runtime.getRuntime().addShutdownHook(processKillHook);
 		// now start the process
-		
+
 		if (!Properties.CLIENT_ON_THREAD) {
 			File dir = new File(base_dir);
 			ProcessBuilder builder = new ProcessBuilder(command);
@@ -209,7 +209,7 @@ public class ExternalProcessHandler {
 			clientRunningOnThread.setName("client");
 			clientRunningOnThread.start();
 		}
-		
+
 		startSignalHandler();
 		last_command = command;
 
@@ -227,11 +227,11 @@ public class ExternalProcessHandler {
 		} catch (Exception e) { /* do nothing. this can happen if shutdown is in progress */
 		}
 
-		
+
 		/*
 		 * TODO: use RMI to 'gracefully' stop the client
 		 */
-		
+
 		if (process != null)
 			process.destroy();
 		process = null;
@@ -269,7 +269,7 @@ public class ExternalProcessHandler {
 			return server.getLocalPort();
 		else
 			return -1;
-			*/
+		 */
 	}
 
 	/**
@@ -285,7 +285,7 @@ public class ExternalProcessHandler {
 			logger.error("Not possible to start RMI registry");
 			return -1;
 		}
-		
+
 		try {
 			MasterServices.getInstance().registerServices();
 		} catch (RemoteException e) {
@@ -307,7 +307,7 @@ public class ExternalProcessHandler {
 			}
 		}
 		return -1;
-		*/
+		 */
 	}
 
 	/**
@@ -332,7 +332,7 @@ public class ExternalProcessHandler {
 				public void run() {
 					try {
 						BufferedReader proc_in = new BufferedReader(
-						        new InputStreamReader(process.getInputStream()));
+								new InputStreamReader(process.getInputStream()));
 
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
@@ -372,7 +372,7 @@ public class ExternalProcessHandler {
 				public void run() {
 					try {
 						BufferedReader proc_in = new BufferedReader(
-						        new InputStreamReader(process.getErrorStream()));
+								new InputStreamReader(process.getErrorStream()));
 
 						int data = 0;
 						while (data != -1 && !isInterrupted()) {
@@ -385,7 +385,7 @@ public class ExternalProcessHandler {
 					} catch (Exception e) {
 						if(MasterServices.getInstance().getMasterNode() == null)
 							return;
-						
+
 						boolean finished = true;
 						for(ClientState state : MasterServices.getInstance().getMasterNode().getCurrentState())  {
 							if(state != ClientState.DONE) {
@@ -406,10 +406,13 @@ public class ExternalProcessHandler {
 			error_printer.start();
 		}
 
-		if (Properties.SHOW_PROGRESS
-		        && !Properties.LOG_LEVEL.equals("info")
-		        && !Properties.LOG_LEVEL.equals("debug")
-		        && !Properties.LOG_LEVEL.equals("trace")) {
+		if (Properties.SHOW_PROGRESS  && 
+				(Properties.LOG_LEVEL==null ||
+				(!Properties.LOG_LEVEL.equals("info")
+						&& !Properties.LOG_LEVEL.equals("debug")
+						&& !Properties.LOG_LEVEL.equals("trace"))
+						)	
+				) {
 			ConsoleProgressBar.startProgressBar();
 		}
 
@@ -447,9 +450,9 @@ public class ExternalProcessHandler {
 						 * the best solutions found so far which was sent to master
 						 */
 						logger.error("Class "
-						        + Properties.TARGET_CLASS
-						        + ". Error in reading message. Likely the client has crashed. Error message: "
-						        + e.getMessage());
+								+ Properties.TARGET_CLASS
+								+ ". Error in reading message. Likely the client has crashed. Error message: "
+								+ e.getMessage());
 						message = Messages.FINISHED_COMPUTATION;
 						data = null;
 					}
@@ -472,7 +475,7 @@ public class ExternalProcessHandler {
 					} else {
 						killProcess();
 						logger.error("Class " + Properties.TARGET_CLASS
-						        + ". Error, received invalid message: ", message);
+								+ ". Error, received invalid message: ", message);
 						return;
 					}
 				}
@@ -517,7 +520,7 @@ public class ExternalProcessHandler {
 	 * @return a {@link java.lang.Object} object.
 	 */
 	public Object waitForResult(int timeout) {
-		
+
 		try {
 			long start = System.currentTimeMillis();
 			Set<ClientNodeRemote> clients = MasterServices.getInstance().getMasterNode().getClientsOnceAllConnected(timeout);
@@ -525,13 +528,13 @@ public class ExternalProcessHandler {
 				logger.error("Not possible to access to clients");
 				return null;
 			}
-			
+
 			for(ClientNodeRemote client : clients){
 				long passed = System.currentTimeMillis() - start;
 				long remaining = timeout - passed;
 				if(remaining <=0 ){ remaining = 1;}
 				boolean finished = client.waitUntilDone(remaining);
-				
+
 				if(!finished){
 					/*
 					 * TODO what to do here? Try to stop the the client through RMI?
@@ -544,10 +547,10 @@ public class ExternalProcessHandler {
 		} catch(RemoteException e){
 			logger.error("Class "+ Properties.TARGET_CLASS+". Lost connection with clients.\n"+MasterServices.getInstance().getMasterNode().getSummaryOfClientStatuses(),e);
 		}
-		
+
 		killProcess();
 		LoggingUtils.getEvoLogger().info("* Computation finished");
-		
+
 		return null; //TODO refactoring
 		/*
 		try {
@@ -560,7 +563,7 @@ public class ExternalProcessHandler {
 		}
 
 		return final_result;
-		*/
+		 */
 	}
 
 }
