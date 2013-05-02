@@ -9,6 +9,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -153,7 +154,7 @@ public class GenericTypeInference extends TestVisitor {
 			addToMap((TypeVariable<?>) type, actualType, typeMap);
 		}
 	}
-
+	
 	private Map<TypeVariable<?>, Type> getParameterType(Type parameterType, Type valueType) {
 		Map<TypeVariable<?>, Type> typeMap = new LinkedHashMap<TypeVariable<?>, Type>();
 		addToMap(parameterType, valueType, typeMap);
@@ -169,11 +170,13 @@ public class GenericTypeInference extends TestVisitor {
 			if (typeMap.containsKey(typeVar)) {
 				logger.info("Variable is in map: " + typeVar);
 				Type currentType = typeMap.get(typeVar);
-				if (TypeUtils.isAssignable(actualType, currentType)) {
+				if (currentType == null || TypeUtils.isAssignable(actualType, currentType)) {
 					typeMap.put(typeVar, actualType);
 				} else {
-					logger.info("Not assignable: " + typeVar + " from "
-							+ currentType);
+					logger.info("Not assignable: " + typeVar + " with bounds "+Arrays.asList(typeVar.getBounds())+" and current type "+currentType+" from "
+							+ actualType);
+					logger.info(""+GenericTypeReflector.isSuperType(currentType, actualType));
+					logger.info(""+TypeUtils.isAssignable(actualType, typeVar));
 				}
 			}
 		}
@@ -192,6 +195,10 @@ public class GenericTypeInference extends TestVisitor {
 		Map<TypeVariable<?>, Type> typeMap = constructor.getOwnerClass().getTypeVariableMap();
 		if (!typeMap.isEmpty()) {
 			logger.info("Has types: " + constructor.getOwnerClass());
+			logger.info("Initial type map: "+typeMap);
+			for(TypeVariable<?> var : typeMap.keySet()) {
+				typeMap.put(var, null);
+			}
 			Type[] parameterTypes = constructor.getGenericParameterTypes(); //.getParameterTypes();
 			List<VariableReference> parameterValues = constructorStatement.getParameterReferences();
 			determineVariablesFromParameters(parameterValues, parameterTypes, typeMap);
@@ -216,11 +223,15 @@ public class GenericTypeInference extends TestVisitor {
 			List<Type> types = new ArrayList<Type>();
 			for (TypeVariable<?> var : variables) {
 				Type type = typeMap.get(var);
-				Class<?> paramClass = GenericTypeReflector.erase(type);
-				if (paramClass.isPrimitive()) {
-					types.add(ClassUtils.primitiveToWrapper(paramClass));
+				if(type == null) {
+					types.add(new WildcardTypeImpl(TypeUtils.getImplicitBounds(var), new Type[] {}));
 				} else {
-					types.add(typeMap.get(var));
+					Class<?> paramClass = GenericTypeReflector.erase(type);
+					if (paramClass.isPrimitive()) {
+						types.add(ClassUtils.primitiveToWrapper(paramClass));
+					} else {
+						types.add(typeMap.get(var));
+					}
 				}
 			}
 			constructorStatement.setConstructor(constructor.copyWithNewOwner(owner.getWithParameterTypes(types)));
@@ -241,6 +252,7 @@ public class GenericTypeInference extends TestVisitor {
 			GenericMethod method = ms.getMethod();
 			logger.info("Updating callee of statement " + statement.getCode());
 			ms.setMethod(method.copyWithNewOwner(callee.getGenericClass()));
+			ms.getReturnValue().setType(ms.getMethod().getReturnType());
 			logger.info("Result: " + statement.getCode());
 
 		}
