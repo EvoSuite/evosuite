@@ -157,7 +157,6 @@ public class MethodStatement extends AbstractStatement {
 	 *            a {@link java.lang.reflect.Method} object.
 	 */
 	public void setMethod(GenericMethod method) {
-		assert (method.getReturnType().equals(this.method.getReturnType()));
 		this.method = method;
 	}
 
