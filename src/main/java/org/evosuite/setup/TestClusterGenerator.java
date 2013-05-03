@@ -86,7 +86,7 @@ public class TestClusterGenerator {
 		return true;
 	}
 
-	private final Set<GenericAccessibleObject> dependencyCache = new LinkedHashSet<GenericAccessibleObject>();
+	private final Set<GenericAccessibleObject<?>> dependencyCache = new LinkedHashSet<GenericAccessibleObject<?>>();
 
 	private final Set<GenericClass> genericCastClasses = new LinkedHashSet<GenericClass>();
 

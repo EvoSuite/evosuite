@@ -68,10 +68,19 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			GenericMethod copy = new GenericMethod(method, newOwner);
 			copy.typeVariables.addAll(typeVariables);
 			return copy;
+		} else if(method.getGenericReturnType() instanceof TypeVariable<?>) {
+			GenericClass newOwner = new GenericClass(GenericUtils.replaceTypeVariable(owner.getType(), (TypeVariable<?>)method.getGenericReturnType(), returnType.getType()));
+			GenericMethod copy = new GenericMethod(method, newOwner);
+			copy.typeVariables.addAll(typeVariables);
+			return copy;
 		} else {
-			throw new RuntimeException("Invalid type: " + returnType.getType()
+			logger.info("Invalid type: " + returnType.getType()
 			        + " of type " + returnType.getType().getClass() + " with owner type "
 			        + getOwnerClass().getTypeName());
+			return this;
+//			throw new RuntimeException("Invalid type: " + returnType.getType()
+//			        + " of type " + returnType.getType().getClass() + " with owner type "
+//			        + getOwnerClass().getTypeName());
 		}
 	}
 
