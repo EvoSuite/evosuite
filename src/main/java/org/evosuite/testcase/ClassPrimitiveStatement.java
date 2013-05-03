@@ -19,7 +19,8 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	}
 
 	public ClassPrimitiveStatement(TestCase tc) {
-		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), Properties.getTargetClass());
+		super(tc, new GenericClass(Class.class).getWithWildcardTypes(),
+		        Properties.getTargetClass());
 	}
 
 	@Override
@@ -45,7 +46,9 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 			value = Class.forName(type.getClassName(), true,
 			                      TestGenerationContext.getClassLoader());
 		} catch (ClassNotFoundException e) {
-			logger.warn("Error loading class: " + e);
+			logger.warn("Error loading class " + type.getClassName() + ": " + e);
+		} catch (NoClassDefFoundError e) {
+			logger.warn("Error loading class " + type.getClassName() + ": " + e);
 		}
 	}
 
