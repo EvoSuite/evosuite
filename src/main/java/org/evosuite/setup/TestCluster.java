@@ -316,6 +316,9 @@ public class TestCluster {
 								// logger.debug("Owner class has no parameters, so we can only assume it would work: "+generator.getName());
 								targetGenerators.add(generator);
 							} else {
+								logger.debug("Trying to get parameters for generator "
+								        + generator + " with new owner "
+								        + newOwner.getTypeName());
 								GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(newOwner);
 								// logger.debug("Instantiated generator: "+newGenerator.getName());
 								if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
@@ -359,7 +362,8 @@ public class TestCluster {
 	 * @param clazz
 	 * @return
 	 */
-	private Set<GenericAccessibleObject<?>> determineGenericModifiersFor(GenericClass clazz) {
+	private Set<GenericAccessibleObject<?>> determineGenericModifiersFor(
+	        GenericClass clazz) {
 		Set<GenericAccessibleObject<?>> genericModifiers = new LinkedHashSet<GenericAccessibleObject<?>>();
 		if (clazz.isParameterizedType()) {
 			for (Entry<GenericClass, Set<GenericAccessibleObject<?>>> entry : modifiers.entrySet()) {
@@ -780,7 +784,7 @@ public class TestCluster {
 
 		List<Type> calleeTypes = calleeType.getParameterTypes();
 		Map<TypeVariable<?>, Type> concreteTypes = new HashMap<TypeVariable<?>, Type>();
-		for (int i = 0; i < calleeTypes.size(); i++) {
+		for (int i = 0; i < calleeTypes.size() && i < returnVariables.length; i++) {
 			concreteTypes.put(returnVariables[i], calleeTypes.get(i));
 		}
 

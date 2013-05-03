@@ -63,24 +63,27 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			return copy;
 		} else if (returnType.isArray()) {
 			GenericClass newOwner = new GenericClass(
-			        getTypeFromExactReturnType((ParameterizedType) returnType.getComponentType(),
-			                                   (ParameterizedType) getOwnerType()));
+			        getTypeFromExactReturnType(returnType.getComponentType(),
+			                                   getOwnerType()));
 			GenericMethod copy = new GenericMethod(method, newOwner);
 			copy.typeVariables.addAll(typeVariables);
 			return copy;
-		} else if(method.getGenericReturnType() instanceof TypeVariable<?>) {
-			GenericClass newOwner = new GenericClass(GenericUtils.replaceTypeVariable(owner.getType(), (TypeVariable<?>)method.getGenericReturnType(), returnType.getType()));
+		} else if (method.getGenericReturnType() instanceof TypeVariable<?>) {
+			GenericClass newOwner = new GenericClass(
+			        GenericUtils.replaceTypeVariable(owner.getType(),
+			                                         (TypeVariable<?>) method.getGenericReturnType(),
+			                                         returnType.getType()));
 			GenericMethod copy = new GenericMethod(method, newOwner);
 			copy.typeVariables.addAll(typeVariables);
 			return copy;
 		} else {
-			logger.info("Invalid type: " + returnType.getType()
-			        + " of type " + returnType.getType().getClass() + " with owner type "
+			logger.info("Invalid type: " + returnType.getType() + " of type "
+			        + returnType.getType().getClass() + " with owner type "
 			        + getOwnerClass().getTypeName());
 			return this;
-//			throw new RuntimeException("Invalid type: " + returnType.getType()
-//			        + " of type " + returnType.getType().getClass() + " with owner type "
-//			        + getOwnerClass().getTypeName());
+			//			throw new RuntimeException("Invalid type: " + returnType.getType()
+			//			        + " of type " + returnType.getType().getClass() + " with owner type "
+			//			        + getOwnerClass().getTypeName());
 		}
 	}
 
@@ -156,8 +159,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
 		                                                                 m.getDeclaringClass());
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
-			throw new IllegalArgumentException("The method " + m
-			        + " is not a member of type " + type);
+			logger.info("The method " + m + " is not a member of type " + type
+			        + " - declared in " + m.getDeclaringClass());
+			return m.getReturnType();
 		}
 		return mapTypeParameters(returnType, exactDeclaringType);
 	}
@@ -174,9 +178,9 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
 		                                                                 m.getDeclaringClass());
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
-			throw new IllegalArgumentException("The method " + m
-			        + " is not a member of type " + type.hashCode() + ": "
-			        + m.getDeclaringClass().hashCode());
+			logger.info("The method " + m + " is not a member of type " + type
+			        + " - declared in " + m.getDeclaringClass());
+			return m.getParameterTypes();
 		}
 
 		Type[] result = new Type[parameterTypes.length];
