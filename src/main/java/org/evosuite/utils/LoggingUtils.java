@@ -30,7 +30,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.evosuite.EvoSuite;
-import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -137,18 +136,17 @@ public class LoggingUtils {
 									 * It can also happen if client just crash. As we already report such info in ExternalProcessHandler, we do not need to
 									 * log it here
 									 */
-								} catch(java.io.UTFDataFormatException utfe){
+								} catch (java.io.UTFDataFormatException utfe) {
 									//as above
-								}
-								catch (java.io.EOFException eof) {
+								} catch (java.io.EOFException eof) {
 									//this is normal, do nothing
-								} catch(java.io.InvalidClassException ice){
+								} catch (java.io.InvalidClassException ice) {
 									/*
 									 * TODO: unclear why it happens... need more investigation 
 									 */
-									log.error("Error in de-serialized log event: "+ice.getMessage());
-								}
-								catch (Exception e) {
+									log.error("Error in de-serialized log event: "
+									        + ice.getMessage());
+								} catch (Exception e) {
 									log.error("Problem in reading loggings", e);
 								}
 								return null;
@@ -245,12 +243,11 @@ public class LoggingUtils {
 		System.setErr(DEFAULT_ERR);
 	}
 
-
 	/**
-	 * Load the EvoSuite xml configuration file for Logback, unless a non-default one is already in use.
-	 * The file has to be on the classpath.
+	 * Load the EvoSuite xml configuration file for Logback, unless a
+	 * non-default one is already in use. The file has to be on the classpath.
 	 */
-	public static void loadLogbackForEvoSuite(){
+	public static void loadLogbackForEvoSuite() {
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		// Only overrule default configurations
 		// TODO: Find better way to allow external logback configuration
@@ -261,7 +258,7 @@ public class LoggingUtils {
 				final String xmlFileName = getLogbackFileName();
 				InputStream f = EvoSuite.class.getClassLoader().getResourceAsStream(xmlFileName);
 				if (f == null) {
-					System.err.println(xmlFileName+" not found on classpath");
+					System.err.println(xmlFileName + " not found on classpath");
 				}
 				context.reset();
 				configurator.doConfigure(f);
@@ -271,9 +268,9 @@ public class LoggingUtils {
 			StatusPrinter.printInCaseOfErrorsOrWarnings(context);
 		}
 	}
-	
-	public static String getLogbackFileName(){
+
+	public static String getLogbackFileName() {
 		return "logback-evosuite.xml";
 	}
-	
+
 }
