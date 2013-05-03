@@ -42,6 +42,8 @@ import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.gentyref.GenericTypeReflector;
+
 /**
  * A test case is a list of statements
  * 
@@ -174,7 +176,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 				// TODO: Fix
 				boolean isClassUtilsBug = false;
 				if (value.isArray()) {
-					if (value.getComponentType().equals(type))
+					Class<?> rawClass = GenericTypeReflector.erase(type);
+					if (value.getComponentClass().equals(rawClass))
 						isClassUtilsBug = true;
 				}
 
