@@ -411,7 +411,8 @@ public class TestGeneration {
 			} catch (InterruptedException e) {
 			}
 			if (clients == null) {
-				logger.error("Not possible to access to clients");
+				logger.error("Not possible to access to clients. Clients' state: "+handler.getProcessState() + 
+						". Master registry port: "+MasterServices.getInstance().getRegistryPort());											
 			} else {
 				/*
 				 * The clients have started, and connected back to Master.
