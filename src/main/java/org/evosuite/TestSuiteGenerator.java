@@ -414,7 +414,7 @@ public class TestSuiteGenerator {
 			fileManager.close();
 
 			if (!compiled) {
-				logger.error("Compilation failed");
+				logger.error("Compilation failed on compilation units: "+compilationUnits);
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
 					logger.error("Diagnostic: " + diagnostic.getMessage(null) + ": "
 					        + diagnostic.getLineNumber());

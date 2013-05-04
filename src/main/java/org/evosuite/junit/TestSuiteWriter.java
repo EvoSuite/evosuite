@@ -353,8 +353,10 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 
-		// BeforeClass is always added due to REPLACE_CALLS
-		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+		if(Properties.REPLACE_CALLS) {
+			// BeforeClass is always added due to REPLACE_CALLS
+			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+		}
 
 		if (wasSecurityException) {
 			//Add import info for EvoSuite classes used in the generated test suite
@@ -560,21 +562,22 @@ public class TestSuiteWriter implements Opcodes {
 			/*
 			 * If no security manager, we still need to setup REPLACE_CALLS
 			 */
-			
-			bd.append(METHOD_SPACE);
-			bd.append("@BeforeClass \n");
+			if(Properties.REPLACE_CALLS) {
+				bd.append(METHOD_SPACE);
+				bd.append("@BeforeClass \n");
 
-			bd.append(METHOD_SPACE);
-			bd.append("public static void initEvoSuiteFramework(){ \n");
+				bd.append(METHOD_SPACE);
+				bd.append("public static void initEvoSuiteFramework(){ \n");
 
-			bd.append(BLOCK_SPACE);
-			bd.append("org.evosuite.Properties.REPLACE_CALLS = "
-			        + Properties.REPLACE_CALLS + "; \n");
-			
-			bd.append(METHOD_SPACE);
-			bd.append("} \n");
-			
-			bd.append("\n");
+				bd.append(BLOCK_SPACE);
+				bd.append("org.evosuite.Properties.REPLACE_CALLS = "
+						+ Properties.REPLACE_CALLS + "; \n");
+
+				bd.append(METHOD_SPACE);
+				bd.append("} \n");
+
+				bd.append("\n");
+			}
 			
 			return bd.toString();
 		}
