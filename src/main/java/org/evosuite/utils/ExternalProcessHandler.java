@@ -140,6 +140,17 @@ public class ExternalProcessHandler {
 		return startProcess(command, null);
 	}
 
+	public String getProcessState(){
+		if(process == null){
+			return "null";
+		}
+		try{
+			return "Terminated with exit status "+process.exitValue();
+		} catch(IllegalThreadStateException e){
+			return "Still running"; 
+		}
+	}
+	
 	/**
 	 * <p>
 	 * startProcess
