@@ -674,7 +674,7 @@ public abstract class ASMWrapper {
 	 * 
 	 * @return a {@link java.lang.String} object.
 	 */
-	protected String getFieldType() {
+	public String getFieldType() {
 		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
 		return fieldNode.desc;
 		// return fieldNode.name;
