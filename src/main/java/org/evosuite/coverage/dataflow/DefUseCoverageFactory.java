@@ -18,6 +18,7 @@
 package org.evosuite.coverage.dataflow;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -32,10 +33,13 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.ccfg.ClassControlFlowGraph;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.rmi.ClientServices;
+import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.PureMethodsList;
 import org.objectweb.asm.Type;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,10 +49,12 @@ import org.objectweb.asm.Type;
  */
 public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverageTestFitness> {
 
+	private static final Logger logger = LoggerFactory.getLogger(DefUseCoverageFactory.class);
+	
 	// TestSuiteMinimizer seems to call getCoverageGoals() a second time
 	// and since analysis takes a little ...
 	private static boolean called = false;
-	private static List<DefUseCoverageTestFitness> duGoals;
+	private static List<DefUseCoverageTestFitness> duGoals; // TODO: What's the difference to goals?
 	private static List<DefUseCoverageTestFitness> goals;
 
 	// map of all NON-parameter-goals
@@ -116,6 +122,8 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 				+ " intra-method-, " + getInterMethodGoalsCount()
 				+ " inter-method- and " + getIntraClassGoalsCount()
 				+ " intra-class-pairs");
+		
+		LoggingUtils.getEvoLogger().info(duGoals.toString());
 
 		LoggingUtils.getEvoLogger().info("* Creating parameter goals...");
 		duGoals.addAll(getParameterGoals());
@@ -417,4 +425,76 @@ public class DefUseCoverageFactory extends AbstractFitnessFactory<DefUseCoverage
 		}
 	}
 
+	public static boolean detectAliasingGoals(List<ExecutionResult> results) {
+		boolean foundAlias = false;
+		
+		for(ExecutionResult result : results) {
+			if(detectAliasingGoals(result))
+				foundAlias = true;
+		}
+		
+		return foundAlias;
+	}
+	
+	private static boolean detectAliasingGoals(ExecutionResult result) {
+		Map<String, HashMap<Integer, HashMap<Integer, Object>>> passedDefsObject = result.getTrace().getDefinitionDataObjects();
+		Map<String, HashMap<Integer, HashMap<Integer, Object>>> passedUsesObject = result.getTrace().getUseDataObjects();
+
+		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefs = result.getTrace().getDefinitionData();
+		Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = result.getTrace().getUseData();
+		
+		boolean foundAlias = false;
+		
+		for(String goalVariable : passedUsesObject.keySet()) {
+			for (Integer objectId : passedUsesObject.get(goalVariable).keySet()) {
+				for(Object o1 : passedUsesObject.get(goalVariable).get(objectId).values()) {
+					for(String otherGoalVariable : passedDefsObject.keySet()) {
+						for (Integer otherObjectId : passedDefsObject.get(otherGoalVariable).keySet()) {
+							for(Object o2 : passedDefsObject.get(otherGoalVariable).get(otherObjectId).values()) {
+								if(o1 != null && o1 == o2 && objectId == otherObjectId && !goalVariable.equals(otherGoalVariable)) {
+									Map<Integer, Integer> currentDefMap = passedDefs.get(otherGoalVariable).get(objectId);
+									Map<Integer, Integer> currentUseMap = passedUses.get(goalVariable).get(objectId);
+
+									List<Integer> duCounterTrace = new ArrayList<Integer>(
+									        currentDefMap.keySet());
+									duCounterTrace.addAll(currentUseMap.keySet());
+									//				System.out.println(duCounterTrace.size()); oO for ncs.Bessj these can be up to 50k entries big
+									Collections.sort(duCounterTrace);
+									int traceLength = duCounterTrace.size();
+									Integer[] sortedDefDUTrace = duCounterTrace.toArray(new Integer[traceLength]);
+
+									int activeDef = -1;
+									for (int i = 0; i < traceLength; i++) {
+										int currentDUCounter = sortedDefDUTrace[i];
+
+										if (currentDefMap.containsKey(currentDUCounter)) {
+											activeDef = currentDefMap.get(currentDUCounter);
+										} else if (activeDef != -1) {
+											int currentUse = currentUseMap.get(currentDUCounter);
+											DefUseCoverageTestFitness currentGoal = DefUseCoverageFactory.retrieveGoal(activeDef,
+											                                                                           currentUse);
+											if (currentGoal != null) {
+												logger.info("Alias is already known: "+currentGoal);
+											} else {
+												logger.info("New alias found: Variable defined as "+otherGoalVariable+" appeared in use as "+goalVariable);
+												Definition def = DefUsePool.getDefinitionByDefId(activeDef);
+												Use use = DefUsePool.getUseByUseId(currentUse);
+												DefUseCoverageFactory.createGoal(def, use, null);
+
+											}
+										}
+									}
+									
+									foundAlias = true;
+								}
+							}
+						}
+					}										
+				}
+			}
+		}		
+		
+		return foundAlias;
+	}
+	
 }

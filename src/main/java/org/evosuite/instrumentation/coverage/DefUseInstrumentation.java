@@ -20,7 +20,10 @@
  */
 package org.evosuite.instrumentation.coverage;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
@@ -29,10 +32,12 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.RawControlFlowGraph;
 import org.objectweb.asm.Opcodes;
+import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
 import org.objectweb.asm.tree.InsnList;
 import org.objectweb.asm.tree.InsnNode;
 import org.objectweb.asm.tree.LdcInsnNode;
+import org.objectweb.asm.tree.LocalVariableNode;
 import org.objectweb.asm.tree.MethodInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.VarInsnNode;
@@ -101,12 +106,18 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 						// adding instrumentation for defuse-coverage
 						InsnList instrumentation = getInstrumentation(v, staticContext,
 						                                              className,
-						                                              methodName);
+						                                              methodName,
+						                                              mn);
 						if (instrumentation == null)
 							throw new IllegalStateException("error instrumenting node "
 							        + v.toString());
 
-						mn.instructions.insertBefore(v.getASMNode(), instrumentation);
+						if (v.isMethodCallOfField())
+							mn.instructions.insertBefore(v.getASMNode(), instrumentation);
+						else if(v.isUse())
+							mn.instructions.insert(v.getASMNode(), instrumentation);
+						else
+							mn.instructions.insertBefore(v.getASMNode(), instrumentation);
 					}
 				}
 			}
@@ -118,7 +129,7 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 	 * 
 	 */
 	private InsnList getInstrumentation(BytecodeInstruction v, boolean staticContext,
-	        String className, String methodName) {
+	        String className, String methodName, MethodNode mn) {
 		InsnList instrumentation = new InsnList();
 
 		if (!v.isDefUse()) {
@@ -127,34 +138,26 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		}
 
 		if (DefUsePool.isKnownAsFieldMethodCall(v)) {
-			addCallingObjectInstrumentation(staticContext, instrumentation);
-			// field method calls get special treatment:
-			// during instrumentation it is not clear whether a field method
-			// call constitutes a definition or a use. So the instrumentation
-			// will call a special function of the ExecutionTracer which will
-			// redirect the call to either passedUse() or passedDefinition()
-			// using the information available during runtime (the CCFGs)
-			instrumentation.add(new LdcInsnNode(DefUsePool.getDefUseCounter()));
-			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
-			        "org/evosuite/testcase/ExecutionTracer", "passedFieldMethodCall",
-			        "(Ljava/lang/Object;I)V"));
-
-			return instrumentation;
+			return getMethodInstrumentation(v, staticContext, instrumentation, mn);
 		}
 
 		if (DefUsePool.isKnownAsUse(v)) {
+			// The actual object that is defined is on the stack _after_ the load instruction
+			addObjectInstrumentation(v, instrumentation);
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getUseCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "org/evosuite/testcase/ExecutionTracer", "passedUse",
-			        "(Ljava/lang/Object;I)V"));
+			        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		}
 		if (DefUsePool.isKnownAsDefinition(v)) {
+			// The actual object that is defined is on the stack _before_ the store instruction
+			addObjectInstrumentation(v, instrumentation);
 			addCallingObjectInstrumentation(staticContext, instrumentation);
 			instrumentation.add(new LdcInsnNode(DefUsePool.getDefCounter()));
 			instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
 			        "org/evosuite/testcase/ExecutionTracer", "passedDefinition",
-			        "(Ljava/lang/Object;I)V"));
+			        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
 		}
 
 		return instrumentation;
@@ -170,6 +173,84 @@ public class DefUseInstrumentation implements MethodInstrumentation {
 		} else {
 			instrumentation.add(new VarInsnNode(Opcodes.ALOAD, 0)); // "this"
 		}
+	}
+	
+	private void addObjectInstrumentation(BytecodeInstruction instruction, InsnList instrumentation) {
+		if(instruction.isLocalVariableDefinition()) {
+			if(instruction.getASMNode().getOpcode() == Opcodes.ALOAD) {
+				instrumentation.add(new InsnNode(Opcodes.DUP));				
+			} else {
+				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
+			}
+		} else if(instruction.isLocalVariableUse()){
+			if(instruction.getASMNode().getOpcode() == Opcodes.ASTORE) {
+				instrumentation.add(new InsnNode(Opcodes.DUP));
+			} else {
+				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
+			}
+		} else if(instruction.isFieldNodeDU()) {
+			Type type = Type.getType(instruction.getFieldType());
+			if(type.getSort() == Type.OBJECT) {
+				instrumentation.add(new InsnNode(Opcodes.DUP));
+			} else {
+				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
+			}
+		} else if(instruction.isMethodCall()) {
+			Type type = Type.getReturnType(instruction.getMethodCallDescriptor());
+			if(type.getSort() == Type.OBJECT) {
+				instrumentation.add(new InsnNode(Opcodes.DUP));
+			} else {
+				instrumentation.add(new InsnNode(Opcodes.ACONST_NULL));
+			}
+		}
+	}
+	
+	@SuppressWarnings("unchecked")
+	private int getNextLocalNum(MethodNode mn) {
+		List<LocalVariableNode> variables = mn.localVariables;
+		int max = 0;
+		for(LocalVariableNode node : variables) {
+			if(node.index > max)
+				max = node.index;
+		}
+		return max + 1;
+	}
+	
+	private InsnList getMethodInstrumentation(BytecodeInstruction call, boolean staticContext, InsnList instrumentation, MethodNode mn) {
+
+
+		String descriptor = call.getMethodCallDescriptor();
+		Type[] args = Type.getArgumentTypes(descriptor);
+		int loc = getNextLocalNum(mn);
+		Map<Integer, Integer> to = new HashMap<Integer, Integer>();
+		for (int i = args.length - 1; i >= 0; i--) {
+			Type type = args[i];
+			instrumentation.add(new VarInsnNode(type.getOpcode(Opcodes.ISTORE), loc));
+			to.put(i, loc);
+			loc++;
+		}
+
+		// instrumentation.add(new InsnNode(Opcodes.DUP));//callee
+		addObjectInstrumentation(call, instrumentation);
+		addCallingObjectInstrumentation(staticContext, instrumentation);
+		// field method calls get special treatment:
+		// during instrumentation it is not clear whether a field method
+		// call constitutes a definition or a use. So the instrumentation
+		// will call a special function of the ExecutionTracer which will
+		// redirect the call to either passedUse() or passedDefinition()
+		// using the information available during runtime (the CCFGs)
+		instrumentation.add(new LdcInsnNode(DefUsePool.getDefUseCounter()));
+		instrumentation.add(new MethodInsnNode(Opcodes.INVOKESTATIC,
+		        "org/evosuite/testcase/ExecutionTracer", "passedFieldMethodCall",
+		        "(Ljava/lang/Object;Ljava/lang/Object;I)V"));
+		
+
+		for (int i = 0; i < args.length; i++) {
+			Type type = args[i];
+			instrumentation.add(new VarInsnNode(type.getOpcode(Opcodes.ILOAD), to.get(i)));
+		}
+		
+		return instrumentation;
 	}
 
 	/*

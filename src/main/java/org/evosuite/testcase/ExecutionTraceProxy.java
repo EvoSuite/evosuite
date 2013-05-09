@@ -82,9 +82,9 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void definitionPassed(Object caller, int defID) {
+	public void definitionPassed(Object object, Object caller, int defID) {
 		copyOnWrite();
-		trace.definitionPassed(caller, defID);
+		trace.definitionPassed(object, caller, defID);
 	}
 
 	/* (non-Javadoc)
@@ -194,6 +194,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	@Override
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getDefinitionData() {
 		return trace.getDefinitionData();
+	}
+	
+	@Override
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> getDefinitionDataObjects() {
+		return trace.getDefinitionDataObjects();
 	}
 
 	/* (non-Javadoc)
@@ -351,6 +356,11 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getUseData() {
 		return trace.getUseData();
 	}
+	
+	@Override
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> getUseDataObjects() {
+		return trace.getUseDataObjects();
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.ExecutionTrace#hasFalseDistance(int)
@@ -453,9 +463,9 @@ public class ExecutionTraceProxy implements ExecutionTrace, Cloneable {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public void usePassed(Object caller, int useID) {
+	public void usePassed(Object object, Object caller, int useID) {
 		copyOnWrite();
-		trace.usePassed(caller, useID);
+		trace.usePassed(object, caller, useID);
 	}
 
 	/* (non-Javadoc)
