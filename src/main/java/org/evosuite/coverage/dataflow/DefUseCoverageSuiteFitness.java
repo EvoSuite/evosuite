@@ -298,6 +298,8 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
+		
+		DefUseCoverageFactory.detectAliasingGoals(results);
 
 		Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
 
