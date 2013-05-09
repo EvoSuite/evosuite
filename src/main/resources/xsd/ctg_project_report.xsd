@@ -1,0 +1,48 @@
+<!-- 
+
+    This XSD file defines the XML structure of project info for Continuous 
+	Test Generation (CTG). It is important to use a XSD for several reasons, eg: 
+	* being able to still read the data after an EvoSuite release upgrade 
+	* the XSD defines a contract for other components (eg a Jenkins plugin) that  needs to read this data 
+	* easier to integrate other tools.
+	
+	 For more details, 
+	see: http://www.w3.org/TR/xmlschema-0/ 
+
+-->
+
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+	<xs:element name="Project">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element name="numberOfClasses" type="xs:nonNegativeInteger" />
+				<xs:element name="averageBranchCoverage" type="percentage" /> <!-- note, this is a derived value -->
+				<xs:element name="GeneratedTests">
+					<xs:complexType>
+						<xs:sequence>
+							<xs:element name="tests" type="TestCase" minOccurs="0" maxOccurs="unbounded" />
+						</xs:sequence>
+					</xs:complexType>
+				</xs:element>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+
+
+	<xs:complexType name="TestCase">
+		<xs:sequence>
+			<xs:element name="className" type="xs:string" />
+			<xs:element name="branchCoverage" type="percentage" />
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="percentage">
+		<xs:restriction base="xs:double">
+			<xs:minInclusive value="0" />
+			<xs:maxInclusive value="1" />
+		</xs:restriction>
+	</xs:simpleType>
+
+</xs:schema>
