@@ -97,6 +97,15 @@ public class ContinuousTestGeneration {
      * @return
      */
     public String info(){
+    		
+		StorageManager storage = new StorageManager();
+		boolean storageOK = storage.open();
+		if(!storageOK){
+			return "Failed to initialize local storage system";
+		}
+    	
+		//org.evosuite.xsd.Project projectInfo = 
+		
     		//TODO
     		return null;
     }
