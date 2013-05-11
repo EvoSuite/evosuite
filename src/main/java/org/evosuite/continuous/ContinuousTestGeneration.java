@@ -57,10 +57,14 @@ public class ContinuousTestGeneration {
     private final int numberOfCores;	
     private final int timeInMinutes;
 	private final boolean callHome;
-    
-    public ContinuousTestGeneration(int memoryInMB, int numberOfCores,
+    private final String target;
+    private final String projectClassPath;
+	
+    public ContinuousTestGeneration(String target, String projectClassPath, int memoryInMB, int numberOfCores,
 			int timeInMinutes, boolean callHome) {
-		super();
+		super();		
+		this.target = target;
+		this.projectClassPath = projectClassPath;
 		this.totalMemoryInMB = memoryInMB;
 		this.numberOfCores = numberOfCores;
 		this.timeInMinutes = timeInMinutes;
@@ -82,11 +86,11 @@ public class ContinuousTestGeneration {
     		}
     		
     		//check project
-    		ProjectAnalyzer analyzer = new ProjectAnalyzer("TODO","TODO");
+    		ProjectAnalyzer analyzer = new ProjectAnalyzer(target);
     		ProjectStaticData data = analyzer.analyze();
     		
     		JobScheduler scheduler = new JobScheduler(data,storage);
-    		JobExecutor executor = new JobExecutor(storage);
+    		JobExecutor executor = new JobExecutor(storage,timeInMinutes,projectClassPath,totalMemoryInMB);
     		
     		//loop: define (partial) schedule
     		while(scheduler.canExecuteMore()){

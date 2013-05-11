@@ -9,20 +9,15 @@ package org.evosuite.continuous.project;
  */
 public class ProjectAnalyzer {
  
-	/**
-	 * The full classpath of the project and dependecies
-	 */
-	private String classPath;
-	
-	/**
-	 * the folder where to find the .class files used as CUTs
-	 */
-	private String targetFolder;
 
-	public ProjectAnalyzer(String classPath, String targetFolder) {
+	/**
+	 * the folder/jar where to find the .class files used as CUTs
+	 */
+	private final String target;
+
+	public ProjectAnalyzer(String target) {
 		super();
-		this.classPath = classPath;
-		this.targetFolder = targetFolder;
+		this.target = target;
 	}
 	
 	public ProjectStaticData analyze(){
