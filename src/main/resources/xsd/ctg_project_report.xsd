@@ -14,7 +14,7 @@
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
 
-	<xs:element name="Project">
+	<xs:element name="ProjectInfo">
 		<xs:complexType>
 			<xs:sequence>
 				<xs:element name="numberOfClasses" type="xs:nonNegativeInteger" />
