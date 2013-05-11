@@ -2,9 +2,11 @@ package org.evosuite.continuous;
 
 import java.util.List;
 
+import org.evosuite.Properties;
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobExecutor;
 import org.evosuite.continuous.job.JobScheduler;
+import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
@@ -59,9 +61,10 @@ public class ContinuousTestGeneration {
 	private final boolean callHome;
     private final String target;
     private final String projectClassPath;
-	
+	private final AvailableSchedule schedule;
+    
     public ContinuousTestGeneration(String target, String projectClassPath, int memoryInMB, int numberOfCores,
-			int timeInMinutes, boolean callHome) {
+			int timeInMinutes, boolean callHome, AvailableSchedule schedule) {
 		super();		
 		this.target = target;
 		this.projectClassPath = projectClassPath;
@@ -69,6 +72,7 @@ public class ContinuousTestGeneration {
 		this.numberOfCores = numberOfCores;
 		this.timeInMinutes = timeInMinutes;
 		this.callHome = callHome;
+		this.schedule = schedule;
 	}
 	
     /**
@@ -90,6 +94,7 @@ public class ContinuousTestGeneration {
     		ProjectStaticData data = analyzer.analyze();
     		
     		JobScheduler scheduler = new JobScheduler(data,storage,numberOfCores,timeInMinutes);
+    		scheduler.chooseScheduleType(schedule);
     		JobExecutor executor = new JobExecutor(storage,timeInMinutes,projectClassPath,totalMemoryInMB);
     		
     		//loop: define (partial) schedule

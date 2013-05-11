@@ -5,23 +5,17 @@ import java.util.List;
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobScheduler;
 
-public class SimpleSchedule extends ScheduleType{
+public class SimpleSchedule extends OneTimeSchedule{
 
-	public static final String NAME = "Simple"; 
 	
 	public SimpleSchedule(JobScheduler scheduler){
 		super(scheduler);
 	}
 
 	@Override
-	public List<JobDefinition> createNewSchedule() {
+	protected List<JobDefinition> createScheduleOnce() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	@Override
-	public boolean canExecuteMore() {
-		// TODO Auto-generated method stub
-		return false;
-	}
 }

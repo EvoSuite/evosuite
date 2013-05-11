@@ -20,6 +20,13 @@ import org.evosuite.continuous.project.ProjectStaticData;
  */
 public class JobScheduler {
 	
+	/**
+	 * The types of schedules that can be used
+	 * @author arcuri
+	 *
+	 */
+	public enum AvailableSchedule {SIMPLE};
+	
 	private final ProjectStaticData projectData;
 	private final StorageManager storageManager;
 	private final int numberOfCores;
@@ -27,13 +34,7 @@ public class JobScheduler {
 	
 	private ScheduleType currentSchedule; 
 	
-	/**
-	 * List of all available types of schedule this scheduler can choose to use
-	 */
-	public static final List<String> SCHEDULE_TYPES = Collections.unmodifiableList(Arrays.asList(new
-			String[]{
-			SimpleSchedule.NAME
-	}));
+
 	
 	public JobScheduler(ProjectStaticData projectData,
 			StorageManager storageManager, int numberOfCores,
@@ -50,11 +51,23 @@ public class JobScheduler {
 		currentSchedule = new SimpleSchedule(this);
 	}
 	
-	public void chooseScheduleType(String scheduleName) throws IllegalArgumentException{
+	public void chooseScheduleType(AvailableSchedule schedule) throws IllegalArgumentException{
 		//TODO
+		if(schedule.equals(AvailableSchedule.SIMPLE)){
+			currentSchedule = new SimpleSchedule(this);
+		} else {
+			throw new IllegalArgumentException("Schedule '"+schedule+"' is not supported");
+		}
 	}
 
+	/**
+	 * Return new schedule, or <code>null</code> if scheduling is finished
+	 * @return
+	 */
 	public List<JobDefinition> createNewSchedule(){
+		if(!canExecuteMore()){
+			return null;
+		}
 		return currentSchedule.createNewSchedule();
 	}
 	
