@@ -27,7 +27,8 @@ public class ProjectStaticData {
 		}		
 	}
 	
-	public void addClass(Class<?> c){
+	//FIXME: likely different input
+	public void addClass(String fullName){
 		//TODO
 	}
 }
