@@ -19,22 +19,19 @@ public abstract class ScheduleType {
 	
 	protected JobScheduler scheduler;
 	
+	/**
+	 * The minimum amount of seconds a search/job should run.
+	 * Less than that, and there would be no point to even run
+	 * the search.
+	 */
+	protected final int MINIMUM_SECONDS = 30;
+	
 	protected ScheduleType(JobScheduler scheduler){
 		this.scheduler = scheduler;
 	}
 	
-	public abstract List<JobDefinition> createNewSchedule();
+	public abstract List<JobDefinition> createNewSchedule() throws IllegalStateException;
 	
 	public abstract boolean canExecuteMore();
 	
-	public  String getName(){
-		try {
-			return this.getClass().getField("NAME").get(null).toString();
-		} catch (Exception e) {
-			String msg = "Cannot access NAME field in "+this.getClass().getName()+": "+e;
-			logger.error(msg,e);
-			//this means a bug in EvoSuite
-			throw new RuntimeException(msg);
-		} 
-	}
 }

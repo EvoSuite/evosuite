@@ -34,6 +34,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
@@ -539,6 +540,14 @@ public class Properties {
 
 	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
 	public static int CTG_TIME = 2;
+
+	/*
+	 * FIXME choose best schedule for default
+	 * Note: most likely we ll use this parameter only for testing/experiments.
+	 * Maven plugin will use the default, best one
+	 */
+	@Parameter(key = "ctg_schedule", group = "Continuous Test Generation", description = "Schedule used to run jobs")
+	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.SIMPLE; 
 
 		
 	// ---------------------------------------------------------------
