@@ -1,5 +1,10 @@
 package org.evosuite.continuous.project;
 
+import java.util.Collection;
+import java.util.regex.Pattern;
+
+import org.evosuite.utils.ResourceList;
+
 /**
  * This class is used to analyze and gather all the
  * static information of the target project.
@@ -21,7 +26,16 @@ public class ProjectAnalyzer {
 	}
 	
 	public ProjectStaticData analyze(){
-		//TODO
-		return null;
+		Pattern pattern = Pattern.compile("[^\\$]*.class");
+		Collection<String> resources = ResourceList.getResources(target, pattern);
+		
+		ProjectStaticData data = new ProjectStaticData();
+		
+		for (String resource : resources) {
+			//TODO: processing/validation should be done here
+			
+		}
+		
+		return data;
 	}
 }
