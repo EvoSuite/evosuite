@@ -527,6 +527,20 @@ public class Properties {
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";
 
+	
+	//----------------------------------------------------------------
+	// Continuous Test Generation
+	
+	@Parameter(key = "ctg_memory", group = "Continuous Test Generation", description = "Total Memory (in MB) that CTG will use")
+	public static int CTG_MEMORY = 1000;
+
+	@Parameter(key = "ctg_cores", group = "Continuous Test Generation", description = "Number of cores CTG will use")
+	public static int CTG_CORES = 1;
+
+	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
+	public static int CTG_TIME = 2;
+
+		
 	// ---------------------------------------------------------------
 	// Single branch mode
 	/** Constant <code>RANDOM_TESTS=0</code> */
