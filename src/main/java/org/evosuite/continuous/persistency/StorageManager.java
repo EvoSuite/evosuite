@@ -1,6 +1,7 @@
 package org.evosuite.continuous.persistency;
 
 import java.io.File;
+import java.io.IOException;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -9,7 +10,9 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 
-import org.evosuite.xsd.Project;
+import org.apache.commons.io.FileUtils;
+import org.evosuite.continuous.project.ProjectStaticData;
+import org.evosuite.xsd.ProjectInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +44,7 @@ public class StorageManager {
 	 * 
 	 * @return
 	 */
-	public boolean open(){
+	public boolean openForWriting(){
 
 		/*
 		 * Note: here we just make sure we can write on disk
@@ -76,21 +79,40 @@ public class StorageManager {
 		return created;		
 	}
 
-	public Project getProjectInfo(){
+	public boolean clean(){
+		try {
+			FileUtils.deleteDirectory(new File(rootFolderName));
+		} catch (IOException e) {
+			logger.error("Cannot delete folder "+rootFolderName+": "+e,e);
+			return false;
+		}
+		return true;
+	}
+	
+	public String mergeAndCommitChanges(){
+		//TODO
+		return null;
+	}
+	
+	public void removeNoMoreExistentData(ProjectStaticData data){
+		//TODO
+	}
+	
+	public ProjectInfo getProjectInfo(){
 		
-		File current = new File(projectFileName);
+		File current = new File(rootFolderName + File.separator + projectFileName);
 		if(!current.exists()){
 			return null;
 		}
 		
 		try{
-			JAXBContext jaxbContext = JAXBContext.newInstance(Project.class);
+			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = factory.newSchema(new StreamSource(
 					new File(ClassLoader.getSystemResource("/xsd/ctg_project_report.xsd").toURI())));
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setSchema(schema);
-			Project project = (Project) jaxbUnmarshaller.unmarshal(current);
+			ProjectInfo project = (ProjectInfo) jaxbUnmarshaller.unmarshal(current);
 			return project;
 		} catch(Exception e){
 			logger.error("Error in reading "+current.getAbsolutePath()+". "+e,e);

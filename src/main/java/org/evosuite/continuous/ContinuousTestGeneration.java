@@ -1,6 +1,14 @@
 package org.evosuite.continuous;
 
+import java.util.List;
+
+import org.evosuite.continuous.job.JobDefinition;
+import org.evosuite.continuous.job.JobExecutor;
+import org.evosuite.continuous.job.JobScheduler;
 import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.continuous.project.ProjectAnalyzer;
+import org.evosuite.continuous.project.ProjectStaticData;
+import org.evosuite.xsd.ProjectInfo;
 
 
 /**
@@ -45,7 +53,7 @@ import org.evosuite.continuous.persistency.StorageManager;
  */
 public class ContinuousTestGeneration {
 
-	private final int memoryInMB;	
+	private final int totalMemoryInMB;	
     private final int numberOfCores;	
     private final int timeInMinutes;
 	private final boolean callHome;
@@ -53,7 +61,7 @@ public class ContinuousTestGeneration {
     public ContinuousTestGeneration(int memoryInMB, int numberOfCores,
 			int timeInMinutes, boolean callHome) {
 		super();
-		this.memoryInMB = memoryInMB;
+		this.totalMemoryInMB = memoryInMB;
 		this.numberOfCores = numberOfCores;
 		this.timeInMinutes = timeInMinutes;
 		this.callHome = callHome;
@@ -66,30 +74,45 @@ public class ContinuousTestGeneration {
      */
     public String execute(){
 
+    		//init the local storage manager
     		StorageManager storage = new StorageManager();
-    		boolean storageOK = storage.open();
+    		boolean storageOK = storage.openForWriting();
     		if(!storageOK){
     			return "Failed to initialize local storage system";
     		}
     		
     		//check project
-    	
-    		//check SVN/Git
-    	
+    		ProjectAnalyzer analyzer = new ProjectAnalyzer("TODO","TODO");
+    		ProjectStaticData data = analyzer.analyze();
+    		
+    		JobScheduler scheduler = new JobScheduler(data,storage);
+    		JobExecutor executor = new JobExecutor(storage);
+    		
     		//loop: define (partial) schedule
-    	
+    		while(scheduler.canExecuteMore()){
+    			List<JobDefinition> jobs = scheduler.createNewSchedule(numberOfCores);
+    			executor.executeJobs(jobs);
+    			executor.waitForJobs();
+    		}
+    		
+    		storage.removeNoMoreExistentData(data);
+    		String description = storage.mergeAndCommitChanges();
+
     		//call home
-    	
-    		//TODO
-    		return null;
+    		if(callHome){
+    			//TODO
+    		}
+    		
+    		return description;
     }
     
     /**
      * Clean all persistent data (eg files on disk) that
      * CTG has created so far
      */
-    public void clean(){
-    		//TODO
+    public boolean clean(){
+    		StorageManager storage = new StorageManager();
+    		return storage.clean();
     }
     
     /**
@@ -98,15 +121,21 @@ public class ContinuousTestGeneration {
      */
     public String info(){
     		
-		StorageManager storage = new StorageManager();
-		boolean storageOK = storage.open();
-		if(!storageOK){
-			return "Failed to initialize local storage system";
-		}
-    	
-		//org.evosuite.xsd.Project projectInfo = 
+		StorageManager storage = new StorageManager();    	
+		ProjectInfo projectInfo = storage.getProjectInfo(); 
 		
-    		//TODO
-    		return null;
+		if(projectInfo==null){
+			return "No info available";
+		}
+		
+		StringBuilder sb = new StringBuilder();
+		sb.append("Number of classes in the project: "+
+				projectInfo.getNumberOfClasses()+"\n");
+    		sb.append("Number of generated test suites: "+
+    				projectInfo.getGeneratedTests().getTests().size()+"\n");
+		sb.append("Average branch coverage: "+
+    				projectInfo.getAverageBranchCoverage()+"\n");
+    		
+    		return sb.toString();
     }
 }
