@@ -10,6 +10,10 @@ import org.evosuite.continuous.persistency.StorageManager;
  * visible side-effects would only be files written on local disk.
  * This does simplify the architecture a lot, especially considering we can 
  * have several instances running in parallel.
+ * Furthermore, writing to disk at each search has benefit that we can recover from
+ * premature crashes, reboot of machine, etc.
+ * This is particularly useful considering that CTG can be left running for hours, if not
+ * even days. 
  * Downside is not a big deal, as the searches in a schedule are anyway run independently. 
  * 
  * @author arcuri

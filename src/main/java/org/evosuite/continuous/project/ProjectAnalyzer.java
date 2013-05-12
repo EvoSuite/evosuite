@@ -6,8 +6,15 @@ import java.util.regex.Pattern;
 import org.evosuite.utils.ResourceList;
 
 /**
+ * <p>
  * This class is used to analyze and gather all the
  * static information of the target project.
+ * </p>
+ * 
+ * <p>
+ * To be useful, this analysis does not need to be 100% precise,
+ * as we use the generated statistics <i>only</i> for heuristics
+ * </p>
  * 
  * @author arcuri
  *
