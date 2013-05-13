@@ -25,12 +25,13 @@ public class JobScheduler {
 	 * @author arcuri
 	 *
 	 */
-	public enum AvailableSchedule {SIMPLE};
+	public enum AvailableSchedule {SIMPLE}; //TODO add more
 	
 	private final ProjectStaticData projectData;
 	private final StorageManager storageManager;
 	private final int numberOfCores;
 	private final int totalBudgetInMinutes;
+	private final int totalMemoryInMB;
 	
 	private ScheduleType currentSchedule; 
 	
@@ -38,11 +39,12 @@ public class JobScheduler {
 	
 	public JobScheduler(ProjectStaticData projectData,
 			StorageManager storageManager, int numberOfCores,
-			int totalBudgetInMinutes) {
+			int totalMemoryInMB, int totalBudgetInMinutes) {
 		super();
 		this.projectData = projectData;
 		this.storageManager = storageManager;
 		this.numberOfCores = numberOfCores;
+		this.totalMemoryInMB = totalMemoryInMB;
 		this.totalBudgetInMinutes = totalBudgetInMinutes;
 		
 		/*
@@ -91,13 +93,17 @@ public class JobScheduler {
 	public StorageManager getStorageManager() {
 		return storageManager;
 	}
-
+	
 	public int getNumberOfCores() {
 		return numberOfCores;
 	}
 
 	public int getTotalBudgetInMinutes() {
 		return totalBudgetInMinutes;
+	}
+
+	public int getTotalMemoryInMB() {
+		return totalMemoryInMB;
 	}
 	
 	
