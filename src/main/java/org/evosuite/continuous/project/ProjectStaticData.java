@@ -50,22 +50,51 @@ public class ProjectStaticData {
 		public final Class<?> theClass;
 		public final int numberOfBranches;
 		public final ClassKind kind;
+		public final int numberOfImplementedMethods;
 		
-		public ClassInfo(Class<?> theClass, int numberOfBranches, ClassKind kind) {
+		public ClassInfo(Class<?> theClass, int numberOfBranches,
+				ClassKind kind, int numberOfImplementedMethods) {
 			super();
 			this.theClass = theClass;
 			this.numberOfBranches = numberOfBranches;
 			this.kind = kind;
+			this.numberOfImplementedMethods = numberOfImplementedMethods;
+		}
+		
+		public String getClassName(){
+			return theClass.getName();
+		}
+		
+		public boolean isTestable(){
+			return numberOfImplementedMethods > 0;
 		}
 	}
 	
 	
 	/**
-	 * Return the number of classes in the project that can be used as CUT
+	 * Return the number of classes in the project that can be used as CUT,
+	 * including non-testable ones
 	 * @return
 	 */
 	public int getTotalNumberOfCUTs(){
 		return classes.size();
+	}
+	
+	/**
+	 * If an abstract class or interface has no coded/implemented
+	 * method, then there would be no point in generating test 
+	 * cases for it
+	 * 
+	 * @return
+	 */
+	public int getTotalNumberOfTestableCUTs(){
+		int total = 0;
+		for(ClassInfo info : classes.values()){
+			if(info.numberOfImplementedMethods > 0 ){
+				total++;
+			}
+		}
+		return total;
 	}
 	
 	/**
