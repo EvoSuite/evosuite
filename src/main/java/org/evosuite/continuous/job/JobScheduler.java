@@ -25,7 +25,7 @@ public class JobScheduler {
 	 * @author arcuri
 	 *
 	 */
-	public enum AvailableSchedule {SIMPLE}; //TODO add more
+	public enum AvailableSchedule {SIMPLE,BUDGET,SEEDING,BUDGET_AND_SEEDING}; 
 	
 	private final ProjectStaticData projectData;
 	private final StorageManager storageManager;
@@ -48,7 +48,7 @@ public class JobScheduler {
 		this.totalBudgetInMinutes = totalBudgetInMinutes;
 		
 		/*
-		 * TODO: default one should be the best found in the experiments
+		 * TODO: default one should be the best found in the experiments, likely BUDGET_AND_SEEDING
 		 */
 		currentSchedule = new SimpleSchedule(this);
 	}

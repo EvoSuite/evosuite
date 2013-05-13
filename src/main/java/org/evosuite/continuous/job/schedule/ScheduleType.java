@@ -8,7 +8,17 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Root class for the different kinds of schedule
+ * Root class for the different kinds of schedule.
+ * 
+ * 
+ * TODO: memory based on number of branches, as we can/should use larger population size, longer
+ * test cases, larger test suites, etc. These latter are an initial proof-of-concept of a more 
+ * general optimized tuning.
+ * 
+ * TODO: when starting schedule, check how many classes we do already have test cases from previous runs
+ * 
+ * TODO: handle schedule that is specific for the SVN/Git changes (ie only recently modified classes used for search).
+ * Would be interesting to analyze how often there are commits (how many classes are modified) in open source / industrial projects. 
  * 
  * @author arcuri
  *
