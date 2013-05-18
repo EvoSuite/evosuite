@@ -24,11 +24,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.instrumentation.error.ArrayInstrumentation;
+import org.evosuite.instrumentation.error.ArrayListInstrumentation;
 import org.evosuite.instrumentation.error.CastErrorInstrumentation;
+import org.evosuite.instrumentation.error.DequeInstrumentation;
 import org.evosuite.instrumentation.error.DivisionByZeroInstrumentation;
 import org.evosuite.instrumentation.error.ErrorBranchInstrumenter;
+import org.evosuite.instrumentation.error.LinkedHashSetInstrumentation;
+import org.evosuite.instrumentation.error.LinkedListInstrumentation;
 import org.evosuite.instrumentation.error.NullPointerExceptionInstrumentation;
 import org.evosuite.instrumentation.error.OverflowInstrumentation;
+import org.evosuite.instrumentation.error.QueueInstrumentation;
+import org.evosuite.instrumentation.error.StackInstrumentation;
+import org.evosuite.instrumentation.error.VectorInstrumentation;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -85,10 +92,33 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	private void initErrorBranchInstrumenters() {
 		instrumentation = new ArrayList<ErrorBranchInstrumenter>();
 		instrumentation.add(new ArrayInstrumentation(this));
+		instrumentation.add(new ArrayListInstrumentation(this));
 		instrumentation.add(new CastErrorInstrumentation(this));
+		instrumentation.add(new DequeInstrumentation(this));
 		instrumentation.add(new DivisionByZeroInstrumentation(this));
+		instrumentation.add(new LinkedHashSetInstrumentation(this));
+		instrumentation.add(new LinkedListInstrumentation(this));
 		instrumentation.add(new NullPointerExceptionInstrumentation(this));
 		instrumentation.add(new OverflowInstrumentation(this));
+		instrumentation.add(new QueueInstrumentation(this));
+		instrumentation.add(new StackInstrumentation(this));
+		instrumentation.add(new VectorInstrumentation(this));
+	}
+	
+	
+	protected boolean inInstrumentation = false;
+	
+	@Override
+	public void visitLabel(Label label) {
+		if (label instanceof AnnotatedLabel) {
+			AnnotatedLabel aLabel = (AnnotatedLabel) label;
+			if (aLabel.info == Boolean.TRUE) {
+				inInstrumentation = true;
+			} else {
+				inInstrumentation = false;
+			}
+		}
+		super.visitLabel(label);
 	}
 
 	public void tagBranch() {
@@ -117,8 +147,12 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public void visitMethodInsn(int opcode, String owner, String name, String desc) {
-		for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-			instrumenter.visitMethodInsn(opcode, owner, name, desc);
+		if(!inInstrumentation) {
+			inInstrumentation = true;
+			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
+				instrumenter.visitMethodInsn(opcode, owner, name, desc);
+			}
+			inInstrumentation = false;
 		}
 		super.visitMethodInsn(opcode, owner, name, desc);
 	}
@@ -129,16 +163,24 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public void visitFieldInsn(int opcode, String owner, String name, String desc) {
-		for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-			instrumenter.visitFieldInsn(opcode, owner, name, desc);
+		if(!inInstrumentation) {
+			inInstrumentation = true;
+			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
+				instrumenter.visitFieldInsn(opcode, owner, name, desc);
+			}
+			inInstrumentation = false;
 		}
 		super.visitFieldInsn(opcode, owner, name, desc);
 	}
 	
 	@Override
 	public void visitIntInsn(int opcode, int operand) {
-		for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-			instrumenter.visitIntInsn(opcode, operand);
+		if(!inInstrumentation) {
+			inInstrumentation = true;
+			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
+				instrumenter.visitIntInsn(opcode, operand);
+			}
+			inInstrumentation = false;
 		}
 		super.visitIntInsn(opcode, operand);
 	}
@@ -149,8 +191,12 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public void visitTypeInsn(int opcode, String type) {
-		for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-			instrumenter.visitTypeInsn(opcode, type);
+		if(!inInstrumentation) {
+			inInstrumentation = true;
+			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
+				instrumenter.visitTypeInsn(opcode, type);
+			}
+			inInstrumentation = false;
 		}
 		super.visitTypeInsn(opcode, type);
 	}
@@ -161,8 +207,12 @@ public class ErrorConditionMethodAdapter extends GeneratorAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public void visitInsn(int opcode) {
-		for(ErrorBranchInstrumenter instrumenter : instrumentation) {
-			instrumenter.visitInsn(opcode);
+		if(!inInstrumentation) {
+			inInstrumentation = true;
+			for(ErrorBranchInstrumenter instrumenter : instrumentation) {
+				instrumenter.visitInsn(opcode);
+			}
+			inInstrumentation = false;
 		}
 		super.visitInsn(opcode);
 	}
