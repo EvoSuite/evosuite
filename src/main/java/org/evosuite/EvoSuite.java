@@ -36,6 +36,7 @@ import org.apache.commons.cli.OptionBuilder;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.io.FileUtils;
+import org.evosuite.executionmode.Continuous;
 import org.evosuite.executionmode.Help;
 import org.evosuite.executionmode.ListClasses;
 import org.evosuite.executionmode.ListParameters;
@@ -216,6 +217,10 @@ public class EvoSuite {
 				return ListParameters.execute();
 			}
 
+			if(line.hasOption(Continuous.NAME)){
+				return Continuous.execute(options, javaOpts, line, cp);
+			}
+			
 			return TestGeneration.executeTestGeneration(options, javaOpts, line, cp);
 
 		} catch (ParseException exp) {
@@ -293,7 +298,8 @@ public class EvoSuite {
 		Option listClasses = ListClasses.getOption();
 		Option printStats = PrintStats.getOption();
 		Option listParameters = ListParameters.getOption();
-
+		Option continuous = Continuous.getOption();
+		
 		Option[] generateOptions = TestGeneration.getOptions();
 
 		Option targetClass = new Option("class", true, "target class for test generation");
@@ -328,6 +334,7 @@ public class EvoSuite {
 			options.addOption(option);
 		}
 
+		options.addOption(continuous);
 		options.addOption(listParameters);
 		options.addOption(help);
 		options.addOption(extendSuite);
