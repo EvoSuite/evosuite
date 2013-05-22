@@ -33,9 +33,14 @@ public class Setup {
 
 		if (args.length > 0) {
 			for (int i = 0; i < args.length; i++) {
-				if (!Properties.CP.equals(""))
+				String element = args[i].trim();
+				if(element.isEmpty()){
+					continue;
+				}
+				if (!Properties.CP.isEmpty()){
 					Properties.CP += File.pathSeparator;
-				Properties.CP += args[i];
+				}
+				Properties.CP += element;
 			}
 		}
 
@@ -48,11 +53,15 @@ public class Setup {
 		File targetFile = new File(target);
 		if (targetFile.exists()) {
 			if (targetFile.isDirectory() || target.endsWith(".jar")) {
-				Properties.CP += File.pathSeparator;
+				if (!Properties.CP.isEmpty()){
+					Properties.CP += File.pathSeparator;
+				}
 				Properties.CP += target;
 			} else if (target.endsWith(".class")) {
 				String pathName = targetFile.getParent();
-				Properties.CP += File.pathSeparator;
+				if (!Properties.CP.isEmpty()){
+					Properties.CP += File.pathSeparator;
+				}
 				Properties.CP += pathName;
 			} else {
 				LoggingUtils.getEvoLogger().info("Failed to set up classpath for "
