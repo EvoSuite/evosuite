@@ -75,8 +75,13 @@ public class Setup {
 				String fileName = EvoSuite.generateInheritanceTree(Properties.CP);
 				FileUtils.copyFile(new File(fileName), new File(Properties.OUTPUT_DIR
 				        + File.separator + "inheritance.xml.gz"));
+				
+				 /* 
+				  * we need to use '/' instead of File.separator because this value will be written on a text file.
+				  * As the relative path will be given to a File object, this will work also on a Windows machine 
+				  */
 				Properties.getInstance().setValue("inheritance_file",
-				                                  Properties.OUTPUT_DIR + File.separator
+				                                  Properties.OUTPUT_DIR + "/"
 				                                          + "inheritance.xml.gz");
 			} catch (IOException e) {
 				LoggingUtils.getEvoLogger().error("* Error while creating inheritance tree: "
