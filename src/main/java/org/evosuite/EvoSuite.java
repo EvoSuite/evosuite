@@ -133,7 +133,7 @@ public class EvoSuite {
 		if (version == null) {
 			version = "";
 		}
-		LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
+		
 
 		// create the parser
 		CommandLineParser parser = new GnuParser();
@@ -187,6 +187,16 @@ public class EvoSuite {
 				}
 			}
 
+			
+			/*
+			 * We shouldn't print when -listClasses, as we do not want to have
+			 * side effects (eg, important when using it in shell scripts)
+			 */
+			if (! line.hasOption(ListClasses.NAME)) {
+				LoggingUtils.getEvoLogger().info("* EvoSuite " + version);
+			}
+
+			
 			/*
 			 * Following "options" are the actual (mutually exclusive) execution modes of EvoSuite
 			 */
