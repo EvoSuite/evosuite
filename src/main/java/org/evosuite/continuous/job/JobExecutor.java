@@ -16,6 +16,13 @@ import org.evosuite.continuous.persistency.StorageManager;
  * even days. 
  * Downside is not a big deal, as the searches in a schedule are anyway run independently. 
  * 
+ * 
+ * <p>
+ * Note: under no case ever two different jobs should access the same files at the same time, even
+ * if just for reading. Piece-of-crap OS like Windows do put locks on file based
+ * on processes accessing them... for multi-process applications running on same host,
+ * that is a recipe for disaster... 
+ * 
  * @author arcuri
  *
  */
