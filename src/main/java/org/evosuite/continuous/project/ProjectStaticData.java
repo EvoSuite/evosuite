@@ -66,6 +66,11 @@ public class ProjectStaticData {
 		}
 		
 		public boolean isTestable(){
+			/*
+			 * we shouldn't use the number of branches,
+			 * as there might be CUTs with code but 
+			 * no branches
+			 */
 			return numberOfImplementedMethods > 0;
 		}
 	}
@@ -90,11 +95,20 @@ public class ProjectStaticData {
 	public int getTotalNumberOfTestableCUTs(){
 		int total = 0;
 		for(ClassInfo info : classes.values()){
-			if(info.numberOfImplementedMethods > 0 ){
+			if(info.isTestable()){
 				total++;
 			}
 		}
 		return total;
+	}
+	
+	public int getTotalNumberOfBranches(){
+		int total = 0;
+		for(ClassInfo info : classes.values()){
+			total += info.numberOfBranches;
+		}
+		return total;
+		
 	}
 	
 	/**
