@@ -89,7 +89,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
 	protected static File getReportDir() {
-		return new File(Properties.REPORT_DIR);
+		File dir = new File(Properties.REPORT_DIR);
+		
+		if(!dir.exists()){
+			boolean created = dir.mkdir();
+			if(!created){
+				String msg = "Cannot create report dir: "+Properties.REPORT_DIR;
+				logger.error(msg);
+				throw new RuntimeException(msg);
+			}
+		}
+		
+		return dir;			
 	}
 
 	/**
