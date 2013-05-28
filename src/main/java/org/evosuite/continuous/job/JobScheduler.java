@@ -1,12 +1,11 @@
 package org.evosuite.continuous.job;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
+import org.evosuite.continuous.job.schedule.BudgetAndSeedingSchedule;
+import org.evosuite.continuous.job.schedule.BudgetSchedule;
 import org.evosuite.continuous.job.schedule.ScheduleType;
+import org.evosuite.continuous.job.schedule.SeedingSchedule;
 import org.evosuite.continuous.job.schedule.SimpleSchedule;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.project.ProjectStaticData;
@@ -50,15 +49,26 @@ public class JobScheduler {
 		/*
 		 * TODO: default one should be the best found in the experiments, likely BUDGET_AND_SEEDING
 		 */
-		currentSchedule = new SimpleSchedule(this);
+		chooseScheduleType(AvailableSchedule.SIMPLE);
 	}
 	
 	public void chooseScheduleType(AvailableSchedule schedule) throws IllegalArgumentException{
-		//TODO
-		if(schedule.equals(AvailableSchedule.SIMPLE)){
-			currentSchedule = new SimpleSchedule(this);
-		} else {
-			throw new IllegalArgumentException("Schedule '"+schedule+"' is not supported");
+
+		switch(schedule){
+			case SIMPLE:
+				currentSchedule = new SimpleSchedule(this);
+				break;
+			case BUDGET:
+				currentSchedule = new BudgetSchedule(this);
+				break;
+			case SEEDING:
+				currentSchedule = new SeedingSchedule(this);
+				break;
+			case BUDGET_AND_SEEDING:
+				currentSchedule = new BudgetAndSeedingSchedule(this);
+				break;
+			default:
+				throw new IllegalArgumentException("Schedule '"+schedule+"' is not supported");				
 		}
 	}
 
