@@ -95,7 +95,7 @@ public class ContinuousTestGeneration {
     		
     		JobScheduler scheduler = new JobScheduler(data,storage,numberOfCores,totalMemoryInMB,timeInMinutes);
     		scheduler.chooseScheduleType(schedule);
-    		JobExecutor executor = new JobExecutor(storage,timeInMinutes,projectClassPath,totalMemoryInMB);
+    		JobExecutor executor = new JobExecutor(storage,projectClassPath,numberOfCores,totalMemoryInMB,timeInMinutes);
     		
     		//loop: define (partial) schedule
     		while(scheduler.canExecuteMore()){
