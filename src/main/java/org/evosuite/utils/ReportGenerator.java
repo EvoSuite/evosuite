@@ -88,11 +88,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
-	protected static File getReportDir() {
+	/**
+	 * Return the folder of where reports should be generated.
+	 * If the folder does not exist, try to create it
+	 * 
+	 * @return
+	 * @throws RuntimeException if folder does not exist, and we cannot create it
+	 */
+	public static File getReportDir() throws RuntimeException{
 		File dir = new File(Properties.REPORT_DIR);
 		
 		if(!dir.exists()){
-			boolean created = dir.mkdir();
+			boolean created = dir.mkdirs();
 			if(!created){
 				String msg = "Cannot create report dir: "+Properties.REPORT_DIR;
 				logger.error(msg);

@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.utils.ReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,8 @@ public class CSVStatisticsBackend implements StatisticsBackend {
 	public void writeData(List<OutputVariable<?>> data) {
 		// Write to evosuite-report/statistics.csv
 		try {
-			File f = new File(Properties.REPORT_DIR + File.separator + "statistics.csv");
+			File outputDir = ReportGenerator.getReportDir();			
+			File f = new File(outputDir.getAbsolutePath() + File.separator + "statistics.csv");
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
 				out.write(getCSVHeader(data) + "\n");
