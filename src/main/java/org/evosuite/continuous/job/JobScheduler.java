@@ -114,7 +114,5 @@ public class JobScheduler {
 
 	public int getTotalMemoryInMB() {
 		return totalMemoryInMB;
-	}
-	
-	
+	}	
 }
