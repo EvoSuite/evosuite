@@ -1,16 +1,14 @@
 package org.evosuite.continuous.job;
 
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.continuous.persistency.StorageManager;
@@ -40,21 +38,27 @@ import org.evosuite.continuous.persistency.StorageManager;
 public class JobExecutor {
 
 	private int timeBudgetInMinutes; 
-	
+
 	private volatile boolean executing;
 	private long startTimeInMs;
-	
+
+	private volatile CountDownLatch latch;
+
 	/**
 	 * Several threads read from this queue to execute jobs
 	 * on separated process
 	 */
 	private BlockingQueue<JobDefinition> jobQueue;
-	
+
 	/**
 	 * keep track of all the jobs that have been executed so far.
 	 * Each job definition (value) is indexed by its ID (key) 
 	 */
-	private Map<Integer,JobDefinition> finishedJobs;
+	private Map<Integer,JobDefinition> finishedJobs; 
+
+	private int numberOfCores;
+	
+	private String projectClassPath;
 	
 	/**
 	 * Main constructor
@@ -68,11 +72,19 @@ public class JobExecutor {
 	public JobExecutor(StorageManager storage, 
 			String projectClassPath,int numberOfCores,
 			int totalMemoryInMB, int timeInMinutes){
-	
+
 		this.timeBudgetInMinutes = timeInMinutes;
-		
+		this.numberOfCores = numberOfCores;
+		this.projectClassPath = projectClassPath;
 	}
 
+	private long getRemainingTime(){
+		long elapsed = System.currentTimeMillis() - startTimeInMs;
+		long budgetInMs = timeBudgetInMinutes * 60 * 1000;
+		long remaining = budgetInMs - elapsed;
+		return remaining;
+	}
+	
 	/**
 	 * Do a separate search with EvoSuite for all jobs in the given list.
 	 * The executor tries a best effort to execute the jobs in the given order,
@@ -85,102 +97,146 @@ public class JobExecutor {
 		if(executing){
 			throw new IllegalStateException("Already executing jobs");
 		}
-		
+
 		executing = true;
-		startTimeInMs = System.currentTimeMillis(); //TODO check if make it local
-
-		jobQueue = new ArrayBlockingQueue<JobDefinition>(1);
-		finishedJobs = new ConcurrentHashMap<Integer,JobDefinition>();
-
-		Thread[] handlers = null;
-		//TODO start, and handle memory
+		startTimeInMs = System.currentTimeMillis(); 		
+		latch = new CountDownLatch(jobs.size());
 		
-		Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>(); 
-		List<JobDefinition> postponed = new LinkedList<JobDefinition>();
-		
-		try{			
-			
-			mainLoop: while(!toExecute.isEmpty() && !postponed.isEmpty()){
-			
-				long elapsed = System.currentTimeMillis() - startTimeInMs;
-				if(elapsed > (timeBudgetInMinutes * 60 * 1000)){
-					//TODO
-				} 
+		Thread mainThread = new Thread(){
+			@Override
+			public void run(){
 				
-				JobDefinition chosenJob = null;
+				/*
+				 * there is a good reason to have a blocking queue of size 1.
+				 * we want to put jobs on the queue only when we know there is going
+				 * to be a handler that can pull it.
+				 * this helps the scheduler, as we can wait longer before making the decision
+				 * of what job to schedule next
+				 */
+				jobQueue = new ArrayBlockingQueue<JobDefinition>(1);
+				finishedJobs = new ConcurrentHashMap<Integer,JobDefinition>();				
 				
-				//postponed jobs have the priority
-				if(!postponed.isEmpty()){
-					Iterator<JobDefinition> iterator = postponed.iterator();
-					postponedLoop : while(iterator.hasNext()){
-						JobDefinition job = iterator.next();
-						if(areDependenciesSatisfied(job)){
-							chosenJob = job;							
-							iterator.remove();
-							break postponedLoop;
-						}
-					}
+				JobHandler[] handlers = JobHandler.getPool(numberOfCores,JobExecutor.this);
+				for(JobHandler handler : handlers){
+					handler.start();
 				}
+				//TODO handle memory
 
-				if(chosenJob == null && toExecute.isEmpty()){
-					assert !postponed.isEmpty();
+				Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>(); 
+				List<JobDefinition> postponed = new LinkedList<JobDefinition>();
+
+				long longestJob = -1l;
+				
+				try{			
+
+					mainLoop: while(!toExecute.isEmpty() && !postponed.isEmpty()){
+
+						long remaining = getRemainingTime();
+						if(remaining <= 0){
+							//time is over. do not submit any more job
+							break mainLoop;
+						} 
+						
+
+						JobDefinition chosenJob = null;
+
+						//postponed jobs have the priority
+						if(!postponed.isEmpty()){
+							Iterator<JobDefinition> iterator = postponed.iterator();
+							postponedLoop : while(iterator.hasNext()){
+								JobDefinition job = iterator.next();
+								if(areDependenciesSatisfied(job)){
+									chosenJob = job;							
+									iterator.remove();
+									break postponedLoop;
+								}
+							}
+						}
+
+						if(chosenJob == null && toExecute.isEmpty()){
+							assert !postponed.isEmpty();
+							/*
+							 * tricky case: the are no more jobs in the queue, and there are
+							 * jobs that have been postponed. But, at the moment, we shouldn't 
+							 * execute them due to missing dependencies.
+							 * 
+							 * As the dependencies are just "optimizations" (eg, seeding), it is not
+							 * wrong to execute any of those postponed jobs.
+							 * There might be useful heuristics to pick up one in a smart way but,
+							 * for now, we just choose the first (and so oldest)
+							 */
+							chosenJob = postponed.get(0); //it is important to get the oldest jobs
+							postponed.remove((int) 0);
+						}
+
+						if(chosenJob == null){
+							assert !toExecute.isEmpty();
+
+							toExecuteLoop : while(!toExecute.isEmpty()){
+								JobDefinition job = toExecute.poll();
+								if(areDependenciesSatisfied(job)){
+									chosenJob = job;
+									break toExecuteLoop;
+								}  else {
+									postponed.add(job);
+								}
+							}
+
+							if(chosenJob == null){
+								/*
+								 * yet another tricky situation: we started with a list of jobs to execute,
+								 * and none in the postponed list; but we cannot execute any of the those
+								 * jobs (this could happen if they all depend on jobs that are currently running).
+								 * We should hence just choose one of them. Easiest thing, and most clean,
+								 * to do is just to go back to beginning of the loop
+								 */
+								assert !postponed.isEmpty() && toExecute.isEmpty();
+								continue mainLoop;
+							}
+						}
+
+						assert chosenJob != null;
+						longestJob = Math.max(longestJob, chosenJob.seconds * 1000);
+						
+						try {
+							jobQueue.offer(chosenJob, remaining, TimeUnit.MILLISECONDS); 
+						} catch (InterruptedException e) {
+							this.interrupt(); //important for check later
+							break mainLoop;
+						} 
+					}
+
+				} finally {
 					/*
-					 * tricky case: the are no more jobs in the queue, and there are
-					 * jobs that have been postponed. But, at the moment, we shouldn't 
-					 * execute them due to missing dependencies.
-					 * 
-					 * As the dependencies are just "optimizations" (eg, seeding), it is not
-					 * wrong to execute any of those postponed jobs.
-					 * There might be useful heuristics to pick up one in a smart way but,
-					 * for now, we just choose the first (and so oldest)
+					 * When we arrive here, in the worst case each handler is still executing a job,
+					 * plus one in the queue.
+					 * Note: this check is not precise
 					 */
-					chosenJob = postponed.get(0); //it is important to get the oldest jobs
-					postponed.remove((int) 0);
-				}
-				
-				if(chosenJob == null){
-					assert !toExecute.isEmpty();
-					
-					toExecuteLoop : while(!toExecute.isEmpty()){
-						JobDefinition job = toExecute.poll();
-						if(areDependenciesSatisfied(job)){
-							chosenJob = job;
-							break toExecuteLoop;
-						}  else {
-							postponed.add(job);
+					if(!this.isInterrupted() && longestJob > 0){				
+						try {
+							latch.await((longestJob*2) + (60000),TimeUnit.MILLISECONDS);
+						} catch (InterruptedException e) {
+							this.interrupt();
 						}
 					}
 					
-					if(chosenJob == null){
-						/*
-						 * yet another tricky situation: we started with a list of jobs to execute,
-						 * and none in the postponed list; but we cannot execute any of the those
-						 * jobs (this could happen if they all depend on jobs that are currently running).
-						 * We should hence just choose one of them. Easiest thing, and most clean,
-						 * to do is just to go back to beginning of the loop
-						 */
-						assert !postponed.isEmpty() && toExecute.isEmpty();
-						continue mainLoop;
+					//be sure to release the latch
+					long stillNotFinished = latch.getCount();
+					for(int i=0; i<stillNotFinished; i++){
+						latch.countDown();
 					}
+					
+					for(JobHandler handler : handlers){
+						handler.stopExecution();
+					}
+					
+					executing = false;
 				}
-				
-				assert chosenJob != null;
-				
-				try {
-					jobQueue.offer(chosenJob, 1, TimeUnit.MILLISECONDS); //TODO
-				} catch (InterruptedException e) {
-					//TODO stop 
-					break mainLoop;
-				} 
-			}
-			
-		} finally {
-			//TODO stop
-			executing = false;
-		}
-	
+			} //end of "run"
+		};
+		mainThread.start();
 	}
-	
+
 	/**
 	 * Check if all jobs this one depends on are finished 
 	 * 
@@ -195,10 +251,32 @@ public class JobExecutor {
 		}
 		return true; 
 	}
+
+	public JobDefinition pollJob() throws InterruptedException{
+		return jobQueue.take();
+	}
 	
+	public void doneWithJob(JobDefinition job){
+		finishedJobs.put(job.jobID, job);
+		latch.countDown();		
+	}
 	
-	
-	public void waitForJobs(){
-		//TODO
+	public void waitForJobs() {
+		/*
+		 * Note: this method could be called a long while after the starting
+		 * of the execution. But likely not so important to handle such situation.
+		 * 
+		 * Furthermore, due to crashes and phases that could end earlier (eg, minimization
+		 * and assertion generation), it is likely that jobs will finish before the expected time.
+		 */
+		try {
+			//add one extra minute just to be sure
+			latch.await(timeBudgetInMinutes+1, TimeUnit.MINUTES);
+		} catch (InterruptedException e) {
+		}
+	}
+
+	public String getProjectClassPath() {
+		return projectClassPath;
 	}
 }
