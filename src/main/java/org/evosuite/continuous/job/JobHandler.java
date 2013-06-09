@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
+import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -142,13 +143,35 @@ public class JobHandler extends Thread{
 		 * 
 		 * Plus extra time that is needed (eg dependency analysis)
 		 * 
-		 * How to divide the budget among them?
+		 * How to best divide the budget among them?
 		 * 
 		 * For now we just do something very basic
 		 */
 		
+		int search = seconds / 4;
+		int minimization = seconds / 4;
+		int assertions = seconds / 4 ;
+		int extra = seconds / 4;
 		
+		if(seconds > 480) {
+			minimization = 120;
+			assertions = 120;
+			extra = 120;
+			search = seconds - 360;
+		} else if(seconds > 240){
+			minimization = 60;
+			assertions = 60;
+			extra = 60;
+			search = seconds - 180;			
+		}
 		
-		return ""; //TODO
+		String cmd = " -Dsearch_budget="+search;
+		cmd += " -Dglobal_timeout="+search;
+		cmd += " -Dstopping_condition=" + StoppingCondition.MAXTIME;
+		cmd += " -Dminimization_timeout="+minimization;
+		cmd += " -Dassertion_timeout="+assertions;
+		cmd += " -Dextra_timeout="+extra;
+		
+		return cmd; 
 	}
 }
