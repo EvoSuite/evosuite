@@ -60,6 +60,8 @@ public class JobExecutor {
 	
 	private String projectClassPath;
 	
+	private StorageManager storage;
+	
 	/**
 	 * Main constructor
 	 * 
@@ -71,8 +73,13 @@ public class JobExecutor {
 	 */
 	public JobExecutor(StorageManager storage, 
 			String projectClassPath,int numberOfCores,
-			int totalMemoryInMB, int timeInMinutes){
+			int totalMemoryInMB, int timeInMinutes) throws IllegalArgumentException{
 
+		this.storage = storage;
+		if(storage.getTmpFolder() == null){
+			throw new IllegalArgumentException("Storage is not initalized");
+		}
+		
 		this.timeBudgetInMinutes = timeInMinutes;
 		this.numberOfCores = numberOfCores;
 		this.projectClassPath = projectClassPath;
@@ -278,5 +285,9 @@ public class JobExecutor {
 
 	public String getProjectClassPath() {
 		return projectClassPath;
+	}
+
+	public StorageManager getStorage() {
+		return storage;
 	}
 }
