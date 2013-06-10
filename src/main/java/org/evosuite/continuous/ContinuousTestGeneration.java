@@ -88,7 +88,11 @@ public class ContinuousTestGeneration {
     		if(!storageOK){
     			return "Failed to initialize local storage system";
     		}
-    		
+    		storageOK = storage.createNewTmpFolders();
+		if(!storageOK){
+			return "Failed to create tmp folders";
+		}  
+			
     		//check project
     		ProjectAnalyzer analyzer = new ProjectAnalyzer(target);
     		ProjectStaticData data = analyzer.analyze();

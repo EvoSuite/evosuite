@@ -6,6 +6,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -101,7 +102,7 @@ public class JobHandler extends Thread{
 	private String getCommandString(JobDefinition job){
 		
 		String cmd = "java "; 
-		//TODO check EvoSuite CP
+		//TODO check Windows/Unix file paths
 		cmd += " -cp " + executor.getProjectClassPath();
 		
 		/*
@@ -128,9 +129,22 @@ public class JobHandler extends Thread{
 		/*
 		 * TODO 
 		 * - logging to file
-		 * - output files
 		 */
 		
+		StorageManager storage = executor.getStorage();
+		File logs = storage.getTmpLogs(); //TODO
+		File reports = storage.getTmpReports();
+		File tests = storage.getTmpTests();
+		
+		//TODO check if it works on Windows... likely not
+		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.configurationId;
+		cmd += " -Dtest_dir="+tests.getAbsolutePath()+"/job"+job.configurationId;
+		
+		//TODO add other outputs once fitness functions are fixed
+		cmd += " -Doutput_variables=\"TARGET_CLASS,configuration_id,BranchCoverage,Minimized_Size,Statements_Executed\"";
+        cmd += " -Denable_asserts_for_evosuite=flase -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
+        cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false  -Dsave_all_data=false  -Dinline=false";
+  		
 		return cmd;
 	}
 	
