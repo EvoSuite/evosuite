@@ -249,12 +249,23 @@ public class TestGeneration {
 		cmdLine.add("-Djava.awt.headless=true");
 		cmdLine.add("-Dlogback.configurationFile="+LoggingUtils.getLogbackFileName());
 		
+		/*
+		 * FIXME: following 3 should be refactored, as not particularly clean.
+		 * First 2 does not work for master, as logback is read
+		 * before Properties is initialized
+		 */
 		if(Properties.LOG_LEVEL!=null){
 			cmdLine.add("-Dlog.level=" + Properties.LOG_LEVEL);
 		}
 		if(Properties.LOG_TARGET!=null){
 			cmdLine.add("-Dlog.target=" + Properties.LOG_TARGET);
+		}		
+		String logDir = System.getProperty("evosuite.log.folder");
+		if(logDir!=null){
+			// this parameter is for example used in logback-ctg.xml
+			cmdLine.add(" -Devosuite.log.folder="+logDir);
 		}
+		//------------------------------------------------
 		
 		cmdLine.add("-Djava.library.path=lib");
 		// cmdLine.add("-Dminimize_values=true");
