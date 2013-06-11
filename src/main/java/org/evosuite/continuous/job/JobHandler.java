@@ -106,6 +106,16 @@ public class JobHandler extends Thread{
 		cmd += " -cp " + executor.getProjectClassPath();
 		
 		/*
+		 *  it is important to set it before calling EvoSuite, as it has to be read by Master before loading properties.
+		 *  Note: the Client will get it automatically from Master
+		 */
+		cmd += " -D"+LoggingUtils.USE_DIFFERENT_LOGGING_XML_PARAMETER+"=logback-ctg.xml";
+
+		StorageManager storage = executor.getStorage();
+		File logs = storage.getTmpLogs(); 
+		cmd += " -Devosuite.log.folder="+logs.getAbsolutePath()+"/job"+job.configurationId;
+		
+		/*
 		 * TODO: this will likely need better handling
 		 */ 
 		int masterMB = 250;
@@ -115,7 +125,8 @@ public class JobHandler extends Thread{
 		cmd += " " + org.evosuite.EvoSuite.class.getName();
 		cmd += " -mem " + clientMB;
 		cmd += " -class " + job.cut;
-				
+		cmd += " -Dconfiguration_id="+job.configurationId;
+		
 		/*
 		 * TODO for now we ignore the job configuration (ie special parameter settings)
 		 */
@@ -125,25 +136,19 @@ public class JobHandler extends Thread{
 		 */
 		
 		cmd += timeSetUp(job.seconds);
-		
-		/*
-		 * TODO 
-		 * - logging to file
-		 */
-		
-		StorageManager storage = executor.getStorage();
-		File logs = storage.getTmpLogs(); //TODO
+			
 		File reports = storage.getTmpReports();
 		File tests = storage.getTmpTests();
 		
-		//TODO check if it works on Windows... likely not
+		//TODO check if it works on Windows... likely not		
 		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.configurationId;
-		cmd += " -Dtest_dir="+tests.getAbsolutePath()+"/job"+job.configurationId;
+		cmd += " -Dtest_dir="+tests.getAbsolutePath();
 		
 		//TODO add other outputs once fitness functions are fixed
 		cmd += " -Doutput_variables=\"TARGET_CLASS,configuration_id,BranchCoverage,Minimized_Size,Statements_Executed\"";
         cmd += " -Denable_asserts_for_evosuite=flase -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
-        cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false  -Dsave_all_data=false  -Dinline=false";
+        cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
+        cmd += " -Dsave_all_data=false  -Dinline=false";
   		
 		return cmd;
 	}
