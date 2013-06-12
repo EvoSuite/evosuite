@@ -132,7 +132,15 @@ public class JobHandler extends Thread{
 		 */
 		
 		/*
-		 * TODO: we ll need to handle dependentOnIDs for seeding
+		 * TODO: we ll need to handle dependent CUTs for seeding,
+		 * and distinguish on whether their are parent or input CUTs.
+		 * Like new parameters in EvoSuite will be needed for seeding.
+		 * 
+		 * Furthermore, we should check on whether the dependent CUTs have been
+		 * generated in this CTG run, or should rather look at previous runs.
+		 * This could happen for at least 2 reasons:
+		 * - under budget, and we could not run jobs for all CUTs
+		 * - job for dependency crashed, but we have test cases from previous CTG run
 		 */
 		
 		cmd += timeSetUp(job.seconds);

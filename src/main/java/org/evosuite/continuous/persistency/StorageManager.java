@@ -135,6 +135,8 @@ public class StorageManager {
 		return true;
 	}
 
+	//TODO methods to query what in db. actually just extend ProjectInfo
+	
 	public String mergeAndCommitChanges(){
 		//TODO
 		return null;
