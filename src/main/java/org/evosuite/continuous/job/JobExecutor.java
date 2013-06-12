@@ -52,9 +52,11 @@ public class JobExecutor {
 
 	/**
 	 * keep track of all the jobs that have been executed so far.
-	 * Each job definition (value) is indexed by its ID (key) 
+	 * Each job definition (value) is indexed by the CUT name (key).
+	 * This assumes in a schedule that the CUT names are unique, ie,
+	 * no more than one job should exist for the same CUT 
 	 */
-	private Map<Integer,JobDefinition> finishedJobs; 
+	private Map<String,JobDefinition> finishedJobs; 
 
 	private int numberOfCores;
 	
@@ -100,7 +102,7 @@ public class JobExecutor {
 	 * @param jobs
 	 * @throws IllegalStateException if we are already executing some jobs
 	 */
-	public synchronized void executeJobs(List<JobDefinition> jobs) throws IllegalStateException{
+	public synchronized void executeJobs(final List<JobDefinition> jobs) throws IllegalStateException{
 		if(executing){
 			throw new IllegalStateException("Already executing jobs");
 		}
@@ -121,7 +123,7 @@ public class JobExecutor {
 				 * of what job to schedule next
 				 */
 				jobQueue = new ArrayBlockingQueue<JobDefinition>(1);
-				finishedJobs = new ConcurrentHashMap<Integer,JobDefinition>();				
+				finishedJobs = new ConcurrentHashMap<String,JobDefinition>();				
 				
 				JobHandler[] handlers = JobHandler.getPool(numberOfCores,JobExecutor.this);
 				for(JobHandler handler : handlers){
@@ -144,7 +146,6 @@ public class JobExecutor {
 							break mainLoop;
 						} 
 						
-
 						JobDefinition chosenJob = null;
 
 						//postponed jobs have the priority
@@ -152,7 +153,7 @@ public class JobExecutor {
 							Iterator<JobDefinition> iterator = postponed.iterator();
 							postponedLoop : while(iterator.hasNext()){
 								JobDefinition job = iterator.next();
-								if(areDependenciesSatisfied(job)){
+								if(areDependenciesSatisfied(jobs,job)){
 									chosenJob = job;							
 									iterator.remove();
 									break postponedLoop;
@@ -181,7 +182,7 @@ public class JobExecutor {
 
 							toExecuteLoop : while(!toExecute.isEmpty()){
 								JobDefinition job = toExecute.poll();
-								if(areDependenciesSatisfied(job)){
+								if(areDependenciesSatisfied(jobs,job)){
 									chosenJob = job;
 									break toExecuteLoop;
 								}  else {
@@ -244,15 +245,34 @@ public class JobExecutor {
 		mainThread.start();
 	}
 
+	private boolean inTheSchedule(List<JobDefinition> jobs, String cut){
+		for(JobDefinition job : jobs){
+			if(job.cut.equals(cut)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Check if all jobs this one depends on are finished 
 	 * 
 	 * @param job
 	 * @return
 	 */
-	private boolean areDependenciesSatisfied(JobDefinition job){
-		for(Integer id : job.dependentOnIDs){
-			if(!finishedJobs.containsKey(id)){
+	private boolean areDependenciesSatisfied(List<JobDefinition> schedule, JobDefinition job){
+		
+		for(String name : job.dependentOnClasses){
+			/*
+			 * It could happen that a schedule is not complete, in the sense that
+			 * we do not create jobs for each single CUT in the project.
+			 * If A depends on B, but we have no job for B, then no point in postponing
+			 * a job for A
+			 */
+			if(!inTheSchedule(schedule,name)){
+				continue;
+			}
+			if(!finishedJobs.containsKey(name)){
 				return false;
 			}
 		}
@@ -264,7 +284,7 @@ public class JobExecutor {
 	}
 	
 	public void doneWithJob(JobDefinition job){
-		finishedJobs.put(job.jobID, job);
+		finishedJobs.put(job.cut, job);
 		latch.countDown();		
 	}
 	

@@ -13,7 +13,9 @@ import java.util.Set;
  * 
  * <p>
  * A class under test (CUT) is any <i>public</i> class in the SUT,
- * regardless of whether it is concrete, abstract or an interface.
+ * regardless of whether it is concrete, abstract or an interface, but
+ * as long as they have any code to test (eg, an abstract class with only abstract
+ * methods will not be a CUT).
  * Anonymous and private classes are not CUTs.
  * Protected and package level classes are bit tricky, and at least for the moment
  * they are not considered as CUTs (might change in the future though). 

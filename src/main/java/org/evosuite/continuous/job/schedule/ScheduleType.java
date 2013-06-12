@@ -18,7 +18,6 @@ import org.slf4j.LoggerFactory;
  * test cases, larger test suites, etc. These latter are an initial proof-of-concept of a more 
  * general optimized tuning.
  * 
- * TODO: when starting schedule, check how many classes we do already have test cases from previous runs
  * 
  * TODO: handle schedule that is specific for the SVN/Git changes (ie only recently modified classes used for search).
  * Would be interesting to analyze how often there are commits (how many classes are modified) in open source / industrial projects. 
@@ -117,6 +116,11 @@ public abstract class ScheduleType {
 		
 		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
 
+		/*
+		 * TODO: when starting schedule, check how many classes we do already have test cases from previous runs.
+		 * If from previous run we have some classes, then prioritize the others
+		 */
+		
 		//not enough budget
 		for(ClassInfo info : data.getClassInfos()){
 			if(!info.isTestable()){

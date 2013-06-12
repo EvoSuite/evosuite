@@ -16,6 +16,13 @@ import java.util.Set;
  */
 public class ProjectGraph {
 
+	/*
+	 * TODO: maybe best to build the graph once with all needed info, and then the public
+	 * methods just querying the map data structures directly (instead of recalculating
+	 * on the fly)
+	 */
+	
+	
 	/**
 	 * <p>
 	 * Return the full qualifying names of all classes that are CUTs and
@@ -24,10 +31,15 @@ public class ProjectGraph {
 	 * </p>
 	 *
 	 * <p>
-	 * If a method takes as input a reference of a non-CUT class (e.g., <code>java.lang.Object</code>),
+	 * If a method takes as input a reference of a non-SUT class (e.g., <code>java.lang.Object</code>),
 	 * but then there is a cast to a CUT (e.g. a class X), then X will be added in the returned set.
 	 * </p>
 	 * 
+	 * <p>
+	 * If a method takes as input a reference of a SUT class X that is not a CUT (e.g., an interface with no code),
+	 * then X will <b>not</b> be added in the returned set, although based on <code>includeSubclasses</code>
+	 * we might add its subclasses.
+	 * </p>
 	 * 
 	 * @param cut	the class under test (CUT) 
 	 * @param includeSubclasses  If a class X is in the returned set, then normally no subclass Y of X would be added in the returned set,
@@ -83,7 +95,7 @@ public class ProjectGraph {
 	}
 	
 	/**
-	 * Return all the parent hierarchy of <code>cut</code>.
+	 * Return all the child hierarchy of <code>cut</code>.
 	 * Include only classes that are CUTs
 	 * 
 	 * @param cut the class under test (CUT) 
@@ -96,7 +108,7 @@ public class ProjectGraph {
 	}
 	
 	/**
-	 * Return all the CUT classes that extend/implement this <code>cut</code>
+	 * Return all the CUT classes that this <code>cut</code> extends/implements (ie, parent hierarchy)
 	 * 
 	 * @param cut the class under test (CUT) 
 	 * @return a set of full qualifying names of CUTs
