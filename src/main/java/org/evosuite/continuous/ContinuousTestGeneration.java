@@ -50,6 +50,13 @@ import org.evosuite.xsd.ProjectInfo;
  * This will be useful to see how EvoSuite is used in practice.
  * </p>
  * 
+ * 
+ * TODO we should also have an option "regression" to run
+ * current test suites, and see if any fails.
+ * Even if do not want to explicitly do regression, we might still
+ * have to run old test cases, as failing ones should be (re)moved and
+ * labelled as "regression-failing"
+ * 
  * @author arcuri
  *
  */
@@ -108,8 +115,7 @@ public class ContinuousTestGeneration {
     			executor.waitForJobs();
     		}
     		
-    		storage.removeNoMoreExistentData(data);
-    		String description = storage.mergeAndCommitChanges();
+    		String description = storage.mergeAndCommitChanges(data);
 
     		//call home
     		if(callHome){
@@ -135,17 +141,21 @@ public class ContinuousTestGeneration {
     public String info(){
     		
 		StorageManager storage = new StorageManager();    	
-		ProjectInfo projectInfo = storage.getProjectInfo(); 
+		ProjectInfo projectInfo = storage.getDatabaseProjectInfo(); 
 		
 		if(projectInfo==null){
 			return "No info available";
 		}
 		
+		//TODO all info
+		
 		StringBuilder sb = new StringBuilder();
-		sb.append("Number of classes in the project: "+
-				projectInfo.getNumberOfClasses()+"\n");
+		sb.append("Total number of classes in the project: "+
+				projectInfo.getTotalNumberOfClasses()+"\n");
+		sb.append("Number of classes in the project that are testable: "+
+				projectInfo.getTotalNumberOfTestableClasses()+"\n");
     		sb.append("Number of generated test suites: "+
-    				projectInfo.getGeneratedTests().getTests().size()+"\n");
+    				projectInfo.getGeneratedTestSuites().size()+"\n");
 		sb.append("Average branch coverage: "+
     				projectInfo.getAverageBranchCoverage()+"\n");
     		

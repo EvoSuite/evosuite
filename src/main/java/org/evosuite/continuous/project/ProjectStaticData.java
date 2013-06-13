@@ -77,13 +77,16 @@ public class ProjectStaticData {
 		}
 	}
 	
+	public boolean containsClass(String c){
+		return classes.containsKey(c);
+	}
 	
 	/**
-	 * Return the number of classes in the project that can be used as CUT,
+	 * Return the number of classes in the project,
 	 * including non-testable ones
 	 * @return
 	 */
-	public int getTotalNumberOfCUTs(){
+	public int getTotalNumberOfClasses(){
 		return classes.size();
 	}
 	
