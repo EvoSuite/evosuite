@@ -1,15 +1,9 @@
-<!-- 
-
-    This XSD file defines the XML structure of project info for Continuous 
-	Test Generation (CTG). It is important to use a XSD for several reasons, eg: 
-	* being able to still read the data after an EvoSuite release upgrade 
-	* the XSD defines a contract for other components (eg a Jenkins plugin) that  needs to read this data 
-	* easier to integrate other tools.
-	
-	 For more details, 
-	see: http://www.w3.org/TR/xmlschema-0/ 
-
--->
+<!-- This XSD file defines the XML structure of project info for Continuous 
+	Test Generation (CTG). It is important to use a XSD for several reasons, 
+	eg: * Being able to still read the data after an EvoSuite release upgrade 
+	* The XSD defines a contract for other components (eg a Jenkins plugin) that 
+	needs to read this data * Easier to integrate other tools. For more details, 
+	see: http://www.w3.org/TR/xmlschema-0/ -->
 
 
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
@@ -17,26 +11,50 @@
 	<xs:element name="ProjectInfo">
 		<xs:complexType>
 			<xs:sequence>
-				<xs:element name="numberOfClasses" type="xs:nonNegativeInteger" />
+				<xs:element name="totalNumberOfClasses" type="xs:nonNegativeInteger" />
+				<xs:element name="totalNumberOfTestableClasses" type="xs:nonNegativeInteger" />
 				<xs:element name="averageBranchCoverage" type="percentage" /> <!-- note, this is a derived value -->
-				<xs:element name="GeneratedTests">
-					<xs:complexType>
-						<xs:sequence>
-							<xs:element name="tests" type="TestCase" minOccurs="0" maxOccurs="unbounded" />
-						</xs:sequence>
-					</xs:complexType>
-				</xs:element>
+				<xs:sequence>
+					<xs:element name="generatedTestSuites" type="TestSuite" minOccurs="0" maxOccurs="unbounded" />
+				</xs:sequence>
 			</xs:sequence>
 		</xs:complexType>
 	</xs:element>
 
 
-	<xs:complexType name="TestCase">
+	<xs:complexType name="TestSuite">
 		<xs:sequence>
-			<xs:element name="className" type="xs:string" />
+			<xs:element name="fullNameOfTargetClass" type="xs:string" />
+			<xs:element name="fullNameOfTestSuite" type="xs:string" />
 			<xs:element name="branchCoverage" type="percentage" />
+			<xs:element name="numberOfTests" type="xs:nonNegativeInteger" />
+			<xs:element name="totalNumberOfStatements" type="xs:nonNegativeInteger" />			
+			<xs:element name="totalEffortInSeconds" type="xs:nonNegativeInteger" />
+			<xs:element name="effortFromLastModificationInSeconds" type="xs:nonNegativeInteger" />			
+			<xs:sequence>
+				<xs:element name="failures" type="Failure" minOccurs="0" maxOccurs="unbounded" />
+			</xs:sequence>
+
 		</xs:sequence>
 	</xs:complexType>
+
+	<xs:complexType name="Failure">
+		<xs:sequence>
+			<xs:element name="lineInTest" type="xs:nonNegativeInteger" />
+			<xs:element name="thrownExceptionClassName" type="xs:string" />
+			<xs:element name="failureSeverity" type="FailureSeverity" />
+			<!-- TODO add enum of severities -->
+		</xs:sequence>
+	</xs:complexType>
+
+	<xs:simpleType name="FailureSeverity">
+		<xs:restriction base="xs:string">
+			<xs:enumeration value="CRITICAL" />
+			<xs:enumeration value="MAJOR" />
+			<xs:enumeration value="MEDIUM" />
+			<xs:enumeration value="MINOR" />
+		</xs:restriction>
+	</xs:simpleType>
 
 	<xs:simpleType name="percentage">
 		<xs:restriction base="xs:double">

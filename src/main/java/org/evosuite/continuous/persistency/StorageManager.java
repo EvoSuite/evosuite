@@ -2,11 +2,16 @@ package org.evosuite.continuous.persistency;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
+import java.math.BigInteger;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -16,6 +21,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.xsd.ProjectInfo;
+import org.evosuite.xsd.TestSuite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -135,18 +141,115 @@ public class StorageManager {
 		return true;
 	}
 
-	//TODO methods to query what in db. actually just extend ProjectInfo
-	
-	public String mergeAndCommitChanges(){
+	/**
+	 * Compare the results of this CTG run with what was in
+	 * the database. Keep/update the best results. 
+	 * 
+	 * @param data
+	 * @return
+	 */
+	public String mergeAndCommitChanges(ProjectStaticData current){
+
+		ProjectInfo db = getDatabaseProjectInfo();
+		removeNoMoreExistentData(db,current);
+
+		/*
+		 * Check what test cases have been actually generated
+		 * in this CTG run
+		 */
+		List<File> suites = null;//TODO
+
+		for(File suite : suites){
+			if(isBetterThanOldOne(suite,db)){
+				updateDatabase(db,suite);
+			}
+		}
+
+		updateProjectStatistics(db,current);
+		commitDatabase(db);
+
 		//TODO
 		return null;
 	}
 
-	public void removeNoMoreExistentData(ProjectStaticData data){
-		//TODO
+	private void commitDatabase(ProjectInfo db) {
+
+		StringWriter writer = null;
+		try{
+			writer = new StringWriter();
+			JAXBContext context = JAXBContext.newInstance(ProjectInfo.class);            
+			Marshaller m = context.createMarshaller();
+			m.marshal(db, writer);
+		} catch(Exception e){
+			logger.error("Failed to create XML representation: "+e.getMessage(),e);
+		}
+
+		String xml = writer.toString();
+		
+		/*
+		 * TODO: to be safe, we should first write to tmp file, delete original, and then
+		 * rename the tmp
+		 */
+		File current = new File(rootFolderName + File.separator + projectFileName);
+		current.delete();
+		try {
+			FileUtils.write(current, xml);
+		} catch (IOException e) {
+			logger.error("Failed to write to database: "+e.getMessage(),e);
+		}
 	}
 
-	public ProjectInfo getProjectInfo(){
+	private void updateProjectStatistics(ProjectInfo db, ProjectStaticData current) {
+
+		db.setTotalNumberOfClasses(BigInteger.valueOf(current.getTotalNumberOfClasses()));
+		int n = current.getTotalNumberOfTestableCUTs();
+		db.setTotalNumberOfTestableClasses(BigInteger.valueOf(n));
+
+		double coverage = 0d;
+		for(TestSuite suite : db.getGeneratedTestSuites()){
+			coverage += suite.getBranchCoverage();
+		}
+
+		coverage = coverage / (double) n;
+		db.setAverageBranchCoverage(coverage);
+	}
+
+	private void updateDatabase(ProjectInfo db, File suite) {
+		// TODO Auto-generated method stub
+
+	}
+
+	private boolean isBetterThanOldOne(File suite, ProjectInfo db) {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	/**
+	 * Some classes could had been removed/renamed.
+	 * So just delete all info regarding them
+	 * 
+	 * @param data
+	 */
+	private void removeNoMoreExistentData(ProjectInfo db,
+			ProjectStaticData current) {
+
+		Iterator<TestSuite> iter = db.getGeneratedTestSuites().iterator();
+		while(iter.hasNext()){
+			TestSuite suite = iter.next();
+			String cut = suite.getFullNameOfTargetClass();
+			if(! current.containsClass(cut)){
+				iter.remove();
+			}
+		}
+	}
+
+
+	/**
+	 * Get current representation of the test cases in the database
+	 * 
+	 * @return
+	 */
+	public ProjectInfo getDatabaseProjectInfo(){
 
 		File current = new File(rootFolderName + File.separator + projectFileName);
 		if(!current.exists()){

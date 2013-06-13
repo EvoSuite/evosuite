@@ -21,6 +21,11 @@ import org.slf4j.LoggerFactory;
  * 
  * TODO: handle schedule that is specific for the SVN/Git changes (ie only recently modified classes used for search).
  * Would be interesting to analyze how often there are commits (how many classes are modified) in open source / industrial projects. 
+ * If in last commit there were added/modified a set X of classes, not only we might 
+ * want to focus on those, but also on the others that take them as input.
+ * Furthermore, we can look at the history: if CTG has been run for weeks/months,
+ * and then new classes are added, those should have much higher priority than old,
+ * heavily tested classes 
  * 
  * @author arcuri
  *

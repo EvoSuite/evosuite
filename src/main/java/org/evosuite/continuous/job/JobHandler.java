@@ -141,6 +141,11 @@ public class JobHandler extends Thread{
 		 * This could happen for at least 2 reasons:
 		 * - under budget, and we could not run jobs for all CUTs
 		 * - job for dependency crashed, but we have test cases from previous CTG run
+		 * 
+		 * 
+		 * Regardless of whether dependencies for seeding were calculated, we might
+		 * still want to use seeding based on previous CTG runs, if any test suite
+		 * is available for the CUT 
 		 */
 		
 		cmd += timeSetUp(job.seconds);

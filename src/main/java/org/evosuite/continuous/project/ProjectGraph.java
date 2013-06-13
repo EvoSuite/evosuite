@@ -5,9 +5,9 @@ import java.util.Set;
 
 /**
  * <p>
- * Class representing the CUT graph.
- * For each CUT, not only we want to know its hierarchy (parents, interfaces, subclasses, etc)
- * but also where in the project it is used by other CUTs as input.
+ * Class representing the class graph.
+ * For each class (CUT and non-testable), not only we want to know its hierarchy (parents, interfaces, subclasses, etc)
+ * but also where in the project it is used by other classes as input.
  * </p>
  * 
  * <p>
