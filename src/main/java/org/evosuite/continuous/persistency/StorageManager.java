@@ -141,6 +141,21 @@ public class StorageManager {
 		return true;
 	}
 
+	public static class TestsOnDisk{
+		public final File testSuite;
+		public final File csvFile;
+		public final String cut;
+		public final CsvData csvData;
+		
+		public TestsOnDisk(File testSuite, File csvFile, String cut) {
+			super();
+			this.testSuite = testSuite;
+			this.csvFile = csvFile;
+			this.cut = cut;
+			csvData = CsvData.openFile(csvFile);
+		}
+	}
+	
 	/**
 	 * Compare the results of this CTG run with what was in
 	 * the database. Keep/update the best results. 
@@ -157,21 +172,25 @@ public class StorageManager {
 		 * Check what test cases have been actually generated
 		 * in this CTG run
 		 */
-		List<File> suites = null;//TODO
+		List<TestsOnDisk> suites = gatherGeneratedTestsOnDisk();
 
-		for(File suite : suites){
+		for(TestsOnDisk suite : suites){
 			if(isBetterThanOldOne(suite,db)){
-				updateDatabase(db,suite);
+				updateDatabase(suite,db);
 			}
 		}
 
 		updateProjectStatistics(db,current);
 		commitDatabase(db);
 
-		//TODO
+		//TODO gather string outputs for info
 		return null;
 	}
 
+	private List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
+		return null; //TODO
+	}
+	
 	private void commitDatabase(ProjectInfo db) {
 
 		StringWriter writer = null;
@@ -214,14 +233,96 @@ public class StorageManager {
 		db.setAverageBranchCoverage(coverage);
 	}
 
-	private void updateDatabase(ProjectInfo db, File suite) {
-		// TODO Auto-generated method stub
+	private void updateDatabase(TestsOnDisk ondisk, ProjectInfo db) {
 
+		assert ondisk.csvData != null;
+		
+		TestSuite suite = new TestSuite();
+		CsvData csv = ondisk.csvData;
+		suite.setBranchCoverage(csv.getBranchCoverage());
+		suite.setFullNameOfTargetClass(csv.getTargetClass());
+		suite.setNumberOfTests(BigInteger.valueOf(csv.getNumberOfTests()));
+		suite.setTotalNumberOfStatements(BigInteger.valueOf(csv.getTotalNumberOfStatements()));
+		
+		TestSuite old = null;
+		Iterator<TestSuite> iter = db.getGeneratedTestSuites().iterator();
+		while(iter.hasNext()){
+			TestSuite tmp = iter.next();
+			if(tmp.getFullNameOfTargetClass().equals(csv.getTargetClass())){
+				old = tmp;
+				iter.remove();
+				break;
+			}
+		}
+
+		int oldTotalEffort = 0;
+		int oldEffortFromModification = 0;
+		
+		if(old != null){
+			oldTotalEffort = old.getTotalEffortInSeconds().intValue();
+			oldEffortFromModification = old.getEffortFromLastModificationInSeconds().intValue();
+		}
+		
+		int duration = oldTotalEffort+csv.getDurationInSeconds();
+		suite.setEffortFromLastModificationInSeconds(BigInteger.valueOf(oldEffortFromModification+duration));
+		suite.setTotalEffortInSeconds(BigInteger.valueOf(oldTotalEffort+duration));
+
+		//TODO need also to update actual tests
+		suite.setFullNameOfTestSuite(null); //TODO
+		
+		db.getGeneratedTestSuites().add(suite);
+		
+		/*
+		 * TODO to properly update failure data, we will first need
+		 * to change how we output such info in EvoSuite (likely
+		 * we will need something more than statistics.csv)
+		 */
 	}
 
-	private boolean isBetterThanOldOne(File suite, ProjectInfo db) {
-		// TODO Auto-generated method stub
-		return false;
+	private boolean isBetterThanOldOne(TestsOnDisk suite, ProjectInfo db) {
+		if(suite.csvData == null) {
+			// no data available
+			return false; 
+		}
+		
+		TestSuite old = null;
+		for(TestSuite tmp : db.getGeneratedTestSuites()){
+			if(tmp.getFullNameOfTargetClass().equals(suite.cut)){
+				old = tmp;
+				break;
+			}
+		}
+		
+		if(old == null){
+			// there is no old test suite, so accept new one
+			return true;
+		}
+
+		double oldCov = old.getBranchCoverage();
+		double newCov = suite.csvData.getBranchCoverage();
+		double covDif = Math.abs(newCov - oldCov); 
+		
+		if(covDif > 0.0001){
+			/*
+			 * this check is to avoid issues with double truncation 
+			 */
+			return newCov > oldCov;
+		}
+		
+		//here coverage seems the same, so look at failures
+		int oldFail = old.getFailures().size();
+		int newFail = suite.csvData.getTotalNumberOfFailures();
+		if(newFail != oldFail){
+			return newFail > oldFail;
+		}
+		
+		//TODO: here we could check other things, like mutation score
+		
+		//everything seems same, so look at size 
+		int oldSize = old.getTotalNumberOfStatements().intValue();
+		int newSize = suite.csvData.getTotalNumberOfStatements();
+		
+		return newSize < oldSize; 
 	}
 
 	/**
