@@ -51,11 +51,16 @@ import org.evosuite.xsd.ProjectInfo;
  * </p>
  * 
  * 
+ * <p>
  * TODO we should also have an option "regression" to run
  * current test suites, and see if any fails.
  * Even if do not want to explicitly do regression, we might still
  * have to run old test cases, as failing ones should be (re)moved and
  * labelled as "regression-failing"
+ * 
+ * 
+ * <p>
+ * TODO need also option to automatically commit to repository any new, better test
  * 
  * @author arcuri
  *

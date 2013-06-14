@@ -158,8 +158,10 @@ public class JobHandler extends Thread{
 		cmd += " -Dtest_dir="+tests.getAbsolutePath();
 		
 		//TODO add other outputs once fitness functions are fixed
+		//FIXME use variables, not hardcoded string
 		cmd += " -Doutput_variables=\"TARGET_CLASS,configuration_id,BranchCoverage,Minimized_Size,Statements_Executed\"";
-        cmd += " -Denable_asserts_for_evosuite=flase -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
+        
+		cmd += " -Denable_asserts_for_evosuite=flase -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
         cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
         cmd += " -Dsave_all_data=false  -Dinline=false";
   		
