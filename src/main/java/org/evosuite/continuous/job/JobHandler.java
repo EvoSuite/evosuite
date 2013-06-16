@@ -5,9 +5,11 @@ import java.io.IOException;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
+import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.ReportGenerator.RuntimeVariable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,14 +159,26 @@ public class JobHandler extends Thread{
 		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.configurationId;
 		cmd += " -Dtest_dir="+tests.getAbsolutePath();
 		
-		//TODO add other outputs once fitness functions are fixed
-		//FIXME use variables, not hardcoded string
-		cmd += " -Doutput_variables=\"TARGET_CLASS,configuration_id,BranchCoverage,Minimized_Size,Statements_Executed\"";
+		cmd += getOutputVariables();
         
 		cmd += " -Denable_asserts_for_evosuite=flase -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
         cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
         cmd += " -Dsave_all_data=false  -Dinline=false";
   		
+		return cmd;
+	}
+	
+	private String getOutputVariables(){
+		//TODO add other outputs once fitness functions are fixed
+		//FIXME should rather use variables, not hardcoded strings
+		String cmd =  " -Doutput_variables=\""; 
+		cmd += "TARGET_CLASS,configuration_id"; 
+		cmd += RuntimeVariable.BranchCoverage+",";		
+		cmd += RuntimeVariable.Minimized_Size+",";		
+		cmd += RuntimeVariable.Statements_Executed+",";				
+		cmd += RuntimeVariable.Total_Time+",";				
+		cmd += RuntimeVariable.NumberOfGeneratedTestCases; 			
+		cmd += "\"";
 		return cmd;
 	}
 	
