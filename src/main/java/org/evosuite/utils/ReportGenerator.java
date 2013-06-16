@@ -126,7 +126,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @author arcuri
 	 * 
 	 */
-	private enum RuntimeVariable {
+	public enum RuntimeVariable {
 		/** The class under test */
 		Class,
 		/** Number of predicates */
@@ -151,6 +151,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		 * branchless methods
 		 */
 		BranchCoverage,
+		NumberOfGeneratedTestCases,
 		DefUseCoverage,
 		WeakMutationScore,
 		Creation_Time,
@@ -640,6 +641,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + covered_goals;
 			case Coverage:
 				return "" + getCoverageDouble();
+			case NumberOfGeneratedTestCases:
+				return ""+ (tests!=null? tests.size() : 0);
 			case BranchCoverage:
 				double cov = 0.0;
 
