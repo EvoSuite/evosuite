@@ -423,10 +423,10 @@ public class Properties {
 	@Parameter(key = "population_limit", group = "Search Algorithm", description = "What to use as limit for the population size")
 	public static PopulationLimit POPULATION_LIMIT = PopulationLimit.INDIVIDUALS;
 
-	/** Constant <code>SEARCH_BUDGET=1000000</code> */
+	/** Constant <code>SEARCH_BUDGET=60</code> */
 	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
-	public static long SEARCH_BUDGET = 1000000;
+	public static long SEARCH_BUDGET = 60;
 
 	/** Constant <code>OUTPUT_DIR="evosuite-files"</code> */
 	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
@@ -445,7 +445,7 @@ public class Properties {
 
 	/** Constant <code>STOPPING_CONDITION</code> */
 	@Parameter(key = "stopping_condition", group = "Search Algorithm", description = "What condition should be checked to end the search")
-	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXSTATEMENTS;
+	public static StoppingCondition STOPPING_CONDITION = StoppingCondition.MAXTIME;
 
 	public enum CrossoverFunction {
 		SINGLEPOINTRELATIVE, SINGLEPOINTFIXED, SINGLEPOINT, COVERAGE
@@ -507,7 +507,7 @@ public class Properties {
 	public static boolean DYNAMIC_LIMIT = false;
 
 	/** Constant <code>GLOBAL_TIMEOUT=600</code> */
-	@Parameter(key = "global_timeout", group = "Search Algorithm", description = "Seconds allowed for entire search")
+	@Parameter(key = "global_timeout", group = "Search Algorithm", description = "Maximum seconds allowed for entire search when not using time as stopping criterion")
 	@IntValue(min = 0)
 	public static int GLOBAL_TIMEOUT = 600;
 
