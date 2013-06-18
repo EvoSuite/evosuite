@@ -58,7 +58,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 			                                   (ParameterizedType) getOwnerType()));
 			return new GenericField(field, newOwner);
 		} else {
-			throw new RuntimeException("Invalid type: " + returnType.getClass());
+			throw new RuntimeException("Invalid type: " + returnType.getClassName());
 		}
 	}
 
