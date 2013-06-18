@@ -17,6 +17,7 @@ import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Listener;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.ReportGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -138,12 +139,11 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
 		if(backend == null)
 			return;
 		
-		File outputDir = new File(Properties.REPORT_DIR);
-		outputDir.mkdirs();
-		
 		if(!bestIndividual.isEmpty()) {
 			Chromosome individual = bestIndividual.values().iterator().next();
 			backend.writeData(getOutputVariables(individual));
+		} else {
+			logger.info("No statistics has been saved because EvoSuite failed to generate any test case");
 		}
 	}
 

@@ -13,7 +13,9 @@ import java.util.Set;
  * 
  * <p>
  * A class under test (CUT) is any <i>public</i> class in the SUT,
- * regardless of whether it is concrete, abstract or an interface.
+ * regardless of whether it is concrete, abstract or an interface, but
+ * as long as they have any code to test (eg, an abstract class with only abstract
+ * methods will not be a CUT).
  * Anonymous and private classes are not CUTs.
  * Protected and package level classes are bit tricky, and at least for the moment
  * they are not considered as CUTs (might change in the future though). 
@@ -66,17 +68,25 @@ public class ProjectStaticData {
 		}
 		
 		public boolean isTestable(){
+			/*
+			 * we shouldn't use the number of branches,
+			 * as there might be CUTs with code but 
+			 * no branches
+			 */
 			return numberOfImplementedMethods > 0;
 		}
 	}
 	
+	public boolean containsClass(String c){
+		return classes.containsKey(c);
+	}
 	
 	/**
-	 * Return the number of classes in the project that can be used as CUT,
+	 * Return the number of classes in the project,
 	 * including non-testable ones
 	 * @return
 	 */
-	public int getTotalNumberOfCUTs(){
+	public int getTotalNumberOfClasses(){
 		return classes.size();
 	}
 	
@@ -90,11 +100,20 @@ public class ProjectStaticData {
 	public int getTotalNumberOfTestableCUTs(){
 		int total = 0;
 		for(ClassInfo info : classes.values()){
-			if(info.numberOfImplementedMethods > 0 ){
+			if(info.isTestable()){
 				total++;
 			}
 		}
 		return total;
+	}
+	
+	public int getTotalNumberOfBranches(){
+		int total = 0;
+		for(ClassInfo info : classes.values()){
+			total += info.numberOfBranches;
+		}
+		return total;
+		
 	}
 	
 	/**

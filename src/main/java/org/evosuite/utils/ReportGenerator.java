@@ -88,8 +88,26 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	/** Constant <code>logger</code> */
 	protected static final Logger logger = LoggerFactory.getLogger(ReportGenerator.class);
 
-	protected static File getReportDir() {
-		return new File(Properties.REPORT_DIR);
+	/**
+	 * Return the folder of where reports should be generated.
+	 * If the folder does not exist, try to create it
+	 * 
+	 * @return
+	 * @throws RuntimeException if folder does not exist, and we cannot create it
+	 */
+	public static File getReportDir() throws RuntimeException{
+		File dir = new File(Properties.REPORT_DIR);
+		
+		if(!dir.exists()){
+			boolean created = dir.mkdirs();
+			if(!created){
+				String msg = "Cannot create report dir: "+Properties.REPORT_DIR;
+				logger.error(msg);
+				throw new RuntimeException(msg);
+			}
+		}
+		
+		return dir;			
 	}
 
 	/**
@@ -108,7 +126,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 	 * @author arcuri
 	 * 
 	 */
-	private enum RuntimeVariable {
+	public enum RuntimeVariable {
 		/** The class under test */
 		Class,
 		/** Number of predicates */
@@ -133,6 +151,7 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		 * branchless methods
 		 */
 		BranchCoverage,
+		NumberOfGeneratedTestCases,
 		DefUseCoverage,
 		WeakMutationScore,
 		Creation_Time,
@@ -622,6 +641,8 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + covered_goals;
 			case Coverage:
 				return "" + getCoverageDouble();
+			case NumberOfGeneratedTestCases:
+				return ""+ (tests!=null? tests.size() : 0);
 			case BranchCoverage:
 				double cov = 0.0;
 
@@ -1431,9 +1452,9 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			return;
 
 		StatisticEntry entry = statistics.get(statistics.size() - 1);
-		logger.info("Writing CSV!");
 		try {
-			File f = new File(getReportDir() + "/statistics.csv");
+			File f = new File(getReportDir().getAbsolutePath() + "/statistics.csv");
+			logger.info("Writing CSV to "+f.getAbsolutePath());
 			BufferedWriter out = new BufferedWriter(new FileWriter(f, true));
 			if (f.length() == 0L) {
 				out.write(entry.getCSVHeader() + "\n");

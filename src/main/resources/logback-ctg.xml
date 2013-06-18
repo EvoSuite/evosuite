@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--  This is special logback configuration for Continuous Test Generation only -->
+
+<!-- NOTE: ":-" is used for default values in case a variable is not defined 
+	Here we configure the logs for both the master and client nodes. The client 
+	nodes shouldn't print anything in their console, they should rather connect 
+	to master through TCP. -->
+
+<configuration>
+
+	<!-- 
+	    There will be 4 different files: std out and std err, for
+		both the master and the client. The reasons are:
+		1) directing ERROR messages to a different files makes easier to 
+		   check for errors, as they will not be mixed with normal output
+		2) as master and client are two different processes, there could
+		   be problems in Windows if both try to write on same file   
+	 -->
+
+
+	<appender name="STDOUT" class="ch.qos.logback.core.FileAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>DENY</onMatch>
+			<onMismatch>ACCEPT</onMismatch>
+		</filter>
+		<encoder>
+			<pattern>[MASTER] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} - %msg%n</pattern>
+		</encoder>
+		<File>${evosuite.log.folder:-.}/std_out_${evosuite.log.appender:-MASTER}.log</File>
+	</appender>
+
+
+	<appender name="EVO_LOGGER" class="ch.qos.logback.core.FileAppender">
+		<encoder>
+			<pattern>%msg%n</pattern>
+		</encoder>
+		<File>${evosuite.log.folder:-.}/std_out_${evosuite.log.appender:-MASTER}.log</File>
+	</appender>
+
+	<appender name="STDERR" class="ch.qos.logback.core.FileAppender">
+		<filter class="ch.qos.logback.classic.filter.LevelFilter">
+			<level>ERROR</level>
+			<onMatch>ACCEPT</onMatch>
+			<onMismatch>DENY</onMismatch>
+		</filter>
+		<encoder>
+			<pattern>[MASTER] %d{HH:mm:ss.SSS} [%thread] %-5level %logger{0} - %msg%n</pattern>
+		</encoder>
+		<File>${evosuite.log.folder:-.}/std_err_${evosuite.log.appender:-MASTER}.log</File>
+	</appender>
+
+
+	<!-- Loggers  -->
+
+	<!-- the "EVO" logger is used both by master and client. it is used for 
+		outputting standard information to the user. so, it's level is always ALL. -->
+
+	<logger name="evo_logger" level="ALL" additivity="false">
+		<appender-ref ref="EVO_LOGGER" />
+	</logger>
+
+
+	<logger name="org.evosuite" level="${log.level:-WARN}">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="STDERR" />
+	</logger>
+
+	<!-- for a specific logger, enables all the logging. this is useful when 
+		we are debugging a particular class -->
+
+	<logger name="${log.target:-NOTHING}" level="ALL" />
+
+	<!-- main root logger. Note: it is turned OFF to avoid SUT using it-->
+
+	<root level="OFF">
+	</root>
+
+</configuration>
