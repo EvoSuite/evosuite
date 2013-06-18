@@ -9,7 +9,7 @@ import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 
 public class SimpleSchedule extends OneTimeSchedule{
-	
+
 	public SimpleSchedule(JobScheduler scheduler){
 		super(scheduler);
 	}
@@ -17,40 +17,23 @@ public class SimpleSchedule extends OneTimeSchedule{
 	@Override
 	protected List<JobDefinition> createScheduleOnce() {
 
+		assert enoughBudgetForAll(); 
+
 		ProjectStaticData data = scheduler.getProjectData();
 		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * super.getNumberOfUsableCores(); 
-		
+
 		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
-		
-		if(super.enoughBudgetForAll()){
-			//simple case, distribute budget equally
-			int budgetPerCUT = totalBudget / data.getTotalNumberOfTestableCUTs();
-			
-			for(ClassInfo info : data.getClassInfos()){
-				if(!info.isTestable()){
-					continue;
-				}
-				JobDefinition job = new JobDefinition(
-						budgetPerCUT, getConstantMemoryPerJob(), info.getClassName(), 0);
-				jobs.add(job);
-			}
-			return jobs;
-		} 
-		
-		//not enough budget
+
+		//simple case, distribute budget equally
+		int budgetInSecondsPerCUT = totalBudget / data.getTotalNumberOfTestableCUTs();
+
 		for(ClassInfo info : data.getClassInfos()){
 			if(!info.isTestable()){
 				continue;
 			}
 			JobDefinition job = new JobDefinition(
-					super.MINIMUM_SECONDS, getConstantMemoryPerJob(), info.getClassName(), 0);
+					budgetInSecondsPerCUT, getConstantMemoryPerJob(), info.getClassName(), 0, null);
 			jobs.add(job);
-			
-			totalBudget -= super.MINIMUM_SECONDS;
-			
-			if(totalBudget <= 0){
-				break;
-			}
 		}
 		return jobs;
 	}

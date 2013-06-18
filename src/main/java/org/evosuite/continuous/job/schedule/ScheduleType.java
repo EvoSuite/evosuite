@@ -1,9 +1,12 @@
 package org.evosuite.continuous.job.schedule;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobScheduler;
+import org.evosuite.continuous.project.ProjectStaticData;
+import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,10 +18,14 @@ import org.slf4j.LoggerFactory;
  * test cases, larger test suites, etc. These latter are an initial proof-of-concept of a more 
  * general optimized tuning.
  * 
- * TODO: when starting schedule, check how many classes we do already have test cases from previous runs
  * 
  * TODO: handle schedule that is specific for the SVN/Git changes (ie only recently modified classes used for search).
  * Would be interesting to analyze how often there are commits (how many classes are modified) in open source / industrial projects. 
+ * If in last commit there were added/modified a set X of classes, not only we might 
+ * want to focus on those, but also on the others that take them as input.
+ * Furthermore, we can look at the history: if CTG has been run for weeks/months,
+ * and then new classes are added, those should have much higher priority than old,
+ * heavily tested classes 
  * 
  * @author arcuri
  *
@@ -39,7 +46,9 @@ public abstract class ScheduleType {
 	/**
 	 * To run a job, you need a minimum of RAM.
 	 * If not enough RAM, then no point in even trying to start
-	 * a search 
+	 * a search.
+	 * Note: this include the memory of both the master and
+	 * clients together 
 	 */
 	protected final int MINIMUM_MEMORY_PER_JOB_MB = 500;
 
@@ -100,4 +109,38 @@ public abstract class ScheduleType {
 	 */
 	public abstract boolean canExecuteMore();
 
+	/**
+	 * if there is not enough search budget, then try
+	 * to target as many CUTs as possible
+	 * @return
+	 */
+	protected List<JobDefinition> createScheduleForWhenNotEnoughBudget(){
+		
+		ProjectStaticData data = scheduler.getProjectData();
+		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * getNumberOfUsableCores(); 
+		
+		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
+
+		/*
+		 * TODO: when starting schedule, check how many classes we do already have test cases from previous runs.
+		 * If from previous run we have some classes, then prioritize the others
+		 */
+		
+		//not enough budget
+		for(ClassInfo info : data.getClassInfos()){
+			if(!info.isTestable()){
+				continue;
+			}
+			JobDefinition job = new JobDefinition(
+					MINIMUM_SECONDS, getConstantMemoryPerJob(), info.getClassName(), 0, null);
+			jobs.add(job);
+			
+			totalBudget -= MINIMUM_SECONDS;
+			
+			if(totalBudget <= 0){
+				break;
+			}
+		}
+		return jobs;
+	}
 }

@@ -33,6 +33,10 @@ public abstract class OneTimeSchedule extends ScheduleType{
 		
 		called = true;
 		
+		if(!enoughBudgetForAll()){
+			return super.createScheduleForWhenNotEnoughBudget();
+		}
+		
 		return createScheduleOnce();
 	}
 	

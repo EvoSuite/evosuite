@@ -53,6 +53,8 @@ public class LoggingUtils {
 	/** Constant <code>DEFAULT_ERR</code> */
 	public static final PrintStream DEFAULT_ERR = System.err;
 
+	public static final String USE_DIFFERENT_LOGGING_XML_PARAMETER = "use_different_logback";
+	
 	private static final String EVO_LOGGER = "evo_logger";
 
 	/** Constant <code>latestOut</code> */
@@ -269,8 +271,8 @@ public class LoggingUtils {
 		}
 	}
 
-	public static String getLogbackFileName() {
-		return "logback-evosuite.xml";
+	public static String getLogbackFileName() {		
+		return System.getProperty(USE_DIFFERENT_LOGGING_XML_PARAMETER, "logback-evosuite.xml");
 	}
 
 }

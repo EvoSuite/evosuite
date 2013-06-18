@@ -69,7 +69,7 @@ public class FitnessLogger implements SearchListener {
 		fitness_history.clear();
 		size_history.clear();
 		File dir = new File(Properties.REPORT_DIR + "/goals/");
-		dir.mkdir();
+		dir.mkdirs();
 		name = Properties.REPORT_DIR
 		        + "/goals/"
 		        + algorithm.getFitnessFunction().toString().replace(" ", "_").replace(":",
