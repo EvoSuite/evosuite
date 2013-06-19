@@ -1064,6 +1064,10 @@ public class Properties {
 	@Parameter(key = "target_method", group = "Runtime", description = "Method for which to generate tests")
 	public static String TARGET_METHOD = "";
 
+	/** Method under test */
+	@Parameter(key = "target_method_prefix", group = "Runtime", description = "All methods matching prefix will be used for generating tests")
+	public static String TARGET_METHOD_PREFIX = "";
+	
 	/** Constant <code>HIERARCHY_DATA="hierarchy.xml"</code> */
 	@Parameter(key = "hierarchy_data", group = "Runtime", description = "File in which hierarchy data is stored")
 	public static String HIERARCHY_DATA = "hierarchy.xml";
