@@ -8,7 +8,6 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
-
 import com.examples.with.different.packagename.ExampleFieldClass;
 import com.examples.with.different.packagename.ExampleInheritedClass;
 import com.examples.with.different.packagename.test.AbsTest;
@@ -60,12 +59,13 @@ public class TestRegression extends SystemTest {
 	private void testCovered(String targetClass, int numGoals) {
 		GeneticAlgorithm<?> ga = runTest(targetClass);
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-		// TODO: Need to fix the check, some reset is not working
-		Assert.assertEquals("Wrong number of target goals", numGoals,best.getNumOfCoveredGoals());
-		Assert.assertEquals("Wrong fitness: ", 0.0, best.getFitness(), 0.00);
-		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
-		Assert.assertTrue("Wrong number of statements: ", best.size() > 0);
 		System.out.println(best.toString());
+		// TODO: Need to fix the check, some reset is not working
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Wrong number of target goals", numGoals,
+		                    best.getNumOfCoveredGoals());
+		Assert.assertEquals("Wrong fitness: ", 0.0, best.getFitness(), 0.00);
+		Assert.assertTrue("Wrong number of statements: ", best.size() > 0);
 	}
 
 	@Test
@@ -80,7 +80,8 @@ public class TestRegression extends SystemTest {
 
 	@Test
 	public void testAssignment() {
-		Properties.CLASS_PREFIX = AssignmentTest.class.getCanonicalName().substring(0, AssignmentTest.class.getCanonicalName().lastIndexOf('.'));
+		Properties.CLASS_PREFIX = AssignmentTest.class.getCanonicalName().substring(0,
+		                                                                            AssignmentTest.class.getCanonicalName().lastIndexOf('.'));
 		testCovered(AssignmentTest.class.getCanonicalName(), 12);
 	}
 
