@@ -10,13 +10,12 @@ import org.junit.Test;
 
 import com.examples.with.different.packagename.TargetMethodPrefix;
 
-public class TestTargetMethodPrefix {
+public class TestTargetMethodPrefix extends SystemTest {
 
 	@After
 	public void resetSettings() {
-		Properties.TARGET_CLASS = "";
 		Properties.TARGET_METHOD = "";
-		Properties.CLIENT_ON_THREAD = false;
+		Properties.TARGET_METHOD_PREFIX = "";
 	}
 
 	@Test
@@ -27,8 +26,8 @@ public class TestTargetMethodPrefix {
 
 		Properties.TARGET_CLASS = targetClass;
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass, "-Dclient_on_thread=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass,
+		        "-Dclient_on_thread=true" };
 
 		Object result = evosuite.parseCommandLine(command);
 		assertTrue(result != null);
@@ -36,8 +35,7 @@ public class TestTargetMethodPrefix {
 		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals()
-				.size();
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
 		assertEquals("Wrong number of goals:", 13, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -53,9 +51,8 @@ public class TestTargetMethodPrefix {
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TARGET_METHOD = targetMethod;
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass, "-Dtarget_method=" + targetMethod,
-				"-Dclient_on_thread=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass,
+		        "-Dtarget_method=" + targetMethod, "-Dclient_on_thread=true" };
 
 		Object result = evosuite.parseCommandLine(command);
 		assertTrue(result != null);
@@ -63,8 +60,7 @@ public class TestTargetMethodPrefix {
 		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals()
-				.size();
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
 		assertEquals("Wrong number of goals: ", 4, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -82,9 +78,8 @@ public class TestTargetMethodPrefix {
 		Properties.TARGET_METHOD = "";
 		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass, "-Dtarget_method_prefix=" + targetMethodPrefix,
-				"-Dclient_on_thread=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass,
+		        "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true" };
 
 		Object result = evosuite.parseCommandLine(command);
 		assertTrue(result != null);
@@ -92,8 +87,7 @@ public class TestTargetMethodPrefix {
 		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals()
-				.size();
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
 		assertEquals("Wrong number of goals: ", 4, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
@@ -111,9 +105,8 @@ public class TestTargetMethodPrefix {
 		Properties.TARGET_METHOD = "";
 		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
 
-		String[] command = new String[] { "-generateSuite", "-class",
-				targetClass, "-Dtarget_method_prefix=" + targetMethodPrefix,
-				"-Dclient_on_thread=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass,
+		        "-Dtarget_method_prefix=" + targetMethodPrefix, "-Dclient_on_thread=true" };
 
 		Object result = evosuite.parseCommandLine(command);
 		assertTrue(result != null);
@@ -121,8 +114,7 @@ public class TestTargetMethodPrefix {
 		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
 
-		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals()
-				.size();
+		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 
 		assertEquals("Wrong number of goals: ", 8, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
