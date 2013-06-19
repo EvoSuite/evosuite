@@ -1066,7 +1066,7 @@ public class TestClusterGenerator {
 						logger.info("TT name: " + orig + " -> " + name);
 				}
 
-				if (canUse(method)) {
+				if (canUse(method) && !method.getName().equals("hashCode")) {
 					logger.debug("Adding method " + clazz.getClassName() + "."
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
