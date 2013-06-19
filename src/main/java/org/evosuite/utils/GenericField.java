@@ -57,8 +57,11 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 			        getTypeFromExactReturnType((ParameterizedType) returnType.getComponentType(),
 			                                   (ParameterizedType) getOwnerType()));
 			return new GenericField(field, newOwner);
+		} else if (returnType.isAssignableTo(getGeneratedType())) {
+			return new GenericField(field, new GenericClass(owner));
 		} else {
-			throw new RuntimeException("Invalid type: " + returnType.getClassName());
+			throw new RuntimeException("Invalid return type: "
+			        + returnType.getClassName() + " for field " + toString());
 		}
 	}
 
