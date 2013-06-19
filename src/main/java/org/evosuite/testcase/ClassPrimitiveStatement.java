@@ -3,6 +3,7 @@ package org.evosuite.testcase;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.Array;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
@@ -39,12 +40,23 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	}
 
+	private Class<?> getType(org.objectweb.asm.Type type) throws ClassNotFoundException {
+		if(type.getSort() == org.objectweb.asm.Type.ARRAY) {
+			org.objectweb.asm.Type componentType = type.getElementType();
+			Class<?> componentClass = getType(componentType);
+			Class<?> arrayClass = Array.newInstance(componentClass, 0).getClass();
+			return arrayClass;
+		} else {
+			return Class.forName(type.getClassName(), true,
+					TestGenerationContext.getClassLoader());
+		}
+	}
+	
 	@Override
 	public void randomize() {
 		org.objectweb.asm.Type type = ConstantPoolManager.getInstance().getConstantPool().getRandomType();
 		try {
-			value = Class.forName(type.getClassName(), true,
-			                      TestGenerationContext.getClassLoader());
+			value = getType(type);
 		} catch (ClassNotFoundException e) {
 			logger.warn("Error loading class " + type.getClassName() + ": " + e);
 		} catch (NoClassDefFoundError e) {
