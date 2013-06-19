@@ -376,9 +376,9 @@ public class Properties {
 	@Parameter(key = "p_statement_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
 	public static double P_STATEMENT_INSERTION = 0.5;
 
-	/** Constant <code>P_CHANGE_PARAMETER=0.2</code> */
+	/** Constant <code>P_CHANGE_PARAMETER=0.1</code> */
 	@Parameter(key = "p_change_parameter", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
-	public static double P_CHANGE_PARAMETER = 0.2;
+	public static double P_CHANGE_PARAMETER = 0.1;
 
 	/** Constant <code>P_TEST_DELETE=1d / 3d</code> */
 	@Parameter(key = "p_test_delete", group = "Search Algorithm", description = "Probability of deleting statements during mutation")
