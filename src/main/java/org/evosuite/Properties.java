@@ -376,6 +376,10 @@ public class Properties {
 	@Parameter(key = "p_statement_insertion", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
 	public static double P_STATEMENT_INSERTION = 0.5;
 
+	/** Constant <code>P_CHANGE_PARAMETER=0.2</code> */
+	@Parameter(key = "p_change_parameter", group = "Search Algorithm", description = "Initial probability of inserting a new statement in a test case")
+	public static double P_CHANGE_PARAMETER = 0.2;
+
 	/** Constant <code>P_TEST_DELETE=1d / 3d</code> */
 	@Parameter(key = "p_test_delete", group = "Search Algorithm", description = "Probability of deleting statements during mutation")
 	public static double P_TEST_DELETE = 1d / 3d;
@@ -528,10 +532,9 @@ public class Properties {
 	@Parameter(key = "analysis_criteria", group = "Output", description = "List of criteria which should be measured on the completed test suite")
 	public static String ANALYSIS_CRITERIA = "";
 
-	
 	//----------------------------------------------------------------
 	// Continuous Test Generation
-	
+
 	@Parameter(key = "ctg_memory", group = "Continuous Test Generation", description = "Total Memory (in MB) that CTG will use")
 	public static int CTG_MEMORY = 1000;
 
@@ -547,9 +550,8 @@ public class Properties {
 	 * Maven plugin will use the default, best one
 	 */
 	@Parameter(key = "ctg_schedule", group = "Continuous Test Generation", description = "Schedule used to run jobs")
-	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.SIMPLE; 
+	public static AvailableSchedule CTG_SCHEDULE = AvailableSchedule.SIMPLE;
 
-		
 	// ---------------------------------------------------------------
 	// Single branch mode
 	/** Constant <code>RANDOM_TESTS=0</code> */
@@ -1701,7 +1703,7 @@ public class Properties {
 			loadProperties(silent);
 		setClassPrefix();
 	}
-	
+
 	private static void setClassPrefix() {
 		if (TARGET_CLASS != null && !TARGET_CLASS.equals("")) {
 			if (TARGET_CLASS.contains(".")) {
@@ -1716,7 +1718,7 @@ public class Properties {
 				// LoggingUtils.getEvoLogger().info("* Using project prefix: "
 				// + PROJECT_PREFIX);
 			}
-		}		
+		}
 	}
 
 	/**
