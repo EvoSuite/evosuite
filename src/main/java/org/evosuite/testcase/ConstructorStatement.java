@@ -537,11 +537,13 @@ public class ConstructorStatement extends AbstractStatement {
 		if (!parameter.isPrimitive())
 			objects.add(nullStatement.getReturnValue());
 		else {
-			PrimitiveStatement<?> originalStatement = (PrimitiveStatement<?>) test.getStatement(parameter.getStPosition());
-			PrimitiveStatement<?> copy = (PrimitiveStatement<?>) originalStatement.clone(test);
-			copy.delta();
-			objects.add(copy.getReturnValue());
-			primitiveCopy = copy;
+			StatementInterface originalStatement = test.getStatement(parameter.getStPosition());
+			if (originalStatement instanceof PrimitiveStatement<?>) {
+				PrimitiveStatement<?> copy = (PrimitiveStatement<?>) originalStatement.clone(test);
+				copy.delta();
+				objects.add(copy.getReturnValue());
+				primitiveCopy = copy;
+			}
 		}
 
 		if (objects.isEmpty())
