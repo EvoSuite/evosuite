@@ -5,19 +5,11 @@ import static org.junit.Assert.assertTrue;
 
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
-import org.junit.After;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.TargetMethodPrefix;
 
-public class TestTargetMethodPrefix {
-
-	@After
-	public void resetSettings() {
-		Properties.TARGET_CLASS = "";
-		Properties.TARGET_METHOD = "";
-		Properties.CLIENT_ON_THREAD = false;
-	}
+public class TestTargetMethodPrefix extends SystemTest {
 
 	@Test
 	public void testTotalBranchesInClass() {
@@ -26,6 +18,9 @@ public class TestTargetMethodPrefix {
 		String targetClass = TargetMethodPrefix.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
+		Properties.TARGET_METHOD = "";
+		Properties.TARGET_METHOD_LIST = "";
+		Properties.TARGET_METHOD_PREFIX = "";
 
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass, "-Dclient_on_thread=true" };
@@ -52,6 +47,8 @@ public class TestTargetMethodPrefix {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TARGET_METHOD = targetMethod;
+		Properties.TARGET_METHOD_LIST = "";
+		Properties.TARGET_METHOD_PREFIX = "";
 
 		String[] command = new String[] { "-generateSuite", "-class",
 				targetClass, "-Dtarget_method=" + targetMethod,
@@ -80,6 +77,7 @@ public class TestTargetMethodPrefix {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TARGET_METHOD = "";
+		Properties.TARGET_METHOD_LIST = "";
 		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
 
 		String[] command = new String[] { "-generateSuite", "-class",
@@ -105,10 +103,11 @@ public class TestTargetMethodPrefix {
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = TargetMethodPrefix.class.getCanonicalName();
-		String targetMethodPrefix = "foo_";
+		String targetMethodPrefix = "foo"; // different from foo_
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.TARGET_METHOD = "";
+		Properties.TARGET_METHOD_LIST = "";
 		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
 
 		String[] command = new String[] { "-generateSuite", "-class",
@@ -127,5 +126,6 @@ public class TestTargetMethodPrefix {
 		assertEquals("Wrong number of goals: ", 8, goals);
 		assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 
+		Properties.TARGET_METHOD_PREFIX = "";
 	}
 }

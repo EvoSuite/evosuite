@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.coverage.lcsaj.LCSAJPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -37,9 +38,10 @@ import org.slf4j.LoggerFactory;
  * @author Gordon Fraser, Andre Mis
  */
 public class BranchCoverageFactory extends
-        AbstractFitnessFactory<BranchCoverageTestFitness> {
+		AbstractFitnessFactory<BranchCoverageTestFitness> {
 
-	private static Logger logger = LoggerFactory.getLogger(BranchCoverageFactory.class);
+	private static Logger logger = LoggerFactory
+			.getLogger(BranchCoverageFactory.class);
 
 	/*
 	 * (non-Javadoc)
@@ -50,61 +52,32 @@ public class BranchCoverageFactory extends
 	/** {@inheritDoc} */
 	@Override
 	public List<BranchCoverageTestFitness> getCoverageGoals() {
-		return getCoverageGoals(Properties.TARGET_METHOD);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
-	/**
-	 * <p>
-	 * getCoverageGoals
-	 * </p>
-	 * 
-	 * @param targetMethod
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<BranchCoverageTestFitness> getCoverageGoals(String targetMethod) {
 		long start = System.currentTimeMillis();
 		List<BranchCoverageTestFitness> goals = new ArrayList<BranchCoverageTestFitness>();
 
 		// logger.info("Getting branches");
 		for (String className : BranchPool.knownClasses()) {
-			/*
-			boolean classNameMatches = className.equals(Properties.TARGET_CLASS);
 
-			if (!classNameMatches && !Properties.TARGET_CLASS_PREFIX.isEmpty()) {
-				classNameMatches |= className.startsWith(Properties.TARGET_CLASS_PREFIX);
-			}
-			if (!classNameMatches && className.startsWith(Properties.TARGET_CLASS + "$")) {
-				classNameMatches = true;
-			}
-
-			if (!classNameMatches)
-				continue;
-				*/
-
+			final MethodNameMatcher matcher = new MethodNameMatcher();
 			// Branchless methods
 			for (String method : BranchPool.getBranchlessMethods(className)) {
-				if (targetMethod.isEmpty() || method.endsWith(targetMethod)) {
+				if (matcher.fullyQualifiedMethodMatches(method)) {
 					goals.add(createRootBranchTestFitness(className, method));
 				}
 			}
 
 			// Branches
 			for (String methodName : BranchPool.knownMethods(className)) {
-				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
-					logger.info("Method " + methodName + " does not equal target method "
-					        + targetMethod);
+				if (!matcher.methodMatches(methodName)) {
+					logger.info("Method " + methodName
+							+ " does not match criteria. ");
 					continue;
 				}
 
-				for (Branch b : BranchPool.retrieveBranchesInMethod(className, methodName)) {
-					if (!(b.getInstruction().isForcedBranch() || LCSAJPool.isLCSAJBranch(b))) {
+				for (Branch b : BranchPool.retrieveBranchesInMethod(className,
+						methodName)) {
+					if (!(b.getInstruction().isForcedBranch() || LCSAJPool
+							.isLCSAJBranch(b))) {
 						goals.add(createBranchCoverageTestFitness(b, true));
 						//if (!b.isSwitchCaseBranch())
 						goals.add(createBranchCoverageTestFitness(b, false));
@@ -113,10 +86,13 @@ public class BranchCoverageFactory extends
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
-		ClientServices.getInstance().getClientNode().trackOutputVariable("total_branchgoals", goals.size());
+		ClientServices.getInstance().getClientNode()
+				.trackOutputVariable("total_branchgoals", goals.size());
 
 		return goals;
 	}
+
+
 
 	/**
 	 * Create a fitness function for branch coverage aimed at executing the
@@ -128,9 +104,9 @@ public class BranchCoverageFactory extends
 	 *         object.
 	 */
 	public static BranchCoverageTestFitness createBranchCoverageTestFitness(
-	        ControlDependency cd) {
+			ControlDependency cd) {
 		return createBranchCoverageTestFitness(cd.getBranch(),
-		                                       cd.getBranchExpressionValue());
+				cd.getBranchExpressionValue());
 	}
 
 	/**
@@ -144,11 +120,11 @@ public class BranchCoverageFactory extends
 	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
 	 *         object.
 	 */
-	public static BranchCoverageTestFitness createBranchCoverageTestFitness(Branch b,
-	        boolean branchExpressionValue) {
+	public static BranchCoverageTestFitness createBranchCoverageTestFitness(
+			Branch b, boolean branchExpressionValue) {
 
 		return new BranchCoverageTestFitness(new BranchCoverageGoal(b,
-		        branchExpressionValue, b.getClassName(), b.getMethodName()));
+				branchExpressionValue, b.getClassName(), b.getMethodName()));
 	}
 
 	/**
@@ -163,11 +139,11 @@ public class BranchCoverageFactory extends
 	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
 	 *         object.
 	 */
-	public static BranchCoverageTestFitness createRootBranchTestFitness(String className,
-	        String method) {
+	public static BranchCoverageTestFitness createRootBranchTestFitness(
+			String className, String method) {
 
 		return new BranchCoverageTestFitness(new BranchCoverageGoal(className,
-		        method.substring(method.lastIndexOf(".") + 1)));
+				method.substring(method.lastIndexOf(".") + 1)));
 	}
 
 	/**
@@ -180,11 +156,11 @@ public class BranchCoverageFactory extends
 	 *         object.
 	 */
 	public static BranchCoverageTestFitness createRootBranchTestFitness(
-	        BytecodeInstruction instruction) {
+			BytecodeInstruction instruction) {
 		if (instruction == null)
 			throw new IllegalArgumentException("null given");
 
 		return createRootBranchTestFitness(instruction.getClassName(),
-		                                   instruction.getMethodName());
+				instruction.getMethodName());
 	}
 }
