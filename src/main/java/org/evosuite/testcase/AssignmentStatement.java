@@ -361,9 +361,14 @@ public class AssignmentStatement extends AbstractStatement {
 
 			if (!objects.isEmpty()) {
 				VariableReference newRetVal = Randomness.choice(objects);
-				retval = newRetVal;
-				assert (isValid());
-				return true;
+				// Need to double check, because we might try to replace e.g.
+				// a long with an int, which is assignable
+				// but if the long is assigned to a Long field, then it is not!
+				if(parameter.isAssignableTo(newRetVal)) {
+					retval = newRetVal;
+					assert (isValid());
+					return true;
+				}
 			}
 
 		} else {
@@ -373,9 +378,13 @@ public class AssignmentStatement extends AbstractStatement {
 			objects.remove(retval);
 			objects.remove(parameter);
 			if (!objects.isEmpty()) {
-				parameter = Randomness.choice(objects);
-				assert (isValid());
-				return true;
+				VariableReference choice = Randomness.choice(objects);
+				if(choice.isAssignableTo(retval)) {
+					parameter = choice;
+					assert (isValid());
+
+					return true;
+				}
 			}
 		}
 
