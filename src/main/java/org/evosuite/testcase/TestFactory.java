@@ -1066,7 +1066,22 @@ public class TestFactory {
 			for (int i = position + 1; i < test.size(); i++) {
 				StatementInterface s = test.getStatement(i);
 				if (s.references(var)) {
-					s.replace(var, Randomness.choice(alternatives));
+					if(s.isAssignmentStatement()) {
+						AssignmentStatement assignment = (AssignmentStatement)s;
+						if(assignment.parameter == var) {
+							VariableReference replacementVar = Randomness.choice(alternatives);
+							if(assignment.retval.isAssignableFrom(replacementVar)) {
+								s.replace(var, replacementVar);
+							}
+						} else if(assignment.retval == var) {
+							VariableReference replacementVar = Randomness.choice(alternatives);
+							if(replacementVar.isAssignableFrom(assignment.parameter)) {
+								s.replace(var, replacementVar);
+							}
+						}
+					} else {
+						s.replace(var, Randomness.choice(alternatives));
+					}
 				}
 			}
 		}
