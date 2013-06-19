@@ -32,6 +32,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
+import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -500,6 +501,64 @@ public class ConstructorStatement extends AbstractStatement {
 		}
 		return references;
 
+	}
+
+	/**
+	 * Go through parameters of constructor call and apply local search
+	 * 
+	 * @param test
+	 * @param statement
+	 * @param objective
+	 */
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.AbstractStatement#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.TestFactory)
+	 */
+	@Override
+	public boolean mutate(TestCase test, TestFactory factory) {
+
+		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
+			return false;
+
+		List<VariableReference> parameters = getParameterReferences();
+		if (parameters.isEmpty())
+			return false;
+
+		int numParameter = Randomness.nextInt(parameters.size());
+		VariableReference parameter = parameters.get(numParameter);
+
+		List<VariableReference> objects = test.getObjects(parameter.getType(),
+		                                                  getPosition());
+		objects.remove(parameter);
+		objects.remove(getReturnValue());
+
+		NullStatement nullStatement = new NullStatement(test, parameter.getType());
+		StatementInterface primitiveCopy = null;
+
+		if (!parameter.isPrimitive())
+			objects.add(nullStatement.getReturnValue());
+		else {
+			StatementInterface originalStatement = test.getStatement(parameter.getStPosition());
+			if (originalStatement instanceof PrimitiveStatement<?>) {
+				PrimitiveStatement<?> copy = (PrimitiveStatement<?>) originalStatement.clone(test);
+				copy.delta();
+				objects.add(copy.getReturnValue());
+				primitiveCopy = copy;
+			}
+		}
+
+		if (objects.isEmpty())
+			return false;
+
+		VariableReference replacement = Randomness.choice(objects);
+		if (replacement == nullStatement.getReturnValue()) {
+			test.addStatement(nullStatement, getPosition());
+		} else if (primitiveCopy != null && replacement == primitiveCopy.getReturnValue()) {
+			test.addStatement(primitiveCopy, getPosition());
+		}
+
+		replaceParameterReference(replacement, numParameter);
+
+		return true;
 	}
 
 	/* (non-Javadoc)
