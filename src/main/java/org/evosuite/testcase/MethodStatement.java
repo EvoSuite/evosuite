@@ -28,8 +28,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -675,6 +677,76 @@ public class MethodStatement extends AbstractStatement {
 			else
 				return (callee.same(ms.callee));
 		}
+	}
+
+	/**
+	 * Go through parameters of method call and apply local search
+	 * 
+	 * @param test
+	 * @param statement
+	 * @param objective
+	 */
+	@Override
+	public boolean mutate(TestCase test, TestFactory factory) {
+
+		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
+			return false;
+
+		List<VariableReference> parameters = getParameterReferences();
+		if (parameters.isEmpty())
+			return false;
+
+		int max = parameters.size();
+		if (!isStatic()) {
+			max++;
+		}
+		int numParameter = Randomness.nextInt(max);
+		if (numParameter == parameters.size()) {
+			// replace callee
+			VariableReference callee = getCallee();
+			List<VariableReference> objects = test.getObjects(callee.getType(),
+			                                                  getPosition());
+			objects.remove(callee);
+			if (objects.isEmpty())
+				return false;
+
+			VariableReference replacement = Randomness.choice(objects);
+			setCallee(replacement);
+			return true;
+
+		} else {
+			VariableReference parameter = parameters.get(numParameter);
+			List<VariableReference> objects = test.getObjects(parameter.getType(),
+			                                                  getPosition());
+			objects.remove(parameter);
+			objects.remove(getReturnValue());
+			NullStatement nullStatement = new NullStatement(test, parameter.getType());
+			StatementInterface primitiveCopy = null;
+
+			if (!parameter.isPrimitive())
+				objects.add(nullStatement.getReturnValue());
+			else {
+				PrimitiveStatement<?> originalStatement = (PrimitiveStatement<?>) test.getStatement(parameter.getStPosition());
+				PrimitiveStatement<?> copy = (PrimitiveStatement<?>) originalStatement.clone(test);
+				copy.delta();
+				objects.add(copy.getReturnValue());
+				primitiveCopy = copy;
+			}
+
+			if (objects.isEmpty())
+				return false;
+
+			VariableReference replacement = Randomness.choice(objects);
+			if (replacement == nullStatement.getReturnValue()) {
+				test.addStatement(nullStatement, getPosition());
+			} else if (primitiveCopy != null
+			        && replacement == primitiveCopy.getReturnValue()) {
+				test.addStatement(primitiveCopy, getPosition());
+			}
+			replaceParameterReference(replacement, numParameter);
+			return true;
+		}
+
 	}
 
 	/** {@inheritDoc} */

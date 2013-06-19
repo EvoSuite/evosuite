@@ -26,7 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.utils.GenericField;
+import org.evosuite.utils.Randomness;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -99,6 +101,37 @@ public class FieldStatement extends AbstractStatement {
 	 */
 	public VariableReference getSource() {
 		return source;
+	}
+
+	/**
+	 * Try to replace source of field with all possible choices
+	 * 
+	 * @param test
+	 * @param statement
+	 * @param objective
+	 */
+	/* (non-Javadoc)
+	 * @see org.evosuite.testcase.AbstractStatement#mutate(org.evosuite.testcase.TestCase, org.evosuite.testcase.TestFactory)
+	 */
+	@Override
+	public boolean mutate(TestCase test, TestFactory factory) {
+
+		if (Randomness.nextDouble() >= Properties.P_CHANGE_PARAMETER)
+			return false;
+
+		if (!isStatic()) {
+			VariableReference source = getSource();
+			List<VariableReference> objects = test.getObjects(source.getType(),
+			                                                  getPosition());
+			objects.remove(source);
+
+			if (!objects.isEmpty()) {
+				setSource(Randomness.choice(objects));
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
