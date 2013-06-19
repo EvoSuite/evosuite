@@ -219,10 +219,18 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		InterMethodPairs,
 		IntraClassPairs,
 		ParameterPairs,
+		AliasingIntraMethodPairs,
+		AliasingInterMethodPairs,
+		AliasingIntraClassPairs,
+		AliasingParameterPairs,
 		CoveredIntraMethodPairs,
 		CoveredInterMethodPairs,
 		CoveredIntraClassPairs,
-		CoveredParameterPairs
+		CoveredParameterPairs,
+		CoveredAliasIntraMethodPairs,
+		CoveredAliasInterMethodPairs,
+		CoveredAliasIntraClassPairs,
+		CoveredAliasParameterPairs
 	};
 
 	/** Constant <code>DATE_FORMAT_NOW="yyyy-MM-dd HH:mm:ss"</code> */
@@ -354,16 +362,29 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 
 		public boolean timedOut;
 
-		public int paramDUGoalCount;
+		public int numDefinitions;
+		public int numUses;
+		public int numDefUsePairs;
 
-		public int interDUGoalCount;
-
-		public int intraDUGoalCount;
+		public int numIntraMethodPairs;
+		public int numInterMethodPairs;
+		public int numIntraClassPairs;
+		public int numParameterPairs;
 
 		public int coveredIntraMethodPairs;
 		public int coveredInterMethodPairs;
 		public int coveredIntraClassPairs;
 		public int coveredParameterPairs;
+
+		public int aliasingIntraMethodPairs;
+		public int aliasingInterMethodPairs;
+		public int aliasingIntraClassPairs;
+		public int aliasingParameterPairs;
+
+		public int coveredAliasIntraMethodPairs;
+		public int coveredAliasInterMethodPairs;
+		public int coveredAliasIntraClassPairs;
+		public int coveredAliasParameterPairs;
 
 		public String goalCoverage;
 
@@ -796,47 +817,47 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 			case Statements_Executed:
 				return "" + result_statements_executed;
 			case Definitions:
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE
-				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
-					return "" + DefUsePool.getDefCounter();
-				else
-					return "";
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				//        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				//	return "" + DefUsePool.getDefCounter();
+				//else
+					return ""+numDefinitions;
 			case Uses:
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE
-				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
-					return "" + DefUsePool.getUseCounter();
-				else
-					return "";
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				//        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				//	return "" + DefUsePool.getUseCounter();
+				//else
+					return "" + numUses;
 			case DefUsePairs:
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE
-				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
-					return "" + DefUseCoverageFactory.getDUGoals().size();
-				else
-					return "";
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				//        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				//	return "" + DefUseCoverageFactory.getDUGoals().size();
+				//else
+					return ""+numDefUsePairs;
 			case IntraMethodPairs:
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE
-				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
-					return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
-				else
-					return "";
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				//        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				//	return "" + DefUseCoverageFactory.getIntraMethodGoalsCount();
+				//else
+					return ""+numIntraMethodPairs;
 			case InterMethodPairs:
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE
-				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
-					return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
-				else
-					return "";
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				//        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				//	return "" + DefUseCoverageFactory.getInterMethodGoalsCount();
+				//else
+					return "" + numInterMethodPairs;
 			case IntraClassPairs:
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE
-				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
-					return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
-				else
-					return "";
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				//        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				//	return "" + DefUseCoverageFactory.getIntraClassGoalsCount();
+				//else
+					return ""+numIntraClassPairs;
 			case ParameterPairs:
-				if (Properties.CRITERION == Properties.Criterion.DEFUSE
-				        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
-					return "" + DefUseCoverageFactory.getParamGoalsCount();
-				else
-					return "";
+				//if (Properties.CRITERION == Properties.Criterion.DEFUSE
+				//        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE"))
+				//	return "" + DefUseCoverageFactory.getParamGoalsCount();
+				//else
+					return ""+numParameterPairs;
 			case CoveredIntraMethodPairs:
 				return "" + coveredIntraMethodPairs;
 			case CoveredInterMethodPairs:
@@ -845,6 +866,22 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + coveredIntraClassPairs;
 			case CoveredParameterPairs:
 				return "" + coveredParameterPairs;
+			case CoveredAliasIntraMethodPairs:
+				return "" + coveredAliasIntraMethodPairs;
+			case CoveredAliasInterMethodPairs:
+				return "" + coveredAliasInterMethodPairs;
+			case CoveredAliasIntraClassPairs:
+				return "" + coveredAliasIntraClassPairs;
+			case CoveredAliasParameterPairs:
+				return "" + coveredAliasParameterPairs;
+			case AliasingIntraMethodPairs:
+				return "" + aliasingIntraMethodPairs;
+			case AliasingInterMethodPairs:
+				return "" + aliasingInterMethodPairs;
+			case AliasingIntraClassPairs:
+				return "" + aliasingIntraClassPairs;
+			case AliasingParameterPairs:
+				return "" + aliasingParameterPairs;
 			default:
 				break;
 

@@ -320,6 +320,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		//			return false;
 		//		}
 	}
+	
+	public boolean isAlias() {
+		return goalDefinition != null ? !goalUse.getVariableName().equals(goalDefinition.getVariableName()) : false;
+	}
 
 	/**
 	 * Returns the definitions to the goalVaraible coming after the

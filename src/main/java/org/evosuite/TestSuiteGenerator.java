@@ -255,6 +255,7 @@ public class TestSuiteGenerator {
 		statistics.writeReport();
 		if (!Properties.NEW_STATISTICS && Properties.OLD_STATISTICS)
 			statistics.writeStatistics();
+		
 		PermissionStatistics.getInstance().printStatistics();
 
 		LoggingUtils.getEvoLogger().info("* Done!");
