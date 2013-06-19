@@ -12,10 +12,8 @@ import java.util.List;
 public class GenericGenericParameter<T> {
 
 	public boolean testMe(T t, Integer x) {
-		if (t instanceof List) {
-			if (((List<?>) t).size() == 3)
+		if (((List<?>) t).size() == 3)
 				return true;
-		}
 		return false;
 	}
 }

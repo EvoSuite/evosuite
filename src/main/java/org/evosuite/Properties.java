@@ -999,6 +999,9 @@ public class Properties {
 	/** Constant <code>DEFUSE_DEBUG_MODE=false</code> */
 	@Parameter(key = "defuse_debug_mode", description = "")
 	public static boolean DEFUSE_DEBUG_MODE = false;
+	
+	@Parameter(key = "defuse_aliases", description = "")
+	public static boolean DEFUSE_ALIASES = true;
 
 	/** Constant <code>RANDOMIZE_DIFFICULTY=true</code> */
 	@Parameter(key = "randomize_difficulty", description = "")

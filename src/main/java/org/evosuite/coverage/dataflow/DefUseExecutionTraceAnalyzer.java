@@ -320,6 +320,58 @@ public abstract class DefUseExecutionTraceAnalyzer {
 		}
 		return lastDef;
 	}
+	
+	public static Object getActiveObjectAtDefinition(ExecutionTrace trace, String targetVariable,
+	        int objectId, int usePos) {
+
+		Map<String, HashMap<Integer, HashMap<Integer, Object>>> defDataObjects = trace.getDefinitionDataObjects();
+		defDataObjects.get(targetVariable).get(objectId);
+		
+		Object lastDef = null;
+		int lastPos = -1;
+		Map<Integer, HashMap<Integer, Object>> objectMap = defDataObjects.get(targetVariable);
+		if (objectMap == null)
+			return -1;
+		Map<Integer, Object> defMap = objectMap.get(objectId);
+		if (defMap == null)
+			return -1;
+		for (Integer defPos : defMap.keySet()) {
+			if (defPos > usePos)
+				continue;
+			if (lastPos < defPos) {
+				lastDef = defMap.get(defPos);
+				lastPos = defPos;
+			}
+		}
+		
+		return lastDef;
+	}
+
+	public static Object getActiveObjectAtUse(ExecutionTrace trace, String targetVariable,
+	        int objectId, int usePos) {
+
+		Map<String, HashMap<Integer, HashMap<Integer, Object>>> defDataObjects = trace.getDefinitionDataObjects();
+		defDataObjects.get(targetVariable).get(objectId);
+		
+		Object lastDef = null;
+		int lastPos = -1;
+		Map<Integer, HashMap<Integer, Object>> objectMap = defDataObjects.get(targetVariable);
+		if (objectMap == null)
+			return -1;
+		Map<Integer, Object> defMap = objectMap.get(objectId);
+		if (defMap == null)
+			return -1;
+		for (Integer defPos : defMap.keySet()) {
+			if (defPos > usePos)
+				continue;
+			if (lastPos < defPos) {
+				lastDef = defMap.get(defPos);
+				lastPos = defPos;
+			}
+		}
+		
+		return lastDef;
+	}
 
 	/**
 	 * Prints all information found concerning finished calls of the given

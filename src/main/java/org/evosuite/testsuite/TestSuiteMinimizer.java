@@ -156,7 +156,7 @@ public class TestSuiteMinimizer {
 		TestSuiteWriter minimizedSuite = new TestSuiteWriter();
 
 		for (TestFitnessFunction goal : goals) {
-			updateClientStatus(100 * currentGoal / numGoals);
+			updateClientStatus(numGoals > 0 ? 100 * currentGoal / numGoals : 100);
 			currentGoal++;
 			if (isTimeoutReached()) {
 				/*

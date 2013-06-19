@@ -53,7 +53,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	static List<DefUseCoverageTestFitness> goals = DefUseCoverageFactory.getDUGoals();
 
 	/** Constant <code>totalGoals</code> */
-	public final static Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
+	public static Map<DefUsePairType, Integer> totalGoals = initTotalGoals();
 	/** Constant <code>mostCoveredGoals</code> */
 	public final static Map<DefUsePairType, Integer> mostCoveredGoals = new HashMap<DefUsePairType, Integer>();
 
@@ -101,8 +101,13 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
-		if (DefUseCoverageFactory.detectAliasingGoals(results))
-			logger.info("New total number of goals: " + goals.size());
+		if (DefUseCoverageFactory.detectAliasingGoals(results)) {
+			logger.debug("New total number of goals: " + goals.size());
+			totalGoals = initTotalGoals();
+			for(DefUsePairType type : totalGoals.keySet()) {
+				logger.info(type+":" + totalGoals.get(type));
+			}
+		}
 
 		Map<Definition, Set<TestChromosome>> passedDefinitions = new HashMap<Definition, Set<TestChromosome>>();
 		Map<Definition, Integer> passedDefinitionCount = new HashMap<Definition, Integer>();
@@ -300,8 +305,14 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
 
-		if (DefUseCoverageFactory.detectAliasingGoals(results))
-			logger.info("New total number of goals: " + goals.size());
+		if (DefUseCoverageFactory.detectAliasingGoals(results)) {
+			goals = DefUseCoverageFactory.getDUGoals();
+			logger.debug("New total number of goals: " + goals.size());
+			totalGoals = initTotalGoals();
+			for(DefUsePairType type : totalGoals.keySet()) {
+				logger.info(type+":" + totalGoals.get(type));
+			}
+		}
 
 		Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
 
@@ -343,16 +354,20 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		return fitness;
 	}
 
-	private static Map<DefUsePairType, Integer> initTotalGoals() {
+	public static Map<DefUsePairType, Integer> initTotalGoals() {
 		Map<DefUsePairType, Integer> r = new HashMap<DefUsePairType, Integer>();
 
 		// init map
 		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values())
 			r.put(type, 0);
 
+		int num = 0;
 		// count total goals according to type
-		for (DefUseCoverageTestFitness goal : goals)
+		for (DefUseCoverageTestFitness goal : goals) {
+			logger.info("Goal "+num);
+			num++;
 			r.put(goal.getType(), r.get(goal.getType()) + 1);
+		}
 
 		return r;
 	}

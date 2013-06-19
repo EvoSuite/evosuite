@@ -36,6 +36,7 @@ import org.evosuite.coverage.branch.BranchCoverageTestFitness;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUseCoverageFactory;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
+import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.ga.Chromosome;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.ga.stoppingconditions.MaxFitnessEvaluationsStoppingCondition;
@@ -347,6 +348,16 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		entry.coveredIntraClassPairs = 0;
 		entry.coveredParameterPairs = 0;
 
+		entry.aliasingIntraMethodPairs = 0;
+		entry.aliasingInterMethodPairs = 0;
+		entry.aliasingIntraClassPairs = 0;
+		entry.aliasingParameterPairs = 0;
+
+		entry.coveredAliasIntraMethodPairs = 0;
+		entry.coveredAliasInterMethodPairs = 0;
+		entry.coveredAliasIntraClassPairs = 0;
+		entry.coveredAliasParameterPairs = 0;
+
 		// TODO isn't this more or less copy-paste of
 		// BranchCoverageSuiteFitness.getFitness()?
 		// DONE To make this work for other criteria too, it would be perfect if
@@ -366,7 +377,32 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 		Map<TestCase, Map<Integer, Boolean>> isExceptionExplicit = new HashMap<TestCase, Map<Integer, Boolean>>();
 
 		Set<DefUseCoverageTestFitness> coveredDUGoals = new HashSet<DefUseCoverageTestFitness>();
-
+		if (Properties.CRITERION == Properties.Criterion.DEFUSE
+		        || Properties.ANALYSIS_CRITERIA.toUpperCase().contains("DEFUSE")) {
+			for (DefUseCoverageTestFitness goal : DefUseCoverageFactory.getDUGoals()) {
+				if (goal.isInterMethodPair())
+					entry.numInterMethodPairs++;
+				else if (goal.isIntraClassPair())
+					entry.numIntraClassPairs++;
+				else if (goal.isParameterGoal())
+					entry.numParameterPairs++;
+				else
+					entry.numIntraMethodPairs++;						
+				if(goal.isAlias()) {
+					if (goal.isInterMethodPair())
+						entry.aliasingInterMethodPairs++;
+					else if (goal.isIntraClassPair())
+						entry.aliasingIntraClassPairs++;
+					else if (goal.isParameterGoal())
+						entry.aliasingParameterPairs++;
+					else
+						entry.aliasingIntraMethodPairs++;
+				}
+			}
+			entry.numDefinitions = DefUsePool.getDefCounter();
+			entry.numUses = DefUsePool.getUseCounter();
+			entry.numDefUsePairs = DefUseCoverageFactory.getDUGoals().size();
+		}
 		logger.debug("Calculating line coverage");
 
 		for (TestChromosome test : best.tests) {
@@ -382,14 +418,30 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 						continue;
 					if (goal.isCovered(result)) {
 						coveredDUGoals.add(goal);
-						if (goal.isInterMethodPair())
+						if (goal.isInterMethodPair()) {
 							entry.coveredInterMethodPairs++;
-						else if (goal.isIntraClassPair())
+							if(goal.isAlias()) {
+								entry.coveredAliasInterMethodPairs++;
+							}
+						}
+						else if (goal.isIntraClassPair()) {
 							entry.coveredIntraClassPairs++;
-						else if (goal.isParameterGoal())
+							if(goal.isAlias()) {
+								entry.coveredAliasIntraClassPairs++;
+							}
+						}
+						else if (goal.isParameterGoal()) {
 							entry.coveredParameterPairs++;
-						else
+							if(goal.isAlias()) {
+								entry.coveredAliasParameterPairs++;
+							}
+						}
+						else {
 							entry.coveredIntraMethodPairs++;
+							if(goal.isAlias()) {
+								entry.coveredAliasIntraMethodPairs++;
+							}
+						}
 					}
 				}
 			}
@@ -663,13 +715,6 @@ public class SearchStatistics extends ReportGenerator implements Serializable {
 
 		entry.total_methods = Properties.TARGET_CLASS_PREFIX.isEmpty() ? CFGMethodAdapter.getNumMethodsMemberClasses(Properties.TARGET_CLASS)
 		        : CFGMethodAdapter.getNumMethodsPrefix(Properties.TARGET_CLASS_PREFIX);
-
-		// TODO in order for this to work even when the criterion is neither
-		// defuse nor analyze we might need to ensure that du-goal-computation
-		// went through
-		entry.paramDUGoalCount = DefUseCoverageFactory.getParamGoalsCount();
-		entry.intraDUGoalCount = DefUseCoverageFactory.getIntraMethodGoalsCount();
-		entry.interDUGoalCount = DefUseCoverageFactory.getIntraClassGoalsCount();
 
 		entry.total_goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 

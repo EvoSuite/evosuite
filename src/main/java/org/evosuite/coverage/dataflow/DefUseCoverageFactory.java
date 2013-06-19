@@ -477,6 +477,10 @@ public class DefUseCoverageFactory extends
 	}
 
 	public static boolean detectAliasingGoals(List<ExecutionResult> results) {
+		
+		if(!Properties.DEFUSE_ALIASES)
+			return false;
+		
 		Set<DefUseCoverageTestFitness> aliasingGoals = new HashSet<DefUseCoverageTestFitness>();
 
 		for (ExecutionResult result : results) {
@@ -550,7 +554,7 @@ public class DefUseCoverageFactory extends
 															                                                                  defUseMap.get(otherUse).getType());
 															if (goal != null) {
 																logger.info("Created new defuse pair: "
-																        + goal);
+																        + goal+" of type "+goal.getType());
 																aliasingGoals.add(goal);
 															}
 														}
