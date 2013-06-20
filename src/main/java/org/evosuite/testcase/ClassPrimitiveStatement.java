@@ -41,12 +41,30 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	}
 
 	private Class<?> getType(org.objectweb.asm.Type type) throws ClassNotFoundException {
-		if(type.getSort() == org.objectweb.asm.Type.ARRAY) {
+		// Not quite sure why we have to treat primitives explicitly...
+		switch(type.getSort()) {
+		case org.objectweb.asm.Type.ARRAY:
 			org.objectweb.asm.Type componentType = type.getElementType();
 			Class<?> componentClass = getType(componentType);
 			Class<?> arrayClass = Array.newInstance(componentClass, 0).getClass();
 			return arrayClass;
-		} else {
+		case org.objectweb.asm.Type.BOOLEAN:
+			return boolean.class;
+		case org.objectweb.asm.Type.BYTE:
+			return byte.class;
+		case org.objectweb.asm.Type.CHAR:
+			return char.class;
+		case org.objectweb.asm.Type.DOUBLE:
+			return double.class;
+		case org.objectweb.asm.Type.FLOAT:
+			return float.class;
+		case org.objectweb.asm.Type.INT:
+			return int.class;
+		case org.objectweb.asm.Type.LONG:
+			return long.class;
+		case org.objectweb.asm.Type.SHORT:
+			return short.class;
+		default:
 			return Class.forName(type.getClassName(), true,
 					TestGenerationContext.getClassLoader());
 		}
