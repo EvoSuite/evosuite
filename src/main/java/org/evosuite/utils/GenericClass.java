@@ -614,19 +614,33 @@ public class GenericClass implements Serializable {
 		}
 		ParameterizedType pType = (ParameterizedType) type;
 
+		Class<?> targetClass = superClass.getRawClass();
+		Class<?> currentClass = rawClass;
 		Type[] parameterTypes = new Type[superClass.getNumParameters()];
 		superClass.getParameterTypes().toArray(parameterTypes);
 
-		Class<?> targetClass = superClass.getRawClass();
-		Class<?> currentClass = rawClass;
-
 		if (targetClass.equals(currentClass)) {
+			logger.info("Raw classes match, setting parameters to: "+superClass.getParameterTypes());
 			exactClass.type = new ParameterizedTypeImpl(currentClass, parameterTypes,
 			        pType.getOwnerType());
 		} else {
 			Type ownerType = pType.getOwnerType();
+			Map<TypeVariable<?>, Type> superTypeMap = superClass.getTypeVariableMap();
+			Type[] origArguments = pType.getActualTypeArguments();
+			Type[] arguments = Arrays.copyOf(origArguments, origArguments.length);
+			List<TypeVariable<?>> variables = getTypeVariables();
+			for (int i = 0; i < arguments.length; i++) {
+				TypeVariable<?> var = variables.get(i);
+				if(superTypeMap.containsKey(var)) {
+					arguments[i] = superTypeMap.get(var);
+					logger.info("Setting type variable "+var+" to "+superTypeMap.get(var));
+				} else if(arguments[i] instanceof WildcardType && i < parameterTypes.length) {
+					logger.info("Replacing wildcard with "+parameterTypes[i]);
+					arguments[i] = parameterTypes[i];
+				}
+			}
 			GenericClass ownerClass = new GenericClass(ownerType).getWithParametersFromSuperclass(superClass);
-			exactClass.type = new ParameterizedTypeImpl(currentClass, parameterTypes,
+			exactClass.type = new ParameterizedTypeImpl(currentClass, arguments,
 			        ownerClass.getType());
 		}
 

@@ -35,6 +35,7 @@ import com.examples.with.different.packagename.generic.GenericStaticMemberclass;
 import com.examples.with.different.packagename.generic.GenericSuperclassOmittingTypeParameters;
 import com.examples.with.different.packagename.generic.GenericTwoDimensionalArray;
 import com.examples.with.different.packagename.generic.GenericWildcardParameter;
+import com.examples.with.different.packagename.generic.ReallyCaselessMap;
 
 /**
  * @author Gordon Fraser
@@ -713,6 +714,32 @@ public class TestGenerics extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.SEARCH_BUDGET = 50000;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+	
+	@Test
+	public void testDifferingNumberOfTypeParameters() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = ReallyCaselessMap.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		// Properties.SEARCH_BUDGET = 50000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

@@ -33,10 +33,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.Stack;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
@@ -272,6 +274,7 @@ public class TestCluster {
 		if (generatorCache.containsKey(clazz))
 			return;
 		logger.debug("Caching generators for " + clazz);
+
 		Set<GenericAccessibleObject<?>> targetGenerators = new LinkedHashSet<GenericAccessibleObject<?>>();
 		if (clazz.isObject()) {
 			logger.debug("Target class is object: " + clazz);
@@ -285,8 +288,8 @@ public class TestCluster {
 			}
 		} else {
 			for (GenericClass generatorClazz : generators.keySet()) {
-				if (generatorClazz == clazz)
-					continue;
+				//if (generatorClazz == clazz)
+				//	continue;
 				logger.debug("Considering original generator: " + generatorClazz);
 
 				// First check if the raw classes are assignable
@@ -306,11 +309,15 @@ public class TestCluster {
 						        + generatorClazz.getTypeName());
 
 						// generatorClazz can only be a subclass of clazz
+						logger.info("Generator type1: "+generatorClazz);
 						GenericClass newOwner = generatorClazz.getWithParametersFromSuperclass(clazz);
+						logger.info("Resulting type: "+newOwner);
+						logger.info("Generator type2: "+generatorClazz);
 
 						// "newOwner" is the instantiated type of the return value
 						// but we need the declaring class of the method!
 						for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
+//						for (GenericAccessibleObject<?> generator : getGenerators(generatorClazz)) {
 							logger.debug("Candidate generator: " + generator);
 							if (generator.getOwnerClass().getNumParameters() == 0) {
 								// logger.debug("Owner class has no parameters, so we can only assume it would work: "+generator.getName());
