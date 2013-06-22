@@ -105,7 +105,7 @@ public class Properties {
 
 	/** Constant <code>MAKE_ACCESSIBLE=true</code> */
 	@Parameter(key = "make_accessible", group = "TestCreation", description = "Change default package rights to public package rights (?)")
-	public static boolean MAKE_ACCESSIBLE = true;
+	public static boolean MAKE_ACCESSIBLE = false;
 
 	/** Constant <code>STRING_REPLACEMENT=true</code> */
 	@Parameter(key = "string_replacement", group = "Test Creation", description = "Replace string.equals with levenshtein distance")
