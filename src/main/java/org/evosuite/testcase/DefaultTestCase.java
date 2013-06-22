@@ -157,6 +157,16 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 	}
 
+	private boolean isClassUtilsBug(Class<?> rawClass, Class<?> arrayClass) {
+		while(arrayClass.isArray()) {
+			if (arrayClass.getComponentType().equals(rawClass)) {
+				return true;
+			}
+			arrayClass = arrayClass.getComponentType();						
+		}
+		return false;
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getObjects(java.lang.reflect.Type, int)
 	 */
@@ -175,10 +185,10 @@ public class DefaultTestCase implements TestCase, Serializable {
 				// that an array is assignable to its component type
 				// TODO: Fix
 				boolean isClassUtilsBug = false;
+				Class<?> rawClass = GenericTypeReflector.erase(type);
 				if (value.isArray()) {
-					Class<?> rawClass = GenericTypeReflector.erase(type);
-					if (value.getComponentClass().equals(rawClass))
-						isClassUtilsBug = true;
+					Class<?> arrayClass = value.getVariableClass();
+					isClassUtilsBug = isClassUtilsBug(rawClass, arrayClass);
 				}
 
 				if (value.isAssignableTo(type) && !isClassUtilsBug) {
@@ -186,11 +196,11 @@ public class DefaultTestCase implements TestCase, Serializable {
 					        + type);
 					variables.add(value);
 				} else if (GenericClass.isAssignable(type, value.getComponentType())) {
-					/*
-					logger.info("Found compatible array for " + type + ": "
-					        + value.getSimpleClassName() + " " + value.getName() + " - "
-					        + value.getVariableClass());
-					        */
+					Class<?> arrayClass = value.getComponentClass();
+					if(isClassUtilsBug(rawClass, arrayClass)) {
+						continue;
+					}
+
 					for (int index = 0; index < ((ArrayReference) value).getArrayLength(); index++) {
 						//logger.info("Adding array index " + index + " to array "
 						//       + value.getSimpleClassName() + " " + value.getName());
