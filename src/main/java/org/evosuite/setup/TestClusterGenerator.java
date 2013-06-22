@@ -39,6 +39,7 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang3.ClassUtils;
 import org.evosuite.Properties;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
@@ -715,10 +716,20 @@ public class TestClusterGenerator {
 			return true;
 		}
 
+		// If default access rights, then check if this class is in the same package as the target class
+		if(!Modifier.isPrivate(f.getModifiers()) && !Modifier.isProtected(f.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(f.getDeclaringClass());
+			if (packageName.equals(Properties.CLASS_PREFIX)) {
+				f.setAccessible(true);
+				return true;
+			}
+		}
+
+
 		return false;
 	}
 
-	private static boolean canUse(Method m) {
+	public static boolean canUse(Method m) {
 
 		if (m.isBridge()) {
 			logger.debug("Excluding bridge method: " + m.toString());
@@ -801,6 +812,16 @@ public class TestClusterGenerator {
 		// If default or
 		if (Modifier.isPublic(m.getModifiers()))
 			return true;
+		
+		// If default access rights, then check if this class is in the same package as the target class
+		if(!Modifier.isPrivate(m.getModifiers()) && !Modifier.isProtected(m.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(m.getDeclaringClass());
+			if (packageName.equals(Properties.CLASS_PREFIX)) {
+				m.setAccessible(true);
+				return true;
+			}
+		}
+
 
 		return false;
 	}
@@ -841,6 +862,16 @@ public class TestClusterGenerator {
 
 		if (Modifier.isPublic(c.getModifiers()))
 			return true;
+		
+		// If default access rights, then check if this class is in the same package as the target class
+		if(!Modifier.isPrivate(c.getModifiers()) && !Modifier.isProtected(c.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(c.getDeclaringClass());
+			if (packageName.equals(Properties.CLASS_PREFIX)) {
+				c.setAccessible(true);
+				return true;
+			}
+		}
+
 		return false;
 	}
 
@@ -1094,10 +1125,10 @@ public class TestClusterGenerator {
 			}
 
 			// Add all fields
-			for (Field field : getFields(clazz.getRawClass())) {
+			for (Field field : getFields(clazz.getRawClass())) { 
+				logger.debug("Checking field "+field);
 				if (canUse(field)) {
-					// logger.info("Adding field " + classname + "." +
-					// field.getName());
+					logger.debug("Adding field " + field +" for class "+clazz);
 					GenericField genericField = new GenericField(field, clazz);
 					cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
 					                     genericField);
@@ -1105,6 +1136,8 @@ public class TestClusterGenerator {
 						cluster.addModifier(clazz.getWithWildcardTypes(), genericField);
 						addDependencies(genericField, recursionLevel + 1);
 					}
+				} else {
+					logger.debug("Field cannot be used: "+field);
 				}
 			}
 			logger.info("Finished analyzing " + clazz.getTypeName()
