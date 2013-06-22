@@ -88,11 +88,10 @@ public class TestOverflowInstrumentation extends SystemTest {
 
 		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
 		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
-
+		System.out.println(best.toString());
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		// No underflow for int div
-		Assert.assertEquals("Non-optimal coverage: ", 6d/7d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 1, best.getCoverage(), 0.001);
 	}
 	
 	@Test
