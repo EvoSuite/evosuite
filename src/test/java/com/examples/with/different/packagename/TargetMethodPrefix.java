@@ -10,7 +10,7 @@ package com.examples.with.different.packagename;
 public class TargetMethodPrefix {
 
 	/**
-	 * This private method has two branches
+	 * This private method has 2 branches
 	 * @param x
 	 * @return
 	 * @throws InterruptedException 
@@ -23,7 +23,7 @@ public class TargetMethodPrefix {
 	}
 
 	/**
-	 * This private method has two branches
+	 * This private method has 2 branches
 	 * @param x
 	 * @return
 	 * @throws InterruptedException 
@@ -36,7 +36,7 @@ public class TargetMethodPrefix {
 	}
 
 	/**
-	 * This private method has four branches
+	 * This private method has 4 branches
 	 * @param x
 	 * @return
 	 * @throws InterruptedException 

@@ -24,6 +24,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.testsuite.AbstractFitnessFactory;
@@ -50,9 +51,10 @@ public class StatementCoverageFactory extends
 		if (called)
 			return;
 		long start = System.currentTimeMillis();
-		String targetMethod = Properties.TARGET_METHOD;
 		String targetClass = Properties.TARGET_CLASS;
 
+		final MethodNameMatcher matcher = new MethodNameMatcher();
+		
 		for (String className : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownClasses()) {
 
 			if (!(targetClass.equals("") || className.endsWith(targetClass)))
@@ -60,7 +62,7 @@ public class StatementCoverageFactory extends
 
 			for (String methodName : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).knownMethods(className)) {
 
-				if (!targetMethod.equals("") && !methodName.equals(targetMethod))
+				if (!matcher.methodMatches(methodName))
 					continue;
 
 				for (BytecodeInstruction ins : BytecodeInstructionPool.getInstance(TestGenerationContext.getClassLoader()).getInstructionsIn(className,
