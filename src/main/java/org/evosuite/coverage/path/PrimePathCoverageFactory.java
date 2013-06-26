@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 
 /**
@@ -47,12 +48,12 @@ public class PrimePathCoverageFactory extends
 		if (!goals.isEmpty())
 			return goals;
 
-		String targetMethod = Properties.TARGET_METHOD;
-
+		final MethodNameMatcher matcher = new MethodNameMatcher();
+		
 		for (String className : PrimePathPool.primePathMap.keySet()) {
 			for (String methodName : PrimePathPool.primePathMap.get(className).keySet()) {
 
-				if (!targetMethod.equals("") && !methodName.equals(targetMethod)) {
+				if (!matcher.methodMatches(methodName)) {
 					continue;
 				}
 				for (PrimePath path : PrimePathPool.primePathMap.get(className).get(methodName)) {

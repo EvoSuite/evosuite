@@ -96,7 +96,9 @@ public class DefUseFitnessCalculator {
 	private final Use goalUse;
 	private final TestFitnessFunction goalDefinitionFitness;
 	private final TestFitnessFunction goalUseFitness;
-	private final String goalVariable;
+	// private final String goalVariable;
+	private final String defVariable;
+	private final String useVariable;
 
 	/**
 	 * <p>
@@ -122,7 +124,12 @@ public class DefUseFitnessCalculator {
 		this.goalUse = goal.getGoalUse();
 		this.goalDefinitionFitness = goal.getGoalDefinitionFitness();
 		this.goalUseFitness = goal.getGoalUseFitness();
-		this.goalVariable = goalUse.getVariableName();
+		// this.goalVariable = goalUse.getVariableName();
+		if (goalDefinition == null)
+			this.defVariable = goalUse.getVariableName();
+		else
+			this.defVariable = goalDefinition.getVariableName();
+		this.useVariable = goalUse.getVariableName();
 	}
 
 	// main Definition-Use fitness calculation methods
@@ -212,7 +219,7 @@ public class DefUseFitnessCalculator {
 		double fitness = 1;
 		for (Integer object : objects) {
 			logger.debug("current object: " + object);
-			if (!hasEntriesForId(result.getTrace().getPassedDefinitions(goalVariable),
+			if (!hasEntriesForId(result.getTrace().getPassedDefinitions(defVariable),
 			                     object, goalDefinition.getDefId()))
 				continue;
 
@@ -255,11 +262,17 @@ public class DefUseFitnessCalculator {
 		                                                                                            objectTrace,
 		                                                                                            objectId);
 
+		if (!defVariable.equals(useVariable)) {
+			logger.info("Checking an aliasing case: " + goalDefinition + "\n" + goalUse);
+		}
+
 		for (Integer usePos : usePositions) {
-			int activeDefId = DefUseExecutionTraceAnalyzer.getActiveDefinitionIdAt(goalVariable,
+			int activeDefId = DefUseExecutionTraceAnalyzer.getActiveDefinitionIdAt(useVariable,
 			                                                                       objectTrace,
 			                                                                       usePos,
 			                                                                       objectId);
+			logger.info("Activedef at position " + usePos + " is: "
+			        + DefUsePool.getDefinitionByDefId(activeDefId));
 			if (activeDefId == goalDefinition.getDefId()) {
 				// Case 3.1.
 				if (Properties.CRITERION == Criterion.DEFUSE)

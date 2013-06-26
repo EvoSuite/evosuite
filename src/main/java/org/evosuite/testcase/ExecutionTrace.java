@@ -192,11 +192,25 @@ public interface ExecutionTrace {
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getDefinitionData();
 
 	/**
+	 * Retrieve data definitions
+	 * 
+	 * @return a {@link java.util.Map} object.
+	 */
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> getDefinitionDataObjects();
+
+	/**
 	 * Retrieve data uses
 	 * 
 	 * @return a {@link java.util.Map} object.
 	 */
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getUseData();
+
+	/**
+	 * Retrieve data uses
+	 * 
+	 * @return a {@link java.util.Map} object.
+	 */
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> getUseDataObjects();
 
 	/**
 	 * Retrieve the data definitions for a given variable
@@ -289,7 +303,7 @@ public interface ExecutionTrace {
 	 * @param defID
 	 *            a int.
 	 */
-	public void definitionPassed(Object caller, int defID);
+	public void definitionPassed(Object object, Object caller, int defID);
 
 	/**
 	 * Add a new method call to stack
@@ -452,7 +466,7 @@ public interface ExecutionTrace {
 	 * @param useID
 	 *            a int.
 	 */
-	public void usePassed(Object caller, int useID);
+	public void usePassed(Object object, Object caller, int useID);
 
 	/**
 	 * Set the exception thrown in this trace

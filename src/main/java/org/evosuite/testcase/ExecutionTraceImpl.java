@@ -224,6 +224,9 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedDefinitions = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>());
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> passedUses = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>());
 
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> passedDefinitionObject = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>());
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> passedUseObject = Collections.synchronizedMap(new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>());
+
 	private int proxyCount = 1;
 	// Data information
 	public Map<String, Map<String, Map<Integer, Integer>>> returnData = Collections.synchronizedMap(new HashMap<String, Map<String, Map<Integer, Integer>>>());
@@ -390,6 +393,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		coveredDefs = new HashMap<Integer, Integer>();
 		passedDefinitions = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
 		passedUses = new HashMap<String, HashMap<Integer, HashMap<Integer, Integer>>>();
+		passedDefinitionObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
+		passedUseObject = new HashMap<String, HashMap<Integer, HashMap<Integer, Object>>>();
 		branchesTrace = new ArrayList<BranchEval>();
 		coveredTrueContext = new HashMap<Integer, Map<CallContext, Double>>();
 		coveredFalseContext = new HashMap<Integer, Map<CallContext, Double>>();
@@ -432,6 +437,8 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		copy.mutantDistances.putAll(mutantDistances);
 		copy.passedDefinitions.putAll(passedDefinitions);
 		copy.passedUses.putAll(passedUses);
+		copy.passedDefinitionObject.putAll(passedDefinitionObject);
+		copy.passedUseObject.putAll(passedUseObject);
 		copy.branchesTrace.addAll(branchesTrace);
 
 		copy.coveredTrueContext.putAll(coveredTrueContext);
@@ -458,7 +465,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * active MethodCall in this.stack
 	 */
 	@Override
-	public void definitionPassed(Object caller, int defID) {
+	public void definitionPassed(Object object, Object caller, int defID) {
 
 		if (!traceCalls) {
 			return;
@@ -481,14 +488,22 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 		// if this is a static variable, treat objectID as zero for consistency in the representation of static data
 		if (objectID != 0 && def.isStaticDefUse())
 			objectID = 0;
-		if (passedDefinitions.get(varName) == null)
+		if (passedDefinitions.get(varName) == null) {
 			passedDefinitions.put(varName,
 			                      new HashMap<Integer, HashMap<Integer, Integer>>());
+			passedDefinitionObject.put(varName,
+                    new HashMap<Integer, HashMap<Integer, Object>>());
+		}
 		HashMap<Integer, Integer> defs = passedDefinitions.get(varName).get(objectID);
-		if (defs == null)
+		HashMap<Integer, Object> defsObject = passedDefinitionObject.get(varName).get(objectID);
+		if (defs == null) {
 			defs = new HashMap<Integer, Integer>();
+			defsObject = new HashMap<Integer, Object>();
+		}
 		defs.put(duCounter, defID);
+		defsObject.put(duCounter, object);
 		passedDefinitions.get(varName).put(objectID, defs);
+		passedDefinitionObject.get(varName).put(objectID, defsObject);
 
 		//		logger.trace(duCounter+": set active definition for var "+def.getDUVariableName()+" on object "+objectID+" to Def "+defID);
 		duCounter++;
@@ -736,6 +751,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getDefinitionData() {
 		return passedDefinitions;
+	}
+	
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> getDefinitionDataObjects() {
+		return passedDefinitionObject;
 	}
 
 	/** {@inheritDoc} */
@@ -1001,6 +1020,10 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Map<String, HashMap<Integer, HashMap<Integer, Integer>>> getUseData() {
 		return passedUses;
+	}
+	
+	public Map<String, HashMap<Integer, HashMap<Integer, Object>>> getUseDataObjects() {
+		return passedUseObject;
 	}
 
 	/* (non-Javadoc)
@@ -1329,7 +1352,7 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	 * in the passedUses-field
 	 */
 	@Override
-	public void usePassed(Object caller, int useID) {
+	public void usePassed(Object object, Object caller, int useID) {
 
 		if (!traceCalls) // TODO ???
 			return;
@@ -1346,15 +1369,22 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 				objectID = 0;
 		}
 		String varName = use.getVariableName();
-		if (passedUses.get(varName) == null)
+		if (passedUses.get(varName) == null) {
 			passedUses.put(varName, new HashMap<Integer, HashMap<Integer, Integer>>());
+			passedUseObject.put(varName, new HashMap<Integer, HashMap<Integer, Object>>());
+		}
 
 		HashMap<Integer, Integer> uses = passedUses.get(varName).get(objectID);
-		if (uses == null)
+		HashMap<Integer, Object> usesObject = passedUseObject.get(varName).get(objectID);
+		if (uses == null) {
 			uses = new HashMap<Integer, Integer>();
+			usesObject = new HashMap<Integer, Object>();
+		}
 
 		uses.put(duCounter, useID);
+		usesObject.put(duCounter, object);
 		passedUses.get(varName).put(objectID, uses);
+		passedUseObject.get(varName).put(objectID, usesObject);
 		duCounter++;
 	}
 
