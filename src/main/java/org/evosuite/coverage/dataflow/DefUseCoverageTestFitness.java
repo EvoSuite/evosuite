@@ -200,10 +200,10 @@ public class DefUseCoverageTestFitness extends TestFitnessFunction {
 		if (use == null)
 			throw new IllegalArgumentException("null given for use. def was "
 			        + def.toString() + ". type: " + type.toString());
-		if (!def.getVariableName().equals(use.getVariableName()))
-			throw new IllegalArgumentException(
-			        "expect def and use to be for the same variable: \n" + def.toString()
-			                + "\n" + use.toString());
+		//if (!def.getVariableName().equals(use.getVariableName()))
+		//	throw new IllegalArgumentException(
+		//	        "expect def and use to be for the same variable: \n" + def.toString()
+		//	                + "\n" + use.toString());
 		if (def.isLocalDU() && !type.equals(DefUsePairType.INTRA_METHOD))
 			throw new IllegalArgumentException(
 			        "local variables can only be part of INTRA-METHOD pairs: \ntype:"

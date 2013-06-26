@@ -358,7 +358,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 
-		if(Properties.REPLACE_CALLS) {
+		if (Properties.REPLACE_CALLS || wasSecurityException) {
 			// BeforeClass is always added due to REPLACE_CALLS
 			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 		}
@@ -567,7 +567,7 @@ public class TestSuiteWriter implements Opcodes {
 			/*
 			 * If no security manager, we still need to setup REPLACE_CALLS
 			 */
-			if(Properties.REPLACE_CALLS) {
+			if (Properties.REPLACE_CALLS) {
 				bd.append(METHOD_SPACE);
 				bd.append("@BeforeClass \n");
 
@@ -576,14 +576,14 @@ public class TestSuiteWriter implements Opcodes {
 
 				bd.append(BLOCK_SPACE);
 				bd.append("org.evosuite.Properties.REPLACE_CALLS = "
-						+ Properties.REPLACE_CALLS + "; \n");
+				        + Properties.REPLACE_CALLS + "; \n");
 
 				bd.append(METHOD_SPACE);
 				bd.append("} \n");
 
 				bd.append("\n");
 			}
-			
+
 			return bd.toString();
 		}
 
@@ -614,7 +614,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
-		
+
 		bd.append("\n");
 	}
 
@@ -655,9 +655,9 @@ public class TestSuiteWriter implements Opcodes {
 
 		//need to setup REPLACE_CALLS
 		bd.append(BLOCK_SPACE);
-		bd.append("org.evosuite.Properties.REPLACE_CALLS = "
-		        + Properties.REPLACE_CALLS + "; \n");
-		
+		bd.append("org.evosuite.Properties.REPLACE_CALLS = " + Properties.REPLACE_CALLS
+		        + "; \n");
+
 		//need to setup the Sandbox mode
 		bd.append(BLOCK_SPACE);
 		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."

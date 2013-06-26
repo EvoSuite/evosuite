@@ -705,13 +705,13 @@ public class ExecutionTracer {
 	 * @param defID
 	 *            a int.
 	 */
-	public static void passedDefinition(Object caller, int defID) {
+	public static void passedDefinition(Object object, Object caller, int defID) {
 		if (isThreadNeqCurrentThread())
 			return;
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (!tracer.disabled)
-			tracer.trace.definitionPassed(caller, defID);
+			tracer.trace.definitionPassed(object, caller, defID);
 	}
 
 	/**
@@ -722,7 +722,7 @@ public class ExecutionTracer {
 	 * @param useID
 	 *            a int.
 	 */
-	public static void passedUse(Object caller, int useID) {
+	public static void passedUse(Object object, Object caller, int useID) {
 
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
@@ -731,7 +731,7 @@ public class ExecutionTracer {
 		if (isThreadNeqCurrentThread())
 			return;
 
-		tracer.trace.usePassed(caller, useID);
+		tracer.trace.usePassed(object, caller, useID);
 	}
 
 	/**
@@ -744,7 +744,7 @@ public class ExecutionTracer {
 	 * @param caller
 	 * @param defuseId
 	 */
-	public static void passedFieldMethodCall(Object caller, int defuseId) {
+	public static void passedFieldMethodCall(Object callee, Object caller, int defuseId) {
 		ExecutionTracer tracer = getExecutionTracer();
 		if (tracer.disabled)
 			return;
@@ -754,10 +754,10 @@ public class ExecutionTracer {
 
 		if (DefUsePool.isKnownAsDefinition(defuseId)) {
 			Definition passedDef = DefUsePool.getDefinitionByDefUseId(defuseId);
-			passedDefinition(caller, passedDef.getDefId());
+			passedDefinition(callee, caller, passedDef.getDefId());
 		} else if (DefUsePool.isKnownAsUse(defuseId)) {
 			Use passedUse = DefUsePool.getUseByDefUseId(defuseId);
-			passedUse(caller, passedUse.getUseId());
+			passedUse(callee, caller, passedUse.getUseId());
 		} else
 			throw new EvosuiteError(
 			        "instrumentation called passedFieldMethodCall with invalid defuseId: "

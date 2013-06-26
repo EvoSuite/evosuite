@@ -90,9 +90,9 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			}
 		}
 		// Why should this be a warning??
-//		for (Definition def : maxDefinitionCount.keySet()) {
-//			logger.warn("Known definition: " + def + ", " + maxDefinitionCount.get(def));
-//		}
+		//		for (Definition def : maxDefinitionCount.keySet()) {
+		//			logger.warn("Known definition: " + def + ", " + maxDefinitionCount.get(def));
+		//		}
 	}
 
 	// Not working yet
@@ -100,7 +100,9 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public double getFitnessAlternative(
 	        AbstractTestSuiteChromosome<? extends ExecutableChromosome> individual) {
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
-		runTestSuite(suite);
+		List<ExecutionResult> results = runTestSuite(suite);
+		if (DefUseCoverageFactory.detectAliasingGoals(results))
+			logger.info("New total number of goals: " + goals.size());
 
 		Map<Definition, Set<TestChromosome>> passedDefinitions = new HashMap<Definition, Set<TestChromosome>>();
 		Map<Definition, Integer> passedDefinitionCount = new HashMap<Definition, Integer>();
@@ -291,22 +293,24 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	 */
 	/** {@inheritDoc} */
 	//@Override
-	public double getFitnessOld(
-	        Chromosome individual) {
+	public double getFitnessOld(Chromosome individual) {
 		logger.trace("Calculating defuse fitness");
 
 		TestSuiteChromosome suite = (TestSuiteChromosome) individual;
 		List<ExecutionResult> results = runTestSuite(suite);
 		double fitness = 0.0;
 
+		if (DefUseCoverageFactory.detectAliasingGoals(results))
+			logger.info("New total number of goals: " + goals.size());
+
 		Set<DefUseCoverageTestFitness> coveredGoalsSet = DefUseExecutionTraceAnalyzer.getCoveredGoals(results);
 
 		initCoverageMaps();
 
 		for (DefUseCoverageTestFitness goal : goals) {
-			if (coveredGoalsSet.contains(goal)){
+			if (coveredGoalsSet.contains(goal)) {
 				goal.setCovered(true);
-				continue;				
+				continue;
 			}
 
 			double goalFitness = 2.0;
@@ -398,7 +402,7 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	private void countCoveredGoals(Set<DefUseCoverageTestFitness> coveredGoalsSet) {
 		for (DefUseCoverageTestFitness goal : coveredGoalsSet) {
 			coveredGoals.put(goal.getType(), coveredGoals.get(goal.getType()) + 1);
-			
+
 		}
 	}
 
@@ -432,34 +436,39 @@ public class DefUseCoverageSuiteFitness extends TestSuiteFitnessFunction {
 	public static void printCoverage() {
 
 		LoggingUtils.getEvoLogger().info("* Time spent optimizing covered goals analysis: "
-		        + DefUseExecutionTraceAnalyzer.timeGetCoveredGoals + "ms");
-		
+		                                         + DefUseExecutionTraceAnalyzer.timeGetCoveredGoals
+		                                         + "ms");
+
 		for (DefUsePairType type : DefUseCoverageTestFitness.DefUsePairType.values()) {
 			LoggingUtils.getEvoLogger().info("* Covered goals of type " + type + ": "
-			        + mostCoveredGoals.get(type) + " / " + totalGoals.get(type));
-			for(DefUseCoverageTestFitness pair:getPairsOfType(type)){
-				if(pair.isCovered()){
-					LoggingUtils.getEvoLogger().info("*(X) "+pair.toString());
-				}else{
-					LoggingUtils.getEvoLogger().info("*( ) "+pair.toString());
+			                                         + mostCoveredGoals.get(type) + " / "
+			                                         + totalGoals.get(type));
+			for (DefUseCoverageTestFitness pair : getPairsOfType(type)) {
+				if (pair.isCovered()) {
+					LoggingUtils.getEvoLogger().info("*(X) " + pair.toString());
+				} else {
+					LoggingUtils.getEvoLogger().info("*( ) " + pair.toString());
 				}
 			}
-				
+
 		}
 
 		LoggingUtils.getEvoLogger().info("* Covered " + countMostCoveredGoals() + "/"
-		        + countTotalGoals() + " goals");
+		                                         + countTotalGoals() + " goals");
 	}
 
 	/**
 	 * Returns a list of du pairs of the specific type.
-	 * @param type the type of pairs. See DefUseCoverageTestFitness.DefUsePairType
+	 * 
+	 * @param type
+	 *            the type of pairs. See
+	 *            DefUseCoverageTestFitness.DefUsePairType
 	 * @return
 	 */
 	private static ArrayList<DefUseCoverageTestFitness> getPairsOfType(DefUsePairType type) {
 		ArrayList<DefUseCoverageTestFitness> pairs = new ArrayList<DefUseCoverageTestFitness>();
-		for(DefUseCoverageTestFitness pair:goals){
-			if(pair.getType() == type)
+		for (DefUseCoverageTestFitness pair : goals) {
+			if (pair.getType() == type)
 				pairs.add(pair);
 		}
 		return pairs;
