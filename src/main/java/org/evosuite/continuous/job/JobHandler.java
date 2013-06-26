@@ -170,7 +170,6 @@ public class JobHandler extends Thread{
 	
 	private String getOutputVariables(){
 		//TODO add other outputs once fitness functions are fixed
-		//FIXME should rather use variables, not hardcoded strings
 		String cmd =  " -Doutput_variables=\""; 
 		cmd += "TARGET_CLASS,configuration_id"; 
 		cmd += RuntimeVariable.BranchCoverage+",";		
