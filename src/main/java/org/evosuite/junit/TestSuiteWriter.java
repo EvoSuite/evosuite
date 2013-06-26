@@ -92,6 +92,11 @@ public class TestSuiteWriter implements Opcodes {
 
 	private final String EXECUTOR_SERVICE = "executor";
 
+	/**
+	 * FIXME: this filter assumes "Test" as prefix, but would be better to have
+	 * it as postfix (and as a variable) 
+	 *
+	 */
 	class TestFilter implements IOFileFilter {
 		@Override
 		public boolean accept(File f, String s) {
