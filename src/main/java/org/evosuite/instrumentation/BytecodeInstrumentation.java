@@ -122,7 +122,7 @@ public class BytecodeInstrumentation {
 		        || classNameWithDots.startsWith("org.xml.sax") //
 		        || classNameWithDots.startsWith("org.mozilla.javascript.gen.c") //
 		        || classNameWithDots.startsWith("daikon.") //
-		        || classNameWithDots.startsWith("org.aspectj.org.eclipse") //
+		        //|| classNameWithDots.startsWith("org.aspectj.org.eclipse") // TODO why was it there?
 		        || classNameWithDots.startsWith("junit.framework") //
 		        || classNameWithDots.startsWith("org.junit")
 		        || classNameWithDots.startsWith("edu.uta.cse.dsc");
