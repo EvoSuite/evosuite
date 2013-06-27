@@ -13,12 +13,12 @@ import org.slf4j.LoggerFactory;
 /**
  * Root class for the different kinds of schedule.
  * 
- * 
+ * <p>
  * TODO: memory based on number of branches, as we can/should use larger population size, longer
  * test cases, larger test suites, etc. These latter are an initial proof-of-concept of a more 
  * general optimized tuning.
  * 
- * 
+ * <p>
  * TODO: handle schedule that is specific for the SVN/Git changes (ie only recently modified classes used for search).
  * Would be interesting to analyze how often there are commits (how many classes are modified) in open source / industrial projects. 
  * If in last commit there were added/modified a set X of classes, not only we might 
@@ -26,6 +26,12 @@ import org.slf4j.LoggerFactory;
  * Furthermore, we can look at the history: if CTG has been run for weeks/months,
  * and then new classes are added, those should have much higher priority than old,
  * heavily tested classes 
+ * 
+ * <p>
+ * TODO: we should also consider what version of EvoSuite has been used.
+ * If a new version of EvoSuite is introduced during CTG, it would make sense
+ * to re-generate test cases for all CUTs, as new version might achieve higher
+ * coverage
  * 
  * @author arcuri
  *

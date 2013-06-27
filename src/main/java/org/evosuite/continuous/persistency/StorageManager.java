@@ -44,6 +44,8 @@ public class StorageManager {
 	private File tmpReports;
 	private File tmpTests;
 
+	private File testsFolder;
+	
 	public StorageManager(String rootFolderName) {
 		super();
 		this.rootFolderName = rootFolderName;
@@ -89,9 +91,18 @@ public class StorageManager {
 		boolean created = root.mkdir();
 		if(!created){
 			logger.error("Failed to mkdir "+root.getAbsolutePath());
+			return false;
 		}
 
-		return created;		
+		testsFolder = new File(root.getAbsolutePath()+File.separator+"evosuite-tests");
+		if(!testsFolder.exists()){
+			created = testsFolder.mkdirs();
+			if(created){
+				return false;
+			}
+		}
+		
+		return true;		
 	}
 
 	/**
