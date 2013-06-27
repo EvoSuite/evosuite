@@ -20,14 +20,12 @@ package org.evosuite.utils;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -40,6 +38,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.thoughtworks.xstream.XStream;
 
@@ -49,6 +49,9 @@ import com.thoughtworks.xstream.XStream;
  * @author Andrey Tarasevich.
  */
 public class Utils {
+
+	private static Logger logger = LoggerFactory.getLogger(Utils.class);
+
 
 	/**
 	 * <p>
@@ -65,23 +68,23 @@ public class Utils {
 			return resource;
 		}
 
-		 // check file ending
+		// check file ending
 		final String CLASS = ".class";		 
 		if(resource.endsWith(CLASS)){
 			resource = resource.substring(0, resource.length() - CLASS.length());
 		}
-		
+
 		//in Jar it is always '/'
 		resource = resource.replace('/', '.');
-		
+
 		if(File.separatorChar != '/'){
 			//this would happen on a Windows machine for example
 			resource = resource.replace(File.separatorChar, '.');
 		}
-		
+
 		return resource;
 	}
-	
+
 	/**
 	 * Sleeps at least until the specified time point has passed.
 	 *
@@ -93,11 +96,11 @@ public class Utils {
 	public static void sleepUntil(long targetTimeMillis) {
 		while (true) {
 			long delta = targetTimeMillis - System.currentTimeMillis(); 
-			
+
 			if (delta <= 0) {
 				break;
 			}
-			
+
 			try {
 				Thread.sleep(delta);
 			} catch (InterruptedException e) { /* OK */ }
@@ -112,7 +115,7 @@ public class Utils {
 	public static void sleepFor(long millis) {
 		sleepUntil(System.currentTimeMillis() + millis);
 	}
-	
+
 	/**
 	 * Deletes directory and its content.
 	 *
@@ -257,10 +260,9 @@ public class Utils {
 			} finally {
 				in.close();
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error while reading file "+fileName+" , "+
+					e.getMessage(), e);
 		}
 		return content;
 	}
@@ -286,10 +288,9 @@ public class Utils {
 			} finally {
 				in.close();
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error while reading file "+file.getName()+" , "+
+					e.getMessage(), e);
 		}
 		return content;
 	}
@@ -305,8 +306,9 @@ public class Utils {
 	public static void writeFile(String content, String fileName) {
 		try {
 			FileUtils.writeStringToFile(new File(fileName), content);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (IOException e) {			
+			logger.error("Error while writing file "+fileName+" , "+
+					e.getMessage(), e);			
 		}
 	}
 
@@ -321,8 +323,9 @@ public class Utils {
 	public static void writeFile(String content, File file) {
 		try {
 			FileUtils.writeStringToFile(file, content);
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error while reading file "+file.getName()+" , "+
+					e.getMessage(), e);
 		}
 	}
 
@@ -339,8 +342,9 @@ public class Utils {
 				out.close();
 			}
 			in.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error while writing file "+dest.getName()+" , "+
+					e.getMessage(), e);
 		}
 	}
 
@@ -355,8 +359,9 @@ public class Utils {
 		try {
 			XStream xstream = new XStream();
 			FileUtils.writeStringToFile(new File(fileName), xstream.toXML(data));
-		} catch (IOException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error while writing file "+fileName+" , "+
+					e.getMessage(), e);
 		}
 	}
 
@@ -377,11 +382,9 @@ public class Utils {
 			BufferedReader in = new BufferedReader(reader);
 			return (T) xstream.fromXML(in);
 
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return null;
-		} catch (UnsupportedEncodingException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Error while reading file "+fileName+" , "+
+					e.getMessage(), e);
 			return null;
 		}
 	}
@@ -406,5 +409,29 @@ public class Utils {
 				packageName = "";
 		}
 		return packageName;
+	}
+	
+	public static String createFolderForTests(String base, String fullClassName){
+		String packageName = "";
+		if (fullClassName.contains(".")){
+			packageName = fullClassName.substring(0, fullClassName.lastIndexOf("."));
+		} else {
+			packageName = "";
+		}
+		packageName = packageName.replaceAll(".", File.separator);
+		
+		String testFolderName = base+File.separator+packageName;
+		File testFolder = new File(testFolderName);
+		if(testFolder.exists()){
+			return testFolderName;
+		} else {
+			boolean created = testFolder.mkdirs();
+			if(!created){
+				logger.error("Failed to create: "+testFolderName);
+				return null;
+			} else {
+				return testFolderName;
+			}
+		}
 	}
 }
