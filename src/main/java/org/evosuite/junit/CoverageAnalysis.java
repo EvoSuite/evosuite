@@ -12,6 +12,7 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.List;
@@ -23,6 +24,8 @@ import java.util.zip.ZipFile;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
+import org.evosuite.sandbox.Sandbox;
+import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.ExecutionTrace;
@@ -37,6 +40,8 @@ import org.junit.runner.JUnitCore;
 import org.junit.runner.Result;
 import org.junit.runners.Suite;
 import org.objectweb.asm.ClassReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -49,12 +54,30 @@ public class CoverageAnalysis {
 
 	private final ExternalProcessUtilities util = new ExternalProcessUtilities();
 
+	private final static Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
+
 	/**
 	 * Identify all JUnit tests starting with the given name prefix, instrument
 	 * and run tests
 	 */
 	public static void analyzeCoverage() {
-		TestCluster.getInstance();
+		Sandbox.goingToExecuteSUTCode();
+		Sandbox.goingToExecuteUnsafeCodeOnSameThread();
+		try {
+			DependencyAnalysis.analyze(Properties.TARGET_CLASS,
+			                           Arrays.asList(Properties.CP.split(File.pathSeparator)));
+			LoggingUtils.getEvoLogger().info("* Finished analyzing classpath");
+		} catch (Throwable e) {
+			LoggingUtils.getEvoLogger().error("* Error while initializing target class: "
+			                                          + (e.getMessage() != null ? e.getMessage()
+			                                                  : e.toString()));
+			logger.error("Problem for " + Properties.TARGET_CLASS + ". Full stack:", e);
+			return;
+		} finally {
+			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
+			Sandbox.doneWithExecutingSUTCode();
+		}
+		// TestCluster.getInstance();
 
 		List<Class<?>> junitTests = getClasses();
 		LoggingUtils.getEvoLogger().info("* Found " + junitTests.size()
