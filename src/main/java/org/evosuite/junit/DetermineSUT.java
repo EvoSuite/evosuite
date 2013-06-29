@@ -4,6 +4,7 @@
 package org.evosuite.junit;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.instrumentation.BytecodeInstrumentation;
+import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.ResourceList;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassReader;
@@ -43,8 +45,14 @@ public class DetermineSUT {
 
 	private String targetName = "";
 
+	private String targetClassPath = "";
+	
 	private Set<String> superClasses = new HashSet<String>();
 
+	public static class NoJUnitClassException extends Exception {
+		
+	}
+	
 	private class TargetClassSorter implements Comparator<String> {
 		private final String targetClass;
 
@@ -60,19 +68,33 @@ public class DetermineSUT {
 		}
 	}
 
-	public String getSUTName(String fullyQualifiedTargetClass, String targetClassPath) {
+	public String getSUTName(String fullyQualifiedTargetClass, String targetClassPath) throws NoJUnitClassException {
 		this.targetName = fullyQualifiedTargetClass;
+		this.targetClassPath = targetClassPath;
+		try {
+			ClassPathHacker.addFile(targetClassPath);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		Set<String> targetClasses = analyzeTargetClasspath(targetClassPath);
 		Set<String> candidateClasses = new HashSet<String>();
+		boolean hasJUnit = false;
 		try {
 			candidateClasses.addAll(determineCalledClasses(fullyQualifiedTargetClass,
 			                                               targetClasses));
+			hasJUnit = true;
 		} catch (ClassNotFoundException e) {
 			// Ignore, the set will be empty?
 			logger.error("Class not found: " + e, e);
 			return "";
+		} catch(NoJUnitClassException e) {
+			
 		}
 
+		if(!hasJUnit)
+			throw new NoJUnitClassException();
+		
 		if (candidateClasses.isEmpty())
 			return "<UNKNOWN>";
 
@@ -84,7 +106,7 @@ public class DetermineSUT {
 	}
 
 	public Set<String> determineCalledClasses(String fullyQualifiedTargetClass,
-	        Set<String> targetClasses) throws ClassNotFoundException {
+	        Set<String> targetClasses) throws ClassNotFoundException, NoJUnitClassException {
 		Set<String> calledClasses = new HashSet<String>();
 
 		String className = fullyQualifiedTargetClass.replace('.', '/');
@@ -93,7 +115,7 @@ public class DetermineSUT {
 			InputStream is = ClassLoader.getSystemResourceAsStream(className + ".class");
 			if (is == null) {
 				throw new ClassNotFoundException("Class '" + className + ".class"
-				        + "' should be in target project, but could not be found!");
+						+ "' should be in target project, but could not be found!");
 			}
 			ClassReader reader = new ClassReader(is);
 			ClassNode classNode = new ClassNode();
@@ -102,6 +124,8 @@ public class DetermineSUT {
 
 			if (isJUnitTest(classNode)) {
 				handleClassNode(calledClasses, classNode, targetClasses);
+			} else {
+				throw new NoJUnitClassException(); 
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -237,7 +261,11 @@ public class DetermineSUT {
 			return;
 		}
 		DetermineSUT det = new DetermineSUT();
-		System.out.println(det.getSUTName(args[0], args[1]));
+		try {
+			System.out.println(det.getSUTName(args[0], args[1]));
+		} catch(NoJUnitClassException e) {
+			System.err.println("Found no JUnit test case");
+		}
 	}
 
 }
