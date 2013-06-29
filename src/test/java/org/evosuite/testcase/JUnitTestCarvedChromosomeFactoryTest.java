@@ -306,4 +306,23 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		Assert.assertTrue("generated code does not contain " + concatenated + "\n" + code,
 		                  code.contains(concatenated));
 	}
+	
+	@Test
+	public void testPersonExample() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.TestPerson.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.Person.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+		Assert.assertNotNull(carved);
+
+		String code = carved.toString();
+
+		Assert.assertEquals(code, 2, carved.test.size());
+	}
 }
