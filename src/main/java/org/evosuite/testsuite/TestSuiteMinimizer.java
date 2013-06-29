@@ -27,9 +27,11 @@ import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.TestFitnessFactory;
 import org.evosuite.coverage.branch.BranchCoverageFactory;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.junit.CoverageAnalysis;
 import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.rmi.service.ClientState;
@@ -115,6 +117,21 @@ public class TestSuiteMinimizer {
 		information.setProgress(progress);
 		ClientServices.getInstance().getClientNode().changeState(state, information);
 	}
+	
+	private void filterJUnitCoveredGoals(List<TestFitnessFunction> goals) {
+		if(!Properties.JUNIT_EXTEND.isEmpty()) {
+			
+			try {
+				Class<?> junitClass = Class.forName(Properties.JUNIT_EXTEND, true, TestGenerationContext.getClassLoader());
+				List<TestFitnessFunction> coveredGoals = CoverageAnalysis.getCoveredGoals(junitClass, goals);
+				logger.warn("Removing "+coveredGoals.size() +" goals already covered by JUnit (total: "+goals.size()+")");
+				logger.warn("Removing "+coveredGoals +" goals already covered by JUnit (total: "+goals+")");
+				goals.removeAll(coveredGoals);
+			} catch (ClassNotFoundException e) {
+				logger.warn("Failed to find JUnit test suite: "+Properties.JUNIT_EXTEND);
+			}
+		}
+	}
 
 	/**
 	 * Minimize test suite with respect to the isCovered Method of the goals
@@ -137,6 +154,8 @@ public class TestSuiteMinimizer {
 
 		List<TestFitnessFunction> goals = new ArrayList<TestFitnessFunction>(
 		        testFitnessFactory.getCoverageGoals());
+		filterJUnitCoveredGoals(goals);
+
 		List<TestFitnessFunction> branchGoals = new ArrayList<TestFitnessFunction>();
 		int numCovered = 0;
 		int currentGoal = 0;
@@ -145,8 +164,10 @@ public class TestSuiteMinimizer {
 		        && Properties.CRITERION != Properties.Criterion.IBRANCH) {
 			BranchCoverageFactory branchFactory = new BranchCoverageFactory();
 			branchGoals.addAll(branchFactory.getCoverageGoals());
+			filterJUnitCoveredGoals(branchGoals);
 			goals.addAll(branchGoals);
 		}
+		
 
 		int numGoals = goals.size() - branchGoals.size();
 
