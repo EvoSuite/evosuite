@@ -266,6 +266,27 @@ public class Utils {
 		}
 		return content;
 	}
+	
+	public static String readFileToString(String fileName) {
+		StringBuilder content = new StringBuilder();
+		try {
+			Reader reader = new InputStreamReader(
+					new FileInputStream(fileName), "utf-8");
+			BufferedReader in = new BufferedReader(reader);
+			try {
+				String str;
+				while ((str = in.readLine()) != null) {
+					content.append(str);
+				}
+			} finally {
+				in.close();
+			}
+		} catch (Exception e) {
+			logger.error("Error while reading file "+fileName+" , "+
+					e.getMessage(), e);
+		}
+		return content.toString();
+	}
 
 	/**
 	 * Read file line by line into list.
