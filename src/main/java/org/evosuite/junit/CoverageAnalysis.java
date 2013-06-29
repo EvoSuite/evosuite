@@ -108,6 +108,26 @@ public class CoverageAnalysis {
 		Result result = executeTests(classes);
 		return getCoverage(result);
 	}
+	
+	public static List<TestFitnessFunction> getCoveredGoals(Class<?> testClass, List<TestFitnessFunction> allGoals) {
+		List<TestFitnessFunction> coveredGoals = new ArrayList<TestFitnessFunction>();
+		
+		executeTests(testClass);
+		ExecutionTrace trace = ExecutionTracer.getExecutionTracer().getTrace();
+
+		TestChromosome dummy = new TestChromosome();
+		ExecutionResult executionResult = new ExecutionResult(dummy.getTestCase());
+		executionResult.setTrace(trace);
+		dummy.setLastExecutionResult(executionResult);
+		dummy.setChanged(false);
+
+		for(TestFitnessFunction goal : allGoals) {
+			if (goal.isCovered(dummy))
+				coveredGoals.add(goal);
+		}
+		
+		return coveredGoals;
+	}
 
 	private static List<Class<?>> getClassesFromClasspath() {
 		List<Class<?>> classes = new ArrayList<Class<?>>();
