@@ -215,7 +215,7 @@ public final class CaptureLog implements Cloneable {
 		/*
 		 * FIXME: it seems negative indexes have special meaning...
 		 */
-		if(recordIndex<= -nRec || recordIndex >= nRec){
+		if(-recordIndex<= -nRec || recordIndex >= nRec){
 			throw new IllegalArgumentException("New record index "+recordIndex+" is invalid, as there are only "+nRec+" records");
 		}
 

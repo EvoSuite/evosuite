@@ -323,6 +323,6 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 
 		String code = carved.toString();
 
-		Assert.assertEquals(code, 2, carved.test.size());
+		Assert.assertEquals(code, 3, carved.test.size());
 	}
 }
