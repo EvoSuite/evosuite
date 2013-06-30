@@ -155,13 +155,15 @@ public class JobHandler extends Thread{
 		File reports = storage.getTmpReports();
 		File tests = storage.getTmpTests();
 		
-		//TODO check if it works on Windows... likely not		
+		//TODO check if it works on Windows... likely not	
 		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.configurationId;
 		cmd += " -Dtest_dir="+tests.getAbsolutePath();
 		
 		cmd += getOutputVariables();
         
-		cmd += " -Denable_asserts_for_evosuite=flase -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
+		cmd += " -Djunit_suffix="+StorageManager.junitSuffix;
+		
+		cmd += " -Denable_asserts_for_evosuite=false -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
         cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
         cmd += " -Dsave_all_data=false  -Dinline=false";
   		

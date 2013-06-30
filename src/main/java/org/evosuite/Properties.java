@@ -606,6 +606,9 @@ public class Properties {
 	@Parameter(key = "junit_tests", group = "Output", description = "Create JUnit test suites")
 	public static boolean JUNIT_TESTS = true;
 
+	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
+	public static String JUNIT_SUFFIX = "EvoSuiteTest";
+
 	/**
 	 * TODO: this functionality is not implemented yet
 	 */

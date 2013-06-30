@@ -515,13 +515,16 @@ public class TestSuiteGenerator {
 
 	/**
 	 * <p>
-	 * writeJUnitTests
-	 * </p>
+	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases
+	 * to the default directory Properties.TEST_DIR. 
+	 * 
+	 * <p>
+	 * The name of the test will be equal to the SUT followed by the given suffix
 	 * 
 	 * @param tests
 	 *            a {@link java.util.List} object.
 	 */
-	public static void writeJUnitTests(List<TestCase> tests) {
+	public static void writeJUnitTests(List<TestCase> tests, String suffix) {
 		if (Properties.JUNIT_TESTS) {
 			ClientServices.getInstance().getClientNode().changeState(ClientState.WRITING_TESTS);
 
@@ -533,41 +536,23 @@ public class TestSuiteGenerator {
 
 			if (Properties.CHECK_CONTRACTS) {
 				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
-				//FailingTestSet.writeJUnitTestSuite();
-				//tests.addAll(FailingTestSet.getFailingTests());
 				FailingTestSet.writeJUnitTestSuite(suite);
 			}
 
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
-			suite.writeTestSuite("Test" + name, testDir);
-			// suite.writeTestSuiteMainFile(testDir);
+			suite.writeTestSuite(name+suffix, testDir);
 		}
 	}
 
 	/**
-	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases
-	 * to the default directory Properties.TEST_DIR. Unlike its twin
-	 * writeJUnitTests(tests) this method adds a given tag to the default file
-	 * name, allowing several test files per class. Instead of TestMyClass.java
-	 * the test cases are written to TestMayClassmytag.java.
 	 * 
 	 * @param tests
 	 *            the test cases which should be written to file
-	 * @param tag
-	 *            the appendix which should be added to the default file name
 	 */
-	public static void writeJUnitTests(List<TestCase> tests, String tag) {
-		if (Properties.JUNIT_TESTS) {
-			TestSuiteWriter suite = new TestSuiteWriter();
-			suite.insertTests(tests);
-			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
-			String testDir = Properties.TEST_DIR;
-			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
-			suite.writeTestSuite("Test" + name + tag, testDir);
-			// suite.writeTestSuiteMainFile(testDir);
-		}
+	public static void writeJUnitTests(List<TestCase> tests) {
+		 writeJUnitTests(tests,Properties.JUNIT_SUFFIX); 
 	}
 
 	private void addAssertions(List<TestCase> tests) {
