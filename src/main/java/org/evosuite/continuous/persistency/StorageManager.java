@@ -50,6 +50,9 @@ public class StorageManager {
 	private File tmpReports;
 	private File tmpTests;
 
+	/**
+	 * Folder where all the best test suites generated so far in all CTG runs are stored
+	 */
 	private File testsFolder;
 	
 	public StorageManager(String rootFolderName) {
@@ -377,17 +380,44 @@ public class StorageManager {
 		suite.setEffortFromLastModificationInSeconds(BigInteger.valueOf(oldEffortFromModification+duration));
 		suite.setTotalEffortInSeconds(BigInteger.valueOf(oldTotalEffort+duration));
 
-		//TODO need also to update actual tests
 		String testName = extractClassName(tmpTests,ondisk.testSuite);
 		suite.setFullNameOfTestSuite(testName); 
 		
 		db.getGeneratedTestSuites().add(suite);
-		
+				
 		/*
 		 * TODO to properly update failure data, we will first need
 		 * to change how we output such info in EvoSuite (likely
 		 * we will need something more than statistics.csv)
 		 */
+		
+		/*
+		 * So far we have modified only the content of db.
+		 * Need also to update the actual test cases 
+		 */
+		removeTestSuite(testName);
+		addTestSuite(ondisk.testSuite);
+	}
+
+	
+	/**
+	 * From the test suites generated in the last CTG run, add the given
+	 * one to the current best set 
+	 *   
+	 * @param newlyGeneratedTestSuite
+	 */
+	private void addTestSuite(File newlyGeneratedTestSuite) {
+		String testName = extractClassName(tmpTests,newlyGeneratedTestSuite);
+		
+		String path = testName.replace(".", File.separator);
+		path += ".java";
+		File file = new File(testsFolder.getAbsolutePath()+File.separator+path);
+		
+		try {
+			FileUtils.copyFile(newlyGeneratedTestSuite, file);
+		} catch (IOException e) {
+			logger.error("Failed to copy new generated test suite into the current best set: "+e.getMessage(),e);
+		}
 	}
 
 	private boolean isBetterThanOldOne(TestsOnDisk suite, ProjectInfo db) {
@@ -452,15 +482,35 @@ public class StorageManager {
 			String cut = suite.getFullNameOfTargetClass();
 			if(! current.containsClass(cut)){
 				iter.remove();
+				removeTestSuite(suite.getFullNameOfTestSuite());		
 				removed++;
 			}
 			
-			//TODO remove test suite
 		}
 		
 		return "Removed test suites: "+removed; 
 	}
 
+	/**
+	 * Remove the given test suite
+	 * 
+	 * @param cut
+	 */
+	private void removeTestSuite(String testName) {
+		
+		String path = testName.replace(".", File.separator);
+		path += ".java";
+		File file = new File(testsFolder.getAbsolutePath()+File.separator+path);
+		
+		if(!file.exists()){
+			logger.debug("Nothing to delete, as following file does not exist: "+file.getAbsolutePath());
+		} else {
+			boolean deleted = file.delete();
+			if(!deleted){
+				logger.warn("Failed to delete "+file.getAbsolutePath());
+			}
+		}
+	}
 
 	/**
 	 * Get current representation of the test cases in the database
