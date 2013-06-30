@@ -6,8 +6,11 @@ import java.io.StringWriter;
 import java.math.BigInteger;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
@@ -20,6 +23,7 @@ import javax.xml.validation.SchemaFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
 import org.evosuite.continuous.project.ProjectStaticData;
+import org.evosuite.utils.Utils;
 import org.evosuite.xsd.ProjectInfo;
 import org.evosuite.xsd.TestSuite;
 import org.slf4j.Logger;
@@ -35,6 +39,8 @@ public class StorageManager {
 
 	private static Logger logger = LoggerFactory.getLogger(StorageManager.class);
 
+	public static final String junitSuffix = "ContinuousEvoSuiteTest"; 
+	
 	private final String rootFolderName;
 
 	private final String projectFileName = "project_info.xml";
@@ -154,16 +160,29 @@ public class StorageManager {
 
 	public static class TestsOnDisk{
 		public final File testSuite;
-		public final File csvFile;
 		public final String cut;
 		public final CsvData csvData;
+		
+		
+		public TestsOnDisk(File testSuite, CsvData csvData) {
+			super();
+			this.testSuite = testSuite;
+			this.csvData = csvData;
+			this.cut = csvData.getTargetClass();
+		}
 		
 		public TestsOnDisk(File testSuite, File csvFile, String cut) {
 			super();
 			this.testSuite = testSuite;
-			this.csvFile = csvFile;
 			this.cut = cut;
 			csvData = CsvData.openFile(csvFile);
+		}
+		
+		public boolean isValid(){
+			return testSuite!=null && testSuite.exists() &&
+					cut!=null && !cut.isEmpty() &&
+					csvData!=null && 
+					cut.equals(csvData.getTargetClass());
 		}
 	}
 	
@@ -177,30 +196,103 @@ public class StorageManager {
 	public String mergeAndCommitChanges(ProjectStaticData current){
 
 		ProjectInfo db = getDatabaseProjectInfo();
-		removeNoMoreExistentData(db,current);
+		String info = removeNoMoreExistentData(db,current);
 
 		/*
 		 * Check what test cases have been actually generated
 		 * in this CTG run
 		 */
 		List<TestsOnDisk> suites = gatherGeneratedTestsOnDisk();
-
+		info += "\nNew test suites: "+suites.size();
+		
+		int better = 0;
 		for(TestsOnDisk suite : suites){
 			if(isBetterThanOldOne(suite,db)){
 				updateDatabase(suite,db);
+				better++;
 			}
 		}
-
+		info += "Better test suites: "+better;
+		
 		updateProjectStatistics(db,current);
 		commitDatabase(db);
 
-		//TODO gather string outputs for info
-		return null;
+		return info;
 	}
 
+	/**
+	 * Not only we need the generated JUnit files, but also the statistics
+	 * on their execution.
+	 * Note: in theory we could re-execute the test cases to extract/recalculate
+	 * those statistics, but it would be pretty inefficient
+	 * 
+	 * @return
+	 */
 	private List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
-		return null; //TODO
+		
+		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
+		List<File> generatedTests = Utils.getAllFilesInSubFolder(tmpTests.getAbsolutePath(), ".java");
+		List<File> generatedReports = Utils.getAllFilesInSubFolder(tmpReports.getAbsolutePath(), ".csv");
+		
+		/*
+		 * Key -> name of CUT
+		 * Value -> data extracted from CSV file 
+		 * 
+		 * We use a map, otherwise we could have 2 inner loops going potentially on thousands
+		 * of classes, ie, O(n^2) complexity
+		 */
+		Map<String,CsvData> reports = new LinkedHashMap<String,CsvData>();
+		for(File file : generatedReports){
+			CsvData data = CsvData.openFile(file);
+			if(data==null){
+				logger.warn("Cannot process "+file.getAbsolutePath());
+			} else {
+				reports.put(data.getTargetClass(), data);
+			}
+		}
+		
+		/*
+		 * Try to extract info for each generated JUnit test suite
+		 */
+		for(File test : generatedTests){
+			
+			String testName = extractClassName(tmpTests,test);
+			String cut = testName.substring(0, testName.length() - junitSuffix.length());
+						
+			CsvData data = reports.get(cut); 
+			
+			if(data==null){
+				logger.warn("No CSV file for CUT "+cut+" with test suite at "+test.getAbsolutePath());
+				continue;
+			}
+			
+			TestsOnDisk info = new TestsOnDisk(test, data);
+			if(info.isValid()){
+				list.add(info);
+			} else {
+				logger.warn("Invalid info for "+test.getAbsolutePath());
+			}
+		}
+		
+		return list; 
 	}
+	
+	/**
+	 * Example: </br>
+	 * base   = /some/where/in/file/system  </br>
+	 * target = /some/where/in/file/system/com/name/of/a/package/AClass.java  </br>
+	 * </br>
+	 * We want "com.name.of.a.package.AClass" as a result
+	 * 
+	 */
+	private String extractClassName(File base, File target){		
+		int len = base.getAbsolutePath().length();
+		String path = target.getAbsolutePath(); 
+		String name = path.substring(len,path.length()-".java".length());
+		name = name.replaceAll(File.separator,".");
+		return name;
+	}
+	
 	
 	private void commitDatabase(ProjectInfo db) {
 
@@ -244,9 +336,16 @@ public class StorageManager {
 		db.setAverageBranchCoverage(coverage);
 	}
 
+	/**
+	 * Not only modify the state of <code>db</code>, but
+	 * also copy/replace new test cases on file disk
+	 * 
+	 * @param ondisk
+	 * @param db
+	 */
 	private void updateDatabase(TestsOnDisk ondisk, ProjectInfo db) {
 
-		assert ondisk.csvData != null;
+		assert ondisk.isValid();
 		
 		TestSuite suite = new TestSuite();
 		CsvData csv = ondisk.csvData;
@@ -279,7 +378,8 @@ public class StorageManager {
 		suite.setTotalEffortInSeconds(BigInteger.valueOf(oldTotalEffort+duration));
 
 		//TODO need also to update actual tests
-		suite.setFullNameOfTestSuite(null); //TODO
+		String testName = extractClassName(tmpTests,ondisk.testSuite);
+		suite.setFullNameOfTestSuite(testName); 
 		
 		db.getGeneratedTestSuites().add(suite);
 		
@@ -342,17 +442,23 @@ public class StorageManager {
 	 * 
 	 * @param data
 	 */
-	private void removeNoMoreExistentData(ProjectInfo db,
+	private String removeNoMoreExistentData(ProjectInfo db,
 			ProjectStaticData current) {
 
+		int removed = 0;
 		Iterator<TestSuite> iter = db.getGeneratedTestSuites().iterator();
 		while(iter.hasNext()){
 			TestSuite suite = iter.next();
 			String cut = suite.getFullNameOfTargetClass();
 			if(! current.containsClass(cut)){
 				iter.remove();
+				removed++;
 			}
+			
+			//TODO remove test suite
 		}
+		
+		return "Removed test suites: "+removed; 
 	}
 
 

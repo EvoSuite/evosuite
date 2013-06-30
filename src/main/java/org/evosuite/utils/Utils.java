@@ -455,4 +455,38 @@ public class Utils {
 			}
 		}
 	}
+	
+	/**
+	 * Scan the <code>base</code> folder, and return a list of all files with the given name <code>ending</code>
+	 * 
+	 * @param base
+	 * @param ending
+	 * @return
+	 */
+	public static List<File> getAllFilesInSubFolder(String base, String ending) throws IllegalArgumentException{
+		
+		File dir = new File(base);
+		if(!dir.exists() || !dir.isDirectory()){
+			throw new IllegalArgumentException("Invalid folder "+base);
+		}
+		
+		List<File> files = new LinkedList<File>();
+		recursiveFileSearch(files,dir,ending);
+		
+		return files;
+	}
+	
+	private static void recursiveFileSearch(List<File> files, File dir, String ending){
+		
+		for(File file : dir.listFiles()){
+			if(file.isDirectory()){
+				recursiveFileSearch(files,file,ending);
+			} else {
+				if(file.getName().endsWith(ending)){
+					files.add(file);
+				}
+			}
+		}
+		
+	}
 }
