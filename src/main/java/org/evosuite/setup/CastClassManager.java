@@ -1,5 +1,6 @@
 package org.evosuite.setup;
 
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
@@ -164,6 +165,12 @@ public class CastClassManager {
 						isAssignable = false;
 						logger.debug("Not assignable: " + clazz + " to bound " + bound);
 						break;
+					}
+					if(bound instanceof ParameterizedType) {
+						if(Arrays.asList(((ParameterizedType)bound).getActualTypeArguments()).contains(typeVariable)) {
+							isAssignable = false;
+							break;
+						}
 					}
 				}
 				if (isAssignable) {
