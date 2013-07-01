@@ -221,7 +221,27 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (type instanceof ParameterizedType) {
 			return getTypeName((ParameterizedType) type);
 		} else if (type instanceof WildcardType) {
-			return "?";
+			String ret = "?";
+			boolean first = true;
+			for(Type bound : ((WildcardType) type).getLowerBounds()) {
+				if(bound == null || GenericTypeReflector.erase(bound).equals(Object.class))
+					continue;
+
+				if(!first)
+					ret += ", ";
+				ret += " super "+getTypeName(bound);
+				first = false;
+			}
+			for(Type bound : ((WildcardType) type).getUpperBounds()) {
+				if(bound == null || GenericTypeReflector.erase(bound).equals(Object.class))
+					continue;
+				
+				if(!first)
+					ret += ", ";
+				ret += " extends "+getTypeName(bound);
+				first = false;
+			}
+			return ret;
 		} else if (type instanceof TypeVariable) {
 			return "?";
 		} else if (type instanceof CaptureType) {
