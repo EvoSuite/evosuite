@@ -730,6 +730,8 @@ public class TestCluster {
 			return selectedClass;
 		} else if (!clazz.isParameterizedType())
 			return clazz;
+		else if(clazz.isClass())
+			return clazz;
 
 		List<Type> parameterTypes = new ArrayList<Type>();
 		List<TypeVariable<?>> typeParameters = clazz.getTypeVariables();
