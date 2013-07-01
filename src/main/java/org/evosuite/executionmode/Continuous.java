@@ -81,7 +81,7 @@ public class Continuous {
 				Properties.CTG_MEMORY, 
 				Properties.CTG_CORES, 
 				Properties.CTG_TIME, 
-				false, /* just for now */
+				false, /* TODO: just for now, as not implemented yet */
 				Properties.CTG_SCHEDULE
 				);
 		

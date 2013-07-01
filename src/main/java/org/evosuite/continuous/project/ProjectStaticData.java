@@ -33,8 +33,6 @@ import java.util.Set;
  */
 public class ProjectStaticData {
 
-	public enum ClassKind {CONCRETE,ABSTRACT,INTERFACE};
-	
 	/**
 	 * Map from CUT full class name (key) to ClassInfo object (value)
 	 */
@@ -51,30 +49,36 @@ public class ProjectStaticData {
 	public static class ClassInfo{
 		public final Class<?> theClass;
 		public final int numberOfBranches;
-		public final ClassKind kind;
-		public final int numberOfImplementedMethods;
+		/**
+		 * we cannot only consider the number of branches,
+		 * as there might be CUTs with code but no branches
+		 */
+		public final boolean hasCode;
 		
-		public ClassInfo(Class<?> theClass, int numberOfBranches,
-				ClassKind kind, int numberOfImplementedMethods) {
+		public ClassInfo(Class<?> theClass, int numberOfBranches, boolean hasCode) {
 			super();
 			this.theClass = theClass;
 			this.numberOfBranches = numberOfBranches;
-			this.kind = kind;
-			this.numberOfImplementedMethods = numberOfImplementedMethods;
+			this.hasCode = hasCode;
 		}
 		
 		public String getClassName(){
 			return theClass.getName();
 		}
 		
-		public boolean isTestable(){
-			/*
-			 * we shouldn't use the number of branches,
-			 * as there might be CUTs with code but 
-			 * no branches
-			 */
-			return numberOfImplementedMethods > 0;
+		public boolean isTestable(){			
+			return hasCode;
 		}
+	}
+	
+	/**
+	 * Add a new ClassInfo.
+	 * Note: this is protected, as only classes in this package
+	 * should be allowed to modify the state of this class
+	 * @param info
+	 */
+	protected void addNewClass(ClassInfo info){
+		classes.put(info.getClassName(), info);
 	}
 	
 	public boolean containsClass(String c){
