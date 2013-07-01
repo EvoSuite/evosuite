@@ -67,6 +67,7 @@ public class InspectorManager {
 			        && method.getParameterTypes().length == 0
 			        && !method.getName().equals("hashCode")
 			        && !method.getDeclaringClass().equals(Object.class)
+			        && !method.isSynthetic() && !method.isBridge()
 			        && !method.getName().equals("pop")) { // FIXXME
 				logger.debug("Inspector for class " + clazz.getSimpleName() + ": "
 				        + method.getName());
