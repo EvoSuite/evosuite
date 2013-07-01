@@ -107,6 +107,16 @@ public class JobHandler extends Thread{
 		//TODO check Windows/Unix file paths
 		cmd += " -cp " + executor.getProjectClassPath();
 		
+		/* 
+		 * FIXME for seeding, need to setup classpath of generated test suites
+		 * - first the currently generated
+		 * - then the old ones
+		 * 
+		 * if same test suites happen twice (ie in current and old), then we it would be 
+		 * complicated to use both (we would need to change their name) 
+		 */
+		
+		
 		/*
 		 *  it is important to set it before calling EvoSuite, as it has to be read by Master before loading properties.
 		 *  Note: the Client will get it automatically from Master
