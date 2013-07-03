@@ -233,7 +233,7 @@ public class BytecodeInstrumentation {
 		if (DependencyAnalysis.shouldAnalyze(classNameWithDots)) {
 			logger.debug("Applying target transformation to class " + classNameWithDots);
 			// Print out bytecode if debug is enabled
-			if (!Properties.TEST_CARVING || Properties.MAKE_ACCESSIBLE) {
+			if (!Properties.TEST_CARVING && Properties.MAKE_ACCESSIBLE) {
 				cv = new AccessibleClassAdapter(cv, className);
 			}
 
