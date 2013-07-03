@@ -21,14 +21,20 @@ import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.EvoSuiteFile;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
@@ -162,6 +168,16 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			        Randomness.choice(tc.getAccessedFiles())));
 		} else if (clazz.equals(Class.class)) {
 			Type typeParameter = genericClass.getParameterTypes().get(0);
+			if(genericClass.hasWildcardTypes()) {
+				Class<?> bound = GenericTypeReflector.erase(TypeUtils.getImplicitUpperBounds((WildcardType) typeParameter)[0]);
+				if(!bound.equals(Object.class)) {
+					Set<Class<?>> assignableClasses = TestClusterGenerator.getConcreteClasses(bound, DependencyAnalysis.getInheritanceTree());					
+					statement = new ClassPrimitiveStatement(tc, genericClass, assignableClasses);
+				} else {
+					statement = new ClassPrimitiveStatement(tc);
+				}
+					
+			} else
 			if (typeParameter instanceof Class<?>) {
 				statement = new ClassPrimitiveStatement(tc, (Class<?>) typeParameter);
 			} else {
@@ -429,7 +445,7 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 	/** {@inheritDoc} */
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
-		// No-op
+		super.changeClassLoader(loader);
 	}
 
 }
