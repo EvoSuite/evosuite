@@ -638,7 +638,6 @@ public class GenericClass implements Serializable {
 			Map<TypeVariable<?>, Type> superTypeMap = superClass.getTypeVariableMap();
 			Type[] origArguments = pType.getActualTypeArguments();
 			Type[] arguments = Arrays.copyOf(origArguments, origArguments.length);
-			List<TypeVariable<?>> typeVariables = getTypeVariables();
 			List<TypeVariable<?>> variables = getTypeVariables();
 			for (int i = 0; i < arguments.length; i++) {
 				TypeVariable<?> var = variables.get(i);
@@ -653,10 +652,18 @@ public class GenericClass implements Serializable {
 					if(!TypeUtils.isAssignable(parameterTypes[i], arguments[i])) {
 						logger.info("Not assignable to bounds!");
 						return null;
-					}
-					if(!TypeUtils.isAssignable(parameterTypes[i], variables.get(i))) {
-						logger.info("Not assignable to type variable!");
-						return null;
+					} else {
+						boolean assignable = false;
+						for(Type bound : variables.get(i).getBounds()) {
+							if(TypeUtils.isAssignable(parameterTypes[i], bound)) {
+								assignable = true;
+								break;
+							}
+						}
+						if(!assignable) {
+							logger.info("Not assignable to type variable!");
+							return null;							
+						}
 					}
 					arguments[i] = parameterTypes[i];
 				}
