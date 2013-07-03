@@ -97,6 +97,8 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 				logger.warn("Error loading class " + type.getClassName() + ": " + e);
 			} catch (NoClassDefFoundError e) {
 				logger.warn("Error loading class " + type.getClassName() + ": " + e);
+			} catch (ExceptionInInitializerError e) {
+				logger.warn("Error loading class " + type.getClassName() + ": " + e);
 			}
 		}
 	}
