@@ -675,6 +675,15 @@ public class TestClusterGenerator {
 		if (Modifier.isPublic(c.getModifiers())) {
 			return true;
 		}
+		
+		// If default access rights, then check if this class is in the same package as the target class
+		if(!Modifier.isPrivate(c.getModifiers()) && !Modifier.isProtected(c.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(c);
+			if (packageName.equals(Properties.CLASS_PREFIX)) {
+				return true;
+			}
+		}
+		
 		logger.debug("Not public");
 		return false;
 	}
