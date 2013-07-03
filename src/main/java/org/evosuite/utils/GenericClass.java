@@ -638,6 +638,7 @@ public class GenericClass implements Serializable {
 			Map<TypeVariable<?>, Type> superTypeMap = superClass.getTypeVariableMap();
 			Type[] origArguments = pType.getActualTypeArguments();
 			Type[] arguments = Arrays.copyOf(origArguments, origArguments.length);
+			List<TypeVariable<?>> typeVariables = getTypeVariables();
 			List<TypeVariable<?>> variables = getTypeVariables();
 			for (int i = 0; i < arguments.length; i++) {
 				TypeVariable<?> var = variables.get(i);
@@ -646,10 +647,23 @@ public class GenericClass implements Serializable {
 					logger.info("Setting type variable "+var+" to "+superTypeMap.get(var));
 				} else if(arguments[i] instanceof WildcardType && i < parameterTypes.length) {
 					logger.info("Replacing wildcard with "+parameterTypes[i]);
+					logger.info("Lower Bounds: "+Arrays.asList(TypeUtils.getImplicitLowerBounds((WildcardType) arguments[i])));
+					logger.info("Upper Bounds: "+Arrays.asList(TypeUtils.getImplicitUpperBounds((WildcardType) arguments[i])));
+					logger.info("Type variable: "+variables.get(i));
+					if(!TypeUtils.isAssignable(parameterTypes[i], arguments[i])) {
+						logger.info("Not assignable to bounds!");
+						return null;
+					}
+					if(!TypeUtils.isAssignable(parameterTypes[i], variables.get(i))) {
+						logger.info("Not assignable to type variable!");
+						return null;
+					}
 					arguments[i] = parameterTypes[i];
 				}
 			}
 			GenericClass ownerClass = new GenericClass(ownerType).getWithParametersFromSuperclass(superClass);
+			if(ownerClass == null)
+				return null;
 			exactClass.type = new ParameterizedTypeImpl(currentClass, arguments,
 			        ownerClass.getType());
 		}
