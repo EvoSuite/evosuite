@@ -52,6 +52,7 @@ import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.NumberFormatter;
 
 import com.googlecode.gentyref.CaptureType;
@@ -768,7 +769,6 @@ public class TestCodeVisitor extends TestVisitor {
 			}
 		} else if (statement instanceof ClassPrimitiveStatement) {
 			StringBuilder builder = new StringBuilder();
-
 			builder.append(getClassName(retval));
 			builder.append(" ");
 			builder.append(getVariableName(retval));

@@ -158,7 +158,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	private boolean isClassUtilsBug(Class<?> rawClass, Class<?> arrayClass) {
-		while(arrayClass.isArray()) {
+		while(arrayClass != null && arrayClass.isArray()) {
 			if (arrayClass.getComponentType().equals(rawClass)) {
 				return true;
 			}
