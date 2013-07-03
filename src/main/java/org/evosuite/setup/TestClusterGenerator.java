@@ -651,8 +651,8 @@ public class TestClusterGenerator {
 	}
 
 	private static boolean canUse(Class<?> c) {
-		if (Throwable.class.isAssignableFrom(c))
-			return false;
+		//if (Throwable.class.isAssignableFrom(c))
+		//	return false;
 		if (Modifier.isPrivate(c.getModifiers()))
 			return false;
 
