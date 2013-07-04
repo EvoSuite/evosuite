@@ -278,6 +278,10 @@ public class TestCodeVisitor extends TestVisitor {
 	public String getClassName(Class<?> clazz) {
 		if (classNames.containsKey(clazz))
 			return classNames.get(clazz);
+		
+		if(clazz.isArray()) {
+			return getClassName(clazz.getComponentType()) + "[]";
+		}
 
 		GenericClass c = new GenericClass(clazz);
 		String name = c.getSimpleName();
