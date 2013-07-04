@@ -651,8 +651,8 @@ public class TestClusterGenerator {
 	}
 
 	private static boolean canUse(Class<?> c) {
-		if (Throwable.class.isAssignableFrom(c))
-			return false;
+		//if (Throwable.class.isAssignableFrom(c))
+		//	return false;
 		if (Modifier.isPrivate(c.getModifiers()))
 			return false;
 
@@ -675,6 +675,15 @@ public class TestClusterGenerator {
 		if (Modifier.isPublic(c.getModifiers())) {
 			return true;
 		}
+		
+		// If default access rights, then check if this class is in the same package as the target class
+		if(!Modifier.isPrivate(c.getModifiers()) && !Modifier.isProtected(c.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(c);
+			if (packageName.equals(Properties.CLASS_PREFIX)) {
+				return true;
+			}
+		}
+		
 		logger.debug("Not public");
 		return false;
 	}

@@ -39,7 +39,6 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
@@ -311,6 +310,9 @@ public class TestCluster {
 						logger.info("Generator type1: "+generatorClazz);
 						GenericClass newOwner = generatorClazz.getWithParametersFromSuperclass(clazz);
 						logger.info("Resulting type: "+newOwner);
+						if(newOwner == null)
+							continue;
+						
 						logger.info("Generator type2: "+generatorClazz);
 
 						// "newOwner" is the instantiated type of the return value
