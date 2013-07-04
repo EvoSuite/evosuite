@@ -52,7 +52,6 @@ import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.NumberFormatter;
 
 import com.googlecode.gentyref.CaptureType;
@@ -1132,7 +1131,8 @@ public class TestCodeVisitor extends TestVisitor {
 				// result += "\n  fail(\"Undeclared exception: "
 				// + ClassUtils.getShortClassName(ex) + "\");\n";
 				result += "  /*\n";
-				for (String msg : exception.getMessage().split("\n")) {
+		        String exceptionMessage = exception.getMessage().replace("*/", "*_/");
+				for (String msg : exceptionMessage.split("\n")) {
 					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
 				}
 				result += "   */\n";
