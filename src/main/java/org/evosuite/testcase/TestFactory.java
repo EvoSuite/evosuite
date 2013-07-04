@@ -20,6 +20,7 @@ import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.setup.CastClassManager;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testsuite.TestCallStatement;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
@@ -160,6 +161,11 @@ public class TestFactory {
 		if (!field.isStatic()) {
 			try {
 				callee = test.getRandomNonNullObject(field.getOwnerType(), position);
+				if(!TestClusterGenerator.canUse(field.getField(), callee.getVariableClass())) {
+					logger.debug("Cannot call field "+field+" with callee of type "+callee.getClassName());
+					throw new ConstructionFailedException("Cannot apply field to this callee");
+				}
+
 			} catch (ConstructionFailedException e) {
 				logger.debug("No callee of type " + field.getOwnerType() + " found");
 				callee = attemptGeneration(test, field.getOwnerType(), position, 0, false);
@@ -207,6 +213,11 @@ public class TestFactory {
 				position += test.size() - length;
 				length = test.size();
 			}
+			if(!TestClusterGenerator.canUse(field.getField(), callee.getVariableClass())) {
+				logger.debug("Cannot call field "+field+" with callee of type "+callee.getClassName());
+				throw new ConstructionFailedException("Cannot apply field to this callee");
+			}
+
 		}
 
 		VariableReference var = createOrReuseVariable(test, field.getFieldType(),
@@ -288,6 +299,10 @@ public class TestFactory {
 					                                                 position);
 					logger.debug("Found callee of type " + method.getOwnerType() + ": "
 					        + callee.getName());
+					if(!TestClusterGenerator.canUse(method.getMethod(), callee.getVariableClass())) {
+						logger.debug("Cannot call method "+method+" with callee of type "+callee.getClassName());
+						throw new ConstructionFailedException("Cannot apply method to this callee");
+					}
 				} catch (ConstructionFailedException e) {
 					logger.debug("No callee of type " + method.getOwnerType() + " found");
 					Set<GenericAccessibleObject<?>> recursion = new HashSet<GenericAccessibleObject<?>>(
@@ -1292,6 +1307,10 @@ public class TestFactory {
 					}
 					logger.debug("Got callee of type "
 					        + callee.getGenericClass().getTypeName());
+					if(!TestClusterGenerator.canUse(m.getMethod(), callee.getVariableClass())) {
+						logger.debug("Cannot call method "+m+" with callee of type "+callee.getClassName());
+						throw new ConstructionFailedException("Cannot apply method to this callee");
+					}
 
 					addMethodFor(test,
 					             callee,
