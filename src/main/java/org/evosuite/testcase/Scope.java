@@ -19,6 +19,7 @@ package org.evosuite.testcase;
 
 import java.lang.reflect.Array;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Proxy;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -89,8 +90,13 @@ public class Scope {
 			        && !o.getClass().isAnonymousClass()
 			        && !o.getClass().getName().matches(".*\\.\\d+$")
 			        && !o.getClass().getName().matches(".*\\$\\d+$")
-			        && !o.getClass().getName().startsWith("sun."))
-				reference.setType(o.getClass());
+			        && !o.getClass().getName().startsWith("sun.")) {
+				if(Proxy.isProxyClass(o.getClass())) {
+					reference.setType(o.getClass().getSuperclass());
+				} else {
+					reference.setType(o.getClass());
+				}
+			}
 		}
 		pool.put(reference, o);
 	}

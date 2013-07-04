@@ -4,16 +4,26 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
+import java.util.LinkedHashSet;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.primitives.ConstantPoolManager;
 import org.evosuite.utils.GenericClass;
+import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
 public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private static final long serialVersionUID = -2728777640255424791L;
+
+	private Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+	
+	public ClassPrimitiveStatement(TestCase tc, GenericClass type, Set<Class<?>> assignableClasses) {
+		super(tc, type, Randomness.choice(assignableClasses));
+		this.assignableClasses.addAll(assignableClasses);
+	}
 
 	public ClassPrimitiveStatement(TestCase tc, Class<?> value) {
 		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
@@ -24,6 +34,11 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		        Properties.getTargetClass());
 	}
 
+	@Override
+	public boolean hasMoreThanOneValue() {
+		return assignableClasses.size() != 1;
+	}
+	
 	@Override
 	public void delta() {
 		randomize();
@@ -72,18 +87,25 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	
 	@Override
 	public void randomize() {
-		org.objectweb.asm.Type type = ConstantPoolManager.getInstance().getConstantPool().getRandomType();
-		try {
-			value = getType(type);
-		} catch (ClassNotFoundException e) {
-			logger.warn("Error loading class " + type.getClassName() + ": " + e);
-		} catch (NoClassDefFoundError e) {
-			logger.warn("Error loading class " + type.getClassName() + ": " + e);
+		if(!assignableClasses.isEmpty()) {
+			value = Randomness.choice(assignableClasses);
+		} else {
+			org.objectweb.asm.Type type = ConstantPoolManager.getInstance().getConstantPool().getRandomType();
+			try {
+				value = getType(type);
+			} catch (ClassNotFoundException e) {
+				logger.warn("Error loading class " + type.getClassName() + ": " + e);
+			} catch (NoClassDefFoundError e) {
+				logger.warn("Error loading class " + type.getClassName() + ": " + e);
+			} catch (ExceptionInInitializerError e) {
+				logger.warn("Error loading class " + type.getClassName() + ": " + e);
+			}
 		}
 	}
 
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
+		super.changeClassLoader(loader);
 		Class<?> currentClass = value;
 		try {
 			value = loader.loadClass(currentClass.getCanonicalName());
