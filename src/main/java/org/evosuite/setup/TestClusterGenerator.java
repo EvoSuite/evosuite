@@ -169,7 +169,7 @@ public class TestClusterGenerator {
 			// If SEED_TYPES is false, only Object is a cast class
 			// logger.info("Handling cast classes");
 			// addCastClasses(classNames, blackList);
-			logger.debug("Cast classes used: "+classNames);
+			logger.debug("Cast classes used: " + classNames);
 		}
 
 	}
@@ -212,9 +212,9 @@ public class TestClusterGenerator {
 
 	private boolean addCastClassDependencyIfAccessible(String className,
 	        Set<String> blackList) {
-		if(className.equals("java.lang.String"))
+		if (className.equals("java.lang.String"))
 			return true;
-		
+
 		if (blackList.contains(className)) {
 			logger.info("Cast class in blacklist: " + className);
 			return false;
@@ -222,7 +222,7 @@ public class TestClusterGenerator {
 		try {
 			Class<?> clazz = TestGenerationContext.getClassLoader().loadClass(className);
 			if (!canUse(clazz)) {
-				logger.debug("Cannot use cast class: "+className);
+				logger.debug("Cannot use cast class: " + className);
 				return false;
 			}
 			// boolean added = 
@@ -473,7 +473,7 @@ public class TestClusterGenerator {
 						logger.info("TT name: " + orig + " -> " + name);
 				}
 
-				if (canUse(method)) {
+				if (canUse(method, clazz)) {
 					logger.debug("Adding method " + clazz.getName() + "."
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
@@ -497,7 +497,7 @@ public class TestClusterGenerator {
 			for (Field field : getFields(clazz)) {
 				logger.info("Checking target field " + field);
 
-				if (canUse(field)) {
+				if (canUse(field, clazz)) {
 					GenericField genericField = new GenericField(field, clazz);
 					addDependencies(genericField, 1);
 					cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
@@ -675,20 +675,25 @@ public class TestClusterGenerator {
 		if (Modifier.isPublic(c.getModifiers())) {
 			return true;
 		}
-		
+
 		// If default access rights, then check if this class is in the same package as the target class
-		if(!Modifier.isPrivate(c.getModifiers()) && !Modifier.isProtected(c.getModifiers())) {
+		if (!Modifier.isPrivate(c.getModifiers())
+		        && !Modifier.isProtected(c.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(c);
 			if (packageName.equals(Properties.CLASS_PREFIX)) {
 				return true;
 			}
 		}
-		
+
 		logger.debug("Not public");
 		return false;
 	}
 
 	public static boolean canUse(Field f) {
+		return canUse(f, f.getDeclaringClass());
+	}
+
+	public static boolean canUse(Field f, Class<?> ownerClass) {
 
 		// TODO we could enable some methods from Object, like getClass
 		if (f.getDeclaringClass().equals(java.lang.Object.class))
@@ -726,7 +731,8 @@ public class TestClusterGenerator {
 		}
 
 		// If default access rights, then check if this class is in the same package as the target class
-		if(!Modifier.isPrivate(f.getModifiers()) && !Modifier.isProtected(f.getModifiers())) {
+		if (!Modifier.isPrivate(f.getModifiers())
+		        && !Modifier.isProtected(f.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(f.getDeclaringClass());
 			if (packageName.equals(Properties.CLASS_PREFIX)) {
 				f.setAccessible(true);
@@ -734,11 +740,14 @@ public class TestClusterGenerator {
 			}
 		}
 
-
 		return false;
 	}
 
 	public static boolean canUse(Method m) {
+		return canUse(m, m.getDeclaringClass());
+	}
+
+	public static boolean canUse(Method m, Class<?> ownerClass) {
 
 		if (m.isBridge()) {
 			logger.debug("Excluding bridge method: " + m.toString());
@@ -821,16 +830,16 @@ public class TestClusterGenerator {
 		// If default or
 		if (Modifier.isPublic(m.getModifiers()))
 			return true;
-		
+
 		// If default access rights, then check if this class is in the same package as the target class
-		if(!Modifier.isPrivate(m.getModifiers()) && !Modifier.isProtected(m.getModifiers())) {
-			String packageName = ClassUtils.getPackageName(m.getDeclaringClass());
+		if (!Modifier.isPrivate(m.getModifiers())
+		        && !Modifier.isProtected(m.getModifiers())) {
+			String packageName = ClassUtils.getPackageName(ownerClass);
 			if (packageName.equals(Properties.CLASS_PREFIX)) {
 				m.setAccessible(true);
 				return true;
 			}
 		}
-
 
 		return false;
 	}
@@ -871,9 +880,10 @@ public class TestClusterGenerator {
 
 		if (Modifier.isPublic(c.getModifiers()))
 			return true;
-		
+
 		// If default access rights, then check if this class is in the same package as the target class
-		if(!Modifier.isPrivate(c.getModifiers()) && !Modifier.isProtected(c.getModifiers())) {
+		if (!Modifier.isPrivate(c.getModifiers())
+		        && !Modifier.isProtected(c.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(c.getDeclaringClass());
 			if (packageName.equals(Properties.CLASS_PREFIX)) {
 				c.setAccessible(true);
@@ -1106,7 +1116,8 @@ public class TestClusterGenerator {
 						logger.info("TT name: " + orig + " -> " + name);
 				}
 
-				if (canUse(method) && !method.getName().equals("hashCode")) {
+				if (canUse(method, clazz.getRawClass())
+				        && !method.getName().equals("hashCode")) {
 					logger.debug("Adding method " + clazz.getClassName() + "."
 					        + method.getName()
 					        + org.objectweb.asm.Type.getMethodDescriptor(method));
@@ -1134,10 +1145,10 @@ public class TestClusterGenerator {
 			}
 
 			// Add all fields
-			for (Field field : getFields(clazz.getRawClass())) { 
-				logger.debug("Checking field "+field);
-				if (canUse(field)) {
-					logger.debug("Adding field " + field +" for class "+clazz);
+			for (Field field : getFields(clazz.getRawClass())) {
+				logger.debug("Checking field " + field);
+				if (canUse(field, clazz.getRawClass())) {
+					logger.debug("Adding field " + field + " for class " + clazz);
 					GenericField genericField = new GenericField(field, clazz);
 					cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
 					                     genericField);
@@ -1146,7 +1157,7 @@ public class TestClusterGenerator {
 						addDependencies(genericField, recursionLevel + 1);
 					}
 				} else {
-					logger.debug("Field cannot be used: "+field);
+					logger.debug("Field cannot be used: " + field);
 				}
 			}
 			logger.info("Finished analyzing " + clazz.getTypeName()

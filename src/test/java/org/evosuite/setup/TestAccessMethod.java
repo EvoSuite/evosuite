@@ -12,24 +12,25 @@ public class TestAccessMethod {
 	@After
 	public void resetProperties() {
 		Properties.CLASS_PREFIX = "";
-		Properties.TARGET_CLASS = "";		
+		Properties.TARGET_CLASS = "";
 	}
-	
+
 	protected Method getMethod(Class<?> clazz, String name) {
 		Set<Method> methods = TestClusterGenerator.getMethods(clazz);
-		for(Method m : methods) {
-			if(m.getName().equals(name))
+		for (Method m : methods) {
+			if (m.getName().equals(name))
 				return m;
 		}
-		Assert.fail("No such method: "+name);
+		Assert.fail("No such method: " + name);
 		return null;
 	}
-	
+
 	@Test
 	public void testPublicMethod() {
 		Properties.CLASS_PREFIX = "some.package";
 		Properties.TARGET_CLASS = "some.package.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "publicMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "publicMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertTrue(result);
 	}
@@ -38,7 +39,8 @@ public class TestAccessMethod {
 	public void testDefaultMethod() {
 		Properties.CLASS_PREFIX = "some.package";
 		Properties.TARGET_CLASS = "some.package.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "defaultMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "defaultMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertFalse(result);
 	}
@@ -47,7 +49,8 @@ public class TestAccessMethod {
 	public void testProtectedMethod() {
 		Properties.CLASS_PREFIX = "some.package";
 		Properties.TARGET_CLASS = "some.package.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "protectedMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "protectedMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertFalse(result);
 	}
@@ -56,7 +59,8 @@ public class TestAccessMethod {
 	public void testPrivateMethod() {
 		Properties.CLASS_PREFIX = "some.package";
 		Properties.TARGET_CLASS = "some.package.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "privateMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "privateMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertFalse(result);
 	}
@@ -65,7 +69,8 @@ public class TestAccessMethod {
 	public void testPublicMethodTargetPackage() {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "publicMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "publicMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertTrue(result);
 	}
@@ -74,7 +79,8 @@ public class TestAccessMethod {
 	public void testDefaultMethodTargetPackage() {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "defaultMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "defaultMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertTrue(result);
 	}
@@ -83,7 +89,8 @@ public class TestAccessMethod {
 	public void testProtectedMethodTargetPackage() {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "protectedMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "protectedMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertFalse(result);
 	}
@@ -92,8 +99,98 @@ public class TestAccessMethod {
 	public void testPrivateMethodTargetPackage() {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
-		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class, "privateMethod");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "privateMethod");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertFalse(result);
 	}
+
+	@Test
+	public void testPublicMethodTargetSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename.subpackage";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "publicMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertTrue(result);
+	}
+
+	@Test
+	public void testProtectedMethodTargetSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename.subpackage";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "protectedMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testDefaultMethodTargetSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename.subpackage";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "defaultMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertTrue(result);
+	}
+
+	@Test
+	public void testPrivateMethodTargetSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename.subpackage";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.subpackage.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "privateMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testPublicMethodTargetFromSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "publicMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertTrue(result);
+	}
+
+	@Test
+	public void testProtectedMethodTargetFromSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "protectedMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testDefaultMethodTargetFromSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "defaultMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testPrivateMethodTargetFromSubPackage() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
+		Method f = getMethod(com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class,
+		                     "privateMethod");
+		boolean result = TestClusterGenerator.canUse(f,
+		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertFalse(result);
+	}
+
 }
