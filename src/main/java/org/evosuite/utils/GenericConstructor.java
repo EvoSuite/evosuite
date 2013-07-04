@@ -6,6 +6,7 @@ package org.evosuite.utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
@@ -100,6 +101,14 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	public Constructor<?> getConstructor() {
+		return constructor;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.utils.GenericAccessibleObject#getAccessibleObject()
+	 */
+	@Override
+	public AccessibleObject getAccessibleObject() {
 		return constructor;
 	}
 
