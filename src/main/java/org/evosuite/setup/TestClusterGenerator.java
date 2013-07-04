@@ -650,7 +650,7 @@ public class TestClusterGenerator {
 		        || c.getName().equals("java.lang.String");
 	}
 
-	private static boolean canUse(Class<?> c) {
+	public static boolean canUse(Class<?> c) {
 		//if (Throwable.class.isAssignableFrom(c))
 		//	return false;
 		if (Modifier.isPrivate(c.getModifiers()))
