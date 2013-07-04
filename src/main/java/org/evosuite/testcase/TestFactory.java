@@ -521,7 +521,12 @@ public class TestFactory {
 	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		if (clazz.isPrimitive() || clazz.isEnum() || clazz.isClass()
+		if(clazz.isEnum()) {
+			if(!TestClusterGenerator.canUse(clazz.getRawClass()))
+				throw new ConstructionFailedException("Cannot generate unaccessible enum "+clazz);
+			return createPrimitive(test, clazz, position, recursionDepth);			
+		}
+		else if (clazz.isPrimitive() || clazz.isClass()
 		        || clazz.getRawClass().equals(EvoSuiteFile.class)) {
 			return createPrimitive(test, clazz, position, recursionDepth);
 		} else if (clazz.isString()) {
