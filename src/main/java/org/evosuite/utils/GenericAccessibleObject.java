@@ -4,6 +4,7 @@
 package org.evosuite.utils;
 
 import java.io.Serializable;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -157,6 +158,8 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	public abstract Type getGenericGeneratedType();
 
 	public abstract String getName();
+
+	public abstract AccessibleObject getAccessibleObject();
 
 	public int getNumParameters() {
 		return 0;

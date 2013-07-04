@@ -6,6 +6,7 @@ package org.evosuite.utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -71,6 +72,14 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	public Field getField() {
+		return field;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.utils.GenericAccessibleObject#getAccessibleObject()
+	 */
+	@Override
+	public AccessibleObject getAccessibleObject() {
 		return field;
 	}
 

@@ -6,6 +6,7 @@ package org.evosuite.utils;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
@@ -95,6 +96,14 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	}
 
 	public Method getMethod() {
+		return method;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.evosuite.utils.GenericAccessibleObject#getAccessibleObject()
+	 */
+	@Override
+	public AccessibleObject getAccessibleObject() {
 		return method;
 	}
 
