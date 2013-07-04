@@ -675,8 +675,7 @@ public class TestClusterGenerator {
 		// If the SUT is not in the default package, then
 		// we cannot import classes that are in the default
 		// package
-		if(!c.isPrimitive() && !Properties.CLASS_PREFIX.isEmpty() && !c.getName().contains(".")) {
-			logger.warn(Properties.CLASS_PREFIX +" vs "+c.getName());
+		if(!c.isArray() && !c.isPrimitive() && !Properties.CLASS_PREFIX.isEmpty() && !c.getName().contains(".")) {
 			return false;
 		}
 
