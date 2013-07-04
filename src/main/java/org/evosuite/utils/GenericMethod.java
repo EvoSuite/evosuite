@@ -31,7 +31,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	private transient Method method;
 
 	public GenericMethod(Method method, GenericClass type) {
-		super(type);
+		super(new GenericClass(type));
 		this.method = method;
 	}
 

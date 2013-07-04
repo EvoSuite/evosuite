@@ -35,7 +35,7 @@ public class GenericConstructor extends GenericAccessibleObject<GenericConstruct
 	}
 
 	public GenericConstructor(Constructor<?> constructor, GenericClass owner) {
-		super(owner);
+		super(new GenericClass(owner));
 		this.constructor = constructor;
 	}
 

@@ -27,7 +27,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	private transient Field field;
 
 	public GenericField(Field field, GenericClass owner) {
-		super(owner);
+		super(new GenericClass(owner));
 		this.field = field;
 	}
 
