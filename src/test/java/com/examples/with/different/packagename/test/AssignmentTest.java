@@ -2,7 +2,7 @@ package com.examples.with.different.packagename.test;
 
 public class AssignmentTest {
 
-	protected class Foo {
+	class Foo {
 		public int x = 0;
 	}
 
