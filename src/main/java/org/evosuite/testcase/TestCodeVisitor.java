@@ -1015,13 +1015,12 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		if (exception != null) {
-			// boolean isExpected = getDeclaredExceptions().contains(exception.getClass());
-			Class<?> ex = exception.getClass();
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			// if (isExpected)
-			result += "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");";
+		  if (Properties.ASSERTIONS) {
+		    result += generateFailAssertion(statement, exception);
+		  }
+		  
 			result += "\n}";// end try block
+			
 			result += generateCatchBlock(statement, exception);
 		}
 
@@ -1139,13 +1138,10 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		if (exception != null) {
-			Class<?> ex = exception.getClass();
-			// boolean isExpected = getDeclaredExceptions().contains(ex);
-
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			// if (isExpected)			
-			result += "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");";
+		  if (Properties.ASSERTIONS) {
+		    result += generateFailAssertion(statement,exception);
+		  }
+		  
 			result += "\n}";// end try block
 
 			result += generateCatchBlock(statement, exception);
@@ -1155,7 +1151,20 @@ public class TestCodeVisitor extends TestVisitor {
 		addAssertions(statement);
 	}
 
-	/*
+	/** Generates a fail assertion for being inserted after a statement generating an exception.
+	 * Parameter "statement" is not used in the default implementation but may be used
+	 * in future extensions.
+	 **/
+	public String generateFailAssertion(AbstractStatement statement, Throwable exception) {
+    Class<?> ex = exception.getClass();
+    // boolean isExpected = getDeclaredExceptions().contains(ex);
+    while (!Modifier.isPublic(ex.getModifiers()))
+      ex = ex.getSuperclass();
+    // if (isExpected)      
+    return "\nfail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+  }
+
+  /*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.evosuite.testcase.TestVisitor#visitArrayStatement(org.evosuite.testcase.ArrayStatement)
