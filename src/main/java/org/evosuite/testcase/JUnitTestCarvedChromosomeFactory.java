@@ -83,6 +83,10 @@ public class JUnitTestCarvedChromosomeFactory implements
 		return junitTests.size() > 0 ;
 	}
 	
+	public int getNumCarvedTestCases() {
+		return junitTests.size();
+	}
+	
 	private Collection<String> getListOfJUnitClassNames() throws IllegalStateException{
 
 		String prop = Properties.SELECTED_JUNIT;
