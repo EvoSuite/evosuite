@@ -739,7 +739,7 @@ public class TestGenerics extends SystemTest {
 		String targetClass = ReallyCaselessMap.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		// Properties.SEARCH_BUDGET = 50000;
+		Properties.SEARCH_BUDGET = 50000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
