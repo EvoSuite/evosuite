@@ -52,7 +52,6 @@ import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.GenericConstructor;
 import org.evosuite.utils.GenericField;
 import org.evosuite.utils.GenericMethod;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.NumberFormatter;
 
 import com.googlecode.gentyref.CaptureType;
@@ -1020,30 +1019,51 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		if (exception != null) {
-			// boolean isExpected = getDeclaredExceptions().contains(exception.getClass());
-			Class<?> ex = exception.getClass();
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			// if (isExpected)
-			result += "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");";
-			result += "\n} catch(" + getClassName(ex) + " e) {\n";
-			if (exception.getMessage() != null) {
-				// if (!isExpected)
-				// result += "\n  fail(\"Undeclared exception: "
-				// + ClassUtils.getShortClassName(ex) + "\");\n";
-				result += "  /*\n";
-				String exceptionMessage = exception.getMessage().replace("*/", "*_/");
-				for (String msg : exceptionMessage.split("\n")) {
-					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
-				}
-				result += "   */\n";
-			}
-			result += "}";
+		  if (Properties.ASSERTIONS) {
+		    result += generateFailAssertion(statement, exception);
+		  }
+		  
+			result += "\n}";// end try block
+			
+			result += generateCatchBlock(statement, exception);
 		}
 
 		testCode += result + "\n";
 		addAssertions(statement);
 	}
+
+  /** Returns a catch block for an exception that can be thrown by this statement.
+   * The caught exception type is the actual class of the exception object
+   * passed as parameter (or one of its superclass if the type is not public).
+   * This method can be overridden to inject code in the catch block
+   **/
+  public String generateCatchBlock(AbstractStatement statement, Throwable exception) {
+    String result= "";
+    
+    // we can only catch a public class
+    Class<?> ex = exception.getClass();
+    while (!Modifier.isPublic(ex.getModifiers()))
+      ex = ex.getSuperclass();
+
+    // preparing the catch block
+    result += "catch("+ClassUtils.getShortClassName(ex)+" e) {\n";
+    
+    // adding the message of the exception
+    String exceptionMessage = "";
+    if (exception.getMessage()!=null) {
+      exceptionMessage = exception.getMessage().replace("*/", "*_/");
+    } else {
+      exceptionMessage = "no message in exception (getMessage() returned null)";
+    }
+    result +=   "  /*\n";
+    for (String msg : exceptionMessage.split("\n")) {
+      result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";    
+    }
+    result +=   "   */\n";
+
+    result += "}\n";// closing the catch block
+    return result;
+  }
 
 	private String getSimpleTypeName(Type type) {
 		String typeName = getTypeName(type);
@@ -1122,33 +1142,33 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		if (exception != null) {
-			Class<?> ex = exception.getClass();
-			// boolean isExpected = getDeclaredExceptions().contains(ex);
+		  if (Properties.ASSERTIONS) {
+		    result += generateFailAssertion(statement,exception);
+		  }
+		  
+			result += "\n}";// end try block
 
-			while (!Modifier.isPublic(ex.getModifiers()))
-				ex = ex.getSuperclass();
-			// if (isExpected)
-			result += "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");";
-
-			result += "\n} catch(" + getClassName(ex) + " e) {\n";
-			if (exception.getMessage() != null) {
-				// if (!isExpected)
-				// result += "\n  fail(\"Undeclared exception: "
-				// + ClassUtils.getShortClassName(ex) + "\");\n";
-				result += "  /*\n";
-				for (String msg : exception.getMessage().split("\n")) {
-					result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";
-				}
-				result += "   */\n";
-			}
-			result += "}";
+			result += generateCatchBlock(statement, exception);
 		}
 
 		testCode += result + "\n";
 		addAssertions(statement);
 	}
 
-	/*
+	/** Generates a fail assertion for being inserted after a statement generating an exception.
+	 * Parameter "statement" is not used in the default implementation but may be used
+	 * in future extensions.
+	 **/
+	public String generateFailAssertion(AbstractStatement statement, Throwable exception) {
+    Class<?> ex = exception.getClass();
+    // boolean isExpected = getDeclaredExceptions().contains(ex);
+    while (!Modifier.isPublic(ex.getModifiers()))
+      ex = ex.getSuperclass();
+    // if (isExpected)      
+    return "\nfail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+  }
+
+  /*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.evosuite.testcase.TestVisitor#visitArrayStatement(org.evosuite.testcase.ArrayStatement)
