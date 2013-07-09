@@ -86,6 +86,17 @@ public class TestAccessMethod {
 	}
 
 	@Test
+	public void testDefaultMethodInSuperClass() {
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
+		Method f = getMethod(
+				com.examples.with.different.packagename.AccessExamples.class,
+				"defaultMethodInSuperClass");
+		boolean result = TestClusterGenerator.canUse(f);
+		Assert.assertFalse(result);
+	}
+  
+	@Test
 	public void testProtectedMethodTargetPackage() {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
