@@ -609,6 +609,9 @@ public class Properties {
 	@Parameter(key = "junit_suffix", group = "Output", description = "Suffix that is appended at each generated JUnit file name")
 	public static String JUNIT_SUFFIX = "EvoSuiteTest";
 
+	@Parameter(key = "junit_runner", group = "Output", description = "Use EvoSuite JUnit runner in generated test suites")
+	public static boolean JUNIT_RUNNER = true;
+	
 	/**
 	 * TODO: this functionality is not implemented yet
 	 */
