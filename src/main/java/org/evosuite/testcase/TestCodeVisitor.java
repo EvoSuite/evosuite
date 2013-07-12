@@ -1046,7 +1046,7 @@ public class TestCodeVisitor extends TestVisitor {
       ex = ex.getSuperclass();
 
     // preparing the catch block
-    result += "catch("+ClassUtils.getShortClassName(ex)+" e) {\n";
+    result += " catch("+getClassName(ex)+" e) {\n";
     
     // adding the message of the exception
     String exceptionMessage = "";
@@ -1055,11 +1055,12 @@ public class TestCodeVisitor extends TestVisitor {
     } else {
       exceptionMessage = "no message in exception (getMessage() returned null)";
     }
-    result +=   "  /*\n";
+    
+    result +=   "   //\n";
     for (String msg : exceptionMessage.split("\n")) {
-      result += "   * " + StringEscapeUtils.escapeJava(msg) + "\n";    
+      result += "   // " + StringEscapeUtils.escapeJava(msg) + "\n";    
     }
-    result +=   "   */\n";
+    result +=   "   //\n";
 
     result += "}\n";// closing the catch block
     return result;
@@ -1165,7 +1166,7 @@ public class TestCodeVisitor extends TestVisitor {
     while (!Modifier.isPublic(ex.getModifiers()))
       ex = ex.getSuperclass();
     // if (isExpected)      
-    return "\nfail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+    return "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
   }
 
   /*
