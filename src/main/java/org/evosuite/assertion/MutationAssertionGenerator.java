@@ -33,7 +33,9 @@ import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.ExecutionResult;
+import org.evosuite.testcase.FieldStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
@@ -271,6 +273,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	 */
 	public void addAssertions(TestCase test, Set<Integer> killed) {
 		addAssertions(test, killed, mutants);
+		filterRedundantNonnullAssertions(test);
 	}
 
 	/**
@@ -632,7 +635,50 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 		return !hasPrimitive;
 	}
+	
+	private boolean isUsedAsCallee(TestCase test, VariableReference var) {
+		for(int pos = var.getStPosition() + 1; pos < test.size(); pos++) {
+			StatementInterface statement = test.getStatement(pos);
+			if(statement instanceof MethodStatement) {
+				if(((MethodStatement)statement).getCallee() == var)
+					return true;
+			}
+			else if(statement instanceof FieldStatement) {
+				if(((FieldStatement)statement).getSource() == var)
+					return true;
+			}
 
+		}
+		
+		return false;
+	}
+
+	private void filterRedundantNonnullAssertions(TestCase test) {
+		Set<Assertion> redundantAssertions = new HashSet<Assertion>();
+		for(StatementInterface statement : test) {
+			if(statement instanceof ConstructorStatement) {
+				ConstructorStatement cs = (ConstructorStatement)statement;
+				for(Assertion a : cs.getAssertions()) {
+					if(a instanceof NullAssertion) {
+						if(cs.getAssertions().size() > 0) {
+							for(Assertion a2 : cs.getAssertions()) {
+								if(a2.getSource() == cs.getReturnValue())
+									redundantAssertions.add(a);
+							}
+						} else
+						if(isUsedAsCallee(test, cs.getReturnValue())) {
+							redundantAssertions.add(a);
+						}
+					}
+				}
+			}
+		}
+		
+		for(Assertion a : redundantAssertions) {
+			test.removeAssertion(a);
+		}
+	}
+	
 	private void filterInspectorPrimitiveDuplication(StatementInterface statement) {
 		Set<Assertion> assertions = new HashSet<Assertion>(statement.getAssertions());
 		if (assertions.size() < 2)
