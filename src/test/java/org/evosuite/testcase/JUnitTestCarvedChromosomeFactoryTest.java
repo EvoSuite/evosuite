@@ -164,6 +164,64 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 	}
 
 	@Test
+	public void testInnerConstructor() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.InnerConstructorTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.InnerConstructor.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+
+		Assert.assertNotNull(carved);
+
+		String code = carved.toString();
+		Assert.assertNotNull(code);
+		
+		Assert.assertEquals(code, 2, carved.test.size());
+
+		for (int i = 0; i < carved.test.size(); i++) {
+			StatementInterface stmt = carved.test.getStatement(i);
+			boolean valid = stmt.isValid();
+			Assert.assertTrue("Invalid stmt at position " + i, valid);
+		}
+		
+		System.out.println(code);
+	}
+	
+	@Test
+	public void testInnerCalls() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.InnerCallsTest.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.InnerCalls.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 1;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertTrue(factory.hasCarvedTestCases());
+		TestChromosome carved = factory.getChromosome();
+
+		Assert.assertNotNull(carved);
+
+		String code = carved.toString();
+		Assert.assertNotNull(code);
+		
+		Assert.assertEquals(code, 4, carved.test.size());
+
+		for (int i = 0; i < carved.test.size(); i++) {
+			StatementInterface stmt = carved.test.getStatement(i);
+			boolean valid = stmt.isValid();
+			Assert.assertTrue("Invalid stmt at position " + i, valid);
+		}
+		
+		System.out.println(code);
+	}
+
+	@Test
 	public void testGenericClassSequence() {
 		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.GenericObjectWrapperSequenceTest.class.getCanonicalName();
 		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.GenericObjectWrapper.class.getCanonicalName();
