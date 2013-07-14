@@ -104,7 +104,6 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				}
 			}
 		} catch (final Exception e) {
-			System.out.println("recno: " + logRecNo + " OID: " + oid + "\n"+ log);
 			throw new RuntimeException(e);
 		}
 	}
