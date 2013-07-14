@@ -2,12 +2,9 @@ package com.examples.with.different.packagename.testcarver;
 
 import static org.junit.Assert.assertEquals;
 
-import org.evosuite.junit.EvoSuiteRunner;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 
-@RunWith(EvoSuiteRunner.class)
 public class TestPersonWithEvoSuiteRunner {
 
 	@BeforeClass 

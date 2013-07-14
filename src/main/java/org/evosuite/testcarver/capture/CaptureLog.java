@@ -221,7 +221,15 @@ public final class CaptureLog implements Cloneable {
 
 		logger.debug("Updating init of OID "+oid+" from pos="+getRecordIndexOfWhereObjectWasInitializedFirst(oid)+" to pos="+recordIndex);
 
-		oidInitRecNo.set(oidRecMapping.get(oid), recordIndex);
+		
+		// Only update init record if its number is bigger than the current init record number
+		// Note that record numbers indicating fist object occurrence are marked as negative number
+		// For example: constructor call at record no 8 becomes -8
+		final int recentInitRecord = getRecordIndexOfWhereObjectWasInitializedFirst(oid);
+		if(Math.abs(recordIndex) > Math.abs(recentInitRecord))
+		{
+			oidInitRecNo.set(oidRecMapping.get(oid), recordIndex);
+		}
 	}
 
 	@Override
