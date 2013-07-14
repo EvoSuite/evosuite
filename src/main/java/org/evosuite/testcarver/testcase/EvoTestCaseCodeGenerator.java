@@ -22,6 +22,7 @@ import org.evosuite.testcase.ArrayIndex;
 import org.evosuite.testcase.ArrayReference;
 import org.evosuite.testcase.ArrayStatement;
 import org.evosuite.testcase.AssignmentStatement;
+import org.evosuite.testcase.ClassPrimitiveStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.FieldReference;
@@ -132,9 +133,12 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			} else {
 				VariableReference ref = this.oidToVarRefMap.get(argOID);
 				if (ref == null) {
-
+					throw new RuntimeException("VariableReference is null for argOID " + argOID);
 				}
-				args.add(ref);
+				else
+				{
+					args.add(ref);
+				}
 			}
 		}
 		return args;
@@ -155,14 +159,25 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		final String type = log.getTypeName(oid);
 		final Object value = log.params.get(logRecNo)[0];
 
-		if (!(value instanceof Class)) // Class is a plain type according to log
+		final VariableReference varRef ;
+		
+		if(value instanceof Class)
 		{
-			final PrimitiveStatement primitiveValue = PrimitiveStatement.getPrimitiveStatement(testCase,
-			                                                                                   getClassForName(type));
-			primitiveValue.setValue(value);
-			final VariableReference varRef = testCase.addStatement(primitiveValue);
-			this.oidToVarRefMap.put(oid, varRef);
+			final PrimitiveStatement cps = ClassPrimitiveStatement.getPrimitiveStatement(testCase, getClassForName(type));
+			cps.setValue(value);
+
+			varRef = testCase.addStatement(cps);			
 		}
+		else
+		{
+			final PrimitiveStatement primitiveValue = PrimitiveStatement.getPrimitiveStatement(testCase, getClassForName(type));
+			primitiveValue.setValue(value);
+
+			varRef = testCase.addStatement(primitiveValue);
+		}
+		
+		
+		this.oidToVarRefMap.put(oid, varRef);
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })

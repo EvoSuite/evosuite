@@ -42,28 +42,37 @@ public class JUnitTestCarvedChromosomeFactory implements
 	
 	private void readTestCases() throws IllegalStateException{
 		
-		JUnitCore runner = new JUnitCore();
-		CarvingRunListener listener = new CarvingRunListener();
+		final JUnitCore runner = new JUnitCore();
+		final CarvingRunListener listener = new CarvingRunListener();
 		runner.addListener(listener);
 		
 		Collection<String> junitTestNames = getListOfJUnitClassNames();
 
-		List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
-		org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader(); 
+		final List<Class<?>> junitTestClasses = new ArrayList<Class<?>>();
+		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader(); 
+		
+		try {
+			// instrument target class
+			classLoader.loadClass(Properties.getTargetClass().getCanonicalName());
+		} catch (final ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		
+		
 		for(String className : junitTestNames) {
 			
 			String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 			try {
-				Class<?> junitClass = classLoader.loadClass(classNameWithDots);
+				final Class<?> junitClass = classLoader.loadClass(classNameWithDots);
 				junitTestClasses.add(junitClass);
 			} catch (ClassNotFoundException e) {
 				logger.warn("Error trying to load JUnit test class "+classNameWithDots+": "+e);
 			}
 		}
 		
-		Class<?>[] classes = new Class<?>[junitTestClasses.size()];
+		final Class<?>[] classes = new Class<?>[junitTestClasses.size()];
 		junitTestClasses.toArray(classes);
-		Result result = runner.run(classes);
+		final Result result = runner.run(classes);
 		junitTests.addAll(listener.getTestCases());
 		
 		if(junitTests.size()>0){

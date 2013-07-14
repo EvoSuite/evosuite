@@ -166,8 +166,17 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			// TODO: Ensure that files were accessed in the first place
 			statement = new FileNamePrimitiveStatement(tc, new EvoSuiteFile(
 			        Randomness.choice(tc.getAccessedFiles())));
-		} else if (clazz.equals(Class.class)) {
-			Type typeParameter = genericClass.getParameterTypes().get(0);
+		} 
+		else if (clazz instanceof Class) 		
+		{
+			final List<Type> types = genericClass.getParameterTypes();
+			
+			Type typeParameter = null;
+			if(! types.isEmpty())
+			{
+				typeParameter = types.get(0);
+			}
+			
 			if(genericClass.hasWildcardTypes()) {
 				Class<?> bound = GenericTypeReflector.erase(TypeUtils.getImplicitUpperBounds((WildcardType) typeParameter)[0]);
 				if(!bound.equals(Object.class)) {
@@ -176,15 +185,17 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 				} else {
 					statement = new ClassPrimitiveStatement(tc);
 				}
-					
-			} else
-			if (typeParameter instanceof Class<?>) {
-				statement = new ClassPrimitiveStatement(tc, (Class<?>) typeParameter);
-			} else {
-				statement = new ClassPrimitiveStatement(tc);
+			} 
+			else
+			{
+				if (typeParameter instanceof Class<?>) {
+					statement = new ClassPrimitiveStatement(tc, (Class<?>) typeParameter);
+				} else {
+					statement = new ClassPrimitiveStatement(tc);
+				}
 			}
-
-		} else {
+		} 
+		else {
 			throw new RuntimeException("Getting unknown type: " + clazz + " / "
 			        + clazz.getClass());
 		}
