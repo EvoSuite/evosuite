@@ -1,10 +1,11 @@
 package com.examples.with.different.packagename.testcarver;
 
-public class InnerConstructorSuper {
+public abstract class InnerConstructorSuper {
 
 	private boolean foo;
 	
 	public InnerConstructorSuper(boolean aBoolean){
+		super();
 		foo = aBoolean;
 	}
 	
