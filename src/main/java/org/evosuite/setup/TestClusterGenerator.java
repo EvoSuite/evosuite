@@ -671,11 +671,12 @@ public class TestClusterGenerator {
 
 		if (isEvoSuiteClass(c))
 			return false;
-		
+
 		// If the SUT is not in the default package, then
 		// we cannot import classes that are in the default
 		// package
-		if(!c.isArray() && !c.isPrimitive() && !Properties.CLASS_PREFIX.isEmpty() && !c.getName().contains(".")) {
+		if (!c.isArray() && !c.isPrimitive() && !Properties.CLASS_PREFIX.isEmpty()
+		        && !c.getName().contains(".")) {
 			return false;
 		}
 
@@ -741,7 +742,11 @@ public class TestClusterGenerator {
 		if (!Modifier.isPrivate(f.getModifiers())
 		        && !Modifier.isProtected(f.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(f.getDeclaringClass());
-			if (packageName.equals(Properties.CLASS_PREFIX)) {
+
+			String declaredPackageName = ClassUtils.getPackageName(f.getDeclaringClass());
+
+			if (packageName.equals(Properties.CLASS_PREFIX)
+			        && packageName.equals(declaredPackageName)) {
 				f.setAccessible(true);
 				return true;
 			}
@@ -842,7 +847,9 @@ public class TestClusterGenerator {
 		if (!Modifier.isPrivate(m.getModifiers())
 		        && !Modifier.isProtected(m.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(ownerClass);
-			if (packageName.equals(Properties.CLASS_PREFIX)) {
+			String declaredPackageName = ClassUtils.getPackageName(m.getDeclaringClass());
+			if (packageName.equals(Properties.CLASS_PREFIX)
+			        && packageName.equals(declaredPackageName)) {
 				m.setAccessible(true);
 				return true;
 			}

@@ -89,13 +89,12 @@ public class TestAccessMethod {
 	public void testDefaultMethodInSuperClass() {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
 		Properties.TARGET_CLASS = "com.examples.with.different.packagename.Foo";
-		Method f = getMethod(
-				com.examples.with.different.packagename.AccessExamples.class,
-				"defaultMethodInSuperClass");
+		Method f = getMethod(com.examples.with.different.packagename.AccessExamples.class,
+		                     "defaultMethodInSuperClass");
 		boolean result = TestClusterGenerator.canUse(f);
 		Assert.assertFalse(result);
 	}
-  
+
 	@Test
 	public void testProtectedMethodTargetPackage() {
 		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
@@ -146,7 +145,7 @@ public class TestAccessMethod {
 		                     "defaultMethod");
 		boolean result = TestClusterGenerator.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
-		Assert.assertTrue(result);
+		Assert.assertFalse(result);
 	}
 
 	@Test
@@ -201,6 +200,16 @@ public class TestAccessMethod {
 		                     "privateMethod");
 		boolean result = TestClusterGenerator.canUse(f,
 		                                             com.examples.with.different.packagename.subpackage.AccessExamplesSubclass.class);
+		Assert.assertFalse(result);
+	}
+
+	@Test
+	public void testArrayListBug() {
+		Properties.TARGET_CLASS = "com.examples.with.different.packagename.ArrayStack";
+		Properties.CLASS_PREFIX = "com.examples.with.different.packagename";
+		Method m = getMethod(java.util.ArrayList.class, "elementData");
+		boolean result = TestClusterGenerator.canUse(m,
+		                                             com.examples.with.different.packagename.ArrayStack.class);
 		Assert.assertFalse(result);
 	}
 
