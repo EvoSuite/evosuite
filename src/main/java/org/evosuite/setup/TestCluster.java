@@ -307,18 +307,18 @@ public class TestCluster {
 						        + generatorClazz.getTypeName());
 
 						// generatorClazz can only be a subclass of clazz
-						logger.info("Generator type1: "+generatorClazz);
+						logger.info("Generator type1: " + generatorClazz);
 						GenericClass newOwner = generatorClazz.getWithParametersFromSuperclass(clazz);
-						logger.info("Resulting type: "+newOwner);
-						if(newOwner == null)
+						logger.info("Resulting type: " + newOwner);
+						if (newOwner == null)
 							continue;
-						
-						logger.info("Generator type2: "+generatorClazz);
+
+						logger.info("Generator type2: " + generatorClazz);
 
 						// "newOwner" is the instantiated type of the return value
 						// but we need the declaring class of the method!
 						for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
-//						for (GenericAccessibleObject<?> generator : getGenerators(generatorClazz)) {
+							//						for (GenericAccessibleObject<?> generator : getGenerators(generatorClazz)) {
 							logger.debug("Candidate generator: " + generator);
 							if (generator.getOwnerClass().getNumParameters() == 0) {
 								// logger.debug("Owner class has no parameters, so we can only assume it would work: "+generator.getName());
@@ -654,7 +654,7 @@ public class TestCluster {
 				        && !Map.class.isAssignableFrom(call.getDeclaringClass())) {
 					// Methods that return collections are candidates, unless they are methods of the collections
 					calls.add(call);
-				} else if (!call.getDeclaringClass().getCanonicalName().startsWith("java")) {
+				} else if (!call.getDeclaringClass().getName().startsWith("java")) {
 					calls.add(call);
 				} else {
 					if (Randomness.nextDouble() < Properties.P_SPECIAL_TYPE_CALL) {
@@ -742,11 +742,13 @@ public class TestCluster {
 			logger.debug("Parameter type " + parameterType + " of class "
 			        + parameterType.getClass());
 			if (parameterType instanceof WildcardType) {
-				if(((WildcardType) parameterType).getLowerBounds().length == 0) {
+				if (((WildcardType) parameterType).getLowerBounds().length == 0) {
 					Type[] bounds = ((WildcardType) parameterType).getUpperBounds();
-					if(bounds.length == 1 && bounds[0] == Object.class) {
+					if (bounds.length == 1 && bounds[0] == Object.class) {
 						logger.info("Using typevariable instead of wildcard because there are no bounds on wildcard");
-						parameterTypes.add(getRandomCastClass(typeParameters.get(numParam), recursionLevel).getType());
+						parameterTypes.add(getRandomCastClass(
+						                                      typeParameters.get(numParam),
+						                                      recursionLevel).getType());
 						numParam++;
 						continue;
 					}
