@@ -226,6 +226,7 @@ public class TestClusterGenerator {
 				return false;
 			}
 			// boolean added = 
+			logger.warn("CAN HAVE: " + clazz);
 			addDependency(new GenericClass(clazz), 1);
 			genericCastClasses.add(new GenericClass(clazz));
 			concreteCastClasses.add(clazz);
@@ -661,7 +662,16 @@ public class TestClusterGenerator {
 			return false;
 		}
 
+		if (c.isAnonymousClass()) {
+			return false;
+		}
+
 		if (c.getName().matches(".*\\$\\d+$")) {
+			logger.debug(c + " looks like an anonymous class, ignoring it");
+			return false;
+		}
+
+		if (c.getName().matches(".*\\.\\d+$")) {
 			logger.debug(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
