@@ -193,10 +193,7 @@ public class InheritanceTreeGenerator {
 				}
 			} else {
 				if (!canUse(cn)) {
-					logger.warn("Not using: " + cn.name);
 					return;
-				} else {
-					logger.warn("Using: " + cn.name);
 				}
 			}
 

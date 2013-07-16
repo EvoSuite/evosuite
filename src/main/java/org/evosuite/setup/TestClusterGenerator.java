@@ -226,7 +226,6 @@ public class TestClusterGenerator {
 				return false;
 			}
 			// boolean added = 
-			logger.warn("CAN HAVE: " + clazz);
 			addDependency(new GenericClass(clazz), 1);
 			genericCastClasses.add(new GenericClass(clazz));
 			concreteCastClasses.add(clazz);
@@ -651,6 +650,27 @@ public class TestClusterGenerator {
 		        || c.getName().equals("java.lang.String");
 	}
 
+	protected static void makeAccessible(Field field) {
+		if (!Modifier.isPublic(field.getModifiers())
+		        || !Modifier.isPublic(field.getDeclaringClass().getModifiers())) {
+			field.setAccessible(true);
+		}
+	}
+
+	protected static void makeAccessible(Method method) {
+		if (!Modifier.isPublic(method.getModifiers())
+		        || !Modifier.isPublic(method.getDeclaringClass().getModifiers())) {
+			method.setAccessible(true);
+		}
+	}
+
+	protected static void makeAccessible(Constructor<?> constructor) {
+		if (!Modifier.isPublic(constructor.getModifiers())
+		        || !Modifier.isPublic(constructor.getDeclaringClass().getModifiers())) {
+			constructor.setAccessible(true);
+		}
+	}
+
 	public static boolean canUse(Class<?> c) {
 		//if (Throwable.class.isAssignableFrom(c))
 		//	return false;
@@ -744,7 +764,7 @@ public class TestClusterGenerator {
 			// we already know we can use. In that case, the compiler would be fine with accessing the 
 			// field, but reflection would start complaining about IllegalAccess!
 			// Therefore, we set the field accessible to be on the safe side
-			f.setAccessible(true);
+			makeAccessible(f);
 			return true;
 		}
 
@@ -757,7 +777,7 @@ public class TestClusterGenerator {
 
 			if (packageName.equals(Properties.CLASS_PREFIX)
 			        && packageName.equals(declaredPackageName)) {
-				f.setAccessible(true);
+				makeAccessible(f);
 				return true;
 			}
 		}
@@ -850,8 +870,10 @@ public class TestClusterGenerator {
 		*/
 
 		// If default or
-		if (Modifier.isPublic(m.getModifiers()))
+		if (Modifier.isPublic(m.getModifiers())) {
+			makeAccessible(m);
 			return true;
+		}
 
 		// If default access rights, then check if this class is in the same package as the target class
 		if (!Modifier.isPrivate(m.getModifiers())
@@ -860,7 +882,7 @@ public class TestClusterGenerator {
 			String declaredPackageName = ClassUtils.getPackageName(m.getDeclaringClass());
 			if (packageName.equals(Properties.CLASS_PREFIX)
 			        && packageName.equals(declaredPackageName)) {
-				m.setAccessible(true);
+				makeAccessible(m);
 				return true;
 			}
 		}
@@ -902,15 +924,17 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		if (Modifier.isPublic(c.getModifiers()))
+		if (Modifier.isPublic(c.getModifiers())) {
+			makeAccessible(c);
 			return true;
+		}
 
 		// If default access rights, then check if this class is in the same package as the target class
 		if (!Modifier.isPrivate(c.getModifiers())
 		        && !Modifier.isProtected(c.getModifiers())) {
 			String packageName = ClassUtils.getPackageName(c.getDeclaringClass());
 			if (packageName.equals(Properties.CLASS_PREFIX)) {
-				c.setAccessible(true);
+				makeAccessible(c);
 				return true;
 			}
 		}
