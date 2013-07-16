@@ -25,7 +25,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	private final String className;
 
 	private boolean topLevel = true;
-	
+
 	public Set<Type> getClasses() {
 		return classes;
 	}
@@ -66,6 +66,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	@Override
 	public SignatureVisitor visitInterface() {
 		logger.debug("  visitInterface()");
+		topLevel = true;
 		return this;
 	}
 
@@ -109,9 +110,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 		logger.debug("  visitTypeArgument");
 		super.visitTypeArgument();
 	}
-	
-	
-	
+
 	@Override
 	public SignatureVisitor visitReturnType() {
 		logger.debug("  visitReturnType");
