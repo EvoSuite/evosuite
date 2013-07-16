@@ -223,22 +223,24 @@ public class TestCodeVisitor extends TestVisitor {
 		} else if (type instanceof WildcardType) {
 			String ret = "?";
 			boolean first = true;
-			for(Type bound : ((WildcardType) type).getLowerBounds()) {
-				if(bound == null || GenericTypeReflector.erase(bound).equals(Object.class))
+			for (Type bound : ((WildcardType) type).getLowerBounds()) {
+				// If there are lower bounds we need to state them, even if Object
+				if (bound == null) // || GenericTypeReflector.erase(bound).equals(Object.class))
 					continue;
 
-				if(!first)
+				if (!first)
 					ret += ", ";
-				ret += " super "+getTypeName(bound);
+				ret += " super " + getTypeName(bound);
 				first = false;
 			}
-			for(Type bound : ((WildcardType) type).getUpperBounds()) {
-				if(bound == null || GenericTypeReflector.erase(bound).equals(Object.class))
+			for (Type bound : ((WildcardType) type).getUpperBounds()) {
+				if (bound == null
+				        || GenericTypeReflector.erase(bound).equals(Object.class))
 					continue;
-				
-				if(!first)
+
+				if (!first)
 					ret += ", ";
-				ret += " extends "+getTypeName(bound);
+				ret += " extends " + getTypeName(bound);
 				first = false;
 			}
 			return ret;
@@ -277,8 +279,8 @@ public class TestCodeVisitor extends TestVisitor {
 	public String getClassName(Class<?> clazz) {
 		if (classNames.containsKey(clazz))
 			return classNames.get(clazz);
-		
-		if(clazz.isArray()) {
+
+		if (clazz.isArray()) {
 			return getClassName(clazz.getComponentType()) + "[]";
 		}
 
@@ -894,10 +896,10 @@ public class TestCodeVisitor extends TestVisitor {
 						name = name.replace("(byte)", "");
 
 				}
-			} else if(name.equals("null")) {
+			} else if (name.equals("null")) {
 				parameterString += "(" + getTypeName(declaredParamType) + ") ";
 			} else if (!GenericClass.isAssignable(declaredParamType, actualParamType)) {
-				
+
 				if (TypeUtils.isArrayType(declaredParamType)
 				        && TypeUtils.isArrayType(actualParamType)) {
 					Class<?> componentClass = GenericTypeReflector.erase(declaredParamType).getComponentType();
@@ -915,7 +917,7 @@ public class TestCodeVisitor extends TestVisitor {
 					} else { //if (!GenericClass.isAssignable(GenericTypeReflector.getArrayComponentType(declaredParamType), GenericTypeReflector.getArrayComponentType(actualParamType))) {
 						parameterString += "(" + getTypeName(declaredParamType) + ") ";
 					}
-				} else if(!(actualParamType instanceof ParameterizedType)) {
+				} else if (!(actualParamType instanceof ParameterizedType)) {
 					parameterString += "(" + getTypeName(declaredParamType) + ") ";
 				}
 				if (name.contains("(short"))
@@ -1019,12 +1021,12 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		if (exception != null) {
-		  if (Properties.ASSERTIONS) {
-		    result += generateFailAssertion(statement, exception);
-		  }
-		  
+			if (Properties.ASSERTIONS) {
+				result += generateFailAssertion(statement, exception);
+			}
+
 			result += "\n}";// end try block
-			
+
 			result += generateCatchBlock(statement, exception);
 		}
 
@@ -1032,39 +1034,40 @@ public class TestCodeVisitor extends TestVisitor {
 		addAssertions(statement);
 	}
 
-  /** Returns a catch block for an exception that can be thrown by this statement.
-   * The caught exception type is the actual class of the exception object
-   * passed as parameter (or one of its superclass if the type is not public).
-   * This method can be overridden to inject code in the catch block
-   **/
-  public String generateCatchBlock(AbstractStatement statement, Throwable exception) {
-    String result= "";
-    
-    // we can only catch a public class
-    Class<?> ex = exception.getClass();
-    while (!Modifier.isPublic(ex.getModifiers()))
-      ex = ex.getSuperclass();
+	/**
+	 * Returns a catch block for an exception that can be thrown by this
+	 * statement. The caught exception type is the actual class of the exception
+	 * object passed as parameter (or one of its superclass if the type is not
+	 * public). This method can be overridden to inject code in the catch block
+	 **/
+	public String generateCatchBlock(AbstractStatement statement, Throwable exception) {
+		String result = "";
 
-    // preparing the catch block
-    result += " catch("+getClassName(ex)+" e) {\n";
-    
-    // adding the message of the exception
-    String exceptionMessage = "";
-    if (exception.getMessage()!=null) {
-      exceptionMessage = exception.getMessage().replace("*/", "*_/");
-    } else {
-      exceptionMessage = "no message in exception (getMessage() returned null)";
-    }
-    
-    result +=   "   //\n";
-    for (String msg : exceptionMessage.split("\n")) {
-      result += "   // " + StringEscapeUtils.escapeJava(msg) + "\n";    
-    }
-    result +=   "   //\n";
+		// we can only catch a public class
+		Class<?> ex = exception.getClass();
+		while (!Modifier.isPublic(ex.getModifiers()))
+			ex = ex.getSuperclass();
 
-    result += "}\n";// closing the catch block
-    return result;
-  }
+		// preparing the catch block
+		result += " catch(" + getClassName(ex) + " e) {\n";
+
+		// adding the message of the exception
+		String exceptionMessage = "";
+		if (exception.getMessage() != null) {
+			exceptionMessage = exception.getMessage().replace("*/", "*_/");
+		} else {
+			exceptionMessage = "no message in exception (getMessage() returned null)";
+		}
+
+		result += "   //\n";
+		for (String msg : exceptionMessage.split("\n")) {
+			result += "   // " + StringEscapeUtils.escapeJava(msg) + "\n";
+		}
+		result += "   //\n";
+
+		result += "}\n";// closing the catch block
+		return result;
+	}
 
 	private String getSimpleTypeName(Type type) {
 		String typeName = getTypeName(type);
@@ -1099,11 +1102,10 @@ public class TestCodeVisitor extends TestVisitor {
 			startPos = 1;
 		}
 		Type[] parameterTypes = constructor.getParameterTypes();
-		String parameterString = getParameterString(parameterTypes,
-				parameters,
-				isGenericConstructor,
-				constructor.isOverloaded(parameters),
-				startPos);
+		String parameterString = getParameterString(parameterTypes, parameters,
+		                                            isGenericConstructor,
+		                                            constructor.isOverloaded(parameters),
+		                                            startPos);
 
 		// String result = ((Class<?>) retval.getType()).getSimpleName()
 		// +" "+getVariableName(retval)+ " = null;\n";
@@ -1143,10 +1145,10 @@ public class TestCodeVisitor extends TestVisitor {
 		}
 
 		if (exception != null) {
-		  if (Properties.ASSERTIONS) {
-		    result += generateFailAssertion(statement,exception);
-		  }
-		  
+			if (Properties.ASSERTIONS) {
+				result += generateFailAssertion(statement, exception);
+			}
+
 			result += "\n}";// end try block
 
 			result += generateCatchBlock(statement, exception);
@@ -1156,20 +1158,21 @@ public class TestCodeVisitor extends TestVisitor {
 		addAssertions(statement);
 	}
 
-	/** Generates a fail assertion for being inserted after a statement generating an exception.
-	 * Parameter "statement" is not used in the default implementation but may be used
-	 * in future extensions.
+	/**
+	 * Generates a fail assertion for being inserted after a statement
+	 * generating an exception. Parameter "statement" is not used in the default
+	 * implementation but may be used in future extensions.
 	 **/
 	public String generateFailAssertion(AbstractStatement statement, Throwable exception) {
-    Class<?> ex = exception.getClass();
-    // boolean isExpected = getDeclaredExceptions().contains(ex);
-    while (!Modifier.isPublic(ex.getModifiers()))
-      ex = ex.getSuperclass();
-    // if (isExpected)      
-    return "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
-  }
+		Class<?> ex = exception.getClass();
+		// boolean isExpected = getDeclaredExceptions().contains(ex);
+		while (!Modifier.isPublic(ex.getModifiers()))
+			ex = ex.getSuperclass();
+		// if (isExpected)      
+		return "\n  fail(\"Expecting exception: " + getClassName(ex) + "\");\n";
+	}
 
-  /*
+	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see org.evosuite.testcase.TestVisitor#visitArrayStatement(org.evosuite.testcase.ArrayStatement)
@@ -1208,7 +1211,8 @@ public class TestCodeVisitor extends TestVisitor {
 
 			testCode += getClassName(retval) + " " + getVariableName(retval) + " = ("
 			        + getClassName(retval) + ") " + getClassName(Array.class)
-			        + ".newInstance(" + getClassName(retval.getComponentClass()).replaceAll("\\[\\]", "")
+			        + ".newInstance("
+			        + getClassName(retval.getComponentClass()).replaceAll("\\[\\]", "")
 			        + ".class, " + multiDimensions + ");\n";
 
 		} else {
