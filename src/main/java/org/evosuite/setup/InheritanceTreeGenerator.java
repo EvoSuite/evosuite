@@ -191,6 +191,13 @@ public class InheritanceTreeGenerator {
 				if ((cn.access & Opcodes.ACC_PUBLIC) == 0) {
 					return;
 				}
+			} else {
+				if (!canUse(cn)) {
+					logger.warn("Not using: " + cn.name);
+					return;
+				} else {
+					logger.warn("Using: " + cn.name);
+				}
 			}
 
 			if (cn.superName != null)
@@ -206,6 +213,36 @@ public class InheritanceTreeGenerator {
 		} catch (IOException e) {
 			logger.error("", e);
 		}
+	}
+
+	public static boolean canUse(ClassNode cn) {
+
+		if ((cn.access & Opcodes.ACC_PRIVATE) == Opcodes.ACC_PRIVATE) {
+			return false;
+		}
+
+		//		TODO: Handle Deprecated
+		if (cn.name.matches(".*\\$\\d+$")) {
+			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
+			return false;
+		}
+
+		if (cn.name.matches(".*\\.\\d+$")) {
+			logger.debug(cn.name + " looks like an anonymous class, ignoring it");
+			return false;
+		}
+
+		if (cn.name.startsWith("junit"))
+			return false;
+
+		// If the SUT is not in the default package, then
+		// we cannot import classes that are in the default
+		// package
+		if ((cn.access & Opcodes.ACC_PROTECTED) == Opcodes.ACC_PROTECTED) {
+			return false;
+		}
+
+		return true;
 	}
 
 	private static List<String> classExceptions = Arrays.asList(new String[] {

@@ -258,8 +258,10 @@ public class TestCluster {
 	}
 
 	public void addCastClassForContainer(Class<?> clazz) {
-		CastClassManager.getInstance().addCastClass(clazz, 1);
-		clearGeneratorCache(new GenericClass(clazz));
+		if (TestClusterGenerator.canUse(clazz)) {
+			CastClassManager.getInstance().addCastClass(clazz, 1);
+			clearGeneratorCache(new GenericClass(clazz));
+		}
 	}
 
 	/**

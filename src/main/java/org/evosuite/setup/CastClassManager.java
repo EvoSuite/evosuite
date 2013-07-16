@@ -162,6 +162,9 @@ public class CastClassManager {
 				                                                               inheritanceTree));
 			}
 			for (Class<?> clazz : boundCandidates) {
+				if (!TestClusterGenerator.canUse(clazz))
+					continue;
+
 				boolean isAssignable = true;
 				for (Type bound : typeVariable.getBounds()) {
 					if (!GenericClass.isAssignable(bound, clazz)) {
