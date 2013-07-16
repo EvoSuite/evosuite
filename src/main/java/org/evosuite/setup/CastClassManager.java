@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -129,6 +128,9 @@ public class CastClassManager {
 		Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
 
 		for (Class<?> clazz : classes) {
+			if (!TestClusterGenerator.canUse(clazz))
+				continue;
+
 			boolean isAssignable = true;
 			for (Type bound : typeVariable.getBounds()) {
 				if (!GenericClass.isAssignable(bound, clazz)) {
@@ -156,7 +158,8 @@ public class CastClassManager {
 			for (Type bound : typeVariable.getBounds()) {
 				Class<?> rawBound = GenericTypeReflector.erase(bound);
 				boundCandidates.add(rawBound);
-				boundCandidates.addAll(TestClusterGenerator.getConcreteClasses(rawBound, inheritanceTree));
+				boundCandidates.addAll(TestClusterGenerator.getConcreteClasses(rawBound,
+				                                                               inheritanceTree));
 			}
 			for (Class<?> clazz : boundCandidates) {
 				boolean isAssignable = true;
@@ -166,8 +169,8 @@ public class CastClassManager {
 						logger.debug("Not assignable: " + clazz + " to bound " + bound);
 						break;
 					}
-					if(bound instanceof ParameterizedType) {
-						if(Arrays.asList(((ParameterizedType)bound).getActualTypeArguments()).contains(typeVariable)) {
+					if (bound instanceof ParameterizedType) {
+						if (Arrays.asList(((ParameterizedType) bound).getActualTypeArguments()).contains(typeVariable)) {
 							isAssignable = false;
 							break;
 						}
@@ -177,8 +180,8 @@ public class CastClassManager {
 					assignableClasses.add(clazz);
 				}
 			}
-			logger.debug("After adding bounds, found assignable classes for type variable " + typeVariable + ": "
-			        + assignableClasses.size());
+			logger.debug("After adding bounds, found assignable classes for type variable "
+			        + typeVariable + ": " + assignableClasses.size());
 			if (!assignableClasses.isEmpty()) {
 				Class<?> clazz = Randomness.choice(assignableClasses);
 				GenericClass castClass = new GenericClass(clazz);
@@ -204,7 +207,8 @@ public class CastClassManager {
 		 */
 
 		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
-			logger.debug("Entry "+entry.getKey().getTypeName()+" at depth "+entry.getValue());
+			logger.debug("Entry " + entry.getKey().getTypeName() + " at depth "
+			        + entry.getValue());
 			boolean isAssignable = true;
 			logger.debug("Getting instance for type variable with bounds "
 			        + Arrays.asList(TypeUtils.getImplicitBounds(typeVariable)));
@@ -223,7 +227,7 @@ public class CastClassManager {
 						                                                           entry.getKey().getRawClass());
 						logger.debug("Instance type is: " + instanceType);
 						type = GenericUtils.replaceTypeVariable(theType, typeVariable,
-                                instanceType);
+						                                        instanceType);
 						if (GenericClass.isAssignable(type, instanceType)) {
 							logger.debug("Found assignable generic exact type: "
 							        + instanceType);
@@ -235,7 +239,7 @@ public class CastClassManager {
 					break;
 				}
 			}
-			
+
 			if (!isAssignable) {
 				continue;
 			}
@@ -361,7 +365,7 @@ public class CastClassManager {
 						                                                           entry.getKey().getRawClass());
 						logger.debug("Instance type is: " + instanceType);
 						type = GenericUtils.replaceTypeVariable(theType, typeVariable,
-                                instanceType);
+						                                        instanceType);
 						if (GenericClass.isAssignable(type, instanceType)) {
 							logger.debug("Found assignable generic exact type: "
 							        + instanceType);
