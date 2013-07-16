@@ -22,12 +22,12 @@ public final class Capturer
 	private static boolean                     isCaptureStarted    = false;
 	private static boolean                     isShutdownHookAdded = false;
 	private static final ArrayList<CaptureLog> logs                = new ArrayList<CaptureLog>();
-	
+
 	public static final String DEFAULT_SAVE_LOC = "captured.log";
-	
-	
+
+
 	private static final ArrayList<String[]> classesToBeObserved = new ArrayList<String[]>();
-	
+
 	private static final transient Logger logger = LoggerFactory.getLogger(Capturer.class);
 
 
@@ -49,7 +49,7 @@ public final class Capturer
 			}
 		}));
 	}
-	
+
 	@Deprecated
 	public static void postProcess()
 	{
@@ -63,12 +63,12 @@ public final class Capturer
 //					   LOG.info("Saving captured log to {}", DEFAULT_SAVE_LOC);
 //					   final File targetFile = new File(DEFAULT_SAVE_LOC);
 //					   Capturer.save(new FileOutputStream(targetFile));
-						
+
 					   PostProcessor.init();
-					   
+
 					   final ArrayList<String>     pkgNames    = new ArrayList<String>();
 					   final ArrayList<Class<?>[]> obsClasses = new ArrayList<Class<?>[]>();
-			
+
 					   int searchIndex;
 					   for(String[] classNames : Capturer.classesToBeObserved)
 					   {
@@ -81,7 +81,7 @@ public final class Capturer
 						   {
 							   pkgNames.add("");
 						   }
-						   
+
 						   final Class<?> [] clazzes = new Class<?>[classNames.length];
 						   for(int j = 0; j < classNames.length; j++)
 						   {
@@ -89,10 +89,10 @@ public final class Capturer
 						   }
 						   obsClasses.add(clazzes);
 					   }
-					   
-					   
+
+
 					   PostProcessor.process(logs, pkgNames, obsClasses);
-					   
+
 					   Capturer.clear();
 				}
 				catch(final Exception e)
@@ -101,22 +101,22 @@ public final class Capturer
 				}
 			}
 		}
-		*/
+		 */
 	}
-	
-	
+
+
 	public static void save(final OutputStream out) throws IOException
 	{
 		if(out == null)
 		{
 			throw new NullPointerException("given OutputStream must not be null");
 		}
-		
+
 		final XStream xstream = new XStream();
 		xstream.toXML(logs, out);
 		out.close();
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static void load(final InputStream in)
 	{
@@ -124,11 +124,11 @@ public final class Capturer
 		{
 			throw new NullPointerException("given InputStream must not be null");
 		}
-		
+
 		final XStream xstream = new XStream(new StaxDriver());
 		logs.addAll( (ArrayList<CaptureLog>) xstream.fromXML(in));
 	}
-	
+
 	synchronized
 	public static void clear()
 	{
@@ -136,29 +136,29 @@ public final class Capturer
 		logs.clear();
 		classesToBeObserved.clear();
 		isCaptureStarted = false;
-		
+
 		FieldRegistry.clear();
 	}
-	
+
 	synchronized
 	public static void startCapture()
 	{
 		logger.info("Starting Capturer...");
-		
+
 		if(isCaptureStarted)
 		{
 			throw new IllegalStateException("Capture has already been started");
 		}
-		
+
 		currentLog       = new CaptureLog();
 		isCaptureStarted = true;
-		
+
 		FieldRegistry.restoreForegoingGETSTATIC();
-		
+
 		logger.info("Capturer has been started successfully");
 
 	}
-	
+
 	synchronized
 	public static void startCapture(final String classesToBeObservedString)
 	{
@@ -168,7 +168,7 @@ public final class Capturer
 			logger.error(msg);
 			throw new CapturerException(msg);
 		}
-		
+
 		final ArrayList<String> args = new ArrayList<String>(Arrays.asList(classesToBeObservedString.split("\\s+")));
 		if(args.isEmpty())
 		{
@@ -176,23 +176,23 @@ public final class Capturer
 			logger.error(msg);
 			throw new CapturerException(msg);
 		}
-		
+
 		// start Capturer if not active yet
 		// NOTE: Stopping the capture and saving the corresponding logs is handled in the ShutdownHook
 		//       which is automatically initialized in the Capturer
 		Capturer.startCapture(args);
 	}
-	
+
 	synchronized
 	public static void startCapture(final List<String> classesToBeObserved)
 	{
 		logger.info("Starting Capturer...");
-	
+
 		if(isCaptureStarted)
 		{
 			throw new IllegalStateException("Capture has already been started");
 		}
-		
+
 		/*
 		 * TODO need refactoring
 		 * 
@@ -201,11 +201,11 @@ public final class Capturer
 			initShutdownHook();
 			isShutdownHookAdded = true;
 		}
-	*/
+		 */
 		currentLog       = new CaptureLog();
 		isCaptureStarted = true;
-		
-		
+
+
 		final int      size    = classesToBeObserved.size();
 		final String[] clazzes = new String[size];
 		for(int i = 0; i < size; i++)
@@ -213,36 +213,36 @@ public final class Capturer
 			clazzes[i] = classesToBeObserved.get(i);
 		}
 		Capturer.classesToBeObserved.add(clazzes);
-		
+
 		FieldRegistry.restoreForegoingGETSTATIC();
-		
+
 		logger.info("Capturer has been started successfully");
 	}
-	
+
 	synchronized
 	public static CaptureLog stopCapture()
 	{
 		logger.info("Stopping Capturer...");
-		
+
 		if(isCaptureStarted)
 		{
 			isCaptureStarted = false;
-			
+
 			logs.add(currentLog);
-			
+
 			final CaptureLog log = currentLog;
 			currentLog = null;
-			
+
 			logger.info("Capturer has been stopped successfully");
-			
+
 			FieldRegistry.clear();
-			
+
 			return log;
 		}
-		
+
 		return null;
 	}
-	
+
 	synchronized
 	public static boolean isCapturing()
 	{
@@ -254,98 +254,50 @@ public final class Capturer
 	{
 		Capturer.isCaptureStarted = isCapturing;
 	}
-	
-	
-	public static void capture(final int captureId, final Object receiver, final String methodName, final String methodDesc, final Object[] methodParams)
-	{
-		//FIXME only for debugging
-		if(methodName.equals(CaptureLog.OBSERVED_INIT))
-		{
-			if(receiver != null && receiver.getClass().getName().contains("Ekit"))
-			{
-				logger.debug("INIT OID: " + System.identityHashCode(receiver) + " isCapturing: " + isCapturing());
+
+
+	public static void capture(final int captureId, final Object receiver, final String methodName, final String methodDesc, final Object[] methodParams){
+
+		if(isCapturing()) {
+			synchronized (currentLog){
+				setCapturing(false);
+
+				if(logger.isDebugEnabled()){					
+					logger.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} " + Arrays.toString(methodParams), 
+							new Object[]{ captureId, 
+						System.identityHashCode(receiver), 
+						receiver.getClass().getName(), 
+						methodName,
+						methodDesc});				
+
+				}
+
+				currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
+				setCapturing(true);
 			}
 		}
-		
-			if(isCapturing())
-			{
-				synchronized (currentLog)
-				{
-//					final Runnable r = new Runnable() 
-//					{
-//						@Override
-//						public void run() 
-//						{
-							setCapturing(false);
-							
-							if(logger.isDebugEnabled())
-							{
-								logger.debug("captured:  captureId={} receiver={} type={} method={} methodDesc={} " + Arrays.toString(methodParams), 
-																									  new Object[]{ captureId, 
-																									 System.identityHashCode(receiver), 
-																									 receiver.getClass().getName(), 
-																									 methodName,
-																									 methodDesc});				
-								
-							}
-							
-							currentLog.log(captureId, receiver, methodName, methodDesc, methodParams);
-							
-							setCapturing(true);
-//						}
-//					};
-//					
-//					if(true && ! EventQueue.isDispatchThread()) //isGUI
-//					{
-//						SwingUtilities.invokeLater(r);
-//					}
-//					else
-//					{
-//						r.run();
-//					}
-						
-				}
-			}
 	}
-	
-	
+
+
 	@SuppressWarnings("unchecked")
 	public static List<CaptureLog> getCaptureLogs()
 	{
 		return (List<CaptureLog>) logs.clone();
 	}
-	
-	
-	public static void enable(final int captureId, final Object receiver, final Object returnValue)
-	{
-			if(isCapturing())
-			{
-				synchronized (currentLog) {
-//					final Runnable r = new Runnable() {
-//						@Override
-//						public void run() 
-//						{
-						   setCapturing(false);
 
-						   if(logger.isDebugEnabled())
-						   {
-							  logger.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}", new Object[]{ captureId, System.identityHashCode(receiver), returnValue, System.identityHashCode(returnValue)});
-						   }
-							
-						   currentLog.logEnd(captureId, receiver, returnValue);
-						   setCapturing(true);
-//						}
-//					};
-//					
-//					if(true && ! EventQueue.isDispatchThread()) //isGUI
-//					{
-//						SwingUtilities.invokeLater(r);
-//					}
-//					else
-//					{
-//						r.run();
-//					}
+
+	public static void enable(final int captureId, final Object receiver, final Object returnValue){
+		if(isCapturing()){
+			synchronized (currentLog) {
+				setCapturing(false);
+
+				if(logger.isDebugEnabled()){
+					logger.debug("enabled: capturedId={} receiver={} returnValue={} returnValueOID={}", new Object[]{ captureId, System.identityHashCode(receiver), returnValue, System.identityHashCode(returnValue)});
 				}
+
+				currentLog.logEnd(captureId, receiver, returnValue);
+				setCapturing(true);
 			}
+		}
 	}
 }
