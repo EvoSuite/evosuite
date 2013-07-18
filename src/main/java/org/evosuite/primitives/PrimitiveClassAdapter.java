@@ -56,7 +56,7 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 	 */
 	public PrimitiveClassAdapter(ClassVisitor visitor, String className) {
 		super(Opcodes.ASM4, visitor);
-		this.className = className;
+		this.className = className.replaceAll("/", ".");
 	}
 
 	/** {@inheritDoc} */
@@ -99,12 +99,28 @@ public class PrimitiveClassAdapter extends ClassVisitor {
 		}
 		*/
 		if (DependencyAnalysis.isTargetClassName(className)) {
-			for(Type argumentType : Type.getArgumentTypes(descriptor)) {
+			for (Type argumentType : Type.getArgumentTypes(descriptor)) {
 				poolManager.addSUTConstant(argumentType);
 			}
 		}
 		mv = new PrimitivePoolMethodAdapter(mv, className);
 
 		return mv;
+	}
+
+	/* (non-Javadoc)
+	 * @see org.objectweb.asm.ClassVisitor#visitInnerClass(java.lang.String, java.lang.String, java.lang.String, int)
+	 */
+	@Override
+	public void visitInnerClass(String name, String outerName, String innerName,
+	        int access) {
+		if ((access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
+			if (DependencyAnalysis.isTargetClassName(className)) {
+				Type type = Type.getObjectType(name);
+				poolManager.addSUTConstant(type);
+			}
+		}
+
+		super.visitInnerClass(name, outerName, innerName, access);
 	}
 }
