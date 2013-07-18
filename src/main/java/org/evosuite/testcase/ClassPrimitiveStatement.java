@@ -18,9 +18,10 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private static final long serialVersionUID = -2728777640255424791L;
 
-	private Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
-	
-	public ClassPrimitiveStatement(TestCase tc, GenericClass type, Set<Class<?>> assignableClasses) {
+	private final Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+
+	public ClassPrimitiveStatement(TestCase tc, GenericClass type,
+	        Set<Class<?>> assignableClasses) {
 		super(tc, type, Randomness.choice(assignableClasses));
 		this.assignableClasses.addAll(assignableClasses);
 	}
@@ -38,7 +39,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	public boolean hasMoreThanOneValue() {
 		return assignableClasses.size() != 1;
 	}
-	
+
 	@Override
 	public void delta() {
 		randomize();
@@ -57,7 +58,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private Class<?> getType(org.objectweb.asm.Type type) throws ClassNotFoundException {
 		// Not quite sure why we have to treat primitives explicitly...
-		switch(type.getSort()) {
+		switch (type.getSort()) {
 		case org.objectweb.asm.Type.ARRAY:
 			org.objectweb.asm.Type componentType = type.getElementType();
 			Class<?> componentClass = getType(componentType);
@@ -81,13 +82,13 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 			return short.class;
 		default:
 			return Class.forName(type.getClassName(), true,
-					TestGenerationContext.getClassLoader());
+			                     TestGenerationContext.getClassLoader());
 		}
 	}
-	
+
 	@Override
 	public void randomize() {
-		if(!assignableClasses.isEmpty()) {
+		if (!assignableClasses.isEmpty()) {
 			value = Randomness.choice(assignableClasses);
 		} else {
 			org.objectweb.asm.Type type = ConstantPoolManager.getInstance().getConstantPool().getRandomType();
