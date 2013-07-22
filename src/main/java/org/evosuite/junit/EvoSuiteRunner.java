@@ -14,6 +14,11 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import ch.qos.logback.core.joran.spi.JoranException;
 import ch.qos.logback.core.util.StatusPrinter;
 
+/**
+ * @deprecated 
+ *
+ * Should rather use InstrumentingAgent
+ */
 public class EvoSuiteRunner extends BlockJUnit4ClassRunner {
 
 	

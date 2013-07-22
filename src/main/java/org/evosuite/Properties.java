@@ -610,7 +610,8 @@ public class Properties {
 	public static String JUNIT_SUFFIX = "EvoSuiteTest";
 
 	@Parameter(key = "junit_runner", group = "Output", description = "Use EvoSuite JUnit runner in generated test suites")
-	public static boolean JUNIT_RUNNER = true;
+	@Deprecated
+	public static boolean JUNIT_RUNNER = false;
 	
 	/**
 	 * TODO: this functionality is not implemented yet

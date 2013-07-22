@@ -65,7 +65,35 @@ public class AgentLoader {
 			jarFilePath = searchInTarget();    			
 		}
 
+		if(jarFilePath==null){
+			/*
+			 * nothing seems to work, so try .m2 folder
+			 */    			
+			jarFilePath = searchInM2();    			
+		}
+
 		return jarFilePath; 
+	}
+
+	private static String searchInM2() {
+	
+		File home = new File(System.getProperty("user.home"));
+		File m2 = new File(home.getAbsolutePath()+"/.m2");
+		if(!m2.exists()){
+			logger.warn("Cannot find the .m2 folder in home directory in "+m2);
+			return null;
+		}
+		
+		//FIXME we would need a more robust approach, as this is just an hack for now
+		String relativePath = "/repository/org/evosuite/evosuite/0.1-SNAPSHOT/evosuite-0.1-SNAPSHOT-jar-minimal.jar";
+		File jar = new File(m2.getAbsolutePath()+relativePath);
+		
+		if(!jar.exists()){
+			logger.warn("No jar file at: "+jar);
+			return null;
+		} else {
+			return jar.getAbsolutePath();
+		}
 	}
 
 	private static String searchInTarget() {
