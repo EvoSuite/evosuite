@@ -42,8 +42,6 @@ public class JUnit4TestAdapter implements UnitTestAdapter {
 	/** {@inheritDoc} */
 	@Override
 	public String getImports() {
-		//		return "import org.junit.Before;\n" + "import org.junit.Ignore;\n"
-		//		        + "import org.junit.Test;\n" + "import static org.junit.Assert.*;\n";
 		String imports = "import org.junit.Test;\n"
 		        + "import static org.junit.Assert.*;\n";
 		
