@@ -4,7 +4,11 @@ import static org.junit.Assert.assertEquals;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 
+import org.evosuite.junit.EvoSuiteRunner;
+
+@RunWith(EvoSuiteRunner.class)
 public class TestPersonWithEvoSuiteRunner {
 
 	@BeforeClass 
