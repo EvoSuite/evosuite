@@ -72,6 +72,16 @@ public class AgentLoader {
 			jarFilePath = searchInM2();    			
 		}
 
+		if(jarFilePath==null){
+			//this could happen if the name of the jar has been changed, so just pick one that contains evosuite in its name 
+			for(String entry : tokens){
+				if(entry.contains("evosuite") && entry.endsWith(".jar")){  
+					jarFilePath = entry;
+					break;
+				}
+			}
+		}
+		
 		return jarFilePath; 
 	}
 
