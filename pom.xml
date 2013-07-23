@@ -76,6 +76,56 @@
 
 	<profiles>
 		<profile>
+			<id>tools-default</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+				<file>
+					<exists>${java.home}/../lib/tools.jar</exists>
+				</file>
+			</activation>
+			<properties>
+				<toolsjar>${java.home}/../lib/tools.jar</toolsjar>
+			</properties>
+		</profile>
+		<profile>
+			<id>tools-mac</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+				<file>
+					<exists>${java.home}/../Classes/classes.jar</exists>
+				</file>
+			</activation>
+			<properties>
+				<toolsjar>${java.home}/../Classes/classes.jar</toolsjar>
+			</properties>
+		</profile>
+		<profile>
+			<id>Java7</id>
+			<activation>
+				<jdk>1.7</jdk>
+				<property>
+					<name>Java7</name>
+				</property>
+			</activation>
+			<properties>
+				<toolsVersion>1.7.0</toolsVersion>
+			</properties>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.1</version>
+						<configuration>
+							<source>1.7</source>
+							<target>1.7</target>
+							<encoding>${project.build.sourceEncoding}</encoding>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+		<profile>
 			<id>Java6</id>
 			<activation>
 				<jdk>1.6</jdk>
@@ -83,6 +133,9 @@
 					<name>Java6</name>
 				</property>
 			</activation>
+			<properties>
+				<toolsVersion>1.6.0</toolsVersion>
+			</properties>
 			<build>
 				<plugins>
 					<plugin>
@@ -184,6 +237,13 @@
 		<!-- <dependency> <groupId>org.xerial.snappy</groupId> <artifactId>snappy-java</artifactId> 
 			<version>1.1.0-M3</version> </dependency> -->
 		<dependency>
+			<groupId>com.sun</groupId>
+			<artifactId>tools</artifactId>
+			<version>${toolsVersion}</version>
+			<scope>system</scope>
+			<systemPath>${toolsjar}</systemPath>
+		</dependency>
+		<dependency>
 			<groupId>javax.xml.bind</groupId>
 			<artifactId>jaxb-api</artifactId>
 			<version>2.2.9</version>
@@ -212,7 +272,7 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-			<version>1.0.12</version>
+			<version>1.0.13</version>
 		</dependency>
 		<dependency>
 			<groupId>junit</groupId>
@@ -321,7 +381,7 @@
 			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
-				<version>1.3.1</version>
+				<version>1.4</version>
 				<configuration>
 					<!-- Set the target configuration directory to be used in the bin scripts -->
 					<configurationDirectory>conf</configurationDirectory>
@@ -389,7 +449,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
-				<version>2.9</version>
+				<version>2.9.1</version>
 				<configuration>
 					<source>1.7</source>
 				</configuration>
@@ -417,6 +477,12 @@
 						<manifest>
 							<mainClass>org.evosuite.EvoSuite</mainClass>
 						</manifest>
+							<manifestEntries>
+									<Premain-Class>org.evosuite.agent.InstrumentingAgent</Premain-Class>
+									<Agent-Class>org.evosuite.agent.InstrumentingAgent</Agent-Class>
+									<Can-Redefine-Classes>true</Can-Redefine-Classes>
+									<Can-Retransform-Classes>true</Can-Retransform-Classes>
+							</manifestEntries>
 					</archive>
 					<descriptors>
 						<!-- <descriptor>src/main/assembly/dependencies.xml</descriptor> -->
@@ -447,7 +513,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>2.14.1</version>
+				<version>2.15</version>
 				<configuration>
 					<skipTests>${skipTests}</skipTests>
 					<forkMode>once</forkMode>
@@ -507,7 +573,7 @@
 						- MSITE-262, MSITE-293, MSITE-297 -->
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-site-plugin</artifactId>
-					<version>3.2</version>
+					<version>3.3</version>
 					<configuration>
 						<reportPlugins>
 							<plugin>

@@ -52,6 +52,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -82,7 +83,7 @@ public class TestSuiteWriter implements Opcodes {
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
 	private TestCodeVisitor visitor = Properties.STRUCTURED_TESTS ? visitor = new StructuredTestCodeVisitor()
-	        : new TestCodeVisitor();
+	: new TestCodeVisitor();
 
 	private static final String METHOD_SPACE = "  ";
 	private static final String BLOCK_SPACE = "    ";
@@ -112,7 +113,7 @@ public class TestSuiteWriter implements Opcodes {
 		@Override
 		public boolean accept(File file) {
 			return file.getName().toLowerCase().endsWith(".java")
-			        && file.getName().startsWith("Test");
+					&& file.getName().startsWith("Test");
 		}
 	}
 
@@ -204,7 +205,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (testComment.containsKey(id)) {
 			if (!testComment.get(id).contains(comment))
 				testComment.put(id, testComment.get(id) + "\n" + METHOD_SPACE + "//"
-				        + comment);
+						+ comment);
 		} else
 			testComment.put(id, comment);
 		return id;
@@ -276,7 +277,7 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String makeDirectory(String directory) {
 		String dirname = directory + File.separator
-		        + Properties.CLASS_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
+				+ Properties.CLASS_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -292,7 +293,7 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String mainDirectory(String directory) {
 		String dirname = directory + File.separator
-		        + Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
+				+ Properties.PROJECT_PREFIX.replace('.', File.separatorChar); // +"/GeneratedTests";
 		File dir = new File(dirname);
 		logger.debug("Target directory: " + dirname);
 		dir.mkdirs();
@@ -361,6 +362,8 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS || wasSecurityException) {
 			// BeforeClass is always added due to REPLACE_CALLS
 			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+			imports_sorted.add(org.junit.Before.class.getCanonicalName());
+			imports_sorted.add(org.junit.After.class.getCanonicalName());
 		}
 
 		if (wasSecurityException) {
@@ -372,8 +375,6 @@ public class TestSuiteWriter implements Opcodes {
 			imports_sorted.add(java.util.concurrent.Executors.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.Future.class.getCanonicalName());
 			imports_sorted.add(java.util.concurrent.TimeUnit.class.getCanonicalName());
-			imports_sorted.add(org.junit.Before.class.getCanonicalName());
-			imports_sorted.add(org.junit.After.class.getCanonicalName());
 			imports_sorted.add(org.junit.AfterClass.class.getCanonicalName());
 		}
 
@@ -421,11 +422,11 @@ public class TestSuiteWriter implements Opcodes {
 				builder.append("\n   * " + nr + " " + goal.toString());
 				// TODO only for debugging purposes
 				if (Properties.CRITERION == Criterion.DEFUSE
-				        && (goal instanceof DefUseCoverageTestFitness)) {
+						&& (goal instanceof DefUseCoverageTestFitness)) {
 					DefUseCoverageTestFitness duGoal = (DefUseCoverageTestFitness) goal;
 					if (duGoal.getCoveringTrace() != null) {
 						String traceInformation = duGoal.getCoveringTrace().toDefUseTraceInformation(duGoal.getGoalVariable(),
-						                                                                             duGoal.getCoveringObjectId());
+								duGoal.getCoveringObjectId());
 						traceInformation = traceInformation.replaceAll("\n", "");
 						builder.append("\n     * DUTrace: " + traceInformation);
 					}
@@ -560,78 +561,82 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String getBeforeAndAfterMethods(boolean wasSecurityException) {
 
+		if (!wasSecurityException && !Properties.REPLACE_CALLS) {
+			return "";
+		}
+
 		StringBuilder bd = new StringBuilder("");
 		bd.append("\n");
-
-		if (!wasSecurityException) {
-			/*
-			 * If no security manager, we still need to setup REPLACE_CALLS
-			 */
-			if (Properties.REPLACE_CALLS) {
-				bd.append(METHOD_SPACE);
-				bd.append("@BeforeClass \n");
-
-				bd.append(METHOD_SPACE);
-				bd.append("public static void initEvoSuiteFramework(){ \n");
-
-				bd.append(BLOCK_SPACE);
-				bd.append("org.evosuite.Properties.REPLACE_CALLS = "
-				        + Properties.REPLACE_CALLS + "; \n");
-
-				bd.append(METHOD_SPACE);
-				bd.append("} \n");
-
-				bd.append("\n");
-			}
-
-			return bd.toString();
-		}
 
 		/*
 		 * Because this method is perhaps called only once per SUT,
 		 * not much of the point to try to optimize it 
 		 */
 
-		generateFields(bd);
+		generateFields(bd,wasSecurityException);
 
-		generateBeforeClass(bd);
+		generateBeforeClass(bd,wasSecurityException);
 
-		generateAfterClass(bd);
+		generateAfterClass(bd,wasSecurityException);
 
-		generateBefore(bd);
+		generateBefore(bd,wasSecurityException);
 
-		generateAfter(bd);
+		generateAfter(bd,wasSecurityException);
 
 		return bd.toString();
 	}
 
-	private void generateAfter(StringBuilder bd) {
+	private void generateAfter(StringBuilder bd,boolean wasSecurityException) {
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
 		bd.append("public void doneWithTestCase(){ \n");
-		bd.append(BLOCK_SPACE);
-		bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
+
+		if(wasSecurityException){
+			bd.append(BLOCK_SPACE);
+			bd.append("Sandbox.doneWithExecutingSUTCode(); \n");
+		}
+
+		if(Properties.REPLACE_CALLS){
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.deactivate(); \n");
+		}
+
+
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
 		bd.append("\n");
 	}
 
-	private void generateBefore(StringBuilder bd) {
+	private void generateBefore(StringBuilder bd, boolean wasSecurityException) {
 		bd.append(METHOD_SPACE);
 		bd.append("@Before \n");
 		bd.append(METHOD_SPACE);
 		bd.append("public void initTestCase(){ \n");
-		bd.append(BLOCK_SPACE);
-		bd.append("Sandbox.goingToExecuteSUTCode(); \n");
+
+		if(wasSecurityException){
+			bd.append(BLOCK_SPACE);
+			bd.append("Sandbox.goingToExecuteSUTCode(); \n");
+		}
+
+		if(Properties.REPLACE_CALLS){
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
+		}
+
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
 		bd.append("\n");
 	}
 
-	private void generateAfterClass(StringBuilder bd) {
+	private void generateAfterClass(StringBuilder bd, boolean wasSecurityException) {
+
+		if(!wasSecurityException){
+			return;
+		}
+
 		bd.append(METHOD_SPACE);
 		bd.append("@AfterClass \n");
 		bd.append(METHOD_SPACE);
@@ -646,35 +651,49 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("\n");
 	}
 
-	private void generateBeforeClass(StringBuilder bd) {
+	private void generateBeforeClass(StringBuilder bd, boolean wasSecurityException) {
 		bd.append(METHOD_SPACE);
 		bd.append("@BeforeClass \n");
 
 		bd.append(METHOD_SPACE);
 		bd.append("public static void initEvoSuiteFramework(){ \n");
 
-		//need to setup REPLACE_CALLS
 		bd.append(BLOCK_SPACE);
-		bd.append("org.evosuite.Properties.REPLACE_CALLS = " + Properties.REPLACE_CALLS
-		        + "; \n");
+		bd.append("org.evosuite.utils.LoggingUtils.loadLogbackForEvoSuite(); \n");
+		
+		if(Properties.REPLACE_CALLS){
+			//need to setup REPLACE_CALLS and instrumentator
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.Properties.REPLACE_CALLS = true; \n");
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.agent.InstrumentingAgent.initialize(); \n");
+		}
 
-		//need to setup the Sandbox mode
-		bd.append(BLOCK_SPACE);
-		bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
-		        + Properties.SANDBOX_MODE + "; \n");
+		if(wasSecurityException){
+			//need to setup the Sandbox mode
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.Properties.SANDBOX_MODE = SandboxMode."
+					+ Properties.SANDBOX_MODE + "; \n");
 
-		bd.append(BLOCK_SPACE);
-		bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
+			bd.append(BLOCK_SPACE);
+			bd.append("Sandbox.initializeSecurityManagerForSUT(); \n");
 
-		bd.append(BLOCK_SPACE);
-		bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
+			bd.append(BLOCK_SPACE);
+			bd.append(EXECUTOR_SERVICE + " = Executors.newCachedThreadPool(); \n");
+		}
+
 		bd.append(METHOD_SPACE);
 		bd.append("} \n");
 
 		bd.append("\n");
 	}
 
-	private void generateFields(StringBuilder bd) {
+	private void generateFields(StringBuilder bd, boolean wasSecurityException) {
+
+		if(!wasSecurityException){
+			return;
+		}
+
 		bd.append(METHOD_SPACE);
 		bd.append("private static ExecutorService " + EXECUTOR_SERVICE + "; \n");
 
@@ -750,7 +769,7 @@ public class TestSuiteWriter implements Opcodes {
 		if (wasSecurityException) {
 			builder.append(BLOCK_SPACE);
 			builder.append("Future<?> future = " + EXECUTOR_SERVICE
-			        + ".submit(new Runnable(){ \n");
+					+ ".submit(new Runnable(){ \n");
 			builder.append(INNER_BLOCK_SPACE);
 			// Doesn't seem to need override?
 			// builder.append("@Override \n");
@@ -765,7 +784,7 @@ public class TestSuiteWriter implements Opcodes {
 		}
 
 		for (String line : adapter.getTestString(id, test,
-		                                         result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
+				result.exposeExceptionMapping(), visitor).split("\\r?\\n")) {
 			builder.append(CODE_SPACE);
 			builder.append(line);
 			builder.append("\n");
@@ -822,11 +841,11 @@ public class TestSuiteWriter implements Opcodes {
 
 		File basedir = new File(directory);
 		Iterator<File> i = FileUtils.iterateFiles(basedir, new TestFilter(),
-		                                          TrueFileFilter.INSTANCE);
+				TrueFileFilter.INSTANCE);
 		while (i.hasNext()) {
 			File f = i.next();
 			String name = f.getPath().replace(directory, "").replace(".java", "").replace("/",
-			                                                                              ".");
+					".");
 
 			if (name.startsWith("."))
 				name = name.substring(1);
@@ -865,7 +884,7 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void testToBytecode(TestCase test, GeneratorAdapter mg,
-	        Map<Integer, Throwable> exceptions) {
+			Map<Integer, Throwable> exceptions) {
 		Map<Integer, Integer> locals = new HashMap<Integer, Integer>();
 		mg.visitAnnotation("Lorg/junit/Test;", true);
 		int num = 0;
@@ -889,10 +908,10 @@ public class TestSuiteWriter implements Opcodes {
 	public byte[] getBytecode(String name) {
 		ClassWriter cw = new ClassWriter(ClassWriter.COMPUTE_MAXS);
 		String prefix = Properties.TARGET_CLASS.substring(0,
-		                                                  Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
-		                                                                                                    "/");
+				Properties.TARGET_CLASS.lastIndexOf(".")).replace(".",
+						"/");
 		cw.visit(V1_6, ACC_PUBLIC + ACC_SUPER, prefix + "/" + name, null,
-		         "junit/framework/TestCase", null);
+				"junit/framework/TestCase", null);
 
 		Method m = Method.getMethod("void <init> ()");
 		GeneratorAdapter mg = new GeneratorAdapter(ACC_PUBLIC, m, null, null, cw);
@@ -922,7 +941,7 @@ public class TestSuiteWriter implements Opcodes {
 		// mg.invokeStatic(Type.getType(org.junit.runner.JUnitCore.class),
 		// Method.getMethod("void main (String[])"));
 		mg.invokeStatic(Type.getType(junit.textui.TestRunner.class),
-		                Method.getMethod("void main (String[])"));
+				Method.getMethod("void main (String[])"));
 		mg.returnValue();
 		mg.endMethod();
 
