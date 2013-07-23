@@ -726,7 +726,7 @@ public class TestCluster {
 		} else if (clazz.getType() instanceof TypeVariable<?>) {
 			logger.debug("Is type variable ");
 
-			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) clazz.getType(),
+			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass(clazz.getType(),
 			                                                                            true);
 			if (selectedClass.hasWildcardOrTypeVariables()) {
 				return getGenericInstantiation(selectedClass, recursionLevel + 1);
@@ -750,7 +750,8 @@ public class TestCluster {
 						logger.info("Using typevariable instead of wildcard because there are no bounds on wildcard");
 						parameterTypes.add(getRandomCastClass(
 						                                      typeParameters.get(numParam),
-						                                      recursionLevel).getType());
+						                                      recursionLevel,
+						                                      clazz.getTypeVariableMap()).getType());
 						numParam++;
 						continue;
 					}
@@ -760,8 +761,7 @@ public class TestCluster {
 				if (typeMap.containsKey(parameterType)) {
 					parameterTypes.add(typeMap.get(parameterType));
 				} else {
-					parameterTypes.add(getRandomCastClass(
-					                                      (TypeVariable<?>) parameterType,
+					parameterTypes.add(getRandomCastClass(parameterType,
 					                                      recursionLevel + 1).getType());
 				}
 			} else if (parameterType instanceof GenericArrayType) {
@@ -788,8 +788,13 @@ public class TestCluster {
 		        + accessibleObject);
 		GenericAccessibleObject<?> copy = accessibleObject.copy();
 		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
+
+		// TODO: The bounds of this type parameter need to be updataed for the owner of the call
+		// which may instantiate some of the type parameters
 		for (TypeVariable<?> parameter : accessibleObject.getTypeParameters()) {
-			GenericClass concreteType = getRandomCastClass(parameter, 0);
+			GenericClass concreteType = getRandomCastClass(parameter,
+			                                               0,
+			                                               copy.getOwnerClass().getTypeVariableMap());
 			logger.debug("Setting parameter " + parameter + " to type "
 			        + concreteType.getTypeName());
 			typeParameters.add(concreteType);
@@ -809,7 +814,8 @@ public class TestCluster {
 		TypeVariable<?>[] returnVariables = rawClass.getTypeParameters();
 
 		List<Type> calleeTypes = calleeType.getParameterTypes();
-		Map<TypeVariable<?>, Type> concreteTypes = new HashMap<TypeVariable<?>, Type>();
+
+		Map<TypeVariable<?>, Type> concreteTypes = calleeType.getTypeVariableMap();
 		for (int i = 0; i < calleeTypes.size() && i < returnVariables.length; i++) {
 			concreteTypes.put(returnVariables[i], calleeTypes.get(i));
 		}
@@ -822,7 +828,8 @@ public class TestCluster {
 				        + concreteType.getTypeName());
 				typeParameters.add(concreteType);
 			} else {
-				GenericClass concreteType = getRandomCastClass(parameter, 0);
+				GenericClass concreteType = getRandomCastClass(parameter, 0,
+				                                               concreteTypes);
 				logger.debug("(I) Setting parameter " + parameter + " to type "
 				        + concreteType.getTypeName());
 				typeParameters.add(concreteType);
@@ -894,7 +901,7 @@ public class TestCluster {
 					//	Type actualType = generatedType.getParameterTypes().get(pos);
 					//	concreteTypes.put(var, actualType);
 					//}// else {
-					GenericClass castClass = getRandomCastClass(var, 1);
+					GenericClass castClass = getRandomCastClass(var, 1, concreteTypes);
 					concreteTypes.put(var, castClass.getType());
 					//}
 				}
@@ -1030,12 +1037,14 @@ public class TestCluster {
 		return castClass;
 	}
 
-	private GenericClass getRandomCastClass(TypeVariable<?> targetType, int recursionLevel) {
+	private GenericClass getRandomCastClass(TypeVariable<?> targetType,
+	        int recursionLevel, Map<TypeVariable<?>, Type> ownerVariableMap) {
 		boolean allowRecursion = recursionLevel <= Properties.MAX_GENERIC_DEPTH;
 		logger.debug("Getting random cast class for type variable " + targetType
 		        + " with bounds " + Arrays.asList(targetType.getBounds()));
 		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType,
-		                                                                        allowRecursion);
+		                                                                        allowRecursion,
+		                                                                        ownerVariableMap);
 		if (castClass.hasWildcardOrTypeVariables()) {
 			logger.debug("Cast class has generic type, getting concrete instance");
 			return getGenericInstantiation(castClass, recursionLevel + 1);
