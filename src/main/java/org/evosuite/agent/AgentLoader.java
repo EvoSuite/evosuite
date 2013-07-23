@@ -8,6 +8,14 @@ import org.slf4j.LoggerFactory;
 
 import com.sun.tools.attach.VirtualMachine;
 
+/**
+ * This class is responsible to load the jar with the agent
+ * definition (in its manifest) and then hook it to the current
+ * running JVM 
+ * 
+ * @author arcuri
+ *
+ */
 public class AgentLoader {
 
 	private static final Logger logger = LoggerFactory.getLogger(AgentLoader.class);

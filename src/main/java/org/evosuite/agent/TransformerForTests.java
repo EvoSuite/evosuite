@@ -13,6 +13,14 @@ import org.objectweb.asm.Opcodes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * Once the agent is hooked to the current JVM, each time a class is
+ * loaded, its byte[] representation will be first given as input
+ * to this class, which can modify/instrument it 
+ * 
+ * @author arcuri
+ *
+ */
 public class TransformerForTests implements ClassFileTransformer {
 
 	private static final Logger logger = LoggerFactory.getLogger(TransformerForTests.class);
