@@ -30,10 +30,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
-import org.evosuite.TestGenerationContext;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.setup.DependencyAnalysis;
-import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
@@ -166,36 +164,32 @@ public abstract class PrimitiveStatement<T> extends AbstractStatement {
 			// TODO: Ensure that files were accessed in the first place
 			statement = new FileNamePrimitiveStatement(tc, new EvoSuiteFile(
 			        Randomness.choice(tc.getAccessedFiles())));
-		} 
-		else if (clazz instanceof Class) 		
-		{
+		} else if (clazz instanceof Class) {
 			final List<Type> types = genericClass.getParameterTypes();
-			
+
 			Type typeParameter = null;
-			if(! types.isEmpty())
-			{
+			if (!types.isEmpty()) {
 				typeParameter = types.get(0);
 			}
-			
-			if(genericClass.hasWildcardTypes()) {
+
+			if (genericClass.hasWildcardTypes()) {
 				Class<?> bound = GenericTypeReflector.erase(TypeUtils.getImplicitUpperBounds((WildcardType) typeParameter)[0]);
-				if(!bound.equals(Object.class)) {
-					Set<Class<?>> assignableClasses = TestClusterGenerator.getConcreteClasses(bound, DependencyAnalysis.getInheritanceTree());					
-					statement = new ClassPrimitiveStatement(tc, genericClass, assignableClasses);
+				if (!bound.equals(Object.class)) {
+					Set<Class<?>> assignableClasses = TestClusterGenerator.getConcreteClasses(bound,
+					                                                                          DependencyAnalysis.getInheritanceTree());
+					statement = new ClassPrimitiveStatement(tc, genericClass,
+					        assignableClasses);
 				} else {
 					statement = new ClassPrimitiveStatement(tc);
 				}
-			} 
-			else
-			{
+			} else {
 				if (typeParameter instanceof Class<?>) {
 					statement = new ClassPrimitiveStatement(tc, (Class<?>) typeParameter);
 				} else {
 					statement = new ClassPrimitiveStatement(tc);
 				}
 			}
-		} 
-		else {
+		} else {
 			throw new RuntimeException("Getting unknown type: " + clazz + " / "
 			        + clazz.getClass());
 		}

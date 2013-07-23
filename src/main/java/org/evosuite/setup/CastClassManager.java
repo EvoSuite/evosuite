@@ -133,9 +133,18 @@ public class CastClassManager {
 
 			boolean isAssignable = true;
 			for (Type bound : typeVariable.getBounds()) {
+				if (GenericTypeReflector.erase(bound).equals(Enum.class)) {
+					if (clazz.isEnum())
+						continue;
+				}
 				if (!GenericClass.isAssignable(bound, clazz)) {
 					isAssignable = false;
 					logger.debug("Not assignable: " + clazz + " to bound " + bound);
+					// TODO:
+					// if (GenericTypeReflector.erase(bound).isAssignableFrom(clazz)) {
+
+					// }
+
 					break;
 				}
 			}
@@ -167,6 +176,11 @@ public class CastClassManager {
 
 				boolean isAssignable = true;
 				for (Type bound : typeVariable.getBounds()) {
+					if (GenericTypeReflector.erase(bound).equals(Enum.class)) {
+						if (clazz.isEnum())
+							continue;
+					}
+
 					if (!GenericClass.isAssignable(bound, clazz)) {
 						isAssignable = false;
 						logger.debug("Not assignable: " + clazz + " to bound " + bound);
@@ -199,7 +213,8 @@ public class CastClassManager {
 		return false;
 	}
 
-	private double getSum(TypeVariable<?> typeVariable, boolean allowRecursion) {
+	private double getSum(TypeVariable<?> typeVariable, boolean allowRecursion,
+	        Map<TypeVariable<?>, Type> ownerVariableMap) {
 		double sum = 0d;
 
 		/**
@@ -214,21 +229,34 @@ public class CastClassManager {
 			        + entry.getValue());
 			boolean isAssignable = true;
 			logger.debug("Getting instance for type variable with bounds "
-			        + Arrays.asList(TypeUtils.getImplicitBounds(typeVariable)));
+			        + Arrays.asList(TypeUtils.getImplicitBounds(typeVariable))
+			        + " and map " + ownerVariableMap);
 			GenericClass key = entry.getKey();
 
 			for (Type theType : typeVariable.getBounds()) {
-				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable,
-				                                             entry.getKey().getType());
+				Type type = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
+				type = GenericUtils.replaceTypeVariable(type, typeVariable,
+				                                        entry.getKey().getType());
+				logger.debug("Bound after variable replacement: " + type);
 				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
 					logger.debug("Not assignable: " + entry.getKey() + " to bound "
 					        + type + " of " + typeVariable);
-					if (GenericTypeReflector.erase(type).isAssignableFrom(entry.getKey().getRawClass())) {
+					if (type instanceof WildcardType) {
+						// TODO
+						isAssignable = false;
+						break;
+					} else if (GenericTypeReflector.erase(type).isAssignableFrom(entry.getKey().getRawClass())) {
 						logger.debug("Raw types are assignable, checking if we can get a generic type instance");
 
 						Type instanceType = GenericTypeReflector.getExactSuperType(type,
 						                                                           entry.getKey().getRawClass());
-						logger.debug("Instance type is: " + instanceType);
+						logger.debug("Instance type " + type + " for "
+						        + entry.getKey().getRawClass() + " is: " + instanceType);
+						if (instanceType == null) {
+							isAssignable = false;
+							break;
+						}
+
 						type = GenericUtils.replaceTypeVariable(theType, typeVariable,
 						                                        instanceType);
 						if (GenericClass.isAssignable(type, instanceType)) {
@@ -337,14 +365,14 @@ public class CastClassManager {
 	}
 
 	public GenericClass selectCastClass(TypeVariable<?> typeVariable,
-	        boolean allowRecursion) {
-		double sum = getSum(typeVariable, allowRecursion);
+	        boolean allowRecursion, Map<TypeVariable<?>, Type> ownerVariableMap) {
+		double sum = getSum(typeVariable, allowRecursion, ownerVariableMap);
 
 		//special case
 		if (sum == 0d) {
 			logger.debug("Trying to add new cast class");
 			if (addAssignableClass(typeVariable)) {
-				return selectCastClass(typeVariable, allowRecursion);
+				return selectCastClass(typeVariable, allowRecursion, ownerVariableMap);
 			}
 
 			logger.debug("Making random choice because nothing is assignable");
@@ -356,11 +384,27 @@ public class CastClassManager {
 			GenericClass key = entry.getKey();
 			boolean isAssignable = true;
 			for (Type theType : typeVariable.getBounds()) {
-				Type type = GenericUtils.replaceTypeVariable(theType, typeVariable,
-				                                             entry.getKey().getType());
+				if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
+					if (key.isEnum())
+						continue;
+					else {
+						isAssignable = false;
+						break;
+					}
+				}
+
+				Type type = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
+				type = GenericUtils.replaceTypeVariable(type, typeVariable,
+				                                        entry.getKey().getType());
+				logger.debug("Bound after variable replacement: " + type);
 				if (!entry.getKey().isAssignableTo(type)) {// && !entry.getKey().isGenericSuperTypeOf(type)) {
 					logger.debug("Not assignable: " + entry.getKey() + " to bound "
 					        + type + " of " + typeVariable);
+					if (type instanceof WildcardType) {
+						// TODO
+						isAssignable = false;
+						break;
+					}
 					if (GenericTypeReflector.erase(type).isAssignableFrom(entry.getKey().getRawClass())) {
 						logger.debug("Raw types are assignable, checking if we can get a generic type instance");
 

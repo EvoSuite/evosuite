@@ -19,15 +19,13 @@ package org.evosuite;
 
 import java.io.File;
 import java.io.IOException;
-import java.security.Permission;
 
+import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.StoppingCondition;
-import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 
 /**
  * @author Andrea Arcuri
@@ -47,11 +45,10 @@ public class SystemTest {
 		}
 	}
 
-
 	@After
 	public void resetStaticVariables() {
 		TestGenerationContext.getInstance().resetContext();
-		System.setProperties(currentProperties); 
+		System.setProperties(currentProperties);
 	}
 
 	@Before
@@ -72,6 +69,7 @@ public class SystemTest {
 		Properties.CLIENT_ON_THREAD = true;
 		Properties.SANDBOX = false;
 		Properties.ERROR_BRANCHES = false;
+		Properties.CRITERION = Criterion.BRANCH;
 
 		TestGenerationContext.getInstance().resetContext();
 		Randomness.setSeed(42);
@@ -96,32 +94,29 @@ public class SystemTest {
 		System.out.println("*** SystemTest: runSetup() ***");
 
 		String target = System.getProperty("user.dir") + File.separator + "target"
-				+ File.separator + "test-classes";
+		        + File.separator + "test-classes";
 
 		File targetDir = new File(target);
 		try {
 			Assert.assertTrue("Target directory does not exist: "
-					+ targetDir.getCanonicalPath(), targetDir.exists());
+			                          + targetDir.getCanonicalPath(), targetDir.exists());
 		} catch (IOException e) {
 			Assert.fail(e.getMessage());
 		}
 		Assert.assertTrue(targetDir.isDirectory());
 
-
 		EvoSuite evosuite = new EvoSuite();
-		String[] command = new String[] {
-				"-setup", target };
+		String[] command = new String[] { "-setup", target };
 
 		Object result = evosuite.parseCommandLine(command);
 		Assert.assertNull(result);
 		File evoProp = new File(Properties.OUTPUT_DIR + File.separator
-				+ "evosuite.properties");
+		        + "evosuite.properties");
 		Assert.assertTrue("It was not created: " + evoProp.getAbsolutePath(),
-				evoProp.exists());
+		                  evoProp.exists());
 
 		hasBeenAlreadyRun = true;
 	}
-
 
 	private static void deleteEvoDirs() {
 

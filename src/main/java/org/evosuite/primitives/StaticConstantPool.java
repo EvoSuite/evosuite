@@ -39,6 +39,8 @@ public class StaticConstantPool implements ConstantPool {
 
 		if (Properties.TARGET_CLASS != null && !Properties.TARGET_CLASS.isEmpty()) {
 			typePool.add(Type.getObjectType(Properties.TARGET_CLASS));
+		} else {
+			typePool.add(Type.getType(Object.class));
 		}
 
 		intPool.add(0);
@@ -146,6 +148,9 @@ public class StaticConstantPool implements ConstantPool {
 				return;
 			stringPool.add(string);
 		} else if (object instanceof Type) {
+			while (((Type) object).getSort() == Type.ARRAY) {
+				object = ((Type) object).getElementType();
+			}
 			typePool.add((Type) object);
 		}
 
