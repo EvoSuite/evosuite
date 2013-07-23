@@ -18,15 +18,17 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private static final long serialVersionUID = -2728777640255424791L;
 
-	private Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
-	
-	public ClassPrimitiveStatement(TestCase tc, GenericClass type, Set<Class<?>> assignableClasses) {
+	private final Set<Class<?>> assignableClasses = new LinkedHashSet<Class<?>>();
+
+	public ClassPrimitiveStatement(TestCase tc, GenericClass type,
+	        Set<Class<?>> assignableClasses) {
 		super(tc, type, Randomness.choice(assignableClasses));
 		this.assignableClasses.addAll(assignableClasses);
 	}
 
 	public ClassPrimitiveStatement(TestCase tc, Class<?> value) {
 		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
+		this.assignableClasses.add(value);
 	}
 
 	public ClassPrimitiveStatement(TestCase tc) {
@@ -38,7 +40,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	public boolean hasMoreThanOneValue() {
 		return assignableClasses.size() != 1;
 	}
-	
+
 	@Override
 	public void delta() {
 		randomize();
@@ -57,7 +59,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	private Class<?> getType(org.objectweb.asm.Type type) throws ClassNotFoundException {
 		// Not quite sure why we have to treat primitives explicitly...
-		switch(type.getSort()) {
+		switch (type.getSort()) {
 		case org.objectweb.asm.Type.ARRAY:
 			org.objectweb.asm.Type componentType = type.getElementType();
 			Class<?> componentClass = getType(componentType);
@@ -81,13 +83,13 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 			return short.class;
 		default:
 			return Class.forName(type.getClassName(), true,
-					TestGenerationContext.getClassLoader());
+			                     TestGenerationContext.getClassLoader());
 		}
 	}
-	
+
 	@Override
 	public void randomize() {
-		if(!assignableClasses.isEmpty()) {
+		if (!assignableClasses.isEmpty()) {
 			value = Randomness.choice(assignableClasses);
 		} else {
 			org.objectweb.asm.Type type = ConstantPoolManager.getInstance().getConstantPool().getRandomType();
@@ -108,7 +110,13 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		super.changeClassLoader(loader);
 		Class<?> currentClass = value;
 		try {
-			value = loader.loadClass(currentClass.getCanonicalName());
+			String className = currentClass.getCanonicalName();
+			if (className == null) {
+				// canonical name is null for anonymous classes
+				// TODO: What should really happen in this case?
+				className = currentClass.getName();
+			}
+			value = loader.loadClass(className);
 		} catch (ClassNotFoundException e) {
 			logger.warn("Could not load class in new classloader: " + currentClass);
 		}

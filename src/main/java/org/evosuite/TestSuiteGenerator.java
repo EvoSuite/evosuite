@@ -255,7 +255,7 @@ public class TestSuiteGenerator {
 		statistics.writeReport();
 		if (!Properties.NEW_STATISTICS && Properties.OLD_STATISTICS)
 			statistics.writeStatistics();
-		
+
 		PermissionStatistics.getInstance().printStatistics();
 
 		LoggingUtils.getEvoLogger().info("* Done!");
@@ -415,7 +415,8 @@ public class TestSuiteGenerator {
 			fileManager.close();
 
 			if (!compiled) {
-				logger.error("Compilation failed on compilation units: "+compilationUnits);
+				logger.error("Compilation failed on compilation units: "
+				        + compilationUnits);
 				for (Diagnostic<?> diagnostic : diagnostics.getDiagnostics()) {
 					logger.error("Diagnostic: " + diagnostic.getMessage(null) + ": "
 					        + diagnostic.getLineNumber());
@@ -436,6 +437,7 @@ public class TestSuiteGenerator {
 			ClassPathHacker.addFile(dir);
 			Class<?>[] testClasses = getClassesFromFiles(generated);
 			if (testClasses == null) {
+				logger.error("Found no classes for compiled tests");
 				return false;
 			}
 
@@ -516,10 +518,11 @@ public class TestSuiteGenerator {
 	/**
 	 * <p>
 	 * If Properties.JUNIT_TESTS is set, this method writes the given test cases
-	 * to the default directory Properties.TEST_DIR. 
+	 * to the default directory Properties.TEST_DIR.
 	 * 
 	 * <p>
-	 * The name of the test will be equal to the SUT followed by the given suffix
+	 * The name of the test will be equal to the SUT followed by the given
+	 * suffix
 	 * 
 	 * @param tests
 	 *            a {@link java.util.List} object.
@@ -542,7 +545,7 @@ public class TestSuiteGenerator {
 			String name = Properties.TARGET_CLASS.substring(Properties.TARGET_CLASS.lastIndexOf(".") + 1);
 			String testDir = Properties.TEST_DIR;
 			LoggingUtils.getEvoLogger().info("* Writing JUnit test cases to " + testDir);
-			suite.writeTestSuite(name+suffix, testDir);
+			suite.writeTestSuite(name + suffix, testDir);
 		}
 	}
 
@@ -552,7 +555,7 @@ public class TestSuiteGenerator {
 	 *            the test cases which should be written to file
 	 */
 	public static void writeJUnitTests(List<TestCase> tests) {
-		 writeJUnitTests(tests,Properties.JUNIT_SUFFIX); 
+		writeJUnitTests(tests, Properties.JUNIT_SUFFIX);
 	}
 
 	private void addAssertions(List<TestCase> tests) {
