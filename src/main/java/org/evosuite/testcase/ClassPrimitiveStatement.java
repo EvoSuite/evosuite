@@ -28,6 +28,7 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 
 	public ClassPrimitiveStatement(TestCase tc, Class<?> value) {
 		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
+		this.assignableClasses.add(value);
 	}
 
 	public ClassPrimitiveStatement(TestCase tc) {
@@ -109,7 +110,13 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		super.changeClassLoader(loader);
 		Class<?> currentClass = value;
 		try {
-			value = loader.loadClass(currentClass.getCanonicalName());
+			String className = currentClass.getCanonicalName();
+			if (className == null) {
+				// canonical name is null for anonymous classes
+				// TODO: What should really happen in this case?
+				className = currentClass.getName();
+			}
+			value = loader.loadClass(className);
 		} catch (ClassNotFoundException e) {
 			logger.warn("Could not load class in new classloader: " + currentClass);
 		}

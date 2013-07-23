@@ -138,9 +138,10 @@ public class MutationInstrumentation implements MethodInstrumentation {
 		logger.info("Applying mutation operators ");
 		int frameIndex = 0;
 		int numMutants = 0;
-		if(frames.length != mn.instructions.size()) {
-			logger.error("Number of frames does not match number number of bytecode instructions: "+frames.length +"/" + mn.instructions.size());
-			logger.error("Skipping mutation of method "+className+"."+methodName);
+		if (frames.length != mn.instructions.size()) {
+			logger.error("Number of frames does not match number number of bytecode instructions: "
+			        + frames.length + "/" + mn.instructions.size());
+			logger.error("Skipping mutation of method " + className + "." + methodName);
 			return;
 		}
 		//assert (frames.length == mn.instructions.size()) : "Length " + frames.length
@@ -150,6 +151,11 @@ public class MutationInstrumentation implements MethodInstrumentation {
 			AbstractInsnNode in = j.next();
 			if (!constructorInvoked) {
 				if (in.getOpcode() == Opcodes.INVOKESPECIAL) {
+					if (className.matches(".*\\$\\d+$")) {
+						// We will not find the superclasses of an anonymous class this way
+						// so best not mutate the constructor
+						continue;
+					}
 					MethodInsnNode cn = (MethodInsnNode) in;
 					Collection<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
 					superClasses.add(className);

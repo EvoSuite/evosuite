@@ -25,6 +25,16 @@ public class GenericUtils {
 		return isAssignable;
 	}
 
+	public static Type replaceTypeVariables(Type targetType,
+	        Map<TypeVariable<?>, Type> typeMap) {
+		Type returnType = targetType;
+		for (TypeVariable<?> var : typeMap.keySet()) {
+			returnType = replaceTypeVariable(returnType, var, typeMap.get(var));
+		}
+
+		return returnType;
+	}
+
 	public static Type replaceTypeVariable(Type targetType, TypeVariable<?> variable,
 	        Type variableType) {
 		if (targetType instanceof Class<?>)
@@ -130,7 +140,8 @@ public class GenericUtils {
 			}
 		}
 
-		if (p1.getOwnerType() != null && p1.getOwnerType() instanceof ParameterizedType) {
+		if (p1.getOwnerType() != null && p1.getOwnerType() instanceof ParameterizedType
+		        && p2.getOwnerType() instanceof ParameterizedType) {
 			map.putAll(getMatchingTypeParameters((ParameterizedType) p1.getOwnerType(),
 			                                     (ParameterizedType) p2.getOwnerType()));
 		}

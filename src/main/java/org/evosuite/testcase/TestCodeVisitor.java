@@ -235,7 +235,7 @@ public class TestCodeVisitor extends TestVisitor {
 			}
 			for (Type bound : ((WildcardType) type).getUpperBounds()) {
 				if (bound == null
-				        || GenericTypeReflector.erase(bound).equals(Object.class))
+				        || (!(bound instanceof CaptureType) && GenericTypeReflector.erase(bound).equals(Object.class)))
 					continue;
 
 				if (!first)

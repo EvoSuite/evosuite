@@ -1253,13 +1253,17 @@ public class TestClusterGenerator {
 
 		Set<Class<?>> actualClasses = new LinkedHashSet<Class<?>>();
 		if (Modifier.isAbstract(clazz.getModifiers())
-		        || Modifier.isInterface(clazz.getModifiers())) {
+		        || Modifier.isInterface(clazz.getModifiers()) || clazz.equals(Enum.class)) {
 			Set<String> subClasses = inheritanceTree.getSubclasses(clazz.getName());
 			logger.debug("Subclasses of " + clazz.getName() + ": " + subClasses);
 			Map<String, Integer> classDistance = new HashMap<String, Integer>();
 			int maxDistance = -1;
+			String name = clazz.getName();
+			if (clazz.equals(Enum.class)) {
+				name = Properties.TARGET_CLASS;
+			}
 			for (String subClass : subClasses) {
-				int distance = getPackageDistance(subClass, clazz.getName());
+				int distance = getPackageDistance(subClass, name);
 				classDistance.put(subClass, distance);
 				maxDistance = Math.max(distance, maxDistance);
 			}
@@ -1342,6 +1346,15 @@ public class TestClusterGenerator {
 			e.printStackTrace();
 		}
 		return comparableClasses;
+	}
+
+	private Set<Class<?>> getConcreteClassesEnum() {
+		Set<Class<?>> enumClasses = new LinkedHashSet<Class<?>>();
+		for (String className : inheritanceTree.getSubclasses("java.lang.Enum")) {
+			logger.warn("Enum candidate: " + className);
+		}
+
+		return enumClasses;
 	}
 
 	/**
