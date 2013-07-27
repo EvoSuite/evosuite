@@ -1007,7 +1007,8 @@ public class TestCluster {
 	public Set<GenericAccessibleObject<?>> getObjectGenerators() {
 		// TODO: Use probabilities based on distance to SUT
 		Set<GenericAccessibleObject<?>> result = new LinkedHashSet<GenericAccessibleObject<?>>();
-		for (GenericClass clazz : CastClassManager.getInstance().getCastClasses()) {
+		List<GenericClass> classes = new ArrayList<GenericClass>(CastClassManager.getInstance().getCastClasses());
+		for (GenericClass clazz : classes) {
 			try {
 				result.addAll(getGenerators(clazz));
 			} catch (ConstructionFailedException e) {
