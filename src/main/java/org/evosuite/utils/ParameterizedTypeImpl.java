@@ -127,6 +127,8 @@ public class ParameterizedTypeImpl implements ParameterizedType {
 						sb.append("?");
 					else
 						sb.append(captureType.getLowerBounds()[0].toString());
+				} else if (arg == null) {
+					sb.append("null");
 				} else {
 					sb.append(GenericTypeReflector.getTypeName(arg));
 				}

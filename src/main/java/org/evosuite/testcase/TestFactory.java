@@ -32,6 +32,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.googlecode.gentyref.CaptureType;
+import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * @author Gordon Fraser
@@ -130,16 +131,21 @@ public class TestFactory {
 
 		int length = test.size();
 
-		List<VariableReference> parameters = satisfyParameters(test,
-		                                                       null,
-		                                                       Arrays.asList(constructor.getParameterTypes()),
-		                                                       position,
-		                                                       recursionDepth + 1);
-		int newLength = test.size();
-		position += (newLength - length);
+		try {
+			List<VariableReference> parameters = satisfyParameters(test,
+			                                                       null,
+			                                                       Arrays.asList(constructor.getParameterTypes()),
+			                                                       position,
+			                                                       recursionDepth + 1);
+			int newLength = test.size();
+			position += (newLength - length);
 
-		StatementInterface st = new ConstructorStatement(test, constructor, parameters);
-		return test.addStatement(st, position);
+			StatementInterface st = new ConstructorStatement(test, constructor,
+			        parameters);
+			return test.addStatement(st, position);
+		} catch (Exception e) {
+			throw new ConstructionFailedException(e.getMessage());
+		}
 	}
 
 	/**
@@ -161,9 +167,12 @@ public class TestFactory {
 		if (!field.isStatic()) {
 			try {
 				callee = test.getRandomNonNullObject(field.getOwnerType(), position);
-				if(!TestClusterGenerator.canUse(field.getField(), callee.getVariableClass())) {
-					logger.debug("Cannot call field "+field+" with callee of type "+callee.getClassName());
-					throw new ConstructionFailedException("Cannot apply field to this callee");
+				if (!TestClusterGenerator.canUse(field.getField(),
+				                                 callee.getVariableClass())) {
+					logger.debug("Cannot call field " + field + " with callee of type "
+					        + callee.getClassName());
+					throw new ConstructionFailedException(
+					        "Cannot apply field to this callee");
 				}
 
 			} catch (ConstructionFailedException e) {
@@ -213,8 +222,9 @@ public class TestFactory {
 				position += test.size() - length;
 				length = test.size();
 			}
-			if(!TestClusterGenerator.canUse(field.getField(), callee.getVariableClass())) {
-				logger.debug("Cannot call field "+field+" with callee of type "+callee.getClassName());
+			if (!TestClusterGenerator.canUse(field.getField(), callee.getVariableClass())) {
+				logger.debug("Cannot call field " + field + " with callee of type "
+				        + callee.getClassName());
 				throw new ConstructionFailedException("Cannot apply field to this callee");
 			}
 
@@ -299,9 +309,12 @@ public class TestFactory {
 					                                                 position);
 					logger.debug("Found callee of type " + method.getOwnerType() + ": "
 					        + callee.getName());
-					if(!TestClusterGenerator.canUse(method.getMethod(), callee.getVariableClass())) {
-						logger.debug("Cannot call method "+method+" with callee of type "+callee.getClassName());
-						throw new ConstructionFailedException("Cannot apply method to this callee");
+					if (!TestClusterGenerator.canUse(method.getMethod(),
+					                                 callee.getVariableClass())) {
+						logger.debug("Cannot call method " + method
+						        + " with callee of type " + callee.getClassName());
+						throw new ConstructionFailedException(
+						        "Cannot apply method to this callee");
 					}
 				} catch (ConstructionFailedException e) {
 					logger.debug("No callee of type " + method.getOwnerType() + " found");
@@ -521,12 +534,12 @@ public class TestFactory {
 	        int recursionDepth, boolean allowNull) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 
-		if(clazz.isEnum()) {
-			if(!TestClusterGenerator.canUse(clazz.getRawClass()))
-				throw new ConstructionFailedException("Cannot generate unaccessible enum "+clazz);
-			return createPrimitive(test, clazz, position, recursionDepth);			
-		}
-		else if (clazz.isPrimitive() || clazz.isClass()
+		if (clazz.isEnum()) {
+			if (!TestClusterGenerator.canUse(clazz.getRawClass()))
+				throw new ConstructionFailedException(
+				        "Cannot generate unaccessible enum " + clazz);
+			return createPrimitive(test, clazz, position, recursionDepth);
+		} else if (clazz.isPrimitive() || clazz.isClass()
 		        || clazz.getRawClass().equals(EvoSuiteFile.class)) {
 			return createPrimitive(test, clazz, position, recursionDepth);
 		} else if (clazz.isString()) {
@@ -706,7 +719,7 @@ public class TestFactory {
 		objects.remove(statement.getReturnValue());
 		// TODO: replacing void calls with other void calls might not be the best idea
 		List<GenericAccessibleObject<?>> calls = getPossibleCalls(statement.getReturnType(),
-		                                                       objects);
+		                                                          objects);
 
 		GenericAccessibleObject<?> ao = statement.getAccessibleObject();
 		if (ao != null)
@@ -748,12 +761,12 @@ public class TestFactory {
 
 		logger.debug("Creating array of type " + arrayClass.getTypeName());
 		if (arrayClass.hasWildcardOrTypeVariables()) {
-			if (arrayClass.getComponentClass().isClass()) {
-				arrayClass = arrayClass.getWithWildcardTypes();
-			} else {
-				arrayClass = TestCluster.getInstance().getGenericInstantiation(arrayClass);
-				logger.debug("Setting generic array to type " + arrayClass.getTypeName());
-			}
+			//if (arrayClass.getComponentClass().isClass()) {
+			//	arrayClass = arrayClass.getWithWildcardTypes();
+			//} else {
+			arrayClass = TestCluster.getInstance().getGenericInstantiation(arrayClass);
+			logger.debug("Setting generic array to type " + arrayClass.getTypeName());
+			//}
 		}
 		// Create array with random size
 		ArrayStatement statement = new ArrayStatement(test, arrayClass.getType());
@@ -805,9 +818,23 @@ public class TestFactory {
 	 * @param position
 	 * @param recursionDepth
 	 * @return
+	 * @throws ConstructionFailedException
 	 */
 	private VariableReference createPrimitive(TestCase test, GenericClass clazz,
-	        int position, int recursionDepth) {
+	        int position, int recursionDepth) throws ConstructionFailedException {
+		// Special case: we cannot instantiate Class<Class<?>>
+		if (clazz.isClass()) {
+			if (clazz.hasWildcardOrTypeVariables()) {
+				logger.debug("Getting generic instantiation of class");
+				clazz = TestCluster.getInstance().getGenericInstantiation(clazz);
+				logger.debug("Chosen: " + clazz);
+			}
+			Type parameterType = clazz.getParameterTypes().get(0);
+			if (GenericTypeReflector.erase(parameterType).equals(Class.class)) {
+				throw new ConstructionFailedException(
+				        "Cannot instantiate a class with a class");
+			}
+		}
 		StatementInterface st = PrimitiveStatement.getRandomStatement(test, clazz,
 		                                                              position);
 		VariableReference ret = test.addStatement(st, position);
@@ -823,9 +850,10 @@ public class TestFactory {
 	 * @param position
 	 * @param recursionDepth
 	 * @return
+	 * @throws ConstructionFailedException
 	 */
 	private VariableReference createNull(TestCase test, Type type, int position,
-	        int recursionDepth) {
+	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass genericType = new GenericClass(type);
 		if (genericType.hasWildcardOrTypeVariables()) {
 			type = TestCluster.getInstance().getGenericInstantiation(genericType).getType();
@@ -851,7 +879,7 @@ public class TestFactory {
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass clazz = new GenericClass(type);
 		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomGenerator(clazz,
-		                                                                         currentRecursion);
+		                                                                            currentRecursion);
 
 		currentRecursion.add(o);
 		if (o == null) {
@@ -950,6 +978,7 @@ public class TestFactory {
 			VariableReference reference = attemptGeneration(test, parameterType,
 			                                                position, recursionDepth,
 			                                                true);
+			logger.debug("Result: " + test.toCode());
 			return reference;
 		}
 	}
@@ -1086,16 +1115,16 @@ public class TestFactory {
 			for (int i = position + 1; i < test.size(); i++) {
 				StatementInterface s = test.getStatement(i);
 				if (s.references(var)) {
-					if(s.isAssignmentStatement()) {
-						AssignmentStatement assignment = (AssignmentStatement)s;
-						if(assignment.parameter == var) {
+					if (s.isAssignmentStatement()) {
+						AssignmentStatement assignment = (AssignmentStatement) s;
+						if (assignment.parameter == var) {
 							VariableReference replacementVar = Randomness.choice(alternatives);
-							if(assignment.retval.isAssignableFrom(replacementVar)) {
+							if (assignment.retval.isAssignableFrom(replacementVar)) {
 								s.replace(var, replacementVar);
 							}
-						} else if(assignment.retval == var) {
+						} else if (assignment.retval == var) {
 							VariableReference replacementVar = Randomness.choice(alternatives);
-							if(replacementVar.isAssignableFrom(assignment.parameter)) {
+							if (replacementVar.isAssignableFrom(assignment.parameter)) {
 								s.replace(var, replacementVar);
 							}
 						}
@@ -1223,7 +1252,7 @@ public class TestFactory {
 
 		try {
 			allCalls = TestCluster.getInstance().getGenerators(new GenericClass(
-			                                                           returnType));
+			                                                           returnType), true);
 		} catch (ConstructionFailedException e) {
 			return calls;
 		}
@@ -1274,8 +1303,8 @@ public class TestFactory {
 		String name = "";
 		currentRecursion.clear();
 		logger.debug("Inserting random call at position " + position);
-		GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall();
 		try {
+			GenericAccessibleObject<?> o = TestCluster.getInstance().getRandomTestCall();
 			if (o == null) {
 				logger.warn("Have no target methods to test");
 			} else if (o.isConstructor()) {
@@ -1312,15 +1341,16 @@ public class TestFactory {
 					}
 					logger.debug("Got callee of type "
 					        + callee.getGenericClass().getTypeName());
-					if(!TestClusterGenerator.canUse(m.getMethod(), callee.getVariableClass())) {
-						logger.debug("Cannot call method "+m+" with callee of type "+callee.getClassName());
-						throw new ConstructionFailedException("Cannot apply method to this callee");
+					if (!TestClusterGenerator.canUse(m.getMethod(),
+					                                 callee.getVariableClass())) {
+						logger.debug("Cannot call method " + m + " with callee of type "
+						        + callee.getClassName());
+						throw new ConstructionFailedException(
+						        "Cannot apply method to this callee");
 					}
 
-					addMethodFor(test,
-					             callee,
-					             (GenericMethod) m.copyWithNewOwner(callee.getGenericClass()),
-					             position);
+					addMethodFor(test, callee,
+					             m.copyWithNewOwner(callee.getGenericClass()), position);
 				} else {
 					// We only use this for static methods to avoid using wrong constructors (?)
 					addMethod(test, m, position, 0);
