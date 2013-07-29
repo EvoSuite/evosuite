@@ -348,6 +348,9 @@ public class TestCluster {
 									GenericAccessibleObject<?> gen = newGenerator.copyWithNewOwner(concreteClass);
 									logger.debug("Got new generator after wildcards are instantiated: "
 									        + gen);
+									if (gen.hasTypeParameters()) {
+										gen = getGenericGeneratorInstantiation(gen, clazz);
+									}
 									if (clazz.isAssignableFrom(gen.getGeneratedType())) {
 										logger.debug("Instantiated type is assignable");
 										targetGenerators.add(gen);
@@ -355,6 +358,10 @@ public class TestCluster {
 										logger.debug("Instantiated type is not assignable");
 									}
 								} else {
+									if (newGenerator.hasTypeParameters()) {
+										newGenerator = getGenericGeneratorInstantiation(newGenerator,
+										                                                clazz);
+									}
 									if (clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
 										logger.debug("Got new generator: " + newGenerator);
 										logger.debug("Generates: "
