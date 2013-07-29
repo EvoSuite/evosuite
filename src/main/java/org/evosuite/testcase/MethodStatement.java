@@ -229,7 +229,7 @@ public class MethodStatement extends AbstractStatement {
 								// Try exact parameter types if known
 								if (!parameterVar.isAssignableTo(parameterTypes[i])) {
 									throw new CodeUnderTestException(
-									        new UncompilableCodeException());
+									        new UncompilableCodeException("Not assignable: "+parameterVar +" to "+parameterTypes[i]));
 								}
 							} catch (CodeUnderTestException e) {
 								throw e;

@@ -34,6 +34,25 @@ public class GenericUtils {
 
 		return returnType;
 	}
+	
+	public static Type replaceTypeVariablesWithWildcards(Type targetType) {
+		if(targetType instanceof TypeVariable) {
+			TypeVariable<?> typeVariable = (TypeVariable<?>)targetType;
+			return new WildcardTypeImpl(typeVariable.getBounds(), new Type[] {});
+		} else if(targetType instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType)targetType;
+			Type owner = null;
+			if(parameterizedType.getOwnerType() != null)
+				owner = replaceTypeVariablesWithWildcards(parameterizedType.getOwnerType());
+			Type[] currentParameters = parameterizedType.getActualTypeArguments();
+			Type[] parameters = new Type[currentParameters.length];
+			for(int i = 0; i < parameters.length; i++) {
+				parameters[i] = replaceTypeVariablesWithWildcards(currentParameters[i]);
+			}
+			return new ParameterizedTypeImpl((Class<?>)parameterizedType.getRawType(), parameters, owner);
+		}
+		return targetType;
+	}
 
 	public static Type replaceTypeVariable(Type targetType, TypeVariable<?> variable,
 	        Type variableType) {

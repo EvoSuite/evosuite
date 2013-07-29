@@ -60,6 +60,7 @@ public class CollectParameterTypesVisitor extends SignatureVisitor {
 	@Override
 	public SignatureVisitor visitSuperclass() {
 		logger.debug("  visitSuperclass()");
+		topLevel = true;
 		return this;
 	}
 
