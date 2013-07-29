@@ -9,14 +9,14 @@ import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
-public class StubbingClassLoader extends ClassLoader {
+public class TestStubbingClassLoader extends ClassLoader {
 
 	private final ClassLoader classLoader;
 	
 	private final Map<String, Class<?>> classes = new HashMap<String, Class<?>>();
 	
-	public StubbingClassLoader() {
-		classLoader = StubbingClassLoader.class.getClassLoader();
+	public TestStubbingClassLoader() {
+		classLoader = TestStubbingClassLoader.class.getClassLoader();
 	}
 	
 	public static String[] getPackagesShouldNotBeInstrumented() {

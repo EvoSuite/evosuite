@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Type;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
@@ -27,13 +28,17 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	}
 
 	public ClassPrimitiveStatement(TestCase tc, Class<?> value) {
-		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
+//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
+		super(tc, new GenericClass(Class.class).getWithParameterTypes(new Type[] { value }), value);
+//		super(tc, new GenericClass(value.getClass()), value);
 		this.assignableClasses.add(value);
 	}
 
 	public ClassPrimitiveStatement(TestCase tc) {
-		super(tc, new GenericClass(Class.class).getWithWildcardTypes(),
-		        Properties.getTargetClass());
+//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(),
+		super(tc, new GenericClass(Class.class).getWithParameterTypes(new Type[] { Properties.getTargetClass() }), Properties.getTargetClass());
+//		super(tc, new GenericClass(Properties.getTargetClass()),
+//		        Properties.getTargetClass());
 	}
 
 	@Override
@@ -110,12 +115,8 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		super.changeClassLoader(loader);
 		Class<?> currentClass = value;
 		try {
-			String className = currentClass.getCanonicalName();
-			if (className == null) {
-				// canonical name is null for anonymous classes
-				// TODO: What should really happen in this case?
-				className = currentClass.getName();
-			}
+			// Not using canonical name here because Class$Memberclass cannot be resolved
+			String className = currentClass.getName();
 			value = loader.loadClass(className);
 		} catch (ClassNotFoundException e) {
 			logger.warn("Could not load class in new classloader: " + currentClass);

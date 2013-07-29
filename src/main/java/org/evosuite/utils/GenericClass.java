@@ -25,6 +25,7 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
@@ -713,12 +714,24 @@ public class GenericClass implements Serializable {
 	}
 
 	public boolean hasTypeVariables() {
-		for (Type type : getParameterTypes()) {
-			if (type instanceof TypeVariable)
-				return true;
+		if(isParameterizedType()) {
+			return hasTypeVariables((ParameterizedType)type);
 		}
 
 		return false;
+	}
+	
+	private boolean hasTypeVariables(ParameterizedType parameterType) {
+		for (Type t : parameterType.getActualTypeArguments()) {
+			if (t instanceof TypeVariable)
+				return true;
+			else if (t instanceof ParameterizedType) {
+				if(hasTypeVariables((ParameterizedType)t))
+					return true;
+			}
+		}
+
+		return false;		
 	}
 
 	public boolean hasWildcardOrTypeVariables() {
@@ -741,14 +754,26 @@ public class GenericClass implements Serializable {
 	}
 
 	public boolean hasWildcardTypes() {
-		for (Type t : getParameterTypes()) {
-			if (t instanceof WildcardType)
-				return true;
+		if(isParameterizedType()) {
+			return hasWildcardType((ParameterizedType)type);
 		}
 
 		return false;
 	}
 
+	private boolean hasWildcardType(ParameterizedType parameterType) {
+		for (Type t : parameterType.getActualTypeArguments()) {
+			if (t instanceof WildcardType)
+				return true;
+			else if (t instanceof ParameterizedType) {
+				if(hasWildcardType((ParameterizedType)t))
+					return true;
+			}
+		}
+
+		return false;		
+	}
+	
 	/**
 	 * Return true if variable is an array
 	 * 
@@ -756,6 +781,10 @@ public class GenericClass implements Serializable {
 	 */
 	public boolean isArray() {
 		return rawClass.isArray();
+	}
+	
+	public boolean isAbstract() {
+		return Modifier.isAbstract(rawClass.getModifiers());
 	}
 
 	public boolean isGenericArray() {
@@ -813,6 +842,161 @@ public class GenericClass implements Serializable {
 	 */
 	public boolean isAssignableTo(Type lhsType) {
 		return isAssignable(lhsType, type);
+	}
+	
+	/**
+	 * Determine whether the upper and lower boundaries are satisfied by this class
+	 * 
+	 * @param wildcardType
+	 * @return
+	 */
+	public boolean satisfiesBoundaries(WildcardType wildcardType) {
+		boolean isAssignable = true;
+		Map<TypeVariable<?>, Type> ownerVariableMap = getTypeVariableMap();
+		
+		// ? extends X
+		for (Type theType : wildcardType.getUpperBounds()) {
+			// Special case: Enum is defined as Enum<T extends Enum>
+			if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
+				// if this is an enum then it's ok. 
+				if (isEnum())
+					continue;
+				else {
+					// If it's not an enum, it cannot be assignable to enum!
+					isAssignable = false;
+					break;
+				}
+			}
+
+			Type type = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
+			logger.debug("Bound after variable replacement: " + type);
+			if (!isAssignableTo(type)) {
+				// If the boundary is not assignable it may still be possible 
+				// to instantiate the generic to an assignable type
+				if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
+					Type instanceType = GenericTypeReflector.getExactSuperType(type,
+							getRawClass());
+					if(instanceType == null) {
+						// This happens when the raw class is not a supertype 
+						// of the boundary
+						isAssignable = false;
+						break;
+					}
+
+					if (GenericClass.isAssignable(type, instanceType)) {
+						logger.debug("Found assignable generic exact type: "
+								+ instanceType);
+						continue;
+					}
+				}
+				isAssignable = false;
+				break;
+			}
+		}
+		
+		// ? super X
+		Type[] lowerBounds = wildcardType.getLowerBounds();
+		if(lowerBounds != null && lowerBounds.length > 0) {
+			for (Type theType : wildcardType.getLowerBounds()) {
+				Type type = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
+				logger.debug("Bound after variable replacement: " + type);
+				if (!isAssignableTo(type)) {
+					// If the boundary is not assignable it may still be possible 
+					// to instantiate the generic to an assignable type
+					if (GenericTypeReflector.erase(type).isAssignableFrom(getRawClass())) {
+						Type instanceType = GenericTypeReflector.getExactSuperType(type,
+								getRawClass());
+						if(instanceType == null) {
+							// This happens when the raw class is not a supertype 
+							// of the boundary
+							isAssignable = false;
+							break;
+						}
+
+						if (GenericClass.isAssignable(type, instanceType)) {
+							logger.debug("Found assignable generic exact type: "
+									+ instanceType);
+							continue;
+						}
+					}
+					isAssignable = false;
+					break;
+				}
+			}
+		}
+		return isAssignable;
+	}
+	
+	
+	/**
+	 * Determine whether the boundaries of the type variable are satisfied by this class
+	 * 
+	 * @param typeVariable
+	 * @return
+	 */
+	public boolean satisfiesBoundaries(TypeVariable<?> typeVariable) {
+		boolean isAssignable = true;
+		logger.debug("Checking class: "+type +" against type variable "+typeVariable);
+		Map<TypeVariable<?>, Type> ownerVariableMap = getTypeVariableMap();
+		for (Type theType : typeVariable.getBounds()) {
+			logger.debug("Current boundary: "+theType);
+			// Special case: Enum is defined as Enum<T extends Enum>
+			if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
+				// if this is an enum then it's ok. 
+				if (isEnum())
+					continue;
+				else {
+					// If it's not an enum, it cannot be assignable to enum!
+					isAssignable = false;
+					break;
+				}
+			}
+
+			Type boundType = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
+			boundType = GenericUtils.replaceTypeVariable(boundType, typeVariable,
+					getType());
+			boundType = GenericUtils.replaceTypeVariablesWithWildcards(boundType);
+			logger.debug("Bound after variable replacement: " + boundType);
+			if (!isAssignableTo(boundType)) {
+				logger.debug("Not assignable: "+type+" and "+boundType);
+				// If the boundary is not assignable it may still be possible 
+				// to instantiate the generic to an assignable type
+				if (GenericTypeReflector.erase(boundType).isAssignableFrom(getRawClass())) {
+					logger.debug("Raw classes are assignable");
+					Type instanceType = GenericTypeReflector.getExactSuperType(boundType,
+							getRawClass());
+					if(instanceType == null) {
+						// This happens when the raw class is not a supertype 
+						// of the boundary
+						logger.debug("Instance type is null");
+						isAssignable = false;
+						break;
+					}
+					GenericClass instanceClass = new GenericClass(instanceType, getRawClass());
+					if(instanceClass.hasTypeVariables())
+						logger.debug("Instance type has type variables");
+					if(instanceClass.hasWildcardTypes())
+						logger.debug("Instance type has wildcard variables");
+					
+					logger.debug("Instance type is "+instanceType);
+
+					
+					boundType = GenericUtils.replaceTypeVariable(theType, typeVariable,
+							instanceType);
+					logger.debug("Instance type after replacement is "+boundType);
+					if (GenericClass.isAssignable(boundType, instanceType)) {
+						logger.debug("Found assignable generic exact type: "
+								+ instanceType);
+						continue;
+					} else {
+						logger.debug("Is not assignable: "+boundType+" and "+instanceType);
+					}
+				}
+				isAssignable = false;
+				break;
+			}
+		}
+		return isAssignable;
 	}
 
 	public boolean isGenericSuperTypeOf(Type subType) {

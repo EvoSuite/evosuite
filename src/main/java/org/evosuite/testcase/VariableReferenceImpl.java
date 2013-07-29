@@ -22,6 +22,7 @@ package org.evosuite.testcase;
 import java.lang.reflect.Type;
 import java.util.Map;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.PassiveChangeListener;
 import org.objectweb.asm.Opcodes;
@@ -262,12 +263,15 @@ public class VariableReferenceImpl implements VariableReference {
 	 */
 	@Override
 	public boolean isAssignableTo(Type other) {
-		if (type.hasWildcardTypes()) {
-			GenericClass rawClass = new GenericClass(other);
-			return GenericClass.isAssignable(rawClass.getRawClass(), type.getRawClass());
-		} else {
+		//if (type.hasWildcardTypes()) {
+		//	GenericClass rawClass = new GenericClass(other);
+		//	logger.warn("Getting raw assignables for: "+other +" and "+type);
+		//	logger.warn(testCase.toCode());
+		//	TypeUtils.isAssignable(other, getType());
+		//	return GenericClass.isAssignable(rawClass.getRawClass(), type.getRawClass());
+		//} else {
 			return type.isAssignableTo(other);
-		}
+		//}
 	}
 
 	/**

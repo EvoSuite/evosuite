@@ -55,6 +55,8 @@ import org.junit.runners.Suite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.googlecode.gentyref.GenericTypeReflector;
+
 /**
  * @author Gordon Fraser
  * 
@@ -729,8 +731,8 @@ public class TestCluster {
 		} else if (clazz.getType() instanceof TypeVariable<?>) {
 			logger.debug("Is type variable ");
 
-			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass(clazz.getType(),
-			                                                                            true);
+			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>)clazz.getType(),
+			                                                                            true, typeMap);
 			if (selectedClass.hasWildcardOrTypeVariables()) {
 				return getGenericInstantiation(selectedClass, recursionLevel + 1);
 			}
@@ -759,13 +761,13 @@ public class TestCluster {
 						continue;
 					}
 				}
-				parameterTypes.add(getRandomCastClass(parameterType, recursionLevel).getType());
+				parameterTypes.add(getRandomCastClass((WildcardType)parameterType, recursionLevel, typeMap).getType());
 			} else if (parameterType instanceof TypeVariable) {
 				if (typeMap.containsKey(parameterType)) {
 					parameterTypes.add(typeMap.get(parameterType));
 				} else {
-					parameterTypes.add(getRandomCastClass(parameterType,
-					                                      recursionLevel + 1).getType());
+					parameterTypes.add(getRandomCastClass((TypeVariable<?>)parameterType,
+					                                      recursionLevel + 1, typeMap).getType());
 				}
 			} else if (parameterType instanceof GenericArrayType) {
 				logger.debug("ADDING GENERIC ARRAY PARAMETER: " + parameterType);
@@ -939,7 +941,7 @@ public class TestCluster {
 					logger.debug(Arrays.asList(parameter.getBounds()) + " vs "
 					        + Arrays.asList(otherVar.getBounds()));
 				}
-				GenericClass concreteType = getRandomCastClass(parameter, 0);
+				GenericClass concreteType = getRandomCastClass(parameter, 0, concreteTypes);
 				logger.debug("(I) Setting parameter " + parameter + " to type "
 				        + concreteType.getTypeName());
 				typeParameters.add(concreteType);
@@ -1029,10 +1031,10 @@ public class TestCluster {
 	 * @param targetType
 	 * @return
 	 */
-	private GenericClass getRandomCastClass(Type targetType, int recursionLevel) {
+	private GenericClass getRandomCastClass(WildcardType targetType, int recursionLevel, Map<TypeVariable<?>, Type> ownerVariableMap) {
 		boolean allowRecursion = recursionLevel <= Properties.MAX_GENERIC_DEPTH;
 		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType,
-		                                                                        allowRecursion);
+		                                                                        allowRecursion, ownerVariableMap);
 		logger.debug("Got cast class " + castClass + ", recursion allowed: "
 		        + allowRecursion);
 		if (castClass.hasWildcardOrTypeVariables()) {
@@ -1053,6 +1055,9 @@ public class TestCluster {
 			logger.debug("Cast class has generic type, getting concrete instance");
 			return getGenericInstantiation(castClass, recursionLevel + 1);
 		}
+		assert(castClass != null);
+		assert(castClass.getRawClass() != null);
+		assert(castClass.getType() != null);
 		return castClass;
 	}
 

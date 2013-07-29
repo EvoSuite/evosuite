@@ -17,7 +17,7 @@ public class TestStubInstrumentation {
 
 	@Test
 	public void testEmptyFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.Dummy");
 		Class<?> testClass = Dummy.class;
@@ -34,7 +34,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testIntFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -51,7 +51,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testShortFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -68,7 +68,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testByteFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -85,7 +85,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testCharFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -102,7 +102,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testLongFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -119,7 +119,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testFloatFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -136,7 +136,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testDoubleFunction() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -154,7 +154,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testSingleParameter() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.NullString");
 		Class<?> testClass = NullString.class;
@@ -178,7 +178,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testObjectReturn() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.ReturnALocale");
 		Class<?> testClass = ReturnALocale.class;
@@ -195,7 +195,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testArrayReturn() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.SimpleInteger");
 		Class<?> testClass = SimpleInteger.class;
@@ -212,7 +212,7 @@ public class TestStubInstrumentation {
 	
 	@Test
 	public void testObjectArrayReturn() throws ClassNotFoundException, NoSuchMethodException, SecurityException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		StubbingClassLoader classLoader = new StubbingClassLoader();
+		TestStubbingClassLoader classLoader = new TestStubbingClassLoader();
 
 		Class<?> stubClass = classLoader.loadClass("com.examples.with.different.packagename.ReturnALocale");
 		Class<?> testClass = ReturnALocale.class;
