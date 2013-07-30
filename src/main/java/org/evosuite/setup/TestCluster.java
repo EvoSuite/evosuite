@@ -835,14 +835,14 @@ public class TestCluster {
 					}
 				}
 				parameterTypes.add(getRandomCastClass((WildcardType) parameterType,
-				                                      recursionLevel, typeMap).getType());
+				                                      recursionLevel, mergedTypeMap).getType());
 			} else if (parameterType instanceof TypeVariable) {
 				if (typeMap.containsKey(parameterType)) {
 					parameterTypes.add(typeMap.get(parameterType));
 				} else {
 					parameterTypes.add(getRandomCastClass(
 					                                      (TypeVariable<?>) parameterType,
-					                                      recursionLevel + 1, typeMap).getType());
+					                                      recursionLevel + 1, mergedTypeMap).getType());
 				}
 			} else if (parameterType instanceof GenericArrayType) {
 				logger.debug("ADDING GENERIC ARRAY PARAMETER: " + parameterType);
