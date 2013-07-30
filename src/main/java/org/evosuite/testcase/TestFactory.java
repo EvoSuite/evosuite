@@ -101,6 +101,7 @@ public class TestFactory {
 				        + test.getStatement(position + i).getCode());
 				test.remove(position + i);
 			}
+			logger.debug("Test after removal: " + test.toCode());
 			return false;
 		}
 	}
@@ -764,7 +765,7 @@ public class TestFactory {
 			//if (arrayClass.getComponentClass().isClass()) {
 			//	arrayClass = arrayClass.getWithWildcardTypes();
 			//} else {
-			arrayClass = TestCluster.getInstance().getGenericInstantiation(arrayClass);
+			arrayClass = arrayClass.getGenericInstantiation();
 			logger.debug("Setting generic array to type " + arrayClass.getTypeName());
 			//}
 		}
@@ -826,7 +827,7 @@ public class TestFactory {
 		if (clazz.isClass()) {
 			if (clazz.hasWildcardOrTypeVariables()) {
 				logger.debug("Getting generic instantiation of class");
-				clazz = TestCluster.getInstance().getGenericInstantiation(clazz);
+				clazz = clazz.getGenericInstantiation();
 				logger.debug("Chosen: " + clazz);
 			}
 			Type parameterType = clazz.getParameterTypes().get(0);
@@ -856,7 +857,7 @@ public class TestFactory {
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass genericType = new GenericClass(type);
 		if (genericType.hasWildcardOrTypeVariables()) {
-			type = TestCluster.getInstance().getGenericInstantiation(genericType).getType();
+			type = genericType.getGenericInstantiation().getType();
 		}
 		StatementInterface st = new NullStatement(test, type);
 		test.addStatement(st, position);
@@ -961,11 +962,8 @@ public class TestFactory {
 			VariableReference reference = Randomness.choice(objects);
 			return reference;
 
-		} else if (!clazz.isPrimitive()
-		        && !clazz.isEnum()
-		        && !clazz.isClass()
-		        && !objects.isEmpty()
-		        && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY) || !TestCluster.getInstance().hasGenerator(parameterType))) {
+		} else if (!clazz.isPrimitive() && !clazz.isEnum() && !clazz.isClass()
+		        && !objects.isEmpty() && ((reuse <= Properties.OBJECT_REUSE_PROBABILITY))) {
 
 			logger.debug(" Choosing from " + objects.size() + " existing objects");
 			VariableReference reference = Randomness.choice(objects);
@@ -974,12 +972,24 @@ public class TestFactory {
 			return reference;
 
 		} else {
-			logger.debug(" Generating new object of type " + parameterType);
-			VariableReference reference = attemptGeneration(test, parameterType,
-			                                                position, recursionDepth,
-			                                                true);
-			logger.debug("Result: " + test.toCode());
-			return reference;
+			if (clazz.hasWildcardOrTypeVariables()) {
+				clazz = clazz.getGenericInstantiation();
+				parameterType = clazz.getType();
+			}
+			if (!TestCluster.getInstance().hasGenerator(parameterType)) {
+				logger.debug(" Choosing from " + objects.size() + " existing objects");
+				VariableReference reference = Randomness.choice(objects);
+				logger.debug(" Using existing object of type " + parameterType + ": "
+				        + reference);
+				return reference;
+			} else {
+				logger.debug(" Generating new object of type " + parameterType);
+				VariableReference reference = attemptGeneration(test, parameterType,
+				                                                position, recursionDepth,
+				                                                true);
+				logger.debug("Result: " + test.toCode());
+				return reference;
+			}
 		}
 	}
 
@@ -1263,9 +1273,7 @@ public class TestFactory {
 				GenericMethod method = (GenericMethod) call;
 				if (method.hasTypeParameters()) {
 					try {
-						call = TestCluster.getInstance().getGenericGeneratorInstantiation(method,
-						                                                                  new GenericClass(
-						                                                                          returnType));
+						call = method.getGenericInstantiation(new GenericClass(returnType));
 					} catch (ConstructionFailedException e) {
 						continue;
 					}
@@ -1523,6 +1531,11 @@ public class TestFactory {
 			if (parameterType instanceof CaptureType) {
 				// TODO: This should not really happen in the first place
 				throw new ConstructionFailedException("Cannot satisfy capture type");
+			}
+			GenericClass parameterClass = new GenericClass(parameterType);
+			if (parameterClass.hasTypeVariables()) {
+				logger.debug("Parameter has type variables, replacing with wildcard");
+				parameterType = parameterClass.getWithWildcardTypes().getType();
 			}
 			int previousLength = test.size();
 

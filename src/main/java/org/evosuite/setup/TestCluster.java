@@ -20,7 +20,6 @@
  */
 package org.evosuite.setup;
 
-import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -30,7 +29,6 @@ import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -54,8 +52,6 @@ import org.junit.Test;
 import org.junit.runners.Suite;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.googlecode.gentyref.GenericTypeReflector;
 
 /**
  * @author Gordon Fraser
@@ -224,28 +220,27 @@ public class TestCluster {
 	 * Add a generator reflection object
 	 * 
 	 * @param target
+	 *            is assumed to have wildcard types
 	 * @param call
 	 */
 	public void addGenerator(GenericClass target, GenericAccessibleObject<?> call) {
 		if (!generators.containsKey(target))
 			generators.put(target, new LinkedHashSet<GenericAccessibleObject<?>>());
 
-		// TODO: Need to add this call to all subclasses/superclasses?
 		logger.debug("Adding generator for class " + target + ": " + call);
 		generators.get(target).add(call);
 	}
 
 	/**
-	 * Add a generator reflection object
+	 * Add a modifier reflection object
 	 * 
 	 * @param target
+	 *            is assumed to have wildcard types
 	 * @param call
 	 */
 	public void addModifier(GenericClass target, GenericAccessibleObject<?> call) {
 		if (!modifiers.containsKey(target))
 			modifiers.put(target, new LinkedHashSet<GenericAccessibleObject<?>>());
-
-		// TODO: Need to add this call to all subclasses/superclasses?
 
 		modifiers.get(target).add(call);
 	}
@@ -259,6 +254,11 @@ public class TestCluster {
 		testMethods.add(call);
 	}
 
+	/**
+	 * Add a new class observed at runtime for container methods
+	 * 
+	 * @param clazz
+	 */
 	public void addCastClassForContainer(Class<?> clazz) {
 		if (TestClusterGenerator.canUse(clazz)) {
 			CastClassManager.getInstance().addCastClass(clazz, 1);
@@ -267,8 +267,8 @@ public class TestCluster {
 	}
 
 	/**
-	 * Calculate and cache all generators for a particular (possibly generic)
-	 * type
+	 * Calculate and cache all generators for a particular type. All generic
+	 * types on the generator are instantiated according to the produced type
 	 * 
 	 * @param clazz
 	 * @throws ConstructionFailedException
@@ -283,124 +283,54 @@ public class TestCluster {
 			logger.debug("Target class is object: " + clazz);
 			for (GenericClass generatorClazz : generators.keySet()) {
 				if (generatorClazz.isObject()) {
-					// System.out.println(clazz.getTypeName() +
-					// " can be assigned from "
-					// + generatorClazz.getTypeName());
 					targetGenerators.addAll(generators.get(generatorClazz));
 				}
 			}
 		} else {
 			for (GenericClass generatorClazz : generators.keySet()) {
-				//if (generatorClazz == clazz)
-				//	continue;
 				logger.debug("Considering original generator: " + generatorClazz);
 
-				// First check if the raw classes are assignable
-				if (clazz.getRawClass().isAssignableFrom(generatorClazz.getRawClass())) {
-					logger.debug("Raw classes are assignable: " + generatorClazz
-					        + " for " + clazz);
+				if (generatorClazz.canBeInstantiatedTo(clazz)) {
+					GenericClass instantiatedGeneratorClazz = generatorClazz.getWithParametersFromSuperclass(clazz);
+					logger.debug("Instantiated type: " + instantiatedGeneratorClazz
+					        + " for " + generatorClazz + " and superclass " + clazz);
+					for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
 
-					// If the types are assignable, everything is fine
-					if (clazz.isAssignableFrom(generatorClazz)) {
-						logger.debug("Adding subtype generator: " + clazz
-						        + " is assignable from " + generatorClazz.getTypeName());
-						targetGenerators.addAll(generators.get(generatorClazz));
-					} else {
+						// Set owner type parameters from new return type
+						GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
 
-						// If the types are not assignable, we need to check the generic type parameters
-						logger.debug(clazz + " is not assignable from "
-						        + generatorClazz.getTypeName());
+						// Instantiate potential further type variables based on type variables of return type
+						if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
+							GenericClass concreteClass = newGenerator.getOwnerClass().getGenericInstantiation(clazz.getTypeVariableMap());
+							newGenerator = newGenerator.copyWithNewOwner(concreteClass);
+						}
 
-						// generatorClazz can only be a subclass of clazz
-						logger.info("Generator type1: " + generatorClazz);
-						GenericClass newOwner = generatorClazz.getWithParametersFromSuperclass(clazz);
-						logger.info("Resulting type: " + newOwner);
-						if (newOwner == null)
-							continue;
+						// If it is a generic method, instantiate generic type variables for the produced class
+						if (newGenerator.hasTypeParameters()) {
+							newGenerator = newGenerator.getGenericInstantiation(clazz);
+						}
 
-						logger.info("Generator type2: " + generatorClazz);
-
-						// "newOwner" is the instantiated type of the return value
-						// but we need the declaring class of the method!
-						for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
-							//						for (GenericAccessibleObject<?> generator : getGenerators(generatorClazz)) {
-							logger.debug("Candidate generator: " + generator);
-							if (generator.getOwnerClass().getNumParameters() == 0) {
-								logger.debug("Owner class has no parameters, so we can only assume it would work: "
-								        + generator.getName());
-								logger.debug(generator
-								        + " produces "
-								        + clazz
-								        + ": "
-								        + clazz.isAssignableFrom(generator.getGeneratedType()));
-								if (clazz.isAssignableFrom(generator.getGeneratedType()))
-									targetGenerators.add(generator);
-							} else {
-								logger.debug("Trying to get parameters for generator "
-								        + generator + " with new owner "
-								        + newOwner.getTypeName());
-								GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(newOwner);
-								logger.debug("Instantiated generator: " + newGenerator);
-								if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
-									GenericClass concreteClass = getGenericInstantiation(newGenerator.getOwnerClass(),
-									                                                     clazz.getTypeVariableMap(),
-									                                                     0);
-									GenericAccessibleObject<?> gen = newGenerator.copyWithNewOwner(concreteClass);
-									logger.debug("Got new generator after wildcards are instantiated: "
-									        + gen);
-									if (gen.hasTypeParameters()) {
-										gen = getGenericGeneratorInstantiation(gen, clazz);
-									}
-									if (clazz.isAssignableFrom(gen.getGeneratedType())) {
-										logger.debug("Instantiated type is assignable");
-										targetGenerators.add(gen);
-									} else {
-										logger.debug("Instantiated type is not assignable");
-									}
-								} else {
-									if (newGenerator.hasTypeParameters()) {
-										newGenerator = getGenericGeneratorInstantiation(newGenerator,
-										                                                clazz);
-									}
-									if (clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
-										logger.debug("Got new generator: " + newGenerator);
-										logger.debug("Generates: "
-										        + newGenerator.getGeneratedType());
-										logger.debug("Can assign "
-										        + newGenerator.getGeneratedType()
-										        + " to " + clazz);
-										targetGenerators.add(newGenerator);
-									} else {
-										logger.debug("New generator not assignable: "
-										        + newGenerator);
-									}
-								}
-								// TODO: Need to check if this is a generic method!
-							}
+						if (clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
+							logger.debug("Got new generator: " + newGenerator);
+							targetGenerators.add(newGenerator);
+						} else {
+							logger.debug("New generator not assignable: " + newGenerator);
 						}
 					}
+				} else {
+					logger.debug("Cannot be assigned");
 				}
 			}
 		}
-		// There is a bit of a problem in resolving some generics
-		// For example, ArrayList(Collection<? extends E>) is not resolved
-		// by Java, and there is no generator for Collection<? extends E> in the
-		// end
-		// Therefore, we try to add everything that fits on the raw type
-		if (targetGenerators.isEmpty() && clazz.getNumParameters() > 0) {
-			/*
-			logger.debug("Have no suitable generic generators, so using raw class");
-			for (GenericClass generatorClazz : generators.keySet()) {
-				if (clazz.getRawClass().isAssignableFrom(
-						generatorClazz.getRawClass())) {
-					targetGenerators.addAll(generators.get(generatorClazz));
-				}
-			}
-			*/
-		}
+
 		generatorCache.put(clazz, targetGenerators);
 	}
 
+	/**
+	 * Forget everything we have cached
+	 * 
+	 * @param target
+	 */
 	public void clearGeneratorCache(GenericClass target) {
 		generatorCache.clear();
 	}
@@ -466,9 +396,7 @@ public class TestCluster {
 								GenericAccessibleObject<?> newModifier = modifier.copyWithOwnerFromReturnType(newOwner);
 								logger.debug("Modifier with new owner: " + newModifier);
 								if (newModifier.getOwnerClass().hasWildcardOrTypeVariables()) {
-									GenericClass concreteClass = getGenericInstantiation(newModifier.getOwnerClass(),
-									                                                     clazz.getTypeVariableMap(),
-									                                                     0);
+									GenericClass concreteClass = newModifier.getOwnerClass().getGenericInstantiation(clazz.getTypeVariableMap());
 									GenericAccessibleObject<?> concreteNewModifier = newModifier.copyWithNewOwner(concreteClass);
 									logger.debug("Modifier with new owner and instantiated types: "
 									        + concreteNewModifier);
@@ -503,7 +431,7 @@ public class TestCluster {
 	public Set<GenericAccessibleObject<?>> getCallsFor(GenericClass clazz, boolean resolve)
 	        throws ConstructionFailedException {
 		if (clazz.hasWildcardOrTypeVariables()) {
-			GenericClass concreteClass = getGenericInstantiation(clazz);
+			GenericClass concreteClass = clazz.getGenericInstantiation();
 			if (!concreteClass.equals(clazz))
 				return getCallsFor(concreteClass, false);
 		}
@@ -530,7 +458,7 @@ public class TestCluster {
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		if (call.hasTypeParameters()) {
 			logger.debug("Modifier has type parameters");
-			call = getGenericInstantiationWithCallee(call, clazz);
+			call = call.getGenericInstantiation(clazz);
 		}
 		return call;
 	}
@@ -657,38 +585,21 @@ public class TestCluster {
 	public Set<GenericAccessibleObject<?>> getGenerators(GenericClass clazz,
 	        boolean resolve) throws ConstructionFailedException {
 
+		// Instantiate generic type
 		if (clazz.hasWildcardOrTypeVariables()) {
-			GenericClass concreteClass = getGenericInstantiation(clazz);
+			GenericClass concreteClass = clazz.getGenericInstantiation();
 			if (!concreteClass.equals(clazz))
 				return getGenerators(concreteClass, false);
+		}
+
+		if (isSpecialCase(clazz)) {
+			return getGeneratorsForSpecialCase(clazz);
 		}
 
 		if (!hasGenerator(clazz))
 			throw new ConstructionFailedException("No generators of type " + clazz);
 
-		if (isSpecialCase(clazz)) {
-			return getGeneratorsForSpecialCase(clazz);
-		}
-
 		return generatorCache.get(clazz);
-	}
-
-	public Set<GenericAccessibleObject<?>> getExactGenerators(GenericClass clazz)
-	        throws ConstructionFailedException {
-
-		if (clazz.hasWildcardOrTypeVariables()) {
-			GenericClass concreteClass = getGenericInstantiation(clazz);
-			return getExactGenerators(concreteClass);
-		}
-
-		if (!generators.containsKey(clazz))
-			throw new ConstructionFailedException("No generators of type " + clazz);
-
-		if (isSpecialCase(clazz)) {
-			return getGeneratorsForSpecialCase(clazz);
-		}
-
-		return generators.get(clazz);
 	}
 
 	/**
@@ -749,130 +660,13 @@ public class TestCluster {
 		return calls;
 	}
 
-	public GenericClass getGenericInstantiation(GenericClass clazz)
-	        throws ConstructionFailedException {
-		return getGenericInstantiation(clazz, 0);
-	}
-
-	/**
-	 * Instantiate type parameters for a parameterized type
-	 * 
-	 * @param clazz
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public GenericClass getGenericInstantiation(GenericClass clazz, int recursionLevel)
-	        throws ConstructionFailedException {
-		return getGenericInstantiation(clazz, new HashMap<TypeVariable<?>, Type>(),
-		                               recursionLevel);
-	}
-
-	/**
-	 * If the inner class already has typevariables instantiated, then we need
-	 * to use the same types here
-	 * 
-	 * @param clazz
-	 * @param innerClass
-	 * @param recursionLevel
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	public GenericClass getGenericInstantiation(GenericClass clazz,
-	        Map<TypeVariable<?>, Type> typeMap, int recursionLevel)
-	        throws ConstructionFailedException {
-		logger.debug("Getting generic instantiation of " + clazz.getTypeName()
-		        + " with type map " + typeMap);
-		if (clazz.isArray()) {
-			GenericClass componentClass = clazz.getComponentClass();
-			if (componentClass.hasWildcardOrTypeVariables()) {
-				componentClass = getGenericInstantiation(componentClass, recursionLevel);
-				return clazz.getWithComponentClass(componentClass);
-			}
-			return clazz;
-
-		} else if (clazz.getType() instanceof TypeVariable<?>) {
-			logger.debug("Is type variable ");
-
-			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) clazz.getType(),
-			                                                                            true,
-			                                                                            typeMap);
-			if (selectedClass.hasWildcardOrTypeVariables()) {
-				return getGenericInstantiation(selectedClass, recursionLevel + 1);
-			}
-			return selectedClass;
-		} else if (!clazz.isParameterizedType())
-			return clazz;
-		// else if(clazz.isClass())
-		//	return clazz;
-
-		List<Type> parameterTypes = new ArrayList<Type>();
-		List<TypeVariable<?>> typeParameters = clazz.getTypeVariables();
-		int numParam = 0;
-		Map<TypeVariable<?>, Type> mergedTypeMap = new HashMap<TypeVariable<?>, Type>();
-		mergedTypeMap.putAll(typeMap);
-		mergedTypeMap.putAll(clazz.getTypeVariableMap());
-		boolean isClass = clazz.isClass();
-
-		for (java.lang.reflect.Type parameterType : clazz.getParameterTypes()) {
-			logger.debug("Parameter type " + parameterType + " of class "
-			        + parameterType.getClass());
-			if (parameterType instanceof WildcardType) {
-				if (((WildcardType) parameterType).getLowerBounds().length == 0) {
-					Type[] bounds = ((WildcardType) parameterType).getUpperBounds();
-					if (bounds.length == 1 && bounds[0] == Object.class) {
-						logger.info("Using typevariable instead of wildcard because there are no bounds on wildcard");
-						parameterTypes.add(getRandomCastClass(
-						                                      typeParameters.get(numParam),
-						                                      recursionLevel,
-						                                      mergedTypeMap).getType());
-						if (isClass
-						        && GenericTypeReflector.erase(parameterTypes.get(numParam)).equals(Class.class)) {
-							throw new ConstructionFailedException(
-							        "Cannot instantiate a Class with a Class");
-						}
-						numParam++;
-						continue;
-					}
-				}
-				parameterTypes.add(getRandomCastClass((WildcardType) parameterType,
-				                                      recursionLevel, mergedTypeMap).getType());
-			} else if (parameterType instanceof TypeVariable) {
-				if (typeMap.containsKey(parameterType)) {
-					parameterTypes.add(typeMap.get(parameterType));
-				} else {
-					parameterTypes.add(getRandomCastClass(
-					                                      (TypeVariable<?>) parameterType,
-					                                      recursionLevel + 1, mergedTypeMap).getType());
-				}
-			} else if (parameterType instanceof GenericArrayType) {
-				logger.debug("ADDING GENERIC ARRAY PARAMETER: " + parameterType);
-				parameterTypes.add(parameterType);
-			} else {
-				parameterTypes.add(parameterType);
-			}
-			if (isClass
-			        && GenericTypeReflector.erase(parameterTypes.get(numParam)).equals(Class.class)) {
-				throw new ConstructionFailedException(
-				        "Cannot instantiate a Class with a Class");
-			}
-			numParam++;
-		}
-
-		if (clazz.hasOwnerType()) {
-			clazz = clazz.getWithOwnerType(getGenericInstantiation(clazz.getOwnerType(),
-			                                                       clazz.getWithParameterTypes(parameterTypes).getTypeVariableMap(),
-			                                                       recursionLevel));
-		}
-
-		return clazz.getWithParameterTypes(parameterTypes);
-	}
-
-	public GenericAccessibleObject<?> getGenericInstantiation(
+	private GenericAccessibleObject<?> __getGenericInstantiation(
 	        GenericAccessibleObject<?> accessibleObject)
 	        throws ConstructionFailedException {
-		logger.debug("Getting random generic instantiation of method: "
-		        + accessibleObject);
 		GenericAccessibleObject<?> copy = accessibleObject.copy();
+		logger.debug("Getting random generic instantiation of method: "
+		        + accessibleObject + " with owner type map: "
+		        + copy.getOwnerClass().getTypeVariableMap());
 		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
 
 		// TODO: The bounds of this type parameter need to be updataed for the owner of the call
@@ -890,7 +684,7 @@ public class TestCluster {
 		return copy;
 	}
 
-	public GenericAccessibleObject<?> getGenericInstantiationWithCallee(
+	private GenericAccessibleObject<?> __getGenericInstantiationWithCallee(
 	        GenericAccessibleObject<?> accessibleObject, GenericClass calleeType)
 	        throws ConstructionFailedException {
 		logger.debug("Getting generic instantiation for callee " + calleeType
@@ -927,7 +721,7 @@ public class TestCluster {
 		return copy;
 	}
 
-	public GenericAccessibleObject<?> getGenericGeneratorInstantiation(
+	private GenericAccessibleObject<?> __getGenericGeneratorInstantiation(
 	        GenericAccessibleObject<?> accessibleObject, GenericClass generatedType)
 	        throws ConstructionFailedException {
 		logger.debug("Getting generic instantiation for generator " + generatedType
@@ -988,6 +782,7 @@ public class TestCluster {
 					//	Type actualType = generatedType.getParameterTypes().get(pos);
 					//	concreteTypes.put(var, actualType);
 					//}// else {
+					logger.debug("Getting random intance for variable " + t);
 					GenericClass castClass = getRandomCastClass(var, 1, concreteTypes);
 					concreteTypes.put(var, castClass.getType());
 					//}
@@ -1007,7 +802,9 @@ public class TestCluster {
 				typeParameters.add(concreteType);
 				for (Type bound : parameter.getBounds()) {
 					if (!GenericClass.isAssignable(bound, concreteType.getType()))
-						throw new ConstructionFailedException("Generics error");
+						throw new ConstructionFailedException("Generics error: "
+						        + concreteType.getType() + " is not assignable to bound "
+						        + bound);
 				}
 			} else {
 				for (TypeVariable<?> otherVar : concreteTypes.keySet()) {
@@ -1111,31 +908,6 @@ public class TestCluster {
 		return result;
 	}
 
-	/**
-	 * Choose one of the seeded types for which we found casts
-	 * 
-	 * @param targetType
-	 * @return
-	 * @throws ConstructionFailedException
-	 */
-	private GenericClass getRandomCastClass(WildcardType targetType, int recursionLevel,
-	        Map<TypeVariable<?>, Type> ownerVariableMap)
-	        throws ConstructionFailedException {
-		boolean allowRecursion = recursionLevel <= Properties.MAX_GENERIC_DEPTH;
-		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType,
-		                                                                        allowRecursion,
-		                                                                        ownerVariableMap);
-		if (castClass == null) {
-			throw new ConstructionFailedException("Found no cast class for " + targetType);
-		}
-		logger.debug("Got cast class " + castClass + ", recursion allowed: "
-		        + allowRecursion);
-		if (castClass.hasWildcardOrTypeVariables()) {
-			return getGenericInstantiation(castClass, recursionLevel + 1);
-		}
-		return castClass;
-	}
-
 	private GenericClass getRandomCastClass(TypeVariable<?> targetType,
 	        int recursionLevel, Map<TypeVariable<?>, Type> ownerVariableMap)
 	        throws ConstructionFailedException {
@@ -1143,12 +915,36 @@ public class TestCluster {
 		logger.debug("Getting random cast class for type variable " + targetType
 		        + " with bounds " + Arrays.asList(targetType.getBounds()) + " and map "
 		        + ownerVariableMap);
-		GenericClass castClass = CastClassManager.getInstance().selectCastClass(targetType,
-		                                                                        allowRecursion,
-		                                                                        ownerVariableMap);
+
+		GenericClass castClass = null;
+
+		while (ownerVariableMap.containsKey(targetType)) {
+			Type chosenType = ownerVariableMap.get(targetType);
+			if (chosenType == targetType)
+				break;
+			else if (chosenType instanceof TypeVariable<?>) {
+				logger.debug("Setting " + targetType + " to " + chosenType);
+				targetType = (TypeVariable<?>) chosenType;
+			} else if (chosenType instanceof WildcardType) {
+				logger.debug("Not setting " + targetType + " to " + chosenType
+				        + " because we have reached a wildcard");
+				break;
+			} else {
+				logger.debug("Setting " + targetType + " to " + chosenType
+				        + " which is a concrete type");
+
+				castClass = new GenericClass(chosenType);
+				break;
+			}
+		}
+
+		if (castClass == null)
+			castClass = CastClassManager.getInstance().selectCastClass(targetType,
+			                                                           allowRecursion,
+			                                                           ownerVariableMap);
 		if (castClass.hasWildcardOrTypeVariables()) {
 			logger.debug("Cast class has generic type, getting concrete instance");
-			return getGenericInstantiation(castClass, recursionLevel + 1);
+			return castClass.getGenericInstantiation(ownerVariableMap);
 		}
 		assert (castClass != null);
 		assert (castClass.getRawClass() != null);
@@ -1167,7 +963,7 @@ public class TestCluster {
 	        throws ConstructionFailedException {
 
 		if (clazz.hasWildcardOrTypeVariables()) {
-			GenericClass concreteClass = getGenericInstantiation(clazz);
+			GenericClass concreteClass = clazz.getGenericInstantiation();
 			return getRandomGenerator(concreteClass);
 		}
 
@@ -1182,7 +978,7 @@ public class TestCluster {
 		}
 
 		if (generator.hasTypeParameters()) {
-			generator = getGenericGeneratorInstantiation(generator, clazz);
+			generator = generator.getGenericInstantiation(clazz);
 		}
 		return generator;
 	}
@@ -1202,7 +998,7 @@ public class TestCluster {
 		// Instantiate generics
 		if (clazz.hasWildcardOrTypeVariables()) {
 			logger.debug("Target class is generic: " + clazz);
-			GenericClass concreteClass = getGenericInstantiation(clazz);
+			GenericClass concreteClass = clazz.getGenericInstantiation();
 			if (!concreteClass.equals(clazz)) {
 				logger.debug("Target class is generic: " + clazz
 				        + ", getting instantiation " + concreteClass);
@@ -1237,11 +1033,11 @@ public class TestCluster {
 		}
 		if (generator.getOwnerClass().hasWildcardOrTypeVariables()) {
 			logger.debug("Owner class has a wildcard: " + clazz.getTypeName());
-			generator = generator.copyWithNewOwner(getGenericInstantiation(generator.getOwnerClass()));
+			generator = generator.copyWithNewOwner(generator.getOwnerClass().getGenericInstantiation());
 		}
 		if (generator.hasTypeParameters()) {
 			logger.debug("Generator has a type parameter: " + generator);
-			generator = getGenericGeneratorInstantiation(generator, clazz);
+			generator = generator.getGenericInstantiation(clazz);
 		}
 
 		return generator;
@@ -1261,13 +1057,13 @@ public class TestCluster {
 		GenericAccessibleObject<?> generator = Randomness.choice(getObjectGenerators());
 		if (generator.getOwnerClass().hasWildcardOrTypeVariables()) {
 			logger.debug("Generator has wildcard or type: " + generator);
-			GenericClass concreteClass = getGenericInstantiation(generator.getOwnerClass());
+			GenericClass concreteClass = generator.getOwnerClass().getGenericInstantiation();
 			generator = generator.copyWithNewOwner(concreteClass);
 		}
 		if (generator.hasTypeParameters()) {
 			logger.debug("Generator has type parameters");
 
-			generator = getGenericInstantiation(generator);
+			generator = generator.getGenericInstantiation();
 		}
 
 		return generator;
@@ -1285,7 +1081,7 @@ public class TestCluster {
 		GenericAccessibleObject<?> choice = Randomness.choice(testMethods);
 		logger.debug("Chosen call: " + choice);
 		if (choice.getOwnerClass().hasWildcardOrTypeVariables()) {
-			GenericClass concreteClass = getGenericInstantiation(choice.getOwnerClass());
+			GenericClass concreteClass = choice.getOwnerClass().getGenericInstantiation();
 			logger.debug("Concrete class is: " + concreteClass.getTypeName());
 			choice = choice.copyWithNewOwner(concreteClass);
 			logger.debug("Concrete class is: " + choice.getOwnerClass().getTypeName());
@@ -1295,7 +1091,9 @@ public class TestCluster {
 			logger.debug("Call owner type: " + choice.getOwnerClass().getTypeName());
 		}
 		if (choice.hasTypeParameters()) {
-			choice = getGenericInstantiation(choice);
+			logger.debug("Instantiating chosen call: " + choice);
+			choice = choice.getGenericInstantiation();
+			logger.debug("Chosen instantiation: " + choice);
 		}
 		return choice;
 	}
@@ -1316,12 +1114,8 @@ public class TestCluster {
 		        testMethods);
 		for (GenericAccessibleObject<?> ao : testMethods) {
 			if (ao.getOwnerClass().hasWildcardOrTypeVariables()) {
-				try {
-					GenericClass concreteClass = getGenericInstantiation(ao.getOwnerClass());
-					result.add(ao.copyWithNewOwner(concreteClass));
-				} catch (ConstructionFailedException e) {
-					logger.warn(e.getMessage());
-				}
+				GenericClass concreteClass = ao.getOwnerClass().getGenericInstantiation();
+				result.add(ao.copyWithNewOwner(concreteClass));
 			} else {
 				result.add(ao);
 			}

@@ -167,11 +167,16 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		Type returnType = m.getGenericReturnType();
 		Type exactDeclaringType = GenericTypeReflector.getExactSuperType(GenericTypeReflector.capture(type),
 		                                                                 m.getDeclaringClass());
+
 		if (exactDeclaringType == null) { // capture(type) is not a subtype of m.getDeclaringClass()
 			logger.info("The method " + m + " is not a member of type " + type
 			        + " - declared in " + m.getDeclaringClass());
 			return m.getReturnType();
 		}
+
+		if (exactDeclaringType.equals(type))
+			return returnType;
+
 		return mapTypeParameters(returnType, exactDeclaringType);
 	}
 
