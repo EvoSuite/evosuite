@@ -1,6 +1,6 @@
 package org.evosuite.utils;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
@@ -8,7 +8,9 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Collection;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Stack;
 
 import org.junit.Assert;
@@ -25,7 +27,7 @@ public class TestGenericClass {
 		clazz.changeClassLoader(TestGenericClass.class.getClassLoader());
 		assertEquals("java.lang.Class<?>", clazz.getTypeName());
 	}
-	
+
 	@Test
 	public void testAssignablePrimitives() {
 		GenericClass clazz1 = new GenericClass(int.class);
@@ -33,14 +35,14 @@ public class TestGenericClass {
 		Assert.assertTrue(clazz1.isAssignableTo(clazz2));
 		Assert.assertTrue(clazz1.isAssignableFrom(clazz2));
 	}
-	
+
 	@Test
 	public void testAssignableObject() {
 		GenericClass clazz1 = new GenericClass(Object.class);
 		GenericClass clazz2 = new GenericClass(Object.class);
 		Assert.assertTrue(clazz1.isAssignableTo(clazz2));
 	}
-	
+
 	@Test
 	public void testAssignableIntegerObject() {
 		GenericClass clazz1 = new GenericClass(Integer.class);
@@ -48,7 +50,7 @@ public class TestGenericClass {
 		Assert.assertTrue(clazz1.isAssignableTo(clazz2));
 		Assert.assertFalse(clazz1.isAssignableFrom(clazz2));
 	}
-	
+
 	@Test
 	public void testAssignableIntegerNumber() {
 		GenericClass clazz1 = new GenericClass(Integer.class);
@@ -69,14 +71,15 @@ public class TestGenericClass {
 	public void testAssignableClass() {
 		GenericClass clazzTypeVar = new GenericClass(Class.class);
 		GenericClass clazzWildcard = clazzTypeVar.getWithWildcardTypes();
-		
-		ParameterizedType type = new ParameterizedTypeImpl(Class.class, new Type[] {Integer.class}, null);
+
+		ParameterizedType type = new ParameterizedTypeImpl(Class.class,
+		        new Type[] { Integer.class }, null);
 		GenericClass clazzConcrete = new GenericClass(type);
-		
+
 		Assert.assertFalse(clazzWildcard.isAssignableTo(clazzConcrete));
 		Assert.assertFalse(clazzWildcard.isAssignableTo(clazzTypeVar));
 		Assert.assertTrue(clazzWildcard.isAssignableTo(clazzWildcard));
-		
+
 		Assert.assertFalse(clazzTypeVar.isAssignableTo(clazzConcrete));
 		Assert.assertTrue(clazzTypeVar.isAssignableTo(clazzTypeVar));
 		Assert.assertTrue(clazzTypeVar.isAssignableTo(clazzWildcard));
@@ -85,7 +88,6 @@ public class TestGenericClass {
 		Assert.assertFalse(clazzConcrete.isAssignableTo(clazzTypeVar));
 		Assert.assertTrue(clazzConcrete.isAssignableTo(clazzWildcard));
 	}
-
 
 	private static class A {
 	}
@@ -201,28 +203,32 @@ public class TestGenericClass {
 		Assert.assertTrue(listOfIntegerClass.isAssignableFrom(listOfIntegerClass));
 		Assert.assertTrue(listOfSerializableClass.isAssignableFrom(listOfSerializableClass));
 	}
-	
 
-	private class NumberBoundary<T extends Number> {}
-	private class ComparableBoundary<T extends Comparable<T>> {}
-	private class RefinedComparableBoundary<T extends java.util.Date> extends ComparableBoundary<java.util.Date> {}
+	private class NumberBoundary<T extends Number> {
+	}
 
+	private class ComparableBoundary<T extends Comparable<T>> {
+	}
+
+	private class RefinedComparableBoundary<T extends java.util.Date> extends
+	        ComparableBoundary<java.util.Date> {
+	}
 
 	@Test
 	public void testTypeVariableBoundariesNumber() {
 		TypeVariable<?> numberTypeVariable = NumberBoundary.class.getTypeParameters()[0];
-		
+
 		GenericClass listOfIntegerClass = new GenericClass(Integer.class);
 		GenericClass listOfSerializableClass = new GenericClass(Serializable.class);
 
 		Assert.assertTrue(listOfIntegerClass.satisfiesBoundaries(numberTypeVariable));
 		Assert.assertFalse(listOfSerializableClass.satisfiesBoundaries(numberTypeVariable));
 	}
-	
+
 	@Test
 	public void testTypeVariableBoundariesComparable() {
 		TypeVariable<?> comparableTypeVariable = ComparableBoundary.class.getTypeParameters()[0];
-		
+
 		GenericClass listOfIntegerClass = new GenericClass(Integer.class);
 		GenericClass listOfSerializableClass = new GenericClass(Serializable.class);
 
@@ -246,16 +252,17 @@ public class TestGenericClass {
 		Assert.assertTrue(listOfSqlDateClass.satisfiesBoundaries(dateTypeVariable));
 
 		Assert.assertTrue(listOfIntegerClass.satisfiesBoundaries(comparableTypeVariable));
-//		Assert.assertTrue(listOfComparableClass.satisfiesBoundaries(comparableTypeVariable));
+		//		Assert.assertTrue(listOfComparableClass.satisfiesBoundaries(comparableTypeVariable));
 		Assert.assertTrue(listOfDateClass.satisfiesBoundaries(comparableTypeVariable));
 		// Assert.assertTrue(listOfSqlDateClass.satisfiesBoundaries(comparableTypeVariable));
 	}
-	
+
 	@Test
 	public void testWildcardObjectBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { Object.class }, new Type[] {});
-		
+
+		WildcardType objectType = new WildcardTypeImpl(new Type[] { Object.class },
+		        new Type[] {});
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -266,12 +273,13 @@ public class TestGenericClass {
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardNumberBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { Number.class }, new Type[] {});
-		
+
+		WildcardType objectType = new WildcardTypeImpl(new Type[] { Number.class },
+		        new Type[] {});
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -282,12 +290,13 @@ public class TestGenericClass {
 		Assert.assertFalse(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertFalse(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardIntegerBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { Integer.class }, new Type[] {});
-		
+
+		WildcardType objectType = new WildcardTypeImpl(new Type[] { Integer.class },
+		        new Type[] {});
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -298,12 +307,13 @@ public class TestGenericClass {
 		Assert.assertFalse(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertFalse(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardComparableBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { Comparable.class }, new Type[] {});
-		
+
+		WildcardType objectType = new WildcardTypeImpl(new Type[] { Comparable.class },
+		        new Type[] {});
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -314,12 +324,13 @@ public class TestGenericClass {
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardDateBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { java.util.Date.class }, new Type[] {});
-		
+
+		WildcardType objectType = new WildcardTypeImpl(
+		        new Type[] { java.util.Date.class }, new Type[] {});
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -330,12 +341,13 @@ public class TestGenericClass {
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardSqlDateBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { java.sql.Date.class }, new Type[] {});
-		
+
+		WildcardType objectType = new WildcardTypeImpl(
+		        new Type[] { java.sql.Date.class }, new Type[] {});
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -346,12 +358,13 @@ public class TestGenericClass {
 		Assert.assertFalse(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardDateSuperBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { Object.class }, new Type[] {java.util.Date.class });
-		
+
+		WildcardType objectType = new WildcardTypeImpl(new Type[] { Object.class },
+		        new Type[] { java.util.Date.class });
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -362,12 +375,13 @@ public class TestGenericClass {
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardDateBothBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { java.util.Date.class }, new Type[] {java.util.Date.class });
-		
+
+		WildcardType objectType = new WildcardTypeImpl(
+		        new Type[] { java.util.Date.class }, new Type[] { java.util.Date.class });
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -378,12 +392,13 @@ public class TestGenericClass {
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardDateBothBoundaries2() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { Comparable.class }, new Type[] {java.util.Date.class });
-		
+
+		WildcardType objectType = new WildcardTypeImpl(new Type[] { Comparable.class },
+		        new Type[] { java.util.Date.class });
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -394,12 +409,13 @@ public class TestGenericClass {
 		Assert.assertTrue(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertTrue(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
 	@Test
 	public void testWildcardInvalidBoundaries() {
-		
-		WildcardType objectType = new WildcardTypeImpl(new Type[] { Number.class }, new Type[] {java.util.Date.class });
-		
+
+		WildcardType objectType = new WildcardTypeImpl(new Type[] { Number.class },
+		        new Type[] { java.util.Date.class });
+
 		GenericClass integerClass = new GenericClass(Integer.class);
 		GenericClass comparableClass = new GenericClass(Comparable.class);
 		GenericClass dateClass = new GenericClass(java.util.Date.class);
@@ -410,5 +426,90 @@ public class TestGenericClass {
 		Assert.assertFalse(dateClass.satisfiesBoundaries(objectType));
 		Assert.assertFalse(sqlDateClass.satisfiesBoundaries(objectType));
 	}
-	
+
+	@Test
+	public void testGenericSuperclassWildcards() {
+		GenericClass listOfInteger = new GenericClass(new TypeToken<List<Integer>>() {
+		}.getType());
+		GenericClass listOfWildcard = new GenericClass(new TypeToken<List<?>>() {
+		}.getType());
+
+		Assert.assertTrue(listOfWildcard.isGenericSuperTypeOf(listOfInteger));
+		Assert.assertFalse(listOfInteger.isGenericSuperTypeOf(listOfWildcard));
+		Assert.assertTrue(listOfInteger.hasGenericSuperType(listOfWildcard));
+		Assert.assertFalse(listOfWildcard.hasGenericSuperType(listOfInteger));
+
+		GenericClass mapOfInteger = new GenericClass(
+		        new TypeToken<Map<Integer, String>>() {
+		        }.getType());
+		GenericClass mapOfWildcard = new GenericClass(new TypeToken<Map<?, ?>>() {
+		}.getType());
+		Assert.assertTrue(mapOfWildcard.isGenericSuperTypeOf(mapOfInteger));
+		Assert.assertFalse(mapOfInteger.isGenericSuperTypeOf(mapOfWildcard));
+		Assert.assertTrue(mapOfInteger.hasGenericSuperType(mapOfWildcard));
+		Assert.assertFalse(mapOfWildcard.hasGenericSuperType(mapOfInteger));
+	}
+
+	@Test
+	public void testGenericSuperclassConcreteList() {
+		GenericClass listOfInteger = new GenericClass(new TypeToken<List<Integer>>() {
+		}.getType());
+		GenericClass linkedlistOfInteger = new GenericClass(
+		        new TypeToken<LinkedList<Integer>>() {
+		        }.getType());
+
+		Assert.assertTrue(linkedlistOfInteger.canBeInstantiatedTo(listOfInteger));
+		Assert.assertFalse(listOfInteger.canBeInstantiatedTo(linkedlistOfInteger));
+	}
+
+	@Test
+	public void testGenericSuperclassToWildcardList() {
+		GenericClass listOfWildcard = new GenericClass(new TypeToken<List<Integer>>() {
+		}.getType()).getWithWildcardTypes();
+		GenericClass linkedlistOfInteger = new GenericClass(
+		        new TypeToken<LinkedList<Integer>>() {
+		        }.getType());
+
+		Assert.assertTrue(linkedlistOfInteger.canBeInstantiatedTo(listOfWildcard));
+		Assert.assertFalse(listOfWildcard.canBeInstantiatedTo(linkedlistOfInteger));
+	}
+
+	@Test
+	public void testGenericSuperclassFromWildcardList() {
+		GenericClass listOfInteger = new GenericClass(new TypeToken<List<Integer>>() {
+		}.getType());
+		GenericClass linkedlistOfWildcard = new GenericClass(
+		        new TypeToken<LinkedList<Integer>>() {
+		        }.getType()).getWithWildcardTypes();
+
+		Assert.assertTrue(linkedlistOfWildcard.canBeInstantiatedTo(listOfInteger));
+		Assert.assertFalse(listOfInteger.canBeInstantiatedTo(linkedlistOfWildcard));
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testGenericSuperclassToTypeVariableList() {
+		GenericClass listOfTypeVariable = new GenericClass(new TypeToken<List>() {
+		}.getType());
+		GenericClass linkedlistOfInteger = new GenericClass(
+		        new TypeToken<LinkedList<Integer>>() {
+		        }.getType());
+
+		Assert.assertTrue(linkedlistOfInteger.canBeInstantiatedTo(listOfTypeVariable));
+		Assert.assertFalse(listOfTypeVariable.canBeInstantiatedTo(linkedlistOfInteger));
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testGenericSuperclassFromTypeVariableList() {
+		GenericClass listOfInteger = new GenericClass(new TypeToken<List<Integer>>() {
+		}.getType());
+		GenericClass linkedlistOfTypeVariable = new GenericClass(
+		        new TypeToken<LinkedList>() {
+		        }.getType());
+
+		Assert.assertTrue(linkedlistOfTypeVariable.canBeInstantiatedTo(listOfInteger));
+		Assert.assertFalse(listOfInteger.canBeInstantiatedTo(linkedlistOfTypeVariable));
+	}
+
 }

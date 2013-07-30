@@ -60,7 +60,7 @@ public class CastClassManager {
 
 		//this is not needed because population is sorted based on Maximization
 		//if(maximize)
-		//	d = 1.0 - d; // to do that if we want to have Maximisation
+		d = 1.0 - d; // to do that if we want to have Maximisation
 
 		int index = (int) (length * d);
 		return candidates.get(index);

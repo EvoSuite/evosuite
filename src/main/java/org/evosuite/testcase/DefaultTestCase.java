@@ -158,15 +158,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 	}
 
 	private boolean isClassUtilsBug(Class<?> rawClass, Class<?> arrayClass) {
-		while(arrayClass != null && arrayClass.isArray()) {
+		while (arrayClass != null && arrayClass.isArray()) {
 			if (arrayClass.getComponentType().equals(rawClass)) {
 				return true;
 			}
-			arrayClass = arrayClass.getComponentType();						
+			arrayClass = arrayClass.getComponentType();
 		}
 		return false;
 	}
-	
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getObjects(java.lang.reflect.Type, int)
 	 */
@@ -190,14 +190,17 @@ public class DefaultTestCase implements TestCase, Serializable {
 					Class<?> arrayClass = value.getVariableClass();
 					isClassUtilsBug = isClassUtilsBug(rawClass, arrayClass);
 				}
+				if (rawClass.isArray() && !!isClassUtilsBug) {
+					isClassUtilsBug = isClassUtilsBug(value.getVariableClass(), rawClass);
+				}
 
 				if (value.isAssignableTo(type) && !isClassUtilsBug) {
 					logger.debug("Array is assignable: " + value.getType() + " to "
-					        + type);
+					        + type + ", " + value.isArray() + ", " + rawClass.isArray());
 					variables.add(value);
 				} else if (GenericClass.isAssignable(type, value.getComponentType())) {
 					Class<?> arrayClass = value.getComponentClass();
-					if(isClassUtilsBug(rawClass, arrayClass)) {
+					if (isClassUtilsBug(rawClass, arrayClass)) {
 						continue;
 					}
 

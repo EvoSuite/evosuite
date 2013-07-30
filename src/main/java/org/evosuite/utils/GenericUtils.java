@@ -29,33 +29,34 @@ public class GenericUtils {
 	}
 
 	private static final Logger logger = LoggerFactory.getLogger(GenericUtils.class);
-	
+
 	public static Type replaceTypeVariables(Type targetType,
 	        Map<TypeVariable<?>, Type> typeMap) {
 		Type returnType = targetType;
 		for (TypeVariable<?> var : typeMap.keySet()) {
-			logger.debug("Current variable: "+var+" of type "+typeMap.get(var)+" in "+returnType);
+			//logger.debug("Current variable: "+var+" of type "+typeMap.get(var)+" in "+returnType);
 			returnType = replaceTypeVariable(returnType, var, typeMap.get(var));
 		}
 
 		return returnType;
 	}
-	
+
 	public static Type replaceTypeVariablesWithWildcards(Type targetType) {
-		if(targetType instanceof TypeVariable) {
-			TypeVariable<?> typeVariable = (TypeVariable<?>)targetType;
+		if (targetType instanceof TypeVariable) {
+			TypeVariable<?> typeVariable = (TypeVariable<?>) targetType;
 			return new WildcardTypeImpl(typeVariable.getBounds(), new Type[] {});
-		} else if(targetType instanceof ParameterizedType) {
-			ParameterizedType parameterizedType = (ParameterizedType)targetType;
+		} else if (targetType instanceof ParameterizedType) {
+			ParameterizedType parameterizedType = (ParameterizedType) targetType;
 			Type owner = null;
-			if(parameterizedType.getOwnerType() != null)
+			if (parameterizedType.getOwnerType() != null)
 				owner = replaceTypeVariablesWithWildcards(parameterizedType.getOwnerType());
 			Type[] currentParameters = parameterizedType.getActualTypeArguments();
 			Type[] parameters = new Type[currentParameters.length];
-			for(int i = 0; i < parameters.length; i++) {
+			for (int i = 0; i < parameters.length; i++) {
 				parameters[i] = replaceTypeVariablesWithWildcards(currentParameters[i]);
 			}
-			return new ParameterizedTypeImpl((Class<?>)parameterizedType.getRawType(), parameters, owner);
+			return new ParameterizedTypeImpl((Class<?>) parameterizedType.getRawType(),
+			        parameters, owner);
 		}
 		return targetType;
 	}
@@ -126,15 +127,17 @@ public class GenericUtils {
 			return new WildcardTypeImpl(upperBounds, lowerBounds);
 		} else if (targetType instanceof TypeVariable<?>) {
 			if (targetType.equals(variable)) {
-				logger.debug("Do equal: "+variable+"/"+targetType);
+				logger.debug("Do equal: " + variable + "/" + targetType);
 				return variableType;
 			} else {
-				logger.debug("Do not equal: "+variable+"/"+targetType);
-				logger.debug("Do not equal: "+variable.getGenericDeclaration()+"/"+((TypeVariable<?>)targetType).getGenericDeclaration());
+				logger.debug("Do not equal: " + variable + "/" + targetType);
+				logger.debug("Do not equal: " + variable.getGenericDeclaration() + "/"
+				        + ((TypeVariable<?>) targetType).getGenericDeclaration());
 				return targetType;
 			}
 		} else {
-			logger.debug("Unknown type of class "+targetType.getClass()+": "+targetType);
+			logger.debug("Unknown type of class " + targetType.getClass() + ": "
+			        + targetType);
 			return targetType;
 		}
 	}
