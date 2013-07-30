@@ -106,6 +106,10 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		        && type instanceof ParameterizedType)
 			return getTypeFromExactReturnType((GenericArrayType) returnType,
 			                                  (ParameterizedType) type);
+		else if (returnType instanceof Class<?>) 
+			return returnType;
+		else if(type instanceof Class<?>)
+			return type;
 		else
 			throw new RuntimeException("Incompatible types: " + returnType.getClass()
 			        + " and " + type.getClass() + ": " + returnType + " and " + type);
@@ -185,7 +189,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			typeParameters.add(concreteType);
 		}
 		copy.setTypeParameters(typeParameters);
-
+		copy.owner = copy.getOwnerClass().getGenericInstantiation(typeMap);
 		return copy;
 	}
 
@@ -215,6 +219,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 			typeParameters.add(concreteType.getGenericInstantiation(typeMap));
 		}
 		copy.setTypeParameters(typeParameters);
+		copy.owner = copy.getOwnerClass().getGenericInstantiation(typeMap);
 
 		return copy;
 	}

@@ -55,37 +55,10 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
 	@Override
 	public GenericMethod copyWithOwnerFromReturnType(GenericClass returnType) {
-		if (returnType.isParameterizedType()) {
-			GenericClass newOwner = new GenericClass(
-			        getTypeFromExactReturnType((ParameterizedType) returnType.getType(),
-			                                   (ParameterizedType) getOwnerType()));
-			GenericMethod copy = new GenericMethod(method, newOwner);
-			copy.typeVariables.addAll(typeVariables);
-			return copy;
-		} else if (returnType.isArray()) {
-			GenericClass newOwner = new GenericClass(
-			        getTypeFromExactReturnType(returnType.getComponentType(),
-			                                   getOwnerType()));
-			GenericMethod copy = new GenericMethod(method, newOwner);
-			copy.typeVariables.addAll(typeVariables);
-			return copy;
-		} else if (method.getGenericReturnType() instanceof TypeVariable<?>) {
-			GenericClass newOwner = new GenericClass(
-			        GenericUtils.replaceTypeVariable(owner.getType(),
-			                                         (TypeVariable<?>) method.getGenericReturnType(),
-			                                         returnType.getType()));
-			GenericMethod copy = new GenericMethod(method, newOwner);
-			copy.typeVariables.addAll(typeVariables);
-			return copy;
-		} else {
-			logger.info("Invalid type: " + returnType.getType() + " of type "
-			        + returnType.getType().getClass() + " with owner type "
-			        + getOwnerClass().getTypeName());
-			return this;
-			//			throw new RuntimeException("Invalid type: " + returnType.getType()
-			//			        + " of type " + returnType.getType().getClass() + " with owner type "
-			//			        + getOwnerClass().getTypeName());
-		}
+		GenericClass newOwner = getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap());
+		GenericMethod copy = new GenericMethod(method, newOwner);
+		copy.typeVariables.addAll(typeVariables);
+		return copy;		
 	}
 
 	@Override

@@ -514,7 +514,6 @@ public class GenericClass implements Serializable {
 		} else if (isParameterizedType()) {
 			logger.debug("Is parameterized type");
 			return getGenericParameterizedTypeInstantiation(typeMap, recursionLevel);
-
 		}
 		// TODO
 
@@ -553,7 +552,9 @@ public class GenericClass implements Serializable {
 			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
 			                                                                            true,
 			                                                                            typeMap);
-			return selectedClass.getGenericInstantiation(typeMap, recursionLevel + 1);
+			GenericClass instantiation = selectedClass.getGenericInstantiation(typeMap, recursionLevel + 1); 
+			typeMap.put((TypeVariable<?>)type, instantiation.getType());
+			return instantiation;
 		}
 	}
 
@@ -1005,28 +1006,24 @@ public class GenericClass implements Serializable {
 	}
 
 	public boolean hasWildcardOrTypeVariables() {
-		logger.debug("1 " + toString());
 		if (isTypeVariable() || isWildcardType())
 			return true;
 
 		if (hasWildcardTypes())
 			return true;
-		logger.debug("2 " + toString());
+
 		if (hasTypeVariables())
 			return true;
-		logger.debug("3 " + toString());
 
 		if (hasOwnerType()) {
 			if (getOwnerType().hasWildcardOrTypeVariables())
 				return true;
 		}
-		logger.debug("4 " + toString());
 
 		if (type instanceof GenericArrayType) {
 			if (getComponentClass().hasWildcardOrTypeVariables())
 				return true;
 		}
-		logger.debug("5 " + toString());
 
 		return false;
 	}
