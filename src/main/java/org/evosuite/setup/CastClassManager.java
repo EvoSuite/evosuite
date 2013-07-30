@@ -150,6 +150,9 @@ public class CastClassManager {
 			}
 		}
 		for (Type t : typeMap.values()) {
+			if (t instanceof WildcardType)
+				continue; // TODO: For now.
+
 			Class<?> clazz = GenericTypeReflector.erase(t);
 			if (!TestClusterGenerator.canUse(GenericTypeReflector.erase(clazz)))
 				continue;

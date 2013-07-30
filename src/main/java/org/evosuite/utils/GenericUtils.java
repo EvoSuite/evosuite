@@ -8,6 +8,9 @@ import java.lang.reflect.WildcardType;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 public class GenericUtils {
 
 	public static boolean isAssignable(Type type, TypeVariable<?> typeVariable) {
@@ -25,10 +28,13 @@ public class GenericUtils {
 		return isAssignable;
 	}
 
+	private static final Logger logger = LoggerFactory.getLogger(GenericUtils.class);
+	
 	public static Type replaceTypeVariables(Type targetType,
 	        Map<TypeVariable<?>, Type> typeMap) {
 		Type returnType = targetType;
 		for (TypeVariable<?> var : typeMap.keySet()) {
+			logger.debug("Current variable: "+var+" of type "+typeMap.get(var)+" in "+returnType);
 			returnType = replaceTypeVariable(returnType, var, typeMap.get(var));
 		}
 
@@ -120,12 +126,15 @@ public class GenericUtils {
 			return new WildcardTypeImpl(upperBounds, lowerBounds);
 		} else if (targetType instanceof TypeVariable<?>) {
 			if (targetType.equals(variable)) {
+				logger.debug("Do equal: "+variable+"/"+targetType);
 				return variableType;
 			} else {
+				logger.debug("Do not equal: "+variable+"/"+targetType);
+				logger.debug("Do not equal: "+variable.getGenericDeclaration()+"/"+((TypeVariable<?>)targetType).getGenericDeclaration());
 				return targetType;
 			}
 		} else {
-			// logger.debug("Unknown type of class "+targetType.getClass()+": "+targetType);
+			logger.debug("Unknown type of class "+targetType.getClass()+": "+targetType);
 			return targetType;
 		}
 	}

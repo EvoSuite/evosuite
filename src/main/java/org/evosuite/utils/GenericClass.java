@@ -483,6 +483,10 @@ public class GenericClass implements Serializable {
 
 		return name;
 	}
+	
+	public GenericClass getSuperClass() {
+		return new GenericClass(GenericTypeReflector.getExactSuperType(type, rawClass.getSuperclass()));
+	}
 
 	/**
 	 * <p>
@@ -507,12 +511,23 @@ public class GenericClass implements Serializable {
 	}
 
 	public Map<TypeVariable<?>, Type> getTypeVariableMap() {
+		logger.debug("Getting type variable map for "+type);
 		List<TypeVariable<?>> typeVariables = getTypeVariables();
 		List<Type> types = getParameterTypes();
 		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
+		try {
+		if(rawClass.getSuperclass() != null && !rawClass.isAnonymousClass() && !rawClass.getSuperclass().isAnonymousClass() && !(hasOwnerType() && getOwnerType().getRawClass().isAnonymousClass())) {
+			GenericClass superClass = getSuperClass();
+			logger.debug("Superclass of "+type+": "+superClass);
+			Map<TypeVariable<?>, Type> superMap = superClass.getTypeVariableMap();
+			logger.debug("Super map after "+superClass+": "+superMap);
+			typeMap.putAll(superMap);
+		}
+		} catch(Exception e) {}
 		for (int i = 0; i < typeVariables.size(); i++) {
 			typeMap.put(typeVariables.get(i), types.get(i));
 		}
+		logger.debug("Type map: "+typeMap);
 		return typeMap;
 	}
 
@@ -971,10 +986,13 @@ public class GenericClass implements Serializable {
 			}
 
 			Type boundType = GenericUtils.replaceTypeVariables(theType, ownerVariableMap);
+			logger.debug("1 Bound after variable replacement: " + boundType);
+
 			boundType = GenericUtils.replaceTypeVariable(boundType, typeVariable,
 			                                             getType());
+			logger.debug("2 Bound after variable replacement: " + boundType);
 			boundType = GenericUtils.replaceTypeVariablesWithWildcards(boundType);
-			logger.debug("Bound after variable replacement: " + boundType);
+			logger.debug("3 Bound after variable replacement: " + boundType);
 			if (!isAssignableTo(boundType)) {
 				logger.debug("Not assignable: " + type + " and " + boundType);
 				// If the boundary is not assignable it may still be possible 
