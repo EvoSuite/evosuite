@@ -512,4 +512,13 @@ public class TestGenericClass {
 		Assert.assertFalse(listOfInteger.canBeInstantiatedTo(linkedlistOfTypeVariable));
 	}
 
+	@Test
+	public void testPrimitiveWrapper() {
+		GenericClass integerClass = new GenericClass(Integer.class);
+		GenericClass intClass = new GenericClass(int.class);
+
+		Assert.assertTrue(integerClass.canBeInstantiatedTo(intClass));
+		Assert.assertFalse(intClass.canBeInstantiatedTo(integerClass));
+	}
+
 }

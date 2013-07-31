@@ -9,9 +9,10 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
@@ -58,7 +59,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		GenericClass newOwner = getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap());
 		GenericMethod copy = new GenericMethod(method, newOwner);
 		copy.typeVariables.addAll(typeVariables);
-		return copy;		
+		return copy;
 	}
 
 	@Override
@@ -90,6 +91,17 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 
 	public Type[] getParameterTypes() {
 		return getExactParameterTypes(method, owner.getType());
+	}
+
+	public List<GenericClass> getParameterClasses() {
+		List<GenericClass> parameters = new ArrayList<GenericClass>();
+		logger.debug("Parameter types: "
+		        + Arrays.asList(method.getGenericParameterTypes()));
+		for (Type parameterType : getParameterTypes()) {
+			logger.debug("Adding parameter: " + parameterType);
+			parameters.add(new GenericClass(parameterType));
+		}
+		return parameters;
 	}
 
 	public Type[] getGenericParameterTypes() {
@@ -147,8 +159,10 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 			return m.getReturnType();
 		}
 
-		if (exactDeclaringType.equals(type))
-			return returnType;
+		//if (exactDeclaringType.equals(type)) {
+		//	logger.debug("Returntype: " + returnType + ", " + exactDeclaringType);
+		//	return returnType;
+		//}
 
 		return mapTypeParameters(returnType, exactDeclaringType);
 	}

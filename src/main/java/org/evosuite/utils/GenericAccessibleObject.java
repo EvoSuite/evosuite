@@ -106,9 +106,9 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		        && type instanceof ParameterizedType)
 			return getTypeFromExactReturnType((GenericArrayType) returnType,
 			                                  (ParameterizedType) type);
-		else if (returnType instanceof Class<?>) 
+		else if (returnType instanceof Class<?>)
 			return returnType;
-		else if(type instanceof Class<?>)
+		else if (type instanceof Class<?>)
 			return type;
 		else
 			throw new RuntimeException("Incompatible types: " + returnType.getClass()
@@ -160,6 +160,10 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	public abstract Type getGeneratedType();
 
+	public GenericClass getGeneratedClass() {
+		return new GenericClass(getGeneratedType());
+	}
+
 	public abstract Type getGenericGeneratedType();
 
 	/**
@@ -170,8 +174,10 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	public T getGenericInstantiation() {
 		T copy = copy();
 
-		if (!hasTypeParameters())
+		if (!hasTypeParameters()) {
+			copy.owner = copy.getOwnerClass().getGenericInstantiation();
 			return copy;
+		}
 
 		Map<TypeVariable<?>, Type> typeMap = copy.getOwnerClass().getTypeVariableMap();
 
@@ -204,12 +210,14 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	        throws ConstructionFailedException {
 
 		T copy = copy();
-		if (!hasTypeParameters())
-			return copy;
 
 		logger.debug("Getting generic instantiation for callee " + calleeType
 		        + " of method: " + toString() + " for callee " + calleeType);
 		Map<TypeVariable<?>, Type> typeMap = calleeType.getTypeVariableMap();
+		if (!hasTypeParameters()) {
+			copy.owner = copy.getOwnerClass().getGenericInstantiation(typeMap);
+			return copy;
+		}
 
 		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
 		for (TypeVariable<?> parameter : getTypeParameters()) {

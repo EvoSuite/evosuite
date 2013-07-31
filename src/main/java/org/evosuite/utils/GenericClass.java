@@ -271,6 +271,10 @@ public class GenericClass implements Serializable {
 	 * @return
 	 */
 	public boolean canBeInstantiatedTo(GenericClass otherType) {
+
+		if (isPrimitive() && otherType.isWrapperType())
+			return false;
+
 		if (isAssignableTo(otherType))
 			return true;
 
@@ -552,8 +556,9 @@ public class GenericClass implements Serializable {
 			GenericClass selectedClass = CastClassManager.getInstance().selectCastClass((TypeVariable<?>) type,
 			                                                                            true,
 			                                                                            typeMap);
-			GenericClass instantiation = selectedClass.getGenericInstantiation(typeMap, recursionLevel + 1); 
-			typeMap.put((TypeVariable<?>)type, instantiation.getType());
+			GenericClass instantiation = selectedClass.getGenericInstantiation(typeMap,
+			                                                                   recursionLevel + 1);
+			typeMap.put((TypeVariable<?>) type, instantiation.getType());
 			return instantiation;
 		}
 	}
@@ -750,7 +755,8 @@ public class GenericClass implements Serializable {
 		} catch (Exception e) {
 		}
 		for (int i = 0; i < typeVariables.size(); i++) {
-			typeMap.put(typeVariables.get(i), types.get(i));
+			if (types.get(i) != typeVariables.get(i))
+				typeMap.put(typeVariables.get(i), types.get(i));
 		}
 		logger.debug("Type map: " + typeMap);
 		return typeMap;
@@ -989,6 +995,9 @@ public class GenericClass implements Serializable {
 			return hasTypeVariables((ParameterizedType) type);
 		}
 
+		if (isTypeVariable())
+			return true;
+
 		return false;
 	}
 
@@ -1045,6 +1054,9 @@ public class GenericClass implements Serializable {
 		if (isParameterizedType()) {
 			return hasWildcardType((ParameterizedType) type);
 		}
+
+		if (isWildcardType())
+			return true;
 
 		return false;
 	}
@@ -1301,11 +1313,15 @@ public class GenericClass implements Serializable {
 			logger.debug("Current boundary: " + theType);
 			// Special case: Enum is defined as Enum<T extends Enum>
 			if (GenericTypeReflector.erase(theType).equals(Enum.class)) {
+				logger.debug("Is ENUM case");
 				// if this is an enum then it's ok. 
-				if (isEnum())
+				if (isEnum()) {
+					logger.debug("Class " + toString() + " is an enum!");
+
 					continue;
-				else {
+				} else {
 					// If it's not an enum, it cannot be assignable to enum!
+					logger.debug("Class " + toString() + " is not an enum.");
 					isAssignable = false;
 					break;
 				}
