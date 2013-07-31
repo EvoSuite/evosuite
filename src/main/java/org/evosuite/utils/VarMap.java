@@ -36,13 +36,12 @@ class VarMap {
 			map.put(variables[i], values[i]);
 		}
 	}
-	
+
 	void addAll(Map<TypeVariable<?>, GenericClass> variables) {
-		for(Entry<TypeVariable<?>, GenericClass> entry : variables.entrySet()) {
+		for (Entry<TypeVariable<?>, GenericClass> entry : variables.entrySet()) {
 			map.put(entry.getKey(), entry.getValue().getType());
 		}
 	}
-
 
 	VarMap(TypeVariable<?>[] variables, Type[] values) {
 		addAll(variables, values);
@@ -54,7 +53,12 @@ class VarMap {
 		} else if (type instanceof TypeVariable) {
 			// TypeVariables may also come from generic methods!
 			// assert map.containsKey(type);
-			return map.get(type);
+			if (map.containsKey(type))
+				return map.get(type);
+			else
+				// TODO: Bounds should be mapped, but might be recursive so we just use unbounded for now
+				return new WildcardTypeImpl(new Type[] { Object.class }, new Type[] {});
+
 		} else if (type instanceof ParameterizedType) {
 			ParameterizedType pType = (ParameterizedType) type;
 			return new ParameterizedTypeImpl((Class<?>) pType.getRawType(),
@@ -63,9 +67,10 @@ class VarMap {
 			                : map(pType.getOwnerType()));
 		} else if (type instanceof WildcardType) {
 			WildcardType wType = (WildcardType) type;
-			return new WildcardTypeImpl(map(wType.getUpperBounds()), map(wType.getLowerBounds()));
+			return new WildcardTypeImpl(map(wType.getUpperBounds()),
+			        map(wType.getLowerBounds()));
 		} else if (type instanceof GenericArrayType) {
-            return GenericArrayTypeImpl.createArrayType(map(((GenericArrayType)type).getGenericComponentType()));
+			return GenericArrayTypeImpl.createArrayType(map(((GenericArrayType) type).getGenericComponentType()));
 		} else {
 			throw new RuntimeException("not implemented: mapping " + type.getClass()
 			        + " (" + type + ")");

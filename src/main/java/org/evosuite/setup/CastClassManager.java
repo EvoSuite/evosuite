@@ -277,6 +277,7 @@ public class CastClassManager {
 			for (Type bound : typeVariable.getBounds()) {
 				Class<?> rawBound = GenericTypeReflector.erase(bound);
 				boundCandidates.add(rawBound);
+				logger.debug("Getting concrete classes for " + rawBound);
 				boundCandidates.addAll(TestClusterGenerator.getConcreteClasses(rawBound,
 				                                                               inheritanceTree));
 			}

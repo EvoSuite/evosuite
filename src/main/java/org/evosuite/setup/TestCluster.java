@@ -307,6 +307,17 @@ public class TestCluster {
 
 						// If it is a generic method, instantiate generic type variables for the produced class
 						if (newGenerator.hasTypeParameters()) {
+							/*
+							 * TODO:
+							 * public class Foo<X> {
+							 *   public <X> Foo<X> getFoo() {
+							 *     // ... 
+							 *   }
+							 * }
+							 * 
+							 * Here X and X are two different type variables, and these need to be matched here!
+							 * 
+							 */
 							newGenerator = newGenerator.getGenericInstantiation(clazz);
 						}
 
@@ -347,6 +358,14 @@ public class TestCluster {
 		Set<GenericAccessibleObject<?>> genericModifiers = new LinkedHashSet<GenericAccessibleObject<?>>();
 		if (clazz.isParameterizedType()) {
 			for (Entry<GenericClass, Set<GenericAccessibleObject<?>>> entry : modifiers.entrySet()) {
+				if (entry.getKey().canBeInstantiatedTo(clazz)) {
+					for (GenericAccessibleObject<?> modifier : entry.getValue()) {
+						GenericAccessibleObject<?> newModifier = modifier.getGenericInstantiation(clazz);
+						logger.debug("Adding new modifier: " + newModifier);
+						genericModifiers.add(newModifier);
+					}
+				}
+				/*
 				if (entry.getKey().getRawClass().equals(clazz.getRawClass())) {
 					logger.debug("Considering raw assignable case: " + entry.getKey());
 					List<Type> parameters = new ArrayList<Type>();
@@ -409,6 +428,7 @@ public class TestCluster {
 						}
 					}
 				}
+				*/
 			}
 		}
 		return genericModifiers;
@@ -454,7 +474,7 @@ public class TestCluster {
 		Set<GenericAccessibleObject<?>> calls = getCallsFor(clazz, true);
 		if (calls.isEmpty())
 			throw new ConstructionFailedException("No modifiers for " + clazz);
-
+		logger.debug("Possible modifiers for " + clazz + ": " + calls);
 		GenericAccessibleObject<?> call = Randomness.choice(calls);
 		if (call.hasTypeParameters()) {
 			logger.debug("Modifier has type parameters");
