@@ -167,4 +167,57 @@ public class TestGenericAccessibleObject {
 		Assert.assertFalse(instantiatedMethod.getGeneratedClass().hasWildcardOrTypeVariables());
 		Assert.assertEquals(genericInstantiation, instantiatedMethod.getGeneratedClass());
 	}
+	
+	@Test
+	public void testGenericMethodFromReturnValue() throws SecurityException,
+	        NoSuchMethodException, ConstructionFailedException {
+		Class<?> targetClass = com.examples.with.different.packagename.generic.GenericMethodWithBounds.class;
+		Method targetMethod = targetClass.getMethod("is",
+		                                            new Class<?>[] { Comparable.class });
+		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
+		
+		GenericClass generatedType = new GenericClass(
+		        new TypeToken<java.util.List<Integer>>() {
+		        }.getType());
+
+		
+		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType);
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass(), generatedType);
+	}
+	
+	@Test
+	public void testGenericMethodFromReturnValueWithSubclass() throws SecurityException,
+	        NoSuchMethodException, ConstructionFailedException {
+		Class<?> targetClass = com.examples.with.different.packagename.generic.GenericClassWithGenericMethodAndSubclass.class;
+		Method targetMethod = targetClass.getMethod("wrap",
+		                                            new Class<?>[] { Object.class });
+		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
+		
+		
+		GenericClass generatedType = new GenericClass(
+		        new TypeToken<com.examples.with.different.packagename.generic.GenericClassWithGenericMethodAndSubclass.Foo<String>>() {
+		        }.getType());
+
+		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType);
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getParameterTypes().get(0), String.class);
+	}
+
+	@Test
+	public void testGenericMethodFromReturnValueTypeVariable() throws SecurityException,
+	        NoSuchMethodException, ConstructionFailedException {
+		Class<?> targetClass = com.examples.with.different.packagename.generic.GenericMethodReturningTypeVariable.class;
+		Method targetMethod = targetClass.getMethod("get",
+		                                            new Class<?>[] { Object.class });
+		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
+		
+		
+		GenericClass generatedType1 = new GenericClass(Integer.class);
+		GenericClass generatedType2 = new GenericClass(String.class);
+
+		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType2);
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(), String.class);
+
+		instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType1);
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(), Integer.class);
+}
 }

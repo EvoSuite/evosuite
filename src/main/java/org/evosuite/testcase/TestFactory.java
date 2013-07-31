@@ -977,6 +977,9 @@ public class TestFactory {
 				parameterType = clazz.getType();
 			}
 			if (!TestCluster.getInstance().hasGenerator(parameterType)) {
+				if(objects.isEmpty())
+					throw new ConstructionFailedException("Have no objects and generators");
+				
 				logger.debug(" Choosing from " + objects.size() + " existing objects");
 				VariableReference reference = Randomness.choice(objects);
 				logger.debug(" Using existing object of type " + parameterType + ": "
