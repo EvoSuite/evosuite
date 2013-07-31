@@ -10,6 +10,7 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -228,6 +229,52 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		}
 		copy.setTypeParameters(typeParameters);
 		copy.owner = copy.getOwnerClass().getGenericInstantiation(typeMap);
+
+		return copy;
+	}
+	
+	/**
+	 * Set type parameters based on return type
+	 * 
+	 * @param returnType
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public T getGenericInstantiationFromReturnValue(GenericClass generatedType)
+	        throws ConstructionFailedException {
+
+		T copy = copy();
+		Map<TypeVariable<?>, Type> concreteTypes = generatedType.getTypeVariableMap();		
+		Type genericReturnType = getGenericGeneratedType();
+		
+		logger.debug("Getting generic instantiation for return type " + generatedType
+		        + " of method: " + toString());
+		
+		
+		if (genericReturnType instanceof ParameterizedType && generatedType.isParameterizedType()) {
+			logger.debug("Return value is a parameterized type, matching variables");
+			concreteTypes.putAll(GenericUtils.getMatchingTypeParameters((ParameterizedType) generatedType.getType(),
+					(ParameterizedType) genericReturnType));
+		} else if (genericReturnType instanceof TypeVariable<?>) {
+			concreteTypes.put((TypeVariable<?>)genericReturnType, generatedType.getType());
+		}
+		
+		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
+		for (TypeVariable<?> parameter : getTypeParameters()) {
+			GenericClass concreteType = new GenericClass(parameter);
+			logger.debug("(I) Setting parameter " + parameter + " to type "
+			        + concreteType.getTypeName());
+			GenericClass instantiation = concreteType.getGenericInstantiation(concreteTypes);
+			if(!instantiation.satisfiesBoundaries(parameter, generatedType.getTypeVariableMap())) {
+				logger.info("Type parameter does not satisfy boundaries: "+parameter);
+				logger.info(Arrays.asList(parameter.getBounds()).toString());
+				logger.info(instantiation.toString());
+				throw new ConstructionFailedException("Type parameter does not satisfy boundaries: "+parameter);
+			}
+			typeParameters.add(instantiation);
+		}
+		copy.setTypeParameters(typeParameters);
+		copy.owner = copy.getOwnerClass().getGenericInstantiation(concreteTypes);
 
 		return copy;
 	}

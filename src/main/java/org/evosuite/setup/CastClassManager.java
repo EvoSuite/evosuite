@@ -33,17 +33,20 @@ public class CastClassManager {
 
 	private final Map<GenericClass, Integer> classMap = new LinkedHashMap<GenericClass, Integer>();
 
-	public static <K, V extends Comparable<? super V>> List<K> sortByValue(Map<K, V> map) {
-		List<Map.Entry<K, V>> list = new LinkedList<Map.Entry<K, V>>(map.entrySet());
-		Collections.sort(list, new Comparator<Map.Entry<K, V>>() {
+	public static List<GenericClass> sortByValue(Map<GenericClass, Integer> map) {
+		List<Map.Entry<GenericClass, Integer>> list = new LinkedList<Map.Entry<GenericClass, Integer>>(map.entrySet());
+		Collections.sort(list, new Comparator<Map.Entry<GenericClass, Integer>>() {
 			@Override
-			public int compare(Map.Entry<K, V> o1, Map.Entry<K, V> o2) {
-				return (o1.getValue()).compareTo(o2.getValue());
+			public int compare(Map.Entry<GenericClass, Integer> o1, Map.Entry<GenericClass, Integer> o2) {
+				if(o1.getKey().getNumParameters() == o2.getKey().getNumParameters())
+					return (o1.getValue()).compareTo(o2.getValue());
+				else
+					return o1.getKey().getNumParameters() - o2.getKey().getNumParameters();
 			}
 		});
 
-		List<K> result = new LinkedList<K>();
-		for (Map.Entry<K, V> entry : list) {
+		List<GenericClass> result = new LinkedList<GenericClass>();
+		for (Map.Entry<GenericClass, Integer> entry : list) {
 			result.add(entry.getKey());
 		}
 		return result;
@@ -71,9 +74,9 @@ public class CastClassManager {
 	}
 
 	private void initDefaultClasses() {
-		classMap.put(new GenericClass(Object.class), 2);
-		classMap.put(new GenericClass(String.class), 2);
-		classMap.put(new GenericClass(Integer.class), 2);
+		classMap.put(new GenericClass(Object.class), 0);
+		classMap.put(new GenericClass(String.class), 1);
+		classMap.put(new GenericClass(Integer.class), 1);
 	}
 
 	public static CastClassManager getInstance() {
@@ -111,26 +114,49 @@ public class CastClassManager {
 			classMap.put(clazz, depth);
 		}
 	}
-
-	private List<GenericClass> getAssignableClasses(Type type, boolean allowRecursion) {
-		Map<GenericClass, Integer> assignableClasses = new HashMap<GenericClass, Integer>();
-
-		for (Entry<GenericClass, Integer> entry : classMap.entrySet()) {
-			if (!entry.getKey().isAssignableTo(type)) {
-				continue;
-			}
-
-			if (!allowRecursion && entry.getKey().hasWildcardOrTypeVariables()) {
-				logger.debug("Has wildcard, but not recursion possible: "
-				        + entry.getKey() + " to " + type);
-				continue;
-			}
-
-			assignableClasses.put(entry.getKey(), entry.getValue());
-		}
-
-		return sortByValue(assignableClasses);
+	
+	private void handleComparable() {
+		
 	}
+	
+	private void handleComparator() {
+		
+	}
+	
+	private void handleEnum() {
+		
+	}
+
+	private void handleIterable() {
+		
+	}
+
+	private List<Class<?>> specialCases = Arrays.asList(new Class<?>[] {Comparable.class, Comparator.class, Iterable.class, Enum.class});
+	
+	/**
+	 * True if this type variable is one of the java.* special cases
+	 * 
+	 * @return
+	 */
+	private boolean isSpecialCase(TypeVariable<?> typeVariable) {
+		for(Type bound : typeVariable.getBounds()) {
+			Class<?> clazz = GenericTypeReflector.erase(bound);
+			if(specialCases.contains(clazz))
+				return true;
+		}
+		return false;
+	}
+	
+	
+	/**
+	 * True if this wildcard type is one of the java.* special cases
+	 * 
+	 * @return
+	 */
+	private boolean isSpecialCase(WildcardType wildcardType) {
+		return false;
+	}
+
 
 	private boolean addAssignableClass(WildcardType wildcardType,
 	        Map<TypeVariable<?>, Type> typeMap) {
@@ -368,20 +394,6 @@ public class CastClassManager {
 
 		List<GenericClass> assignableClasses = sortByValue(classMap);
 		return selectClass(assignableClasses);
-	}
-
-	public GenericClass selectCastClass(Type targetType, boolean allowRecursion) {
-
-		List<GenericClass> candidateClasses = getAssignableClasses(targetType,
-		                                                           allowRecursion);
-		logger.debug("Assignable classes to " + targetType + ": " + candidateClasses);
-		if (candidateClasses.isEmpty()) {
-			logger.warn("Found no assignable classes for type " + targetType);
-			assert (false);
-			return Randomness.choice(classMap.keySet());
-		}
-
-		return selectClass(candidateClasses);
 	}
 
 	public GenericClass selectCastClass(TypeVariable<?> typeVariable,

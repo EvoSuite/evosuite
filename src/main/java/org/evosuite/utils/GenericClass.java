@@ -737,7 +737,7 @@ public class GenericClass implements Serializable {
 	}
 
 	public Map<TypeVariable<?>, Type> getTypeVariableMap() {
-		logger.debug("Getting type variable map for " + type);
+		//logger.debug("Getting type variable map for " + type);
 		List<TypeVariable<?>> typeVariables = getTypeVariables();
 		List<Type> types = getParameterTypes();
 		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
@@ -747,9 +747,9 @@ public class GenericClass implements Serializable {
 			        && !rawClass.getSuperclass().isAnonymousClass()
 			        && !(hasOwnerType() && getOwnerType().getRawClass().isAnonymousClass())) {
 				GenericClass superClass = getSuperClass();
-				logger.debug("Superclass of " + type + ": " + superClass);
+				//logger.debug("Superclass of " + type + ": " + superClass);
 				Map<TypeVariable<?>, Type> superMap = superClass.getTypeVariableMap();
-				logger.debug("Super map after " + superClass + ": " + superMap);
+				//logger.debug("Super map after " + superClass + ": " + superMap);
 				typeMap.putAll(superMap);
 			}
 		} catch (Exception e) {
@@ -758,7 +758,7 @@ public class GenericClass implements Serializable {
 			if (types.get(i) != typeVariables.get(i))
 				typeMap.put(typeVariables.get(i), types.get(i));
 		}
-		logger.debug("Type map: " + typeMap);
+		//logger.debug("Type map: " + typeMap);
 		return typeMap;
 	}
 
@@ -893,7 +893,7 @@ public class GenericClass implements Serializable {
 							}
 						}
 						if (!assignable) {
-							logger.warn("Not assignable to type variable!");
+							logger.info("Not assignable to type variable!");
 							return null;
 						}
 					}
