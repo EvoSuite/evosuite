@@ -856,6 +856,12 @@ public class TestFactory {
 	private VariableReference createNull(TestCase test, Type type, int position,
 	        int recursionDepth) throws ConstructionFailedException {
 		GenericClass genericType = new GenericClass(type);
+
+		// For example, HashBasedTable.Factory in Guava is private but used as a parameter
+		// in a public method. This would lead to compile errors 
+		if (!TestClusterGenerator.canUse(genericType.getRawClass())) {
+			throw new ConstructionFailedException("Cannot use class " + type);
+		}
 		if (genericType.hasWildcardOrTypeVariables()) {
 			type = genericType.getGenericInstantiation().getType();
 		}
@@ -977,9 +983,10 @@ public class TestFactory {
 				parameterType = clazz.getType();
 			}
 			if (!TestCluster.getInstance().hasGenerator(parameterType)) {
-				if(objects.isEmpty())
-					throw new ConstructionFailedException("Have no objects and generators");
-				
+				if (objects.isEmpty())
+					throw new ConstructionFailedException(
+					        "Have no objects and generators");
+
 				logger.debug(" Choosing from " + objects.size() + " existing objects");
 				VariableReference reference = Randomness.choice(objects);
 				logger.debug(" Using existing object of type " + parameterType + ": "
@@ -1567,7 +1574,8 @@ public class TestFactory {
 
 		double sum = 0.0;
 		for (int i = 0; i < position; i++) {
-			sum += 1d / (10 * test.getStatement(i).getReturnValue().getDistance() + 1d);
+			//			sum += 1d / (10 * test.getStatement(i).getReturnValue().getDistance() + 1d);
+			sum += 1d / (test.getStatement(i).getReturnValue().getDistance() + 1d);
 			if (logger.isDebugEnabled()) {
 				logger.debug(test.getStatement(i).getCode() + ": Distance = "
 				        + test.getStatement(i).getReturnValue().getDistance());

@@ -163,11 +163,15 @@ public class GenericUtils {
 		for (int i = 0; i < p1.getActualTypeArguments().length; i++) {
 			Type t1 = p1.getActualTypeArguments()[i];
 			Type t2 = p2.getActualTypeArguments()[i];
+			logger.debug("First match: " + t1 + " - " + t2);
 			if (t1 instanceof TypeVariable<?>) {
 				map.put((TypeVariable<?>) t1, t2);
 			}
 			if (t2 instanceof TypeVariable<?>) {
 				map.put((TypeVariable<?>) t2, t1);
+			} else if (t2 instanceof ParameterizedType && t1 instanceof ParameterizedType) {
+				map.putAll(getMatchingTypeParameters((ParameterizedType) t1,
+				                                     (ParameterizedType) t2));
 			}
 		}
 

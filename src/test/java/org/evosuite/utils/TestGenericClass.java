@@ -3,19 +3,24 @@ package org.evosuite.utils;
 import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
+import java.lang.reflect.GenericDeclaration;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Stack;
 
+import org.apache.commons.lang3.reflect.TypeUtils;
+import org.evosuite.ga.ConstructionFailedException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.googlecode.gentyref.GenericTypeReflector;
 import com.googlecode.gentyref.TypeToken;
 
 public class TestGenericClass {
@@ -521,4 +526,129 @@ public class TestGenericClass {
 		Assert.assertFalse(intClass.canBeInstantiatedTo(integerClass));
 	}
 
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testGenericInstantiationIntegerList() throws ConstructionFailedException {
+		GenericClass listOfInteger = new GenericClass(new TypeToken<List<Integer>>() {
+		}.getType());
+		GenericClass linkedlistOfTypeVariable = new GenericClass(
+		        new TypeToken<LinkedList>() {
+		        }.getType());
+
+		GenericClass instantiatedClass = linkedlistOfTypeVariable.getWithParametersFromSuperclass(listOfInteger);
+		//GenericClass instantiatedClass = linkedlistOfTypeVariable.getGenericInstantiation(listOfInteger.getTypeVariableMap());
+		Assert.assertEquals(Integer.class, instantiatedClass.getParameterTypes().get(0));
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testGenericInstantiationMapSubclass() throws ConstructionFailedException {
+		GenericClass mapOfStringAndWildcard = new GenericClass(
+		        new TypeToken<Map<String, ?>>() {
+		        }.getType());
+		GenericClass hashMapClass = new GenericClass(new TypeToken<HashMap>() {
+		}.getType());
+
+		GenericClass instantiatedClass = hashMapClass.getWithParametersFromSuperclass(mapOfStringAndWildcard);
+		//GenericClass instantiatedClass = linkedlistOfTypeVariable.getGenericInstantiation(listOfInteger.getTypeVariableMap());
+		System.out.println(instantiatedClass.toString());
+		Assert.assertEquals(String.class, instantiatedClass.getParameterTypes().get(0));
+	}
+
+	@Test
+	public void testGenericInstantiationMapType() throws ConstructionFailedException {
+		GenericClass genericClass = new GenericClass(
+		        com.examples.with.different.packagename.generic.GenericParameterExtendingGenericBounds.class);
+		GenericClass instantiatedClass = genericClass.getGenericInstantiation();
+		//GenericClass instantiatedClass = linkedlistOfTypeVariable.getGenericInstantiation(listOfInteger.getTypeVariableMap());
+		System.out.println(instantiatedClass.toString());
+		Type parameterType = instantiatedClass.getParameterTypes().get(0);
+		Assert.assertTrue(TypeUtils.isAssignable(parameterType, Map.class));
+		Assert.assertTrue(parameterType instanceof ParameterizedType);
+
+		ParameterizedType parameterizedType = (ParameterizedType) parameterType;
+		Assert.assertEquals(String.class, parameterizedType.getActualTypeArguments()[0]);
+	}
+
+	@Test
+	public void testIterableAndList() throws ConstructionFailedException {
+		GenericClass iterableIntegerClass = new GenericClass(
+		        new TypeToken<java.lang.Iterable<Integer>>() {
+		        }.getType());
+		GenericClass arrayListClass = new GenericClass(java.util.ArrayList.class);
+
+		Assert.assertTrue(arrayListClass.canBeInstantiatedTo(iterableIntegerClass));
+		Assert.assertFalse(iterableIntegerClass.canBeInstantiatedTo(arrayListClass));
+
+		GenericClass instantiatedList = arrayListClass.getWithParametersFromSuperclass(iterableIntegerClass);
+
+		Type parameterType = instantiatedList.getParameterTypes().get(0);
+		Assert.assertEquals(Integer.class, GenericTypeReflector.erase(parameterType));
+	}
+
+	@SuppressWarnings("rawtypes")
+	@Test
+	public void testIterableAndListBoundaries() {
+		Map<TypeVariable<?>, Type> typeMap = new HashMap<TypeVariable<?>, Type>();
+		final GenericClass iterableIntegerClass = new GenericClass(
+		        new TypeToken<java.lang.Iterable<Integer>>() {
+		        }.getType());
+
+		TypeVariable<?> var = new TypeVariable() {
+
+			@Override
+			public Type[] getBounds() {
+				return new Type[] { iterableIntegerClass.getType() };
+			}
+
+			@Override
+			public GenericDeclaration getGenericDeclaration() {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getName() {
+				return "Test";
+			}
+
+			/* (non-Javadoc)
+			 * @see java.lang.Object#toString()
+			 */
+			@Override
+			public String toString() {
+				return "Dummy Variable";
+			}
+
+		};
+
+		typeMap.put(var, iterableIntegerClass.getType());
+
+		GenericClass arrayListClass = new GenericClass(java.util.ArrayList.class);
+
+		Assert.assertFalse(arrayListClass.satisfiesBoundaries(var, typeMap));
+	}
+
+	@Test
+	public void testSatisfiesTypeVariableInSubtype() {
+		GenericClass iterableIntegerClass = new GenericClass(
+		        new TypeToken<com.examples.with.different.packagename.generic.GuavaExample4<java.lang.Iterable<Integer>>>() {
+		        }.getType());
+		ParameterizedType iterableInteger = (ParameterizedType) iterableIntegerClass.getParameterTypes().get(0);
+		TypeVariable<?> typeVariable = ((Class<?>) iterableInteger.getRawType()).getTypeParameters()[0];
+
+		TypeVariable<?> iterableTypeVariable = iterableIntegerClass.getTypeVariables().get(0);
+
+		GenericClass listOfIntegerClass = new GenericClass(
+		        com.examples.with.different.packagename.generic.GuavaExample4.class);
+
+		// Object bound
+		Assert.assertTrue(iterableIntegerClass.satisfiesBoundaries(typeVariable));
+		Assert.assertTrue(listOfIntegerClass.satisfiesBoundaries(typeVariable));
+
+		// Iterable bound
+		Assert.assertTrue(iterableIntegerClass.satisfiesBoundaries(iterableTypeVariable));
+		Assert.assertTrue(listOfIntegerClass.satisfiesBoundaries(iterableTypeVariable));
+
+	}
 }
