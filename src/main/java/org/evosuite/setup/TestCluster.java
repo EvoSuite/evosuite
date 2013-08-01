@@ -333,8 +333,11 @@ public class TestCluster {
 								// logger.debug("Instantiated generator: "+newGenerator.getName());
 								if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
 									GenericClass concreteClass = getGenericInstantiation(newGenerator.getOwnerClass());
-									targetGenerators.add(newGenerator.copyWithNewOwner(concreteClass));
+									GenericAccessibleObject<?> gen = newGenerator.copyWithNewOwner(concreteClass); 
+									logger.debug("Got new generator: "+gen);
+									targetGenerators.add(gen);
 								} else {
+									logger.debug("Got new generator: "+newGenerator);
 									targetGenerators.add(newGenerator);
 								}
 							}
