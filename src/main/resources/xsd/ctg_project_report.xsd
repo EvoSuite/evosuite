@@ -1,8 +1,8 @@
 <!-- This XSD file defines the XML structure of project info for Continuous 
 	Test Generation (CTG). It is important to use a XSD for several reasons, 
-	eg: * Being able to still read the data after an EvoSuite release upgrade 
-	* The XSD defines a contract for other components (eg a Jenkins plugin) that 
-	needs to read this data * Easier to integrate other tools. For more details, 
+	eg: (1) Being able to still read the data after an EvoSuite release upgrade; 
+	(2) The XSD defines a contract for other components (eg a Jenkins plugin) that 
+	needs to read this data; (3) Easier to integrate other tools. For more details, 
 	see: http://www.w3.org/TR/xmlschema-0/ -->
 
 
