@@ -297,16 +297,19 @@ public class TestCluster {
 					for (GenericAccessibleObject<?> generator : generators.get(generatorClazz)) {
 
 						// Set owner type parameters from new return type
-						GenericAccessibleObject<?> newGenerator = generator.copy();//.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
+						GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
 
 						// Instantiate potential further type variables based on type variables of return type
 						if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
+							logger.debug("Instantiating type parameters of owner type: "
+							        + newGenerator.getOwnerClass());
 							GenericClass concreteClass = newGenerator.getOwnerClass().getGenericInstantiation(clazz.getTypeVariableMap());
 							newGenerator = newGenerator.copyWithNewOwner(concreteClass);
 						}
 
 						// If it is a generic method, instantiate generic type variables for the produced class
 						if (newGenerator.hasTypeParameters()) {
+							logger.debug("Instantiating type parameters");
 							/*
 							 * TODO:
 							 * public class Foo<X> {
@@ -322,6 +325,7 @@ public class TestCluster {
 							// newGenerator = newGenerator.getGenericInstantiation(clazz);
 						}
 
+						logger.debug("Current generator: " + newGenerator);
 						if (clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
 							logger.debug("Got new generator: " + newGenerator);
 							targetGenerators.add(newGenerator);
@@ -361,9 +365,14 @@ public class TestCluster {
 			for (Entry<GenericClass, Set<GenericAccessibleObject<?>>> entry : modifiers.entrySet()) {
 				if (entry.getKey().canBeInstantiatedTo(clazz)) {
 					for (GenericAccessibleObject<?> modifier : entry.getValue()) {
-						GenericAccessibleObject<?> newModifier = modifier.getGenericInstantiation(clazz);
-						logger.debug("Adding new modifier: " + newModifier);
-						genericModifiers.add(newModifier);
+						try {
+							GenericAccessibleObject<?> newModifier = modifier.getGenericInstantiation(clazz);
+							logger.debug("Adding new modifier: " + newModifier);
+							genericModifiers.add(newModifier);
+						} catch (ConstructionFailedException e) {
+							// This may happen on generic methods with bounded types?
+							logger.debug("Cannot be added: " + modifier);
+						}
 					}
 				}
 				/*
@@ -1135,8 +1144,12 @@ public class TestCluster {
 		        testMethods);
 		for (GenericAccessibleObject<?> ao : testMethods) {
 			if (ao.getOwnerClass().hasWildcardOrTypeVariables()) {
-				GenericClass concreteClass = ao.getOwnerClass().getGenericInstantiation();
-				result.add(ao.copyWithNewOwner(concreteClass));
+				try {
+					GenericClass concreteClass = ao.getOwnerClass().getGenericInstantiation();
+					result.add(ao.copyWithNewOwner(concreteClass));
+				} catch (ConstructionFailedException e) {
+					logger.debug("Failed to instantiate " + ao);
+				}
 			} else {
 				result.add(ao);
 			}

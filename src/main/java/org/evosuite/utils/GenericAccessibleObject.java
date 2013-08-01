@@ -153,7 +153,8 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	public abstract T copyWithNewOwner(GenericClass newOwner);
 
-	public abstract T copyWithOwnerFromReturnType(GenericClass returnType);
+	public abstract T copyWithOwnerFromReturnType(GenericClass returnType)
+	        throws ConstructionFailedException;
 
 	public abstract AccessibleObject getAccessibleObject();
 
@@ -171,8 +172,9 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	 * Instantiate all generic type parameters
 	 * 
 	 * @return
+	 * @throws ConstructionFailedException
 	 */
-	public T getGenericInstantiation() {
+	public T getGenericInstantiation() throws ConstructionFailedException {
 		T copy = copy();
 
 		if (!hasTypeParameters()) {
@@ -232,7 +234,7 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 		return copy;
 	}
-	
+
 	/**
 	 * Set type parameters based on return type
 	 * 
@@ -244,32 +246,50 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 	        throws ConstructionFailedException {
 
 		T copy = copy();
-		Map<TypeVariable<?>, Type> concreteTypes = generatedType.getTypeVariableMap();		
+
+		// We just want to have the type variables defined in the generic method here
+		// and not type variables defined in the owner
+		Map<TypeVariable<?>, Type> concreteTypes = new HashMap<TypeVariable<?>, Type>();
+		Map<TypeVariable<?>, Type> generatorTypes = generatedType.getTypeVariableMap();
 		Type genericReturnType = getGenericGeneratedType();
-		
+
 		logger.debug("Getting generic instantiation for return type " + generatedType
 		        + " of method: " + toString());
-		
-		
-		if (genericReturnType instanceof ParameterizedType && generatedType.isParameterizedType()) {
+
+		if (genericReturnType instanceof ParameterizedType
+		        && generatedType.isParameterizedType()) {
 			logger.debug("Return value is a parameterized type, matching variables");
-			concreteTypes.putAll(GenericUtils.getMatchingTypeParameters((ParameterizedType) generatedType.getType(),
-					(ParameterizedType) genericReturnType));
+			generatorTypes.putAll(GenericUtils.getMatchingTypeParameters((ParameterizedType) generatedType.getType(),
+			                                                             (ParameterizedType) genericReturnType));
 		} else if (genericReturnType instanceof TypeVariable<?>) {
-			concreteTypes.put((TypeVariable<?>)genericReturnType, generatedType.getType());
+			generatorTypes.put((TypeVariable<?>) genericReturnType,
+			                   generatedType.getType());
 		}
-		
+
+		List<TypeVariable<?>> parameters = Arrays.asList(getTypeParameters());
+		for (TypeVariable<?> var : generatorTypes.keySet()) {
+			if (parameters.contains(var))
+				concreteTypes.put(var, generatorTypes.get(var));
+		}
+
+		// When resolving the type variables on a non-static generic method
+		// we need to look at the owner type, and not the return type!
+
 		List<GenericClass> typeParameters = new ArrayList<GenericClass>();
+		logger.debug("Setting parameters with map: " + concreteTypes);
 		for (TypeVariable<?> parameter : getTypeParameters()) {
 			GenericClass concreteType = new GenericClass(parameter);
 			logger.debug("(I) Setting parameter " + parameter + " to type "
 			        + concreteType.getTypeName());
 			GenericClass instantiation = concreteType.getGenericInstantiation(concreteTypes);
-			if(!instantiation.satisfiesBoundaries(parameter, generatedType.getTypeVariableMap())) {
-				logger.info("Type parameter does not satisfy boundaries: "+parameter);
+			logger.debug("Got instantiation for " + parameter + ": " + instantiation);
+			if (!instantiation.satisfiesBoundaries(parameter, concreteTypes)) {
+				logger.info("Type parameter does not satisfy boundaries: " + parameter
+				        + " " + instantiation);
 				logger.info(Arrays.asList(parameter.getBounds()).toString());
 				logger.info(instantiation.toString());
-				throw new ConstructionFailedException("Type parameter does not satisfy boundaries: "+parameter);
+				throw new ConstructionFailedException(
+				        "Type parameter does not satisfy boundaries: " + parameter);
 			}
 			typeParameters.add(instantiation);
 		}

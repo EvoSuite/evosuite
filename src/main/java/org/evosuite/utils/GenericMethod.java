@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.TestGenerationContext;
+import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.VariableReference;
 
@@ -55,7 +56,8 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	}
 
 	@Override
-	public GenericMethod copyWithOwnerFromReturnType(GenericClass returnType) {
+	public GenericMethod copyWithOwnerFromReturnType(GenericClass returnType)
+	        throws ConstructionFailedException {
 		GenericClass newOwner = getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap());
 		GenericMethod copy = new GenericMethod(method, newOwner);
 		copy.typeVariables.addAll(typeVariables);

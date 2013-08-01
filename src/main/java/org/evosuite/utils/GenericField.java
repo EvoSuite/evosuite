@@ -9,10 +9,10 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
 import org.evosuite.TestGenerationContext;
+import org.evosuite.ga.ConstructionFailedException;
 
 import com.googlecode.gentyref.GenericTypeReflector;
 
@@ -47,16 +47,19 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 	}
 
 	@Override
-	public GenericField copyWithOwnerFromReturnType(GenericClass returnType) {
+	public GenericField copyWithOwnerFromReturnType(GenericClass returnType)
+	        throws ConstructionFailedException {
+		return new GenericField(field,
+		        getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap()));
+		/*
 		if (returnType.isParameterizedType()) {
 			GenericClass newOwner = new GenericClass(
-			        getTypeFromExactReturnType((ParameterizedType) returnType.getType(),
-			                                   (ParameterizedType) getOwnerType()));
+			        getTypeFromExactReturnType(returnType.getType(), getOwnerType()));
 			return new GenericField(field, newOwner);
 		} else if (returnType.isArray()) {
 			GenericClass newOwner = new GenericClass(
-			        getTypeFromExactReturnType((ParameterizedType) returnType.getComponentType(),
-			                                   (ParameterizedType) getOwnerType()));
+			        getTypeFromExactReturnType(returnType.getComponentType(),
+			                                   getOwnerType()));
 			return new GenericField(field, newOwner);
 		} else if (returnType.isAssignableTo(getGeneratedType())) {
 			return new GenericField(field, new GenericClass(owner));
@@ -64,6 +67,7 @@ public class GenericField extends GenericAccessibleObject<GenericField> {
 			throw new RuntimeException("Invalid return type: "
 			        + returnType.getClassName() + " for field " + toString());
 		}
+		*/
 	}
 
 	@Override

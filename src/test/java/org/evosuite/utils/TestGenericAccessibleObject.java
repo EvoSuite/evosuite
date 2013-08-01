@@ -10,6 +10,7 @@ import org.evosuite.ga.ConstructionFailedException;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.generic.GuavaExample4;
 import com.googlecode.gentyref.TypeToken;
 
 /**
@@ -19,7 +20,8 @@ import com.googlecode.gentyref.TypeToken;
 public class TestGenericAccessibleObject {
 
 	@Test
-	public void testGenericMethod() throws SecurityException, NoSuchMethodException {
+	public void testGenericMethod() throws SecurityException, NoSuchMethodException,
+	        ConstructionFailedException {
 		Class<?> targetClass = com.examples.with.different.packagename.generic.GenericMethod.class;
 		Method targetMethod = targetClass.getMethod("coverMe",
 		                                            new Class<?>[] { Object.class });
@@ -38,7 +40,7 @@ public class TestGenericAccessibleObject {
 
 	@Test
 	public void testGenericMethodWithBounds() throws SecurityException,
-	        NoSuchMethodException {
+	        NoSuchMethodException, ConstructionFailedException {
 		Class<?> targetClass = com.examples.with.different.packagename.generic.GenericMethodWithBounds.class;
 		Method targetMethod = targetClass.getMethod("is",
 		                                            new Class<?>[] { Comparable.class });
@@ -82,7 +84,7 @@ public class TestGenericAccessibleObject {
 
 	@Test
 	public void testGenericClassWithGenericMethodAndSubclass() throws SecurityException,
-	        NoSuchMethodException {
+	        NoSuchMethodException, ConstructionFailedException {
 		Class<?> targetClass = com.examples.with.different.packagename.generic.GenericClassWithGenericMethodAndSubclass.class;
 		Method targetMethod = targetClass.getMethod("wrap",
 		                                            new Class<?>[] { Object.class });
@@ -134,7 +136,8 @@ public class TestGenericAccessibleObject {
 	}
 
 	@Test
-	public void testLinkedList() throws SecurityException, NoSuchMethodException {
+	public void testLinkedList() throws SecurityException, NoSuchMethodException,
+	        ConstructionFailedException {
 		Class<?> targetClass = java.util.LinkedList.class;
 		Method targetMethod = targetClass.getMethod("get", new Class<?>[] { int.class });
 		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
@@ -167,7 +170,7 @@ public class TestGenericAccessibleObject {
 		Assert.assertFalse(instantiatedMethod.getGeneratedClass().hasWildcardOrTypeVariables());
 		Assert.assertEquals(genericInstantiation, instantiatedMethod.getGeneratedClass());
 	}
-	
+
 	@Test
 	public void testGenericMethodFromReturnValue() throws SecurityException,
 	        NoSuchMethodException, ConstructionFailedException {
@@ -175,16 +178,15 @@ public class TestGenericAccessibleObject {
 		Method targetMethod = targetClass.getMethod("is",
 		                                            new Class<?>[] { Comparable.class });
 		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
-		
+
 		GenericClass generatedType = new GenericClass(
 		        new TypeToken<java.util.List<Integer>>() {
 		        }.getType());
 
-		
 		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType);
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass(), generatedType);
 	}
-	
+
 	@Test
 	public void testGenericMethodFromReturnValueWithSubclass() throws SecurityException,
 	        NoSuchMethodException, ConstructionFailedException {
@@ -192,14 +194,14 @@ public class TestGenericAccessibleObject {
 		Method targetMethod = targetClass.getMethod("wrap",
 		                                            new Class<?>[] { Object.class });
 		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
-		
-		
+
 		GenericClass generatedType = new GenericClass(
 		        new TypeToken<com.examples.with.different.packagename.generic.GenericClassWithGenericMethodAndSubclass.Foo<String>>() {
 		        }.getType());
 
 		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType);
-		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getParameterTypes().get(0), String.class);
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getParameterTypes().get(0),
+		                    String.class);
 	}
 
 	@Test
@@ -209,15 +211,33 @@ public class TestGenericAccessibleObject {
 		Method targetMethod = targetClass.getMethod("get",
 		                                            new Class<?>[] { Object.class });
 		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
-		
-		
+
 		GenericClass generatedType1 = new GenericClass(Integer.class);
 		GenericClass generatedType2 = new GenericClass(String.class);
 
 		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType2);
-		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(), String.class);
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
+		                    String.class);
 
 		instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(generatedType1);
-		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(), Integer.class);
-}
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
+		                    Integer.class);
+	}
+
+	@Test
+	public void testGenericMethodFromReturnValueTypeVariable2() throws SecurityException,
+	        NoSuchMethodException, ConstructionFailedException {
+		Class<?> targetClass = com.examples.with.different.packagename.generic.GuavaExample4.class;
+		Method targetMethod = targetClass.getMethod("create", new Class<?>[] {});
+		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
+
+		GenericClass iterableIntegerClass = new GenericClass(
+		        new TypeToken<com.examples.with.different.packagename.generic.GuavaExample4<java.lang.Iterable<Integer>>>() {
+		        }.getType());
+
+		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(iterableIntegerClass);
+		System.out.println(instantiatedMethod.getGeneratedClass().toString());
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
+		                    GuavaExample4.class);
+	}
 }
