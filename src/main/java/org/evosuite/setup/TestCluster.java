@@ -327,7 +327,9 @@ public class TestCluster {
 
 						logger.debug("Current generator: " + newGenerator);
 						if (clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
-							logger.debug("Got new generator: " + newGenerator);
+							logger.debug("Got new generator: " + newGenerator
+							        + " which generated: "
+							        + newGenerator.getGeneratedClass());
 							targetGenerators.add(newGenerator);
 						} else {
 							logger.debug("New generator not assignable: " + newGenerator);
@@ -363,7 +365,10 @@ public class TestCluster {
 		Set<GenericAccessibleObject<?>> genericModifiers = new LinkedHashSet<GenericAccessibleObject<?>>();
 		if (clazz.isParameterizedType()) {
 			for (Entry<GenericClass, Set<GenericAccessibleObject<?>>> entry : modifiers.entrySet()) {
-				if (entry.getKey().canBeInstantiatedTo(clazz)) {
+				logger.debug("Considering " + entry.getKey());
+				// if (entry.getKey().canBeInstantiatedTo(clazz)) {
+				if (entry.getKey().isGenericSuperTypeOf(clazz)) {
+					logger.debug(entry.getKey() + " can be instantiated to " + clazz);
 					for (GenericAccessibleObject<?> modifier : entry.getValue()) {
 						try {
 							GenericAccessibleObject<?> newModifier = modifier.getGenericInstantiation(clazz);

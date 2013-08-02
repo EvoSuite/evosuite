@@ -906,9 +906,11 @@ public class TestFactory {
 			        + " of type " + type);
 			VariableReference ret = addMethod(test, (GenericMethod) o, position,
 			                                  recursionDepth + 1);
-			if (o.isStatic()) {
-				ret.setType(type);
-			}
+
+			// TODO: Why are we doing this??
+			//if (o.isStatic()) {
+			//	ret.setType(type);
+			//}
 			logger.debug("Success in generating type " + type);
 			ret.setDistance(recursionDepth + 1);
 			return ret;
@@ -997,7 +999,6 @@ public class TestFactory {
 				VariableReference reference = attemptGeneration(test, parameterType,
 				                                                position, recursionDepth,
 				                                                true);
-				logger.debug("Result: " + test.toCode());
 				return reference;
 			}
 		}

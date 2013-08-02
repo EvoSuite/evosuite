@@ -65,10 +65,6 @@ public class CastClassManager {
 
 		d = d / 2.0 / (Properties.RANK_BIAS - 1.0);
 
-		//this is not needed because population is sorted based on Maximization
-		//if(maximize)
-		//d = 1.0 - d; // to do that if we want to have Maximisation
-
 		int index = (int) (length * d);
 		return candidates.get(index);
 	}
@@ -266,6 +262,7 @@ public class CastClassManager {
 				assignableClasses.add(clazz);
 			}
 		}
+		/*
 		for (Type t : typeVariable.getBounds()) {
 			if (typeMap.containsKey(t))
 				t = typeMap.get(t);
@@ -278,20 +275,22 @@ public class CastClassManager {
 
 			GenericClass genericClass = new GenericClass(t);
 			//if (genericClass.hasTypeVariables()) {
-			logger.debug("Has type variables: " + genericClass);
+			logger.debug("Has type variables: " + genericClass
+			        + ", checking wildcard version with type map " + typeMap);
 			GenericClass wildcardClass = genericClass.getWithWildcardTypes();
-			if (!wildcardClass.satisfiesBoundaries(typeVariable, typeMap)) {
-				logger.debug("Not assignable: " + clazz);
-			} else {
-				logger.debug("Assignable");
-				assignableClasses.add(clazz);
-			}
+			//if (!wildcardClass.satisfiesBoundaries(typeVariable, typeMap)) {
+			//	logger.debug("Not assignable: " + clazz);
+			//} else {
+			//	logger.debug("Assignable");
+			assignableClasses.add(clazz);
+			//}
 			//} else {
 			//	logger.debug("Adding directly: " + genericClass);
 			//	assignableClasses.add(genericClass.getRawClass());
 			//	classMap.put(genericClass, 10);
 			//}
 		}
+		*/
 		logger.debug("Found assignable classes for type variable " + typeVariable + ": "
 		        + assignableClasses.size());
 		if (!assignableClasses.isEmpty()) {
