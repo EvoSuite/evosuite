@@ -211,6 +211,8 @@ public class StorageManager {
 		ProjectInfo db = getDatabaseProjectInfo();
 		String info = removeNoMoreExistentData(db,current);
 
+		info += "\n\n=== CTG run results ===";
+		
 		/*
 		 * Check what test cases have been actually generated
 		 * in this CTG run
@@ -225,7 +227,7 @@ public class StorageManager {
 				better++;
 			}
 		}
-		info += "Better test suites: "+better;
+		info += "\nBetter test suites: "+better;
 		
 		updateProjectStatistics(db,current);
 		commitDatabase(db);
