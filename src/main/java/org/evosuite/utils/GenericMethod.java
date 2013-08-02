@@ -246,6 +246,10 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 		return method.getGenericParameterTypes().length;
 	}
 
+	public boolean isGenericMethod() {
+		return getNumParameters() > 0;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.utils.GenericAccessibleObject#getName()
 	 */

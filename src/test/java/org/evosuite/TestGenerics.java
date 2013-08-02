@@ -8,6 +8,8 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.generic.AbstractGenericClass;
+import com.examples.with.different.packagename.generic.AbstractGuavaExample;
 import com.examples.with.different.packagename.generic.GenericArray;
 import com.examples.with.different.packagename.generic.GenericArrayWithGenericType;
 import com.examples.with.different.packagename.generic.GenericArrayWithGenericTypeVariable;
@@ -45,6 +47,7 @@ import com.examples.with.different.packagename.generic.GenericWithWildcardParame
 import com.examples.with.different.packagename.generic.GuavaExample;
 import com.examples.with.different.packagename.generic.GuavaExample2;
 import com.examples.with.different.packagename.generic.GuavaExample3;
+import com.examples.with.different.packagename.generic.GuavaExample5;
 import com.examples.with.different.packagename.generic.ReallyCaselessMap;
 
 /**
@@ -1003,7 +1006,6 @@ public class TestGenerics extends SystemTest {
 		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
 	}
-	
 
 	@Test
 	public void testGenericMethodReturningTypeVariable() {
@@ -1013,6 +1015,84 @@ public class TestGenerics extends SystemTest {
 
 		Properties.TARGET_CLASS = targetClass;
 		// Properties.SEARCH_BUDGET = 50000;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testGenericAbstractMethod() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = AbstractGenericClass.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		// Properties.SEARCH_BUDGET = 50000;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testGenericGuavaExample5() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = GuavaExample5.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		// Properties.SEARCH_BUDGET = 50000;
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		Object result = evosuite.parseCommandLine(command);
+
+		Assert.assertTrue(result != null);
+		Assert.assertTrue("Invalid result type :" + result.getClass(),
+		                  result instanceof GeneticAlgorithm);
+
+		GeneticAlgorithm<?> ga = (GeneticAlgorithm<?>) result;
+		TestSuiteChromosome best = (TestSuiteChromosome) ga.getBestIndividual();
+		System.out.println("EvolvedTestSuite:\n" + best);
+
+		// int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
+		// Assert.assertEquals("Wrong number of goals: ", 3, goals);
+		Assert.assertEquals("Non-optimal coverage: ", 1d, best.getCoverage(), 0.001);
+	}
+
+	@Test
+	public void testGenericGuavaExample5Abstract() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = AbstractGuavaExample.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.SEARCH_BUDGET = 50000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

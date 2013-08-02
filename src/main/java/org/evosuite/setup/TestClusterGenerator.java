@@ -106,7 +106,7 @@ public class TestClusterGenerator {
 				try {
 					TestGenerationContext.getClassLoader().loadClass(callTreeClass);
 				} catch (ClassNotFoundException e) {
-					logger.info("Class not found: " + callTreeClass);
+					logger.info("Class not found: " + callTreeClass + ": " + e);
 				}
 			}
 		}

@@ -240,4 +240,41 @@ public class TestGenericAccessibleObject {
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    GuavaExample4.class);
 	}
+
+	@Test
+	public void testGenericMethodAbstractType() throws SecurityException,
+	        NoSuchMethodException, ConstructionFailedException {
+		Class<?> targetClass = com.examples.with.different.packagename.generic.ConcreteGenericClass.class;
+		Method targetMethod = targetClass.getMethod("create",
+		                                            new Class<?>[] { int.class });
+		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass);
+
+		Assert.assertEquals(genericMethod.getGeneratedClass().getRawClass(),
+		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
+
+		GenericClass iterableIntegerClass = new GenericClass(
+		        new TypeToken<com.examples.with.different.packagename.generic.AbstractGenericClass<java.lang.Integer>>() {
+		        }.getType());
+
+		GenericMethod instantiatedMethod = genericMethod.getGenericInstantiationFromReturnValue(iterableIntegerClass);
+		System.out.println(instantiatedMethod.getGeneratedClass().toString());
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
+		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
+
+		instantiatedMethod = genericMethod.copyWithOwnerFromReturnType(iterableIntegerClass);
+		System.out.println(instantiatedMethod.getGeneratedClass().toString());
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
+		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
+
+		instantiatedMethod = genericMethod.getGenericInstantiation(iterableIntegerClass);
+		System.out.println(instantiatedMethod.getGeneratedClass().toString());
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
+		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
+
+		instantiatedMethod = genericMethod.copyWithNewOwner(iterableIntegerClass);
+		System.out.println(instantiatedMethod.getGeneratedClass().toString());
+		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
+		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
+
+	}
 }
