@@ -1,9 +1,13 @@
 package org.evosuite.continuous.persistency;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.math.BigInteger;
+import java.net.URISyntaxException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -12,6 +16,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.annotation.Resources;
 import javax.xml.XMLConstants;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.Marshaller;
@@ -106,7 +111,8 @@ public class StorageManager {
 		testsFolder = new File(root.getAbsolutePath()+File.separator+"evosuite-tests");
 		if(!testsFolder.exists()){
 			created = testsFolder.mkdirs();
-			if(created){
+			if(!created){
+				logger.error("Failed to mkdir "+testsFolder.getAbsolutePath());
 				return false;
 			}
 		}
@@ -196,11 +202,17 @@ public class StorageManager {
 	 * @param data
 	 * @return
 	 */
-	public String mergeAndCommitChanges(ProjectStaticData current){
+	public String mergeAndCommitChanges(ProjectStaticData current) throws NullPointerException{
 
+		if(current == null){
+			throw new NullPointerException("ProjectStaticData 'current' cannot be null");
+		}
+		
 		ProjectInfo db = getDatabaseProjectInfo();
 		String info = removeNoMoreExistentData(db,current);
 
+		info += "\n\n=== CTG run results ===";
+		
 		/*
 		 * Check what test cases have been actually generated
 		 * in this CTG run
@@ -215,7 +227,7 @@ public class StorageManager {
 				better++;
 			}
 		}
-		info += "Better test suites: "+better;
+		info += "\nBetter test suites: "+better;
 		
 		updateProjectStatistics(db,current);
 		commitDatabase(db);
@@ -520,22 +532,39 @@ public class StorageManager {
 	public ProjectInfo getDatabaseProjectInfo(){
 
 		File current = new File(rootFolderName + File.separator + projectFileName);
+		InputStream stream = null;
 		if(!current.exists()){
-			return null;
+			/*
+			 * this will happen the first time CTG is run
+			 */
+			String empty = "xsd/ctg_project_report_empty.xml";
+			try {
+				stream = ClassLoader.getSystemResourceAsStream(empty);
+			} catch (Exception e) {
+				throw new RuntimeException("Failed to read resource "+empty+" , "+e.getMessage());
+			}
+		} else {
+			try {
+				stream = new FileInputStream(current);
+			} catch (FileNotFoundException e) {
+				assert false; // this should never happen
+				throw new RuntimeException("Bug in EvoSuite framework: "+e.getMessage());
+			}
 		}
 
 		try{
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = factory.newSchema(new StreamSource(
-					new File(ClassLoader.getSystemResource("/xsd/ctg_project_report.xsd").toURI())));
+					ClassLoader.getSystemResourceAsStream("xsd/ctg_project_report.xsd")));
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setSchema(schema);
-			ProjectInfo project = (ProjectInfo) jaxbUnmarshaller.unmarshal(current);
+			ProjectInfo project = (ProjectInfo) jaxbUnmarshaller.unmarshal(stream);
 			return project;
 		} catch(Exception e){
-			logger.error("Error in reading "+current.getAbsolutePath()+". "+e,e);
-			return null;
+			String msg = "Error in reading "+current.getAbsolutePath()+" , "+e;
+			logger.error(msg,e);
+			throw new RuntimeException(msg);
 		}
 	}
 

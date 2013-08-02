@@ -18,37 +18,59 @@ import org.evosuite.utils.ResourceList;
 public class Continuous {
 
 	public enum Command {EXECUTE, INFO, CLEAN};
-	
+
 	public static final String NAME = "continuous";
-	
+
 	public static Option getOption(){
-		return new Option(NAME,true,"Run Continuous Test Generation");
+		String description = "Run Continuous Test Generation (CTG).";
+		description += " Valid values are: " + Arrays.toString(Command.values());
+		return new Option(NAME,true,description);
 	}
 
 	public static Object execute(Options options, List<String> javaOpts,
 			CommandLine line, String cp) {
-		
-		String target = null;
-		
-		if (line.hasOption("target")) {
-			target = line.getOptionValue("target");
-		} else {
-			LoggingUtils.getEvoLogger().error(
-					"Please specify target ('-target' option) folder/jar classpath entry  to "+
-					"indicate on which classes to apply Continuous Test Generation");
+
+
+
+		String opt = line.getOptionValue(NAME);
+		if(opt == null){
+			LoggingUtils.getEvoLogger().error("Missing option for -"+NAME+". Use any of "+Arrays.toString(Command.values()));
 			return null;
 		}
-		
-		/*
-		 * We could issue a warning, but to make things easier (so user need to type less),
-		 * let's just add the target automatically to the classpath.
-		 * This is useful for when we do not want to specify the classpath (default '.'),
-		 * and so just typing '-target' on command line
-		 */
-		if(!cp.contains(target)){
-			cp += File.pathSeparator + target;
+
+		Command command = null;
+		try{
+			command = Command.valueOf(opt.toUpperCase());
+		} catch(Exception e){
+			LoggingUtils.getEvoLogger().error("Invalid option: "+opt+". Use any of "+Arrays.toString(Command.values()));
+			return null;
 		}
-		
+
+		String target = null;
+
+		//we need to define 'target' only for execute mode
+		if(command.equals(Command.EXECUTE)){
+
+			if (line.hasOption("target")) {
+				target = line.getOptionValue("target");
+			} else {
+				LoggingUtils.getEvoLogger().error(
+						"Please specify target ('-target' option) folder/jar classpath entry  to "+
+						"indicate on which classes to apply Continuous Test Generation");
+				return null;
+			}
+
+			/*
+			 * We could issue a warning, but to make things easier (so user need to type less),
+			 * let's just add the target automatically to the classpath.
+			 * This is useful for when we do not want to specify the classpath (default '.'),
+			 * and so just typing '-target' on command line
+			 */
+			if(!cp.contains(target)){
+				cp += File.pathSeparator + target;
+			}
+		}
+
 		/*
 		 * Setup the classpath
 		 */
@@ -59,22 +81,8 @@ public class Continuous {
 				// Ignore?
 			}
 		}
-		
-		String opt = line.getOptionValue(NAME);
-		if(opt == null){
-			LoggingUtils.getEvoLogger().error("Missing option for -"+NAME+". Use any of "+Arrays.toString(Command.values()));
-			return null;
-		}
-		
-		Command command = null;
-		try{
-			command = Command.valueOf(opt);
-		} catch(Exception e){
-			LoggingUtils.getEvoLogger().error("Invalid option: "+opt+". Use any of "+Arrays.toString(Command.values()));
-			return null;
-		}
-		
-		
+
+
 		ContinuousTestGeneration ctg = new ContinuousTestGeneration(
 				target,
 				cp,
@@ -84,7 +92,7 @@ public class Continuous {
 				false, /* TODO: just for now, as not implemented yet */
 				Properties.CTG_SCHEDULE
 				);
-		
+
 		/*
 		 * Based on command line option, execute one of the different CTG command
 		 */
@@ -102,8 +110,8 @@ public class Continuous {
 			String info = ctg.info();
 			LoggingUtils.getEvoLogger().info(info);
 		}
-				
+
 		return null;
 	}
-	
+
 }

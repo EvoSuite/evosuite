@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- this an empty project description, for when CTG is used for the first 
+	time -->
+
+<ProjectInfo>
+	<totalNumberOfClasses> 0 </totalNumberOfClasses>
+	<totalNumberOfTestableClasses> 0 </totalNumberOfTestableClasses>
+	<averageBranchCoverage> 0 </averageBranchCoverage>
+</ProjectInfo>
