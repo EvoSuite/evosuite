@@ -269,8 +269,8 @@ public class ConstructorStatement extends AbstractStatement {
 			new_params.add(r.copy(newTestCase, offset));
 		}
 
-		AbstractStatement copy = new ConstructorStatement(newTestCase, constructor,
-		        new_params);
+		AbstractStatement copy = new ConstructorStatement(newTestCase,
+		        constructor.copy(), new_params);
 		// copy.assertions = copyAssertions(newTestCase, offset);
 
 		return copy;

@@ -172,12 +172,12 @@ public class FieldStatement extends AbstractStatement {
 	@Override
 	public StatementInterface copy(TestCase newTestCase, int offset) {
 		if (field.isStatic()) {
-			FieldStatement s = new FieldStatement(newTestCase, field, null);
+			FieldStatement s = new FieldStatement(newTestCase, field.copy(), null);
 			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		} else {
 			VariableReference newSource = source.copy(newTestCase, offset);
-			FieldStatement s = new FieldStatement(newTestCase, field, newSource);
+			FieldStatement s = new FieldStatement(newTestCase, field.copy(), newSource);
 			// s.assertions = copyAssertions(newTestCase, offset);
 			return s;
 		}
