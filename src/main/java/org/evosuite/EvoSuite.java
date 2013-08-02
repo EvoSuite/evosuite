@@ -235,7 +235,7 @@ public class EvoSuite {
 
 		} catch (ParseException exp) {
 			// oops, something went wrong
-			logger.error("Parsing failed.  Reason: " + exp.getMessage());
+			logger.error("Parsing failed.  Reason: " + exp.getMessage()); 
 			// automatically generate the help statement
 			Help.execute(options);
 		}

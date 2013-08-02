@@ -3,6 +3,7 @@ package org.evosuite.continuous.project;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * <p>
@@ -38,6 +39,10 @@ public class ProjectStaticData {
 	private Map<String,ClassInfo> classes;
 	
 	private ProjectGraph graph;
+	
+	public ProjectStaticData(){
+		classes = new ConcurrentHashMap<String,ClassInfo>();
+	}
 	
 	/**
 	 * Immutable class representing all the info data for a class 

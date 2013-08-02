@@ -12,6 +12,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.continuous.persistency.StorageManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Job executor will run EvoSuite on separate processes.
@@ -37,11 +39,16 @@ import org.evosuite.continuous.persistency.StorageManager;
  */
 public class JobExecutor {
 
+	private static Logger logger = LoggerFactory.getLogger(JobExecutor.class);
+
 	private int timeBudgetInMinutes; 
 
 	private volatile boolean executing;
 	private long startTimeInMs;
 
+	/**
+	 * This used to wait till all jobs are finished running
+	 */
 	private volatile CountDownLatch latch;
 
 	/**
@@ -107,6 +114,8 @@ public class JobExecutor {
 			throw new IllegalStateException("Already executing jobs");
 		}
 
+		logger.info("Going to execute "+jobs.size()+" jobs");
+		
 		executing = true;
 		startTimeInMs = System.currentTimeMillis(); 		
 		latch = new CountDownLatch(jobs.size());
@@ -131,7 +140,9 @@ public class JobExecutor {
 				}
 				//TODO handle memory
 
-				Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>(); 
+				Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>();
+				toExecute.addAll(jobs);
+				
 				List<JobDefinition> postponed = new LinkedList<JobDefinition>();
 
 				long longestJob = -1l;
