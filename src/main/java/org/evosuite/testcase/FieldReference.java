@@ -397,9 +397,9 @@ public class FieldReference extends VariableReferenceImpl {
 		if (source != null) {
 			//			VariableReference otherSource = newTestCase.getStatement(source.getStPosition()).getReturnValue();
 			VariableReference otherSource = source.copy(newTestCase, offset);
-			return new FieldReference(newTestCase, field, fieldType, otherSource);
+			return new FieldReference(newTestCase, field.copy(), fieldType, otherSource);
 		} else {
-			return new FieldReference(newTestCase, field, fieldType);
+			return new FieldReference(newTestCase, field.copy(), fieldType);
 		}
 	}
 

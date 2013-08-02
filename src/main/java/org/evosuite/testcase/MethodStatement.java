@@ -229,7 +229,9 @@ public class MethodStatement extends AbstractStatement {
 								// Try exact parameter types if known
 								if (!parameterVar.isAssignableTo(parameterTypes[i])) {
 									throw new CodeUnderTestException(
-									        new UncompilableCodeException("Not assignable: "+parameterVar +" to "+parameterTypes[i]));
+									        new UncompilableCodeException(
+									                "Not assignable: " + parameterVar
+									                        + " to " + parameterTypes[i]));
 								}
 							} catch (CodeUnderTestException e) {
 								throw e;
@@ -319,10 +321,10 @@ public class MethodStatement extends AbstractStatement {
 		if (isStatic()) {
 			// FIXXME: If callee is an array index, this will return an invalid
 			// copy of the cloned variable!
-			m = new MethodStatement(newTestCase, method, null, new_params);
+			m = new MethodStatement(newTestCase, method.copy(), null, new_params);
 		} else {
 			VariableReference newCallee = callee.copy(newTestCase, offset);
-			m = new MethodStatement(newTestCase, method, newCallee, new_params);
+			m = new MethodStatement(newTestCase, method.copy(), newCallee, new_params);
 
 		}
 		if (retval instanceof ArrayReference
