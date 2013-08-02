@@ -195,6 +195,9 @@ public class ResourceList {
 	        final Pattern pattern, final String classPathFolder) {
 
 		final ArrayList<String> retval = new ArrayList<String>();
+		if(!directory.exists()) {
+			return retval;
+		}
 		final File[] fileList = directory.listFiles();
 
 		for (final File file : fileList) {

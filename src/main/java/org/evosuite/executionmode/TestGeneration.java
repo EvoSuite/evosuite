@@ -189,6 +189,12 @@ public class TestGeneration {
 			return true;
 		}
 
+		Properties.CP = System.getProperty("user.dir");
+		if (Properties.CP != null && !Properties.CP.isEmpty()
+		        && ResourceList.hasClass(target)) {
+			return true;
+		}
+
 		LoggingUtils.getEvoLogger().info("* Unknown class: " + target);
 
 		return false;
