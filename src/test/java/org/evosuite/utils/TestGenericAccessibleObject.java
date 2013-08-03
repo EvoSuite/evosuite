@@ -3,10 +3,29 @@
  */
 package org.evosuite.utils;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
+import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
+import org.evosuite.Properties.Criterion;
+import org.evosuite.assertion.Assertion;
+import org.evosuite.assertion.Inspector;
+import org.evosuite.assertion.InspectorAssertion;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.testcase.ConstructorStatement;
+import org.evosuite.testcase.DefaultTestCase;
+import org.evosuite.testcase.IntPrimitiveStatement;
+import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.PrimitiveStatement;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestFactory;
+import org.evosuite.testcase.VariableReference;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -276,5 +295,70 @@ public class TestGenericAccessibleObject {
 		Assert.assertEquals(instantiatedMethod.getGeneratedClass().getRawClass(),
 		                    com.examples.with.different.packagename.generic.ConcreteGenericClass.class);
 
+	}
+	
+	@Test
+	public void testClassLoaderChange() throws NoSuchMethodException, SecurityException, ConstructionFailedException {
+		Class<?> targetClass = com.examples.with.different.packagename.generic.GenericClassTwoParameters.class;
+		Method creatorMethod = targetClass.getMethod("create",
+                new Class<?>[] {});
+		Method targetMethod = targetClass.getMethod("get",
+		                                            new Class<?>[] { Object.class });
+		Method inspectorMethod = targetClass.getMethod("testMe", new Class<?>[] { });
+		Constructor<?> intConst = Integer.class.getConstructor(new Class<?>[] {int.class});
+		
+		GenericClass listOfInteger = new GenericClass(
+		        new TypeToken<com.examples.with.different.packagename.generic.GenericClassTwoParameters<Integer, Integer>>() {
+		        }.getType());
+
+		
+		GenericMethod genericCreatorMethod = new GenericMethod(creatorMethod, targetClass).getGenericInstantiationFromReturnValue(listOfInteger);
+		System.out.println(genericCreatorMethod.getGeneratedClass().toString());
+		GenericMethod genericMethod = new GenericMethod(targetMethod, targetClass).copyWithNewOwner(genericCreatorMethod.getGeneratedClass());
+		System.out.println(genericMethod.getGeneratedClass().toString());
+
+		DefaultTestCase test = new DefaultTestCase();
+		MethodStatement ms1 = new MethodStatement(test, genericCreatorMethod, (VariableReference)null, new ArrayList<VariableReference>());		
+		test.addStatement(ms1);
+		
+		IntPrimitiveStatement ps1 = (IntPrimitiveStatement)PrimitiveStatement.getPrimitiveStatement(test, int.class);
+		test.addStatement(ps1);
+		
+		GenericConstructor intConstructor = new GenericConstructor(intConst, Integer.class);
+		List<VariableReference> constParam = new ArrayList<VariableReference>();
+		constParam.add(ps1.getReturnValue());
+		ConstructorStatement cs1 = new ConstructorStatement(test, intConstructor, constParam);
+		//test.addStatement(cs1);
+
+		List<VariableReference> callParam = new ArrayList<VariableReference>();
+		callParam.add(ps1.getReturnValue());
+
+		MethodStatement ms2 = new MethodStatement(test, genericMethod, ms1.getReturnValue(), callParam);		
+		test.addStatement(ms2);
+		
+		Inspector inspector = new Inspector(targetClass, inspectorMethod);
+		Assertion assertion = new InspectorAssertion(inspector, ms2, ms1.getReturnValue(), 0);
+		ms2.addAssertion(assertion);
+		
+		String code = test.toCode();
+		
+		
+		ClassLoader loader = new InstrumentingClassLoader();
+		Properties.TARGET_CLASS = targetClass.getCanonicalName();
+		Properties.CRITERION = Criterion.MUTATION;
+		
+		DefaultTestCase testCopy = test.clone();
+		testCopy.changeClassLoader(loader);
+		String code2 = testCopy.toCode();
+		
+		Assert.assertEquals(code, code2);
+		Assert.assertEquals(code, test.toCode());
+		
+		testCopy.removeAssertion(assertion);
+		Assert.assertEquals(code, test.toCode());
+
+		//test.removeAssertion(assertion);
+		test.removeAssertions();
+		System.out.println(test.toCode());
 	}
 }

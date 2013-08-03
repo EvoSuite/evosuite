@@ -198,4 +198,7 @@ public abstract class Assertion implements Serializable {
 		return source != null && value != null;
 	}
 
+	public void changeClassLoader(ClassLoader loader) {
+		// No-op by default?
+	}
 }

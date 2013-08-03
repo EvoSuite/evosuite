@@ -64,7 +64,6 @@ public class GenericClass implements Serializable {
 	/**
 	 * Set of wrapper classes
 	 */
-	@SuppressWarnings("unchecked")
 	private static final Set<Class<?>> WRAPPER_TYPES = new HashSet<Class<?>>(
 	        Arrays.asList(Boolean.class, Character.class, Byte.class, Short.class,
 	                      Integer.class, Long.class, Float.class, Double.class,
@@ -332,13 +331,13 @@ public class GenericClass implements Serializable {
 				GenericClass ownerType = null;
 				if (pt.getOwnerType() != null) {
 					ownerType = new GenericClass(pt.getOwnerType());
-					ownerType.type = pt.getOwnerType();
+					// ownerType.type = pt.getOwnerType();
 					ownerType.changeClassLoader(loader);
 				}
 				List<GenericClass> parameterClasses = new ArrayList<GenericClass>();
 				for (Type parameterType : pt.getActualTypeArguments()) {
 					GenericClass parameter = new GenericClass(parameterType);
-					parameter.type = parameterType;
+					// parameter.type = parameterType;
 					parameter.changeClassLoader(loader);
 					parameterClasses.add(parameter);
 				}
@@ -359,17 +358,24 @@ public class GenericClass implements Serializable {
 
 				for (int i = 0; i < oldUpperBounds.length; i++) {
 					GenericClass bound = new GenericClass(oldUpperBounds[i]);
-					bound.type = oldUpperBounds[i];
+					// bound.type = oldUpperBounds[i];
 					bound.changeClassLoader(loader);
 					upperBounds[i] = bound.getType();
 				}
 				for (int i = 0; i < oldLowerBounds.length; i++) {
 					GenericClass bound = new GenericClass(oldLowerBounds[i]);
-					bound.type = oldLowerBounds[i];
+					// bound.type = oldLowerBounds[i];
 					bound.changeClassLoader(loader);
 					lowerBounds[i] = bound.getType();
 				}
 				this.type = new WildcardTypeImpl(upperBounds, lowerBounds);
+			} else if(type instanceof TypeVariable<?>) {
+				for(TypeVariable<?> newVar : rawClass.getTypeParameters()) {
+					if(newVar.getName().equals(((TypeVariable<?>)type).getName())) {
+						this.type = newVar;
+						break;
+					}
+				}
 			} else {
 				this.type = addTypeParameters(rawClass); //GenericTypeReflector.addWildcardParameters(raw_class);
 			}

@@ -50,8 +50,7 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	@Override
 	public GenericMethod copyWithNewOwner(GenericClass newOwner) {
 		GenericMethod copy = new GenericMethod(method, newOwner);
-		copy.getParameterTypes();
-		copy.typeVariables.addAll(typeVariables);
+		copyTypeVariables(copy);
 		return copy;
 	}
 
@@ -60,14 +59,14 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	        throws ConstructionFailedException {
 		GenericClass newOwner = getOwnerClass().getGenericInstantiation(returnType.getTypeVariableMap());
 		GenericMethod copy = new GenericMethod(method, newOwner);
-		copy.typeVariables.addAll(typeVariables);
+		copyTypeVariables(copy);
 		return copy;
 	}
-
+	
 	@Override
 	public GenericMethod copy() {
 		GenericMethod copy = new GenericMethod(method, new GenericClass(owner));
-		copy.typeVariables.addAll(typeVariables);
+		copyTypeVariables(copy);
 		return copy;
 	}
 
@@ -301,7 +300,6 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		super.changeClassLoader(loader);
-
 		try {
 			Class<?> oldClass = method.getDeclaringClass();
 			Class<?> newClass = loader.loadClass(oldClass.getName());
@@ -312,6 +310,13 @@ public class GenericMethod extends GenericAccessibleObject<GenericMethod> {
 					Class<?>[] newParameters = newMethod.getParameterTypes();
 					if (oldParameters.length != newParameters.length)
 						continue;
+					
+					if(!newMethod.getDeclaringClass().getName().equals(method.getDeclaringClass().getName()))
+						continue;
+					
+					if(!newMethod.getReturnType().getName().equals(method.getReturnType().getName()))
+						continue;
+
 
 					for (int i = 0; i < newParameters.length; i++) {
 						if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
