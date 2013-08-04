@@ -1327,33 +1327,7 @@ public class GenericClass implements Serializable {
 		return WRAPPER_TYPES.contains(rawClass);
 	}
 
-	/**
-	 * De-serialize. Need to use current classloader.
-	 * 
-	 * @param ois
-	 * @throws ClassNotFoundException
-	 * @throws IOException
-	 */
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
-	        IOException {
-		String name = (String) ois.readObject();
-		this.rawClass = getClass(name);
-
-		Boolean isParameterized = (Boolean) ois.readObject();
-		if (isParameterized) {
-			// GenericClass rawType = (GenericClass) ois.readObject();
-			GenericClass ownerType = (GenericClass) ois.readObject();
-			@SuppressWarnings("unchecked")
-			List<GenericClass> parameterClasses = (List<GenericClass>) ois.readObject();
-			Type[] parameterTypes = new Type[parameterClasses.size()];
-			for (int i = 0; i < parameterClasses.size(); i++)
-				parameterTypes[i] = parameterClasses.get(i).getType();
-			this.type = new ParameterizedTypeImpl(rawClass, parameterTypes,
-			        ownerType.getType());
-		} else {
-			this.type = addTypeParameters(rawClass); //GenericTypeReflector.addWildcardParameters(raw_class);
-		}
-	}
+	
 
 	public boolean satisfiesBoundaries(TypeVariable<?> typeVariable) {
 		return satisfiesBoundaries(typeVariable, getTypeVariableMap());
@@ -1544,25 +1518,62 @@ public class GenericClass implements Serializable {
 	}
 
 	/**
+	 * De-serialize. Need to use current classloader.
+	 * 
+	 * @param ois
+	 * @throws ClassNotFoundException
+	 * @throws IOException
+	 */
+	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+	        IOException {
+		String name = (String) ois.readObject();
+		if(name == null) {
+			this.rawClass = null;
+			this.type = null;
+			return;
+		}
+		this.rawClass = getClass(name);
+
+		Boolean isParameterized = (Boolean) ois.readObject();
+		if (isParameterized) {
+			// GenericClass rawType = (GenericClass) ois.readObject();
+			GenericClass ownerType = (GenericClass) ois.readObject();
+			@SuppressWarnings("unchecked")
+			List<GenericClass> parameterClasses = (List<GenericClass>) ois.readObject();
+			Type[] parameterTypes = new Type[parameterClasses.size()];
+			for (int i = 0; i < parameterClasses.size(); i++)
+				parameterTypes[i] = parameterClasses.get(i).getType();
+			this.type = new ParameterizedTypeImpl(rawClass, parameterTypes,
+			        ownerType.getType());
+		} else {
+			this.type = addTypeParameters(rawClass); //GenericTypeReflector.addWildcardParameters(raw_class);
+		}
+	}
+	
+	/**
 	 * Serialize, but need to abstract classloader away
 	 * 
 	 * @param oos
 	 * @throws IOException
 	 */
 	private void writeObject(ObjectOutputStream oos) throws IOException {
-		oos.writeObject(rawClass.getName());
-		if (type instanceof ParameterizedType) {
-			oos.writeObject(Boolean.TRUE);
-			ParameterizedType pt = (ParameterizedType) type;
-			oos.writeObject(new GenericClass(pt.getRawType()));
-			oos.writeObject(new GenericClass(pt.getOwnerType()));
-			List<GenericClass> parameterClasses = new ArrayList<GenericClass>();
-			for (Type parameterType : pt.getActualTypeArguments()) {
-				parameterClasses.add(new GenericClass(parameterType));
-			}
-			oos.writeObject(parameterClasses);
+		if(rawClass == null) {
+			oos.writeObject(null);
 		} else {
-			oos.writeObject(Boolean.FALSE);
+			oos.writeObject(rawClass.getName());
+			if (type instanceof ParameterizedType) {
+				oos.writeObject(Boolean.TRUE);
+				ParameterizedType pt = (ParameterizedType) type;
+				// oos.writeObject(new GenericClass(pt.getRawType()));
+				oos.writeObject(new GenericClass(pt.getOwnerType()));
+				List<GenericClass> parameterClasses = new ArrayList<GenericClass>();
+				for (Type parameterType : pt.getActualTypeArguments()) {
+					parameterClasses.add(new GenericClass(parameterType));
+				}
+				oos.writeObject(parameterClasses);
+			} else {
+				oos.writeObject(Boolean.FALSE);
+			}
 		}
 	}
 
