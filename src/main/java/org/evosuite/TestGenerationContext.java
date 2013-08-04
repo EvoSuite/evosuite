@@ -14,6 +14,7 @@ import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
+import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
@@ -92,6 +93,7 @@ public class TestGenerationContext {
 
 		// Constant pool
 		ConstantPoolManager.getInstance().reset();
+		ObjectPoolManager.getInstance().reset();
 
 		if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 			try {

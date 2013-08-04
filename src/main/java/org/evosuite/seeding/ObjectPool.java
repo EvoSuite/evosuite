@@ -21,13 +21,16 @@
 package org.evosuite.seeding;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Type;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -35,13 +38,17 @@ import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
-import org.evosuite.utils.ResourceList;
+import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.DebuggingObjectOutputStream;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
+import org.evosuite.utils.ResourceList;
+import org.junit.runner.JUnitCore;
+import org.junit.runner.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.thoughtworks.xstream.XStream;
 
 
 /**
@@ -49,40 +56,64 @@ import com.thoughtworks.xstream.XStream;
  *
  * @author Gordon Fraser
  */
-public class ObjectPool {
+public class ObjectPool implements Serializable {
+
+	private static final long serialVersionUID = 2016387518459994272L;
 
 	/** The actual object pool */
-	private final Map<Type, Set<TestCase>> pool = new HashMap<Type, Set<TestCase>>();
+	protected final Map<GenericClass, Set<TestCase>> pool = new HashMap<GenericClass, Set<TestCase>>();
 
-	/** Singleton instance */
-	private static ObjectPool instance;
-
-	/** Wrapper class for sequence */
-	private static class ObjectSequence {
-		Type type;
-		TestCase test;
-	}
-
-	private static Logger logger = LoggerFactory.getLogger(ObjectPool.class);
+	protected static Logger logger = LoggerFactory.getLogger(ObjectPool.class);
 
 	/**
-	 * Private constructor for singleton
-	 */
-	private ObjectPool() {
-		if (Properties.OBJECT_POOL > 0.0)
-			readPool();
-	}
-
-	/**
-	 * Singleton accessor
+	 * Insert a new sequence for given Type
 	 *
-	 * @return a {@link org.evosuite.seeding.ObjectPool} object.
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @param sequence a {@link org.evosuite.testcase.TestCase} object.
 	 */
-	public static ObjectPool getInstance() {
-		if (instance == null)
-			instance = new ObjectPool();
+	public void addSequence(GenericClass clazz, TestCase sequence) {
+		ObjectSequence seq = new ObjectSequence(clazz, sequence);
+		addSequence(seq);
+	}
 
-		return instance;
+	/**
+	 * Helper method to add sequences
+	 * 
+	 * @param sequence
+	 */
+	private void addSequence(ObjectSequence sequence) {
+		if (!pool.containsKey(sequence.getGeneratedClass()))
+			pool.put(sequence.getGeneratedClass(), new HashSet<TestCase>());
+
+		pool.get(sequence.getGeneratedClass()).add(sequence.getSequence());
+		logger.info("Added new sequence for " + sequence.getGeneratedClass());
+		logger.info(sequence.getSequence().toCode());
+
+	}
+
+
+	/**
+	 * Randomly choose a sequence for a given Type
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @return a {@link org.evosuite.testcase.TestCase} object.
+	 */
+	public TestCase getRandomSequence(GenericClass clazz) {
+		return Randomness.choice(pool.get(clazz));
+	}
+	
+	/**
+	 * Retrieve all possible sequences for a given Type
+	 *
+	 * @param clazz a {@link java.lang.reflect.Type} object.
+	 * @return a {@link java.util.Set} object.
+	 */
+	public Set<TestCase> getSequences(GenericClass clazz) {
+		return pool.get(clazz);
+	}
+	
+	public Set<GenericClass> getClasses() {
+		return pool.keySet();
 	}
 
 	/**
@@ -91,111 +122,112 @@ public class ObjectPool {
 	 * @param clazz a {@link java.lang.reflect.Type} object.
 	 * @return a boolean.
 	 */
-	public boolean hasSequence(Type clazz) {
+	public boolean hasSequence(GenericClass clazz) {
 		return pool.containsKey(clazz);
 	}
-
-	/**
-	 * Randomly choose a sequence for a given Type
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
-	 * @return a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public TestCase getRandomSequence(Type clazz) {
-		return Randomness.choice(pool.get(clazz));
+	
+	public int getNumberOfClasses() {
+		return pool.size();
 	}
-
-	/**
-	 * Retrieve all possible sequences for a given Type
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
-	 * @return a {@link java.util.Set} object.
-	 */
-	public Set<TestCase> getSequences(Type clazz) {
-		return pool.get(clazz);
-	}
-
-	/**
-	 * Insert a new sequence for given Type
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
-	 * @param sequence a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public void addSequence(Type clazz, TestCase sequence) {
-		if (!pool.containsKey(clazz))
-			pool.put(clazz, new HashSet<TestCase>());
-
-		pool.get(clazz).add(sequence);
-		logger.info("Added new sequence for " + clazz);
-		logger.info(sequence.toCode());
-	}
-
-	private String getFileName(final Type clazz) {
+	
+	public int getNumberOfSequences() {
 		int num = 0;
-		FilenameFilter filter = new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.startsWith(((Class<?>) clazz).getName())
-				        && name.endsWith(".seq");
-			}
-		};
-
-		File[] files = (new File(Properties.OUTPUT_DIR + "/evosuite-pool")).listFiles(filter);
-		num = files.length;
-		return Properties.OUTPUT_DIR + "/evosuite-pool/" + ((Class<?>) clazz).getName()
-		        + "_" + num + ".seq";
-	}
-
-	/**
-	 * Write given sequence to disk
-	 *
-	 * @param clazz a {@link java.lang.reflect.Type} object.
-	 * @param sequence a {@link org.evosuite.testcase.TestCase} object.
-	 */
-	public void storeSequence(Type clazz, TestCase sequence) {
-		try {
-			File directory = new File(Properties.OUTPUT_DIR + "/evosuite-pool");
-			if (!directory.exists())
-				directory.mkdirs();
-
-			OutputStream out = new FileOutputStream(getFileName(clazz));
-			XStream xstream = new XStream();
-			ObjectSequence os = new ObjectSequence();
-			os.test = sequence;
-			os.type = clazz;
-			xstream.toXML(os, out);
-			out.close();
-		} catch (IOException e) {
-			e.printStackTrace();
+		for(Set<TestCase> p : pool.values()) {
+			num += p.size();
 		}
+		return num;
 	}
 
+	public boolean isEmpty() {
+		return pool.isEmpty();
+	}
+	
 	/**
-	 * Read sequence from disk and add to pool
+	 * Read a serialized pool
+	 * @param fileName
 	 */
-	private void loadSequence(String resourceName) {
-		URL src = ClassLoader.getSystemResource(resourceName);
+	public static ObjectPool getPoolFromFile(String fileName) {
 		try {
-			InputStream in;
-			in = src.openStream();
-			XStream xstream = new XStream();
-			ObjectSequence sequence = (ObjectSequence) xstream.fromXML(in);
+			InputStream in = new FileInputStream(fileName);
+			ObjectInputStream objectIn = new ObjectInputStream(in);
+			ObjectPool pool = (ObjectPool) objectIn.readObject();
 			in.close();
-			addSequence(sequence.type, sequence.test);
+			return pool;
 		} catch (IOException e) {
 			e.printStackTrace();
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
 		}
+		return null;
+	}
+	
+	/**
+	 * Convert a test suite to a pool
+	 * 
+	 * @param testSuite
+	 */
+	public static ObjectPool getPoolFromTestSuite(TestSuiteChromosome testSuite) {
+		ObjectPool pool = new ObjectPool();
+		for(TestCase test : testSuite.getTests()) {
+			pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
+		}
+		return pool;
+	}
+	
+	public static ObjectPool getPoolFromTestCases(Collection<TestCase> tests) {
+		ObjectPool pool = new ObjectPool();
+		for(TestCase test : tests) {
+			TestCase copy = test.clone();
+			copy.removeAssertions();
+			pool.addSequence(new GenericClass(Properties.getTargetClass()), copy);
+		}
+		return pool;
 	}
 
 	/**
-	 * Read pool of objects from disk
+	 * Execute all tests in a JUnit test suite and add resulting sequences from carver
+	 * 
+	 * @param targetClass
+	 * @param testSuite
 	 */
-	private void readPool() {
-		logger.info("Loading sequences from file");
-		Pattern pattern = Pattern.compile("evosuite-pool/.*.seq");
-		for (String resource : ResourceList.getResources(pattern)) {
-			loadSequence(resource);
+	public static ObjectPool getPoolFromJUnit(GenericClass targetClass, Class<?> testSuite) {
+		final JUnitCore runner = new JUnitCore();
+		final CarvingRunListener listener = new CarvingRunListener();
+		runner.addListener(listener);
+		
+		final org.evosuite.testcarver.extraction.CarvingClassLoader classLoader = new org.evosuite.testcarver.extraction.CarvingClassLoader(); 
+		
+		try {
+			// instrument target class
+			classLoader.loadClass(Properties.getTargetClass().getCanonicalName());
+		} catch (final ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		
+		ObjectPool pool = new ObjectPool();
+		//final Result result = 
+		runner.run(testSuite);
+		for(TestCase test : listener.getTestCases()) {
+			// TODO: Maybe we would get the targetClass from the last object generated in the sequence?
+			pool.addSequence(targetClass, test);
+		}
+		
+		// TODO: Some messages based on result
+		
+		return pool;
+		
+	}
+	
+	public void writePool(String fileName) {
+		try {
+			ObjectOutputStream out = new DebuggingObjectOutputStream(new FileOutputStream(fileName));
+			out.writeObject(this);
+			out.close();
+		} catch(IOException e) {
+			// TODO
 		}
 	}
+	
+	
 
 }

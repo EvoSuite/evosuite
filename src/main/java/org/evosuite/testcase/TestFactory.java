@@ -18,7 +18,7 @@ import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.runtime.EvoSuiteFile;
 import org.evosuite.seeding.CastClassManager;
-import org.evosuite.seeding.ObjectPool;
+import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testsuite.TestCallStatement;
@@ -558,19 +558,19 @@ public class TestFactory {
 				return createNull(test, type, position, recursionDepth);
 			}
 
-			ObjectPool objectPool = ObjectPool.getInstance();
-			if (Randomness.nextDouble() <= Properties.OBJECT_POOL
-			        && objectPool.hasSequence(type)) {
+			ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
+			if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
+			        && objectPool.hasSequence(clazz)) {
 				logger.debug("Using a sequence from the pool to satisfy the type: "
 				        + type);
-				TestCase sequence = objectPool.getRandomSequence(type);
-				logger.info("Old test: " + test.toCode());
-				logger.info("Sequence: " + sequence.toCode());
+				TestCase sequence = objectPool.getRandomSequence(clazz);
+				// logger.info("Old test: " + test.toCode());
+				// logger.info("Sequence: " + sequence.toCode());
 				for (int i = 0; i < sequence.size(); i++) {
 					StatementInterface s = sequence.getStatement(i);
 					test.addStatement(s.clone(test), position + i);
 				}
-				logger.info("New test: " + test.toCode());
+				// logger.info("New test: " + test.toCode());
 
 			}
 

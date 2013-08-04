@@ -125,6 +125,7 @@ import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.seeding.ObjectPool;
+import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.symbolic.DSEStats;
@@ -166,6 +167,7 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteReplacementFunction;
 import org.evosuite.utils.ClassPathHacker;
+import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
@@ -234,6 +236,7 @@ public class TestSuiteGenerator {
 			Sandbox.doneWithExecutingUnsafeCodeOnSameThread();
 			Sandbox.doneWithExecutingSUTCode();
 		}
+		ObjectPoolManager.getInstance();
 
 		TestCaseExecutor.initExecutor();
 
@@ -691,12 +694,10 @@ public class TestSuiteGenerator {
 	}
 
 	private void writeObjectPool(List<TestCase> tests) {
-		if (Properties.WRITE_POOL) {
+		if (!Properties.WRITE_POOL.isEmpty()) {
 			LoggingUtils.getEvoLogger().info("* Writing sequences to pool");
-			ObjectPool pool = ObjectPool.getInstance();
-			for (TestCase test : tests) {
-				pool.storeSequence(Properties.getTargetClass(), test);
-			}
+			ObjectPool pool = ObjectPool.getPoolFromTestCases(tests);
+			pool.writePool(Properties.WRITE_POOL);
 		}
 	}
 
