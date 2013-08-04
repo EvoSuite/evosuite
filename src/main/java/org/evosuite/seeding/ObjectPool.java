@@ -18,7 +18,7 @@
 /**
  * 
  */
-package org.evosuite.primitives;
+package org.evosuite.seeding;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -76,7 +76,7 @@ public class ObjectPool {
 	/**
 	 * Singleton accessor
 	 *
-	 * @return a {@link org.evosuite.primitives.ObjectPool} object.
+	 * @return a {@link org.evosuite.seeding.ObjectPool} object.
 	 */
 	public static ObjectPool getInstance() {
 		if (instance == null)

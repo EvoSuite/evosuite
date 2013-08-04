@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.graphs.cfg.CFGClassAdapter;
-import org.evosuite.primitives.PrimitiveClassAdapter;
+import org.evosuite.seeding.PrimitiveClassAdapter;
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.testcarver.instrument.Instrumenter;

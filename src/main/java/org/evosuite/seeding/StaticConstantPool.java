@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.evosuite.primitives;
+package org.evosuite.seeding;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;

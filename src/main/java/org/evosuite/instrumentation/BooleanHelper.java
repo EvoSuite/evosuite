@@ -29,7 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
-import org.evosuite.primitives.ConstantPoolManager;
+import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.LoggingUtils;

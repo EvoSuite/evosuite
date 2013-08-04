@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.evosuite.primitives;
+package org.evosuite.seeding;
 
 import org.objectweb.asm.Type;
 
