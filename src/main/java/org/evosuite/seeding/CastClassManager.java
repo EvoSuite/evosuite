@@ -1,4 +1,4 @@
-package org.evosuite.setup;
+package org.evosuite.seeding;
 
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -19,6 +19,10 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.setup.DependencyAnalysis;
+import org.evosuite.setup.InheritanceTree;
+import org.evosuite.setup.TestCluster;
+import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
 import org.slf4j.Logger;
@@ -108,27 +112,29 @@ public class CastClassManager {
 			for (Class<?> concreteClass : TestClusterGenerator.getConcreteClasses(clazz.getRawClass(),
 			                                                                      TestCluster.getInheritanceTree())) {
 				GenericClass c = new GenericClass(concreteClass);
-				classMap.put(c, depth);
+				if(TestClusterGenerator.canUse(c.getRawClass()))
+					classMap.put(c, depth);
 			}
 		} else {
-			classMap.put(clazz, depth);
+			if(TestClusterGenerator.canUse(clazz.getRawClass()))
+				classMap.put(clazz, depth);
 		}
 	}
 
 	private void handleComparable() {
-
+		// TODO
 	}
 
 	private void handleComparator() {
-
+		// TODO
 	}
 
 	private void handleEnum() {
-
+		// TODO
 	}
 
 	private void handleIterable() {
-
+		// TODO
 	}
 
 	private final List<Class<?>> specialCases = Arrays.asList(new Class<?>[] {
@@ -154,6 +160,7 @@ public class CastClassManager {
 	 * @return
 	 */
 	private boolean isSpecialCase(WildcardType wildcardType) {
+		// TODO
 		return false;
 	}
 

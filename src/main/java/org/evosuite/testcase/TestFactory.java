@@ -16,9 +16,9 @@ import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
-import org.evosuite.primitives.ObjectPool;
 import org.evosuite.runtime.EvoSuiteFile;
-import org.evosuite.setup.CastClassManager;
+import org.evosuite.seeding.CastClassManager;
+import org.evosuite.seeding.ObjectPool;
 import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testsuite.TestCallStatement;
