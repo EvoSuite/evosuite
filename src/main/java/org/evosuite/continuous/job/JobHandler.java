@@ -1,7 +1,11 @@
 package org.evosuite.continuous.job;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.CountDownLatch;
 
@@ -69,19 +73,25 @@ public class JobHandler extends Thread{
 			Process process = null;
 
 			try{
-				String base_dir = System.getProperty("user.dir");
-				File dir = new File(base_dir);
-				ProcessBuilder builder = new ProcessBuilder(command);
+				String baseDir = System.getProperty("user.dir");
+				File dir = new File(baseDir);
+				
+				String[] parsedCommand = parseCommand(command);
+				
+				ProcessBuilder builder = new ProcessBuilder(parsedCommand);
 				builder.directory(dir);
+				builder.redirectErrorStream(true);
 
 				LoggingUtils.getEvoLogger().info("Going to start job for: "+job.cut);
+				logger.debug("Base directory: "+baseDir);
 				logger.debug("Command: "+command);
-				
+								
 				process = builder.start();
+								
 				int exitCode = process.waitFor(); //no need to have timeout here, as it is handled by the scheduler/executor				
 				
-				if(exitCode != 0){
-					logger.warn("Job ended with erroneous exit code: "+job.cut);
+				if(exitCode != 0){					
+					handleProcessError(job, process);
 				}
 				
 			} catch (IOException e) {
@@ -99,6 +109,44 @@ public class JobHandler extends Thread{
 				executor.doneWithJob(job);
 			}
 		}
+	}
+
+	private String[] parseCommand(String command) {
+		List<String> list = new ArrayList<String>();
+		for(String token : command.split(" ")){
+			String entry = token.trim();
+			if(!entry.isEmpty()){
+				list.add(entry);
+			}
+		}
+		String[] parsedCommand = list.toArray(new String[0]);
+		return parsedCommand;
+	}
+
+	/**
+	 * Print process console output if it died, as its logs
+	 * on disks might not have been generated yet
+	 * 
+	 * @param job
+	 * @param process
+	 * @throws IOException
+	 */
+	private void handleProcessError(JobDefinition job, Process process)
+			throws IOException {
+		
+		StringBuffer sb = new StringBuffer();
+		BufferedReader in = new BufferedReader(
+				new InputStreamReader(process.getInputStream()));
+
+		int data = 0;
+		while (data != -1 && !isInterrupted()) {
+			data = in.read();
+			if (data != -1) {
+				sb.append((char)data);
+			}
+		}
+
+		logger.warn("Job ended with erroneous exit code: "+job.cut+"\nProcess console output:\n"+sb.toString());
 	}
 	
 	private String getCommandString(JobDefinition job){
@@ -125,7 +173,10 @@ public class JobHandler extends Thread{
 
 		StorageManager storage = executor.getStorage();
 		File logs = storage.getTmpLogs(); 
-		cmd += " -Devosuite.log.folder="+logs.getAbsolutePath()+"/job"+job.configurationId;
+		cmd += " -Devosuite.log.folder="+logs.getAbsolutePath()+"/job"+job.jobID;
+		
+		//cmd += " -Dlog.level=debug"; //TODO remove
+		//cmd += " -Dprint_to_system=true";//TODO remove
 		
 		/*
 		 * TODO: this will likely need better handling
@@ -166,10 +217,10 @@ public class JobHandler extends Thread{
 		File tests = storage.getTmpTests();
 		
 		//TODO check if it works on Windows... likely not	
-		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.configurationId;
+		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.jobID;
 		cmd += " -Dtest_dir="+tests.getAbsolutePath();
 		
-		cmd += getOutputVariables();
+		cmd += " "+getOutputVariables();
         
 		cmd += " -Djunit_suffix="+StorageManager.junitSuffix;
 		
@@ -182,14 +233,14 @@ public class JobHandler extends Thread{
 	
 	private String getOutputVariables(){
 		//TODO add other outputs once fitness functions are fixed
-		String cmd =  " -Doutput_variables=\""; 
-		cmd += "TARGET_CLASS,configuration_id"; 
+		String cmd =  " -Doutput_variables="; 
+		cmd += "TARGET_CLASS,configuration_id,"; 
 		cmd += RuntimeVariable.BranchCoverage+",";		
 		cmd += RuntimeVariable.Minimized_Size+",";		
 		cmd += RuntimeVariable.Statements_Executed+",";				
 		cmd += RuntimeVariable.Total_Time+",";				
 		cmd += RuntimeVariable.NumberOfGeneratedTestCases; 			
-		cmd += "\"";
+		cmd += "";
 		return cmd;
 	}
 	
