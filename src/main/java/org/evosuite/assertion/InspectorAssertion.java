@@ -22,7 +22,9 @@ package org.evosuite.assertion;
 
 import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.Scope;
+import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.utils.NumberFormatter;
 public class InspectorAssertion extends Assertion {
 
@@ -31,6 +33,17 @@ public class InspectorAssertion extends Assertion {
 	// VariableReference value;
 	protected Inspector inspector;
 
+	public InspectorAssertion() {
+				
+	}
+	
+	public InspectorAssertion(Inspector inspector, StatementInterface statement, VariableReference source, Object value) {
+		this.inspector = inspector;
+		this.source = source;
+		this.statement = statement;
+		this.value = value;
+	}
+	
 	/**
 	 * <p>Getter for the field <code>inspector</code>.</p>
 	 *
@@ -139,5 +152,10 @@ public class InspectorAssertion extends Assertion {
 	@Override
 	public boolean isValid() {
 		return source != null;
+	}
+	
+	@Override
+	public void changeClassLoader(ClassLoader loader) {
+		inspector.changeClassLoader(loader);
 	}
 }

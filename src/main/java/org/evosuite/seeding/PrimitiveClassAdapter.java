@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
-package org.evosuite.primitives;
+package org.evosuite.seeding;
 
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.ClassVisitor;

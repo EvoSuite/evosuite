@@ -23,8 +23,8 @@ package org.evosuite.testcase;
 import java.lang.reflect.Type;
 
 import org.evosuite.Properties;
-import org.evosuite.primitives.ConstantPool;
-import org.evosuite.primitives.ConstantPoolManager;
+import org.evosuite.seeding.ConstantPool;
+import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.utils.Randomness;
 import org.objectweb.asm.commons.GeneratorAdapter;
 

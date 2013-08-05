@@ -468,6 +468,9 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		for (VariableReference var : getVariableReferences()) {
 			var.changeClassLoader(loader);
 		}
+		for(Assertion assertion : assertions) {
+			assertion.changeClassLoader(loader);
+		}
 	}
 
 	/**

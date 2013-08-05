@@ -18,7 +18,7 @@
 package org.evosuite;
 
 import org.evosuite.ga.GeneticAlgorithm;
-import org.evosuite.primitives.ConstantPoolManager;
+import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.junit.After;
 import org.junit.Assert;
