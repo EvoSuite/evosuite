@@ -241,9 +241,9 @@ public class StorageManager {
 	 * Note: in theory we could re-execute the test cases to extract/recalculate
 	 * those statistics, but it would be pretty inefficient
 	 * 
-	 * @return
+	 * @return  a List containing all info regarding generated tests in the last CTG run
 	 */
-	private List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
+	public List<TestsOnDisk> gatherGeneratedTestsOnDisk(){
 		
 		List<TestsOnDisk> list = new LinkedList<TestsOnDisk>();
 		List<File> generatedTests = Utils.getAllFilesInSubFolder(tmpTests.getAbsolutePath(), ".java");
@@ -300,10 +300,10 @@ public class StorageManager {
 	 * We want "com.name.of.a.package.AClass" as a result
 	 * 
 	 */
-	private String extractClassName(File base, File target){		
+	protected String extractClassName(File base, File target){		
 		int len = base.getAbsolutePath().length();
 		String path = target.getAbsolutePath(); 
-		String name = path.substring(len,path.length()-".java".length());
+		String name = path.substring(len+1,path.length()-".java".length());
 		name = name.replaceAll(File.separator,".");
 		return name;
 	}

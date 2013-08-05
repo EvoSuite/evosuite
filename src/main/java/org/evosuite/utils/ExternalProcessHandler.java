@@ -28,6 +28,9 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.rmi.RemoteException;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
@@ -137,7 +140,18 @@ public class ExternalProcessHandler {
 	 * @return a boolean.
 	 */
 	public boolean startProcess(String[] command) {
-		return startProcess(command, null);
+		
+		logger.debug("Going to start process with command (note ',' is replace by ' '): "+Arrays.toString(command).replace(",", " "));
+		
+		List<String> formatted = new LinkedList<String>();
+		for(String s : command){
+			String token = s.trim();
+			if(!token.isEmpty()){
+				formatted.add(token);
+			}
+		}
+		
+		return startProcess(formatted.toArray(new String[0]), null);
 	}
 
 	public String getProcessState(){
@@ -386,10 +400,17 @@ public class ExternalProcessHandler {
 								new InputStreamReader(process.getErrorStream()));
 
 						int data = 0;
+						String errorLine ="";
 						while (data != -1 && !isInterrupted()) {
 							data = proc_in.read();
 							if (data != -1 && Properties.PRINT_TO_SYSTEM) {
 								System.err.print((char) data);
+								
+								errorLine += (char) data;
+								if((char)data == '\n'){
+									logger.error(errorLine); 
+									errorLine = "";
+								}
 							}
 						}
 

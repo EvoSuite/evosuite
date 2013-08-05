@@ -149,7 +149,7 @@ public class JobExecutor {
 				
 				try{			
 
-					mainLoop: while(!toExecute.isEmpty() && !postponed.isEmpty()){
+					mainLoop: while(!toExecute.isEmpty() || !postponed.isEmpty()){
 
 						long remaining = getRemainingTime();
 						if(remaining <= 0){
@@ -272,6 +272,10 @@ public class JobExecutor {
 	 * @return
 	 */
 	private boolean areDependenciesSatisfied(List<JobDefinition> schedule, JobDefinition job){
+		
+		if(job.dependentOnClasses == null){
+			return true; // no dependencies to satisfy
+		}
 		
 		for(String name : job.dependentOnClasses){
 			/*
