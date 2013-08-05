@@ -155,9 +155,12 @@ public class Properties {
 	public static double P_SPECIAL_TYPE_CALL = 0.05;
 
 	/** Constant <code>OBJECT_POOL=0.0</code> */
-	@Parameter(key = "object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
+	@Parameter(key = "p_object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double OBJECT_POOL = 0.0;
+	public static double P_OBJECT_POOL = 0.0;
+	
+	@Parameter(key = "object_pools", group = "Test Creation", description = "List of object pools")
+	public static String OBJECT_POOLS = "";
 
 	@Parameter(key = "seed_types", group = "Test Creation", description = "Use type information gathered from casts to instantiate generics")
 	public static boolean SEED_TYPES = true;
@@ -655,7 +658,7 @@ public class Properties {
 
 	/** Constant <code>WRITE_POOL=false</code> */
 	@Parameter(key = "write_pool", group = "Output", description = "Keep sequences for object pool")
-	public static boolean WRITE_POOL = false;
+	public static String WRITE_POOL = "";
 
 	/** Constant <code>REPORT_DIR="evosuite-report"</code> */
 	@Parameter(key = "report_dir", group = "Output", description = "Directory in which to put HTML and CSV reports")

@@ -149,6 +149,12 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 		}
 	}
 
+	protected void copyTypeVariables(GenericAccessibleObject<?> copy) {
+		for(GenericClass variable : typeVariables) {
+			copy.typeVariables.add(new GenericClass(variable));
+		}
+	}
+
 	public abstract T copy();
 
 	public abstract T copyWithNewOwner(GenericClass newOwner);
@@ -381,7 +387,9 @@ public abstract class GenericAccessibleObject<T extends GenericAccessibleObject<
 
 	public void setTypeParameters(List<GenericClass> parameterTypes) {
 		typeVariables.clear();
-		typeVariables.addAll(parameterTypes);
+		for(GenericClass parameter : parameterTypes)
+			typeVariables.add(new GenericClass(parameter));
+		// typeVariables.addAll(parameterTypes);
 	}
 
 	@Override

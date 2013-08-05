@@ -27,6 +27,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.evosuite.TestGenerationContext;
+import org.evosuite.setup.TestClusterGenerator;
+import org.evosuite.utils.LoggingUtils;
 import org.objectweb.asm.Type;
 
 public class Inspector implements Serializable {
@@ -182,6 +184,48 @@ public class Inspector implements Serializable {
 					return;
 				}
 			}
+		}
+	}
+	
+	public void changeClassLoader(ClassLoader loader) {
+
+		try {
+			Class<?> oldClass = method.getDeclaringClass();
+			Class<?> newClass = loader.loadClass(oldClass.getName());
+			for (Method newMethod : TestClusterGenerator.getMethods(newClass)) {
+				if (newMethod.getName().equals(this.method.getName())) {
+					boolean equals = true;
+					Class<?>[] oldParameters = this.method.getParameterTypes();
+					Class<?>[] newParameters = newMethod.getParameterTypes();
+					if (oldParameters.length != newParameters.length)
+						continue;
+
+					if(!newMethod.getDeclaringClass().getName().equals(method.getDeclaringClass().getName()))
+						continue;
+					
+					if(!newMethod.getReturnType().getName().equals(method.getReturnType().getName()))
+						continue;
+
+					for (int i = 0; i < newParameters.length; i++) {
+						if (!oldParameters[i].getName().equals(newParameters[i].getName())) {
+							equals = false;
+							break;
+						}
+					}
+					if (equals) {
+						this.method = newMethod;
+						this.method.setAccessible(true);
+						return;
+					}
+				}
+			}
+			LoggingUtils.getEvoLogger().info("Method not found - keeping old class loader ");
+		} catch (ClassNotFoundException e) {
+			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
+			                                 e);
+		} catch (SecurityException e) {
+			LoggingUtils.getEvoLogger().info("Class not found - keeping old class loader ",
+			                                 e);
 		}
 	}
 }

@@ -40,6 +40,7 @@ import java.util.regex.Pattern;
 import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.seeding.CastClassManager;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.utils.GenericAccessibleObject;
 import org.evosuite.utils.GenericClass;
@@ -95,7 +96,7 @@ public class TestCluster {
 	/**
 	 * @return the inheritancetree
 	 */
-	protected static InheritanceTree getInheritanceTree() {
+	public static InheritanceTree getInheritanceTree() {
 		return inheritanceTree;
 	}
 

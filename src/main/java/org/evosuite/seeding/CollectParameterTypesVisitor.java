@@ -1,7 +1,7 @@
 /**
  * 
  */
-package org.evosuite.setup;
+package org.evosuite.seeding;
 
 import java.util.LinkedHashSet;
 import java.util.Set;

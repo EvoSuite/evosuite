@@ -21,10 +21,11 @@
 package org.evosuite.instrumentation.coverage;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.Mutation;
@@ -157,7 +158,9 @@ public class MutationInstrumentation implements MethodInstrumentation {
 						continue;
 					}
 					MethodInsnNode cn = (MethodInsnNode) in;
-					Collection<String> superClasses = DependencyAnalysis.getInheritanceTree().getSuperclasses(className);
+					Set<String> superClasses = new HashSet<String>();
+					if(DependencyAnalysis.getInheritanceTree() != null)
+						superClasses.addAll(DependencyAnalysis.getInheritanceTree().getSuperclasses(className));
 					superClasses.add(className);
 					String classNameWithDots = Utils.getClassNameFromResourcePath(cn.owner);
 					if (superClasses.contains(classNameWithDots)) {

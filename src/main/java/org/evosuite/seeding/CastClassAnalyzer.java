@@ -1,4 +1,4 @@
-package org.evosuite.setup;
+package org.evosuite.seeding;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
+import org.evosuite.setup.CallTree;
+import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.signature.SignatureReader;
