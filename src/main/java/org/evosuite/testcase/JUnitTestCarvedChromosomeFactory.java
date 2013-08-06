@@ -9,6 +9,7 @@ import java.util.List;
 import org.evosuite.Properties;
 import org.evosuite.ga.ChromosomeFactory;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
+import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.Utils;
 import org.junit.runner.JUnitCore;
@@ -76,7 +77,13 @@ public class JUnitTestCarvedChromosomeFactory implements
 		junitTests.addAll(listener.getTestCases());
 		
 		if(junitTests.size()>0){
-			logger.info("Carved "+junitTests.size()+" tests");
+			LoggingUtils.getEvoLogger().info("* Carved "+junitTests.size()+" tests from existing JUnit tests");
+			// logger.info("Carved "+junitTests.size()+" tests");
+			if(logger.isDebugEnabled()) {
+				for(TestCase test : junitTests) {
+					logger.debug("Carved Test: "+test.toCode());
+				}
+			}
 		} else {
 			String outcome = "";
 			for(Failure failure : result.getFailures()){
