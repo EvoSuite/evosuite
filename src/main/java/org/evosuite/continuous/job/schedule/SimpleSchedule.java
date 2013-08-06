@@ -25,7 +25,10 @@ public class SimpleSchedule extends OneTimeSchedule{
 		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
 
 		//simple case, distribute budget equally
-		int budgetInSecondsPerCUT = totalBudget / data.getTotalNumberOfTestableCUTs();
+		int cores = super.getNumberOfUsableCores();
+		int cuts = data.getTotalNumberOfTestableCUTs();		
+		int slots = (int)Math.round(cores * Math.ceil((double) cuts / (double) cores));
+		int budgetInSecondsPerCUT = totalBudget / slots; 
 
 		for(ClassInfo info : data.getClassInfos()){
 			if(!info.isTestable()){

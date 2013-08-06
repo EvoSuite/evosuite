@@ -11,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.continuous.job.schedule.ScheduleType;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ReportGenerator.RuntimeVariable;
@@ -245,6 +246,19 @@ public class JobHandler extends Thread{
 	}
 	
 	private String timeSetUp(int seconds){
+		
+		//do we have enough time for this job?
+		int remaining = (int)executor.getRemainingTimeInMs() / 1000;
+		
+		if(seconds > remaining){
+			seconds = remaining;
+		}
+		
+		if(seconds < ScheduleType.MINIMUM_SECONDS){
+			//even if we do not have enough time, we go for the minimum
+			seconds = ScheduleType.MINIMUM_SECONDS;
+		}
+		
 		/*
 		 * We have at least 3 phases:
 		 * - search
