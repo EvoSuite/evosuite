@@ -54,7 +54,8 @@ public class StorageManager {
 	private File tmpLogs;
 	private File tmpReports;
 	private File tmpTests;
-
+	private File tmpPools;
+	
 	/**
 	 * Folder where all the best test suites generated so far in all CTG runs are stored
 	 */
@@ -148,7 +149,9 @@ public class StorageManager {
 		tmpReports.mkdirs();
 		tmpTests = new File(tmpFolder.getAbsolutePath()+"/tests");
 		tmpTests.mkdirs();
-
+		tmpPools = new File(tmpFolder.getAbsolutePath()+"/pools");
+		tmpPools.mkdirs();
+		
 		return true;
 	}
 
@@ -582,5 +585,9 @@ public class StorageManager {
 
 	public File getTmpTests() {
 		return tmpTests;
+	}
+
+	public File getTmpPools() {
+		return tmpPools;
 	}
 }

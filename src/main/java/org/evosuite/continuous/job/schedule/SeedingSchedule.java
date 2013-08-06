@@ -65,12 +65,11 @@ public class SeedingSchedule extends OneTimeSchedule{
 
 		for(int i=0; i<jobs.size(); i++){
 			JobDefinition job = jobs.get(i);
-			Set<String> dep = new LinkedHashSet<String>();
+						
+			Set<String> inputs = calculateInputClasses(job);
+			Set<String> parents = calculateAncestors(job);
 			
-			addAncestors(job,dep);
-			addInputClasses(job,dep);
-			
-			jobs.set(i, job.getByAddingDependencies(dep));
+			jobs.set(i, job.getByAddingDependencies(inputs,parents));
 		}
 		
 		return jobs; 
@@ -84,7 +83,9 @@ public class SeedingSchedule extends OneTimeSchedule{
 	 * @param job
 	 * @param dep
 	 */
-	private void addInputClasses(JobDefinition job, Set<String> dep) {
+	private Set<String>  calculateInputClasses(JobDefinition job) {
+		
+		Set<String> dep = new LinkedHashSet<String>();
 		
 		ProjectGraph graph = scheduler.getProjectData().getProjectGraph();
 		for(String input : graph.getCUTsDirectlyUsedAsInput(job.cut, true)){
@@ -92,7 +93,9 @@ public class SeedingSchedule extends OneTimeSchedule{
 				continue;
 			}
 			dep.add(input);
-		}		
+		}	
+		
+		return dep;
 	}
 
 	/**
@@ -131,10 +134,11 @@ public class SeedingSchedule extends OneTimeSchedule{
 	 * be a bug/problem in how EvoSuite generated test cases for B
 	 * 
 	 * @param job
-	 * @param dep
 	 */
-	private void addAncestors(JobDefinition job, Set<String> dep) {
+	private Set<String> calculateAncestors(JobDefinition job) {
 
+		Set<String> dep = new LinkedHashSet<String>();
+		
 		ProjectGraph graph = scheduler.getProjectData().getProjectGraph();
 		
 		if(graph.isInterface(job.cut)){
@@ -142,7 +146,7 @@ public class SeedingSchedule extends OneTimeSchedule{
 			 * even if an interface has code, it will have no class state (ie fields).
 			 * so, no point in looking at its ancestors 
 			 */
-			return;
+			return dep;
 		}
 		
 		for(String parent :  graph.getAllCUTsParents(job.cut)){
@@ -151,6 +155,7 @@ public class SeedingSchedule extends OneTimeSchedule{
 			}
 			dep.add(parent);
 		}
+		return dep;
 	}
 	
 }
