@@ -462,4 +462,42 @@ public class JUnitTestCarvedChromosomeFactoryTest {
 		        null);
 		Assert.assertEquals(18, factory.getNumCarvedTestCases());
 	}
+	
+	@Test
+	public void testWritePublicField() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ClassWithPublicFieldWritingTestCase.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ClassWithPublicField.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 0;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+		
+		TestChromosome test = (TestChromosome)factory.getChromosome();
+		String code = test.getTestCase().toCode();
+		Assert.assertFalse(code.contains("XStream"));
+		Assert.assertTrue(code.contains("clasWithPublicField0.x"));
+	}
+	
+	@Test
+	public void testReadPublicField() {
+		Properties.SELECTED_JUNIT = com.examples.with.different.packagename.testcarver.ClassWithPublicFieldReadingTestCase.class.getCanonicalName();
+		Properties.TARGET_CLASS = com.examples.with.different.packagename.testcarver.ClassWithPublicField.class.getCanonicalName();
+
+		Properties.SEED_MUTATIONS = 0;
+		Properties.SEED_CLONE = 1;
+
+		JUnitTestCarvedChromosomeFactory factory = new JUnitTestCarvedChromosomeFactory(
+		        null);
+		Assert.assertEquals(1, factory.getNumCarvedTestCases());
+
+		TestChromosome test = (TestChromosome)factory.getChromosome();
+		String code = test.getTestCase().toCode();
+		Assert.assertFalse(code.contains("XStream"));
+		Assert.assertTrue(code.contains("clasWithPublicField0.x"));
+	}
+
+
 }
