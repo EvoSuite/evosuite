@@ -241,9 +241,10 @@ public class JobHandler extends Thread{
 		String cmd = "";
 		cmd += " -Dwrite_pool="+poolFolder.getAbsolutePath()+File.separator+job.cut+extension;
 		
-		String[] dep = job.inputClasses.toArray(new String[0]);
+		if(job.inputClasses!=null && job.inputClasses.size() > 0){
 
-		if(dep.length > 0){
+			String[] dep = job.inputClasses.toArray(new String[0]);
+
 			cmd += " -Dp_object_pool=0.5 ";
 			cmd += " -Dobject_pools=";
 

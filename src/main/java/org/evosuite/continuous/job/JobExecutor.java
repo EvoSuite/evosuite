@@ -313,7 +313,7 @@ public class JobExecutor {
 		 */
 		try {
 			//add one extra minute just to be sure
-			boolean elapsed = latch.await(timeBudgetInMinutes+1, TimeUnit.MINUTES);  
+			boolean elapsed = !latch.await(timeBudgetInMinutes+1, TimeUnit.MINUTES);  
 			if(elapsed){
 				logger.error("The jobs did not finish in time");
 			}

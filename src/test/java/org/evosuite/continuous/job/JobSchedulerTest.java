@@ -26,7 +26,7 @@ public class JobSchedulerTest {
 				MoreBranches.class.getName()
 		};
 		
-		ProjectAnalyzer analyzer = null; //TODO
+		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts); 
 		ProjectStaticData data = analyzer.analyze();
 		
 		int cores = 2;
@@ -73,7 +73,7 @@ public class JobSchedulerTest {
 				MoreBranches.class.getName()
 		};
 		
-		ProjectAnalyzer analyzer = null; //TODO
+		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts); 
 		ProjectStaticData data = analyzer.analyze();
 		
 		int cores = 2;
