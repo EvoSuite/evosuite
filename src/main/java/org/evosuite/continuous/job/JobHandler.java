@@ -196,11 +196,7 @@ public class JobHandler extends Thread{
 		 */
 		
 		/*
-		 * TODO: we ll need to handle dependent CUTs for seeding,
-		 * and distinguish on whether their are parent or input CUTs.
-		 * Like new parameters in EvoSuite will be needed for seeding.
-		 * 
-		 * Furthermore, we should check on whether the dependent CUTs have been
+		 * TODO we should check on whether the dependent CUTs have been
 		 * generated in this CTG run, or should rather look at previous runs.
 		 * This could happen for at least 2 reasons:
 		 * - under budget, and we could not run jobs for all CUTs
@@ -211,6 +207,10 @@ public class JobHandler extends Thread{
 		 * still want to use seeding based on previous CTG runs, if any test suite
 		 * is available for the CUT 
 		 */
+		
+		cmd += " "+getPoolInfo(job);
+		
+		//TODO not just input pool, but also hierarchy
 		
 		cmd += timeSetUp(job.seconds);
 			
@@ -232,6 +232,31 @@ public class JobHandler extends Thread{
 		return cmd;
 	}
 	
+	private String getPoolInfo(JobDefinition job){
+
+		StorageManager storage = executor.getStorage();
+		File poolFolder = storage.getTmpPools();
+		
+		String extension = ".pool";
+		String cmd = "";
+		cmd += " -Dwrite_pool="+poolFolder.getAbsolutePath()+File.separator+job.cut+extension;
+		
+		String[] dep = job.inputClasses.toArray(new String[0]);
+
+		if(dep.length > 0){
+			cmd += " -Dp_object_pool=0.5 ";
+			cmd += " -Dobject_pools=";
+
+			cmd += poolFolder.getAbsolutePath()+File.separator+dep[0]+extension;
+
+			for(int i=1; i<dep.length; i++){
+				cmd += File.pathSeparator + poolFolder.getAbsolutePath()+File.separator+dep[i]+extension;
+			}
+		}
+
+		return cmd;
+	}
+
 	private String getOutputVariables(){
 		//TODO add other outputs once fitness functions are fixed
 		String cmd =  " -Doutput_variables="; 
@@ -299,3 +324,4 @@ public class JobHandler extends Thread{
 		return cmd; 
 	}
 }
+

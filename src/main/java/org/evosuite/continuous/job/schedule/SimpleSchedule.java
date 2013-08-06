@@ -35,7 +35,7 @@ public class SimpleSchedule extends OneTimeSchedule{
 				continue;
 			}
 			JobDefinition job = new JobDefinition(
-					budgetInSecondsPerCUT, getConstantMemoryPerJob(), info.getClassName(), 0, null);
+					budgetInSecondsPerCUT, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 		}
 		return jobs;
