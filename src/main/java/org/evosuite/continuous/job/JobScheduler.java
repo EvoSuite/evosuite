@@ -27,7 +27,6 @@ public class JobScheduler {
 	public enum AvailableSchedule {SIMPLE,BUDGET,SEEDING,BUDGET_AND_SEEDING}; 
 	
 	private final ProjectStaticData projectData;
-	private final StorageManager storageManager;
 	private final int numberOfCores;
 	private final int totalBudgetInMinutes;
 	private final int totalMemoryInMB;
@@ -37,11 +36,10 @@ public class JobScheduler {
 
 	
 	public JobScheduler(ProjectStaticData projectData,
-			StorageManager storageManager, int numberOfCores,
+			int numberOfCores,
 			int totalMemoryInMB, int totalBudgetInMinutes) {
 		super();
 		this.projectData = projectData;
-		this.storageManager = storageManager;
 		this.numberOfCores = numberOfCores;
 		this.totalMemoryInMB = totalMemoryInMB;
 		this.totalBudgetInMinutes = totalBudgetInMinutes;
@@ -98,10 +96,6 @@ public class JobScheduler {
 
 	public ProjectStaticData getProjectData() {
 		return projectData;
-	}
-
-	public StorageManager getStorageManager() {
-		return storageManager;
 	}
 	
 	public int getNumberOfCores() {

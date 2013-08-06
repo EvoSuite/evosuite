@@ -94,7 +94,7 @@ public class JobExecutor {
 		this.projectClassPath = projectClassPath;
 	}
 
-	private long getRemainingTime(){
+	protected long getRemainingTimeInMs(){
 		long elapsed = System.currentTimeMillis() - startTimeInMs;
 		long budgetInMs = timeBudgetInMinutes * 60 * 1000;
 		long remaining = budgetInMs - elapsed;
@@ -151,7 +151,7 @@ public class JobExecutor {
 
 					mainLoop: while(!toExecute.isEmpty() || !postponed.isEmpty()){
 
-						long remaining = getRemainingTime();
+						long remaining = getRemainingTimeInMs();
 						if(remaining <= 0){
 							//time is over. do not submit any more job
 							break mainLoop;
@@ -313,7 +313,10 @@ public class JobExecutor {
 		 */
 		try {
 			//add one extra minute just to be sure
-			latch.await(timeBudgetInMinutes+1, TimeUnit.MINUTES);
+			boolean elapsed = latch.await(timeBudgetInMinutes+1, TimeUnit.MINUTES);  
+			if(elapsed){
+				logger.error("The jobs did not finish in time");
+			}
 		} catch (InterruptedException e) {
 		}
 	}

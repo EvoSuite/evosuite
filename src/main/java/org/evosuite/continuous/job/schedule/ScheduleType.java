@@ -47,7 +47,7 @@ public abstract class ScheduleType {
 	 * Less than that, and there would be no point to even run
 	 * the search.
 	 */
-	protected final int MINIMUM_SECONDS = 30;
+	public static final int MINIMUM_SECONDS = 30;
 
 	/**
 	 * To run a job, you need a minimum of RAM.
@@ -138,7 +138,7 @@ public abstract class ScheduleType {
 				continue;
 			}
 			JobDefinition job = new JobDefinition(
-					MINIMUM_SECONDS, getConstantMemoryPerJob(), info.getClassName(), 0, null);
+					MINIMUM_SECONDS, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
 			totalBudget -= MINIMUM_SECONDS;
