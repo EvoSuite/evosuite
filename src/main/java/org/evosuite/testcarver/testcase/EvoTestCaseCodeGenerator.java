@@ -163,7 +163,8 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 		
 		if(value instanceof Class)
 		{
-			final PrimitiveStatement cps = ClassPrimitiveStatement.getPrimitiveStatement(testCase, getClassForName(type));
+			// final PrimitiveStatement cps = ClassPrimitiveStatement.getPrimitiveStatement(testCase, getClassForName(type));
+			final PrimitiveStatement cps = new ClassPrimitiveStatement(testCase, getClassForName(type));
 			cps.setValue(value);
 
 			varRef = testCase.addStatement(cps);			
