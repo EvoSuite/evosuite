@@ -47,7 +47,7 @@ public abstract class ScheduleType {
 	 * Less than that, and there would be no point to even run
 	 * the search.
 	 */
-	protected final int MINIMUM_SECONDS = 30;
+	public static final int MINIMUM_SECONDS = 30;
 
 	/**
 	 * To run a job, you need a minimum of RAM.
