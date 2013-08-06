@@ -138,7 +138,7 @@ public abstract class ScheduleType {
 				continue;
 			}
 			JobDefinition job = new JobDefinition(
-					MINIMUM_SECONDS, getConstantMemoryPerJob(), info.getClassName(), 0, null);
+					MINIMUM_SECONDS, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
 			totalBudget -= MINIMUM_SECONDS;

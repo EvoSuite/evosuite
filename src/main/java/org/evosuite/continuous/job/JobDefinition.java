@@ -49,9 +49,20 @@ public class JobDefinition {
 	
 	/**
 	 * the name of all classes this CUT depends on,
-	 * and that would be good to have generated test cases before starting this job
+	 * and that would be good to have generated test cases before starting this job.
+	 * This is a union of all the the types of dependency (eg, input and parent)
 	 */
 	public final Set<String> dependentOnClasses;
+
+	/**
+	 * All dependent classes used as input for this CUT
+	 */
+	public final Set<String> inputClasses;
+
+	/**
+	 * All dependent classes in the parent hierarchy
+	 */
+	public final Set<String> parentClasses;
 
 	/**
 	 * Main constructor
@@ -60,35 +71,70 @@ public class JobDefinition {
 	 * @param memoryInMB
 	 * @param cut
 	 * @param configurationId
-	 * @param dependencies
 	 */
 	public JobDefinition(int seconds, int memoryInMB, String cut,
-			int configurationId, Set<String> dependencies) {
+			int configurationId, Set<String> inputDependencies, Set<String> parentDependencies) {
 		super();
 		this.jobID = counter.getAndIncrement();
 		this.seconds = seconds;
 		this.memoryInMB = memoryInMB;
 		this.cut = cut;
 		this.configurationId = configurationId;
-		if(dependencies!=null){
-			this.dependentOnClasses = Collections.unmodifiableSet(new HashSet<String>(dependencies));
+
+		HashSet<String> union = new HashSet<String>();
+
+		if(inputDependencies!=null && inputDependencies.size()>0){
+			this.inputClasses = Collections.unmodifiableSet(new HashSet<String>(inputDependencies));
+			union.addAll(inputClasses);
 		} else {
+			this.inputClasses = null;
+		}
+
+		if(parentDependencies!=null && parentDependencies.size()>0){
+			this.parentClasses = Collections.unmodifiableSet(new HashSet<String>(parentDependencies));
+			union.addAll(parentClasses);
+		} else {
+			this.parentClasses = null;
+		}
+		
+		if(union.size() == 0){
 			this.dependentOnClasses = null;
+		} else {
+			this.dependentOnClasses = Collections.unmodifiableSet(new HashSet<String>(union));
 		}
 	}
 
 	/**
-	 * Create a copy of this job, and add the input to the set of CUT dependencies
+	 * Create a copy of this job, and add the input and parent dependencies to the set of CUT dependencies
+	 * 
+	 * <p>
+	 * It is OK to have one of the sets null, but not both
 	 * 
 	 * @param input
 	 * @return
 	 */
-	public JobDefinition getByAddingDependencies(Set<String> input){
-		if(dependentOnClasses!=null){
-			input.addAll(dependentOnClasses);
+	public JobDefinition getByAddingDependencies(Set<String> inputs, Set<String> parents) throws IllegalArgumentException{
+		
+		if(inputs==null && parents==null){
+			throw new IllegalArgumentException("Both sets are null");
+		}
+				
+		if(inputClasses!=null){
+			if(inputs==null){
+				inputs = inputClasses;
+			} else {
+				inputs.addAll(inputClasses);
+			}
+		}
+		if(parentClasses!=null){
+			if(parents==null){
+				parents = parentClasses;
+			} else {
+				parents.addAll(parentClasses);
+			}
 		}
 		
-		return new JobDefinition(seconds, memoryInMB, cut, configurationId, input);
+		return new JobDefinition(seconds, memoryInMB, cut, configurationId, inputs, parents);
 	}
 	
 	@Override

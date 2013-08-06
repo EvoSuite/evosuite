@@ -44,10 +44,10 @@ public class JobExecutorTest {
 		JobExecutor exe = new JobExecutor(storage, classpath, cores, memory, minutes);
 		
 		JobDefinition simple = new JobDefinition(30, memory, 
-				com.examples.with.different.packagename.continuous.Simple.class.getName(), 0, null);
+				com.examples.with.different.packagename.continuous.Simple.class.getName(), 0, null, null);
 		
 		JobDefinition trivial = new JobDefinition(30, memory, 
-				com.examples.with.different.packagename.continuous.Trivial.class.getName(), 0, null);
+				com.examples.with.different.packagename.continuous.Trivial.class.getName(), 0, null, null);
 		
 		Assert.assertTrue(simple.jobID < trivial.jobID);
 		
