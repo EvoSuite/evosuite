@@ -332,7 +332,7 @@ public class BytecodeInstrumentation {
 			cn.accept(cv);
 
 			if (Properties.TEST_CARVING) {
-				if (TransformerUtil.isClassConsideredForInstrumenetation(className)) {
+				if (TransformerUtil.isClassConsideredForInstrumentation(className)) {
 					final ClassReader cr = new ClassReader(writer.toByteArray());
 					final ClassNode cn2 = new ClassNode();
 					cr.accept(cn2, ClassReader.EXPAND_FRAMES);
