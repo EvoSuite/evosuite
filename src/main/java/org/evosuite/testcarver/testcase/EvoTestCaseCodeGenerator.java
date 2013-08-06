@@ -26,6 +26,7 @@ import org.evosuite.testcase.ClassPrimitiveStatement;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.DefaultTestCase;
 import org.evosuite.testcase.FieldReference;
+import org.evosuite.testcase.FieldStatement;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.NullStatement;
 import org.evosuite.testcase.PrimitiveStatement;
@@ -241,7 +242,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 			final Class<?> fieldType = CaptureUtil.getClassFromDesc(fieldDesc);
 
 			final FieldReference targetFieldRef = new FieldReference(testCase,
-			        new GenericField(this.getDeclaredField(type, fieldName), type));
+			        new GenericField(this.getDeclaredField(type, fieldName), type), this.oidToVarRefMap.get(oid));
 
 			final AssignmentStatement assignment;
 
@@ -290,9 +291,12 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 				final VariableReference targetVar = new VariableReferenceImpl(testCase,
 				        fieldType);
 
-				final AssignmentStatement assignment = new AssignmentStatement(testCase,
-				        targetVar, valueRef);
-				VariableReference varRef = testCase.addStatement(assignment);
+				
+				final FieldStatement fieldStatement = new FieldStatement(testCase, new GenericField(type.getField(fieldName), type), this.oidToVarRefMap.get(oid));
+				//final AssignmentStatement assignment = new AssignmentStatement(testCase,
+				//        targetVar, valueRef);
+				// VariableReference varRef = testCase.addStatement(assignment);
+				VariableReference varRef = testCase.addStatement(fieldStatement);
 
 				this.oidToVarRefMap.put(returnValueOID, varRef);
 
