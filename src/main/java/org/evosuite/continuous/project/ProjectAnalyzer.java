@@ -1,8 +1,13 @@
 package org.evosuite.continuous.project;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.regex.Pattern;
+
+import javax.swing.event.ListSelectionEvent;
 
 import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData.ClassInfo;
@@ -39,20 +44,59 @@ public class ProjectAnalyzer {
 	 */
 	private final String target;
 
-	public ProjectAnalyzer(String target) {
+	private transient String[] cutsToAnalyze;
+	
+	public ProjectAnalyzer(String target) throws NullPointerException{
 		super();
+		if(target==null){
+			throw new NullPointerException("Target cannot be null");
+		}
 		this.target = target;
 	}
 	
-	public ProjectStaticData analyze(){
-		Pattern pattern = Pattern.compile("[^\\$]*.class");
-		Collection<String> classes = ResourceList.getResources(target, pattern);
+	/**
+	 * Instead of scanning for classes in the given target, directly specify
+	 * the class names the project is composed by
+	 * 
+	 * <p>
+	 * Note: this constructor is mainly ment for unit tests
+	 * @param cuts
+	 */
+	public ProjectAnalyzer(String[] cuts) throws NullPointerException {
+		super();
+		if(cuts==null){
+			throw new NullPointerException("Input array cannot be null");
+		}
+		this.target = null;
+		this.cutsToAnalyze = cuts;
+	}
+	
+	private Collection<String> getCutsToAnalyze(){
+		if(target!=null){
+			Pattern pattern = Pattern.compile("[^\\$]*.class");
+			Collection<String> classes = ResourceList.getResources(target, pattern);
+			
+			List<String> cuts = new LinkedList<String>();
+			
+			for (String fileName : classes) {
+				String className = fileName.replace(".class", "").replaceAll(File.separator, ".");
+				cuts.add(className);
+			}
+			return cuts;
+		} else {
+			return Arrays.asList(cutsToAnalyze);
+		}
+	}
+	
+	/**
+	 * Analyze the classes in the given target
+	 * @return
+	 */
+	public ProjectStaticData analyze(){		
 		
 		ProjectStaticData data = new ProjectStaticData();
 		
-		for (String fileName : classes) {
-			String className = fileName.replace(".class", "").replaceAll(File.separator, ".");
-
+		for (String className : getCutsToAnalyze()) {
 			Class<?> theClass = null; 
 			int numberOfBranches = -1;			
 			boolean hasCode = false;

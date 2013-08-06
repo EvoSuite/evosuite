@@ -19,18 +19,18 @@ public class ProjectAnalyzerTest {
 				Trivial.class.getName()
 		};
 		
-		ProjectAnalyzer pa = null;//TODO
+		ProjectAnalyzer pa = new ProjectAnalyzer(cuts);
 		
 		ProjectStaticData data = pa.analyze();
 
 		Assert.assertEquals(2, data.getTotalNumberOfClasses());
 		
-		ClassInfo simple = null ; //TODO
+		ClassInfo simple = data.getClassInfo(Simple.class.getName());
 		Assert.assertNotNull(simple);
 		Assert.assertEquals(2, simple.numberOfBranches);
 		
-		ClassInfo trivial = null ; //TODO
+		ClassInfo trivial = data.getClassInfo(Trivial.class.getName()); 
 		Assert.assertNotNull(trivial);
-		Assert.assertEquals(2, trivial.numberOfBranches);		
+		Assert.assertEquals(1, trivial.numberOfBranches);		
 	}
 }
