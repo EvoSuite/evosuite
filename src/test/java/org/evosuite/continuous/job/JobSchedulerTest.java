@@ -1,6 +1,7 @@
 package org.evosuite.continuous.job;
 
 import java.util.List;
+import java.util.Set;
 
 import org.junit.Assert;
 
@@ -9,10 +10,15 @@ import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.continuous.BaseForSeeding;
 import com.examples.with.different.packagename.continuous.MoreBranches;
 import com.examples.with.different.packagename.continuous.NoBranches;
+import com.examples.with.different.packagename.continuous.OnlyAbstract;
+import com.examples.with.different.packagename.continuous.OnlyAbstractImpl;
 import com.examples.with.different.packagename.continuous.SomeBranches;
 import com.examples.with.different.packagename.continuous.SomeInterface;
+import com.examples.with.different.packagename.continuous.SomeInterfaceImpl;
+import com.examples.with.different.packagename.continuous.Trivial;
 
 public class JobSchedulerTest {
 	
@@ -100,4 +106,57 @@ public class JobSchedulerTest {
 		Assert.assertTrue("wrong value "+sum, sum <= (cores*budget*60));
 	}
 	
+	@Test
+	public void testSeeding(){
+		
+		String[] cuts = new String[]{
+				BaseForSeeding.class.getName(),
+				NoBranches.class.getName(),
+				MoreBranches.class.getName(),
+				SomeInterface.class.getName(),
+				SomeInterfaceImpl.class.getName(),
+				SomeBranches.class.getName(),
+				OnlyAbstract.class.getName(),
+				OnlyAbstractImpl.class.getName(),
+				Trivial.class.getName()
+		};
+		
+		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts); 
+		ProjectStaticData data = analyzer.analyze();
+		
+		int cores = 3;
+		int memory = 1800;
+		int budget = 2;
+		
+		JobScheduler scheduler = new JobScheduler(data, 
+				cores, memory, budget);		
+		scheduler.chooseScheduleType(AvailableSchedule.SEEDING);
+		
+		List<JobDefinition> jobs = scheduler.createNewSchedule();
+		Assert.assertNotNull(jobs);
+
+		for(JobDefinition job : jobs){
+			Assert.assertEquals(600,job.memoryInMB);
+		}
+		
+		//we have 9 classes, but 2 have no code
+		Assert.assertEquals(7, jobs.size());
+		
+		JobDefinition seeding = null;
+		for(JobDefinition job : jobs){
+			if(job.cut.equals(BaseForSeeding.class.getName())){
+				seeding = job;
+				break;
+			}
+		}
+		Assert.assertNotNull(seeding);
+		
+		Set<String> in = seeding.inputClasses;
+		Assert.assertNotNull(in);
+		Assert.assertEquals(4, in.size());
+		Assert.assertTrue(in.contains(NoBranches.class.getName()));
+		Assert.assertTrue(in.contains(SomeBranches.class.getName()));
+		Assert.assertTrue(in.contains(SomeInterfaceImpl.class.getName()));
+		Assert.assertTrue(in.contains(OnlyAbstractImpl.class.getName()));
+	}	
 }
