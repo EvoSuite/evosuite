@@ -82,12 +82,12 @@ public class StorageManager {
 		 * Note: here we just make sure we can write on disk
 		 */
 
+		boolean created = false;
+		
 		File root = new File(rootFolderName);
 		if(root.exists()){
 			if(root.isDirectory()){
-				if(root.canWrite()){
-					return true;
-				} else {
+				if(!root.canWrite()){					
 					logger.error("Cannot write in "+root.getAbsolutePath());
 					return false;
 				}
@@ -95,20 +95,24 @@ public class StorageManager {
 				//it exists but not a folder...
 				boolean deleted = root.delete();
 				if(!deleted){
-					logger.error("Folder "+root+" is a file, and we cannot delete it");
+					logger.error("Folder "+root+" is a file, and failed to delete it");
 					return false;
 				} else {
-					// same as "else" of !exist
+					created = root.mkdirs();
+					if(!created){
+						logger.error("Failed to mkdir "+root.getAbsolutePath());
+						return false;
+					}
 				}
 			}
+		} else {
+			created = root.mkdirs();
+			if(!created){
+				logger.error("Failed to mkdir "+root.getAbsolutePath());
+				return false;
+			}
 		}
-
-		boolean created = root.mkdir();
-		if(!created){
-			logger.error("Failed to mkdir "+root.getAbsolutePath());
-			return false;
-		}
-
+		
 		testsFolder = new File(root.getAbsolutePath()+File.separator+"evosuite-tests");
 		if(!testsFolder.exists()){
 			created = testsFolder.mkdirs();
