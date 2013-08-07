@@ -153,9 +153,9 @@ public class JobHandler extends Thread{
 	private String getCommandString(JobDefinition job){
 		
 		String cmd = "java "; 
-		//TODO check Windows/Unix file paths
-		cmd += " -cp " + executor.getProjectClassPath();
-		
+		String classpath = System.getProperty("java.class.path"); 
+		cmd += " -cp " + classpath+File.pathSeparator+executor.getProjectClassPath();
+	
 		/* 
 		 * FIXME for seeding, need to setup classpath of generated test suites
 		 * - first the currently generated
