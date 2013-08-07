@@ -5,7 +5,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
@@ -28,17 +30,23 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	}
 
 	public ClassPrimitiveStatement(TestCase tc, Class<?> value) {
-//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
-		super(tc, new GenericClass(Class.class).getWithParameterTypes(new Type[] { value }), value);
-//		super(tc, new GenericClass(value.getClass()), value);
+		//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(), value);
+		super(
+		        tc,
+		        new GenericClass(Class.class).getWithParameterTypes(new Type[] { value }),
+		        value);
+		//		super(tc, new GenericClass(value.getClass()), value);
 		this.assignableClasses.add(value);
 	}
 
 	public ClassPrimitiveStatement(TestCase tc) {
-//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(),
-		super(tc, new GenericClass(Class.class).getWithParameterTypes(new Type[] { Properties.getTargetClass() }), Properties.getTargetClass());
-//		super(tc, new GenericClass(Properties.getTargetClass()),
-//		        Properties.getTargetClass());
+		//		super(tc, new GenericClass(Class.class).getWithWildcardTypes(),
+		super(
+		        tc,
+		        new GenericClass(Class.class).getWithParameterTypes(new Type[] { Properties.getTargetClass() }),
+		        Properties.getTargetClass());
+		//		super(tc, new GenericClass(Properties.getTargetClass()),
+		//		        Properties.getTargetClass());
 	}
 
 	@Override
@@ -110,31 +118,50 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 		}
 	}
 
+	private Class<?> getArray(Class<?> arrayClass, ClassLoader loader)
+	        throws ClassNotFoundException {
+		if (arrayClass.isPrimitive()) {
+			return Array.newInstance(arrayClass, 0).getClass();
+		} else if (arrayClass.isArray()) {
+			Class<?> newComponent = getArray(arrayClass.getComponentType(), loader);
+			return Array.newInstance(newComponent, 0).getClass();
+		} else {
+			Class<?> newComponent = loader.loadClass(arrayClass.getName());
+			return Array.newInstance(newComponent, 0).getClass();
+		}
+	}
+
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		super.changeClassLoader(loader);
 		Class<?> currentClass = value;
 		try {
 			// Not using canonical name here because Class$Memberclass cannot be resolved
-			String className = currentClass.getName();
-			value = loader.loadClass(className);
+			value = getArray(currentClass, loader);
 		} catch (ClassNotFoundException e) {
 			logger.warn("Could not load class in new classloader: " + currentClass);
 		}
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
-		Class<?> currentClass = value;
-		oos.writeObject(currentClass.getName());
+		GenericClass currentClass = new GenericClass(value);
+		oos.writeObject(currentClass);
+		List<GenericClass> currentAssignableClasses = new ArrayList<GenericClass>();
+		for (Class<?> assignableClass : assignableClasses)
+			currentAssignableClasses.add(new GenericClass(assignableClass));
+		oos.writeObject(currentAssignableClasses);
 	}
 
+	@SuppressWarnings("unchecked")
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
-		String name = (String) ois.readObject();
-		try {
-			value = TestGenerationContext.getClassLoader().loadClass(name);
-		} catch (ClassNotFoundException e) {
-			logger.warn("Could not load class in new classloader: " + name);
+		GenericClass currentClass = (GenericClass) ois.readObject();
+		value = currentClass.getRawClass();
+
+		List<GenericClass> newAssignableClasses = (List<GenericClass>) ois.readObject();
+		assignableClasses.clear();
+		for (GenericClass assignableClass : newAssignableClasses) {
+			assignableClasses.add(assignableClass.getRawClass());
 		}
 
 	}

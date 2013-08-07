@@ -14,10 +14,14 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.utils.GenericTypeInference;
 import org.junit.runner.Description;
 import org.junit.runner.notification.RunListener;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CarvingRunListener extends RunListener {
 
 	private final List<TestCase> carvedTests = new ArrayList<TestCase>();
+
+	private final static Logger logger = LoggerFactory.getLogger(CarvingRunListener.class);
 
 	private final Class<?>[] targetClasses;
 
@@ -54,6 +58,7 @@ public class CarvingRunListener extends RunListener {
 		analyzer.analyze(log, codeGen, this.targetClasses);
 
 		DefaultTestCase test = (DefaultTestCase) codeGen.getCode();
+		logger.info("Carved test: " + test.toCode());
 		test.changeClassLoader(TestGenerationContext.getClassLoader());
 		GenericTypeInference inference = new GenericTypeInference();
 		//test.accept(inference);
