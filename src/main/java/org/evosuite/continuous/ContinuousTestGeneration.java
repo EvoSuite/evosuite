@@ -109,7 +109,7 @@ public class ContinuousTestGeneration {
     		ProjectAnalyzer analyzer = new ProjectAnalyzer(target);
     		ProjectStaticData data = analyzer.analyze();
     		
-    		JobScheduler scheduler = new JobScheduler(data,storage,numberOfCores,totalMemoryInMB,timeInMinutes);
+    		JobScheduler scheduler = new JobScheduler(data,numberOfCores,totalMemoryInMB,timeInMinutes);
     		scheduler.chooseScheduleType(schedule);
     		JobExecutor executor = new JobExecutor(storage,projectClassPath,numberOfCores,totalMemoryInMB,timeInMinutes);
     		

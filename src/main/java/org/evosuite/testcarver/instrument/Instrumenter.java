@@ -45,7 +45,7 @@ public final class Instrumenter
 	
 	public void instrument(final String className, final ClassNode cn)
 	{
-		if(! TransformerUtil.isClassConsideredForInstrumenetation(className))
+		if(! TransformerUtil.isClassConsideredForInstrumentation(className))
 		{
 			logger.debug("class {} has not been instrumented because its name is on the blacklist", className);
 			return;
@@ -72,7 +72,7 @@ public final class Instrumenter
 		final ClassNode 		cn 			  = new ClassNode();
 		cr.accept(cn, ClassReader.SKIP_DEBUG);
 
-		if(! TransformerUtil.isClassConsideredForInstrumenetation(className))
+		if(! TransformerUtil.isClassConsideredForInstrumentation(className))
 		{
 			logger.debug("class {} has not been instrumented because its name is on the blacklist", className);
 			return classfileBuffer;
@@ -149,7 +149,7 @@ public final class Instrumenter
 	@SuppressWarnings("unchecked")
 	public void transformClassNode(ClassNode cn, final String internalClassName)
 	{
-		if(! TransformerUtil.isClassConsideredForInstrumenetation(internalClassName))
+		if(! TransformerUtil.isClassConsideredForInstrumentation(internalClassName))
 		{
 			logger.debug("class {} has not been instrumented because its name is on the blacklist", internalClassName);
 			return;

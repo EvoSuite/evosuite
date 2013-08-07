@@ -89,6 +89,10 @@ public class ProjectStaticData {
 		return classes.containsKey(c);
 	}
 	
+	public ClassInfo getClassInfo(String name){
+		return classes.get(name);
+	}
+	
 	/**
 	 * Return the number of classes in the project,
 	 * including non-testable ones

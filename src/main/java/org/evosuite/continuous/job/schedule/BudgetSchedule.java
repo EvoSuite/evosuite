@@ -45,7 +45,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 			int budget = super.MINIMUM_SECONDS + 
 					(int)(timePerBranch * info.numberOfBranches);
 			JobDefinition job = new JobDefinition(
-					budget, getConstantMemoryPerJob(), info.getClassName(), 0, null);
+					budget, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 		}
 		

@@ -45,7 +45,7 @@ public class TransformerUtil {
 	}
 	
 	
-	public static boolean isClassConsideredForInstrumenetation(final String className)
+	public static boolean isClassConsideredForInstrumentation(final String className)
 	{
 		// we exclude standard java and sun packages as well the Prototype package
 		// TODO use regex for check

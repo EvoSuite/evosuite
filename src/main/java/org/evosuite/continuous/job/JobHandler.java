@@ -11,6 +11,7 @@ import java.util.concurrent.CountDownLatch;
 
 import org.evosuite.Properties;
 import org.evosuite.Properties.StoppingCondition;
+import org.evosuite.continuous.job.schedule.ScheduleType;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ReportGenerator.RuntimeVariable;
@@ -152,9 +153,9 @@ public class JobHandler extends Thread{
 	private String getCommandString(JobDefinition job){
 		
 		String cmd = "java "; 
-		//TODO check Windows/Unix file paths
-		cmd += " -cp " + executor.getProjectClassPath();
-		
+		String classpath = System.getProperty("java.class.path"); 
+		cmd += " -cp " + classpath+File.pathSeparator+executor.getProjectClassPath();
+	
 		/* 
 		 * FIXME for seeding, need to setup classpath of generated test suites
 		 * - first the currently generated
@@ -195,11 +196,7 @@ public class JobHandler extends Thread{
 		 */
 		
 		/*
-		 * TODO: we ll need to handle dependent CUTs for seeding,
-		 * and distinguish on whether their are parent or input CUTs.
-		 * Like new parameters in EvoSuite will be needed for seeding.
-		 * 
-		 * Furthermore, we should check on whether the dependent CUTs have been
+		 * TODO we should check on whether the dependent CUTs have been
 		 * generated in this CTG run, or should rather look at previous runs.
 		 * This could happen for at least 2 reasons:
 		 * - under budget, and we could not run jobs for all CUTs
@@ -210,6 +207,10 @@ public class JobHandler extends Thread{
 		 * still want to use seeding based on previous CTG runs, if any test suite
 		 * is available for the CUT 
 		 */
+		
+		cmd += " "+getPoolInfo(job);
+		
+		//TODO not just input pool, but also hierarchy
 		
 		cmd += timeSetUp(job.seconds);
 			
@@ -231,6 +232,32 @@ public class JobHandler extends Thread{
 		return cmd;
 	}
 	
+	private String getPoolInfo(JobDefinition job){
+
+		StorageManager storage = executor.getStorage();
+		File poolFolder = storage.getTmpPools();
+		
+		String extension = ".pool";
+		String cmd = "";
+		cmd += " -Dwrite_pool="+poolFolder.getAbsolutePath()+File.separator+job.cut+extension;
+		
+		if(job.inputClasses!=null && job.inputClasses.size() > 0){
+
+			String[] dep = job.inputClasses.toArray(new String[0]);
+
+			cmd += " -Dp_object_pool=0.5 ";
+			cmd += " -Dobject_pools=";
+
+			cmd += poolFolder.getAbsolutePath()+File.separator+dep[0]+extension;
+
+			for(int i=1; i<dep.length; i++){
+				cmd += File.pathSeparator + poolFolder.getAbsolutePath()+File.separator+dep[i]+extension;
+			}
+		}
+
+		return cmd;
+	}
+
 	private String getOutputVariables(){
 		//TODO add other outputs once fitness functions are fixed
 		String cmd =  " -Doutput_variables="; 
@@ -245,6 +272,19 @@ public class JobHandler extends Thread{
 	}
 	
 	private String timeSetUp(int seconds){
+		
+		//do we have enough time for this job?
+		int remaining = (int)executor.getRemainingTimeInMs() / 1000;
+		
+		if(seconds > remaining){
+			seconds = remaining;
+		}
+		
+		if(seconds < ScheduleType.MINIMUM_SECONDS){
+			//even if we do not have enough time, we go for the minimum
+			seconds = ScheduleType.MINIMUM_SECONDS;
+		}
+		
 		/*
 		 * We have at least 3 phases:
 		 * - search
@@ -285,3 +325,4 @@ public class JobHandler extends Thread{
 		return cmd; 
 	}
 }
+

@@ -54,7 +54,8 @@ public class StorageManager {
 	private File tmpLogs;
 	private File tmpReports;
 	private File tmpTests;
-
+	private File tmpPools;
+	
 	/**
 	 * Folder where all the best test suites generated so far in all CTG runs are stored
 	 */
@@ -81,12 +82,12 @@ public class StorageManager {
 		 * Note: here we just make sure we can write on disk
 		 */
 
+		boolean created = false;
+		
 		File root = new File(rootFolderName);
 		if(root.exists()){
 			if(root.isDirectory()){
-				if(root.canWrite()){
-					return true;
-				} else {
+				if(!root.canWrite()){					
 					logger.error("Cannot write in "+root.getAbsolutePath());
 					return false;
 				}
@@ -94,20 +95,24 @@ public class StorageManager {
 				//it exists but not a folder...
 				boolean deleted = root.delete();
 				if(!deleted){
-					logger.error("Folder "+root+" is a file, and we cannot delete it");
+					logger.error("Folder "+root+" is a file, and failed to delete it");
 					return false;
 				} else {
-					// same as "else" of !exist
+					created = root.mkdirs();
+					if(!created){
+						logger.error("Failed to mkdir "+root.getAbsolutePath());
+						return false;
+					}
 				}
 			}
+		} else {
+			created = root.mkdirs();
+			if(!created){
+				logger.error("Failed to mkdir "+root.getAbsolutePath());
+				return false;
+			}
 		}
-
-		boolean created = root.mkdir();
-		if(!created){
-			logger.error("Failed to mkdir "+root.getAbsolutePath());
-			return false;
-		}
-
+		
 		testsFolder = new File(root.getAbsolutePath()+File.separator+"evosuite-tests");
 		if(!testsFolder.exists()){
 			created = testsFolder.mkdirs();
@@ -148,7 +153,9 @@ public class StorageManager {
 		tmpReports.mkdirs();
 		tmpTests = new File(tmpFolder.getAbsolutePath()+"/tests");
 		tmpTests.mkdirs();
-
+		tmpPools = new File(tmpFolder.getAbsolutePath()+"/pools");
+		tmpPools.mkdirs();
+		
 		return true;
 	}
 
@@ -582,5 +589,9 @@ public class StorageManager {
 
 	public File getTmpTests() {
 		return tmpTests;
+	}
+
+	public File getTmpPools() {
+		return tmpPools;
 	}
 }
