@@ -54,7 +54,7 @@ public class LoggingUtils {
 	public static final PrintStream DEFAULT_ERR = System.err;
 
 	public static final String USE_DIFFERENT_LOGGING_XML_PARAMETER = "use_different_logback";
-	
+
 	private static final String EVO_LOGGER = "evo_logger";
 
 	/** Constant <code>latestOut</code> */
@@ -258,7 +258,14 @@ public class LoggingUtils {
 				JoranConfigurator configurator = new JoranConfigurator();
 				configurator.setContext(context);
 				final String xmlFileName = getLogbackFileName();
-				InputStream f = EvoSuite.class.getClassLoader().getResourceAsStream(xmlFileName);
+				InputStream f = null;
+				if (EvoSuite.class.getClassLoader() != null) {
+					f = EvoSuite.class.getClassLoader().getResourceAsStream(xmlFileName);
+				} else {
+					// If the classloader is null, then that means EvoSuite.class was loaded
+					// with the bootstrap classloader, so let's try that as well
+					f = ClassLoader.getSystemClassLoader().getResourceAsStream(xmlFileName);
+				}
 				if (f == null) {
 					System.err.println(xmlFileName + " not found on classpath");
 				}
@@ -271,8 +278,9 @@ public class LoggingUtils {
 		}
 	}
 
-	public static String getLogbackFileName() {		
-		return System.getProperty(USE_DIFFERENT_LOGGING_XML_PARAMETER, "logback-evosuite.xml");
+	public static String getLogbackFileName() {
+		return System.getProperty(USE_DIFFERENT_LOGGING_XML_PARAMETER,
+		                          "logback-evosuite.xml");
 	}
 
 }
