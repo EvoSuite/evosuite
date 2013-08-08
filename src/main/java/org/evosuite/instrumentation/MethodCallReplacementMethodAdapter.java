@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -31,10 +31,11 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.GeneratorAdapter;
 
-
 /**
- * <p>MethodCallReplacementMethodAdapter class.</p>
- *
+ * <p>
+ * MethodCallReplacementMethodAdapter class.
+ * </p>
+ * 
  * @author fraser
  */
 public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
@@ -85,29 +86,36 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 					loadLocal(to.get(i));
 				}
 			}
-			mv.visitMethodInsn(opcode, replacementClassName,
-			                   replacementMethodName, replacementDesc);
+			mv.visitMethodInsn(opcode, replacementClassName, replacementMethodName,
+			                   replacementDesc);
 		}
 	}
-	
+
 	/**
 	 * method replacements, which are called with Opcodes.INVOKESTATIC
 	 */
 	private final Set<MethodCallReplacement> replacementCalls = new HashSet<MethodCallReplacement>();
-	
+
 	/**
 	 * method replacements, which are called with Opcodes.INVOKEVIRTUAL
 	 */
 	private final Set<MethodCallReplacement> virtualReplacementCalls = new HashSet<MethodCallReplacement>();
 
 	/**
-	 * <p>Constructor for MethodCallReplacementMethodAdapter.</p>
-	 *
-	 * @param mv a {@link org.objectweb.asm.MethodVisitor} object.
-	 * @param className a {@link java.lang.String} object.
-	 * @param methodName a {@link java.lang.String} object.
-	 * @param access a int.
-	 * @param desc a {@link java.lang.String} object.
+	 * <p>
+	 * Constructor for MethodCallReplacementMethodAdapter.
+	 * </p>
+	 * 
+	 * @param mv
+	 *            a {@link org.objectweb.asm.MethodVisitor} object.
+	 * @param className
+	 *            a {@link java.lang.String} object.
+	 * @param methodName
+	 *            a {@link java.lang.String} object.
+	 * @param access
+	 *            a int.
+	 * @param desc
+	 *            a {@link java.lang.String} object.
 	 */
 	public MethodCallReplacementMethodAdapter(MethodVisitor mv, String className,
 	        String methodName, int access, String desc) {
@@ -122,20 +130,26 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			        "()I", "org/evosuite/runtime/Random", "nextInt", "()I", true));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextInt",
 			        "(I)I", "org/evosuite/runtime/Random", "nextInt", "(I)I", true));
-			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextDouble",
-			        "()D", "org/evosuite/runtime/Random", "nextDouble", "()D",
+			replacementCalls.add(new MethodCallReplacement("java/util/Random",
+			        "nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
+			        "()D", true));
+			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
+			        "()D", "org/evosuite/runtime/Random", "nextDouble", "()D", true));
+			replacementCalls.add(new MethodCallReplacement("java/util/Random",
+			        "nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
+			        "()F", true));
+			replacementCalls.add(new MethodCallReplacement("java/util/Random",
+			        "nextLong", "()J", "org/evosuite/runtime/Random", "nextLong", "()J",
 			        true));
-			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextFloat",
-			        "()F", "org/evosuite/runtime/Random", "nextFloat", "()F", true));
-			replacementCalls.add(new MethodCallReplacement("java/util/Random", "nextLong",
-			        "()J", "org/evosuite/runtime/Random", "nextLong", "()J", true));
-		} 
+		}
 		if (Properties.VIRTUAL_FS) {
-			virtualReplacementCalls.add(new MethodCallReplacement("java/io/FileInputStream", "available",
-					"()I", "java/io/FileInputStream", "availableNew", "()I", false));
-			virtualReplacementCalls.add(new MethodCallReplacement("java/io/FileInputStream", "skip",
-					"(J)J", "java/io/FileInputStream", "skipNew", "(J)J", false));
-		}		
+			virtualReplacementCalls.add(new MethodCallReplacement(
+			        "java/io/FileInputStream", "available", "()I",
+			        "java/io/FileInputStream", "availableNew", "()I", false));
+			virtualReplacementCalls.add(new MethodCallReplacement(
+			        "java/io/FileInputStream", "skip", "(J)J", "java/io/FileInputStream",
+			        "skipNew", "(J)J", false));
+		}
 	}
 
 	/* (non-Javadoc)
