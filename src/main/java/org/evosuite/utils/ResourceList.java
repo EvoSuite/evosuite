@@ -45,6 +45,40 @@ public class ResourceList {
 
 	private static Logger logger = LoggerFactory.getLogger(ResourceList.class);
 
+	public static String getClassAsResource(String className) {
+		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
+
+		final String[] classPathElements = Properties.CP.split(File.pathSeparator);
+		for (final String element : classPathElements) {
+			if (element == null || element.isEmpty()) {
+				continue;
+			}
+			Collection<String> resources = getResources(element, pattern);
+			if (!resources.isEmpty()) {
+				return resources.iterator().next();
+			}
+		}
+
+		if (File.separatorChar != '/') {
+			/*
+			 * This can happen for example in Windows.
+			 * Note: we still need to do scan above in case of Jar files (that would still use '/' inside)
+			 */
+			pattern = Pattern.compile(className.replace(".", "\\\\") + ".class");
+			for (final String element : classPathElements) {
+				if (element == null || element.isEmpty()) {
+					continue;
+				}
+				Collection<String> resources = getResources(element, pattern);
+				if (!resources.isEmpty()) {
+					return resources.iterator().next();
+				}
+			}
+		}
+
+		return null;
+	}
+
 	public static boolean hasClass(String className) {
 
 		Pattern pattern = Pattern.compile(className.replace('.', '/') + ".class");
@@ -195,7 +229,7 @@ public class ResourceList {
 	        final Pattern pattern, final String classPathFolder) {
 
 		final ArrayList<String> retval = new ArrayList<String>();
-		if(!directory.exists()) {
+		if (!directory.exists()) {
 			return retval;
 		}
 		final File[] fileList = directory.listFiles();

@@ -20,7 +20,6 @@
  */
 package org.evosuite.setup;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -91,7 +90,7 @@ public class InheritanceTree {
 		return result;
 	}
 
-	public Collection<String> getSuperclasses(String className) {
+	public Set<String> getSuperclasses(String className) {
 		String classNameWithDots = Utils.getClassNameFromResourcePath(className);
 
 		EdgeReversedGraph<String, DefaultEdge> reverseGraph = new EdgeReversedGraph<String, DefaultEdge>(
@@ -103,6 +102,10 @@ public class InheritanceTree {
 			result.add(bfi.next());
 		}
 		return result;
+	}
+
+	public Set<String> getAllClasses() {
+		return inheritanceGraph.vertexSet();
 	}
 
 	public void removeClass(String className) {
