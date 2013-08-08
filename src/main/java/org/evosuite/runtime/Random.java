@@ -66,7 +66,7 @@ public class Random {
 	 */
 	public static float nextFloat() {
 		wasAccessed = true;
-		return currentNumber++;
+		return (currentNumber++ % 10F) / 10F;
 	}
 
 	/**
@@ -74,9 +74,9 @@ public class Random {
 	 * 
 	 * @return a float.
 	 */
-	public static float nextDouble() {
+	public static double nextDouble() {
 		wasAccessed = true;
-		return currentNumber++;
+		return (currentNumber++ % 10.0) / 10.0;
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class Random {
 	 *            a int.
 	 */
 	public static void setNextRandom(int number) {
-		currentNumber = number;
+		currentNumber = Math.abs(number);
 	}
 
 	/**
