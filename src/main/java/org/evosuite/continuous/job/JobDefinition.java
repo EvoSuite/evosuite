@@ -12,7 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Note: this class is/should be immutable
  * 
  * @author arcuri
- *
+ * 
  */
 public class JobDefinition {
 
@@ -20,37 +20,36 @@ public class JobDefinition {
 	 * counter used to create unique ids in a thread-safe manner
 	 */
 	private static final AtomicInteger counter = new AtomicInteger(0);
-	
+
 	/**
 	 * A unique, human-readable identifier for this job
 	 */
-	public final int jobID;	
-	
+	public final int jobID;
+
 	/**
 	 * define for how long this job should be run
 	 */
 	public final int seconds;
-	
+
 	/**
 	 * define how much memory this job can allocate
 	 */
-	public final int memoryInMB; 
-	
+	public final int memoryInMB;
+
 	/**
 	 * full qualifying name of the class under test (CUT)
 	 */
 	public final String cut;
-	
+
 	/**
-	 * the configuration id, identify which parameter settings
-	 * were used
+	 * the configuration id, identify which parameter settings were used
 	 */
 	public final int configurationId;
-	
+
 	/**
-	 * the name of all classes this CUT depends on,
-	 * and that would be good to have generated test cases before starting this job.
-	 * This is a union of all the the types of dependency (eg, input and parent)
+	 * the name of all classes this CUT depends on, and that would be good to
+	 * have generated test cases before starting this job. This is a union of
+	 * all the the types of dependency (eg, input and parent)
 	 */
 	public final Set<String> dependentOnClasses;
 
@@ -72,8 +71,8 @@ public class JobDefinition {
 	 * @param cut
 	 * @param configurationId
 	 */
-	public JobDefinition(int seconds, int memoryInMB, String cut,
-			int configurationId, Set<String> inputDependencies, Set<String> parentDependencies) {
+	public JobDefinition(int seconds, int memoryInMB, String cut, int configurationId,
+	        Set<String> inputDependencies, Set<String> parentDependencies) {
 		super();
 		this.jobID = counter.getAndIncrement();
 		this.seconds = seconds;
@@ -83,29 +82,33 @@ public class JobDefinition {
 
 		HashSet<String> union = new HashSet<String>();
 
-		if(inputDependencies!=null && inputDependencies.size()>0){
-			this.inputClasses = Collections.unmodifiableSet(new HashSet<String>(inputDependencies));
+		if (inputDependencies != null && inputDependencies.size() > 0) {
+			this.inputClasses = Collections.unmodifiableSet(new HashSet<String>(
+			        inputDependencies));
 			union.addAll(inputClasses);
 		} else {
 			this.inputClasses = null;
 		}
 
-		if(parentDependencies!=null && parentDependencies.size()>0){
-			this.parentClasses = Collections.unmodifiableSet(new HashSet<String>(parentDependencies));
+		if (parentDependencies != null && parentDependencies.size() > 0) {
+			this.parentClasses = Collections.unmodifiableSet(new HashSet<String>(
+			        parentDependencies));
 			union.addAll(parentClasses);
 		} else {
 			this.parentClasses = null;
 		}
-		
-		if(union.size() == 0){
+
+		if (union.size() == 0) {
 			this.dependentOnClasses = null;
 		} else {
-			this.dependentOnClasses = Collections.unmodifiableSet(new HashSet<String>(union));
+			this.dependentOnClasses = Collections.unmodifiableSet(new HashSet<String>(
+			        union));
 		}
 	}
 
 	/**
-	 * Create a copy of this job, and add the input and parent dependencies to the set of CUT dependencies
+	 * Create a copy of this job, and add the input and parent dependencies to
+	 * the set of CUT dependencies
 	 * 
 	 * <p>
 	 * It is OK to have one of the sets null, but not both
@@ -113,40 +116,40 @@ public class JobDefinition {
 	 * @param input
 	 * @return
 	 */
-	public JobDefinition getByAddingDependencies(Set<String> inputs, Set<String> parents) throws IllegalArgumentException{
-		
-		if(inputs==null && parents==null){
+	public JobDefinition getByAddingDependencies(Set<String> inputs, Set<String> parents)
+	        throws IllegalArgumentException {
+
+		if (inputs == null && parents == null) {
 			throw new IllegalArgumentException("Both sets are null");
 		}
-				
-		if(inputClasses!=null){
-			if(inputs==null){
+
+		if (inputClasses != null) {
+			if (inputs == null) {
 				inputs = inputClasses;
 			} else {
 				inputs.addAll(inputClasses);
 			}
 		}
-		if(parentClasses!=null){
-			if(parents==null){
+		if (parentClasses != null) {
+			if (parents == null) {
 				parents = parentClasses;
 			} else {
 				parents.addAll(parentClasses);
 			}
 		}
-		
-		return new JobDefinition(seconds, memoryInMB, cut, configurationId, inputs, parents);
+
+		return new JobDefinition(seconds, memoryInMB, cut, configurationId, inputs,
+		        parents);
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + configurationId;
 		result = prime * result + ((cut == null) ? 0 : cut.hashCode());
-		result = prime
-				* result
-				+ ((dependentOnClasses == null) ? 0 : dependentOnClasses
-						.hashCode());
+		result = prime * result
+		        + ((dependentOnClasses == null) ? 0 : dependentOnClasses.hashCode());
 		result = prime * result + jobID;
 		result = prime * result + memoryInMB;
 		result = prime * result + seconds;
@@ -181,6 +184,14 @@ public class JobDefinition {
 		if (seconds != other.seconds)
 			return false;
 		return true;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#toString()
+	 */
+	@Override
+	public String toString() {
+		return jobID + ": " + cut;
 	}
 
 }

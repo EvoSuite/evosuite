@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.evosuite.Properties;
-import org.evosuite.setup.CallTree;
 import org.evosuite.setup.DependencyAnalysis;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
@@ -23,17 +22,16 @@ import org.slf4j.LoggerFactory;
 public class CastClassAnalyzer {
 
 	private static final Logger logger = LoggerFactory.getLogger(CastClassAnalyzer.class);
-	
-	private Map<Type, Integer> castClassMap = new HashMap<Type, Integer>();
 
-	public Map<Type,Integer> analyze(String className) {
+	private final Map<Type, Integer> castClassMap = new HashMap<Type, Integer>();
+
+	public Map<Type, Integer> analyze(String className) {
 		ClassNode targetClass = DependencyAnalysis.getClassNode(className);
 
-		CallTree callTree = new CallTree(className);
 		if (targetClass != null)
-			handle(callTree, targetClass, 0);
+			handle(targetClass, 0);
 		if (Properties.INSTRUMENT_PARENT) {
-			handleSuperClasses(callTree, targetClass);
+			handleSuperClasses(targetClass);
 		}
 		return castClassMap;
 	}
@@ -46,7 +44,7 @@ public class CastClassAnalyzer {
 	 * @param targetClass
 	 */
 	@SuppressWarnings("unchecked")
-	public void handleSuperClasses(CallTree callTree, ClassNode targetClass) {
+	public void handleSuperClasses(ClassNode targetClass) {
 		String superClassName = targetClass.superName;
 		if (superClassName == null || superClassName.isEmpty())
 			return;
@@ -54,7 +52,7 @@ public class CastClassAnalyzer {
 		if (superClassName.equals("java/lang/Object"))
 			return;
 
-		logger.debug("Creating calltree for superclass: " + superClassName);
+		logger.debug("Getting casts for superclass: " + superClassName);
 		ClassNode superClass = DependencyAnalysis.getClassNode(superClassName);
 		List<MethodNode> methods = superClass.methods;
 		for (MethodNode mn : methods) {
@@ -72,22 +70,21 @@ public class CastClassAnalyzer {
 
 			// Do not handle classes if they are overridden by the subclass
 			if ((mn.access & Opcodes.ACC_PUBLIC) == Opcodes.ACC_PUBLIC) {
-				handleMethodNode(callTree, superClass, mn, 0);
+				handleMethodNode(superClass, mn, 0);
 			}
 		}
-		handleSuperClasses(callTree, superClass);
+		handleSuperClasses(superClass);
 
 	}
-	
+
 	private void handleClassSignature(ClassNode cn) {
-		CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor(
-				cn.name);
-		if(cn.signature != null) {
+		CollectParameterTypesVisitor visitor = new CollectParameterTypesVisitor(cn.name);
+		if (cn.signature != null) {
 			new SignatureReader(cn.signature).accept(visitor);
 			for (Type castType : visitor.getClasses()) {
 				if (!castClassMap.containsKey(castType)) {
 					logger.debug("Adding new cast class from signature visitor: "
-							+ castType);
+					        + castType);
 					castClassMap.put(castType, 1);
 				}
 			}
@@ -96,34 +93,32 @@ public class CastClassAnalyzer {
 	}
 
 	@SuppressWarnings("unchecked")
-	public  void handle(CallTree callTree, ClassNode targetClass, int depth) {
+	public void handle(ClassNode targetClass, int depth) {
 		handleClassSignature(targetClass);
 
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			logger.debug("Method: " + mn.name);
-			handleMethodNode(callTree, targetClass, mn, depth);
+			handleMethodNode(targetClass, mn, depth);
 		}
 	}
 
 	@SuppressWarnings("unchecked")
-	public void handle(CallTree callTree, ClassNode targetClass,
-	        String methodName, int depth) {
+	public void handle(ClassNode targetClass, String methodName, int depth) {
 		handleClassSignature(targetClass);
 		List<MethodNode> methods = targetClass.methods;
 		for (MethodNode mn : methods) {
 			if (methodName.equals(mn.name + mn.desc))
-				handleMethodNode(callTree, targetClass, mn, depth);
+				handleMethodNode(targetClass, mn, depth);
 		}
 	}
 
-	public void handle(CallTree callTree, String className, String methodName,
-	        int depth) {
+	public void handle(String className, String methodName, int depth) {
 		ClassNode cn = DependencyAnalysis.getClassNode(className);
 		if (cn == null)
 			return;
 
-		handle(callTree, cn, methodName, depth);
+		handle(cn, methodName, depth);
 	}
 
 	/**
@@ -133,8 +128,7 @@ public class CastClassAnalyzer {
 	 * @param mn
 	 */
 	@SuppressWarnings("unchecked")
-	public  void handleMethodNode(CallTree callTree, ClassNode cn, MethodNode mn,
-	        int depth) {
+	public void handleMethodNode(ClassNode cn, MethodNode mn, int depth) {
 
 		if (mn.signature != null) {
 			logger.debug("Visiting signature: " + mn.signature);
@@ -164,7 +158,7 @@ public class CastClassAnalyzer {
 				}
 				logger.debug("Adding new cast class from cast: " + castType);
 				if (!castClassMap.containsKey(castType))
-					castClassMap.put(castType, depth+1);
+					castClassMap.put(castType, depth + 1);
 			} else if (insn.getOpcode() == Opcodes.INSTANCEOF) {
 				TypeInsnNode typeNode = (TypeInsnNode) insn;
 				Type castType = Type.getObjectType(typeNode.desc);
@@ -173,7 +167,7 @@ public class CastClassAnalyzer {
 				}
 				logger.debug("Adding new cast class from instanceof: " + castType);
 				if (!castClassMap.containsKey(castType))
-					castClassMap.put(castType, depth+1);
+					castClassMap.put(castType, depth + 1);
 			} else if (insn.getOpcode() == Opcodes.LDC) {
 				LdcInsnNode ldcNode = (LdcInsnNode) insn;
 				if (ldcNode.cst instanceof Type) {
@@ -182,7 +176,7 @@ public class CastClassAnalyzer {
 						type = type.getElementType();
 					}
 					if (!castClassMap.containsKey(type))
-						castClassMap.put(type, depth+1);
+						castClassMap.put(type, depth + 1);
 				}
 
 			}

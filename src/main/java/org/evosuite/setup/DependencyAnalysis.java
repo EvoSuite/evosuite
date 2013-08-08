@@ -78,7 +78,7 @@ public class DependencyAnalysis {
 	        throws RuntimeException, ClassNotFoundException {
 		
 		logger.debug("Calculate inheritance hierarchy");		
-		inheritanceTree = InheritanceTreeGenerator.analyze(classPath);
+		inheritanceTree = InheritanceTreeGenerator.createFromClassPath(classPath);
 		InheritanceTreeGenerator.gatherStatistics(inheritanceTree);
 		if(!inheritanceTree.hasClass(Properties.TARGET_CLASS)) {
 			throw new ClassNotFoundException("Target class not found in inheritance tree");

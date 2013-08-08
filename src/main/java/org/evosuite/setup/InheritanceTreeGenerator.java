@@ -26,11 +26,14 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Enumeration;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -66,7 +69,7 @@ public class InheritanceTreeGenerator {
 	 * @param classPath
 	 * @return
 	 */
-	public static InheritanceTree analyze(List<String> classPath) {
+	public static InheritanceTree createFromClassPath(List<String> classPath) {
 		if (!Properties.INHERITANCE_FILE.isEmpty()) {
 			try {
 				InheritanceTree tree = readInheritanceTree(Properties.INHERITANCE_FILE);
@@ -93,6 +96,28 @@ public class InheritanceTreeGenerator {
 			analyze(inheritanceTree, classPathEntry);
 		}
 		return inheritanceTree;
+	}
+
+	/**
+	 * Create inheritance tree only for the classes passed as parameter
+	 * 
+	 * @param classNames
+	 * @return
+	 */
+	public static InheritanceTree createFromClassList(Collection<String> classNames) {
+		InheritanceTree inheritanceTree = new InheritanceTree();
+		for (String className : classNames) {
+			analyzeClassName(inheritanceTree, className);
+		}
+
+		// Remove all classes not in the parameter list, otherwise we get the superclasses from outside the list
+		Set<String> classes = new HashSet<String>(inheritanceTree.getAllClasses());
+		for (String className : classes) {
+			if (!classNames.contains(className))
+				inheritanceTree.removeClass(className);
+		}
+		return inheritanceTree;
+
 	}
 
 	public static void gatherStatistics(InheritanceTree inheritanceTree) {
@@ -173,6 +198,18 @@ public class InheritanceTreeGenerator {
 		} catch (FileNotFoundException e) {
 			logger.error("", e);
 		}
+	}
+
+	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
+		String fileName = ResourceList.getClassAsResource(className);
+		if (fileName == null) {
+			URL url = InheritanceTreeGenerator.class.getClassLoader().getResource(className.replace(".",
+			                                                                                        File.separator)
+			                                                                              + ".class");
+			fileName = url.getFile();
+		}
+		logger.info("Resource for class " + className + ": " + fileName);
+		analyze(inheritanceTree, fileName);
 	}
 
 	@SuppressWarnings("unchecked")

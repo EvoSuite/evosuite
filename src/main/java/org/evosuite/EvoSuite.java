@@ -97,7 +97,7 @@ public class EvoSuite {
 		List<String> cpList = Arrays.asList(cp.split(File.pathSeparator));
 		// Clear current inheritance file to make sure a new one is generated
 		Properties.INHERITANCE_FILE = "";
-		InheritanceTree tree = InheritanceTreeGenerator.analyze(cpList);
+		InheritanceTree tree = InheritanceTreeGenerator.createFromClassPath(cpList);
 		File outputFile = File.createTempFile("ES_inheritancetree", ".xml.gz");
 		outputFile.deleteOnExit();
 		InheritanceTreeGenerator.writeInheritanceTree(tree, outputFile);
