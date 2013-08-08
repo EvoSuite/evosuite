@@ -560,9 +560,14 @@ public class TestSuiteWriter implements Opcodes {
 	 */
 	protected String getBeforeAndAfterMethods(boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS) {
-			return "";
-		}
+		/*
+		 * Usually, we need support methods (ie @BeforeClass,@Before,@After and @AfterClass)
+		 * only if there was a security exception (and so we need EvoSuite security manager,
+		 * and test runs on separated thread) or if we are doing bytecode replacement (and
+		 * so we need to activate JavaAgent).
+		 * 
+		 * But there are cases that we might always want: eg, setup logging
+		 */
 
 		StringBuilder bd = new StringBuilder("");
 		bd.append("\n");
@@ -586,6 +591,11 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void generateAfter(StringBuilder bd, boolean wasSecurityException) {
+
+		if (!wasSecurityException && !Properties.REPLACE_CALLS) {
+			return;
+		}
+		
 		bd.append(METHOD_SPACE);
 		bd.append("@After \n");
 		bd.append(METHOD_SPACE);
@@ -608,6 +618,11 @@ public class TestSuiteWriter implements Opcodes {
 	}
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException) {
+
+		if (!wasSecurityException && !Properties.REPLACE_CALLS) {
+			return;
+		}
+
 		bd.append(METHOD_SPACE);
 		bd.append("@Before \n");
 		bd.append(METHOD_SPACE);
@@ -657,7 +672,7 @@ public class TestSuiteWriter implements Opcodes {
 		bd.append("public static void initEvoSuiteFramework(){ \n");
 
 		bd.append(BLOCK_SPACE);
-		bd.append("org.evosuite.utils.LoggingUtils.loadLogbackForEvoSuite(); \n");
+		bd.append("org.evosuite.utils.LoggingUtils.setLoggingForJUnit(); \n");
 
 		if (Properties.REPLACE_CALLS) {
 			//need to setup REPLACE_CALLS and instrumentator
