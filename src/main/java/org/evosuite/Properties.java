@@ -545,7 +545,7 @@ public class Properties {
 	public static int CTG_CORES = 1;
 
 	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
-	public static int CTG_TIME = 2;
+	public static int CTG_TIME = 1;
 
 	/*
 	 * FIXME choose best schedule for default

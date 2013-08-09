@@ -358,9 +358,10 @@ public class TestSuiteWriter implements Opcodes {
 		}
 		List<String> imports_sorted = new ArrayList<String>(import_names);
 
+		//we always need thos one, due to for example logging setup
+		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
+		
 		if (Properties.REPLACE_CALLS || wasSecurityException) {
-			// BeforeClass is always added due to REPLACE_CALLS
-			imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 			imports_sorted.add(org.junit.Before.class.getCanonicalName());
 			imports_sorted.add(org.junit.After.class.getCanonicalName());
 		}

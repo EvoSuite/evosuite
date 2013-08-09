@@ -189,12 +189,12 @@ public class JobHandler extends Thread{
 		cmd += " " + org.evosuite.EvoSuite.class.getName();
 		cmd += " -mem " + clientMB;
 		cmd += " -class " + job.cut;
-		cmd += " -Dconfiguration_id="+job.configurationId;
 		
 		/*
 		 * TODO for now we ignore the job configuration (ie special parameter settings)
 		 */
-		
+		//cmd += " -D<TODO>="+job.configurationId; 
+				
 		/*
 		 * TODO we should check on whether the dependent CUTs have been
 		 * generated in this CTG run, or should rather look at previous runs.
@@ -225,7 +225,15 @@ public class JobHandler extends Thread{
         
 		cmd += " -Djunit_suffix="+StorageManager.junitSuffix;
 		
-		cmd += " -Denable_asserts_for_evosuite=false -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
+		cmd += " -Denable_asserts_for_evosuite="+Properties.ENABLE_ASSERTS_FOR_EVOSUITE;
+		String confId = Properties.CONFIGURATION_ID;
+		if(confId!=null && !confId.isEmpty()){
+			cmd += " -Dconfiguration_id="+confId; 
+		}  else {
+			cmd += " -Dconfiguration_id=default";
+		}
+		
+		cmd += " -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
         cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
         cmd += " -Dsave_all_data=false  -Dinline=false";
   		
@@ -262,12 +270,13 @@ public class JobHandler extends Thread{
 		//TODO add other outputs once fitness functions are fixed
 		String cmd =  " -Doutput_variables="; 
 		cmd += "TARGET_CLASS,configuration_id,"; 
+		cmd += "ctg_schedule,";
+		cmd += RuntimeVariable.NumberOfInputPoolObjects+",";				
 		cmd += RuntimeVariable.BranchCoverage+",";		
 		cmd += RuntimeVariable.Minimized_Size+",";		
 		cmd += RuntimeVariable.Statements_Executed+",";				
 		cmd += RuntimeVariable.Total_Time+",";				
 		cmd += RuntimeVariable.NumberOfGeneratedTestCases; 			
-		cmd += "";
 		return cmd;
 	}
 	
