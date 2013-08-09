@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import org.evosuite.EvoSuite;
+import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -251,10 +252,16 @@ public class LoggingUtils {
 	 * If the application is using a SLF4 compliant logging framework, check 
 	 * if it has been configured. If so, keep the logging as it is.
 	 * On the other hand, if no configuration/framework is used, then mute
-	 * the default logging of the EvoSuite modules.
+	 * the default logging (Logback) of the EvoSuite modules.
 	 * 
 	 */
 	public static void setLoggingForJUnit(){
+		
+		if(Properties.ENABLE_ASSERTS_FOR_EVOSUITE){
+			//if we are debugging, we don't want to switch off the logging
+			return;
+		}
+		
 		LoggerContext context = (LoggerContext) LoggerFactory.getILoggerFactory();
 		if(isDefaultLoggingConfiguration(context)){
 

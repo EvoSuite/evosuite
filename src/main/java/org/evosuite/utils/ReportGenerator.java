@@ -152,6 +152,11 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 		 */
 		BranchCoverage,
 		NumberOfGeneratedTestCases,
+		/**
+		 * The number of serialized objects that EvoSuite is
+		 * going to use for seeding strategies
+		 */
+		NumberOfInputPoolObjects,
 		DefUseCoverage,
 		WeakMutationScore,
 		Creation_Time,
@@ -664,6 +669,13 @@ public abstract class ReportGenerator implements SearchListener, Serializable {
 				return "" + getCoverageDouble();
 			case NumberOfGeneratedTestCases:
 				return ""+ (tests!=null? tests.size() : 0);
+			case NumberOfInputPoolObjects:
+				String s = Properties.OBJECT_POOLS;
+				if(s==null || s.isEmpty()){
+					return ""+0;
+				} else {
+					return ""+s.split(File.pathSeparator).length;
+				}
 			case BranchCoverage:
 				double cov = 0.0;
 

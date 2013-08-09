@@ -70,7 +70,7 @@ public class CsvData {
 		CsvData data = new CsvData();
 		try{
 			data.targetClass = getValue(rows,"TARGET_CLASS").trim();		
-			data.configurationId = Integer.parseInt(getValue(rows,"configuration_id"));			
+			data.configurationId = 0; //TODO. note: it has nothing to do with configuration_id, need refactoring			
 			data.branchCoverage = Double.parseDouble(getValue(rows,RuntimeVariable.BranchCoverage.toString()));	
 			data.totalNumberOfStatements = Integer.parseInt(getValue(rows,RuntimeVariable.Minimized_Size.toString()));
 			data.durationInSeconds = Integer.parseInt(getValue(rows,RuntimeVariable.Total_Time.toString())) / 1000;
