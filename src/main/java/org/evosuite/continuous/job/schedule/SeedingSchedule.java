@@ -1,16 +1,11 @@
 package org.evosuite.continuous.job.schedule;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 
@@ -178,7 +173,7 @@ public class SeedingSchedule extends OneTimeSchedule{
 
 		ProjectGraph graph = scheduler.getProjectData().getProjectGraph();
 		for(String input : graph.getCUTsDirectlyUsedAsInput(job.cut, true)){
-			if(graph.isInterface(input)){
+			if(graph.isInterface(input)){ 
 				continue;
 			}
 			dep.add(input);

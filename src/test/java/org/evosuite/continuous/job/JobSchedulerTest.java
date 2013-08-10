@@ -129,7 +129,7 @@ public class JobSchedulerTest {
 		 */
 		
 		//we have 9 classes, but 2 have no code
-		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 8, jobs.size()); //FIXME
+		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 8, jobs.size()); //FIXME should be 7
 
 		JobDefinition seeding = null;
 		for (JobDefinition job : jobs) {
@@ -147,7 +147,7 @@ public class JobSchedulerTest {
 		Assert.assertTrue(in.contains(SomeBranches.class.getName()));
 		Assert.assertTrue(in.contains(SomeInterfaceImpl.class.getName()));
 		Assert.assertTrue(in.contains(OnlyAbstractImpl.class.getName()));
-		Assert.assertEquals(5, in.size()); //FIXME
+		Assert.assertEquals(5, in.size()); //FIXME should be 4
 	}
 	
 	@Test
