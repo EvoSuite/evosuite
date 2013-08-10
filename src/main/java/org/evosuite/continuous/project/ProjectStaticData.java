@@ -88,6 +88,13 @@ public class ProjectStaticData {
 		return classes.containsKey(c);
 	}
 
+	/**
+	 * Return the class info of the given class (with full qualifying name),
+	 * or <code>null</code> if missing
+	 * 
+	 * @param name
+	 * @return
+	 */
 	public ClassInfo getClassInfo(String name) {
 		return classes.get(name);
 	}
@@ -127,7 +134,7 @@ public class ProjectStaticData {
 	}
 
 	/**
-	 * Return an unmodifiable copy of the current CUTs' data info
+	 * Return an unmodifiable copy of the current data info of the classes in the SUT 
 	 * 
 	 * @return
 	 */
@@ -136,13 +143,23 @@ public class ProjectStaticData {
 	}
 
 	/**
+	 * Return an unmodifiable copy of the names of the classes in the SUT
+	 * 
+	 * @return
+	 */
+	public Collection<String> getClassNames(){
+		return Collections.unmodifiableCollection(classes.keySet());
+	}
+	
+	/**
 	 * Return a read-only view of the current project CUT graph
 	 * 
 	 * @return
 	 */
 	public ProjectGraph getProjectGraph() {
-		if (graph == null)
-			graph = new ProjectGraph(classes.keySet());
+		if (graph == null){
+			graph = new ProjectGraph(this);
+		}
 		return graph; //FIXME should be a read-only view
 	}
 }
