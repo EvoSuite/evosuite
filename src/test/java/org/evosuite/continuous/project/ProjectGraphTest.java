@@ -40,7 +40,28 @@ public class ProjectGraphTest {
 		Assert.assertEquals(1,forG.size());
 	}
 
+	@Test
+	public void testClassTypes(){
+		ProjectStaticData data = new ProjectStaticData();
+		data.addNewClass(new ClassInfo(A.class,1,true));
+		data.addNewClass(new ClassInfo(B.class,1,true));
+		data.addNewClass(new ClassInfo(C.class,0,false));
+		data.addNewClass(new ClassInfo(D.class,0,false));
+		data.addNewClass(new ClassInfo(E.class,1,true));
+		data.addNewClass(new ClassInfo(F.class,0,false));
+		data.addNewClass(new ClassInfo(G.class,1,true));
 
+		ProjectGraph graph = data.getProjectGraph();
+		
+		Assert.assertTrue(graph.isConcrete(A.class.getName()));
+		Assert.assertTrue(graph.isConcrete(B.class.getName()));
+		Assert.assertTrue(graph.isInterface(C.class.getName()));
+		Assert.assertTrue(graph.isInterface(D.class.getName()));
+		Assert.assertTrue(graph.isAbstract(E.class.getName()));
+		Assert.assertTrue(graph.isInterface(F.class.getName()));
+		Assert.assertTrue(graph.isAbstract(G.class.getName()));
+	}
+	
 	private class A{ void foo(){}}
 
 	private class B extends A{ void foo(){}}
