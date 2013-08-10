@@ -153,10 +153,8 @@ public class ObjectPool implements Serializable {
 			ObjectPool pool = (ObjectPool) objectIn.readObject();
 			in.close();
 			return pool;
-		} catch (IOException e) {
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
+			logger.error("Exception while trying to get object pool from "+fileName+" , "+e.getMessage(),e);
 		}
 		return null;
 	}

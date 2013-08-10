@@ -43,8 +43,12 @@ public class ObjectPoolManager extends ObjectPool {
 			for(String fileName : poolFiles) {
 				logger.info("Adding object pool from file "+fileName);
 				ObjectPool pool = ObjectPool.getPoolFromFile(fileName);
-				LoggingUtils.getEvoLogger().info(" - Object pool "+fileName+": "+pool.getNumberOfSequences()+" sequences for "+pool.getNumberOfClasses()+" classes");
-				addPool(pool);
+				if(pool==null){
+					logger.error("Failed to load object from "+fileName);
+				} else {
+					LoggingUtils.getEvoLogger().info(" - Object pool "+fileName+": "+pool.getNumberOfSequences()+" sequences for "+pool.getNumberOfClasses()+" classes");
+					addPool(pool);
+				}
 			}
 		}
 	}

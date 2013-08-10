@@ -2,6 +2,7 @@ package org.evosuite.continuous.job;
 
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -122,6 +123,14 @@ public class JobDefinition {
 		if (inputs == null && parents == null) {
 			throw new IllegalArgumentException("Both sets are null");
 		}
+		
+		if(inputs!=null && inputs.contains(cut)){
+			throw new IllegalArgumentException("'inputs' contains reference to this job");
+		}
+
+		if(parents!=null && parents.contains(cut)){
+			throw new IllegalArgumentException("'parents' contains reference to this job");
+		}
 
 		if (inputClasses != null) {
 			if (inputs == null) {
@@ -141,7 +150,56 @@ public class JobDefinition {
 		return new JobDefinition(seconds, memoryInMB, cut, configurationId, inputs,
 		        parents);
 	}
+	
+	/**
+	 * Does the execution of this job depend on the other?
+	 * @param other
+	 * @return
+	 */
+	public boolean dependOn(JobDefinition other){
+		return dependentOnClasses!=null && dependentOnClasses.contains(other.cut);
+	}
 
+	
+	/**
+	 * Check if all jobs this one depends on are finished 
+	 * 
+	 * @param job
+	 * @return
+	 */
+	public boolean areDependenciesSatisfied(List<JobDefinition> schedule, Set<String> done){
+		
+		if(dependentOnClasses == null){
+			return true; // no dependencies to satisfy
+		}
+		
+		for(String name : dependentOnClasses){
+			/*
+			 * It could happen that a schedule is not complete, in the sense that
+			 * we do not create jobs for each single CUT in the project.
+			 * If A depends on B, but we have no job for B, then no point in postponing
+			 * a job for A
+			 */
+			if(!inTheSchedule(schedule,name)){
+				continue;
+			}
+			if(!done.contains(name)){
+				return false;
+			}
+		}
+		return true; 
+	}
+	
+	private boolean inTheSchedule(List<JobDefinition> jobs, String cut){
+		for(JobDefinition job : jobs){
+			if(job.cut.equals(cut)){
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

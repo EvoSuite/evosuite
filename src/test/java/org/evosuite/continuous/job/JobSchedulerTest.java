@@ -14,10 +14,12 @@ import com.examples.with.different.packagename.continuous.MoreBranches;
 import com.examples.with.different.packagename.continuous.NoBranches;
 import com.examples.with.different.packagename.continuous.OnlyAbstract;
 import com.examples.with.different.packagename.continuous.OnlyAbstractImpl;
+import com.examples.with.different.packagename.continuous.Simple;
 import com.examples.with.different.packagename.continuous.SomeBranches;
 import com.examples.with.different.packagename.continuous.SomeInterface;
 import com.examples.with.different.packagename.continuous.SomeInterfaceImpl;
 import com.examples.with.different.packagename.continuous.Trivial;
+import com.examples.with.different.packagename.continuous.UsingSimpleAndTrivial;
 
 public class JobSchedulerTest {
 
@@ -120,8 +122,14 @@ public class JobSchedulerTest {
 			Assert.assertEquals(600, job.memoryInMB);
 		}
 
+		/*
+		 * FIXME: in the long run, abstract class with no code should be skipped.
+		 * at the moment, they are not, because there is default constructor that
+		 * is automatically added
+		 */
+		
 		//we have 9 classes, but 2 have no code
-		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 8, jobs.size());
+		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 8, jobs.size()); //FIXME
 
 		JobDefinition seeding = null;
 		for (JobDefinition job : jobs) {
@@ -139,6 +147,43 @@ public class JobSchedulerTest {
 		Assert.assertTrue(in.contains(SomeBranches.class.getName()));
 		Assert.assertTrue(in.contains(SomeInterfaceImpl.class.getName()));
 		Assert.assertTrue(in.contains(OnlyAbstractImpl.class.getName()));
-		Assert.assertEquals(5, in.size());
+		Assert.assertEquals(5, in.size()); //FIXME
+	}
+	
+	@Test
+	public void testSeedingOrder() {
+
+		String[] cuts = new String[] { 
+				Simple.class.getName(),
+		        UsingSimpleAndTrivial.class.getName(), 
+		        Trivial.class.getName(),
+		        };
+
+		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+		ProjectStaticData data = analyzer.analyze();
+
+		int cores = 3;
+		int memory = 1800;
+		int budget = 2;
+
+		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
+		scheduler.chooseScheduleType(AvailableSchedule.SEEDING);
+
+		List<JobDefinition> jobs = scheduler.createNewSchedule();
+		Assert.assertNotNull(jobs);
+
+		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 3, jobs.size());
+
+		//UsingSimpleAndTrivial should be the last in the schedule, as it depends on the first 2
+		JobDefinition seeding = jobs.get(2);
+		Assert.assertNotNull(seeding);
+		Assert.assertEquals(UsingSimpleAndTrivial.class.getName(), seeding.cut);
+		
+		Set<String> in = seeding.inputClasses;
+		Assert.assertNotNull(in);
+		System.out.println(in.toString());
+		Assert.assertTrue(in.contains(Simple.class.getName()));
+		Assert.assertTrue(in.contains(Trivial.class.getName()));
+		Assert.assertEquals(2, in.size());
 	}
 }

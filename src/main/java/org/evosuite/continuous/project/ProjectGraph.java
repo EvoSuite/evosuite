@@ -162,7 +162,8 @@ public class ProjectGraph {
 
 	/**
 	 * Return all the CUT classes that this <code>cut</code> extends/implements
-	 * (ie, parent hierarchy)
+	 * (ie, parent hierarchy).
+	 * This <code>cut</code> will not be part of the returned set
 	 * 
 	 * @param cut
 	 *            the class under test (CUT)
@@ -171,7 +172,9 @@ public class ProjectGraph {
 	 *             if the input <code>cut</code> is not a CUT
 	 */
 	public Set<String> getAllCUTsParents(String cut) throws IllegalArgumentException {
-		return inheritanceTree.getSuperclasses(cut);
+		Set<String>  set =  inheritanceTree.getSuperclasses(cut);
+		set.remove(cut); //it seems inheritanceTree returns 'cut' in the set
+		return set;
 	}
 
 	/**

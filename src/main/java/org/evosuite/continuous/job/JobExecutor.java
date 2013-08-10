@@ -5,6 +5,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
@@ -116,115 +117,21 @@ public class JobExecutor {
 
 		logger.info("Going to execute "+jobs.size()+" jobs");
 		
-		executing = true;
-		startTimeInMs = System.currentTimeMillis(); 		
-		latch = new CountDownLatch(jobs.size());
+		initExecution(jobs);
 		
 		Thread mainThread = new Thread(){
 			@Override
 			public void run(){
 				
-				/*
-				 * there is a good reason to have a blocking queue of size 1.
-				 * we want to put jobs on the queue only when we know there is going
-				 * to be a handler that can pull it.
-				 * this helps the scheduler, as we can wait longer before making the decision
-				 * of what job to schedule next
-				 */
-				jobQueue = new ArrayBlockingQueue<JobDefinition>(1);
-				finishedJobs = new ConcurrentHashMap<String,JobDefinition>();				
-				
 				JobHandler[] handlers = JobHandler.getPool(numberOfCores,JobExecutor.this);
 				for(JobHandler handler : handlers){
 					handler.start();
 				}
-				//TODO handle memory
-
-				Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>();
-				toExecute.addAll(jobs);
-				
-				List<JobDefinition> postponed = new LinkedList<JobDefinition>();
 
 				long longestJob = -1l;
 				
 				try{			
-
-					mainLoop: while(!toExecute.isEmpty() || !postponed.isEmpty()){
-
-						long remaining = getRemainingTimeInMs();
-						if(remaining <= 0){
-							//time is over. do not submit any more job
-							break mainLoop;
-						} 
-						
-						JobDefinition chosenJob = null;
-
-						//postponed jobs have the priority
-						if(!postponed.isEmpty()){
-							Iterator<JobDefinition> iterator = postponed.iterator();
-							postponedLoop : while(iterator.hasNext()){
-								JobDefinition job = iterator.next();
-								if(areDependenciesSatisfied(jobs,job)){
-									chosenJob = job;							
-									iterator.remove();
-									break postponedLoop;
-								}
-							}
-						}
-
-						if(chosenJob == null && toExecute.isEmpty()){
-							assert !postponed.isEmpty();
-							/*
-							 * tricky case: the are no more jobs in the queue, and there are
-							 * jobs that have been postponed. But, at the moment, we shouldn't 
-							 * execute them due to missing dependencies.
-							 * 
-							 * As the dependencies are just "optimizations" (eg, seeding), it is not
-							 * wrong to execute any of those postponed jobs.
-							 * There might be useful heuristics to pick up one in a smart way but,
-							 * for now, we just choose the first (and so oldest)
-							 */
-							chosenJob = postponed.get(0); //it is important to get the oldest jobs
-							postponed.remove((int) 0);
-						}
-
-						if(chosenJob == null){
-							assert !toExecute.isEmpty();
-
-							toExecuteLoop : while(!toExecute.isEmpty()){
-								JobDefinition job = toExecute.poll();
-								if(areDependenciesSatisfied(jobs,job)){
-									chosenJob = job;
-									break toExecuteLoop;
-								}  else {
-									postponed.add(job);
-								}
-							}
-
-							if(chosenJob == null){
-								/*
-								 * yet another tricky situation: we started with a list of jobs to execute,
-								 * and none in the postponed list; but we cannot execute any of the those
-								 * jobs (this could happen if they all depend on jobs that are currently running).
-								 * We should hence just choose one of them. Easiest thing, and most clean,
-								 * to do is just to go back to beginning of the loop
-								 */
-								assert !postponed.isEmpty() && toExecute.isEmpty();
-								continue mainLoop;
-							}
-						}
-
-						assert chosenJob != null;
-						longestJob = Math.max(longestJob, chosenJob.seconds * 1000);
-						
-						try {
-							jobQueue.offer(chosenJob, remaining, TimeUnit.MILLISECONDS); 
-						} catch (InterruptedException e) {
-							this.interrupt(); //important for check later
-							break mainLoop;
-						} 
-					}
-
+					longestJob = execute(jobs);
 				} finally {
 					/*
 					 * When we arrive here, in the worst case each handler is still executing a job,
@@ -256,43 +163,112 @@ public class JobExecutor {
 		mainThread.start();
 	}
 
-	private boolean inTheSchedule(List<JobDefinition> jobs, String cut){
-		for(JobDefinition job : jobs){
-			if(job.cut.equals(cut)){
-				return true;
+	protected void initExecution(final List<JobDefinition> jobs) {
+		executing = true;
+		startTimeInMs = System.currentTimeMillis(); 		
+		latch = new CountDownLatch(jobs.size());
+		
+		/*
+		 * there is a good reason to have a blocking queue of size 1.
+		 * we want to put jobs on the queue only when we know there is going
+		 * to be a handler that can pull it.
+		 * this helps the scheduler, as we can wait longer before making the decision
+		 * of what job to schedule next
+		 */
+		jobQueue = new ArrayBlockingQueue<JobDefinition>(1);
+		finishedJobs = new ConcurrentHashMap<String,JobDefinition>();
+	}
+
+	protected long execute(List<JobDefinition> jobs){
+		
+		long longestJob = -1l;
+		
+		//TODO handle memory
+		Queue<JobDefinition> toExecute = new LinkedList<JobDefinition>();
+		toExecute.addAll(jobs);
+		
+		List<JobDefinition> postponed = new LinkedList<JobDefinition>();
+		
+		mainLoop: while(!toExecute.isEmpty() || !postponed.isEmpty()){
+
+			long remaining = getRemainingTimeInMs();
+			if(remaining <= 0){
+				//time is over. do not submit any more job
+				break mainLoop;
+			} 
+			
+			JobDefinition chosenJob = null;
+
+			//postponed jobs have the priority
+			if(!postponed.isEmpty()){
+				Iterator<JobDefinition> iterator = postponed.iterator();
+				postponedLoop : while(iterator.hasNext()){
+					JobDefinition job = iterator.next();
+					if(job.areDependenciesSatisfied(jobs,finishedJobs.keySet())){
+						chosenJob = job;							
+						iterator.remove();
+						break postponedLoop;
+					}
+				}
 			}
+
+			if(chosenJob == null && toExecute.isEmpty()){
+				assert !postponed.isEmpty();
+				/*
+				 * tricky case: the are no more jobs in the queue, and there are
+				 * jobs that have been postponed. But, at the moment, we shouldn't 
+				 * execute them due to missing dependencies.
+				 * 
+				 * As the dependencies are just "optimizations" (eg, seeding), it is not
+				 * wrong to execute any of those postponed jobs.
+				 * There might be useful heuristics to pick up one in a smart way but,
+				 * for now, we just choose the first (and so oldest)
+				 */
+				chosenJob = postponed.remove((int) 0); //it is important to get the oldest jobs
+			}
+
+			if(chosenJob == null){
+				assert !toExecute.isEmpty();
+
+				toExecuteLoop : while(!toExecute.isEmpty()){
+					JobDefinition job = toExecute.poll();
+					if(job.areDependenciesSatisfied(jobs,finishedJobs.keySet())){
+						chosenJob = job;
+						break toExecuteLoop;
+					}  else {
+						postponed.add(job);
+					}
+				}
+
+				if(chosenJob == null){
+					/*
+					 * yet another tricky situation: we started with a list of jobs to execute,
+					 * and none in the postponed list; but we cannot execute any of those
+					 * jobs (this could happen if they all depend on jobs that are currently running).
+					 * We should hence just choose one of them. Easiest thing, and most clean,
+					 * to do is just to go back to beginning of the loop
+					 */
+					assert !postponed.isEmpty() && toExecute.isEmpty();
+					continue mainLoop;
+				}
+			}
+
+			assert chosenJob != null;
+			longestJob = Math.max(longestJob, chosenJob.seconds * 1000);
+			
+			try {
+				jobQueue.offer(chosenJob, remaining, TimeUnit.MILLISECONDS); 
+			} catch (InterruptedException e) {
+				Thread.currentThread().interrupt(); //important for check later
+				break mainLoop;
+			} 
 		}
-		return false;
+		
+		return longestJob;
 	}
 	
-	/**
-	 * Check if all jobs this one depends on are finished 
-	 * 
-	 * @param job
-	 * @return
-	 */
-	private boolean areDependenciesSatisfied(List<JobDefinition> schedule, JobDefinition job){
-		
-		if(job.dependentOnClasses == null){
-			return true; // no dependencies to satisfy
-		}
-		
-		for(String name : job.dependentOnClasses){
-			/*
-			 * It could happen that a schedule is not complete, in the sense that
-			 * we do not create jobs for each single CUT in the project.
-			 * If A depends on B, but we have no job for B, then no point in postponing
-			 * a job for A
-			 */
-			if(!inTheSchedule(schedule,name)){
-				continue;
-			}
-			if(!finishedJobs.containsKey(name)){
-				return false;
-			}
-		}
-		return true; 
-	}
+
+	
 
 	public JobDefinition pollJob() throws InterruptedException{
 		return jobQueue.take();
