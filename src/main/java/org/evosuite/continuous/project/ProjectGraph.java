@@ -170,7 +170,6 @@ public class ProjectGraph {
 				continue;
 			}
 
-			boolean includeSubClasses = false;
 			Set<String> inputClasses = getCUTsDirectlyUsedAsInput(className, true);  
 			if (inputClasses.contains(aClass)){
 				classNames.add(className);
