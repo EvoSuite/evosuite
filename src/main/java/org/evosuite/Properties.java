@@ -255,6 +255,10 @@ public class Properties {
 	@Parameter(key = "algorithm", group = "Search Algorithm", description = "Search algorithm")
 	public static Algorithm ALGORITHM = Algorithm.STEADYSTATEGA;
 
+	/** Constant <code>ALGORITHM</code> */
+	@Parameter(key = "random_seed", group = "Search Algorithm", description = "Seed used for random generator. If left empty, use current time")
+	public static Long RANDOM_SEED = null;
+
 	/** Constant <code>CHECK_BEST_LENGTH=true</code> */
 	@Parameter(key = "check_best_length", group = "Search Algorithm", description = "Check length against length of best individual")
 	public static boolean CHECK_BEST_LENGTH = true;
@@ -546,6 +550,9 @@ public class Properties {
 
 	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
 	public static int CTG_TIME = 1;
+
+	@Parameter(key = "ctg_folder", group = "Continuous Test Generation", description = "Where generated files will be stored")
+	public static String CTG_FOLDER = ".continuous_evosuite";
 
 	/*
 	 * FIXME choose best schedule for default

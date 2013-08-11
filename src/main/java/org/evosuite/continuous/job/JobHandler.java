@@ -233,6 +233,10 @@ public class JobHandler extends Thread{
 			cmd += " -Dconfiguration_id=default";
 		}
 		
+		if(Properties.RANDOM_SEED!=null){
+			cmd += " -Drandom_seed="+Properties.RANDOM_SEED;
+		}
+		
 		cmd += " -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
         cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
         cmd += " -Dsave_all_data=false  -Dinline=false";
@@ -307,7 +311,6 @@ public class JobHandler extends Thread{
 		 * For now we just do something very basic
 		 */
 		
-		int search = seconds / 4;
 		int minimization = seconds / 4;
 		int assertions = seconds / 4 ;
 		int extra = seconds / 4;
@@ -316,14 +319,14 @@ public class JobHandler extends Thread{
 			minimization = 120;
 			assertions = 120;
 			extra = 120;
-			search = seconds - 360;
 		} else if(seconds > 240){
 			minimization = 60;
 			assertions = 60;
 			extra = 60;
-			search = seconds - 180;			
 		}
-		
+
+		int search = seconds - (minimization+assertions+extra);
+				
 		String cmd = " -Dsearch_budget="+search;
 		cmd += " -Dglobal_timeout="+search;
 		cmd += " -Dstopping_condition=" + StoppingCondition.MAXTIME;

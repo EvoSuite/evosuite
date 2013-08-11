@@ -125,7 +125,7 @@ public class ContinuousTestGeneration {
     		ProjectStaticData data = analyzer.analyze();
     		
     		if(data.getTotalNumberOfTestableCUTs() == 0){
-    			return "There is no class to test in the chose project";
+    			return "There is no class to test in the chosen project";
     		}
     		
     		JobScheduler scheduler = new JobScheduler(data,numberOfCores,totalMemoryInMB,timeInMinutes);
