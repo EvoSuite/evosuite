@@ -44,14 +44,17 @@ public class ProjectAnalyzer {
 	 */
 	private final String target;
 
+	private final String prefix;
+	
 	private transient String[] cutsToAnalyze;
 	
-	public ProjectAnalyzer(String target) throws NullPointerException{
+	public ProjectAnalyzer(String target, String prefix) throws NullPointerException{
 		super();
 		if(target==null){
 			throw new NullPointerException("Target cannot be null");
 		}
 		this.target = target;
+		this.prefix = prefix;
 	}
 	
 	/**
@@ -68,6 +71,7 @@ public class ProjectAnalyzer {
 			throw new NullPointerException("Input array cannot be null");
 		}
 		this.target = null;
+		this.prefix = null;
 		this.cutsToAnalyze = cuts;
 	}
 	
@@ -79,8 +83,20 @@ public class ProjectAnalyzer {
 			List<String> cuts = new LinkedList<String>();
 			
 			for (String fileName : classes) {
-				String className = fileName.replace(".class", "").replaceAll(File.separator, ".");
+				/*
+				 * Using File.separator seems to give problems in Windows
+				 */
+				String className = fileName.replace(".class", "").replaceAll("/", ".");
+				
+				if(prefix!=null && !prefix.isEmpty() && !className.startsWith(prefix)){
+					/*
+					 * A prefix is defined, but this class does not belong to that package hierarchy
+					 */
+					continue;
+				}
+				
 				cuts.add(className);
+				
 			}
 			return cuts;
 		} else {

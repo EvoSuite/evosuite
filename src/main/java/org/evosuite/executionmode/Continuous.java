@@ -47,7 +47,7 @@ public class Continuous {
 		}
 
 		String target = null;
-
+		
 		//we need to define 'target' only for execute mode
 		if(command.equals(Command.EXECUTE)){
 
@@ -82,10 +82,15 @@ public class Continuous {
 			}
 		}
 
+		String prefix = null;
+		if (line.hasOption("prefix")) {
+			prefix = line.getOptionValue("prefix");
+		} 
 
 		ContinuousTestGeneration ctg = new ContinuousTestGeneration(
 				target,
 				cp,
+				prefix,
 				Properties.CTG_MEMORY, 
 				Properties.CTG_CORES, 
 				Properties.CTG_TIME, 

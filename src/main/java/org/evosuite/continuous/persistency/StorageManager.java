@@ -311,7 +311,10 @@ public class StorageManager {
 		int len = base.getAbsolutePath().length();
 		String path = target.getAbsolutePath(); 
 		String name = path.substring(len+1,path.length()-".java".length());
-		name = name.replaceAll(File.separator,".");
+		/*
+		 * Using File.separator seems to give problems in Windows
+		 */
+		name = name.replaceAll("/",".");
 		return name;
 	}
 	

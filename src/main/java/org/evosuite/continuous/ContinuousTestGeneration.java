@@ -71,14 +71,29 @@ public class ContinuousTestGeneration {
     private final int numberOfCores;	
     private final int timeInMinutes;
 	private final boolean callHome;
-    private final String target;
+    
+	/**
+	 * Target folder/jar defining the SUT
+	 */
+	private final String target;
+    
+	/**
+	 * Defines what classes in the target should be used by specifying 
+	 * a common package prefix
+	 */
+	private final String prefix;
+	
+    /**
+     *  The complete, used classpath
+     */
     private final String projectClassPath;
 	private final AvailableSchedule schedule;
     
-    public ContinuousTestGeneration(String target, String projectClassPath, int memoryInMB, int numberOfCores,
+    public ContinuousTestGeneration(String target, String projectClassPath, String prefix, int memoryInMB, int numberOfCores,
 			int timeInMinutes, boolean callHome, AvailableSchedule schedule) {
 		super();		
 		this.target = target;
+		this.prefix = prefix;
 		this.projectClassPath = projectClassPath;
 		this.totalMemoryInMB = memoryInMB;
 		this.numberOfCores = numberOfCores;
@@ -106,8 +121,12 @@ public class ContinuousTestGeneration {
 		}  
 			
     		//check project
-    		ProjectAnalyzer analyzer = new ProjectAnalyzer(target);
+    		ProjectAnalyzer analyzer = new ProjectAnalyzer(target,prefix);
     		ProjectStaticData data = analyzer.analyze();
+    		
+    		if(data.getTotalNumberOfTestableCUTs() == 0){
+    			return "There is no class to test in the chose project";
+    		}
     		
     		JobScheduler scheduler = new JobScheduler(data,numberOfCores,totalMemoryInMB,timeInMinutes);
     		scheduler.chooseScheduleType(schedule);
