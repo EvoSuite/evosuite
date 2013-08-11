@@ -27,6 +27,7 @@ import javax.xml.validation.SchemaFactory;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.time.DateFormatUtils;
+import org.evosuite.Properties;
 import org.evosuite.continuous.project.ProjectStaticData;
 import org.evosuite.utils.Utils;
 import org.evosuite.xsd.ProjectInfo;
@@ -68,7 +69,7 @@ public class StorageManager {
 	}
 
 	public StorageManager(){
-		this(".continuous_evosuite");
+		this(Properties.CTG_FOLDER);
 	}
 
 	/**

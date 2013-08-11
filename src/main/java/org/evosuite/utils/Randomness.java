@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
+import org.evosuite.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,16 +45,10 @@ public class Randomness implements Serializable {
 	private static Randomness instance = new Randomness();
 
 	private Randomness() {
-		String seed_parameter = System.getProperty("random.seed");
+		Long seed_parameter = Properties.RANDOM_SEED;
 		if (seed_parameter != null) {
-			try {
-				seed = Long.parseLong(seed_parameter);
-				logger.info("Random seed: {}", seed);
-			} catch (Exception e) {
-				seed = System.currentTimeMillis();
-				logger.warn("Could not parse parameter \"{}\", using random seed: {}",
-				            seed_parameter, seed);
-			}
+			seed = seed_parameter;
+			logger.info("Random seed: {}", seed);
 		} else {
 			seed = System.currentTimeMillis();
 			logger.info("No seed given. Using {}.", seed);

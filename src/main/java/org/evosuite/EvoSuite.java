@@ -143,6 +143,13 @@ public class EvoSuite {
 
 			setupProperties();
 
+			if (line.hasOption("seed")) {
+				/*
+				 * user can both use -seed and -Drandom.seed to set this variable
+				 */
+				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
+			}
+
 			addJavaDOptions(javaOpts, line);
 
 			/*
@@ -166,10 +173,6 @@ public class EvoSuite {
 				}
 			} else {
 				javaOpts.add("-Dcriterion=regression");
-			}
-
-			if (line.hasOption("seed")) {
-				javaOpts.add("-Drandom.seed=" + line.getOptionValue("seed"));
 			}
 
 			if (line.hasOption("base_dir")) {
