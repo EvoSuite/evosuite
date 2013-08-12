@@ -13,6 +13,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.evosuite.continuous.persistency.StorageManager;
+import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -130,9 +131,13 @@ public class JobExecutor {
 
 				long longestJob = -1l;
 				
-				try{			
+				try{
+					LoggingUtils.getEvoLogger().info("Going to execute "+jobs.size()+" jobs");
 					longestJob = execute(jobs);
-				} finally {
+				} catch(Exception e){
+					logger.error("Error while trying to execute the "+jobs.size()+" jobs: "+e.getMessage(),e);
+				}
+				finally {
 					/*
 					 * When we arrive here, in the worst case each handler is still executing a job,
 					 * plus one in the queue.
