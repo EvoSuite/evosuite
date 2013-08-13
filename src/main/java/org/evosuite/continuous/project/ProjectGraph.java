@@ -1,6 +1,7 @@
 package org.evosuite.continuous.project;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -40,7 +41,7 @@ public class ProjectGraph {
 	 */
 
 	private static final Logger logger = LoggerFactory.getLogger(ProjectGraph.class);
-	
+
 	private final InheritanceTree inheritanceTree;
 
 	/**
@@ -50,19 +51,19 @@ public class ProjectGraph {
 	private final Map<String, Set<String>> castInformation;
 
 	private final ProjectStaticData data;
-	
-	
+
+
 	/**
 	 * Main constructor
 	 * 
 	 * @param data
 	 */
 	public ProjectGraph(ProjectStaticData data) {
-		
+
 		this.data = data;
 		inheritanceTree = InheritanceTreeGenerator.createFromClassList(data.getClassNames());
 		castInformation = new HashMap<String, Set<String>>();
-		
+
 		if(logger.isDebugEnabled()){
 			logger.debug("Classes in inheritance tree: " + inheritanceTree.getAllClasses());
 		}
@@ -99,14 +100,14 @@ public class ProjectGraph {
 	 *             if the input <code>cut</code> is not a CUT
 	 */
 	public Set<String> getCUTsDirectlyUsedAsInput(String cut, boolean includeSubclasses)
-	        throws IllegalArgumentException {
-		
+			throws IllegalArgumentException {
+
 		checkCUT(cut);
-		
+
 		Set<String> parameterClasses = recursionToSearchDirectInputs(cut,includeSubclasses);		
 		parameterClasses.remove(cut); 
 		removeNonCUT(parameterClasses); 
-		
+
 		logger.debug("Parameter classes of " + cut + ": " + parameterClasses);
 		return parameterClasses;
 	}
@@ -123,11 +124,11 @@ public class ProjectGraph {
 
 		Set<String> parameterClasses = getParameterClasses(aClass);
 		parameterClasses.addAll(getCastClasses(aClass));
-				
+
 		return parameterClasses;
 	}
-	
-	
+
+
 	/**
 	 * Calculate all the CUTs that use the given <code>cut</code> as input in
 	 * any of their public methods
@@ -142,18 +143,18 @@ public class ProjectGraph {
 	 *             if the input <code>cut</code> is not a CUT
 	 */
 	public Set<String> getCUTsThatUseThisCUTasInput(String cut,
-	        boolean includeSuperClasses) throws IllegalArgumentException {
-		
+			boolean includeSuperClasses) throws IllegalArgumentException {
+
 		checkCUT(cut);
-		
+
 		Set<String> classNames = recursionToSearchWhatUsesItAsInput(cut,includeSuperClasses);			
 		classNames.remove(cut); 
 		removeNonCUT(classNames); 
-		
+
 		return classNames;
 	}
 
-		
+
 	protected Set<String> recursionToSearchWhatUsesItAsInput(String aClass, boolean includeSuperClasses){
 		if (includeSuperClasses) {
 			Set<String> directlyUsed = recursionToSearchWhatUsesItAsInput(aClass, false); //recursion
@@ -175,7 +176,7 @@ public class ProjectGraph {
 				classNames.add(className);
 			}
 		}
-		
+
 		return classNames;
 	}
 
@@ -229,7 +230,7 @@ public class ProjectGraph {
 			throw new IllegalArgumentException("Class "+className+" is not part of the SUT");
 		}
 	}
-	
+
 	/**
 	 * Check if the given class does belong to the SUT and if it is testable (ie a CUT).
 	 * 
@@ -244,8 +245,8 @@ public class ProjectGraph {
 			throw new IllegalArgumentException("Class "+cut+" belongs to the SUT, but it is not a CUT (ie testable)");
 		}
 	}
-	
-	
+
+
 	/**
 	 * Return all the child hierarchy of the <code>aClass</code>. Include only classes
 	 * that are CUTs.
@@ -259,7 +260,14 @@ public class ProjectGraph {
 	 */
 	public Set<String> getAllCUTsSubclasses(String aClass) throws IllegalArgumentException {
 		checkClass(aClass);
-		Set<String>  set = inheritanceTree.getSubclasses(aClass);
+
+		Set<String>  set = null;
+		try{ //FIXME
+			set = inheritanceTree.getSubclasses(aClass);
+		} catch(Exception e){
+			logger.error("Bug in inheritanceTree: "+e);
+			return new HashSet<String>();
+		}
 		set.remove(aClass); 
 		removeNonCUT(set);
 		return set;
@@ -278,15 +286,23 @@ public class ProjectGraph {
 	 */
 	public Set<String> getAllCUTsParents(String aClass) throws IllegalArgumentException {
 		checkClass(aClass);
-		Set<String>  set =  inheritanceTree.getSuperclasses(aClass);
+		Set<String>  set = null;
+
+		try{ //FIXME
+			set =	inheritanceTree.getSuperclasses(aClass);
+		}
+		catch(Exception e){
+			logger.error("Bug in inheritanceTree: "+e);
+			return new HashSet<String>();
+		}
 		set.remove(aClass); //it seems inheritanceTree returns 'cut' in the set
 		removeNonCUT(set);
 		return set;
 	}
 
-	
+
 	private void removeNonCUT(Set<String> set) throws IllegalArgumentException{
-		
+
 		Iterator<String> iter = set.iterator();
 		while(iter.hasNext()){
 			String name = iter.next();
@@ -294,13 +310,13 @@ public class ProjectGraph {
 			if(info==null){
 				throw new IllegalArgumentException("Class "+name+" does not belong to the SUT");
 			}
-			
+
 			if(!info.isTestable()){
 				iter.remove();
 			}
 		}
 	}
-	
+
 	/**
 	 * For now use the cache provided by dependency analysis
 	 * 
