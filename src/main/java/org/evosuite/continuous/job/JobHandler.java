@@ -281,6 +281,14 @@ public class JobHandler extends Thread{
 		cmd += RuntimeVariable.Statements_Executed+",";				
 		cmd += RuntimeVariable.Total_Time+",";				
 		cmd += RuntimeVariable.NumberOfGeneratedTestCases; 			
+		
+		/*
+		 * Master/Client will not use this variable.
+		 * But here we include it just to be sure that it will end
+		 * up in the generated CSV files
+		 */
+		cmd += " -Dctg_schedule="+Properties.CTG_SCHEDULE;
+		
 		return cmd;
 	}
 	
