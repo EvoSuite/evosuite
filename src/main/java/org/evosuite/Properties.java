@@ -1162,8 +1162,8 @@ public class Properties {
 				parameterMap.put(p.key(), f);
 				try {
 					defaultMap.put(f, f.get(null));
-				} catch (IllegalArgumentException e) {
-				} catch (IllegalAccessException e) {
+				} catch (Exception e) {
+					logger.error("Exception: "+e.getMessage(),e);
 				}
 			}
 		}
@@ -1250,11 +1250,11 @@ public class Properties {
 				// logger.info("* Properties loaded from default configuration file.");
 			}
 		} catch (FileNotFoundException e) {
-			logger.info("- Error: Could not find configuration file " + propertiesPath);
+			logger.warn("- Error: Could not find configuration file " + propertiesPath);
 		} catch (IOException e) {
-			logger.info("- Error: Could not find configuration file " + propertiesPath);
+			logger.warn("- Error: Could not find configuration file " + propertiesPath);
 		} catch (Exception e) {
-			logger.info("- Error: Could not find configuration file " + propertiesPath);
+			logger.warn("- Error: Could not find configuration file " + propertiesPath);
 		}
 	}
 
@@ -1857,15 +1857,8 @@ public class Properties {
 				buffer.append("=");
 				try {
 					buffer.append(getStringValue(p.key()));
-				} catch (IllegalArgumentException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchParameterException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (IllegalAccessException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e) {
+					logger.error("Exception "+e.getMessage(),e);
 				}
 				buffer.append("\n\n");
 			}
@@ -1885,8 +1878,8 @@ public class Properties {
 				if (defaultMap.containsKey(f)) {
 					try {
 						f.set(null, defaultMap.get(f));
-					} catch (IllegalArgumentException e) {
-					} catch (IllegalAccessException e) {
+					} catch (Exception e) {
+						logger.error("Failed to init property field "+f+" , "+e.getMessage(),e);
 					}
 				}
 			}
