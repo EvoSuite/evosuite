@@ -176,7 +176,9 @@ public class JobHandler extends Thread{
 		File logs = storage.getTmpLogs(); 
 		cmd += " -Devosuite.log.folder="+logs.getAbsolutePath()+"/job"+job.jobID;
 		
-		//cmd += " -Dlog.level=debug"; //TODO remove
+		if(Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()){
+			cmd += " -Dlog.level="+Properties.LOG_LEVEL; 
+		}
 		//cmd += " -Dprint_to_system=true";//TODO remove
 		
 		/*
@@ -189,7 +191,12 @@ public class JobHandler extends Thread{
 		cmd += " " + org.evosuite.EvoSuite.class.getName();
 		cmd += " -mem " + clientMB;
 		cmd += " -class " + job.cut;
-		
+
+		//needs to be called twice, after the Java command
+		if(Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()){
+			cmd += " -Dlog.level="+Properties.LOG_LEVEL; 
+		}
+
 		/*
 		 * TODO for now we ignore the job configuration (ie special parameter settings)
 		 */
