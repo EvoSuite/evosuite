@@ -110,7 +110,7 @@ public class JobSchedulerTest {
 
 		int cores = 3;
 		int memory = 1800;
-		int budget = 2;
+		int budget = 3;
 
 		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
 		scheduler.chooseScheduleType(AvailableSchedule.SEEDING);

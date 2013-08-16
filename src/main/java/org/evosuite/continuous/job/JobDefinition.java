@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Definition of a "job", ie a run of EvoSuite on a CUT.
  * 
@@ -17,6 +20,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class JobDefinition {
 
+	private static Logger logger = LoggerFactory.getLogger(JobDefinition.class);
+	
 	/**
 	 * counter used to create unique ids in a thread-safe manner
 	 */
@@ -133,6 +138,9 @@ public class JobDefinition {
 		}
 
 		if (inputClasses != null) {
+			
+			logger.debug("Adding "+inputClasses.size()+"input dependecies in job "+jobID);
+			
 			if (inputs == null) {
 				inputs = inputClasses;
 			} else {
@@ -160,6 +168,19 @@ public class JobDefinition {
 		return dependentOnClasses!=null && dependentOnClasses.contains(other.cut);
 	}
 
+	/**
+	 * The number of classes this job depends on and 
+	 * should be executed before this job
+	 * 
+	 * @return
+	 */
+	public int getNumberOfDependencies(){
+		if(dependentOnClasses==null){
+			return 0;
+		} else {
+			return dependentOnClasses.size();
+		}
+	}
 	
 	/**
 	 * Check if all jobs this one depends on are finished 
@@ -249,7 +270,8 @@ public class JobDefinition {
 	 */
 	@Override
 	public String toString() {
-		return jobID + ": " + cut;
+		return "job "+jobID + ", target " + cut+
+				", number of dependencies "+getNumberOfDependencies();
 	}
 
 }

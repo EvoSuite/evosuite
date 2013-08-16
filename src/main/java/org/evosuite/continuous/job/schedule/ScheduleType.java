@@ -47,7 +47,7 @@ public abstract class ScheduleType {
 	 * Less than that, and there would be no point to even run
 	 * the search.
 	 */
-	public static final int MINIMUM_SECONDS = 30;
+	public static final int MINIMUM_SECONDS = 60;
 
 	/**
 	 * To run a job, you need a minimum of RAM.
@@ -88,7 +88,7 @@ public abstract class ScheduleType {
 	protected boolean enoughBudgetForAll(){
 		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * getNumberOfUsableCores();
 		int maximumNumberOfJobs = totalBudget / MINIMUM_SECONDS;
-		return maximumNumberOfJobs > scheduler.getProjectData().getTotalNumberOfTestableCUTs();
+		return maximumNumberOfJobs >= scheduler.getProjectData().getTotalNumberOfTestableCUTs();
 	}
 
 	/**

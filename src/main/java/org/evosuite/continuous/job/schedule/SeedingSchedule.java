@@ -12,6 +12,8 @@ import java.util.Set;
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobScheduler;
 import org.evosuite.continuous.project.ProjectGraph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Choose a precise order in which the CUTs will be targeted.
@@ -22,6 +24,8 @@ import org.evosuite.continuous.project.ProjectGraph;
  *
  */
 public class SeedingSchedule extends OneTimeSchedule{
+
+	private static Logger logger = LoggerFactory.getLogger(SeedingSchedule.class);
 
 	protected final OneTimeSchedule base;
 
@@ -38,9 +42,12 @@ public class SeedingSchedule extends OneTimeSchedule{
 	@Override
 	protected List<JobDefinition> createScheduleOnce() {
 		List<JobDefinition> jobs = base.createScheduleOnce();
-		jobs = addDependenciesForSeeding(jobs);
-		jobs = getSortedToSatisfyDependencies(jobs);
-		return jobs;
+		
+		if(logger.isDebugEnabled()){
+			logger.debug("Base schedule: "+jobs);
+		}
+		
+		return addDepenciesAndSort(jobs);		
 	}
 
 	@Override
@@ -50,11 +57,29 @@ public class SeedingSchedule extends OneTimeSchedule{
 		 * still want to use seeding.
 		 */
 		List<JobDefinition> jobs = super.createScheduleForWhenNotEnoughBudget(); 
-		jobs = addDependenciesForSeeding(jobs);
-		jobs = getSortedToSatisfyDependencies(jobs);
-		return jobs;
+		if(logger.isDebugEnabled()){
+			logger.debug("Base, reduced schedule: "+jobs);
+		}
+		return addDepenciesAndSort(jobs);
 	}
 
+	
+	protected List<JobDefinition> addDepenciesAndSort(List<JobDefinition> jobs){
+		jobs = addDependenciesForSeeding(jobs);
+
+		if(logger.isDebugEnabled()){
+			logger.debug("Schedule after adding dependencies: "+jobs);
+		}
+		
+		jobs = getSortedToSatisfyDependencies(jobs);
+		
+		if(logger.isDebugEnabled()){
+			logger.debug("Final schedule after sorting: "+jobs);
+		}
+		
+		return jobs;		
+	}
+	
 	/**
 	 * Try (best effort) to sort the jobs in a way in which dependent jobs
 	 * are executed first. Try to maintain the relative order of the input list.
