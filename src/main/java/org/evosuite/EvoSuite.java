@@ -276,7 +276,7 @@ public class EvoSuite {
 			try {
 				Properties.getInstance().setValue(propertyName, propertyValue);
 			} catch (Exception e) {
-				// Ignore?
+				throw new Error("Invalid value for property " + propertyName+": "+propertyValue+". Exception "+e.getMessage(),e);
 			}
 		}
 	}

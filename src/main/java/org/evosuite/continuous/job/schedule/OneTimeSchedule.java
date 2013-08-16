@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.evosuite.continuous.job.JobDefinition;
 import org.evosuite.continuous.job.JobScheduler;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * A schedule that can only be called once.
@@ -34,7 +35,8 @@ public abstract class OneTimeSchedule extends ScheduleType{
 		called = true;
 		
 		if(!enoughBudgetForAll()){
-			return super.createScheduleForWhenNotEnoughBudget();
+			LoggingUtils.getEvoLogger().info("There is no enough time budget to generate test cases for all classes in the project");
+			return createScheduleForWhenNotEnoughBudget();
 		}
 		
 		return createScheduleOnce();
