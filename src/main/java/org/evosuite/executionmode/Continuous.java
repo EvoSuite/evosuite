@@ -53,17 +53,17 @@ public class Continuous {
 
 			if (line.hasOption("target")) {
 				target = line.getOptionValue("target");
+				
+				/*
+				 * We could issue a warning, but to make things easier (so user need to type less),
+				 * let's just add the target automatically to the classpath.
+				 * This is useful for when we do not want to specify the classpath (default '.'),
+				 * and so just typing '-target' on command line
+				 */
+				if(!cp.contains(target)){
+					cp += File.pathSeparator + target;
+				}
 			} 
-			
-			/*
-			 * We could issue a warning, but to make things easier (so user need to type less),
-			 * let's just add the target automatically to the classpath.
-			 * This is useful for when we do not want to specify the classpath (default '.'),
-			 * and so just typing '-target' on command line
-			 */
-			if(!cp.contains(target)){
-				cp += File.pathSeparator + target;
-			}
 		}
 
 		/*
