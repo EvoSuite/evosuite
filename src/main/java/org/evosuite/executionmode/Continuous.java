@@ -53,13 +53,8 @@ public class Continuous {
 
 			if (line.hasOption("target")) {
 				target = line.getOptionValue("target");
-			} else {
-				LoggingUtils.getEvoLogger().error(
-						"Please specify target ('-target' option) folder/jar classpath entry  to "+
-						"indicate on which classes to apply Continuous Test Generation");
-				return null;
-			}
-
+			} 
+			
 			/*
 			 * We could issue a warning, but to make things easier (so user need to type less),
 			 * let's just add the target automatically to the classpath.
