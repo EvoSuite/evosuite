@@ -186,4 +186,57 @@ public class JobSchedulerTest {
 		Assert.assertTrue(in.contains(Trivial.class.getName()));
 		Assert.assertEquals(2, in.size());
 	}
+
+
+	@Test
+	public void testSeedingAndBudget() {
+
+		String[] cuts = new String[] { 
+		        Trivial.class.getName(),
+		        UsingSimpleAndTrivial.class.getName(), 
+				Simple.class.getName(),
+		        };
+
+		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+		ProjectStaticData data = analyzer.analyze();
+
+		int cores = 3;
+		int memory = 1800;
+		int budget = 2;
+
+		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
+		scheduler.chooseScheduleType(AvailableSchedule.BUDGET_AND_SEEDING);
+
+		List<JobDefinition> jobs = scheduler.createNewSchedule();
+		Assert.assertNotNull(jobs);
+
+		Assert.assertEquals("Wrong number of jobs: " + jobs.toString(), 3, jobs.size());
+
+		//UsingSimpleAndTrivial should be the last in the schedule, as it depends on the other 2
+		JobDefinition seeding = jobs.get(2);
+		Assert.assertNotNull(seeding);
+		Assert.assertEquals(UsingSimpleAndTrivial.class.getName(), seeding.cut);
+		
+		Set<String> in = seeding.inputClasses;
+		Assert.assertNotNull(in);
+		System.out.println(in.toString());
+		Assert.assertTrue(in.contains(Simple.class.getName()));
+		Assert.assertTrue(in.contains(Trivial.class.getName()));
+		Assert.assertEquals(2, in.size());
+		
+		
+		JobDefinition simple = jobs.get(0); //should be the first, as it has the highest number of branches among the jobs with no depencencies
+		Assert.assertNotNull(simple);
+		Assert.assertEquals(Simple.class.getName(), simple.cut);
+		
+		int simpleTime = jobs.get(0).seconds;
+		int trivialTime = jobs.get(1).seconds;
+		int seedingTime = jobs.get(2).seconds;
+		
+		Assert.assertTrue(simpleTime > trivialTime);
+		Assert.assertTrue(simpleTime < seedingTime);  //seeding, even if last, it should have more time, as it has most branches
+		Assert.assertTrue(trivialTime < seedingTime);
+	}
+
+
 }
