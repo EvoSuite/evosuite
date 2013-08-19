@@ -1,17 +1,17 @@
 /**
  * Copyright (C) 2011,2012 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
- *
+ * 
  * This file is part of EvoSuite.
- *
+ * 
  * EvoSuite is free software: you can redistribute it and/or modify it under the
  * terms of the GNU Public License as published by the Free Software Foundation,
  * either version 3 of the License, or (at your option) any later version.
- *
+ * 
  * EvoSuite is distributed in the hope that it will be useful, but WITHOUT ANY
  * WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR
  * A PARTICULAR PURPOSE. See the GNU Public License for more details.
- *
+ * 
  * You should have received a copy of the GNU Public License along with
  * EvoSuite. If not, see <http://www.gnu.org/licenses/>.
  */
@@ -34,10 +34,11 @@ import org.objectweb.asm.tree.LdcInsnNode;
 import org.objectweb.asm.tree.MethodNode;
 import org.objectweb.asm.tree.analysis.Frame;
 
-
 /**
- * <p>ReplaceConstant class.</p>
- *
+ * <p>
+ * ReplaceConstant class.
+ * </p>
+ * 
  * @author Gordon Fraser
  */
 public class ReplaceConstant implements MutationOperator {
@@ -57,11 +58,13 @@ public class ReplaceConstant implements MutationOperator {
 			// insert mutation into bytecode with conditional
 			LdcInsnNode mutation = new LdcInsnNode(replacement);
 			// insert mutation into pool
+			String summary = "ReplaceConstant - " + value + " -> " + replacement;
+			if (replacement instanceof String) {
+				summary = summary.replace("*/", "*_/");
+			}
 			Mutation mutationObject = MutationPool.addMutation(className,
 			                                                   methodName,
-			                                                   "ReplaceConstant - "
-			                                                           + value + " -> "
-			                                                           + replacement,
+			                                                   summary,
 			                                                   instruction,
 			                                                   mutation,
 			                                                   Mutation.getDefaultInfectionDistance());
