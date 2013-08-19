@@ -228,7 +228,7 @@ public class JobHandler extends Thread{
 		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.jobID;
 		cmd += " -Dtest_dir="+tests.getAbsolutePath();
 		
-		cmd += " -DTT=false"; //FIXME: should be set to true, but now it seems giving major problems
+		cmd += " -Derror_branches=true"; 
 		cmd += " -criterion exception"; 
 		
 		cmd += " "+getOutputVariables();
