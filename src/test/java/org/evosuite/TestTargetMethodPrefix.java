@@ -5,12 +5,32 @@ import static org.junit.Assert.assertTrue;
 
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.TargetMethodPrefix;
 
 public class TestTargetMethodPrefix extends SystemTest {
 
+	private String targetMethod = "";
+	private String targetMethodList = "";
+	private String targetMethodPrefix = "";
+
+	@Before
+	public void backupValues() {
+		targetMethod = Properties.TARGET_METHOD;
+		targetMethodList = Properties.TARGET_METHOD_LIST;
+		targetMethodPrefix = Properties.TARGET_METHOD_PREFIX;
+		Properties.SEARCH_BUDGET = 50000;
+	}
+
+	@After
+	public void restoreValues() {
+		Properties.TARGET_METHOD = targetMethod;
+		Properties.TARGET_METHOD_LIST = targetMethodList;
+		Properties.TARGET_METHOD_PREFIX = targetMethodPrefix;
+	}
 
 	@Test
 	public void testTotalBranchesInClass() {
@@ -23,8 +43,7 @@ public class TestTargetMethodPrefix extends SystemTest {
 		Properties.TARGET_METHOD_LIST = "";
 		Properties.TARGET_METHOD_PREFIX = "";
 
-		String[] command = new String[] { "-generateSuite", "-class", targetClass,
-		        "-Dclient_on_thread=true" };
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
 		Object result = evosuite.parseCommandLine(command);
 		assertTrue(result != null);
