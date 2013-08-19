@@ -688,12 +688,12 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		if (c.getName().matches(".*\\$\\d+\\$.*$")) {
+		if (c.getName().matches(".*\\$\\d+(\\$.*)?$")) {
 			logger.debug(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
 
-		if (c.getName().matches(".*\\.\\d+\\..*$")) {
+		if (c.getName().matches(".*\\.\\d+(\\..*)?$")) {
 			logger.debug(c + " looks like an anonymous class, ignoring it");
 			return false;
 		}
