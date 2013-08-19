@@ -228,6 +228,9 @@ public class JobHandler extends Thread{
 		cmd += " -Dreport_dir="+reports.getAbsolutePath()+"/job"+job.jobID;
 		cmd += " -Dtest_dir="+tests.getAbsolutePath();
 		
+		cmd += " -Derror_branches=true"; 
+		cmd += " -criterion exception"; 
+		
 		cmd += " "+getOutputVariables();
         
 		cmd += " -Djunit_suffix="+StorageManager.junitSuffix;
@@ -278,7 +281,6 @@ public class JobHandler extends Thread{
 	}
 
 	private String getOutputVariables(){
-		//TODO add other outputs once fitness functions are fixed
 		String cmd =  " -Doutput_variables="; 
 		cmd += "TARGET_CLASS,configuration_id,"; 
 		cmd += "ctg_schedule,";
@@ -287,7 +289,9 @@ public class JobHandler extends Thread{
 		cmd += RuntimeVariable.Minimized_Size+",";		
 		cmd += RuntimeVariable.Statements_Executed+",";				
 		cmd += RuntimeVariable.Total_Time+",";				
-		cmd += RuntimeVariable.NumberOfGeneratedTestCases; 			
+		cmd += RuntimeVariable.NumberOfGeneratedTestCases+","; 			
+		cmd += RuntimeVariable.Implicit_MethodExceptions+",";
+		cmd += RuntimeVariable.Explicit_MethodExceptions; 
 		
 		/*
 		 * Master/Client will not use this variable.
