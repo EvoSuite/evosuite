@@ -15,10 +15,10 @@ import com.examples.with.different.packagename.errorbranch.IntMulOverflow;
 import com.examples.with.different.packagename.errorbranch.IntSubOverflow;
 
 public class TestOverflowInstrumentation extends SystemTest {
-	
+
 	@Test
 	public void testIntAddOverflow() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = IntAddOverflow.class.getCanonicalName();
@@ -39,18 +39,19 @@ public class TestOverflowInstrumentation extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 7d/7d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 7d / 7d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testIntSubOverflow() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = IntSubOverflow.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
 		Properties.ERROR_BRANCHES = true;
+		Properties.SEARCH_BUDGET = 50000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 
@@ -65,12 +66,12 @@ public class TestOverflowInstrumentation extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 7d/7d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 7d / 7d, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testIntDivOverflow() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = IntDivOverflow.class.getCanonicalName();
@@ -93,10 +94,10 @@ public class TestOverflowInstrumentation extends SystemTest {
 		Assert.assertEquals("Wrong number of goals: ", 7, goals);
 		Assert.assertEquals("Non-optimal coverage: ", 1, best.getCoverage(), 0.001);
 	}
-	
+
 	@Test
 	public void testIntMulOverflow() {
-		
+
 		EvoSuite evosuite = new EvoSuite();
 
 		String targetClass = IntMulOverflow.class.getCanonicalName();
@@ -117,6 +118,6 @@ public class TestOverflowInstrumentation extends SystemTest {
 
 		int goals = TestSuiteGenerator.getFitnessFactory().getCoverageGoals().size();
 		Assert.assertEquals("Wrong number of goals: ", 7, goals);
-		Assert.assertEquals("Non-optimal coverage: ", 7d/7d, best.getCoverage(), 0.001);
+		Assert.assertEquals("Non-optimal coverage: ", 7d / 7d, best.getCoverage(), 0.001);
 	}
 }
