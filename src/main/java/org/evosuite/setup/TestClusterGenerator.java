@@ -402,7 +402,7 @@ public class TestClusterGenerator {
 
 				// Sometimes strange things appear such as Map$Entry
 				if (!targetClasses.contains(innerClass)
-				        && innerClassName.matches(".*\\$\\d+$")) {
+				        && !innerClassName.matches(".*\\$\\d+(\\$.*)?$")) {
 
 					logger.info("Adding inner class " + innerClassName);
 					targetClasses.add(innerClass);
