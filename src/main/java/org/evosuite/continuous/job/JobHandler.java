@@ -283,7 +283,8 @@ public class JobHandler extends Thread{
 	private String getOutputVariables(){
 		String cmd =  " -Doutput_variables="; 
 		cmd += "TARGET_CLASS,configuration_id,"; 
-		cmd += "ctg_schedule,";
+		cmd += "ctg_schedule,search_budget,";
+		cmd += RuntimeVariable.Total_Branches+",";				
 		cmd += RuntimeVariable.NumberOfInputPoolObjects+",";				
 		cmd += RuntimeVariable.BranchCoverage+",";		
 		cmd += RuntimeVariable.Minimized_Size+",";		
