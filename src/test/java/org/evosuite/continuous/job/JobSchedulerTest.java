@@ -3,6 +3,7 @@ package org.evosuite.continuous.job;
 import java.util.List;
 import java.util.Set;
 
+import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.project.ProjectAnalyzer;
 import org.evosuite.continuous.project.ProjectStaticData;
@@ -37,8 +38,9 @@ public class JobSchedulerTest {
 		int memory = 1400;
 		int budget = 2;
 
-		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
-		scheduler.chooseScheduleType(AvailableSchedule.BUDGET);
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET);
+		
+		JobScheduler scheduler = new JobScheduler(data, conf);
 
 		List<JobDefinition> jobs = scheduler.createNewSchedule();
 		Assert.assertNotNull(jobs);
@@ -77,8 +79,9 @@ public class JobSchedulerTest {
 		int memory = 1400;
 		int budget = 2;
 
-		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
-		scheduler.chooseScheduleType(AvailableSchedule.SIMPLE);
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SIMPLE);
+		JobScheduler scheduler = new JobScheduler(data, conf);
+		
 
 		List<JobDefinition> jobs = scheduler.createNewSchedule();
 		Assert.assertNotNull(jobs);
@@ -112,8 +115,8 @@ public class JobSchedulerTest {
 		int memory = 1800;
 		int budget = 3;
 
-		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
-		scheduler.chooseScheduleType(AvailableSchedule.SEEDING);
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SEEDING);
+		JobScheduler scheduler = new JobScheduler(data, conf);
 
 		List<JobDefinition> jobs = scheduler.createNewSchedule();
 		Assert.assertNotNull(jobs);
@@ -166,8 +169,8 @@ public class JobSchedulerTest {
 		int memory = 1800;
 		int budget = 2;
 
-		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
-		scheduler.chooseScheduleType(AvailableSchedule.SEEDING);
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.SEEDING);
+		JobScheduler scheduler = new JobScheduler(data, conf);
 
 		List<JobDefinition> jobs = scheduler.createNewSchedule();
 		Assert.assertNotNull(jobs);
@@ -204,8 +207,8 @@ public class JobSchedulerTest {
 		int memory = 1800;
 		int budget = 2;
 
-		JobScheduler scheduler = new JobScheduler(data, cores, memory, budget);
-		scheduler.chooseScheduleType(AvailableSchedule.BUDGET_AND_SEEDING);
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET_AND_SEEDING);
+		JobScheduler scheduler = new JobScheduler(data, conf);
 
 		List<JobDefinition> jobs = scheduler.createNewSchedule();
 		Assert.assertNotNull(jobs);

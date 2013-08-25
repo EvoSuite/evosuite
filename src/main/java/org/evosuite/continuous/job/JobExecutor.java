@@ -12,6 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.utils.LoggingUtils;
 import org.slf4j.Logger;
@@ -43,8 +44,6 @@ public class JobExecutor {
 
 	private static Logger logger = LoggerFactory.getLogger(JobExecutor.class);
 
-	private int timeBudgetInMinutes; 
-
 	private volatile boolean executing;
 	private long startTimeInMs;
 
@@ -67,7 +66,7 @@ public class JobExecutor {
 	 */
 	private Map<String,JobDefinition> finishedJobs; 
 
-	private int numberOfCores;
+	protected final CtgConfiguration configuration;
 	
 	private String projectClassPath;
 	
@@ -76,29 +75,22 @@ public class JobExecutor {
 	/**
 	 * Main constructor
 	 * 
-	 * @param storage
-	 * @param projectClassPath
-	 * @param numberOfCores
-	 * @param totalMemoryInMB
-	 * @param timeInMinutes
 	 */
 	public JobExecutor(StorageManager storage, 
-			String projectClassPath,int numberOfCores,
-			int totalMemoryInMB, int timeInMinutes) throws IllegalArgumentException{
+			String projectClassPath, CtgConfiguration conf) throws IllegalArgumentException{
 
 		this.storage = storage;
 		if(storage.getTmpFolder() == null){
 			throw new IllegalArgumentException("Storage is not initalized");
 		}
 		
-		this.timeBudgetInMinutes = timeInMinutes;
-		this.numberOfCores = numberOfCores;
+		this.configuration = conf;
 		this.projectClassPath = projectClassPath;
 	}
 
 	protected long getRemainingTimeInMs(){
 		long elapsed = System.currentTimeMillis() - startTimeInMs;
-		long budgetInMs = timeBudgetInMinutes * 60 * 1000;
+		long budgetInMs = configuration.timeInMinutes * 60 * 1000;
 		long remaining = budgetInMs - elapsed;
 		return remaining;
 	}
@@ -124,7 +116,7 @@ public class JobExecutor {
 			@Override
 			public void run(){
 				
-				JobHandler[] handlers = JobHandler.getPool(numberOfCores,JobExecutor.this);
+				JobHandler[] handlers = JobHandler.getPool(configuration.numberOfCores,JobExecutor.this);
 				for(JobHandler handler : handlers){
 					handler.start();
 				}
@@ -294,7 +286,7 @@ public class JobExecutor {
 		 */
 		try {
 			//add one extra minute just to be sure
-			boolean elapsed = !latch.await(timeBudgetInMinutes+1, TimeUnit.MINUTES);  
+			boolean elapsed = !latch.await(configuration.timeInMinutes+1, TimeUnit.MINUTES);  
 			if(elapsed){
 				logger.error("The jobs did not finish in time");
 			}

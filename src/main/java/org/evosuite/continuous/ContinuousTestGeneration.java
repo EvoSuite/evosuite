@@ -67,11 +67,7 @@ import org.evosuite.xsd.ProjectInfo;
  */
 public class ContinuousTestGeneration {
 
-	private final int totalMemoryInMB;	
-    private final int numberOfCores;	
-    private final int timeInMinutes;
-	private final boolean callHome;
-    
+
 	/**
 	 * Target folder/jar defining the SUT
 	 */
@@ -87,19 +83,15 @@ public class ContinuousTestGeneration {
      *  The complete, used classpath
      */
     private final String projectClassPath;
-	private final AvailableSchedule schedule;
+	
+    private final CtgConfiguration configuration;
     
-    public ContinuousTestGeneration(String target, String projectClassPath, String prefix, int memoryInMB, int numberOfCores,
-			int timeInMinutes, boolean callHome, AvailableSchedule schedule) {
+    public ContinuousTestGeneration(String target, String projectClassPath, String prefix, CtgConfiguration conf) {
 		super();		
 		this.target = target;
 		this.prefix = prefix;
 		this.projectClassPath = projectClassPath;
-		this.totalMemoryInMB = memoryInMB;
-		this.numberOfCores = numberOfCores;
-		this.timeInMinutes = timeInMinutes;
-		this.callHome = callHome;
-		this.schedule = schedule;
+		this.configuration = conf;
 	}
 	
     /**
@@ -128,9 +120,8 @@ public class ContinuousTestGeneration {
     			return "There is no class to test in the chosen project";
     		}
     		
-    		JobScheduler scheduler = new JobScheduler(data,numberOfCores,totalMemoryInMB,timeInMinutes);
-    		scheduler.chooseScheduleType(schedule);
-    		JobExecutor executor = new JobExecutor(storage,projectClassPath,numberOfCores,totalMemoryInMB,timeInMinutes);
+    		JobScheduler scheduler = new JobScheduler(data,configuration);
+    		JobExecutor executor = new JobExecutor(storage,projectClassPath,configuration);
     		
     		//loop: define (partial) schedule
     		while(scheduler.canExecuteMore()){
@@ -142,7 +133,7 @@ public class ContinuousTestGeneration {
     		String description = storage.mergeAndCommitChanges(data);
 
     		//call home
-    		if(callHome){
+    		if(configuration.callHome){
     			//TODO
     		}
     		
