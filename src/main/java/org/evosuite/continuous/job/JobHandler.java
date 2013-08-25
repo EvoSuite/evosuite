@@ -247,7 +247,15 @@ public class JobHandler extends Thread{
 			cmd += " -Drandom_seed="+Properties.RANDOM_SEED;
 		}
 		
-		cmd += " -Dsecondary_objectives=totallength -Dminimize=true  -Dtimeout=5000  "; 
+		/*
+		 * these 2 options should always be 'true'.
+		 * Here we take them as parameter, just because for experiments
+		 * we might skip those phases if we do not analyze their results
+		 */
+		cmd += " -Dminimize=" + Properties.MINIMIZE;
+		cmd += " -Dassertions=" + Properties.ASSERTIONS;
+		
+		cmd += " -Dsecondary_objectives=totallength  -Dtimeout=5000  "; 
         cmd += " -Dhtml=false -Dlog_timeout=false  -Dplot=false -Djunit_tests=true  -Dshow_progress=false";
         cmd += " -Dsave_all_data=false  -Dinline=false";
   		
@@ -313,9 +321,9 @@ public class JobHandler extends Thread{
 			seconds = remaining;
 		}
 		
-		if(seconds < ScheduleType.MINIMUM_SECONDS){
+		if(seconds < executor.configuration.minMinutesPerJob){
 			//even if we do not have enough time, we go for the minimum
-			seconds = ScheduleType.MINIMUM_SECONDS;
+			seconds = executor.configuration.minMinutesPerJob;
 		}
 		
 		/*

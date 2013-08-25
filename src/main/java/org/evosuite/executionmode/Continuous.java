@@ -11,6 +11,7 @@ import org.apache.commons.cli.Options;
 import org.evosuite.EvoSuite;
 import org.evosuite.Properties;
 import org.evosuite.continuous.ContinuousTestGeneration;
+import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.utils.ClassPathHacker;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ResourceList;
@@ -86,11 +87,7 @@ public class Continuous {
 				target,
 				cp,
 				prefix,
-				Properties.CTG_MEMORY, 
-				Properties.CTG_CORES, 
-				Properties.CTG_TIME, 
-				false, /* TODO: just for now, as not implemented yet */
-				Properties.CTG_SCHEDULE
+				CtgConfiguration.getFromParameters()
 				);
 
 		/*

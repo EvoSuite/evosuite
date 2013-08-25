@@ -2,6 +2,7 @@ package org.evosuite.continuous.job;
 
 import java.util.List;
 
+import org.evosuite.continuous.CtgConfiguration;
 import org.evosuite.continuous.job.schedule.BudgetAndSeedingSchedule;
 import org.evosuite.continuous.job.schedule.BudgetSchedule;
 import org.evosuite.continuous.job.schedule.ScheduleType;
@@ -31,27 +32,31 @@ public class JobScheduler {
 	private static Logger logger = LoggerFactory.getLogger(JobScheduler.class);
 
 	private final ProjectStaticData projectData;
-	private final int numberOfCores;
-	private final int totalBudgetInMinutes;
-	private final int totalMemoryInMB;
 	
-	private ScheduleType currentSchedule; 
-	
+	private final CtgConfiguration configuration;
 
+	private ScheduleType currentSchedule;
 	
+	/**
+	 * Main constructor
+	 * 
+	 * @param projectData
+	 * @param numberOfCores
+	 * @param totalMemoryInMB
+	 * @param totalBudgetInMinutes
+	 * @param minMinutesPerJob
+	 */
 	public JobScheduler(ProjectStaticData projectData,
-			int numberOfCores,
-			int totalMemoryInMB, int totalBudgetInMinutes) {
+			CtgConfiguration conf) {
 		super();
-		this.projectData = projectData;
-		this.numberOfCores = numberOfCores;
-		this.totalMemoryInMB = totalMemoryInMB;
-		this.totalBudgetInMinutes = totalBudgetInMinutes;
-		
-		/*
-		 * TODO: default one should be the best found in the experiments, likely BUDGET_AND_SEEDING
-		 */
-		chooseScheduleType(AvailableSchedule.SIMPLE);
+		this.projectData = projectData;	
+		this.configuration = conf;
+		chooseScheduleType(configuration.schedule);
+	}
+	
+	
+	public int getMinSecondsPerJob(){
+		return configuration.minMinutesPerJob * 60;
 	}
 	
 	public void chooseScheduleType(AvailableSchedule schedule) throws IllegalArgumentException{
@@ -105,14 +110,14 @@ public class JobScheduler {
 	}
 	
 	public int getNumberOfCores() {
-		return numberOfCores;
+		return configuration.numberOfCores;
 	}
 
 	public int getTotalBudgetInMinutes() {
-		return totalBudgetInMinutes;
+		return configuration.timeInMinutes;
 	}
 
 	public int getTotalMemoryInMB() {
-		return totalMemoryInMB;
+		return configuration.totalMemoryInMB;
 	}	
 }

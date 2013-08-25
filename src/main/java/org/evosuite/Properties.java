@@ -551,6 +551,9 @@ public class Properties {
 	@Parameter(key = "ctg_time", group = "Continuous Test Generation", description = "How many minutes in total CTG will run")
 	public static int CTG_TIME = 1;
 
+	@Parameter(key = "ctg_min_time_per_job", group = "Continuous Test Generation", description = "How many minutes each class under test should have at least")
+	public static int CTG_MIN_TIME_PER_JOB = 1;
+
 	@Parameter(key = "ctg_folder", group = "Continuous Test Generation", description = "Where generated files will be stored")
 	public static String CTG_FOLDER = ".continuous_evosuite";
 
