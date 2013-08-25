@@ -41,14 +41,7 @@ public abstract class ScheduleType {
 	private static Logger logger = LoggerFactory.getLogger(ScheduleType.class);
 
 	protected final JobScheduler scheduler;
-
-	/**
-	 * The minimum amount of seconds a search/job should run.
-	 * Less than that, and there would be no point to even run
-	 * the search.
-	 */
-	public static final int MINIMUM_SECONDS = 60;
-
+	
 	/**
 	 * To run a job, you need a minimum of RAM.
 	 * If not enough RAM, then no point in even trying to start
@@ -87,7 +80,7 @@ public abstract class ScheduleType {
 
 	protected boolean enoughBudgetForAll(){
 		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * getNumberOfUsableCores();
-		int maximumNumberOfJobs = totalBudget / MINIMUM_SECONDS;
+		int maximumNumberOfJobs = totalBudget / scheduler.getMinSecondsPerJob();
 		return maximumNumberOfJobs >= scheduler.getProjectData().getTotalNumberOfTestableCUTs();
 	}
 
@@ -138,10 +131,10 @@ public abstract class ScheduleType {
 				continue;
 			}
 			JobDefinition job = new JobDefinition(
-					MINIMUM_SECONDS, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
+					scheduler.getMinSecondsPerJob(), getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
-			totalBudget -= MINIMUM_SECONDS;
+			totalBudget -= scheduler.getMinSecondsPerJob();
 			
 			if(totalBudget <= 0){
 				break;

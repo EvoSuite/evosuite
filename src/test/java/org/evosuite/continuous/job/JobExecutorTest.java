@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.junit.Assert;
 
+import org.evosuite.continuous.CtgConfiguration;
+import org.evosuite.continuous.job.JobScheduler.AvailableSchedule;
 import org.evosuite.continuous.persistency.StorageManager;
 import org.evosuite.continuous.persistency.StorageManager.TestsOnDisk;
 import org.junit.After;
@@ -47,7 +49,8 @@ public class JobExecutorTest {
 		int memory = 1000; 
 		int minutes = 1;
 
-		JobExecutor exe = new JobExecutor(storage, classpath, cores, memory, minutes);
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, minutes, 1, false, AvailableSchedule.SIMPLE);
+		JobExecutor exe = new JobExecutor(storage, classpath, conf);
 
 		JobDefinition simple = new JobDefinition(30, memory, 
 				com.examples.with.different.packagename.continuous.Simple.class.getName(), 0, null, null);
@@ -87,7 +90,8 @@ public class JobExecutorTest {
 		int memory = 1000; 
 		int minutes = 10000;
 
-		final JobExecutor exe = new JobExecutor(storage, classpath, cores, memory, minutes);
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, minutes, 1, false, AvailableSchedule.SIMPLE);
+		final JobExecutor exe = new JobExecutor(storage, classpath, conf);
 
 		JobDefinition simple = new JobDefinition(30, memory, 
 				Simple.class.getName(), 0, null, null);

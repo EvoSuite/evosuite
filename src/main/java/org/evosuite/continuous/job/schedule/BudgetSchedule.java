@@ -28,7 +28,7 @@ public class BudgetSchedule extends OneTimeSchedule{
 		ProjectStaticData data = scheduler.getProjectData();
 		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * super.getNumberOfUsableCores(); 
 
-		int minTime = super.MINIMUM_SECONDS * data.getTotalNumberOfTestableCUTs();
+		int minTime = scheduler.getMinSecondsPerJob() * data.getTotalNumberOfTestableCUTs();
 		int extraTime = totalBudget - minTime;
 		double timePerBranch = (double)extraTime / (double)data.getTotalNumberOfBranches(); 
 		
@@ -42,11 +42,16 @@ public class BudgetSchedule extends OneTimeSchedule{
 			 * there is a minimum that is equal to all jobs,
 			 * plus extra time based on number of branches
 			 */
-			int budget = super.MINIMUM_SECONDS + 
+			int budget = scheduler.getMinSecondsPerJob() + 
 					(int)(timePerBranch * info.numberOfBranches);
 			JobDefinition job = new JobDefinition(
 					budget, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
+			
+			/*
+			 * FIXME should guarantee that no job has more than scheduler.getTotalBudgetInMinutes()
+			 * regardless of number of cores
+			 */
 		}
 		
 		/*
