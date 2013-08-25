@@ -20,9 +20,13 @@
  */
 package org.evosuite.contracts;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.evosuite.Properties;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.VariableReference;
 
 
 /**
@@ -40,24 +44,30 @@ public class AssertionErrorContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
+	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!Properties.ENABLE_ASSERTS_FOR_SUT) {
 			throw new IllegalArgumentException(
 			        "Cannot check for assert errors if they are not enabled");
 		}
 
 		if (!isTargetStatement(statement))
-			return true;
+			return null;
 
 		if (exception != null) {
 			// method throws no AssertionError
 			if (exception instanceof AssertionError) {
-				return false;
+				return new ContractViolation(this, statement, exception);
 			}
 		}
-		return true;
+		return null;
 	}
 
+	@Override
+	public void addAssertionAndComments(StatementInterface statement,
+			List<VariableReference> variables, Throwable exception) {
+		statement.addComment("Assertion violation: "+exception.getMessage());
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {

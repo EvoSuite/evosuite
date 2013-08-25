@@ -21,9 +21,13 @@
 package org.evosuite.contracts;
 
 import java.lang.reflect.Method;
+import java.util.List;
 
+import org.evosuite.assertion.EqualsAssertion;
+import org.evosuite.testcase.NullReference;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.VariableReference;
 
 
 /**
@@ -38,8 +42,11 @@ public class EqualsNullContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
-		for (Object object : getAllObjects(scope)) {
+	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+		for(VariableReference var : getAllVariables(scope)) {
+			logger.debug("Current variable: "+var);
+			Object object = scope.getObject(var);
+			logger.debug("Current object: "+object);
 			if (object == null)
 				continue;
 
@@ -55,20 +62,39 @@ public class EqualsNullContract extends Contract {
 			} catch (NoSuchMethodException e1) {
 				continue;
 			}
+			logger.debug("Defines equals");
 
 			try {
-				// An object always has to equal itself
-				if (object.equals(null))
-					return false;
+				// An object may not equal to null
+				if (object.equals(null)) {
+					logger.debug("Violation found");
+					return new ContractViolation(this, statement, exception, var);
+				} else {
+					logger.debug("No violation found");
+				}
 
 			} catch (Throwable t) {
+				logger.debug("Exception: "+t);
 				continue;
 			}
 		}
 
-		return true;
+		return null;
 	}
 
+	@Override
+	public void addAssertionAndComments(StatementInterface statement,
+			List<VariableReference> variables, Throwable exception) {
+		EqualsAssertion assertion = new EqualsAssertion();
+		assertion.setStatement(statement);
+		VariableReference var = variables.get(0);
+		assertion.setSource(var);
+		assertion.setDest(new NullReference(statement.getTestCase(), var.getType()));
+		assertion.setValue(false);
+		statement.addAssertion(assertion);
+		statement.addComment("Violates contract equals(null)");
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {

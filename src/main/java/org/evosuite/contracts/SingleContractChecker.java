@@ -78,7 +78,7 @@ public class SingleContractChecker extends ExecutionObserver {
 	public void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
 		try {
-			if (!contract.check(statement, scope, exception)) {
+			if (contract.check(statement, scope, exception) != null) {
 				//FailingTestSet.addFailingTest(currentTest, contract, statement, exception);
 				valid = false;
 			}

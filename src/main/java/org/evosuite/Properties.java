@@ -166,7 +166,7 @@ public class Properties {
 	public static boolean SEED_TYPES = true;
 
 	@Parameter(key = "max_generic_depth", group = "Test Creation", description = "Maximum level of nesting for generic types")
-	public static int MAX_GENERIC_DEPTH = 1;
+	public static int MAX_GENERIC_DEPTH = 2;
 
 	/** Constant <code>STRING_LENGTH=20</code> */
 	@Parameter(key = "string_length", group = "Test Creation", description = "Maximum length of randomly generated strings")
@@ -280,22 +280,22 @@ public class Properties {
 
 	/** Constant <code>DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS=0</code> */
 	@Parameter(key = "dse_constraint_solver_timeout_millis", group = "Search Algorithm", description = "Maximum number of solving time for Constraint solver in milliseconds")
-	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = 0;
+	public static long DSE_CONSTRAINT_SOLVER_TIMEOUT_MILLIS = 1000;
 
 	/** Constant <code>DSE_RANK_BRANCH_CONDITIONS=false</code> */
 	@Parameter(key = "dse_rank_branch_conditions", group = "Search Algorithm", description = "Rank branch conditions")
-	public static boolean DSE_RANK_BRANCH_CONDITIONS = false;
+	public static boolean DSE_RANK_BRANCH_CONDITIONS = true;
 
 	/** Constant <code>DSE_NEGATE_ALL_CONDITIONS=false</code> */
 	@Parameter(key = "dse_negate_all_conditions", group = "Search Algorithm", description = "Negate all branch conditions in the path condition (covered or not)")
-	public static boolean DSE_NEGATE_ALL_CONDITIONS = false;
+	public static boolean DSE_NEGATE_ALL_CONDITIONS = true;
 
 	/** Constant <code>DSE_RATE=-1</code> */
 	@Parameter(key = "dse_rate", group = "Search Algorithm", description = "Apply DSE at every X generation")
 	public static int DSE_RATE = -1;
 
 	@Parameter(key = "dse_adaptive_probability", group = "Search Algorithm", description = "Apply DSE with a certain, adaptive, probability")
-	public static double DSE_ADAPTIVE_PROBABILITY = 0.0;
+	public static double DSE_ADAPTIVE_PROBABILITY = 0.1;
 
 	@Parameter(key = "dse_adaptive_rate", group = "Search Algorithm", description = "If successful, increase DSE probability by factor...")
 	public static double DSE_ADAPTIVE_RATE = 2;
@@ -313,12 +313,12 @@ public class Properties {
 
 	/** Constant <code>DSE_BUDGET_TYPE</code> */
 	@Parameter(key = "dse_budget_type", group = "Search Algorithm", description = "Interpretation of dse_budget property")
-	public static DSEBudgetType DSE_BUDGET_TYPE = DSEBudgetType.INDIVIDUALS;
+	public static DSEBudgetType DSE_BUDGET_TYPE = DSEBudgetType.BEST_TIME;
 
 	/** Constant <code>DSE_BUDGET=1</code> */
 	@Parameter(key = "dse_budget", group = "Search Algorithm", description = "Milliseconds allowed for dse local search")
 	@IntValue(min = 0)
-	public static long DSE_BUDGET = 1;
+	public static long DSE_BUDGET = 10000;
 
 	/** Constant <code>DSE_VARIABLE_RESETS=1</code> */
 	@Parameter(key = "dse_variable_resets", group = "Search Algorithm", description = "Times DSE resets the int and real variables with random values")
@@ -333,10 +333,10 @@ public class Properties {
 	}
 
 	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
-	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.OFF;
+	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.BEST;
 
 	@Parameter(key = "adaptive_local_search_dse", group = "Search Algorithm", description = "Use DSE on entire test suite in local search")
-	public static boolean ADAPTIVE_LOCAL_SEARCH_DSE = false;
+	public static boolean ADAPTIVE_LOCAL_SEARCH_DSE = true;
 
 	@Parameter(key = "dse_keep_all_tests", group = "Search Algorithm", description = "Keep tests even if they do not increase fitness")
 	public static boolean DSE_KEEP_ALL_TESTS = false;

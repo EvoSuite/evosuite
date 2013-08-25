@@ -20,6 +20,10 @@
  */
 package org.evosuite.contracts;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.evosuite.Properties;
 import org.evosuite.ga.ConstructionFailedException;
 import org.evosuite.testcase.AssignmentStatement;
@@ -52,7 +56,15 @@ public class ContractViolation {
 
 	private final StatementInterface statement;
 
+	/** If the statement execution leads to a contract violation with an undeclared exception
+	 * this is stored here 
+	 */
 	private final Throwable exception;
+	
+	/**
+	 * List of all variables involved in the contract violation
+	 */
+	private final List<VariableReference> variables = new ArrayList<VariableReference>();
 
 	/**
 	 * <p>
@@ -68,14 +80,21 @@ public class ContractViolation {
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
-	public ContractViolation(Contract contract, TestCase test,
-	        StatementInterface statement, Throwable exception) {
+	public ContractViolation(Contract contract, StatementInterface statement, Throwable exception, VariableReference... variables) {
 		this.contract = contract;
-		this.test = test.clone();
-		this.statement = statement.clone(this.test);
+		this.test = statement.getTestCase().clone();
+		this.test.chop(statement.getPosition() + 1);
+		this.statement = this.test.getStatement(statement.getPosition());
+		for(VariableReference var : variables) {
+			this.variables.add(var.clone(this.test));
+		}
 		this.exception = exception;
 	}
 
+	protected VariableReference getVariable(int num) {
+		return variables.get(num).clone(this.test);
+	}
+	
 	/**
 	 * Getter for test case
 	 * 
@@ -117,9 +136,11 @@ public class ContractViolation {
 					continue;
 				try {
 					testFactory.deleteStatementGracefully(test, i);
+					logger.warn("Trying to delete statement "+i+" resulting in "+test.size());
 					if (!contract.fails(test)) {
 						test = origTest.clone();
 					} else {
+						changed = true;
 						origTest = test.clone();
 					}
 				} catch (ConstructionFailedException e) {
@@ -156,23 +177,24 @@ public class ContractViolation {
 		if (statement instanceof MethodStatement) {
 			MethodStatement ms1 = (MethodStatement) statement;
 			MethodStatement ms2 = (MethodStatement) other.statement;
-			if (ms1.getMethod().equals(ms2.getMethod())) {
+			if (ms1.getMethod().getMethod().equals(ms2.getMethod().getMethod())) {
 				return true;
 			}
 		} else if (statement instanceof ConstructorStatement) {
 			ConstructorStatement ms1 = (ConstructorStatement) statement;
 			ConstructorStatement ms2 = (ConstructorStatement) other.statement;
-			if (ms1.getConstructor().equals(ms2.getConstructor())) {
+			if (ms1.getConstructor().getConstructor().equals(ms2.getConstructor().getConstructor())) {
 				return true;
 			}
 		} else if (statement instanceof AssignmentStatement) {
 			VariableReference var1 = statement.getReturnValue();
 			VariableReference var2 = other.statement.getReturnValue();
 			if (var1 instanceof FieldReference && var2 instanceof FieldReference) {
-				if (((FieldReference) var1).getField().equals(((FieldReference) var2).getField()))
+				if (((FieldReference) var1).getField().getField().equals(((FieldReference) var2).getField().getField()))
 					return true;
 			}
 		}
+		logger.warn("Contract violations are not the same: "+toString()+" vs "+other);
 		return false;
 	}
 
@@ -185,4 +207,13 @@ public class ContractViolation {
 		        + " with exception " + exception;
 	}
 
+	/**
+	 * Represent the contract violation as a failing assertion
+	 * 
+	 * @param test
+	 */
+	public void addAssertion(TestCase test) {
+		contract.addAssertionAndComments(statement, variables, exception);
+	}
+	
 }

@@ -21,9 +21,17 @@
 package org.evosuite.contracts;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
+import org.evosuite.assertion.EqualsAssertion;
+import org.evosuite.contracts.Contract.Pair;
+import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
+import org.evosuite.utils.GenericMethod;
 
 
 /**
@@ -38,15 +46,17 @@ public class EqualsSymmetricContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
-		for (Pair pair : getAllObjectPairs(scope)) {
-			if (pair.object1 == null || pair.object2 == null)
+	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+		for(Pair<VariableReference> pair : getAllVariablePairs(scope)) {
+			Object object1 = scope.getObject(pair.object1);
+			Object object2 = scope.getObject(pair.object2);
+			if (object1 == null || object2 == null)
 				continue;
 
 			// We do not want to call equals if it is the default implementation
 			Class<?>[] parameters = { Object.class };
 			try {
-				Method equalsMethod = pair.object1.getClass().getMethod("equals",
+				Method equalsMethod = object1.getClass().getMethod("equals",
 				                                                        parameters);
 				if (equalsMethod.getDeclaringClass().equals(Object.class))
 					continue;
@@ -57,15 +67,54 @@ public class EqualsSymmetricContract extends Contract {
 				continue;
 			}
 
-			if (pair.object1.equals(pair.object2)) {
-				if (!pair.object2.equals(pair.object1))
-					return false;
+			if (object1.equals(object2)) {
+				if (!object2.equals(object1))
+					return new ContractViolation(this, statement, exception, pair.object1, pair.object2);
 			} else {
-				if (pair.object2.equals(pair.object1))
-					return false;
+				if (object2.equals(object1))
+					return new ContractViolation(this, statement, exception, pair.object1, pair.object2);
 			}
 		}
-		return true;
+		return null;
+	}
+	
+	@Override
+	public void addAssertionAndComments(StatementInterface statement,
+			List<VariableReference> variables, Throwable exception) {
+		TestCase test = statement.getTestCase();
+		
+		VariableReference a = variables.get(0);
+		VariableReference b = variables.get(1);
+
+		try {
+			Method equalsMethod = a.getGenericClass().getRawClass().getMethod("equals", new Class<?>[] {Object.class});
+
+			GenericMethod method = new GenericMethod(equalsMethod, a.getGenericClass());
+
+			// Create x = a.equals(b)
+			StatementInterface st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {b}));
+			VariableReference x = test.addStatement(st1, statement.getPosition());
+			
+			// Create y = b.equals(a);
+			StatementInterface st2 = new MethodStatement(test, method, b, Arrays.asList(new VariableReference[] {a}));
+			VariableReference y = test.addStatement(st2, statement.getPosition() + 1);
+
+			StatementInterface newStatement = test.getStatement(y.getStPosition());
+			
+			// Create assertEquals(x, y)
+			EqualsAssertion assertion = new EqualsAssertion();
+			assertion.setStatement(newStatement);
+			assertion.setSource(x);
+			assertion.setDest(y);
+			assertion.setValue(true);
+			newStatement.addAssertion(assertion);
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
 	}
 
 	/** {@inheritDoc} */

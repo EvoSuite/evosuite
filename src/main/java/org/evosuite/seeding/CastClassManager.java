@@ -391,9 +391,11 @@ public class CastClassManager {
 			logger.debug("Current class for type variable " + typeVariable + ": " + key);
 
 			if (!key.satisfiesBoundaries(typeVariable, ownerVariableMap)) {
+				logger.debug("Bounds not satisfied");
 				continue;
 			}
 			if (!allowRecursion && key.hasWildcardOrTypeVariables()) {
+				logger.debug("Recursion not allowed but type has wilcard or type variables");
 				continue;
 			}
 

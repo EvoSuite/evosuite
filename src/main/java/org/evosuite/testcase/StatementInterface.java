@@ -37,149 +37,42 @@ import org.objectweb.asm.commons.GeneratorAdapter;
  * </p>
  * 
  * @author Sebastian Steenbuck
+ * @author Gordon Fraser
  */
 public interface StatementInterface {
 
 	/**
-	 * Check if the statement makes use of var
+	 * Add a new assertion to statement
 	 * 
-	 * @param var
-	 *            Variable we are checking for
-	 * @return True if var is referenced
+	 * @param assertion
+	 *            Assertion to be added
 	 */
-	public boolean references(VariableReference var);
+	public void addAssertion(Assertion assertion);
+	
+	/**
+	 * A statement can have a textual comment that will be included
+	 * in the JUnit output
+	 * 
+	 * @param comment
+	 */
+	public void addComment(String comment);
 
 	/**
-	 * Replace a VariableReference with another one
+	 * Class instances are bound to a class loader - if we want to reexecute a
+	 * test on a different classloader we need to be able to change the class of
+	 * the reflection object
 	 * 
-	 * @param var1
-	 *            The old variable
-	 * @param var2
-	 *            The new variable
+	 * @param loader
+	 *            a {@link java.lang.ClassLoader} object.
 	 */
-	public void replace(VariableReference var1, VariableReference var2);
+	public void changeClassLoader(ClassLoader loader);
 
 	/**
-	 * This method executes the statement under the given scope. If execution of
-	 * the statement is aborted abnormally (i.e. an exception is thrown.) The
-	 * exception is returned. Otherwise the return value is null.
+	 * Create deep copy of statement
 	 * 
-	 * @param scope
-	 *            the scope under which the statement is executed
-	 * @param out
-	 *            a {@link java.io.PrintStream} object.
-	 * @return if an exception was thrown during execution this is the exception
-	 * @throws java.lang.reflect.InvocationTargetException
-	 *             if any.
-	 * @throws java.lang.IllegalArgumentException
-	 *             if any.
-	 * @throws java.lang.IllegalAccessException
-	 *             if any.
-	 * @throws java.lang.InstantiationException
-	 *             if any.
+	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
 	 */
-	public Throwable execute(Scope scope, PrintStream out)
-	        throws InvocationTargetException, IllegalArgumentException,
-	        IllegalAccessException, InstantiationException;
-
-	/**
-	 * Various consistency checks. This method might also return with an
-	 * assertionError Functionality might depend on the status of
-	 * enableAssertions in this JVM
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean isValid();
-
-	/**
-	 * Generate bytecode by calling method generator
-	 * 
-	 * @param mg
-	 *            a {@link org.objectweb.asm.commons.GeneratorAdapter} object.
-	 * @param locals
-	 *            a {@link java.util.Map} object.
-	 * @param exception
-	 *            a {@link java.lang.Throwable} object.
-	 */
-	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
-	        Throwable exception);
-
-	/**
-	 * <p>
-	 * getReturnType
-	 * </p>
-	 * 
-	 * @return Generic type of return value
-	 */
-	public Type getReturnType();
-
-	/**
-	 * <p>
-	 * getReturnClass
-	 * </p>
-	 * 
-	 * @return Raw class of return value
-	 */
-	public Class<?> getReturnClass();
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Equality check
-	 */
-	@Override
-	public boolean equals(Object s);
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * Generate hash code
-	 */
-	@Override
-	public int hashCode();
-
-	/**
-	 * Create a string representing the statement as Java code
-	 * 
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getCode();
-
-	/**
-	 * Create a string representing the statement as Java code
-	 * 
-	 * @param exception
-	 *            a {@link java.lang.Throwable} object.
-	 * @return a {@link java.lang.String} object.
-	 */
-	public String getCode(Throwable exception);
-
-	/**
-	 * <p>
-	 * getReturnValue
-	 * </p>
-	 * 
-	 * @return Variable representing return value
-	 */
-	public VariableReference getReturnValue();
-
-	/**
-	 * <p>
-	 * getVariableReferences
-	 * </p>
-	 * 
-	 * @return a {@link java.util.Set} object.
-	 */
-	public Set<VariableReference> getVariableReferences();
-
-	/**
-	 * <p>
-	 * getUniqueVariableReferences
-	 * </p>
-	 * 
-	 * @return a {@link java.util.List} object.
-	 */
-	public List<VariableReference> getUniqueVariableReferences();
+	public StatementInterface clone();
 
 	/**
 	 * <p>
@@ -206,13 +99,6 @@ public interface StatementInterface {
 	public StatementInterface copy(TestCase newTestCase, int offset);
 
 	/**
-	 * Create deep copy of statement
-	 * 
-	 * @return a {@link org.evosuite.testcase.StatementInterface} object.
-	 */
-	public StatementInterface clone();
-
-	/**
 	 * <p>
 	 * copyAssertions
 	 * </p>
@@ -226,27 +112,45 @@ public interface StatementInterface {
 	public Set<Assertion> copyAssertions(TestCase newTestCase, int offset);
 
 	/**
-	 * Check if there are assertions
+	 * {@inheritDoc}
 	 * 
-	 * @return True if there are assertions
+	 * Equality check
 	 */
-	public boolean hasAssertions();
+	@Override
+	public boolean equals(Object s);
 
 	/**
-	 * Add a new assertion to statement
+	 * This method executes the statement under the given scope. If execution of
+	 * the statement is aborted abnormally (i.e. an exception is thrown.) The
+	 * exception is returned. Otherwise the return value is null.
 	 * 
-	 * @param assertion
-	 *            Assertion to be added
+	 * @param scope
+	 *            the scope under which the statement is executed
+	 * @param out
+	 *            a {@link java.io.PrintStream} object.
+	 * @return if an exception was thrown during execution this is the exception
+	 * @throws java.lang.reflect.InvocationTargetException
+	 *             if any.
+	 * @throws java.lang.IllegalArgumentException
+	 *             if any.
+	 * @throws java.lang.IllegalAccessException
+	 *             if any.
+	 * @throws java.lang.InstantiationException
+	 *             if any.
 	 */
-	public void addAssertion(Assertion assertion);
+	public Throwable execute(Scope scope, PrintStream out)
+	        throws InvocationTargetException, IllegalArgumentException,
+	        IllegalAccessException, InstantiationException;
 
 	/**
-	 * Sets the set of assertions to statement
+	 * Returns the accessibleObject which is used to generate this kind of
+	 * statement E.g. the Field of a FieldStatement, the Method of a
+	 * MethodStatement and so on MAY return NULL (for example for
+	 * NullStatements)
 	 * 
-	 * @param assertions
-	 *            a {@link java.util.Set} object.
+	 * @return a {@link java.lang.reflect.AccessibleObject} object.
 	 */
-	public void setAssertions(Set<Assertion> assertions);
+	public GenericAccessibleObject<?> getAccessibleObject();
 
 	/**
 	 * Get Java code representation of assertions
@@ -256,25 +160,47 @@ public interface StatementInterface {
 	public String getAssertionCode();
 
 	/**
-	 * Delete all assertions attached to this statement
-	 */
-	public void removeAssertions();
-
-	/**
-	 * Delete assertion attached to this statement
-	 * 
-	 * @param assertion
-	 *            a {@link org.evosuite.assertion.Assertion} object.
-	 */
-	public void removeAssertion(Assertion assertion);
-
-	/**
 	 * Return list of assertions
 	 * 
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Assertion> getAssertions();
 
+	/**
+	 * Generate bytecode by calling method generator
+	 * 
+	 * @param mg
+	 *            a {@link org.objectweb.asm.commons.GeneratorAdapter} object.
+	 * @param locals
+	 *            a {@link java.util.Map} object.
+	 * @param exception
+	 *            a {@link java.lang.Throwable} object.
+	 */
+	public void getBytecode(GeneratorAdapter mg, Map<Integer, Integer> locals,
+	        Throwable exception);
+
+	/**
+	 * Create a string representing the statement as Java code
+	 * 
+	 * @return a {@link java.lang.String} object.
+	 */
+	public String getCode();
+
+	/**
+	 * Create a string representing the statement as Java code
+	 * 
+	 * @param exception
+	 *            a {@link java.lang.Throwable} object.
+	 * @return a {@link java.lang.String} object.
+	 */
+	public String getCode(Throwable exception);
+
+	/**
+	 * Retrieve comment for this statement
+	 * @return
+	 */
+	public String getComment();
+	
 	/**
 	 * <p>
 	 * getDeclaredExceptions
@@ -283,6 +209,13 @@ public interface StatementInterface {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Class<?>> getDeclaredExceptions();
+
+	/**
+	 * Retrieve the number of parameters of this statement
+	 * 
+	 * @return
+	 */
+	public int getNumParameters();
 
 	/**
 	 * <p>
@@ -294,23 +227,81 @@ public interface StatementInterface {
 	public int getPosition();
 
 	/**
-	 * Retrieve the number of parameters of this statement
+	 * <p>
+	 * getReturnClass
+	 * </p>
+	 * 
+	 * @return Raw class of return value
+	 */
+	public Class<?> getReturnClass();
+
+	/**
+	 * <p>
+	 * getReturnType
+	 * </p>
+	 * 
+	 * @return Generic type of return value
+	 */
+	public Type getReturnType();
+
+	/**
+	 * <p>
+	 * getReturnValue
+	 * </p>
+	 * 
+	 * @return Variable representing return value
+	 */
+	public VariableReference getReturnValue();
+
+	/**
+	 * Retrieve the test case this statement is part of
 	 * 
 	 * @return
 	 */
-	public int getNumParameters();
+	public TestCase getTestCase();
+	
+	/**
+	 * <p>
+	 * getUniqueVariableReferences
+	 * </p>
+	 * 
+	 * @return a {@link java.util.List} object.
+	 */
+	public List<VariableReference> getUniqueVariableReferences();
 
 	/**
-	 * Allows the comparing of Statements between TestCases. I.e. this is a more
-	 * semantic comparison than the one done by equals. E.g. two Variable are
-	 * equal if they are at the same position and they reference to objects of
-	 * the same type.
+	 * <p>
+	 * getVariableReferences
+	 * </p>
 	 * 
-	 * @param s
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a {@link java.util.Set} object.
+	 */
+	public Set<VariableReference> getVariableReferences();
+
+	/**
+	 * Check if there are assertions
+	 * 
+	 * @return True if there are assertions
+	 */
+	public boolean hasAssertions();
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * Generate hash code
+	 */
+	@Override
+	public int hashCode();
+
+	/**
+	 * Returns true if this statement should be handled as an
+	 * AssignmentStatement. This method was added to allow the wrapping of
+	 * AssignmentStatements (in which case "a instanceof AssignmentStatement" is
+	 * no longer working)
+	 * 
 	 * @return a boolean.
 	 */
-	public boolean same(StatementInterface s);
+	public boolean isAssignmentStatement();
 
 	/**
 	 * Tests if the throwable defined by t is declared to be thrown by the
@@ -322,6 +313,15 @@ public interface StatementInterface {
 	 * @return a boolean.
 	 */
 	public boolean isDeclaredException(Throwable t);
+
+	/**
+	 * Various consistency checks. This method might also return with an
+	 * assertionError Functionality might depend on the status of
+	 * enableAssertions in this JVM
+	 * 
+	 * @return a boolean.
+	 */
+	public boolean isValid();
 
 	/**
 	 * <p>
@@ -337,6 +337,58 @@ public interface StatementInterface {
 	public boolean mutate(TestCase test, TestFactory factory);
 
 	/**
+	 * Check if the statement makes use of var
+	 * 
+	 * @param var
+	 *            Variable we are checking for
+	 * @return True if var is referenced
+	 */
+	public boolean references(VariableReference var);
+
+	/**
+	 * Delete assertion attached to this statement
+	 * 
+	 * @param assertion
+	 *            a {@link org.evosuite.assertion.Assertion} object.
+	 */
+	public void removeAssertion(Assertion assertion);
+
+	/**
+	 * Delete all assertions attached to this statement
+	 */
+	public void removeAssertions();
+
+	/**
+	 * Replace a VariableReference with another one
+	 * 
+	 * @param var1
+	 *            The old variable
+	 * @param var2
+	 *            The new variable
+	 */
+	public void replace(VariableReference var1, VariableReference var2);
+
+	/**
+	 * Allows the comparing of Statements between TestCases. I.e. this is a more
+	 * semantic comparison than the one done by equals. E.g. two Variable are
+	 * equal if they are at the same position and they reference to objects of
+	 * the same type.
+	 * 
+	 * @param s
+	 *            a {@link org.evosuite.testcase.StatementInterface} object.
+	 * @return a boolean.
+	 */
+	public boolean same(StatementInterface s);
+
+	/**
+	 * Sets the set of assertions to statement
+	 * 
+	 * @param assertions
+	 *            a {@link java.util.Set} object.
+	 */
+	public void setAssertions(Set<Assertion> assertions);
+
+	/**
 	 * <p>
 	 * setRetval
 	 * </p>
@@ -345,35 +397,5 @@ public interface StatementInterface {
 	 *            a {@link org.evosuite.testcase.VariableReference} object.
 	 */
 	public void setRetval(VariableReference newRetVal);
-
-	/**
-	 * Returns the accessibleObject which is used to generate this kind of
-	 * statement E.g. the Field of a FieldStatement, the Method of a
-	 * MethodStatement and so on MAY return NULL (for example for
-	 * NullStatements)
-	 * 
-	 * @return a {@link java.lang.reflect.AccessibleObject} object.
-	 */
-	public GenericAccessibleObject<?> getAccessibleObject();
-
-	/**
-	 * Returns true if this statement should be handled as an
-	 * AssignmentStatement. This method was added to allow the wrapping of
-	 * AssignmentStatements (in which case "a instanceof AssignmentStatement" is
-	 * no longer working)
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean isAssignmentStatement();
-
-	/**
-	 * Class instances are bound to a class loader - if we want to reexecute a
-	 * test on a different classloader we need to be able to change the class of
-	 * the reflection object
-	 * 
-	 * @param loader
-	 *            a {@link java.lang.ClassLoader} object.
-	 */
-	public void changeClassLoader(ClassLoader loader);
 
 }

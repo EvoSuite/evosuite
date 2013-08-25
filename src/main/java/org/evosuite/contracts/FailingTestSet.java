@@ -28,6 +28,7 @@ import org.evosuite.junit.TestSuiteWriter;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,13 +64,22 @@ public class FailingTestSet {
 	 * @param exception
 	 *            a {@link java.lang.Throwable} object.
 	 */
+	/*
 	public static void addFailingTest(TestCase test, Contract contract,
-	        StatementInterface statement, Throwable exception) {
+	        StatementInterface statement, List<VariableReference> variables, Throwable exception) {
 		violationCount++;
-		ContractViolation violation = new ContractViolation(contract, test, statement,
+		ContractViolation violation = new ContractViolation(contract, test, statement, variables,
 		        exception);
 
 		if (!hasViolation(violation)) {
+			violations.add(violation);
+		}
+	}
+	*/
+	
+	public static void addFailingTest(ContractViolation violation) {
+		violationCount++;
+		if(!hasViolation(violation)) {
 			violations.add(violation);
 		}
 	}
@@ -132,8 +142,15 @@ public class FailingTestSet {
 		for (int i = 0; i < violations.size(); i++) {
 			logger.debug("Writing test {}/{}", i, violations.size());
 			ContractViolation violation = violations.get(i);
+			if(!violation.getContract().fails(violation.getTestCase()))
+					logger.warn("Original test does not fail contract!");
+			logger.warn("Before minimization: "+violation.getTestCase().size());
 			violation.minimizeTest();
-			tests.add(violation.getTestCase());
+			logger.warn("After minimization: "+violation.getTestCase().size());
+			TestCase test = violation.getTestCase();
+			logger.warn(test.toCode());
+			//violation.addAssertion(test);
+			tests.add(test);
 		}
 		return tests;
 	}

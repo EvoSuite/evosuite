@@ -1258,4 +1258,14 @@ public class TestCodeVisitor extends TestVisitor {
 		testCode += getClassName(retval) + " " + getVariableName(retval) + " = null;\n";
 	}
 
+	@Override
+	public void visitStatement(StatementInterface statement) {
+		if(!statement.getComment().isEmpty()) {
+			String comment = statement.getComment();
+			for(String line : comment.split("\n")) {
+				testCode += "// "+line + "\n";
+			}
+		}
+		super.visitStatement(statement);
+	}
 }
