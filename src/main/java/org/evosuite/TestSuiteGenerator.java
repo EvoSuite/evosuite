@@ -167,7 +167,6 @@ import org.evosuite.testsuite.TestSuiteFitnessFunction;
 import org.evosuite.testsuite.TestSuiteMinimizer;
 import org.evosuite.testsuite.TestSuiteReplacementFunction;
 import org.evosuite.utils.ClassPathHacker;
-import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Randomness;
 import org.evosuite.utils.ResourceController;
@@ -330,6 +329,11 @@ public class TestSuiteGenerator {
 				addAssertions(tests);
 			}
 		}
+		
+		if (Properties.CHECK_CONTRACTS) {
+			tests.addAll(FailingTestSet.getFailingTests());
+		}
+
 
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		writeJUnitTests(tests);
@@ -542,6 +546,7 @@ public class TestSuiteGenerator {
 
 			if (Properties.CHECK_CONTRACTS) {
 				LoggingUtils.getEvoLogger().info("* Writing failing test cases");
+				// suite.insertAllTests(FailingTestSet.getFailingTests());
 				FailingTestSet.writeJUnitTestSuite(suite);
 			}
 

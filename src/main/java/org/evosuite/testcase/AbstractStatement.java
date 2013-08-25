@@ -80,6 +80,8 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 
 	protected Set<Assertion> assertions = new LinkedHashSet<Assertion>();
 
+	protected String comment = "";
+	
 	protected Throwable exceptionThrown = null;
 
 	/**
@@ -251,6 +253,15 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 		return code.substring(0, code.length() - 2);
 	}
 
+	@Override
+	public void addComment(String comment) {
+		this.comment += comment;
+	}
+	
+	public String getComment() {
+		return comment;
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public final StatementInterface clone() {
@@ -290,6 +301,11 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	@Override
 	public int getNumParameters() {
 		return 0;
+	}
+	
+	@Override
+	public TestCase getTestCase() {
+		return tc;
 	}
 
 	/**
@@ -456,6 +472,7 @@ public abstract class AbstractStatement implements StatementInterface, Serializa
 	public StatementInterface clone(TestCase newTestCase) {
 		StatementInterface result = copy(newTestCase, 0);
 		result.getReturnValue().setOriginalCode(retval.getOriginalCode());
+		result.addComment(getComment());
 		return result;
 	}
 

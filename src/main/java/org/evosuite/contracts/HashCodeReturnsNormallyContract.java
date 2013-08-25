@@ -21,10 +21,16 @@
 package org.evosuite.contracts;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
+import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
 import org.evosuite.testcase.TestCaseExecutor.TimeoutExceeded;
+import org.evosuite.utils.GenericMethod;
 
 
 /**
@@ -39,8 +45,9 @@ public class HashCodeReturnsNormallyContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
-		for (Object object : getAllObjects(scope)) {
+	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+		for(VariableReference var : getAllVariables(scope)) {
+			Object object = scope.getObject(var);
 			if (object == null)
 				continue;
 
@@ -63,13 +70,38 @@ public class HashCodeReturnsNormallyContract extends Contract {
 
 			} catch (Throwable t) {
 				if (!(t instanceof TimeoutExceeded))
-					return false;
+					return new ContractViolation(this, statement, exception, var);
 			}
 		}
 
-		return true;
+		return null;
 	}
 
+	@Override
+	public void addAssertionAndComments(StatementInterface statement,
+			List<VariableReference> variables, Throwable exception) {
+		TestCase test = statement.getTestCase();
+		
+		VariableReference a = variables.get(0);
+
+		try {
+			Method hashCodeMethod = a.getGenericClass().getRawClass().getMethod("hashCode", new Class<?>[] {});
+
+			GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
+
+			StatementInterface st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {}));
+			test.addStatement(st1, statement.getPosition());
+			st1.addComment("Throws exception: "+exception.getMessage());
+			
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {

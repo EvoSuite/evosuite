@@ -147,16 +147,23 @@ public class ContractChecker extends ExecutionObserver {
 				continue;
 
 			try {
-				if (!contract.check(statement, scope, exception)) {
+				logger.debug("Checking contract {}", contract);
+				ContractViolation violation = contract.check(statement, scope, exception); 
+				if (violation != null) {
 					logger.debug("Contract failed: {} {}", contract, statement.getCode());
+					FailingTestSet.addFailingTest(violation);
+					/*
 					FailingTestSet.addFailingTest(currentTest, contract, statement,
 					                              exception);
+					                              */
 					//ContractChecker.valid = false;
 					invalid.add(contract);
 					//break;
 				}
 			} catch (Throwable t) {
-				//logger.info("Caught exception during contract checking");
+				logger.info("Caught exception during contract checking: "+t);
+				for(StackTraceElement e : t.getStackTrace())
+					logger.info(e.toString());
 			}
 		}
 	}

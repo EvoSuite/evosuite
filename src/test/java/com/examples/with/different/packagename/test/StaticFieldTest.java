@@ -2,6 +2,7 @@ package com.examples.with.different.packagename.test;
 
 import java.util.Date;
 
+@SuppressWarnings("rawtypes")
 public class StaticFieldTest {
 
 	/** String class */

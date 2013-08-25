@@ -44,9 +44,9 @@ public class NullPointerExceptionContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
+	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
 		if (!isTargetStatement(statement))
-			return true;
+			return null;
 
 		try {
 			if (exception != null) {
@@ -57,7 +57,7 @@ public class NullPointerExceptionContract extends Contract {
 
 					// If the exception was thrown in the test directly, it is also not interesting
 					if (element.getClassName().startsWith("org.evosuite.testcase")) {
-						return true;
+						return null;
 					}
 
 					List<VariableReference> parameters = new ArrayList<VariableReference>();
@@ -68,7 +68,7 @@ public class NullPointerExceptionContract extends Contract {
 						ConstructorStatement cs = (ConstructorStatement) statement;
 						parameters.addAll(cs.getParameterReferences());
 					} else {
-						return true;
+						return null;
 					}
 					boolean hasNull = false;
 					for (VariableReference var : parameters) {
@@ -78,15 +78,21 @@ public class NullPointerExceptionContract extends Contract {
 						}
 					}
 					if (!hasNull) {
-						return false;
+						return new ContractViolation(this, statement, exception);
 					}
 				}
 			}
 
-			return true;
+			return null;
 		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}
+	}
+	
+	@Override
+	public void addAssertionAndComments(StatementInterface statement,
+			List<VariableReference> variables, Throwable exception) {
+		statement.addComment("Throws NullPointerException: " +exception.getMessage());
 	}
 
 	/** {@inheritDoc} */

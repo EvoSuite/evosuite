@@ -21,9 +21,19 @@
 package org.evosuite.contracts;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
 
+import org.evosuite.assertion.EqualsAssertion;
+import org.evosuite.testcase.MethodStatement;
+import org.evosuite.testcase.PrimitiveExpression;
+import org.evosuite.testcase.PrimitiveExpression.Operator;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
+import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.VariableReference;
+import org.evosuite.testcase.VariableReferenceImpl;
+import org.evosuite.utils.GenericMethod;
 
 
 /**
@@ -38,17 +48,19 @@ public class EqualsHashcodeContract extends Contract {
 	 */
 	/** {@inheritDoc} */
 	@Override
-	public boolean check(StatementInterface statement, Scope scope, Throwable exception) {
-		for (Pair pair : getAllObjectPairs(scope)) {
-			if (pair.object1 == null || pair.object2 == null)
+	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+		for(Pair<VariableReference> pair : getAllVariablePairs(scope)) {
+			Object object1 = scope.getObject(pair.object1);
+			Object object2 = scope.getObject(pair.object2);
+			if (object1 == null || object2 == null)
 				continue;
 
 			// We do not want to call hashcode if it is the default implementation
 			Class<?>[] parameters = { Object.class };
 			try {
-				Method equalsMethod = pair.object1.getClass().getMethod("equals",
+				Method equalsMethod = object1.getClass().getMethod("equals",
 				                                                        parameters);
-				Method hashCodeMethod = pair.object1.getClass().getMethod("hashCode",
+				Method hashCodeMethod = object1.getClass().getMethod("hashCode",
 				                                                          new Class<?>[0]);
 				if (equalsMethod.getDeclaringClass().equals(Object.class)
 				        || hashCodeMethod.getDeclaringClass().equals(Object.class))
@@ -60,17 +72,67 @@ public class EqualsHashcodeContract extends Contract {
 				continue;
 			}
 
-			if (pair.object1.equals(pair.object2)) {
-				if (pair.object1.hashCode() != pair.object2.hashCode())
-					return false;
+			if (object1.equals(object2)) {
+				if (object1.hashCode() != object2.hashCode())
+					return new ContractViolation(this, statement, exception, pair.object1, pair.object2);
 			} else {
-				if (pair.object1.hashCode() == pair.object2.hashCode())
-					return false;
+				if (object1.hashCode() == object2.hashCode())
+					return new ContractViolation(this, statement, exception, pair.object1, pair.object2);
 			}
 		}
-		return true;
+		return null;
 	}
 
+	@Override
+	public void addAssertionAndComments(StatementInterface statement,
+			List<VariableReference> variables, Throwable exception) {
+		TestCase test = statement.getTestCase();
+		
+		VariableReference a = variables.get(0);
+		VariableReference b = variables.get(1);
+
+		try {
+			Method equalsMethod = a.getGenericClass().getRawClass().getMethod("equals", new Class<?>[] {Object.class});
+			Method hashCodeMethod = a.getGenericClass().getRawClass().getMethod("hashCode", new Class<?>[] {});
+
+			GenericMethod genericEqualsMethod = new GenericMethod(equalsMethod, a.getGenericClass());
+			GenericMethod genericHashCodeMethod = new GenericMethod(equalsMethod, a.getGenericClass());
+
+			// Create x = a.equals(b)
+			StatementInterface st1 = new MethodStatement(test, genericEqualsMethod, a, Arrays.asList(new VariableReference[] {b}));
+			VariableReference x = test.addStatement(st1, statement.getPosition());
+			
+			// Create y = a.hashCode();
+			StatementInterface st2 = new MethodStatement(test, genericHashCodeMethod, a, Arrays.asList(new VariableReference[] {}));
+			VariableReference y = test.addStatement(st2, statement.getPosition() + 1);
+
+			// Create z = b.hashCode();
+			StatementInterface st3 = new MethodStatement(test, genericHashCodeMethod, b, Arrays.asList(new VariableReference[] {}));
+			VariableReference z = test.addStatement(st3, statement.getPosition() + 2);
+
+			// Create w = z == z
+			VariableReference w = new VariableReferenceImpl(test, boolean.class);
+			PrimitiveExpression exp = new PrimitiveExpression(test, w, y, Operator.EQUALS, z);
+			w = test.addStatement(exp, statement.getPosition() + 3);
+			
+			StatementInterface newStatement = test.getStatement(w.getStPosition());
+			
+			// Create assertEquals(x, w)
+			EqualsAssertion assertion = new EqualsAssertion();
+			assertion.setStatement(newStatement);
+			assertion.setSource(x);
+			assertion.setDest(w);
+			assertion.setValue(true);
+			newStatement.addAssertion(assertion);
+		} catch (NoSuchMethodException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (SecurityException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+	}
+	
 	/** {@inheritDoc} */
 	@Override
 	public String toString() {

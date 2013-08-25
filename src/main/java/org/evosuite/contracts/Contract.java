@@ -22,10 +22,10 @@ package org.evosuite.contracts;
 
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.evosuite.Properties;
-import org.evosuite.testcase.CodeUnderTestException;
 import org.evosuite.testcase.ConstructorStatement;
 import org.evosuite.testcase.FieldStatement;
 import org.evosuite.testcase.MethodStatement;
@@ -33,6 +33,7 @@ import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,11 +47,11 @@ public abstract class Contract {
 	/** Constant <code>logger</code> */
 	protected static Logger logger = LoggerFactory.getLogger(Contract.class);
 
-	protected static class Pair {
-		Object object1;
-		Object object2;
+	protected static class Pair<T> {
+		T object1;
+		T object2;
 
-		public Pair(Object o1, Object o2) {
+		public Pair(T o1, T o2) {
 			object1 = o1;
 			object2 = o2;
 		}
@@ -69,6 +70,10 @@ public abstract class Contract {
 		// TODO: Assignable classes and subclasses?
 		return scope.getObjects(Properties.getTargetClass());
 	}
+	
+	protected Collection<VariableReference> getAllVariables(Scope scope) {
+		return scope.getElements(Properties.getTargetClass());
+	}
 
 	/**
 	 * <p>
@@ -79,100 +84,24 @@ public abstract class Contract {
 	 *            a {@link org.evosuite.testcase.Scope} object.
 	 * @return a {@link java.util.Collection} object.
 	 */
-	protected Collection<Pair> getAllObjectPairs(Scope scope) {
-		Set<Pair> pairs = new HashSet<Pair>();
+	protected Collection<Pair<Object>> getAllObjectPairs(Scope scope) {
+		Set<Pair<Object>> pairs = new HashSet<Pair<Object>>();
 		for (Object o1 : scope.getObjects(Properties.getTargetClass())) {
 			for (Object o2 : scope.getObjects(o1.getClass())) {
-				pairs.add(new Pair(o1, o2));
+				pairs.add(new Pair<Object>(o1, o2));
 			}
 		}
 		return pairs;
 	}
-
-	/**
-	 * <p>
-	 * getAffectedObjects
-	 * </p>
-	 * 
-	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
-	 * @return a {@link java.util.Collection} object.
-	 */
-	protected Collection<Object> getAffectedObjects(StatementInterface statement,
-	        Scope scope) {
-		try {
-			Set<Object> objects = new HashSet<Object>();
-			if (statement instanceof ConstructorStatement
-			        || statement instanceof FieldStatement) {
-				objects.add(statement.getReturnValue().getObject(scope));
-			} else if (statement instanceof MethodStatement) {
-				MethodStatement ms = (MethodStatement) statement;
-				Object o = statement.getReturnValue().getObject(scope);
-				if (o != null)
-					objects.add(o);
-				if (!ms.isStatic())
-					objects.add(ms.getCallee().getObject(scope));
+	
+	protected Collection<Pair<VariableReference>> getAllVariablePairs(Scope scope) {
+		Set<Pair<VariableReference>> pairs = new HashSet<Pair<VariableReference>>();
+		for (VariableReference o1 : scope.getElements(Properties.getTargetClass())) {
+			for (VariableReference o2 : scope.getElements(o1.getClass())) {
+				pairs.add(new Pair<VariableReference>(o1, o2));
 			}
-			return objects;
-		} catch (CodeUnderTestException e) {
-			throw new UnsupportedOperationException();
 		}
-
-	}
-
-	/**
-	 * <p>
-	 * getAffectedObjectPairs
-	 * </p>
-	 * 
-	 * @param statement
-	 *            a {@link org.evosuite.testcase.StatementInterface} object.
-	 * @param scope
-	 *            a {@link org.evosuite.testcase.Scope} object.
-	 * @return a {@link java.util.Collection} object.
-	 */
-	protected Collection<Pair> getAffectedObjectPairs(StatementInterface statement,
-	        Scope scope) {
-		try {
-			Set<Pair> pairs = new HashSet<Pair>();
-
-			if (statement instanceof ConstructorStatement
-			        || statement instanceof FieldStatement) {
-				Object o = statement.getReturnValue().getObject(scope);
-				if (o != null) {
-					for (Object o1 : scope.getObjects(o.getClass())) {
-						for (Object o2 : scope.getObjects(o.getClass())) {
-							pairs.add(new Pair(o1, o2));
-						}
-					}
-				}
-			} else if (statement instanceof MethodStatement) {
-				MethodStatement ms = (MethodStatement) statement;
-				Object o = statement.getReturnValue().getObject(scope);
-				if (o != null) {
-					for (Object o1 : scope.getObjects(o.getClass())) {
-						for (Object o2 : scope.getObjects(o.getClass())) {
-							pairs.add(new Pair(o1, o2));
-						}
-					}
-				}
-				if (!ms.isStatic()) {
-					o = ms.getCallee().getObject(scope);
-					if (o != null) {
-						for (Object o1 : scope.getObjects(o.getClass())) {
-							for (Object o2 : scope.getObjects(o.getClass())) {
-								pairs.add(new Pair(o1, o2));
-							}
-						}
-					}
-				}
-			}
-			return pairs;
-		} catch (CodeUnderTestException e) {
-			throw new UnsupportedOperationException();
-		}
+		return pairs;
 	}
 
 	/**
@@ -222,9 +151,7 @@ public abstract class Contract {
 	}
 
 	/**
-	 * <p>
-	 * check
-	 * </p>
+	 * Check the contract on the current statement in the current scope 
 	 * 
 	 * @param statement
 	 *            a {@link org.evosuite.testcase.StatementInterface} object.
@@ -234,7 +161,17 @@ public abstract class Contract {
 	 *            a {@link java.lang.Throwable} object.
 	 * @return a boolean.
 	 */
-	public abstract boolean check(StatementInterface statement, Scope scope,
+	public abstract ContractViolation check(StatementInterface statement, Scope scope,
 	        Throwable exception);
 
+	/**
+	 * Add an assertion to the statement based on the contract.
+	 * The assertion should fail on a contract violation, and pass
+	 * if the contract is satisfied.
+	 * 
+	 * @param statement
+	 * @param variables
+	 * @param exception
+	 */
+	public abstract void addAssertionAndComments(StatementInterface statement, List<VariableReference> variables, Throwable exception);
 }

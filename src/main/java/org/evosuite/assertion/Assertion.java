@@ -120,6 +120,10 @@ public abstract class Assertion implements Serializable {
 	public VariableReference getSource() {
 		return source;
 	}
+	
+	public void setSource(VariableReference var) {
+		source = var;
+	}
 
 	/**
 	 * Getter for value object
@@ -128,6 +132,10 @@ public abstract class Assertion implements Serializable {
 	 */
 	public Object getValue() {
 		return value;
+	}
+	
+	public void setValue(Object value) {
+		this.value = value;
 	}
 
 	/**
