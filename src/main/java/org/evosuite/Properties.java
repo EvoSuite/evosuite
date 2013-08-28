@@ -333,7 +333,7 @@ public class Properties {
 	}
 
 	@Parameter(key = "adaptive_local_search", group = "Search Algorithm", description = "Apply adaptive local search")
-	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.BEST;
+	public static AdaptiveLocalSearchTarget ADAPTIVE_LOCAL_SEARCH = AdaptiveLocalSearchTarget.OFF;
 
 	@Parameter(key = "adaptive_local_search_dse", group = "Search Algorithm", description = "Use DSE on entire test suite in local search")
 	public static boolean ADAPTIVE_LOCAL_SEARCH_DSE = true;
