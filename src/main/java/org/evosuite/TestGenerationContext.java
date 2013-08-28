@@ -3,6 +3,7 @@
  */
 package org.evosuite;
 
+import org.evosuite.contracts.FailingTestSet;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.dataflow.DefUsePool;
 import org.evosuite.coverage.mutation.MutationPool;
@@ -108,6 +109,10 @@ public class TestGenerationContext {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+		}
+		
+		if(Properties.CHECK_CONTRACTS) {
+			FailingTestSet.changeClassLoader(classLoader);
 		}
 	}
 

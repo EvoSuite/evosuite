@@ -108,6 +108,8 @@ public class EqualsSymmetricContract extends Contract {
 			assertion.setDest(y);
 			assertion.setValue(true);
 			newStatement.addAssertion(assertion);
+			newStatement.addComment("Violates contract a.equals(b) <-> b.equals(a)");
+
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

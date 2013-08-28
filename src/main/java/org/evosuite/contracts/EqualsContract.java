@@ -21,7 +21,6 @@
 package org.evosuite.contracts;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.assertion.EqualsAssertion;
@@ -75,7 +74,7 @@ public class EqualsContract extends Contract {
 			} catch (NullPointerException e) {
 				// No nullpointer exceptions may be thrown if the parameter was not null
 				// TODO: Use UndeclaredExceptionContract instead?
-				return new ContractViolation(this, statement, exception, var);
+				return new ContractViolation(this, statement, e, var);
 				
 			} catch (Throwable t) {
 				continue;
@@ -94,6 +93,7 @@ public class EqualsContract extends Contract {
 		assertion.setDest(variables.get(0));
 		assertion.setValue(true);
 		statement.addAssertion(assertion);
+		statement.addComment("Violates contract a.equals(a)");
 	}
 
 	/** {@inheritDoc} */

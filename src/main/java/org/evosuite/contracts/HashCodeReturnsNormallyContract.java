@@ -70,7 +70,7 @@ public class HashCodeReturnsNormallyContract extends Contract {
 
 			} catch (Throwable t) {
 				if (!(t instanceof TimeoutExceeded))
-					return new ContractViolation(this, statement, exception, var);
+					return new ContractViolation(this, statement, t, var);
 			}
 		}
 
@@ -81,7 +81,7 @@ public class HashCodeReturnsNormallyContract extends Contract {
 	public void addAssertionAndComments(StatementInterface statement,
 			List<VariableReference> variables, Throwable exception) {
 		TestCase test = statement.getTestCase();
-		
+		int position = statement.getPosition();
 		VariableReference a = variables.get(0);
 
 		try {
@@ -90,7 +90,7 @@ public class HashCodeReturnsNormallyContract extends Contract {
 			GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
 
 			StatementInterface st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {}));
-			test.addStatement(st1, statement.getPosition());
+			test.addStatement(st1, position + 1);
 			st1.addComment("Throws exception: "+exception.getMessage());
 			
 		} catch (NoSuchMethodException e) {

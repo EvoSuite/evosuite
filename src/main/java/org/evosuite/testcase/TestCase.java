@@ -59,6 +59,8 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	 * @return true if size()==0
 	 */
 	public boolean isEmpty();
+	
+	public boolean isFailing();
 
 	/**
 	 * Remove all statements after a given position

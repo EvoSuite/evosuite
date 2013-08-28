@@ -24,7 +24,6 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
-import org.evosuite.assertion.EqualsAssertion;
 import org.evosuite.testcase.MethodStatement;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
@@ -47,13 +46,17 @@ public class ToStringReturnsNormallyContract extends Contract {
 	/** {@inheritDoc} */
 	@Override
 	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
+		if(getAllVariables(scope).isEmpty()) {
+			logger.debug("There are no variables in scope? "+scope.toString());
+		}
 		for(VariableReference var : getAllVariables(scope)) {
 			logger.debug("Current variable: "+var);
 			Object object = scope.getObject(var);
-			// logger.debug("Current object: "+object);
 
-			if (object == null)
+			if (object == null) {
+				logger.debug("Current object is null");
 				continue;
+			}
 
 			// We do not want to call toString if it is the default implementation
 			Class<?>[] parameters = {};
@@ -89,7 +92,7 @@ public class ToStringReturnsNormallyContract extends Contract {
 	public void addAssertionAndComments(StatementInterface statement,
 			List<VariableReference> variables, Throwable exception) {
 		TestCase test = statement.getTestCase();
-		
+		int position = statement.getPosition();
 		VariableReference a = variables.get(0);
 
 		try {
@@ -98,7 +101,7 @@ public class ToStringReturnsNormallyContract extends Contract {
 			GenericMethod method = new GenericMethod(hashCodeMethod, a.getGenericClass());
 
 			StatementInterface st1 = new MethodStatement(test, method, a, Arrays.asList(new VariableReference[] {}));
-			test.addStatement(st1, statement.getPosition());
+			test.addStatement(st1, position + 1);
 			st1.addComment("Throws exception: "+exception.getMessage());
 			
 		} catch (NoSuchMethodException e) {

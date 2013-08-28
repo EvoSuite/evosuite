@@ -24,7 +24,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import org.evosuite.assertion.EqualsAssertion;
-import org.evosuite.testcase.NullReference;
+import org.evosuite.testcase.ConstantValue;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.VariableReference;
@@ -89,7 +89,8 @@ public class EqualsNullContract extends Contract {
 		assertion.setStatement(statement);
 		VariableReference var = variables.get(0);
 		assertion.setSource(var);
-		assertion.setDest(new NullReference(statement.getTestCase(), var.getType()));
+		assertion.setDest(new ConstantValue(statement.getTestCase(), Object.class));
+		//assertion.setDest(new NullReference(statement.getTestCase(), var.getType()));
 		assertion.setValue(false);
 		statement.addAssertion(assertion);
 		statement.addComment("Violates contract equals(null)");

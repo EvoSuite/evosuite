@@ -96,7 +96,7 @@ public class EqualsHashcodeContract extends Contract {
 			Method hashCodeMethod = a.getGenericClass().getRawClass().getMethod("hashCode", new Class<?>[] {});
 
 			GenericMethod genericEqualsMethod = new GenericMethod(equalsMethod, a.getGenericClass());
-			GenericMethod genericHashCodeMethod = new GenericMethod(equalsMethod, a.getGenericClass());
+			GenericMethod genericHashCodeMethod = new GenericMethod(hashCodeMethod, a.getGenericClass());
 
 			// Create x = a.equals(b)
 			StatementInterface st1 = new MethodStatement(test, genericEqualsMethod, a, Arrays.asList(new VariableReference[] {b}));
@@ -115,7 +115,7 @@ public class EqualsHashcodeContract extends Contract {
 			PrimitiveExpression exp = new PrimitiveExpression(test, w, y, Operator.EQUALS, z);
 			w = test.addStatement(exp, statement.getPosition() + 3);
 			
-			StatementInterface newStatement = test.getStatement(w.getStPosition());
+			StatementInterface newStatement = test.getStatement(w.getStPosition()+1);
 			
 			// Create assertEquals(x, w)
 			EqualsAssertion assertion = new EqualsAssertion();
@@ -124,6 +124,8 @@ public class EqualsHashcodeContract extends Contract {
 			assertion.setDest(w);
 			assertion.setValue(true);
 			newStatement.addAssertion(assertion);
+			newStatement.addComment("Violates contract equals(null)");
+
 		} catch (NoSuchMethodException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

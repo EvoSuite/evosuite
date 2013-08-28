@@ -151,6 +151,7 @@ public class ContractChecker extends ExecutionObserver {
 				ContractViolation violation = contract.check(statement, scope, exception); 
 				if (violation != null) {
 					logger.debug("Contract failed: {} {}", contract, statement.getCode());
+					
 					FailingTestSet.addFailingTest(violation);
 					/*
 					FailingTestSet.addFailingTest(currentTest, contract, statement,
@@ -161,7 +162,7 @@ public class ContractChecker extends ExecutionObserver {
 					//break;
 				}
 			} catch (Throwable t) {
-				logger.info("Caught exception during contract checking: "+t);
+				logger.debug("Caught exception during contract checking: "+t);
 				for(StackTraceElement e : t.getStackTrace())
 					logger.info(e.toString());
 			}

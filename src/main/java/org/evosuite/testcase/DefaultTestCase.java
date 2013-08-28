@@ -63,6 +63,8 @@ public class DefaultTestCase implements TestCase, Serializable {
 	// a list of all goals this test covers
 	private final HashSet<TestFitnessFunction> coveredGoals = new LinkedHashSet<TestFitnessFunction>();
 
+	private boolean isFailing = false;
+	
 	/** {@inheritDoc} */
 	@Override
 	public void addStatements(List<? extends StatementInterface> statements) {
@@ -93,6 +95,15 @@ public class DefaultTestCase implements TestCase, Serializable {
 	@Override
 	public boolean isEmpty() {
 		return statements.isEmpty();
+	}
+	
+	@Override
+	public boolean isFailing() {
+		return isFailing;
+	}
+	
+	public void setFailing(boolean failing) {
+		isFailing = failing;
 	}
 
 	/* (non-Javadoc)
@@ -636,6 +647,7 @@ public class DefaultTestCase implements TestCase, Serializable {
 		}
 		t.coveredGoals.addAll(coveredGoals);
 		t.accessedFiles.addAll(accessedFiles);
+		t.isFailing = isFailing;
 		//t.exception_statement = exception_statement;
 		//t.exceptionThrown = exceptionThrown;
 		return t;
