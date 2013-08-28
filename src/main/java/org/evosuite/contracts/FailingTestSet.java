@@ -142,13 +142,8 @@ public class FailingTestSet {
 		for (int i = 0; i < violations.size(); i++) {
 			logger.debug("Writing test {}/{}", i, violations.size());
 			ContractViolation violation = violations.get(i);
-			if(!violation.getContract().fails(violation.getTestCase()))
-					logger.warn("Original test does not fail contract!");
-			logger.warn("Before minimization: "+violation.getTestCase().size());
 			violation.minimizeTest();
-			logger.warn("After minimization: "+violation.getTestCase().size());
 			TestCase test = violation.getTestCase();
-			logger.warn(test.toCode());
 			//violation.addAssertion(test);
 			tests.add(test);
 		}
@@ -179,6 +174,7 @@ public class FailingTestSet {
 			ContractViolation violation = violations.get(i);
 			violation.minimizeTest();
 			TestCase test = violation.getTestCase();
+			//violation.addAssertion(test);
 			// TODO: Add comment about contract violation
 			writer.insertTest(test, " Contract violation: "
 			        + violation.getContract().toString());
@@ -199,6 +195,17 @@ public class FailingTestSet {
 		}
 
 		return false;
+	}
+	
+	public static void changeClassLoader(ClassLoader classLoader) {
+		for(ContractViolation violation : violations) {
+			violation.changeClassLoader(classLoader);
+		}
+	}
+	
+	public static void clear() {
+		violations.clear();
+		violationCount = 0;
 	}
 
 }

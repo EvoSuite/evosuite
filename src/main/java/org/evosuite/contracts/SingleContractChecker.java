@@ -23,6 +23,8 @@ package org.evosuite.contracts;
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -34,6 +36,8 @@ import org.evosuite.testcase.StatementInterface;
 public class SingleContractChecker extends ExecutionObserver {
 
 	private final Contract contract;
+	
+	private final static Logger logger = LoggerFactory.getLogger(SingleContractChecker.class);
 
 	private boolean valid = true;
 
@@ -78,12 +82,13 @@ public class SingleContractChecker extends ExecutionObserver {
 	public void afterStatement(StatementInterface statement, Scope scope,
 	        Throwable exception) {
 		try {
+			logger.debug("Checking contract "+contract);
 			if (contract.check(statement, scope, exception) != null) {
 				//FailingTestSet.addFailingTest(currentTest, contract, statement, exception);
 				valid = false;
 			}
 		} catch (Throwable t) {
-			//logger.info("Caught exception during contract checking");
+			logger.info("Caught exception during contract checking: "+t);
 		}
 	}
 

@@ -2,12 +2,31 @@ package com.examples.with.different.packagename.contracts;
 
 public class EqualsHashCode {
 
+	private int x = 0;
+	
+	public void setX(int x) {
+		this.x = x;
+	}
+	
 	@Override
 	public int hashCode() {
-		return 0;
+		return x;
 	}
 	
 	public boolean equals(Object other) {
-		return false;
+		if(other == null)
+			return false;
+		
+		if(other == this)
+			return true;
+		
+		if(x == 42)
+			return false;
+		
+		if(other instanceof EqualsHashCode) {
+			return ((EqualsHashCode)other).x == x;
+		} else {
+			return other.equals(this);
+		}
 	}
 }

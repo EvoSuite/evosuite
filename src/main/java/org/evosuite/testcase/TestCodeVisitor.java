@@ -982,7 +982,7 @@ public class TestCodeVisitor extends TestVisitor {
 				result += getClassName(retval) + " ";
 			}
 		}
-		if (exception != null)
+		if (exception != null && !test.isFailing())
 			result += "try {\n  ";
 
 		String parameter_string = getParameterString(method.getParameterTypes(),
@@ -1023,7 +1023,7 @@ public class TestCodeVisitor extends TestVisitor {
 			result += callee_str + "." + method.getName() + "(" + parameter_string + ");";
 		}
 
-		if (exception != null) {
+		if (exception != null && !test.isFailing()) {
 			if (Properties.ASSERTIONS) {
 				result += generateFailAssertion(statement, exception);
 			}
