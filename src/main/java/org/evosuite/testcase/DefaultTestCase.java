@@ -310,6 +310,24 @@ public class DefaultTestCase implements TestCase, Serializable {
 
 		return Randomness.choice(variables);
 	}
+	
+	@Override
+	public VariableReference getLastObject(Type type)
+			throws ConstructionFailedException {
+		return getLastObject(type, 0);
+	}
+	
+	@Override
+	public VariableReference getLastObject(Type type, int position)
+			throws ConstructionFailedException {
+		for(int i = statements.size() - 1; i >= position; i--) {
+			StatementInterface statement = statements.get(i);
+			VariableReference var = statement.getReturnValue();
+			if(var.isAssignableTo(type))
+				return var;
+		}
+		throw new ConstructionFailedException("Foudn no variables of type "+type);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.evosuite.testcase.TestCase#getRandomObject(java.lang.reflect.Type, int)

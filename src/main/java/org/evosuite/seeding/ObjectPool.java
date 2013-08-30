@@ -20,22 +20,18 @@
  */
 package org.evosuite.seeding;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.evosuite.Properties;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
@@ -44,9 +40,7 @@ import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
 import org.evosuite.utils.GenericClass;
 import org.evosuite.utils.Randomness;
-import org.evosuite.utils.ResourceList;
 import org.junit.runner.JUnitCore;
-import org.junit.runner.Result;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
