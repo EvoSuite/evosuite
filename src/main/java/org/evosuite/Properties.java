@@ -295,7 +295,7 @@ public class Properties {
 	public static int DSE_RATE = -1;
 
 	@Parameter(key = "dse_adaptive_probability", group = "Search Algorithm", description = "Apply DSE with a certain, adaptive, probability")
-	public static double DSE_ADAPTIVE_PROBABILITY = 0.1;
+	public static double DSE_ADAPTIVE_PROBABILITY = 0.0;
 
 	@Parameter(key = "dse_adaptive_rate", group = "Search Algorithm", description = "If successful, increase DSE probability by factor...")
 	public static double DSE_ADAPTIVE_RATE = 2;

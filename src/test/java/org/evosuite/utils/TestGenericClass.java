@@ -17,6 +17,7 @@ import java.util.Stack;
 
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.ga.ConstructionFailedException;
+import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -650,5 +651,25 @@ public class TestGenericClass {
 		Assert.assertTrue(iterableIntegerClass.satisfiesBoundaries(iterableTypeVariable));
 		Assert.assertTrue(listOfIntegerClass.satisfiesBoundaries(iterableTypeVariable));
 
+	}
+	
+	@Test
+	public void reloadArrayClass() {
+		GenericClass arrayClass = new GenericClass(Object[].class);
+		ClassLoader loader = new InstrumentingClassLoader();
+		arrayClass.changeClassLoader(loader);
+		Class<?> rawClass = arrayClass.getRawClass();
+		Assert.assertTrue(rawClass.isArray());
+		
+	}
+	
+	@Test
+	public void reloadNonArrayClass() {
+		GenericClass arrayClass = new GenericClass(Integer.class);
+		ClassLoader loader = new InstrumentingClassLoader();
+		arrayClass.changeClassLoader(loader);
+		Class<?> rawClass = arrayClass.getRawClass();
+		Assert.assertFalse(rawClass.isArray());
+		
 	}
 }

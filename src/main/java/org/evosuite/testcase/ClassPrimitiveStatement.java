@@ -134,13 +134,9 @@ public class ClassPrimitiveStatement extends PrimitiveStatement<Class<?>> {
 	@Override
 	public void changeClassLoader(ClassLoader loader) {
 		super.changeClassLoader(loader);
-		Class<?> currentClass = value;
-		try {
-			// Not using canonical name here because Class$Memberclass cannot be resolved
-			value = getArray(currentClass, loader);
-		} catch (ClassNotFoundException e) {
-			logger.warn("Could not load class in new classloader: " + currentClass);
-		}
+		GenericClass genericClass = new GenericClass(value);
+		genericClass.changeClassLoader(loader);
+		value = genericClass.getRawClass();
 	}
 
 	private void writeObject(ObjectOutputStream oos) throws IOException {
