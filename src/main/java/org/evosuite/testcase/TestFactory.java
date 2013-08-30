@@ -561,17 +561,17 @@ public class TestFactory {
 			ObjectPoolManager objectPool = ObjectPoolManager.getInstance();
 			if (Randomness.nextDouble() <= Properties.P_OBJECT_POOL
 			        && objectPool.hasSequence(clazz)) {
-				logger.debug("Using a sequence from the pool to satisfy the type: "
-				        + type);
 				TestCase sequence = objectPool.getRandomSequence(clazz);
-				// logger.info("Old test: " + test.toCode());
-				// logger.info("Sequence: " + sequence.toCode());
+				logger.debug("Using a sequence from the object pool to satisfy the type: "
+				        + type);
+				VariableReference targetObject = sequence.getLastObject(type);
+				int returnPos = position + targetObject.getStPosition();
 				for (int i = 0; i < sequence.size(); i++) {
 					StatementInterface s = sequence.getStatement(i);
-					test.addStatement(s.clone(test), position + i);
+					test.addStatement(s.copy(test, position), position + i);
 				}
-				// logger.info("New test: " + test.toCode());
-
+				logger.debug("Return type of object sequence: "+test.getStatement(returnPos).getReturnValue().getClassName());
+				return test.getStatement(returnPos).getReturnValue();
 			}
 
 			return createObject(test, type, position, recursionDepth);

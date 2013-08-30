@@ -133,6 +133,26 @@ public interface TestCase extends Iterable<StatementInterface>, Cloneable,
 	        throws ConstructionFailedException;
 
 	/**
+	 * Get the last object of the defined type
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public VariableReference getLastObject(Type type)
+			throws ConstructionFailedException;
+	
+	/**
+	 * Get the last object of the defined type
+	 * 
+	 * @param type
+	 * @return
+	 * @throws ConstructionFailedException
+	 */
+	public VariableReference getLastObject(Type type, int position)
+			throws ConstructionFailedException;
+	
+	/**
 	 * Get a random object matching type
 	 *
 	 * @param type a {@link java.lang.reflect.Type} object.
