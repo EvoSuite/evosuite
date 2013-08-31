@@ -160,10 +160,9 @@ public class InheritanceTreeGenerator {
 		ZipFile zf;
 		try {
 			zf = new ZipFile(jarFile);
-		} catch (final ZipException e) {
-			throw new Error(e);
-		} catch (final IOException e) {
-			throw new Error(e);
+		} catch (Exception e) {
+			logger.warn("Failed to open/analyze jar file "+jarFile.getAbsolutePath()+" , "+e.getMessage());
+			return;
 		}
 
 		final Enumeration<?> e = zf.entries();
@@ -176,13 +175,17 @@ public class InheritanceTreeGenerator {
 			try {
 				analyzeClassStream(inheritanceTree, zf.getInputStream(ze), false);
 			} catch (IOException e1) {
-				logger.error("", e1);
+				/*
+				 * even if there is a problem with one of the entries, we can still
+				 * go on and look at the others
+				 */
+				logger.error("Error while analyzing class "+fileName+" in the jar "+jarFile.getAbsolutePath(), e1);
 			}
 		}
 		try {
 			zf.close();
 		} catch (final IOException e1) {
-			throw new Error(e1);
+			logger.warn("Failed to close jar file "+jarFile.getAbsolutePath()+" , "+e1.getMessage());
 		}
 	}
 
