@@ -158,7 +158,7 @@ public class Properties {
 	@Parameter(key = "p_object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
 	@DoubleValue(min = 0.0, max = 1.0)
 	public static double P_OBJECT_POOL = 0.0;
-	
+
 	@Parameter(key = "object_pools", group = "Test Creation", description = "List of object pools")
 	public static String OBJECT_POOLS = "";
 
@@ -448,7 +448,7 @@ public class Properties {
 	 * <code>PROPERTIES_FILE="OUTPUT_DIR + File.separatorevosuite.pro"{trunked}</code>
 	 */
 	public static String PROPERTIES_FILE = OUTPUT_DIR + File.separator
-	        + "evosuite.properties";
+			+ "evosuite.properties";
 
 	public enum StoppingCondition {
 		MAXSTATEMENTS, MAXTESTS, MAXTIME, MAXGENERATIONS, MAXFITNESSEVALUATIONS
@@ -625,7 +625,7 @@ public class Properties {
 	@Parameter(key = "junit_runner", group = "Output", description = "Use EvoSuite JUnit runner in generated test suites")
 	@Deprecated
 	public static boolean JUNIT_RUNNER = false;
-	
+
 	/**
 	 * TODO: this functionality is not implemented yet
 	 */
@@ -1019,7 +1019,7 @@ public class Properties {
 	/** Constant <code>DEFUSE_DEBUG_MODE=false</code> */
 	@Parameter(key = "defuse_debug_mode", description = "")
 	public static boolean DEFUSE_DEBUG_MODE = false;
-	
+
 	@Parameter(key = "defuse_aliases", description = "")
 	public static boolean DEFUSE_ALIASES = true;
 
@@ -1090,11 +1090,11 @@ public class Properties {
 	/** Method under test */
 	@Parameter(key = "target_method_prefix", group = "Runtime", description = "All methods matching prefix will be used for generating tests")
 	public static String TARGET_METHOD_PREFIX = "";
-	
+
 	/** Method under test */
 	@Parameter(key = "target_method_list", group = "Runtime", description = "A semi-colon separated list of methods for which to generate tests")
 	public static String TARGET_METHOD_LIST= "";
-	
+
 	/** Constant <code>HIERARCHY_DATA="hierarchy.xml"</code> */
 	@Parameter(key = "hierarchy_data", group = "Runtime", description = "File in which hierarchy data is stored")
 	public static String HIERARCHY_DATA = "hierarchy.xml";
@@ -1207,8 +1207,8 @@ public class Properties {
 	 */
 	public void loadProperties(boolean silent) {
 		loadPropertiesFile(System.getProperty(PROPERTIES_FILE,
-		                                      "evosuite-files/evosuite.properties"),
-		                   silent);
+				"evosuite-files/evosuite.properties"),
+				silent);
 		initializeProperties();
 	}
 
@@ -1240,7 +1240,7 @@ public class Properties {
 
 				if (!silent)
 					LoggingUtils.getEvoLogger().info("* Properties loaded from "
-					                                         + propertiesFile.getAbsolutePath());
+							+ propertiesFile.getAbsolutePath());
 			} else {
 				propertiesPath = "evosuite.properties";
 				in = this.getClass().getClassLoader().getResourceAsStream(propertiesPath);
@@ -1248,7 +1248,7 @@ public class Properties {
 					properties.load(in);
 					if (!silent)
 						LoggingUtils.getEvoLogger().info("* Properties loaded from "
-						                                         + this.getClass().getClassLoader().getResource(propertiesPath).getPath());
+								+ this.getClass().getClassLoader().getResource(propertiesPath).getPath());
 				}
 				// logger.info("* Properties loaded from default configuration file.");
 			}
@@ -1391,7 +1391,7 @@ public class Properties {
 	 * @return a int.
 	 */
 	public static int getIntegerValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1412,7 +1412,7 @@ public class Properties {
 	 * @return a long.
 	 */
 	public static long getLongValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1433,7 +1433,7 @@ public class Properties {
 	 * @return a boolean.
 	 */
 	public static boolean getBooleanValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1454,7 +1454,7 @@ public class Properties {
 	 * @return a double.
 	 */
 	public static double getDoubleValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1475,7 +1475,7 @@ public class Properties {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public static String getStringValue(String key) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1520,7 +1520,7 @@ public class Properties {
 	 *             if any.
 	 */
 	public void setValue(String key, int value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1550,7 +1550,7 @@ public class Properties {
 	 *             if any.
 	 */
 	public void setValue(String key, long value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1580,7 +1580,7 @@ public class Properties {
 	 *             if any.
 	 */
 	public void setValue(String key, boolean value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1603,7 +1603,7 @@ public class Properties {
 	 *             if any.
 	 */
 	public void setValue(String key, double value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key))
 			throw new NoSuchParameterException(key);
 
@@ -1632,24 +1632,44 @@ public class Properties {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public void setValue(String key, String value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key)) {
 			throw new NoSuchParameterException(key);
 		}
 
 		Field f = parameterMap.get(key);
 		changedFields.add(key);
+		
+		//Enum
 		if (f.getType().isEnum()) {
 			f.set(null, Enum.valueOf((Class<Enum>) f.getType(), value.toUpperCase()));
-		} else if (f.getType().equals(int.class)) {
+		} 
+		//Integers
+		else if (f.getType().equals(int.class)) {
 			setValue(key, Integer.parseInt(value));
-		} else if (f.getType().equals(long.class)) {
+		} else if (f.getType().equals(Integer.class)) {
+			setValue(key, (Integer)Integer.parseInt(value));
+		} 
+		//Long
+		else if (f.getType().equals(long.class)) {
 			setValue(key, Long.parseLong(value));
-		} else if (f.getType().equals(boolean.class)) {
+		} else if (f.getType().equals(Long.class)) {
+			setValue(key, (Long)Long.parseLong(value));
+		} 
+		//Boolean
+		else if (f.getType().equals(boolean.class)) {
 			setValue(key, Boolean.parseBoolean(value));
-		} else if (f.getType().equals(double.class)) {
+		} else if (f.getType().equals(Boolean.class)) {
+			setValue(key, (Boolean)Boolean.parseBoolean(value));
+		} 
+		//Double
+		else if (f.getType().equals(double.class)) {
 			setValue(key, Double.parseDouble(value));
-		} else if (f.getType().isArray()) {
+		} else if (f.getType().equals(Double.class)) {
+			setValue(key, (Double)Double.parseDouble(value));
+		} 
+		//Array
+		else if (f.getType().isArray()) {
 			if (f.getType().isAssignableFrom(String[].class)) {
 				setValue(key, value.split(":"));
 			}
@@ -1675,7 +1695,27 @@ public class Properties {
 	 *             if any.
 	 */
 	public void setValue(String key, String[] value) throws NoSuchParameterException,
-	        IllegalArgumentException, IllegalAccessException {
+	IllegalArgumentException, IllegalAccessException {
+		if (!parameterMap.containsKey(key)) {
+			throw new NoSuchParameterException(key);
+		}
+
+		Field f = parameterMap.get(key);
+
+		f.set(this, value);
+	}
+
+
+	/**
+	 * Set the given <code>key</code> variable to the given input Object <code>value</code>
+	 * @param key
+	 * @param value
+	 * @throws NoSuchParameterException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException
+	 */
+	public void setValue(String key, Object value) throws NoSuchParameterException,
+	IllegalArgumentException, IllegalAccessException {
 		if (!parameterMap.containsKey(key)) {
 			throw new NoSuchParameterException(key);
 		}
@@ -1759,19 +1799,19 @@ public class Properties {
 	 */
 	public static Class<?> getTargetClass() {
 		if (TARGET_CLASS_INSTANCE != null
-		        && TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
+				&& TARGET_CLASS_INSTANCE.getCanonicalName().equals(TARGET_CLASS))
 			return TARGET_CLASS_INSTANCE;
 
 		TARGET_CLASS_INSTANCE = null;
 
 		try {
 			TARGET_CLASS_INSTANCE = Class.forName(TARGET_CLASS, true,
-			                                      TestGenerationContext.getClassLoader());
+					TestGenerationContext.getClassLoader());
 			setClassPrefix();
 
 		} catch (ClassNotFoundException e) {
 			LoggingUtils.getEvoLogger().info("* Could not find class under test: "
-			                                         + Properties.TARGET_CLASS + ": " + e);
+					+ Properties.TARGET_CLASS + ": " + e);
 			for (StackTraceElement s : e.getStackTrace()) {
 				LoggingUtils.getEvoLogger().info("   " + s.toString());
 			}
