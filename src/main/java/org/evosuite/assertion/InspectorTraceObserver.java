@@ -72,6 +72,9 @@ public class InspectorTraceObserver extends AssertionTraceObserver<InspectorTrac
 					if (value instanceof String) {
 						if(addressPattern.matcher((String)value).find())
 							continue;
+						// String literals may not be longer than 32767
+						if(((String)value).length() >= 32767)
+							continue;
 					}
 
 					entry.addValue(i, value);

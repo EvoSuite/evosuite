@@ -703,7 +703,7 @@ public abstract class GeneticAlgorithm<T extends Chromosome> implements SearchAl
 	 * 
 	 * @return a boolean.
 	 */
-	protected boolean isFinished() {
+	public boolean isFinished() {
 		for (StoppingCondition c : stoppingConditions) {
 			if (c.isFinished())
 				return true;

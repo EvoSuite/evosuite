@@ -73,6 +73,10 @@ public class PrimitiveTraceObserver extends AssertionTraceObserver<PrimitiveTrac
 					if(addressPattern.matcher((String)object).find()) {
 						return;
 					}
+					// String literals may not be longer than 32767
+					if(((String)object).length() >= 32767) {
+						return;
+					}
 				}
 				logger.debug("Observed value " + object + " for statement "
 				        + statement.getCode());
