@@ -9,8 +9,11 @@ import org.evosuite.Properties;
 import org.evosuite.SystemTest;
 import org.evosuite.ga.GeneticAlgorithm;
 import org.evosuite.seeding.ObjectPool;
+import org.evosuite.seeding.ObjectPoolManager;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 
 import com.examples.with.different.packagename.pool.DependencyClass;
@@ -18,6 +21,22 @@ import com.examples.with.different.packagename.pool.OtherClass;
 
 public class TestPool extends SystemTest {
 
+	private String pools = "";
+	
+	private double pPool = 0.0;
+	
+	@Before
+	public void storeProperties() {
+		pools = Properties.OBJECT_POOLS;
+		pPool = Properties.P_OBJECT_POOL;
+	}
+	
+	@After
+	public void restoreProperties() {
+		Properties.OBJECT_POOLS = pools;
+		Properties.P_OBJECT_POOL = pPool;
+	}
+	
 	@Test
 	public void testPool() throws IOException {
 		File f = File.createTempFile("EvoSuiteTestPool",null, FileUtils.getTempDirectory());
@@ -42,6 +61,9 @@ public class TestPool extends SystemTest {
 
 		targetClass = OtherClass.class.getCanonicalName();
 		Properties.TARGET_CLASS = targetClass;
+		Properties.P_OBJECT_POOL = 1.0;
+		Properties.OBJECT_POOLS = filename;
+		ObjectPoolManager.getInstance().initialisePool();
 		//Properties.SEARCH_BUDGET = 50000;
 
 		command = new String[] { "-generateSuite", "-class", targetClass, "-Dobject_pools=" + filename };
