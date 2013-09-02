@@ -36,6 +36,7 @@ import java.util.Set;
 import org.evosuite.Properties;
 import org.evosuite.testcarver.extraction.CarvingRunListener;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.DebuggingObjectOutputStream;
 import org.evosuite.utils.GenericClass;
@@ -58,7 +59,7 @@ public class ObjectPool implements Serializable {
 	protected final Map<GenericClass, Set<TestCase>> pool = new HashMap<GenericClass, Set<TestCase>>();
 
 	protected static Logger logger = LoggerFactory.getLogger(ObjectPool.class);
-
+	
 	/**
 	 * Insert a new sequence for given Type
 	 *
@@ -160,9 +161,21 @@ public class ObjectPool implements Serializable {
 	 */
 	public static ObjectPool getPoolFromTestSuite(TestSuiteChromosome testSuite) {
 		ObjectPool pool = new ObjectPool();
-		for(TestCase test : testSuite.getTests()) {
-			pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
+		
+		for(TestChromosome testChromosome : testSuite.getTestChromosomes()) {
+			TestCase test = testChromosome.getTestCase().clone();
+			if(testChromosome.hasException()) {
+				test.chop(test.size() - 2);
+			}
+			if(test.hasObject(Properties.getTargetClass(), test.size())) {
+				pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
+			}
 		}
+		/*
+		 for(TestCase test : testSuite.getTests()) {
+		 	pool.addSequence(new GenericClass(Properties.getTargetClass()), test);
+		 }
+		 */
 		return pool;
 	}
 	
