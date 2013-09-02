@@ -149,6 +149,7 @@ import org.evosuite.testcase.TestCaseMinimizer;
 import org.evosuite.testcase.TestCaseReplacementFunction;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.testcase.UncompilableCodeException;
 import org.evosuite.testcase.ValueMinimizer;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
@@ -1189,13 +1190,18 @@ public class TestSuiteGenerator {
 		statistics.searchStarted(suiteGA);
 
 		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
+			if(suiteGA.isFinished())
+				break;
 			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
 			TestChromosome test = factory.getChromosome();
 			ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
 			Integer pos = result.getFirstPositionOfThrownException();
 			if (pos != null) {
-				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException) {
-					test.getTestCase().chop(pos);
+				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException ||
+						result.getExceptionThrownAtPosition(pos) instanceof UncompilableCodeException ||
+						result.getExceptionThrownAtPosition(pos) instanceof TestCaseExecutor.TimeoutExceeded) {
+					continue;
+					// test.getTestCase().chop(pos);
 				} else {
 					test.getTestCase().chop(pos + 1);
 				}

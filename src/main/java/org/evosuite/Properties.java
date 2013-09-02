@@ -157,8 +157,8 @@ public class Properties {
 	/** Constant <code>OBJECT_POOL=0.0</code> */
 	@Parameter(key = "p_object_pool", group = "Test Creation", description = "Probability to use a predefined sequence from the pool rather than a random generator")
 	@DoubleValue(min = 0.0, max = 1.0)
-	public static double P_OBJECT_POOL = 0.0;
-
+	public static double P_OBJECT_POOL = 0.3;
+	
 	@Parameter(key = "object_pools", group = "Test Creation", description = "List of object pools")
 	public static String OBJECT_POOLS = "";
 
