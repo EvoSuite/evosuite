@@ -37,6 +37,7 @@ import org.evosuite.ga.stoppingconditions.MaxTestsStoppingCondition;
 import org.evosuite.sandbox.PermissionStatistics;
 import org.evosuite.sandbox.Sandbox;
 import org.evosuite.setup.TestCluster;
+import org.evosuite.utils.SystemInUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -299,6 +300,10 @@ public class TestCaseExecutor implements ThreadFactory {
 			//ExecutionResult result = task.get(timeout, TimeUnit.MILLISECONDS);
 
 			ExecutionResult result;
+
+			//important to call it before setting up the sandbox
+			SystemInUtil.getInstance().initForTestCase();
+			
 			Sandbox.goingToExecuteSUTCode();
 			try {
 				result = handler.execute(callable, executor, timeout,

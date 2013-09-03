@@ -21,6 +21,7 @@ import org.evosuite.setup.TestCluster;
 import org.evosuite.setup.TestClusterGenerator;
 import org.evosuite.testcase.ExecutionTracer;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.utils.SystemInUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -114,6 +115,8 @@ public class TestGenerationContext {
 		if(Properties.CHECK_CONTRACTS) {
 			FailingTestSet.changeClassLoader(classLoader);
 		}
+		
+		SystemInUtil.resetSingleton();
 	}
 
 }
