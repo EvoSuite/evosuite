@@ -300,12 +300,15 @@ public class TestCluster {
 						// Set owner type parameters from new return type
 						GenericAccessibleObject<?> newGenerator = generator.copyWithOwnerFromReturnType(instantiatedGeneratorClazz);
 
+						boolean hadTypeParameters = false;
+
 						// Instantiate potential further type variables based on type variables of return type
 						if (newGenerator.getOwnerClass().hasWildcardOrTypeVariables()) {
 							logger.debug("Instantiating type parameters of owner type: "
 							        + newGenerator.getOwnerClass());
 							GenericClass concreteClass = newGenerator.getOwnerClass().getGenericInstantiation(clazz.getTypeVariableMap());
 							newGenerator = newGenerator.copyWithNewOwner(concreteClass);
+							hadTypeParameters = true;
 						}
 
 						// If it is a generic method, instantiate generic type variables for the produced class
@@ -323,11 +326,13 @@ public class TestCluster {
 							 * 
 							 */
 							newGenerator = newGenerator.getGenericInstantiationFromReturnValue(clazz);
+							hadTypeParameters = true;
 							// newGenerator = newGenerator.getGenericInstantiation(clazz);
 						}
 
 						logger.debug("Current generator: " + newGenerator);
-						if (clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
+						if ((!hadTypeParameters && generatorClazz.equals(clazz))
+						        || clazz.isAssignableFrom(newGenerator.getGeneratedType())) {
 							logger.debug("Got new generator: " + newGenerator
 							        + " which generated: "
 							        + newGenerator.getGeneratedClass());
