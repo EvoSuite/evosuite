@@ -141,7 +141,7 @@ public class GenericClass implements Serializable {
 			Class<?> componentType = getClass(name.substring(1, name.length()), loader);
 			Object array = Array.newInstance(componentType, 0);
 			return array.getClass();
-		} else if (name.startsWith("L")) {
+		} else if (name.startsWith("L") && name.contains("/")) {
 			return getClass(name.substring(1), loader);
 		} else if (name.endsWith(";")) {
 			return getClass(name.substring(0, name.length() - 1), loader);
@@ -369,9 +369,9 @@ public class GenericClass implements Serializable {
 					lowerBounds[i] = bound.getType();
 				}
 				this.type = new WildcardTypeImpl(upperBounds, lowerBounds);
-			} else if(type instanceof TypeVariable<?>) {
-				for(TypeVariable<?> newVar : rawClass.getTypeParameters()) {
-					if(newVar.getName().equals(((TypeVariable<?>)type).getName())) {
+			} else if (type instanceof TypeVariable<?>) {
+				for (TypeVariable<?> newVar : rawClass.getTypeParameters()) {
+					if (newVar.getName().equals(((TypeVariable<?>) type).getName())) {
 						this.type = newVar;
 						break;
 					}
@@ -1327,8 +1327,6 @@ public class GenericClass implements Serializable {
 		return WRAPPER_TYPES.contains(rawClass);
 	}
 
-	
-
 	public boolean satisfiesBoundaries(TypeVariable<?> typeVariable) {
 		return satisfiesBoundaries(typeVariable, getTypeVariableMap());
 	}
@@ -1527,7 +1525,7 @@ public class GenericClass implements Serializable {
 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		String name = (String) ois.readObject();
-		if(name == null) {
+		if (name == null) {
 			this.rawClass = null;
 			this.type = null;
 			return;
@@ -1549,7 +1547,7 @@ public class GenericClass implements Serializable {
 			this.type = addTypeParameters(rawClass); //GenericTypeReflector.addWildcardParameters(raw_class);
 		}
 	}
-	
+
 	/**
 	 * Serialize, but need to abstract classloader away
 	 * 
@@ -1557,7 +1555,7 @@ public class GenericClass implements Serializable {
 	 * @throws IOException
 	 */
 	private void writeObject(ObjectOutputStream oos) throws IOException {
-		if(rawClass == null) {
+		if (rawClass == null) {
 			oos.writeObject(null);
 		} else {
 			oos.writeObject(rawClass.getName());
