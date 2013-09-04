@@ -134,7 +134,7 @@ public class MethodCallReplacementMethodAdapter extends GeneratorAdapter {
 			        "nextDouble", "()D", "org/evosuite/runtime/Random", "nextDouble",
 			        "()D", true));
 			replacementCalls.add(new MethodCallReplacement("java/lang/Math", "random",
-			        "()D", "org/evosuite/runtime/Random", "nextDouble", "()D", true));
+			        "()D", "org/evosuite/runtime/Random", "nextDouble", "()D", false));
 			replacementCalls.add(new MethodCallReplacement("java/util/Random",
 			        "nextFloat", "()F", "org/evosuite/runtime/Random", "nextFloat",
 			        "()F", true));
