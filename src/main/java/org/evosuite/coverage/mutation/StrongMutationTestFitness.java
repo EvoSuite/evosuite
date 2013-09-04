@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.evosuite.assertion.ArrayTraceEntry;
+import org.evosuite.assertion.ArrayTraceObserver;
 import org.evosuite.assertion.AssertionTraceObserver;
 import org.evosuite.assertion.ComparisonTraceEntry;
 import org.evosuite.assertion.ComparisonTraceObserver;
@@ -59,13 +61,13 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	/** Constant <code>observerClasses</code> */
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
 	        ComparisonTraceEntry.class, InspectorTraceEntry.class,
-	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class };
+	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class, ArrayTraceEntry.class };
 
 	/** Constant <code>observers</code> */
 	protected static AssertionTraceObserver<?>[] observers = {
 	        new PrimitiveTraceObserver(), new ComparisonTraceObserver(),
 	        new InspectorTraceObserver(), new PrimitiveFieldTraceObserver(),
-	        new NullTraceObserver() };
+	        new NullTraceObserver(), new ArrayTraceObserver() };
 
 	/**
 	 * <p>
