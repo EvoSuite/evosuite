@@ -130,9 +130,11 @@ public class InheritanceTreeGenerator {
 	 * @param entry
 	 */
 	private static void analyze(InheritanceTree inheritanceTree, String entry) {
-		analyzeClassStream(inheritanceTree,
-		                   InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(entry),
-		                   false);
+		InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(entry);
+		if(stream != null)
+			analyzeClassStream(inheritanceTree, stream, false);
+		else
+			analyze(inheritanceTree, new File(entry));
 	}
 
 	/**
