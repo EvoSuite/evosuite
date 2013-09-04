@@ -256,7 +256,7 @@ public class TestRunnable implements InterfaceTestRunnable {
 
 		runFinished = false;
 		ExecutionResult result = new ExecutionResult(test, null);
-		Runtime.resetRuntime();
+		Runtime.getInstance().resetRuntime();
 		ExecutionTracer.enable();
 
 		PrintStream out = (Properties.PRINT_TO_SYSTEM ? System.out : new PrintStream(
@@ -414,9 +414,9 @@ public class TestRunnable implements InterfaceTestRunnable {
 		result.setExecutedStatements(num);
 		result.setThrownExceptions(exceptionsThrown);
 
-		// FIXME: what is this for? - 17.10.12: JavaDoc added by Daniel
-		Runtime.handleRuntimeAccesses(test);
-
+		Runtime.getInstance().handleRuntimeAccesses(test);
+		SystemInUtil.getInstance().addSupportInTestClusterIfNeeded();
+		
 		return result;
 	}
 
