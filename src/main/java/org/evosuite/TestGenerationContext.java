@@ -13,6 +13,7 @@ import org.evosuite.graphs.GraphPool;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.CFGMethodAdapter;
 import org.evosuite.instrumentation.InstrumentingClassLoader;
+import org.evosuite.runtime.Runtime;
 import org.evosuite.seeding.CastClassManager;
 import org.evosuite.seeding.ConstantPoolManager;
 import org.evosuite.seeding.ObjectPoolManager;
@@ -104,11 +105,9 @@ public class TestGenerationContext {
 						DependencyAnalysis.getInheritanceTree(),
 						DependencyAnalysis.getCallTree());
 			} catch (RuntimeException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage(),e);
 			} catch (ClassNotFoundException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				logger.error(e.getMessage(),e);
 			}
 		}
 		
@@ -117,6 +116,7 @@ public class TestGenerationContext {
 		}
 		
 		SystemInUtil.resetSingleton();
+		Runtime.resetSingleton();
 	}
 
 }
