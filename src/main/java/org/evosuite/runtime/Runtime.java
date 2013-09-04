@@ -45,27 +45,33 @@ import org.slf4j.LoggerFactory;
  */
 public class Runtime {
 
-	/**
-	 * maps from the name of a FileSystem method to a class array containing its
-	 * parameter types
-	 */
-	private static Map<String, Class<?>[]> fileOperations;
-
-	/**
-	 * the set of file operation selectors that shall be used to select
-	 * FileSystem methods
-	 */
-	private static Set<FileOperationSelector> fileOperationSelectors;
-
 	private static Logger logger = LoggerFactory.getLogger(Runtime.class);
 
+	private static Runtime singleton = new Runtime();
+	
+	private boolean hasAddedRandom;
+	private boolean hasAddedSystem;
+	private boolean hasAddedFiles;
+	
+	protected Runtime(){		
+	}
+	
+	public synchronized static Runtime getInstance(){
+		return singleton;
+	}
+	
+	public synchronized static void resetSingleton(){
+		singleton.resetRuntime();
+		singleton = new Runtime();
+	}
+	
 	/**
 	 * Resets all simulated classes to an initial default state (so that it
 	 * seems they have never been used by previous test case executions)
 	 * <p>
 	 * (Idea by Gordon, JavaDoc written by Daniel)
 	 */
-	public static void resetRuntime() {
+	public void resetRuntime() {
 		if (Properties.REPLACE_CALLS) {
 			Random.reset();
 			System.reset();
@@ -95,98 +101,113 @@ public class Runtime {
 	 * @see Random
 	 * @see System
 	 */
-	public static void handleRuntimeAccesses(TestCase test) {
+	public void handleRuntimeAccesses(TestCase test) {
 		if (Properties.REPLACE_CALLS) {
-
-			if (Random.wasAccessed()) {
-				try {
-					TestCluster.getInstance().addTestCall(new GenericMethod(
-					                                              Random.class.getMethod("setNextRandom",
-					                                                                     new Class<?>[] { int.class }),
-					                                              new GenericClass(
-					                                                      Random.class)));
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
-			if (System.wasAccessed()) {
-				try {
-					TestCluster.getInstance().addTestCall(new GenericMethod(
-					                                              System.class.getMethod("setCurrentTimeMillis",
-					                                                                     new Class<?>[] { long.class }),
-					                                              new GenericClass(
-					                                                      System.class)));
-				} catch (SecurityException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (NoSuchMethodException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}
+			handleReplaceCalls();
 		}
 
 		if (Properties.VIRTUAL_FS) {
-			EvoSuiteIO.disableVFS();
-			test.setAccessedFiles(new ArrayList<String>(
-			        EvoSuiteIO.getFilesAccessedByCUT()));
+			handleVirtualFS(test);
+		}
+	}
 
-			if (EvoSuiteIO.filesWereAccessedByCUT()) {
-				logger.info("Adding EvoSuiteFile calls to cluster");
+	private void handleVirtualFS(TestCase test) {
+		EvoSuiteIO.disableVFS();
+		test.setAccessedFiles(new ArrayList<String>(
+				EvoSuiteIO.getFilesAccessedByCUT()));
 
-				if (fileOperations == null) {
-					fileOperations = new HashMap<String, Class<?>[]>();
-					fileOperations.put("setFileContent", new Class<?>[] {
-					        EvoSuiteFile.class, String.class });
-					fileOperations.put("setReadPermission", new Class<?>[] {
-					        EvoSuiteFile.class, boolean.class });
-					fileOperations.put("setWritePermission", new Class<?>[] {
-					        EvoSuiteFile.class, boolean.class });
-					fileOperations.put("setExecutePermission", new Class<?>[] {
-					        EvoSuiteFile.class, boolean.class });
-					fileOperations.put("deepDelete",
-					                   new Class<?>[] { EvoSuiteFile.class });
-					fileOperations.put("createFile",
-					                   new Class<?>[] { EvoSuiteFile.class });
-					fileOperations.put("createDirectory",
-					                   new Class<?>[] { EvoSuiteFile.class });
-					fileOperations.put("createAndFillDirectory",
-					                   new Class<?>[] { EvoSuiteFile.class });
-					fileOperations.put("createParent",
-					                   new Class<?>[] { EvoSuiteFile.class });
-					fileOperations.put("deepDeleteParent",
-					                   new Class<?>[] { EvoSuiteFile.class });
-				}
+		if (!hasAddedFiles && EvoSuiteIO.filesWereAccessedByCUT()) {
+			logger.info("Adding EvoSuiteFile calls to cluster");
 
-				if (fileOperationSelectors == null) {
-					fileOperationSelectors = new HashSet<FileOperationSelector>();
-					fileOperationSelectors.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
-					fileOperationSelectors.add(FileOperationSelectors.CREATION_AND_DELETION);
-					fileOperationSelectors.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
-					fileOperationSelectors.add(FileOperationSelectors.PERMISSION_MODIFICATION);
-					fileOperationSelectors.add(FileOperationSelectors.DIRECTORY_CONTENT_MODIFICATION);
-				}
+			hasAddedFiles = true;
 
-				try {
-					for (String method : fileOperations.keySet()) {
-						for (FileOperationSelector fileOperationSelector : fileOperationSelectors) {
-							if (fileOperationSelector.select(method)) {
-								TestCluster.getInstance().addTestCall(new GenericMethod(
-								                                              FileSystem.class.getMethod(method,
-								                                                                         fileOperations.get(method)),
-								                                              new GenericClass(
-								                                                      FileSystem.class)));
-								break;
-							}
+			/**
+			 * maps from the name of a FileSystem method to a class array containing its
+			 * parameter types
+			 */
+			Map<String, Class<?>[]> fileOperations = new HashMap<String, Class<?>[]>();
+			fileOperations.put("setFileContent", new Class<?>[] {
+					EvoSuiteFile.class, String.class });
+			fileOperations.put("setReadPermission", new Class<?>[] {
+					EvoSuiteFile.class, boolean.class });
+			fileOperations.put("setWritePermission", new Class<?>[] {
+					EvoSuiteFile.class, boolean.class });
+			fileOperations.put("setExecutePermission", new Class<?>[] {
+					EvoSuiteFile.class, boolean.class });
+			fileOperations.put("deepDelete",
+					new Class<?>[] { EvoSuiteFile.class });
+			fileOperations.put("createFile",
+					new Class<?>[] { EvoSuiteFile.class });
+			fileOperations.put("createDirectory",
+					new Class<?>[] { EvoSuiteFile.class });
+			fileOperations.put("createAndFillDirectory",
+					new Class<?>[] { EvoSuiteFile.class });
+			fileOperations.put("createParent",
+					new Class<?>[] { EvoSuiteFile.class });
+			fileOperations.put("deepDeleteParent",
+					new Class<?>[] { EvoSuiteFile.class });
+
+
+			/**
+			 * the set of file operation selectors that shall be used to select
+			 * FileSystem methods
+			 */
+			Set<FileOperationSelector> fileOperationSelectors = new HashSet<FileOperationSelector>();
+			fileOperationSelectors.add(FileOperationSelectors.FILE_CONTENT_MODIFICATION);
+			fileOperationSelectors.add(FileOperationSelectors.CREATION_AND_DELETION);
+			fileOperationSelectors.add(FileOperationSelectors.PARENT_CREATION_AND_DELETION);
+			fileOperationSelectors.add(FileOperationSelectors.PERMISSION_MODIFICATION);
+			fileOperationSelectors.add(FileOperationSelectors.DIRECTORY_CONTENT_MODIFICATION);
+
+
+			try {
+				for (String method : fileOperations.keySet()) {
+					for (FileOperationSelector fileOperationSelector : fileOperationSelectors) {
+						if (fileOperationSelector.select(method)) {
+							TestCluster.getInstance().addTestCall(new GenericMethod(
+									FileSystem.class.getMethod(method,
+											fileOperations.get(method)),
+											new GenericClass(
+													FileSystem.class)));
+							break;
 						}
 					}
-				} catch (NoSuchMethodException e) {
-					e.printStackTrace();
 				}
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling virtual file system: "+e.getMessage(),e);
+			}
+		}
+	}
+
+	private void handleReplaceCalls() {
+
+		if (!hasAddedRandom && Random.wasAccessed()) {
+			hasAddedRandom = true;
+			try {
+				TestCluster.getInstance().addTestCall(new GenericMethod(
+						Random.class.getMethod("setNextRandom",
+								new Class<?>[] { int.class }),
+								new GenericClass(
+										Random.class)));
+			} catch (SecurityException e) {
+				logger.error("Error while handling Random: "+e.getMessage(),e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling Random: "+e.getMessage(),e);
+			}
+		}
+
+		if (!hasAddedSystem && System.wasAccessed()) {
+			hasAddedSystem = true;
+			try {
+				TestCluster.getInstance().addTestCall(new GenericMethod(
+						System.class.getMethod("setCurrentTimeMillis",
+								new Class<?>[] { long.class }),
+								new GenericClass(
+										System.class)));
+			} catch (SecurityException e) {
+				logger.error("Error while handling System: "+e.getMessage(),e);
+			} catch (NoSuchMethodException e) {
+				logger.error("Error while handling System: "+e.getMessage(),e);
 			}
 		}
 	}

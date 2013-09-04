@@ -965,6 +965,9 @@ public class Properties {
 	@Parameter(key = "replace_calls", group = "Test Execution", description = "Replace nondeterministic calls and System.exit")
 	public static boolean REPLACE_CALLS = false;
 
+	@Parameter(key = "replace_system_in", group = "Test Execution", description = "Replace System.in with a smart stub/mock")
+	public static boolean REPLACE_SYSTEM_IN = true;
+
 	// ---------------------------------------------------------------
 	// Debugging
 
