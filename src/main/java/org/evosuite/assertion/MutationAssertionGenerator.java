@@ -65,6 +65,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	private static InspectorTraceObserver inspectorObserver = new InspectorTraceObserver();
 	private static PrimitiveFieldTraceObserver fieldObserver = new PrimitiveFieldTraceObserver();
 	private static NullTraceObserver nullObserver = new NullTraceObserver();
+	private static ArrayTraceObserver arrayObserver = new ArrayTraceObserver();
 
 	private final static Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
 
@@ -87,6 +88,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		TestCaseExecutor.getInstance().addObserver(inspectorObserver);
 		TestCaseExecutor.getInstance().addObserver(fieldObserver);
 		TestCaseExecutor.getInstance().addObserver(nullObserver);
+		TestCaseExecutor.getInstance().addObserver(arrayObserver);
 	}
 
 	/**
@@ -116,6 +118,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 		inspectorObserver.clear();
 		fieldObserver.clear();
 		nullObserver.clear();
+		arrayObserver.clear();
 		try {
 			logger.debug("Executing test");
 			MutationObserver.activateMutation(mutant);
@@ -131,6 +134,7 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			result.setTrace(inspectorObserver.getTrace(), InspectorTraceEntry.class);
 			result.setTrace(fieldObserver.getTrace(), PrimitiveFieldTraceEntry.class);
 			result.setTrace(nullObserver.getTrace(), NullTraceEntry.class);
+			result.setTrace(arrayObserver.getTrace(), ArrayTraceEntry.class);
 
 		} catch (Exception e) {
 			throw new Error(e);
@@ -635,50 +639,48 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 		return !hasPrimitive;
 	}
-	
+
 	private boolean isUsedAsCallee(TestCase test, VariableReference var) {
-		for(int pos = var.getStPosition() + 1; pos < test.size(); pos++) {
+		for (int pos = var.getStPosition() + 1; pos < test.size(); pos++) {
 			StatementInterface statement = test.getStatement(pos);
-			if(statement instanceof MethodStatement) {
-				if(((MethodStatement)statement).getCallee() == var)
+			if (statement instanceof MethodStatement) {
+				if (((MethodStatement) statement).getCallee() == var)
 					return true;
-			}
-			else if(statement instanceof FieldStatement) {
-				if(((FieldStatement)statement).getSource() == var)
+			} else if (statement instanceof FieldStatement) {
+				if (((FieldStatement) statement).getSource() == var)
 					return true;
 			}
 
 		}
-		
+
 		return false;
 	}
 
 	private void filterRedundantNonnullAssertions(TestCase test) {
 		Set<Assertion> redundantAssertions = new HashSet<Assertion>();
-		for(StatementInterface statement : test) {
-			if(statement instanceof ConstructorStatement) {
-				ConstructorStatement cs = (ConstructorStatement)statement;
-				for(Assertion a : cs.getAssertions()) {
-					if(a instanceof NullAssertion) {
-						if(cs.getAssertions().size() > 0) {
-							for(Assertion a2 : cs.getAssertions()) {
-								if(a2.getSource() == cs.getReturnValue())
+		for (StatementInterface statement : test) {
+			if (statement instanceof ConstructorStatement) {
+				ConstructorStatement cs = (ConstructorStatement) statement;
+				for (Assertion a : cs.getAssertions()) {
+					if (a instanceof NullAssertion) {
+						if (cs.getAssertions().size() > 0) {
+							for (Assertion a2 : cs.getAssertions()) {
+								if (a2.getSource() == cs.getReturnValue())
 									redundantAssertions.add(a);
 							}
-						} else
-						if(isUsedAsCallee(test, cs.getReturnValue())) {
+						} else if (isUsedAsCallee(test, cs.getReturnValue())) {
 							redundantAssertions.add(a);
 						}
 					}
 				}
 			}
 		}
-		
-		for(Assertion a : redundantAssertions) {
+
+		for (Assertion a : redundantAssertions) {
 			test.removeAssertion(a);
 		}
 	}
-	
+
 	private void filterInspectorPrimitiveDuplication(StatementInterface statement) {
 		Set<Assertion> assertions = new HashSet<Assertion>(statement.getAssertions());
 		if (assertions.size() < 2)
