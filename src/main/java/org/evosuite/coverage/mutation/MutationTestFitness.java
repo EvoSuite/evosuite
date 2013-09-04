@@ -215,4 +215,5 @@ public abstract class MutationTestFitness extends TestFitnessFunction {
 	public String getTargetMethod() {
 		return mutation.getMethodName();
 	}
+
 }

@@ -271,10 +271,10 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 		for (Class<?> observerClass : observerClasses) {
 			OutputTrace trace = mutant_result.getTrace(observerClass);
 			OutputTrace orig = orig_result.getTrace(observerClass);
-			
-			if(orig==null){
-				String msg = "No trace for "+observerClass+". Traces: ";
-				for(OutputTrace  t : orig_result.getTraces())
+
+			if (orig == null) {
+				String msg = "No trace for " + observerClass + ". Traces: ";
+				for (OutputTrace t : orig_result.getTraces())
 					msg += " " + t.toString();
 				logger.error(msg);
 			} else {
@@ -381,5 +381,24 @@ public class StrongMutationTestFitness extends MutationTestFitness {
 	@Override
 	public String toString() {
 		return "Strong " + mutation.toString();
+	}
+
+	@Override
+	public boolean isCovered(TestChromosome individual, ExecutionResult result) {
+		boolean covered = false;
+
+		if (individual.getLastExecutionResult(mutation) == null) {
+			covered = getFitness(individual, result) == 0.0;
+		}
+
+		if (!covered && individual.getLastExecutionResult(mutation) != null) {
+			MutationExecutionResult mutantResult = individual.getLastExecutionResult(mutation);
+			if (mutantResult.hasTimeout())
+				covered = true;
+			else if (mutantResult.hasException() && result.noThrownExceptions())
+				covered = true;
+		}
+
+		return covered;
 	}
 }

@@ -3,6 +3,7 @@
  */
 package org.evosuite.assertion;
 
+import java.lang.reflect.Array;
 import java.util.Arrays;
 
 import org.evosuite.testcase.CodeUnderTestException;
@@ -32,6 +33,15 @@ public class ArrayEqualsAssertion extends Assertion {
 		return "assertArrayEquals(" + value + ", " + source.getName() + ");";
 	}
 
+	private Object[] getArray(Object val) {
+		int arrlength = Array.getLength(val);
+		Object[] outputArray = new Object[arrlength];
+		for (int i = 0; i < arrlength; ++i) {
+			outputArray[i] = Array.get(val, i);
+		}
+		return outputArray;
+	}
+
 	/* (non-Javadoc)
 	 * @see org.evosuite.assertion.Assertion#evaluate(org.evosuite.testcase.Scope)
 	 */
@@ -41,7 +51,7 @@ public class ArrayEqualsAssertion extends Assertion {
 			if (source.getObject(scope) == null)
 				return value == null;
 			else
-				return Arrays.equals((Object[]) source.getObject(scope), (Object[]) value);
+				return Arrays.equals(getArray(source.getObject(scope)), (Object[]) value);
 		} catch (CodeUnderTestException e) {
 			throw new UnsupportedOperationException();
 		}

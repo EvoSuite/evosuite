@@ -7,9 +7,9 @@ import java.text.NumberFormat;
 import java.util.List;
 
 import org.evosuite.Properties;
+import org.evosuite.Properties.Criterion;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.TestSuiteGenerator;
-import org.evosuite.Properties.Criterion;
 import org.evosuite.coverage.dataflow.DefUseCoverageTestFitness;
 import org.evosuite.rmi.ClientServices;
 import org.evosuite.testcase.DefaultTestCase;
@@ -20,15 +20,19 @@ import org.evosuite.testsuite.SearchStatistics;
 import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.ReportGenerator.StatisticEntry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Gordon Fraser
  * 
  */
 public class CoverageAnalysis {
-	
+
+	private static final Logger logger = LoggerFactory.getLogger(CoverageAnalysis.class);
+
 	private static boolean isMutationCriterion(Properties.Criterion criterion) {
-		switch(criterion) {
+		switch (criterion) {
 		case MUTATION:
 		case WEAKMUTATION:
 		case STRONGMUTATION:
@@ -43,15 +47,15 @@ public class CoverageAnalysis {
 		Properties.Criterion oldCriterion = Properties.CRITERION;
 		if (oldCriterion == criterion)
 			return;
-		
-		if(isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
-			if(oldCriterion == Properties.Criterion.WEAKMUTATION) {
+
+		if (isMutationCriterion(criterion) && isMutationCriterion(oldCriterion)) {
+			if (oldCriterion == Properties.Criterion.WEAKMUTATION) {
 				testSuite.setChanged(true);
 				for (TestChromosome test : testSuite.getTestChromosomes()) {
 					test.setChanged(true);
 					test.clearCachedResults();
 					test.clearCachedMutationResults();
-				}				
+				}
 			}
 			return;
 		}
@@ -124,14 +128,14 @@ public class CoverageAnalysis {
 	        Properties.Criterion criterion) {
 
 		Properties.Criterion oldCriterion = Properties.CRITERION;
-		if(!ExecutionTracer.isTraceCallsEnabled()) {
+		if (!ExecutionTracer.isTraceCallsEnabled()) {
 			ExecutionTracer.enableTraceCalls();
 			testSuite.setChanged(true);
 			for (TestChromosome test : testSuite.getTestChromosomes()) {
 				test.setChanged(true);
 				test.clearCachedResults();
 				test.clearCachedMutationResults();
-			}				
+			}
 		}
 
 		reinstrument(testSuite, criterion);
@@ -141,6 +145,7 @@ public class CoverageAnalysis {
 		List<TestFitnessFunction> goals = factory.getCoverageGoals();
 		for (TestFitnessFunction goal : goals) {
 			if (goal.isCoveredBy(testSuite)) {
+				logger.debug("Goal " + goal + " is covered");
 				covered++;
 				if (Properties.CRITERION == Properties.Criterion.DEFUSE) {
 					StatisticEntry entry = SearchStatistics.getInstance().getLastStatisticEntry();
@@ -154,6 +159,8 @@ public class CoverageAnalysis {
 						entry.coveredIntraMethodPairs++;
 
 				}
+			} else {
+				logger.debug("Goal " + goal + " is not covered");
 			}
 		}
 
@@ -164,20 +171,25 @@ public class CoverageAnalysis {
 				SearchStatistics.getInstance().mutationScore(1.0);
 			LoggingUtils.getEvoLogger().info("* Coverage of criterion " + criterion
 			                                         + ": 100% (no goals)");
-			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion+"Coverage", 1.0);
+			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion
+			                                                                         + "Coverage",
+			                                                                 1.0);
 		} else {
 
 			SearchStatistics.getInstance().addCoverage(criterion.toString(),
 			                                           (double) covered
 			                                                   / (double) goals.size());
-			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion+"Coverage", (double) covered
-                    / (double) goals.size());
+			ClientServices.getInstance().getClientNode().trackOutputVariable(criterion
+			                                                                         + "Coverage",
+			                                                                 (double) covered
+			                                                                         / (double) goals.size());
 			if (criterion == Properties.Criterion.MUTATION
 			        || criterion == Properties.Criterion.STRONGMUTATION) {
 				SearchStatistics.getInstance().mutationScore((double) covered
 				                                                     / (double) goals.size());
-				ClientServices.getInstance().getClientNode().trackOutputVariable("MutationScore", (double) covered
-	                    / (double) goals.size());
+				ClientServices.getInstance().getClientNode().trackOutputVariable("MutationScore",
+				                                                                 (double) covered
+				                                                                         / (double) goals.size());
 				if (oldCriterion == criterion)
 					SearchStatistics.getInstance().setCoveredGoals(covered);
 
