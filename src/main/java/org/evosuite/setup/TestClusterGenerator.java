@@ -504,9 +504,44 @@ public class TestClusterGenerator {
 					addDependencies(genericField, 1);
 					cluster.addGenerator(new GenericClass(field.getGenericType()).getWithWildcardTypes(),
 					                     genericField);
+					logger.debug("Adding field " + field);
 					if (!Modifier.isFinal(field.getModifiers())) {
+						logger.debug("Is not final");
 						cluster.addTestCall(new GenericField(field, clazz));
+					} else {
+						logger.debug("Is final");
+						if (Modifier.isStatic(field.getModifiers())
+						        && !field.getType().isPrimitive()) {
+							logger.debug("Is static non-primitive");
+							/* 
+							 * With this we are trying to cover such cases:
+							 * 
+							public static final DurationField INSTANCE = new MillisDurationField();
+
+							private MillisDurationField() {
+							super();
+							}
+							 */
+							try {
+								Object o = field.get(null);
+								Class<?> actualClass = o.getClass();
+								logger.debug("Actual class is " + actualClass);
+								if (!actualClass.isAssignableFrom(genericField.getRawGeneratedType())
+								        && genericField.getRawGeneratedType().isAssignableFrom(actualClass)) {
+									GenericField superClassField = new GenericField(
+									        field, clazz);
+									cluster.addGenerator(new GenericClass(actualClass),
+									                     superClassField);
+								}
+							} catch (IllegalAccessException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+
+						}
 					}
+				} else {
+					logger.debug("Can't use field " + field);
 				}
 			}
 			analyzedClasses.add(clazz);
