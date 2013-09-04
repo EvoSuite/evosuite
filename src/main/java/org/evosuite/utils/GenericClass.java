@@ -141,8 +141,8 @@ public class GenericClass implements Serializable {
 			Class<?> componentType = getClass(name.substring(1, name.length()), loader);
 			Object array = Array.newInstance(componentType, 0);
 			return array.getClass();
-		} else if (name.startsWith("L") && name.contains("/")) {
-			return getClass(name.substring(1), loader);
+		} else if (name.startsWith("L") && name.endsWith(";")) {
+			return getClass(name.substring(1, name.length() - 1), loader);
 		} else if (name.endsWith(";")) {
 			return getClass(name.substring(0, name.length() - 1), loader);
 		} else if (name.endsWith(".class")) {
