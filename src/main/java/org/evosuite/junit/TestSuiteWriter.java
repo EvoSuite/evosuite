@@ -52,6 +52,7 @@ import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
 import org.evosuite.testcase.TestCodeVisitor;
 import org.evosuite.testcase.TestFitnessFunction;
+import org.evosuite.utils.SystemInUtil;
 import org.evosuite.utils.Utils;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Opcodes;
@@ -361,8 +362,11 @@ public class TestSuiteWriter implements Opcodes {
 		//we always need thos one, due to for example logging setup
 		imports_sorted.add(org.junit.BeforeClass.class.getCanonicalName());
 		
-		if (Properties.REPLACE_CALLS || wasSecurityException) {
+		if (Properties.REPLACE_CALLS || wasSecurityException || SystemInUtil.getInstance().hasBeenUsed()) {
 			imports_sorted.add(org.junit.Before.class.getCanonicalName());
+		}
+
+		if (Properties.REPLACE_CALLS || wasSecurityException) {
 			imports_sorted.add(org.junit.After.class.getCanonicalName());
 		}
 
@@ -620,7 +624,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private void generateBefore(StringBuilder bd, boolean wasSecurityException) {
 
-		if (!wasSecurityException && !Properties.REPLACE_CALLS) {
+		if (!wasSecurityException && !Properties.REPLACE_CALLS && !SystemInUtil.getInstance().hasBeenUsed()) {
 			return;
 		}
 
@@ -637,6 +641,11 @@ public class TestSuiteWriter implements Opcodes {
 		if (Properties.REPLACE_CALLS) {
 			bd.append(BLOCK_SPACE);
 			bd.append("org.evosuite.agent.InstrumentingAgent.activate(); \n");
+		}
+		
+		if (SystemInUtil.getInstance().hasBeenUsed()){
+			bd.append(BLOCK_SPACE);
+			bd.append("org.evosuite.utils.SystemInUtil.getInstance().initForTestCase(); \n");
 		}
 
 		bd.append(METHOD_SPACE);

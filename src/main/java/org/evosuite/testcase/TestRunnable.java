@@ -29,6 +29,7 @@ import org.evosuite.Properties;
 import org.evosuite.runtime.Runtime;
 import org.evosuite.runtime.System.SystemExitException;
 import org.evosuite.utils.LoggingUtils;
+import org.evosuite.utils.SystemInUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
