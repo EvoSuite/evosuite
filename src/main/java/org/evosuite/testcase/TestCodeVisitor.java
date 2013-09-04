@@ -37,6 +37,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 import org.evosuite.Properties;
+import org.evosuite.assertion.ArrayEqualsAssertion;
 import org.evosuite.assertion.Assertion;
 import org.evosuite.assertion.CompareAssertion;
 import org.evosuite.assertion.EqualsAssertion;
@@ -474,6 +475,25 @@ public class TestCodeVisitor extends TestVisitor {
 			        + getVariableName(source) + ");";
 	}
 
+	protected void visitArrayEqualsAssertion(ArrayEqualsAssertion assertion) {
+		VariableReference source = assertion.getSource();
+		Object[] value = (Object[]) assertion.getValue();
+
+		testCode += "assertArrayEquals(new " + getTypeName(source.getComponentType())
+		        + "[] {";
+		boolean first = true;
+		for (Object o : value) {
+			if (!first)
+				testCode += ", ";
+			else
+				first = false;
+
+			testCode += NumberFormatter.getNumberString(o);
+
+		}
+		testCode += "}" + ", " + getVariableName(source) + ");";
+	}
+
 	/**
 	 * <p>
 	 * visitPrimitiveFieldAssertion
@@ -674,6 +694,8 @@ public class TestCodeVisitor extends TestVisitor {
 			visitEqualsAssertion((EqualsAssertion) assertion);
 		} else if (assertion instanceof SameAssertion) {
 			visitSameAssertion((SameAssertion) assertion);
+		} else if (assertion instanceof ArrayEqualsAssertion) {
+			visitArrayEqualsAssertion((ArrayEqualsAssertion) assertion);
 		} else {
 			throw new RuntimeException("Unknown assertion type: " + assertion);
 		}
@@ -1260,10 +1282,10 @@ public class TestCodeVisitor extends TestVisitor {
 
 	@Override
 	public void visitStatement(StatementInterface statement) {
-		if(!statement.getComment().isEmpty()) {
+		if (!statement.getComment().isEmpty()) {
 			String comment = statement.getComment();
-			for(String line : comment.split("\n")) {
-				testCode += "// "+line + "\n";
+			for (String line : comment.split("\n")) {
+				testCode += "// " + line + "\n";
 			}
 		}
 		super.visitStatement(statement);
