@@ -415,7 +415,8 @@ public class TestRunnable implements InterfaceTestRunnable {
 		result.setThrownExceptions(exceptionsThrown);
 
 		Runtime.getInstance().handleRuntimeAccesses(test);
-
+		SystemInUtil.getInstance().addSupportInTestClusterIfNeeded();
+		
 		return result;
 	}
 
