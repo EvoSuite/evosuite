@@ -45,15 +45,13 @@ public class ArrayTraceEntry implements OutputTraceEntry {
 		Set<Assertion> assertions = new HashSet<Assertion>();
 		if (other instanceof ArrayTraceEntry) {
 			ArrayTraceEntry otherEntry = (ArrayTraceEntry) other;
-			if (otherEntry != null && otherEntry.value != null && value != null
-			        && var.equals(otherEntry.var))
-				if (!Arrays.equals(value, otherEntry.value)) {
-					ArrayEqualsAssertion assertion = new ArrayEqualsAssertion();
-					assertion.value = value;
-					assertion.source = var;
-					assertions.add(assertion);
-					assert (assertion.isValid());
-				}
+			if (!Arrays.equals(value, otherEntry.value)) {
+				ArrayEqualsAssertion assertion = new ArrayEqualsAssertion();
+				assertion.value = value;
+				assertion.source = var;
+				assertions.add(assertion);
+				assert (assertion.isValid());
+			}
 		}
 		return assertions;
 	}
@@ -80,8 +78,11 @@ public class ArrayTraceEntry implements OutputTraceEntry {
 	public boolean isDetectedBy(Assertion assertion) {
 		if (assertion instanceof ArrayEqualsAssertion) {
 			ArrayEqualsAssertion ass = (ArrayEqualsAssertion) assertion;
-			if (var.equals(ass.source))
-				return !Arrays.equals(value, (Object[]) ass.value);
+			if (var.equals(ass.source)) {
+				if (!Arrays.equals(value, (Object[]) ass.value)) {
+					return true;
+				}
+			}
 		}
 		return false;
 	}

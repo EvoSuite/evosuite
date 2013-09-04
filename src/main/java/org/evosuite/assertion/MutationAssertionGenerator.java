@@ -69,10 +69,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 
 	private final static Map<Mutation, Integer> timedOutMutations = new HashMap<Mutation, Integer>();
 
+	private final static Map<Mutation, Integer> exceptionMutations = new HashMap<Mutation, Integer>();
+
 	/** Constant <code>observerClasses</code> */
 	protected static Class<?>[] observerClasses = { PrimitiveTraceEntry.class,
 	        ComparisonTraceEntry.class, SameTraceEntry.class, InspectorTraceEntry.class,
-	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class };
+	        PrimitiveFieldTraceEntry.class, NullTraceEntry.class, ArrayTraceEntry.class };
 
 	/**
 	 * Default constructor
@@ -333,6 +335,12 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 					continue;
 				}
 			}
+			if (exceptionMutations.containsKey(m)) {
+				if (exceptionMutations.get(m) >= Properties.MUTATION_TIMEOUTS) {
+					logger.debug("Skipping mutant with exceptions");
+					continue;
+				}
+			}
 			if (Properties.MAX_MUTANTS_PER_TEST > 0
 			        && numExecutedMutants > Properties.MAX_MUTANTS_PER_TEST)
 				break;
@@ -362,14 +370,25 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 			mutationTraces.put(m, traces);
 
 			if (mutantResult.hasTimeout()) {
+				logger.debug("Increasing timeout count!");
 				if (!timedOutMutations.containsKey(m)) {
 					timedOutMutations.put(m, 1);
 				} else {
 					timedOutMutations.put(m, timedOutMutations.get(m) + 1);
 				}
+			} else if (!mutantResult.noThrownExceptions()
+			        && origResult.noThrownExceptions()) {
+				logger.debug("Increasing exception count.");
+				if (!exceptionMutations.containsKey(m)) {
+					exceptionMutations.put(m, 1);
+				} else {
+					exceptionMutations.put(m, exceptionMutations.get(m) + 1);
+				}
 			}
 
-			if (numKilled > 0 || mutantResult.hasTimeout()) {
+			if (numKilled > 0
+			        || mutantResult.hasTimeout()
+			        || (!mutantResult.noThrownExceptions() && origResult.noThrownExceptions())) {
 				killed.add(m.getId());
 			}
 		}
@@ -721,6 +740,16 @@ public class MutationAssertionGenerator extends AssertionGenerator {
 	public void addAssertions(TestCase test) {
 		// TODO Auto-generated method stub
 
+	}
+
+	private boolean hasStackOverflow(ExecutionResult result) {
+		if (result.getNumberOfThrownExceptions() == 0)
+			return false;
+
+		int pos = result.getFirstPositionOfThrownException();
+		Throwable t = result.getExceptionThrownAtPosition(pos);
+
+		return t instanceof StackOverflowError;
 	}
 
 }
