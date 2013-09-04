@@ -38,7 +38,6 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipException;
 import java.util.zip.ZipFile;
 
 import org.evosuite.Properties;
@@ -131,7 +130,9 @@ public class InheritanceTreeGenerator {
 	 * @param entry
 	 */
 	private static void analyze(InheritanceTree inheritanceTree, String entry) {
-		analyze(inheritanceTree, new File(entry));
+		analyzeClassStream(inheritanceTree,
+		                   InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(entry),
+		                   false);
 	}
 
 	/**
@@ -161,7 +162,8 @@ public class InheritanceTreeGenerator {
 		try {
 			zf = new ZipFile(jarFile);
 		} catch (Exception e) {
-			logger.warn("Failed to open/analyze jar file "+jarFile.getAbsolutePath()+" , "+e.getMessage());
+			logger.warn("Failed to open/analyze jar file " + jarFile.getAbsolutePath()
+			        + " , " + e.getMessage());
 			return;
 		}
 
@@ -179,13 +181,15 @@ public class InheritanceTreeGenerator {
 				 * even if there is a problem with one of the entries, we can still
 				 * go on and look at the others
 				 */
-				logger.error("Error while analyzing class "+fileName+" in the jar "+jarFile.getAbsolutePath(), e1);
+				logger.error("Error while analyzing class " + fileName + " in the jar "
+				        + jarFile.getAbsolutePath(), e1);
 			}
 		}
 		try {
 			zf.close();
 		} catch (final IOException e1) {
-			logger.warn("Failed to close jar file "+jarFile.getAbsolutePath()+" , "+e1.getMessage());
+			logger.warn("Failed to close jar file " + jarFile.getAbsolutePath() + " , "
+			        + e1.getMessage());
 		}
 	}
 
