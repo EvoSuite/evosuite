@@ -66,7 +66,7 @@ public class SystemInUtil extends InputStream{
 	 * Setup mocked/stubbed System.in for the test case
 	 */
 	public void initForTestCase(){
-		data = new ArrayList<>();
+		data = new ArrayList<Byte>();
 		counter = new AtomicInteger(0);
 	}
 
