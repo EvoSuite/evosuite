@@ -893,7 +893,7 @@ public class TestClusterGenerator {
 			return false;
 		}
 
-		if (m.getName().equals("main") && Modifier.isStatic(m.getModifiers())
+		if (!Properties.CONSIDER_MAIN_METHODS && m.getName().equals("main") && Modifier.isStatic(m.getModifiers())
 		        && Modifier.isPublic(m.getModifiers())) {
 			logger.debug("Ignoring static main method ");
 			return false;
