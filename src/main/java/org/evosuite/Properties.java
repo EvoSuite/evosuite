@@ -245,6 +245,9 @@ public class Properties {
 	@Parameter(key = "insertion_score_parameter", group = "Test Creation", description = "Score for selection of insertion call with existing object")
 	public static int INSERTION_SCORE_PARAMETER = 1;
 
+	@Parameter(key = "consider_main_methods", group = "Test Creation", description = "Generate unit tests for 'main(String[] args)' methods as well")
+	public static boolean CONSIDER_MAIN_METHODS = false; //TODO should be set to true once "context" will work
+
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
