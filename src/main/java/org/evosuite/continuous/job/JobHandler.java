@@ -179,7 +179,6 @@ public class JobHandler extends Thread{
 		if(Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()){
 			cmd += " -Dlog.level="+Properties.LOG_LEVEL; 
 		}
-		//cmd += " -Dprint_to_system=true";//TODO remove
 		
 		/*
 		 * TODO: this will likely need better handling
@@ -246,6 +245,8 @@ public class JobHandler extends Thread{
 		if(Properties.RANDOM_SEED!=null){
 			cmd += " -Drandom_seed="+Properties.RANDOM_SEED;
 		}
+		
+		cmd += " -Dp_object_pool="+Properties.P_OBJECT_POOL;
 		
 		/*
 		 * these 2 options should always be 'true'.
