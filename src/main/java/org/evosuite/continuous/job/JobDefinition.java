@@ -160,6 +160,24 @@ public class JobDefinition {
 	}
 	
 	/**
+	 * Create a copy of this job by adding extra seconds 
+	 * 
+	 * @param input
+	 * @return
+	 */
+	public JobDefinition getByAddingBudget(int moreSeconds)
+		throws IllegalArgumentException {
+		
+		if(moreSeconds <= 0){
+			throw new IllegalArgumentException("Invalid extra seconds: "+moreSeconds);
+		}
+		
+		return new JobDefinition(seconds+moreSeconds, memoryInMB, cut, 
+				configurationId, inputClasses, parentClasses);
+	}
+	
+	
+	/**
 	 * Does the execution of this job depend on the other?
 	 * @param other
 	 * @return
