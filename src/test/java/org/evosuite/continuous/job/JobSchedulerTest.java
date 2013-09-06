@@ -66,6 +66,51 @@ public class JobSchedulerTest {
 	}
 
 	@Test
+	public void testNonExceedingBudget() {
+
+		String[] cuts = new String[] { 
+		        NoBranches.class.getName(), 
+		        Trivial.class.getName(), 
+		        MoreBranches.class.getName() };
+
+		ProjectAnalyzer analyzer = new ProjectAnalyzer(cuts);
+		ProjectStaticData data = analyzer.analyze();
+
+		int cores = 2;
+		int memory = 1400;
+		int budget = 10;
+
+		CtgConfiguration conf = new CtgConfiguration(memory, cores, budget, 1, false, AvailableSchedule.BUDGET);
+		
+		JobScheduler scheduler = new JobScheduler(data, conf);
+
+		List<JobDefinition> jobs = scheduler.createNewSchedule();
+		Assert.assertNotNull(jobs);
+		Assert.assertEquals(3, jobs.size());
+
+		for (JobDefinition job : jobs) {
+			Assert.assertEquals(700, job.memoryInMB);
+		}
+
+		Assert.assertEquals(MoreBranches.class.getName(), jobs.get(0).cut);
+		Assert.assertEquals(Trivial.class.getName(), jobs.get(1).cut);
+		Assert.assertEquals(NoBranches.class.getName(), jobs.get(2).cut);
+
+		long dif01 = jobs.get(0).seconds - jobs.get(1).seconds;
+		long dif12 = jobs.get(1).seconds - jobs.get(2).seconds;
+
+		Assert.assertTrue("" + dif01, dif01 > 0);
+		Assert.assertTrue("" + dif12, dif12 > 0);
+
+		int sum = jobs.get(0).seconds + jobs.get(1).seconds + jobs.get(2).seconds;
+		Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
+		
+		for(JobDefinition job : jobs){
+			Assert.assertTrue("wrong "+job.seconds, job.seconds <= budget);
+		}
+	}
+
+	@Test
 	public void testSimple() {
 
 		String[] cuts = new String[] { SomeInterface.class.getName(),
