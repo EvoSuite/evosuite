@@ -106,7 +106,7 @@ public class JobSchedulerTest {
 		Assert.assertTrue("wrong value " + sum, sum <= (cores * budget * 60));
 		
 		for(JobDefinition job : jobs){
-			Assert.assertTrue("wrong "+job.seconds, job.seconds <= budget);
+			Assert.assertTrue("wrong "+job.seconds, job.seconds <= budget * 60);
 		}
 	}
 
