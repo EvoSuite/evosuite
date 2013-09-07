@@ -26,11 +26,32 @@ public class BudgetSchedule extends OneTimeSchedule{
 	protected List<JobDefinition> createScheduleOnce() {
 		
 		ProjectStaticData data = scheduler.getProjectData();
-		int totalBudget = 60 * scheduler.getTotalBudgetInMinutes() * super.getNumberOfUsableCores(); 
+		
+		int maximumBudgetPerCore = 60 * scheduler.getTotalBudgetInMinutes();
+		
+		/*
+		 * the total budget we need to choose how to allocate
+		 */
+		int totalBudget =  maximumBudgetPerCore * super.getNumberOfUsableCores(); 
 
+		/*
+		 * a part of the budget is fixed, as each CUT needs a minimum
+		 * of it. 
+		 */
 		int minTime = scheduler.getMinSecondsPerJob() * data.getTotalNumberOfTestableCUTs();
+		
+		/*
+		 * this is what left from the minimum allocation, and that now we can
+		 * choose how best to allocate
+		 */
 		int extraTime = totalBudget - minTime;
+		
+		/*
+		 * check how much time we can give extra for each branch in a CUT 
+		 */
 		double timePerBranch = (double)extraTime / (double)data.getTotalNumberOfBranches(); 
+		
+		int totalLeftOver = 0;
 		
 		List<JobDefinition> jobs = new LinkedList<JobDefinition>();
 
@@ -44,14 +65,27 @@ public class BudgetSchedule extends OneTimeSchedule{
 			 */
 			int budget = scheduler.getMinSecondsPerJob() + 
 					(int)(timePerBranch * info.numberOfBranches);
+			
+			if(budget > maximumBudgetPerCore){
+				/*
+				 * Need to guarantee that no job has more than 
+				 * maximumBudgetPerCore regardless of number of cores
+				 */
+				totalLeftOver += (budget - maximumBudgetPerCore);
+				budget = maximumBudgetPerCore;
+			}
+			
 			JobDefinition job = new JobDefinition(
 					budget, getConstantMemoryPerJob(), info.getClassName(), 0, null, null);
 			jobs.add(job);
 			
+		}
+		
+		if(totalLeftOver > 0){
 			/*
-			 * FIXME should guarantee that no job has more than scheduler.getTotalBudgetInMinutes()
-			 * regardless of number of cores
+			 * we still have some more budget to allocate
 			 */
+			distributeExtraBudgetEvenly(jobs,totalLeftOver,maximumBudgetPerCore);
 		}
 		
 		/*
@@ -75,5 +109,44 @@ public class BudgetSchedule extends OneTimeSchedule{
 		
 		
 		return jobs;
+	}
+
+	private void distributeExtraBudgetEvenly(List<JobDefinition> jobs,
+			int totalLeftOver, int maximumBudgetPerCore) {
+		
+		int counter = 0;
+		for(int i=0; i<jobs.size(); i++){
+			JobDefinition job = jobs.get(i);
+			assert job.seconds <= maximumBudgetPerCore;
+			if(job.seconds < maximumBudgetPerCore){
+				counter++;
+			}
+		}
+
+		assert counter != 0;
+		
+		if(totalLeftOver < counter){
+			/*
+			 * no point in adding complex code to handle so little budget left.
+			 * here we lost at most only one second per job... 
+			 */
+			return; 
+		}
+		
+		int extraPerJob = totalLeftOver / counter;
+		
+		for(int i=0; i<jobs.size(); i++){
+			JobDefinition job = jobs.get(i);
+			
+			if(job.seconds + extraPerJob < maximumBudgetPerCore){
+				totalLeftOver -= extraPerJob;
+				jobs.set(i, job.getByAddingBudget(extraPerJob));
+			}
+		}
+
+		if(totalLeftOver > 0 && totalLeftOver >= counter){
+			//recursion
+			distributeExtraBudgetEvenly(jobs,totalLeftOver,maximumBudgetPerCore);
+		}
 	}
 }

@@ -179,7 +179,6 @@ public class JobHandler extends Thread{
 		if(Properties.LOG_LEVEL != null && !Properties.LOG_LEVEL.isEmpty()){
 			cmd += " -Dlog.level="+Properties.LOG_LEVEL; 
 		}
-		//cmd += " -Dprint_to_system=true";//TODO remove
 		
 		/*
 		 * TODO: this will likely need better handling
@@ -247,6 +246,8 @@ public class JobHandler extends Thread{
 			cmd += " -Drandom_seed="+Properties.RANDOM_SEED;
 		}
 		
+		cmd += " -Dp_object_pool="+Properties.P_OBJECT_POOL;
+		
 		/*
 		 * these 2 options should always be 'true'.
 		 * Here we take them as parameter, just because for experiments
@@ -291,7 +292,7 @@ public class JobHandler extends Thread{
 	private String getOutputVariables(){
 		String cmd =  " -Doutput_variables="; 
 		cmd += "TARGET_CLASS,configuration_id,"; 
-		cmd += "ctg_schedule,search_budget,";
+		cmd += "ctg_min_time_per_job,ctg_schedule,search_budget,";
 		cmd += RuntimeVariable.Covered_Branches+",";				
 		cmd += RuntimeVariable.Total_Branches+",";				
 		cmd += RuntimeVariable.BranchCoverage+",";		
