@@ -226,10 +226,6 @@ public class TestCaseExecutor implements ThreadFactory {
 	 */
 	public void newObservers() {
 		observers = new LinkedHashSet<ExecutionObserver>();
-		if (Properties.CHECK_CONTRACTS) {
-			observers.add(new ContractChecker());
-		}
-
 	}
 
 	private void resetObservers() {

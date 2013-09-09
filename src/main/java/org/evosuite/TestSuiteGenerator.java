@@ -292,6 +292,11 @@ public class TestSuiteGenerator {
 			return new ArrayList<TestCase>();
 		}
 
+		ContractChecker checker = new ContractChecker();
+		if (Properties.CHECK_CONTRACTS) {
+			TestCaseExecutor.getInstance().addObserver(checker);
+		}
+
 		if (Properties.STRATEGY == Strategy.EVOSUITE)
 			tests = generateWholeSuite();
 		else if (Properties.STRATEGY == Strategy.RANDOM)
@@ -300,6 +305,9 @@ public class TestSuiteGenerator {
 			tests = generateFixedRandomTests();
 		else
 			tests = generateIndividualTests();
+		if (Properties.CHECK_CONTRACTS) {
+			TestCaseExecutor.getInstance().removeObserver(checker);
+		}
 
 		LoggingUtils.getEvoLogger().info("* Time spent executing tests: "
 		                                         + TestCaseExecutor.timeExecuted + "ms");
@@ -903,13 +911,6 @@ public class TestSuiteGenerator {
 		}
 		// progressMonitor.updateStatus(33);
 
-		if (Properties.INLINE) {
-			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
-			ConstantInliner inliner = new ConstantInliner();
-			// progressMonitor.setCurrentPhase("Inlining constants");
-			inliner.inline(best);
-			assert (fitness >= best.getFitness());
-		}
 		// progressMonitor.updateStatus(66);
 
 		if (Properties.MINIMIZE) {
@@ -918,6 +919,14 @@ public class TestSuiteGenerator {
 			// progressMonitor.setCurrentPhase("Minimizing test cases");
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(best);
+		}
+
+		if (Properties.INLINE) {
+			ClientServices.getInstance().getClientNode().changeState(ClientState.INLINING);
+			ConstantInliner inliner = new ConstantInliner();
+			// progressMonitor.setCurrentPhase("Inlining constants");
+			inliner.inline(best);
+			assert (fitness >= best.getFitness());
 		}
 
 		/*
@@ -1534,10 +1543,6 @@ public class TestSuiteGenerator {
 		logger.info("Resulting test suite: " + suite.size() + " tests, length "
 		        + suite.totalLengthOfTestCases());
 
-		if (Properties.INLINE) {
-			ConstantInliner inliner = new ConstantInliner();
-			inliner.inline(suite);
-		}
 
 		// Generate a test suite chromosome once all test cases are done?
 		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD) {
@@ -1546,6 +1551,11 @@ public class TestSuiteGenerator {
 			TestSuiteMinimizer minimizer = new TestSuiteMinimizer(getFitnessFactory());
 			minimizer.minimize(suite);
 			logger.info("Size after: " + suite.totalLengthOfTestCases());
+		}
+
+		if (Properties.INLINE) {
+			ConstantInliner inliner = new ConstantInliner();
+			inliner.inline(suite);
 		}
 
 		/*
