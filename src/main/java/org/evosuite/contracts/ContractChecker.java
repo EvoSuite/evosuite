@@ -93,14 +93,14 @@ public class ContractChecker extends ExecutionObserver {
 				Class<?> theory = TestGenerationContext.getClassLoader().loadClass(theoryName);
 				Constructor<?> constructor = theory.getConstructor();
 				if(!Modifier.isPublic(constructor.getModifiers())) {
-					logger.warn("Theory class does not have public default constructor");
+					logger.info("Theory class does not have public default constructor");
 					continue;
 				}
 				for(Method method : theory.getDeclaredMethods()) {
 					if(method.isAnnotationPresent(Theory.class)) {
-						logger.warn("Found theory method: "+method.getName());
+						logger.info("Found theory method: "+method.getName());
 						if(method.getParameterTypes().length != 1) {
-							logger.warn("Wrong number of arguments!");
+							logger.info("Wrong number of arguments!");
 							continue;
 						}
 						try {
