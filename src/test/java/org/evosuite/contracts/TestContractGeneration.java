@@ -15,6 +15,8 @@ import com.examples.with.different.packagename.contracts.EqualsHashCode;
 import com.examples.with.different.packagename.contracts.EqualsNull;
 import com.examples.with.different.packagename.contracts.EqualsSelf;
 import com.examples.with.different.packagename.contracts.EqualsSymmetric;
+import com.examples.with.different.packagename.contracts.Foo;
+import com.examples.with.different.packagename.contracts.FooTheories;
 import com.examples.with.different.packagename.contracts.HashcodeException;
 import com.examples.with.different.packagename.contracts.RaiseNullPointerException;
 import com.examples.with.different.packagename.contracts.ToStringException;
@@ -23,15 +25,19 @@ public class TestContractGeneration extends SystemTest {
 
 	private boolean checkContracts = false;
 	
+	private String junitTheories = "";
+	
 	@Before
 	public void storeCheckContracts() {
 		checkContracts = Properties.CHECK_CONTRACTS;
+		junitTheories = Properties.JUNIT_THEORIES;
 		FailingTestSet.clear();
 	}
 
 	@After
 	public void restoreCheckContracts() {
 		Properties.CHECK_CONTRACTS = checkContracts;
+		Properties.JUNIT_THEORIES = junitTheories;
 	}
 
 	@Test
@@ -171,6 +177,25 @@ public class TestContractGeneration extends SystemTest {
 		// This is reported by the NullPointer contract but also by the undeclared exception contract
 		Assert.assertEquals(2, FailingTestSet.getNumberOfUniqueViolations());
 		Assert.assertEquals(1, FailingTestSet.getNumberOfViolations(UndeclaredExceptionContract.class));
+	}
+
+	@Test
+	public void testJUnitTheoryContract() {
+		EvoSuite evosuite = new EvoSuite();
+
+		String targetClass = Foo.class.getCanonicalName();
+
+		Properties.TARGET_CLASS = targetClass;
+		Properties.CHECK_CONTRACTS = true;
+		Properties.JUNIT_THEORIES = FooTheories.class.getCanonicalName();
+
+		String[] command = new String[] { "-generateSuite", "-class", targetClass };
+
+		evosuite.parseCommandLine(command);
+
+		// This is reported by the NullPointer contract but also by the undeclared exception contract
+		Assert.assertEquals(1, FailingTestSet.getNumberOfUniqueViolations());
+		Assert.assertEquals(1, FailingTestSet.getNumberOfViolations(JUnitTheoryContract.class));
 	}
 
 }

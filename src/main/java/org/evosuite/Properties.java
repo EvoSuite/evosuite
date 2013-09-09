@@ -917,6 +917,9 @@ public class Properties {
 	/** Constant <code>CHECK_CONTRACTS_END=false</code> */
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
+	
+	@Parameter(key = "junit_theories", description = "Check JUnit theories as contracts")
+	public static String JUNIT_THEORIES = "";
 
 	/** Constant <code>ERROR_BRANCHES=false</code> */
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")
