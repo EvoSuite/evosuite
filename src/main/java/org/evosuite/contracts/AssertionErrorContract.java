@@ -20,7 +20,6 @@
  */
 package org.evosuite.contracts;
 
-import java.util.Arrays;
 import java.util.List;
 
 import org.evosuite.Properties;
