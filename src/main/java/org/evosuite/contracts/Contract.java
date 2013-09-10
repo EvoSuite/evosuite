@@ -174,4 +174,8 @@ public abstract class Contract {
 	 * @param exception
 	 */
 	public abstract void addAssertionAndComments(StatementInterface statement, List<VariableReference> variables, Throwable exception);
+	
+	public void changeClassLoader(ClassLoader classLoader) {
+		// No-op by default
+	}
 }

@@ -46,9 +46,6 @@ public class ToStringReturnsNormallyContract extends Contract {
 	/** {@inheritDoc} */
 	@Override
 	public ContractViolation check(StatementInterface statement, Scope scope, Throwable exception) {
-		if(getAllVariables(scope).isEmpty()) {
-			logger.debug("There are no variables in scope? "+scope.toString());
-		}
 		for(VariableReference var : getAllVariables(scope)) {
 			logger.debug("Current variable: "+var);
 			Object object = scope.getObject(var);

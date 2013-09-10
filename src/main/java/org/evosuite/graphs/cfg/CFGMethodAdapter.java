@@ -183,9 +183,16 @@ public class CFGMethodAdapter extends MethodVisitor {
 		// Generate CFG of method
 		MethodNode mn = (AnnotatedMethodNode) mv;
 
+		boolean checkForMain = false;
+		if(Properties.CONSIDER_MAIN_METHODS){
+			checkForMain = true;
+		} else {
+			checkForMain = !isMainMethod || executeOnMain;
+		}
+				
 		// Only instrument if the method is (not main and not excluded) or (the
 		// MethodInstrumentation wants it anyway)
-		if ((!isMainMethod || executeOnMain) && (!isExcludedMethod || executeOnExcluded)
+		if (checkForMain && (!isExcludedMethod || executeOnExcluded)
 		        && (access & Opcodes.ACC_ABSTRACT) == 0
 		        && (access & Opcodes.ACC_NATIVE) == 0) {
 

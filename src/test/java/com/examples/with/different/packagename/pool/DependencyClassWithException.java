@@ -1,12 +1,14 @@
 package com.examples.with.different.packagename.pool;
 
-public class DependencyClass {
+public class DependencyClassWithException {
 
-	protected int x = 0;
+	private int x = 0;
 	
 	public void foo(int y) {
 		if(y == 42)
 			x++;
+		else
+			throw new RuntimeException("argh");
 	}
 	
 	public boolean isFoo() {

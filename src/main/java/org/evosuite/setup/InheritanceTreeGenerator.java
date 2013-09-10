@@ -26,7 +26,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -130,18 +129,7 @@ public class InheritanceTreeGenerator {
 	 * @param entry
 	 */
 	private static void analyze(InheritanceTree inheritanceTree, String entry) {
-		File file = new File(entry);
-		if (file.exists()) {
-			analyze(inheritanceTree, file);
-		} else {
-			InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(entry);
-			if (stream != null) {
-				analyzeClassStream(inheritanceTree, stream, false);
-			} else {
-				LoggingUtils.getEvoLogger().info("Could not find classpath entry "
-				                                         + entry);
-			}
-		}
+		analyze(inheritanceTree, new File(entry));
 	}
 
 	/**
@@ -219,15 +207,16 @@ public class InheritanceTreeGenerator {
 	}
 
 	private static void analyzeClassName(InheritanceTree inheritanceTree, String className) {
+
+		
 		String fileName = ResourceList.getClassAsResource(className);
-		if (fileName == null) {
-			URL url = InheritanceTreeGenerator.class.getClassLoader().getResource(className.replace(".",
-			                                                                                        File.separator)
-			                                                                              + ".class");
-			fileName = url.getFile();
+		InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(fileName);
+		if(stream != null) {
+			System.out.println(InheritanceTreeGenerator.class.getClassLoader().getResource(fileName));
+			analyzeClassStream(inheritanceTree, stream, false);
+		} else {
+			logger.warn("Could not find class file "+fileName +" for class "+className);
 		}
-		logger.info("Resource for class " + className + ": " + fileName);
-		analyze(inheritanceTree, fileName);
 	}
 
 	@SuppressWarnings("unchecked")

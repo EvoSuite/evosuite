@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.evosuite.testsuite.TestSuiteChromosome;
+import org.evosuite.utils.LoggingUtils;
 
 /**
  * Inline all primitive values and null references in the test case

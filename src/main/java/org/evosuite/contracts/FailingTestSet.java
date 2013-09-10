@@ -25,10 +25,8 @@ import java.util.List;
 
 import org.evosuite.Properties;
 import org.evosuite.junit.TestSuiteWriter;
-import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
-import org.evosuite.testcase.VariableReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

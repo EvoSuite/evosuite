@@ -360,7 +360,10 @@ public class TestSuiteChromosome extends AbstractTestSuiteChromosome<TestChromos
 	@Override
 	public String toString() {
 		String result = "TestSuite: " + tests.size() + "\n";
+		int i = 0;
 		for (TestChromosome test : tests) {
+			result += "Test "+i+": ";
+			i++;
 			result += test.getTestCase().toCode() + "\n";
 		}
 		return result;

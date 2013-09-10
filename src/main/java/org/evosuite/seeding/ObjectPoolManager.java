@@ -50,6 +50,11 @@ public class ObjectPoolManager extends ObjectPool {
 					addPool(pool);
 				}
 			}
+			if(logger.isDebugEnabled()) {
+				for(GenericClass key : pool.keySet()) {
+					logger.debug("Have sequences for "+key+": "+pool.get(key).size());
+				}
+			}
 		}
 	}
 	

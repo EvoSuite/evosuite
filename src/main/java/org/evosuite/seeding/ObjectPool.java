@@ -30,6 +30,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -94,7 +95,7 @@ public class ObjectPool implements Serializable {
 	 * @return a {@link org.evosuite.testcase.TestCase} object.
 	 */
 	public TestCase getRandomSequence(GenericClass clazz) {
-		return Randomness.choice(pool.get(clazz));
+		return Randomness.choice(getSequences(clazz));
 	}
 	
 	/**
@@ -104,7 +105,17 @@ public class ObjectPool implements Serializable {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<TestCase> getSequences(GenericClass clazz) {
-		return pool.get(clazz);
+		if(pool.containsKey(clazz))
+			return pool.get(clazz);
+
+		Set<Set<TestCase>> candidates = new LinkedHashSet<Set<TestCase>>();
+		for(GenericClass poolClazz : pool.keySet()) {
+			if(poolClazz.isAssignableTo(clazz))
+				candidates.add(pool.get(poolClazz));
+		}
+		
+		return Randomness.choice(candidates);
+
 	}
 	
 	public Set<GenericClass> getClasses() {
@@ -118,7 +129,15 @@ public class ObjectPool implements Serializable {
 	 * @return a boolean.
 	 */
 	public boolean hasSequence(GenericClass clazz) {
-		return pool.containsKey(clazz);
+		if(pool.containsKey(clazz))
+			return true;
+		
+		for(GenericClass poolClazz : pool.keySet()) {
+			if(poolClazz.isAssignableTo(clazz))
+				return true;
+		}
+		
+		return false;
 	}
 	
 	public int getNumberOfClasses() {
@@ -164,8 +183,9 @@ public class ObjectPool implements Serializable {
 		
 		for(TestChromosome testChromosome : testSuite.getTestChromosomes()) {
 			TestCase test = testChromosome.getTestCase().clone();
+			test.removeAssertions();
 			if(testChromosome.hasException()) {
-				test.chop(test.size() - 2);
+				test.chop(test.size() - 1);
 			}
 			if(test.hasObject(Properties.getTargetClass(), test.size())) {
 				pool.addSequence(new GenericClass(Properties.getTargetClass()), test);

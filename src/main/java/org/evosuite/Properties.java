@@ -245,6 +245,9 @@ public class Properties {
 	@Parameter(key = "insertion_score_parameter", group = "Test Creation", description = "Score for selection of insertion call with existing object")
 	public static int INSERTION_SCORE_PARAMETER = 1;
 
+	@Parameter(key = "consider_main_methods", group = "Test Creation", description = "Generate unit tests for 'main(String[] args)' methods as well")
+	public static boolean CONSIDER_MAIN_METHODS = false; //TODO should be set to true once "context" will work
+
 	// ---------------------------------------------------------------
 	// Search algorithm
 	public enum Algorithm {
@@ -914,6 +917,9 @@ public class Properties {
 	/** Constant <code>CHECK_CONTRACTS_END=false</code> */
 	@Parameter(key = "check_contracts_end", description = "Check contracts only once per test")
 	public static boolean CHECK_CONTRACTS_END = false;
+	
+	@Parameter(key = "junit_theories", description = "Check JUnit theories as contracts")
+	public static String JUNIT_THEORIES = "";
 
 	/** Constant <code>ERROR_BRANCHES=false</code> */
 	@Parameter(key = "error_branches", description = "Instrument code with error checking branches")

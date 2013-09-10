@@ -20,14 +20,20 @@
  */
 package org.evosuite.contracts;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.evosuite.Properties;
+import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutionObserver;
 import org.evosuite.testcase.Scope;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.TestCase;
+import org.evosuite.utils.GenericMethod;
+import org.junit.experimental.theories.Theory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,6 +83,54 @@ public class ContractChecker extends ExecutionObserver {
 		contracts.add(new EqualsHashcodeContract());
 		contracts.add(new EqualsNullContract());
 		contracts.add(new EqualsSymmetricContract());
+
+		loadJUnitTheories();
+	}
+
+	private void loadJUnitTheories() {
+		if (Properties.JUNIT_THEORIES.isEmpty())
+			return;
+
+		for (String theoryName : Properties.JUNIT_THEORIES.split(":")) {
+			try {
+				Class<?> theory = TestGenerationContext.getClassLoader().loadClass(theoryName);
+				Constructor<?> constructor = theory.getConstructor();
+				if (!Modifier.isPublic(constructor.getModifiers())) {
+					logger.info("Theory class does not have public default constructor");
+					continue;
+				}
+				for (Method method : theory.getDeclaredMethods()) {
+					if (method.isAnnotationPresent(Theory.class)) {
+						logger.info("Found theory method: " + method.getName());
+						if (method.getParameterTypes().length != 1) {
+							logger.info("Wrong number of arguments!");
+							continue;
+						}
+						try {
+							GenericMethod gm = new GenericMethod(method, theory);
+							JUnitTheoryContract contract = new JUnitTheoryContract(gm);
+							contracts.add(contract);
+						} catch (InstantiationException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						} catch (IllegalAccessException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+
+					}
+				}
+			} catch (ClassNotFoundException e) {
+				logger.warn("Could not load theory " + theoryName + ": " + e);
+			} catch (NoSuchMethodException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			} catch (SecurityException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}
+		}
+
 	}
 
 	/**
@@ -148,10 +202,10 @@ public class ContractChecker extends ExecutionObserver {
 
 			try {
 				logger.debug("Checking contract {}", contract);
-				ContractViolation violation = contract.check(statement, scope, exception); 
+				ContractViolation violation = contract.check(statement, scope, exception);
 				if (violation != null) {
 					logger.debug("Contract failed: {} {}", contract, statement.getCode());
-					
+
 					FailingTestSet.addFailingTest(violation);
 					/*
 					FailingTestSet.addFailingTest(currentTest, contract, statement,
@@ -162,8 +216,8 @@ public class ContractChecker extends ExecutionObserver {
 					//break;
 				}
 			} catch (Throwable t) {
-				logger.debug("Caught exception during contract checking: "+t);
-				for(StackTraceElement e : t.getStackTrace())
+				logger.debug("Caught exception during contract checking: " + t);
+				for (StackTraceElement e : t.getStackTrace())
 					logger.info(e.toString());
 			}
 		}
