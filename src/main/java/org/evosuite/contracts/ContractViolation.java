@@ -47,6 +47,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ContractViolation {
 
+	@SuppressWarnings("unused")
 	private static Logger logger = LoggerFactory.getLogger(ContractViolation.class);
 
 	private final Contract contract;
@@ -233,6 +234,7 @@ public class ContractViolation {
 	
 	public void changeClassLoader(ClassLoader classLoader) {
 		((DefaultTestCase)test).changeClassLoader(classLoader);
+		contract.changeClassLoader(classLoader);
 		this.statement = this.test.getStatement(statement.getPosition());
 		for(int i = 0; i < variables.size(); i++) {
 			variables.set(i, variables.get(i).clone(test));

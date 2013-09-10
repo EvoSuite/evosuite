@@ -572,8 +572,6 @@ public class TestFactory {
 				}
 				logger.debug("Return type of object sequence: "+test.getStatement(returnPos).getReturnValue().getClassName());
 				return test.getStatement(returnPos).getReturnValue();
-			//} else {
-			//	logger.warn("Have no sequence of type "+type);
 			}
 
 			return createObject(test, type, position, recursionDepth);
