@@ -130,11 +130,18 @@ public class InheritanceTreeGenerator {
 	 * @param entry
 	 */
 	private static void analyze(InheritanceTree inheritanceTree, String entry) {
-		InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(entry);
-		if(stream != null)
-			analyzeClassStream(inheritanceTree, stream, false);
-		else
-			analyze(inheritanceTree, new File(entry));
+		File file = new File(entry);
+		if (file.exists()) {
+			analyze(inheritanceTree, file);
+		} else {
+			InputStream stream = InheritanceTreeGenerator.class.getClassLoader().getResourceAsStream(entry);
+			if (stream != null) {
+				analyzeClassStream(inheritanceTree, stream, false);
+			} else {
+				LoggingUtils.getEvoLogger().info("Could not find classpath entry "
+				                                         + entry);
+			}
+		}
 	}
 
 	/**
@@ -143,7 +150,9 @@ public class InheritanceTreeGenerator {
 	 * @param entry
 	 */
 	private static void analyze(InheritanceTree inheritanceTree, File file) {
-
+		if (!file.canRead()) {
+			return;
+		}
 		if (file.getName().endsWith(".jar")) {
 			// handle jar file
 			analyzeJarFile(inheritanceTree, file);
