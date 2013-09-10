@@ -232,8 +232,13 @@ public class ResourceList {
 		if (!directory.exists()) {
 			return retval;
 		}
+		if (!directory.isDirectory()) {
+			return retval;
+		}
+		if (!directory.canRead()) {
+			return retval;
+		}
 		final File[] fileList = directory.listFiles();
-
 		for (final File file : fileList) {
 			if (file.isDirectory()) {
 				//recursion till we get to a file that is not a folder
