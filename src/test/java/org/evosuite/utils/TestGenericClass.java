@@ -21,6 +21,8 @@ import org.evosuite.instrumentation.InstrumentingClassLoader;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.examples.with.different.packagename.generic.AbstractGuavaExample;
+import com.examples.with.different.packagename.generic.GuavaExample5;
 import com.googlecode.gentyref.GenericTypeReflector;
 import com.googlecode.gentyref.TypeToken;
 
@@ -242,6 +244,21 @@ public class TestGenericClass {
 		Assert.assertFalse(listOfSerializableClass.satisfiesBoundaries(comparableTypeVariable));
 	}
 
+	@Test
+	public void testGuavaExample() {
+		Type abstractGuavaExampleString = new TypeToken<AbstractGuavaExample<String>>() {
+		}.getType();
+		Type guavaExample5 = new TypeToken<GuavaExample5<String>>() {
+		}.getType();
+
+		GenericClass abstractClass = new GenericClass(abstractGuavaExampleString);
+		GenericClass concreteClass = new GenericClass(guavaExample5);
+
+		Assert.assertTrue(TypeUtils.isAssignable(concreteClass.getType(), abstractClass.getType()));
+		Assert.assertTrue("Cannot assign "+concreteClass+" to "+abstractClass, abstractClass.isAssignableFrom(concreteClass));
+		Assert.assertTrue(concreteClass.isAssignableTo(abstractClass));
+	}
+	
 	@Test
 	public void testTypeVariableBoundariesRefined() {
 		TypeVariable<?> dateTypeVariable = RefinedComparableBoundary.class.getTypeParameters()[0];
