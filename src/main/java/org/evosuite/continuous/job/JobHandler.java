@@ -310,6 +310,7 @@ public class JobHandler extends Thread{
 		 * up in the generated CSV files
 		 */
 		cmd += " -Dctg_schedule="+Properties.CTG_SCHEDULE;
+		cmd += " -Dctg_min_time_per_job="+Properties.CTG_MIN_TIME_PER_JOB;
 		
 		return cmd;
 	}

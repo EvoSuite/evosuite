@@ -138,7 +138,9 @@ public class InheritanceTreeGenerator {
 	 * @param entry
 	 */
 	private static void analyze(InheritanceTree inheritanceTree, File file) {
-
+		if (!file.canRead()) {
+			return;
+		}
 		if (file.getName().endsWith(".jar")) {
 			// handle jar file
 			analyzeJarFile(inheritanceTree, file);
