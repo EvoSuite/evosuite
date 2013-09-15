@@ -38,9 +38,6 @@ import org.evosuite.utils.GenericMethod;
 import org.evosuite.utils.LoggingUtils;
 import org.evosuite.utils.Utils;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-
 public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> {
 	//--- source generation
 	private TestCase testCase;
@@ -54,9 +51,10 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 	@Override
 	public void createMethodCallStmt(final CaptureLog log, final int logRecNo) {
-		
-		Preconditions.checkArgument(log != null, "captured log must not be null");
-		Preconditions.checkArgument(logRecNo > -1, "log record number %s is invalid", logRecNo);
+		if(log == null)
+			throw new IllegalArgumentException("captured log must not be null");
+		if(logRecNo <= -1)
+			throw new IllegalArgumentException("log record number is invalid: " + logRecNo);
 		
 		
 		// assumption: all necessary statements are created and there is one variable for each referenced object
@@ -579,7 +577,7 @@ public final class EvoTestCaseCodeGenerator implements ICodeGenerator<TestCase> 
 
 			MethodStatement methodStmt;
 			Integer argOID; // is either an oid or null
-			ArrayList<VariableReference> paramList = Lists.newArrayListWithCapacity(2);
+			ArrayList<VariableReference> paramList = new ArrayList<VariableReference>();
 
 			for (int i = 0; i < params.length; i++) {
 				argOID = (Integer) params[i];

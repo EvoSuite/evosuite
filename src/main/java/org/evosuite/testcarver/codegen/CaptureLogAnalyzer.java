@@ -1,6 +1,5 @@
 package org.evosuite.testcarver.codegen;
 
-import static com.google.common.base.Preconditions.checkArgument;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -12,9 +11,6 @@ import org.evosuite.utils.CollectionUtil;
 import org.evosuite.utils.Utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Collections2;
 
 
 
@@ -32,11 +28,16 @@ public final class CaptureLogAnalyzer implements ICaptureLogAnalyzer
 	@SuppressWarnings("rawtypes")
 	public void analyze(final CaptureLog originalLog, final ICodeGenerator generator, final Set<Class<?>> blackList, final Class<?>... observedClasses) 
 	{
-		checkArgument(originalLog != null, "captured log must not be null");
-		checkArgument(generator != null, "code generator must not be null");
-		checkArgument(blackList != null, "set containing black listed classes must not be null");
-		checkArgument(observedClasses != null, "array of observed classes must not be null");
-		checkArgument(observedClasses.length > 0, "array of observed classes must not be empty");
+		if(originalLog == null)
+				throw new IllegalArgumentException("captured log must not be null");
+		if(generator == null)
+			throw new IllegalArgumentException("code generator must not be null");
+		if(blackList == null)
+			throw new IllegalArgumentException("set containing black listed classes must not be null");
+		if(observedClasses == null)
+			throw new IllegalArgumentException("array of observed classes must not be null");
+		if(observedClasses.length > 0)
+			throw new IllegalArgumentException("array of observed classes must not be empty");
 		
 		final CaptureLog log = originalLog.clone();
 
