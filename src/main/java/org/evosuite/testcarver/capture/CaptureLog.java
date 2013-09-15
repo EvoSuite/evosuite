@@ -76,17 +76,17 @@ public final class CaptureLog implements Cloneable {
 	 */
 
 	// rec_no is implied by index
-	public final List<Integer>       objectIds;
-	public final List<Integer>       captureIds;
-	public final ArrayList<String>   methodNames;
+	public final List<Integer> objectIds;
+	public final List<Integer> captureIds;
+	public final List<String>  methodNames;
 	/**
 	 * FIXME: this seems always containing Integer objects, representing either null
 	 * or an object identifier (oid). should it be <Integer[]> ?
 	 */
-	public final ArrayList<Object[]> params;
-	public final ArrayList<Object>   returnValues;
-	public final ArrayList<Boolean>  isStaticCallList;
-	public final ArrayList<String>   descList;
+	public final List<Object[]> params;
+	public final List<Object>   returnValues;
+	public final List<Boolean>  isStaticCallList;
+	public final List<String>   descList;
 
 
 	//--- OID Info Table
@@ -97,15 +97,11 @@ public final class CaptureLog implements Cloneable {
 	 * Would be better to have a single list, with object
 	 * containing the different fields
 	 */	
-	private final List<Integer> 	   oids;
-
-	private final List<Integer> 	   oidInitRecNo;
-
-	private final ArrayList<String> oidClassNames;
-
-	private final List<Integer>     oidFirstInits;
-
-	private final List<Integer>  oidDependencies;
+	private final List<Integer> oids;
+	private final List<Integer> oidInitRecNo;
+	private final List<String> 	oidClassNames;
+	private final List<Integer> oidFirstInits;
+	private final List<Integer> oidDependencies;
 
 	/**
 	 *  captureId -> field name
@@ -148,16 +144,17 @@ public final class CaptureLog implements Cloneable {
 		this.xstream = new XStream();
 	}
 
-	public String getNameOfAccessedFields(int captureId){
+	public String getNameOfAccessedFields(final int captureId){
 		return oidNamesOfAccessedFields.get(captureId);
 	}
 
-	public int getDependencyOID(int oid){
+	public int getDependencyOID(final int oid){
 		int index = getRecordIndex(oid);
 		return oidDependencies.get(index);
 	}
 
-	public List<Integer> getTargetOIDs(final HashSet<String> observedClassNames) {
+	public List<Integer> getTargetOIDs(final Set<String> observedClassNames) 
+	{
 		final List<Integer> targetOIDs = new ArrayList<Integer>();
 		final int numInfoRecs = oidClassNames.size();
 		for(int i = 0; i < numInfoRecs; i++) {
@@ -168,7 +165,7 @@ public final class CaptureLog implements Cloneable {
 		return targetOIDs;
 	}
 
-	public String getTypeName(int oid) throws IllegalArgumentException{
+	public String getTypeName(final int oid) throws IllegalArgumentException{
 		if(! oidRecMapping.containsKey(oid)){
 			throw new IllegalArgumentException("OID "+oid+" is not recognized");
 		}
