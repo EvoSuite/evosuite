@@ -3,6 +3,7 @@ package org.evosuite.continuous.project;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -87,7 +88,14 @@ public class ProjectAnalyzer {
 		Collection<String> classes = null;
 
 		if(target!=null){
-			classes = ResourceList.getResources(target, pattern);
+			if(!target.contains(File.pathSeparator)){
+				classes = ResourceList.getResources(target, pattern);
+			} else {
+				classes = new HashSet<>();
+				for(String element : target.split(File.pathSeparator)){
+					classes.addAll(ResourceList.getResources(element, pattern));
+				}
+			}
 		} else {
 			/*
 			 * if no target specified, just grab everything on classpath
@@ -159,7 +167,7 @@ public class ProjectAnalyzer {
 				//} else if(theClass.is  Modifier.isAbstract( someClass.getModifiers() );
 
 			} catch  (Exception e) {
-				logger.warn("Cannot handle "+className);
+				logger.warn("Cannot handle "+className+" due to: "+e.getClass()+" "+e.getMessage());
 				continue;
 			}
 			finally {
