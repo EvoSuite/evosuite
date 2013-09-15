@@ -246,6 +246,8 @@ public class JobHandler extends Thread{
 			cmd += " -Drandom_seed="+Properties.RANDOM_SEED;
 		}
 		
+		cmd += "-Dprint_to_system="+Properties.PRINT_TO_SYSTEM;
+		
 		cmd += " -Dp_object_pool="+Properties.P_OBJECT_POOL;
 		
 		/*
