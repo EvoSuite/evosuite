@@ -555,9 +555,9 @@ public class StorageManager {
 			/*
 			 * this will happen the first time CTG is run
 			 */
-			String empty = "xsd/ctg_project_report_empty.xml";
+			String empty = "/xsd/ctg_project_report_empty.xml";
 			try {
-				stream = ClassLoader.getSystemResourceAsStream(empty);
+				stream = this.getClass().getResourceAsStream(empty);
 			} catch (Exception e) {
 				throw new RuntimeException("Failed to read resource "+empty+" , "+e.getMessage());
 			}
@@ -574,7 +574,7 @@ public class StorageManager {
 			JAXBContext jaxbContext = JAXBContext.newInstance(ProjectInfo.class);
 			SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 			Schema schema = factory.newSchema(new StreamSource(
-					ClassLoader.getSystemResourceAsStream("xsd/ctg_project_report.xsd")));
+					this.getClass().getResourceAsStream("/xsd/ctg_project_report.xsd")));
 			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
 			jaxbUnmarshaller.setSchema(schema);
 			ProjectInfo project = (ProjectInfo) jaxbUnmarshaller.unmarshal(stream);
