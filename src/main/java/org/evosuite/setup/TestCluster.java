@@ -339,12 +339,16 @@ public class TestCluster {
 							targetGenerators.add(newGenerator);
 						} else {
 							logger.debug("New generator not assignable: " + newGenerator);
+							logger.debug("Had type parameters: "+hadTypeParameters);
+							logger.debug("generatorClazz.equals(clazz): "+generatorClazz.equals(clazz));
+							logger.debug("clazz.isAssignableFrom("+newGenerator.getGeneratedType()+"): "+clazz.isAssignableFrom(newGenerator.getGeneratedType()));
 						}
 					}
 				} else {
 					logger.debug("Cannot be assigned");
 				}
 			}
+			logger.debug("Found generators for "+clazz+": "+targetGenerators.size());
 		}
 
 		generatorCache.put(clazz, targetGenerators);

@@ -298,7 +298,10 @@ public class GenericClass implements Serializable {
 				if (equals(instantiation)) {
 					logger.debug("Instantiation is equal to original, so I think we can't assign: "
 					        + instantiation);
-					return false;
+					if(hasWildcardOrTypeVariables())
+						return false;
+					else
+						return true;
 				}
 				return instantiation.canBeInstantiatedTo(otherType);
 			} catch (ConstructionFailedException e) {

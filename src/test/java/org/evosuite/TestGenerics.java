@@ -1093,7 +1093,7 @@ public class TestGenerics extends SystemTest {
 		String targetClass = AbstractGuavaExample.class.getCanonicalName();
 
 		Properties.TARGET_CLASS = targetClass;
-		Properties.SEARCH_BUDGET = 50000;
+		Properties.SEARCH_BUDGET = 250000;
 
 		String[] command = new String[] { "-generateSuite", "-class", targetClass };
 

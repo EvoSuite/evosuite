@@ -292,8 +292,9 @@ public class TestSuiteGenerator {
 			return new ArrayList<TestCase>();
 		}
 
-		ContractChecker checker = new ContractChecker();
+		ContractChecker checker = null;
 		if (Properties.CHECK_CONTRACTS) {
+			checker = new ContractChecker();
 			TestCaseExecutor.getInstance().addObserver(checker);
 		}
 
@@ -338,11 +339,10 @@ public class TestSuiteGenerator {
 				addAssertions(tests);
 			}
 		}
-		
+
 		if (Properties.CHECK_CONTRACTS) {
 			tests.addAll(FailingTestSet.getFailingTests());
 		}
-
 
 		// progressMonitor.setCurrentPhase("Writing JUnit test cases");
 		writeJUnitTests(tests);
@@ -1199,16 +1199,16 @@ public class TestSuiteGenerator {
 		statistics.searchStarted(suiteGA);
 
 		for (int i = 0; i < Properties.NUM_RANDOM_TESTS; i++) {
-			if(suiteGA.isFinished())
+			if (suiteGA.isFinished())
 				break;
 			logger.info("Current test: " + i + "/" + Properties.NUM_RANDOM_TESTS);
 			TestChromosome test = factory.getChromosome();
 			ExecutionResult result = TestCaseExecutor.runTest(test.getTestCase());
 			Integer pos = result.getFirstPositionOfThrownException();
 			if (pos != null) {
-				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException ||
-						result.getExceptionThrownAtPosition(pos) instanceof UncompilableCodeException ||
-						result.getExceptionThrownAtPosition(pos) instanceof TestCaseExecutor.TimeoutExceeded) {
+				if (result.getExceptionThrownAtPosition(pos) instanceof CodeUnderTestException
+				        || result.getExceptionThrownAtPosition(pos) instanceof UncompilableCodeException
+				        || result.getExceptionThrownAtPosition(pos) instanceof TestCaseExecutor.TimeoutExceeded) {
 					continue;
 					// test.getTestCase().chop(pos);
 				} else {
@@ -1542,7 +1542,6 @@ public class TestSuiteGenerator {
 		                                         + goals.size() + " goals");
 		logger.info("Resulting test suite: " + suite.size() + " tests, length "
 		        + suite.totalLengthOfTestCases());
-
 
 		// Generate a test suite chromosome once all test cases are done?
 		if (Properties.MINIMIZE && Properties.MINIMIZE_OLD) {
