@@ -103,7 +103,7 @@ public class JobExecutor {
 	 * @param jobs
 	 * @throws IllegalStateException if we are already executing some jobs
 	 */
-	public synchronized void executeJobs(final List<JobDefinition> jobs) throws IllegalStateException{
+	public synchronized void executeJobs(final List<JobDefinition> jobs, final int cores) throws IllegalStateException{
 		if(executing){
 			throw new IllegalStateException("Already executing jobs");
 		}
@@ -116,7 +116,7 @@ public class JobExecutor {
 			@Override
 			public void run(){
 				
-				JobHandler[] handlers = JobHandler.getPool(configuration.numberOfCores,JobExecutor.this);
+				JobHandler[] handlers = JobHandler.getPool(cores,JobExecutor.this);
 				for(JobHandler handler : handlers){
 					handler.start();
 				}

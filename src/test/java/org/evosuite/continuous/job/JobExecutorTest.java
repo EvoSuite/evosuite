@@ -62,7 +62,7 @@ public class JobExecutorTest {
 
 		List<JobDefinition> jobs = Arrays.asList(simple,trivial);
 
-		exe.executeJobs(jobs);
+		exe.executeJobs(jobs,cores);
 
 		exe.waitForJobs();
 
