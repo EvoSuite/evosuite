@@ -283,6 +283,15 @@ public interface ExecutionTrace {
 	 * @return a {@link java.util.Set} object.
 	 */
 	public Set<Integer> getTouchedMutants();
+	
+	/**
+	 * Retrieve IDs of all executed mutants
+	 * with an infection distance == 0.0
+	 * 
+	 * @return a {@link java.util.Set} object.
+	 */
+	public Set<Integer> getInfectedMutants();
+	
 
 	/**
 	 * Reset to 0
