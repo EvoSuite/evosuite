@@ -7,15 +7,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.evosuite.Properties;
 import org.evosuite.coverage.mutation.Mutation;
 import org.evosuite.coverage.mutation.MutationObserver;
 import org.evosuite.coverage.mutation.MutationPool;
 import org.evosuite.ga.stoppingconditions.MaxStatementsStoppingCondition;
+import org.evosuite.rmi.ClientServices;
+import org.evosuite.rmi.service.ClientState;
+import org.evosuite.rmi.service.ClientStateInformation;
 import org.evosuite.testcase.ExecutionResult;
 import org.evosuite.testcase.StatementInterface;
 import org.evosuite.testcase.StructuredTestCase;
 import org.evosuite.testcase.TestCase;
 import org.evosuite.testcase.TestCaseExecutor;
+import org.evosuite.testsuite.TestSuiteChromosome;
 import org.evosuite.utils.Randomness;
 
 public class StructuredAssertionGenerator extends AssertionGenerator {
@@ -47,6 +52,31 @@ public class StructuredAssertionGenerator extends AssertionGenerator {
 		TestCaseExecutor.getInstance().addObserver(nullObserver);
 	}
 
+	@Override
+	public void addAssertions(TestSuiteChromosome suite) {
+		long startTime = System.currentTimeMillis();
+		
+		int numTest = 0;
+		for (TestCase test : suite.getTests()) {
+			long currentTime = System.currentTimeMillis() / 1000;
+			if (currentTime - startTime > Properties.ASSERTION_TIMEOUT) {
+				logger.info("Reached maximum time to generate assertions!");
+				break;
+			}
+			// Set<Integer> killed = new HashSet<Integer>();
+			addAssertions(test);
+			ClientState state = ClientState.ASSERTION_GENERATION;
+			ClientStateInformation information = new ClientStateInformation(
+			        state);
+			information.setProgress((100 * numTest++) / suite.size());
+			ClientServices.getInstance().getClientNode().changeState(state,
+			                                                         information);
+
+			// progressMonitor.updateStatus((100 * numTest++) / tests.size());
+			// tkilled.addAll(killed);
+		}	
+	}
+	
 	@Override
 	public void addAssertions(TestCase test) {
 		if (!(test instanceof StructuredTestCase))

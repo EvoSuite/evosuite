@@ -38,6 +38,7 @@ import org.apache.commons.io.filefilter.IOFileFilter;
 import org.apache.commons.io.filefilter.TrueFileFilter;
 import org.apache.commons.lang3.StringUtils;
 import org.evosuite.Properties;
+import org.evosuite.Properties.AssertionStrategy;
 import org.evosuite.Properties.Criterion;
 import org.evosuite.Properties.OutputFormat;
 import org.evosuite.Properties.OutputGranularity;
@@ -82,7 +83,7 @@ public class TestSuiteWriter implements Opcodes {
 
 	private final UnitTestAdapter adapter = TestSuiteWriter.getAdapter();
 
-	private TestCodeVisitor visitor = Properties.STRUCTURED_TESTS ? visitor = new StructuredTestCodeVisitor()
+	private TestCodeVisitor visitor = Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED ? visitor = new StructuredTestCodeVisitor()
 	        : new TestCodeVisitor();
 
 	private static final String METHOD_SPACE = "  ";
@@ -746,7 +747,7 @@ public class TestSuiteWriter implements Opcodes {
 			builder.append(getInformation(id));
 			builder.append("\n");
 		}
-		if (Properties.STRUCTURED_TESTS) {
+		if (Properties.ASSERTION_STRATEGY == AssertionStrategy.STRUCTURED) {
 			StructuredTestCase structuredTest = (StructuredTestCase) testCases.get(id);
 			String targetMethod = structuredTest.getTargetMethods().iterator().next();
 			targetMethod = targetMethod.replace("<init>", "Constructor");

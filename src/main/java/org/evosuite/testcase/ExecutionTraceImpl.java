@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -872,6 +873,17 @@ public class ExecutionTraceImpl implements ExecutionTrace, Cloneable {
 	@Override
 	public Set<Integer> getTouchedMutants() {
 		return touchedMutants;
+	}
+	
+	@Override
+	public Set<Integer> getInfectedMutants() {
+		Set<Integer> infectedMutants = new LinkedHashSet<Integer>();
+		for(Entry<Integer, Double> entry : mutantDistances.entrySet()) {
+			if(entry.getValue() == 0.0) {
+				infectedMutants.add(entry.getKey());
+			}
+		}
+		return infectedMutants;
 	}
 
 	/**
